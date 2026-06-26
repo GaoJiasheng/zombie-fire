@@ -1,0 +1,23 @@
+{
+  "id": "weapon_teslacoil",
+  "kind": "weapons",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_idle_01.png",
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_idle_02.png",
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_idle_03.png"
+      ]
+    },
+    "recoil": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_recoil_01.png",
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_recoil_02.png",
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_recoil_03.png",
+        "sprites/animations/weapons/weapon_teslacoil/weapon_teslacoil_recoil_04.png"
+      ]
+    }
+  }
+}

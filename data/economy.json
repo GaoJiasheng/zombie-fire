@@ -1,0 +1,20 @@
+{
+	"GLOBAL_HP_BASE": 50,
+	"GLOBAL_DMG_BASE": 10,
+	"ENEMY_SPEED_MULT": 0.82,
+	"level_xp_coef": 50,
+	"level_xp_pow": 1.5,
+	"weakness_mult": 1.5,
+	"resist_mult": 0.5,
+	"gold_drop_base": 10,
+	"gold_drop_per_level": 2,
+	"first_clear_gold_base": 100,
+	"first_clear_gold_per_level": 20,
+	"upgrade_cost_growth": 1.15,
+	"card_director": {
+		"base_reroll_per_run": 1,
+		"pity_after_missing_core_tag": 2,
+		"max_economy_cards_per_offer": 1,
+		"early_fun_card_boost_until_level": 5
+	}
+}

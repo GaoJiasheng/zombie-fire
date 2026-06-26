@@ -1,0 +1,76 @@
+{
+	"pet_turret_drone": {
+		"name_key": "pet_turret_drone",
+		"role": "damage",
+		"fire_rate": 1.2,
+		"damage": 10,
+		"element": "physical",
+		"level_damage_growth": 0.06,
+		"max_level": 30,
+		"cost_base_gold": 130,
+		"unlock_cost_star": 48,
+		"icon": "res://assets/production/sprites/pets/pet_turret_drone_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_turret_drone_prototype.png"
+	},
+	"pet_fire_imp": {
+		"name_key": "pet_fire_imp",
+		"role": "burn",
+		"fire_rate": 0.8,
+		"damage": 12,
+		"element": "fire",
+		"level_damage_growth": 0.065,
+		"max_level": 30,
+		"cost_base_gold": 145,
+		"unlock_cost_star": 84,
+		"icon": "res://assets/production/sprites/pets/pet_fire_imp_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_fire_imp_prototype.png"
+	},
+	"pet_frost_wisp": {
+		"name_key": "pet_frost_wisp",
+		"role": "slow",
+		"fire_rate": 0.7,
+		"damage": 8,
+		"element": "ice",
+		"level_damage_growth": 0.055,
+		"max_level": 30,
+		"cost_base_gold": 135,
+		"unlock_cost_star": 112,
+		"icon": "res://assets/production/sprites/pets/pet_frost_wisp_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_frost_wisp_prototype.png"
+	},
+	"pet_volt_orb": {
+		"name_key": "pet_volt_orb",
+		"role": "chain",
+		"fire_rate": 0.9,
+		"damage": 9,
+		"element": "lightning",
+		"level_damage_growth": 0.06,
+		"max_level": 30,
+		"cost_base_gold": 145,
+		"unlock_cost_star": 144,
+		"icon": "res://assets/production/sprites/pets/pet_volt_orb_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_volt_orb_prototype.png"
+	},
+	"pet_medic_drone": {
+		"name_key": "pet_medic_drone",
+		"role": "repair",
+		"heal_per_wave": 8,
+		"level_heal_growth": 0.04,
+		"max_level": 30,
+		"cost_base_gold": 125,
+		"unlock_cost_star": 180,
+		"icon": "res://assets/production/sprites/pets/pet_medic_drone_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_medic_drone_prototype.png"
+	},
+	"pet_collector": {
+		"name_key": "pet_collector",
+		"role": "economy",
+		"gold_mult": 0.08,
+		"level_gold_growth": 0.025,
+		"max_level": 30,
+		"cost_base_gold": 155,
+		"unlock_cost_star": 228,
+		"icon": "res://assets/production/sprites/pets/pet_collector_icon.png",
+		"sprite": "res://assets/production/sprites/pets/pet_collector_prototype.png"
+	}
+}

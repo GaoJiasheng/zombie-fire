@@ -1,0 +1,393 @@
+[gd_scene load_steps=6 format=3 uid="uid://zf_loadout"]
+
+[ext_resource type="Script" path="res://meta/loadout/loadout.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/ui_button_primary.png" id="2_btn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/weapons/weapon_autocannon_icon.png" id="3_weapon"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/bg_city_ruins.png" id="4_bg"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_panel.png" id="5_panel"]
+
+[node name="Loadout" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("4_bg")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.34, 0.37, 0.42, 1)
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.01, 0.025, 0.035, 0.42)
+
+[node name="HeaderPanel" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 96.0
+offset_top = 72.0
+offset_right = 984.0
+offset_bottom = 238.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.34, 0.72, 1, 0.58)
+
+[node name="LoadoutFrame" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 54.0
+offset_top = 274.0
+offset_right = 1026.0
+offset_bottom = 1322.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.38, 0.68, 0.95, 0.46)
+
+[node name="TopNeonLine" type="ColorRect" parent="."]
+layout_mode = 1
+offset_left = 120.0
+offset_top = 254.0
+offset_right = 960.0
+offset_bottom = 258.0
+mouse_filter = 2
+color = Color(0.42, 0.95, 1, 0.72)
+
+[node name="CharacterPanel" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 96.0
+offset_top = 322.0
+offset_right = 502.0
+offset_bottom = 700.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.42, 0.86, 1, 0.6)
+
+[node name="WeaponPanel" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 578.0
+offset_top = 322.0
+offset_right = 984.0
+offset_bottom = 700.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.63, 0.18, 0.64)
+
+[node name="DetailsPanel" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 92.0
+offset_top = 1024.0
+offset_right = 988.0
+offset_bottom = 1300.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.36, 0.84, 1, 0.48)
+
+[node name="EconomyPanel" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 176.0
+offset_top = 1308.0
+offset_right = 904.0
+offset_bottom = 1472.0
+mouse_filter = 2
+texture = ExtResource("5_panel")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.78, 0.28, 0.48)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+offset_left = 80.0
+offset_top = 90.0
+offset_right = 1000.0
+offset_bottom = 156.0
+theme_override_font_sizes/font_size = 54
+theme_override_colors/font_outline_color = Color(0.02, 0.05, 0.07, 1)
+theme_override_constants/outline_size = 5
+text = "出战配置"
+horizontal_alignment = 1
+
+[node name="TacticalLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 140.0
+offset_top = 158.0
+offset_right = 940.0
+offset_bottom = 198.0
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.52, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "TACTICAL LOADOUT  /  FRONTLINE DEPLOY"
+horizontal_alignment = 1
+
+[node name="Summary" type="Label" parent="."]
+layout_mode = 1
+offset_left = 142.0
+offset_top = 1038.0
+offset_right = 938.0
+offset_bottom = 1094.0
+theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "角色：钢铁先锋\n主炮：自动机炮\n技能池：分裂 / 穿透 / 多重 / 减速"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="SignatureTitle" type="Label" parent="."]
+layout_mode = 1
+offset_left = 142.0
+offset_top = 1098.0
+offset_right = 520.0
+offset_bottom = 1128.0
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.5, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "角色专属"
+vertical_alignment = 1
+
+[node name="SignatureHint" type="Label" parent="."]
+layout_mode = 1
+offset_left = 530.0
+offset_top = 1098.0
+offset_right = 938.0
+offset_bottom = 1128.0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.76, 0.9, 0.96, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+text = "主动可释放；弹种加成已进战斗"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SignatureCards" type="HBoxContainer" parent="."]
+layout_mode = 1
+offset_left = 142.0
+offset_top = 1132.0
+offset_right = 938.0
+offset_bottom = 1244.0
+theme_override_constants/separation = 12
+
+[node name="Objective" type="Label" parent="."]
+layout_mode = 1
+offset_left = 146.0
+offset_top = 1252.0
+offset_right = 934.0
+offset_bottom = 1294.0
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.78, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "目标：守住防线。"
+horizontal_alignment = 1
+vertical_alignment = 0
+autowrap_mode = 3
+
+[node name="WeaponIcon" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 632.0
+offset_top = 390.0
+offset_right = 930.0
+offset_bottom = 620.0
+texture = ExtResource("3_weapon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CharacterIcon" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 148.0
+offset_top = 372.0
+offset_right = 450.0
+offset_bottom = 632.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CharacterHeader" type="Label" parent="."]
+layout_mode = 1
+offset_left = 124.0
+offset_top = 336.0
+offset_right = 474.0
+offset_bottom = 374.0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.52, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "HERO UNIT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeaponHeader" type="Label" parent="."]
+layout_mode = 1
+offset_left = 606.0
+offset_top = 336.0
+offset_right = 954.0
+offset_bottom = 374.0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.78, 0.32, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "MAIN CANNON"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharacterName" type="Label" parent="."]
+layout_mode = 1
+offset_left = 116.0
+offset_top = 648.0
+offset_right = 484.0
+offset_bottom = 690.0
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.93, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "钢铁先锋 Lv.1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeaponName" type="Label" parent="."]
+layout_mode = 1
+offset_left = 596.0
+offset_top = 648.0
+offset_right = 964.0
+offset_bottom = 690.0
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(1, 0.9, 0.58, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "自动机炮 Lv.1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GrowthBadge" type="Label" parent="."]
+layout_mode = 1
+offset_left = 190.0
+offset_top = 202.0
+offset_right = 890.0
+offset_bottom = 246.0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.82, 0.34, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+text = "成长 I"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GearBadges" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+offset_left = 96.0
+offset_top = 724.0
+offset_right = 984.0
+offset_bottom = 776.0
+theme_override_constants/separation = 10
+
+[node name="CharacterSelectBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+offset_left = 184.0
+offset_top = 730.0
+offset_right = 896.0
+offset_bottom = 842.0
+theme_override_constants/separation = 22
+
+[node name="GearIconRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+offset_left = 220.0
+offset_top = 866.0
+offset_right = 860.0
+offset_bottom = 1014.0
+theme_override_constants/separation = 54
+
+[node name="GoldLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 206.0
+offset_top = 1324.0
+offset_right = 874.0
+offset_bottom = 1372.0
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(1, 0.9, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+text = "金币：0"
+horizontal_alignment = 1
+
+[node name="UpgradeInfo" type="Label" parent="."]
+layout_mode = 1
+offset_left = 210.0
+offset_top = 1382.0
+offset_right = 870.0
+offset_bottom = 1456.0
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.92, 0.97, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+text = "自动机炮 +1  花费：100"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="UpgradeButton" type="TextureButton" parent="."]
+visible = false
+offset_left = 180.0
+offset_top = 1370.0
+offset_right = 900.0
+offset_bottom = 1490.0
+texture_normal = ExtResource("2_btn")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="UpgradeButton"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 720.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 42
+text = "升级主炮"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StartButton" type="TextureButton" parent="."]
+offset_left = 150.0
+offset_top = 1536.0
+offset_right = 930.0
+offset_bottom = 1684.0
+texture_normal = ExtResource("2_btn")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="StartButton"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 780.0
+offset_bottom = 144.0
+theme_override_font_sizes/font_size = 48
+text = "进入战斗"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EquipNav" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+offset_left = 105.0
+offset_top = 1710.0
+offset_right = 975.0
+offset_bottom = 1772.0
+theme_override_constants/separation = 10

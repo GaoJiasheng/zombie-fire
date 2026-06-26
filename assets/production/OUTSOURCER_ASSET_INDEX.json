@@ -1,0 +1,32 @@
+{
+  "root": "assets/production",
+  "counts": {
+    "total_files": 1917,
+    "parts_files": 414,
+    "animation_files": 858,
+    "sfx_files": 43,
+    "bgm_files": 9,
+    "video_files": 15
+  },
+  "do_not_generate_assets": true,
+  "integration_notes": [
+    "Use sprites/animations/* for placeholder animated units.",
+    "Use sprites/vfx_sequences/* for frame-based effects.",
+    "Use audio/bgm and audio/sfx WAV files directly.",
+    "Use flow/*.png as screen-flow visual references.",
+    "Use environment/*_battle_layout_guide.png for safe HUD/combat layout.",
+    "Use video/*.mp4 as placeholder videos; replace later only with owner approval."
+  ],
+  "asset_roots": {
+    "sounds": "audio",
+    "animations": "sprites/animations",
+    "parts": "sprites/parts",
+    "icons_ui": "sprites/ui",
+    "flow": "flow",
+    "environment": "environment",
+    "effects": "sprites/vfx_sequences",
+    "videos": "video",
+    "fonts": "fonts"
+  },
+  "hard_rule": "Outsourced implementation must use these assets and must not generate replacements. Missing assets must be reported by exact path."
+}

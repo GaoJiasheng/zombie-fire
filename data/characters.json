@@ -1,0 +1,161 @@
+{
+	"vanguard": {
+		"name_key": "char_vanguard",
+		"element_focus": "physical",
+		"role_tag": "balanced",
+		"base_atk": 100,
+		"base_hp": 100,
+		"atk_growth": 0.08,
+		"hp_growth": 0.06,
+		"max_level": 40,
+		"cost_base_gold": 145,
+		"crit_rate_base": 0.08,
+		"fire_rate_mod": 1.0,
+		"aim_turn_speed": 1.0,
+		"signature_skills": [
+			"sig_vanguard_railvolley",
+			"sig_vanguard_overload"
+		],
+		"active_skill": {
+			"id": "sig_vanguard_railvolley",
+			"cooldown": 18.0,
+			"duration": 6.0
+		},
+		"bullet_affinity": {
+			"element": "physical",
+			"damage_bonus": 0.1,
+			"rank_damage_bonus": 0.025,
+			"pierce_bonus": 1,
+			"rank_pierce_bonus": 1
+		},
+		"card_affinity_tags": [
+			"projectile",
+			"execute",
+			"physical"
+		],
+		"unlock_cost_star": 0,
+		"portrait": "res://assets/production/sprites/characters/char_vanguard_icon.png",
+		"passive": "breach_guard"
+	},
+	"blaze": {
+		"name_key": "char_blaze",
+		"element_focus": "fire",
+		"role_tag": "burst",
+		"base_atk": 112,
+		"base_hp": 88,
+		"atk_growth": 0.1,
+		"hp_growth": 0.045,
+		"max_level": 40,
+		"cost_base_gold": 165,
+		"crit_rate_base": 0.1,
+		"fire_rate_mod": 0.96,
+		"aim_turn_speed": 1.04,
+		"signature_skills": [
+			"sig_blaze_meltdown",
+			"sig_blaze_napalm"
+		],
+		"active_skill": {
+			"id": "sig_blaze_meltdown",
+			"cooldown": 16.0,
+			"damage_mult": 3.6,
+			"radius": 260.0
+		},
+		"bullet_affinity": {
+			"element": "fire",
+			"damage_bonus": 0.14,
+			"rank_damage_bonus": 0.035,
+			"splash_bonus": 70.0,
+			"rank_splash_bonus": 18.0,
+			"status_bonus": 0.35
+		},
+		"card_affinity_tags": [
+			"element",
+			"burn",
+			"anti_swarm"
+		],
+		"unlock_cost_star": 36,
+		"portrait": "res://assets/production/sprites/characters/char_blaze_icon.png",
+		"passive": "flame_overdrive"
+	},
+	"frost": {
+		"name_key": "char_frost",
+		"element_focus": "ice",
+		"role_tag": "control",
+		"base_atk": 92,
+		"base_hp": 112,
+		"atk_growth": 0.065,
+		"hp_growth": 0.08,
+		"max_level": 40,
+		"cost_base_gold": 155,
+		"crit_rate_base": 0.06,
+		"fire_rate_mod": 0.98,
+		"aim_turn_speed": 0.98,
+		"signature_skills": [
+			"sig_frost_glacier",
+			"sig_frost_shatter"
+		],
+		"active_skill": {
+			"id": "sig_frost_glacier",
+			"cooldown": 18.0,
+			"duration": 5.0,
+			"damage_mult": 0.34,
+			"field_y": 860.0
+		},
+		"bullet_affinity": {
+			"element": "ice",
+			"damage_bonus": 0.08,
+			"rank_damage_bonus": 0.025,
+			"slow_bonus": 0.18,
+			"rank_slow_bonus": 0.05,
+			"shatter_bonus": 0.32
+		},
+		"card_affinity_tags": [
+			"control",
+			"defense",
+			"ice"
+		],
+		"unlock_cost_star": 72,
+		"portrait": "res://assets/production/sprites/characters/char_frost_icon.png",
+		"passive": "frost_command"
+	},
+	"volt": {
+		"name_key": "char_volt",
+		"element_focus": "lightning",
+		"role_tag": "speed",
+		"base_atk": 104,
+		"base_hp": 92,
+		"atk_growth": 0.085,
+		"hp_growth": 0.05,
+		"max_level": 40,
+		"cost_base_gold": 170,
+		"crit_rate_base": 0.12,
+		"fire_rate_mod": 1.08,
+		"aim_turn_speed": 1.12,
+		"signature_skills": [
+			"sig_volt_chain",
+			"sig_volt_storm"
+		],
+		"active_skill": {
+			"id": "sig_volt_storm",
+			"cooldown": 14.0,
+			"damage_mult": 2.1,
+			"max_targets": 6
+		},
+		"bullet_affinity": {
+			"element": "lightning",
+			"damage_bonus": 0.1,
+			"rank_damage_bonus": 0.03,
+			"chain_bonus": 1,
+			"rank_chain_bonus": 1,
+			"status_bonus": 0.2
+		},
+		"card_affinity_tags": [
+			"chain",
+			"projectile",
+			"lightning"
+		],
+		"unlock_cost_star": 120,
+		"portrait": "res://assets/production/sprites/characters/char_volt_icon.png",
+		"passive": "volt_chain"
+	}
+}

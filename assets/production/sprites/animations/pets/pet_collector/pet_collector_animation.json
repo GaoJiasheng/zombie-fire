@@ -1,0 +1,32 @@
+{
+  "id": "pet_collector",
+  "kind": "pets",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/pets/pet_collector/pet_collector_idle_01.png",
+        "sprites/animations/pets/pet_collector/pet_collector_idle_02.png",
+        "sprites/animations/pets/pet_collector/pet_collector_idle_03.png",
+        "sprites/animations/pets/pet_collector/pet_collector_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_collector/pet_collector_attack_01.png",
+        "sprites/animations/pets/pet_collector/pet_collector_attack_02.png",
+        "sprites/animations/pets/pet_collector/pet_collector_attack_03.png",
+        "sprites/animations/pets/pet_collector/pet_collector_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_collector/pet_collector_hurt_01.png",
+        "sprites/animations/pets/pet_collector/pet_collector_hurt_02.png",
+        "sprites/animations/pets/pet_collector/pet_collector_hurt_03.png"
+      ]
+    }
+  }
+}

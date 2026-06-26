@@ -1,0 +1,450 @@
+extends Control
+
+const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
+
+var router: Node
+var level_id := "level_001"
+
+func setup(main: Node, payload := {}) -> void:
+	router = main
+	level_id = _resolve_level_id(payload)
+	_refresh()
+
+func _ready() -> void:
+	$CharacterIcon.mouse_filter = Control.MOUSE_FILTER_STOP
+	$WeaponIcon.mouse_filter = Control.MOUSE_FILTER_STOP
+	$CharacterIcon.gui_input.connect(_on_character_icon_input)
+	$WeaponIcon.gui_input.connect(_on_weapon_icon_input)
+	$StartButton.pressed.connect(func() -> void:
+		AudioManager.play_sfx("ui_confirm")
+		router.start_level(level_id)
+	)
+	$UpgradeButton.pressed.connect(func() -> void:
+		var weapon_id := SaveManager.get_selected("weapon")
+		if weapon_id == "":
+			weapon_id = "weapon_autocannon"
+		if SaveManager.upgrade_weapon(weapon_id):
+			AudioManager.play_sfx("upgrade")
+			_refresh()
+			_pulse_weapon_icon()
+		else:
+			AudioManager.play_sfx("ui_click", -6.0)
+		)
+	_refresh()
+	_build_equip_nav()
+
+func _refresh() -> void:
+	if not is_inside_tree():
+		return
+	var weapon_id := SaveManager.get_selected("weapon")
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var char_id := SaveManager.get_selected("character")
+	if char_id == "":
+		char_id = "vanguard"
+	var armor_id := SaveManager.get_selected("armor")
+	if armor_id == "":
+		armor_id = "armor_kevlar"
+	var chip_id := SaveManager.get_selected("chip")
+	if chip_id == "":
+		chip_id = "chip_attack"
+	var pet_id := SaveManager.get_selected("pet")
+	var weapon_level := SaveManager.get_weapon_level(weapon_id)
+	var char_level := SaveManager.get_item_level(char_id)
+	var armor_level := SaveManager.get_item_level(armor_id)
+	var chip_level := SaveManager.get_item_level(chip_id)
+	var pet_level := SaveManager.get_item_level(pet_id) if pet_id != "" else 0
+	var upgrade_cost := SaveManager.get_weapon_upgrade_cost(weapon_id)
+	var gold := SaveManager.get_player_gold()
+	var power := SaveManager.get_loadout_power()
+	var recommended_power := SaveManager.get_recommended_power_for_level(level_id)
+	var level := DataLoader.get_row("levels", level_id)
+	var weakness := str(level.get("primary_weakness", "physical"))
+	var character_name := DataLoader.tr_key(DataLoader.get_row("characters", char_id).get("name_key", char_id))
+	var weapon_name := DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id))
+	var growth_tier := _tier_suffix(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))).strip_edges()
+	if growth_tier == "":
+		growth_tier = "基础"
+	var counter_state := "克制有效" if _loadout_counters(weakness, char_id, weapon_id, chip_id) else "克制一般"
+	$CharacterName.text = "%s  Lv.%d" % [character_name, char_level]
+	$WeaponName.text = "%s  Lv.%d" % [weapon_name, weapon_level]
+	$Summary.text = "%s  |  战力 %d / %d  |  主弱点 %s\n阵容 %s + %s  |  %s  |  %s" % [
+		DataLoader.level_display_name(level_id),
+		power,
+		recommended_power,
+		_element_name(weakness),
+		character_name,
+		weapon_name,
+		counter_state,
+		growth_tier
+	]
+	$WeaponIcon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
+	$WeaponIcon.modulate = _level_tint(weapon_level)
+	$WeaponIcon.scale = _visual_level_scale(weapon_level)
+	$CharacterIcon.texture = load(DataLoader.get_row("characters", char_id).get("portrait", ""))
+	$CharacterIcon.modulate = _level_tint(char_level)
+	$CharacterIcon.scale = _visual_level_scale(char_level)
+	$GrowthBadge.text = _growth_badge_text(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level)))
+	$GrowthBadge.add_theme_color_override("font_color", _level_tint(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))))
+	_refresh_gear_badges([
+		["角色", char_level],
+		["主炮", weapon_level],
+		["护甲", armor_level],
+		["芯片", chip_level],
+		["宠物", pet_level]
+	])
+	$Objective.text = _level_objective(level_id)
+	if power < recommended_power:
+		$Objective.text += "\n提示：战力偏低，优先升主炮、角色或当前芯片。"
+	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
+		$Objective.text += "\n提示：当前配装命中主弱点，战斗中弱点装填更强。"
+	$GoldLabel.text = "金币  %d" % gold
+	var can_upgrade := SaveManager.can_upgrade_weapon(weapon_id)
+	var dmg_bonus := int(round((SaveManager.get_weapon_damage_multiplier(weapon_id) - 1.0) * 100.0))
+	var next_bonus := int(round(((1.0 + 0.08 * float(weapon_level)) - 1.0) * 100.0))
+	$UpgradeInfo.text = "点击主炮图标升级  |  %s +1  花费 %d\n当前伤害 +%d%%  →  +%d%%%s" % [
+		DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id)),
+		upgrade_cost,
+		dmg_bonus,
+		next_bonus,
+		"" if can_upgrade else "\n金币不足：通关或重打关卡获取"
+	]
+	$UpgradeButton.disabled = not SaveManager.can_upgrade_weapon(weapon_id)
+	$UpgradeButton.modulate = Color(1, 1, 1, 1) if not $UpgradeButton.disabled else Color(0.55, 0.55, 0.55, 0.85)
+	_rebuild_character_bar(char_id)
+	_rebuild_gear_icon_row(armor_id, chip_id, pet_id)
+	_refresh_signature_panel(char_id)
+
+func _level_tint(level: int) -> Color:
+	if level >= 25:
+		return Color(1.0, 0.82, 0.34, 1.0)
+	if level >= 15:
+		return Color(0.72, 0.9, 1.0, 1.0)
+	if level >= 8:
+		return Color(0.78, 1.0, 0.72, 1.0)
+	return Color.WHITE
+
+func _visual_level_scale(level: int) -> Vector2:
+	var bonus := clampf(float(level - 1) * 0.006, 0.0, 0.16)
+	return Vector2(1.0 + bonus, 1.0 + bonus)
+
+func _growth_badge_text(level: int) -> String:
+	if level >= 25:
+		return "成长 III · 金色改装"
+	if level >= 15:
+		return "成长 II · 精英校准"
+	if level >= 8:
+		return "成长 I · 战术改装"
+	return "基础整备"
+
+func _refresh_gear_badges(items: Array) -> void:
+	for child in $GearBadges.get_children():
+		child.queue_free()
+	for item in items:
+		var level := int(item[1])
+		if level <= 0:
+			continue
+		var label := Label.new()
+		label.custom_minimum_size = Vector2(166, 48)
+		label.text = "%s Lv.%d%s" % [str(item[0]), level, _tier_suffix(level)]
+		label.add_theme_font_size_override("font_size", 20)
+		label.add_theme_color_override("font_color", _level_tint(level))
+		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		label.add_theme_constant_override("outline_size", 3)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		$GearBadges.add_child(label)
+
+func _tier_suffix(level: int) -> String:
+	if level >= 25:
+		return " III"
+	if level >= 15:
+		return " II"
+	if level >= 8:
+		return " I"
+	return ""
+
+func _pulse_weapon_icon() -> void:
+	var base_scale: Vector2 = $WeaponIcon.scale
+	var tween := $WeaponIcon.create_tween()
+	tween.tween_property($WeaponIcon, "scale", base_scale * 1.08, 0.08)
+	tween.tween_property($WeaponIcon, "scale", base_scale, 0.12)
+
+func _try_upgrade_weapon() -> void:
+	var selected_weapon := SaveManager.get_selected("weapon")
+	if selected_weapon == "":
+		selected_weapon = "weapon_autocannon"
+	if SaveManager.upgrade_weapon(selected_weapon):
+		AudioManager.play_sfx("upgrade")
+		_refresh()
+		_pulse_weapon_icon()
+	else:
+		AudioManager.play_sfx("ui_click", -6.0)
+
+func _on_character_icon_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_open_collection("characters")
+
+func _on_weapon_icon_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_try_upgrade_weapon()
+
+func _rebuild_character_bar(selected_character: String) -> void:
+	for child in $CharacterSelectBar.get_children():
+		child.queue_free()
+	var characters: Dictionary = DataLoader.get_table("characters")
+	for char_id in characters.keys():
+		var row: Dictionary = DataLoader.get_row("characters", char_id)
+		var unlocked := SaveManager.is_item_unlocked("character", char_id)
+		var button := Button.new()
+		button.name = char_id
+		button.custom_minimum_size = Vector2(104, 104)
+		button.icon = load(row.get("portrait", ""))
+		button.expand_icon = true
+		button.text = ""
+		button.modulate = _selection_tint(unlocked, false)
+		button.tooltip_text = DataLoader.tr_key(row.get("name_key", char_id))
+		_apply_icon_button_style(button, char_id == selected_character, unlocked, Color(0.46, 0.92, 1.0, 0.92))
+		button.disabled = not unlocked
+		if unlocked:
+			button.pressed.connect(_select_character.bind(char_id))
+		$CharacterSelectBar.add_child(button)
+
+func _rebuild_gear_icon_row(armor_id: String, chip_id: String, pet_id: String) -> void:
+	for child in $GearIconRow.get_children():
+		child.queue_free()
+	$GearIconRow.add_child(_gear_icon_button("armors", "armor", armor_id, "armor_kevlar"))
+	$GearIconRow.add_child(_gear_icon_button("chips", "chip", chip_id, "chip_attack"))
+	$GearIconRow.add_child(_gear_icon_button("pets", "pet", pet_id, _first_pet_id()))
+
+func _refresh_signature_panel(char_id: String) -> void:
+	if not has_node("SignatureCards"):
+		return
+	for child in $SignatureCards.get_children():
+		child.queue_free()
+	var row := DataLoader.get_row("characters", char_id)
+	var character_name := DataLoader.tr_key(row.get("name_key", char_id))
+	$SignatureTitle.text = "角色专属  /  %s" % character_name
+	$SignatureHint.text = "主动可释放；弹种加成已进战斗"
+	var passive_id := str(row.get("passive", ""))
+	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
+	$SignatureCards.add_child(_signature_card("被动已生效", str(passive_info.get("name", passive_id)), str(passive_info.get("desc", "")), Color(0.45, 1.0, 0.72, 0.96)))
+	var sig_ids: Array = row.get("signature_skills", [])
+	var active_skill_row: Dictionary = row.get("active_skill", {})
+	var active_id := str(active_skill_row.get("id", ""))
+	for sig_id in sig_ids.slice(0, 2):
+		var info: Dictionary = CharacterSkillText.signature_info(str(sig_id))
+		var kind := "主动技能" if str(sig_id) == active_id else "专属被动"
+		$SignatureCards.add_child(_signature_card(kind, str(info.get("name", sig_id)), str(info.get("desc", "")), Color(1.0, 0.78, 0.34, 0.94)))
+
+func _signature_card(kind: String, title: String, desc: String, accent: Color) -> PanelContainer:
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(250, 106)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_theme_stylebox_override("panel", _signature_card_style(Color(0.02, 0.045, 0.06, 0.9), accent))
+	card.tooltip_text = "%s：%s\n%s" % [kind, title, desc]
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 1)
+	card.add_child(stack)
+	var kind_label := Label.new()
+	kind_label.text = kind
+	kind_label.add_theme_font_size_override("font_size", 13)
+	kind_label.add_theme_color_override("font_color", accent)
+	kind_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	kind_label.add_theme_constant_override("outline_size", 2)
+	stack.add_child(kind_label)
+	var title_label := Label.new()
+	title_label.text = title
+	title_label.add_theme_font_size_override("font_size", 20)
+	title_label.add_theme_color_override("font_color", Color(0.94, 1.0, 1.0, 1.0))
+	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	title_label.add_theme_constant_override("outline_size", 3)
+	title_label.clip_text = true
+	stack.add_child(title_label)
+	var desc_label := Label.new()
+	desc_label.text = desc.replace("已生效：", "").replace("主动：", "").replace("自动：", "").replace("弹种：", "")
+	desc_label.custom_minimum_size = Vector2(0, 42)
+	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_color_override("font_color", Color(0.76, 0.9, 0.96, 0.96))
+	desc_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	desc_label.add_theme_constant_override("outline_size", 2)
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.clip_text = true
+	stack.add_child(desc_label)
+	return card
+
+func _signature_card_style(bg: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10
+	style.content_margin_top = 6
+	style.content_margin_right = 10
+	style.content_margin_bottom = 6
+	return style
+
+func _gear_icon_button(table: String, slot: String, selected_id: String, fallback_id: String) -> Button:
+	var item_id := selected_id if selected_id != "" else fallback_id
+	var row := DataLoader.get_row(table, item_id)
+	var button := Button.new()
+	button.name = "%sIcon" % slot.capitalize()
+	button.custom_minimum_size = Vector2(138, 138)
+	button.icon = load(row.get("icon", ""))
+	button.expand_icon = true
+	button.text = ""
+	button.modulate = Color(1, 1, 1, 1) if selected_id != "" or slot != "pet" else Color(0.55, 0.62, 0.68, 0.82)
+	button.tooltip_text = DataLoader.tr_key(row.get("name_key", item_id))
+	_apply_icon_button_style(button, selected_id != "" or slot != "pet", true, Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82))
+	button.pressed.connect(_open_collection.bind(table))
+	return button
+
+func _apply_icon_button_style(button: Button, selected: bool, enabled: bool, accent: Color) -> void:
+	var border := accent if selected else Color(0.28, 0.54, 0.74, 0.78)
+	var bg := Color(0.025, 0.055, 0.075, 0.86) if enabled else Color(0.018, 0.025, 0.032, 0.64)
+	button.add_theme_stylebox_override("normal", _icon_button_style(bg, border, 3 if selected else 2))
+	button.add_theme_stylebox_override("hover", _icon_button_style(Color(0.05, 0.1, 0.13, 0.96), accent, 4))
+	button.add_theme_stylebox_override("pressed", _icon_button_style(Color(0.02, 0.04, 0.055, 1.0), Color(1.0, 0.9, 0.44, 1.0), 4))
+	button.add_theme_stylebox_override("disabled", _icon_button_style(Color(0.015, 0.02, 0.026, 0.72), Color(0.17, 0.23, 0.28, 0.72), 2))
+
+func _icon_button_style(bg: Color, border: Color, width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(width)
+	style.set_corner_radius_all(7)
+	style.content_margin_left = 8
+	style.content_margin_top = 8
+	style.content_margin_right = 8
+	style.content_margin_bottom = 8
+	return style
+
+func _selection_tint(unlocked: bool, selected: bool) -> Color:
+	if not unlocked:
+		return Color(0.32, 0.36, 0.4, 0.62)
+	if selected:
+		return Color(1.0, 0.88, 0.46, 1.0)
+	return Color(0.82, 0.95, 1.0, 0.9)
+
+func _select_character(char_id: String) -> void:
+	if SaveManager.select_item("character", char_id):
+		AudioManager.play_sfx("ui_confirm")
+		_refresh()
+	else:
+		AudioManager.play_sfx("ui_click", -6.0)
+
+func _first_pet_id() -> String:
+	var pets: Dictionary = DataLoader.get_table("pets")
+	for pet_id in pets.keys():
+		return pet_id
+	return ""
+
+func _build_equip_nav() -> void:
+	for child in $EquipNav.get_children():
+		child.queue_free()
+	for item in [
+		["角色", "characters"],
+		["武器", "weapons"],
+		["护甲", "armors"],
+		["芯片", "chips"],
+		["宠物", "pets"],
+	]:
+		var button := Button.new()
+		button.text = str(item[0])
+		button.custom_minimum_size = Vector2(166, 58)
+		button.add_theme_font_size_override("font_size", 22)
+		button.add_theme_color_override("font_color", Color(0.78, 0.94, 1.0, 1.0))
+		button.add_theme_color_override("font_hover_color", Color(1.0, 0.88, 0.44, 1.0))
+		button.add_theme_stylebox_override("normal", _nav_button_style(Color(0.035, 0.07, 0.1, 0.86), Color(0.32, 0.75, 1.0, 0.72)))
+		button.add_theme_stylebox_override("hover", _nav_button_style(Color(0.07, 0.12, 0.16, 0.94), Color(1.0, 0.75, 0.24, 0.9)))
+		button.add_theme_stylebox_override("pressed", _nav_button_style(Color(0.02, 0.05, 0.08, 0.98), Color(0.46, 1.0, 0.72, 0.94)))
+		button.pressed.connect(_open_collection.bind(str(item[1])))
+		$EquipNav.add_child(button)
+
+func _nav_button_style(bg: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	return style
+
+func _resolve_level_id(payload: Dictionary) -> String:
+	var provided := str(payload.get("level_id", ""))
+	if provided != "":
+		return provided
+	if router != null:
+		var context: Variant = router.get("run_context")
+		if context is Dictionary:
+			var active := str(context.get("level_id", ""))
+			if active != "":
+				return active
+	return "level_001"
+
+func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chip_id: String) -> bool:
+	var character := DataLoader.get_row("characters", char_id)
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var chip := DataLoader.get_row("chips", chip_id)
+	return str(character.get("element_focus", "")) == weakness or str(weapon.get("element", "")) == weakness or (str(chip.get("stat", "")) == "element_damage_mult" and weakness != "physical")
+
+func _element_name(element: String) -> String:
+	match element:
+		"physical":
+			return "物理"
+		"fire":
+			return "火焰"
+		"ice":
+			return "冰霜"
+		"lightning":
+			return "闪电"
+		"poison":
+			return "毒素"
+		"none", "":
+			return "无"
+		_:
+			return element
+
+func _open_collection(mode: String) -> void:
+	AudioManager.play_sfx("ui_click")
+	router.change_scene("collection", {"mode": mode})
+
+func _level_objective(id: String) -> String:
+	match id:
+		"level_001":
+			return "目标：熟悉瞄准和自动开火，守住五波尸潮。"
+		"level_002":
+			return "目标：五波弹雨试炼，第一次选择技能卡，优先体验分裂弹清群。"
+		"level_003":
+			return "目标：处理疾跑僵尸，观察越线威胁优先策略。"
+		"level_004":
+			return "目标：用锁定、穿透或减速处理巨臂和爆弹。"
+		"level_005":
+			return "目标：击破装甲巨像护甲，守住 Boss 压力。"
+		"level_006":
+			return "目标：处理左右双线突袭，优先打越线威胁。"
+		"level_007":
+			return "目标：尖啸僵尸会制造压力，先锁定支援单位。"
+		"level_008":
+			return "目标：疾跑和爆弹混合推进，用减速或多重压住节奏。"
+		"level_009":
+			return "目标：重甲尸墙推进，穿透和锁定是关键。"
+		"level_010":
+			return "目标：最终防线，先清支援再破 Boss 护甲。"
+		_:
+			var level := DataLoader.get_row("levels", id)
+			for wave in level.get("waves", []):
+				if wave.has("boss"):
+					return "目标：Boss 波次会持续压迫基地，先清支援再集中破 Boss。"
+			var tags: Array = level.get("threat_tags", [])
+			if tags.has("fast"):
+				return "目标：高速单位较多，优先选择减速、追踪或多重射击。"
+			if tags.has("tank"):
+				return "目标：厚血单位较多，优先选择穿透、蓄能或元素克制。"
+			if tags.has("support"):
+				return "目标：支援单位会放大尸潮压力，锁定策略优先处理精英。"
+			if tags.has("burst"):
+				return "目标：爆发威胁较高，保留护盾和控制来稳住防线。"
+			return "目标：守住防线，根据尸潮类型完成本局构筑。"

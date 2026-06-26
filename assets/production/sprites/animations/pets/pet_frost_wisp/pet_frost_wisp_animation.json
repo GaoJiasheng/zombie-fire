@@ -1,0 +1,32 @@
+{
+  "id": "pet_frost_wisp",
+  "kind": "pets",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_idle_01.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_idle_02.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_idle_03.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_attack_01.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_attack_02.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_attack_03.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_hurt_01.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_hurt_02.png",
+        "sprites/animations/pets/pet_frost_wisp/pet_frost_wisp_hurt_03.png"
+      ]
+    }
+  }
+}

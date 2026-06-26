@@ -1,0 +1,32 @@
+{
+  "id": "pet_fire_imp",
+  "kind": "pets",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_idle_01.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_idle_02.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_idle_03.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_attack_01.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_attack_02.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_attack_03.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_hurt_01.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_hurt_02.png",
+        "sprites/animations/pets/pet_fire_imp/pet_fire_imp_hurt_03.png"
+      ]
+    }
+  }
+}

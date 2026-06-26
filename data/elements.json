@@ -1,0 +1,8 @@
+{
+	"physical": {"name_key": "elem_physical", "color": "#B8C0CC", "on_hit": "none", "dot_coef": 0.0},
+	"fire": {"name_key": "elem_fire", "color": "#FF5722", "on_hit": "burn", "dot_coef": 0.25},
+	"ice": {"name_key": "elem_ice", "color": "#53D6FF", "on_hit": "slow", "dot_coef": 0.0},
+	"lightning": {"name_key": "elem_lightning", "color": "#FFD84A", "on_hit": "chain", "dot_coef": 0.0},
+	"poison": {"name_key": "elem_poison", "color": "#74E44C", "on_hit": "poison", "dot_coef": 0.2}
+}
+

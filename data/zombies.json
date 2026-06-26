@@ -1,0 +1,362 @@
+{
+	"zombie_shambler": {
+		"name_key": "zombie_shambler",
+		"tier": 1,
+		"hp_coef": 1.0,
+		"speed": 80,
+		"bd_coef": 1.0,
+		"gold_coef": 1.0,
+		"run_xp": 2,
+		"weakness": "fire",
+		"resist": "none",
+		"threat_tags": [
+			"breach"
+		],
+		"mechanic": "basic",
+		"mechanic_params": {},
+		"sprite": "res://assets/sprites/zombies/zombie_shambler_prototype.png"
+	},
+	"zombie_runner": {
+		"name_key": "zombie_runner",
+		"tier": 1,
+		"hp_coef": 0.7,
+		"speed": 145,
+		"bd_coef": 0.8,
+		"gold_coef": 1.0,
+		"run_xp": 2,
+		"weakness": "ice",
+		"resist": "none",
+		"threat_tags": [
+			"breach",
+			"fast"
+		],
+		"mechanic": "runner",
+		"mechanic_params": {},
+		"sprite": "res://assets/sprites/zombies/zombie_runner_prototype.png"
+	},
+	"zombie_brute": {
+		"name_key": "zombie_brute",
+		"tier": 1,
+		"hp_coef": 2.2,
+		"speed": 56,
+		"bd_coef": 1.8,
+		"gold_coef": 1.8,
+		"run_xp": 5,
+		"weakness": "physical",
+		"resist": "poison",
+		"threat_tags": [
+			"tank"
+		],
+		"mechanic": "tank",
+		"mechanic_params": {},
+		"sprite": "res://assets/sprites/zombies/zombie_brute_prototype.png"
+	},
+	"zombie_bomber": {
+		"name_key": "zombie_bomber",
+		"tier": 2,
+		"hp_coef": 1.2,
+		"speed": 92,
+		"bd_coef": 2.2,
+		"gold_coef": 1.6,
+		"run_xp": 4,
+		"weakness": "ice",
+		"resist": "fire",
+		"threat_tags": [
+			"breach",
+			"burst"
+		],
+		"mechanic": "explode_on_death",
+		"mechanic_params": {
+			"radius": 160,
+			"damage_coef": 1.5
+		},
+		"sprite": "res://assets/sprites/zombies/zombie_bomber_prototype.png"
+	},
+	"zombie_screamer": {
+		"name_key": "zombie_screamer",
+		"tier": 2,
+		"hp_coef": 1.1,
+		"speed": 86,
+		"bd_coef": 1.0,
+		"gold_coef": 1.8,
+		"run_xp": 5,
+		"weakness": "physical",
+		"resist": "lightning",
+		"threat_tags": [
+			"support",
+			"elite"
+		],
+		"mechanic": "buff_aura",
+		"mechanic_params": {
+			"radius": 260,
+			"speed_mult": 1.2
+		},
+		"sprite": "res://assets/sprites/zombies/zombie_screamer_prototype.png"
+	},
+	"zombie_spitter": {
+		"name_key": "zombie_spitter",
+		"tier": 2,
+		"hp_coef": 1.0,
+		"speed": 74,
+		"bd_coef": 1.2,
+		"gold_coef": 1.5,
+		"run_xp": 4,
+		"weakness": "lightning",
+		"resist": "poison",
+		"threat_tags": [
+			"support"
+		],
+		"mechanic": "ranged_spit",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_spitter_prototype.png"
+	},
+	"zombie_crawler": {
+		"name_key": "zombie_crawler",
+		"tier": 2,
+		"hp_coef": 0.8,
+		"speed": 118,
+		"bd_coef": 0.9,
+		"gold_coef": 1.5,
+		"run_xp": 4,
+		"weakness": "fire",
+		"resist": "none",
+		"threat_tags": [
+			"fast",
+			"breach"
+		],
+		"mechanic": "low_profile",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_crawler_prototype.png"
+	},
+	"zombie_armored": {
+		"name_key": "zombie_armored",
+		"tier": 3,
+		"hp_coef": 2.5,
+		"speed": 52,
+		"bd_coef": 2.0,
+		"gold_coef": 1.75,
+		"run_xp": 5,
+		"weakness": "lightning",
+		"resist": "physical",
+		"threat_tags": [
+			"tank"
+		],
+		"mechanic": "armor",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_armored_prototype.png"
+	},
+	"zombie_shielder": {
+		"name_key": "zombie_shielder",
+		"tier": 3,
+		"hp_coef": 1.6,
+		"speed": 62,
+		"bd_coef": 1.4,
+		"gold_coef": 1.75,
+		"run_xp": 5,
+		"weakness": "fire",
+		"resist": "physical",
+		"threat_tags": [
+			"tank",
+			"support"
+		],
+		"mechanic": "shield_aura",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_shielder_prototype.png"
+	},
+	"zombie_hopper": {
+		"name_key": "zombie_hopper",
+		"tier": 3,
+		"hp_coef": 0.9,
+		"speed": 132,
+		"bd_coef": 1.1,
+		"gold_coef": 1.75,
+		"run_xp": 5,
+		"weakness": "ice",
+		"resist": "none",
+		"threat_tags": [
+			"fast",
+			"breach"
+		],
+		"mechanic": "leap",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_hopper_prototype.png"
+	},
+	"zombie_juggernaut": {
+		"name_key": "zombie_juggernaut",
+		"tier": 4,
+		"hp_coef": 3.4,
+		"speed": 44,
+		"bd_coef": 3.0,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "fire",
+		"resist": "physical",
+		"threat_tags": [
+			"tank",
+			"elite"
+		],
+		"mechanic": "juggernaut",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_juggernaut_prototype.png"
+	},
+	"zombie_phantom": {
+		"name_key": "zombie_phantom",
+		"tier": 4,
+		"hp_coef": 1.1,
+		"speed": 104,
+		"bd_coef": 1.5,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "lightning",
+		"resist": "physical",
+		"threat_tags": [
+			"fast",
+			"elite"
+		],
+		"mechanic": "phase",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_phantom_prototype.png"
+	},
+	"zombie_necromancer": {
+		"name_key": "zombie_necromancer",
+		"tier": 4,
+		"hp_coef": 1.5,
+		"speed": 58,
+		"bd_coef": 1.2,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "fire",
+		"resist": "poison",
+		"threat_tags": [
+			"support",
+			"elite"
+		],
+		"mechanic": "summon",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_necromancer_prototype.png"
+	},
+	"zombie_toxic": {
+		"name_key": "zombie_toxic",
+		"tier": 4,
+		"hp_coef": 1.3,
+		"speed": 76,
+		"bd_coef": 1.8,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "fire",
+		"resist": "poison",
+		"threat_tags": [
+			"burst"
+		],
+		"mechanic": "toxic_cloud",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_toxic_prototype.png"
+	},
+	"zombie_charger": {
+		"name_key": "zombie_charger",
+		"tier": 4,
+		"hp_coef": 1.8,
+		"speed": 138,
+		"bd_coef": 2.0,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "ice",
+		"resist": "none",
+		"threat_tags": [
+			"fast",
+			"breach"
+		],
+		"mechanic": "charge",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_charger_prototype.png"
+	},
+	"zombie_regenerator": {
+		"name_key": "zombie_regenerator",
+		"tier": 4,
+		"hp_coef": 2.1,
+		"speed": 60,
+		"bd_coef": 1.7,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "fire",
+		"resist": "poison",
+		"threat_tags": [
+			"tank",
+			"elite"
+		],
+		"mechanic": "regen",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_regenerator_prototype.png"
+	},
+	"zombie_splitter": {
+		"name_key": "zombie_splitter",
+		"tier": 4,
+		"hp_coef": 1.4,
+		"speed": 84,
+		"bd_coef": 1.3,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "fire",
+		"resist": "none",
+		"threat_tags": [
+			"anti_swarm"
+		],
+		"mechanic": "split",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_splitter_prototype.png"
+	},
+	"zombie_warden": {
+		"name_key": "zombie_warden",
+		"tier": 4,
+		"hp_coef": 2.2,
+		"speed": 50,
+		"bd_coef": 1.9,
+		"gold_coef": 2.0,
+		"run_xp": 6,
+		"weakness": "lightning",
+		"resist": "ice",
+		"threat_tags": [
+			"support",
+			"tank"
+		],
+		"mechanic": "ward",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_warden_prototype.png"
+	},
+	"zombie_mutant": {
+		"name_key": "zombie_mutant",
+		"tier": 5,
+		"hp_coef": 2.6,
+		"speed": 72,
+		"bd_coef": 2.4,
+		"gold_coef": 2.25,
+		"run_xp": 7,
+		"weakness": "physical",
+		"resist": "poison",
+		"threat_tags": [
+			"elite",
+			"burst"
+		],
+		"mechanic": "mutate",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_mutant_prototype.png"
+	},
+	"zombie_berserker": {
+		"name_key": "zombie_berserker",
+		"tier": 5,
+		"hp_coef": 1.9,
+		"speed": 118,
+		"bd_coef": 2.2,
+		"gold_coef": 2.25,
+		"run_xp": 7,
+		"weakness": "ice",
+		"resist": "fire",
+		"threat_tags": [
+			"fast",
+			"elite"
+		],
+		"mechanic": "enrage",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/zombies/zombie_berserker_prototype.png"
+	}
+}

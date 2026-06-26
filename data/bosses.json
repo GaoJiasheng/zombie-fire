@@ -1,0 +1,143 @@
+{
+	"boss_tank_titan": {
+		"name_key": "boss_tank_titan",
+		"appear_level": 5,
+		"hp_coef": 18,
+		"speed": 42,
+		"bd_coef": 4.0,
+		"gold_coef": 8,
+		"run_xp": 25,
+		"phases": 1,
+		"immune": [
+			"physical"
+		],
+		"weakness": "fire",
+		"mechanic": "armor_break",
+		"mechanic_params": {
+			"armor_hits": 30
+		},
+		"sprite": "res://assets/sprites/bosses/boss_tank_titan_prototype.png"
+	},
+	"boss_inferno_maw": {
+		"name_key": "boss_inferno_maw",
+		"appear_level": 15,
+		"hp_coef": 22,
+		"speed": 48,
+		"bd_coef": 5.0,
+		"gold_coef": 9.5,
+		"run_xp": 32,
+		"phases": 2,
+		"immune": [
+			"fire"
+		],
+		"weakness": "ice",
+		"mechanic": "phase_burn",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_inferno_maw_prototype.png"
+	},
+	"boss_frost_warden": {
+		"name_key": "boss_frost_warden",
+		"appear_level": 25,
+		"hp_coef": 24,
+		"speed": 40,
+		"bd_coef": 5.333333333333333,
+		"gold_coef": 10.5,
+		"run_xp": 37,
+		"phases": 2,
+		"immune": [
+			"ice"
+		],
+		"weakness": "fire",
+		"mechanic": "freeze_field",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_frost_warden_prototype.png"
+	},
+	"boss_storm_caller": {
+		"name_key": "boss_storm_caller",
+		"appear_level": 35,
+		"hp_coef": 21,
+		"speed": 56,
+		"bd_coef": 5.666666666666667,
+		"gold_coef": 11.5,
+		"run_xp": 42,
+		"phases": 2,
+		"immune": [
+			"lightning"
+		],
+		"weakness": "poison",
+		"mechanic": "storm_chain",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_storm_caller_prototype.png"
+	},
+	"boss_plague_mother": {
+		"name_key": "boss_plague_mother",
+		"appear_level": 45,
+		"hp_coef": 26,
+		"speed": 36,
+		"bd_coef": 6.0,
+		"gold_coef": 12.5,
+		"run_xp": 47,
+		"phases": 2,
+		"immune": [
+			"poison"
+		],
+		"weakness": "fire",
+		"mechanic": "spawn_minions",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_plague_mother_prototype.png"
+	},
+	"boss_void_phantom": {
+		"name_key": "boss_void_phantom",
+		"appear_level": 55,
+		"hp_coef": 23,
+		"speed": 62,
+		"bd_coef": 6.333333333333333,
+		"gold_coef": 13.5,
+		"run_xp": 52,
+		"phases": 2,
+		"immune": [
+			"physical"
+		],
+		"weakness": "lightning",
+		"mechanic": "phase_shift",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_void_phantom_prototype.png"
+	},
+	"boss_necrotitan": {
+		"name_key": "boss_necrotitan",
+		"appear_level": 70,
+		"hp_coef": 32,
+		"speed": 34,
+		"bd_coef": 6.833333333333334,
+		"gold_coef": 15.0,
+		"run_xp": 60,
+		"phases": 3,
+		"immune": [
+			"poison"
+		],
+		"weakness": "fire",
+		"mechanic": "regenerate",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_necrotitan_prototype.png"
+	},
+	"boss_apex_overlord": {
+		"name_key": "boss_apex_overlord",
+		"appear_level": 90,
+		"hp_coef": 40,
+		"speed": 45,
+		"bd_coef": 7.5,
+		"gold_coef": 17.0,
+		"run_xp": 70,
+		"phases": 3,
+		"immune": [
+			"fire",
+			"ice",
+			"lightning",
+			"poison"
+		],
+		"weakness": "physical",
+		"mechanic": "multi_phase",
+		"mechanic_params": {},
+		"sprite": "res://assets/production/sprites/bosses/boss_apex_overlord_prototype.png"
+	}
+}

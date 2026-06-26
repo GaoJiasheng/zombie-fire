@@ -1,0 +1,32 @@
+{
+  "id": "char_volt",
+  "kind": "characters",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/characters/char_volt/char_volt_idle_01.png",
+        "sprites/animations/characters/char_volt/char_volt_idle_02.png",
+        "sprites/animations/characters/char_volt/char_volt_idle_03.png",
+        "sprites/animations/characters/char_volt/char_volt_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/characters/char_volt/char_volt_attack_01.png",
+        "sprites/animations/characters/char_volt/char_volt_attack_02.png",
+        "sprites/animations/characters/char_volt/char_volt_attack_03.png",
+        "sprites/animations/characters/char_volt/char_volt_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/characters/char_volt/char_volt_hurt_01.png",
+        "sprites/animations/characters/char_volt/char_volt_hurt_02.png",
+        "sprites/animations/characters/char_volt/char_volt_hurt_03.png"
+      ]
+    }
+  }
+}

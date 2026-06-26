@@ -1,0 +1,23 @@
+{
+  "id": "weapon_autocannon",
+  "kind": "weapons",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_idle_01.png",
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_idle_02.png",
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_idle_03.png"
+      ]
+    },
+    "recoil": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_recoil_01.png",
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_recoil_02.png",
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_recoil_03.png",
+        "sprites/animations/weapons/weapon_autocannon/weapon_autocannon_recoil_04.png"
+      ]
+    }
+  }
+}

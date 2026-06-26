@@ -1,0 +1,167 @@
+{
+	"weapon_autocannon": {
+		"name_key": "weapon_autocannon",
+		"element": "physical",
+		"base_atk_coef": 1.0,
+		"fire_rate": 4.0,
+		"projectile_type": "bullet",
+		"projectile_speed": 1450,
+		"special": {
+			"spread": 0
+		},
+		"rarity": "common",
+		"max_level": 50,
+		"cost_base_gold": 100,
+		"unlock": {
+			"type": "default",
+			"price": 0
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_autocannon_icon.png",
+		"turret": "res://assets/sprites/weapons/weapon_autocannon_turret.png",
+		"unlock_cost_star": 0
+	},
+	"weapon_flamethrower": {
+		"name_key": "weapon_flamethrower",
+		"element": "fire",
+		"base_atk_coef": 0.78,
+		"fire_rate": 6.2,
+		"projectile_type": "flame",
+		"projectile_speed": 980,
+		"special": {
+			"burn": 0.25,
+			"spread": 10
+		},
+		"rarity": "rare",
+		"max_level": 50,
+		"cost_base_gold": 180,
+		"unlock": {
+			"type": "stars",
+			"price": 8
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_flamethrower_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_flamethrower_turret.png"
+	},
+	"weapon_cryocannon": {
+		"name_key": "weapon_cryocannon",
+		"element": "ice",
+		"base_atk_coef": 0.88,
+		"fire_rate": 3.4,
+		"projectile_type": "ice_bolt",
+		"projectile_speed": 1180,
+		"special": {
+			"slow": 0.18
+		},
+		"rarity": "rare",
+		"max_level": 50,
+		"cost_base_gold": 180,
+		"unlock": {
+			"type": "stars",
+			"price": 12
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_cryocannon_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_cryocannon_turret.png"
+	},
+	"weapon_teslacoil": {
+		"name_key": "weapon_teslacoil",
+		"element": "lightning",
+		"base_atk_coef": 0.72,
+		"fire_rate": 5.0,
+		"projectile_type": "chain",
+		"projectile_speed": 1350,
+		"special": {
+			"chain": 2
+		},
+		"rarity": "epic",
+		"max_level": 50,
+		"cost_base_gold": 240,
+		"unlock": {
+			"type": "stars",
+			"price": 18
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_teslacoil_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_teslacoil_turret.png"
+	},
+	"weapon_venomlauncher": {
+		"name_key": "weapon_venomlauncher",
+		"element": "poison",
+		"base_atk_coef": 0.82,
+		"fire_rate": 3.0,
+		"projectile_type": "lob",
+		"projectile_speed": 1050,
+		"special": {
+			"poison": 0.2,
+			"cloud": 120
+		},
+		"rarity": "epic",
+		"max_level": 50,
+		"cost_base_gold": 240,
+		"unlock": {
+			"type": "stars",
+			"price": 24
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_venomlauncher_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_venomlauncher_turret.png"
+	},
+	"weapon_railgun": {
+		"name_key": "weapon_railgun",
+		"element": "physical",
+		"base_atk_coef": 1.9,
+		"fire_rate": 1.45,
+		"projectile_type": "rail",
+		"projectile_speed": 2200,
+		"special": {
+			"pierce": 3
+		},
+		"rarity": "legendary",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "stars",
+			"price": 30
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_railgun_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_railgun_turret.png",
+		"unlock_cost_star": 118
+	},
+	"weapon_scattergun": {
+		"name_key": "weapon_scattergun",
+		"element": "physical",
+		"base_atk_coef": 0.62,
+		"fire_rate": 2.8,
+		"projectile_type": "pellet",
+		"projectile_speed": 1250,
+		"special": {
+			"pellets": 5,
+			"spread": 18
+		},
+		"rarity": "rare",
+		"max_level": 50,
+		"cost_base_gold": 180,
+		"unlock": {
+			"type": "stars",
+			"price": 15
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_scattergun_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_scattergun_turret.png"
+	},
+	"weapon_plasmacannon": {
+		"name_key": "weapon_plasmacannon",
+		"element": "fire",
+		"base_atk_coef": 1.25,
+		"fire_rate": 2.2,
+		"projectile_type": "plasma",
+		"projectile_speed": 1300,
+		"special": {
+			"splash": 140
+		},
+		"rarity": "legendary",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "stars",
+			"price": 36
+		},
+		"icon": "res://assets/production/sprites/weapons/weapon_plasmacannon_icon.png",
+		"turret": "res://assets/production/sprites/weapons/weapon_plasmacannon_turret.png"
+	}
+}

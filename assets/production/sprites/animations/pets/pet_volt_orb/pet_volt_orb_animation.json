@@ -1,0 +1,32 @@
+{
+  "id": "pet_volt_orb",
+  "kind": "pets",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_idle_01.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_idle_02.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_idle_03.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_attack_01.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_attack_02.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_attack_03.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_hurt_01.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_hurt_02.png",
+        "sprites/animations/pets/pet_volt_orb/pet_volt_orb_hurt_03.png"
+      ]
+    }
+  }
+}

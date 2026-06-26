@@ -1,0 +1,82 @@
+{
+	"chip_attack": {
+		"name_key": "chip_attack",
+		"stat": "damage_mult",
+		"value": 0.08,
+		"level_value_growth": 0.035,
+		"max_level": 35,
+		"cost_base_gold": 105,
+		"unlock_cost_star": 0,
+		"icon": "res://assets/production/sprites/equipment/chip_attack_icon.png"
+	},
+	"chip_haste": {
+		"name_key": "chip_haste",
+		"stat": "fire_rate_mult",
+		"value": 0.06,
+		"level_value_growth": 0.035,
+		"max_level": 35,
+		"cost_base_gold": 110,
+		"unlock_cost_star": 22,
+		"icon": "res://assets/production/sprites/equipment/chip_haste_icon.png"
+	},
+	"chip_crit": {
+		"name_key": "chip_crit",
+		"stat": "crit_rate",
+		"value": 0.05,
+		"level_value_growth": 0.032,
+		"max_level": 35,
+		"cost_base_gold": 120,
+		"unlock_cost_star": 42,
+		"icon": "res://assets/production/sprites/equipment/chip_crit_icon.png"
+	},
+	"chip_pierce": {
+		"name_key": "chip_pierce",
+		"stat": "pierce_bonus",
+		"value": 1,
+		"level_value_growth": 0.0,
+		"max_level": 20,
+		"cost_base_gold": 170,
+		"unlock_cost_star": 92,
+		"icon": "res://assets/production/sprites/equipment/chip_pierce_icon.png"
+	},
+	"chip_health": {
+		"name_key": "chip_health",
+		"stat": "base_hp_mult",
+		"value": 0.12,
+		"level_value_growth": 0.032,
+		"max_level": 35,
+		"cost_base_gold": 115,
+		"unlock_cost_star": 64,
+		"icon": "res://assets/production/sprites/equipment/chip_health_icon.png"
+	},
+	"chip_guardian": {
+		"name_key": "chip_guardian",
+		"stat": "breach_damage_reduction",
+		"value": 0.12,
+		"level_value_growth": 0.028,
+		"max_level": 35,
+		"cost_base_gold": 135,
+		"unlock_cost_star": 128,
+		"icon": "res://assets/production/sprites/equipment/chip_guardian_icon.png"
+	},
+	"chip_greed": {
+		"name_key": "chip_greed",
+		"stat": "gold_mult",
+		"value": 0.12,
+		"level_value_growth": 0.024,
+		"max_level": 30,
+		"cost_base_gold": 150,
+		"unlock_cost_star": 158,
+		"icon": "res://assets/production/sprites/equipment/chip_greed_icon.png"
+	},
+	"chip_element": {
+		"name_key": "chip_element",
+		"stat": "element_damage_mult",
+		"value": 0.1,
+		"level_value_growth": 0.03,
+		"max_level": 35,
+		"cost_base_gold": 150,
+		"unlock_cost_star": 210,
+		"icon": "res://assets/production/sprites/equipment/chip_element_icon.png"
+	}
+}

@@ -1,0 +1,536 @@
+{
+	"skill_split_shot": {
+		"name_key": "skill_split_shot",
+		"kind": "passive",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_swarm"
+		],
+		"icon": "res://assets/sprites/ui/skill_split_shot_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"split": 2,
+					"falloff": 0.55
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"split": 3,
+					"falloff": 0.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"split": 5,
+					"falloff": 0.45
+				}
+			}
+		]
+	},
+	"skill_pierce": {
+		"name_key": "skill_pierce",
+		"kind": "passive",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_armor",
+			"pierce",
+			"physical"
+		],
+		"icon": "res://assets/sprites/ui/skill_pierce_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"pierce": 1
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"pierce": 2
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"pierce": 3,
+					"dmg_mult": 1.15
+				}
+			}
+		]
+	},
+	"skill_multishot": {
+		"name_key": "skill_multishot",
+		"kind": "passive",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_swarm"
+		],
+		"icon": "res://assets/sprites/ui/skill_multishot_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"extra_projectiles": 1,
+					"spread": 8
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"extra_projectiles": 2,
+					"spread": 10
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"extra_projectiles": 3,
+					"spread": 12
+				}
+			}
+		]
+	},
+	"skill_slow_field": {
+		"name_key": "skill_slow_field",
+		"kind": "passive",
+		"tags": [
+			"control"
+		],
+		"card_tags": [
+			"control",
+			"defense"
+		],
+		"icon": "res://assets/sprites/ui/skill_slow_field_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"slow": 0.18,
+					"y_min": 1280
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"slow": 0.26,
+					"y_min": 1220
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"slow": 0.35,
+					"y_min": 1160
+				}
+			}
+		]
+	},
+	"skill_homing": {
+		"name_key": "skill_homing",
+		"kind": "projectile",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"control",
+			"homing"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_homing_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_critical": {
+		"name_key": "skill_critical",
+		"kind": "passive",
+		"tags": [
+			"passive"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_armor",
+			"execute"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_critical_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_barrier": {
+		"name_key": "skill_barrier",
+		"kind": "passive",
+		"tags": [
+			"passive"
+		],
+		"card_tags": [
+			"defense"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_barrier_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_gold_rush": {
+		"name_key": "skill_gold_rush",
+		"kind": "passive",
+		"tags": [
+			"passive"
+		],
+		"card_tags": [
+			"economy"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_gold_rush_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_ricochet": {
+		"name_key": "skill_ricochet",
+		"kind": "projectile",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_swarm",
+			"chain"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_ricochet_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_salvo": {
+		"name_key": "skill_salvo",
+		"kind": "passive",
+		"tags": [
+			"projectile",
+			"haste"
+		],
+		"card_tags": [
+			"projectile",
+			"haste",
+			"dps"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_salvo_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"fire_rate_mult": 0.22
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"fire_rate_mult": 0.44
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"fire_rate_mult": 0.66
+				}
+			}
+		]
+	},
+	"skill_incendiary": {
+		"name_key": "skill_incendiary",
+		"kind": "element",
+		"tags": [
+			"element"
+		],
+		"card_tags": [
+			"element",
+			"anti_swarm",
+			"fire",
+			"burn"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_incendiary_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_cryo": {
+		"name_key": "skill_cryo",
+		"kind": "element",
+		"tags": [
+			"element"
+		],
+		"card_tags": [
+			"element",
+			"control",
+			"ice"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_cryo_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_tesla": {
+		"name_key": "skill_tesla",
+		"kind": "element",
+		"tags": [
+			"element"
+		],
+		"card_tags": [
+			"element",
+			"projectile",
+			"lightning",
+			"chain"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_tesla_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_venom": {
+		"name_key": "skill_venom",
+		"kind": "element",
+		"tags": [
+			"element"
+		],
+		"card_tags": [
+			"element",
+			"anti_armor",
+			"poison"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_venom_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_charge_shot": {
+		"name_key": "skill_charge_shot",
+		"kind": "projectile",
+		"tags": [
+			"projectile"
+		],
+		"card_tags": [
+			"projectile",
+			"anti_armor",
+			"execute"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_charge_shot_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	},
+	"skill_recycle": {
+		"name_key": "skill_recycle",
+		"kind": "passive",
+		"tags": [
+			"passive"
+		],
+		"card_tags": [
+			"economy",
+			"defense"
+		],
+		"icon": "res://assets/production/sprites/ui/skill_recycle_icon.png",
+		"levels": [
+			{
+				"lv": 1,
+				"effect": {
+					"power": 1.0
+				}
+			},
+			{
+				"lv": 2,
+				"effect": {
+					"power": 1.5
+				}
+			},
+			{
+				"lv": 3,
+				"effect": {
+					"power": 2.2
+				}
+			}
+		]
+	}
+}

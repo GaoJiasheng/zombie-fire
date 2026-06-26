@@ -1,0 +1,32 @@
+{
+  "id": "pet_turret_drone",
+  "kind": "pets",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_idle_01.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_idle_02.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_idle_03.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_attack_01.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_attack_02.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_attack_03.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_hurt_01.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_hurt_02.png",
+        "sprites/animations/pets/pet_turret_drone/pet_turret_drone_hurt_03.png"
+      ]
+    }
+  }
+}

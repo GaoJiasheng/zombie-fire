@@ -1,0 +1,32 @@
+{
+  "id": "char_blaze",
+  "kind": "characters",
+  "actions": {
+    "idle": {
+      "fps": 8,
+      "frames": [
+        "sprites/animations/characters/char_blaze/char_blaze_idle_01.png",
+        "sprites/animations/characters/char_blaze/char_blaze_idle_02.png",
+        "sprites/animations/characters/char_blaze/char_blaze_idle_03.png",
+        "sprites/animations/characters/char_blaze/char_blaze_idle_04.png"
+      ]
+    },
+    "attack": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/characters/char_blaze/char_blaze_attack_01.png",
+        "sprites/animations/characters/char_blaze/char_blaze_attack_02.png",
+        "sprites/animations/characters/char_blaze/char_blaze_attack_03.png",
+        "sprites/animations/characters/char_blaze/char_blaze_attack_04.png"
+      ]
+    },
+    "hurt": {
+      "fps": 12,
+      "frames": [
+        "sprites/animations/characters/char_blaze/char_blaze_hurt_01.png",
+        "sprites/animations/characters/char_blaze/char_blaze_hurt_02.png",
+        "sprites/animations/characters/char_blaze/char_blaze_hurt_03.png"
+      ]
+    }
+  }
+}

@@ -1,0 +1,71 @@
+[gd_scene load_steps=4 format=3 uid="uid://zf_collection"]
+
+[ext_resource type="Script" path="res://meta/collection/collection.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/bg_city_ruins.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/ui_button_secondary.png" id="3_btn"]
+
+[node name="Collection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.42, 0.42, 0.42, 1)
+
+[node name="Title" type="Label" parent="."]
+offset_left = 80.0
+offset_top = 90.0
+offset_right = 1000.0
+offset_bottom = 160.0
+theme_override_font_sizes/font_size = 54
+text = "图鉴"
+horizontal_alignment = 1
+
+[node name="Progress" type="Label" parent="."]
+offset_left = 100.0
+offset_top = 170.0
+offset_right = 980.0
+offset_bottom = 226.0
+theme_override_font_sizes/font_size = 28
+text = "星星 0  金币 0"
+horizontal_alignment = 1
+
+[node name="ItemScroll" type="ScrollContainer" parent="."]
+offset_left = 160.0
+offset_top = 260.0
+offset_right = 920.0
+offset_bottom = 1660.0
+horizontal_scroll_mode = 0
+
+[node name="ItemList" type="VBoxContainer" parent="ItemScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="TextureButton" parent="."]
+offset_left = 240.0
+offset_top = 1720.0
+offset_right = 840.0
+offset_bottom = 1840.0
+texture_normal = ExtResource("3_btn")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="BackButton"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 600.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 38
+text = "返回地图"
+horizontal_alignment = 1
+vertical_alignment = 1

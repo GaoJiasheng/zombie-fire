@@ -1,0 +1,63 @@
+{
+	"armor_kevlar": {
+		"name_key": "armor_kevlar",
+		"hp_mult": 1.12,
+		"resist": "physical",
+		"level_hp_growth": 0.018,
+		"max_level": 35,
+		"cost_base_gold": 115,
+		"unlock_cost_star": 0,
+		"icon": "res://assets/production/sprites/equipment/armor_kevlar_icon.png"
+	},
+	"armor_thermal": {
+		"name_key": "armor_thermal",
+		"hp_mult": 1.08,
+		"resist": "fire",
+		"level_hp_growth": 0.018,
+		"max_level": 35,
+		"cost_base_gold": 125,
+		"unlock_cost_star": 28,
+		"icon": "res://assets/production/sprites/equipment/armor_thermal_icon.png"
+	},
+	"armor_cryo": {
+		"name_key": "armor_cryo",
+		"hp_mult": 1.08,
+		"resist": "ice",
+		"level_hp_growth": 0.018,
+		"max_level": 35,
+		"cost_base_gold": 125,
+		"unlock_cost_star": 52,
+		"icon": "res://assets/production/sprites/equipment/armor_cryo_icon.png"
+	},
+	"armor_faraday": {
+		"name_key": "armor_faraday",
+		"hp_mult": 1.08,
+		"resist": "lightning",
+		"level_hp_growth": 0.018,
+		"max_level": 35,
+		"cost_base_gold": 130,
+		"unlock_cost_star": 78,
+		"icon": "res://assets/production/sprites/equipment/armor_faraday_icon.png"
+	},
+	"armor_hazmat": {
+		"name_key": "armor_hazmat",
+		"hp_mult": 1.1,
+		"resist": "poison",
+		"level_hp_growth": 0.019,
+		"max_level": 35,
+		"cost_base_gold": 135,
+		"unlock_cost_star": 110,
+		"icon": "res://assets/production/sprites/equipment/armor_hazmat_icon.png"
+	},
+	"armor_reactive": {
+		"name_key": "armor_reactive",
+		"hp_mult": 1.16,
+		"resist": "none",
+		"breach_shield": 1,
+		"level_hp_growth": 0.02,
+		"max_level": 35,
+		"cost_base_gold": 160,
+		"unlock_cost_star": 168,
+		"icon": "res://assets/production/sprites/equipment/armor_reactive_icon.png"
+	}
+}
