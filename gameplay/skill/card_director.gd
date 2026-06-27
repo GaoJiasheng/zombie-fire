@@ -23,9 +23,14 @@ var skill_pool := [
 func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	var weighted: Array[String] = []
 	var bias := _build_bias(level)
-	var skills: Dictionary = DataLoader.get_table("skills")
+	var data_loader = _data_loader()
+	if data_loader == null:
+		return []
+	var skills: Dictionary = data_loader.get_table("skills")
 	for skill_id in skill_pool:
 		var row: Dictionary = skills.get(skill_id, {})
+		if not _allowed_by_selected_weapon(skill_id, row, owned):
+			continue
 		var current_level := int(owned.get(skill_id, 0))
 		if current_level >= _skill_max_level(row):
 			continue
@@ -39,7 +44,7 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 		for i in range(max(weight, 1)):
 			weighted.append(skill_id)
 	var result: Array[String] = []
-	var economy: Dictionary = DataLoader.get_table("economy")
+	var economy: Dictionary = data_loader.get_table("economy")
 	var economy_rules: Dictionary = economy.get("card_director", {})
 	var max_economy := int(economy_rules.get("max_economy_cards_per_offer", 1))
 	var economy_count := 0
@@ -79,29 +84,69 @@ func _build_bias(level: Dictionary) -> Dictionary:
 				bias["defense"] = float(bias.get("defense", 1.0)) + 0.8
 			"breach":
 				bias["anti_swarm"] = float(bias.get("anti_swarm", 1.0)) + 0.7
-	if root_has_save_manager():
-		var character_id := SaveManager.get_selected("character")
-		var weapon_id := SaveManager.get_selected("weapon")
-		for tag in DataLoader.get_row("characters", character_id).get("card_affinity_tags", []):
+	var save_manager = _save_manager()
+	var data_loader = _data_loader()
+	if save_manager != null and data_loader != null:
+		var character_id: String = str(save_manager.get_selected("character"))
+		var weapon_id: String = str(save_manager.get_selected("weapon"))
+		for tag in data_loader.get_row("characters", character_id).get("card_affinity_tags", []):
 			bias[str(tag)] = float(bias.get(str(tag), 1.0)) + 1.1
-		var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+		var weapon_element := str(data_loader.get_row("weapons", weapon_id).get("element", "physical"))
 		if weapon_element != "":
 			bias[weapon_element] = float(bias.get(weapon_element, 1.0)) + 1.2
 	return bias
 
 func root_has_save_manager() -> bool:
-	return is_instance_valid(Engine.get_main_loop()) and Engine.get_main_loop() is SceneTree and (Engine.get_main_loop() as SceneTree).root.has_node("/root/SaveManager")
+	return _save_manager() != null
 
 func _matches_selected_loadout(row: Dictionary) -> bool:
-	if not root_has_save_manager():
+	var save_manager = _save_manager()
+	var data_loader = _data_loader()
+	if save_manager == null or data_loader == null:
 		return false
-	var character_id := SaveManager.get_selected("character")
-	var weapon_id := SaveManager.get_selected("weapon")
-	var character := DataLoader.get_row("characters", character_id)
-	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var character_id: String = str(save_manager.get_selected("character"))
+	var weapon_id: String = str(save_manager.get_selected("weapon"))
+	var character: Dictionary = data_loader.get_row("characters", character_id)
+	var weapon: Dictionary = data_loader.get_row("weapons", weapon_id)
 	var tags: Array = row.get("card_tags", [])
 	for tag in character.get("card_affinity_tags", []):
 		if tags.has(tag):
 			return true
 	var element: String = str(weapon.get("element", ""))
 	return element != "" and tags.has(element)
+
+func _allowed_by_selected_weapon(skill_id: String, row: Dictionary, owned: Dictionary) -> bool:
+	if str(row.get("exclusive_group", "")) != "projectile_element":
+		return true
+	var save_manager = _save_manager()
+	var data_loader = _data_loader()
+	if save_manager == null or data_loader == null:
+		return true
+	var weapon_id: String = str(save_manager.get_selected("weapon"))
+	var weapon: Dictionary = data_loader.get_row("weapons", weapon_id)
+	var weapon_element := str(weapon.get("element", "physical"))
+	var ammo_element := str(row.get("ammo_element", ""))
+	if weapon_element != "" and weapon_element != "physical":
+		return ammo_element == weapon_element
+	var current_level := int(owned.get(skill_id, 0))
+	if current_level > 0:
+		return true
+	for other_id in owned.keys():
+		if int(owned.get(other_id, 0)) <= 0:
+			continue
+		var other_row: Dictionary = data_loader.get_row("skills", str(other_id))
+		if str(other_row.get("exclusive_group", "")) == "projectile_element" and str(other_id) != skill_id:
+			return false
+	return true
+
+func _data_loader():
+	var loop := Engine.get_main_loop()
+	if loop == null or not loop is SceneTree:
+		return null
+	return (loop as SceneTree).root.get_node_or_null("/root/DataLoader")
+
+func _save_manager():
+	var loop := Engine.get_main_loop()
+	if loop == null or not loop is SceneTree:
+		return null
+	return (loop as SceneTree).root.get_node_or_null("/root/SaveManager")

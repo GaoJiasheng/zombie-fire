@@ -27,10 +27,14 @@ func reset() -> void:
 func refresh(viewport: Rect2, camera_offset: Vector2) -> void:
 	if _arrow_template == null or not is_inside_tree():
 		return
-	# Trim stale arrows
 	_arrows_left = _arrows_left.filter(func(a): return is_instance_valid(a))
 	_arrows_right = _arrows_right.filter(func(a): return is_instance_valid(a))
-	var used: Dictionary = {}
+	for arrow in _arrows_left:
+		arrow.visible = false
+	for arrow in _arrows_right:
+		arrow.visible = false
+	var left_used := 0
+	var right_used := 0
 	for enemy in get_tree().get_nodes_in_group(ENEMY_GROUP):
 		if not is_instance_valid(enemy):
 			continue
@@ -41,13 +45,17 @@ func refresh(viewport: Rect2, camera_offset: Vector2) -> void:
 		var side := _pick_side(to_enemy)
 		if side == 0:
 			continue
-		var arr := _get_arrow(side)
+		var index := right_used if side == 1 else left_used
+		var arr := _get_arrow(side, index)
+		if side == 1:
+			right_used += 1
+		else:
+			left_used += 1
 		var arrow_pos := _arrow_position(side, to_enemy, viewport)
 		arr.global_position = arrow_pos
 		arr.rotation = _arrow_rotation(side, to_enemy)
 		arr.modulate = _threat_color(enemy)
-		used[arr.get_instance_id()] = true
-	_cleanup_unused(used)
+		arr.visible = true
 
 func _pick_side(to_enemy: Vector2) -> int:
 	if absf(to_enemy.x) > absf(to_enemy.y) * 1.1:
@@ -56,16 +64,22 @@ func _pick_side(to_enemy: Vector2) -> int:
 		return 1 if to_enemy.x > 0 else -1
 	return 0
 
-func _get_arrow(side: int) -> Node2D:
-	var pool: Array = _arrows_right if side == 1 else _arrows_left
-	if pool.is_empty():
-		var arr := Sprite2D.new()
-		arr.texture = _arrow_template
-		arr.scale = Vector2(0.18, 0.18)
-		add_child(arr)
-		pool.append(arr)
-		return arr
-	return pool.pop_back()
+func _get_arrow(side: int, index: int) -> Node2D:
+	if side == 1:
+		while _arrows_right.size() <= index:
+			_arrows_right.append(_make_arrow())
+		return _arrows_right[index]
+	while _arrows_left.size() <= index:
+		_arrows_left.append(_make_arrow())
+	return _arrows_left[index]
+
+func _make_arrow() -> Node2D:
+	var arr := Sprite2D.new()
+	arr.texture = _arrow_template
+	arr.scale = Vector2(0.18, 0.18)
+	arr.visible = false
+	add_child(arr)
+	return arr
 
 func _arrow_position(side: int, to_enemy: Vector2, viewport: Rect2) -> Vector2:
 	var center := viewport.get_center()
@@ -89,21 +103,3 @@ func _threat_color(enemy: Node) -> Color:
 	if tags.has("breach") or tags.has("fast"):
 		return Color(1.0, 0.85, 0.4)
 	return Color(1.0, 1.0, 1.0, 0.85)
-
-func _cleanup_unused(used: Dictionary) -> void:
-	for a in _arrows_left:
-		if not used.has(a.get_instance_id()):
-			a.visible = false
-	for a in _arrows_right:
-		if not used.has(a.get_instance_id()):
-			a.visible = false
-	for a in _arrows_left:
-		if a.visible:
-			_arrows_left.append(a)
-		else:
-			_arrows_right.append(a)  # re-pool
-	_arrows_left.clear()
-	_arrows_right.clear()
-	# restore visibility
-	for a in get_children():
-		a.visible = used.has(a.get_instance_id()) if a is Sprite2D else a.visible

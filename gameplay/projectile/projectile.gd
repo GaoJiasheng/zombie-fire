@@ -7,6 +7,8 @@ const SPRITE_FORWARD_ANGLE := 0.0
 const PROJECTILE_SPEED_MULTIPLIER := 0.5
 const PIERCE_SWEEP_RANGE := 420.0
 const PIERCE_SWEEP_HALF_WIDTH := 92.0
+const MAX_LAYER_TRAIL_FX := 110
+const MAX_LAYER_HIT_FX := 150
 
 var velocity := Vector2.ZERO
 var damage := 10.0
@@ -96,7 +98,10 @@ func _spawn_trail_afterimage(alpha: float) -> void:
 	var parent := get_parent()
 	if parent == null or $Sprite.texture == null:
 		return
+	if not _can_spawn_transient_fx(MAX_LAYER_TRAIL_FX):
+		return
 	var trail := Sprite2D.new()
+	_track_transient_fx(trail)
 	trail.texture = $Sprite.texture
 	trail.global_position = global_position
 	trail.rotation = rotation
@@ -228,7 +233,10 @@ func _spawn_impact_flash_at(at_position: Vector2) -> void:
 	var parent := get_parent()
 	if parent == null:
 		return
+	if not _can_spawn_transient_fx(MAX_LAYER_HIT_FX):
+		return
 	var flash := Sprite2D.new()
+	_track_transient_fx(flash)
 	flash.texture = load(_impact_vfx_path(element))
 	flash.global_position = at_position
 	flash.rotation = randf_range(-0.45, 0.45)
@@ -244,7 +252,10 @@ func _spawn_pierce_flash() -> void:
 	var parent := get_parent()
 	if parent == null:
 		return
+	if not _can_spawn_transient_fx(MAX_LAYER_HIT_FX):
+		return
 	var ring := Sprite2D.new()
+	_track_transient_fx(ring)
 	ring.texture = load("res://assets/production/sprites/vfx/vfx_crit.png")
 	ring.global_position = global_position
 	ring.rotation = velocity.angle()
@@ -260,10 +271,13 @@ func _spawn_pierce_trace(from: Vector2, to: Vector2) -> void:
 	var parent := get_parent()
 	if parent == null:
 		return
+	if not _can_spawn_transient_fx(MAX_LAYER_HIT_FX):
+		return
 	var parent_node := parent as Node2D
 	var start := parent_node.to_local(from) if parent_node != null else from
 	var finish := parent_node.to_local(to) if parent_node != null else to
 	var trace := Line2D.new()
+	_track_transient_fx(trace)
 	trace.width = 18.0 * maxf(visual_scale, 0.85)
 	trace.default_color = Color(1.0, 0.9, 0.36, 0.58)
 	trace.points = PackedVector2Array([start, finish])
@@ -272,6 +286,21 @@ func _spawn_pierce_trace(from: Vector2, to: Vector2) -> void:
 	tween.parallel().tween_property(trace, "width", 3.0, 0.16)
 	tween.parallel().tween_property(trace, "modulate:a", 0.0, 0.16)
 	tween.tween_callback(trace.queue_free)
+
+func _track_transient_fx(node: Node) -> void:
+	node.set_meta("transient_vfx", true)
+
+func _can_spawn_transient_fx(limit: int) -> bool:
+	var parent := get_parent()
+	if parent == null:
+		return true
+	var count := 0
+	for child in parent.get_children():
+		if child.has_meta("transient_vfx") and not child.is_queued_for_deletion():
+			count += 1
+			if count >= limit:
+				return false
+	return true
 
 func _impact_vfx_path(elem: String) -> String:
 	match elem:

@@ -12,7 +12,7 @@ const MUZZLE_LOCAL_OFFSETS := {
 	"weapon_teslacoil": Vector2(-28, -205),
 	"weapon_venomlauncher": Vector2(-158, -48),
 }
-const FIRE_RATE_MULTIPLIER := 0.5
+const DEFAULT_FIRE_RATE_MULTIPLIER := 0.25
 
 var target_point := Vector2(540, 600)
 var fire_rate := 4.0
@@ -29,7 +29,7 @@ var frame_index := 0
 
 func setup(weapon: Dictionary, weapon_level := 1) -> void:
 	weapon_id = _weapon_id_from_turret(str(weapon.get("turret", "")))
-	fire_rate = float(weapon.get("fire_rate", 4.0)) * (1.0 + 0.025 * float(max(weapon_level - 1, 0))) * FIRE_RATE_MULTIPLIER
+	fire_rate = float(weapon.get("fire_rate", 4.0)) * (1.0 + 0.025 * float(max(weapon_level - 1, 0))) * _player_fire_rate_multiplier()
 	damage_mult = 1.0 + 0.08 * float(max(weapon_level - 1, 0))
 	turn_speed *= 1.0 + 0.006 * float(max(weapon_level - 1, 0))
 	$Sprite.texture = load(weapon.get("turret", "res://assets/sprites/weapons/weapon_autocannon_turret.png"))
@@ -101,6 +101,18 @@ func _update_animation(delta: float) -> void:
 func _weapon_id_from_turret(path: String) -> String:
 	var name := path.get_file().get_basename()
 	return name.replace("_turret", "") if name != "" else "weapon_autocannon"
+
+func _player_fire_rate_multiplier() -> float:
+	var loop := Engine.get_main_loop()
+	if loop == null or not loop is SceneTree:
+		return DEFAULT_FIRE_RATE_MULTIPLIER
+	var data_loader := (loop as SceneTree).root.get_node_or_null("/root/DataLoader")
+	if data_loader == null or not data_loader.has_method("get_table"):
+		return DEFAULT_FIRE_RATE_MULTIPLIER
+	var economy: Variant = data_loader.get_table("economy")
+	if not (economy is Dictionary):
+		return DEFAULT_FIRE_RATE_MULTIPLIER
+	return float((economy as Dictionary).get("PLAYER_FIRE_RATE_MULT", DEFAULT_FIRE_RATE_MULTIPLIER))
 
 func _level_tint(level: int) -> Color:
 	if level >= 25:

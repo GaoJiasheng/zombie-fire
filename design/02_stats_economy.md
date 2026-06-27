@@ -17,16 +17,16 @@
 |---|---|---|
 | 暴击率 `crit_rate` | 触发暴击的概率 | 芯片、技能 `skill_critical`、角色 |
 | 爆伤 `crit_dmg` | 暴击倍率（基础 ×1.5） | 芯片、技能 |
-| 攻速 `fire_rate` | 每秒发数 | 主炮基础值 × (1+加成) |
+| 攻速 `fire_rate` | 每秒发数 | 主武器基础值 × (1+加成) × `PLAYER_FIRE_RATE_MULT`；当前全局节奏值为 `0.25` |
 | 元素伤害 `elem_dmg_{x}` | 对应元素的增伤% | 芯片、技能、角色 |
 | 减伤 `dmg_reduce` | 基地受到越线伤害的减免% | 护甲 |
-| 穿透 `pierce` | 子弹可穿透的敌人数 | 主炮、技能 `skill_pierce` |
+| 穿透 `pierce` | 子弹可穿透的敌人数 | 主武器、技能 `skill_pierce` |
 | 暴击外的特效率 | 分裂/弹射/追踪触发等 | 各对应技能 |
 
 ### 伤害结算公式（单发命中）
 
 ```
-基础伤害   = ATK × weapon_dmg_coef × skill_mods
+基础伤害   = ATK × weapon_dmg_coef × skill_mods × PLAYER_SHOT_DAMAGE_MULT
 元素增伤   = × (1 + elem_dmg_{element})
 弱点/抗性  = × weakness_mult     // 弱点1.5 / 普通1.0 / 抗性0.5 / 免疫0
 暴击       = × (暴击命中 ? crit_dmg : 1)
@@ -36,7 +36,7 @@
 - DoT（火灼烧、毒中毒）：每跳按"快照时的最终伤害 × DoT系数"结算，持续 X 秒。
 - 控制（冰减速/冻结、雷麻痹）：不直接造成大伤害，价值在节奏控制。
 
-> 详细数值系数、随等级的成长曲线见 `09_balance.md`。本文只定义"框架与来源"。
+> 详细数值系数、随等级的成长曲线见 `09_balance.md`。`PLAYER_FIRE_RATE_MULT = 0.25` 负责当前射击手感，`PLAYER_SHOT_DAMAGE_MULT = 3.0` 负责单发补偿；本文只定义"框架与来源"。
 
 ## 2. 角色属性的三个来源
 

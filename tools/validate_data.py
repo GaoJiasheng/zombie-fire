@@ -101,6 +101,11 @@ def main() -> int:
 
     for skill_id, row in tables["skills"].items():
         check_asset(errors, skill_id, row, ["icon"])
+        ammo_element = row.get("ammo_element", "")
+        if ammo_element and ammo_element not in elements:
+            errors.append(f"{skill_id}.ammo_element unknown: {ammo_element}")
+        if ammo_element and row.get("exclusive_group") != "projectile_element":
+            errors.append(f"{skill_id}.ammo_element must declare exclusive_group projectile_element")
 
     seen_levels = set()
     for level in tables["levels"]:

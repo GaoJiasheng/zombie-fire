@@ -17,6 +17,7 @@ def main() -> int:
     levels = load("levels")
     errors: list[str] = []
     print("Level pressure estimate")
+    series: list[tuple[str, float, bool]] = []
     for level in levels:
         pressure = 0.0
         duration = 0.0
@@ -36,6 +37,7 @@ def main() -> int:
                 pressure += count * float(row.get("hp_coef", 1.0)) * float(row.get("bd_coef", 1.0))
                 duration += count * float(group.get("interval", 0.8))
         pressure *= float(level.get("difficulty_coef", 1.0))
+        series.append((level["id"], pressure, boss_count > 0))
         print(f"{level['id']}: pressure={pressure:.1f}, spawn_time={duration:.1f}s, boss={boss_count}")
         min_duration = 40.0 if boss_count else 36.0
         if level["id"] == "level_001":
@@ -44,6 +46,72 @@ def main() -> int:
             errors.append(f"{level['id']} spawn duration too short: {duration:.1f}s")
         if pressure <= 0.0:
             errors.append(f"{level['id']} pressure must be positive")
+
+    # Difficulty must ramp smoothly. Boss levels are intentional periodic spikes,
+    # so each stream (boss / non-boss) is checked for monotonic non-decreasing
+    # pressure independently rather than the raw interleaved series.
+    for stream_name, want_boss in (("non-boss", False), ("boss", True)):
+        prev_id = ""
+        prev_pressure = -1.0
+        for level_id, pressure, is_boss in series:
+            if is_boss != want_boss:
+                continue
+            if prev_pressure >= 0.0 and pressure < prev_pressure - 1e-6:
+                errors.append(
+                    f"{stream_name} difficulty regresses: {level_id} pressure "
+                    f"{pressure:.1f} < {prev_id} {prev_pressure:.1f}"
+                )
+            prev_id, prev_pressure = level_id, pressure
+
+    # The campaign must finish on a boss, and the finale must be the hardest fight.
+    if series:
+        last_id, last_pressure, last_is_boss = series[-1]
+        if not last_is_boss:
+            errors.append(f"final level {last_id} must end on a boss wave")
+        peak_id, peak_pressure, _ = max(series, key=lambda item: item[1])
+        if peak_id != last_id:
+            errors.append(
+                f"final level {last_id} ({last_pressure:.1f}) must be the peak; "
+                f"{peak_id} is higher ({peak_pressure:.1f})"
+            )
+
+    # Layout variety: no three consecutive levels may share the same wave pattern,
+    # so the campaign never feels like the same fight on repeat.
+    patterns = [str(level.get("wave_pattern", "")) for level in levels]
+    if all(patterns):
+        # Levels 1-5 are the onboarding stretch and intentionally stay "standard".
+        for i in range(max(2, 5), len(patterns)):
+            if patterns[i] == patterns[i - 1] == patterns[i - 2]:
+                errors.append(
+                    f"wave pattern '{patterns[i]}' repeats 3x at levels {i - 1}-{i + 1}"
+                )
+        distinct = len(set(patterns))
+        if distinct < 4:
+            errors.append(f"too few distinct wave patterns: {distinct} (want >= 4)")
+
+    # Variant levels are reward/flavour tags layered on the wave data without
+    # changing pressure. Keep boss/non-boss tagging consistent and ensure the
+    # campaign actually contains a healthy spread of special levels.
+    valid_variants = {"normal", "elite", "treasure", "boss", "boss_rush"}
+    boss_ids = {sid for sid, _pressure, is_boss in series if is_boss}
+    variant_counts: dict[str, int] = {}
+    for level in levels:
+        variant = str(level.get("variant", ""))
+        if variant not in valid_variants:
+            errors.append(f"{level['id']} has invalid variant '{variant}'")
+            continue
+        variant_counts[variant] = variant_counts.get(variant, 0) + 1
+        level_is_boss = level["id"] in boss_ids
+        if level_is_boss and variant not in ("boss", "boss_rush"):
+            errors.append(f"{level['id']} is a boss level but variant is '{variant}'")
+        if not level_is_boss and variant in ("boss", "boss_rush"):
+            errors.append(f"{level['id']} is not a boss level but variant is '{variant}'")
+    if levels and str(levels[-1].get("variant", "")) != "boss_rush":
+        errors.append("final level must use the boss_rush variant")
+    for needed in ("elite", "treasure"):
+        if variant_counts.get(needed, 0) < 3:
+            errors.append(f"too few '{needed}' variant levels: {variant_counts.get(needed, 0)} (want >= 3)")
+
     if errors:
         print("Pressure check failed:")
         for error in errors:

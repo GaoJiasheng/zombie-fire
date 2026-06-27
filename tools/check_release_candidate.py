@@ -15,6 +15,8 @@ COMMANDS = [
     ["python3", "tools/check_level_pressure.py"],
     ["python3", "tools/check_balance_profile.py"],
     ["python3", "tools/check_economy_loop.py"],
+    ["python3", "tools/check_hardcoded_colors.py"],
+    ["python3", "tools/check_contrast.py"],
     ["python3", "tools/check_gameplay_polish.py"],
     ["python3", "tools/check_app_store_assets.py"],
     ["python3", "tools/check_release_strings.py"],

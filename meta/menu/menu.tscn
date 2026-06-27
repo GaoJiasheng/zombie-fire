@@ -21,253 +21,81 @@ texture = ExtResource("3_bg")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Title" type="Label" parent="."]
+[node name="Layout" type="MarginContainer" parent="."]
 layout_mode = 1
-offset_left = 60.0
-offset_top = 360.0
-offset_right = 1020.0
-offset_bottom = 540.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 120
+theme_override_constants/margin_top = 120
+theme_override_constants/margin_right = 120
+theme_override_constants/margin_bottom = 160
+
+[node name="VBox" type="VBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="TopSpacer" type="Control" parent="Layout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Title" type="Label" parent="Layout/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_font_sizes/font_size = 120
-text = "ZOMBIE FIRE"
+text = "尸潮防线"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="."]
-layout_mode = 1
-offset_left = 60.0
-offset_top = 560.0
-offset_right = 1020.0
-offset_bottom = 640.0
+[node name="Subtitle" type="Label" parent="Layout/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_font_sizes/font_size = 36
-text = "竖屏尸潮防线 Roguelite"
+text = "竖屏肉鸽防线"
 horizontal_alignment = 1
 
-[node name="StartButton" type="TextureButton" parent="."]
-offset_left = 240.0
-offset_top = 1280.0
-offset_right = 840.0
-offset_bottom = 1400.0
+[node name="MidSpacer" type="Control" parent="Layout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="StartButton" type="TextureButton" parent="Layout/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(600, 120)
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("2_btn")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="StartButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 600.0
-offset_bottom = 120.0
+[node name="Label" type="Label" parent="Layout/VBox/StartButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme_override_font_sizes/font_size = 44
 text = "开始"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HelpButton" type="TextureButton" parent="."]
-offset_left = 240.0
-offset_top = 1440.0
-offset_right = 840.0
-offset_bottom = 1560.0
+[node name="HelpButton" type="TextureButton" parent="Layout/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(600, 120)
+layout_mode = 2
+size_flags_horizontal = 4
 texture_normal = ExtResource("4_btn2")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="HelpButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 600.0
-offset_bottom = 120.0
+[node name="Label" type="Label" parent="Layout/VBox/HelpButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme_override_font_sizes/font_size = 40
-text = "操作说明"
+text = "设置"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HelpOverlay" type="Control" parent="."]
-visible = false
-layout_mode = 1
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 1080.0
-offset_bottom = 1920.0
-
-[node name="Dim" type="ColorRect" parent="HelpOverlay"]
-layout_mode = 1
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 1080.0
-offset_bottom = 1920.0
-color = Color(0, 0, 0, 0.72)
-
-[node name="Panel" type="Panel" parent="HelpOverlay"]
-layout_mode = 1
-offset_left = 130.0
-offset_top = 340.0
-offset_right = 950.0
-offset_bottom = 1340.0
-
-[node name="Title" type="Label" parent="HelpOverlay/Panel"]
-offset_left = 40.0
-offset_top = 36.0
-offset_right = 780.0
-offset_bottom = 100.0
-theme_override_font_sizes/font_size = 46
-text = "操作说明"
-horizontal_alignment = 1
-
-[node name="Body" type="Label" parent="HelpOverlay/Panel"]
-offset_left = 70.0
-offset_top = 140.0
-offset_right = 750.0
-offset_bottom = 370.0
-theme_override_font_sizes/font_size = 30
-text = "移动鼠标或触控拖动：调整炮口方向\n右键或双击目标：锁定优先攻击\nTab/策略按钮：切换目标优先级\nXP 满后选择技能卡；长按卡片查看详细说明\n局外可用金币升级自动机炮"
-autowrap_mode = 3
-
-[node name="SoundButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 70.0
-offset_top = 410.0
-offset_right = 390.0
-offset_bottom = 490.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/SoundButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 27
-text = "声音：开"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="QualityButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 430.0
-offset_top = 410.0
-offset_right = 750.0
-offset_bottom = 490.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/QualityButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 24
-text = "画质：标准 60FPS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="PrivacyButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 70.0
-offset_top = 505.0
-offset_right = 390.0
-offset_bottom = 585.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/PrivacyButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 28
-text = "隐私"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="SupportButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 430.0
-offset_top = 505.0
-offset_right = 750.0
-offset_bottom = 585.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/SupportButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 28
-text = "支持"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BackupButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 70.0
-offset_top = 600.0
-offset_right = 390.0
-offset_bottom = 680.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/BackupButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 28
-text = "备份存档"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RestoreButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 430.0
-offset_top = 600.0
-offset_right = 750.0
-offset_bottom = 680.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/RestoreButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 320.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 28
-text = "无备份"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="CloseButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 150.0
-offset_top = 855.0
-offset_right = 670.0
-offset_bottom = 945.0
-texture_normal = ExtResource("2_btn")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/CloseButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 520.0
-offset_bottom = 100.0
-theme_override_font_sizes/font_size = 34
-text = "关闭"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ResetButton" type="TextureButton" parent="HelpOverlay/Panel"]
-offset_left = 150.0
-offset_top = 710.0
-offset_right = 670.0
-offset_bottom = 790.0
-texture_normal = ExtResource("4_btn2")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="HelpOverlay/Panel/ResetButton"]
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 520.0
-offset_bottom = 90.0
-theme_override_font_sizes/font_size = 30
-text = "重置存档"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="BottomSpacer" type="Control" parent="Layout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3

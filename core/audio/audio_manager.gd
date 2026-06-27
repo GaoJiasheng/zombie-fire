@@ -103,6 +103,7 @@ func release_for_tests() -> void:
 		player.stream = null
 	_sfx_cache.clear()
 	_bgm_cache.clear()
+	_last_sfx_time.clear()
 
 func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	if not enabled or not SFX.has(id):

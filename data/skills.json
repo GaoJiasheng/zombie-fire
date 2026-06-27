@@ -11,27 +11,11 @@
 		],
 		"icon": "res://assets/sprites/ui/skill_split_shot_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"split": 2,
-					"falloff": 0.55
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"split": 3,
-					"falloff": 0.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"split": 5,
-					"falloff": 0.45
-				}
-			}
+			{ "lv": 1, "effect": { "split": 2, "falloff": 0.55 } },
+			{ "lv": 2, "effect": { "split": 3, "falloff": 0.5 } },
+			{ "lv": 3, "effect": { "split": 4, "falloff": 0.46 } },
+			{ "lv": 4, "effect": { "split": 5, "falloff": 0.42 } },
+			{ "lv": 5, "effect": { "split": 6, "falloff": 0.36 } }
 		]
 	},
 	"skill_pierce": {
@@ -48,25 +32,11 @@
 		],
 		"icon": "res://assets/sprites/ui/skill_pierce_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"pierce": 1
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"pierce": 2
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"pierce": 3,
-					"dmg_mult": 1.15
-				}
-			}
+			{ "lv": 1, "effect": { "pierce": 1 } },
+			{ "lv": 2, "effect": { "pierce": 2 } },
+			{ "lv": 3, "effect": { "pierce": 3, "dmg_mult": 0.15 } },
+			{ "lv": 4, "effect": { "pierce": 4, "dmg_mult": 0.22 } },
+			{ "lv": 5, "effect": { "pierce": 6, "dmg_mult": 0.32 } }
 		]
 	},
 	"skill_multishot": {
@@ -81,27 +51,11 @@
 		],
 		"icon": "res://assets/sprites/ui/skill_multishot_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"extra_projectiles": 1,
-					"spread": 8
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"extra_projectiles": 2,
-					"spread": 10
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"extra_projectiles": 3,
-					"spread": 12
-				}
-			}
+			{ "lv": 1, "effect": { "extra_projectiles": 1, "spread": 0 } },
+			{ "lv": 2, "effect": { "extra_projectiles": 2, "spread": 2 } },
+			{ "lv": 3, "effect": { "extra_projectiles": 3, "spread": 4 } },
+			{ "lv": 4, "effect": { "extra_projectiles": 4, "spread": 6 } },
+			{ "lv": 5, "effect": { "extra_projectiles": 5, "spread": 9 } }
 		]
 	},
 	"skill_slow_field": {
@@ -116,27 +70,11 @@
 		],
 		"icon": "res://assets/sprites/ui/skill_slow_field_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"slow": 0.18,
-					"y_min": 1280
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"slow": 0.26,
-					"y_min": 1220
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"slow": 0.35,
-					"y_min": 1160
-				}
-			}
+			{ "lv": 1, "effect": { "slow": 0.18, "y_min": 1280 } },
+			{ "lv": 2, "effect": { "slow": 0.26, "y_min": 1220 } },
+			{ "lv": 3, "effect": { "slow": 0.35, "y_min": 1160 } },
+			{ "lv": 4, "effect": { "slow": 0.43, "y_min": 1100 } },
+			{ "lv": 5, "effect": { "slow": 0.52, "y_min": 1040 } }
 		]
 	},
 	"skill_homing": {
@@ -152,24 +90,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_homing_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "homing": 1.0 } },
+			{ "lv": 2, "effect": { "homing": 2.0 } },
+			{ "lv": 3, "effect": { "homing": 3.0, "pierce": 1 } },
+			{ "lv": 4, "effect": { "homing": 4.0, "pierce": 1 } },
+			{ "lv": 5, "effect": { "homing": 5.0, "pierce": 2 } }
 		]
 	},
 	"skill_critical": {
@@ -185,24 +110,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_critical_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "crit_add": 0.04, "dmg_mult": 0.08 } },
+			{ "lv": 2, "effect": { "crit_add": 0.08, "dmg_mult": 0.16 } },
+			{ "lv": 3, "effect": { "crit_add": 0.12, "dmg_mult": 0.24, "crit_dmg": 0.15 } },
+			{ "lv": 4, "effect": { "crit_add": 0.17, "dmg_mult": 0.32, "crit_dmg": 0.3 } },
+			{ "lv": 5, "effect": { "crit_add": 0.24, "dmg_mult": 0.42, "crit_dmg": 0.55 } }
 		]
 	},
 	"skill_barrier": {
@@ -216,24 +128,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_barrier_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "shields": 1 } },
+			{ "lv": 2, "effect": { "shields": 1 } },
+			{ "lv": 3, "effect": { "shields": 1 } },
+			{ "lv": 4, "effect": { "shields": 1 } },
+			{ "lv": 5, "effect": { "shields": 2 } }
 		]
 	},
 	"skill_gold_rush": {
@@ -247,24 +146,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_gold_rush_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "gold_mult": 0.1 } },
+			{ "lv": 2, "effect": { "gold_mult": 0.2 } },
+			{ "lv": 3, "effect": { "gold_mult": 0.3 } },
+			{ "lv": 4, "effect": { "gold_mult": 0.42 } },
+			{ "lv": 5, "effect": { "gold_mult": 0.58 } }
 		]
 	},
 	"skill_ricochet": {
@@ -280,24 +166,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_ricochet_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "split": 1, "chain": 1 } },
+			{ "lv": 2, "effect": { "split": 2, "chain": 2 } },
+			{ "lv": 3, "effect": { "split": 3, "chain": 3 } },
+			{ "lv": 4, "effect": { "split": 4, "chain": 4 } },
+			{ "lv": 5, "effect": { "split": 5, "chain": 5 } }
 		]
 	},
 	"skill_salvo": {
@@ -314,29 +187,18 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_salvo_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"fire_rate_mult": 0.22
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"fire_rate_mult": 0.44
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"fire_rate_mult": 0.66
-				}
-			}
+			{ "lv": 1, "effect": { "fire_rate_mult": 0.22 } },
+			{ "lv": 2, "effect": { "fire_rate_mult": 0.44 } },
+			{ "lv": 3, "effect": { "fire_rate_mult": 0.66 } },
+			{ "lv": 4, "effect": { "fire_rate_mult": 0.9 } },
+			{ "lv": 5, "effect": { "fire_rate_mult": 1.2 } }
 		]
 	},
 	"skill_incendiary": {
 		"name_key": "skill_incendiary",
 		"kind": "element",
+		"exclusive_group": "projectile_element",
+		"ammo_element": "fire",
 		"tags": [
 			"element"
 		],
@@ -348,29 +210,18 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_incendiary_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "burn": 0.25, "dmg_mult": 0.06 } },
+			{ "lv": 2, "effect": { "burn": 0.3, "dmg_mult": 0.12 } },
+			{ "lv": 3, "effect": { "burn": 0.36, "dmg_mult": 0.18 } },
+			{ "lv": 4, "effect": { "burn": 0.44, "dmg_mult": 0.26 } },
+			{ "lv": 5, "effect": { "burn": 0.55, "dmg_mult": 0.36 } }
 		]
 	},
 	"skill_cryo": {
 		"name_key": "skill_cryo",
 		"kind": "element",
+		"exclusive_group": "projectile_element",
+		"ammo_element": "ice",
 		"tags": [
 			"element"
 		],
@@ -381,29 +232,18 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_cryo_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "slow": 0.18, "dmg_mult": 0.06 } },
+			{ "lv": 2, "effect": { "slow": 0.24, "dmg_mult": 0.12 } },
+			{ "lv": 3, "effect": { "slow": 0.3, "dmg_mult": 0.18 } },
+			{ "lv": 4, "effect": { "slow": 0.38, "dmg_mult": 0.26 } },
+			{ "lv": 5, "effect": { "slow": 0.48, "dmg_mult": 0.36 } }
 		]
 	},
 	"skill_tesla": {
 		"name_key": "skill_tesla",
 		"kind": "element",
+		"exclusive_group": "projectile_element",
+		"ammo_element": "lightning",
 		"tags": [
 			"element"
 		],
@@ -415,29 +255,18 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_tesla_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "chain": 1, "dmg_mult": 0.06 } },
+			{ "lv": 2, "effect": { "chain": 2, "dmg_mult": 0.12 } },
+			{ "lv": 3, "effect": { "chain": 2, "dmg_mult": 0.18 } },
+			{ "lv": 4, "effect": { "chain": 3, "dmg_mult": 0.26 } },
+			{ "lv": 5, "effect": { "chain": 4, "dmg_mult": 0.36 } }
 		]
 	},
 	"skill_venom": {
 		"name_key": "skill_venom",
 		"kind": "element",
+		"exclusive_group": "projectile_element",
+		"ammo_element": "poison",
 		"tags": [
 			"element"
 		],
@@ -448,24 +277,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_venom_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "poison": 0.2, "dmg_mult": 0.06 } },
+			{ "lv": 2, "effect": { "poison": 0.26, "dmg_mult": 0.12 } },
+			{ "lv": 3, "effect": { "poison": 0.32, "dmg_mult": 0.18 } },
+			{ "lv": 4, "effect": { "poison": 0.4, "dmg_mult": 0.26 } },
+			{ "lv": 5, "effect": { "poison": 0.5, "dmg_mult": 0.36 } }
 		]
 	},
 	"skill_charge_shot": {
@@ -481,24 +297,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_charge_shot_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "dmg_mult": 0.12 } },
+			{ "lv": 2, "effect": { "dmg_mult": 0.24 } },
+			{ "lv": 3, "effect": { "dmg_mult": 0.36 } },
+			{ "lv": 4, "effect": { "dmg_mult": 0.5 } },
+			{ "lv": 5, "effect": { "dmg_mult": 0.7 } }
 		]
 	},
 	"skill_recycle": {
@@ -513,24 +316,11 @@
 		],
 		"icon": "res://assets/production/sprites/ui/skill_recycle_icon.png",
 		"levels": [
-			{
-				"lv": 1,
-				"effect": {
-					"power": 1.0
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"power": 1.5
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"power": 2.2
-				}
-			}
+			{ "lv": 1, "effect": { "reroll": 1 } },
+			{ "lv": 2, "effect": { "reroll": 1 } },
+			{ "lv": 3, "effect": { "reroll": 1 } },
+			{ "lv": 4, "effect": { "reroll": 1 } },
+			{ "lv": 5, "effect": { "reroll": 2 } }
 		]
 	}
 }

@@ -8,6 +8,9 @@ func add_skill(skill_id: String) -> bool:
 	var current := level(skill_id)
 	if current >= max_level(skill_id):
 		return false
+	var group := _exclusive_group(skill_id)
+	if group != "":
+		_remove_exclusive_peers(skill_id, group)
 	if not owned.has(skill_id):
 		_order.append(skill_id)
 	owned[skill_id] = current + 1
@@ -40,48 +43,120 @@ func _data_loader() -> Node:
 func can_add_skill(skill_id: String) -> bool:
 	return level(skill_id) < max_level(skill_id)
 
+# --- Data-driven effects: values come from data/skills.json per current level ---
+
+func _current_effect(skill_id: String) -> Dictionary:
+	var lv := level(skill_id)
+	if lv <= 0:
+		return {}
+	var levels: Array = _skill_row(skill_id).get("levels", [])
+	var chosen: Dictionary = {}
+	for entry in levels:
+		if entry is Dictionary and int(entry.get("lv", 0)) <= lv:
+			chosen = entry.get("effect", {})
+	return chosen
+
+func _eff(skill_id: String, key: String, default_value := 0.0) -> float:
+	return float(_current_effect(skill_id).get(key, default_value))
+
 func projectile_mods() -> Dictionary:
+	var split_falloff := 0.55
+	if level("skill_split_shot") > 0:
+		split_falloff = _eff("skill_split_shot", "falloff", 0.55)
 	return {
-		"pierce": level("skill_pierce") + level("skill_homing"),
-		"extra_projectiles": level("skill_multishot"),
-		"spread_deg": 8.0 + level("skill_multishot") * 2.0,
-		"split": level("skill_split_shot") + level("skill_ricochet"),
-		"split_falloff": 0.55,
-		"homing": level("skill_homing"),
+		"pierce": int(_eff("skill_pierce", "pierce") + _eff("skill_homing", "pierce")),
+		"extra_projectiles": int(_eff("skill_multishot", "extra_projectiles")),
+		"spread_deg": 8.0 + _eff("skill_multishot", "spread"),
+		"split": int(_eff("skill_split_shot", "split") + _eff("skill_ricochet", "split")),
+		"split_falloff": split_falloff,
+		"homing": _eff("skill_homing", "homing"),
 		"ricochet": level("skill_ricochet")
 	}
 
 func fire_rate_multiplier() -> float:
-	return 1.0 + 0.22 * float(level("skill_salvo"))
+	return 1.0 + _eff("skill_salvo", "fire_rate_mult")
 
 func slow_mult_for_y(y: float) -> float:
-	var slow_level := level("skill_slow_field") + level("skill_cryo")
-	if slow_level <= 0 or y < 1160.0:
+	var slow := _eff("skill_slow_field", "slow") + _eff("skill_cryo", "slow")
+	if slow <= 0.0:
 		return 1.0
-	return max(0.55, 1.0 - 0.12 * slow_level)
+	var y_min := 1160.0
+	if level("skill_slow_field") > 0:
+		y_min = _eff("skill_slow_field", "y_min", 1160.0)
+	if y < y_min:
+		return 1.0
+	return max(0.4, 1.0 - slow)
 
 func damage_multiplier() -> float:
-	return 1.0 + 0.12 * float(level("skill_charge_shot")) + 0.08 * float(level("skill_critical"))
+	return 1.0 \
+		+ _eff("skill_charge_shot", "dmg_mult") \
+		+ _eff("skill_critical", "dmg_mult") \
+		+ _eff("skill_pierce", "dmg_mult") \
+		+ _eff("skill_incendiary", "dmg_mult") \
+		+ _eff("skill_cryo", "dmg_mult") \
+		+ _eff("skill_tesla", "dmg_mult") \
+		+ _eff("skill_venom", "dmg_mult")
 
 func crit_bonus() -> float:
-	return 0.04 * float(level("skill_critical"))
+	return _eff("skill_critical", "crit_add")
+
+func crit_damage_mult() -> float:
+	# Base crit multiplier is 1.85; high-level critical adds a burst spike.
+	return 1.85 + _eff("skill_critical", "crit_dmg")
 
 func gold_multiplier() -> float:
-	return 1.0 + 0.1 * float(level("skill_gold_rush"))
+	return 1.0 + _eff("skill_gold_rush", "gold_mult")
 
 func barrier_shields() -> int:
-	return level("skill_barrier")
+	return int(_eff("skill_barrier", "shields"))
+
+func barrier_gain() -> int:
+	# Shields granted by a single pick at the just-acquired level (lv5 = 2).
+	return maxi(1, int(_eff("skill_barrier", "shields")))
+
+func reroll_gain() -> int:
+	return maxi(1, int(_eff("skill_recycle", "reroll")))
 
 func projectile_element(base_element: String) -> String:
-	var best := base_element
-	var best_level := 0
-	for item in [
-		["fire", level("skill_incendiary")],
-		["ice", level("skill_cryo")],
-		["lightning", level("skill_tesla")],
-		["poison", level("skill_venom")]
-	]:
-		if int(item[1]) > best_level:
-			best = str(item[0])
-			best_level = int(item[1])
-	return best
+	if base_element != "" and base_element != "physical":
+		return base_element
+	var active := active_ammo_skill()
+	if active == "":
+		return base_element
+	var ammo := ammo_element_for_skill(active)
+	return ammo if ammo != "" else base_element
+
+func active_ammo_skill() -> String:
+	for index in range(_order.size() - 1, -1, -1):
+		var skill_id := str(_order[index])
+		if level(skill_id) > 0 and _exclusive_group(skill_id) == "projectile_element":
+			return skill_id
+	return ""
+
+func ammo_element_for_skill(skill_id: String) -> String:
+	return str(_skill_row(skill_id).get("ammo_element", ""))
+
+func _remove_exclusive_peers(skill_id: String, group: String) -> void:
+	var data_loader := _data_loader()
+	if data_loader == null:
+		return
+	var table: Dictionary = data_loader.get_table("skills")
+	for peer_id in table.keys():
+		var peer := str(peer_id)
+		if peer == skill_id:
+			continue
+		var row: Dictionary = table.get(peer, {})
+		if str(row.get("exclusive_group", "")) != group:
+			continue
+		if owned.has(peer):
+			owned.erase(peer)
+			_order.erase(peer)
+
+func _exclusive_group(skill_id: String) -> String:
+	return str(_skill_row(skill_id).get("exclusive_group", ""))
+
+func _skill_row(skill_id: String) -> Dictionary:
+	var data_loader := _data_loader()
+	if data_loader == null:
+		return {}
+	return data_loader.get_row("skills", skill_id)

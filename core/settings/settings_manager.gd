@@ -32,7 +32,7 @@ func get_quality() -> String:
 	return str(settings.get("quality", "standard"))
 
 func quality_label() -> String:
-	return "标准 60FPS" if get_quality() == "standard" else "省电 30FPS"
+	return "标准 60帧" if get_quality() == "standard" else "省电 30帧"
 
 func apply_settings() -> void:
 	Engine.max_fps = 30 if get_quality() == "battery" else 60

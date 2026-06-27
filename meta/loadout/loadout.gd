@@ -1,6 +1,11 @@
 extends Control
 
+const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
+const MAIN_ICON_SIZE := Vector2(296, 296)
+const GEAR_CARD_SIZE := Vector2(220, 220)
+const GEAR_ROW_SEPARATION := 60
+const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 
 var router: Node
 var level_id := "level_001"
@@ -11,11 +16,15 @@ func setup(main: Node, payload := {}) -> void:
 	_refresh()
 
 func _ready() -> void:
-	$CharacterIcon.mouse_filter = Control.MOUSE_FILTER_STOP
-	$WeaponIcon.mouse_filter = Control.MOUSE_FILTER_STOP
-	$CharacterIcon.gui_input.connect(_on_character_icon_input)
-	$WeaponIcon.gui_input.connect(_on_weapon_icon_input)
-	$StartButton.pressed.connect(func() -> void:
+	(%CharacterIcon as Control).mouse_filter = Control.MOUSE_FILTER_STOP
+	(%WeaponIcon as Control).mouse_filter = Control.MOUSE_FILTER_STOP
+	(%CharacterPanel as Control).mouse_filter = Control.MOUSE_FILTER_STOP
+	(%WeaponPanel as Control).mouse_filter = Control.MOUSE_FILTER_STOP
+	(%CharacterIcon as Control).gui_input.connect(_on_character_icon_input)
+	(%WeaponIcon as Control).gui_input.connect(_on_weapon_icon_input)
+	(%CharacterPanel as Control).gui_input.connect(_on_character_icon_input)
+	(%WeaponPanel as Control).gui_input.connect(_on_weapon_icon_input)
+	(%StartButton as TextureButton).pressed.connect(func() -> void:
 		AudioManager.play_sfx("ui_confirm")
 		router.start_level(level_id)
 	)
@@ -30,8 +39,14 @@ func _ready() -> void:
 		else:
 			AudioManager.play_sfx("ui_click", -6.0)
 		)
+	(%BackButton as TextureButton).pressed.connect(_on_back_pressed)
 	_refresh()
 	_build_equip_nav()
+
+func _on_back_pressed() -> void:
+	AudioManager.play_sfx("ui_click")
+	if router != null:
+		router.change_scene("map")
 
 func _refresh() -> void:
 	if not is_inside_tree():
@@ -62,47 +77,63 @@ func _refresh() -> void:
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var character_name := DataLoader.tr_key(DataLoader.get_row("characters", char_id).get("name_key", char_id))
 	var weapon_name := DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id))
+	var armor_name := _row_name("armors", armor_id)
+	var chip_name := _row_name("chips", chip_id)
+	var pet_name := _row_name("pets", pet_id) if pet_id != "" else "未携带"
 	var growth_tier := _tier_suffix(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))).strip_edges()
 	if growth_tier == "":
 		growth_tier = "基础"
 	var counter_state := "克制有效" if _loadout_counters(weakness, char_id, weapon_id, chip_id) else "克制一般"
-	$CharacterName.text = "%s  Lv.%d" % [character_name, char_level]
-	$WeaponName.text = "%s  Lv.%d" % [weapon_name, weapon_level]
-	$Summary.text = "%s  |  战力 %d / %d  |  主弱点 %s\n阵容 %s + %s  |  %s  |  %s" % [
+	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
+	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
+	$Summary.text = "%s  |  五波尸潮  |  主弱点 %s\n战力 %d / %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
 		DataLoader.level_display_name(level_id),
+		_element_name(weakness),
 		power,
 		recommended_power,
-		_element_name(weakness),
-		character_name,
-		weapon_name,
 		counter_state,
-		growth_tier
+		gold,
+		character_name,
+		char_level,
+		weapon_name,
+		weapon_level,
+		armor_name,
+		armor_level,
+		chip_name,
+		chip_level,
+		pet_name,
+		" 等级%d" % pet_level if pet_id != "" else ""
 	]
-	$WeaponIcon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
-	$WeaponIcon.modulate = _level_tint(weapon_level)
-	$WeaponIcon.scale = _visual_level_scale(weapon_level)
-	$CharacterIcon.texture = load(DataLoader.get_row("characters", char_id).get("portrait", ""))
-	$CharacterIcon.modulate = _level_tint(char_level)
-	$CharacterIcon.scale = _visual_level_scale(char_level)
-	$GrowthBadge.text = _growth_badge_text(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level)))
-	$GrowthBadge.add_theme_color_override("font_color", _level_tint(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))))
+	$Summary.visible = false
+	_refresh_summary_panel(level_id, weakness, power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "")
+	var weapon_icon := %WeaponIcon as TextureRect
+	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
+	weapon_icon.modulate = Color.WHITE
+	weapon_icon.scale = Vector2.ONE
+	var character_icon := %CharacterIcon as TextureRect
+	character_icon.texture = load(DataLoader.get_row("characters", char_id).get("portrait", ""))
+	character_icon.modulate = Color.WHITE
+	character_icon.scale = Vector2.ONE
+	var growth_badge := %GrowthBadge as Label
+	growth_badge.text = "护甲  /  芯片  /  宠物"
+	growth_badge.add_theme_color_override("font_color", Color(0.74, 0.86, 0.86, 1.0))
 	_refresh_gear_badges([
 		["角色", char_level],
-		["主炮", weapon_level],
+		["武器", weapon_level],
 		["护甲", armor_level],
 		["芯片", chip_level],
 		["宠物", pet_level]
 	])
 	$Objective.text = _level_objective(level_id)
 	if power < recommended_power:
-		$Objective.text += "\n提示：战力偏低，优先升主炮、角色或当前芯片。"
+		$Objective.text += "\n提示：战力偏低，优先升级武器、角色或当前芯片。"
 	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
 		$Objective.text += "\n提示：当前配装命中主弱点，战斗中弱点装填更强。"
 	$GoldLabel.text = "金币  %d" % gold
 	var can_upgrade := SaveManager.can_upgrade_weapon(weapon_id)
 	var dmg_bonus := int(round((SaveManager.get_weapon_damage_multiplier(weapon_id) - 1.0) * 100.0))
 	var next_bonus := int(round(((1.0 + 0.08 * float(weapon_level)) - 1.0) * 100.0))
-	$UpgradeInfo.text = "点击主炮图标升级  |  %s +1  花费 %d\n当前伤害 +%d%%  →  +%d%%%s" % [
+	$UpgradeInfo.text = "点击武器图标升级  |  %s +1  花费 %d\n当前伤害 +%d%%  →  +%d%%%s" % [
 		DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id)),
 		upgrade_cost,
 		dmg_bonus,
@@ -114,6 +145,121 @@ func _refresh() -> void:
 	_rebuild_character_bar(char_id)
 	_rebuild_gear_icon_row(armor_id, chip_id, pet_id)
 	_refresh_signature_panel(char_id)
+
+func _row_name(table: String, item_id: String) -> String:
+	if item_id == "":
+		return ""
+	var row := DataLoader.get_row(table, item_id)
+	if row.is_empty():
+		return item_id
+	return DataLoader.tr_key(row.get("name_key", item_id))
+
+func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool) -> void:
+	var panel: Control = %DetailsPanel
+	var old := panel.get_node_or_null("SummaryGrid")
+	if old != null:
+		old.queue_free()
+	if panel is TextureRect:
+		(panel as TextureRect).texture = null
+		panel.modulate = Color.WHITE
+	var frame := PanelContainer.new()
+	frame.name = "SummaryGrid"
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.BORDER_SOFT, Color(0.018, 0.024, 0.032, 0.82), 2, 7))
+	panel.add_child(frame)
+
+	var box := VBoxContainer.new()
+	box.name = "SummaryContent"
+	box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	box.add_theme_constant_override("separation", 10)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(box)
+
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 12)
+	box.add_child(title_row)
+	var title := UiKit.label("战术摘要", 23, UiKit.TEXT_MAIN, 4)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title)
+	var state := UiKit.pill(counter_state, UiKit.GREEN if counter_state == "克制有效" else UiKit.GOLD, 18)
+	state.custom_minimum_size = Vector2(142, 38)
+	title_row.add_child(state)
+
+	var divider := ColorRect.new()
+	divider.custom_minimum_size = Vector2(0, 2)
+	divider.color = Color(0.80, 0.64, 0.38, 0.42)
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(divider)
+
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 28)
+	grid.add_theme_constant_override("v_separation", 8)
+	box.add_child(grid)
+	grid.add_child(_summary_cell("关卡", "%s / 五波" % DataLoader.level_display_name(display_level_id), UiKit.CYAN, ""))
+	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
+	grid.add_child(_summary_cell("战力", "%d / %d" % [power, recommended_power], UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
+
+	var loadout := Label.new()
+	loadout.text = "英雄 %s 等级%d  |  武器 %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宠物 %s%s" % [
+		character_name,
+		char_level,
+		weapon_name,
+		weapon_level,
+		armor_name,
+		armor_level,
+		chip_name,
+		chip_level,
+		pet_name,
+		" 等级%d" % pet_level if has_pet else ""
+	]
+	loadout.custom_minimum_size = Vector2(0, 56)
+	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	loadout.clip_text = true
+	UiKit.apply_label(loadout, 21, UiKit.TEXT_MAIN, 4)
+	box.add_child(loadout)
+
+func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(360, 36)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 8)
+	if icon_path != "":
+		row.add_child(UiKit.icon(icon_path, Vector2(28, 28)))
+	var title := UiKit.label(label_text, 18, Color(accent.r, accent.g, accent.b, 1.0), 4)
+	title.custom_minimum_size = Vector2(52, 0)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+	var value := UiKit.label(value_text, 21, UiKit.TEXT_MAIN, 4)
+	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value.clip_text = true
+	row.add_child(value)
+	return row
+
+func _summary_tile(label_text: String, value_text: String, accent: Color, icon_path: String) -> PanelContainer:
+	var tile := PanelContainer.new()
+	tile.custom_minimum_size = Vector2(0, 54)
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.018, 0.024, 0.032, 0.82), 2, 7))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	tile.add_child(row)
+	if icon_path != "":
+		row.add_child(UiKit.icon(icon_path, Vector2(30, 30)))
+	var title := UiKit.label(label_text, 16, Color(accent.r, accent.g, accent.b, 0.92), 2)
+	title.custom_minimum_size = Vector2(48, 0)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+	var value := UiKit.label(value_text, 18, UiKit.TEXT_MAIN, 2)
+	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value.clip_text = true
+	row.add_child(value)
+	return tile
 
 func _level_tint(level: int) -> Color:
 	if level >= 25:
@@ -146,7 +292,7 @@ func _refresh_gear_badges(items: Array) -> void:
 			continue
 		var label := Label.new()
 		label.custom_minimum_size = Vector2(166, 48)
-		label.text = "%s Lv.%d%s" % [str(item[0]), level, _tier_suffix(level)]
+		label.text = "%s 等级%d%s" % [str(item[0]), level, _tier_suffix(level)]
 		label.add_theme_font_size_override("font_size", 20)
 		label.add_theme_color_override("font_color", _level_tint(level))
 		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
@@ -165,10 +311,11 @@ func _tier_suffix(level: int) -> String:
 	return ""
 
 func _pulse_weapon_icon() -> void:
-	var base_scale: Vector2 = $WeaponIcon.scale
-	var tween := $WeaponIcon.create_tween()
-	tween.tween_property($WeaponIcon, "scale", base_scale * 1.08, 0.08)
-	tween.tween_property($WeaponIcon, "scale", base_scale, 0.12)
+	var weapon_icon := %WeaponIcon as TextureRect
+	var base_scale: Vector2 = weapon_icon.scale
+	var tween := weapon_icon.create_tween()
+	tween.tween_property(weapon_icon, "scale", base_scale * 1.08, 0.08)
+	tween.tween_property(weapon_icon, "scale", base_scale, 0.12)
 
 func _try_upgrade_weapon() -> void:
 	var selected_weapon := SaveManager.get_selected("weapon")
@@ -187,7 +334,7 @@ func _on_character_icon_input(event: InputEvent) -> void:
 
 func _on_weapon_icon_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_try_upgrade_weapon()
+		_open_collection("weapons")
 
 func _rebuild_character_bar(selected_character: String) -> void:
 	for child in $CharacterSelectBar.get_children():
@@ -196,26 +343,28 @@ func _rebuild_character_bar(selected_character: String) -> void:
 	for char_id in characters.keys():
 		var row: Dictionary = DataLoader.get_row("characters", char_id)
 		var unlocked := SaveManager.is_item_unlocked("character", char_id)
-		var button := Button.new()
-		button.name = char_id
-		button.custom_minimum_size = Vector2(104, 104)
-		button.icon = load(row.get("portrait", ""))
-		button.expand_icon = true
-		button.text = ""
+		var button := _icon_card(
+			char_id,
+			str(row.get("portrait", "")),
+			SMALL_PORTRAIT_SIZE,
+			10.0,
+			char_id == selected_character,
+			unlocked,
+			Color(0.46, 0.92, 1.0, 0.92),
+			DataLoader.tr_key(row.get("name_key", char_id))
+		)
 		button.modulate = _selection_tint(unlocked, false)
-		button.tooltip_text = DataLoader.tr_key(row.get("name_key", char_id))
-		_apply_icon_button_style(button, char_id == selected_character, unlocked, Color(0.46, 0.92, 1.0, 0.92))
-		button.disabled = not unlocked
 		if unlocked:
-			button.pressed.connect(_select_character.bind(char_id))
+			(button.get_node("HitArea") as Button).pressed.connect(_select_character.bind(char_id))
 		$CharacterSelectBar.add_child(button)
 
 func _rebuild_gear_icon_row(armor_id: String, chip_id: String, pet_id: String) -> void:
-	for child in $GearIconRow.get_children():
+	var gear_row := %GearIconRow as HBoxContainer
+	for child in gear_row.get_children():
 		child.queue_free()
-	$GearIconRow.add_child(_gear_icon_button("armors", "armor", armor_id, "armor_kevlar"))
-	$GearIconRow.add_child(_gear_icon_button("chips", "chip", chip_id, "chip_attack"))
-	$GearIconRow.add_child(_gear_icon_button("pets", "pet", pet_id, _first_pet_id()))
+	gear_row.add_child(_gear_icon_button("armors", "armor", armor_id, "armor_kevlar"))
+	gear_row.add_child(_gear_icon_button("chips", "chip", chip_id, "chip_attack"))
+	gear_row.add_child(_gear_icon_button("pets", "pet", pet_id, _first_pet_id()))
 
 func _refresh_signature_panel(char_id: String) -> void:
 	if not has_node("SignatureCards"):
@@ -224,7 +373,7 @@ func _refresh_signature_panel(char_id: String) -> void:
 		child.queue_free()
 	var row := DataLoader.get_row("characters", char_id)
 	var character_name := DataLoader.tr_key(row.get("name_key", char_id))
-	$SignatureTitle.text = "角色专属  /  %s" % character_name
+	$SignatureTitle.text = "角色专属 · %s" % character_name
 	$SignatureHint.text = "主动可释放；弹种加成已进战斗"
 	var passive_id := str(row.get("passive", ""))
 	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
@@ -241,7 +390,7 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(250, 106)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.add_theme_stylebox_override("panel", _signature_card_style(Color(0.02, 0.045, 0.06, 0.9), accent))
+	card.add_theme_stylebox_override("panel", _signature_card_style(Color(0.022, 0.028, 0.036, 0.9), accent))
 	card.tooltip_text = "%s：%s\n%s" % [kind, title, desc]
 	var stack := VBoxContainer.new()
 	stack.add_theme_constant_override("separation", 1)
@@ -285,27 +434,83 @@ func _signature_card_style(bg: Color, border: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 6
 	return style
 
-func _gear_icon_button(table: String, slot: String, selected_id: String, fallback_id: String) -> Button:
+func _gear_icon_button(table: String, slot: String, selected_id: String, fallback_id: String) -> Control:
 	var item_id := selected_id if selected_id != "" else fallback_id
 	var row := DataLoader.get_row(table, item_id)
-	var button := Button.new()
-	button.name = "%sIcon" % slot.capitalize()
-	button.custom_minimum_size = Vector2(138, 138)
-	button.icon = load(row.get("icon", ""))
-	button.expand_icon = true
-	button.text = ""
-	button.modulate = Color(1, 1, 1, 1) if selected_id != "" or slot != "pet" else Color(0.55, 0.62, 0.68, 0.82)
-	button.tooltip_text = DataLoader.tr_key(row.get("name_key", item_id))
-	_apply_icon_button_style(button, selected_id != "" or slot != "pet", true, Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82))
-	button.pressed.connect(_open_collection.bind(table))
-	return button
+	var card := _icon_card(
+		"%sIcon" % slot.capitalize(),
+		str(row.get("icon", "")),
+		GEAR_CARD_SIZE,
+		16.0,
+		selected_id != "" or slot != "pet",
+		true,
+		Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82),
+		"%s：%s" % [_slot_label(slot), DataLoader.tr_key(row.get("name_key", item_id))]
+	)
+	card.modulate = Color(1, 1, 1, 1) if selected_id != "" or slot != "pet" else Color(0.55, 0.62, 0.68, 0.82)
+	(card.get_node("HitArea") as Button).pressed.connect(_open_collection.bind(table))
+	return card
+
+func _icon_card(card_name: String, texture_path: String, card_size: Vector2, margin: float, selected: bool, enabled: bool, accent: Color, tooltip: String) -> Control:
+	var card := Control.new()
+	card.name = card_name
+	card.custom_minimum_size = card_size
+	card.size = card_size
+	card.clip_contents = true
+	card.tooltip_text = tooltip
+
+	var frame := PanelContainer.new()
+	frame.name = "Frame"
+	frame.position = Vector2.ZERO
+	frame.size = card_size
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var border := accent if selected else UiKit.BORDER_SOFT
+	var bg := Color(0.026, 0.034, 0.044, 0.86) if enabled else Color(0.018, 0.022, 0.028, 0.64)
+	frame.add_theme_stylebox_override("panel", _icon_button_style(bg, border, 3 if selected else 2))
+	card.add_child(frame)
+
+	var icon := TextureRect.new()
+	icon.name = "CenteredIcon"
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = card_size - Vector2(margin * 2.0, margin * 2.0)
+	icon.size = icon.custom_minimum_size
+	if texture_path != "" and ResourceLoader.exists(texture_path):
+		icon.texture = load(texture_path)
+	icon.position = Vector2(margin, margin)
+	icon.size = icon.custom_minimum_size
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(icon)
+
+	var hit_area := Button.new()
+	hit_area.name = "HitArea"
+	hit_area.position = Vector2.ZERO
+	hit_area.size = card_size
+	hit_area.text = ""
+	hit_area.icon = null
+	hit_area.disabled = not enabled
+	hit_area.tooltip_text = tooltip
+	_apply_transparent_button_style(hit_area)
+	card.add_child(hit_area)
+	return card
+
+func _slot_label(slot: String) -> String:
+	match slot:
+		"armor":
+			return "护甲"
+		"chip":
+			return "芯片"
+		"pet":
+			return "宠物"
+		_:
+			return slot
 
 func _apply_icon_button_style(button: Button, selected: bool, enabled: bool, accent: Color) -> void:
-	var border := accent if selected else Color(0.28, 0.54, 0.74, 0.78)
-	var bg := Color(0.025, 0.055, 0.075, 0.86) if enabled else Color(0.018, 0.025, 0.032, 0.64)
+	var border := accent if selected else UiKit.BORDER_SOFT
+	var bg := Color(0.026, 0.034, 0.044, 0.86) if enabled else Color(0.018, 0.022, 0.028, 0.64)
 	button.add_theme_stylebox_override("normal", _icon_button_style(bg, border, 3 if selected else 2))
-	button.add_theme_stylebox_override("hover", _icon_button_style(Color(0.05, 0.1, 0.13, 0.96), accent, 4))
-	button.add_theme_stylebox_override("pressed", _icon_button_style(Color(0.02, 0.04, 0.055, 1.0), Color(1.0, 0.9, 0.44, 1.0), 4))
+	button.add_theme_stylebox_override("hover", _icon_button_style(Color(0.05, 0.065, 0.075, 0.96), accent, 4))
+	button.add_theme_stylebox_override("pressed", _icon_button_style(Color(0.02, 0.026, 0.034, 1.0), UiKit.GOLD, 4))
 	button.add_theme_stylebox_override("disabled", _icon_button_style(Color(0.015, 0.02, 0.026, 0.72), Color(0.17, 0.23, 0.28, 0.72), 2))
 
 func _icon_button_style(bg: Color, border: Color, width: int) -> StyleBoxFlat:
@@ -320,12 +525,16 @@ func _icon_button_style(bg: Color, border: Color, width: int) -> StyleBoxFlat:
 	style.content_margin_bottom = 8
 	return style
 
+func _apply_transparent_button_style(button: Button) -> void:
+	for key in ["normal", "hover", "pressed", "disabled", "focus"]:
+		button.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+
 func _selection_tint(unlocked: bool, selected: bool) -> Color:
 	if not unlocked:
 		return Color(0.32, 0.36, 0.4, 0.62)
 	if selected:
-		return Color(1.0, 0.88, 0.46, 1.0)
-	return Color(0.82, 0.95, 1.0, 0.9)
+		return Color(1.0, 1.0, 1.0, 1.0)
+	return Color(1.0, 1.0, 1.0, 0.9)
 
 func _select_character(char_id: String) -> void:
 	if SaveManager.select_item("character", char_id):
@@ -354,11 +563,11 @@ func _build_equip_nav() -> void:
 		button.text = str(item[0])
 		button.custom_minimum_size = Vector2(166, 58)
 		button.add_theme_font_size_override("font_size", 22)
-		button.add_theme_color_override("font_color", Color(0.78, 0.94, 1.0, 1.0))
-		button.add_theme_color_override("font_hover_color", Color(1.0, 0.88, 0.44, 1.0))
-		button.add_theme_stylebox_override("normal", _nav_button_style(Color(0.035, 0.07, 0.1, 0.86), Color(0.32, 0.75, 1.0, 0.72)))
-		button.add_theme_stylebox_override("hover", _nav_button_style(Color(0.07, 0.12, 0.16, 0.94), Color(1.0, 0.75, 0.24, 0.9)))
-		button.add_theme_stylebox_override("pressed", _nav_button_style(Color(0.02, 0.05, 0.08, 0.98), Color(0.46, 1.0, 0.72, 0.94)))
+		button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
+		button.add_theme_color_override("font_hover_color", UiKit.GOLD)
+		button.add_theme_stylebox_override("normal", _nav_button_style(Color(0.028, 0.034, 0.044, 0.86), UiKit.BORDER_SOFT))
+		button.add_theme_stylebox_override("hover", _nav_button_style(Color(0.06, 0.065, 0.07, 0.94), UiKit.GOLD))
+		button.add_theme_stylebox_override("pressed", _nav_button_style(Color(0.025, 0.028, 0.034, 0.98), UiKit.CYAN))
 		button.pressed.connect(_open_collection.bind(str(item[1])))
 		$EquipNav.add_child(button)
 
@@ -422,7 +631,7 @@ func _level_objective(id: String) -> String:
 		"level_004":
 			return "目标：用锁定、穿透或减速处理巨臂和爆弹。"
 		"level_005":
-			return "目标：击破装甲巨像护甲，守住 Boss 压力。"
+			return "目标：击破装甲巨像护甲，守住首领压力。"
 		"level_006":
 			return "目标：处理左右双线突袭，优先打越线威胁。"
 		"level_007":
@@ -432,12 +641,12 @@ func _level_objective(id: String) -> String:
 		"level_009":
 			return "目标：重甲尸墙推进，穿透和锁定是关键。"
 		"level_010":
-			return "目标：最终防线，先清支援再破 Boss 护甲。"
+			return "目标：最终防线，先清支援再破首领护甲。"
 		_:
 			var level := DataLoader.get_row("levels", id)
 			for wave in level.get("waves", []):
 				if wave.has("boss"):
-					return "目标：Boss 波次会持续压迫基地，先清支援再集中破 Boss。"
+					return "目标：首领波次会持续压迫基地，先清支援再集中破首领。"
 			var tags: Array = level.get("threat_tags", [])
 			if tags.has("fast"):
 				return "目标：高速单位较多，优先选择减速、追踪或多重射击。"

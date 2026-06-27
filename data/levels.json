@@ -5,13 +5,15 @@
 		"env": "env_city_ruins",
 		"chapter": 1,
 		"recommend_level": 1,
-		"difficulty_coef": 0.565,
+		"difficulty_coef": 0.354,
 		"primary_weakness": "ice",
-		"base_hp_ref": 124,
+		"base_hp_ref": 120,
 		"threat_tags": [
 			"anti_swarm",
 			"breach"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.8,
 			"control": 1.1,
@@ -19,8 +21,8 @@
 			"ice": 1.35,
 			"projectile": 1.2
 		},
-		"xp_first_offer": 24,
-		"xp_offer_growth": 92,
+		"xp_first_offer": 29,
+		"xp_offer_growth": 112,
 		"xp_offer_ramp": 4,
 		"target_card_picks": 2,
 		"onboarding_stage": "aim_and_first_card",
@@ -52,10 +54,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 10,
+						"type": "zombie_brute",
+						"count": 7,
 						"interval": 1.01,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -64,13 +66,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 9,
+						"count": 8,
 						"interval": 0.8,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 4,
+						"type": "zombie_bomber",
+						"count": 8,
 						"interval": 0.8,
 						"lane": "right"
 					}
@@ -100,13 +102,15 @@
 		"env": "env_city_ruins",
 		"chapter": 1,
 		"recommend_level": 2,
-		"difficulty_coef": 0.639,
+		"difficulty_coef": 0.399,
 		"primary_weakness": "fire",
-		"base_hp_ref": 133,
+		"base_hp_ref": 127,
 		"threat_tags": [
 			"anti_swarm",
 			"breach"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.8,
 			"control": 1.1,
@@ -114,8 +118,8 @@
 			"fire": 1.35,
 			"projectile": 1.2
 		},
-		"xp_first_offer": 38,
-		"xp_offer_growth": 147,
+		"xp_first_offer": 44,
+		"xp_offer_growth": 171,
 		"xp_offer_ramp": 4,
 		"target_card_picks": 2,
 		"onboarding_stage": "split_swarm",
@@ -136,10 +140,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_crawler",
 						"count": 11,
 						"interval": 0.97,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -147,8 +151,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 12,
+						"type": "zombie_brute",
+						"count": 7,
 						"interval": 1.0,
 						"lane": "left"
 					}
@@ -158,14 +162,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 9,
+						"type": "zombie_crawler",
+						"count": 8,
 						"interval": 0.79,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 5,
+						"type": "zombie_bomber",
+						"count": 8,
 						"interval": 0.79,
 						"lane": "right"
 					}
@@ -194,14 +198,16 @@
 		"name": "城市尸潮",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 3,
-		"difficulty_coef": 0.704,
+		"recommend_level": 2,
+		"difficulty_coef": 0.395,
 		"primary_weakness": "ice",
-		"base_hp_ref": 142,
+		"base_hp_ref": 134,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -209,8 +215,8 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 46,
-		"xp_offer_growth": 182,
+		"xp_first_offer": 44,
+		"xp_offer_growth": 174,
 		"xp_offer_ramp": 4,
 		"target_card_picks": 2,
 		"onboarding_stage": "runner_priority",
@@ -234,7 +240,7 @@
 						"type": "zombie_runner",
 						"count": 12,
 						"interval": 0.97,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -242,10 +248,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 13,
+						"type": "zombie_brute",
+						"count": 8,
 						"interval": 1.0,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -254,13 +260,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 10,
+						"count": 9,
 						"interval": 0.78,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 8,
+						"count": 9,
 						"interval": 0.78,
 						"lane": "right"
 					}
@@ -289,22 +295,24 @@
 		"name": "城市围城",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 3,
-		"difficulty_coef": 0.767,
+		"recommend_level": 2,
+		"difficulty_coef": 0.425,
 		"primary_weakness": "physical",
-		"base_hp_ref": 150,
+		"base_hp_ref": 141,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 51,
-		"xp_offer_growth": 201,
+		"xp_first_offer": 54,
+		"xp_offer_growth": 209,
 		"xp_offer_ramp": 5,
 		"target_card_picks": 2,
 		"onboarding_stage": "tank_burst",
@@ -328,7 +336,7 @@
 						"type": "zombie_crawler",
 						"count": 13,
 						"interval": 0.96,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -339,7 +347,7 @@
 						"type": "zombie_brute",
 						"count": 9,
 						"interval": 0.99,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -348,13 +356,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 11,
+						"count": 10,
 						"interval": 0.78,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 5,
+						"type": "zombie_bomber",
+						"count": 10,
 						"interval": 0.78,
 						"lane": "right"
 					}
@@ -383,15 +391,17 @@
 		"name": "城市死守",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 4,
-		"difficulty_coef": 0.889,
+		"recommend_level": 3,
+		"difficulty_coef": 0.524,
 		"primary_weakness": "fire",
-		"base_hp_ref": 158,
+		"base_hp_ref": 149,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "standard",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -399,8 +409,8 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 56,
-		"xp_offer_growth": 220,
+		"xp_first_offer": 54,
+		"xp_offer_growth": 212,
 		"xp_offer_ramp": 5,
 		"target_card_picks": 2,
 		"onboarding_stage": "first_boss",
@@ -432,10 +442,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 19,
+						"type": "zombie_brute",
+						"count": 12,
 						"interval": 0.98,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -444,13 +454,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 15,
+						"count": 14,
 						"interval": 0.77,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 12,
+						"count": 14,
 						"interval": 0.77,
 						"lane": "right"
 					}
@@ -486,14 +496,16 @@
 		"name": "城市重压",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 5,
-		"difficulty_coef": 0.904,
+		"recommend_level": 4,
+		"difficulty_coef": 1.144,
 		"primary_weakness": "fire",
-		"base_hp_ref": 166,
+		"base_hp_ref": 156,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -502,9 +514,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 49,
-		"xp_offer_growth": 120,
-		"xp_offer_ramp": 6,
+		"xp_first_offer": 45,
+		"xp_offer_growth": 111,
+		"xp_offer_ramp": 5,
 		"target_card_picks": 3,
 		"onboarding_stage": "",
 		"next_level": "level_007",
@@ -513,7 +525,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_crawler",
 						"count": 10,
 						"interval": 1.16,
 						"lane": "spread"
@@ -524,7 +536,7 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_shambler",
 						"count": 14,
 						"interval": 0.95,
 						"lane": "spread"
@@ -538,7 +550,7 @@
 						"type": "zombie_crawler",
 						"count": 16,
 						"interval": 0.97,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -547,13 +559,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 13,
+						"count": 11,
 						"interval": 0.77,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 6,
+						"type": "zombie_shambler",
+						"count": 11,
 						"interval": 0.77,
 						"lane": "right"
 					}
@@ -582,14 +594,16 @@
 		"name": "城市裂隙",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 6,
-		"difficulty_coef": 0.977,
+		"recommend_level": 4,
+		"difficulty_coef": 0.743,
 		"primary_weakness": "physical",
-		"base_hp_ref": 174,
+		"base_hp_ref": 163,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -600,7 +614,7 @@
 			"pierce": 1.7
 		},
 		"xp_first_offer": 43,
-		"xp_offer_growth": 106,
+		"xp_offer_growth": 104,
 		"xp_offer_ramp": 5,
 		"target_card_picks": 3,
 		"onboarding_stage": "",
@@ -611,9 +625,15 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 11,
+						"count": 5,
 						"interval": 1.15,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 5,
+						"interval": 1.15,
+						"lane": "right"
 					}
 				]
 			},
@@ -622,9 +642,15 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 15,
+						"count": 7,
 						"interval": 0.94,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 7,
+						"interval": 0.94,
+						"lane": "right"
 					}
 				]
 			},
@@ -633,9 +659,15 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 10,
+						"count": 5,
 						"interval": 0.97,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 8,
+						"interval": 0.97,
+						"lane": "right"
 					}
 				]
 			},
@@ -644,13 +676,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 13,
+						"count": 12,
 						"interval": 0.76,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_screamer",
-						"count": 6,
+						"type": "zombie_runner",
+						"count": 12,
 						"interval": 0.76,
 						"lane": "right"
 					}
@@ -679,14 +711,16 @@
 		"name": "城市尖啸",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 6,
-		"difficulty_coef": 1.044,
+		"recommend_level": 4,
+		"difficulty_coef": 0.818,
 		"primary_weakness": "ice",
-		"base_hp_ref": 182,
+		"base_hp_ref": 170,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -694,8 +728,8 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 56,
-		"xp_offer_growth": 139,
+		"xp_first_offer": 54,
+		"xp_offer_growth": 133,
 		"xp_offer_ramp": 6,
 		"target_card_picks": 3,
 		"onboarding_stage": "",
@@ -719,7 +753,7 @@
 						"type": "zombie_crawler",
 						"count": 15,
 						"interval": 0.93,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -727,10 +761,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 16,
+						"type": "zombie_brute",
+						"count": 10,
 						"interval": 0.96,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -739,13 +773,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 13,
+						"count": 12,
 						"interval": 0.75,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 11,
+						"count": 12,
 						"interval": 0.75,
 						"lane": "right"
 					}
@@ -774,22 +808,24 @@
 		"name": "城市终战",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 7,
-		"difficulty_coef": 1.105,
+		"recommend_level": 5,
+		"difficulty_coef": 1.407,
 		"primary_weakness": "physical",
-		"base_hp_ref": 190,
+		"base_hp_ref": 177,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 38,
-		"xp_offer_growth": 92,
+		"xp_first_offer": 33,
+		"xp_offer_growth": 80,
 		"xp_offer_ramp": 4,
 		"target_card_picks": 3,
 		"onboarding_stage": "",
@@ -813,7 +849,7 @@
 						"type": "zombie_runner",
 						"count": 15,
 						"interval": 0.93,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -821,10 +857,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 10,
+						"type": "zombie_runner",
+						"count": 17,
 						"interval": 0.95,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -833,13 +869,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 14,
+						"count": 12,
 						"interval": 0.75,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 7,
+						"type": "zombie_runner",
+						"count": 12,
 						"interval": 0.75,
 						"lane": "right"
 					}
@@ -868,15 +904,17 @@
 		"name": "废街缺口",
 		"env": "env_city_ruins",
 		"chapter": 1,
-		"recommend_level": 8,
-		"difficulty_coef": 1.261,
+		"recommend_level": 6,
+		"difficulty_coef": 1.013,
 		"primary_weakness": "fire",
-		"base_hp_ref": 197,
+		"base_hp_ref": 184,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "pincer",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -884,8 +922,8 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 61,
-		"xp_offer_growth": 148,
+		"xp_first_offer": 63,
+		"xp_offer_growth": 154,
 		"xp_offer_ramp": 7,
 		"target_card_picks": 3,
 		"onboarding_stage": "",
@@ -896,9 +934,15 @@
 				"spawns": [
 					{
 						"type": "zombie_shambler",
-						"count": 14,
+						"count": 7,
 						"interval": 1.13,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 7,
+						"interval": 1.13,
+						"lane": "right"
 					}
 				]
 			},
@@ -907,9 +951,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 19,
+						"count": 10,
 						"interval": 0.92,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_shambler",
+						"count": 10,
+						"interval": 0.92,
+						"lane": "right"
 					}
 				]
 			},
@@ -917,10 +967,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 21,
+						"type": "zombie_brute",
+						"count": 6,
 						"interval": 0.95,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 10,
+						"interval": 0.95,
+						"lane": "right"
 					}
 				]
 			},
@@ -928,14 +984,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 17,
+						"type": "zombie_bomber",
+						"count": 15,
 						"interval": 0.74,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 14,
+						"type": "zombie_crawler",
+						"count": 15,
 						"interval": 0.74,
 						"lane": "right"
 					}
@@ -971,14 +1027,16 @@
 		"name": "废街突围",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 9,
-		"difficulty_coef": 1.395,
+		"recommend_level": 6,
+		"difficulty_coef": 1.179,
 		"primary_weakness": "ice",
-		"base_hp_ref": 205,
+		"base_hp_ref": 191,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -986,9 +1044,9 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 36,
-		"xp_offer_growth": 37,
-		"xp_offer_ramp": 4,
+		"xp_first_offer": 51,
+		"xp_offer_growth": 52,
+		"xp_offer_ramp": 6,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_012",
@@ -1008,10 +1066,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 16,
+						"type": "zombie_brute",
+						"count": 10,
 						"interval": 0.91,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -1019,10 +1077,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 18,
+						"type": "zombie_screamer",
+						"count": 5,
 						"interval": 0.94,
 						"lane": "center"
+					},
+					{
+						"type": "zombie_screamer",
+						"count": 9,
+						"interval": 0.94,
+						"lane": "spread"
 					}
 				]
 			},
@@ -1030,14 +1094,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 14,
+						"type": "zombie_brute",
+						"count": 8,
 						"interval": 0.74,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 7,
+						"type": "zombie_screamer",
+						"count": 13,
 						"interval": 0.74,
 						"lane": "right"
 					}
@@ -1066,14 +1130,16 @@
 		"name": "废街尸潮",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 10,
-		"difficulty_coef": 1.613,
+		"recommend_level": 6,
+		"difficulty_coef": 1.005,
 		"primary_weakness": "physical",
-		"base_hp_ref": 212,
+		"base_hp_ref": 199,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -1083,8 +1149,8 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 57,
-		"xp_offer_growth": 59,
+		"xp_first_offer": 53,
+		"xp_offer_growth": 55,
 		"xp_offer_ramp": 6,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -1105,10 +1171,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 17,
+						"type": "zombie_bomber",
+						"count": 8,
 						"interval": 0.91,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 8,
+						"interval": 0.91,
+						"lane": "right"
 					}
 				]
 			},
@@ -1119,7 +1191,7 @@
 						"type": "zombie_brute",
 						"count": 11,
 						"interval": 0.93,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -1127,14 +1199,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 15,
+						"type": "zombie_screamer",
+						"count": 8,
 						"interval": 0.73,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_spitter",
-						"count": 12,
+						"type": "zombie_bomber",
+						"count": 13,
 						"interval": 0.73,
 						"lane": "right"
 					}
@@ -1163,14 +1235,16 @@
 		"name": "废街围城",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 10,
-		"difficulty_coef": 1.809,
+		"recommend_level": 7,
+		"difficulty_coef": 1.405,
 		"primary_weakness": "ice",
-		"base_hp_ref": 220,
+		"base_hp_ref": 206,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -1178,8 +1252,8 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 49,
-		"xp_offer_growth": 51,
+		"xp_first_offer": 47,
+		"xp_offer_growth": 49,
 		"xp_offer_ramp": 5,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -1211,10 +1285,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 18,
+						"type": "zombie_brute",
+						"count": 11,
 						"interval": 0.92,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -1223,13 +1297,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 15,
+						"count": 14,
 						"interval": 0.72,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 12,
+						"count": 14,
 						"interval": 0.72,
 						"lane": "right"
 					}
@@ -1258,23 +1332,25 @@
 		"name": "废街死守",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 11,
-		"difficulty_coef": 2.0,
+		"recommend_level": 8,
+		"difficulty_coef": 1.888,
 		"primary_weakness": "physical",
-		"base_hp_ref": 227,
+		"base_hp_ref": 213,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 49,
-		"xp_offer_growth": 51,
-		"xp_offer_ramp": 5,
+		"xp_first_offer": 52,
+		"xp_offer_growth": 54,
+		"xp_offer_ramp": 6,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_015",
@@ -1283,7 +1359,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_crawler",
 						"count": 13,
 						"interval": 1.1,
 						"lane": "spread"
@@ -1294,7 +1370,7 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_shambler",
 						"count": 17,
 						"interval": 0.89,
 						"lane": "spread"
@@ -1305,10 +1381,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 12,
+						"type": "zombie_crawler",
+						"count": 19,
 						"interval": 0.92,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -1316,14 +1392,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 15,
+						"type": "zombie_crawler",
+						"count": 14,
 						"interval": 0.72,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 8,
+						"type": "zombie_shambler",
+						"count": 14,
 						"interval": 0.72,
 						"lane": "right"
 					}
@@ -1352,15 +1428,17 @@
 		"name": "废街重压",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 12,
-		"difficulty_coef": 2.344,
+		"recommend_level": 8,
+		"difficulty_coef": 1.194,
 		"primary_weakness": "ice",
-		"base_hp_ref": 235,
+		"base_hp_ref": 220,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "escort",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -1390,10 +1468,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 21,
+						"type": "zombie_armored",
+						"count": 13,
 						"interval": 0.89,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -1401,10 +1479,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 23,
+						"type": "zombie_screamer",
+						"count": 7,
 						"interval": 0.91,
 						"lane": "center"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 12,
+						"interval": 0.91,
+						"lane": "spread"
 					}
 				]
 			},
@@ -1412,14 +1496,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 19,
+						"type": "zombie_armored",
+						"count": 11,
 						"interval": 0.71,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 15,
+						"type": "zombie_spitter",
+						"count": 17,
 						"interval": 0.71,
 						"lane": "right"
 					}
@@ -1455,14 +1539,16 @@
 		"name": "废街裂隙",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 13,
-		"difficulty_coef": 2.339,
+		"recommend_level": 8,
+		"difficulty_coef": 1.572,
 		"primary_weakness": "fire",
-		"base_hp_ref": 242,
+		"base_hp_ref": 227,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -1471,9 +1557,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 68,
-		"xp_offer_growth": 69,
-		"xp_offer_ramp": 8,
+		"xp_first_offer": 64,
+		"xp_offer_growth": 67,
+		"xp_offer_ramp": 7,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_017",
@@ -1493,10 +1579,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 18,
+						"type": "zombie_bomber",
+						"count": 9,
 						"interval": 0.88,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 9,
+						"interval": 0.88,
+						"lane": "right"
 					}
 				]
 			},
@@ -1504,10 +1596,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 20,
+						"type": "zombie_brute",
+						"count": 12,
 						"interval": 0.9,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -1515,14 +1607,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 16,
+						"type": "zombie_screamer",
+						"count": 9,
 						"interval": 0.71,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 8,
+						"type": "zombie_bomber",
+						"count": 14,
 						"interval": 0.71,
 						"lane": "right"
 					}
@@ -1551,14 +1643,16 @@
 		"name": "废街尖啸",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 13,
-		"difficulty_coef": 2.498,
+		"recommend_level": 9,
+		"difficulty_coef": 1.695,
 		"primary_weakness": "fire",
-		"base_hp_ref": 249,
+		"base_hp_ref": 234,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -1568,9 +1662,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 55,
-		"xp_offer_growth": 58,
-		"xp_offer_ramp": 6,
+		"xp_first_offer": 65,
+		"xp_offer_growth": 68,
+		"xp_offer_ramp": 7,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_018",
@@ -1604,7 +1698,7 @@
 						"type": "zombie_shielder",
 						"count": 13,
 						"interval": 0.89,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -1612,14 +1706,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 17,
+						"type": "zombie_hopper",
+						"count": 15,
 						"interval": 0.7,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 8,
+						"type": "zombie_bomber",
+						"count": 15,
 						"interval": 0.7,
 						"lane": "right"
 					}
@@ -1648,14 +1742,16 @@
 		"name": "废街终战",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 14,
-		"difficulty_coef": 2.638,
+		"recommend_level": 10,
+		"difficulty_coef": 3.165,
 		"primary_weakness": "physical",
-		"base_hp_ref": 257,
+		"base_hp_ref": 241,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -1664,9 +1760,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 51,
-		"xp_offer_growth": 52,
-		"xp_offer_ramp": 6,
+		"xp_first_offer": 40,
+		"xp_offer_growth": 41,
+		"xp_offer_ramp": 5,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_019",
@@ -1675,7 +1771,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_runner",
 						"count": 14,
 						"interval": 1.07,
 						"lane": "spread"
@@ -1686,7 +1782,7 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
+						"type": "zombie_shambler",
 						"count": 19,
 						"interval": 0.87,
 						"lane": "spread"
@@ -1697,10 +1793,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
+						"type": "zombie_runner",
 						"count": 21,
 						"interval": 0.89,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -1709,13 +1805,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 17,
+						"count": 15,
 						"interval": 0.69,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 13,
+						"type": "zombie_shambler",
+						"count": 15,
 						"interval": 0.69,
 						"lane": "right"
 					}
@@ -1744,23 +1840,25 @@
 		"name": "断桥缺口",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 15,
-		"difficulty_coef": 2.78,
+		"recommend_level": 10,
+		"difficulty_coef": 1.608,
 		"primary_weakness": "physical",
-		"base_hp_ref": 264,
+		"base_hp_ref": 249,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 62,
-		"xp_offer_growth": 64,
-		"xp_offer_ramp": 7,
+		"xp_first_offer": 67,
+		"xp_offer_growth": 68,
+		"xp_offer_ramp": 8,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_020",
@@ -1770,9 +1868,15 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 14,
+						"count": 7,
 						"interval": 1.06,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 7,
+						"interval": 1.06,
+						"lane": "right"
 					}
 				]
 			},
@@ -1781,9 +1885,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 19,
+						"count": 10,
 						"interval": 0.86,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 10,
+						"interval": 0.86,
+						"lane": "right"
 					}
 				]
 			},
@@ -1792,9 +1902,15 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 13,
+						"count": 7,
 						"interval": 0.88,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 11,
+						"interval": 0.88,
+						"lane": "right"
 					}
 				]
 			},
@@ -1803,13 +1919,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 15,
 						"interval": 0.69,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 8,
+						"type": "zombie_crawler",
+						"count": 15,
 						"interval": 0.69,
 						"lane": "right"
 					}
@@ -1838,15 +1954,17 @@
 		"name": "断桥突围",
 		"env": "env_city_ruins",
 		"chapter": 2,
-		"recommend_level": 16,
-		"difficulty_coef": 3.148,
+		"recommend_level": 10,
+		"difficulty_coef": 1.456,
 		"primary_weakness": "ice",
-		"base_hp_ref": 271,
+		"base_hp_ref": 256,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "siege",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -1854,9 +1972,9 @@
 			"ice": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 91,
-		"xp_offer_growth": 94,
-		"xp_offer_ramp": 10,
+		"xp_first_offer": 82,
+		"xp_offer_growth": 86,
+		"xp_offer_ramp": 9,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_021",
@@ -1876,10 +1994,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 24,
+						"type": "zombie_bomber",
+						"count": 12,
 						"interval": 0.85,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 12,
+						"interval": 0.85,
+						"lane": "right"
 					}
 				]
 			},
@@ -1887,10 +2011,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 26,
+						"type": "zombie_shielder",
+						"count": 16,
 						"interval": 0.87,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -1898,14 +2022,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 21,
+						"type": "zombie_screamer",
+						"count": 12,
 						"interval": 0.68,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 19,
 						"interval": 0.68,
 						"lane": "right"
 					}
@@ -1941,14 +2065,16 @@
 		"name": "断桥尸潮",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 17,
-		"difficulty_coef": 3.032,
+		"recommend_level": 11,
+		"difficulty_coef": 1.883,
 		"primary_weakness": "physical",
-		"base_hp_ref": 279,
+		"base_hp_ref": 263,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -1957,8 +2083,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 51,
-		"xp_offer_growth": 51,
+		"xp_first_offer": 57,
+		"xp_offer_growth": 59,
 		"xp_offer_ramp": 6,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -1990,10 +2116,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 21,
+						"type": "zombie_armored",
+						"count": 13,
 						"interval": 0.87,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -2002,13 +2128,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 18,
+						"count": 16,
 						"interval": 0.67,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 9,
+						"type": "zombie_bomber",
+						"count": 16,
 						"interval": 0.67,
 						"lane": "right"
 					}
@@ -2037,14 +2163,16 @@
 		"name": "断桥围城",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 17,
-		"difficulty_coef": 3.154,
+		"recommend_level": 12,
+		"difficulty_coef": 3.993,
 		"primary_weakness": "physical",
-		"base_hp_ref": 286,
+		"base_hp_ref": 270,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -2054,9 +2182,9 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 55,
-		"xp_offer_growth": 57,
-		"xp_offer_ramp": 6,
+		"xp_first_offer": 59,
+		"xp_offer_growth": 59,
+		"xp_offer_ramp": 7,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_023",
@@ -2065,7 +2193,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_runner",
+						"type": "zombie_crawler",
 						"count": 14,
 						"interval": 1.04,
 						"lane": "spread"
@@ -2076,7 +2204,7 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_runner",
 						"count": 20,
 						"interval": 0.84,
 						"lane": "spread"
@@ -2087,10 +2215,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 13,
+						"type": "zombie_crawler",
+						"count": 21,
 						"interval": 0.86,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -2098,14 +2226,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 18,
+						"type": "zombie_crawler",
+						"count": 16,
 						"interval": 0.67,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_screamer",
-						"count": 9,
+						"type": "zombie_runner",
+						"count": 16,
 						"interval": 0.67,
 						"lane": "right"
 					}
@@ -2134,14 +2262,16 @@
 		"name": "断桥死守",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 18,
-		"difficulty_coef": 3.27,
+		"recommend_level": 12,
+		"difficulty_coef": 1.996,
 		"primary_weakness": "physical",
-		"base_hp_ref": 293,
+		"base_hp_ref": 277,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -2150,8 +2280,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 72,
-		"xp_offer_growth": 75,
+		"xp_first_offer": 69,
+		"xp_offer_growth": 71,
 		"xp_offer_ramp": 8,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2162,9 +2292,15 @@
 				"spawns": [
 					{
 						"type": "zombie_shambler",
-						"count": 14,
+						"count": 7,
 						"interval": 1.03,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 7,
+						"interval": 1.03,
+						"lane": "right"
 					}
 				]
 			},
@@ -2173,9 +2309,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 20,
+						"count": 10,
 						"interval": 0.83,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_shambler",
+						"count": 10,
+						"interval": 0.83,
+						"lane": "right"
 					}
 				]
 			},
@@ -2183,10 +2325,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 22,
+						"type": "zombie_shielder",
+						"count": 7,
 						"interval": 0.85,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 11,
+						"interval": 0.85,
+						"lane": "right"
 					}
 				]
 			},
@@ -2194,14 +2342,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 18,
+						"type": "zombie_bomber",
+						"count": 16,
 						"interval": 0.66,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 14,
+						"type": "zombie_hopper",
+						"count": 16,
 						"interval": 0.66,
 						"lane": "right"
 					}
@@ -2230,22 +2378,24 @@
 		"name": "断桥重压",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 19,
-		"difficulty_coef": 3.38,
+		"recommend_level": 12,
+		"difficulty_coef": 1.54,
 		"primary_weakness": "physical",
-		"base_hp_ref": 300,
+		"base_hp_ref": 284,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 60,
-		"xp_offer_growth": 61,
+		"xp_first_offer": 64,
+		"xp_offer_growth": 66,
 		"xp_offer_ramp": 7,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2266,8 +2416,8 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 20,
+						"type": "zombie_armored",
+						"count": 12,
 						"interval": 0.83,
 						"lane": "center"
 					}
@@ -2277,10 +2427,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 14,
+						"type": "zombie_screamer",
+						"count": 7,
 						"interval": 0.84,
-						"lane": "right"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 11,
+						"interval": 0.84,
+						"lane": "spread"
 					}
 				]
 			},
@@ -2288,14 +2444,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 18,
+						"type": "zombie_armored",
+						"count": 10,
 						"interval": 0.66,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 9,
+						"type": "zombie_spitter",
+						"count": 16,
 						"interval": 0.66,
 						"lane": "right"
 					}
@@ -2324,15 +2480,17 @@
 		"name": "断桥裂隙",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 20,
-		"difficulty_coef": 3.752,
+		"recommend_level": 13,
+		"difficulty_coef": 1.777,
 		"primary_weakness": "fire",
-		"base_hp_ref": 308,
+		"base_hp_ref": 291,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "standard",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -2340,9 +2498,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 87,
-		"xp_offer_growth": 90,
-		"xp_offer_ramp": 10,
+		"xp_first_offer": 84,
+		"xp_offer_growth": 88,
+		"xp_offer_ramp": 9,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_026",
@@ -2373,10 +2531,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 26,
+						"type": "zombie_brute",
+						"count": 16,
 						"interval": 0.84,
-						"lane": "spread"
+						"lane": "left"
 					}
 				]
 			},
@@ -2385,13 +2543,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 22,
+						"count": 20,
 						"interval": 0.65,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 20,
 						"interval": 0.65,
 						"lane": "right"
 					}
@@ -2427,14 +2585,16 @@
 		"name": "断桥尖啸",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 20,
-		"difficulty_coef": 3.575,
+		"recommend_level": 14,
+		"difficulty_coef": 2.876,
 		"primary_weakness": "physical",
-		"base_hp_ref": 315,
+		"base_hp_ref": 299,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "elite",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -2443,8 +2603,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 85,
-		"xp_offer_growth": 86,
+		"xp_first_offer": 90,
+		"xp_offer_growth": 92,
 		"xp_offer_ramp": 10,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2479,7 +2639,7 @@
 						"type": "zombie_hopper",
 						"count": 23,
 						"interval": 0.83,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -2488,13 +2648,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 19,
+						"count": 17,
 						"interval": 0.64,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 9,
+						"type": "zombie_hopper",
+						"count": 17,
 						"interval": 0.64,
 						"lane": "right"
 					}
@@ -2523,14 +2683,16 @@
 		"name": "断桥终战",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 21,
-		"difficulty_coef": 3.671,
+		"recommend_level": 14,
+		"difficulty_coef": 2.14,
 		"primary_weakness": "physical",
-		"base_hp_ref": 322,
+		"base_hp_ref": 306,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -2540,8 +2702,8 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 54,
-		"xp_offer_growth": 55,
+		"xp_first_offer": 56,
+		"xp_offer_growth": 58,
 		"xp_offer_ramp": 6,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2552,9 +2714,15 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 15,
+						"count": 8,
 						"interval": 1.0,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 8,
+						"interval": 1.0,
+						"lane": "right"
 					}
 				]
 			},
@@ -2563,9 +2731,15 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 21,
+						"count": 10,
 						"interval": 0.81,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 10,
+						"interval": 0.81,
+						"lane": "right"
 					}
 				]
 			},
@@ -2574,9 +2748,15 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 14,
+						"count": 7,
 						"interval": 0.82,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 11,
+						"interval": 0.82,
+						"lane": "right"
 					}
 				]
 			},
@@ -2584,14 +2764,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 19,
+						"type": "zombie_bomber",
+						"count": 17,
 						"interval": 0.64,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_spitter",
-						"count": 15,
+						"type": "zombie_runner",
+						"count": 17,
 						"interval": 0.64,
 						"lane": "right"
 					}
@@ -2620,14 +2800,16 @@
 		"name": "熔炉缺口",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 22,
-		"difficulty_coef": 3.763,
+		"recommend_level": 14,
+		"difficulty_coef": 2.055,
 		"primary_weakness": "physical",
-		"base_hp_ref": 329,
+		"base_hp_ref": 313,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -2636,8 +2818,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 70,
-		"xp_offer_growth": 72,
+		"xp_first_offer": 67,
+		"xp_offer_growth": 68,
 		"xp_offer_ramp": 8,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2658,8 +2840,8 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 21,
+						"type": "zombie_brute",
+						"count": 13,
 						"interval": 0.8,
 						"lane": "center"
 					}
@@ -2669,10 +2851,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 23,
+						"type": "zombie_screamer",
+						"count": 7,
 						"interval": 0.82,
-						"lane": "right"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_screamer",
+						"count": 11,
+						"interval": 0.82,
+						"lane": "spread"
 					}
 				]
 			},
@@ -2680,14 +2868,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 19,
+						"type": "zombie_brute",
+						"count": 11,
 						"interval": 0.63,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 15,
+						"type": "zombie_screamer",
+						"count": 17,
 						"interval": 0.63,
 						"lane": "right"
 					}
@@ -2716,22 +2904,24 @@
 		"name": "熔炉突围",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 23,
-		"difficulty_coef": 3.851,
+		"recommend_level": 15,
+		"difficulty_coef": 1.927,
 		"primary_weakness": "physical",
-		"base_hp_ref": 336,
+		"base_hp_ref": 320,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 73,
-		"xp_offer_growth": 76,
+		"xp_first_offer": 72,
+		"xp_offer_growth": 74,
 		"xp_offer_ramp": 8,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
@@ -2752,8 +2942,14 @@
 				"wave": 2,
 				"spawns": [
 					{
+						"type": "zombie_bomber",
+						"count": 11,
+						"interval": 0.79,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_hopper",
-						"count": 22,
+						"count": 11,
 						"interval": 0.79,
 						"lane": "right"
 					}
@@ -2774,14 +2970,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 19,
+						"type": "zombie_screamer",
+						"count": 11,
 						"interval": 0.63,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 9,
+						"type": "zombie_bomber",
+						"count": 17,
 						"interval": 0.63,
 						"lane": "right"
 					}
@@ -2810,15 +3006,17 @@
 		"name": "熔炉尸潮",
 		"env": "env_city_ruins",
 		"chapter": 3,
-		"recommend_level": 24,
-		"difficulty_coef": 4.251,
+		"recommend_level": 16,
+		"difficulty_coef": 2.845,
 		"primary_weakness": "fire",
-		"base_hp_ref": 343,
+		"base_hp_ref": 327,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "rush",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -2826,9 +3024,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 83,
-		"xp_offer_growth": 86,
-		"xp_offer_ramp": 9,
+		"xp_first_offer": 71,
+		"xp_offer_growth": 72,
+		"xp_offer_ramp": 8,
 		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_031",
@@ -2837,7 +3035,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_runner",
 						"count": 18,
 						"interval": 0.98,
 						"lane": "spread"
@@ -2848,7 +3046,7 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
+						"type": "zombie_crawler",
 						"count": 26,
 						"interval": 0.79,
 						"lane": "spread"
@@ -2859,10 +3057,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
+						"type": "zombie_runner",
 						"count": 28,
 						"interval": 0.8,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -2870,14 +3068,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 23,
+						"type": "zombie_runner",
+						"count": 21,
 						"interval": 0.62,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 18,
+						"type": "zombie_crawler",
+						"count": 21,
 						"interval": 0.62,
 						"lane": "right"
 					}
@@ -2913,14 +3111,16 @@
 		"name": "熔炉围城",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 24,
-		"difficulty_coef": 4.017,
+		"recommend_level": 16,
+		"difficulty_coef": 2.627,
 		"primary_weakness": "physical",
-		"base_hp_ref": 350,
+		"base_hp_ref": 334,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -2929,8 +3129,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 79,
-		"xp_offer_growth": 56,
+		"xp_first_offer": 80,
+		"xp_offer_growth": 57,
 		"xp_offer_ramp": 9,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -2941,9 +3141,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 16,
+						"count": 8,
 						"interval": 0.97,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 8,
+						"interval": 0.97,
+						"lane": "right"
 					}
 				]
 			},
@@ -2952,9 +3158,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 22,
+						"count": 11,
 						"interval": 0.78,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 11,
+						"interval": 0.78,
+						"lane": "right"
 					}
 				]
 			},
@@ -2962,10 +3174,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 24,
+						"type": "zombie_brute",
+						"count": 7,
 						"interval": 0.79,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 12,
+						"interval": 0.79,
+						"lane": "right"
 					}
 				]
 			},
@@ -2973,14 +3191,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 20,
+						"type": "zombie_bomber",
+						"count": 18,
 						"interval": 0.61,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 10,
+						"type": "zombie_crawler",
+						"count": 18,
 						"interval": 0.61,
 						"lane": "right"
 					}
@@ -3009,14 +3227,16 @@
 		"name": "熔炉死守",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 25,
-		"difficulty_coef": 4.084,
+		"recommend_level": 16,
+		"difficulty_coef": 2.887,
 		"primary_weakness": "physical",
-		"base_hp_ref": 358,
+		"base_hp_ref": 341,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -3026,9 +3246,9 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 65,
-		"xp_offer_growth": 47,
-		"xp_offer_ramp": 7,
+		"xp_first_offer": 71,
+		"xp_offer_growth": 50,
+		"xp_offer_ramp": 8,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_033",
@@ -3048,8 +3268,8 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 22,
+						"type": "zombie_shielder",
+						"count": 14,
 						"interval": 0.77,
 						"lane": "center"
 					}
@@ -3059,10 +3279,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_shielder",
-						"count": 15,
+						"type": "zombie_screamer",
+						"count": 7,
 						"interval": 0.79,
-						"lane": "right"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_shielder",
+						"count": 12,
+						"interval": 0.79,
+						"lane": "spread"
 					}
 				]
 			},
@@ -3070,14 +3296,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 20,
+						"type": "zombie_shielder",
+						"count": 11,
 						"interval": 0.61,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 10,
+						"count": 18,
 						"interval": 0.61,
 						"lane": "right"
 					}
@@ -3106,14 +3332,16 @@
 		"name": "熔炉重压",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 26,
-		"difficulty_coef": 4.159,
+		"recommend_level": 17,
+		"difficulty_coef": 2.308,
 		"primary_weakness": "physical",
-		"base_hp_ref": 365,
+		"base_hp_ref": 349,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "elite",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -3122,8 +3350,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 61,
-		"xp_offer_growth": 43,
+		"xp_first_offer": 64,
+		"xp_offer_growth": 46,
 		"xp_offer_ramp": 7,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -3144,8 +3372,14 @@
 				"wave": 2,
 				"spawns": [
 					{
+						"type": "zombie_bomber",
+						"count": 11,
+						"interval": 0.77,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_runner",
-						"count": 22,
+						"count": 11,
 						"interval": 0.77,
 						"lane": "right"
 					}
@@ -3155,8 +3389,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 25,
+						"type": "zombie_armored",
+						"count": 15,
 						"interval": 0.78,
 						"lane": "spread"
 					}
@@ -3166,14 +3400,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 21,
+						"type": "zombie_screamer",
+						"count": 11,
 						"interval": 0.6,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 16,
+						"count": 18,
 						"interval": 0.6,
 						"lane": "right"
 					}
@@ -3202,23 +3436,25 @@
 		"name": "熔炉裂隙",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 27,
-		"difficulty_coef": 4.231,
+		"recommend_level": 18,
+		"difficulty_coef": 2.637,
 		"primary_weakness": "physical",
-		"base_hp_ref": 372,
+		"base_hp_ref": 356,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 75,
-		"xp_offer_growth": 55,
-		"xp_offer_ramp": 8,
+		"xp_first_offer": 77,
+		"xp_offer_growth": 54,
+		"xp_offer_ramp": 9,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_035",
@@ -3241,7 +3477,7 @@
 						"type": "zombie_crawler",
 						"count": 23,
 						"interval": 0.76,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -3260,14 +3496,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 21,
+						"type": "zombie_crawler",
+						"count": 18,
 						"interval": 0.6,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 10,
+						"type": "zombie_bomber",
+						"count": 18,
 						"interval": 0.6,
 						"lane": "right"
 					}
@@ -3296,15 +3532,17 @@
 		"name": "熔炉尖啸",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 28,
-		"difficulty_coef": 4.645,
+		"recommend_level": 18,
+		"difficulty_coef": 2.342,
 		"primary_weakness": "poison",
-		"base_hp_ref": 379,
+		"base_hp_ref": 363,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "pincer",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -3312,9 +3550,9 @@
 			"pierce": 1.4,
 			"poison": 1.35
 		},
-		"xp_first_offer": 104,
-		"xp_offer_growth": 73,
-		"xp_offer_ramp": 12,
+		"xp_first_offer": 121,
+		"xp_offer_growth": 86,
+		"xp_offer_ramp": 14,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_036",
@@ -3324,9 +3562,15 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 19,
+						"count": 10,
 						"interval": 0.94,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 10,
+						"interval": 0.94,
+						"lane": "right"
 					}
 				]
 			},
@@ -3335,9 +3579,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 27,
+						"count": 14,
 						"interval": 0.75,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 14,
+						"interval": 0.75,
+						"lane": "right"
 					}
 				]
 			},
@@ -3345,10 +3595,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
-						"count": 18,
+						"type": "zombie_juggernaut",
+						"count": 9,
 						"interval": 0.77,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 15,
+						"interval": 0.77,
+						"lane": "right"
 					}
 				]
 			},
@@ -3356,14 +3612,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 25,
+						"type": "zombie_toxic",
+						"count": 22,
 						"interval": 0.59,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 12,
+						"type": "zombie_hopper",
+						"count": 22,
 						"interval": 0.59,
 						"lane": "right"
 					}
@@ -3399,14 +3655,16 @@
 		"name": "熔炉终战",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 28,
-		"difficulty_coef": 4.368,
+		"recommend_level": 18,
+		"difficulty_coef": 2.289,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 386,
+		"base_hp_ref": 370,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -3415,8 +3673,8 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 96,
-		"xp_offer_growth": 68,
+		"xp_first_offer": 95,
+		"xp_offer_growth": 66,
 		"xp_offer_ramp": 11,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -3437,8 +3695,8 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 23,
+						"type": "zombie_regenerator",
+						"count": 14,
 						"interval": 0.75,
 						"lane": "center"
 					}
@@ -3449,9 +3707,15 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 16,
+						"count": 8,
 						"interval": 0.76,
-						"lane": "right"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_screamer",
+						"count": 13,
+						"interval": 0.76,
+						"lane": "spread"
 					}
 				]
 			},
@@ -3459,14 +3723,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 13,
+						"type": "zombie_regenerator",
+						"count": 12,
 						"interval": 0.58,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 10,
+						"type": "zombie_screamer",
+						"count": 19,
 						"interval": 0.58,
 						"lane": "right"
 					}
@@ -3495,14 +3759,16 @@
 		"name": "冰港缺口",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 29,
-		"difficulty_coef": 4.433,
+		"recommend_level": 19,
+		"difficulty_coef": 2.225,
 		"primary_weakness": "fire",
-		"base_hp_ref": 393,
+		"base_hp_ref": 377,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -3512,9 +3778,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 75,
-		"xp_offer_growth": 55,
-		"xp_offer_ramp": 8,
+		"xp_first_offer": 90,
+		"xp_offer_growth": 64,
+		"xp_offer_ramp": 10,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_038",
@@ -3534,8 +3800,14 @@
 				"wave": 2,
 				"spawns": [
 					{
+						"type": "zombie_toxic",
+						"count": 12,
+						"interval": 0.74,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_runner",
-						"count": 24,
+						"count": 12,
 						"interval": 0.74,
 						"lane": "right"
 					}
@@ -3556,14 +3828,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 22,
+						"type": "zombie_regenerator",
+						"count": 12,
 						"interval": 0.58,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 11,
+						"type": "zombie_toxic",
+						"count": 19,
 						"interval": 0.58,
 						"lane": "right"
 					}
@@ -3592,14 +3864,16 @@
 		"name": "冰港突围",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 30,
-		"difficulty_coef": 4.495,
+		"recommend_level": 20,
+		"difficulty_coef": 2.216,
 		"primary_weakness": "physical",
-		"base_hp_ref": 400,
+		"base_hp_ref": 384,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -3608,9 +3882,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 103,
-		"xp_offer_growth": 72,
-		"xp_offer_ramp": 12,
+		"xp_first_offer": 102,
+		"xp_offer_growth": 74,
+		"xp_offer_ramp": 11,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_039",
@@ -3633,7 +3907,7 @@
 						"type": "zombie_charger",
 						"count": 24,
 						"interval": 0.73,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -3641,8 +3915,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 26,
+						"type": "zombie_warden",
+						"count": 16,
 						"interval": 0.74,
 						"lane": "left"
 					}
@@ -3653,13 +3927,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 22,
+						"count": 20,
 						"interval": 0.57,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 20,
 						"interval": 0.57,
 						"lane": "right"
 					}
@@ -3688,22 +3962,24 @@
 		"name": "冰港尸潮",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 31,
-		"difficulty_coef": 4.555,
+		"recommend_level": 20,
+		"difficulty_coef": 2.713,
 		"primary_weakness": "fire",
-		"base_hp_ref": 407,
+		"base_hp_ref": 391,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"fire": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 71,
-		"xp_offer_growth": 50,
+		"xp_first_offer": 76,
+		"xp_offer_growth": 55,
 		"xp_offer_ramp": 8,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -3713,7 +3989,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_runner",
+						"type": "zombie_crawler",
 						"count": 17,
 						"interval": 0.91,
 						"lane": "spread"
@@ -3724,10 +4000,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_runner",
 						"count": 24,
 						"interval": 0.73,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -3735,8 +4011,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 16,
+						"type": "zombie_crawler",
+						"count": 26,
 						"interval": 0.74,
 						"lane": "center"
 					}
@@ -3746,14 +4022,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 22,
+						"type": "zombie_crawler",
+						"count": 20,
 						"interval": 0.56,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 11,
+						"type": "zombie_runner",
+						"count": 20,
 						"interval": 0.56,
 						"lane": "right"
 					}
@@ -3782,15 +4058,17 @@
 		"name": "冰港围城",
 		"env": "env_city_ruins",
 		"chapter": 4,
-		"recommend_level": 31,
-		"difficulty_coef": 4.983,
+		"recommend_level": 20,
+		"difficulty_coef": 2.698,
 		"primary_weakness": "poison",
-		"base_hp_ref": 414,
+		"base_hp_ref": 399,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "escort",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -3798,9 +4076,9 @@
 			"pierce": 1.4,
 			"poison": 1.35
 		},
-		"xp_first_offer": 95,
-		"xp_offer_growth": 67,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 108,
+		"xp_offer_growth": 77,
+		"xp_offer_ramp": 12,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_041",
@@ -3820,8 +4098,8 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 29,
+						"type": "zombie_brute",
+						"count": 18,
 						"interval": 0.72,
 						"lane": "center"
 					}
@@ -3832,9 +4110,15 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 20,
+						"count": 10,
 						"interval": 0.73,
-						"lane": "right"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_necromancer",
+						"count": 16,
+						"interval": 0.73,
+						"lane": "spread"
 					}
 				]
 			},
@@ -3842,14 +4126,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 27,
+						"type": "zombie_brute",
+						"count": 15,
 						"interval": 0.56,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 13,
+						"type": "zombie_necromancer",
+						"count": 24,
 						"interval": 0.56,
 						"lane": "right"
 					}
@@ -3885,14 +4169,16 @@
 		"name": "冰港死守",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 32,
-		"difficulty_coef": 4.67,
+		"recommend_level": 21,
+		"difficulty_coef": 2.251,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 421,
+		"base_hp_ref": 406,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -3901,9 +4187,9 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 97,
-		"xp_offer_growth": 69,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 105,
+		"xp_offer_growth": 74,
+		"xp_offer_ramp": 12,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_042",
@@ -3923,8 +4209,14 @@
 				"wave": 2,
 				"spawns": [
 					{
+						"type": "zombie_toxic",
+						"count": 12,
+						"interval": 0.71,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_phantom",
-						"count": 25,
+						"count": 12,
 						"interval": 0.71,
 						"lane": "right"
 					}
@@ -3934,7 +4226,7 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_juggernaut",
 						"count": 17,
 						"interval": 0.72,
 						"lane": "spread"
@@ -3946,13 +4238,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 14,
+						"count": 13,
 						"interval": 0.55,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 11,
+						"type": "zombie_toxic",
+						"count": 21,
 						"interval": 0.55,
 						"lane": "right"
 					}
@@ -3981,14 +4273,16 @@
 		"name": "冰港重压",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 33,
-		"difficulty_coef": 4.724,
+		"recommend_level": 22,
+		"difficulty_coef": 2.979,
 		"primary_weakness": "fire",
-		"base_hp_ref": 428,
+		"base_hp_ref": 413,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -3998,9 +4292,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 100,
-		"xp_offer_growth": 72,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 84,
+		"xp_offer_growth": 61,
+		"xp_offer_ramp": 9,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_043",
@@ -4023,7 +4317,7 @@
 						"type": "zombie_runner",
 						"count": 25,
 						"interval": 0.71,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -4042,14 +4336,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 23,
+						"type": "zombie_runner",
+						"count": 21,
 						"interval": 0.55,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 18,
+						"type": "zombie_bomber",
+						"count": 21,
 						"interval": 0.55,
 						"lane": "right"
 					}
@@ -4078,14 +4372,16 @@
 		"name": "冰港裂隙",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 34,
-		"difficulty_coef": 4.777,
+		"recommend_level": 22,
+		"difficulty_coef": 2.918,
 		"primary_weakness": "physical",
-		"base_hp_ref": 435,
+		"base_hp_ref": 420,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -4094,9 +4390,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 123,
-		"xp_offer_growth": 87,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 113,
+		"xp_offer_growth": 80,
+		"xp_offer_ramp": 13,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_044",
@@ -4105,7 +4401,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_charger",
 						"count": 18,
 						"interval": 0.88,
 						"lane": "spread"
@@ -4116,10 +4412,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
+						"type": "zombie_crawler",
 						"count": 25,
 						"interval": 0.7,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -4127,7 +4423,7 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
+						"type": "zombie_charger",
 						"count": 28,
 						"interval": 0.71,
 						"lane": "center"
@@ -4139,13 +4435,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 24,
+						"count": 21,
 						"interval": 0.54,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_toxic",
-						"count": 19,
+						"type": "zombie_crawler",
+						"count": 21,
 						"interval": 0.54,
 						"lane": "right"
 					}
@@ -4174,22 +4470,24 @@
 		"name": "冰港尖啸",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 35,
-		"difficulty_coef": 4.828,
+		"recommend_level": 22,
+		"difficulty_coef": 2.324,
 		"primary_weakness": "fire",
-		"base_hp_ref": 442,
+		"base_hp_ref": 427,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"fire": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 102,
-		"xp_offer_growth": 74,
+		"xp_first_offer": 100,
+		"xp_offer_growth": 73,
 		"xp_offer_ramp": 11,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -4200,9 +4498,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 18,
+						"count": 9,
 						"interval": 0.87,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 9,
+						"interval": 0.87,
+						"lane": "right"
 					}
 				]
 			},
@@ -4211,9 +4515,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 26,
+						"count": 13,
 						"interval": 0.69,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 13,
+						"interval": 0.69,
+						"lane": "right"
 					}
 				]
 			},
@@ -4222,7 +4532,13 @@
 				"spawns": [
 					{
 						"type": "zombie_warden",
-						"count": 18,
+						"count": 9,
+						"interval": 0.7,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 14,
 						"interval": 0.7,
 						"lane": "right"
 					}
@@ -4232,14 +4548,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 24,
+						"type": "zombie_bomber",
+						"count": 22,
 						"interval": 0.53,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_warden",
-						"count": 12,
+						"type": "zombie_crawler",
+						"count": 22,
 						"interval": 0.53,
 						"lane": "right"
 					}
@@ -4268,15 +4584,17 @@
 		"name": "冰港终战",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 35,
-		"difficulty_coef": 5.268,
+		"recommend_level": 23,
+		"difficulty_coef": 2.612,
 		"primary_weakness": "fire",
-		"base_hp_ref": 449,
+		"base_hp_ref": 434,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "siege",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -4284,9 +4602,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 101,
-		"xp_offer_growth": 73,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 119,
+		"xp_offer_growth": 86,
+		"xp_offer_ramp": 13,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_046",
@@ -4306,8 +4624,14 @@
 				"wave": 2,
 				"spawns": [
 					{
+						"type": "zombie_toxic",
+						"count": 15,
+						"interval": 0.69,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_hopper",
-						"count": 31,
+						"count": 15,
 						"interval": 0.69,
 						"lane": "right"
 					}
@@ -4317,7 +4641,7 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
+						"type": "zombie_armored",
 						"count": 21,
 						"interval": 0.69,
 						"lane": "spread"
@@ -4328,14 +4652,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 29,
+						"type": "zombie_necromancer",
+						"count": 16,
 						"interval": 0.53,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 14,
+						"type": "zombie_toxic",
+						"count": 26,
 						"interval": 0.53,
 						"lane": "right"
 					}
@@ -4371,14 +4695,16 @@
 		"name": "电塔缺口",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 36,
-		"difficulty_coef": 4.925,
+		"recommend_level": 24,
+		"difficulty_coef": 3.824,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 456,
+		"base_hp_ref": 441,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -4387,9 +4713,9 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 95,
-		"xp_offer_growth": 67,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 104,
+		"xp_offer_growth": 73,
+		"xp_offer_ramp": 12,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_047",
@@ -4412,7 +4738,7 @@
 						"type": "zombie_phantom",
 						"count": 26,
 						"interval": 0.68,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -4420,7 +4746,7 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_brute",
 						"count": 18,
 						"interval": 0.69,
 						"lane": "left"
@@ -4432,13 +4758,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 15,
+						"count": 22,
 						"interval": 0.52,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 12,
+						"type": "zombie_bomber",
+						"count": 22,
 						"interval": 0.52,
 						"lane": "right"
 					}
@@ -4467,14 +4793,16 @@
 		"name": "电塔突围",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 37,
-		"difficulty_coef": 4.972,
+		"recommend_level": 24,
+		"difficulty_coef": 4.033,
 		"primary_weakness": "fire",
-		"base_hp_ref": 463,
+		"base_hp_ref": 449,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -4484,9 +4812,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 94,
-		"xp_offer_growth": 66,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 78,
+		"xp_offer_growth": 55,
+		"xp_offer_ramp": 9,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_048",
@@ -4495,7 +4823,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
+						"type": "zombie_runner",
 						"count": 19,
 						"interval": 0.85,
 						"lane": "spread"
@@ -4506,10 +4834,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
+						"type": "zombie_bomber",
 						"count": 27,
 						"interval": 0.67,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -4517,8 +4845,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 18,
+						"type": "zombie_runner",
+						"count": 30,
 						"interval": 0.68,
 						"lane": "center"
 					}
@@ -4528,14 +4856,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 25,
+						"type": "zombie_runner",
+						"count": 22,
 						"interval": 0.52,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 20,
+						"type": "zombie_bomber",
+						"count": 22,
 						"interval": 0.52,
 						"lane": "right"
 					}
@@ -4564,14 +4892,16 @@
 		"name": "电塔尸潮",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 38,
-		"difficulty_coef": 5.017,
+		"recommend_level": 24,
+		"difficulty_coef": 2.558,
 		"primary_weakness": "physical",
-		"base_hp_ref": 470,
+		"base_hp_ref": 456,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -4580,8 +4910,8 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 120,
-		"xp_offer_growth": 84,
+		"xp_first_offer": 121,
+		"xp_offer_growth": 85,
 		"xp_offer_ramp": 14,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -4592,9 +4922,15 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 19,
+						"count": 10,
 						"interval": 0.84,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 10,
+						"interval": 0.84,
+						"lane": "right"
 					}
 				]
 			},
@@ -4603,9 +4939,15 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 27,
+						"count": 14,
 						"interval": 0.67,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 14,
+						"interval": 0.67,
+						"lane": "right"
 					}
 				]
 			},
@@ -4613,8 +4955,14 @@
 				"wave": 3,
 				"spawns": [
 					{
+						"type": "zombie_regenerator",
+						"count": 9,
+						"interval": 0.67,
+						"lane": "left"
+					},
+					{
 						"type": "zombie_bomber",
-						"count": 30,
+						"count": 15,
 						"interval": 0.67,
 						"lane": "right"
 					}
@@ -4624,14 +4972,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 25,
+						"type": "zombie_bomber",
+						"count": 23,
 						"interval": 0.51,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 20,
+						"type": "zombie_charger",
+						"count": 23,
 						"interval": 0.51,
 						"lane": "right"
 					}
@@ -4660,22 +5008,24 @@
 		"name": "电塔围城",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 38,
-		"difficulty_coef": 5.05,
+		"recommend_level": 25,
+		"difficulty_coef": 3.881,
 		"primary_weakness": "physical",
-		"base_hp_ref": 478,
+		"base_hp_ref": 463,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 97,
-		"xp_offer_growth": 69,
+		"xp_first_offer": 101,
+		"xp_offer_growth": 73,
 		"xp_offer_ramp": 11,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
@@ -4696,10 +5046,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 28,
+						"type": "zombie_shielder",
+						"count": 17,
 						"interval": 0.66,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -4707,8 +5057,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_shielder",
-						"count": 19,
+						"type": "zombie_screamer",
+						"count": 9,
+						"interval": 0.66,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_warden",
+						"count": 15,
 						"interval": 0.66,
 						"lane": "spread"
 					}
@@ -4718,14 +5074,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 26,
+						"type": "zombie_shielder",
+						"count": 14,
 						"interval": 0.5,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 13,
+						"type": "zombie_warden",
+						"count": 23,
 						"interval": 0.5,
 						"lane": "right"
 					}
@@ -4754,15 +5110,17 @@
 		"name": "电塔死守",
 		"env": "env_city_ruins",
 		"chapter": 5,
-		"recommend_level": 39,
-		"difficulty_coef": 5.512,
+		"recommend_level": 26,
+		"difficulty_coef": 3.034,
 		"primary_weakness": "fire",
-		"base_hp_ref": 484,
+		"base_hp_ref": 470,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "standard",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -4770,7 +5128,7 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 154,
+		"xp_first_offer": 155,
 		"xp_offer_growth": 111,
 		"xp_offer_ramp": 17,
 		"target_card_picks": 6,
@@ -4795,7 +5153,7 @@
 						"type": "zombie_phantom",
 						"count": 33,
 						"interval": 0.65,
-						"lane": "spread"
+						"lane": "right"
 					}
 				]
 			},
@@ -4803,7 +5161,7 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
+						"type": "zombie_warden",
 						"count": 22,
 						"interval": 0.66,
 						"lane": "left"
@@ -4814,14 +5172,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 31,
+						"type": "zombie_phantom",
+						"count": 27,
 						"interval": 0.5,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_warden",
-						"count": 15,
+						"type": "zombie_bomber",
+						"count": 27,
 						"interval": 0.5,
 						"lane": "right"
 					}
@@ -4857,14 +5215,16 @@
 		"name": "电塔重压",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 40,
-		"difficulty_coef": 5.145,
+		"recommend_level": 26,
+		"difficulty_coef": 3.441,
 		"primary_weakness": "fire",
-		"base_hp_ref": 491,
+		"base_hp_ref": 477,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -4873,9 +5233,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 69,
-		"xp_offer_growth": 49,
-		"xp_offer_ramp": 8,
+		"xp_first_offer": 66,
+		"xp_offer_growth": 48,
+		"xp_offer_ramp": 7,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_052",
@@ -4898,7 +5258,7 @@
 						"type": "zombie_runner",
 						"count": 28,
 						"interval": 0.65,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -4918,13 +5278,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 27,
+						"count": 24,
 						"interval": 0.49,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 13,
+						"type": "zombie_runner",
+						"count": 24,
 						"interval": 0.49,
 						"lane": "right"
 					}
@@ -4953,14 +5313,16 @@
 		"name": "电塔裂隙",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 41,
-		"difficulty_coef": 5.185,
+		"recommend_level": 26,
+		"difficulty_coef": 2.27,
 		"primary_weakness": "physical",
-		"base_hp_ref": 498,
+		"base_hp_ref": 484,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -4970,9 +5332,9 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 109,
-		"xp_offer_growth": 79,
-		"xp_offer_ramp": 12,
+		"xp_first_offer": 137,
+		"xp_offer_growth": 99,
+		"xp_offer_ramp": 15,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_053",
@@ -4982,9 +5344,15 @@
 				"spawns": [
 					{
 						"type": "zombie_shambler",
-						"count": 20,
+						"count": 10,
 						"interval": 0.81,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_berserker",
+						"count": 10,
+						"interval": 0.81,
+						"lane": "right"
 					}
 				]
 			},
@@ -4993,9 +5361,15 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 29,
+						"count": 14,
 						"interval": 0.64,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_shambler",
+						"count": 14,
+						"interval": 0.64,
+						"lane": "right"
 					}
 				]
 			},
@@ -5004,7 +5378,13 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 20,
+						"count": 10,
+						"interval": 0.64,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 16,
 						"interval": 0.64,
 						"lane": "right"
 					}
@@ -5014,14 +5394,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 27,
+						"type": "zombie_toxic",
+						"count": 24,
 						"interval": 0.49,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 21,
+						"type": "zombie_berserker",
+						"count": 24,
 						"interval": 0.49,
 						"lane": "right"
 					}
@@ -5050,14 +5430,16 @@
 		"name": "电塔尖啸",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 42,
-		"difficulty_coef": 5.224,
+		"recommend_level": 27,
+		"difficulty_coef": 2.389,
 		"primary_weakness": "fire",
-		"base_hp_ref": 505,
+		"base_hp_ref": 491,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -5066,9 +5448,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 127,
-		"xp_offer_growth": 91,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 106,
+		"xp_offer_growth": 75,
+		"xp_offer_ramp": 12,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_054",
@@ -5088,10 +5470,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 29,
+						"type": "zombie_juggernaut",
+						"count": 18,
 						"interval": 0.63,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -5099,8 +5481,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 32,
+						"type": "zombie_necromancer",
+						"count": 10,
+						"interval": 0.64,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 16,
 						"interval": 0.64,
 						"lane": "spread"
 					}
@@ -5110,14 +5498,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 27,
+						"type": "zombie_juggernaut",
+						"count": 15,
 						"interval": 0.48,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 22,
+						"type": "zombie_spitter",
+						"count": 24,
 						"interval": 0.48,
 						"lane": "right"
 					}
@@ -5146,23 +5534,25 @@
 		"name": "电塔终战",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 42,
-		"difficulty_coef": 5.262,
+		"recommend_level": 28,
+		"difficulty_coef": 2.559,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 512,
+		"base_hp_ref": 499,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"lightning": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 125,
-		"xp_offer_growth": 89,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 136,
+		"xp_offer_growth": 98,
+		"xp_offer_ramp": 15,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_055",
@@ -5182,10 +5572,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 29,
+						"type": "zombie_mutant",
+						"count": 15,
 						"interval": 0.63,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 15,
+						"interval": 0.63,
+						"lane": "right"
 					}
 				]
 			},
@@ -5196,7 +5592,7 @@
 						"type": "zombie_regenerator",
 						"count": 20,
 						"interval": 0.63,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -5204,14 +5600,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 28,
+						"type": "zombie_phantom",
+						"count": 16,
 						"interval": 0.47,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 14,
+						"type": "zombie_mutant",
+						"count": 25,
 						"interval": 0.47,
 						"lane": "right"
 					}
@@ -5240,15 +5636,17 @@
 		"name": "毒巷缺口",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 43,
-		"difficulty_coef": 5.723,
+		"recommend_level": 28,
+		"difficulty_coef": 4.684,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 519,
+		"base_hp_ref": 506,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "rush",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -5256,9 +5654,9 @@
 			"lightning": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 141,
-		"xp_offer_growth": 100,
-		"xp_offer_ramp": 16,
+		"xp_first_offer": 156,
+		"xp_offer_growth": 110,
+		"xp_offer_ramp": 18,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_056",
@@ -5267,7 +5665,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_hopper",
 						"count": 24,
 						"interval": 0.79,
 						"lane": "spread"
@@ -5278,10 +5676,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
+						"type": "zombie_crawler",
 						"count": 35,
 						"interval": 0.62,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -5289,8 +5687,8 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_regenerator",
-						"count": 24,
+						"type": "zombie_hopper",
+						"count": 39,
 						"interval": 0.62,
 						"lane": "center"
 					}
@@ -5300,14 +5698,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 33,
+						"type": "zombie_hopper",
+						"count": 30,
 						"interval": 0.47,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 16,
+						"type": "zombie_crawler",
+						"count": 30,
 						"interval": 0.47,
 						"lane": "right"
 					}
@@ -5343,14 +5741,16 @@
 		"name": "毒巷突围",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 44,
-		"difficulty_coef": 5.335,
+		"recommend_level": 28,
+		"difficulty_coef": 4.209,
 		"primary_weakness": "physical",
-		"base_hp_ref": 526,
+		"base_hp_ref": 513,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -5359,9 +5759,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 142,
-		"xp_offer_growth": 101,
-		"xp_offer_ramp": 16,
+		"xp_first_offer": 130,
+		"xp_offer_growth": 92,
+		"xp_offer_ramp": 15,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_057",
@@ -5371,9 +5771,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 21,
+						"count": 11,
 						"interval": 0.78,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_phantom",
+						"count": 11,
+						"interval": 0.78,
+						"lane": "right"
 					}
 				]
 			},
@@ -5382,9 +5788,15 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 30,
+						"count": 15,
 						"interval": 0.61,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 15,
+						"interval": 0.61,
+						"lane": "right"
 					}
 				]
 			},
@@ -5392,8 +5804,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 34,
+						"type": "zombie_warden",
+						"count": 10,
+						"interval": 0.61,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 17,
 						"interval": 0.61,
 						"lane": "right"
 					}
@@ -5403,14 +5821,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 29,
+						"type": "zombie_bomber",
+						"count": 26,
 						"interval": 0.46,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_warden",
-						"count": 14,
+						"type": "zombie_phantom",
+						"count": 26,
 						"interval": 0.46,
 						"lane": "right"
 					}
@@ -5439,14 +5857,16 @@
 		"name": "毒巷尸潮",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 45,
-		"difficulty_coef": 5.37,
+		"recommend_level": 29,
+		"difficulty_coef": 2.865,
 		"primary_weakness": "ice",
-		"base_hp_ref": 533,
+		"base_hp_ref": 520,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -5456,9 +5876,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 93,
-		"xp_offer_growth": 67,
-		"xp_offer_ramp": 10,
+		"xp_first_offer": 113,
+		"xp_offer_growth": 79,
+		"xp_offer_ramp": 13,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_058",
@@ -5478,10 +5898,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 31,
+						"type": "zombie_armored",
+						"count": 19,
 						"interval": 0.61,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -5489,8 +5909,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 21,
+						"type": "zombie_berserker",
+						"count": 11,
+						"interval": 0.61,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_shielder",
+						"count": 17,
 						"interval": 0.61,
 						"lane": "spread"
 					}
@@ -5500,14 +5926,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 30,
+						"type": "zombie_armored",
+						"count": 16,
 						"interval": 0.45,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 23,
+						"count": 26,
 						"interval": 0.45,
 						"lane": "right"
 					}
@@ -5536,14 +5962,16 @@
 		"name": "毒巷围城",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 45,
-		"difficulty_coef": 5.404,
+		"recommend_level": 30,
+		"difficulty_coef": 2.174,
 		"primary_weakness": "fire",
-		"base_hp_ref": 540,
+		"base_hp_ref": 527,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -5552,9 +5980,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 159,
-		"xp_offer_growth": 113,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 126,
+		"xp_offer_growth": 91,
+		"xp_offer_ramp": 14,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_059",
@@ -5574,10 +6002,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 31,
+						"type": "zombie_toxic",
+						"count": 16,
 						"interval": 0.6,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_berserker",
+						"count": 16,
+						"interval": 0.6,
+						"lane": "right"
 					}
 				]
 			},
@@ -5585,10 +6019,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
-						"count": 35,
+						"type": "zombie_brute",
+						"count": 21,
 						"interval": 0.6,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -5596,14 +6030,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 30,
+						"type": "zombie_juggernaut",
+						"count": 16,
 						"interval": 0.45,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 23,
+						"count": 27,
 						"interval": 0.45,
 						"lane": "right"
 					}
@@ -5632,23 +6066,25 @@
 		"name": "毒巷死守",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 46,
-		"difficulty_coef": 5.437,
+		"recommend_level": 30,
+		"difficulty_coef": 2.208,
 		"primary_weakness": "physical",
-		"base_hp_ref": 547,
+		"base_hp_ref": 534,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 133,
-		"xp_offer_growth": 95,
-		"xp_offer_ramp": 15,
+		"xp_first_offer": 143,
+		"xp_offer_growth": 102,
+		"xp_offer_ramp": 16,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_060",
@@ -5671,7 +6107,7 @@
 						"type": "zombie_charger",
 						"count": 32,
 						"interval": 0.59,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -5682,7 +6118,7 @@
 						"type": "zombie_juggernaut",
 						"count": 22,
 						"interval": 0.59,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -5690,14 +6126,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 30,
+						"type": "zombie_charger",
+						"count": 27,
 						"interval": 0.44,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 15,
+						"type": "zombie_bomber",
+						"count": 27,
 						"interval": 0.44,
 						"lane": "right"
 					}
@@ -5726,15 +6162,17 @@
 		"name": "毒巷重压",
 		"env": "env_city_ruins",
 		"chapter": 6,
-		"recommend_level": 47,
-		"difficulty_coef": 5.907,
+		"recommend_level": 30,
+		"difficulty_coef": 2.726,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 554,
+		"base_hp_ref": 541,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "pincer",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -5742,9 +6180,9 @@
 			"lightning": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 156,
-		"xp_offer_growth": 110,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 176,
+		"xp_offer_growth": 124,
+		"xp_offer_ramp": 20,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_061",
@@ -5754,9 +6192,15 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 26,
+						"count": 13,
 						"interval": 0.75,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 13,
+						"interval": 0.75,
+						"lane": "right"
 					}
 				]
 			},
@@ -5765,9 +6209,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 37,
+						"count": 19,
 						"interval": 0.59,
-						"lane": "center"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 19,
+						"interval": 0.59,
+						"lane": "right"
 					}
 				]
 			},
@@ -5775,8 +6225,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
-						"count": 26,
+						"type": "zombie_regenerator",
+						"count": 13,
+						"interval": 0.59,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_mutant",
+						"count": 21,
 						"interval": 0.59,
 						"lane": "right"
 					}
@@ -5786,14 +6242,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 36,
+						"type": "zombie_mutant",
+						"count": 32,
 						"interval": 0.44,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 17,
+						"type": "zombie_crawler",
+						"count": 32,
 						"interval": 0.44,
 						"lane": "right"
 					}
@@ -5829,14 +6285,16 @@
 		"name": "毒巷裂隙",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 48,
-		"difficulty_coef": 5.501,
+		"recommend_level": 31,
+		"difficulty_coef": 7.82,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 561,
+		"base_hp_ref": 549,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "elite",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -5845,9 +6303,9 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 134,
-		"xp_offer_growth": 96,
-		"xp_offer_ramp": 15,
+		"xp_first_offer": 120,
+		"xp_offer_growth": 87,
+		"xp_offer_ramp": 13,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_062",
@@ -5867,10 +6325,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 32,
+						"type": "zombie_shielder",
+						"count": 20,
 						"interval": 0.58,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -5878,8 +6336,14 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 36,
+						"type": "zombie_phantom",
+						"count": 11,
+						"interval": 0.58,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_screamer",
+						"count": 18,
 						"interval": 0.58,
 						"lane": "spread"
 					}
@@ -5889,14 +6353,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 31,
+						"type": "zombie_shielder",
+						"count": 17,
 						"interval": 0.43,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 15,
+						"type": "zombie_screamer",
+						"count": 28,
 						"interval": 0.43,
 						"lane": "right"
 					}
@@ -5925,14 +6389,16 @@
 		"name": "毒巷尖啸",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 49,
-		"difficulty_coef": 5.532,
+		"recommend_level": 32,
+		"difficulty_coef": 3.975,
 		"primary_weakness": "fire",
-		"base_hp_ref": 568,
+		"base_hp_ref": 556,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -5942,9 +6408,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 147,
-		"xp_offer_growth": 103,
-		"xp_offer_ramp": 17,
+		"xp_first_offer": 130,
+		"xp_offer_growth": 92,
+		"xp_offer_ramp": 15,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_063",
@@ -5964,10 +6430,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 33,
+						"type": "zombie_bomber",
+						"count": 16,
 						"interval": 0.57,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_phantom",
+						"count": 16,
+						"interval": 0.57,
+						"lane": "right"
 					}
 				]
 			},
@@ -5978,7 +6450,7 @@
 						"type": "zombie_warden",
 						"count": 23,
 						"interval": 0.57,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -5986,14 +6458,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 32,
+						"type": "zombie_regenerator",
+						"count": 18,
 						"interval": 0.42,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 25,
+						"type": "zombie_bomber",
+						"count": 28,
 						"interval": 0.42,
 						"lane": "right"
 					}
@@ -6022,14 +6494,16 @@
 		"name": "毒巷终战",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 49,
-		"difficulty_coef": 5.562,
+		"recommend_level": 32,
+		"difficulty_coef": 4.76,
 		"primary_weakness": "physical",
-		"base_hp_ref": 575,
+		"base_hp_ref": 563,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -6038,9 +6512,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 122,
-		"xp_offer_growth": 87,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 101,
+		"xp_offer_growth": 74,
+		"xp_offer_ramp": 11,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_064",
@@ -6063,7 +6537,7 @@
 						"type": "zombie_runner",
 						"count": 33,
 						"interval": 0.57,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -6071,10 +6545,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 37,
+						"type": "zombie_armored",
+						"count": 23,
 						"interval": 0.56,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -6083,13 +6557,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 32,
+						"count": 28,
 						"interval": 0.42,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 25,
+						"count": 28,
 						"interval": 0.42,
 						"lane": "right"
 					}
@@ -6118,23 +6592,25 @@
 		"name": "黑墙缺口",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 5.591,
+		"recommend_level": 32,
+		"difficulty_coef": 3.171,
 		"primary_weakness": "ice",
-		"base_hp_ref": 582,
+		"base_hp_ref": 570,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"ice": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 122,
-		"xp_offer_growth": 86,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 155,
+		"xp_offer_growth": 112,
+		"xp_offer_ramp": 17,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_065",
@@ -6143,7 +6619,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_berserker",
 						"count": 23,
 						"interval": 0.72,
 						"lane": "spread"
@@ -6154,10 +6630,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
+						"type": "zombie_shambler",
 						"count": 33,
 						"interval": 0.56,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -6165,10 +6641,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 23,
+						"type": "zombie_berserker",
+						"count": 37,
 						"interval": 0.56,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -6176,14 +6652,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 33,
+						"type": "zombie_berserker",
+						"count": 29,
 						"interval": 0.41,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 16,
+						"type": "zombie_shambler",
+						"count": 29,
 						"interval": 0.41,
 						"lane": "right"
 					}
@@ -6212,15 +6688,17 @@
 		"name": "黑墙突围",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 6.069,
+		"recommend_level": 33,
+		"difficulty_coef": 2.284,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 589,
+		"base_hp_ref": 577,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "escort",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -6228,9 +6706,9 @@
 			"lightning": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 173,
-		"xp_offer_growth": 124,
-		"xp_offer_ramp": 19,
+		"xp_first_offer": 176,
+		"xp_offer_growth": 125,
+		"xp_offer_ramp": 20,
 		"target_card_picks": 6,
 		"onboarding_stage": "",
 		"next_level": "level_066",
@@ -6250,10 +6728,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 40,
+						"type": "zombie_juggernaut",
+						"count": 25,
 						"interval": 0.55,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -6262,7 +6740,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 28,
+						"count": 14,
+						"interval": 0.55,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_necromancer",
+						"count": 22,
 						"interval": 0.55,
 						"lane": "spread"
 					}
@@ -6272,14 +6756,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 38,
+						"type": "zombie_juggernaut",
+						"count": 21,
 						"interval": 0.41,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 19,
+						"type": "zombie_necromancer",
+						"count": 34,
 						"interval": 0.41,
 						"lane": "right"
 					}
@@ -6315,14 +6799,16 @@
 		"name": "黑墙尸潮",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 5.648,
+		"recommend_level": 34,
+		"difficulty_coef": 2.38,
 		"primary_weakness": "physical",
-		"base_hp_ref": 596,
+		"base_hp_ref": 584,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -6331,9 +6817,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 140,
-		"xp_offer_growth": 66,
-		"xp_offer_ramp": 16,
+		"xp_first_offer": 163,
+		"xp_offer_growth": 79,
+		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_067",
@@ -6353,10 +6839,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 33,
+						"type": "zombie_mutant",
+						"count": 17,
 						"interval": 0.55,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 17,
+						"interval": 0.55,
+						"lane": "right"
 					}
 				]
 			},
@@ -6364,10 +6856,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 38,
+						"type": "zombie_regenerator",
+						"count": 23,
 						"interval": 0.54,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -6375,14 +6867,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 33,
+						"type": "zombie_mutant",
+						"count": 18,
 						"interval": 0.4,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 16,
+						"type": "zombie_mutant",
+						"count": 29,
 						"interval": 0.4,
 						"lane": "right"
 					}
@@ -6411,14 +6903,16 @@
 		"name": "黑墙围城",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 5.675,
+		"recommend_level": 34,
+		"difficulty_coef": 7.206,
 		"primary_weakness": "fire",
-		"base_hp_ref": 603,
+		"base_hp_ref": 591,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -6428,9 +6922,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 126,
-		"xp_offer_growth": 62,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 145,
+		"xp_offer_growth": 70,
+		"xp_offer_ramp": 16,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_068",
@@ -6453,7 +6947,7 @@
 						"type": "zombie_hopper",
 						"count": 34,
 						"interval": 0.54,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -6464,7 +6958,7 @@
 						"type": "zombie_shielder",
 						"count": 24,
 						"interval": 0.53,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -6472,14 +6966,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 34,
+						"type": "zombie_hopper",
+						"count": 30,
 						"interval": 0.39,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 16,
+						"type": "zombie_toxic",
+						"count": 30,
 						"interval": 0.39,
 						"lane": "right"
 					}
@@ -6508,14 +7002,16 @@
 		"name": "黑墙死守",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 5.702,
+		"recommend_level": 34,
+		"difficulty_coef": 7.102,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 610,
+		"base_hp_ref": 599,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "elite",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -6524,9 +7020,9 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 146,
-		"xp_offer_growth": 71,
-		"xp_offer_ramp": 16,
+		"xp_first_offer": 172,
+		"xp_offer_growth": 84,
+		"xp_offer_ramp": 19,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_069",
@@ -6535,7 +7031,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
+						"type": "zombie_phantom",
 						"count": 24,
 						"interval": 0.69,
 						"lane": "spread"
@@ -6546,10 +7042,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_hopper",
 						"count": 35,
 						"interval": 0.53,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -6557,10 +7053,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
+						"type": "zombie_phantom",
 						"count": 38,
 						"interval": 0.53,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -6569,13 +7065,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 21,
+						"count": 30,
 						"interval": 0.39,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 26,
+						"type": "zombie_hopper",
+						"count": 30,
 						"interval": 0.39,
 						"lane": "right"
 					}
@@ -6604,23 +7100,25 @@
 		"name": "黑墙重压",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 5.728,
+		"recommend_level": 35,
+		"difficulty_coef": 3.591,
 		"primary_weakness": "fire",
-		"base_hp_ref": 617,
+		"base_hp_ref": 606,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"fire": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 95,
-		"xp_offer_growth": 44,
-		"xp_offer_ramp": 11,
+		"xp_first_offer": 127,
+		"xp_offer_growth": 62,
+		"xp_offer_ramp": 14,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_070",
@@ -6630,9 +7128,15 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 24,
+						"count": 12,
 						"interval": 0.68,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 12,
+						"interval": 0.68,
+						"lane": "right"
 					}
 				]
 			},
@@ -6641,7 +7145,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 35,
+						"count": 17,
+						"interval": 0.53,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 17,
 						"interval": 0.53,
 						"lane": "right"
 					}
@@ -6652,9 +7162,15 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 24,
+						"count": 12,
 						"interval": 0.52,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_mutant",
+						"count": 20,
+						"interval": 0.52,
+						"lane": "right"
 					}
 				]
 			},
@@ -6662,14 +7178,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 35,
+						"type": "zombie_mutant",
+						"count": 31,
 						"interval": 0.38,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 17,
+						"type": "zombie_runner",
+						"count": 31,
 						"interval": 0.38,
 						"lane": "right"
 					}
@@ -6698,15 +7214,17 @@
 		"name": "黑墙裂隙",
 		"env": "env_city_ruins",
 		"chapter": 7,
-		"recommend_level": 50,
-		"difficulty_coef": 6.213,
+		"recommend_level": 36,
+		"difficulty_coef": 3.51,
 		"primary_weakness": "fire",
-		"base_hp_ref": 624,
+		"base_hp_ref": 613,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "siege",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -6714,9 +7232,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 162,
-		"xp_offer_growth": 79,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 183,
+		"xp_offer_growth": 86,
+		"xp_offer_ramp": 21,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_071",
@@ -6736,10 +7254,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 42,
+						"type": "zombie_toxic",
+						"count": 21,
 						"interval": 0.52,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_berserker",
+						"count": 21,
+						"interval": 0.52,
+						"lane": "right"
 					}
 				]
 			},
@@ -6747,10 +7271,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_screamer",
+						"type": "zombie_brute",
 						"count": 29,
 						"interval": 0.51,
-						"lane": "left"
+						"lane": "spread"
 					}
 				]
 			},
@@ -6758,14 +7282,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 41,
+						"type": "zombie_screamer",
+						"count": 23,
 						"interval": 0.38,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 20,
+						"type": "zombie_toxic",
+						"count": 36,
 						"interval": 0.38,
 						"lane": "right"
 					}
@@ -6801,14 +7325,16 @@
 		"name": "黑墙尖啸",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.787,
+		"recommend_level": 36,
+		"difficulty_coef": 2.834,
 		"primary_weakness": "ice",
-		"base_hp_ref": 630,
+		"base_hp_ref": 620,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -6816,9 +7342,9 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 178,
-		"xp_offer_growth": 86,
-		"xp_offer_ramp": 20,
+		"xp_first_offer": 164,
+		"xp_offer_growth": 81,
+		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_072",
@@ -6841,7 +7367,7 @@
 						"type": "zombie_charger",
 						"count": 36,
 						"interval": 0.51,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -6849,10 +7375,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 40,
+						"type": "zombie_juggernaut",
+						"count": 25,
 						"interval": 0.51,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -6861,13 +7387,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 36,
+						"count": 32,
 						"interval": 0.37,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 17,
+						"type": "zombie_bomber",
+						"count": 32,
 						"interval": 0.37,
 						"lane": "right"
 					}
@@ -6896,14 +7422,16 @@
 		"name": "黑墙终战",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.812,
+		"recommend_level": 36,
+		"difficulty_coef": 3.392,
 		"primary_weakness": "fire",
-		"base_hp_ref": 637,
+		"base_hp_ref": 627,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -6913,8 +7441,8 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 162,
-		"xp_offer_growth": 79,
+		"xp_first_offer": 163,
+		"xp_offer_growth": 80,
 		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
@@ -6924,7 +7452,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_charger",
+						"type": "zombie_crawler",
 						"count": 25,
 						"interval": 0.66,
 						"lane": "spread"
@@ -6935,10 +7463,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_charger",
 						"count": 36,
 						"interval": 0.51,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -6946,10 +7474,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_regenerator",
-						"count": 25,
+						"type": "zombie_crawler",
+						"count": 41,
 						"interval": 0.5,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -6957,14 +7485,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 36,
+						"type": "zombie_crawler",
+						"count": 33,
 						"interval": 0.36,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 29,
+						"type": "zombie_charger",
+						"count": 33,
 						"interval": 0.36,
 						"lane": "right"
 					}
@@ -6993,14 +7521,16 @@
 		"name": "裂谷缺口",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.835,
+		"recommend_level": 37,
+		"difficulty_coef": 5.094,
 		"primary_weakness": "physical",
-		"base_hp_ref": 644,
+		"base_hp_ref": 634,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -7009,9 +7539,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 182,
-		"xp_offer_growth": 89,
-		"xp_offer_ramp": 20,
+		"xp_first_offer": 172,
+		"xp_offer_growth": 84,
+		"xp_offer_ramp": 19,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_074",
@@ -7021,9 +7551,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 25,
+						"count": 13,
 						"interval": 0.65,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 13,
+						"interval": 0.65,
+						"lane": "right"
 					}
 				]
 			},
@@ -7032,7 +7568,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 37,
+						"count": 18,
+						"interval": 0.5,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 18,
 						"interval": 0.5,
 						"lane": "right"
 					}
@@ -7042,10 +7584,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
-						"count": 42,
+						"type": "zombie_shielder",
+						"count": 13,
 						"interval": 0.49,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 21,
+						"interval": 0.49,
+						"lane": "right"
 					}
 				]
 			},
@@ -7053,14 +7601,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 36,
+						"type": "zombie_toxic",
+						"count": 33,
 						"interval": 0.36,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_toxic",
-						"count": 29,
+						"type": "zombie_hopper",
+						"count": 33,
 						"interval": 0.36,
 						"lane": "right"
 					}
@@ -7089,21 +7637,23 @@
 		"name": "裂谷突围",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.859,
+		"recommend_level": 38,
+		"difficulty_coef": 4.548,
 		"primary_weakness": "fire",
-		"base_hp_ref": 651,
+		"base_hp_ref": 641,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"fire": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 162,
+		"xp_first_offer": 161,
 		"xp_offer_growth": 78,
 		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
@@ -7125,10 +7675,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 37,
+						"type": "zombie_warden",
+						"count": 23,
 						"interval": 0.49,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -7136,10 +7686,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_warden",
-						"count": 26,
+						"type": "zombie_necromancer",
+						"count": 13,
 						"interval": 0.48,
-						"lane": "left"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_warden",
+						"count": 21,
+						"interval": 0.48,
+						"lane": "spread"
 					}
 				]
 			},
@@ -7147,14 +7703,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 38,
+						"type": "zombie_warden",
+						"count": 21,
 						"interval": 0.35,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_warden",
-						"count": 18,
+						"count": 34,
 						"interval": 0.35,
 						"lane": "right"
 					}
@@ -7183,15 +7739,17 @@
 		"name": "裂谷尸潮",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 6.352,
+		"recommend_level": 38,
+		"difficulty_coef": 3.878,
 		"primary_weakness": "fire",
-		"base_hp_ref": 658,
+		"base_hp_ref": 649,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "standard",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -7199,9 +7757,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 128,
-		"xp_offer_growth": 63,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 148,
+		"xp_offer_growth": 70,
+		"xp_offer_ramp": 17,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_076",
@@ -7224,7 +7782,7 @@
 						"type": "zombie_runner",
 						"count": 44,
 						"interval": 0.49,
-						"lane": "left"
+						"lane": "right"
 					}
 				]
 			},
@@ -7232,10 +7790,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_armored",
 						"count": 31,
 						"interval": 0.48,
-						"lane": "center"
+						"lane": "left"
 					}
 				]
 			},
@@ -7244,13 +7802,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 44,
+						"count": 39,
 						"interval": 0.35,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 22,
+						"type": "zombie_mutant",
+						"count": 39,
 						"interval": 0.35,
 						"lane": "right"
 					}
@@ -7286,14 +7844,16 @@
 		"name": "裂谷围城",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.904,
+		"recommend_level": 38,
+		"difficulty_coef": 3.837,
 		"primary_weakness": "fire",
-		"base_hp_ref": 665,
+		"base_hp_ref": 656,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -7302,9 +7862,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 193,
-		"xp_offer_growth": 92,
-		"xp_offer_ramp": 22,
+		"xp_first_offer": 174,
+		"xp_offer_growth": 82,
+		"xp_offer_ramp": 20,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_077",
@@ -7313,7 +7873,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
+						"type": "zombie_berserker",
 						"count": 26,
 						"interval": 0.63,
 						"lane": "spread"
@@ -7324,10 +7884,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
+						"type": "zombie_shambler",
 						"count": 38,
 						"interval": 0.48,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -7338,7 +7898,7 @@
 						"type": "zombie_berserker",
 						"count": 43,
 						"interval": 0.47,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -7347,13 +7907,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 39,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 19,
+						"type": "zombie_shambler",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7382,14 +7942,16 @@
 		"name": "裂谷死守",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.926,
+		"recommend_level": 39,
+		"difficulty_coef": 3.765,
 		"primary_weakness": "physical",
-		"base_hp_ref": 672,
+		"base_hp_ref": 663,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -7399,8 +7961,8 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 159,
-		"xp_offer_growth": 76,
+		"xp_first_offer": 164,
+		"xp_offer_growth": 81,
 		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
@@ -7411,9 +7973,15 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 26,
+						"count": 13,
 						"interval": 0.62,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 13,
+						"interval": 0.62,
+						"lane": "right"
 					}
 				]
 			},
@@ -7422,7 +7990,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 39,
+						"count": 20,
+						"interval": 0.47,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 20,
 						"interval": 0.47,
 						"lane": "right"
 					}
@@ -7433,9 +8007,15 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 27,
+						"count": 14,
 						"interval": 0.46,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 22,
+						"interval": 0.46,
+						"lane": "right"
 					}
 				]
 			},
@@ -7444,13 +8024,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 39,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 30,
+						"type": "zombie_charger",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7479,14 +8059,16 @@
 		"name": "裂谷重压",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.947,
+		"recommend_level": 40,
+		"difficulty_coef": 4.702,
 		"primary_weakness": "ice",
-		"base_hp_ref": 679,
+		"base_hp_ref": 670,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -7494,9 +8076,9 @@
 			"homing": 1.1,
 			"ice": 1.35
 		},
-		"xp_first_offer": 200,
-		"xp_offer_growth": 95,
-		"xp_offer_ramp": 23,
+		"xp_first_offer": 162,
+		"xp_offer_growth": 79,
+		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_079",
@@ -7516,10 +8098,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 39,
+						"type": "zombie_regenerator",
+						"count": 24,
 						"interval": 0.47,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -7527,10 +8109,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 44,
+						"type": "zombie_berserker",
+						"count": 14,
 						"interval": 0.46,
-						"lane": "left"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 22,
+						"interval": 0.46,
+						"lane": "spread"
 					}
 				]
 			},
@@ -7538,14 +8126,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 39,
+						"type": "zombie_regenerator",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_mutant",
-						"count": 30,
+						"type": "zombie_spitter",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7574,23 +8162,25 @@
 		"name": "裂谷裂隙",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 5.968,
+		"recommend_level": 40,
+		"difficulty_coef": 3.075,
 		"primary_weakness": "fire",
-		"base_hp_ref": 686,
+		"base_hp_ref": 677,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"fire": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 149,
-		"xp_offer_growth": 71,
-		"xp_offer_ramp": 17,
+		"xp_first_offer": 165,
+		"xp_offer_growth": 78,
+		"xp_offer_ramp": 19,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_080",
@@ -7610,10 +8200,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 40,
+						"type": "zombie_toxic",
+						"count": 20,
 						"interval": 0.46,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 20,
+						"interval": 0.46,
+						"lane": "right"
 					}
 				]
 			},
@@ -7624,7 +8220,7 @@
 						"type": "zombie_shielder",
 						"count": 28,
 						"interval": 0.45,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -7632,14 +8228,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 39,
+						"type": "zombie_juggernaut",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 19,
+						"type": "zombie_toxic",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7668,15 +8264,17 @@
 		"name": "裂谷尖啸",
 		"env": "env_city_ruins",
 		"chapter": 8,
-		"recommend_level": 50,
-		"difficulty_coef": 6.468,
+		"recommend_level": 40,
+		"difficulty_coef": 4.965,
 		"primary_weakness": "fire",
-		"base_hp_ref": 693,
+		"base_hp_ref": 684,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "rush",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -7684,9 +8282,9 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 225,
-		"xp_offer_growth": 110,
-		"xp_offer_ramp": 25,
+		"xp_first_offer": 250,
+		"xp_offer_growth": 120,
+		"xp_offer_ramp": 28,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_081",
@@ -7695,7 +8293,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
+						"type": "zombie_phantom",
 						"count": 32,
 						"interval": 0.6,
 						"lane": "spread"
@@ -7706,10 +8304,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_hopper",
 						"count": 48,
 						"interval": 0.45,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -7717,10 +8315,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 34,
+						"type": "zombie_phantom",
+						"count": 52,
 						"interval": 0.44,
-						"lane": "right"
+						"lane": "center"
 					}
 				]
 			},
@@ -7728,14 +8326,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 45,
+						"type": "zombie_phantom",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_warden",
-						"count": 22,
+						"type": "zombie_hopper",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7771,14 +8369,16 @@
 		"name": "裂谷终战",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.009,
+		"recommend_level": 41,
+		"difficulty_coef": 4.656,
 		"primary_weakness": "fire",
-		"base_hp_ref": 700,
+		"base_hp_ref": 691,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -7787,9 +8387,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 103,
-		"xp_offer_growth": 48,
-		"xp_offer_ramp": 12,
+		"xp_first_offer": 148,
+		"xp_offer_growth": 70,
+		"xp_offer_ramp": 17,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_082",
@@ -7799,9 +8399,15 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 28,
+						"count": 14,
 						"interval": 0.59,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 14,
+						"interval": 0.59,
+						"lane": "right"
 					}
 				]
 			},
@@ -7810,7 +8416,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 41,
+						"count": 20,
+						"interval": 0.45,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 20,
 						"interval": 0.45,
 						"lane": "right"
 					}
@@ -7820,10 +8432,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 47,
+						"type": "zombie_armored",
+						"count": 15,
 						"interval": 0.43,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_mutant",
+						"count": 24,
+						"interval": 0.43,
+						"lane": "right"
 					}
 				]
 			},
@@ -7831,14 +8449,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 39,
+						"type": "zombie_mutant",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 19,
+						"type": "zombie_runner",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7867,14 +8485,16 @@
 		"name": "铁门缺口",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.037,
+		"recommend_level": 42,
+		"difficulty_coef": 6.136,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 706,
+		"base_hp_ref": 699,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -7883,9 +8503,9 @@
 			"lightning": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 156,
-		"xp_offer_growth": 74,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 148,
+		"xp_offer_growth": 70,
+		"xp_offer_ramp": 17,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_083",
@@ -7905,10 +8525,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 42,
+						"type": "zombie_brute",
+						"count": 26,
 						"interval": 0.44,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -7916,10 +8536,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 29,
+						"type": "zombie_phantom",
+						"count": 15,
 						"interval": 0.43,
-						"lane": "left"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_shielder",
+						"count": 24,
+						"interval": 0.43,
+						"lane": "spread"
 					}
 				]
 			},
@@ -7927,14 +8553,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 39,
+						"type": "zombie_brute",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 30,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -7963,14 +8589,16 @@
 		"name": "铁门突围",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.056,
+		"recommend_level": 42,
+		"difficulty_coef": 3.321,
 		"primary_weakness": "fire",
-		"base_hp_ref": 713,
+		"base_hp_ref": 706,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -7979,9 +8607,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 188,
-		"xp_offer_growth": 90,
-		"xp_offer_ramp": 21,
+		"xp_first_offer": 163,
+		"xp_offer_growth": 79,
+		"xp_offer_ramp": 18,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_084",
@@ -8001,10 +8629,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 43,
+						"type": "zombie_bomber",
+						"count": 21,
 						"interval": 0.43,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 21,
+						"interval": 0.43,
+						"lane": "right"
 					}
 				]
 			},
@@ -8012,10 +8646,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 49,
+						"type": "zombie_juggernaut",
+						"count": 30,
 						"interval": 0.42,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -8023,14 +8657,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 39,
+						"type": "zombie_regenerator",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 30,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8059,22 +8693,24 @@
 		"name": "铁门尸潮",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.075,
+		"recommend_level": 42,
+		"difficulty_coef": 5.277,
 		"primary_weakness": "physical",
-		"base_hp_ref": 720,
+		"base_hp_ref": 713,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 175,
-		"xp_offer_growth": 83,
+		"xp_first_offer": 179,
+		"xp_offer_growth": 87,
 		"xp_offer_ramp": 20,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
@@ -8098,7 +8734,7 @@
 						"type": "zombie_crawler",
 						"count": 43,
 						"interval": 0.43,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -8109,7 +8745,7 @@
 						"type": "zombie_regenerator",
 						"count": 31,
 						"interval": 0.41,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -8117,14 +8753,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 39,
+						"type": "zombie_crawler",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 19,
+						"type": "zombie_mutant",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8153,15 +8789,17 @@
 		"name": "铁门围城",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.581,
+		"recommend_level": 43,
+		"difficulty_coef": 5.05,
 		"primary_weakness": "physical",
-		"base_hp_ref": 727,
+		"base_hp_ref": 720,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "pincer",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -8169,9 +8807,9 @@
 			"physical": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 211,
-		"xp_offer_growth": 101,
-		"xp_offer_ramp": 24,
+		"xp_first_offer": 238,
+		"xp_offer_growth": 114,
+		"xp_offer_ramp": 27,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_086",
@@ -8181,9 +8819,15 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 34,
+						"count": 17,
 						"interval": 0.56,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 17,
+						"interval": 0.56,
+						"lane": "right"
 					}
 				]
 			},
@@ -8192,7 +8836,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 51,
+						"count": 26,
+						"interval": 0.42,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_crawler",
+						"count": 26,
 						"interval": 0.42,
 						"lane": "right"
 					}
@@ -8202,10 +8852,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 36,
+						"type": "zombie_shielder",
+						"count": 18,
 						"interval": 0.41,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 29,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -8213,14 +8869,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 45,
+						"type": "zombie_toxic",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 22,
+						"type": "zombie_hopper",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8256,14 +8912,16 @@
 		"name": "铁门死守",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.112,
+		"recommend_level": 44,
+		"difficulty_coef": 3.165,
 		"primary_weakness": "fire",
-		"base_hp_ref": 734,
+		"base_hp_ref": 727,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "escort",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -8272,9 +8930,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 212,
-		"xp_offer_growth": 102,
-		"xp_offer_ramp": 24,
+		"xp_first_offer": 175,
+		"xp_offer_growth": 83,
+		"xp_offer_ramp": 20,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_087",
@@ -8294,10 +8952,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 45,
+						"type": "zombie_warden",
+						"count": 28,
 						"interval": 0.41,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -8305,10 +8963,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 51,
+						"type": "zombie_juggernaut",
+						"count": 16,
 						"interval": 0.4,
-						"lane": "left"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_screamer",
+						"count": 26,
+						"interval": 0.4,
+						"lane": "spread"
 					}
 				]
 			},
@@ -8316,14 +8980,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 39,
+						"type": "zombie_warden",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_warden",
-						"count": 19,
+						"type": "zombie_screamer",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8352,14 +9016,16 @@
 		"name": "铁门重压",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.13,
+		"recommend_level": 44,
+		"difficulty_coef": 3.102,
 		"primary_weakness": "physical",
-		"base_hp_ref": 741,
+		"base_hp_ref": 734,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "siege",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -8369,9 +9035,9 @@
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 134,
-		"xp_offer_growth": 65,
-		"xp_offer_ramp": 15,
+		"xp_first_offer": 177,
+		"xp_offer_growth": 84,
+		"xp_offer_ramp": 20,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_088",
@@ -8391,10 +9057,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 45,
+						"type": "zombie_mutant",
+						"count": 22,
 						"interval": 0.41,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 22,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -8405,7 +9077,7 @@
 						"type": "zombie_armored",
 						"count": 32,
 						"interval": 0.39,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -8413,14 +9085,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 39,
+						"type": "zombie_mutant",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 30,
+						"type": "zombie_mutant",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8449,14 +9121,16 @@
 		"name": "铁门裂隙",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.147,
+		"recommend_level": 44,
+		"difficulty_coef": 4.609,
 		"primary_weakness": "fire",
-		"base_hp_ref": 748,
+		"base_hp_ref": 741,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -8465,9 +9139,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 224,
-		"xp_offer_growth": 108,
-		"xp_offer_ramp": 25,
+		"xp_first_offer": 198,
+		"xp_offer_growth": 96,
+		"xp_offer_ramp": 22,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_089",
@@ -8490,7 +9164,7 @@
 						"type": "zombie_berserker",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -8498,10 +9172,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
-						"count": 52,
+						"type": "zombie_brute",
+						"count": 32,
 						"interval": 0.39,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -8510,13 +9184,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 39,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 30,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8545,23 +9219,25 @@
 		"name": "铁门尖啸",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.164,
+		"recommend_level": 45,
+		"difficulty_coef": 4.342,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 755,
+		"base_hp_ref": 749,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "elite",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"lightning": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 178,
-		"xp_offer_growth": 85,
-		"xp_offer_ramp": 20,
+		"xp_first_offer": 203,
+		"xp_offer_growth": 97,
+		"xp_offer_ramp": 23,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_090",
@@ -8570,7 +9246,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
+						"type": "zombie_charger",
 						"count": 30,
 						"interval": 0.55,
 						"lane": "spread"
@@ -8581,10 +9257,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
+						"type": "zombie_bomber",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -8592,10 +9268,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 32,
+						"type": "zombie_charger",
+						"count": 52,
 						"interval": 0.39,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -8603,14 +9279,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 39,
+						"type": "zombie_charger",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 19,
+						"type": "zombie_bomber",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8639,15 +9315,17 @@
 		"name": "铁门终战",
 		"env": "env_city_ruins",
 		"chapter": 9,
-		"recommend_level": 50,
-		"difficulty_coef": 6.684,
+		"recommend_level": 46,
+		"difficulty_coef": 4.118,
 		"primary_weakness": "physical",
-		"base_hp_ref": 761,
+		"base_hp_ref": 756,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "escort",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -8655,9 +9333,9 @@
 			"physical": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 227,
-		"xp_offer_growth": 108,
-		"xp_offer_ramp": 26,
+		"xp_first_offer": 236,
+		"xp_offer_growth": 112,
+		"xp_offer_ramp": 27,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_091",
@@ -8677,10 +9355,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 52,
+						"type": "zombie_regenerator",
+						"count": 33,
 						"interval": 0.41,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -8689,9 +9367,15 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 38,
+						"count": 19,
 						"interval": 0.39,
-						"lane": "left"
+						"lane": "center"
+					},
+					{
+						"type": "zombie_necromancer",
+						"count": 31,
+						"interval": 0.39,
+						"lane": "spread"
 					}
 				]
 			},
@@ -8699,14 +9383,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 45,
+						"type": "zombie_regenerator",
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 22,
+						"type": "zombie_necromancer",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8742,14 +9426,16 @@
 		"name": "终局缺口",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.206,
+		"recommend_level": 46,
+		"difficulty_coef": 9.755,
 		"primary_weakness": "physical",
-		"base_hp_ref": 768,
+		"base_hp_ref": 763,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "siege",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -8758,9 +9444,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 178,
-		"xp_offer_growth": 85,
-		"xp_offer_ramp": 20,
+		"xp_first_offer": 167,
+		"xp_offer_growth": 80,
+		"xp_offer_ramp": 19,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_092",
@@ -8780,10 +9466,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 45,
+						"type": "zombie_toxic",
+						"count": 22,
 						"interval": 0.41,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 22,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -8791,10 +9483,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 52,
+						"type": "zombie_shielder",
+						"count": 32,
 						"interval": 0.39,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -8802,14 +9494,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 39,
+						"type": "zombie_screamer",
+						"count": 21,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 19,
+						"type": "zombie_toxic",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8838,14 +9530,16 @@
 		"name": "终局突围",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.222,
+		"recommend_level": 46,
+		"difficulty_coef": 5.591,
 		"primary_weakness": "ice",
-		"base_hp_ref": 775,
+		"base_hp_ref": 770,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "standard",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -8855,8 +9549,8 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 201,
-		"xp_offer_growth": 96,
+		"xp_first_offer": 200,
+		"xp_offer_growth": 95,
 		"xp_offer_ramp": 23,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
@@ -8880,7 +9574,7 @@
 						"type": "zombie_phantom",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -8891,7 +9585,7 @@
 						"type": "zombie_warden",
 						"count": 32,
 						"interval": 0.39,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -8899,14 +9593,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 39,
+						"type": "zombie_phantom",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 30,
+						"type": "zombie_bomber",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -8935,14 +9629,16 @@
 		"name": "终局尸潮",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.238,
+		"recommend_level": 47,
+		"difficulty_coef": 6.385,
 		"primary_weakness": "fire",
-		"base_hp_ref": 782,
+		"base_hp_ref": 777,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -8951,9 +9647,9 @@
 			"homing": 1.1,
 			"ice": 1.3
 		},
-		"xp_first_offer": 170,
-		"xp_offer_growth": 82,
-		"xp_offer_ramp": 19,
+		"xp_first_offer": 104,
+		"xp_offer_growth": 49,
+		"xp_offer_ramp": 12,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_094",
@@ -8976,7 +9672,7 @@
 						"type": "zombie_runner",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -8984,10 +9680,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
+						"type": "zombie_runner",
 						"count": 52,
 						"interval": 0.39,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -8996,13 +9692,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 39,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_mutant",
-						"count": 30,
+						"type": "zombie_runner",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9031,23 +9727,25 @@
 		"name": "终局围城",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.253,
+		"recommend_level": 48,
+		"difficulty_coef": 4.568,
 		"primary_weakness": "physical",
-		"base_hp_ref": 789,
+		"base_hp_ref": 784,
 		"threat_tags": [
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "pincer",
+		"variant": "treasure",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"execute": 1.4,
 			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 161,
-		"xp_offer_growth": 78,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 210,
+		"xp_offer_growth": 100,
+		"xp_offer_ramp": 24,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_095",
@@ -9057,9 +9755,15 @@
 				"spawns": [
 					{
 						"type": "zombie_shambler",
-						"count": 30,
+						"count": 15,
 						"interval": 0.55,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_berserker",
+						"count": 15,
+						"interval": 0.55,
+						"lane": "right"
 					}
 				]
 			},
@@ -9068,9 +9772,15 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 45,
+						"count": 22,
 						"interval": 0.41,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_shambler",
+						"count": 22,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -9079,9 +9789,15 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 32,
+						"count": 16,
 						"interval": 0.39,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 26,
+						"interval": 0.39,
+						"lane": "right"
 					}
 				]
 			},
@@ -9089,14 +9805,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 39,
+						"type": "zombie_toxic",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_brute",
-						"count": 19,
+						"type": "zombie_berserker",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9125,15 +9841,17 @@
 		"name": "终局死守",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.77,
+		"recommend_level": 48,
+		"difficulty_coef": 4.455,
 		"primary_weakness": "physical",
-		"base_hp_ref": 796,
+		"base_hp_ref": 791,
 		"threat_tags": [
 			"boss",
 			"burst",
 			"elite"
 		],
+		"wave_pattern": "siege",
+		"variant": "boss",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -9141,9 +9859,9 @@
 			"physical": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 213,
-		"xp_offer_growth": 102,
-		"xp_offer_ramp": 24,
+		"xp_first_offer": 205,
+		"xp_offer_growth": 99,
+		"xp_offer_ramp": 23,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_096",
@@ -9163,10 +9881,16 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 52,
+						"type": "zombie_bomber",
+						"count": 26,
 						"interval": 0.41,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_charger",
+						"count": 26,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -9174,10 +9898,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
+						"type": "zombie_juggernaut",
 						"count": 38,
 						"interval": 0.39,
-						"lane": "center"
+						"lane": "spread"
 					}
 				]
 			},
@@ -9185,14 +9909,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 45,
+						"type": "zombie_necromancer",
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_juggernaut",
-						"count": 22,
+						"type": "zombie_bomber",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9228,14 +9952,16 @@
 		"name": "终局重压",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.284,
+		"recommend_level": 48,
+		"difficulty_coef": 6.678,
 		"primary_weakness": "lightning",
-		"base_hp_ref": 803,
+		"base_hp_ref": 799,
 		"threat_tags": [
 			"breach",
 			"fast"
 		],
+		"wave_pattern": "standard",
+		"variant": "elite",
 		"card_bias": {
 			"anti_swarm": 1.4,
 			"control": 1.7,
@@ -9244,9 +9970,9 @@
 			"ice": 1.3,
 			"lightning": 1.35
 		},
-		"xp_first_offer": 175,
-		"xp_offer_growth": 84,
-		"xp_offer_ramp": 20,
+		"xp_first_offer": 189,
+		"xp_offer_growth": 92,
+		"xp_offer_ramp": 21,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_097",
@@ -9269,7 +9995,7 @@
 						"type": "zombie_crawler",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "center"
+						"lane": "right"
 					}
 				]
 			},
@@ -9277,10 +10003,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 52,
+						"type": "zombie_regenerator",
+						"count": 32,
 						"interval": 0.39,
-						"lane": "right"
+						"lane": "left"
 					}
 				]
 			},
@@ -9289,13 +10015,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 39,
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_regenerator",
-						"count": 19,
+						"type": "zombie_mutant",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9324,14 +10050,16 @@
 		"name": "终局裂隙",
 		"env": "env_city_ruins",
 		"chapter": 10,
-		"recommend_level": 50,
-		"difficulty_coef": 6.307,
+		"recommend_level": 49,
+		"difficulty_coef": 11.775,
 		"primary_weakness": "fire",
-		"base_hp_ref": 809,
+		"base_hp_ref": 806,
 		"threat_tags": [
 			"support",
 			"tank"
 		],
+		"wave_pattern": "rush",
+		"variant": "normal",
 		"card_bias": {
 			"anti_armor": 1.4,
 			"chain": 1.3,
@@ -9341,9 +10069,9 @@
 			"lightning": 1.1,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 162,
-		"xp_offer_growth": 79,
-		"xp_offer_ramp": 18,
+		"xp_first_offer": 185,
+		"xp_offer_growth": 88,
+		"xp_offer_ramp": 21,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_098",
@@ -9352,7 +10080,7 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
+						"type": "zombie_hopper",
 						"count": 30,
 						"interval": 0.55,
 						"lane": "spread"
@@ -9363,10 +10091,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
+						"type": "zombie_crawler",
 						"count": 45,
 						"interval": 0.41,
-						"lane": "right"
+						"lane": "spread"
 					}
 				]
 			},
@@ -9374,10 +10102,10 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_shielder",
-						"count": 32,
+						"type": "zombie_hopper",
+						"count": 52,
 						"interval": 0.39,
-						"lane": "spread"
+						"lane": "center"
 					}
 				]
 			},
@@ -9385,14 +10113,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 39,
+						"type": "zombie_hopper",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_shielder",
-						"count": 19,
+						"type": "zombie_crawler",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9422,13 +10150,15 @@
 		"env": "env_city_ruins",
 		"chapter": 10,
 		"recommend_level": 50,
-		"difficulty_coef": 6.321,
+		"difficulty_coef": 9.162,
 		"primary_weakness": "physical",
-		"base_hp_ref": 816,
+		"base_hp_ref": 813,
 		"threat_tags": [
 			"burst",
 			"fast"
 		],
+		"wave_pattern": "pincer",
+		"variant": "normal",
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"control": 1.7,
@@ -9437,9 +10167,9 @@
 			"ice": 1.3,
 			"physical": 1.35
 		},
-		"xp_first_offer": 192,
-		"xp_offer_growth": 90,
-		"xp_offer_ramp": 22,
+		"xp_first_offer": 186,
+		"xp_offer_growth": 89,
+		"xp_offer_ramp": 21,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "level_099",
@@ -9449,9 +10179,15 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 30,
+						"count": 15,
 						"interval": 0.55,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_phantom",
+						"count": 15,
+						"interval": 0.55,
+						"lane": "right"
 					}
 				]
 			},
@@ -9460,9 +10196,15 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 45,
+						"count": 22,
 						"interval": 0.41,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_hopper",
+						"count": 22,
+						"interval": 0.41,
+						"lane": "right"
 					}
 				]
 			},
@@ -9470,10 +10212,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 52,
+						"type": "zombie_warden",
+						"count": 16,
 						"interval": 0.39,
 						"lane": "left"
+					},
+					{
+						"type": "zombie_bomber",
+						"count": 26,
+						"interval": 0.39,
+						"lane": "right"
 					}
 				]
 			},
@@ -9481,14 +10229,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 39,
+						"type": "zombie_bomber",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 30,
+						"type": "zombie_phantom",
+						"count": 34,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9518,22 +10266,26 @@
 		"env": "env_city_ruins",
 		"chapter": 10,
 		"recommend_level": 50,
-		"difficulty_coef": 6.335,
-		"primary_weakness": "ice",
-		"base_hp_ref": 823,
+		"difficulty_coef": 4.975,
+		"primary_weakness": "physical",
+		"base_hp_ref": 820,
 		"threat_tags": [
+			"boss",
 			"elite",
 			"tank"
 		],
+		"wave_pattern": "escort",
+		"variant": "boss_rush",
 		"card_bias": {
 			"anti_armor": 1.4,
-			"execute": 1.4,
-			"ice": 1.35,
+			"defense": 1.1,
+			"execute": 1.6,
+			"physical": 1.35,
 			"pierce": 1.7
 		},
-		"xp_first_offer": 125,
-		"xp_offer_growth": 61,
-		"xp_offer_ramp": 14,
+		"xp_first_offer": 200,
+		"xp_offer_growth": 98,
+		"xp_offer_ramp": 22,
 		"target_card_picks": 7,
 		"onboarding_stage": "",
 		"next_level": "",
@@ -9543,7 +10295,7 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 30,
+						"count": 35,
 						"interval": 0.55,
 						"lane": "spread"
 					}
@@ -9553,10 +10305,10 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 45,
+						"type": "zombie_armored",
+						"count": 33,
 						"interval": 0.41,
-						"lane": "left"
+						"lane": "center"
 					}
 				]
 			},
@@ -9564,10 +10316,16 @@
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 32,
+						"type": "zombie_berserker",
+						"count": 19,
 						"interval": 0.39,
 						"lane": "center"
+					},
+					{
+						"type": "zombie_warden",
+						"count": 31,
+						"interval": 0.39,
+						"lane": "spread"
 					}
 				]
 			},
@@ -9575,14 +10333,14 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 39,
+						"type": "zombie_armored",
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_armored",
-						"count": 19,
+						"type": "zombie_warden",
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -9590,12 +10348,19 @@
 			},
 			{
 				"wave": 5,
-				"spawns": [
+				"boss": "boss_apex_overlord",
+				"support": [
 					{
-						"type": "zombie_berserker",
-						"count": 43,
+						"type": "zombie_warden",
+						"count": 34,
 						"interval": 0.34,
-						"lane": "spread"
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 24,
+						"interval": 0.34,
+						"lane": "right"
 					}
 				]
 			}

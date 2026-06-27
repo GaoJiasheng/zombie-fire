@@ -33,6 +33,9 @@ INTRO_STAGES = {
     5: "first_boss",
 }
 
+BASE_WEAPON_DAMAGE = 28.0
+CHIP_DAMAGE_MULT = 1.20
+
 
 def load_json(name: str):
     return json.loads((DATA / f"{name}.json").read_text(encoding="utf-8"))
@@ -43,27 +46,84 @@ def dump_json(path: Path, data) -> None:
 
 
 def base_hp_ref(n: int) -> int:
-    return int(round(110 + n * 6.5 + math.sqrt(n) * 7))
-
-
-def target_effective_hp_base(n: int, boss_level: bool) -> float:
-    if n <= 5:
-        base = 70.0 + 15.0 * float(n - 1)
-    elif n <= 10:
-        base = 130.0 + 20.0 * float(n - 5)
-    else:
-        base = 230.0 + 56.0 * float(n - 10)
-    if boss_level:
-        base *= 1.08
-    return base
-
-
-def difficulty_coef(n: int, boss_level: bool) -> float:
-    return round(target_effective_hp_base(n, boss_level) / float(base_hp_ref(n)), 3)
+    return int(round(120 + (n - 1) * (700.0 / 98.0)))
 
 
 def recommend_level(n: int) -> int:
-    return min(50, max(1, int(round(1 + (n - 1) * 0.78))))
+    return min(50, max(1, int(round(1 + (n - 1) * 49.0 / 98.0))))
+
+
+def target_pressure_ratio(n: int, boss_level: bool) -> float:
+    if n <= 5:
+        return [0.28, 0.32, 0.37, 0.43, 0.52][n - 1]
+    if n < 90:
+        ratio = 0.62 + (n - 6) * (0.93 / 83.0)
+    else:
+        ratio = 1.65 + (n - 90) * (0.30 / 9.0)
+    if boss_level:
+        ratio += 0.08
+    return ratio
+
+
+def target_card_picks(n: int) -> int:
+    if n <= 5:
+        return 2
+    if n <= 10:
+        return 3
+    if n <= 30:
+        return 5
+    if n <= 65:
+        return 6
+    return 7
+
+
+def estimate_skill_mult(n: int) -> float:
+    cards = target_card_picks(n)
+    return min(3.2, 1.0 + 0.28 * cards + 0.035 * max(cards - 3, 0) ** 2)
+
+
+def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) -> float:
+    char = characters["vanguard"]
+    weapon = weapons["weapon_autocannon"]
+    level = recommend_level(n)
+    base_atk = float(char["base_atk"])
+    atk_growth = float(char["atk_growth"])
+    fire_rate_mod = float(char.get("fire_rate_mod", 1.0))
+    base_atk_coef = float(weapon.get("base_atk_coef", 1.0))
+    fire_rate = float(weapon.get("fire_rate", 4.0))
+    char_atk_mult = (base_atk / 100.0) * (1.0 + atk_growth * 0.45 * (level - 1))
+    weapon_dmg_mult = 1.0 + 0.08 * (level - 1)
+    weapon_fr_mult = 1.0 + 0.025 * (level - 1)
+    base_damage = BASE_WEAPON_DAMAGE * base_atk_coef
+    damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))
+    fr = fire_rate * weapon_fr_mult * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25)) * fire_rate_mod
+    return damage * fr * estimate_skill_mult(n)
+
+
+def enemy_hp_weight(waves: list[dict], zombies: dict, bosses: dict) -> float:
+    total = 0.0
+    for wave in waves:
+        for spawn in wave.get("spawns", []):
+            total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(spawn.get("count", 0))
+        if "boss" in wave:
+            total += float(bosses[wave["boss"]].get("hp_coef", 18.0))
+        for spawn in wave.get("support", []):
+            total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(spawn.get("count", 0))
+    return max(total, 1.0)
+
+
+def total_spawn_seconds(waves: list[dict]) -> float:
+    duration = 0.0
+    for wave in waves:
+        for spawn in wave.get("spawns", []) + wave.get("support", []):
+            duration += int(spawn.get("count", 0)) * float(spawn.get("interval", 0.8))
+    return duration
+
+
+def difficulty_coef(n: int, boss_level: bool, waves: list[dict], zombies: dict, bosses: dict, characters: dict, weapons: dict, economy: dict) -> float:
+    target_hp = estimate_player_dps(characters, weapons, economy, n) * total_spawn_seconds(waves) * target_pressure_ratio(n, boss_level)
+    raw = target_hp / (float(base_hp_ref(n)) * enemy_hp_weight(waves, zombies, bosses))
+    return round(max(0.08, raw), 3)
 
 
 def target_spawn_seconds(n: int, boss_level: bool) -> float:
@@ -171,8 +231,77 @@ def group(enemy_type: str, count: int, interval: float, lane: str) -> dict:
     return {"type": enemy_type, "count": int(count), "interval": float(interval), "lane": lane}
 
 
+# Wave archetypes shape waves 1-4 (the boss/finale wave is handled separately).
+# Each wave is a list of (enemy_role, lane) slots; the budget is split across slots.
+WAVE_ARCHETYPES = {
+    "standard": [
+        [("filler", "spread")],
+        [("fast", "right")],
+        [("tank", "left")],
+        [("fast", "left"), ("burst", "right")],
+    ],
+    "rush": [
+        [("fast", "spread")],
+        [("filler", "spread")],
+        [("fast", "center")],
+        [("fast", "left"), ("filler", "right")],
+    ],
+    "pincer": [
+        [("filler", "left"), ("fast", "right")],
+        [("fast", "left"), ("filler", "right")],
+        [("tank", "left"), ("burst", "right")],
+        [("burst", "left"), ("fast", "right")],
+    ],
+    "escort": [
+        [("filler", "spread")],
+        [("tank", "center")],
+        [("elite", "center"), ("support", "spread")],
+        [("tank", "left"), ("support", "right")],
+    ],
+    "siege": [
+        [("filler", "spread")],
+        [("burst", "left"), ("fast", "right")],
+        [("tank", "spread")],
+        [("elite", "left"), ("burst", "right")],
+    ],
+}
+
+ARCHETYPE_CYCLE = ["standard", "rush", "pincer", "escort", "siege"]
+
+
+def wave_archetype(n: int) -> str:
+    # Early levels keep simple shapes for onboarding; later levels rotate through
+    # all archetypes (offset by chapter) so no run replays the previous layout.
+    if n <= 5:
+        return "standard"
+    if n <= 10:
+        return ["rush", "pincer", "standard", "rush", "pincer"][(n - 6) % 5]
+    return ARCHETYPE_CYCLE[(n + n // 5) % 5]
+
+
+def is_boss_level(n: int) -> bool:
+    # Every 5th level is a boss, and the campaign finale (99) always ends on a boss.
+    return n % 5 == 0 or n == 99
+
+
+def level_variant(n: int, boss_level: bool) -> str:
+    # Variant levels break up the campaign rhythm. They are reward/flavour tags
+    # only (consumed at runtime) and never alter the generated wave data, so the
+    # monotonic pressure curve is preserved.
+    if n == 99:
+        return "boss_rush"
+    if boss_level:
+        return "boss"
+    if n > 5:
+        if n % 7 == 3:
+            return "treasure"
+        if n % 7 == 5:
+            return "elite"
+    return "normal"
+
+
 def build_waves(n: int, zombies: dict, bosses: dict) -> tuple[list[dict], list[str], str, int]:
-    boss_level = n % 5 == 0
+    boss_level = is_boss_level(n)
     tags = wave_theme(n)
     duration = target_spawn_seconds(n, boss_level)
     budgets = [0.16, 0.18, 0.20, 0.23, 0.23]
@@ -190,39 +319,29 @@ def build_waves(n: int, zombies: dict, bosses: dict) -> tuple[list[dict], list[s
     support = enemy_for(zombies, n, "support", 5)
     elite = enemy_for(zombies, n, "elite", 6)
 
-    i1 = spawn_interval(n, 1, 0.95)
-    c1 = count_for(duration * budgets[0], i1, 1, n)
-    add_xp(filler, c1)
-    waves.append({"wave": 1, "spawns": [group(filler, c1, i1, "spread")]})
-
-    i2 = spawn_interval(n, 2, 1.08)
-    second = fast if "fast" in tags or n >= 6 else filler
-    c2 = count_for(duration * budgets[1], i2, 1, n)
-    add_xp(second, c2)
-    waves.append({"wave": 2, "spawns": [group(second, c2, i2, LANES[(n + 1) % 4])]})
-
-    i3 = spawn_interval(n, 3, 1.0)
-    third = tank if "tank" in tags else burst if "burst" in tags else support if "support" in tags else fast
-    if boss_level and n >= 35:
-        third = elite
-    heavy_third = third in (tank, elite)
-    c3 = count_for(duration * budgets[2], i3, 1, n, heavy_third)
-    add_xp(third, c3)
-    waves.append({"wave": 3, "spawns": [group(third, c3, i3, LANES[(n + 2) % 4])]})
-
-    i4 = spawn_interval(n, 4, 1.18)
-    pressure_a = fast if "fast" in tags else filler
-    pressure_b = burst if "burst" in tags else support if "support" in tags else tank
-    if boss_level and n >= 35:
-        pressure_b = tank
-    c4a = count_for(duration * budgets[3] * 0.56, i4, 1, n, pressure_a in (tank, elite))
-    c4b = count_for(duration * budgets[3] * 0.44, i4, 1, n, pressure_b in (tank, elite))
-    add_xp(pressure_a, c4a)
-    add_xp(pressure_b, c4b)
-    waves.append({"wave": 4, "spawns": [
-        group(pressure_a, c4a, i4, "left"),
-        group(pressure_b, c4b, i4, "right"),
-    ]})
+    pressure_factors = [0.95, 1.08, 1.0, 1.18]
+    role_map = {
+        "filler": filler,
+        "fast": fast,
+        "tank": tank,
+        "burst": burst,
+        "support": support,
+        "elite": elite,
+    }
+    archetype = wave_archetype(n)
+    for wave_index in range(4):
+        wave_no = wave_index + 1
+        slots = WAVE_ARCHETYPES[archetype][wave_index]
+        interval = spawn_interval(n, wave_no, pressure_factors[wave_index])
+        share = 1.0 / len(slots)
+        spawns = []
+        for role, lane in slots:
+            enemy = role_map[role]
+            heavy = role in ("tank", "elite")
+            count = count_for(duration * budgets[wave_index] * share, interval, 1, n, heavy)
+            add_xp(enemy, count)
+            spawns.append(group(enemy, count, interval, lane))
+        waves.append({"wave": wave_no, "spawns": spawns})
 
     if boss_level:
         boss_id = boss_for(n)
@@ -253,16 +372,7 @@ def build_waves(n: int, zombies: dict, bosses: dict) -> tuple[list[dict], list[s
 
 
 def card_budget_fields(n: int, xp_total: int) -> dict:
-    if n <= 5:
-        target_cards = 2
-    elif n <= 10:
-        target_cards = 3
-    elif n <= 30:
-        target_cards = 5
-    elif n <= 65:
-        target_cards = 6
-    else:
-        target_cards = 7
+    target_cards = target_card_picks(n)
     first = max(12, int(round(xp_total * (0.20 if n <= 5 else 0.16))))
     ramp = max(4, int(round(xp_total * 0.018)))
     if target_cards <= 1:
@@ -296,13 +406,49 @@ def reward_gold_mult(n: int) -> float:
     return round(max(0.18, 0.56 - 0.0036 * n), 2)
 
 
+def level_pressure(level: dict, zombies: dict, bosses: dict) -> float:
+    # Mirrors tools/check_level_pressure.py so the monotonic pass optimizes the
+    # exact metric the validator enforces (uses hp_coef * bd_coef, boss hp * 8).
+    raw = 0.0
+    for wave in level.get("waves", []):
+        for grp in wave.get("spawns", []) + wave.get("support", []):
+            row = zombies[grp["type"]]
+            count = int(grp.get("count", 1))
+            raw += count * float(row.get("hp_coef", 1.0)) * float(row.get("bd_coef", 1.0))
+        if "boss" in wave:
+            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * 8.0
+    return raw * float(level.get("difficulty_coef", 1.0))
+
+
+def enforce_monotonic_pressure(levels: list[dict], zombies: dict, bosses: dict) -> None:
+    # Boss levels are intentional periodic spikes, so we make the two streams
+    # (boss / non-boss) each monotonic non-decreasing instead of the raw series.
+    # difficulty_coef is only ever scaled UP, so the game never gets easier.
+    for boss_stream, min_growth in ((False, 1.02), (True, 1.05)):
+        prev: float | None = None
+        for level in levels:
+            level_is_boss = any("boss" in wave for wave in level.get("waves", []))
+            if level_is_boss != boss_stream:
+                continue
+            pressure = level_pressure(level, zombies, bosses)
+            if prev is not None and pressure < prev * min_growth:
+                target = prev * min_growth
+                scale = target / max(pressure, 1e-6)
+                level["difficulty_coef"] = round(float(level["difficulty_coef"]) * scale, 3)
+                pressure = level_pressure(level, zombies, bosses)
+            prev = pressure
+
+
 def build_levels() -> list[dict]:
     zombies = load_json("zombies")
     bosses = load_json("bosses")
+    characters = load_json("characters")
+    weapons = load_json("weapons")
+    economy = load_json("economy")
     levels: list[dict] = []
     names = [prefix + suffix for prefix in NAME_PREFIXES for suffix in NAME_SUFFIXES]
     for n in range(1, 100):
-        boss_level = n % 5 == 0
+        boss_level = is_boss_level(n)
         level_id = f"level_{n:03d}"
         waves, tags, primary, xp_total = build_waves(n, zombies, bosses)
         level = {
@@ -311,10 +457,12 @@ def build_levels() -> list[dict]:
             "env": "env_city_ruins",
             "chapter": (n - 1) // 10 + 1,
             "recommend_level": recommend_level(n),
-            "difficulty_coef": difficulty_coef(n, boss_level),
+            "difficulty_coef": difficulty_coef(n, boss_level, waves, zombies, bosses, characters, weapons, economy),
             "primary_weakness": primary,
             "base_hp_ref": base_hp_ref(n),
             "threat_tags": tags,
+            "wave_pattern": wave_archetype(n),
+            "variant": level_variant(n, boss_level),
             "card_bias": card_bias(tags, primary),
             **card_budget_fields(n, xp_total),
             "onboarding_stage": INTRO_STAGES.get(n, ""),
@@ -325,6 +473,7 @@ def build_levels() -> list[dict]:
             "reward_gold_mult": reward_gold_mult(n),
         }
         levels.append(level)
+    enforce_monotonic_pressure(levels, zombies, bosses)
     return levels
 
 

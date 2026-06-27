@@ -17,13 +17,14 @@
 			"price": 0
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_autocannon_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_autocannon_rifle.png",
 		"turret": "res://assets/sprites/weapons/weapon_autocannon_turret.png",
 		"unlock_cost_star": 0
 	},
 	"weapon_flamethrower": {
 		"name_key": "weapon_flamethrower",
 		"element": "fire",
-		"base_atk_coef": 0.78,
+		"base_atk_coef": 0.64,
 		"fire_rate": 6.2,
 		"projectile_type": "flame",
 		"projectile_speed": 980,
@@ -39,12 +40,13 @@
 			"price": 8
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_flamethrower_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_flamethrower_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_flamethrower_turret.png"
 	},
 	"weapon_cryocannon": {
 		"name_key": "weapon_cryocannon",
 		"element": "ice",
-		"base_atk_coef": 0.88,
+		"base_atk_coef": 1.26,
 		"fire_rate": 3.4,
 		"projectile_type": "ice_bolt",
 		"projectile_speed": 1180,
@@ -59,12 +61,13 @@
 			"price": 12
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_cryocannon_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_cryocannon_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_cryocannon_turret.png"
 	},
 	"weapon_teslacoil": {
 		"name_key": "weapon_teslacoil",
 		"element": "lightning",
-		"base_atk_coef": 0.72,
+		"base_atk_coef": 0.61,
 		"fire_rate": 5.0,
 		"projectile_type": "chain",
 		"projectile_speed": 1350,
@@ -79,12 +82,13 @@
 			"price": 18
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_teslacoil_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_teslacoil_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_teslacoil_turret.png"
 	},
 	"weapon_venomlauncher": {
 		"name_key": "weapon_venomlauncher",
 		"element": "poison",
-		"base_atk_coef": 0.82,
+		"base_atk_coef": 1.24,
 		"fire_rate": 3.0,
 		"projectile_type": "lob",
 		"projectile_speed": 1050,
@@ -100,12 +104,13 @@
 			"price": 24
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_venomlauncher_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_venomlauncher_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_venomlauncher_turret.png"
 	},
 	"weapon_railgun": {
 		"name_key": "weapon_railgun",
 		"element": "physical",
-		"base_atk_coef": 1.9,
+		"base_atk_coef": 3.05,
 		"fire_rate": 1.45,
 		"projectile_type": "rail",
 		"projectile_speed": 2200,
@@ -120,13 +125,14 @@
 			"price": 30
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_railgun_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_railgun_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_railgun_turret.png",
 		"unlock_cost_star": 118
 	},
 	"weapon_scattergun": {
 		"name_key": "weapon_scattergun",
 		"element": "physical",
-		"base_atk_coef": 0.62,
+		"base_atk_coef": 0.56,
 		"fire_rate": 2.8,
 		"projectile_type": "pellet",
 		"projectile_speed": 1250,
@@ -142,12 +148,13 @@
 			"price": 15
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_scattergun_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_scattergun_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_scattergun_turret.png"
 	},
 	"weapon_plasmacannon": {
 		"name_key": "weapon_plasmacannon",
 		"element": "fire",
-		"base_atk_coef": 1.25,
+		"base_atk_coef": 2.5,
 		"fire_rate": 2.2,
 		"projectile_type": "plasma",
 		"projectile_speed": 1300,
@@ -162,6 +169,7 @@
 			"price": 36
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_plasmacannon_icon.png",
+		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_plasmacannon_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_plasmacannon_turret.png"
 	}
 }

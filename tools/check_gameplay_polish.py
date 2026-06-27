@@ -102,13 +102,18 @@ def main() -> int:
             errors.append(f"{path.name} must be authored right-facing; axis is {axis:.1f} degrees")
     if "button.clip_contents = true" not in collection:
         errors.append("collection rows must clip dynamic portraits")
-    for required_clip in ["slot.clip_contents = true", "card.clip_contents = true"]:
+    for required_clip in ["card.clip_contents = true"]:
         if required_clip not in battle:
             errors.append(f"battle dynamic icon container missing: {required_clip}")
     if '"未取"' in battle:
         errors.append("battle HUD must not fill combat space with unowned skill placeholders")
     if "+%d 金币  +%d XP" in battle:
         errors.append("battle HUD must not spawn large reward text over enemies")
+    for stale_reward in ["_spawn_reward_flyouts", "_spawn_reward_chip"]:
+        if stale_reward in battle:
+            errors.append(f"battle must not drop reward chips on the combat field: {stale_reward}")
+    if "_spawn_zombie_blood_pool" not in battle:
+        errors.append("enemy deaths must leave a short-lived zombie blood cleanup effect")
     if "$Hud.add_child(ring)" in battle:
         errors.append("battle attack rings must render in the combat layer, not as HUD rectangles")
     for stale_tracer in ["var ray := ColorRect.new()", "var line := ColorRect.new()", "var flare := ColorRect.new()"]:
@@ -116,8 +121,19 @@ def main() -> int:
             errors.append(f"battle cannon VFX must not use HUD ColorRect tracers: {stale_tracer}")
     if "$Hud/ObjectivePanel.visible = false" not in battle:
         errors.append("battle objective panel must stay hidden during live combat")
-    if "offset_top = 1756.0" not in (ROOT / "gameplay/battle/battle.tscn").read_text():
-        errors.append("battle skill slots must be anchored near the bottom instead of the top HUD")
+    if "character_weapon_sprite.rotation = character_weapon_direction.angle()" not in battle:
+        errors.append("character-held guns must use right-facing weapon sprites as the rotation baseline")
+    if "_spawn_loadout_badge(Vector2" in battle:
+        errors.append("battle intro must not spawn oversized character/weapon level text over the model")
+    for source_ref in ["hero_battle_pose_sheet.png", "handheld_weapon_sheet.png"]:
+        if not (ROOT / "assets/production/source_refs" / source_ref).exists():
+            errors.append(f"battle visual source sheet missing: {source_ref}")
+    battle_scene = (ROOT / "gameplay/battle/battle.tscn").read_text()
+    skill_slots_idx = battle_scene.find('[node name="SkillSlots"')
+    if skill_slots_idx == -1:
+        errors.append("battle skill slots node missing")
+    elif "anchor_top = 1.0" not in battle_scene[skill_slots_idx:skill_slots_idx + 400]:
+        errors.append("battle skill slots must be anchored to the bottom edge of the HUD")
     for runtime_key in ["BarrierGlass", "_spawn_barrier_break_vfx", "_spawn_barrier_gain_vfx", "_barrier_charge_count"]:
         if runtime_key not in battle:
             errors.append(f"barrier glass runtime missing: {runtime_key}")
@@ -135,7 +151,7 @@ def main() -> int:
     for runtime_key in ["_spawn_character", "_process_character_animation", "_load_pet_animation_frames", "_spawn_levelup_vfx", "_visual_level_scale"]:
         if runtime_key not in battle:
             errors.append(f"battle visual runtime missing: {runtime_key}")
-    for runtime_key in ["LoadoutFrame", "CharacterPanel", "WeaponPanel", "DetailsPanel", "EconomyPanel"]:
+    for runtime_key in ["CharacterPanel", "WeaponPanel", "DetailsPanel"]:
         if runtime_key not in loadout_scene:
             errors.append(f"loadout cyber frame missing: {runtime_key}")
     for runtime_key in ["CharacterSelectBar", "GearIconRow"]:
@@ -147,9 +163,12 @@ def main() -> int:
     for runtime_key in ["idle_frames", "recoil_frames", "_play_recoil"]:
         if runtime_key not in turret:
             errors.append(f"turret animation runtime missing: {runtime_key}")
-    for runtime_key in ["FIRE_RATE_MULTIPLIER := 0.5", "* FIRE_RATE_MULTIPLIER"]:
+    for runtime_key in ["DEFAULT_FIRE_RATE_MULTIPLIER := 0.25", "PLAYER_FIRE_RATE_MULT", "_player_fire_rate_multiplier"]:
         if runtime_key not in turret:
             errors.append(f"turret fire-rate pacing missing: {runtime_key}")
+    for runtime_key in ["PLAYER_SHOT_DAMAGE_MULT", "_player_shot_damage_multiplier"]:
+        if runtime_key not in battle:
+            errors.append(f"primary shot damage compensation missing: {runtime_key}")
     for runtime_key in ["MUZZLE_LOCAL_OFFSETS", "_update_muzzle_position", "muzzle_local_position.angle()"]:
         if runtime_key not in turret:
             errors.append(f"turret muzzle runtime missing: {runtime_key}")

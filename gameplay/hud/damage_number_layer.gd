@@ -6,6 +6,8 @@ const LIFE := 0.85
 const CRIT_LIFE := 1.05
 const CRIT_SCALE := 1.55
 const STACK_OFFSET := 12.0
+const MAX_LABELS := 44
+const HARD_LABELS := 58
 
 var _stack_counter: Dictionary = {}
 
@@ -17,8 +19,12 @@ func reset() -> void:
 func spawn_damage(position: Vector2, amount: float, element: String, crit := false, weak_hit := false) -> void:
 	if amount <= 0.0:
 		return
+	var important := crit or weak_hit
+	if not _reserve_label_slot(important):
+		return
 	var rounded := int(round(amount))
 	var label := Label.new()
+	label.set_meta("important_damage", important)
 	label.text = str(rounded)
 	label.add_theme_font_size_override("font_size", 38 if not crit else 56)
 	var color := _element_color(element)
@@ -51,6 +57,17 @@ func spawn_damage(position: Vector2, amount: float, element: String, crit := fal
 	# decay stack counter
 	var decay_t := get_tree().create_timer(0.35)
 	decay_t.timeout.connect(_decay_stack.bind(position))
+
+func _reserve_label_slot(important: bool) -> bool:
+	if get_child_count() < MAX_LABELS:
+		return true
+	if not important:
+		return false
+	for child in get_children():
+		if not bool(child.get_meta("important_damage", false)):
+			child.queue_free()
+			return true
+	return get_child_count() < HARD_LABELS
 
 func _decay_stack(pos: Vector2) -> void:
 	if _stack_counter.has(pos):

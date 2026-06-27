@@ -4,8 +4,8 @@
 For each level, estimate:
   - Total enemy HP, including the boss wave's HP and boss support.
   - Player DPS at the level's recommended character level, with vanguard +
-    autocannon, weapon level = character level, base chips/armor, and
-    a flat 2.5x skill-card multiplier.
+    autocannon, weapon level = character level, base chips/armor, current
+    economy pacing knobs, and the skill-card multiplier implied by card budget.
   - Predicted clear time + estimated leak damage (5% leak on non-boss
     levels, 12% leak on boss levels because the boss can't be ignored).
   - Two scenarios: no_skill (very early game) and with_skill (mid-run).
@@ -24,10 +24,10 @@ ZOMBIES_PATH = ROOT / "data" / "zombies.json"
 BOSSES_PATH = ROOT / "data" / "bosses.json"
 CHARS_PATH = ROOT / "data" / "characters.json"
 WEAPONS_PATH = ROOT / "data" / "weapons.json"
+ECONOMY_PATH = ROOT / "data" / "economy.json"
 
 GLOBAL_DMG_BASE = 10.0
 BASE_WEAPON_DAMAGE = 28.0
-TURRET_FIRE_RATE_MULTIPLIER = 0.5
 
 SKILL_MULT = 3.0          # capped Lv.3 skill system; per-level estimate adjusts from card budget
 CHIP_DAMAGE_MULT = 1.20   # chip_attack at moderate level
@@ -39,6 +39,7 @@ NORMAL_LEAK = 0.05
 def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_level: int, skill_mult: float) -> float:
     chars = json.loads(CHARS_PATH.read_text(encoding="utf-8"))
     weapons = json.loads(WEAPONS_PATH.read_text(encoding="utf-8"))
+    economy = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
     char = chars[char_id]
     weapon = weapons[weapon_id]
     base_atk = float(char["base_atk"])
@@ -50,8 +51,8 @@ def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_le
     weapon_dmg_mult = 1.0 + 0.08 * (weapon_level - 1)
     weapon_fr_mult = 1.0 + 0.025 * (weapon_level - 1)
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef
-    damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT
-    fr = fire_rate * weapon_fr_mult * TURRET_FIRE_RATE_MULTIPLIER * fire_rate_mod
+    damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))
+    fr = fire_rate * weapon_fr_mult * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25)) * fire_rate_mod
     return damage * fr * skill_mult
 
 

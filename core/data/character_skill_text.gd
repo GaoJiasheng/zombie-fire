@@ -3,7 +3,7 @@ extends RefCounted
 const PASSIVE_DESCRIPTIONS := {
 	"breach_guard": {
 		"name": "钢铁防线",
-		"desc": "已生效：漏怪护盾 +1；Lv.15 后再 +1。物理弹获得实弹校准加成。",
+		"desc": "已生效：漏怪护盾 +1；15级后再 +1。物理弹获得实弹校准加成。",
 	},
 	"flame_overdrive": {
 		"name": "烈焰超载",
@@ -20,7 +20,7 @@ const PASSIVE_DESCRIPTIONS := {
 }
 
 const SIG_SKILL_DESCRIPTIONS := {
-	"sig_vanguard_railvolley": {"name": "弹幕齐射", "desc": "主动：短时间提高攻速，主炮额外弹道并增加穿透。"},
+	"sig_vanguard_railvolley": {"name": "弹幕齐射", "desc": "主动：短时间提高攻速，主武器额外弹道并增加穿透。"},
 	"sig_vanguard_overload": {"name": "过载反击", "desc": "自动：基地生命低于 30% 时触发 5 秒强攻（每关 1 次）。"},
 	"sig_blaze_meltdown": {"name": "熔毁爆发", "desc": "主动：锁定高威胁目标引爆火焰范围伤害，并点燃周围敌人。"},
 	"sig_blaze_napalm": {"name": "凝固汽油", "desc": "弹种：火焰弹获得小范围爆燃和更强灼烧。"},
@@ -34,4 +34,4 @@ static func passive_info(passive_id: String) -> Dictionary:
 	return PASSIVE_DESCRIPTIONS.get(passive_id, {"name": passive_id, "desc": "已生效：未知被动。"})
 
 static func signature_info(signature_id: String) -> Dictionary:
-	return SIG_SKILL_DESCRIPTIONS.get(signature_id, {"name": signature_id, "desc": "专属：待配置。"})
+	return SIG_SKILL_DESCRIPTIONS.get(signature_id, {"name": signature_id, "desc": "专属：效果说明缺失。"})

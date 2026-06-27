@@ -37,6 +37,7 @@ var mechanic_timer := 0.0
 var enrage_triggered := false
 var threat_marker: Label
 var _base_modulate: Color
+var _idle_frames: Array[Texture2D] = []
 var _walk_frames: Array[Texture2D] = []
 var _attack_frames: Array[Texture2D] = []
 var _special_frames: Array[Texture2D] = []
@@ -46,11 +47,16 @@ var _anim_state := "walk"
 var _anim_time := 0.0
 var _anim_frame := 0
 var _hurt_time := 0.0
+var _hurt_duration := 0.18
+var _attack_time := 0.0
+var _attack_duration := 0.36
 var _special_time := 0.0
 var _dying := false
 var _death_time := 0.0
 var _stride_phase := 0.0
 var _base_sprite_x := 0.0
+var _base_sprite_scale := Vector2.ONE
+var _hurt_recoil := Vector2.ZERO
 var _burn_time := 0.0
 var _burn_dps := 0.0
 var _poison_time := 0.0
@@ -60,6 +66,14 @@ var _element_slow_mult := 1.0
 var _shock_time := 0.0
 var _last_hit_weak := false
 var _last_hit_element := "physical"
+var _last_hit_vfx_at := -99.0
+# DoT floating-number accumulator. Each tick accumulates damage + time
+# locally; only when the bucket trips a 0.5s window (or ≥5 dmg) do we
+# emit one damage_dealt signal. Stops 60Hz stack-on-stack number spam
+# while still keeping damage feedback visible.
+const DOT_TICK_WINDOW := 0.5
+const DOT_TICK_MIN_DMG := 5.0
+var _dot_tick_acc: Dictionary = {}
 var _hp_bg: ColorRect
 var _hp_fill: ColorRect
 var _status_aura: Sprite2D
@@ -99,6 +113,7 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	$CollisionShape2D.shape = CircleShape2D.new()
 	$CollisionShape2D.shape.radius = 70.0 if not boss else 130.0
 	$Sprite.scale = Vector2(0.32, 0.32) if not boss else Vector2(0.44, 0.44)
+	_base_sprite_scale = $Sprite.scale
 	_base_sprite_x = $Sprite.position.x
 	_base_modulate = Color(1, 1, 1, 1)
 	_build_hp_bar()
@@ -122,7 +137,7 @@ func _threat_text() -> String:
 	var tags: Array = data.get("threat_tags", [])
 	var weak := _weakness_hint()
 	if boss:
-		return "BOSS%s" % weak
+		return "首领%s" % weak
 	if tags.has("breach"):
 		return "近线%s" % weak
 	if tags.has("elite"):
@@ -180,7 +195,8 @@ func _physics_process(delta: float) -> void:
 		_process_base_attack(delta)
 	else:
 		position.y += speed * speed_mult * delta
-		_update_stride(delta)
+		if _hurt_time <= 0.0 and _attack_time <= 0.0 and _special_time <= 0.0:
+			_update_stride(delta)
 		if position.y >= attack_line_y:
 			_enter_base_attack()
 	if threat_marker and is_instance_valid(threat_marker):
@@ -227,7 +243,7 @@ func _enter_base_attack() -> void:
 	position.y = attack_line_y
 	speed_mult = 1.0
 	base_attack_timer = randf_range(0.08, 0.34)
-	play_special(0.32)
+	_play_attack_animation(0.34)
 
 func _process_base_attack(delta: float) -> void:
 	var charge_delta := delta
@@ -239,7 +255,7 @@ func _process_base_attack(delta: float) -> void:
 	if base_attack_timer > 0.0:
 		return
 	base_attack_timer = maxf(0.45, base_attack_interval + randf_range(-0.12, 0.18))
-	play_special(0.36 if not boss else 0.48)
+	_play_attack_animation(0.36 if not boss else 0.48)
 	breached.emit(self, base_attack_damage)
 
 func take_damage(amount: float, element := "physical") -> void:
@@ -264,7 +280,7 @@ func take_damage(amount: float, element := "physical") -> void:
 					_flash(_base_modulate)
 					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
 					if threat_marker and is_instance_valid(threat_marker):
-						threat_marker.text = "BROKEN"
+						threat_marker.text = "破甲"
 						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
 				return
 			armor_broken = true
@@ -392,10 +408,10 @@ func has_element_status(element: String) -> bool:
 func _process_element_status(delta: float) -> void:
 	if _burn_time > 0.0:
 		_burn_time -= delta
-		_apply_status_damage(_burn_dps * delta, Color(1.0, 0.38, 0.12))
+		_accumulate_dot_damage("fire", _burn_dps * delta, delta)
 	if _poison_time > 0.0:
 		_poison_time -= delta
-		_apply_status_damage(_poison_dps * delta, Color(0.42, 1.0, 0.28))
+		_accumulate_dot_damage("poison", _poison_dps * delta, delta)
 	if _element_slow_time > 0.0:
 		_element_slow_time -= delta
 		speed_mult *= _element_slow_mult
@@ -406,13 +422,32 @@ func _process_element_status(delta: float) -> void:
 		speed_mult *= 0.55 if not boss else 0.75
 	_update_status_aura()
 
-func _apply_status_damage(amount: float, color: Color) -> void:
+# Accumulates per-element DoT damage into a small bucket. The previous
+# implementation called _apply_status_damage every frame, which both
+# (a) lerp'd the sprite modulate toward the status color every frame so
+# bosses looked like a permanent red flash, and (b) emitted one floating
+# damage number per frame, so a 2s burn produced ~120 stacked digits
+# nobody could read. Now we collect into a 0.5s window and emit at most
+# one number per window, color-coded by element via damage_number_layer.
+func _accumulate_dot_damage(element: String, amount: float, delta: float) -> void:
+	if amount <= 0.0:
+		return
+	if not _dot_tick_acc.has(element):
+		_dot_tick_acc[element] = {"dmg": 0.0, "time": 0.0}
+	var bucket: Dictionary = _dot_tick_acc[element]
+	bucket["dmg"] = float(bucket.get("dmg", 0.0)) + amount
+	bucket["time"] = float(bucket.get("time", 0.0)) + delta
+	if float(bucket["time"]) < DOT_TICK_WINDOW and float(bucket["dmg"]) < DOT_TICK_MIN_DMG:
+		return
+	_dot_tick_acc.erase(element)
+	_apply_status_damage(float(bucket["dmg"]), element)
+
+func _apply_status_damage(amount: float, element: String) -> void:
 	if _dying or amount <= 0.0:
 		return
 	hp -= amount
 	_update_hp_bar()
-	modulate = modulate.lerp(color, 0.2)
-	damage_dealt.emit(self, amount, _status_to_element(color), false, false)
+	damage_dealt.emit(self, amount, element, false, false)
 	if hp <= 0.0:
 		_dying = true
 		_anim_state = "death"
@@ -500,23 +535,29 @@ func _update_hp_bar() -> void:
 	_update_status_label()
 
 func _play_hurt_feedback(element := "physical") -> void:
-	_hurt_time = 0.16
+	_hurt_duration = 0.2 if not boss else 0.16
+	_hurt_time = _hurt_duration
 	_anim_state = "hurt"
 	_anim_time = 0.0
 	_anim_frame = 0
+	_hurt_recoil = Vector2(randf_range(-14.0, 14.0), -18.0 if not boss else -26.0)
 	if not _hurt_frames.is_empty():
 		$Sprite.texture = _hurt_frames[0]
 	_flash(Color(1, 0.4, 0.4))
-	var bump := create_tween()
-	bump.tween_property($Sprite, "position:y", $Sprite.position.y - 10.0, 0.045)
-	bump.tween_property($Sprite, "position:y", 0.0, 0.09)
 	_spawn_hit_vfx(element)
 
 func _spawn_hit_vfx(element := "physical") -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	if not boss and now - _last_hit_vfx_at < 0.055:
+		return
+	_last_hit_vfx_at = now
+	if _local_transient_vfx_count() >= (8 if boss else 4):
+		return
 	var tex := load(_hit_vfx_path(element)) as Texture2D
 	if tex == null:
 		return
 	var hit := Sprite2D.new()
+	hit.set_meta("enemy_transient_vfx", true)
 	hit.texture = tex
 	hit.scale = Vector2(0.34, 0.34) if not boss else Vector2(0.52, 0.52)
 	hit.modulate = Color(1, 1, 1, 0.9)
@@ -528,10 +569,13 @@ func _spawn_hit_vfx(element := "physical") -> void:
 	tween.tween_callback(hit.queue_free)
 
 func _spawn_crit_vfx(color: Color) -> void:
+	if _local_transient_vfx_count() >= (10 if boss else 5):
+		return
 	var tex := load("res://assets/production/sprites/vfx/vfx_crit.png") as Texture2D
 	if tex == null:
 		return
 	var crit := Sprite2D.new()
+	crit.set_meta("enemy_transient_vfx", true)
 	crit.texture = tex
 	crit.position = Vector2(randf_range(-18.0, 18.0), -42.0 if not boss else -76.0)
 	crit.scale = Vector2(0.44, 0.44) if not boss else Vector2(0.7, 0.7)
@@ -542,6 +586,13 @@ func _spawn_crit_vfx(color: Color) -> void:
 	tween.parallel().tween_property(crit, "position:y", crit.position.y - 34.0, 0.16)
 	tween.parallel().tween_property(crit, "modulate:a", 0.0, 0.16)
 	tween.tween_callback(crit.queue_free)
+
+func _local_transient_vfx_count() -> int:
+	var count := 0
+	for child in get_children():
+		if child.has_meta("enemy_transient_vfx") and not child.is_queued_for_deletion():
+			count += 1
+	return count
 
 func _hit_vfx_path(element: String) -> String:
 	match element:
@@ -556,22 +607,12 @@ func _hit_vfx_path(element: String) -> String:
 		_:
 			return "res://assets/production/sprites/vfx/vfx_hit_physical.png"
 
-func _status_to_element(color: Color) -> String:
-	if color.r > 0.9 and color.g < 0.6:
-		return "fire"
-	if color.b > 0.9 and color.g > 0.7:
-		return "ice"
-	if color.r > 0.9 and color.g > 0.85 and color.b < 0.4:
-		return "lightning"
-	if color.g > 0.9 and color.r < 0.6:
-		return "poison"
-	return "physical"
-
 func _load_animation_frames(row: Dictionary, is_boss: bool) -> void:
 	var sprite_path: String = row.get("sprite", "")
 	var entity_id := sprite_path.get_file().get_basename().replace("_prototype", "")
 	var family := "bosses" if is_boss else "zombies"
 	var base := "res://assets/production/sprites/animations/%s/%s/%s" % [family, entity_id, entity_id]
+	_idle_frames = _load_frame_set(base, "idle", 4)
 	_walk_frames = _load_frame_set(base, "walk", 6)
 	_attack_frames = _load_frame_set(base, "attack", 4)
 	_special_frames = _load_frame_set(base, "special", 6)
@@ -602,25 +643,41 @@ func _update_animation(delta: float) -> void:
 	if _hurt_time > 0.0:
 		_hurt_time -= delta
 		_advance_frames(_hurt_frames, delta, 18.0, false)
+		_update_hurt_pose()
 		if _hurt_time <= 0.0:
 			_anim_state = "walk"
 			_anim_time = 0.0
 			_anim_frame = 0
-			return
+		return
 	if _special_time > 0.0:
 		_special_time -= delta
 		var frames := _special_frames if not _special_frames.is_empty() else _attack_frames
 		_advance_frames(frames, delta, 14.0, false)
+		_update_special_pose()
 		if _special_time <= 0.0:
 			_anim_state = "attack" if attacking_base else "walk"
 			_anim_time = 0.0
 			_anim_frame = 0
 		return
-	if attacking_base:
+	if _attack_time > 0.0:
+		_attack_time -= delta
 		var frames := _attack_frames if not _attack_frames.is_empty() else _walk_frames
-		_advance_frames(frames, delta, 7.5 if not boss else 6.0, true)
+		_advance_frames(frames, delta, 15.0 if not boss else 12.0, false)
+		_update_attack_pose()
+		if _attack_time <= 0.0:
+			_anim_state = "attack" if attacking_base else "walk"
+			_anim_time = 0.0
+			_anim_frame = 0
 		return
-	_advance_frames(_walk_frames, delta, 8.0 + speed * 0.018, true)
+	if attacking_base:
+		var frames := _attack_frames if not _attack_frames.is_empty() else _idle_frames
+		if frames.is_empty():
+			frames = _walk_frames
+		_advance_frames(frames, delta, 4.5 if not boss else 3.8, true)
+		_update_base_attack_idle_pose()
+		return
+	var walk_frames := _walk_frames if not _walk_frames.is_empty() else _idle_frames
+	_advance_frames(walk_frames, delta, 8.0 + speed * 0.018, true)
 
 func play_special(duration := 0.42) -> void:
 	if _dying:
@@ -632,6 +689,45 @@ func play_special(duration := 0.42) -> void:
 	var frames := _special_frames if not _special_frames.is_empty() else _attack_frames
 	if not frames.is_empty():
 		$Sprite.texture = frames[0]
+
+func _play_attack_animation(duration := 0.36) -> void:
+	if _dying:
+		return
+	_attack_duration = duration
+	_attack_time = duration
+	_anim_state = "attack"
+	_anim_time = 0.0
+	_anim_frame = 0
+	if not _attack_frames.is_empty():
+		$Sprite.texture = _attack_frames[0]
+
+func _update_hurt_pose() -> void:
+	var ratio := clampf(_hurt_time / maxf(_hurt_duration, 0.001), 0.0, 1.0)
+	$Sprite.position = _hurt_recoil * ratio
+	$Sprite.scale = _base_sprite_scale * (1.0 + 0.04 * ratio)
+	$Sprite.rotation = deg_to_rad(4.0 * ratio * (1.0 if _hurt_recoil.x >= 0.0 else -1.0))
+
+func _update_attack_pose() -> void:
+	var progress := 1.0 - clampf(_attack_time / maxf(_attack_duration, 0.001), 0.0, 1.0)
+	var lunge := sin(progress * PI)
+	var heavy := 1.3 if boss else 1.0
+	$Sprite.position = Vector2(_base_sprite_x + sin(progress * TAU) * 3.0 * heavy, lunge * 18.0 * heavy)
+	$Sprite.scale = _base_sprite_scale * (1.0 + 0.055 * lunge)
+	$Sprite.rotation = deg_to_rad(sin(progress * PI * 2.0) * 2.5)
+
+func _update_special_pose() -> void:
+	var pulse := absf(sin(Time.get_ticks_msec() / 80.0))
+	var heavy := 1.2 if boss else 1.0
+	$Sprite.position = Vector2(_base_sprite_x + sin(Time.get_ticks_msec() / 95.0) * 4.0 * heavy, -5.0 * pulse)
+	$Sprite.scale = _base_sprite_scale * (1.0 + 0.04 * pulse)
+	$Sprite.rotation = deg_to_rad(sin(Time.get_ticks_msec() / 130.0) * 2.0)
+
+func _update_base_attack_idle_pose() -> void:
+	var pulse := absf(sin(Time.get_ticks_msec() / (260.0 if not boss else 340.0)))
+	var sway := sin(Time.get_ticks_msec() / (320.0 if not boss else 420.0)) * (3.5 if not boss else 6.0)
+	$Sprite.position = Vector2(_base_sprite_x + sway, pulse * (5.0 if not boss else 8.0))
+	$Sprite.scale = _base_sprite_scale * (1.0 + 0.025 * pulse)
+	$Sprite.rotation = deg_to_rad(sway * 0.32)
 
 func _update_model_polish(delta: float) -> void:
 	if _rank_aura:
@@ -700,6 +796,8 @@ func _update_stride(delta: float) -> void:
 	var bob: float = absf(sin(_stride_phase * 1.2)) * (4.0 if not boss else 6.0)
 	$Sprite.position.x = _base_sprite_x + sway
 	$Sprite.position.y = -bob
+	$Sprite.scale = _base_sprite_scale * Vector2(1.0 + bob * 0.004, 1.0 - bob * 0.002)
+	$Sprite.rotation = deg_to_rad(sway * 0.22)
 
 func _advance_frames(frames: Array[Texture2D], delta: float, fps: float, loop: bool) -> void:
 	if frames.is_empty():

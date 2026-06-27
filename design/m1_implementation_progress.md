@@ -106,7 +106,7 @@ A new `BuildSummary` label below the existing pause buttons lists:
 
 - 关卡名 + 建议等级
 - 本关弱点（中文元素名）
-- 角色 / 主炮 Lv. / 护甲 / 芯片 / 宝宝
+- 角色 / 枪械 Lv. / 护甲 / 芯片 / 宝宝
 - 已带技能 + 当前等级
 - 当前目标策略（中文）
 
@@ -280,6 +280,54 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 
 ---
 
+## Stage 1 P3.7 Runtime Readability & Effect Budget Guardrails (2026-06-27)
+
+> Follow-up after the global UI palette pass. Goal: reduce screen clutter and node churn without changing rules, data tables, or assets.
+
+- **Damage-number cap**: `gameplay/hud/damage_number_layer.gd` now drops low-priority dense hit labels once the screen is saturated, while preserving crit / weak-hit numbers.
+- **Reward flash cap**: `gameplay/hud/gold_fly.gd` keeps the cleaned-up coin flash behavior but caps concurrent coin/ring nodes and falls back to a HUD number pulse during dense kill bursts.
+- **Projectile / battle VFX budget**: battle-spawned muzzle flashes, rings, chains, splashes, blood pools, shards, skill-flight icons, and float text are tagged as transient effects and skipped when their layer budget is already full.
+- **Projectile trail budget**: `gameplay/projectile/projectile.gd` now caps afterimages, impact flashes, pierce rings, and pierce traces on the projectile layer.
+- **Enemy local hit VFX throttle**: `gameplay/enemy/enemy.gd` throttles repeated per-enemy hit flashes so split / chain / DoT builds do not cover zombies with stacked sprites.
+- **Off-screen indicator reuse fix**: `gameplay/hud/off_screen_indicator.gd` now uses stable left/right arrow pools instead of mutating both pools during cleanup.
+- **Release text guard**: `tools/check_release_strings.py` now blocks visible release fallbacks like `待配置` and common player-facing English UI tokens.
+- **Smoke coverage**: `tools/m1_smoke_test.gd` now asserts that damage numbers, gold reward flashes, and off-screen indicators stay bounded under burst conditions.
+
+### Verification (after Stage 1 P3.7)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 3721 files`.
+- `python3 tools/check_res_refs.py` → `checked 211 res:// references / res:// references OK`.
+- `python3 tools/check_release_strings.py` → `Release string check OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/check_level_pressure.py` → pressure estimate completes across all 99 levels.
+- `python3 tools/check_balance_profile.py` → `Balance profile OK`.
+- `python3 tools/check_economy_loop.py` → `Economy loop OK`.
+- `python3 tools/simulate_card_director.py` → card offer simulation completes for all 99 levels.
+- `python3 tools/simulate_balance.py` → with-skill average clear time `98.3s`, min/max `14.3s / 178.8s`, levels `<30s = 4`, levels `>180s = 0`.
+- `git diff --check -- ...` → no whitespace errors for the touched files.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.3 Map Entry Strip Cleanup — Remove Label Cut Lines (2026-06-27)
+
+> Addressed the report that the top map entry strip had an ugly horizontal line cutting through the category labels.
+
+- **No label slash line**: removed the one-sided top border from map nav label plates. The `角色 / 武器 / 护甲 / 芯片 / 宠物 / 技能` labels now sit on clean dark translucent nameplates instead of a bright line.
+- **Cleaner icon cards**: slightly retuned icon insets, label plate bounds, and card background opacity so the six entry cards read as icon-first collection entries rather than framed text strips.
+
+### Verification (after Stage 1 P3.3)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 207 res:// references / res:// references OK`.
+- `git diff --check -- meta/map/map.gd` → no whitespace errors.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
 ## Stage 1 P2.5 Combat Rule Fix — Persistent Base Attacks (2026-06-26)
 
 > Addressed the report that enemies should not touch the base once and disappear; they should pile up at the gate and keep attacking like the reference game.
@@ -314,5 +362,339 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
 - `python3 tools/check_res_refs.py` → `checked 175 res:// references / res:// references OK`.
 - `python3 tools/check_level_pressure.py` → pressure estimate completes across all 99 levels; this tool does not include movement speed, so HP pressure output is intentionally unchanged.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.6 Animation Polish — Character Weapon Rig & Enemy State Motion (2026-06-26)
+
+> Addressed the report that heroes / zombies looked like sliding stickers, and that the old bottom cannon should visually become a character-held weapon without breaking existing weapon stats.
+
+- **Character rig**: battle now spawns a centered `CharacterRig` with the selected character avatar, idle / attack / hurt frame cycling, skill-cast pose, recoil pose, elemental aura, and a weapon mount.
+- **Weapon visual split**: the legacy `turret` node is hidden and kept only for fire-rate, damage, targeting, and upgrade logic. The visible weapon skin is mounted on the character, uses the selected weapon's existing animation frames, and changes when `weapon_id` changes.
+- **Muzzle alignment**: projectile origin / muzzle flash / multishot directions now resolve from the character-mounted weapon muzzle, so bullets no longer appear to come from the old floor cannon center.
+- **Enemy state motion**: enemies now use idle / walk / attack / hurt / death frame sets where available. Hurt interrupts walk frames with recoil; base attacks use attack frames plus lunge / squash instead of a static stop at the gate.
+- **Regression guard**: smoke test now verifies the character-mounted weapon exists, all 8 selected weapons swap the mounted skin, the legacy turret sprite stays hidden, and projectile origin is offset to the weapon muzzle rather than the hidden turret center.
+
+### Verification (after Stage 1 P2.6)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 176 res:// references / res:// references OK`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.7 Visual Polish — Handheld Gun Skins & Mobile UI Cleanup (2026-06-26)
+
+> Addressed the report that the weapon mounted on the hero still looked like an ugly floor cannon, and that several menu/detail/result screens had low-quality alignment and text overflow.
+
+- **Handheld weapon assets**: added 8 transparent handheld gun sprites under `assets/production/sprites/weapons/handheld/`, one for every weapon row.
+- **Data-driven weapon visual**: `data/weapons.json` now defines `handheld` for each weapon. Battle uses this field for the character-mounted visible weapon, keeping the legacy turret hidden for targeting / damage / upgrade logic only.
+- **Muzzle and scale tuning**: adjusted mounted weapon scale and muzzle distances for the new gun proportions so projectiles originate from the character-held gun rather than a floor cannon.
+- **Map UI**: moved equipment navigation into the top utility area and made entries icon-forward instead of plain text tabs.
+- **Loadout UI**: tightened first-screen hierarchy around hero + weapon, icon equipment rows, compact signature cards, and separated economy / start action areas.
+- **Character detail UI**: changed character detail to a framed hero header, scrollable stat / passive / signature sections, and fixed bottom actions so long skill text cannot overflow the modal.
+- **Result UI**: shortened recommendation copy and next-level label to avoid text spilling outside cards.
+- **Regression guard**: smoke test now requires every weapon to define an existing `handheld` skin and verifies battle mounts exactly that texture. It also caught and fixed a script-loading issue in `enemy.gd` plus a skill-slot icon sizing overflow.
+
+### Verification (after Stage 1 P2.7)
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 3719 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.8 Combat HUD Polish — Bottom Skill Shelf (2026-06-26)
+
+> Addressed the report that upgraded Tesla ammo showed like a Lv.1 card plus an overlapping icon and blocked the battlefield.
+
+- **Bottom skill shelf**: moved owned skill slots from the right-side battlefield card stack to a compact horizontal shelf just above the bottom XP bar.
+- **Single-slot upgrades**: repeated picks now visibly update the existing skill slot level badge, e.g. Tesla seed `LV1` + one Tesla pick becomes one `LV2` Tesla slot.
+- **Less battlefield obstruction**: owned skills now show as icon + level only; long names and descriptions no longer sit over enemies during combat.
+- **Pick animation cleanup**: the skill-pick fly-in icon is smaller, targets the bottom shelf, and fades out instead of lingering over the skill card.
+- **Regression guard**: smoke test now verifies Tesla uses exactly one bottom `skill_tesla` slot and updates its badge from `LV1` to `LV2` after one upgrade.
+
+### Verification (after Stage 1 P2.8)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.9 Combat Pacing — Slower Initial Fire Rate, Same Baseline DPS (2026-06-26)
+
+> Historical pass: addressed the request to reduce initial attack speed while keeping overall level difficulty unchanged. Superseded by Stage 1 P3.5, which raises the paced fire-rate value to `0.25` and rebuilds the full 99-level curve.
+
+- **Global pacing knobs**: `data/economy.json` defines `PLAYER_FIRE_RATE_MULT` and `PLAYER_SHOT_DAMAGE_MULT`, so weapon feel can be tuned without hardcoding turret values.
+- **Fire-rate change**: turret setup reads `PLAYER_FIRE_RATE_MULT` instead of the previous hardcoded `0.5` pacing constant.
+- **Difficulty preservation**: primary projectile base damage multiplies by `PLAYER_SHOT_DAMAGE_MULT`, letting the balance tools reason about cadence and per-shot power separately.
+- **Scope control**: enemy HP, enemy speed, wave counts, active-skill damage, and level coefficients were not changed.
+- **Tooling sync**: balance simulation and gameplay-polish checks now read the economy pacing knobs instead of assuming the old hardcoded `0.5` value.
+- **Regression guard**: smoke test verifies the current economy fire-rate multiplier and the DPS-preserving product.
+
+### Verification (after Stage 1 P2.9)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK`.
+- `python3 tools/check_level_pressure.py` → pressure estimate completes across all 99 levels.
+- `python3 tools/check_balance_profile.py` → `Balance profile OK`.
+- `python3 tools/check_economy_loop.py` → `Economy loop OK`.
+- `python3 tools/simulate_balance.py` → simulation completes; with-skill average clear time remains in the same estimate path because DPS compensation offsets the fire-rate cut.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.10 Map Entry Polish — Larger Icon Tiles (2026-06-26)
+
+> Addressed the report that the map collection entries still looked like small icons with detached text.
+
+- **Map navigation cards**: rebuilt the six top entries as icon-forward tiles. The category icon now fills the card as the main visual instead of sitting inside a small inner box.
+- **Embedded label**: category text is now drawn on a translucent bottom nameplate inside the image area, with outline and accent top border. This keeps the row compact while making the entries feel closer to premium mobile game shortcuts.
+- **No asset churn**: reused existing production icons for character, weapon, armor, chip, pet, and skill. No new images were generated.
+
+### Verification (after Stage 1 P2.10)
+
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.11 Combat Rule Fix — Element Ammo Exclusivity (2026-06-26)
+
+> Addressed the report that plasma cannon could appear to fire Tesla ammo, and that Tesla / venom ammo could coexist.
+
+- **Root cause**: elemental ammo skills were normal additive skills. `SkillRuntime.projectile_element()` let the highest-level ammo skill override the weapon's base element, so a fire/plasma weapon could be visually converted to lightning if Tesla ammo became higher level.
+- **Weapon identity lock**: non-physical weapons now keep their native projectile element. Plasma cannon remains fire/plasma-themed; Tesla / venom / cryo cards cannot override it.
+- **Ammo exclusivity**: incendiary, cryo, Tesla, and venom now declare `exclusive_group = projectile_element` plus `ammo_element`. Adding one ammo module removes the previous one from the runtime skill state.
+- **Card director filtering**: physical weapons can choose one ammo module and then only upgrade that module. Elemental weapons only see their matching ammo upgrade card.
+- **Copy cleanup**: card short / long descriptions now explain that ammo modules are mutually exclusive and only transform physical weapons.
+- **Regression guard**: smoke test verifies Tesla + venom cannot coexist, physical weapons can be converted by one ammo module, and plasma cannon does not offer or inherit off-element ammo.
+
+### Verification (after Stage 1 P2.11)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.12 Combat Cleanup — Reward Flash & Blood Fade (2026-06-26)
+
+> Addressed the report that gold / XP drops cluttered the battlefield and made the lanes look messy.
+
+- **No reward litter**: removed battlefield reward chips and floating `金` / `XP` labels from enemy death rewards.
+- **Instant accounting**: gold and XP are added directly to the bottom HUD counters when the zombie dies.
+- **Gold feedback**: gold rewards now show one short coin flash at the kill position, then pulse the gold counter instead of flying piles across the lane.
+- **XP feedback**: XP rewards now pulse the bottom XP bar only, keeping the center combat space clear.
+- **Zombie cleanup effect**: enemy death now leaves a short-lived green blood / puddle effect that fades out after roughly 2-3 seconds.
+- **Regression guard**: gameplay polish check fails if old reward chip functions return or if the death blood cleanup effect is removed.
+
+### Verification (after Stage 1 P2.12)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.13 Battle Model Polish — Rear-Facing Heroes & Handheld Guns (2026-06-26)
+
+> Addressed the report that the battle hero still looked front-facing / sticker-like and the mounted gun looked like an abstract geometric cannon.
+
+- **Rear-facing battle poses**: replaced all four character battle animation frame sets with battlefield-facing 3/4 rear-view sprites. Character selection portraits remain unchanged.
+- **Pose coverage**: regenerated idle, attack, and hurt frame variants for Vanguard, Blaze, Frost, and Volt so the battle model has visible stance changes instead of a single static front pose.
+- **Realistic handheld guns**: replaced the eight handheld weapon sprites with polished sci-fi rifle / launcher cutouts aligned to the current weapon roster.
+- **Weapon animation sync**: regenerated weapon idle / recoil frame sets from the same new handheld art so future animation fallback stays visually consistent.
+- **Mount alignment**: changed the character-held weapon baseline to right-facing sprites, retuned the weapon socket, visual scale, and muzzle distance so the gun sits near the hero's hands and rotates toward the target instead of floating over the head.
+- **Intro cleanup**: removed the oversized start-of-battle `角色 / 枪械 / 宠物 Lv.x` floating badges; level growth remains visible through tint, aura, scale, and equipment art instead of big text over the model.
+- **Source traceability**: added the generated source sheets under `assets/production/source_refs/` and a reproducible importer at `tools/generate_battle_visual_polish.py`.
+- **Regression guard**: gameplay polish check now requires right-facing weapon rotation baseline, the visual source sheets, and no oversized intro level badge calls.
+
+### Verification (after Stage 1 P2.13)
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 3721 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 186 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P2.14 Loadout Simplification — Three Entry Sections & Summary (2026-06-26)
+
+> Addressed the report that the loadout page had overlapping cards / text, repeated small character logos, tinted character art, and too many competing info blocks.
+
+- **Three entry sections**: simplified the loadout main screen to Hero, Main Weapon, and Armor / Chip / Pet entries. The duplicate character quick-select row is hidden from the main page.
+- **Selection / upgrade routing**: clicking Hero, Weapon, Armor, Chip, or Pet now routes into the corresponding collection page, where selection and upgrade decisions belong.
+- **Bounded summary**: replaced scattered mission / economy / signature text blocks with one framed summary that lists level, waves, weakness, power, gold, hero, weapon, armor, chip, and pet.
+- **Artwork fidelity**: stopped applying level-tint modulation to the selected character and weapon art, and also stopped tinting unlocked collection icons. This keeps Volt / Frost / Blaze portraits in their original colors instead of turning green, blue, or gold.
+- **Cleaner main screen**: hid the visible signature cards, mission hint, upgrade panel, gold label, and direct upgrade button from the loadout surface so the page reads as a selection hub instead of a stacked text report.
+
+### Verification (after Stage 1 P2.14)
+
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check -- meta/loadout/loadout.gd meta/loadout/loadout.tscn meta/collection/collection.gd` → no whitespace errors.
+
+---
+
+## Stage 1 P3.0 UI System Pass — Mature Mobile Screen Language (2026-06-27)
+
+> Started the full UI review pass requested after comparing the current screens against mature live mobile game standards.
+
+- **Shared UI kit**: added `ui/ui_kit.gd` with reusable neon panel, plate, pill, label, icon, element-color, currency, star, and press-feedback helpers. New UI work should use this instead of hand-rolling style boxes per page.
+- **Map page**: rebuilt campaign entries into battle-zone cards with a number plate, authored level name, recommended power pill, unlock state, weakness element icon, star icons, and deploy/locked status. A hidden compatibility label preserves existing smoke expectations.
+- **Collection page**: rebuilt item rows into framed equipment cards with bounded icon art, title, compact tags, description, equipped/growth state, and a contained upgrade button. This reduces the old text/button overlap risk.
+- **Loadout page**: replaced the visible multiline summary block with a framed tactical summary grid: level/waves, weakness, power, gold, counter state, and current hero/weapon/armor/chip/pet loadout.
+- **Battle card UI**: skill cards now use element/tactic accent borders, framed icons, short descriptions, icon-tag chips, and recommendation badges while preserving click/long-press behavior and smoke-compatible `Icon` nodes.
+- **Pause UI**: moved build summary inside the pause panel and applied the shared cyber panel style, so the pause state no longer looks like detached text floating below the modal.
+- **Menu / result polish**: applied shared panel and label styling to the main menu settings overlay and result cards, keeping existing start/settings/result actions intact.
+
+### Verification (after Stage 1 P3.0)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 207 res:// references / res:// references OK`.
+- `git diff --check -- ui/ui_kit.gd meta/menu/menu.gd meta/map/map.gd meta/collection/collection.gd meta/loadout/loadout.gd meta/result/result.gd gameplay/battle/battle.gd gameplay/battle/battle.tscn` → no whitespace errors.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.1 Loadout Bottom Cleanup — Single Summary Tray (2026-06-27)
+
+> Addressed the report that the bottom loadout area still had nested frames, crossing borders, and noisy equipment tiles.
+
+- **Removed frame clutter**: hid the oversized loadout background frame that crossed behind the bottom summary and made the section look like stacked boxes.
+- **Single summary tray**: changed the tactical summary from four individually framed tiles into one integrated stat plate with level, weakness, power, and gold cells.
+- **Cleaner equipment icons**: removed the overlaid `护甲 / 芯片 / 宠物` text from inside the three equipment buttons; the section header now carries the slot meaning, and each icon remains clickable with tooltip context.
+- **Better spacing**: retuned the Armor / Chip / Pet row and summary panel bounds so they no longer collide with the bottom information frame.
+
+### Verification (after Stage 1 P3.1)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 207 res:// references / res:// references OK`.
+- `git diff --check -- meta/loadout/loadout.gd meta/loadout/loadout.tscn` → no whitespace errors.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → currently stops on an existing battle multiplier assertion: `turret must receive character and chip damage multipliers`. The loadout page loads before this assertion, and this failure is outside the P3.1 UI path.
+
+---
+
+## Stage 1 P3.2 Battle Hero Visual Cleanup — No Floating UI Gun (2026-06-27)
+
+> Addressed the report that the battle hero still looked like a sticker with a floating abstract gun and a square red skill/VFX block.
+
+- **Handheld gun recentering**: retuned `tools/generate_battle_visual_polish.py` so the opaque gun body is centered in the handheld texture canvas. This prevents right-facing weapon art from swinging around a bottom-biased pivot when the battle code rotates it.
+- **Smaller weapon mount**: reduced the character-mounted weapon scale, moved the socket closer to the hero's hands, and shortened muzzle offsets so guns no longer float over the shoulder like oversized UI icons.
+- **No weapon tint wash**: stopped applying level tint directly onto the character and weapon art in battle. Growth can still be shown through subtle effects, but the base art no longer turns muddy or off-palette.
+- **No square aura texture**: replaced the persistent character/pet aura and level-up flash texture with procedural ring lines, removing the visible rectangular texture footprint behind the hero.
+- **No `战技` overlap**: hid the `SkillPanelTitle` text permanently; skill slots remain as bottom icons and no longer put raw label text on top of the character.
+- **Stable smoke setup**: made the battle section of `m1_smoke_test.gd` use a fixed vanguard + autocannon + attack-chip loadout. This keeps the multiplier assertion from depending on whatever equipment the local save currently has selected.
+
+### Verification (after Stage 1 P3.2)
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 3721 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 207 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check -- gameplay/battle/battle.gd gameplay/battle/battle.tscn tools/generate_battle_visual_polish.py tools/m1_smoke_test.gd` → no whitespace errors.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.3 Loadout Summary & Collection Detail Consistency (2026-06-27)
+
+> Addressed the report that the loadout tactical summary still had a stray inner box and low text readability, and that collection interactions were inconsistent between direct equip and detail-first equip.
+
+- **Single-layer summary tray**: removed the scaled texture frame from the tactical summary background and rebuilt the tray as one controlled style panel, removing the odd small square behind the text.
+- **Sharper summary text**: increased summary title/value font sizes, outline strength, panel opacity, and contrast so level, weakness, power, gold, and loadout names read clearly over the ruined-city background.
+- **Consistent collection flow**: all unlocked collection rows now open a detail modal first. Equipment actions live in the detail view instead of being split between row-click direct equip and detail-page equip.
+- **Generic item details**: added detail cards for weapons, armor, chips, pets, and skills with icon art, tags, core stats, tactical notes, and contained equip/upgrade/close actions. Existing character detail remains the character-specific version of the same detail-first rule.
+- **Smoke coverage updated**: the smoke test now asserts that weapon rows no longer expose direct row upgrade buttons and that clicking an unlocked row opens an item detail with equip and upgrade actions.
+
+### Verification (after Stage 1 P3.3)
+
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 207 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.4 Map Feature Dock Redesign (2026-06-27)
+
+> Addressed the report that the map feature entry row still looked low-end: separate small boxes, crude black label plates, unclear hierarchy, and weak item status.
+
+- **Unified feature dock**: rebuilt the six top entries as one integrated command dock instead of six disconnected button cards.
+- **Cleaner visual hierarchy**: removed the heavy black label plates and moved labels into bottom dock titles with stronger outline, slimmer accent underlines, and less visual noise.
+- **Current loadout signal**: feature icons now use the currently selected hero, weapon, armor, chip, and pet art where available, with a compact `Lv.` badge per slot. Skills remains a `图鉴` entry.
+- **Premium separators and accents**: added subtle per-slot accent lines, dividers, and hover state styling so each entry reads as an intentional module rather than a generic rectangle.
+- **Layout breathing room**: increased the navigation row height and moved the level list down slightly so the new dock has enough vertical space and no longer feels squeezed.
+
+### Verification (after Stage 1 P3.4)
+
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 208 res:// references / res:// references OK`.
+- `git diff --check -- meta/map/map.gd meta/map/map.tscn` → no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.5 Combat Balance Retune — Faster Cadence & Linear 99-Level Pressure (2026-06-27)
+
+> Addressed the report that the previous attack-speed cut made even advanced gear fail early levels, while the campaign still needed a real endgame pressure curve.
+
+- **Attack-speed correction**: raised `PLAYER_FIRE_RATE_MULT` from `0.1666667` to `0.25`, exactly +50% over the previous paced value.
+- **Data-driven runtime**: `gameplay/turret/turret.gd` keeps reading the pacing knob from `data/economy.json`; the fallback constant now matches `0.25`.
+- **Linear progression**: rebuilt `tools/rebalance_difficulty.py` so `recommend_level` runs linearly from Lv.1 to Lv.50 across 99 stages, and `base_hp_ref` runs linearly from 120 to 820.
+- **Three pressure bands**: levels 1-5 are intentionally generous, levels 6-89 ramp linearly, and levels 90-99 enter a high-pressure endgame band that expects near-max core gear and correct build choices.
+- **DPS-aware coefficients**: `difficulty_coef` is now reverse-solved from recommended-player DPS, target spawn time, target pressure, and enemy HP weights instead of being a simple static growth multiplier.
+- **Simulation result**: after the rebuild, with-skill clear estimates are 14.3-42.2s for levels 1-5 and 145.8-178.8s for levels 90-99; no level exceeds the 180s hard-check window.
+
+### Verification (after Stage 1 P3.5)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 208 res:// references / res:// references OK`.
+- `python3 tools/check_level_pressure.py` → pressure estimate completes across all 99 levels.
+- `python3 tools/check_balance_profile.py` → `Balance profile OK`.
+- `python3 tools/check_economy_loop.py` → `Economy loop OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/simulate_balance.py` → with-skill average clear time `98.3s`, min/max `14.3s / 178.8s`, levels `<30s = 4`, levels `>180s = 0`.
+- `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.6 Global UI Palette & Chinese Text Unification (2026-06-27)
+
+> Addressed the report that the UI framework was acceptable, but window colors felt harsh and inconsistent, while several player-facing labels still mixed Chinese with English.
+
+- **Unified premium palette**: rebuilt `UiKit` around a darker translucent base, softer blue-gray text, controlled cyan accents, and restrained gold highlights instead of saturated blue panels everywhere.
+- **Window color pass**: retinted loadout, map dock, collection/detail modals, menu support panel, result cards, pause panel, and battle card overlays to use the same dark metal + gold/cyan hierarchy.
+- **Chinese visible text**: replaced player-facing `Lv.`, `LV`, `HP`, `Wave`, `XP`, `BOSS`, `BROKEN`, `LOCK`, `TAP TO DEPLOY`, `BATTLE REPORT`, `ZOMBIE FIRE`, and `Roguelite` displays with Chinese equivalents.
+- **Naming consistency**: standardized the current equipment slot as `武器` across loadout, pause summary, result hints, and skill descriptions; kept asset/data keys unchanged.
+- **Smoke guard update**: updated skill-slot smoke expectations from `LV1/LV2` to `等级1/等级2` so regression checks match the new Chinese UI.
+
+### Verification (after Stage 1 P3.6)
+
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 208 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` → `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check -- ui/ui_kit.gd meta/loadout/loadout.gd meta/loadout/loadout.tscn meta/map/map.gd meta/collection/collection.gd meta/menu/menu.gd meta/menu/menu.tscn core/settings/settings_manager.gd meta/result/result.gd meta/result/result.tscn gameplay/battle/battle.gd gameplay/battle/battle.tscn gameplay/hud/combo_hud.gd gameplay/enemy/enemy.gd core/data/character_skill_text.gd tools/m1_smoke_test.gd` → no whitespace errors.
 - `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.

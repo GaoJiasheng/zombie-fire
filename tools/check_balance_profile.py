@@ -55,6 +55,64 @@ def predicted_card_picks(level: dict, xp_total: int) -> int:
     return cards
 
 
+def weapon_effective_dps(weapon: dict) -> float:
+    # Rough effective DPS: raw cadence x special-effect multipliers. Meant for
+    # relative comparison between weapons, not absolute combat numbers.
+    dps = float(weapon.get("base_atk_coef", 1.0)) * float(weapon.get("fire_rate", 1.0))
+    special = weapon.get("special", {})
+    pellets = int(special.get("pellets", 1))
+    if pellets > 1:
+        dps *= pellets * 0.62  # spread shots rarely all connect
+    dps *= 1.0 + 0.18 * int(special.get("pierce", 0))
+    dps *= 1.0 + 0.45 * int(special.get("chain", 0))
+    if special.get("splash") or special.get("cloud"):
+        dps *= 1.3
+    dps *= 1.0 + 0.8 * (float(special.get("burn", 0.0)) + float(special.get("poison", 0.0)))
+    dps *= 1.0 + 0.4 * float(special.get("slow", 0.0))
+    return dps
+
+
+def check_weapon_dps(weapons: dict, errors: list[str]) -> list[tuple[str, str, float]]:
+    by_rarity: dict[str, list[tuple[str, float]]] = {}
+    ranking: list[tuple[str, str, float]] = []
+    for weapon_id, row in weapons.items():
+        rarity = str(row.get("rarity", "common"))
+        dps = weapon_effective_dps(row)
+        by_rarity.setdefault(rarity, []).append((weapon_id, dps))
+        ranking.append((weapon_id, rarity, dps))
+    # Same-rarity spread must stay bounded so no weapon is a clear "graduation" pick.
+    for rarity, entries in by_rarity.items():
+        if len(entries) < 2:
+            continue
+        values = [dps for _, dps in entries]
+        spread = max(values) / max(min(values), 1e-6)
+        if spread > 2.6:
+            top = max(entries, key=lambda e: e[1])[0]
+            bottom = min(entries, key=lambda e: e[1])[0]
+            errors.append(
+                f"weapon DPS spread too wide within '{rarity}': {spread:.2f}x "
+                f"({top} >> {bottom})"
+            )
+    # Rarity must mean power: each tier's weakest weapon should be at least as
+    # strong as the previous tier's, so legendaries are never outclassed by commons.
+    rarity_order = ["common", "rare", "epic", "legendary"]
+    tier_min: list[tuple[str, float]] = []
+    for rarity in rarity_order:
+        entries = by_rarity.get(rarity)
+        if entries:
+            tier_min.append((rarity, min(dps for _, dps in entries)))
+    for i in range(1, len(tier_min)):
+        prev_rarity, prev_min = tier_min[i - 1]
+        cur_rarity, cur_min = tier_min[i]
+        if cur_min < prev_min * 0.98:
+            errors.append(
+                f"weapon rarity power inverted: '{cur_rarity}' floor {cur_min:.2f} "
+                f"< '{prev_rarity}' floor {prev_min:.2f}"
+            )
+    ranking.sort(key=lambda e: e[2], reverse=True)
+    return ranking
+
+
 def unlock_costs(*tables: dict) -> list[int]:
     costs: list[int] = []
     for table in tables:
@@ -117,6 +175,8 @@ def main() -> int:
     if len(characters) < 4:
         errors.append("character roster should contain 4 archetypes")
 
+    weapon_ranking = check_weapon_dps(weapons, errors)
+
     if errors:
         print("Balance profile check failed:")
         for error in errors:
@@ -126,6 +186,9 @@ def main() -> int:
     print("Balance profile OK")
     print(f"pressure range: {min(pressures):.1f} -> {max(pressures):.1f}")
     print(f"unlock star range: {min(costs)} -> {max(costs)}")
+    print("weapon effective DPS (relative):")
+    for weapon_id, rarity, dps in weapon_ranking:
+        print(f"  {dps:6.2f}  [{rarity:9}] {weapon_id}")
     return 0
 
 

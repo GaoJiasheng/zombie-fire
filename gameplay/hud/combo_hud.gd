@@ -1,5 +1,5 @@
 extends Control
-## Combo / X-HIT display. Increment on each kill, decay when idle.
+## Kill streak display. Increment on each kill, decay when idle.
 
 const COMBO_DECAY := 1.6
 const MILESTONES := [10, 25, 50, 100, 200, 500]
@@ -29,7 +29,7 @@ func register_kill() -> void:
 	visible = _count >= 2
 	if not visible:
 		return
-	_label.text = "%d-HIT" % _count
+	_label.text = "%d 连击" % _count
 	_bump()
 	if _count >= MILESTONES[_milestone_index]:
 		_show_milestone(MILESTONES[_milestone_index])

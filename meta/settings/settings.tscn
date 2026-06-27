@@ -1,0 +1,122 @@
+[gd_scene load_steps=2 format=3 uid="uid://zf_settings"]
+
+[ext_resource type="Script" path="res://meta/settings/settings.gd" id="1"]
+
+[node name="Settings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.014, 0.018, 0.024, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 44
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 44
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "设置"
+horizontal_alignment = 1
+
+[node name="AudioSection" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "音频"
+
+[node name="SoundButton" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+text = "声音：开"
+
+[node name="VideoSection" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "画面"
+
+[node name="QualityButton" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+text = "画质：标准"
+
+[node name="DataSection" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "数据"
+
+[node name="DataRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackupButton" type="Button" parent="Center/Panel/Margin/VBox/DataRow"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "备份存档"
+
+[node name="RestoreButton" type="Button" parent="Center/Panel/Margin/VBox/DataRow"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "无备份"
+
+[node name="ResetButton" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+text = "重置存档"
+
+[node name="AboutSection" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "关于"
+
+[node name="AboutRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HelpButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "操作说明"
+
+[node name="PrivacyButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "隐私"
+
+[node name="SupportButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "支持"
+
+[node name="InfoBody" type="Label" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 230)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="BackButton" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+text = "返回"

@@ -68,6 +68,8 @@
     "kind": "passive",         // active|passive|hybrid
     "tags": ["projectile"],
     "card_tags": ["projectile","anti_swarm"],
+    "exclusive_group": "",     // 可选；同组技能局内互斥
+    "ammo_element": "",        // 可选；元素弹药模块使用 fire|ice|lightning|poison
     "weight_rules": {
       "role_affinity": {"vanguard": 1.2},
       "level_need": {"anti_swarm": 1.5},
@@ -92,6 +94,7 @@
 }
 ```
 > 局内 `run_level` 不存表（运行时状态）；表里只定义每级效果。两层升级逻辑见 `03`。
+> 元素弹药技能使用 `exclusive_group:"projectile_element"` 和 `ammo_element`。物理武器可在火/冰/雷/毒之间选择一种弹药转化；已有元素武器只允许升级同元素模块，不能被其他元素弹药覆盖。
 
 ## weapons.json
 ```jsonc
@@ -209,6 +212,8 @@
 {
   "GLOBAL_HP_BASE": 50, "GLOBAL_DMG_BASE": 10,
   "ENEMY_SPEED_MULT": 0.82,
+  "PLAYER_FIRE_RATE_MULT": 0.25,
+  "PLAYER_SHOT_DAMAGE_MULT": 3.0,
   "level_xp_coef": 50, "level_xp_pow": 1.5,
   "atk_growth_default": 0.08, "hp_growth_default": 0.06,
   "talent_per_level_early": 1, "talent_per_level_late": 2, "talent_late_from": 40,
@@ -227,6 +232,7 @@
   "star_total_cap": 297
 }
 ```
+- `PLAYER_FIRE_RATE_MULT / PLAYER_SHOT_DAMAGE_MULT` 是主武器手感旋钮：当前基础射速节奏值为 `0.25`，单发伤害补偿为 `3.0`；关卡压力由 `tools/rebalance_difficulty.py` 按推荐等级 DPS 重新反推。
 
 ## challenges.json （数组，M3/M4 后启用）
 ```jsonc
