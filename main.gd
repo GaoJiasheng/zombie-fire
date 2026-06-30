@@ -46,6 +46,28 @@ func _apply_scene_change() -> void:
 	if current_scene.has_method("setup"):
 		current_scene.setup(self, normalized_payload)
 	add_child(current_scene)
+	# 给 UI 界面统一加“安全区(刘海/灵动岛/home 指示条)”内边距；battle 保持铺满。
+	if route != "battle" and current_scene is Control:
+		_apply_safe_area(current_scene as Control)
+
+func _apply_safe_area(root: Control) -> void:
+	var win := DisplayServer.window_get_size()
+	if win.x <= 0 or win.y <= 0:
+		return
+	var safe := DisplayServer.get_display_safe_area()
+	var vis := get_viewport().get_visible_rect().size
+	var sx := vis.x / float(win.x)
+	var sy := vis.y / float(win.y)
+	var top := float(safe.position.y) * sy
+	var bottom := float(win.y - safe.position.y - safe.size.y) * sy
+	var left := float(safe.position.x) * sx
+	var right := float(win.x - safe.position.x - safe.size.x) * sx
+	# 桌面/无刘海时这些都≈0,等于无操作。给个小下限避免贴边。
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.offset_left = maxf(left, 0.0)
+	root.offset_top = maxf(top, 0.0)
+	root.offset_right = -maxf(right, 0.0)
+	root.offset_bottom = -maxf(bottom, 0.0)
 
 func start_level(level_id: String) -> void:
 	run_context = {"level_id": level_id}

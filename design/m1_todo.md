@@ -196,8 +196,10 @@
 - [x] `tools/_battle_boot_probe.gd`：通过真实路由进入战斗，检查暂停状态、时间倍率、波次、出怪、角色 rig 和逻辑炮塔。
 - [x] `tools/check_visual_assets.py`：检查战斗角色/手持武器素材的方块底、透明边界和严重绿幕残留。
 - [x] `tools/check_visual_assets.py`：纳入 `character_weapon_combos`，后续每个角色/武器融合模型都会被同一套透明边界与绿幕残留规则检查。
+- [x] 全量高规格原型替换：`tools/generate_high_end_prototype_assets.py` 已覆盖角色半身原型、角色/武器融合帧、僵尸、Boss、宠物、技能图标、VFX 单帧/序列与 projectile polish；数据中僵尸、Boss、技能图标引用已迁到 `assets/production/`，并输出 `high_end_prototype_asset_spec.json` 与 `high_end_prototype_contact_sheet.png` 供追溯。
 - [x] `tools/check_visual_screens.py`：真实渲染 6 个关键界面截图，检查 1080x1920、非空白、无大面积纯黑边。
 - [x] `tools/check_release_candidate.py`：把新增 battle probe、视觉素材检查、截图检查纳入候选发布检查。
 - [x] `tools/check_gameplay_polish.py`：新增主动技能 fallback、元素命中强化、技能 HUD 去重 guardrail。
 - [x] `tools/m1_smoke_test.gd`：主动技能按下必须进入冷却，避免再次出现“主动技能不可用”。
-- [x] Godot 沙箱启动 / 退出清理：`project.godot` 使用项目内隐藏 user data 目录，headless 下 AudioManager 不加载/播放音频流；`godot --headless --path . --quit` 与 M1 smoke test 不再输出 ObjectDB/resource cleanup warning。（macOS CA 证书 fallback 警告仍属于引擎/沙箱环境提示，命令 exit 0。）
+- [x] Godot 沙箱启动：`project.godot` 使用项目内隐藏 user data 目录，headless 下 AudioManager 不加载/播放音频流；`godot --headless --path . --quit` 当前 exit 0。
+- [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。

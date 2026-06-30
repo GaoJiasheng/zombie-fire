@@ -196,3 +196,67 @@ static func press_feedback(control: Control) -> void:
 	var tween := control.create_tween()
 	tween.tween_property(control, "scale", Vector2(0.97, 0.97), 0.05)
 	tween.tween_property(control, "scale", Vector2.ONE, 0.08)
+
+# 战力图标(与 map 一致)。
+const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
+
+# ---- 共享资源条(金币/星星/经验/战力)。各页面统一外观,只在此维护。----
+static func _resource_chip_style(accent: Color) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = Color(0.012, 0.016, 0.022, 0.78)
+	s.set_border_width_all(2)
+	s.border_color = Color(accent.r, accent.g, accent.b, 0.42)
+	s.set_corner_radius_all(11)
+	s.content_margin_left = 14
+	s.content_margin_right = 14
+	s.content_margin_top = 6
+	s.content_margin_bottom = 6
+	return s
+
+static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = chip_size
+	panel.tooltip_text = tip
+	panel.add_theme_stylebox_override("panel", _resource_chip_style(accent))
+	var content := HBoxContainer.new()
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.add_theme_constant_override("separation", 9)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(content)
+	var ic := icon(icon_path, Vector2(36, 36))
+	ic.modulate = Color(1.06, 1.02, 0.92, 1.0)
+	content.add_child(ic)
+	var lbl := label(value, font_size, TEXT_MAIN, 3)
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	content.add_child(lbl)
+	return panel
+
+# items: Array[Dictionary]，每项 {icon:String, accent:Color, value:String, tip:String}
+static func resource_bar(items: Array, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 16)
+	for it in items:
+		if it is Dictionary:
+			row.add_child(resource_chip(
+				str(it.get("icon", "")),
+				it.get("accent", GOLD),
+				str(it.get("value", "")),
+				str(it.get("tip", "")),
+				chip_size,
+				font_size
+			))
+	return row
+
+# 标准四项资源条(金币/可用星星/经验/战力),数值由调用方传入,保证各页面内容一致。
+static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:
+	return resource_bar([
+		{"icon": currency_icon_path("gold"), "accent": GOLD, "value": "%d" % gold, "tip": "金币：升级角色/武器/护甲/芯片/宠物"},
+		{"icon": currency_icon_path("star"), "accent": Color(0.96, 0.80, 0.30, 1.0), "value": "%d" % star, "tip": "可用星星：购买/解锁角色与装备"},
+		{"icon": currency_icon_path("xp"), "accent": CYAN, "value": "%d" % xp, "tip": "经验：永久升级技能"},
+		{"icon": POWER_ICON, "accent": PURPLE, "value": "%d" % power, "tip": "战力：当前阵容综合强度"},
+	], chip_size, font_size)
+
+# 共享武器图标(统一外观,尺寸可变)。
+static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect:
+	return icon(str(row.get("icon", row.get("portrait", ""))), size)

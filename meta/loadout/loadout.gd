@@ -82,9 +82,26 @@ func _refresh_back_button() -> void:
 		return
 	label.text = "返回结算" if _return_to == "result" else "返回关卡"
 
+func _refresh_resource_bar() -> void:
+	var main := $Root/Main as VBoxContainer
+	if main == null:
+		return
+	var existing := main.get_node_or_null("ResourceBar")
+	if existing != null:
+		existing.free()
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power())
+	bar.name = "ResourceBar"
+	main.add_child(bar)
+	var header := main.get_node_or_null("HeaderRow")
+	if header != null:
+		main.move_child(bar, header.get_index() + 1)
+	else:
+		main.move_child(bar, 0)
+
 func _refresh() -> void:
 	if not is_inside_tree():
 		return
+	_refresh_resource_bar()
 	var weapon_id := SaveManager.get_selected("weapon")
 	if weapon_id == "":
 		weapon_id = "weapon_autocannon"

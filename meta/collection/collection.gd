@@ -75,13 +75,25 @@ func _refresh() -> void:
 	if not is_inside_tree():
 		return
 	(%Title as Label).text = _title()
-	(%Progress as Label).text = "可用★ %d  金币 %d  经验 %d  (完成度★ %d)" % [SaveManager.get_player_star(), SaveManager.get_player_gold(), SaveManager.get_player_xp(), SaveManager.get_total_stars()]
+	_refresh_resource_bar()
 	var item_list := %ItemList as VBoxContainer
 	for child in item_list.get_children():
 		child.queue_free()
 	var table_data: Dictionary = _table()
 	for item_id: String in table_data.keys():
 		item_list.add_child(_build_item_button(item_id, table_data[item_id]))
+
+func _refresh_resource_bar() -> void:
+	var prog := %Progress as Label
+	prog.visible = false
+	var parent := prog.get_parent()
+	var existing := parent.get_node_or_null("ResourceBar")
+	if existing != null:
+		existing.free()
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power())
+	bar.name = "ResourceBar"
+	parent.add_child(bar)
+	parent.move_child(bar, prog.get_index() + 1)
 
 func _title() -> String:
 	match mode:

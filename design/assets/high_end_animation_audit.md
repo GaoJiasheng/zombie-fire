@@ -10,6 +10,14 @@
 - `python3 tools/check_res_refs.py` passes.
 - This means the issue is not missing files. The issue is visible quality: prototype sprites, old asset paths, runtime vector drawing, single-frame sprite tweens, and UI panels that still look like technical placeholders.
 
+## 2026-06-30 prototype replacement status
+
+- Completed a production prototype rebuild through `tools/generate_high_end_prototype_assets.py`.
+- Generated/replaced polished runtime-facing prototypes for characters, character/weapon fused frames, zombies, bosses, pets, skill icons, VFX sequence frames, single VFX sprites, and projectile finish sprites.
+- Migrated zombie, boss, and skill icon references to `assets/production/` while preserving IDs and data-driven lookup.
+- Trace files: `assets/production/source_refs/generated/high_end_prototype_asset_spec.json`, `assets/production/source_refs/generated/high_end_prototype_contact_sheet.png`, and `assets/production/source_refs/generated/projectile_3d_projectile_sheet.png`.
+- Remaining quality caveat: projectile assets are improved 2.5D script-rendered sprites. They pass current asset checks, but they are not true authored/native 3D renders. The next visual-only pass should replace them with dedicated 3D-rendered projectile sheets and animated trail atlases.
+
 ## P0: player-visible simple/vector effects
 
 | Area | Current evidence | Why it looks cheap | Upgrade target |

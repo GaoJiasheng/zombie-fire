@@ -37,27 +37,17 @@ func _refresh_header() -> void:
 	for child in row.get_children():
 		row.remove_child(child)
 		child.queue_free()
-	row.add_child(_make_resource_chip(
-		"金币",
-		UiKit.currency_icon_path("gold"),
-		UiKit.GOLD,
-		"%d" % SaveManager.get_player_gold(),
-		"用于升级角色、武器、护甲、芯片和宠物。"
-	))
-	row.add_child(_make_resource_chip(
-		"星星",
-		UiKit.currency_icon_path("star"),
-		Color(0.96, 0.80, 0.30, 1.0),
-		"%d/%d" % [SaveManager.get_total_stars(), total_stars],
-		"通关评级货币，用于购买或解锁角色和装备。"
-	))
-	row.add_child(_make_resource_chip(
-		"战力",
-		RESOURCE_POWER_ICON,
-		UiKit.PURPLE,
-		"%d" % SaveManager.get_loadout_power(),
-		"当前阵容综合强度，用于判断关卡压力。"
-	))
+	# 统一用 UiKit 共享资源条(金币/星星/经验/战力),与出战配置、收藏页一致。
+	var bar := UiKit.standard_resource_bar(
+		SaveManager.get_player_gold(),
+		SaveManager.get_player_star(),
+		SaveManager.get_player_xp(),
+		SaveManager.get_loadout_power()
+	)
+	for chip in bar.get_children():
+		bar.remove_child(chip)
+		row.add_child(chip)
+	bar.free()
 
 func _ensure_resource_bar() -> VBoxContainer:
 	var existing := get_node_or_null("Root/VBox/ResourceBarWrap") as VBoxContainer
@@ -557,6 +547,8 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
 	button.disabled = not unlocked
+	# PASS 而非默认 STOP：让触摸拖拽能穿到 ScrollContainer 去滚动(点按仍能进关，滚动时会自动取消误触)。
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.58, 0.60, 0.62, 0.82)
 	if unlocked:
 		button.pressed.connect(_open_level.bind(level_id))

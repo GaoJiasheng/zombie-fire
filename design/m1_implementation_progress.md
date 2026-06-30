@@ -1046,3 +1046,24 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `godot --headless --path . --quit` -> exits 0; no ObjectDB/resource cleanup warning remains. Godot still prints a macOS CA certificate fallback warning before loading bundled CA certificates.
 - `godot --headless --path . --script res://tools/_battle_boot_probe.gd` -> level_001 Battle route active, unpaused, spawning, character rig/turret present.
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.
+
+## Stage 1 P3.23 High-End Prototype Asset Rebuild (2026-06-30)
+
+> Owner explicitly allowed GPT/Codex-generated replacements for low-end prototype assets. This pass changes only asset prototypes and data asset references; gameplay logic, difficulty numbers, levels, skills, economy, and targeting rules are unchanged.
+
+- **Full prototype replacement pass**: added `tools/generate_high_end_prototype_assets.py` as the repeatable generator for polished production prototypes. It upgrades character half-body portraits, character/weapon fused frame presentation, zombies, bosses, pets, skill icons, VFX sequence frames, single VFX sprites, and projectile finish assets.
+- **Production-only visible refs**: migrated zombie, boss, and skill icon data references away from legacy `assets/sprites/...` paths to `assets/production/...`, while preserving IDs and data-driven lookup.
+- **Traceability**: wrote `assets/production/source_refs/generated/high_end_prototype_asset_spec.json` and `assets/production/source_refs/generated/high_end_prototype_contact_sheet.png` so future replacements can be audited visually and regenerated deterministically.
+- **Projectile polish**: upgraded `tools/generate_projectile_visuals.py` with a premium-finish layer: alpha-safe margins, glow, bevel/highlight passes, material shadows, and element-specific accents. These are still script-rendered 2.5D sprites, not native 3D renders.
+- **Guardrails retained**: `tools/check_visual_assets.py` still enforces 4-character x 8-weapon x 19-frame battle combo coverage and transparent safe margins, preventing the old floating-gun/edge-artifact regressions.
+
+### Verification (after Stage 1 P3.23)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5056 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 240 res:// references / res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completes through `level_099`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings at exit.
