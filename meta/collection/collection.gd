@@ -4,28 +4,78 @@ const UiKit := preload("res://ui/ui_kit.gd")
 const BUTTON_PRIMARY := "res://assets/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY := "res://assets/sprites/ui/ui_button_secondary.png"
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
+const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 
 var router: Node
 var mode := "characters"
+var _return_to := "map"
+var _return_level_id := ""
+var _loadout_return_to := "map"
+var _loadout_return_payload := {}
 var _detail_modal: Control = null
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
-	mode = payload.get("mode", "characters")
+	var data := {}
+	if payload is Dictionary:
+		data = payload
+	mode = str(data.get("mode", "characters"))
+	_return_to = str(data.get("return_to", "map"))
+	_return_level_id = str(data.get("level_id", data.get("return_level_id", "")))
+	_loadout_return_to = _sanitize_loadout_return_to(str(data.get("loadout_return_to", "map")))
+	_loadout_return_payload = _sanitize_payload(data.get("loadout_return_payload", {}))
+	if _return_to == "loadout" and _return_level_id == "" and router != null:
+		var context: Variant = router.get("run_context")
+		if context is Dictionary:
+			_return_level_id = str(context.get("level_id", ""))
+	if _return_to != "loadout":
+		_return_to = "map"
 	_refresh()
 
 func _ready() -> void:
-	(%BackButton as TextureButton).pressed.connect(func() -> void:
-		AudioManager.play_sfx("ui_click")
-		router.change_scene("map")
-	)
+	(%BackButton as TextureButton).pressed.connect(_on_back_pressed)
+	_refresh_back_button()
 	_refresh()
+
+func _on_back_pressed() -> void:
+	AudioManager.play_sfx("ui_click")
+	if router == null:
+		return
+	if _return_to == "loadout":
+		var payload := {}
+		if _return_level_id != "":
+			payload["level_id"] = _return_level_id
+		payload["return_to"] = _loadout_return_to
+		if not _loadout_return_payload.is_empty():
+			payload["return_payload"] = _loadout_return_payload.duplicate(true)
+		router.change_scene("loadout", payload)
+		return
+	router.change_scene("map")
+
+func _refresh_back_button() -> void:
+	var button := %BackButton as TextureButton
+	var label := button.get_node_or_null("Label") as Label
+	if label == null:
+		return
+	label.text = "返回配置" if _return_to == "loadout" else "返回地图"
+
+func _sanitize_loadout_return_to(route: String) -> String:
+	match route:
+		"result":
+			return "result"
+		_:
+			return "map"
+
+func _sanitize_payload(payload: Variant) -> Dictionary:
+	if payload is Dictionary:
+		return payload.duplicate(true)
+	return {}
 
 func _refresh() -> void:
 	if not is_inside_tree():
 		return
 	(%Title as Label).text = _title()
-	(%Progress as Label).text = "星星 %d  金币 %d" % [SaveManager.get_total_stars(), SaveManager.get_player_gold()]
+	(%Progress as Label).text = "可用★ %d  金币 %d  经验 %d  (完成度★ %d)" % [SaveManager.get_player_star(), SaveManager.get_player_gold(), SaveManager.get_player_xp(), SaveManager.get_total_stars()]
 	var item_list := %ItemList as VBoxContainer
 	for child in item_list.get_children():
 		child.queue_free()
@@ -83,6 +133,9 @@ func _slot() -> String:
 			return ""
 
 func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
+	if mode == "skills":
+		return _build_skill_item_button(item_id, row)
+
 	var slot := _slot()
 	var unlocked := true if mode == "skills" else SaveManager.is_item_unlocked(slot, item_id)
 	var selected := slot != "" and SaveManager.get_selected(slot) == item_id
@@ -90,14 +143,20 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(760, 172)
-	button.texture_normal = load(BUTTON_PRIMARY if unlocked else BUTTON_SECONDARY)
+	var base_texture := load(BUTTON_SECONDARY)
+	button.texture_normal = base_texture
+	button.texture_hover = base_texture
+	button.texture_pressed = base_texture
+	button.texture_disabled = base_texture
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
-	button.modulate = Color(1, 1, 1, 1) if unlocked else Color(0.52, 0.52, 0.52, 0.88)
-	button.disabled = not unlocked
+	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.62, 0.64, 0.66, 0.9)
+	button.disabled = false
 	if unlocked:
 		button.pressed.connect(_show_item_detail.bind(item_id, row))
+	else:
+		button.pressed.connect(_purchase_item_flow.bind(item_id, row))
 
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
@@ -109,17 +168,22 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.texture = load(row.get("icon", row.get("portrait", "")))
-	icon.position = Vector2(48, 42)
-	icon.size = Vector2(88, 88)
-	icon.custom_minimum_size = Vector2(88, 88)
+	icon.position = Vector2(36, 22) if mode == "characters" else Vector2(48, 42)
+	icon.size = Vector2(118, 126) if mode == "characters" else Vector2(88, 88)
+	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.modulate = Color.WHITE if unlocked else Color(0.46, 0.5, 0.54, 0.72)
+	if mode == "characters":
+		icon.texture = null
+		icon.clip_contents = true
+		UiKit.add_character_bust(icon, row, Vector2(118, 126), 156.0, -24.0)
+	else:
+		icon.texture = load(row.get("icon", row.get("portrait", "")))
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	button.add_child(icon)
-	icon.set_deferred("position", Vector2(48, 42))
-	icon.set_deferred("size", Vector2(88, 88))
+	icon.set_deferred("position", icon.position)
+	icon.set_deferred("size", icon.size)
 
 	var title := Label.new()
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
@@ -161,11 +225,135 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(badge)
 	elif not unlocked:
-		var lock_badge := UiKit.pill("锁定", Color(0.7, 0.78, 0.9, 0.9), 17)
-		lock_badge.position = Vector2(596, 54)
-		lock_badge.size = Vector2(118, 42)
-		lock_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(lock_badge)
+		var buy_price := SaveManager.get_unlock_price_star(_data_table_name(), item_id)
+		var can_buy := SaveManager.get_player_star() >= buy_price
+		var buy_badge := UiKit.pill("购买 %d★" % buy_price, Color(1.0, 0.86, 0.3, 0.95) if can_buy else Color(0.82, 0.46, 0.42, 0.92), 17)
+		buy_badge.position = Vector2(560, 54)
+		buy_badge.size = Vector2(156, 42)
+		buy_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(buy_badge)
+	return button
+
+func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton:
+	var accent := _mode_accent(row)
+	var item_level := maxi(1, SaveManager.get_item_level(item_id))
+	var levels: Array = row.get("levels", [])
+	var max_level := maxi(1, levels.size())
+	var button := TextureButton.new()
+	button.name = item_id
+	button.custom_minimum_size = Vector2(760, 142)
+	button.ignore_texture_size = true
+	button.stretch_mode = TextureButton.STRETCH_SCALE
+	button.clip_contents = true
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.pressed.connect(_show_item_detail.bind(item_id, row))
+
+	var card := PanelContainer.new()
+	card.name = "SkillCard"
+	card.position = Vector2(10, 6)
+	card.size = Vector2(740, 130)
+	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(card)
+
+	var accent_bar := ColorRect.new()
+	accent_bar.name = "AccentBar"
+	accent_bar.color = Color(accent.r, accent.g, accent.b, 0.92)
+	accent_bar.position = Vector2(10, 6)
+	accent_bar.size = Vector2(5, 130)
+	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(accent_bar)
+
+	var icon_frame := PanelContainer.new()
+	icon_frame.name = "IconFrame"
+	icon_frame.position = Vector2(32, 24)
+	icon_frame.size = Vector2(90, 90)
+	icon_frame.clip_contents = true
+	icon_frame.add_theme_stylebox_override("panel", _build_skill_icon_frame_style(accent))
+	icon_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(icon_frame)
+
+	var icon := TextureRect.new()
+	icon.name = "Icon"
+	icon.texture = load(str(row.get("icon", "")))
+	icon.position = Vector2(5, 5)
+	icon.size = Vector2(80, 80)
+	icon.custom_minimum_size = Vector2(80, 80)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_frame.add_child(icon)
+	icon.set_deferred("position", Vector2(5, 5))
+	icon.set_deferred("size", Vector2(80, 80))
+
+	var title := Label.new()
+	title.name = "Title"
+	title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
+	title.position = Vector2(148, 18)
+	title.size = Vector2(390, 40)
+	title.clip_text = true
+	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN, 3)
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(title)
+
+	var tag_row := HBoxContainer.new()
+	tag_row.name = "Tags"
+	tag_row.position = Vector2(148, 58)
+	tag_row.size = Vector2(392, 34)
+	tag_row.add_theme_constant_override("separation", 8)
+	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(tag_row)
+	tag_row.add_child(UiKit.pill(_kind_name(str(row.get("kind", "passive"))), Color(accent.r, accent.g, accent.b, 0.82), 15))
+	for tag_text in _item_tags(row, true).slice(0, 3):
+		tag_row.add_child(UiKit.pill(str(tag_text), accent, 15))
+
+	var effect := Label.new()
+	effect.name = "EffectSummary"
+	effect.text = _skill_first_effect_text(row)
+	effect.position = Vector2(148, 94)
+	effect.size = Vector2(430, 30)
+	effect.clip_text = true
+	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
+	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(effect)
+
+	var divider := ColorRect.new()
+	divider.name = "MetaDivider"
+	divider.color = Color(accent.r, accent.g, accent.b, 0.22)
+	divider.position = Vector2(586, 26)
+	divider.size = Vector2(2, 82)
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(divider)
+
+	var max_label := Label.new()
+	max_label.name = "MaxLevel"
+	max_label.text = "最高等级"
+	max_label.position = Vector2(608, 32)
+	max_label.size = Vector2(112, 24)
+	max_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiKit.apply_label(max_label, 16, Color(0.64, 0.78, 0.80, 1.0), 2)
+	max_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(max_label)
+
+	var max_value := Label.new()
+	max_value.name = "MaxLevelValue"
+	max_value.text = "Lv.%d" % max_level
+	max_value.position = Vector2(608, 56)
+	max_value.size = Vector2(112, 36)
+	max_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiKit.apply_label(max_value, 28, Color(accent.r, accent.g, accent.b, 1.0), 3)
+	max_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(max_value)
+
+	var hint := Label.new()
+	hint.name = "Hint"
+	hint.text = "点击查看"
+	hint.position = Vector2(608, 92)
+	hint.size = Vector2(112, 24)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiKit.apply_label(hint, 15, Color(0.86, 0.72, 0.46, 1.0), 2)
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(hint)
 	return button
 
 func _mode_accent(row: Dictionary) -> Color:
@@ -258,14 +446,14 @@ func _data_table_name() -> String:
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if not unlocked:
 		var cost := int(row.get("unlock_cost_star", row.get("unlock", {}).get("price", 0)))
-		return "需要 %d 星解锁" % cost
+		return "售价 %d★ · 点击购买" % cost
 	match mode:
 		"characters":
 			return "定位：%s  元素：%s  %s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-")), _next_upgrade_hint(item_id, row)]
 		"weapons":
 			return "元素：%s  射速：%s  等级%d  %s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), SaveManager.get_weapon_level(item_id), _weapon_special_text(row)]
 		"armors":
-			return "生命倍率：%.0f%%  抗性：%s  %s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), "  越线护盾 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			return "生命倍率：%.0f%%  抗性：%s  %s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
 			return "%s +%s  %s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0)), _next_upgrade_hint(item_id, row)]
 		"pets":
@@ -274,6 +462,14 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 			return "标签：%s" % _format_tags(row.get("card_tags", []))
 		_:
 			return item_id
+
+func _skill_first_effect_text(row: Dictionary) -> String:
+	var levels: Array = row.get("levels", [])
+	if levels.is_empty():
+		return "效果：%s" % _format_tags(row.get("card_tags", []))
+	var first: Dictionary = levels[0]
+	var effect: Dictionary = first.get("effect", {})
+	return "Lv.1：%s" % SkillEffectText.format_effect(effect)
 
 func _element_name(element: String) -> String:
 	match str(element):
@@ -330,7 +526,7 @@ func _stat_name(stat: String) -> String:
 		"base_hp_mult":
 			return "基地生命"
 		"breach_damage_reduction":
-			return "越线减伤"
+			return "防线减伤"
 		"gold_mult":
 			return "金币收益"
 		"element_damage_mult":
@@ -475,6 +671,38 @@ func _select_item(slot: String, item_id: String) -> void:
 		_refresh()
 		_pulse_selected_item(item_id)
 
+func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
+	var table := _data_table_name()
+	var price := SaveManager.get_unlock_price_star(table, item_id)
+	if not SaveManager.can_purchase(table, item_id):
+		AudioManager.play_sfx("ui_click", -6.0)
+		return
+	if price >= 30:
+		var dialog := ConfirmationDialog.new()
+		dialog.title = "购买确认"
+		dialog.dialog_text = "确认花费 %d★ 购买 %s?" % [price, DataLoader.tr_key(row.get("name_key", item_id))]
+		dialog.ok_button_text = "购买"
+		dialog.cancel_button_text = "取消"
+		add_child(dialog)
+		dialog.confirmed.connect(func() -> void: _do_purchase(table, item_id))
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free)
+		dialog.popup_centered()
+	else:
+		_do_purchase(table, item_id)
+
+func _do_purchase(table: String, item_id: String) -> void:
+	var res := SaveManager.purchase_item(table, item_id)
+	if res == SaveManager.PurchaseResult.OK:
+		AudioManager.play_sfx("star_gain")
+		var slot := _slot()
+		if slot != "":
+			SaveManager.select_item(slot, item_id)
+		_refresh()
+		_pulse_selected_item(item_id)
+	else:
+		AudioManager.play_sfx("ui_click", -6.0)
+
 func _pulse_selected_item(item_id: String) -> void:
 	for child in (%ItemList as VBoxContainer).get_children():
 		if child.name != item_id:
@@ -486,7 +714,7 @@ func _pulse_selected_item(item_id: String) -> void:
 
 func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	if mode == "characters":
-		_show_character_detail(item_id, row)
+		call_deferred("_show_character_detail", item_id, row)
 		return
 	if _detail_modal != null and is_instance_valid(_detail_modal):
 		_detail_modal.queue_free()
@@ -570,8 +798,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	UiKit.apply_label(summary, 21, Color(0.78, 0.91, 1.0, 1.0), 3)
 	name_col.add_child(summary)
 
-	var close_btn := _detail_button("CloseButton", "关闭", false)
-	close_btn.custom_minimum_size = Vector2(118, 72)
+	var close_btn := _compact_close_button("CloseButton")
 	close_btn.pressed.connect(_close_character_detail)
 	header.add_child(close_btn)
 
@@ -594,6 +821,8 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	stats_section.get_child(0).add_child(stats_grid)
 	for stat in _detail_stats_for_item(item_id, row, item_level):
 		stats_grid.add_child(_make_stat_pill(str(stat.get("label", "")), str(stat.get("value", "")), str(stat.get("sub", ""))))
+	if mode == "skills":
+		detail_content.add_child(_make_skill_levels_section(row, accent))
 
 	var desc_section := _make_section_panel("战术说明", Color(0.68, 0.82, 1.0, 0.82))
 	detail_content.add_child(desc_section)
@@ -624,6 +853,19 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 		action_row.add_child(upgrade_btn)
+	else:
+		var skill_lvl := SaveManager.get_skill_base_level(item_id)
+		var skill_max := SaveManager.get_skill_base_max(item_id)
+		var skill_cost := SaveManager.get_skill_base_upgrade_cost(item_id)
+		var can_up := SaveManager.can_upgrade_skill_base(item_id)
+		var skill_label := ("已精通 %d/%d" % [skill_lvl, skill_max]) if skill_lvl >= skill_max else ("升级 %d经验  (%d/%d)" % [skill_cost, skill_lvl, skill_max])
+		var skill_btn := _detail_button("SkillUpgradeButton", skill_label, true)
+		skill_btn.disabled = not can_up
+		skill_btn.modulate = Color.WHITE if can_up else Color(0.5, 0.54, 0.6, 0.82)
+		skill_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		skill_btn.size_flags_stretch_ratio = 1.35
+		skill_btn.pressed.connect(_upgrade_skill_from_detail.bind(item_id, row))
+		action_row.add_child(skill_btn)
 	var close_bottom := _detail_button("CloseBottomButton", "关  闭", false)
 	close_bottom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	close_bottom.pressed.connect(_close_character_detail)
@@ -638,11 +880,12 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 func _detail_button(node_name: String, text: String, primary: bool) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = node_name
-	button.texture_normal = load(BUTTON_PRIMARY if primary else BUTTON_SECONDARY)
+	button.texture_normal = load(BUTTON_SECONDARY)
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.custom_minimum_size = Vector2(0, 90)
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.modulate = Color(1.0, 0.86, 0.54, 1.0) if primary else Color(0.86, 0.90, 0.92, 1.0)
 	var label := Label.new()
 	label.text = text
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -652,6 +895,41 @@ func _detail_button(node_name: String, text: String, primary: bool) -> TextureBu
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(label)
 	return button
+
+func _compact_close_button(node_name: String) -> Button:
+	var button := Button.new()
+	button.name = node_name
+	button.text = "×"
+	button.custom_minimum_size = Vector2(56, 56)
+	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.add_theme_font_size_override("font_size", 34)
+	button.add_theme_color_override("font_color", Color(0.92, 0.96, 1.0, 0.95))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.45, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(0.78, 0.9, 1.0, 1.0))
+	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.65))
+	button.add_theme_constant_override("outline_size", 2)
+	button.add_theme_stylebox_override("normal", _compact_close_style(Color(0.02, 0.035, 0.05, 0.42), Color(0.55, 0.68, 0.78, 0.45)))
+	button.add_theme_stylebox_override("hover", _compact_close_style(Color(0.06, 0.055, 0.035, 0.72), Color(1.0, 0.76, 0.32, 0.86)))
+	button.add_theme_stylebox_override("pressed", _compact_close_style(Color(0.01, 0.02, 0.03, 0.82), Color(0.56, 0.82, 1.0, 0.9)))
+	button.add_theme_stylebox_override("disabled", _compact_close_style(Color(0.02, 0.025, 0.03, 0.30), Color(0.35, 0.4, 0.45, 0.35)))
+	return button
+
+func _compact_close_style(bg: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(1)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 2
+	return style
 
 func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -> Array:
 	var stats := []
@@ -670,7 +948,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 		"armors":
 			stats.append({"label": "生命", "value": "+%d%%" % int(round((float(row.get("hp_mult", 1.0)) - 1.0) * 100.0)), "sub": "每级 +%d%%" % int(round(float(row.get("level_hp_growth", 0.0)) * 100.0))})
 			stats.append({"label": "抗性", "value": _element_name(row.get("resist", "none")), "sub": "防线承压"})
-			stats.append({"label": "屏障", "value": "+%d" % int(row.get("breach_shield", 0)), "sub": "越线容错"})
+			stats.append({"label": "屏障", "value": "+%d" % int(row.get("breach_shield", 0)), "sub": "防线容错"})
 		"chips":
 			stats.append({"label": "属性", "value": _stat_name(row.get("stat", "stat")), "sub": "核心芯片"})
 			stats.append({"label": "增幅", "value": _value_text(row.get("value", 0)), "sub": "每级 +%s" % _value_text(row.get("level_value_growth", 0))})
@@ -687,7 +965,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 		"skills":
 			var levels: Array = row.get("levels", [])
 			stats.append({"label": "类型", "value": _kind_name(str(row.get("kind", "passive"))), "sub": _format_tags(row.get("card_tags", []))})
-			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": _skill_effect_summary(row)})
+			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": "逐级叠加"})
 	return stats
 
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
@@ -695,74 +973,57 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 		"weapons":
 			return "点击装备后进入出战配置。武器的元素、射速和弹道特性会决定局内基础手感；升级会提高伤害并少量提高射速。"
 		"armors":
-			return "护甲主要提高基地承伤和越线容错。高级护甲不是纯数值堆叠，抗性和屏障会影响特定关卡的防线稳定性。"
+			return "护甲主要提高基地承伤和防线容错。高级护甲不是纯数值堆叠，抗性和屏障会影响特定关卡的防线稳定性。"
 		"chips":
 			return "芯片是核心加成位，偏向伤害、射速、暴击、生命、收益或元素流派。当前芯片会进入战力和关卡克制计算。"
 		"pets":
 			return "宠物提供自动协战、控制、修复或经济收益。它不替代主武器，但会补足阵容短板。"
 		"skills":
-			return "技能图鉴只用于查看局内卡牌成长。战斗中同名技能按等级叠加，互斥弹种会以当前主弹种为准。"
+			return "技能图鉴只用于查看局内卡牌成长。下方会列出每一级的具体数值，便于判断加点性价比；战斗中同名技能按等级叠加，互斥弹种会以当前主弹种为准。"
 		_:
 			return _item_desc(item_id, row, true)
 
-func _skill_effect_summary(row: Dictionary) -> String:
-	var levels: Array = row.get("levels", [])
-	if levels.is_empty():
-		return _format_tags(row.get("card_tags", []))
-	var parts: Array[String] = []
-	for level in levels:
+func _make_skill_levels_section(row: Dictionary, accent: Color) -> PanelContainer:
+	var section := _make_section_panel("各级加成", accent)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 8)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	section.get_child(0).add_child(list)
+	for level in row.get("levels", []):
+		var lv := int(level.get("lv", list.get_child_count() + 1))
 		var effect: Dictionary = level.get("effect", {})
-		parts.append("等级%d %s" % [int(level.get("lv", parts.size() + 1)), _effect_summary(effect)])
-	return " / ".join(parts)
+		list.add_child(_make_skill_level_row(lv, SkillEffectText.format_effect(effect), accent))
+	return section
 
-func _effect_summary(effect: Dictionary) -> String:
-	var parts: Array[String] = []
-	for key in effect.keys():
-		if parts.size() >= 2:
-			break
-		parts.append("%s %s" % [_effect_key_name(str(key)), _value_text(effect.get(key))])
-	return "，".join(parts)
-
-func _effect_key_name(key: String) -> String:
-	match key:
-		"split":
-			return "分裂"
-		"falloff":
-			return "衰减"
-		"pierce":
-			return "穿透"
-		"dmg_mult":
-			return "伤害"
-		"fire_rate_mult":
-			return "射速"
-		"chain":
-			return "连锁"
-		"slow":
-			return "减速"
-		"burn":
-			return "灼烧"
-		"poison":
-			return "中毒"
-		"crit_add":
-			return "暴击率"
-		"crit_dmg":
-			return "暴击伤害"
-		"gold_mult":
-			return "金币"
-		"shields":
-			return "护盾"
-		"reroll":
-			return "重摇"
-		"extra_projectiles":
-			return "弹丸"
-		"spread":
-			return "散射"
-		"homing":
-			return "追踪"
-		"y_min":
-			return "范围"
-		_:
-			return key
+func _make_skill_level_row(level: int, effect_text: String, accent: Color) -> PanelContainer:
+	var pill := PanelContainer.new()
+	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pill.custom_minimum_size = Vector2(0, 58)
+	pill.add_theme_stylebox_override("panel", _build_pill_style(Color(accent.r, accent.g, accent.b, 0.72), Color(0.026, 0.036, 0.048, 0.78)))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pill.add_child(row)
+	var level_label := Label.new()
+	level_label.text = "等级%d" % level
+	level_label.custom_minimum_size = Vector2(88, 0)
+	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	level_label.add_theme_font_size_override("font_size", 20)
+	level_label.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0, 1.0))
+	level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
+	level_label.add_theme_constant_override("outline_size", 2)
+	row.add_child(level_label)
+	var value_label := Label.new()
+	value_label.text = effect_text
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value_label.add_theme_font_size_override("font_size", 19)
+	value_label.add_theme_color_override("font_color", Color(0.78, 0.92, 1.0, 0.96))
+	value_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
+	value_label.add_theme_constant_override("outline_size", 1)
+	row.add_child(value_label)
+	return pill
 
 func _select_item_and_close(slot: String, item_id: String) -> void:
 	if SaveManager.select_item(slot, item_id):
@@ -778,6 +1039,15 @@ func _upgrade_item_from_detail(item_id: String, row: Dictionary) -> void:
 		var fresh_row := DataLoader.get_row(table, item_id)
 		_close_character_detail()
 		call_deferred("_show_item_detail", item_id, fresh_row if not fresh_row.is_empty() else row)
+	else:
+		AudioManager.play_sfx("ui_click", -6.0)
+
+func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
+	if SaveManager.upgrade_skill_base(item_id):
+		AudioManager.play_sfx("upgrade")
+		_refresh()
+		_close_character_detail()
+		call_deferred("_show_item_detail", item_id, row)
 	else:
 		AudioManager.play_sfx("ui_click", -6.0)
 
@@ -826,11 +1096,13 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	portrait_frame.add_theme_stylebox_override("panel", _build_portrait_frame_style())
 	hero.add_child(portrait_frame)
 	var portrait := TextureRect.new()
-	portrait.texture = load(row.get("portrait", ""))
+	portrait.name = "PortraitClip"
+	portrait.texture = null
+	portrait.clip_contents = true
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.custom_minimum_size = Vector2(230, 230)
 	portrait_frame.add_child(portrait)
+	UiKit.add_character_bust(portrait, row, Vector2(230, 230), 320.0, -54.0)
 	# Name + role + tags column
 	var name_col := VBoxContainer.new()
 	name_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -891,24 +1163,10 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			affinity_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1, 0.95))
 			affinity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			name_col.add_child(affinity_label)
-	# Close X (top-right of modal)
-	var close_btn := TextureButton.new()
-	close_btn.texture_normal = load(BUTTON_SECONDARY)
-	close_btn.ignore_texture_size = true
-	close_btn.stretch_mode = TextureButton.STRETCH_SCALE
-	close_btn.custom_minimum_size = Vector2(72, 72)
-	close_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	# Compact top-right close affordance; the bottom action row remains the primary close path.
+	var close_btn := _compact_close_button("CloseButton")
 	close_btn.pressed.connect(_close_character_detail)
 	hero.add_child(close_btn)
-	var close_label := Label.new()
-	close_label.text = "✕"
-	close_label.add_theme_font_size_override("font_size", 36)
-	close_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
-	close_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	close_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	close_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	close_btn.add_child(close_label)
 
 	var content_scroll := ScrollContainer.new()
 	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -998,7 +1256,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
 	var select_btn := TextureButton.new()
-	select_btn.texture_normal = load(BUTTON_PRIMARY)
+	select_btn.texture_normal = load(BUTTON_SECONDARY)
 	select_btn.ignore_texture_size = true
 	select_btn.stretch_mode = TextureButton.STRETCH_SCALE
 	select_btn.custom_minimum_size = Vector2(0, 110)
@@ -1006,6 +1264,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	select_btn.size_flags_stretch_ratio = 2.0
 	select_btn.disabled = selected
 	select_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	select_btn.modulate = Color(1.0, 0.86, 0.54, 1.0) if not selected else Color(0.68, 0.72, 0.76, 0.84)
 	select_btn.pressed.connect(_select_character_and_close.bind(item_id))
 	var select_label := Label.new()
 	select_label.text = "已装备" if selected else "选  定"
@@ -1041,12 +1300,8 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	cancel_btn.add_child(cancel_label)
 	action_row.add_child(cancel_btn)
 
-	# Entrance animation
-	_detail_modal.modulate.a = 0.0
-	panel.scale = Vector2(0.95, 0.95)
-	var tween := _detail_modal.create_tween()
-	tween.parallel().tween_property(_detail_modal, "modulate:a", 1.0, 0.18)
-	tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_detail_modal.modulate.a = 1.0
+	panel.scale = Vector2.ONE
 
 # === Helper builders for the modal ===
 
@@ -1098,6 +1353,42 @@ func _build_level_badge_style() -> StyleBoxFlat:
 	style.corner_radius_top_right = 14
 	style.corner_radius_bottom_right = 14
 	style.corner_radius_bottom_left = 14
+	return style
+
+func _build_skill_card_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.023, 0.030, 0.92)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.44)
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_right = 12
+	style.corner_radius_bottom_left = 12
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
+
+func _build_skill_icon_frame_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.006, 0.010, 0.016, 0.94)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
 	return style
 
 func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelContainer:
@@ -1202,6 +1493,8 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -
 		var sub := Label.new()
 		sub.text = sub_text
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		sub.add_theme_font_size_override("font_size", 14)
 		sub.add_theme_color_override("font_color", Color(0.55, 0.85, 1, 0.75))
 		v.add_child(sub)

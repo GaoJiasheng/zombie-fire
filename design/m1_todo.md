@@ -29,7 +29,7 @@
 - [x] `zombie_runner` portrait / icon / prototype sprite
 - [x] `zombie_brute` portrait / icon / prototype sprite
 - [x] `boss_tank_titan` portrait / icon / prototype sprite
-- [x] `weapon_autocannon` icon / turret prototype
+- [x] `weapon_autocannon` icon / machine-gun prototype
 - [x] `bg_city_ruins` prototype background
 - [x] `ui_card_frame` + 3 张技能卡示例
 - [x] `skill_split_shot_icon`
@@ -116,12 +116,17 @@
 
 - [x] 局内经验条
 - [x] 三选一弹窗
+- [x] 选卡时机收口：最终波清场后不再弹无意义技能卡；进入最终波前会检查一次接近达标的首张卡补给
 - [x] 每局 1 次 reroll（CardPanel 上重抽按钮；用完变灰且 disable）
 - [x] 简版 `CardDirector`：顺 build 牌 + 救场牌 + 低概率调味牌
 - [x] `skill_split_shot`：命中分裂
 - [x] `skill_pierce`：子弹穿透
 - [x] `skill_multishot`：额外发射子弹
 - [x] `skill_slow_field`：防线前减速区
+- [x] 主动技能按钮：4 个角色主动技能均可释放并进入冷却；火/雷在无目标时使用战线 fallback 特效，不再表现为按钮失效
+- [x] 元素命中特效：火焰弹燃烧/爆裂、冰霜弹冻结、闪电弹电击、毒素弹毒雾命中反馈
+- [x] 全枪械弹道/命中特效：自动、火焰、冰霜、电、毒保留元素特效；磁轨炮有穿甲光轨，散弹炮有多 pellet 碎片命中，等离子炮有紫橙能量核和冲击波。
+- [x] 分裂弹可视化：命中后有爆裂环、小弹飞散、追踪 mini projectile，能明确看到分裂行为
 - [x] Lv3 质变卡至少 1 个可见效果（skill_slow_field Lv3 在 y>=1160 显示青色减速带，alpha 0.27；skill_split_shot Lv3 5 弹 80° 扇面；skill_pierce Lv3 pierce=3 + 1.15x；skill_multishot Lv3 4 弹 12° 扇面）
 
 ## 阶段 7 · 5 关节奏
@@ -168,8 +173,12 @@
 - `python3 tools/validate_asset_pack.py`
 - `python3 tools/validate_data.py`
 - `python3 tools/check_res_refs.py`
+- `python3 tools/check_visual_assets.py`
 - `godot --headless --path . --quit`
+- `godot --headless --path . --script res://tools/_battle_boot_probe.gd`
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd`
+- `python3 tools/check_visual_screens.py`
+- `python3 tools/check_release_candidate.py`
 
 ## 阶段 11 · 阶段性增量（已加进阶段 4-8 的勾选之外）
 
@@ -179,3 +188,16 @@
 - [x] 敌人普通抗性/弱点：zombie_brute.resist=poison、zombie_runner.weakness=ice 等已通 `take_damage` 结算（M1 武器为物理，仅 boss 免疫实际影响）
 - [x] `tools/check_res_refs.py` 静态扫 `res://` 引用，CI 友好
 - [x] 4 个角色专属主动/被动落地：独立角色技能按钮、低血自动反击、火/冰/雷/物理弹种亲和加成。
+- [x] 局内选中技能 HUD 去重：只保留底部带等级的技能槽，选卡后用槽位 pulse 反馈，不再生成额外悬浮小 logo。
+- [x] 角色 + 武器融合模型通路：战斗优先加载 `character_weapon_combos/{角色}/{角色}_{武器}_idle_01.png`，已覆盖 4 个角色 x 8 把武器的 idle/attack_left/attack/attack_right/hurt 原型帧；站立/受击帧使用枪在后、人压前的层级，开火帧按弹道方向切换左/中/右举枪、枪口闪光和后坐序列，避免枪械像独立贴图硬盖在人身上。
+
+## 阶段 12 · 回归护栏（外包后补齐）
+
+- [x] `tools/_battle_boot_probe.gd`：通过真实路由进入战斗，检查暂停状态、时间倍率、波次、出怪、角色 rig 和逻辑炮塔。
+- [x] `tools/check_visual_assets.py`：检查战斗角色/手持武器素材的方块底、透明边界和严重绿幕残留。
+- [x] `tools/check_visual_assets.py`：纳入 `character_weapon_combos`，后续每个角色/武器融合模型都会被同一套透明边界与绿幕残留规则检查。
+- [x] `tools/check_visual_screens.py`：真实渲染 6 个关键界面截图，检查 1080x1920、非空白、无大面积纯黑边。
+- [x] `tools/check_release_candidate.py`：把新增 battle probe、视觉素材检查、截图检查纳入候选发布检查。
+- [x] `tools/check_gameplay_polish.py`：新增主动技能 fallback、元素命中强化、技能 HUD 去重 guardrail。
+- [x] `tools/m1_smoke_test.gd`：主动技能按下必须进入冷却，避免再次出现“主动技能不可用”。
+- [x] Godot 沙箱启动 / 退出清理：`project.godot` 使用项目内隐藏 user data 目录，headless 下 AudioManager 不加载/播放音频流；`godot --headless --path . --quit` 与 M1 smoke test 不再输出 ObjectDB/resource cleanup warning。（macOS CA 证书 fallback 警告仍属于引擎/沙箱环境提示，命令 exit 0。）

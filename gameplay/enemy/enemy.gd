@@ -7,6 +7,7 @@ signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool,
 
 const BREACH_Y := 1500.0
 const BASE_ATTACK_Y := 1435.0
+const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 
 var data := {}
 var max_hp := 100.0
@@ -18,6 +19,7 @@ var base_attack_interval := 1.35
 var base_attack_kind := "basic"
 var attack_line_y := BASE_ATTACK_Y
 var gold := 10
+var gold_coef := 1.0
 var run_xp := 1
 var elite := false
 var boss := false
@@ -63,6 +65,8 @@ var _poison_time := 0.0
 var _poison_dps := 0.0
 var _element_slow_time := 0.0
 var _element_slow_mult := 1.0
+var _glacier_field_time := 0.0
+var _glacier_field_base_scale := Vector2.ONE
 var _shock_time := 0.0
 var _last_hit_weak := false
 var _last_hit_element := "physical"
@@ -77,6 +81,7 @@ var _dot_tick_acc: Dictionary = {}
 var _hp_bg: ColorRect
 var _hp_fill: ColorRect
 var _status_aura: Sprite2D
+var _glacier_aura: Sprite2D
 var _rank_aura: Sprite2D
 var _status_label: Label
 
@@ -90,6 +95,7 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	speed = row.get("speed", 80.0)
 	breach_damage = int(10 * row.get("bd_coef", 1.0))
 	gold = int(10 * row.get("gold_coef", 1.0))
+	gold_coef = float(row.get("gold_coef", 1.0))
 	run_xp = int(row.get("run_xp", 1))
 	immune = row.get("immune", [])
 	weakness = row.get("weakness", "none")
@@ -100,9 +106,8 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	if mechanic == "armor_break":
 		armor_hits_left = int(mechanic_params.get("armor_hits", 0))
 	if mechanic == "armor" or mechanic == "shield_aura" or mechanic == "ward":
-		shield_hp = max_hp * 0.35
-	if mechanic == "phase" or mechanic == "phase_shift":
-		modulate.a = 0.82
+		shield_hp = max_hp * float(mechanic_params.get("shield_ratio", 0.35))
+	var sprite_base_alpha := 0.82 if mechanic == "phase" or mechanic == "phase_shift" else 1.0
 	if mechanic == "summon":
 		mechanic_timer = randf_range(1.2, 2.4)
 	var tex := load(row.get("sprite", "")) as Texture2D
@@ -115,7 +120,9 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	$Sprite.scale = Vector2(0.32, 0.32) if not boss else Vector2(0.44, 0.44)
 	_base_sprite_scale = $Sprite.scale
 	_base_sprite_x = $Sprite.position.x
-	_base_modulate = Color(1, 1, 1, 1)
+	modulate = Color.WHITE
+	_base_modulate = Color(1, 1, 1, sprite_base_alpha)
+	$Sprite.self_modulate = _base_modulate
 	_build_hp_bar()
 	_build_threat_marker()
 	_build_model_polish_layers()
@@ -317,7 +324,7 @@ func take_damage(amount: float, element := "physical") -> void:
 		_anim_time = 0.0
 		_anim_frame = 0
 		$CollisionShape2D.set_deferred("disabled", true)
-		died.emit(self, {"gold": gold, "xp": run_xp, "weak_kill": _last_hit_weak, "boss": boss, "death_element": _last_hit_element})
+		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": _last_hit_weak, "boss": boss, "death_element": _last_hit_element})
 		if _death_frames.is_empty():
 			call_deferred("queue_free")
 
@@ -326,22 +333,23 @@ func _emit_hit_feedback(element: String, immune_hit: bool, weak_hit: bool, hit_k
 
 func _process_self_mechanic(delta: float) -> void:
 	if mechanic == "regen" or mechanic == "regenerate":
-		hp = min(max_hp, hp + max_hp * 0.025 * delta)
+		hp = min(max_hp, hp + max_hp * float(mechanic_params.get("regen_pct_per_sec", 0.025)) * delta)
 		_update_hp_bar()
-	elif mechanic == "enrage" and not enrage_triggered and hp <= max_hp * 0.5:
+	elif mechanic == "enrage" and not enrage_triggered and hp <= max_hp * float(mechanic_params.get("trigger_hp_ratio", 0.5)):
 		enrage_triggered = true
-		speed *= 1.35
-		breach_damage = int(round(float(breach_damage) * 1.25))
+		speed *= float(mechanic_params.get("speed_mult", 1.35))
+		breach_damage = int(round(float(breach_damage) * float(mechanic_params.get("damage_mult", 1.25))))
 		_base_modulate = Color(1.0, 0.52, 0.32)
 		_flash(_base_modulate)
-	elif mechanic == "charge" and global_position.y > 760.0:
+	elif mechanic == "charge" and global_position.y > float(mechanic_params.get("trigger_y", 760.0)):
 		speed_mult = max(speed_mult, 1.08)
 	elif mechanic == "leap":
-		speed_mult = max(speed_mult, 1.0 + max(0.0, sin(_stride_phase * 1.6)) * 0.32)
+		var leap_wave: float = maxf(0.0, sin(_stride_phase * 1.6))
+		speed_mult = max(speed_mult, 1.0 + leap_wave * float(mechanic_params.get("speed_wave", 0.32)))
 	elif mechanic == "low_profile":
-		external_damage_mult *= 0.92
+		external_damage_mult *= float(mechanic_params.get("damage_taken_mult", 0.92))
 	elif mechanic == "juggernaut":
-		external_damage_mult *= 0.86
+		external_damage_mult *= float(mechanic_params.get("damage_taken_mult", 0.86))
 	elif mechanic == "multi_phase":
 		var hp_ratio := hp / max_hp if max_hp > 0.0 else 0.0
 		if hp_ratio < 0.34:
@@ -389,15 +397,33 @@ func amplify_character_status(element: String, source_damage: float, rank: int, 
 			_flash(Color(1.0, 0.9, 0.18))
 	_update_status_aura()
 
+func apply_glacier_field(_source_damage: float, rank: int, bonus: float = 0.0, duration: float = 0.86, speed_factor: float = 0.4) -> void:
+	if _dying:
+		return
+	var was_active := _glacier_field_time > 0.0
+	_glacier_field_time = maxf(_glacier_field_time, duration)
+	_element_slow_time = maxf(_element_slow_time, duration + 0.08)
+	var ranked_slow: float = 0.66 - 0.035 * float(rank) - bonus
+	var target_slow: float = minf(speed_factor, ranked_slow)
+	if boss:
+		target_slow = maxf(target_slow, speed_factor)
+	_element_slow_mult = minf(_element_slow_mult, clampf(target_slow, 0.36 if not boss else 0.58, 0.86))
+	if not was_active:
+		_flash(Color(0.62, 0.94, 1.0))
+	_update_status_aura()
+
 func is_controlled() -> bool:
-	return _element_slow_time > 0.0 or _shock_time > 0.0
+	return _element_slow_time > 0.0 or _glacier_field_time > 0.0 or _shock_time > 0.0
+
+func is_glacier_field_active() -> bool:
+	return _glacier_field_time > 0.0
 
 func has_element_status(element: String) -> bool:
 	match element:
 		"fire":
 			return _burn_time > 0.0
 		"ice":
-			return _element_slow_time > 0.0
+			return _element_slow_time > 0.0 or _glacier_field_time > 0.0
 		"lightning":
 			return _shock_time > 0.0
 		"poison":
@@ -417,6 +443,8 @@ func _process_element_status(delta: float) -> void:
 		speed_mult *= _element_slow_mult
 	else:
 		_element_slow_mult = 1.0
+	if _glacier_field_time > 0.0:
+		_glacier_field_time -= delta
 	if _shock_time > 0.0:
 		_shock_time -= delta
 		speed_mult *= 0.55 if not boss else 0.75
@@ -454,14 +482,17 @@ func _apply_status_damage(amount: float, element: String) -> void:
 		_anim_time = 0.0
 		_anim_frame = 0
 		$CollisionShape2D.set_deferred("disabled", true)
-		died.emit(self, {"gold": gold, "xp": run_xp, "weak_kill": false, "boss": boss})
+		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": false, "boss": boss})
 		if _death_frames.is_empty():
 			call_deferred("queue_free")
 
 func _flash(color: Color) -> void:
-	modulate = color
+	if boss:
+		return
+	var flash_color := Color(color.r, color.g, color.b, _base_modulate.a)
+	$Sprite.self_modulate = flash_color
 	var tween := create_tween()
-	tween.tween_property(self, "modulate", _base_modulate, 0.18)
+	tween.tween_property($Sprite, "self_modulate", _base_modulate, 0.18)
 
 func _build_hp_bar() -> void:
 	_hp_bg = ColorRect.new()
@@ -510,6 +541,16 @@ func _build_model_polish_layers() -> void:
 	_status_aura.z_index = -1
 	_status_aura.visible = false
 	add_child(_status_aura)
+	_glacier_aura = Sprite2D.new()
+	_glacier_aura.name = "GlacierAura"
+	_glacier_aura.texture = load("res://assets/production/sprites/vfx/vfx_freeze.png")
+	_glacier_aura.position = Vector2(0, -42 if not boss else -84)
+	_glacier_field_base_scale = Vector2(0.28, 0.28) if not boss else Vector2(0.52, 0.52)
+	_glacier_aura.scale = _glacier_field_base_scale
+	_glacier_aura.z_index = 2
+	_glacier_aura.modulate = Color(0.62, 0.95, 1.0, 0.58)
+	_glacier_aura.visible = false
+	add_child(_glacier_aura)
 
 func _update_hp_bar_position() -> void:
 	if _hp_bg == null:
@@ -553,39 +594,25 @@ func _spawn_hit_vfx(element := "physical") -> void:
 	_last_hit_vfx_at = now
 	if _local_transient_vfx_count() >= (8 if boss else 4):
 		return
-	var tex := load(_hit_vfx_path(element)) as Texture2D
-	if tex == null:
-		return
-	var hit := Sprite2D.new()
+	var hit := SequenceVfx.new()
 	hit.set_meta("enemy_transient_vfx", true)
-	hit.texture = tex
-	hit.scale = Vector2(0.34, 0.34) if not boss else Vector2(0.52, 0.52)
-	hit.modulate = Color(1, 1, 1, 0.9)
-	hit.rotation = randf_range(-0.35, 0.35)
 	add_child(hit)
-	var tween := hit.create_tween()
-	tween.parallel().tween_property(hit, "scale", hit.scale * 1.35, 0.12)
-	tween.parallel().tween_property(hit, "modulate:a", 0.0, 0.12)
-	tween.tween_callback(hit.queue_free)
+	var sequence_id := _hit_vfx_sequence_id(element)
+	var scale := 0.34 if not boss else 0.56
+	var position_offset := Vector2(randf_range(-12.0, 12.0), -38.0 if not boss else -72.0)
+	if not hit.setup(sequence_id, global_position + position_offset, scale, Color(1, 1, 1, 0.9), 1.28, randf_range(-0.34, 0.34), 1.12, Vector2(0, -14), randf_range(-0.28, 0.28)):
+		hit.queue_free()
 
 func _spawn_crit_vfx(color: Color) -> void:
 	if _local_transient_vfx_count() >= (10 if boss else 5):
 		return
-	var tex := load("res://assets/production/sprites/vfx/vfx_crit.png") as Texture2D
-	if tex == null:
-		return
-	var crit := Sprite2D.new()
+	var crit := SequenceVfx.new()
 	crit.set_meta("enemy_transient_vfx", true)
-	crit.texture = tex
-	crit.position = Vector2(randf_range(-18.0, 18.0), -42.0 if not boss else -76.0)
-	crit.scale = Vector2(0.44, 0.44) if not boss else Vector2(0.7, 0.7)
-	crit.modulate = color
 	add_child(crit)
-	var tween := crit.create_tween()
-	tween.parallel().tween_property(crit, "scale", crit.scale * 1.5, 0.16)
-	tween.parallel().tween_property(crit, "position:y", crit.position.y - 34.0, 0.16)
-	tween.parallel().tween_property(crit, "modulate:a", 0.0, 0.16)
-	tween.tween_callback(crit.queue_free)
+	var scale := 0.46 if not boss else 0.78
+	var position_offset := Vector2(randf_range(-18.0, 18.0), -42.0 if not boss else -76.0)
+	if not crit.setup("vfx_crit", global_position + position_offset, scale, color, 1.32, randf_range(-0.28, 0.28), 1.2, Vector2(0, -28), randf_range(-0.35, 0.35)):
+		crit.queue_free()
 
 func _local_transient_vfx_count() -> int:
 	var count := 0
@@ -606,6 +633,19 @@ func _hit_vfx_path(element: String) -> String:
 			return "res://assets/production/sprites/vfx/vfx_hit_poison.png"
 		_:
 			return "res://assets/production/sprites/vfx/vfx_hit_physical.png"
+
+func _hit_vfx_sequence_id(element: String) -> String:
+	match element:
+		"fire":
+			return "vfx_hit_fire"
+		"ice":
+			return "vfx_hit_ice"
+		"lightning":
+			return "vfx_hit_lightning"
+		"poison":
+			return "vfx_hit_poison"
+		_:
+			return "vfx_hit_physical"
 
 func _load_animation_frames(row: Dictionary, is_boss: bool) -> void:
 	var sprite_path: String = row.get("sprite", "")
@@ -740,16 +780,25 @@ func _update_model_polish(delta: float) -> void:
 		var status_pulse := 0.86 + absf(sin(Time.get_ticks_msec() / 210.0)) * 0.22
 		var status_scale := Vector2(0.24, 0.24) if not boss else Vector2(0.48, 0.48)
 		_status_aura.scale = status_scale * status_pulse
+	if _glacier_aura and _glacier_aura.visible:
+		_glacier_aura.rotation += delta * (1.05 if not boss else 0.72)
+		var glacier_pulse := 0.9 + absf(sin(Time.get_ticks_msec() / 180.0)) * 0.16
+		_glacier_aura.scale = _glacier_field_base_scale * glacier_pulse
 
 func _update_status_aura() -> void:
 	if _status_aura == null:
 		return
-	var active := _burn_time > 0.0 or _poison_time > 0.0 or _element_slow_time > 0.0 or _shock_time > 0.0
+	var glacier_active := _glacier_field_time > 0.0
+	if _glacier_aura:
+		_glacier_aura.visible = glacier_active
+	var active := _burn_time > 0.0 or _poison_time > 0.0 or _element_slow_time > 0.0 or _shock_time > 0.0 or glacier_active
 	_status_aura.visible = active
 	_update_status_label()
 	if not active:
 		return
-	if _shock_time > 0.0:
+	if glacier_active:
+		_status_aura.modulate = Color(0.56, 0.92, 1.0, 0.52)
+	elif _shock_time > 0.0:
 		_status_aura.modulate = Color(1.0, 0.92, 0.2, 0.42)
 	elif _element_slow_time > 0.0:
 		_status_aura.modulate = Color(0.48, 0.9, 1.0, 0.42)

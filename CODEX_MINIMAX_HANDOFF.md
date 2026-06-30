@@ -113,8 +113,9 @@ Do not change these without explicit user approval:
   - `skill_slow_field`
 - Data-driven content in `data/*.json`; avoid hardcoding content lists in gameplay code when data already exists.
 - Preserve asset naming from `design/data/naming_convention.md`.
-- Do not regenerate or replace visual assets unless explicitly asked.
-- Do not generate any sounds, animations, icons, flow references, environments, effects, or videos. Use `assets/production/` only.
+- GPT/Codex may regenerate or replace visual/audio assets when explicitly requested or when a quality fix requires it.
+- Generated replacement assets must stay inside the established `assets/production/` structure, preserve IDs/data references, and be registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+- External implementation should still prefer existing production assets unless the owner explicitly authorizes replacement generation.
 - Do not turn the game into a generic top-down shooter. The turret remains fixed at the bottom; enemies push down from the top to the base line.
 
 ## 3. Visual/Design Anchors
@@ -126,7 +127,7 @@ Use the production asset pack first:
 - `design/assets/full_asset_pack_status.md`
 - `tools/validate_asset_pack.py`
 
-The external implementation must not create or source new assets. If an asset seems missing, report the exact missing path/ID and stop.
+GPT/Codex is explicitly allowed to regenerate prototypes and source or create replacement assets when visual quality requires it, including character poses, weapon models, character+weapon composites, VFX sequences, UI icons, and audio placeholders. External developers still use the production pack by default, but may replace assets when the owner authorizes that task. Any generated replacement must preserve IDs/data references, stay under `assets/production/`, and be registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
 
 Visual style is locked in:
 
@@ -284,7 +285,7 @@ First read CODEX_MINIMAX_HANDOFF.md completely, then read the files listed in it
 
 Continue M1 implementation from design/m1_implementation_progress.md.
 
-Do not expand scope beyond M1. Do not regenerate assets. Preserve Godot 4 + GDScript, 1080x1920 vertical layout, fixed bottom turret, data-driven JSON content, and the accepted visual style.
+Do not expand scope beyond M1. GPT/Codex may regenerate prototypes or replacement assets when the owner requests a quality fix; keep IDs, paths, manifest registration, and the accepted visual style intact. Preserve Godot 4 + GDScript, 1080x1920 vertical layout, fixed bottom defense-line shooting model, and data-driven JSON content.
 
 Implement the next coherent chunk:
 1. HUD bars and pause overlay.

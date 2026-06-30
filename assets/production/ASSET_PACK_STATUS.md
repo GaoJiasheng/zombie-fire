@@ -37,10 +37,12 @@
 
 External development can proceed with this pack. Final production polish should replace the `replace_later` items without changing IDs, file naming, or gameplay scope.
 
-Minimax / outsourced implementation must not generate any assets. If a needed asset appears missing, run:
+GPT/Codex may generate replacement assets when the owner requests a quality upgrade. External implementation should continue to use this pack by default unless replacement generation is explicitly authorized.
+
+If a needed asset appears missing, run:
 
 ```bash
 python3 tools/validate_asset_pack.py
 ```
 
-Then request clarification instead of generating substitutes.
+Then request clarification before generating substitutes. Any accepted generated replacement must keep IDs/data references stable, be placed under `assets/production/`, and be registered in `OUTSOURCER_ASSET_INDEX.json`.

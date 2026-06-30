@@ -31,20 +31,26 @@ func has_lock() -> bool:
 
 func score_enemy(snap: Dictionary, turret_pos: Vector2) -> float:
 	var score := 0.0
-	score += clampf(snap.get("y", 0.0) / 1500.0, 0.0, 1.0) * 100.0
-	score += snap.get("breach_damage", 1.0) * 8.0
+	var y_ratio := clampf(float(snap.get("y", 0.0)) / 1500.0, 0.0, 1.0)
+	var line_pressure := y_ratio * 140.0 + y_ratio * y_ratio * 180.0 + y_ratio * y_ratio * y_ratio * 220.0
+	if y_ratio >= 0.72:
+		line_pressure += 70.0
+	if y_ratio >= 0.86:
+		line_pressure += 120.0
+	score += line_pressure
+	score += float(snap.get("breach_damage", 1.0)) * 3.0
 	if snap.get("elite", false) or snap.get("boss", false):
-		score += 35.0
+		score += 28.0 + y_ratio * 22.0
 	if snap.get("threat_tags", []).has("breach"):
-		score += 25.0
+		score += 20.0 + y_ratio * 35.0
 	match strategy:
 		"elite":
 			if snap.get("elite", false) or snap.get("boss", false):
-				score += 45.0
+				score += 60.0
 		"low_hp":
 			score += (1.0 - snap.get("hp_ratio", 1.0)) * 35.0
 		"nearest":
 			score -= snap.get("position", turret_pos).distance_to(turret_pos) * 0.02
 		"breach":
-			score += clampf(snap.get("y", 0.0) / 1500.0, 0.0, 1.0) * 35.0
+			score += y_ratio * 90.0 + y_ratio * y_ratio * 110.0
 	return score

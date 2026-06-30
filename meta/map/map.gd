@@ -3,22 +3,207 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const BUTTON_PRIMARY := "res://assets/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY := "res://assets/sprites/ui/ui_button_secondary.png"
+const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
+const RESOURCE_TIP_DURATION := 1.8
 
 var router: Node
+var resource_tip_tween: Tween = null
 
 func setup(main: Node, _payload := {}) -> void:
 	router = main
 
 func _ready() -> void:
 	AudioManager.play_bgm("map")
+	_apply_map_style()
 	SaveManager.repair_progression_unlocks()
 	_refresh_header()
 	_build_nav()
 	_build_levels()
 
+func _apply_map_style() -> void:
+	var bg := get_node_or_null("Background") as TextureRect
+	if bg != null:
+		bg.modulate = Color(0.42, 0.39, 0.34, 1.0)
+	UiKit.apply_label(%Title, 48, UiKit.TEXT_MAIN, 5)
+	(%Progress as Label).visible = false
+	_ensure_resource_bar()
+
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 3
-	(%Progress as Label).text = "金币 %d   星星 %d/%d   战力 %d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars, SaveManager.get_loadout_power()]
+	var progress := %Progress as Label
+	progress.visible = false
+	progress.text = "%d  %d/%d  %d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars, SaveManager.get_loadout_power()]
+	var row := _ensure_resource_bar().get_node("Row") as HBoxContainer
+	for child in row.get_children():
+		row.remove_child(child)
+		child.queue_free()
+	row.add_child(_make_resource_chip(
+		"金币",
+		UiKit.currency_icon_path("gold"),
+		UiKit.GOLD,
+		"%d" % SaveManager.get_player_gold(),
+		"用于升级角色、武器、护甲、芯片和宠物。"
+	))
+	row.add_child(_make_resource_chip(
+		"星星",
+		UiKit.currency_icon_path("star"),
+		Color(0.96, 0.80, 0.30, 1.0),
+		"%d/%d" % [SaveManager.get_total_stars(), total_stars],
+		"通关评级货币，用于购买或解锁角色和装备。"
+	))
+	row.add_child(_make_resource_chip(
+		"战力",
+		RESOURCE_POWER_ICON,
+		UiKit.PURPLE,
+		"%d" % SaveManager.get_loadout_power(),
+		"当前阵容综合强度，用于判断关卡压力。"
+	))
+
+func _ensure_resource_bar() -> VBoxContainer:
+	var existing := get_node_or_null("Root/VBox/ResourceBarWrap") as VBoxContainer
+	if existing != null:
+		return existing
+
+	var vbox := $Root/VBox as VBoxContainer
+	var wrap := VBoxContainer.new()
+	wrap.name = "ResourceBarWrap"
+	wrap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wrap.alignment = BoxContainer.ALIGNMENT_CENTER
+	wrap.add_theme_constant_override("separation", 6)
+	vbox.add_child(wrap)
+	vbox.move_child(wrap, (%Progress as Label).get_index() + 1)
+
+	var row := HBoxContainer.new()
+	row.name = "Row"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	wrap.add_child(row)
+
+	var tip := PanelContainer.new()
+	tip.name = "ResourceTooltip"
+	tip.visible = false
+	tip.custom_minimum_size = Vector2(520, 42)
+	tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tip.add_theme_stylebox_override("panel", _resource_tip_style(UiKit.GOLD))
+	wrap.add_child(tip)
+
+	var tip_label := Label.new()
+	tip_label.name = "Text"
+	tip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tip_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiKit.apply_label(tip_label, 18, UiKit.TEXT_MAIN, 2)
+	tip.add_child(tip_label)
+	return wrap
+
+func _make_resource_chip(title: String, icon_path: String, accent: Color, value: String, tip: String) -> Button:
+	var button := Button.new()
+	button.name = _resource_chip_name(title)
+	button.text = ""
+	button.custom_minimum_size = Vector2(168, 52)
+	button.focus_mode = Control.FOCUS_NONE
+	button.tooltip_text = "%s：%s" % [title, tip]
+	button.add_theme_stylebox_override("normal", _resource_chip_style(accent, false, false))
+	button.add_theme_stylebox_override("hover", _resource_chip_style(accent, true, false))
+	button.add_theme_stylebox_override("pressed", _resource_chip_style(accent, true, true))
+	button.add_theme_stylebox_override("disabled", _resource_chip_style(accent, false, false))
+	button.pressed.connect(_show_resource_tip.bind(title, tip, accent))
+
+	var content := HBoxContainer.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 14
+	content.offset_top = 6
+	content.offset_right = -14
+	content.offset_bottom = -6
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.add_theme_constant_override("separation", 9)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(content)
+
+	var icon := UiKit.icon(icon_path, Vector2(34, 34))
+	icon.modulate = Color(1.06, 1.02, 0.92, 1.0)
+	content.add_child(icon)
+
+	var label := UiKit.label(value, 26, UiKit.TEXT_MAIN, 3)
+	label.name = "Value"
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(label)
+	return button
+
+func _resource_chip_name(title: String) -> String:
+	match title:
+		"金币":
+			return "GoldResourceChip"
+		"星星":
+			return "StarResourceChip"
+		"战力":
+			return "PowerResourceChip"
+		_:
+			return "ResourceChip"
+
+func _resource_chip_style(accent: Color, hovered: bool, pressed: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var alpha := 0.90 if hovered else 0.74
+	style.bg_color = Color(0.012, 0.016, 0.022, alpha)
+	if pressed:
+		style.bg_color = Color(0.018, 0.024, 0.032, 0.96)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.68 if hovered else 0.38)
+	style.corner_radius_top_left = 10
+	style.corner_radius_top_right = 10
+	style.corner_radius_bottom_right = 10
+	style.corner_radius_bottom_left = 10
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
+
+func _resource_tip_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.010, 0.014, 0.020, 0.94)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.54)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.content_margin_left = 14
+	style.content_margin_top = 6
+	style.content_margin_right = 14
+	style.content_margin_bottom = 6
+	return style
+
+func _show_resource_tip(title: String, tip: String, accent: Color) -> void:
+	AudioManager.play_sfx("ui_click", -8.0)
+	var panel := get_node_or_null("Root/VBox/ResourceBarWrap/ResourceTooltip") as PanelContainer
+	if panel == null:
+		return
+	panel.add_theme_stylebox_override("panel", _resource_tip_style(accent))
+	var label := panel.get_node_or_null("Text") as Label
+	if label != null:
+		label.text = "%s：%s" % [title, tip]
+		UiKit.apply_label(label, 18, UiKit.TEXT_MAIN, 2)
+	panel.visible = true
+	panel.modulate = Color(1, 1, 1, 1)
+	if resource_tip_tween != null and resource_tip_tween.is_valid():
+		resource_tip_tween.kill()
+	resource_tip_tween = panel.create_tween()
+	resource_tip_tween.tween_interval(RESOURCE_TIP_DURATION)
+	resource_tip_tween.tween_property(panel, "modulate:a", 0.0, 0.18)
+	resource_tip_tween.tween_callback(func() -> void:
+		if is_instance_valid(panel):
+			panel.visible = false
+			panel.modulate.a = 1.0
+	)
 
 func _build_levels() -> void:
 	var level_list := %LevelList as VBoxContainer
@@ -61,10 +246,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var card_rest_style := _build_nav_card_style(accent, false)
 	var card_hover_style := _build_nav_card_style(accent, true)
 	card.add_theme_stylebox_override("panel", card_rest_style)
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.gui_input.connect(_on_nav_card_input.bind(mode, card, card_rest_style, card_hover_style))
-	card.mouse_entered.connect(_set_nav_card_style.bind(card, card_hover_style))
-	card.mouse_exited.connect(_set_nav_card_style.bind(card, card_rest_style))
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var stage := Control.new()
 	stage.custom_minimum_size = Vector2(0, 124)
@@ -73,7 +255,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	card.add_child(stage)
 
 	var top_line := ColorRect.new()
-	top_line.color = Color(accent.r, accent.g, accent.b, 0.18)
+	top_line.color = Color(accent.r, accent.g, accent.b, 0.12)
 	top_line.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	top_line.offset_left = 26
 	top_line.offset_top = 10
@@ -82,7 +264,9 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	top_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(top_line)
 
-	if ResourceLoader.exists(icon_path):
+	if mode == "characters":
+		_add_nav_character_bust(stage)
+	elif ResourceLoader.exists(icon_path):
 		var icon := TextureRect.new()
 		icon.name = "Icon"
 		icon.texture = load(icon_path)
@@ -93,7 +277,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 		icon.offset_top = 12
 		icon.offset_right = -16
 		icon.offset_bottom = -38
-		icon.modulate = Color(1.08, 1.08, 1.08, 1.0)
+		icon.modulate = Color(1.02, 1.02, 0.98, 1.0)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(icon)
 
@@ -131,7 +315,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	stage.add_child(lbl)
 
 	var underline := ColorRect.new()
-	underline.color = Color(accent.r, accent.g, accent.b, 0.22)
+	underline.color = Color(accent.r, accent.g, accent.b, 0.16)
 	underline.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	underline.offset_left = 42
 	underline.offset_top = -6
@@ -142,7 +326,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 
 	if has_divider:
 		var divider := ColorRect.new()
-		divider.color = Color(0.80, 0.70, 0.52, 0.10)
+		divider.color = Color(0.80, 0.70, 0.52, 0.08)
 		divider.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
 		divider.offset_left = -1
 		divider.offset_top = 18
@@ -150,7 +334,43 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 		divider.offset_bottom = -18
 		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(divider)
+
+	var hit := Button.new()
+	hit.name = "HitArea"
+	hit.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hit.text = ""
+	hit.mouse_filter = Control.MOUSE_FILTER_STOP
+	for key in ["normal", "hover", "pressed", "disabled", "focus"]:
+		hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+	hit.pressed.connect(_open_collection.bind(mode))
+	hit.mouse_entered.connect(_set_nav_card_style.bind(card, card_hover_style))
+	hit.mouse_exited.connect(_set_nav_card_style.bind(card, card_rest_style))
+	card.add_child(hit)
 	return card
+
+func _add_nav_character_bust(stage: Control) -> void:
+	var row := _nav_selected_row("characters")
+	if row.is_empty():
+		row = DataLoader.get_row("characters", "vanguard")
+	var center := CenterContainer.new()
+	center.name = "IconCenter"
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.offset_left = 12
+	center.offset_top = 4
+	center.offset_right = -12
+	center.offset_bottom = -36
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(center)
+
+	var clip := TextureRect.new()
+	clip.name = "Icon"
+	clip.texture = null
+	clip.clip_contents = true
+	clip.custom_minimum_size = Vector2(112, 86)
+	clip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(clip)
+	UiKit.add_character_bust(clip, row, Vector2(112, 86), 128.0, -30.0, Color(1.02, 1.02, 0.98, 1.0))
 
 func _set_nav_card_style(card: PanelContainer, style: StyleBoxFlat) -> void:
 	if not is_instance_valid(card):
@@ -159,12 +379,12 @@ func _set_nav_card_style(card: PanelContainer, style: StyleBoxFlat) -> void:
 
 func _build_nav_dock_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.022, 0.030, 0.82)
+	style.bg_color = Color(0.012, 0.014, 0.018, 0.88)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
 	style.border_width_bottom = 2
-	style.border_color = Color(0.80, 0.64, 0.38, 0.34)
+	style.border_color = Color(0.78, 0.58, 0.34, 0.34)
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
@@ -177,12 +397,12 @@ func _build_nav_dock_style() -> StyleBoxFlat:
 
 func _build_nav_card_style(accent: Color, highlighted: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(accent.r, accent.g, accent.b, 0.11 if highlighted else 0.026)
+	style.bg_color = Color(0.020, 0.024, 0.030, 0.92) if highlighted else Color(0.014, 0.017, 0.022, 0.76)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.58 if highlighted else 0.18)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.52 if highlighted else 0.16)
 	style.corner_radius_top_left = 7
 	style.corner_radius_top_right = 7
 	style.corner_radius_bottom_right = 7
@@ -195,12 +415,12 @@ func _build_nav_card_style(accent: Color, highlighted: bool) -> StyleBoxFlat:
 
 func _build_nav_status_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.022, 0.026, 0.034, 0.86)
+	style.bg_color = Color(0.014, 0.017, 0.022, 0.88)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.48)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.40)
 	style.corner_radius_top_left = 5
 	style.corner_radius_top_right = 5
 	style.corner_radius_bottom_right = 5
@@ -321,32 +541,29 @@ func _nav_status_text(mode: String) -> String:
 		return "未装"
 	return "等级%d" % SaveManager.get_item_level(item_id)
 
-func _on_nav_card_input(event: InputEvent, mode: String, card: PanelContainer, rest_style: StyleBoxFlat, hover_style: StyleBoxFlat) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		AudioManager.play_sfx("ui_click")
-		router.change_scene("collection", {"mode": mode})
-	elif event is InputEventScreenTouch and event.pressed:
-		AudioManager.play_sfx("ui_click")
-		router.change_scene("collection", {"mode": mode})
-
 func _open_collection(mode: String) -> void:
 	AudioManager.play_sfx("ui_click")
-	router.change_scene("collection", {"mode": mode})
+	router.change_scene("collection", {"mode": mode, "return_to": "map"})
 
 func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, stars: int) -> TextureButton:
 	var button := TextureButton.new()
 	button.custom_minimum_size = Vector2(900, 142)
-	button.texture_normal = load(BUTTON_PRIMARY if unlocked else BUTTON_SECONDARY)
+	var base_texture := load(BUTTON_SECONDARY)
+	button.texture_normal = base_texture
+	button.texture_hover = base_texture
+	button.texture_pressed = base_texture
+	button.texture_disabled = base_texture
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
 	button.disabled = not unlocked
-	button.modulate = Color(1, 1, 1, 1) if unlocked else Color(0.55, 0.55, 0.55, 0.86)
+	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.58, 0.60, 0.62, 0.82)
 	if unlocked:
 		button.pressed.connect(_open_level.bind(level_id))
 
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var accent := UiKit.element_color(weakness)
+	var variant := str(level.get("variant", "normal"))
 	var legacy_title := Label.new()
 	legacy_title.name = "LegacySmokeTitle"
 	legacy_title.text = DataLoader.level_display_name(level_id)
@@ -354,10 +571,28 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	legacy_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(legacy_title)
 
+	var card_frame := PanelContainer.new()
+	card_frame.name = "CardFrame"
+	card_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	card_frame.offset_left = 0
+	card_frame.offset_top = 0
+	card_frame.offset_right = 0
+	card_frame.offset_bottom = 0
+	card_frame.add_theme_stylebox_override("panel", _level_card_style(accent, unlocked, stars, variant))
+	card_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(card_frame)
+
+	var warm_wash := ColorRect.new()
+	warm_wash.position = Vector2(612, 14)
+	warm_wash.size = Vector2(260, 112)
+	warm_wash.color = Color(0.75, 0.52, 0.20, 0.07 if unlocked else 0.025)
+	warm_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(warm_wash)
+
 	var accent_bar := ColorRect.new()
-	accent_bar.position = Vector2(18, 20)
-	accent_bar.size = Vector2(5, 102)
-	accent_bar.color = accent
+	accent_bar.position = Vector2(20, 22)
+	accent_bar.size = Vector2(5, 98)
+	accent_bar.color = Color(accent.r, accent.g, accent.b, 0.80 if unlocked else 0.34)
 	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(accent_bar)
 
@@ -365,10 +600,10 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	var index_plate := PanelContainer.new()
 	index_plate.position = Vector2(34, 28)
 	index_plate.size = Vector2(92, 74)
-	index_plate.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.025, 0.045, 0.07, 0.86), 2, 8))
+	index_plate.add_theme_stylebox_override("panel", _level_index_style(accent, unlocked))
 	index_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(index_plate)
-	var index_label := UiKit.label(level_num, 28, Color(0.98, 1.0, 1.0, 1.0), 3)
+	var index_label := UiKit.label(level_num, 28, UiKit.TEXT_MAIN, 3)
 	index_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	index_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	index_plate.add_child(index_label)
@@ -377,14 +612,14 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
 	title.position = Vector2(146, 18)
 	title.size = Vector2(360, 46)
-	UiKit.apply_label(title, 32, Color(0.96, 0.99, 1.0, 1.0), 3)
+	UiKit.apply_label(title, 32, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
 	_add_card_pill(button, Vector2(146, 72), Vector2(172, 38), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_card_pill(button, Vector2(328, 72), Vector2(126, 38), "已解锁" if unlocked else "未解锁", Color(0.48, 1.0, 0.64, 1.0) if unlocked else Color(0.75, 0.82, 0.9, 1.0))
+	_add_card_pill(button, Vector2(328, 72), Vector2(126, 38), "已解锁" if unlocked else "未解锁", UiKit.SUCCESS if unlocked else UiKit.TEXT_MUTED)
 	_add_element_pill(button, Vector2(464, 72), Vector2(138, 38), weakness)
-	_add_variant_marker(button, str(level.get("variant", "normal")))
+	_add_variant_marker(button, variant)
 
 	var star_row := HBoxContainer.new()
 	star_row.position = Vector2(662, 28)
@@ -395,15 +630,64 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	for i in range(3):
 		star_row.add_child(UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(42, 42)))
 
-	var status := Label.new()
-	status.text = "点击出战" if unlocked else "尚未解锁"
-	status.position = Vector2(650, 82)
-	status.size = Vector2(190, 30)
-	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(status, 17, UiKit.GOLD if unlocked else UiKit.TEXT_MUTED, 2)
-	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(status)
+	_add_deploy_status(button, unlocked)
 	return button
+
+func _level_card_style(accent: Color, unlocked: bool, stars: int, variant: String) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.010, 0.014, 0.018, 0.985) if unlocked else Color(0.012, 0.014, 0.017, 0.94)
+	var border := accent
+	if stars >= 3:
+		border = UiKit.GOLD
+	if variant in ["boss", "boss_rush", "elite"]:
+		border = UiKit.DANGER if variant != "boss" else UiKit.GOLD
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(border.r, border.g, border.b, 0.50 if unlocked else 0.24)
+	style.corner_radius_top_left = 14
+	style.corner_radius_top_right = 14
+	style.corner_radius_bottom_right = 14
+	style.corner_radius_bottom_left = 14
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
+
+func _level_index_style(accent: Color, unlocked: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.011, 0.015, 0.020, 0.92) if unlocked else Color(0.010, 0.012, 0.016, 0.82)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.58 if unlocked else 0.28)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.content_margin_left = 8
+	style.content_margin_top = 2
+	style.content_margin_right = 8
+	style.content_margin_bottom = 2
+	return style
+
+func _add_deploy_status(parent: Control, unlocked: bool) -> void:
+	var status := PanelContainer.new()
+	status.position = Vector2(644, 80)
+	status.size = Vector2(198, 38)
+	var accent := UiKit.GOLD if unlocked else UiKit.TEXT_MUTED
+	var bg := Color(0.12, 0.075, 0.024, 0.86) if unlocked else Color(0.020, 0.022, 0.026, 0.70)
+	status.add_theme_stylebox_override("panel", UiKit.pill_style(accent, bg))
+	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(status)
+
+	var label := UiKit.label("点击出战" if unlocked else "尚未解锁", 17, accent, 2)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status.add_child(label)
 
 func _add_variant_marker(parent: Control, variant: String) -> void:
 	var label := ""
@@ -426,7 +710,7 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 	var pill := PanelContainer.new()
 	pill.position = Vector2(516, 20)
 	pill.size = Vector2(128, 40)
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.02, 0.012, 0.006, 0.82)))
+	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.080, 0.050, 0.020, 0.86)))
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
 	var text := UiKit.label(label, 18, accent, 2)
@@ -438,10 +722,10 @@ func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, 
 	var pill := PanelContainer.new()
 	pill.position = pos
 	pill.size = size
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.015, 0.03, 0.045, 0.74)))
+	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.016, 0.020, 0.026, 0.84)))
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
-	var label := UiKit.label(text, 18, Color(0.88, 0.96, 1.0, 1.0), 2)
+	var label := UiKit.label(text, 18, UiKit.TEXT_MAIN, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(label)
@@ -451,7 +735,7 @@ func _add_element_pill(parent: Control, pos: Vector2, size: Vector2, element: St
 	var accent := UiKit.element_color(element)
 	pill.position = pos
 	pill.size = size
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.015, 0.03, 0.045, 0.74)))
+	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.016, 0.020, 0.026, 0.84)))
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
 	var row := HBoxContainer.new()
@@ -459,7 +743,7 @@ func _add_element_pill(parent: Control, pos: Vector2, size: Vector2, element: St
 	row.add_theme_constant_override("separation", 5)
 	pill.add_child(row)
 	row.add_child(UiKit.icon(UiKit.element_icon_path(element), Vector2(24, 24)))
-	var label := UiKit.label("弱%s" % _element_name(element), 17, Color(0.9, 0.98, 1.0, 1.0), 2)
+	var label := UiKit.label("弱%s" % _element_name(element), 17, UiKit.TEXT_MAIN, 2)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(label)
 

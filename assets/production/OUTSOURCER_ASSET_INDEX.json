@@ -1,25 +1,28 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 1917,
+    "total_files": 4391,
     "parts_files": 414,
     "animation_files": 858,
     "sfx_files": 43,
     "bgm_files": 9,
     "video_files": 15
   },
-  "do_not_generate_assets": true,
+  "do_not_generate_assets": false,
+  "generated_replacement_policy": "GPT/Codex may generate owner-approved replacement assets and prototype revisions whenever visual quality requires it. External implementation should use existing production assets by default unless replacement generation is explicitly authorized.",
   "integration_notes": [
     "Use sprites/animations/* for placeholder animated units.",
     "Use sprites/vfx_sequences/* for frame-based effects.",
     "Use audio/bgm and audio/sfx WAV files directly.",
     "Use flow/*.png as screen-flow visual references.",
     "Use environment/*_battle_layout_guide.png for safe HUD/combat layout.",
-    "Use video/*.mp4 as placeholder videos; replace later only with owner approval."
+    "Use video/*.mp4 as placeholder videos; replace later only with owner approval.",
+    "Generated replacements and prototype revisions must preserve IDs/data references, live under assets/production, and be registered in owner_directed_generated_overrides."
   ],
   "asset_roots": {
     "sounds": "audio",
     "animations": "sprites/animations",
+    "weaponless_character_battle_frames": "sprites/animations/characters_weaponless",
     "parts": "sprites/parts",
     "icons_ui": "sprites/ui",
     "flow": "flow",
@@ -28,5 +31,38 @@
     "videos": "video",
     "fonts": "fonts"
   },
-  "hard_rule": "Outsourced implementation must use these assets and must not generate replacements. Missing assets must be reported by exact path."
+  "owner_directed_generated_overrides": [
+    {
+      "path": "sprites/animations/characters_weaponless",
+      "source": "source_refs/generated/hero_battle_weaponless_sheet_chroma.png",
+      "derived": "source_refs/generated/hero_battle_weaponless_sheet.png",
+      "reason": "Battle characters must not include baked handheld weapons; selected weapons are mounted as independent runtime layers."
+    },
+    {
+      "path": "sprites/animations/character_weapon_combos",
+      "source": "sprites/animations/characters_weaponless + sprites/weapons/handheld",
+      "derived": "source_refs/generated/character_weapon_combo_generation_manifest.json",
+      "preview": "source_refs/generated/character_weapon_combo_matrix.png",
+      "reason": "Owner requested all four characters and all eight weapons to use fused prototype battle art instead of runtime floating gun layers. Current generation uses weapon-behind-character layering for idle/hurt and left/center/right raised-weapon attack poses with muzzle flashes."
+    },
+    {
+      "path": "sprites/weapons/weapon_autocannon_icon.png",
+      "source": "source_refs/handheld_weapon_sheet.png",
+      "derived": "source_refs/generated/weapon_autocannon_machinegun_cutout.png",
+      "reason": "Owner requested the starter weapon to display as 自动机枪 rather than a base-mounted cannon."
+    },
+    {
+      "path": "sprites/weapons/weapon_autocannon_turret.png",
+      "source": "source_refs/handheld_weapon_sheet.png",
+      "derived": "source_refs/generated/weapon_autocannon_machinegun_cutout.png",
+      "reason": "Fallback prototype for weapon_autocannon now uses the same machine-gun silhouette as the handheld weapon."
+    },
+    {
+      "path": "sprites/projectiles",
+      "source": "source_refs/generated/projectile_3d_projectile_spec.json",
+      "derived": "source_refs/generated/projectile_3d_projectile_sheet.png",
+      "reason": "Owner requested all bullet/ammo types to read as flashier 3D-style projectile models with distinct elemental and weapon-specific silhouettes."
+    }
+  ],
+  "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff."
 }

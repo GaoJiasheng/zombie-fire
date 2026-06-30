@@ -66,9 +66,11 @@ var _bgm_player: AudioStreamPlayer
 var _sfx_pool: Array[AudioStreamPlayer] = []
 var _current_bgm := ""
 var _last_sfx_time := {}
+var _headless_audio := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_headless_audio = DisplayServer.get_name() == "headless"
 	_bgm_player = AudioStreamPlayer.new()
 	_bgm_player.bus = "Master"
 	_bgm_player.volume_db = -13.0
@@ -80,8 +82,11 @@ func _ready() -> void:
 		add_child(player)
 		_sfx_pool.append(player)
 
+func _exit_tree() -> void:
+	release_for_tests()
+
 func play_bgm(id: String) -> void:
-	if not enabled or not BGM.has(id) or _current_bgm == id:
+	if _headless_audio or not enabled or not BGM.has(id) or _current_bgm == id:
 		return
 	_current_bgm = id
 	var stream := _load_bgm(id)
@@ -93,20 +98,23 @@ func play_bgm(id: String) -> void:
 
 func stop_bgm() -> void:
 	_current_bgm = ""
-	_bgm_player.stop()
+	if _bgm_player != null:
+		_bgm_player.stop()
 
 func release_for_tests() -> void:
 	stop_bgm()
-	_bgm_player.stream = null
+	if _bgm_player != null:
+		_bgm_player.stream = null
 	for player in _sfx_pool:
-		player.stop()
-		player.stream = null
+		if player != null:
+			player.stop()
+			player.stream = null
 	_sfx_cache.clear()
 	_bgm_cache.clear()
 	_last_sfx_time.clear()
 
 func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
-	if not enabled or not SFX.has(id):
+	if _headless_audio or not enabled or not SFX.has(id):
 		return
 	if _is_rate_limited(id):
 		return

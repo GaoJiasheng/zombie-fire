@@ -80,7 +80,7 @@
 
 - 所有内容走 `data/*.json`，代码读取数据。
 - 素材路径与 ID 必须遵守 `design/data/naming_convention.md`。
-- 不私自替换素材，不重新生成图，不改美术方向。
+- 默认使用 production 素材；GPT/Codex 或 owner 明确授权的执行方可以重做原型/替换素材，但必须保持 ID、路径、manifest 记录和统一美术方向。
 - 不扩大 v1 内容量。
 - 每个里程碑都要保持可运行。
 - 每个功能必须更新 `design/m1_todo.md` 或后续里程碑 todo。
@@ -163,4 +163,3 @@ M4 需要准备：
 - 改技术：更新 `design/13_tech_architecture.md`。
 - 改素材范围：更新 `design/assets/asset_manifest.md`。
 - 改外包范围：更新 `design/16_outsourcing_brief.md`。
-

@@ -16,8 +16,10 @@ func _ready() -> void:
 func _apply_ui_style() -> void:
 	UiKit.apply_label(%Title, 118, UiKit.TEXT_MAIN, 7)
 	UiKit.apply_label(%Subtitle, 34, UiKit.GOLD, 4)
-	UiKit.apply_label((%StartButton as Control).get_node("Label"), 44, Color(0.94, 0.98, 1.0, 1.0), 3)
-	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, Color(0.94, 0.98, 1.0, 1.0), 3)
+	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
+	(%HelpButton as TextureButton).modulate = Color(0.82, 0.86, 0.86, 1.0)
+	UiKit.apply_label((%StartButton as Control).get_node("Label"), 44, UiKit.TEXT_MAIN, 3)
+	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, UiKit.TEXT_MAIN, 3)
 
 func _on_start_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")

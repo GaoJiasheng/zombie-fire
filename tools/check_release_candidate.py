@@ -17,12 +17,15 @@ COMMANDS = [
     ["python3", "tools/check_economy_loop.py"],
     ["python3", "tools/check_hardcoded_colors.py"],
     ["python3", "tools/check_contrast.py"],
+    ["python3", "tools/check_visual_assets.py"],
     ["python3", "tools/check_gameplay_polish.py"],
     ["python3", "tools/check_app_store_assets.py"],
     ["python3", "tools/check_release_strings.py"],
     ["python3", "tools/simulate_card_director.py"],
     ["godot", "--headless", "--path", ".", "--quit"],
+    ["godot", "--headless", "--path", ".", "--script", "res://tools/_battle_boot_probe.gd"],
     ["godot", "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd"],
+    ["python3", "tools/check_visual_screens.py"],
 ]
 
 

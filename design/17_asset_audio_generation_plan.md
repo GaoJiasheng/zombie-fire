@@ -10,7 +10,7 @@
 - 所有文件名必须遵守 `design/data/naming_convention.md`。
 - 原型素材可以粗，但不能风格漂移。
 - 正式接入前必须有 contact sheet 或试听表。
-- 外包不能自行替换素材。
+- 默认由我们控制素材生成与验收；GPT/Codex 可按 owner 要求重做原型/替换素材，外包需 owner 授权后才能替换。
 
 ## 2. 图片资产阶段
 
@@ -54,7 +54,7 @@
 - 生成流程参考图。
 - 生成环境竖屏图与战斗布局 guide。
 - 生成 15 个 MP4 placeholder 视频。
-- 生成 `OUTSOURCER_ASSET_INDEX.json`，明确外包不得自行生成素材。
+- 生成 `OUTSOURCER_ASSET_INDEX.json`，明确默认使用生产素材；GPT/Codex 可在 owner 授权下生成并登记替换素材，外包未经授权不得自行替换。
 - 一次性补齐 placeholder 骨骼分件、扩展 SFX、字体文件，并纳入强校验。
 
 校验：
@@ -216,7 +216,7 @@ python3 tools/validate_asset_pack.py
 
 验收：
 
-- 自动机炮连续开火不刺耳。
+- 自动机枪连续开火不刺耳。
 - 命中/死亡/金币可形成反馈节奏。
 - UI 音不抢战斗音。
 - BGM 可循环无明显断点。

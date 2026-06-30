@@ -20,7 +20,7 @@
 | `zombie_runner` | portrait / icon / prototype_sprite | accepted | 快怪剪影基准；v2 accepted |
 | `zombie_brute` | portrait / icon / prototype_sprite | accepted | 肉盾体型基准 |
 | `boss_tank_titan` | portrait / icon / prototype_sprite | accepted | Boss 体量基准 |
-| `weapon_autocannon` | icon / turret | accepted | 玩家长期注视对象 |
+| `weapon_autocannon` | icon / machine-gun prototype | accepted | 玩家长期注视对象 |
 | `bg_city_ruins` | background prototype | accepted | 第一章色调基准；后续批量背景要更 stylized |
 | `ui_card_frame` | card frame / selected / locked | reviewed | 框架方向可用；技能 icon 需单独重做 |
 | `skill_split_shot_icon` | icon | accepted | 弹道技能基准 |
@@ -112,7 +112,7 @@
 
 | ID | Required Files | Status |
 |---|---|---|
-| `weapon_autocannon` | icon / turret | accepted |
+| `weapon_autocannon` | icon / machine-gun prototype | accepted |
 | `weapon_railgun` | icon / turret | accepted |
 | `weapon_scattergun` | icon / turret | accepted |
 | `weapon_flamethrower` | icon / turret | accepted |

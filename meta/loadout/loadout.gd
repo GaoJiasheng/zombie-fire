@@ -3,27 +3,35 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const MAIN_ICON_SIZE := Vector2(296, 296)
+const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
+const HERO_BUST_IMAGE_WIDTH := 378.0
+const HERO_BUST_Y_OFFSET := -58.0
 const GEAR_CARD_SIZE := Vector2(220, 220)
 const GEAR_ROW_SEPARATION := 60
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 
 var router: Node
 var level_id := "level_001"
+var _return_to := "map"
+var _return_payload := {}
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
-	level_id = _resolve_level_id(payload)
+	var data := {}
+	if payload is Dictionary:
+		data = payload
+	level_id = _resolve_level_id(data)
+	_return_to = _sanitize_return_to(str(data.get("return_to", "map")))
+	_return_payload = _sanitize_return_payload(data.get("return_payload", {}))
+	if _return_to == "result" and not _return_payload.has("level_id"):
+		_return_payload["level_id"] = level_id
 	_refresh()
 
 func _ready() -> void:
-	(%CharacterIcon as Control).mouse_filter = Control.MOUSE_FILTER_STOP
-	(%WeaponIcon as Control).mouse_filter = Control.MOUSE_FILTER_STOP
-	(%CharacterPanel as Control).mouse_filter = Control.MOUSE_FILTER_STOP
-	(%WeaponPanel as Control).mouse_filter = Control.MOUSE_FILTER_STOP
-	(%CharacterIcon as Control).gui_input.connect(_on_character_icon_input)
-	(%WeaponIcon as Control).gui_input.connect(_on_weapon_icon_input)
-	(%CharacterPanel as Control).gui_input.connect(_on_character_icon_input)
-	(%WeaponPanel as Control).gui_input.connect(_on_weapon_icon_input)
+	_bind_open_hit(%CharacterPanel as Control, "characters")
+	_bind_open_hit(%WeaponPanel as Control, "weapons")
+	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
+	(%BackButton as TextureButton).modulate = Color(0.82, 0.86, 0.86, 1.0)
 	(%StartButton as TextureButton).pressed.connect(func() -> void:
 		AudioManager.play_sfx("ui_confirm")
 		router.start_level(level_id)
@@ -38,15 +46,41 @@ func _ready() -> void:
 			_pulse_weapon_icon()
 		else:
 			AudioManager.play_sfx("ui_click", -6.0)
-		)
+	)
 	(%BackButton as TextureButton).pressed.connect(_on_back_pressed)
+	_refresh_back_button()
 	_refresh()
 	_build_equip_nav()
 
+func _bind_open_hit(panel: Control, mode: String) -> void:
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var hit := panel.get_node_or_null("OpenHitArea") as Button
+	if hit == null:
+		hit = Button.new()
+		hit.name = "OpenHitArea"
+		hit.set_anchors_preset(Control.PRESET_FULL_RECT)
+		hit.text = ""
+		hit.mouse_filter = Control.MOUSE_FILTER_STOP
+		for key in ["normal", "hover", "pressed", "disabled", "focus"]:
+			hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+		panel.add_child(hit)
+	hit.pressed.connect(_open_collection.bind(mode))
+
 func _on_back_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
-	if router != null:
-		router.change_scene("map")
+	if router == null:
+		return
+	if _return_to == "result":
+		router.change_scene("result", _return_payload.duplicate(true))
+		return
+	router.change_scene("map")
+
+func _refresh_back_button() -> void:
+	var button := %BackButton as TextureButton
+	var label := button.get_node_or_null("Label") as Label
+	if label == null:
+		return
+	label.text = "返回结算" if _return_to == "result" else "返回关卡"
 
 func _refresh() -> void:
 	if not is_inside_tree():
@@ -110,10 +144,7 @@ func _refresh() -> void:
 	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
 	weapon_icon.modulate = Color.WHITE
 	weapon_icon.scale = Vector2.ONE
-	var character_icon := %CharacterIcon as TextureRect
-	character_icon.texture = load(DataLoader.get_row("characters", char_id).get("portrait", ""))
-	character_icon.modulate = Color.WHITE
-	character_icon.scale = Vector2.ONE
+	_refresh_character_bust(DataLoader.get_row("characters", char_id))
 	var growth_badge := %GrowthBadge as Label
 	growth_badge.text = "护甲  /  芯片  /  宠物"
 	growth_badge.add_theme_color_override("font_color", Color(0.74, 0.86, 0.86, 1.0))
@@ -145,6 +176,47 @@ func _refresh() -> void:
 	_rebuild_character_bar(char_id)
 	_rebuild_gear_icon_row(armor_id, chip_id, pet_id)
 	_refresh_signature_panel(char_id)
+
+func _character_display_texture(row: Dictionary) -> Texture2D:
+	return UiKit.character_bust_texture(row)
+
+func _refresh_character_bust(row: Dictionary) -> void:
+	var clip := %CharacterIcon as TextureRect
+	clip.texture = null
+	clip.clip_contents = true
+	clip.custom_minimum_size = HERO_BUST_WINDOW_SIZE
+	clip.offset_left = -HERO_BUST_WINDOW_SIZE.x * 0.5
+	clip.offset_top = -156.0
+	clip.offset_right = HERO_BUST_WINDOW_SIZE.x * 0.5
+	clip.offset_bottom = clip.offset_top + HERO_BUST_WINDOW_SIZE.y
+	clip.pivot_offset = HERO_BUST_WINDOW_SIZE * 0.5
+	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.modulate = Color.WHITE
+	clip.scale = Vector2.ONE
+
+	var bust := clip.get_node_or_null("BustImage") as TextureRect
+	if bust == null:
+		bust = TextureRect.new()
+		bust.name = "BustImage"
+		bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bust.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		clip.add_child(bust)
+
+	var texture := _character_display_texture(row)
+	bust.texture = texture
+	bust.modulate = Color.WHITE
+	bust.scale = Vector2.ONE
+	if texture == null:
+		bust.size = HERO_BUST_WINDOW_SIZE
+		bust.position = Vector2.ZERO
+		return
+	var texture_size := texture.get_size()
+	var aspect := texture_size.y / maxf(texture_size.x, 1.0)
+	var bust_size := Vector2(HERO_BUST_IMAGE_WIDTH, HERO_BUST_IMAGE_WIDTH * aspect)
+	bust.size = bust_size
+	bust.custom_minimum_size = bust_size
+	bust.position = Vector2((HERO_BUST_WINDOW_SIZE.x - bust_size.x) * 0.5, HERO_BUST_Y_OFFSET)
 
 func _row_name(table: String, item_id: String) -> String:
 	if item_id == "":
@@ -327,14 +399,6 @@ func _try_upgrade_weapon() -> void:
 		_pulse_weapon_icon()
 	else:
 		AudioManager.play_sfx("ui_click", -6.0)
-
-func _on_character_icon_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_open_collection("characters")
-
-func _on_weapon_icon_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_open_collection("weapons")
 
 func _rebuild_character_bar(selected_character: String) -> void:
 	for child in $CharacterSelectBar.get_children():
@@ -593,6 +657,18 @@ func _resolve_level_id(payload: Dictionary) -> String:
 				return active
 	return "level_001"
 
+func _sanitize_return_to(route: String) -> String:
+	match route:
+		"result":
+			return "result"
+		_:
+			return "map"
+
+func _sanitize_return_payload(payload: Variant) -> Dictionary:
+	if payload is Dictionary:
+		return payload.duplicate(true)
+	return {}
+
 func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chip_id: String) -> bool:
 	var character := DataLoader.get_row("characters", char_id)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
@@ -618,7 +694,13 @@ func _element_name(element: String) -> String:
 
 func _open_collection(mode: String) -> void:
 	AudioManager.play_sfx("ui_click")
-	router.change_scene("collection", {"mode": mode})
+	router.change_scene("collection", {
+		"mode": mode,
+		"return_to": "loadout",
+		"level_id": level_id,
+		"loadout_return_to": _return_to,
+		"loadout_return_payload": _return_payload,
+	})
 
 func _level_objective(id: String) -> String:
 	match id:
@@ -627,13 +709,13 @@ func _level_objective(id: String) -> String:
 		"level_002":
 			return "目标：五波弹雨试炼，第一次选择技能卡，优先体验分裂弹清群。"
 		"level_003":
-			return "目标：处理疾跑僵尸，观察越线威胁优先策略。"
+			return "目标：处理疾跑僵尸，优先压制靠近防线的威胁。"
 		"level_004":
 			return "目标：用锁定、穿透或减速处理巨臂和爆弹。"
 		"level_005":
 			return "目标：击破装甲巨像护甲，守住首领压力。"
 		"level_006":
-			return "目标：处理左右双线突袭，优先打越线威胁。"
+			return "目标：处理左右双线突袭，优先打近线威胁。"
 		"level_007":
 			return "目标：尖啸僵尸会制造压力，先锁定支援单位。"
 		"level_008":

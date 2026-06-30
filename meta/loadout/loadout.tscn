@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://meta/loadout/loadout.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/ui/ui_button_primary.png" id="2_btn"]
-[ext_resource type="Texture2D" path="res://assets/sprites/weapons/weapon_autocannon_icon.png" id="3_weapon"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/weapons/weapon_autocannon_icon.png" id="3_weapon"]
 [ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/bg_city_ruins.png" id="4_bg"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_panel.png" id="5_panel"]
 
@@ -108,11 +108,18 @@ custom_minimum_size = Vector2(0, 452)
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="CharacterPanel" type="TextureRect" parent="Root/Main/UnitsRow"]
+[node name="CharacterPanel" type="Control" parent="Root/Main/UnitsRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="PanelBg" type="TextureRect" parent="Root/Main/UnitsRow/CharacterPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 texture = ExtResource("5_panel")
 expand_mode = 1
 stretch_mode = 5
@@ -160,18 +167,25 @@ anchor_bottom = 1.0
 offset_top = -72.0
 offset_bottom = -18.0
 theme_override_font_sizes/font_size = 27
-theme_override_colors/font_color = Color(0.95, 0.94, 0.88, 1)
+theme_override_colors/font_color = Color(0.96, 0.94, 0.86, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
 text = "钢铁先锋 等级1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="WeaponPanel" type="TextureRect" parent="Root/Main/UnitsRow"]
+[node name="WeaponPanel" type="Control" parent="Root/Main/UnitsRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="PanelBg" type="TextureRect" parent="Root/Main/UnitsRow/WeaponPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 texture = ExtResource("5_panel")
 expand_mode = 1
 stretch_mode = 5
@@ -185,7 +199,7 @@ anchor_right = 1.0
 offset_top = 14.0
 offset_bottom = 50.0
 theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.92, 0.68, 0.34, 1)
+theme_override_colors/font_color = Color(0.88, 0.64, 0.32, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
 text = "主武器"
@@ -223,7 +237,7 @@ theme_override_font_sizes/font_size = 27
 theme_override_colors/font_color = Color(1, 0.9, 0.58, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
-text = "自动机炮 等级1"
+text = "自动机枪 等级1"
 horizontal_alignment = 1
 vertical_alignment = 1
 

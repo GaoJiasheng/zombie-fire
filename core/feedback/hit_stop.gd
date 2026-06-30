@@ -12,9 +12,18 @@ func pulse(duration: float = DEFAULT_SCALE) -> void:
 		return
 	_cooldown = 0.16
 	Engine.time_scale = MIN_SCALE
-	var t := get_tree().create_timer(duration, true, false, true)
+	var tree := get_tree()
+	if tree == null:
+		Engine.time_scale = 1.0
+		return
+	var t := tree.create_timer(duration, true, false, true)
 	await t.timeout
-	Engine.time_scale = 1.0
+	if is_inside_tree():
+		Engine.time_scale = 1.0
+
+func _exit_tree() -> void:
+	if Engine.time_scale < 1.0:
+		Engine.time_scale = 1.0
 
 func _process(delta: float) -> void:
 	if _cooldown > 0.0:

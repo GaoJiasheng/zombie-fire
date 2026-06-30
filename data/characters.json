@@ -18,8 +18,18 @@
 		],
 		"active_skill": {
 			"id": "sig_vanguard_railvolley",
+			"scaling_basis": "weapon",
 			"cooldown": 18.0,
-			"duration": 6.0
+			"duration": 6.0,
+			"damage_mult": 1.25,
+			"level_damage_growth": 0.004,
+			"rank_damage_bonus": 0.03,
+			"rank_duration_bonus": 0.2,
+			"base_volleys": 5,
+			"rank_extra_volleys": 1,
+			"max_extra_volleys": 1,
+			"barrage_fire_rate_mult": 1.25,
+			"rank_fire_rate_bonus": 0.03
 		},
 		"bullet_affinity": {
 			"element": "physical",
@@ -56,9 +66,16 @@
 		],
 		"active_skill": {
 			"id": "sig_blaze_meltdown",
+			"scaling_basis": "character",
 			"cooldown": 16.0,
 			"damage_mult": 3.6,
-			"radius": 260.0
+			"radius": 260.0,
+			"level_damage_growth": 0.02,
+			"rank_damage_bonus": 0.12,
+			"level_radius_growth": 0.004,
+			"rank_radius_bonus": 24.0,
+			"base_pulses": 4,
+			"rank_extra_pulses": 1
 		},
 		"bullet_affinity": {
 			"element": "fire",
@@ -73,7 +90,7 @@
 			"burn",
 			"anti_swarm"
 		],
-		"unlock_cost_star": 20,
+		"unlock_cost_star": 15,
 		"portrait": "res://assets/production/sprites/characters/char_blaze_icon.png",
 		"passive": "flame_overdrive"
 	},
@@ -96,10 +113,19 @@
 		],
 		"active_skill": {
 			"id": "sig_frost_glacier",
+			"scaling_basis": "character",
 			"cooldown": 18.0,
 			"duration": 5.0,
 			"damage_mult": 0.34,
-			"field_y": 860.0
+			"field_y": 860.0,
+			"level_damage_growth": 0.018,
+			"rank_damage_bonus": 0.1,
+			"rank_duration_bonus": 0.45,
+			"rank_field_y_extend": 26.0,
+			"base_waves": 4,
+			"rank_extra_waves": 1,
+			"rank_slow_bonus": 0.025,
+			"level_slow_bonus_growth": 0.0015
 		},
 		"bullet_affinity": {
 			"element": "ice",
@@ -114,7 +140,7 @@
 			"defense",
 			"ice"
 		],
-		"unlock_cost_star": 45,
+		"unlock_cost_star": 25,
 		"portrait": "res://assets/production/sprites/characters/char_frost_icon.png",
 		"passive": "frost_command"
 	},
@@ -137,9 +163,14 @@
 		],
 		"active_skill": {
 			"id": "sig_volt_storm",
+			"scaling_basis": "character",
 			"cooldown": 14.0,
 			"damage_mult": 2.1,
-			"max_targets": 6
+			"max_targets": 6,
+			"level_damage_growth": 0.019,
+			"rank_damage_bonus": 0.11,
+			"rank_target_bonus": 1,
+			"rank_extra_strikes": 1
 		},
 		"bullet_affinity": {
 			"element": "lightning",
@@ -154,7 +185,7 @@
 			"projectile",
 			"lightning"
 		],
-		"unlock_cost_star": 75,
+		"unlock_cost_star": 40,
 		"portrait": "res://assets/production/sprites/characters/char_volt_icon.png",
 		"passive": "volt_chain"
 	}

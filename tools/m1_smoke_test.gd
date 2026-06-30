@@ -37,6 +37,11 @@ class FakeAimTarget:
 	var elite := false
 	var boss := false
 	var threat_tags := ["breach"]
+	var speed_mult := 1.0
+	var external_damage_mult := 1.0
+	var mechanic := ""
+	var hp := 100.0
+	var max_hp := 100.0
 
 	func targeting_snapshot() -> Dictionary:
 		return {
@@ -51,9 +56,11 @@ class FakeAimTarget:
 
 func _initialize() -> void:
 	await process_frame
+	root.size = Vector2i(1080, 1920)
 	var data_loader := root.get_node("/root/DataLoader")
 	var save_manager := root.get_node("/root/SaveManager")
 	var audio_manager := root.get_node("/root/AudioManager")
+	var input_manager := root.get_node("/root/InputManager")
 	data_loader.load_all()
 	save_manager.load_game()
 	var smoke_save_snapshot: Dictionary = save_manager.save_data.duplicate(true)
@@ -63,22 +70,35 @@ func _initialize() -> void:
 
 	_expect(data_loader.get_table("levels").size() >= 99, "levels table must contain a launch campaign")
 	_expect(data_loader.get_table("skills").size() >= 16, "skills table must contain a broad launch pool")
+	_verify_zombie_mechanic_profiles(data_loader)
+	_verify_ui_font()
+	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
+	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
+	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
 	_expect(data_loader.level_display_name("level_002") == "002 城市突围", "level display names must hide internal ids")
 	_expect(data_loader.level_display_name("level_011") == "011 废街突围", "all launch levels must have authored display names")
 	var economy: Dictionary = data_loader.get_table("economy")
+	var enemy_speed_mult := float(economy.get("ENEMY_SPEED_MULT", 1.0))
+	_expect(absf(enemy_speed_mult - 0.41) <= 0.001, "enemy walking speed must be halved via ENEMY_SPEED_MULT without changing spawn intervals")
 	var fire_rate_mult := float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
 	var shot_damage_mult := float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 3.0))
 	_expect(absf(fire_rate_mult - 0.25) <= 0.001, "initial player fire rate must use the retuned +50% paced value")
 	_expect(absf(fire_rate_mult * shot_damage_mult - 0.75) <= 0.005, "fire-rate retune must preserve the intended shot damage product")
 	_verify_progression_unlock_repair(save_manager)
+	_verify_manual_aim_input(input_manager)
+	_verify_targeting_frontline_priority()
+	await _verify_turret_fire_gate(data_loader)
 	_verify_skill_runtime_mods()
 	_verify_ammo_element_rules(save_manager)
 	await _verify_feedback_budget_guards()
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
+	_verify_projectile_visual_profiles()
 	await _verify_turret_muzzle_sockets(data_loader)
 	await _verify_character_weapon_skins(data_loader, save_manager)
+	await _verify_character_active_skill_controls(data_loader, save_manager)
 	await _verify_bottom_skill_slot_level_merge(save_manager)
+	await _verify_enemy_hit_flash_scope(data_loader)
 
 	var main := _instance("res://main.tscn")
 	root.add_child(main)
@@ -107,7 +127,19 @@ func _initialize() -> void:
 	_expect(main.current_scene.name == "Map", "main must route to map")
 	_expect(main.current_scene.has_node("Background"), "map must render themed background")
 	_expect(main.current_scene.find_child("Progress", true, false) != null, "map must show account progress")
+	var map_progress := main.current_scene.find_child("Progress", true, false) as Label
+	_expect(map_progress != null and not map_progress.visible, "map must hide the old text-only resource copy")
+	var map_resource_bar: Node = main.current_scene.find_child("ResourceBarWrap", true, false)
+	_expect(map_resource_bar != null, "map must render icon-based account resources")
+	_expect(map_resource_bar.find_child("GoldResourceChip", true, false) != null, "map resource bar must expose a gold icon chip")
+	_expect(map_resource_bar.find_child("StarResourceChip", true, false) != null, "map resource bar must expose a star icon chip")
+	_expect(map_resource_bar.find_child("PowerResourceChip", true, false) != null, "map resource bar must expose a power icon chip")
 	_expect(main.current_scene.find_child("Nav", true, false) != null, "map must expose collection navigation")
+	var map_character_card: Node = main.current_scene.find_child("charactersNavCard", true, false)
+	_expect(map_character_card != null, "map must expose the character feature card")
+	var map_character_bust := map_character_card.find_child("BustImage", true, false) as TextureRect
+	_expect(map_character_bust != null and map_character_bust.texture != null, "map character feature card must use a bust portrait")
+	_expect(str(map_character_bust.texture.resource_path).ends_with("_prototype.png"), "map character feature card must use frameless prototype art")
 	var level_list: Node = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null, "map level list must be scrollable")
 	_expect(level_list.get_child_count() >= 99, "map must render the launch campaign")
@@ -124,8 +156,56 @@ func _initialize() -> void:
 	_expect(character_item.has_node("Icon"), "character collection rows must render a bounded portrait")
 	var character_icon := character_item.get_node("Icon") as TextureRect
 	_expect(character_icon != null, "character collection portrait must be a TextureRect")
-	_expect(character_icon.size.x <= 90.0 and character_icon.size.y <= 90.0, "character collection portrait must stay inside its row, got %s" % str(character_icon.size))
-	_expect(character_icon.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
+	_expect(character_icon.size.x <= 120.0 and character_icon.size.y <= 128.0, "character collection portrait must stay inside its row, got %s" % str(character_icon.size))
+	_expect(character_icon.clip_contents, "character collection portrait must crop upper-body art")
+	var character_bust := character_icon.get_node_or_null("BustImage") as TextureRect
+	_expect(character_bust != null and character_bust.texture != null, "character collection portrait must render a bust image")
+	_expect(str(character_bust.texture.resource_path).ends_with("_prototype.png"), "character collection portrait must use frameless prototype art")
+	_expect(character_bust.size.y > character_icon.size.y, "character collection portrait must be zoomed and cropped")
+	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
+	character_item.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.has_node("CharacterDetail"), "character row click must open character detail")
+	var character_detail: Node = main.current_scene.get_node("CharacterDetail")
+	var character_close := character_detail.find_child("CloseButton", true, false) as Button
+	_expect(character_close != null, "character detail top close must be a compact button")
+	_expect(character_close.text == "×", "character detail top close must use an icon-only x")
+	_expect(character_close.custom_minimum_size.x <= 64.0 and character_close.custom_minimum_size.y <= 64.0, "character detail top close must not use a large text button")
+	main.current_scene._close_character_detail()
+	await process_frame
+	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
+	_expect(collection_back != null, "collection must expose a context-aware back button")
+	_expect((collection_back.get_node("Label") as Label).text == "返回地图", "collection opened from map must return to map")
+	collection_back.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Map", "collection opened from map must route back to map")
+	main.change_scene("collection", {"mode": "skills"})
+	await process_frame
+	_expect(main.current_scene.name == "Collection", "main must route to skill collection")
+	var skill_list: Node = main.current_scene.find_child("ItemList", true, false)
+	_expect(skill_list != null and skill_list.get_child_count() >= 16, "skill collection must render the skill codex")
+	var skill_item: Node = skill_list.get_child(0)
+	_expect(skill_item is TextureButton, "skill collection rows must use clickable texture buttons")
+	_expect(skill_item.has_node("SkillCard"), "skill collection rows must use one full-width visual card")
+	_expect(not skill_item.has_node("Frame"), "skill collection rows must not render the old nested inner frame")
+	var skill_card := skill_item.get_node("SkillCard") as PanelContainer
+	_expect(skill_card != null and skill_card.size.x >= 720.0, "skill collection card must span the row without a disconnected right panel")
+	_expect(skill_item.has_node("MaxLevelValue"), "skill collection card must show max level in the right meta area")
+	skill_item.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.has_node("ItemDetail"), "skill collection row click must open skill detail")
+	var skill_detail: Node = main.current_scene.get_node("ItemDetail")
+	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
+	_expect(skill_close != null, "skill detail top close must be a compact button")
+	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
+	_expect(skill_close.custom_minimum_size.x <= 64.0 and skill_close.custom_minimum_size.y <= 64.0, "skill detail top close must not use a large text button")
+	skill_close.emit_signal("pressed")
+	await process_frame
+	_expect(not main.current_scene.has_node("ItemDetail"), "skill detail compact close must dismiss the modal")
+	collection_back = main.current_scene.find_child("BackButton", true, false) as TextureButton
+	collection_back.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Map", "skill collection opened from map must route back to map")
 	main.change_scene("collection", {"mode": "weapons"})
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "main must route to collection")
@@ -143,6 +223,10 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.has_node("ItemDetail"), "collection row click must open item detail")
 	var item_detail: Node = main.current_scene.get_node("ItemDetail")
+	var item_close := item_detail.find_child("CloseButton", true, false) as Button
+	_expect(item_close != null, "item detail top close must be a compact button")
+	_expect(item_close.text == "×", "item detail top close must use an icon-only x")
+	_expect(item_close.custom_minimum_size.x <= 64.0 and item_close.custom_minimum_size.y <= 64.0, "item detail top close must not use a large text button")
 	_expect(item_detail.find_child("EquipButton", true, false) != null, "item detail must expose equip action")
 	_expect(item_detail.find_child("UpgradeButton", true, false) != null, "item detail must expose upgrade action")
 	main.current_scene._close_character_detail()
@@ -154,6 +238,13 @@ func _initialize() -> void:
 	_expect(main.current_scene.has_node("UpgradeButton"), "loadout must expose weapon upgrade entry")
 	_expect(main.current_scene.find_child("WeaponIcon", true, false) != null, "loadout must show weapon icon")
 	_expect(main.current_scene.find_child("CharacterIcon", true, false) != null, "loadout must show character portrait")
+	var loadout_character_icon := main.current_scene.find_child("CharacterIcon", true, false) as TextureRect
+	_expect(loadout_character_icon.texture == null, "loadout hero frame must not draw a baked portrait card")
+	_expect(loadout_character_icon.clip_contents, "loadout hero frame must crop upper-body art")
+	var loadout_bust := loadout_character_icon.get_node_or_null("BustImage") as TextureRect
+	_expect(loadout_bust != null and loadout_bust.texture != null, "loadout hero frame must render a bust image")
+	_expect(str(loadout_bust.texture.resource_path).ends_with("_prototype.png"), "loadout hero bust must use frameless prototype art")
+	_expect(loadout_bust.size.y > loadout_character_icon.size.y, "loadout hero bust must be zoomed and cropped")
 	_expect(main.current_scene.find_child("GrowthBadge", true, false) != null, "loadout must show visible growth tier")
 	_expect(main.current_scene.has_node("GearBadges"), "loadout must summarize gear levels")
 	_expect(main.current_scene.has_node("EquipNav"), "loadout must expose equipment navigation")
@@ -173,6 +264,18 @@ func _initialize() -> void:
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
 	_expect(main.current_scene.get_node("Summary").text.contains("五波") or main.current_scene.get_node("Objective").text.contains("五波"), "loadout copy must mention five-wave pacing")
 	_expect(main.current_scene.get_node("EquipNav").get_child_count() >= 5, "loadout must link to all equipment categories")
+	var character_panel: Node = main.current_scene.find_child("CharacterPanel", true, false)
+	_expect(character_panel != null and character_panel.has_node("OpenHitArea"), "loadout character panel must open collection as a layer")
+	(character_panel.get_node("OpenHitArea") as Button).emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Collection", "loadout character panel must route to collection")
+	collection_back = main.current_scene.find_child("BackButton", true, false) as TextureButton
+	_expect(collection_back != null, "collection opened from loadout must expose back button")
+	_expect((collection_back.get_node("Label") as Label).text == "返回配置", "collection opened from loadout must label back as returning to configuration")
+	collection_back.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Loadout", "collection opened from loadout must route back to loadout")
+	_expect(main.current_scene.level_id == "level_001", "collection back to loadout must preserve current level")
 	main.start_level("level_003")
 	await process_frame
 	main.finish_level({"victory": true, "stars": 3, "gold": 0, "xp": 0}, false)
@@ -184,6 +287,23 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.name == "Loadout", "next button must route to loadout after recovered result")
 	_expect(main.current_scene.level_id == "level_004", "next button must route recovered level_003 clear to level_004")
+	var result_loadout_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
+	_expect(result_loadout_back != null, "result-opened loadout must expose a back button")
+	_expect((result_loadout_back.get_node("Label") as Label).text == "返回结算", "result-opened loadout must label back as returning to result")
+	var result_loadout_character_panel: Node = main.current_scene.find_child("CharacterPanel", true, false)
+	(result_loadout_character_panel.get_node("OpenHitArea") as Button).emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Collection", "result-opened loadout must still open collection")
+	collection_back = main.current_scene.find_child("BackButton", true, false) as TextureButton
+	collection_back.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Loadout", "collection back must return to result-opened loadout")
+	_expect(main.current_scene.level_id == "level_004", "collection back must preserve next-level loadout id")
+	result_loadout_back = main.current_scene.find_child("BackButton", true, false) as TextureButton
+	result_loadout_back.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Result", "result-opened loadout back must return to result instead of map")
+	_expect(main.current_scene.level_id == "level_003", "returned result must preserve the cleared level")
 	main.start_level("level_035")
 	await process_frame
 	for i in range(20):
@@ -212,16 +332,38 @@ func _initialize() -> void:
 		_expect(battle.wave_total == 5, "battle must load five waves for %s" % battle.level_id)
 		_expect(battle.turret != null, "battle must spawn turret for %s" % battle.level_id)
 		_expect(battle.character_sprite != null, "battle must spawn selected character avatar for %s" % battle.level_id)
-		_expect(battle.character_weapon_sprite != null, "battle must mount the selected weapon on the character for %s" % battle.level_id)
+		_expect(bool(battle.character_weapon_combo_active), "battle must use fused selected character/weapon art for %s" % battle.level_id)
+		_expect(battle.character_weapon_sprite == null, "fused battle art must not also mount a floating weapon sprite for %s" % battle.level_id)
 		_expect(not bool(battle.turret.visible), "legacy turret sprite must stay hidden while logic is reused")
-		_expect((battle.character_weapon_sprite as Sprite2D).texture != null, "character-mounted weapon must render a visible weapon skin")
-		_expect(battle._weapon_fire_origin().distance_to(battle.turret.global_position) > 24.0, "projectiles must originate from the character weapon muzzle, not the hidden turret center")
+		var fused_texture := (battle.character_sprite as Sprite2D).texture
+		_expect(fused_texture != null, "fused character/weapon texture must exist for %s" % battle.level_id)
+		var fused_texture_path := str(fused_texture.resource_path)
+		if fused_texture_path != "":
+			_expect(fused_texture_path.contains("/character_weapon_combos/"), "battle character must load fused art from character_weapon_combos for %s" % battle.level_id)
+		_expect(battle.character_idle_frames.size() >= 4, "fused character/weapon art must provide idle frames for %s" % battle.level_id)
+		_expect(battle.character_attack_left_frames.size() >= 4, "fused character/weapon art must provide left-aim attack frames for %s" % battle.level_id)
+		_expect(battle.character_attack_frames.size() >= 4, "fused character/weapon art must provide attack frames for %s" % battle.level_id)
+		_expect(battle.character_attack_right_frames.size() >= 4, "fused character/weapon art must provide right-aim attack frames for %s" % battle.level_id)
+		_expect(battle.character_hurt_frames.size() >= 3, "fused character/weapon art must provide hurt frames for %s" % battle.level_id)
+		var expected_fused_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
+		_expect(battle._weapon_fire_origin().distance_to(expected_fused_origin) <= 1.0, "projectiles must originate from the fused character/weapon muzzle")
+		battle._set_character_combo_aim_from_direction(Vector2.UP)
+		var expected_center_origin: Vector2 = battle.character_rig.global_position + battle.character_weapon_combo_muzzle
+		battle._set_character_combo_aim_from_direction(Vector2(-0.75, -0.66).normalized())
+		var left_origin: Vector2 = battle._weapon_fire_origin()
+		battle._set_character_combo_aim_from_direction(Vector2(0.75, -0.66).normalized())
+		var right_origin: Vector2 = battle._weapon_fire_origin()
+		_expect(left_origin.x < expected_center_origin.x - 20.0, "left-aim fused muzzle must move left for %s" % battle.level_id)
+		_expect(right_origin.x > expected_center_origin.x + 20.0, "right-aim fused muzzle must move right for %s" % battle.level_id)
 		_expect(float(battle.turret.damage_mult) > 1.0, "turret must receive character and chip damage multipliers")
 		_expect(battle.base_hp_max > int(battle.level.get("base_hp_ref", 100)), "battle must receive armor and character survivability")
-		_expect(battle.has_node("Hud/StrategyButton"), "battle must expose target strategy button")
+		_expect(not battle.has_node("Hud/StrategyButton"), "battle HUD must not expose the old target strategy button")
 		_expect(battle.has_node("Hud/SkillSlots"), "battle must expose skill slots")
+		_verify_xp_bar_single_track(battle)
 		_expect(battle.has_node("Hud/CharacterSkillButton"), "battle must expose character active skill button")
 		_expect(str(battle.character_active_id) != "", "battle must configure selected character active skill")
+		_expect(battle.has_node("Hud/CharacterSkillButton/IconFrame/SkillIcon"), "character active skill button must render an icon instead of text")
+		_expect(not bool(battle.get_node("Hud/CharacterSkillButton/Label").visible), "character active skill button label must stay hidden in icon mode")
 		var weapon_row: Dictionary = data_loader.get_row("weapons", battle.weapon_id)
 		_expect(not weapon_row.is_empty(), "battle must have selected weapon row for %s" % battle.weapon_id)
 		# Affinity element is auto-seeded as Lv.1; physical weapons leave the bar empty.
@@ -241,36 +383,61 @@ func _initialize() -> void:
 		_expect(battle.get_node("Hud/ObjectivePanel/Body").text != "", "battle objective panel must explain the current goal")
 		_expect(battle.pending_spawns.size() > 0 or battle.get_node("EnemyLayer").get_child_count() > 0, "battle must queue or spawn enemies for %s" % battle.level_id)
 		if battle.level_id == "level_001":
-			await _verify_base_attack_runtime(battle)
+			_verify_manual_aim_battle_priority(battle)
 			_verify_multi_shot_targeting(battle)
+			await _verify_base_attack_runtime(battle)
+			_verify_pause_freezes_battle(battle)
+			await _verify_runtime_skill_hints(battle)
+			_verify_wave_toast_wrapping(battle)
 			var cd_before := float(battle.character_active_cd)
 			battle._on_character_skill_pressed()
-			# Only vanguard/frost skills are guaranteed to cast; volt/blaze may
-			# bail if no valid target. Check cooldown only for guaranteed casts.
-			var guaranteed_cast := ["sig_vanguard_railvolley", "sig_frost_glacier"].has(str(battle.character_active_id))
-			if guaranteed_cast:
-				_expect(float(battle.character_active_cd) > cd_before, "character active skill must trigger and enter cooldown")
+			_expect(float(battle.character_active_cd) > cd_before, "character active skill must trigger and enter cooldown")
 		if battle.get_node("EnemyLayer").get_child_count() > 0:
 			var first_enemy := battle.get_node("EnemyLayer").get_child(0)
 			_expect(first_enemy.has_node("HpBar"), "enemy must render hp bar")
 			var expected_runtime_hp_floor := float(battle.level.get("base_hp_ref", 50)) * float(battle.level.get("difficulty_coef", 1.0)) * 0.55
 			_expect(float(first_enemy.max_hp) >= expected_runtime_hp_floor, "enemy hp must scale with base_hp_ref; got %.1f expected floor %.1f on %s" % [float(first_enemy.max_hp), expected_runtime_hp_floor, battle.level_id])
-		if battle.level_id == "level_001":
-			battle._show_card_offer()
-			await process_frame
-			var cards := battle.get_node("Hud/CardPanel/Cards")
-			_expect(cards.get_child_count() == 3, "card offer must render three cards")
-			var first_card := cards.get_child(0)
-			_expect(first_card.has_node("Icon") or first_card.get_child_count() >= 4, "card must render icon and text children")
-			var first_card_icon := first_card.get_node("Icon") as TextureRect
-			_expect(first_card_icon != null, "card icon must be a TextureRect")
-			_expect(first_card_icon.size.x <= 128.0 and first_card_icon.size.y <= 128.0, "card icon must stay bounded, got %s" % str(first_card_icon.size))
-			battle._show_card_detail("skill_split_shot")
-			await process_frame
-			_expect(battle.get_node("Hud/CardPanel/DetailOverlay").visible, "card long-press detail overlay must open")
-			battle._hide_card_detail()
-			battle.get_tree().paused = false
-		battle.queue_free()
+			if battle.level_id == "level_001":
+				battle._show_card_offer()
+				await process_frame
+				_verify_card_offer_full_pause(battle)
+				var paused_fire_counter := {"count": 0}
+				battle.turret.fired.connect(func(_origin: Vector2, _direction: Vector2) -> void:
+					paused_fire_counter["count"] = int(paused_fire_counter.get("count", 0)) + 1
+				)
+				battle.turret.cooldown = 0.0
+				battle.turret._physics_process(0.6)
+				_expect(int(paused_fire_counter.get("count", 0)) == 0, "turret must not fire while card offer pauses battle")
+				var cards := battle.get_node("Hud/CardPanel/Cards")
+				_expect(cards.get_child_count() == 3, "card offer must render three cards")
+				var first_card := cards.get_child(0)
+				_expect(first_card.has_node("Icon") or first_card.get_child_count() >= 4, "card must render icon and text children")
+				var first_card_icon := first_card.get_node("Icon") as TextureRect
+				_expect(first_card_icon != null, "card icon must be a TextureRect")
+				_expect(first_card_icon.size.x <= 128.0 and first_card_icon.size.y <= 128.0, "card icon must stay bounded, got %s" % str(first_card_icon.size))
+				first_card.emit_signal("mouse_entered")
+				await process_frame
+				_expect(battle.get_node("Hud/SkillHintOverlay").visible, "card hover must show an in-game skill explanation")
+				first_card.emit_signal("mouse_exited")
+				await process_frame
+				_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "card hover exit must hide the skill explanation")
+				battle._show_card_detail("skill_split_shot")
+				await process_frame
+				_expect(battle.get_node("Hud/CardPanel/DetailOverlay").visible, "card long-press detail overlay must open")
+				battle._hide_card_detail()
+				_dismiss_card_offer_for_smoke(battle)
+				for enemy in battle.get_node("EnemyLayer").get_children():
+					enemy.free()
+				battle.pending_spawns.clear()
+				battle.active_spawning = false
+				battle.wave_index = battle.wave_total
+				battle.xp = battle.next_xp_offer
+				_expect(not battle._try_show_xp_card_offer(), "final wave clear must not show a late card offer")
+				battle.wave_index = battle.wave_total - 1
+				battle.xp = int(ceil(float(battle.next_xp_offer) * battle.PREFINAL_CARD_OFFER_XP_RATIO))
+				_expect(battle._maybe_show_pre_final_card_offer(), "pre-final wave transition should offer a near-ready skill card")
+				_dismiss_card_offer_for_smoke(battle)
+				battle.queue_free()
 		await process_frame
 
 	var result := _instance("res://meta/result/result.tscn")
@@ -287,6 +454,13 @@ func _initialize() -> void:
 	_expect(result.has_node("Content/Actions/NextButton"), "result must expose next button")
 	_expect(result.has_node("Content/Actions/MapButton"), "result must expose map button")
 	_expect(result.has_node("Background"), "result must render themed background")
+	result._on_upgrade_pressed()
+	_expect(router.last_route == "loadout", "result upgrade action must route to loadout")
+	_expect(str(router.last_payload.get("level_id", "")) == "level_001", "result upgrade action must keep current level in loadout")
+	_expect(str(router.last_payload.get("return_to", "")) == "result", "result upgrade action must mark loadout as returning to result")
+	var upgrade_return_payload: Dictionary = router.last_payload.get("return_payload", {})
+	_expect(bool(upgrade_return_payload.get("victory", false)), "result upgrade return payload must preserve victory state")
+	_expect(int(upgrade_return_payload.get("stars", 0)) == 3, "result upgrade return payload must preserve star result")
 	result.queue_free()
 	await process_frame
 	var next_result := _instance("res://meta/result/result.tscn")
@@ -297,6 +471,9 @@ func _initialize() -> void:
 	next_result._on_next_pressed()
 	_expect(router.last_route == "loadout", "result next button must route to loadout")
 	_expect(str(router.last_payload.get("level_id", "")) == "level_004", "result next button must route level_003 clear to level_004, got %s" % str(router.last_payload))
+	_expect(str(router.last_payload.get("return_to", "")) == "result", "result next loadout must still return to result")
+	var next_return_payload: Dictionary = router.last_payload.get("return_payload", {})
+	_expect(str(next_return_payload.get("level_id", "")) == "level_003", "result next return payload must preserve cleared result level")
 	next_result.queue_free()
 	var recovered_result := _instance("res://meta/result/result.tscn")
 	root.add_child(recovered_result)
@@ -317,6 +494,231 @@ func _instance(path: String) -> Node:
 	var packed := load(path) as PackedScene
 	_expect(packed != null, "scene must load: %s" % path)
 	return packed.instantiate()
+
+func _dismiss_card_offer_for_smoke(battle: Node) -> void:
+	if battle.has_method("_close_card_offer"):
+		battle._close_card_offer(false)
+	else:
+		if battle.has_node("Hud/CardPanel"):
+			battle.get_node("Hud/CardPanel").visible = false
+		if battle.has_node("Hud/CardPanel/DetailOverlay"):
+			battle.get_node("Hud/CardPanel/DetailOverlay").visible = false
+		battle.card_offer_active = false
+		battle.paused = false
+		battle.get_tree().paused = false
+
+func _verify_card_offer_full_pause(battle: Node) -> void:
+	_expect(bool(battle.card_offer_active), "card offer must mark the battle as card-offer active")
+	_expect(battle.get_tree().paused, "card offer must pause the whole scene tree")
+	_expect(battle.get_node("Hud").process_mode == Node.PROCESS_MODE_ALWAYS, "HUD must remain interactive during card offer pause")
+	_expect(battle.get_node("Hud/CardPanel").process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
+	_expect(battle.get_node("PauseLayer").process_mode == Node.PROCESS_MODE_ALWAYS, "pause layer must remain input-capable while the tree is paused")
+	for path in ["EnemyLayer", "ProjectileLayer", "ThreatMarkerLayer", "SlowFieldLayer", "LockIndicator"]:
+		var node := battle.get_node(path)
+		_expect(node.process_mode == Node.PROCESS_MODE_PAUSABLE, "%s must not inherit Battle PROCESS_MODE_ALWAYS during card offer" % path)
+	_expect(battle.turret != null and battle.turret.process_mode == Node.PROCESS_MODE_PAUSABLE, "turret must be pausable during card offer")
+	_expect(battle.character_rig != null and battle.character_rig.process_mode == Node.PROCESS_MODE_PAUSABLE, "character rig must be pausable during card offer")
+	if battle.pet_sprite != null:
+		_expect(battle.pet_sprite.process_mode == Node.PROCESS_MODE_PAUSABLE, "pet must be pausable during card offer")
+	if battle.get_node("EnemyLayer").get_child_count() > 0:
+		var enemy := battle.get_node("EnemyLayer").get_child(0)
+		_expect(enemy.process_mode != Node.PROCESS_MODE_ALWAYS, "live enemies must not force processing during card offer")
+
+func _verify_ui_font() -> void:
+	var font_path := "res://assets/production/fonts/font_main.ttf"
+	_expect(str(ProjectSettings.get_setting("gui/theme/custom_font")) == font_path, "project must use the production CJK font as the global UI font")
+	var font := FontFile.new()
+	var err := font.load_dynamic_font(font_path)
+	_expect(err == OK, "production UI font must load")
+	_expect(font.has_char("鉴".unicode_at(0)), "production UI font must include the glyph for 鉴")
+
+func _verify_manual_aim_input(input_manager: Node) -> void:
+	var started := {"count": 0, "pos": Vector2.ZERO}
+	var aimed := {"count": 0, "pos": Vector2.ZERO}
+	var released := {"count": 0, "pos": Vector2.ZERO}
+	var on_started := func(pos: Vector2) -> void:
+		started["count"] = int(started.get("count", 0)) + 1
+		started["pos"] = pos
+	var on_aimed := func(pos: Vector2) -> void:
+		aimed["count"] = int(aimed.get("count", 0)) + 1
+		aimed["pos"] = pos
+	var on_released := func(pos: Vector2) -> void:
+		released["count"] = int(released.get("count", 0)) + 1
+		released["pos"] = pos
+	input_manager.manual_aim_started.connect(on_started)
+	input_manager.aim_point.connect(on_aimed)
+	input_manager.manual_aim_released.connect(on_released)
+
+	input_manager._cancel_aim_press()
+	input_manager._begin_aim_press(Vector2(240, 760), -1)
+	input_manager._process(0.0)
+	_expect(int(started.get("count", 0)) == 0, "manual aim must not start before the long-press threshold")
+	input_manager._aim_press_started_at = input_manager._now_seconds() - 0.36
+	input_manager._process(0.0)
+	_expect(int(started.get("count", 0)) == 1, "manual aim must start only after a long mouse/finger press")
+	_expect((started.get("pos", Vector2.ZERO) as Vector2).distance_to(Vector2(240, 760)) <= 1.0, "manual aim start must use the held point")
+	_expect(int(aimed.get("count", 0)) >= 1, "manual aim long press must emit an aim point")
+	input_manager._update_aim_press(Vector2(420, 640), -1)
+	_expect((aimed.get("pos", Vector2.ZERO) as Vector2).distance_to(Vector2(420, 640)) <= 1.0, "manual aim must update while held and dragged")
+	input_manager._end_aim_press(Vector2(430, 620), -1)
+	_expect(int(released.get("count", 0)) == 1, "manual aim must emit release when the long press ends")
+	_expect((released.get("pos", Vector2.ZERO) as Vector2).distance_to(Vector2(430, 620)) <= 1.0, "manual aim release must use the final pointer position")
+
+	var starts_after_long_press := int(started.get("count", 0))
+	input_manager._begin_aim_press(Vector2(180, 500), -1)
+	input_manager._aim_press_started_at = input_manager._now_seconds() - 0.05
+	input_manager._process(0.0)
+	input_manager._end_aim_press(Vector2(180, 500), -1)
+	_expect(int(started.get("count", 0)) == starts_after_long_press, "short click/tap must not steal auto aim priority")
+
+	input_manager._cancel_aim_press()
+	input_manager.manual_aim_started.disconnect(on_started)
+	input_manager.aim_point.disconnect(on_aimed)
+	input_manager.manual_aim_released.disconnect(on_released)
+
+func _verify_targeting_frontline_priority() -> void:
+	var manager := TargetingManager.new()
+	manager.strategy = "breach"
+	var front := FakeAimTarget.new()
+	var back := FakeAimTarget.new()
+	front.global_position = Vector2(540, 1455)
+	front.breach_damage = 4
+	front.threat_tags = []
+	back.global_position = Vector2(540, 520)
+	back.breach_damage = 72
+	back.threat_tags = ["breach"]
+	var chosen := manager.choose_target([back, front], Vector2(540, 1660))
+	_expect(chosen == front, "default auto aim must prefer the frontline enemy over a backline threat")
+	front.free()
+	back.free()
+	manager.free()
+
+func _verify_turret_fire_gate(data_loader: Node) -> void:
+	var turret := _instance("res://gameplay/turret/turret.tscn")
+	root.add_child(turret)
+	turret.setup(data_loader.get_row("weapons", "weapon_autocannon"), 1)
+	turret.global_position = Vector2(540, 1660)
+	turret.aim_at(Vector2(540, 360))
+	var fired := {"count": 0}
+	turret.fired.connect(func(_origin: Vector2, _direction: Vector2) -> void:
+		fired["count"] = int(fired.get("count", 0)) + 1
+	)
+	turret.set("fire_enabled", false)
+	turret.cooldown = 0.0
+	turret._physics_process(0.6)
+	_expect(int(fired.get("count", 0)) == 0, "turret must not fire when no live target is available")
+	turret.set("fire_enabled", true)
+	turret.cooldown = 0.0
+	turret._physics_process(0.6)
+	_expect(int(fired.get("count", 0)) == 1, "turret must fire once fire_enabled is granted by battle targeting")
+	turret.queue_free()
+	await process_frame
+
+func _verify_manual_aim_battle_priority(battle: Node) -> void:
+	var auto_target := FakeAimTarget.new()
+	auto_target.global_position = Vector2(540, 1460)
+	auto_target.breach_damage = 1
+	auto_target.threat_tags = []
+	battle.get_node("EnemyLayer").add_child(auto_target)
+	battle.target_manager.clear_lock()
+
+	var manual_point := Vector2(70, 90)
+	battle._on_manual_aim_started(manual_point)
+	battle._update_auto_target()
+	_expect(battle.turret.target_point.distance_to(manual_point) <= 1.0, "active manual aim must override automatic target selection")
+
+	var dragged_point := Vector2(980, 520)
+	battle._on_manual_aim_point(dragged_point)
+	battle._update_auto_target()
+	_expect(battle.turret.target_point.distance_to(dragged_point) <= 1.0, "manual aim must keep following the held pointer")
+
+	battle._on_manual_aim_released(dragged_point)
+	battle.manual_aim_until = 0.0
+	battle._update_auto_target()
+	_expect(battle.turret.target_point.distance_to(dragged_point) > 1.0, "auto aim must resume after manual aim release grace")
+	battle.get_node("EnemyLayer").remove_child(auto_target)
+	auto_target.free()
+
+func _verify_xp_bar_single_track(battle: Node) -> void:
+	var xp_bar := battle.get_node("Hud/BottomBar/XpBar") as Control
+	_expect(xp_bar != null, "battle must expose the XP bar")
+	_expect(xp_bar.clip_contents, "XP bar must clip its single fill track")
+	_expect(not xp_bar.has_node("Under"), "XP bar must not keep the old texture underlay that creates double bars")
+	_expect(xp_bar.has_node("Track"), "XP bar must render one styled track")
+	var fill := xp_bar.get_node("Fill") as Panel
+	_expect(fill != null, "XP bar fill must be a single Panel, not a second texture bar")
+	var label := xp_bar.get_node("Label") as Label
+	_expect(label != null, "XP bar must render a centered label")
+	_expect(label.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, "XP bar label must be horizontally centered")
+	_expect(label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "XP bar label must be vertically centered")
+	_expect(label.position.x <= 0.1 and label.size.x >= xp_bar.size.x - 0.1, "XP bar label must span the full track for true centering")
+
+func _verify_pause_freezes_battle(battle: Node) -> void:
+	var enemy_layer := battle.get_node("EnemyLayer")
+	_expect(enemy_layer.get_child_count() > 0, "pause regression needs at least one live enemy")
+	var first_enemy := enemy_layer.get_child(0) as Node2D
+	var enemy_pos := first_enemy.global_position
+	var spawn_timer_before := float(battle.spawn_timer)
+	var pending_before := int(battle.pending_spawns.size())
+	var pet_cooldown_before := float(battle.pet_cooldown)
+	var projectiles_before := battle.get_node("ProjectileLayer").get_child_count()
+	battle._on_pause_pressed()
+	_expect(bool(battle.paused) and battle.get_tree().paused, "pause button must set both battle and tree pause")
+	_expect(battle.get_node("Hud/PauseOverlay").visible, "pause button must show pause overlay")
+	var pause_panel := battle.get_node("Hud/PauseOverlay/Panel") as Control
+	_expect(pause_panel != null and pause_panel.clip_contents, "pause panel must clip its content")
+	_expect(pause_panel.has_node("PauseContent"), "pause panel must render structured content instead of raw text only")
+	var legacy_summary := battle.get_node("Hud/PauseOverlay/Panel/BuildSummary") as Label
+	_expect(legacy_summary != null and not legacy_summary.visible, "pause legacy summary text must be hidden behind designed cards")
+	for button_path in ["ResumeButton", "RestartButton", "MapButton"]:
+		var button := pause_panel.get_node(button_path) as Control
+		var rect := Rect2(button.position, button.size)
+		_expect(rect.position.y >= 0.0 and rect.end.y <= pause_panel.size.y, "pause %s must stay inside the panel bounds" % button_path)
+		_expect(button.has_node("IconPlate") and button.has_node("ActionTitle") and button.has_node("ActionSub"), "pause %s must use icon plus title/subtitle styling" % button_path)
+	battle._physics_process(1.0)
+	_expect(first_enemy.global_position.distance_to(enemy_pos) <= 0.1, "pause must freeze enemy movement even though Battle processes always")
+	_expect(absf(float(battle.spawn_timer) - spawn_timer_before) <= 0.001, "pause must not advance spawn timer")
+	_expect(int(battle.pending_spawns.size()) == pending_before, "pause must not consume pending spawns")
+	_expect(absf(float(battle.pet_cooldown) - pet_cooldown_before) <= 0.001, "pause must not advance pet attack cooldown")
+	_expect(battle.get_node("ProjectileLayer").get_child_count() == projectiles_before, "pause must not spawn pet or weapon projectiles")
+	_expect(not bool(battle.turret.get("fire_enabled")), "pause must disable turret firing permission")
+	battle._on_resume_pressed()
+	_expect(not bool(battle.paused) and not battle.get_tree().paused, "resume button must restore battle processing")
+
+func _verify_runtime_skill_hints(battle: Node) -> void:
+	var button := battle.get_node("Hud/CharacterSkillButton") as BaseButton
+	button.emit_signal("mouse_entered")
+	await process_frame
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill hover must show a readable skill explanation")
+	button.emit_signal("mouse_exited")
+	await process_frame
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "active skill hover exit must hide the explanation")
+
+	if battle.skills.level("skill_split_shot") <= 0:
+		_expect(battle.skills.add_skill("skill_split_shot"), "skill hint regression must seed a bottom skill slot")
+	battle._update_skill_slots()
+	await process_frame
+	var slots := battle.get_node("Hud/SkillSlots")
+	_expect(slots.has_node("skill_split_shot"), "seeded skill must render in the bottom skill shelf")
+	var slot := slots.get_node("skill_split_shot")
+	slot.emit_signal("mouse_entered")
+	await process_frame
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "bottom skill hover must show a readable skill explanation")
+	slot.emit_signal("mouse_exited")
+	await process_frame
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "bottom skill hover exit must hide the explanation")
+
+func _verify_wave_toast_wrapping(battle: Node) -> void:
+	var long_tip := "自动开火会优先压制近线威胁，点僵尸可锁定优先击杀。"
+	battle._show_wave_toast(long_tip, Color(0.72, 0.92, 1.0))
+	var banner := battle.get_node("Hud/WaveBanner") as Control
+	var label := banner.get_node("Text") as Label
+	var plate := banner.get_node("Plate") as Control
+	_expect(banner.size.y >= 128.0, "long wave toast must expand vertically for two-line copy")
+	_expect(label.autowrap_mode != TextServer.AUTOWRAP_OFF, "long wave toast must enable text wrapping")
+	_expect(label.clip_text, "long wave toast must clip text inside the card bounds")
+	_expect(label.size.x <= plate.size.x - 32.0, "long wave toast label must stay inside its plate")
+	_expect(label.text == long_tip, "long wave toast must preserve the full onboarding copy")
 
 func _verify_skill_runtime_mods() -> void:
 	var runtime := SkillRuntime.new()
@@ -366,6 +768,9 @@ func _verify_feedback_budget_guards() -> void:
 	for i in range(90):
 		damage_layer.spawn_damage(Vector2(320 + float(i % 6), 620), 8.0 + float(i), "physical", false, false)
 	_expect(damage_layer.get_child_count() <= 58, "damage number layer must cap dense non-critical hit labels")
+	if damage_layer.get_child_count() > 0:
+		var first_damage := damage_layer.get_child(0) as Label
+		_expect(first_damage.get_theme_font_size("font_size") <= 30, "normal damage numbers must stay compact red hit text")
 	damage_layer.spawn_damage(Vector2(540, 620), 999.0, "fire", true, true)
 	_expect(damage_layer.get_child_count() <= 58, "damage number layer must keep cap after important damage")
 	damage_layer.queue_free()
@@ -428,7 +833,8 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 	_expect(directions.size() == 3, "multi-shot targeting must return one direction per projectile")
 	_expect(has_left and has_right, "multi-shot targeting must assign side lanes to actual enemies")
 	for target in fake_targets:
-		target.queue_free()
+		battle.get_node("EnemyLayer").remove_child(target)
+		target.free()
 
 func _verify_base_attack_runtime(battle: Node) -> void:
 	var enemies: Node = battle.get_node("EnemyLayer")
@@ -498,6 +904,29 @@ func _verify_projectile_pierce_sweep_runtime() -> void:
 	off_lane.queue_free()
 	projectile.queue_free()
 
+func _verify_projectile_visual_profiles() -> void:
+	var expected := {
+		"rail": {"element": "physical", "texture": "proj_rail_slug.png"},
+		"scatter": {"element": "physical", "texture": "proj_scatter_pellet.png"},
+		"plasma": {"element": "fire", "texture": "proj_plasma_orb.png"},
+	}
+	for profile in expected.keys():
+		var projectile := _instance("res://gameplay/projectile/projectile.tscn")
+		root.add_child(projectile)
+		var row: Dictionary = expected[profile]
+		projectile.setup(Vector2(100, 100), Vector2.RIGHT, 1000.0, 10.0, str(row.get("element", "physical")), 0, 0, 0.55, 0.0, 0.0, 0.0, 1.0, 0, "", profile)
+		var sprite := projectile.get_node("Sprite") as Sprite2D
+		_expect(str(projectile.visual_profile) == profile, "projectile must retain visual profile %s" % profile)
+		_expect(sprite.texture != null and str(sprite.texture.resource_path).ends_with(str(row.get("texture", ""))), "profile %s must use distinct projectile texture, got %s" % [profile, str(sprite.texture.resource_path)])
+		_expect(sprite.modulate == Color.WHITE, "projectile model texture must keep original asset colors instead of flat tinting")
+		if profile == "rail":
+			_expect(sprite.scale.x > sprite.scale.y * 2.2, "rail projectile must read as a long lance")
+		elif profile == "scatter":
+			_expect(sprite.scale.x < 0.32 and sprite.scale.y < 0.32, "scatter pellets must stay small")
+		elif profile == "plasma":
+			_expect(sprite.scale.x >= 0.5 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
+		projectile.queue_free()
+
 func _verify_turret_muzzle_sockets(data_loader: Node) -> void:
 	var expected := {
 		"weapon_autocannon": Vector2(34, -204),
@@ -533,22 +962,86 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var router := FakeRouter.new()
 	root.add_child(router)
+	var character_table: Dictionary = data_loader.get_table("characters")
 	var weapon_table: Dictionary = data_loader.get_table("weapons")
-	for weapon_id in weapon_table.keys():
-		var row: Dictionary = data_loader.get_row("weapons", weapon_id)
-		var handheld_path := str(row.get("handheld", ""))
-		_expect(handheld_path != "", "weapon must define handheld skin: %s" % weapon_id)
-		_expect(ResourceLoader.exists(handheld_path), "weapon handheld skin must exist: %s" % handheld_path)
-		var test_save: Dictionary = original_save.duplicate(true)
+	for character_id in character_table.keys():
+		var character_key := str(character_id)
+		var character_asset_id := _character_combo_asset_id(character_key)
+		for weapon_id in weapon_table.keys():
+			var weapon_key := str(weapon_id)
+			var row: Dictionary = data_loader.get_row("weapons", weapon_key)
+			var handheld_path := str(row.get("handheld", ""))
+			_expect(handheld_path != "", "weapon must define handheld source skin: %s" % weapon_key)
+			_expect(ResourceLoader.exists(handheld_path), "weapon handheld source skin must exist: %s" % handheld_path)
+			var test_save: Dictionary = original_save.duplicate(true)
+			var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
+			var characters: Array = unlocks.get("characters", []).duplicate()
+			if not characters.has(character_key):
+				characters.append(character_key)
+			unlocks["characters"] = characters
+			var weapons: Array = unlocks.get("weapons", []).duplicate()
+			if not weapons.has(weapon_key):
+				weapons.append(weapon_key)
+			unlocks["weapons"] = weapons
+			test_save["unlocks"] = unlocks
+			var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+			equipment["selected_character"] = character_key
+			equipment[character_key] = maxi(1, int(equipment.get(character_key, 1)))
+			equipment["selected_weapon"] = weapon_key
+			equipment[weapon_key] = 18
+			test_save["equipment"] = equipment
+			save_manager.save_data = test_save
+			var battle := _instance("res://gameplay/battle/battle.tscn")
+			battle.setup(router, {"level_id": "level_001"})
+			root.add_child(battle)
+			await process_frame
+			await physics_frame
+			_expect(bool(battle.character_weapon_combo_active), "%s + %s must use fused character/weapon battle art" % [character_key, weapon_key])
+			_expect(battle.character_weapon_sprite == null, "%s + %s must not also mount a floating gun sprite" % [character_key, weapon_key])
+			var combo_texture := (battle.character_sprite as Sprite2D).texture
+			_expect(combo_texture != null, "fused combo texture must exist for %s + %s" % [character_key, weapon_key])
+			var combo_texture_path := str(combo_texture.resource_path)
+			if combo_texture_path != "":
+				_expect(combo_texture_path.contains("/character_weapon_combos/%s/" % character_asset_id), "fused combo texture must be loaded from %s; got %s" % [character_asset_id, combo_texture_path])
+			_expect(battle.character_idle_frames.size() >= 4, "%s + %s must provide idle fused frames" % [character_key, weapon_key])
+			_expect(battle.character_attack_left_frames.size() >= 4, "%s + %s must provide left-aim attack fused frames" % [character_key, weapon_key])
+			_expect(battle.character_attack_frames.size() >= 4, "%s + %s must provide attack fused frames" % [character_key, weapon_key])
+			_expect(battle.character_attack_right_frames.size() >= 4, "%s + %s must provide right-aim attack fused frames" % [character_key, weapon_key])
+			_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
+			var expected_combo_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
+			_expect(battle._weapon_fire_origin().distance_to(expected_combo_origin) <= 1.0, "%s + %s projectile origin must use fused muzzle" % [character_key, weapon_key])
+			battle._set_character_combo_aim_from_direction(Vector2.UP)
+			var expected_combo_center_origin: Vector2 = battle.character_rig.global_position + battle.character_weapon_combo_muzzle
+			battle._set_character_combo_aim_from_direction(Vector2(-0.75, -0.66).normalized())
+			var combo_left_origin: Vector2 = battle._weapon_fire_origin()
+			battle._set_character_combo_aim_from_direction(Vector2(0.75, -0.66).normalized())
+			var combo_right_origin: Vector2 = battle._weapon_fire_origin()
+			_expect(combo_left_origin.x < expected_combo_center_origin.x - 20.0, "%s + %s left-aim muzzle must move left" % [character_key, weapon_key])
+			_expect(combo_right_origin.x > expected_combo_center_origin.x + 20.0, "%s + %s right-aim muzzle must move right" % [character_key, weapon_key])
+			battle.queue_free()
+			await process_frame
+	save_manager.save_data = original_save
+	router.queue_free()
+	await process_frame
+
+func _verify_character_active_skill_controls(data_loader: Node, save_manager: Node) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var input_manager := root.get_node("/root/InputManager")
+	var character_table: Dictionary = data_loader.get_table("characters")
+	for character_id in character_table.keys():
+		var character_key := str(character_id)
+		var test_save: Dictionary = _battle_smoke_loadout(original_save)
 		var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
-		var weapons: Array = unlocks.get("weapons", []).duplicate()
-		if not weapons.has(weapon_id):
-			weapons.append(weapon_id)
-		unlocks["weapons"] = weapons
+		var characters: Array = unlocks.get("characters", []).duplicate()
+		if not characters.has(character_key):
+			characters.append(character_key)
+		unlocks["characters"] = characters
 		test_save["unlocks"] = unlocks
 		var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
-		equipment["selected_weapon"] = weapon_id
-		equipment[weapon_id] = 18
+		equipment["selected_character"] = character_key
+		equipment[character_key] = maxi(1, int(equipment.get(character_key, 1)))
 		test_save["equipment"] = equipment
 		save_manager.save_data = test_save
 		var battle := _instance("res://gameplay/battle/battle.tscn")
@@ -556,10 +1049,90 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 		root.add_child(battle)
 		await process_frame
 		await physics_frame
-		_expect(battle.character_weapon_sprite != null, "battle must mount weapon skin for %s" % weapon_id)
-		var weapon_sprite := battle.character_weapon_sprite as Sprite2D
-		_expect(weapon_sprite.texture != null, "mounted weapon texture must exist for %s" % weapon_id)
-		_expect(str(weapon_sprite.texture.resource_path) == handheld_path, "mounted weapon must use handheld skin; got %s expected %s" % [str(weapon_sprite.texture.resource_path), handheld_path])
+		_expect(battle.get_node("Hud").process_mode == Node.PROCESS_MODE_ALWAYS, "battle HUD must receive active-skill clicks while combat is unpaused")
+		var button := battle.get_node("Hud/CharacterSkillButton") as BaseButton
+		_expect(button != null, "%s active skill button must be a BaseButton" % character_key)
+		_expect(button is Button, "%s active skill button must be a real Button, not an empty TextureButton" % character_key)
+		_expect(button.visible and not button.disabled, "%s active skill button must start visible and ready" % character_key)
+		_expect(str(battle.character_active_id) != "", "%s must configure an active skill" % character_key)
+		var active: Dictionary = battle.character_data.get("active_skill", {})
+		var scaling_basis := str(active.get("scaling_basis", ""))
+		_expect(["weapon", "character"].has(scaling_basis), "%s active skill must declare weapon or character scaling" % character_key)
+		var original_character_level := int(battle.character_level)
+		var active_element := str(battle.character_data.get("element_focus", "physical"))
+		var active_mult := float(active.get("damage_mult", 1.0))
+		battle.character_level = 1
+		var level_one_scale := float(battle._character_active_power_scale(active))
+		battle.character_level = 25
+		var level_twenty_five_scale := float(battle._character_active_power_scale(active))
+		if scaling_basis == "weapon":
+			_expect(level_twenty_five_scale > level_one_scale and level_twenty_five_scale <= 1.25, "%s weapon-linked active skill must grow mildly because main weapon already scales" % character_key)
+			var weapon_scaled_damage := float(battle._character_active_damage(active_element, active_mult))
+			var old_turret_mult := float(battle.turret.damage_mult)
+			battle.turret.damage_mult = old_turret_mult * 2.0
+			var boosted_weapon_scaled_damage := float(battle._character_active_damage(active_element, active_mult))
+			_expect(boosted_weapon_scaled_damage > weapon_scaled_damage * 1.9, "%s weapon-linked active skill must follow main weapon attack" % character_key)
+			battle.turret.damage_mult = old_turret_mult
+		else:
+			_expect(level_twenty_five_scale >= level_one_scale * 1.5, "%s character active skill must gain meaningful level scaling" % character_key)
+			var character_scaled_damage := float(battle._character_active_damage(active_element, active_mult))
+			var old_turret_mult_character := float(battle.turret.damage_mult)
+			battle.turret.damage_mult = old_turret_mult_character * 2.0
+			var boosted_character_scaled_damage := float(battle._character_active_damage(active_element, active_mult))
+			_expect(absf(boosted_character_scaled_damage - character_scaled_damage) <= maxf(character_scaled_damage * 0.01, 0.05), "%s character-scaling active skill must not double-dip main weapon level" % character_key)
+			battle.turret.damage_mult = old_turret_mult_character
+		battle.character_level = original_character_level
+		if character_key == "vanguard":
+			battle.sig_vanguard_barrage_timer = 1.0
+			var primary_damage := float(battle._current_primary_shot_damage("physical"))
+			var railvolley_damage := float(battle._vanguard_railvolley_damage(primary_damage))
+			_expect(railvolley_damage * 0.82 >= primary_damage, "railvolley multi-target hit must scale from current primary shot damage; got %.1f vs primary %.1f" % [railvolley_damage * 0.82, primary_damage])
+			battle.sig_vanguard_barrage_timer = 0.0
+		var frost_probe = null
+		var frost_probe_hp_before := 0.0
+		if character_key == "frost":
+			frost_probe = battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 1120), false)
+			frost_probe_hp_before = float(frost_probe.hp)
+
+		battle.character_active_cd = 0.0
+		battle._update_character_skill_button()
+		input_manager.skill_pressed.emit(0)
+		await process_frame
+		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from shortcut signal" % character_key)
+		if character_key == "frost" and is_instance_valid(frost_probe):
+			_expect(float(battle.sig_frost_glacier_timer) >= 4.8, "frost glacier must run for about five seconds")
+			battle._process_frost_glacier(0.08)
+			_expect(frost_probe.has_method("is_glacier_field_active") and frost_probe.is_glacier_field_active(), "frost glacier must visibly mark affected enemies")
+			frost_probe.speed_mult = 1.0
+			frost_probe.call("_process_element_status", 0.1)
+			_expect(float(frost_probe.speed_mult) < 0.7, "frost glacier must slow affected enemies")
+			battle._process_frost_glacier(0.56)
+			_expect(float(frost_probe.hp) < frost_probe_hp_before, "frost glacier must deal periodic ice damage")
+
+		battle.character_active_cd = 0.0
+		battle._update_character_skill_button()
+		var center := button.get_global_rect().get_center()
+		var motion := InputEventMouseMotion.new()
+		motion.position = center
+		motion.global_position = center
+		root.push_input(motion)
+		await process_frame
+		var press := InputEventMouseButton.new()
+		press.button_index = MOUSE_BUTTON_LEFT
+		press.pressed = true
+		press.position = center
+		press.global_position = center
+		root.push_input(press)
+		await process_frame
+		var release := InputEventMouseButton.new()
+		release.button_index = MOUSE_BUTTON_LEFT
+		release.pressed = false
+		release.position = center
+		release.global_position = center
+		root.push_input(release)
+		await process_frame
+		_expect(root.gui_get_hovered_control() == button, "%s active skill button must be the hovered control at its visual center" % character_key)
+		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from real mouse/touch click" % character_key)
 		battle.queue_free()
 		await process_frame
 	save_manager.save_data = original_save
@@ -591,6 +1164,19 @@ func _battle_smoke_loadout(snapshot: Dictionary) -> Dictionary:
 	equipment["chip_attack"] = maxi(1, int(equipment.get("chip_attack", 1)))
 	test_save["equipment"] = equipment
 	return test_save
+
+func _character_combo_asset_id(character_id: String) -> String:
+	match character_id:
+		"vanguard":
+			return "char_vanguard"
+		"blaze":
+			return "char_blaze"
+		"frost":
+			return "char_frost"
+		"volt":
+			return "char_volt"
+		_:
+			return "char_%s" % character_id
 
 func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
@@ -629,6 +1215,88 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	save_manager.save_data = original_save
 	router.queue_free()
 	await process_frame
+
+func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
+	var boss_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(boss_enemy)
+	var boss_row: Dictionary = data_loader.get_row("bosses", "boss_tank_titan").duplicate(true)
+	boss_row["mechanic"] = "basic"
+	boss_row["immune"] = []
+	boss_row["weakness"] = "none"
+	boss_row["resist"] = "none"
+	boss_enemy.call("setup", boss_row, 1.0, true)
+	boss_enemy.call("take_damage", 10.0, "fire")
+	await process_frame
+	var boss_canvas := boss_enemy as CanvasItem
+	var boss_sprite := boss_enemy.get_node("Sprite") as Sprite2D
+	_expect(_color_close(boss_canvas.modulate, Color.WHITE), "boss hit feedback must not tint the whole enemy node")
+	_expect(_color_close(boss_sprite.self_modulate, Color.WHITE), "boss hit feedback must not reveal a full-size red bitmap rectangle")
+	boss_enemy.queue_free()
+	await process_frame
+
+	var normal_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(normal_enemy)
+	var normal_row: Dictionary = data_loader.get_row("zombies", "zombie_shambler").duplicate(true)
+	normal_row["immune"] = []
+	normal_row["weakness"] = "none"
+	normal_row["resist"] = "none"
+	normal_enemy.call("setup", normal_row, 1.0, false)
+	normal_enemy.call("take_damage", 5.0, "fire")
+	await process_frame
+	var normal_canvas := normal_enemy as CanvasItem
+	_expect(_color_close(normal_canvas.modulate, Color.WHITE), "enemy hit feedback must keep HP/status children out of the flash tint")
+	normal_enemy.queue_free()
+	await process_frame
+
+func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
+	var zombies: Dictionary = data_loader.get_table("zombies")
+	var required_params := {
+		"zombie_runner": ["dash_interval", "dash_advance", "damage_coef"],
+		"zombie_spitter": ["skill_interval", "damage_coef"],
+		"zombie_screamer": ["radius", "speed_mult", "pulse_interval"],
+		"zombie_shielder": ["radius", "damage_taken_mult", "pulse_interval"],
+		"zombie_hopper": ["leap_interval", "leap_advance", "damage_coef"],
+		"zombie_juggernaut": ["shock_interval", "damage_coef"],
+		"zombie_phantom": ["blink_interval", "blink_advance", "damage_coef"],
+		"zombie_necromancer": ["skill_interval", "summon_id"],
+		"zombie_toxic": ["cloud_interval", "damage_coef", "radius"],
+		"zombie_charger": ["charge_interval", "charge_advance", "damage_coef"],
+		"zombie_regenerator": ["regen_pct_per_sec", "pulse_interval"],
+		"zombie_warden": ["radius", "damage_taken_mult", "pulse_interval"],
+		"zombie_mutant": ["trigger_hp_ratio", "speed_mult", "damage_mult", "heal_ratio"],
+		"zombie_berserker": ["trigger_hp_ratio", "speed_mult", "damage_mult"]
+	}
+	for zombie_id in required_params.keys():
+		_expect(zombies.has(zombie_id), "zombie table must include mechanic profile: %s" % zombie_id)
+		var params: Dictionary = zombies[zombie_id].get("mechanic_params", {})
+		for key in required_params[zombie_id]:
+			_expect(params.has(key), "%s mechanic params must include %s" % [zombie_id, key])
+
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	var kind_to_vfx := {
+		"runner_dash": "vfx_threat_warning.png",
+		"leap_strike": "vfx_threat_warning.png",
+		"charge": "vfx_threat_warning.png",
+		"toxic_cloud": "vfx_poison_cloud.png",
+		"regen": "vfx_poison_cloud.png",
+		"mutate": "vfx_boss_phase.png",
+		"enrage": "vfx_explosion_fire.png",
+		"buff_aura": "vfx_boss_phase.png",
+		"shield_aura": "vfx_crit.png",
+		"ward": "vfx_crit.png",
+		"juggernaut": "vfx_crit.png"
+	}
+	for kind in kind_to_vfx.keys():
+		var path := str(battle._attack_vfx_path(kind))
+		_expect(path.ends_with(kind_to_vfx[kind]), "enemy mechanic %s must use a distinct vfx, got %s" % [kind, path])
+		_expect(battle._attack_color_for_mechanic(kind).a > 0.7, "enemy mechanic %s must define a visible vfx color" % kind)
+	var target := FakeAimTarget.new()
+	target.breach_damage = 20
+	battle.breach_damage_mult = 0.5
+	_expect(battle._enemy_skill_damage(target, 0.35, 2.0) == 4, "enemy skill damage must respect breach damage mitigation")
+
+func _color_close(a: Color, b: Color, tolerance := 0.01) -> bool:
+	return absf(a.r - b.r) <= tolerance and absf(a.g - b.g) <= tolerance and absf(a.b - b.b) <= tolerance and absf(a.a - b.a) <= tolerance
 
 func _verify_progression_unlock_repair(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)

@@ -1,16 +1,19 @@
 extends RefCounted
 class_name UiKit
 
-const TEXT_MAIN := Color(0.95, 0.94, 0.88, 1.0)
-const TEXT_MUTED := Color(0.70, 0.78, 0.82, 1.0)
-const CYAN := Color(0.46, 0.80, 0.86, 1.0)
-const GOLD := Color(0.92, 0.68, 0.34, 1.0)
+const TEXT_MAIN := Color(0.96, 0.94, 0.86, 1.0)
+const TEXT_MUTED := Color(0.66, 0.74, 0.76, 1.0)
+const CYAN := Color(0.38, 0.76, 0.80, 1.0)
+const GOLD := Color(0.88, 0.64, 0.32, 1.0)
 const RED := Color(0.94, 0.28, 0.24, 1.0)
 const GREEN := Color(0.48, 0.74, 0.50, 1.0)
 const PURPLE := Color(0.72, 0.58, 0.88, 1.0)
-const PANEL_BG := Color(0.028, 0.034, 0.042, 0.88)
-const PANEL_BG_DARK := Color(0.014, 0.018, 0.024, 0.92)
-const BORDER_SOFT := Color(0.50, 0.63, 0.70, 0.45)
+const PANEL_BG := Color(0.020, 0.024, 0.030, 0.90)
+const PANEL_BG_DARK := Color(0.010, 0.014, 0.020, 0.94)
+const BORDER_SOFT := Color(0.48, 0.57, 0.60, 0.42)
+const SURFACE := Color(0.018, 0.022, 0.028, 0.88)
+const SURFACE_ALT := Color(0.030, 0.029, 0.025, 0.86)
+const WARM_EDGE := Color(0.70, 0.53, 0.30, 0.46)
 
 # Neutral grey ramp for backgrounds, dividers, disabled states and secondary text.
 const GREY_900 := Color(0.07, 0.08, 0.10, 1.0)
@@ -28,7 +31,7 @@ const INFO := Color(0.46, 0.80, 0.86, 1.0)
 static func panel_style(accent := CYAN, bg := PANEL_BG, border_width := 2, radius := 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.72)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.64)
 	style.set_border_width_all(border_width)
 	style.set_corner_radius_all(radius)
 	style.content_margin_left = 14
@@ -39,18 +42,18 @@ static func panel_style(accent := CYAN, bg := PANEL_BG, border_width := 2, radiu
 
 static func plate_style(accent := CYAN) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.032, 0.042, 0.78)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
+	style.bg_color = Color(0.018, 0.022, 0.028, 0.82)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.52)
 	style.border_width_top = 2
 	style.set_corner_radius_all(6)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	return style
 
-static func pill_style(accent := CYAN, bg := Color(0.026, 0.034, 0.044, 0.78)) -> StyleBoxFlat:
+static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.68)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
 	style.content_margin_left = 12
@@ -91,6 +94,54 @@ static func icon(path: String, size := Vector2(64, 64)) -> TextureRect:
 	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return tex
+
+static func character_bust_path(row: Dictionary) -> String:
+	var base_path := str(row.get("portrait", row.get("icon", "")))
+	if base_path == "":
+		return ""
+	var candidates: Array[String] = []
+	if base_path.ends_with("_icon.png"):
+		candidates.append(base_path.replace("_icon.png", "_prototype.png"))
+		candidates.append(base_path.replace("_icon.png", "_portrait_frameless.png"))
+		candidates.append(base_path.replace("_icon.png", "_portrait.png"))
+	candidates.append(base_path)
+	for path in candidates:
+		if path != "" and ResourceLoader.exists(path):
+			return path
+	return ""
+
+static func character_bust_texture(row: Dictionary) -> Texture2D:
+	var path := character_bust_path(row)
+	if path == "":
+		return null
+	return load(path) as Texture2D
+
+static func add_character_bust(parent: Control, row: Dictionary, viewport_size: Vector2, image_width: float, y_offset: float, tint := Color.WHITE) -> TextureRect:
+	parent.clip_contents = true
+	parent.custom_minimum_size = viewport_size
+	var bust := parent.get_node_or_null("BustImage") as TextureRect
+	if bust == null:
+		bust = TextureRect.new()
+		bust.name = "BustImage"
+		bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bust.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		parent.add_child(bust)
+	var texture := character_bust_texture(row)
+	bust.texture = texture
+	bust.modulate = tint
+	if texture == null:
+		bust.size = viewport_size
+		bust.custom_minimum_size = viewport_size
+		bust.position = Vector2.ZERO
+		return bust
+	var texture_size := texture.get_size()
+	var aspect := texture_size.y / maxf(texture_size.x, 1.0)
+	var bust_size := Vector2(image_width, image_width * aspect)
+	bust.size = bust_size
+	bust.custom_minimum_size = bust_size
+	bust.position = Vector2((viewport_size.x - bust_size.x) * 0.5, y_offset)
+	return bust
 
 static func element_icon_path(element: String) -> String:
 	match str(element):

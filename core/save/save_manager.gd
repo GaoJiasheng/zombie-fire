@@ -3,27 +3,28 @@ extends Node
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
 
+enum PurchaseResult { OK, ALREADY_OWNED, NOT_ENOUGH_STAR, INVALID }
+
 var save_data := {
 	"version": 1,
 	"player": {"gold": 0, "xp": 0, "star": 0},
 	"levels_progress": {},
+	"skill_base_levels": {},
 	"unlocks": {
 		"levels": ["level_001"],
 		"characters": ["vanguard"],
 		"weapons": ["weapon_autocannon"],
-		"armors": ["armor_kevlar"],
-		"chips": ["chip_attack"],
+		"armors": [],
+		"chips": [],
 		"pets": []
 	},
 	"equipment": {
 		"vanguard": 1,
 		"weapon_autocannon": 1,
-		"armor_kevlar": 1,
-		"chip_attack": 1,
 		"selected_character": "vanguard",
 		"selected_weapon": "weapon_autocannon",
-		"selected_armor": "armor_kevlar",
-		"selected_chip": "chip_attack",
+		"selected_armor": "",
+		"selected_chip": "",
 		"selected_pet": ""
 	}
 }
@@ -33,23 +34,22 @@ func _default_save() -> Dictionary:
 		"version": 1,
 		"player": {"gold": 0, "xp": 0, "star": 0},
 		"levels_progress": {},
+		"skill_base_levels": {},
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
 			"weapons": ["weapon_autocannon"],
-			"armors": ["armor_kevlar"],
-			"chips": ["chip_attack"],
+			"armors": [],
+			"chips": [],
 			"pets": []
 		},
 		"equipment": {
 			"vanguard": 1,
 			"weapon_autocannon": 1,
-			"armor_kevlar": 1,
-			"chip_attack": 1,
 			"selected_character": "vanguard",
 			"selected_weapon": "weapon_autocannon",
-			"selected_armor": "armor_kevlar",
-			"selected_chip": "chip_attack",
+			"selected_armor": "",
+			"selected_chip": "",
 			"selected_pet": ""
 		}
 	}
@@ -66,7 +66,6 @@ func load_game() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
 	if parsed is Dictionary:
 		save_data = _merged_save(parsed)
-		_refresh_star_unlocks()
 		repair_progression_unlocks()
 
 func _merged_save(parsed: Dictionary) -> Dictionary:
@@ -129,7 +128,6 @@ func apply_level_result(result: Dictionary, persist := true) -> void:
 	save_data["player"] = player
 	save_data["unlocks"] = unlocks
 	_refresh_level_unlocks_from_progress()
-	_refresh_star_unlocks()
 	if persist:
 		save_game()
 
@@ -277,10 +275,9 @@ func get_item_upgrade_cost(table: String, item_id: String) -> int:
 
 func _scaled_upgrade_cost(base_cost: int, current_level: int) -> int:
 	var economy: Dictionary = DataLoader.get_table("economy")
-	var growth := float(economy.get("upgrade_cost_growth", 1.15))
+	var k := float(economy.get("upgrade_cost_linear_k", 0.7))
 	var level: int = max(current_level, 1)
-	var tier_step := 1.0 + 0.08 * float((level - 1) / 10)
-	return int(round(float(base_cost) * pow(growth, float(level - 1)) * tier_step))
+	return int(round(float(base_cost) * (1.0 + k * float(level - 1))))
 
 func _default_upgrade_cost(table: String) -> int:
 	match table:
@@ -356,3 +353,93 @@ func get_total_stars() -> int:
 	for level_id in levels_progress.keys():
 		total += int(levels_progress.get(level_id, 0))
 	return total
+
+
+# ===== 经济重构新增 API(见 design/19+20) =====
+func get_player_star() -> int:
+	return int(save_data.get("player", {}).get("star", 0))
+
+func get_player_xp() -> int:
+	return int(save_data.get("player", {}).get("xp", 0))
+
+func is_default_free(item_id: String) -> bool:
+	return item_id == "vanguard" or item_id == "weapon_autocannon"
+
+func get_unlock_price_star(table: String, item_id: String) -> int:
+	var row := DataLoader.get_row(table, item_id)
+	return int(row.get("unlock_cost_star", row.get("unlock", {}).get("price", 0)))
+
+func is_item_owned(table: String, item_id: String) -> bool:
+	if item_id == "":
+		return true
+	var unlocks: Dictionary = save_data.get("unlocks", {})
+	var items: Array = unlocks.get(table, [])
+	return items.has(item_id)
+
+func can_purchase(table: String, item_id: String) -> bool:
+	if item_id == "" or is_item_owned(table, item_id):
+		return false
+	return get_player_star() >= get_unlock_price_star(table, item_id)
+
+func purchase_item(table: String, item_id: String) -> int:
+	if item_id == "" or DataLoader.get_row(table, item_id).is_empty():
+		return PurchaseResult.INVALID
+	if is_item_owned(table, item_id):
+		return PurchaseResult.ALREADY_OWNED
+	var price := get_unlock_price_star(table, item_id)
+	if get_player_star() < price:
+		return PurchaseResult.NOT_ENOUGH_STAR
+	var player: Dictionary = save_data.get("player", {})
+	player["star"] = get_player_star() - price
+	save_data["player"] = player
+	var unlocks: Dictionary = save_data.get("unlocks", {})
+	var items: Array = unlocks.get(table, [])
+	if not items.has(item_id):
+		items.append(item_id)
+	unlocks[table] = items
+	save_data["unlocks"] = unlocks
+	var equipment: Dictionary = save_data.get("equipment", {})
+	if int(equipment.get(item_id, 0)) < 1:
+		equipment[item_id] = 1
+	save_data["equipment"] = equipment
+	save_game()
+	return PurchaseResult.OK
+
+func get_skill_base_level(skill_id: String) -> int:
+	return int(save_data.get("skill_base_levels", {}).get(skill_id, 0))
+
+func get_skill_base_max(skill_id: String) -> int:
+	var row := DataLoader.get_row("skills", skill_id)
+	var levels: Array = row.get("levels", [])
+	var m := 0
+	for entry in levels:
+		if entry is Dictionary:
+			m = maxi(m, int(entry.get("lv", 0)))
+	return maxi(m, 5)
+
+func get_skill_base_upgrade_cost(skill_id: String) -> int:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var costs: Array = economy.get("skill_base_xp_costs", [50, 120, 220, 360, 540])
+	var lvl := get_skill_base_level(skill_id)
+	if lvl >= costs.size():
+		return -1
+	return int(costs[lvl])
+
+func can_upgrade_skill_base(skill_id: String) -> bool:
+	if get_skill_base_level(skill_id) >= get_skill_base_max(skill_id):
+		return false
+	var cost := get_skill_base_upgrade_cost(skill_id)
+	return cost >= 0 and get_player_xp() >= cost
+
+func upgrade_skill_base(skill_id: String) -> bool:
+	if not can_upgrade_skill_base(skill_id):
+		return false
+	var cost := get_skill_base_upgrade_cost(skill_id)
+	var player: Dictionary = save_data.get("player", {})
+	player["xp"] = get_player_xp() - cost
+	save_data["player"] = player
+	var sbl: Dictionary = save_data.get("skill_base_levels", {})
+	sbl[skill_id] = get_skill_base_level(skill_id) + 1
+	save_data["skill_base_levels"] = sbl
+	save_game()
+	return true

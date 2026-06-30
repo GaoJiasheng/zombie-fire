@@ -27,6 +27,7 @@ PETS = ["pet_turret_drone", "pet_fire_imp", "pet_frost_wisp", "pet_volt_orb", "p
 PROJECTILES = [
     "proj_bullet_physical", "proj_bullet_fire", "proj_bullet_ice", "proj_bullet_lightning",
     "proj_bullet_poison", "proj_heavy_charge", "proj_acid_spit", "proj_split_mini",
+    "proj_rail_slug", "proj_scatter_pellet", "proj_plasma_orb",
 ]
 VFX = [
     "vfx_hit_physical", "vfx_hit_fire", "vfx_hit_ice", "vfx_hit_lightning", "vfx_hit_poison",

@@ -81,9 +81,13 @@ Current validation result:
 - `assets/production/contact_sheets/contact_backgrounds.png`
 - `assets/production/contact_sheets/contact_battle_mock.png`
 
-## Outsourcing Rule
+## Asset Replacement Rule
 
-Minimax / external developers must not generate assets.
+The existing production asset pack remains the integration baseline.
+
+GPT/Codex is allowed to generate replacement assets and prototype revisions when the owner requests a visual upgrade or when a quality issue cannot be solved by layout/code polish alone. This includes character poses, weapon models, character+weapon composites, VFX sequence frames, UI icons, and audio placeholders.
+
+Minimax / external developers should use the production pack by default, but may generate or replace assets when the owner explicitly authorizes it for that task.
 
 They should use:
 
@@ -97,7 +101,9 @@ They should use:
 - Videos: `assets/production/video/`
 - Machine-readable index: `assets/production/OUTSOURCER_ASSET_INDEX.json`
 
-If they believe an asset is missing, they must report the exact missing ID/path instead of generating a replacement.
+Generated replacements must keep existing IDs and data references where possible, live under `assets/production/`, and be recorded in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+
+If they believe an asset is missing, they should report the exact missing ID/path before generating a substitute.
 
 ## replace_later
 

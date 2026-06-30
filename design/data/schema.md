@@ -41,8 +41,14 @@
     "signature_skills": ["sig_vanguard_railvolley", "sig_vanguard_overload"],
     "active_skill": {
       "id": "sig_vanguard_railvolley",
+      "scaling_basis": "weapon",  // weapon=按当前主武器伤害轻成长；character=按角色攻击独立成长
       "cooldown": 18.0,
-      "duration": 6.0
+      "duration": 6.0,
+      "damage_mult": 1.25,
+      "level_damage_growth": 0.004, // weapon 挂钩技能应低，避免和主武器成长重复爆炸
+      "rank_damage_bonus": 0.03,
+      "rank_duration_bonus": 0.20,
+      "max_extra_volleys": 1
     },
     "bullet_affinity": {
       "element": "physical",       // physical|fire|ice|lightning
@@ -58,7 +64,12 @@
   }
 }
 ```
-`active_skill` 是战斗 HUD 的角色主动技按钮来源；`bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。
+`active_skill` 是战斗 HUD 的角色主动技按钮来源；主动技能必须声明 `scaling_basis`：
+
+- `weapon`：基于当前主武器攻击，技能本身只给轻量成长，适合弹幕齐射这类“主武器强化”技能。
+- `character`：基于角色自身攻击和角色等级，不重复吃主武器等级，技能成长可以更明显，适合火焰、冰霜、雷电等角色领域/爆发技能。
+
+`bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。
 
 ## skills.json （映射，含成长树）
 ```jsonc

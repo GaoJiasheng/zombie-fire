@@ -12,14 +12,31 @@ const ROUTES := {
 
 var current_scene: Node
 var run_context := {}
+var _scene_change_pending := false
+var _pending_route := "menu"
+var _pending_payload := {}
 
 func _ready() -> void:
 	DataLoader.load_all()
 	SaveManager.load_game()
+	get_tree().paused = false
+	Engine.time_scale = 1.0
 	change_scene("menu")
 
 func change_scene(route: String, payload := {}) -> void:
-	var normalized_payload := _normalize_route_payload(route, payload)
+	_pending_route = route
+	_pending_payload = _normalize_route_payload(route, payload)
+	if _scene_change_pending:
+		return
+	_scene_change_pending = true
+	call_deferred("_apply_scene_change")
+
+func _apply_scene_change() -> void:
+	_scene_change_pending = false
+	var route := _pending_route
+	var normalized_payload := _pending_payload
+	get_tree().paused = false
+	Engine.time_scale = 1.0
 	if current_scene:
 		remove_child(current_scene)
 		current_scene.queue_free()

@@ -6,7 +6,7 @@
 
 Verify and polish the expanded Zombie Fire build in `/Users/gavin/work/zombie-fire`.
 
-Do not redesign the game. Do not generate assets. Do not replace existing systems.
+Do not redesign the game. Do not replace existing systems.
 
 ## Must Read
 
@@ -18,7 +18,7 @@ Do not redesign the game. Do not generate assets. Do not replace existing system
 
 ## Asset Rule
 
-All assets already exist.
+The existing asset pack remains the default source of truth, but GPT/Codex is now allowed to generate replacement assets when visual quality requires it or the owner requests it.
 
 Use only:
 
@@ -34,7 +34,13 @@ Use only:
 - `assets/production/video/`
 - `assets/production/fonts/`
 
-Never generate replacement images, sounds, animation frames, icons, videos, fonts, or effects.
+Generated replacement assets are allowed under these rules:
+
+- Keep the same game scope, IDs, data references, and Godot integration paths.
+- Match the locked cyberpunk / ruined-city visual language.
+- Store source prompts or source references under `assets/production/source_refs/generated/`.
+- Place integrated assets under the existing `assets/production/` subtree.
+- Update `assets/production/OUTSOURCER_ASSET_INDEX.json` when a generated replacement becomes part of the build.
 
 If an asset seems missing, run:
 
@@ -42,7 +48,7 @@ If an asset seems missing, run:
 python3 tools/validate_asset_pack.py
 ```
 
-If validation passes, use the existing assets. If validation fails, report the exact missing path and stop.
+If validation passes, prefer existing assets unless a quality replacement is being made deliberately. If validation fails, report the exact missing path before continuing.
 
 ## Gameplay Rule
 

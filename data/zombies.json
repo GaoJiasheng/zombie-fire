@@ -31,7 +31,13 @@
 			"fast"
 		],
 		"mechanic": "runner",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"dash_y": 680,
+			"dash_interval": 3.4,
+			"dash_advance": 54,
+			"damage_coef": 0.08,
+			"pulse_interval": 2.6
+		},
 		"sprite": "res://assets/sprites/zombies/zombie_runner_prototype.png"
 	},
 	"zombie_brute": {
@@ -89,7 +95,8 @@
 		"mechanic": "buff_aura",
 		"mechanic_params": {
 			"radius": 260,
-			"speed_mult": 1.2
+			"speed_mult": 1.2,
+			"pulse_interval": 2.4
 		},
 		"sprite": "res://assets/sprites/zombies/zombie_screamer_prototype.png"
 	},
@@ -107,7 +114,11 @@
 			"support"
 		],
 		"mechanic": "ranged_spit",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_y": 720,
+			"skill_interval": 4.2,
+			"damage_coef": 0.35
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_spitter_prototype.png"
 	},
 	"zombie_crawler": {
@@ -125,7 +136,10 @@
 			"breach"
 		],
 		"mechanic": "low_profile",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"damage_taken_mult": 0.92,
+			"pulse_interval": 3.6
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_crawler_prototype.png"
 	},
 	"zombie_armored": {
@@ -142,7 +156,10 @@
 			"tank"
 		],
 		"mechanic": "armor",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"shield_ratio": 0.35,
+			"pulse_interval": 3.8
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_armored_prototype.png"
 	},
 	"zombie_shielder": {
@@ -160,7 +177,11 @@
 			"support"
 		],
 		"mechanic": "shield_aura",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"radius": 280,
+			"damage_taken_mult": 0.72,
+			"pulse_interval": 2.7
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_shielder_prototype.png"
 	},
 	"zombie_hopper": {
@@ -178,7 +199,12 @@
 			"breach"
 		],
 		"mechanic": "leap",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_y": 650,
+			"leap_interval": 3.1,
+			"leap_advance": 82,
+			"damage_coef": 0.1
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_hopper_prototype.png"
 	},
 	"zombie_juggernaut": {
@@ -196,7 +222,12 @@
 			"elite"
 		],
 		"mechanic": "juggernaut",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"damage_taken_mult": 0.86,
+			"shock_y": 900,
+			"shock_interval": 5.6,
+			"damage_coef": 0.16
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_juggernaut_prototype.png"
 	},
 	"zombie_phantom": {
@@ -214,7 +245,11 @@
 			"elite"
 		],
 		"mechanic": "phase",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"blink_interval": 4.0,
+			"blink_advance": 74,
+			"damage_coef": 0.08
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_phantom_prototype.png"
 	},
 	"zombie_necromancer": {
@@ -232,7 +267,10 @@
 			"elite"
 		],
 		"mechanic": "summon",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"skill_interval": 5.0,
+			"summon_id": "zombie_shambler"
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_necromancer_prototype.png"
 	},
 	"zombie_toxic": {
@@ -249,7 +287,12 @@
 			"burst"
 		],
 		"mechanic": "toxic_cloud",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_y": 760,
+			"cloud_interval": 4.8,
+			"damage_coef": 0.22,
+			"radius": 190
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_toxic_prototype.png"
 	},
 	"zombie_charger": {
@@ -267,7 +310,12 @@
 			"breach"
 		],
 		"mechanic": "charge",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_y": 660,
+			"charge_interval": 3.8,
+			"charge_advance": 116,
+			"damage_coef": 0.18
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_charger_prototype.png"
 	},
 	"zombie_regenerator": {
@@ -285,7 +333,10 @@
 			"elite"
 		],
 		"mechanic": "regen",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"regen_pct_per_sec": 0.025,
+			"pulse_interval": 3.0
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_regenerator_prototype.png"
 	},
 	"zombie_splitter": {
@@ -302,7 +353,10 @@
 			"anti_swarm"
 		],
 		"mechanic": "split",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"split_count": 2,
+			"split_id": "zombie_crawler"
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_splitter_prototype.png"
 	},
 	"zombie_warden": {
@@ -320,7 +374,11 @@
 			"tank"
 		],
 		"mechanic": "ward",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"radius": 320,
+			"damage_taken_mult": 0.66,
+			"pulse_interval": 2.8
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_warden_prototype.png"
 	},
 	"zombie_mutant": {
@@ -338,7 +396,12 @@
 			"burst"
 		],
 		"mechanic": "mutate",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_hp_ratio": 0.48,
+			"speed_mult": 1.18,
+			"damage_mult": 1.22,
+			"heal_ratio": 0.12
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_mutant_prototype.png"
 	},
 	"zombie_berserker": {
@@ -356,7 +419,11 @@
 			"elite"
 		],
 		"mechanic": "enrage",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"trigger_hp_ratio": 0.5,
+			"speed_mult": 1.35,
+			"damage_mult": 1.25
+		},
 		"sprite": "res://assets/production/sprites/zombies/zombie_berserker_prototype.png"
 	}
 }

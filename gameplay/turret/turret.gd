@@ -15,6 +15,7 @@ const MUZZLE_LOCAL_OFFSETS := {
 const DEFAULT_FIRE_RATE_MULTIPLIER := 0.25
 
 var target_point := Vector2(540, 600)
+var fire_enabled := false
 var fire_rate := 4.0
 var cooldown := 0.0
 var turn_speed := 9.0
@@ -42,12 +43,16 @@ func aim_at(point: Vector2) -> void:
 	target_point = point
 
 func _physics_process(delta: float) -> void:
-	var aim_vector := target_point - global_position
-	if aim_vector.length_squared() <= 1.0:
+	if get_tree().paused:
 		return
-	var desired := aim_vector.angle() - muzzle_local_position.angle()
-	rotation = lerp_angle(rotation, desired, min(turn_speed * delta, 1.0))
-	cooldown -= delta
+	var aim_vector := target_point - global_position
+	if aim_vector.length_squared() > 1.0:
+		var desired := aim_vector.angle() - muzzle_local_position.angle()
+		rotation = lerp_angle(rotation, desired, min(turn_speed * delta, 1.0))
+	cooldown = maxf(cooldown - delta, 0.0)
+	if not fire_enabled or aim_vector.length_squared() <= 1.0:
+		_update_animation(delta)
+		return
 	if cooldown <= 0.0:
 		cooldown = 1.0 / fire_rate
 		_play_recoil()

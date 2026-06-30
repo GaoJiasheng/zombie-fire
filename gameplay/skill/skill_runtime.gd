@@ -13,7 +13,9 @@ func add_skill(skill_id: String) -> bool:
 		_remove_exclusive_peers(skill_id, group)
 	if not owned.has(skill_id):
 		_order.append(skill_id)
-	owned[skill_id] = current + 1
+		owned[skill_id] = clampi(maxi(_base_level(skill_id), 1), 1, max_level(skill_id))
+	else:
+		owned[skill_id] = current + 1
 	return true
 
 func owned_order() -> Array[String]:
@@ -39,6 +41,18 @@ func _data_loader() -> Node:
 	if loop == null or not loop is SceneTree:
 		return null
 	return (loop as SceneTree).root.get_node_or_null("/root/DataLoader")
+
+func _save_manager() -> Node:
+	var loop := Engine.get_main_loop()
+	if loop == null or not loop is SceneTree:
+		return null
+	return (loop as SceneTree).root.get_node_or_null("/root/SaveManager")
+
+func _base_level(skill_id: String) -> int:
+	var sm := _save_manager()
+	if sm == null:
+		return 0
+	return int(sm.get_skill_base_level(skill_id))
 
 func can_add_skill(skill_id: String) -> bool:
 	return level(skill_id) < max_level(skill_id)

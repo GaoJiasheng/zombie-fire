@@ -88,6 +88,10 @@ def main() -> int:
     for element in ["fire", "ice", "lightning", "poison", "physical"]:
         if f"proj_bullet_{element}.png" not in projectile:
             errors.append(f"projectile missing {element} element texture mapping")
+    if localization.get("weapon_autocannon") != "自动机枪":
+        errors.append("weapon_autocannon must display as 自动机枪")
+    if weapons["weapon_autocannon"].get("turret") != "res://assets/production/sprites/weapons/weapon_autocannon_turret.png":
+        errors.append("weapon_autocannon must not use the old base-cannon prototype path")
     if "homing_strength" not in projectile or "_apply_homing" not in projectile:
         errors.append("projectile must keep homing runtime support")
     if "SPRITE_FORWARD_ANGLE := 0.0" not in projectile:
@@ -140,6 +144,41 @@ def main() -> int:
     for runtime_key in ["hit_target_ids", "chain_depth", "proj_split_mini.png", "_split_target_directions", "_spawn_chain_projectiles", "_apply_pierce_sweep", "_spawn_pierce_trace"]:
         if runtime_key not in battle and runtime_key not in projectile:
             errors.append(f"projectile chaining/pierce runtime missing: {runtime_key}")
+    for runtime_key in ["_active_skill_fallback_point", "_active_skill_fallback_chain_points", "_spawn_element_impact_vfx", "_spawn_skill_to_slot_vfx"]:
+        if runtime_key not in battle:
+            errors.append(f"active skill or element impact polish missing: {runtime_key}")
+    for runtime_key in ["scaling_basis", "_character_active_character_damage", "_character_active_power_scale", "_vanguard_railvolley_count", "_blaze_meltdown_pulse_count", "_frost_glacier_wave_count", "_volt_storm_strike_count"]:
+        if runtime_key not in battle:
+            errors.append(f"character active skill level-scaling runtime missing: {runtime_key}")
+    for runtime_key in [
+        "WEAPON_VISUAL_PROFILES",
+        '"weapon_railgun": "rail"',
+        '"weapon_scattergun": "scatter"',
+        '"weapon_plasmacannon": "plasma"',
+        "_weapon_visual_profile",
+        "_spawn_weapon_muzzle_profile_vfx",
+        "_spawn_rail_impact_vfx",
+        "_spawn_scatter_impact_vfx",
+        "_spawn_plasma_impact_vfx",
+    ]:
+        if runtime_key not in battle:
+            errors.append(f"weapon-specific projectile VFX missing: {runtime_key}")
+    for runtime_key in [
+        "visual_profile",
+        'profile := ""',
+        '_projectile_texture_path(element, visual_profile)',
+        '_projectile_sprite_scale(visual_profile)',
+        '_projectile_color(element, visual_profile)',
+        '"rail"',
+        '"scatter"',
+        '"plasma"',
+    ]:
+        if runtime_key not in projectile:
+            errors.append(f"projectile-specific visual profile missing: {runtime_key}")
+    if "暂无可释放目标" in battle:
+        errors.append("character active skills must not fail silently or require targets; use fallback cast VFX instead")
+    if 'icon.global_position = Vector2(512, 1420)' in battle:
+        errors.append("skill acquisition must not leave a duplicate floating skill icon over the combat model")
     for runtime_key in ["_primary_shot_directions", "_multi_shot_target_candidates", "skills.fire_rate_multiplier()", "skill_fire_rate_mult"]:
         if runtime_key not in battle:
             errors.append(f"multi-lane targeting or fire-rate skill runtime missing: {runtime_key}")
@@ -180,7 +219,7 @@ def main() -> int:
     for runtime_key in ["repair_progression_unlocks", "_refresh_level_unlocks_from_progress", "victory and next_level"]:
         if runtime_key not in save:
             errors.append(f"level progression repair missing: {runtime_key}")
-    for runtime_key in ["_on_next_pressed", "_campaign_next_level", "_resolve_level_id", "router.change_scene(\"loadout\", {\"level_id\": next_level})"]:
+    for runtime_key in ["_on_next_pressed", "_campaign_next_level", "_resolve_level_id", '"return_to": "result"', '"return_payload": _result_return_payload']:
         if runtime_key not in result:
             errors.append(f"result next-level routing missing: {runtime_key}")
     for runtime_key in ["_campaign_next_level", "_normalize_route_payload", "normalized[\"next_level\"]", "result_level_id == \"\""]:

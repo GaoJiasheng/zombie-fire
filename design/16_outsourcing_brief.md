@@ -179,7 +179,7 @@ tools/
 - 禁止加氪金/广告/体力。
 - 禁止无说明大规模重写已能工作的代码。
 - 禁止删除设计文档。
-- 禁止替换已 accepted 的素材。
+- 禁止未经 owner 授权替换已 accepted 的素材；GPT/Codex 或被授权执行方可以为了质量修正重做原型/替换素材。
 - 禁止绕过 `data/*.json` 直接在代码里塞全量内容。
 
 ## 8. 每次交付格式
@@ -211,4 +211,3 @@ Remaining risks:
 3. 回到 `design/01_core_gameplay.md` 的固定炮塔玩法。
 4. 回到 `design/data/naming_convention.md` 的 ID/素材命名。
 5. 回到 `design/assets/visual_style_lock.md` 的美术风格。
-

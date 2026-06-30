@@ -698,3 +698,351 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `git diff --check -- ui/ui_kit.gd meta/loadout/loadout.gd meta/loadout/loadout.tscn meta/map/map.gd meta/collection/collection.gd meta/menu/menu.gd meta/menu/menu.tscn core/settings/settings_manager.gd meta/result/result.gd meta/result/result.tscn gameplay/battle/battle.gd gameplay/battle/battle.tscn gameplay/hud/combo_hud.gd gameplay/enemy/enemy.gd core/data/character_skill_text.gd tools/m1_smoke_test.gd` → no whitespace errors.
 - `godot --headless --path . --quit` → exits 0 on Godot 4.7; still prints existing ObjectDB/resource cleanup warnings.
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; exits 0 with the same cleanup warnings.
+
+---
+
+## Stage 1 P3.7 Release Guardrail Pass — External Diff Review Follow-up (2026-06-28)
+
+> Follow-up after the latest outsourced pass. Goal: accept the useful interaction / UI / battle resilience changes while adding guardrails for the bugs that kept recurring during live review.
+
+- **Battle boot probe fixed**: `tools/_battle_boot_probe.gd` now initializes through the project autoloads and real `main.tscn` route before entering `level_001`. It verifies that Battle is active, unpaused, `Engine.time_scale == 1.0`, enemies/spawns exist, character rig is present, and the hidden logic turret is configured.
+- **Visual asset guardrail**: added `tools/check_visual_assets.py` to scan battle character animation frames and handheld weapon sprites for baked square plates, visible canvas-border alpha, and severe green-screen/chroma-key fringe. This catches the previous "green edge / sticker sprite / square backing" class of regressions without generating replacement art.
+- **Routed screenshot guardrail**: added `tools/check_visual_screens.py`, backed by `tools/_shot.gd`, to render menu, map, loadout, collection, battle, and result through the real router at 1080x1920 and reject blank captures or large exact-black bars. `_shot.gd` now exits clearly if someone tries visual capture through `--headless`, because Godot's dummy renderer cannot provide a viewport texture.
+- **Release candidate expanded**: `tools/check_release_candidate.py` now runs visual asset checks, the battle boot probe, and routed screenshot checks in addition to the existing data, balance, UI, app-store, Godot startup, and smoke validations.
+- **Skill effect text hardening**: `core/data/skill_effect_text.gd` no longer assumes every effect value is numeric. Non-numeric future fields render as text instead of crashing card/detail UI.
+
+### Verification (after Stage 1 P3.7)
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 3723 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` → `checked 218 res:// references / res:// references OK`.
+- `python3 tools/check_visual_assets.py` → `Visual asset check OK: 52 battle sprite files`.
+- `godot --headless --path . --script res://tools/_battle_boot_probe.gd` → Battle route active, unpaused, time scale restored, spawns/enemies present.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`.
+- `python3 tools/check_visual_screens.py` → `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` → `Release candidate check OK`.
+
+### Remaining Guardrail Risk
+
+- Godot still prints existing ObjectDB/resource cleanup warnings on exit. Current commands exit 0, but this should remain a tracked cleanup item rather than being treated as a solved runtime-quality issue.
+
+---
+
+## Stage 1 P3.8 Active Skill & Element Impact Polish (2026-06-28)
+
+> Addressed the report that character active skills felt unavailable, elemental bullets did not communicate their hit effects strongly enough, split bullets were hard to perceive, and the selected-skill UI had duplicate bottom-region icon feedback.
+
+- **Active skill fallback casting**: fire and lightning active skills no longer fail just because no target is currently eligible. Blaze now detonates on the current aim lane when no target exists; Volt now chains visible fallback lightning strikes across the lane. Existing target-based damage behavior remains intact when enemies are present.
+- **Input reliability**: the character active button now explicitly captures pointer input and continues to update its ready/cooldown state through the shared button styling path.
+- **Element hit feedback**: projectile hits now trigger a stronger battle-layer effect per element: fire adds burn/explosion feedback, ice adds frost/freeze feedback, lightning adds electric arcs/rings, and poison keeps a visible toxic hit pulse.
+- **Split bullet readability**: split-shot hits now emit a visible burst ring, larger split shards, and bigger/slower homing mini projectiles so the player can clearly see the split behavior.
+- **Selected skill HUD cleanup**: selecting/upgrading a skill no longer spawns a second floating icon over the character area. The bottom skill slot with its level badge is the single persistent selected-skill display, with a short pulse when upgraded.
+- **Regression guardrails**: smoke test now requires every configured active skill to enter cooldown when pressed; gameplay polish checks now reject target-only active skill failures and duplicate floating skill icons.
+
+### Verification (after Stage 1 P3.8)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 3723 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 218 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --script res://tools/_battle_boot_probe.gd` -> Battle route active, unpaused, time scale restored, spawns/enemies present.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.
+
+---
+
+## Stage 1 P3.9 Map & Global Palette Retune (2026-06-28)
+
+> Addressed the report that the map screen still looked too harsh and prototype-like because the level list relied on saturated blue button art.
+
+- **Map card palette**: level cards now render their own opaque dark-metal panel over the existing `TextureButton` hit area, removing the bright-blue primary button look while preserving the smoke-test requirement that each level entry remains a `TextureButton`.
+- **Warmer hierarchy**: map cards use black metal as the base, gold for stars / deploy intent, and element colors only for weakness accents and index rails.
+- **Feature dock retune**: the top collection dock now uses darker cards, softer borders, and less saturated accent strips so it does not compete with the level list.
+- **Shared UI color polish**: `UiKit` panel, plate, and pill defaults were slightly darkened and warmed, reducing the global cyan-blue cast.
+- **Button tint cleanup**: menu, loadout, result, and collection primary actions now tint toward warm gold / muted steel instead of default bright blue.
+- **No asset changes**: this pass only retints and restyles existing UI code. No new or replacement images were generated.
+
+### Verification (after Stage 1 P3.9)
+
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 218 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- Visual map capture: `/tmp/zombie_fire_map_palette_v4.png`.
+
+---
+
+## Stage 1 P3.10 Combat HUD Micro-Polish (2026-06-28)
+
+> Addressed live battle HUD feedback: combo text looked naked, the active skill control was still text-first, the hero model read too small, and the gun continued firing while card choice paused the zombies.
+
+- **Combo HUD restyle**: `gameplay/hud/combo_hud.gd` now wraps the streak label in a compact gold-edged combat plate with a small accent rail, so "连击" is no longer bare floating text.
+- **Active skill icon mode**: `Hud/CharacterSkillButton` is now a compact square icon control. The visible skill name / "可释放" text is hidden; the icon is mapped from the current character active skill to existing skill art.
+- **Ready orbit feedback**: when the active skill is available, eight small glowing dots orbit the icon with staggered pulse intensity. Cooldown keeps a dark fill plus a small remaining-time number.
+- **Hero scale pass**: the battle-facing character sprite base scale was raised from `0.32` to `0.64`, preserving the existing weapon muzzle / projectile origin logic.
+- **Card-offer pause fix**: `gameplay/turret/turret.gd` now returns immediately while `SceneTree.paused`, so card choice pauses the gun as well as enemies.
+- **Regression guardrail**: `tools/m1_smoke_test.gd` now asserts that the active skill button renders in icon mode and that the turret does not emit `fired` while the card offer has paused the tree.
+
+### Verification (after Stage 1 P3.10)
+
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 219 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- Visual battle capture: `/tmp/zombie_fire_battle_latest.png`.
+
+---
+
+## Stage 1 P3.11 Damage Text & Weapon Mount Polish (2026-06-28)
+
+> Addressed live battle feedback that normal damage numbers looked like large gold rewards, and that the enlarged hero no longer matched the mounted weapon scale.
+
+- **Damage numbers retuned**: `gameplay/hud/damage_number_layer.gd` now renders normal enemy damage as smaller red hit text. Crits remain larger and brighter, but routine HP loss no longer competes with gold / skill effects.
+- **Damage budget guardrail**: `tools/m1_smoke_test.gd` now checks that normal damage numbers stay compact while preserving the existing dense-hit cap.
+- **Weapon mount rescale**: the independent handheld weapon scale was raised to match the 2x hero model pass, so the gun no longer reads like a small UI sprite pasted onto the character.
+- **Muzzle alignment**: weapon socket and per-weapon muzzle distances were updated with the new visual scale so projectile origin remains tied to the visible gun tip.
+- **No new AI art**: this pass uses the existing `data/weapons.json` handheld skins and current character battle frames. The character frame source still contains some baked pose weapon detail, but the selected weapon is now the dominant readable gun layer.
+
+### Verification (after Stage 1 P3.11)
+
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 219 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.
+- Visual battle capture: `/tmp/zombie_fire_battle_weapon_match_v1.png`.
+
+---
+
+## Stage 1 P3.12 Weaponless Character Base Art Integration (2026-06-28)
+
+> Follow-up to the same live battle report: scaling the independent gun helped, but the old character source still had baked-in handheld weapon details. The correct fix is to separate character body art from weapon art.
+
+- **Weaponless character battle sheet added**: generated and saved `assets/production/source_refs/generated/hero_battle_weaponless_sheet_chroma.png`, then extracted transparent source `assets/production/source_refs/generated/hero_battle_weaponless_sheet.png`.
+- **Per-character weaponless frames**: added `assets/production/sprites/animations/characters_weaponless/{char_vanguard,char_blaze,char_frost,char_volt}/` with idle, attack, and hurt frames. These are character-body frames only; selected guns remain runtime-mounted weapon layers.
+- **Battle loader preference**: `gameplay/battle/battle.gd` now loads `characters_weaponless` before falling back to the original baked-weapon character animation path.
+- **Direct PNG loading**: battle frame loading can construct `ImageTexture` directly from PNG files when Godot import metadata is not present, preventing headless runs from falling back to stale imported art.
+- **Socket retune**: the weapon socket was moved to the new grip-ready character pose so the independent gun aligns with the body instead of covering an old baked gun.
+- **Regression guardrail**: smoke test now asserts that battle characters use `characters_weaponless` base art.
+- **Asset index note**: `assets/production/OUTSOURCER_ASSET_INDEX.json` now documents this owner-directed generated override so future implementation work does not treat the weaponless frames as unregistered replacements.
+
+### Verification (after Stage 1 P3.12)
+
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- Visual battle capture: `/tmp/zombie_fire_battle_weaponless.png`.
+
+---
+
+## Stage 1 P3.13 Skill Card Timing Fix (2026-06-28)
+
+> Addressed the late-card pacing bug where the final zombie could push run XP over the card threshold, open a skill choice, and then immediately end the level after the player picked.
+
+- **Late final-clear popup blocked**: XP-threshold card offers now check whether the current reward would finish the final wave. If no future wave, pending spawn, or live enemy remains, the battle skips the card popup and proceeds to result.
+- **Pre-final pacing nudge**: before starting the final wave, battle now checks whether the first card is already ready or at least 85% charged; if so, it offers the skill before the final wave so the choice has real gameplay value.
+- **Death-animation aware enemy check**: the live-enemy check ignores the enemy currently emitting the death reward and ignores enemies already at 0 HP, so death animation frames do not fake remaining combat.
+- **Finish guardrail**: `_finish()` is now idempotent to avoid duplicated result routing on edge frames.
+- **Regression guardrail**: `tools/m1_smoke_test.gd` now asserts both sides of the timing rule: no final-clear late card, and a near-ready pre-final card can be offered before the last wave.
+
+### Verification (after Stage 1 P3.13)
+
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 220 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+---
+
+## Stage 1 P3.14 Asset Generation Policy Update (2026-06-28, updated 2026-06-29)
+
+> Owner changed the previous asset rule: GPT/Codex is now allowed to generate replacement assets when requested or when a quality fix requires better art.
+
+- **Constraint updated**: removed the absolute "do not generate assets" rule from the core handoff docs.
+- **Prototype update permission**: owner explicitly allows GPT/Codex to change or regenerate character prototypes, weapon prototypes, character+weapon composites, VFX sequence frames, UI icons, and audio placeholders when quality requires it.
+- **New guardrails**: generated replacements must keep game scope, IDs, data references, Godot integration paths, and the locked ruined-city cyberpunk style.
+- **Registration rule**: accepted generated replacements must live under `assets/production/` and be recorded in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+- **External developer rule**: external implementation should still use existing assets by default, but may generate or replace assets when explicitly authorized for that task.
+
+### Verification (after Stage 1 P3.14)
+
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 -m json.tool assets/production/INTEGRATION_ASSET_MANIFEST.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 3769 files`.
+- `git diff --check` -> no whitespace errors.
+
+---
+
+## Stage 1 P3.15 Fused Character/Weapon Battle Art (2026-06-28)
+
+> Addressed the live battle report that the selected gun still looked pasted onto the hero, especially on Volt with the plasma cannon.
+
+- **Fused combo art added**: generated a back-facing `char_volt + weapon_plasmacannon` battle sprite where the weapon is physically held in the character pose, then chroma-keyed, cropped, and integrated as `assets/production/sprites/animations/character_weapon_combos/char_volt/char_volt_weapon_plasmacannon_idle_01.png`.
+- **Battle loader priority**: `gameplay/battle/battle.gd` now checks `character_weapon_combos/{character}/{character}_{weapon}_idle_01.png` before the weaponless-character + mounted-weapon path. When a combo sprite exists, it becomes the character sprite and the separate floating `CharacterWeapon` node is suppressed.
+- **Muzzle alignment**: fused combo sprites use a per-combo virtual muzzle offset, so projectile origin follows the visible gun tip without rotating an independent weapon layer.
+- **Regression guardrail**: `tools/m1_smoke_test.gd` now verifies that `volt + weapon_plasmacannon` loads from `character_weapon_combos` and does not spawn the old floating weapon sprite.
+- **Screenshot reproducibility**: `tools/_shot.gd` can now take an `equipment` override in its payload, allowing deterministic captures of a specific character / weapon combination without modifying the real save.
+- **Asset validation coverage**: `tools/check_visual_assets.py` includes `character_weapon_combos`, so generated fused sprites are checked for transparent borders, baked square plates, and severe chroma remnants.
+
+### Verification (after Stage 1 P3.15)
+
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 -m json.tool assets/production/INTEGRATION_ASSET_MANIFEST.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 3772 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 221 res:// references / res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 53 battle sprite files`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `godot --path . --script res://tools/_shot.gd -- battle '{"level_id":"level_001","equipment":{"selected_character":"volt","selected_weapon":"weapon_plasmacannon","volt":10,"weapon_plasmacannon":10,"selected_pet":"pet_fire_imp"}}' /tmp/zombie_fire_volt_plasma_combo.png` -> visual capture confirms the fused model is loaded.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`; existing Godot cleanup warnings remain.
+
+## Stage 1 P3.16 Weapon-Specific Projectile VFX (2026-06-28)
+
+> Addressed the report that autocannon, fire, ice, lightning, and poison bullets had readable effects, but railgun, scattergun, and plasma cannon still fell back to generic projectile / hit feedback.
+
+- **Projectile visual profiles**: `gameplay/projectile/projectile.gd` now carries a `visual_profile` through flight and hit confirmation. Profiles currently cover `rail`, `scatter`, and `plasma` while leaving existing elemental bullets untouched.
+- **Railgun identity**: rail shots use a long cyan charge projectile, faster afterimage cadence, a lance-like muzzle trace, and a piercing rail impact trace across the zombie body.
+- **Scattergun identity**: scatter pellets use small shard sprites, slower discrete trails, fan-shaped muzzle sparks, and clustered pellet-hit chips around the target.
+- **Plasma cannon identity**: plasma shots use a larger purple energy core, purple/orange muzzle bloom, and a distinct plasma hit with layered core burst plus expanding shock rings instead of plain fire impact.
+- **Weapon / element separation**: native elements still decide damage typing and weakness logic; weapon profiles only control visual style. Plasma therefore remains a fire-element weapon for balance, but no longer looks like a normal fire bullet.
+- **Regression guardrails**: `tools/check_gameplay_polish.py` now requires weapon visual profile hooks and the three special impact routines. `tools/m1_smoke_test.gd` instantiates all three profile projectiles and verifies their texture / scale / color identity.
+
+### Verification (after Stage 1 P3.16)
+
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 3772 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 225 res:// references / res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 53 battle sprite files`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`; existing Godot cleanup warnings remain.
+
+## Stage 1 P3.17 Starter Weapon Naming & Prototype Retune (2026-06-28)
+
+> Addressed the report that if weapons are now character-held guns, the first weapon should not still read as a base cannon.
+
+- **Name retune**: `weapon_autocannon` keeps its stable internal ID, but the player-facing Chinese name is now `自动机枪`.
+- **Icon retune**: replaced `weapon_autocannon_icon.png` in both production and legacy compatibility paths with a framed gun silhouette derived from the accepted handheld weapon sheet.
+- **Prototype fallback retune**: replaced `weapon_autocannon_turret.png` in both production and legacy compatibility paths with a transparent machine-gun silhouette, and moved `data/weapons.json` to the production fallback path.
+- **Source traceability**: added `source_refs/generated/weapon_autocannon_machinegun_source_crop.png` and `source_refs/generated/weapon_autocannon_machinegun_cutout.png`; registered the override in `OUTSOURCER_ASSET_INDEX.json`.
+- **Regression guardrails**: `tools/check_gameplay_polish.py` and `tools/m1_smoke_test.gd` now require the `自动机枪` display name and the production machine-gun fallback asset path.
+
+### Verification (after Stage 1 P3.17)
+
+- `python3 -m json.tool data/localization_zh.json` -> valid JSON.
+- `python3 -m json.tool data/weapons.json` -> valid JSON.
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- Repo-wide search for the legacy Chinese cannon names -> no remaining matches.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 3774 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 226 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 53 battle sprite files`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`; existing Godot cleanup warnings remain.
+
+---
+
+## Stage 1 P3.18 Full Character/Weapon Fused Prototype Coverage (2026-06-29)
+
+> Addressed the gap that only Volt + plasma cannon had a fused prototype, while the other characters and weapons still depended on runtime floating gun layers.
+
+- **Full combo frame coverage**: generated 32 fused character/weapon prototype sets covering 4 characters x 8 weapons. Each set includes 4 idle frames, 4 attack frames, and 3 hurt frames under `assets/production/sprites/animations/character_weapon_combos/{char}/`.
+- **No floating weapon fallback for covered pairs**: battle now finds `idle_01` for every launch character/weapon combination, activates `character_weapon_combo_active`, and suppresses the separate `CharacterWeapon` sprite.
+- **Per-combo muzzle alignment**: `gameplay/battle/battle.gd` now stores a computed `CHARACTER_WEAPON_COMBO_MUZZLE` offset for all 32 pairs so projectiles originate from the visible fused gun tip.
+- **Reusable generation source**: added `tools/generate_character_weapon_combos.py`, plus `source_refs/generated/character_weapon_combo_generation_manifest.json` and `source_refs/generated/character_weapon_combo_matrix.png` for traceability and quick visual audit.
+- **Regression guardrails**: `tools/check_visual_assets.py` now requires full 4x8x11 frame coverage; `tools/m1_smoke_test.gd` instantiates every character/weapon pair and verifies fused art loads without a floating weapon layer.
+
+### Verification (after Stage 1 P3.18)
+
+- `python3 tools/generate_character_weapon_combos.py` -> generated 352 character/weapon combo frames.
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/check_visual_assets.py tools/check_gameplay_polish.py` -> pass.
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 -m json.tool assets/production/source_refs/generated/character_weapon_combo_generation_manifest.json` -> valid JSON.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 404 battle sprite files`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 226 res:// references / res:// references OK`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`; existing Godot cleanup warnings remain.
+
+## Stage 1 P3.19 Character/Weapon Pose Polish (2026-06-29)
+
+> Addressed the report that the generated firing prototype still looked like a standing pose, and that the gun layer sat on top of the character instead of belonging behind the body.
+
+- **Layering corrected**: fused character/weapon generation now renders the selected weapon behind the character body for idle and hurt frames. The character sprite is composited on top, so the gun no longer reads as a floating front sticker.
+- **Distinct firing posture**: attack frames now use a separate raised-weapon pose with per-frame recoil offsets, muzzle flash, and subtle body lean. The attack muzzle reference is `attack_01`, matching the immediate projectile spawn moment.
+- **Cleaner joins**: removed the visible grey connector bars from idle/hurt frames. Attack frames keep only a small low-alpha grip shadow, avoiding the old rectangular patch artifact.
+- **Railgun crop fix**: railgun attack frames were pulled inward so the long barrel and muzzle flash no longer touch the canvas edge.
+- **Runtime muzzle sync**: `CHARACTER_WEAPON_COMBO_MUZZLE` in `gameplay/battle/battle.gd` was updated from the regenerated manifest so projectiles still originate from the visible attack-frame muzzle.
+- **Regression guardrail**: `tools/check_visual_assets.py` now compares every combo's `idle_01` and `attack_01` frame and fails if the attack pose is too close to idle, preventing another "standing pose renamed as attack" regression.
+
+### Verification (after Stage 1 P3.19)
+
+- `python3 tools/generate_character_weapon_combos.py` -> generated 352 character/weapon combo frames.
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/check_visual_assets.py tools/check_gameplay_polish.py` -> pass.
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 -m json.tool assets/production/source_refs/generated/character_weapon_combo_generation_manifest.json` -> valid JSON.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 404 battle sprite files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/check_res_refs.py` -> `checked 226 res:// references / res:// references OK`.
+- `python3 tools/check_gameplay_polish.py` -> `Gameplay polish OK: 16 skills, 8 weapons, 28 enemies covered`.
+- `git diff --check` -> no whitespace errors.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`; existing Godot cleanup warnings remain.
+
+## Stage 1 P3.20 Directional Held-Weapon Attack Poses (2026-06-29)
+
+> Addressed the follow-up question about whether the gun visually follows the bullet direction. The projectile logic already aimed at the selected target, but fused character/weapon art needed directional attack poses to match that aim.
+
+- **Three-way attack coverage**: regenerated fused character/weapon assets with `attack_left`, `attack`, and `attack_right` frame sets for every 4-character x 8-weapon combination. Total fused combo output is now 608 frames.
+- **Runtime aim bucket**: battle now derives `left / center / right` from the current projectile direction and selects the matching attack frame set during firing and active-skill animations.
+- **Directional muzzle sockets**: added left and right fused muzzle offset tables in addition to the center table. `_weapon_fire_origin()` now resolves to the muzzle for the current aim bucket, so bullets originate from the visible gun tip for that direction.
+- **No floating-gun rollback**: idle/hurt frames still keep the weapon behind the character body, and the separate `CharacterWeapon` sprite remains suppressed for covered fused combinations.
+- **Regression guardrails**: `tools/check_visual_assets.py` now requires all three attack directions. `tools/m1_smoke_test.gd` verifies every character/weapon pair has left/center/right attack frames and that left/right muzzle origins move on the correct side of the center muzzle.
+
+### Verification (after Stage 1 P3.20)
+
+- `python3 tools/generate_character_weapon_combos.py` -> generated 608 character/weapon combo frames.
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/check_visual_assets.py` -> pass.
+- `python3 -m json.tool assets/production/source_refs/generated/character_weapon_combo_generation_manifest.json` -> valid JSON.
+- `python3 tools/check_res_refs.py` -> `checked 226 res:// references / res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; existing Godot cleanup warnings remain.
+
+## Stage 1 P3.21 Long-Press Manual Aim Priority (2026-06-29)
+
+> Addressed the report that player directional control felt weak and that auto aim sometimes shot backline zombies while frontline zombies were already pressuring the base.
+
+- **Long-press control gate**: `InputManager` now only enters manual aim after a 0.30 s mouse/finger hold. Short click/tap no longer steals auto aim.
+- **Manual aim priority**: battle now routes manual aim through explicit `manual_aim_started / aim_point / manual_aim_released` handlers. While the hold is active, the selected point overrides auto targeting and target lock; after release, a short 0.18 s grace keeps the final direction before auto aim resumes.
+- **Frontline auto-target retune**: `TargetingManager` now scores near-line pressure non-linearly, so default breach targeting favors zombies closest to the defense line before chasing backline tags or raw breach damage.
+- **Regression guardrails**: `tools/m1_smoke_test.gd` now verifies short taps do not trigger manual aim, long holds do trigger it, manual aim overrides auto target in battle, auto resumes after release, and default breach targeting prefers a frontline target over a backline threat.
+
+## Stage 1 P3.22 Headless Boot / Runtime Verification Fix (2026-06-29)
+
+> Addressed the sandbox-only Godot crash where the engine tried to write `user://logs/...` outside the workspace, then verified the playable loop through the existing headless probes.
+
+- **Godot user data path**: `project.godot` now sets `application/config/use_hidden_project_data_directory=true`, so `user://` resolves inside the project hidden data directory during local/headless validation.
+- **Headless file logging**: project file logging is disabled for headless/CI-style validation, avoiding the previous `user://logs` crash under workspace-only filesystem permissions.
+- **Audio cleanup**: `AudioManager` now skips stream loading/playback when the display driver is `headless`; visible macOS runs still play BGM/SFX, while required headless commands no longer leak `AudioStreamWAV` / `AudioStreamPlaybackWAV` resources on exit.
+- **Core loop verification**: `_battle_boot_probe.gd` enters `level_001` through the real route and confirms Battle is active, unpaused, spawning enemies, with character rig and turret present. `m1_smoke_test.gd` covers menu/map/loadout/result routing, all 99 battle scene entries, first-spawn readiness, target/manual-aim behavior, card pause/resume rules, equipment-driven battle stats, armor-break boss path, active skills, and result routing.
+
+### Verification (after Stage 1 P3.22)
+
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 4386 files`.
+- `python3 tools/check_res_refs.py` -> `checked 228 res:// references / res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> pressure estimate completes across all 99 levels.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `godot --headless --path . --quit` -> exits 0; no ObjectDB/resource cleanup warning remains. Godot still prints a macOS CA certificate fallback warning before loading bundled CA certificates.
+- `godot --headless --path . --script res://tools/_battle_boot_probe.gd` -> level_001 Battle route active, unpaused, spawning, character rig/turret present.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`.

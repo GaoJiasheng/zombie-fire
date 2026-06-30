@@ -6,6 +6,7 @@ var router: Node
 var level_id := "level_001"
 var next_level := ""
 var result_stars := 0
+var _result_return_payload := {}
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -13,6 +14,7 @@ func setup(main: Node, payload := {}) -> void:
 	var victory := bool(payload.get("victory", false))
 	next_level = _resolve_next_level(payload, victory)
 	result_stars = int(payload.get("stars", 0))
+	_result_return_payload = _build_result_return_payload(payload, victory)
 	AudioManager.play_bgm("victory" if victory else "defeat")
 	AudioManager.play_sfx("victory" if victory else "defeat")
 	_populate_hero(victory)
@@ -34,6 +36,10 @@ func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.018, 0.022, 0.030, 0.90), 3, 12))
 	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.12, 0.08, 0.03, 0.88), 2, 10))
 	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.CYAN, Color(0.025, 0.040, 0.052, 0.88), 2, 10))
+	$Content/Actions/PrimaryRow/UpgradeButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
+	$Content/Actions/PrimaryRow/RetryButton.modulate = Color(0.82, 0.86, 0.86, 1.0)
+	$Content/Actions/NextButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
+	$Content/Actions/MapButton.modulate = Color(0.82, 0.86, 0.86, 1.0)
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	UiKit.apply_label($Content/HeroCard/HeroBox/Title, 86, UiKit.TEXT_MAIN, 6)
 	UiKit.apply_label($Content/HeroCard/HeroBox/LevelName, 30, Color(0.78, 0.84, 0.84, 1.0), 3)
@@ -106,8 +112,7 @@ func _populate_actions(victory: bool) -> void:
 	if victory and next_level != "":
 		$Content/Actions/NextButton/NextLabel.text = "下一关"
 		$Content/Actions/NextButton.show()
-		# Gold-tint next button
-		$Content/Actions/NextButton.modulate = Color(1, 0.92, 0.55, 1)
+		$Content/Actions/NextButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
 	else:
 		$Content/Actions/NextButton.hide()
 	# On defeat, dim the upgrade button less aggressively
@@ -145,7 +150,11 @@ func _animate_result_entry(victory: bool) -> void:
 
 func _on_upgrade_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")
-	router.change_scene("loadout", {"level_id": level_id})
+	router.change_scene("loadout", {
+		"level_id": level_id,
+		"return_to": "result",
+		"return_payload": _result_return_payload,
+	})
 
 func _on_next_pressed() -> void:
 	level_id = _resolve_level_id({"level_id": level_id})
@@ -154,7 +163,11 @@ func _on_next_pressed() -> void:
 		return
 	SaveManager.repair_progression_unlocks()
 	AudioManager.play_sfx("ui_confirm")
-	router.change_scene("loadout", {"level_id": next_level})
+	router.change_scene("loadout", {
+		"level_id": next_level,
+		"return_to": "result",
+		"return_payload": _result_return_payload,
+	})
 
 func _on_map_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
@@ -192,6 +205,19 @@ func _resolve_level_id(payload: Dictionary) -> String:
 	if active != "":
 		return active
 	return "level_001"
+
+func _build_result_return_payload(payload: Dictionary, victory: bool) -> Dictionary:
+	var result_payload := payload.duplicate(true)
+	result_payload["level_id"] = level_id
+	result_payload["victory"] = victory
+	result_payload["stars"] = result_stars
+	if not result_payload.has("gold"):
+		result_payload["gold"] = 0
+	if not result_payload.has("xp"):
+		result_payload["xp"] = 0
+	if next_level != "":
+		result_payload["next_level"] = next_level
+	return result_payload
 
 func _router_level_id() -> String:
 	if router == null:

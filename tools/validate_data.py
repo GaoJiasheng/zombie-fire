@@ -62,6 +62,20 @@ def main() -> int:
     for char_id, row in tables["characters"].items():
         if row.get("element_focus") not in elements:
             errors.append(f"{char_id}.element_focus unknown: {row.get('element_focus')}")
+        active = row.get("active_skill", {})
+        if not isinstance(active, dict):
+            errors.append(f"{char_id}.active_skill must be an object")
+        else:
+            active_id = str(active.get("id", "")).strip()
+            if not active_id:
+                errors.append(f"{char_id}.active_skill.id missing")
+            basis = str(active.get("scaling_basis", "")).strip()
+            if basis not in {"weapon", "character"}:
+                errors.append(f"{char_id}.active_skill.scaling_basis must be weapon or character, got: {basis}")
+            if basis == "weapon" and float(active.get("level_damage_growth", 0.0)) > 0.01:
+                errors.append(f"{char_id}.weapon-scaling active skill growth is too high: {active.get('level_damage_growth')}")
+            if basis == "character" and float(active.get("level_damage_growth", 0.0)) <= 0.0:
+                errors.append(f"{char_id}.character-scaling active skill must define positive level_damage_growth")
         check_asset(errors, char_id, row, ["portrait"])
 
     for weapon_id, row in tables["weapons"].items():
