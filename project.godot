@@ -16,7 +16,6 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Zombie Fire"
 config/version="1.0.0"
-config/use_hidden_project_data_directory=true
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7")
 config/icon="res://assets/app/app_icon_1024.png"
@@ -29,17 +28,21 @@ SettingsManager="*res://core/settings/settings_manager.gd"
 InputManager="*res://core/input/input_manager.gd"
 AudioManager="*res://core/audio/audio_manager.gd"
 
+[debug]
+
+file_logging/enable_file_logging.pc=false
+
 [display]
 
 window/size/viewport_width=1080
 window/size/viewport_height=1920
 window/stretch/mode="canvas_items"
+window/handheld/orientation=1
 
 [gui]
 
 theme/custom_font="res://assets/production/fonts/font_main.ttf"
 
-[debug]
+[rendering]
 
-file_logging/enable_file_logging=false
-file_logging/enable_file_logging.pc=false
+textures/vram_compression/import_etc2_astc=true

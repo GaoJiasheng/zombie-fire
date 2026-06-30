@@ -4,3 +4,10 @@
 *.translation
 export_presets.cfg
 
+
+# 构建产物 / 大文件 / 系统垃圾(2026-06 补)
+build/
+*.ipa
+*.xcarchive
+.DS_Store
+extension_api.json

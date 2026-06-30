@@ -1,0 +1,64 @@
+{
+  "id": "projectile_3d_projectile_set",
+  "generated_by": "tools/generate_projectile_visuals.py",
+  "style": "2.5D cyberpunk ruined-city projectile sprites, right-facing baseline, transparent PNG",
+  "runtime_rule": "SPRITE_FORWARD_ANGLE is 0.0, so all projectile sprites face right before Godot rotates them to velocity.",
+  "assets": [
+    {
+      "path": "sprites/projectiles/proj_bullet_physical.png",
+      "kind": "physical",
+      "description": "steel jacket physical round"
+    },
+    {
+      "path": "sprites/projectiles/proj_bullet_fire.png",
+      "kind": "fire",
+      "description": "orange flame round with molten core"
+    },
+    {
+      "path": "sprites/projectiles/proj_bullet_ice.png",
+      "kind": "ice",
+      "description": "faceted blue cryo shard"
+    },
+    {
+      "path": "sprites/projectiles/proj_bullet_lightning.png",
+      "kind": "lightning",
+      "description": "purple-yellow electric dart"
+    },
+    {
+      "path": "sprites/projectiles/proj_bullet_poison.png",
+      "kind": "poison",
+      "description": "toxic glass capsule with liquid bubbles"
+    },
+    {
+      "path": "sprites/projectiles/proj_heavy_charge.png",
+      "kind": "heavy",
+      "description": "atomic-style heavy energy charge"
+    },
+    {
+      "path": "sprites/projectiles/proj_acid_spit.png",
+      "kind": "acid",
+      "description": "corrosive acid globule"
+    },
+    {
+      "path": "sprites/projectiles/proj_split_mini.png",
+      "kind": "split",
+      "description": "small split shard"
+    },
+    {
+      "path": "sprites/projectiles/proj_rail_slug.png",
+      "kind": "rail",
+      "description": "cyan railgun lance slug"
+    },
+    {
+      "path": "sprites/projectiles/proj_scatter_pellet.png",
+      "kind": "scatter",
+      "description": "compact scattergun tungsten pellet"
+    },
+    {
+      "path": "sprites/projectiles/proj_plasma_orb.png",
+      "kind": "plasma",
+      "description": "magenta plasma orb"
+    }
+  ],
+  "prompt_reference": "Create a unified set of right-facing 2.5D cyberpunk projectile sprites for a vertical mobile zombie defense game: physical steel round, fire round, ice shard, lightning dart, poison capsule, heavy energy charge, acid globule, split shard, railgun slug, and plasma orb. Transparent background, crisp alpha, readable at small size, upper-right rim light, saturated element color, no UI frame and no text."
+}
