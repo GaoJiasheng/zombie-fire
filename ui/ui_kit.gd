@@ -28,6 +28,9 @@ const WARNING := Color(0.96, 0.72, 0.30, 1.0)
 const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 
+# 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
+const FONT_SCALE := 1.22
+
 static func panel_style(accent := CYAN, bg := PANEL_BG, border_width := 2, radius := 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
@@ -63,7 +66,7 @@ static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -
 	return style
 
 static func apply_label(label: Label, size := 22, color := TEXT_MAIN, outline := 3) -> void:
-	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_font_size_override("font_size", int(round(size * FONT_SCALE)))
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
 	label.add_theme_constant_override("outline_size", outline)

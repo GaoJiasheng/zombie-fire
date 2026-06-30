@@ -11,6 +11,9 @@ PRESET="iOS Release Candidate"
 TEAM="D33974QQTD"
 KEY="AMDBKB83K9"
 ISS="3659a31c-d035-4195-842f-d269268a59c3"
+KEYP="$HOME/.appstoreconnect/private_keys/AuthKey_$KEY.p8"
+# 用 API 密钥认证归档/导出，这样后台运行也能自动建发布证书（否则会报 "No Accounts"）。
+AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEYP" -authenticationKeyID "$KEY" -authenticationKeyIssuerID "$ISS")
 cd "$PROJ"
 
 log(){ printf '\n\033[1;36m▶ %s\033[0m\n' "$*"; }
@@ -49,7 +52,7 @@ log "xcodebuild 归档（几分钟）…"
 rm -rf /tmp/ZombieFire.xcarchive
 xcodebuild -project build/ios/ZombieFire.xcodeproj -scheme ZombieFire -configuration Release \
   -destination "generic/platform=iOS" -archivePath /tmp/ZombieFire.xcarchive \
-  archive -allowProvisioningUpdates >/tmp/ship_archive.log 2>&1
+  archive "${AUTH[@]}" >/tmp/ship_archive.log 2>&1
 grep -q "ARCHIVE SUCCEEDED" /tmp/ship_archive.log || { tail -25 /tmp/ship_archive.log; die "归档失败"; }
 
 # 6) 导出 App Store IPA
@@ -68,7 +71,7 @@ PLIST
 rm -rf /tmp/ZombieFire_ipa
 xcodebuild -exportArchive -archivePath /tmp/ZombieFire.xcarchive \
   -exportOptionsPlist /tmp/ExportOptions.plist -exportPath /tmp/ZombieFire_ipa \
-  -allowProvisioningUpdates >/tmp/ship_exportipa.log 2>&1
+  "${AUTH[@]}" >/tmp/ship_exportipa.log 2>&1
 grep -q "EXPORT SUCCEEDED" /tmp/ship_exportipa.log || { tail -25 /tmp/ship_exportipa.log; die "导出 IPA 失败"; }
 cp /tmp/ZombieFire_ipa/ZombieFire.ipa build/ios/ZombieFire.ipa
 cp /tmp/ZombieFire_ipa/ZombieFire.ipa "$HOME/Desktop/ZombieFire.ipa"

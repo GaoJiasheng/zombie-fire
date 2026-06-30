@@ -924,7 +924,7 @@ func _verify_projectile_visual_profiles() -> void:
 		elif profile == "scatter":
 			_expect(sprite.scale.x < 0.32 and sprite.scale.y < 0.32, "scatter pellets must stay small")
 		elif profile == "plasma":
-			_expect(sprite.scale.x >= 0.5 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
+			_expect(sprite.scale.x >= 0.36 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
 		projectile.queue_free()
 
 func _verify_turret_muzzle_sockets(data_loader: Node) -> void:

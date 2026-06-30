@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -255,7 +256,7 @@ def save_assets() -> None:
     SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     images: dict[str, Image.Image] = {}
     for filename, spec in ASSETS.items():
-        img = clean_alpha_edges(spec["fn"]())
+        img = clean_alpha_edges(premium_finish(spec["fn"](), filename, spec["kind"]))
         images[filename] = img
         img.save(PROJECTILE_DIR / filename)
     save_preview(images)
@@ -276,6 +277,86 @@ def clean_alpha_edges(img: Image.Image) -> Image.Image:
                 fade = max(edge_dist / 8.0, 0.0)
                 pixels[x, y] = (r, g, b, int(a * fade))
     return cleaned
+
+
+def premium_finish(img: Image.Image, filename: str, kind: str) -> Image.Image:
+    img = img.convert("RGBA")
+    alpha = img.getchannel("A")
+    bbox = alpha.getbbox()
+    if bbox is None:
+        return img
+    palette = {
+        "physical": "#d9dee5",
+        "fire": "#ff8a2e",
+        "ice": "#68dfff",
+        "lightning": "#d08bff",
+        "poison": "#78ff48",
+        "heavy": "#ffc24a",
+        "acid": "#85ff36",
+        "split": "#ffd56c",
+        "rail": "#6ff6ff",
+        "scatter": "#ffe0a0",
+        "plasma": "#ca72ff",
+    }
+    accent = rgba(palette.get(kind, "#74e7ff"), 255)
+    random.seed(filename)
+
+    shaded = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    src = img.load()
+    dst = shaded.load()
+    for y in range(SIZE):
+        for x in range(SIZE):
+            r, g, b, a = src[x, y]
+            if a == 0:
+                continue
+            nx = x / max(1, SIZE - 1)
+            ny = y / max(1, SIZE - 1)
+            rim = 1.0 + 0.24 * max(0.0, 1.0 - (nx * 0.75 + ny * 0.95))
+            shade = 1.0 - 0.20 * max(0.0, (nx * 0.55 + ny * 0.85) - 0.72)
+            glow_mix = 0.05 + 0.07 * math.sin((nx + ny) * math.pi)
+            dst[x, y] = (
+                min(255, int(r * rim * shade + accent[0] * glow_mix)),
+                min(255, int(g * rim * shade + accent[1] * glow_mix)),
+                min(255, int(b * rim * shade + accent[2] * glow_mix)),
+                a,
+            )
+
+    out = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    shadow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    shadow.putalpha(alpha.filter(ImageFilter.GaussianBlur(7)).point(lambda value: int(value * 0.35)))
+    out.alpha_composite(shadow, (5, 8))
+
+    outer_glow = Image.new("RGBA", img.size, accent[:3] + (80,))
+    outer_glow.putalpha(alpha.filter(ImageFilter.GaussianBlur(13)).point(lambda value: int(value * 0.42)))
+    out.alpha_composite(outer_glow)
+    out.alpha_composite(shaded)
+
+    bevel = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(bevel, "RGBA")
+    left, top, right, bottom = bbox
+    width = right - left
+    height = bottom - top
+    for i in range(4):
+        t = i / 3.0
+        sx = left + width * (0.18 + t * 0.34)
+        sy = top + height * (0.18 + random.uniform(-0.03, 0.05))
+        ex = sx + width * random.uniform(0.22, 0.45)
+        ey = sy - height * random.uniform(0.02, 0.10)
+        draw.line((sx, sy, ex, ey), fill=(255, 255, 235, 72), width=max(2, int(height * 0.025)))
+    for _ in range(18):
+        x = int(random.uniform(left, right))
+        y = int(random.uniform(top, bottom))
+        if alpha.getpixel((x, y)) <= 24:
+            continue
+        radius = random.uniform(1.0, 3.2)
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=(255, 255, 255, random.randint(24, 72)))
+    out.alpha_composite(bevel.filter(ImageFilter.GaussianBlur(0.35)))
+
+    edge = alpha.filter(ImageFilter.FIND_EDGES).point(lambda value: min(110, int(value * 0.55)))
+    edge_layer = Image.new("RGBA", img.size, (238, 246, 255, 0))
+    edge_layer.putalpha(edge)
+    out.alpha_composite(edge_layer)
+    return out
 
 
 def save_preview(images: dict[str, Image.Image]) -> None:

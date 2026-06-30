@@ -91,17 +91,14 @@ func _refresh() -> void:
 	var char_id := SaveManager.get_selected("character")
 	if char_id == "":
 		char_id = "vanguard"
+	# 只显示真正已选/已拥有的装备；未拥有则留空（开局护甲/芯片/宠物都没有）。
 	var armor_id := SaveManager.get_selected("armor")
-	if armor_id == "":
-		armor_id = "armor_kevlar"
 	var chip_id := SaveManager.get_selected("chip")
-	if chip_id == "":
-		chip_id = "chip_attack"
 	var pet_id := SaveManager.get_selected("pet")
 	var weapon_level := SaveManager.get_weapon_level(weapon_id)
 	var char_level := SaveManager.get_item_level(char_id)
-	var armor_level := SaveManager.get_item_level(armor_id)
-	var chip_level := SaveManager.get_item_level(chip_id)
+	var armor_level := SaveManager.get_item_level(armor_id) if armor_id != "" else 0
+	var chip_level := SaveManager.get_item_level(chip_id) if chip_id != "" else 0
 	var pet_level := SaveManager.get_item_level(pet_id) if pet_id != "" else 0
 	var upgrade_cost := SaveManager.get_weapon_upgrade_cost(weapon_id)
 	var gold := SaveManager.get_player_gold()
@@ -111,8 +108,8 @@ func _refresh() -> void:
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var character_name := DataLoader.tr_key(DataLoader.get_row("characters", char_id).get("name_key", char_id))
 	var weapon_name := DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id))
-	var armor_name := _row_name("armors", armor_id)
-	var chip_name := _row_name("chips", chip_id)
+	var armor_name := _row_name("armors", armor_id) if armor_id != "" else "未装备"
+	var chip_name := _row_name("chips", chip_id) if chip_id != "" else "未装备"
 	var pet_name := _row_name("pets", pet_id) if pet_id != "" else "未携带"
 	var growth_tier := _tier_suffix(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))).strip_edges()
 	if growth_tier == "":
@@ -498,20 +495,35 @@ func _signature_card_style(bg: Color, border: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 6
 	return style
 
-func _gear_icon_button(table: String, slot: String, selected_id: String, fallback_id: String) -> Control:
-	var item_id := selected_id if selected_id != "" else fallback_id
-	var row := DataLoader.get_row(table, item_id)
+func _gear_icon_button(table: String, slot: String, selected_id: String, _fallback_id: String) -> Control:
+	# 未拥有/未装备 -> 干净的空槽（虚线感的暗框 + “＋”），点击进入收藏/商店。
+	var has_item := selected_id != ""
+	var row := DataLoader.get_row(table, selected_id) if has_item else {}
+	var accent := Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82)
+	var item_name := DataLoader.tr_key(row.get("name_key", selected_id)) if has_item else "未装备 · 点击获取"
 	var card := _icon_card(
 		"%sIcon" % slot.capitalize(),
-		str(row.get("icon", "")),
+		str(row.get("icon", "")) if has_item else "",
 		GEAR_CARD_SIZE,
 		16.0,
-		selected_id != "" or slot != "pet",
+		has_item,
 		true,
-		Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82),
-		"%s：%s" % [_slot_label(slot), DataLoader.tr_key(row.get("name_key", item_id))]
+		accent,
+		"%s：%s" % [_slot_label(slot), item_name]
 	)
-	card.modulate = Color(1, 1, 1, 1) if selected_id != "" or slot != "pet" else Color(0.55, 0.62, 0.68, 0.82)
+	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.62, 0.68, 0.74, 0.95)
+	if not has_item:
+		var glyph := Label.new()
+		glyph.name = "EmptyGlyph"
+		glyph.text = "＋"
+		glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		glyph.position = Vector2.ZERO
+		glyph.size = GEAR_CARD_SIZE
+		glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glyph.add_theme_font_size_override("font_size", int(GEAR_CARD_SIZE.y * 0.4))
+		glyph.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 0.6))
+		card.add_child(glyph)
 	(card.get_node("HitArea") as Button).pressed.connect(_open_collection.bind(table))
 	return card
 

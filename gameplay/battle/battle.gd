@@ -612,20 +612,17 @@ func _load_equipment() -> void:
 	if weapon_id == "":
 		weapon_id = "weapon_autocannon"
 	weapon_level = SaveManager.get_weapon_level(weapon_id)
+	# 不再回退默认护甲/芯片：开局未拥有就真的没有（与商店/出战配置一致，也让前期不再被白送装备）。
 	armor_id = SaveManager.get_selected("armor")
-	if armor_id == "":
-		armor_id = "armor_kevlar"
 	chip_id = SaveManager.get_selected("chip")
-	if chip_id == "":
-		chip_id = "chip_attack"
 	pet_id = SaveManager.get_selected("pet")
 	character_data = DataLoader.get_row("characters", character_id)
-	armor_data = DataLoader.get_row("armors", armor_id)
-	chip_data = DataLoader.get_row("chips", chip_id)
+	armor_data = DataLoader.get_row("armors", armor_id) if armor_id != "" else {}
+	chip_data = DataLoader.get_row("chips", chip_id) if chip_id != "" else {}
 	pet_data = DataLoader.get_row("pets", pet_id) if pet_id != "" else {}
 	character_level = SaveManager.get_item_level(character_id)
-	armor_level = SaveManager.get_item_level(armor_id)
-	chip_level = SaveManager.get_item_level(chip_id)
+	armor_level = SaveManager.get_item_level(armor_id) if armor_id != "" else 1
+	chip_level = SaveManager.get_item_level(chip_id) if chip_id != "" else 1
 	pet_level = SaveManager.get_item_level(pet_id) if pet_id != "" else 1
 
 func _configure_character_active_skill() -> void:
@@ -1677,9 +1674,10 @@ func _apply_base_survivability() -> void:
 		gold_mult *= 1.0 + _pet_scaled_value("gold_mult", "level_gold_growth")
 	match str(character_data.get("passive", "")):
 		"breach_guard":
-			breach_shields += 1
+			# 不再默认给屏障（屏障只来自屏障技能）；改为防线伤害减免，保留防御定位。
+			breach_damage_mult *= 0.82
 			if _growth_rank(character_level) >= 2:
-				breach_shields += 1
+				breach_damage_mult *= 0.88
 		"frost_command":
 			slow_strength_bonus = 1.18
 			if _growth_rank(character_level) >= 1:
@@ -2872,28 +2870,16 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
+	# 多重射击：以玩家瞄准方向为中心、弹道之间“固定角度”均匀展开的扇形。
+	# 不再让每条弹道自动锁不同敌人（那样会全部命中、过强）。
 	var directions: Array[Vector2] = []
 	if shots <= 1:
 		directions.append(base_direction.normalized())
 		return directions
-	var candidates := _multi_shot_target_candidates(origin, base_direction)
-	for candidate in candidates:
-		if directions.size() >= shots:
-			break
-		var enemy := candidate.get("enemy") as Node2D
-		if enemy == null or not is_instance_valid(enemy):
-			continue
-		var target_direction := (enemy.global_position - origin).normalized()
-		if target_direction.length_squared() <= 0.0:
-			continue
-		directions.append(target_direction)
-	while directions.size() < shots:
-		var index := directions.size()
-		var offset: float = lerpf(-spread, spread, 0.5 if shots == 1 else float(index) / float(shots - 1))
+	for index in range(shots):
+		var t: float = float(index) / float(shots - 1)
+		var offset: float = lerpf(-spread, spread, t)
 		directions.append(base_direction.rotated(offset).normalized())
-	directions.sort_custom(func(a: Vector2, b: Vector2) -> bool:
-		return wrapf(a.angle() - base_direction.angle(), -PI, PI) < wrapf(b.angle() - base_direction.angle(), -PI, PI)
-	)
 	return directions
 
 func _multi_shot_target_candidates(origin: Vector2, base_direction: Vector2) -> Array:

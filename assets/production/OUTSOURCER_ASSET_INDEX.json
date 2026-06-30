@@ -1,7 +1,7 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 4391,
+    "total_files": 5056,
     "parts_files": 414,
     "animation_files": 858,
     "sfx_files": 43,
@@ -39,13 +39,6 @@
       "reason": "Battle characters must not include baked handheld weapons; selected weapons are mounted as independent runtime layers."
     },
     {
-      "path": "sprites/animations/character_weapon_combos",
-      "source": "sprites/animations/characters_weaponless + sprites/weapons/handheld",
-      "derived": "source_refs/generated/character_weapon_combo_generation_manifest.json",
-      "preview": "source_refs/generated/character_weapon_combo_matrix.png",
-      "reason": "Owner requested all four characters and all eight weapons to use fused prototype battle art instead of runtime floating gun layers. Current generation uses weapon-behind-character layering for idle/hurt and left/center/right raised-weapon attack poses with muzzle flashes."
-    },
-    {
       "path": "sprites/weapons/weapon_autocannon_icon.png",
       "source": "source_refs/handheld_weapon_sheet.png",
       "derived": "source_refs/generated/weapon_autocannon_machinegun_cutout.png",
@@ -56,6 +49,66 @@
       "source": "source_refs/handheld_weapon_sheet.png",
       "derived": "source_refs/generated/weapon_autocannon_machinegun_cutout.png",
       "reason": "Fallback prototype for weapon_autocannon now uses the same machine-gun silhouette as the handheld weapon."
+    },
+    {
+      "path": "sprites/animations/bosses",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/animations/character_weapon_combos",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/animations/zombies",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/bosses",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/characters",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/pets",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/ui/skill_icons",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/vfx",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/vfx_sequences",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
+    },
+    {
+      "path": "sprites/zombies",
+      "source": "source_refs/generated/high_end_prototype_asset_spec.json",
+      "derived": "assets/production/source_refs/generated/high_end_prototype_contact_sheet.png",
+      "reason": "Owner requested all low-end prototype models, UI-facing prototypes, and simple VFX to be remade to a higher-end 3D mobile-game presentation without changing gameplay logic."
     },
     {
       "path": "sprites/projectiles",

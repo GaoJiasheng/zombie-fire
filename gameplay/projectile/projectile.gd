@@ -72,8 +72,14 @@ func _apply_homing(delta: float) -> void:
 	if target == null:
 		return
 	var speed := velocity.length()
-	var desired := (target.global_position - global_position).normalized() * speed
-	velocity = velocity.lerp(desired, clampf(homing_strength * delta, 0.0, 0.32))
+	if speed <= 0.0:
+		return
+	# 只转方向、保持速度（用 lerp 直接混合等长向量会缩短结果，导致追踪弹越转越慢最后卡住）。
+	var desired_dir := (target.global_position - global_position).normalized()
+	var new_dir := velocity.normalized().lerp(desired_dir, clampf(homing_strength * delta, 0.0, 0.32)).normalized()
+	if new_dir.length_squared() <= 0.0:
+		return
+	velocity = new_dir * speed
 
 func _nearest_enemy() -> Node2D:
 	var best: Node2D
@@ -194,15 +200,16 @@ func _projectile_texture_path(elem: String, profile := "") -> String:
 			return "res://assets/production/sprites/projectiles/proj_bullet_physical.png"
 
 func _projectile_sprite_scale(profile := "") -> Vector2:
+	# 子弹视觉整体缩小约 28%（仅视觉，碰撞箱不变）。
 	match profile:
 		"rail":
-			return Vector2(0.72, 0.24)
+			return Vector2(0.52, 0.17)
 		"scatter":
-			return Vector2(0.24, 0.24)
+			return Vector2(0.18, 0.18)
 		"plasma":
-			return Vector2(0.56, 0.56)
+			return Vector2(0.40, 0.40)
 		_:
-			return Vector2(0.42, 0.42)
+			return Vector2(0.30, 0.30)
 
 func _collision_radius_mult(profile := "") -> float:
 	match profile:

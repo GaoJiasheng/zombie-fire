@@ -37,11 +37,14 @@ file_logging/enable_file_logging.pc=false
 window/size/viewport_width=1080
 window/size/viewport_height=1920
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=1
 
 [gui]
 
 theme/custom_font="res://assets/production/fonts/font_main.ttf"
+theme/default_font_size=32
+common/default_scroll_deadzone=30
 
 [rendering]
 

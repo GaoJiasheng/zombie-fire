@@ -153,10 +153,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	button.clip_contents = true
 	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.62, 0.64, 0.66, 0.9)
 	button.disabled = false
-	if unlocked:
-		button.pressed.connect(_show_item_detail.bind(item_id, row))
-	else:
-		button.pressed.connect(_purchase_item_flow.bind(item_id, row))
+	# 点卡片永远只看详情，绝不直接购买（购买走卡片上的“购买”按钮或详情页里的购买按钮）。
+	button.pressed.connect(_show_item_detail.bind(item_id, row))
 
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
@@ -227,11 +225,24 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	elif not unlocked:
 		var buy_price := SaveManager.get_unlock_price_star(_data_table_name(), item_id)
 		var can_buy := SaveManager.get_player_star() >= buy_price
-		var buy_badge := UiKit.pill("购买 %d★" % buy_price, Color(1.0, 0.86, 0.3, 0.95) if can_buy else Color(0.82, 0.46, 0.42, 0.92), 17)
-		buy_badge.position = Vector2(560, 54)
-		buy_badge.size = Vector2(156, 42)
-		buy_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(buy_badge)
+		var buy_btn := Button.new()
+		buy_btn.text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
+		buy_btn.position = Vector2(560, 52)
+		buy_btn.size = Vector2(156, 52)
+		buy_btn.custom_minimum_size = Vector2(156, 52)
+		buy_btn.disabled = not can_buy
+		buy_btn.focus_mode = Control.FOCUS_NONE
+		buy_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+		buy_btn.add_theme_font_size_override("font_size", int(round(19 * UiKit.FONT_SCALE)))
+		var buy_accent := Color(1.0, 0.84, 0.30) if can_buy else Color(0.42, 0.46, 0.52)
+		for st in ["normal", "hover", "pressed", "focus"]:
+			buy_btn.add_theme_stylebox_override(st, UiKit.pill_style(buy_accent))
+		buy_btn.add_theme_stylebox_override("disabled", UiKit.pill_style(Color(0.34, 0.38, 0.44)))
+		buy_btn.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42))
+		buy_btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.58, 0.64))
+		if can_buy:
+			buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
+		button.add_child(buy_btn)
 	return button
 
 func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton:
@@ -446,7 +457,7 @@ func _data_table_name() -> String:
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if not unlocked:
 		var cost := int(row.get("unlock_cost_star", row.get("unlock", {}).get("price", 0)))
-		return "售价 %d★ · 点击购买" % cost
+		return "%s  ·  售价 %d★" % [_item_stat_summary(row), cost]
 	match mode:
 		"characters":
 			return "定位：%s  元素：%s  %s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-")), _next_upgrade_hint(item_id, row)]
@@ -462,6 +473,22 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 			return "标签：%s" % _format_tags(row.get("card_tags", []))
 		_:
 			return item_id
+
+func _item_stat_summary(row: Dictionary) -> String:
+	# 未拥有时也要看到的核心参数（不含升级提示），方便判断该不该买。
+	match mode:
+		"characters":
+			return "定位：%s  元素：%s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-"))]
+		"weapons":
+			return "元素：%s  射速：%s  %s" % [_element_name(row.get("element", "-")), str(row.get("fire_rate", "-")), _weapon_special_text(row)]
+		"armors":
+			return "生命倍率：%.0f%%  抗性：%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), "  防线屏障+1" if int(row.get("breach_shield", 0)) > 0 else ""]
+		"chips":
+			return "%s +%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0))]
+		"pets":
+			return "定位：%s  元素：%s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-"))]
+		_:
+			return ""
 
 func _skill_first_effect_text(row: Dictionary) -> String:
 	var levels: Array = row.get("levels", [])
@@ -836,7 +863,17 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
-	if mode != "skills":
+	if mode != "skills" and not SaveManager.is_item_unlocked(slot, item_id):
+		# 未拥有：详情页里直接给购买按钮（买得起=亮，买不起=灰禁用）。
+		var buy_price := SaveManager.get_unlock_price_star(table, item_id)
+		var can_buy := SaveManager.get_player_star() >= buy_price
+		var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
+		buy_btn.disabled = not can_buy
+		buy_btn.modulate = Color.WHITE if can_buy else Color(0.5, 0.54, 0.6, 0.82)
+		buy_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
+		action_row.add_child(buy_btn)
+	elif mode != "skills":
 		var equip_btn := _detail_button("EquipButton", "已装备" if selected else "装  备", true)
 		equip_btn.disabled = selected
 		equip_btn.modulate = Color(0.58, 0.62, 0.68, 0.88) if selected else Color.WHITE
@@ -946,16 +983,26 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			stats.append({"label": "射速", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "等级射速 %.0f%%" % ((SaveManager.get_weapon_fire_rate_multiplier(item_id) - 1.0) * 100.0)})
 			stats.append({"label": "弹速", "value": "%d" % int(row.get("projectile_speed", 0)), "sub": _weapon_special_text(row)})
 		"armors":
-			stats.append({"label": "生命", "value": "+%d%%" % int(round((float(row.get("hp_mult", 1.0)) - 1.0) * 100.0)), "sub": "每级 +%d%%" % int(round(float(row.get("level_hp_growth", 0.0)) * 100.0))})
+			var armor_g := float(row.get("level_hp_growth", 0.0))
+			var armor_now := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(item_level - 1, 0)))
+			var armor_max := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(max_level - 1, 0)))
+			stats.append({"label": "生命", "value": "+%d%%" % int(round((armor_now - 1.0) * 100.0)), "sub": "Lv.%d · 满级 +%d%%" % [item_level, int(round((armor_max - 1.0) * 100.0))]})
 			stats.append({"label": "抗性", "value": _element_name(row.get("resist", "none")), "sub": "防线承压"})
 			stats.append({"label": "屏障", "value": "+%d" % int(row.get("breach_shield", 0)), "sub": "防线容错"})
 		"chips":
+			var chip_g := float(row.get("level_value_growth", 0.0))
+			var chip_base := float(row.get("value", 0))
+			var chip_now := chip_base * (1.0 + chip_g * float(max(item_level - 1, 0)))
+			var chip_max := chip_base * (1.0 + chip_g * float(max(max_level - 1, 0)))
 			stats.append({"label": "属性", "value": _stat_name(row.get("stat", "stat")), "sub": "核心芯片"})
-			stats.append({"label": "增幅", "value": _value_text(row.get("value", 0)), "sub": "每级 +%s" % _value_text(row.get("level_value_growth", 0))})
+			stats.append({"label": "增幅", "value": _value_text(chip_now), "sub": "Lv.%d · 满级 %s" % [item_level, _value_text(chip_max)]})
 		"pets":
 			stats.append({"label": "定位", "value": _role_name(row.get("role", "-")), "sub": _element_name(row.get("element", "none"))})
 			if row.has("damage"):
-				stats.append({"label": "伤害", "value": "%d" % int(row.get("damage", 0)), "sub": "每级 +%d%%" % int(round(float(row.get("level_damage_growth", 0.0)) * 100.0))})
+				var pet_g := float(row.get("level_damage_growth", 0.0))
+				var pet_now := float(row.get("damage", 0)) * (1.0 + pet_g * float(max(item_level - 1, 0)))
+				var pet_max := float(row.get("damage", 0)) * (1.0 + pet_g * float(max(max_level - 1, 0)))
+				stats.append({"label": "伤害", "value": "%d" % int(round(pet_now)), "sub": "Lv.%d · 满级 %d" % [item_level, int(round(pet_max))]})
 			if row.has("fire_rate"):
 				stats.append({"label": "频率", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "自动协战"})
 			if row.has("heal_per_wave"):
