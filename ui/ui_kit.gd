@@ -213,23 +213,50 @@ static func _resource_chip_style(accent: Color) -> StyleBoxFlat:
 	s.content_margin_bottom = 6
 	return s
 
-static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> PanelContainer:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = chip_size
-	panel.tooltip_text = tip
-	panel.add_theme_stylebox_override("panel", _resource_chip_style(accent))
+static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> Button:
+	var btn := Button.new()
+	btn.custom_minimum_size = chip_size
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.tooltip_text = tip
+	var style := _resource_chip_style(accent)
+	for st in ["normal", "hover", "pressed", "focus", "disabled"]:
+		btn.add_theme_stylebox_override(st, style)
+	if tip != "":
+		btn.pressed.connect(func() -> void: toast(btn, tip, accent))
 	var content := HBoxContainer.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_theme_constant_override("separation", 9)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(content)
+	btn.add_child(content)
 	var ic := icon(icon_path, Vector2(36, 36))
 	ic.modulate = Color(1.06, 1.02, 0.92, 1.0)
 	content.add_child(ic)
 	var lbl := label(value, font_size, TEXT_MAIN, 3)
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	content.add_child(lbl)
-	return panel
+	return btn
+
+# 轻量提示条:点资源 chip 时在顶部中央短暂显示说明(手机没有 hover tooltip)。
+static func toast(anchor: Node, text: String, accent := GOLD) -> void:
+	if anchor == null or not is_instance_valid(anchor) or anchor.get_tree() == null:
+		return
+	var layer := CanvasLayer.new()
+	layer.layer = 128
+	anchor.get_tree().root.add_child(layer)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", pill_style(accent, Color(0.02, 0.03, 0.04, 0.96)))
+	panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	panel.offset_top = 120.0
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	var lbl := label(text, 26, TEXT_MAIN, 3)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(lbl)
+	layer.add_child(panel)
+	var tween := panel.create_tween()
+	tween.tween_interval(1.8)
+	tween.tween_property(panel, "modulate:a", 0.0, 0.3)
+	tween.tween_callback(layer.queue_free)
 
 # items: Array[Dictionary]，每项 {icon:String, accent:Color, value:String, tip:String}
 static func resource_bar(items: Array, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:

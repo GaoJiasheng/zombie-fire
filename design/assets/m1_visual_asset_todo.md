@@ -21,7 +21,7 @@
 | `zombie_brute` | portrait / icon / prototype_sprite | accepted | 肉盾体型基准 |
 | `boss_tank_titan` | portrait / icon / prototype_sprite | accepted | Boss 体量基准 |
 | `weapon_autocannon` | icon / machine-gun prototype | accepted | 玩家长期注视对象 |
-| `bg_city_ruins` | background prototype | accepted | 第一章色调基准；后续批量背景要更 stylized |
+| `bg_city_ruins` | background prototype | accepted | 旧版基准；主线战斗背景已由 `level_backgrounds_v2` 替换 |
 | `ui_card_frame` | card frame / selected / locked | reviewed | 框架方向可用；技能 icon 需单独重做 |
 | `skill_split_shot_icon` | icon | accepted | 弹道技能基准 |
 | `skill_pierce_icon` | icon | accepted | 弹道技能基准 |
@@ -180,6 +180,16 @@ M1 可以先用单帧或短序列帧，之后替换为完整序列。
 | `bg_biolab.png` | accepted |
 | `bg_main_menu.png` | accepted |
 | `bg_level_map.png` | accepted |
+| `bg_lava_foundry.png` | accepted |
+| `bg_glacier_pass.png` | accepted |
+| `bg_abandoned_factory.png` | accepted |
+| `bg_toxic_biolab.png` | accepted |
+| `bg_storm_substation.png` | accepted |
+| `bg_flooded_subway.png` | accepted |
+| `bg_desert_refinery.png` | accepted |
+| `bg_void_cathedral.png` | accepted |
+| `bg_orbital_ruins.png` | accepted |
+| `bg_apex_core.png` | accepted |
 
 ## 11. UI / Icon 套件
 
@@ -209,4 +219,5 @@ M1 可以先用单帧或短序列帧，之后替换为完整序列。
 | `contact_ui.png` | UI 套件 | accepted |
 | `contact_vfx.png` | VFX 原型 | accepted |
 | `contact_backgrounds.png` | 背景 | accepted |
+| `contact_level_backgrounds_v2.png` | 10 段主线战斗背景 | accepted |
 | `contact_battle_mock.png` | 角色/怪/炮塔/UI/背景同屏 | accepted |

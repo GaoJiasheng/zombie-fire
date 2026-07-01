@@ -1067,3 +1067,24 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `python3 tools/simulate_card_director.py` -> completes through `level_099`.
 - `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings at exit.
+
+## Stage 1 P3.24 Campaign Background Refresh (2026-07-01)
+
+> Owner requested 10 new campaign battle backgrounds so the battlefield no longer reads like the reference game. This pass changes background art, environment mapping, and asset/data references only; combat logic, economy, difficulty, skills, and targeting behavior are unchanged.
+
+- **10 original campaign backgrounds**: added `tools/generate_level_backgrounds.py` and generated `bg_lava_foundry`, `bg_glacier_pass`, `bg_abandoned_factory`, `bg_toxic_biolab`, `bg_storm_substation`, `bg_flooded_subway`, `bg_desert_refinery`, `bg_void_cathedral`, `bg_orbital_ruins`, and `bg_apex_core` at 1080x1920.
+- **One background per ten levels**: remapped `data/levels.json` so levels 001-010 use lava foundry, 011-020 glacier, 021-030 abandoned factory, 031-040 toxic biolab, 041-050 storm substation, 051-060 flooded subway, 061-070 desert refinery, 071-080 void cathedral, 081-090 orbital ruins, and 091-099 apex core.
+- **Data-driven environment table**: added `data/environments.json` and registered it in `DataLoader`. Battle now reads `levels[].env -> environments[env].battle_background/bgm` instead of maintaining a background path list in `battle.gd`.
+- **Traceability and Godot import**: wrote `assets/production/source_refs/generated/level_backgrounds_v2_spec.json`, `contact_level_backgrounds_v2.png`, portrait crops, battle layout guides, and the Godot `.import` metadata needed for headless runtime loading.
+- **Regression prevention**: updated `tools/rebalance_difficulty.py` so future level regeneration preserves the 10-segment environment mapping; `validate_data.py` now checks that every level env exists and every environment asset path resolves.
+
+### Verification (after Stage 1 P3.24)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5119 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 242 res:// references / res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completes through `level_099`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.

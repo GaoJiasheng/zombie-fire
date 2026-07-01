@@ -199,10 +199,25 @@
 }
 ```
 
+## environments.json （映射）
+```jsonc
+{
+  "env_lava_foundry": {
+    "name": "熔岩铸厂",
+    "level_range": "001-010",
+    "battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
+    "portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
+    "layout_guide": "res://assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
+    "bgm": "battle_city"
+  }
+}
+```
+`levels[].env` 必须引用本表。战斗背景、环境预览图、布局安全区和 BGM 都从本表读取，避免在场景脚本里硬编码环境资源。
+
 ## levels.json （数组，见 08 完整示例）
 ```jsonc
 [
-  { "id":"level_001","env":"env_city_ruins","chapter":1,
+  { "id":"level_001","env":"env_lava_foundry","chapter":1,
     "recommend_level":1,"difficulty_coef":1.0,
     "primary_weakness":"fire","base_hp_ref":100,
     "threat_tags":["anti_swarm","breach"],

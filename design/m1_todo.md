@@ -157,6 +157,7 @@
 - [x] 每类资产生成 contact sheet
 - [x] 标记每个资产状态：`needed / generated / reviewed / accepted / replace_later`
 - [x] M1 可玩关卡只使用 accepted 或 replace_later 状态资产
+- [x] 10 张新战斗背景按每十关一段落替换，并通过 `data/environments.json` 数据化加载；包含背景图、portrait、battle layout guide、contact sheet 和 source spec。
 
 ## 阶段 10 · M1 验收
 
@@ -174,6 +175,8 @@
 - `python3 tools/validate_data.py`
 - `python3 tools/check_res_refs.py`
 - `python3 tools/check_visual_assets.py`
+- `python3 tools/check_level_pressure.py`
+- `python3 tools/simulate_card_director.py`
 - `godot --headless --path . --quit`
 - `godot --headless --path . --script res://tools/_battle_boot_probe.gd`
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd`

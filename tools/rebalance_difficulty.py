@@ -8,6 +8,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 LEVELS_PATH = DATA / "levels.json"
+ENV_BY_DECADE = [
+    "env_lava_foundry",
+    "env_glacier_pass",
+    "env_abandoned_factory",
+    "env_toxic_biolab",
+    "env_storm_substation",
+    "env_flooded_subway",
+    "env_desert_refinery",
+    "env_void_cathedral",
+    "env_orbital_ruins",
+    "env_apex_core",
+]
 
 NAME_PREFIXES = ["城市", "废街", "断桥", "熔炉", "冰港", "电塔", "毒巷", "黑墙", "裂谷", "铁门", "终局"]
 NAME_SUFFIXES = ["缺口", "突围", "尸潮", "围城", "死守", "重压", "裂隙", "尖啸", "终战"]
@@ -454,7 +466,7 @@ def build_levels() -> list[dict]:
         level = {
             "id": level_id,
             "name": names[n - 1],
-            "env": "env_city_ruins",
+            "env": ENV_BY_DECADE[min((n - 1) // 10, len(ENV_BY_DECADE) - 1)],
             "chapter": (n - 1) // 10 + 1,
             "recommend_level": recommend_level(n),
             "difficulty_coef": difficulty_coef(n, boss_level, waves, zombies, bosses, characters, weapons, economy),

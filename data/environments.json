@@ -1,0 +1,114 @@
+{
+	"env_lava_foundry": {
+		"name": "熔岩铸厂",
+		"level_range": "001-010",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
+		"portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
+		"bgm": "battle_city"
+	},
+	"env_glacier_pass": {
+		"name": "冰川断桥",
+		"level_range": "011-020",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_glacier_pass.png",
+		"portrait": "res://assets/production/environment/bg_glacier_pass_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_glacier_pass_battle_layout_guide.png",
+		"bgm": "battle_subway"
+	},
+	"env_abandoned_factory": {
+		"name": "废弃工厂",
+		"level_range": "021-030",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_abandoned_factory.png",
+		"portrait": "res://assets/production/environment/bg_abandoned_factory_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_abandoned_factory_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_toxic_biolab": {
+		"name": "毒液生化舱",
+		"level_range": "031-040",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_toxic_biolab.png",
+		"portrait": "res://assets/production/environment/bg_toxic_biolab_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_toxic_biolab_battle_layout_guide.png",
+		"bgm": "battle_biolab"
+	},
+	"env_storm_substation": {
+		"name": "雷暴变电站",
+		"level_range": "041-050",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_storm_substation.png",
+		"portrait": "res://assets/production/environment/bg_storm_substation_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_storm_substation_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_flooded_subway": {
+		"name": "沉没地铁",
+		"level_range": "051-060",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_flooded_subway.png",
+		"portrait": "res://assets/production/environment/bg_flooded_subway_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_flooded_subway_battle_layout_guide.png",
+		"bgm": "battle_subway"
+	},
+	"env_desert_refinery": {
+		"name": "沙暴炼油区",
+		"level_range": "061-070",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_desert_refinery.png",
+		"portrait": "res://assets/production/environment/bg_desert_refinery_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_desert_refinery_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_void_cathedral": {
+		"name": "虚空圣堂",
+		"level_range": "071-080",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_void_cathedral.png",
+		"portrait": "res://assets/production/environment/bg_void_cathedral_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_void_cathedral_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_orbital_ruins": {
+		"name": "轨道升降遗址",
+		"level_range": "081-090",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_orbital_ruins.png",
+		"portrait": "res://assets/production/environment/bg_orbital_ruins_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_orbital_ruins_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_apex_core": {
+		"name": "终局核心",
+		"level_range": "091-099",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_apex_core.png",
+		"portrait": "res://assets/production/environment/bg_apex_core_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_apex_core_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_city_ruins": {
+		"name": "旧城废墟",
+		"level_range": "legacy",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
+		"portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
+		"bgm": "battle_city"
+	},
+	"env_subway": {
+		"name": "旧地铁",
+		"level_range": "legacy",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_flooded_subway.png",
+		"portrait": "res://assets/production/environment/bg_flooded_subway_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_flooded_subway_battle_layout_guide.png",
+		"bgm": "battle_subway"
+	},
+	"env_military": {
+		"name": "旧军区",
+		"level_range": "legacy",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_abandoned_factory.png",
+		"portrait": "res://assets/production/environment/bg_abandoned_factory_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_abandoned_factory_battle_layout_guide.png",
+		"bgm": "battle_military"
+	},
+	"env_biolab": {
+		"name": "旧生化区",
+		"level_range": "legacy",
+		"battle_background": "res://assets/production/sprites/backgrounds/bg_toxic_biolab.png",
+		"portrait": "res://assets/production/environment/bg_toxic_biolab_portrait.png",
+		"layout_guide": "res://assets/production/environment/bg_toxic_biolab_battle_layout_guide.png",
+		"bgm": "battle_biolab"
+	}
+}

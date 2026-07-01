@@ -1,18 +1,24 @@
 # 08 · 关卡设计（99 关）
 
-> 4 章节场景，每章约 24~27 关，含 2 个 Boss。每关有建议等级、波次脚本、三星标准。
+> 10 段关卡背景，每 10 关切换一张主战斗背景；Boss 和怪物梯队仍按 4 个大章节推进。每关有建议等级、波次脚本、三星标准。
 > 全部关卡参数走 `levels.json`（结构见 `data/schema.md`）；本文给设计框架、难度曲线与代表性关卡示例。
 
 ## 1. 章节划分
 
-| 章节 | 场景 ID | 关卡 | 登场梯队 | Boss（关） |
+| 段落 | 场景 ID | 关卡 | 登场梯队 | Boss（关） |
 |---|---|---|---|---|
-| 第一章 城市废墟 | `env_city_ruins` | 1–24 | T1（+第章末引入少量T2） | tank_titan(12) · inferno_maw(24) |
-| 第二章 地铁隧道 | `env_subway` | 25–48 | T1+T2 | frost_warden(36) · storm_caller(48) |
-| 第三章 军事基地 | `env_military` | 49–72 | T2+T3 | plague_mother(60) · void_phantom(72) |
-| 第四章 生化实验室 | `env_biolab` | 73–99 | T3+T4 | necrotitan(84) · apex_overlord(99) |
+| 01 熔岩铸厂 | `env_lava_foundry` | 1–10 | T1 | - |
+| 02 冰川断桥 | `env_glacier_pass` | 11–20 | T1（+第段末引入少量T2） | tank_titan(12) |
+| 03 废弃工厂 | `env_abandoned_factory` | 21–30 | T1+T2 | inferno_maw(24) |
+| 04 毒液生化舱 | `env_toxic_biolab` | 31–40 | T1+T2 | frost_warden(36) |
+| 05 雷暴变电站 | `env_storm_substation` | 41–50 | T2 | storm_caller(48) |
+| 06 沉没地铁 | `env_flooded_subway` | 51–60 | T2+T3 | plague_mother(60) |
+| 07 沙暴炼油区 | `env_desert_refinery` | 61–70 | T2+T3 | - |
+| 08 虚空圣堂 | `env_void_cathedral` | 71–80 | T3 | void_phantom(72) |
+| 09 轨道升降遗址 | `env_orbital_ruins` | 81–90 | T3+T4 | necrotitan(84) |
+| 10 终局核心 | `env_apex_core` | 91–99 | T4 | apex_overlord(99) |
 
-每章一套背景 `bg_*`、BGM `bgm_battle_*`、环境点缀，强化"越深入越绝望"的氛围递进（见 `11`/`12`）。
+每段一套背景 `bg_*`，BGM 复用现有 battle city/subway/military/biolab 氛围组；背景变化强化"越深入越绝望"的氛围递进（见 `11`/`12`）。
 
 ## 2. 建议等级曲线
 
@@ -61,7 +67,7 @@ boss 关 +2~3 级建议（机制更硬）
 ```jsonc
 {
   "id": "level_024",
-  "env": "env_city_ruins",
+  "env": "env_abandoned_factory",
   "chapter": 1,
   "recommend_level": 22,
   "difficulty_coef": 2.4,        // 进入 09 的缩放公式

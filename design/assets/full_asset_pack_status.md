@@ -46,7 +46,7 @@ Current validation result:
   - icon
 - 8 projectile assets.
 - 21 single-frame VFX assets.
-- 6 backgrounds.
+- 16 backgrounds: the original menu/map/legacy backgrounds plus 10 owner-approved campaign battle backgrounds, one per ten-level segment.
 - UI/icon suite.
 - 10 contact sheets copied to `assets/production/contact_sheets/`.
 - Unit animation placeholder frame sets:
@@ -79,6 +79,7 @@ Current validation result:
 - `assets/production/contact_sheets/contact_ui.png`
 - `assets/production/contact_sheets/contact_vfx.png`
 - `assets/production/contact_sheets/contact_backgrounds.png`
+- `assets/production/contact_sheets/contact_level_backgrounds_v2.png`
 - `assets/production/contact_sheets/contact_battle_mock.png`
 
 ## Asset Replacement Rule

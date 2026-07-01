@@ -1,12 +1,14 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 5056,
+    "total_files": 5119,
     "parts_files": 414,
     "animation_files": 858,
     "sfx_files": 43,
     "bgm_files": 9,
-    "video_files": 15
+    "video_files": 15,
+    "background_files": 32,
+    "environment_files": 64
   },
   "do_not_generate_assets": false,
   "generated_replacement_policy": "GPT/Codex may generate owner-approved replacement assets and prototype revisions whenever visual quality requires it. External implementation should use existing production assets by default unless replacement generation is explicitly authorized.",
@@ -115,6 +117,18 @@
       "source": "source_refs/generated/projectile_3d_projectile_spec.json",
       "derived": "source_refs/generated/projectile_3d_projectile_sheet.png",
       "reason": "Owner requested all bullet/ammo types to read as flashier 3D-style projectile models with distinct elemental and weapon-specific silhouettes."
+    },
+    {
+      "path": "sprites/backgrounds",
+      "source": "source_refs/generated/level_backgrounds_v2_spec.json",
+      "derived": "contact_sheets/contact_level_backgrounds_v2.png",
+      "reason": "Owner requested 10 new campaign battle backgrounds, one per ten levels, with a more explosive original visual identity instead of the previous city-ruins look."
+    },
+    {
+      "path": "environment",
+      "source": "source_refs/generated/level_backgrounds_v2_spec.json",
+      "derived": "contact_sheets/contact_level_backgrounds_v2.png",
+      "reason": "Generated matching portrait crops and battle layout guides for the 10 new campaign backgrounds."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff."

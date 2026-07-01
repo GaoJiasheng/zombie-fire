@@ -18,6 +18,7 @@ TABLES = [
     "zombies",
     "bosses",
     "skills",
+    "environments",
     "levels",
     "localization_zh",
 ]
@@ -58,6 +59,7 @@ def main() -> int:
     elements = set(tables["elements"].keys())
     zombies = set(tables["zombies"].keys())
     bosses = set(tables["bosses"].keys())
+    environments = set(tables["environments"].keys())
 
     for char_id, row in tables["characters"].items():
         if row.get("element_focus") not in elements:
@@ -121,6 +123,13 @@ def main() -> int:
         if ammo_element and row.get("exclusive_group") != "projectile_element":
             errors.append(f"{skill_id}.ammo_element must declare exclusive_group projectile_element")
 
+    for env_id, row in tables["environments"].items():
+        if not str(row.get("name", "")).strip():
+            errors.append(f"{env_id}.name missing")
+        if str(row.get("bgm", "")).strip() == "":
+            errors.append(f"{env_id}.bgm missing")
+        check_asset(errors, env_id, row, ["battle_background", "portrait", "layout_guide"])
+
     seen_levels = set()
     for level in tables["levels"]:
         level_id = level.get("id")
@@ -135,6 +144,9 @@ def main() -> int:
             errors.append(f"{level_id} display name must not contain ASCII characters: {level_name}")
         if len(level.get("waves", [])) != 5:
             errors.append(f"{level_id} must define exactly 5 waves")
+        env_id = level.get("env", "")
+        if env_id not in environments:
+            errors.append(f"{level_id} unknown env: {env_id}")
         for wave in level.get("waves", []):
             if "boss" in wave and wave["boss"] not in bosses:
                 errors.append(f"{level_id} unknown boss: {wave['boss']}")
@@ -159,7 +171,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills")
+    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills, {len(environments)} environments")
     return 0
 
 

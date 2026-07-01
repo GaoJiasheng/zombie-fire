@@ -36,7 +36,12 @@ VFX = [
     "vfx_muzzle_fire", "vfx_muzzle_ice", "vfx_muzzle_lightning", "vfx_muzzle_poison",
     "vfx_target_lock", "vfx_threat_warning", "vfx_hit_immune",
 ]
-BACKGROUNDS = ["bg_city_ruins", "bg_subway", "bg_military", "bg_biolab", "bg_main_menu", "bg_level_map"]
+BACKGROUNDS = [
+    "bg_city_ruins", "bg_subway", "bg_military", "bg_biolab", "bg_main_menu", "bg_level_map",
+    "bg_lava_foundry", "bg_glacier_pass", "bg_abandoned_factory", "bg_toxic_biolab",
+    "bg_storm_substation", "bg_flooded_subway", "bg_desert_refinery", "bg_void_cathedral",
+    "bg_orbital_ruins", "bg_apex_core",
+]
 SFX = [
     "sfx_ui_click", "sfx_ui_confirm", "sfx_ui_card_offer", "sfx_ui_card_pick", "sfx_shot_autocannon",
     "sfx_hit_physical", "sfx_enemy_death_small", "sfx_enemy_breach", "sfx_gold_pickup", "sfx_level_up",

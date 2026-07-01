@@ -332,6 +332,7 @@ func _ready() -> void:
 	$Hud.process_mode = Node.PROCESS_MODE_ALWAYS
 	_configure_pause_process_modes()
 	level = DataLoader.get_row("levels", level_id)
+	_apply_level_background()
 	level_ordinal = maxi(1, int(str(level_id).get_slice("_", 1)))
 	var _econ: Dictionary = DataLoader.get_table("economy")
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
@@ -5887,16 +5888,42 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	screen_flash_tween = screen_flash.create_tween()
 	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration)
 
+func _apply_level_background() -> void:
+	var background := get_node_or_null("Background") as Sprite2D
+	if background == null:
+		return
+	var env_id := str(level.get("env", "env_lava_foundry"))
+	var env := _environment_row(env_id)
+	var path := str(env.get("battle_background", "res://assets/production/sprites/backgrounds/bg_lava_foundry.png"))
+	var texture := load(path) as Texture2D
+	if texture == null:
+		push_warning("Missing battle background for %s: %s" % [env_id, path])
+		return
+	background.texture = texture
+	# 覆盖整个可见视口(含 expand 后多出来的高度),避免底部露出灰色清屏色。
+	var vis := get_viewport().get_visible_rect().size
+	if vis.x < 1080.0:
+		vis.x = 1080.0
+	if vis.y < 1920.0:
+		vis.y = 1920.0
+	background.position = vis * 0.5
+	var texture_size := texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		background.scale = Vector2.ONE
+		return
+	var cover_scale := maxf(vis.x / texture_size.x, vis.y / texture_size.y)
+	background.scale = Vector2(cover_scale, cover_scale)
+	background.modulate = Color(1, 1, 1, 1)
+
 func _battle_bgm_id() -> String:
-	match str(level.get("env", "")):
-		"env_subway":
-			return "battle_subway"
-		"env_biolab":
-			return "battle_biolab"
-		"env_military":
-			return "battle_military"
-		_:
-			return "battle_city"
+	var env := _environment_row(str(level.get("env", "env_lava_foundry")))
+	return str(env.get("bgm", "battle_city"))
+
+func _environment_row(env_id: String) -> Dictionary:
+	var env := DataLoader.get_row("environments", env_id)
+	if env.is_empty():
+		env = DataLoader.get_row("environments", "env_lava_foundry")
+	return env
 
 func _weapon_shot_sfx(id: String) -> String:
 	match id:

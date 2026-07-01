@@ -1,0 +1,212 @@
+{
+  "id": "level_backgrounds_v2",
+  "generated_by": "tools/generate_level_backgrounds.py",
+  "note": "Built-in image generation was attempted first but produced an unrelated infographic; final project assets are deterministic Codex/Pillow generated backgrounds to keep size, readability, and data references controlled.",
+  "size": [
+    1080,
+    1920
+  ],
+  "mapping_policy": "One env/background per ten campaign levels: 001-010, 011-020, ..., 091-099.",
+  "style_constraints": [
+    "premium 2.5D mobile-game battlefield",
+    "not a clone of the previous city-ruins road",
+    "top spawn and middle combat area stay readable",
+    "bottom defense zone leaves room for player/HUD",
+    "no text, no UI, no characters, no zombies"
+  ],
+  "backgrounds": [
+    {
+      "env": "env_lava_foundry",
+      "bg": "bg_lava_foundry",
+      "title": "熔岩铸厂",
+      "range": "001-010",
+      "palette": [
+        "#120B0A",
+        "#2A1410",
+        "#5A1B10",
+        "#F56A1A",
+        "#FFD36B",
+        "#3EC7FF"
+      ],
+      "mood": "molten foundry breach with lava channels and scorched metal",
+      "kind": "lava"
+    },
+    {
+      "env": "env_glacier_pass",
+      "bg": "bg_glacier_pass",
+      "title": "冰川断桥",
+      "range": "011-020",
+      "palette": [
+        "#071018",
+        "#0B2338",
+        "#1C5D7C",
+        "#78D7FF",
+        "#D8F7FF",
+        "#C9A56A"
+      ],
+      "mood": "frozen highway pass with shattered ice cliffs and aurora glow",
+      "kind": "ice"
+    },
+    {
+      "env": "env_abandoned_factory",
+      "bg": "bg_abandoned_factory",
+      "title": "废弃工厂",
+      "range": "021-030",
+      "palette": [
+        "#090D0F",
+        "#151C21",
+        "#2B3236",
+        "#E08B32",
+        "#56D7E8",
+        "#C33838"
+      ],
+      "mood": "derelict cyberpunk factory floor, gantries and conveyor trenches",
+      "kind": "factory"
+    },
+    {
+      "env": "env_toxic_biolab",
+      "bg": "bg_toxic_biolab",
+      "title": "毒液生化舱",
+      "range": "031-040",
+      "palette": [
+        "#04120D",
+        "#0B251A",
+        "#16452B",
+        "#31F26C",
+        "#A7FF8A",
+        "#42E8FF"
+      ],
+      "mood": "broken biolab, toxic vats, specimen chambers, clean central combat lane",
+      "kind": "toxic"
+    },
+    {
+      "env": "env_storm_substation",
+      "bg": "bg_storm_substation",
+      "title": "雷暴变电站",
+      "range": "041-050",
+      "palette": [
+        "#07101B",
+        "#121936",
+        "#202B58",
+        "#8E5CFF",
+        "#FFE74A",
+        "#55D6FF"
+      ],
+      "mood": "storm-lit power substation with tesla towers and electric arcs",
+      "kind": "storm"
+    },
+    {
+      "env": "env_flooded_subway",
+      "bg": "bg_flooded_subway",
+      "title": "沉没地铁",
+      "range": "051-060",
+      "palette": [
+        "#061015",
+        "#0C2630",
+        "#133E4A",
+        "#4EDBFF",
+        "#E6B96B",
+        "#2A6E6A"
+      ],
+      "mood": "flooded subway station, reflective water, broken rails and neon leaks",
+      "kind": "water"
+    },
+    {
+      "env": "env_desert_refinery",
+      "bg": "bg_desert_refinery",
+      "title": "沙暴炼油区",
+      "range": "061-070",
+      "palette": [
+        "#150E0A",
+        "#312014",
+        "#6F4A25",
+        "#E8A64A",
+        "#FFDB8A",
+        "#5BD7D2"
+      ],
+      "mood": "sandstorm refinery, rusted pipelines, burning stacks, dusty battlefield",
+      "kind": "desert"
+    },
+    {
+      "env": "env_void_cathedral",
+      "bg": "bg_void_cathedral",
+      "title": "虚空圣堂",
+      "range": "071-080",
+      "palette": [
+        "#060611",
+        "#111024",
+        "#271A45",
+        "#8A5CFF",
+        "#FF5DE8",
+        "#E9D58C"
+      ],
+      "mood": "alien cathedral ruins, obsidian arches, violet rift energy",
+      "kind": "void"
+    },
+    {
+      "env": "env_orbital_ruins",
+      "bg": "bg_orbital_ruins",
+      "title": "轨道升降遗址",
+      "range": "081-090",
+      "palette": [
+        "#070C12",
+        "#122030",
+        "#284258",
+        "#C0D7E8",
+        "#F6A642",
+        "#4CE8FF"
+      ],
+      "mood": "fallen orbital elevator base, massive cables and aerospace debris",
+      "kind": "orbital"
+    },
+    {
+      "env": "env_apex_core",
+      "bg": "bg_apex_core",
+      "title": "终局核心",
+      "range": "091-099",
+      "palette": [
+        "#070506",
+        "#17110B",
+        "#37220A",
+        "#F5B83D",
+        "#FFF0A1",
+        "#6FEAFF"
+      ],
+      "mood": "final reactor core fortress, gold plasma, black alloy floor, apex showdown",
+      "kind": "core"
+    }
+  ],
+  "written": [
+    "assets/production/sprites/backgrounds/bg_lava_foundry.png",
+    "assets/production/environment/bg_lava_foundry_portrait.png",
+    "assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_glacier_pass.png",
+    "assets/production/environment/bg_glacier_pass_portrait.png",
+    "assets/production/environment/bg_glacier_pass_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_abandoned_factory.png",
+    "assets/production/environment/bg_abandoned_factory_portrait.png",
+    "assets/production/environment/bg_abandoned_factory_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_toxic_biolab.png",
+    "assets/production/environment/bg_toxic_biolab_portrait.png",
+    "assets/production/environment/bg_toxic_biolab_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_storm_substation.png",
+    "assets/production/environment/bg_storm_substation_portrait.png",
+    "assets/production/environment/bg_storm_substation_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_flooded_subway.png",
+    "assets/production/environment/bg_flooded_subway_portrait.png",
+    "assets/production/environment/bg_flooded_subway_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_desert_refinery.png",
+    "assets/production/environment/bg_desert_refinery_portrait.png",
+    "assets/production/environment/bg_desert_refinery_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_void_cathedral.png",
+    "assets/production/environment/bg_void_cathedral_portrait.png",
+    "assets/production/environment/bg_void_cathedral_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_orbital_ruins.png",
+    "assets/production/environment/bg_orbital_ruins_portrait.png",
+    "assets/production/environment/bg_orbital_ruins_battle_layout_guide.png",
+    "assets/production/sprites/backgrounds/bg_apex_core.png",
+    "assets/production/environment/bg_apex_core_portrait.png",
+    "assets/production/environment/bg_apex_core_battle_layout_guide.png",
+    "assets/production/contact_sheets/contact_level_backgrounds_v2.png"
+  ]
+}

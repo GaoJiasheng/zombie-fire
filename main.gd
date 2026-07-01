@@ -58,16 +58,26 @@ func _apply_safe_area(root: Control) -> void:
 	var vis := get_viewport().get_visible_rect().size
 	var sx := vis.x / float(win.x)
 	var sy := vis.y / float(win.y)
-	var top := float(safe.position.y) * sy
-	var bottom := float(win.y - safe.position.y - safe.size.y) * sy
-	var left := float(safe.position.x) * sx
-	var right := float(win.x - safe.position.x - safe.size.x) * sx
-	# 桌面/无刘海时这些都≈0,等于无操作。给个小下限避免贴边。
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.offset_left = maxf(left, 0.0)
-	root.offset_top = maxf(top, 0.0)
-	root.offset_right = -maxf(right, 0.0)
-	root.offset_bottom = -maxf(bottom, 0.0)
+	var top := maxf(float(safe.position.y) * sy, 0.0)
+	var bottom := maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0)
+	var left := maxf(float(safe.position.x) * sx, 0.0)
+	var right := maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0)
+	if top <= 0.5 and bottom <= 0.5 and left <= 0.5 and right <= 0.5:
+		return
+	# 只内缩“内容”子节点;背景/遮罩(Background/Scrim/Dim/Backdrop)保持满屏,避免灰边。
+	for child in root.get_children():
+		if not (child is Control):
+			continue
+		var c := child as Control
+		var n := str(c.name).to_lower()
+		if n.contains("background") or n.contains("scrim") or n.contains("dim") or n.contains("backdrop") or n == "bg":
+			continue
+		# 仅处理铺满型内容容器(锚点为全矩形),避免破坏居中弹窗等布局。
+		if is_equal_approx(c.anchor_left, 0.0) and is_equal_approx(c.anchor_top, 0.0) and is_equal_approx(c.anchor_right, 1.0) and is_equal_approx(c.anchor_bottom, 1.0):
+			c.offset_left = left
+			c.offset_top = top
+			c.offset_right = -right
+			c.offset_bottom = -bottom
 
 func start_level(level_id: String) -> void:
 	run_context = {"level_id": level_id}
