@@ -2881,17 +2881,37 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
-	# 多重射击：弹道之间“固定角度”均匀展开的扇形（不让每条弹道各自锁敌，避免全部命中过强）。
-	# 但扇形整体“中心方向”对准敌群质心，这样固定夹角的扇形能均匀覆盖敌人、不打空。
+	# 多重射击：优先让每条弹道分别对准一个“真实敌人”，均匀覆盖敌群、不打空。
+	# 弹道多于敌人数时，多出的弹道回卷到高优先目标并加入极小抖动，避免完全重叠。
+	# 没有任何可命中目标时，才退回“以敌群质心为中心的固定扇形”。
 	var directions: Array[Vector2] = []
 	if shots <= 1:
 		directions.append(base_direction.normalized())
 		return directions
-	var center_dir := _multishot_center_direction(origin, base_direction)
+	var candidates := _multi_shot_target_candidates(origin, base_direction)
+	if candidates.is_empty():
+		var center_dir := _multishot_center_direction(origin, base_direction)
+		var fan_spread: float = maxf(spread, deg_to_rad(6.0))
+		for index in range(shots):
+			var t: float = float(index) / float(shots - 1)
+			directions.append(center_dir.rotated(lerpf(-fan_spread, fan_spread, t)).normalized())
+		return directions
+	var count := candidates.size()
 	for index in range(shots):
-		var t: float = float(index) / float(shots - 1)
-		var offset: float = lerpf(-spread, spread, t)
-		directions.append(center_dir.rotated(offset).normalized())
+		var cand: Dictionary = candidates[index % count]
+		var enemy = cand.get("enemy")
+		var dir := base_direction
+		if is_instance_valid(enemy) and enemy is Node2D:
+			var to_enemy: Vector2 = (enemy as Node2D).global_position - origin
+			if to_enemy.length_squared() > 4.0:
+				dir = to_enemy
+		dir = dir.normalized()
+		if index >= count:
+			# 回卷（同一目标被多条弹道命中）时加入极小扇形抖动，让弹幕不完全叠一起
+			var wrap := index / count
+			var jitter := deg_to_rad(4.0) * (1.0 if index % 2 == 0 else -1.0) * float(wrap)
+			dir = dir.rotated(jitter)
+		directions.append(dir)
 	return directions
 
 func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:

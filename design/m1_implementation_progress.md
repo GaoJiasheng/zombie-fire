@@ -221,6 +221,40 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 
 ---
 
+## Final Art Quality Audit (2026-07-01)
+
+> Owner bar: every visible asset should read as high-end 3D rendered, App Store-grade final art.
+
+Added `design/assets/final_art_quality_audit_2026_07_01.md` as a project-level screening report. This pass did not replace production assets; it classified current assets by final-art risk and captured temporary evidence sheets under `tmp/art_audit/`.
+
+### Key audit result
+
+- The project is content-complete enough for broad screening: `data/*.json` asset refs point to `assets/production`, and the current production pack passes technical cutout checks.
+- The project is not yet final-art consistent. It mixes high-end prototype unit/icon art with flat UI assets, procedural runtime VFX, legacy runtime asset paths, placeholder store screenshots, placeholder 2-second videos, and crop-derived skeletal parts.
+- The new app icon is closest to the desired premium direction. The launch image and App Store screenshots are the most visible mismatch.
+
+### P0 follow-up scope
+
+- Replace `assets/app/launch_1080x1920.png`.
+- Regenerate App Store screenshots and app preview after UI polish.
+- Replace flat UI PNGs and migrate 28 runtime `res://assets/sprites/...` refs away from legacy fallback paths.
+- Skin code-generated UI panels and replace visible procedural effects with authored final VFX / number / badge assets.
+
+### Verification during audit
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 5129 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` → `checked 253 res:// references` / `res:// references OK`.
+- `python3 tools/check_visual_assets.py` → `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_level_pressure.py` → completed pressure estimate for `level_001` through `level_099`.
+- `python3 tools/simulate_card_director.py` → completed 1000-run card offer simulation for `level_001` through `level_099`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` → exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; Godot still prints known RID/ObjectDB/resource cleanup warnings on exit.
+- `git diff --check` → no whitespace errors.
+- Current route screenshots were captured from a visible Godot run for menu, map, loadout, collection, battle, and result.
+
+---
+
 ## Stage 1 P2.1 Fix — Battle Route Setup Order (2026-06-26)
 
 > Fixed the real cause of "later-level small enemies still die in one shot".
