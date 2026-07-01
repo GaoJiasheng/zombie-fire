@@ -1108,3 +1108,25 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings at exit.
 - `git diff --check` -> no whitespace errors.
+
+## VFX B2 Projectile Overhaul (2026-07-01)
+
+> Implemented only `design/vfx_b2_task.md`: projectile/bullet visual layer. Gameplay values, hit logic, data tables, character/zombie/boss/weapon art, and render settings were not changed.
+
+- **Energy projectile body**: `gameplay/projectile/projectile.gd` now keeps each existing projectile sprite as the untinted model texture, applies additive material to it, and layers `EnergyHalo` + `EnergyCore` children using `VfxLib.RADIAL_GLOW_TEXTURE` and `VfxLib.GLOW_CORE_SHADER`.
+- **B1 trail reuse**: replaced the old per-frame sprite afterimage and flat `Line2D` trail with `VfxLib.spawn_trail`, using additive streak texture and profile-specific width/point spacing.
+- **Budgeted flight particles**: added small `VfxLib.spawn_particles` pulses behind projectiles, gated through Battle's existing `_can_spawn_projectile_fx` when available and the projectile layer transient cap as fallback.
+- **Element/profile readability**: fire, ice, lightning, poison, and physical each get distinct glow/trail/particle colors; rail, scatter, plasma, split, heavy, and acid profiles have separate scale/glow/trail/particle parameters. Split/heavy/acid are supported via existing projectile texture naming/override paths.
+- **Hard constraints kept**: the existing `velocity`, `damage`, `pierce_left`, `target.take_damage`, `hit_confirmed`, and `CollisionShape2D.shape.radius` setup flow was left in place; no `data/*.json`, art PNG, or `project.godot` render-setting edits were made.
+
+### Verification (after VFX B2)
+
+- `godot --headless --import` -> exit 0. It reimported the already-dirty campaign background assets in the working tree.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5126 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 251 res:// references / res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completes through `level_099`.
+- `godot --headless --path . --quit` -> exits 0.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
+- `git diff --check` -> no whitespace errors.

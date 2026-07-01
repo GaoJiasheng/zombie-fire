@@ -205,4 +205,5 @@
 - [x] `tools/check_gameplay_polish.py`：新增主动技能 fallback、元素命中强化、技能 HUD 去重 guardrail。
 - [x] `tools/m1_smoke_test.gd`：主动技能按下必须进入冷却，避免再次出现“主动技能不可用”。
 - [x] Godot 沙箱启动：`project.godot` 使用项目内隐藏 user data 目录，headless 下 AudioManager 不加载/播放音频流；`godot --headless --path . --quit` 当前 exit 0。
+- [x] VFX B2 子弹/投射物：`projectile.gd` 使用 B1 `VfxLib` 加法拖尾、shader 能量核、radial glow 光晕和预算门控粒子；未改碰撞半径/速度/伤害/穿透/命中逻辑，未触碰 `data/*.json` 或渲染方向。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。
