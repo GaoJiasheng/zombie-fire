@@ -1177,3 +1177,25 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
 - `godot --headless --script tools/m1_smoke_test.gd` -> `M1 smoke test passed`; same known headless cleanup warnings.
 - `python3 tools/validate_data.py && python3 tools/check_res_refs.py` -> data validation passed; `checked 249 res:// references`; `res:// references OK`.
+
+## VFX B5 Skill Effect Overhaul (2026-07-01)
+
+> Implemented only `design/vfx_b5_task.md`: skill-triggered and persistent skill visual layers. Skill trigger conditions, hit detection, damage/slow/barrier/fire-rate numbers, `data/*.json`, character/zombie/boss/weapon art, and render settings were not changed.
+
+- **Pierce / split / chain signatures**: `projectile.gd` pierce pass-through now uses shader glow sweep bands, additive streak traces, and along-path spark particles. `battle.gd` split bursts use fan light cones, glow cores, shock rings, and mini light orbs. Chain/ricochet arcs are now runtime forked additive lines with node glows instead of a single flat bolt sprite.
+- **Slow field**: added `gameplay/vfx/shaders/vfx_slow_field.gdshader` and a capped persistent GPUParticles2D mote layer. Existing slow-level rectangle placement remains unchanged; only material, edge lines, and ambient particles were upgraded.
+- **Barrier / crit / charge / upgrade**: barrier gain/break now uses energy shell pulses, shader-lit streak shards, particles, and B4 shield impact helpers. Crit shots use gold glow, cone, shock ring, streaks, burst particles, and short `VfxLib.screen_shake`. Weapon power and level-up effects now use additive converge rings, glow, vertical beam, and rising particles.
+- **Skill pickup signatures**: `_spawn_skill_pick_vfx` now gives each of the 16 skill cards a distinct visual pattern using VfxLib, additive rings/streaks, B4 helpers, and particles; no skill data or runtime outcome changed.
+- **Hard constraints kept**: no `data/*.json`, PNG art, collision, targeting, damage, slow math, barrier counts, fire-rate logic, or `project.godot` render-setting edits; `project.godot` remains `canvas_items` / `aspect=expand`.
+
+### Verification (after VFX B5)
+
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exit 0; imported the new slow-field shader and generated `gameplay/vfx/shaders/vfx_slow_field.gdshader.uid`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5126 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 250 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099` (`level_001: pressure=28.0, spawn_time=50.4s, boss=0`; `level_099: pressure=1482.3, spawn_time=94.4s, boss=1`).
+- `python3 tools/simulate_card_director.py` -> `Card offer simulation: 1000 runs per level`; completes through `level_099`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.

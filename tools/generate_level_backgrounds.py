@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import sys
+print("OBSOLETE_GUARD: 关卡背景已改用 MiniMax 独立出图并落位, 此染色脚本已停用(会覆盖新图). 如确需运行请手动删除本守卫.", file=sys.stderr)
+sys.exit(2)
+
 
 import json
 import math
