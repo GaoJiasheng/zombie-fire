@@ -1,8 +1,8 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
-const BUTTON_PRIMARY := "res://assets/sprites/ui/ui_button_primary.png"
-const BUTTON_SECONDARY := "res://assets/sprites/ui/ui_button_secondary.png"
+const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.png"
+const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 
@@ -716,19 +716,20 @@ func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
 	if not SaveManager.can_purchase(table, item_id):
 		AudioManager.play_sfx("ui_click", -6.0)
 		return
-	if price >= 30:
-		var dialog := ConfirmationDialog.new()
-		dialog.title = "购买确认"
-		dialog.dialog_text = "确认花费 %d★ 购买 %s?" % [price, DataLoader.tr_key(row.get("name_key", item_id))]
-		dialog.ok_button_text = "购买"
-		dialog.cancel_button_text = "取消"
-		add_child(dialog)
-		dialog.confirmed.connect(func() -> void: _do_purchase(table, item_id))
-		dialog.confirmed.connect(dialog.queue_free)
-		dialog.canceled.connect(dialog.queue_free)
-		dialog.popup_centered()
-	else:
-		_do_purchase(table, item_id)
+	AudioManager.play_sfx("ui_click", -4.0)
+	var name_text: String = DataLoader.tr_key(row.get("name_key", item_id))
+	var preview_icon: String = UiKit.character_bust_path(row) if mode == "characters" else str(row.get("icon", row.get("portrait", "")))
+	UiKit.confirm_modal(self, {
+		"title": "购买确认",
+		"message": "确认解锁 %s？" % name_text,
+		"cost_text": "%d" % price,
+		"cost_icon": UiKit.currency_icon_path("star"),
+		"item_icon": preview_icon,
+		"accent": Color(0.96, 0.80, 0.30, 1.0),
+		"confirm_text": "购买",
+		"cancel_text": "取消",
+		"on_confirm": func() -> void: _do_purchase(table, item_id),
+	})
 
 func _do_purchase(table: String, item_id: String) -> void:
 	var res := SaveManager.purchase_item(table, item_id)

@@ -138,7 +138,7 @@ func _initialize() -> void:
 	_expect(map_character_card != null, "map must expose the character feature card")
 	var map_character_bust := map_character_card.find_child("BustImage", true, false) as TextureRect
 	_expect(map_character_bust != null and map_character_bust.texture != null, "map character feature card must use a bust portrait")
-	_expect(str(map_character_bust.texture.resource_path).ends_with("_prototype.png"), "map character feature card must use frameless prototype art")
+	_expect(str(map_character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "map character feature card must use frameless 正脸立绘")
 	var level_list: Node = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null, "map level list must be scrollable")
 	_expect(level_list.get_child_count() >= 99, "map must render the launch campaign")
@@ -159,7 +159,7 @@ func _initialize() -> void:
 	_expect(character_icon.clip_contents, "character collection portrait must crop upper-body art")
 	var character_bust := character_icon.get_node_or_null("BustImage") as TextureRect
 	_expect(character_bust != null and character_bust.texture != null, "character collection portrait must render a bust image")
-	_expect(str(character_bust.texture.resource_path).ends_with("_prototype.png"), "character collection portrait must use frameless prototype art")
+	_expect(str(character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "character collection portrait must use frameless 正脸立绘")
 	_expect(character_bust.size.y > character_icon.size.y, "character collection portrait must be zoomed and cropped")
 	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
 	character_item.emit_signal("pressed")
@@ -242,7 +242,7 @@ func _initialize() -> void:
 	_expect(loadout_character_icon.clip_contents, "loadout hero frame must crop upper-body art")
 	var loadout_bust := loadout_character_icon.get_node_or_null("BustImage") as TextureRect
 	_expect(loadout_bust != null and loadout_bust.texture != null, "loadout hero frame must render a bust image")
-	_expect(str(loadout_bust.texture.resource_path).ends_with("_prototype.png"), "loadout hero bust must use frameless prototype art")
+	_expect(str(loadout_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "loadout hero bust must use frameless 正脸立绘")
 	_expect(loadout_bust.size.y > loadout_character_icon.size.y, "loadout hero bust must be zoomed and cropped")
 	_expect(main.current_scene.find_child("GrowthBadge", true, false) != null, "loadout must show visible growth tier")
 	_expect(main.current_scene.has_node("GearBadges"), "loadout must summarize gear levels")

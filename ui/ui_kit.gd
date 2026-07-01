@@ -104,9 +104,10 @@ static func character_bust_path(row: Dictionary) -> String:
 		return ""
 	var candidates: Array[String] = []
 	if base_path.ends_with("_icon.png"):
-		candidates.append(base_path.replace("_icon.png", "_prototype.png"))
+		# 菜单/选择/详情一律用“正脸”立绘：frameless 正脸 > 带框正脸 > 背面全身(prototype) > 图标
 		candidates.append(base_path.replace("_icon.png", "_portrait_frameless.png"))
 		candidates.append(base_path.replace("_icon.png", "_portrait.png"))
+		candidates.append(base_path.replace("_icon.png", "_prototype.png"))
 	candidates.append(base_path)
 	for path in candidates:
 		if path != "" and ResourceLoader.exists(path):
@@ -287,3 +288,123 @@ static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chi
 # 共享武器图标(统一外观,尺寸可变)。
 static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect:
 	return icon(str(row.get("icon", row.get("portrait", ""))), size)
+
+# ---- 统一购买/确认弹框(所有商店、所有货币共用同一个模型)。----
+# opts: title, message, cost_text, cost_icon, accent, confirm_text, cancel_text,
+#       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
+static func _modal_button(text: String, accent: Color, primary: bool) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = Vector2(196, 82)
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", int(30 * FONT_SCALE))
+	var fill_bg: Color = Color(accent.r, accent.g, accent.b, 0.92) if primary else Color(0.10, 0.12, 0.15, 0.92)
+	var fg: Color = GREY_900 if primary else TEXT_MAIN
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = fill_bg
+	normal.set_corner_radius_all(14)
+	normal.set_border_width_all(2)
+	normal.border_color = Color(accent.r, accent.g, accent.b, 0.85 if primary else 0.42)
+	normal.content_margin_left = 18
+	normal.content_margin_right = 18
+	normal.content_margin_top = 10
+	normal.content_margin_bottom = 10
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(minf(fill_bg.r + 0.10, 1.0), minf(fill_bg.g + 0.10, 1.0), minf(fill_bg.b + 0.10, 1.0), fill_bg.a)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(fill_bg.r * 0.82, fill_bg.g * 0.82, fill_bg.b * 0.82, fill_bg.a)
+	b.add_theme_stylebox_override("normal", normal)
+	b.add_theme_stylebox_override("hover", hover)
+	b.add_theme_stylebox_override("pressed", pressed)
+	b.add_theme_stylebox_override("focus", normal)
+	b.add_theme_color_override("font_color", fg)
+	b.add_theme_color_override("font_hover_color", fg)
+	b.add_theme_color_override("font_pressed_color", fg)
+	return b
+
+static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
+	var accent: Color = opts.get("accent", GOLD)
+	var layer := CanvasLayer.new()
+	layer.layer = 128
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.64)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	layer.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(center)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", panel_style(accent, PANEL_BG_DARK, 3, 20))
+	panel.custom_minimum_size = Vector2(660, 0)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 52)
+	margin.add_theme_constant_override("margin_right", 52)
+	margin.add_theme_constant_override("margin_top", 40)
+	margin.add_theme_constant_override("margin_bottom", 40)
+	panel.add_child(margin)
+	var vb := VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 24)
+	margin.add_child(vb)
+	var title := label(str(opts.get("title", "确认")), 42, accent, 4)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(title)
+	var item_icon := str(opts.get("item_icon", ""))
+	if item_icon != "" and ResourceLoader.exists(item_icon):
+		var holder := CenterContainer.new()
+		var frame := PanelContainer.new()
+		frame.add_theme_stylebox_override("panel", pill_style(accent, Color(0.02, 0.026, 0.034, 0.9)))
+		frame.clip_contents = true
+		var ic := icon(item_icon, Vector2(168, 176))
+		frame.add_child(ic)
+		holder.add_child(frame)
+		vb.add_child(holder)
+	var msg := label(str(opts.get("message", "")), 31, TEXT_MAIN, 3)
+	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vb.add_child(msg)
+	var cost_text := str(opts.get("cost_text", ""))
+	if cost_text != "":
+		var cost_row := HBoxContainer.new()
+		cost_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		cost_row.add_theme_constant_override("separation", 12)
+		var cicon := str(opts.get("cost_icon", ""))
+		if cicon != "" and ResourceLoader.exists(cicon):
+			cost_row.add_child(icon(cicon, Vector2(46, 46)))
+		cost_row.add_child(label(cost_text, 44, accent, 4))
+		vb.add_child(cost_row)
+	var btns := HBoxContainer.new()
+	btns.alignment = BoxContainer.ALIGNMENT_CENTER
+	btns.add_theme_constant_override("separation", 30)
+	vb.add_child(btns)
+	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false)
+	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true)
+	btns.add_child(cancel_btn)
+	btns.add_child(confirm_btn)
+	var on_confirm: Callable = opts.get("on_confirm", Callable())
+	var on_cancel: Callable = opts.get("on_cancel", Callable())
+	var closed := [false]
+	var close_modal := func() -> void:
+		if not closed[0] and is_instance_valid(layer):
+			closed[0] = true
+			layer.queue_free()
+	confirm_btn.pressed.connect(func() -> void:
+		if on_confirm.is_valid():
+			on_confirm.call()
+		close_modal.call())
+	cancel_btn.pressed.connect(func() -> void:
+		if on_cancel.is_valid():
+			on_cancel.call()
+		close_modal.call())
+	dim.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed:
+			if on_cancel.is_valid():
+				on_cancel.call()
+			close_modal.call())
+	host.add_child(layer)
+	panel.modulate.a = 0.0
+	var tw := panel.create_tween()
+	tw.tween_property(panel, "modulate:a", 1.0, 0.14)
+	return layer

@@ -211,5 +211,6 @@
 - [x] VFX B5 技能光效：穿透、分裂、连锁、减速场、护盾、暴击、蓄能/强化、升级和选卡技能签名改用 `VfxLib`、glow shader、加法 streak/ring、粒子、slow-field shader 与 B4 impact helpers；未改技能触发、命中/伤害/数值、数据、形象 PNG 或 `project.godot` 渲染方向。
 - [x] App logo 高规格重做：`assets/app/app_icon_1024.png` 已替换为 1024×1024 RGB 的高端 3D 渲染图标，保留旧版备份；生成源图和 prompt 已放入 `assets/production/source_refs/generated/` 并登记到 `OUTSOURCER_ASSET_INDEX.json`。
 - [x] 全项目最终美术水准筛查：新增 `design/assets/final_art_quality_audit_2026_07_01.md`，按“3D 渲染 / 顶级美术 / App Store / 最终图”口径标出 P0/P1/P2 资产问题；本轮只审计，不批量替换素材。
-- [ ] 最终美术 P0 替换：启动图、App Store 截图/预览、扁平 UI kit、28 个 legacy runtime refs、代码生成 UI 面板和可见 procedural VFX 需要进入下一轮专项替换。
+- [x] 最终美术 P0 替换（资产与集成）：启动图、App Store 截图草案、App Preview 草案、扁平 UI kit、运行时锁定圈和 legacy runtime refs 已完成专项替换；生成源图、spec 和 contact sheet 已放入 `assets/production/source_refs/generated/` 并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [ ] 最终美术 P0 代码级余量：当前运行界面已吃到新 UI 资产，但仍有部分 `StyleBoxFlat` / `ColorRect` / 原生 Label / procedural VFX 属于后续更深一轮 UI skin 与动效替换，不影响本轮 P0 资产替换结论。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。

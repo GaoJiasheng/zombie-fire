@@ -33,7 +33,7 @@ func setup(weapon: Dictionary, weapon_level := 1) -> void:
 	fire_rate = float(weapon.get("fire_rate", 4.0)) * (1.0 + 0.025 * float(max(weapon_level - 1, 0))) * _player_fire_rate_multiplier()
 	damage_mult = 1.0 + 0.08 * float(max(weapon_level - 1, 0))
 	turn_speed *= 1.0 + 0.006 * float(max(weapon_level - 1, 0))
-	$Sprite.texture = load(weapon.get("turret", "res://assets/sprites/weapons/weapon_autocannon_turret.png"))
+	$Sprite.texture = load(weapon.get("turret", "res://assets/production/sprites/weapons/weapon_autocannon_turret.png"))
 	$Sprite.scale = Vector2.ONE * (1.0 + clampf(float(weapon_level - 1) * 0.0035, 0.0, 0.14))
 	$Sprite.modulate = _level_tint(weapon_level)
 	_load_animation_frames()

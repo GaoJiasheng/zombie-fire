@@ -15,7 +15,7 @@ func bind(battle: Node2D, gold_label: Label, gold_icon: TextureRect) -> void:
 	_battle = battle
 	_gold_label = gold_label
 	_gold_icon = gold_icon
-	_template = load("res://assets/sprites/ui/icon_currency_gold.png")
+	_template = load("res://assets/production/sprites/ui/icon_currency_gold.png")
 
 func fly_to_hud(from_world: Vector2, amount: int) -> void:
 	if _battle == null or _gold_label == null or _template == null:

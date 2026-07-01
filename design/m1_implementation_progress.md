@@ -255,6 +255,45 @@ Added `design/assets/final_art_quality_audit_2026_07_01.md` as a project-level s
 
 ---
 
+## Final Art P0 Replacement Pass (2026-07-01)
+
+> Owner approved replacing the "must redo" P0 art set against the high-end rendered / App Store-grade bar.
+
+### Completed
+
+- Generated a new high-end launch image at `assets/app/launch_1080x1920.png`, using the new app icon direction as the visual bar.
+- Re-rendered the flat UI kit under `assets/production/sprites/ui/`: primary/secondary buttons, panel, HP/wave/XP/shield bars, generic icons, element icons, card frames, card utility icons, card tags, skill slots, stars, cooldown overlay, and target strategy badges.
+- Replaced the visible target-lock ring at `assets/production/sprites/vfx/vfx_target_lock.png`.
+- Migrated runtime references away from legacy `res://assets/sprites/...` paths to `res://assets/production/sprites/...`.
+- Regenerated App Store screenshot drafts under `assets/appstore/screenshots/` for `ios_65`, `ios_67`, and `ipad_129`.
+- Replaced `assets/production/video/vid_app_preview.mp4` with an 18-second 1080x1920 rendered preview draft.
+- Added reproducible generation script `tools/generate_final_p0_assets.py`.
+- Stored source prompt/spec/contact sheet under `assets/production/source_refs/generated/`.
+- Registered the owner-directed generated replacements in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+
+### Evidence
+
+- `assets/production/source_refs/generated/final_p0_launch_source_2026_07_01.png`
+- `assets/production/source_refs/generated/final_p0_launch_source_prompt_2026_07_01.txt`
+- `assets/production/source_refs/generated/final_p0_ui_store_spec_2026_07_01.json`
+- `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
+- `tmp/final_p0_runtime_screens/` contains fresh routed Godot screenshots used for the store composites.
+
+### Verification during P0 pass
+
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 5133 files`.
+- `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` → `checked 252 res:// references` / `res:// references OK`.
+- `python3 tools/check_app_store_assets.py` → `App Store asset check OK`.
+- `rg "res://assets/sprites/" meta gameplay ui core project.godot` → no legacy visible runtime refs.
+- Godot routed screenshot capture succeeded for menu, map, loadout, collection, battle, and result. Godot still prints the known ObjectDB/resource cleanup warnings on some screenshot exits.
+
+### Remaining art risk
+
+This pass resolves the P0 asset replacements and legacy visible refs. A deeper UI-code skin pass is still useful for remaining `StyleBoxFlat`, `ColorRect`, raw labels, and procedural VFX primitives that are generated directly in GDScript.
+
+---
+
 ## Stage 1 P2.1 Fix — Battle Route Setup Order (2026-06-26)
 
 > Fixed the real cause of "later-level small enemies still die in one shot".

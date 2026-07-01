@@ -9,8 +9,8 @@ const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
 const UiKit := preload("res://ui/ui_kit.gd")
-const BUTTON_PRIMARY_PATH := "res://assets/sprites/ui/ui_button_primary.png"
-const BUTTON_SECONDARY_PATH := "res://assets/sprites/ui/ui_button_secondary.png"
+const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
+const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y := 1500.0
 const CHARACTER_BASE_POSITION := Vector2(540, 1652)
 const CHARACTER_VISUAL_BASE_SCALE := 0.64
@@ -424,7 +424,7 @@ func _ready() -> void:
 	$Hud/CardPanel/RerollButton.pressed.connect(_on_reroll_pressed)
 	$Hud/CardPanel/SkipButton.pressed.connect(_on_skip_card)
 	$Hud/CardPanel/DetailOverlay/Panel/CloseButton.pressed.connect(_hide_card_detail)
-	$LockIndicator.texture = load("res://assets/sprites/vfx/vfx_target_lock.png")
+	$LockIndicator.texture = load("res://assets/production/sprites/vfx/vfx_target_lock.png")
 	$LockIndicator.modulate = Color(0.6, 0.92, 1.0, 0.88)  # MiniMax HUD 锁定环，青白发光，加法融入战场
 	($LockIndicator as CanvasItem).material = VfxLib._new_additive_material()  # 加法发光，融入战场光感
 	_spawn_slow_field_visual()

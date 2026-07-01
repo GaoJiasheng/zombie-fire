@@ -1,8 +1,8 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
-const BUTTON_PRIMARY := "res://assets/sprites/ui/ui_button_primary.png"
-const BUTTON_SECONDARY := "res://assets/sprites/ui/ui_button_secondary.png"
+const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.png"
+const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
 

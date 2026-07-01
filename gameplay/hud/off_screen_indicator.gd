@@ -11,7 +11,7 @@ var _arrows_right: Array[Node2D] = []
 var _arrow_template: Texture2D
 
 func _ready() -> void:
-	_arrow_template = load("res://assets/sprites/vfx/vfx_target_lock.png")
+	_arrow_template = load("res://assets/production/sprites/vfx/vfx_target_lock.png")
 	z_index = 50
 
 func reset() -> void:

@@ -54,6 +54,26 @@ The project is no longer missing broad content, and many unit/icon assets are ac
 
 The main gap is not the roster art. The main gap is that the project still mixes high-end prototype art with flat UI assets, procedural runtime effects, legacy runtime paths, placeholder store screenshots, placeholder videos, and cropped skeletal parts.
 
+## P0 Replacement Update · 2026-07-01
+
+After owner review of the "must redo only" thumbnail sheet, a P0 replacement pass was completed for the asset-facing items below:
+
+- `assets/app/launch_1080x1920.png` was replaced with high-end rendered launch key art matching the new app icon direction.
+- `assets/appstore/screenshots/**` drafts were regenerated for `ios_65`, `ios_67`, and `ipad_129` using the refreshed runtime screenshots and a premium App Store composition.
+- `assets/production/video/vid_app_preview.mp4` was replaced with an 18-second 1080x1920 rendered preview draft.
+- Flat UI kit assets under `assets/production/sprites/ui/` were replaced with a darker metal HUD family: buttons, panel, bars, icons, card frames, card utility icons, tags, stars, skill slots, and target strategy badges.
+- `assets/production/sprites/vfx/vfx_target_lock.png` was replaced for the visible lock-ring path.
+- Runtime `res://assets/sprites/...` visible refs were migrated to `res://assets/production/sprites/...`; `rg "res://assets/sprites/" meta gameplay ui core project.godot` now returns no matches.
+- Source prompt/spec/contact sheet were stored under `assets/production/source_refs/generated/`, and the replacements were registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+
+Current evidence:
+
+- `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
+- `tmp/final_p0_runtime_screens/`
+- `tools/generate_final_p0_assets.py`
+
+Remaining P0-adjacent risk: the runtime screens still contain code-generated surfaces and primitives (`StyleBoxFlat`, `ColorRect`, raw labels, some procedural VFX). The new image assets improve the visible build, but a deeper UI-code skin pass is still needed before calling every runtime panel and effect fully final.
+
 ## P0 · Must Redo Before Calling Art Final
 
 ### Store / Brand Assets
@@ -238,10 +258,8 @@ These are not guaranteed final, but they are closest to the desired direction:
 
 ## Practical Next Chunk
 
-The most efficient next implementation chunk is not "regenerate everything". It should be:
+The original P0 practical chunk has been completed for asset files and runtime reference migration. The next most efficient chunk is the deeper code-level skin pass:
 
-1. Replace `assets/app/launch_1080x1920.png` to match the new app icon.
-2. Regenerate App Store screenshot drafts from the current real game screens after UI polish, not from old prototype cards.
-3. Replace the flat UI kit and migrate the 28 legacy runtime refs to production paths.
-
-This gives the biggest visible quality jump and removes the strongest contradiction with the new app logo.
+1. Replace remaining `StyleBoxFlat` / `ColorRect` panel construction with texture-backed skins or shared UI components where it affects visible polish.
+2. Replace remaining raw damage/status label styling with authored number/badge treatment.
+3. Continue P1 work on projectiles, VFX sequences, backgrounds, skeletal parts, and animation QA.

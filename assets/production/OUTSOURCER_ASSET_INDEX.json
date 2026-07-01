@@ -135,6 +135,36 @@
       "source": "source_refs/generated/app_icon_1024_v2_prompt.txt",
       "derived": "source_refs/generated/app_icon_1024_v2_generated_source.png",
       "reason": "Owner requested a redesigned high-end rendered app logo; integrated icon keeps the existing project.godot app icon path and App Store 1024x1024 RGB requirement."
+    },
+    {
+      "path": "../app/launch_1080x1920.png",
+      "source": "source_refs/generated/final_p0_launch_source_prompt_2026_07_01.txt",
+      "derived": "source_refs/generated/final_p0_launch_source_2026_07_01.png",
+      "reason": "Owner approved P0 final-art replacement for launch image to match the high-end rendered app icon and App Store presentation bar."
+    },
+    {
+      "path": "sprites/ui",
+      "source": "source_refs/generated/final_p0_ui_store_spec_2026_07_01.json",
+      "derived": "source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png",
+      "reason": "Owner approved P0 final-art replacement for flat UI kit assets with premium dark-metal HUD controls, icons, panels, bars, card frames, and strategy badges."
+    },
+    {
+      "path": "../appstore/screenshots",
+      "source": "source_refs/generated/final_p0_ui_store_spec_2026_07_01.json",
+      "derived": "source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png",
+      "reason": "Owner approved P0 App Store screenshot draft regeneration after UI final-art pass."
+    },
+    {
+      "path": "video/vid_app_preview.mp4",
+      "source": "source_refs/generated/final_p0_ui_store_spec_2026_07_01.json",
+      "derived": "video/vid_app_preview.mp4",
+      "reason": "Owner approved replacing the 2-second placeholder app preview with a rendered 18-second vertical preview draft from current game screens."
+    },
+    {
+      "path": "sprites/vfx/vfx_target_lock.png",
+      "source": "source_refs/generated/final_p0_ui_store_spec_2026_07_01.json",
+      "derived": "source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png",
+      "reason": "Owner approved P0 replacement for the visible runtime target-lock ring after legacy references were migrated to production assets."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff."
