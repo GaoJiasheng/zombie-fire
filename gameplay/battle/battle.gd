@@ -3382,38 +3382,58 @@ func _transient_fx_count(parent: Node, bucket: String) -> int:
 func _spawn_muzzle_flash(origin: Vector2, direction: Vector2, element := "physical", visual_profile := "") -> void:
 	if not _can_spawn_projectile_fx():
 		return
-	var dir := direction.normalized()
-	if dir.length_squared() <= 0.01:
-		dir = Vector2.UP
-	var color := _element_color(element)
-	color.a = 0.92
-	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 10.0, color, 96.0, 0.13)
+	var dir := _safe_vfx_direction(direction)
+	var muzzle_profile := _muzzle_weapon_profile(visual_profile)
+	var spec := _muzzle_element_spec(element, muzzle_profile)
+	var hot_color: Color = spec.get("hot", _element_color(element))
+	hot_color.a = 0.94
+	var cone_color: Color = spec.get("cone", hot_color)
+	cone_color.a = minf(cone_color.a, 0.72)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 10.0, hot_color, float(spec.get("glow_size", 104.0)), float(spec.get("glow_life", 0.13)))
 	if glow != null:
 		_track_transient_fx(glow, "projectile")
-	if _can_spawn_projectile_fx():
-		var burst := VfxLib.spawn_burst($ProjectileLayer, origin + dir * 18.0, color, 16, 465.0, 32.0, 0.18)
-		if burst != null:
-			_track_transient_fx(burst, "projectile")
-			if burst is Node2D:
-				(burst as Node2D).rotation = dir.angle()
-	_spawn_weapon_muzzle_profile_vfx(origin, direction, element, visual_profile)
+	_spawn_muzzle_light_cone(origin, dir, cone_color, float(spec.get("cone_length", 104.0)), float(spec.get("cone_width", 34.0)), float(spec.get("cone_life", 0.11)), float(spec.get("intensity", 3.2)))
+	_spawn_muzzle_element_particles(origin, dir, element, muzzle_profile)
+	_spawn_muzzle_smoke(origin, dir, element, muzzle_profile)
+	_spawn_weapon_muzzle_profile_vfx(origin, dir, element, muzzle_profile)
 
 func _spawn_weapon_muzzle_profile_vfx(origin: Vector2, direction: Vector2, element: String, visual_profile: String) -> void:
-	if visual_profile == "":
+	var profile := _muzzle_weapon_profile(visual_profile)
+	if profile == "":
 		return
-	var dir := direction.normalized()
-	match visual_profile:
+	var dir := _safe_vfx_direction(direction)
+	var spec := _muzzle_element_spec(element, profile)
+	var hot_color: Color = spec.get("hot", _element_color(element))
+	match profile:
+		"autocannon":
+			_spawn_weapon_trace(origin + dir * 20.0, origin + dir * 96.0, Color(1.0, 0.86, 0.34, 0.5), 5.0, 0.07)
 		"rail":
-			_spawn_weapon_trace(origin - dir * 18.0, origin + dir * 118.0, Color(0.58, 0.96, 1.0, 0.72), 15.0, 0.1)
-			_spawn_attack_ring(origin + dir * 28.0, 62.0, Color(0.62, 0.96, 1.0, 0.28), 0.12)
+			_spawn_muzzle_light_cone(origin, dir, Color(0.66, 0.98, 1.0, 0.72), 168.0, 18.0, 0.1, 4.4)
+			_spawn_weapon_trace(origin - dir * 18.0, origin + dir * 142.0, Color(0.66, 0.98, 1.0, 0.76), 14.0, 0.1)
+			_spawn_muzzle_fork_lines(origin + dir * 18.0, dir, Color(0.78, 1.0, 1.0, 0.58), 3, 116.0, 12.0, 0.11, 2.8)
 		"scatter":
 			var color := Color(1.0, 0.78, 0.36, 0.52)
 			for i in range(5):
 				var offset := lerpf(-0.24, 0.24, float(i) / 4.0)
-				_spawn_short_muzzle_spark(origin, dir.rotated(offset), element, color, 0.18, "res://assets/production/sprites/projectiles/proj_scatter_pellet.png")
+				var shot_dir := dir.rotated(offset)
+				_spawn_muzzle_light_cone(origin, shot_dir, color, 76.0, 16.0, 0.08, 2.7)
+				_spawn_short_muzzle_spark(origin, shot_dir, element, color, 0.15, "res://assets/production/sprites/projectiles/proj_scatter_pellet.png")
 		"plasma":
-			_spawn_attack_sprite("res://assets/production/sprites/projectiles/proj_plasma_orb.png", origin + dir * 32.0, Color(1.0, 1.0, 1.0, 0.9), 0.42, 0.16)
-			_spawn_attack_ring(origin + dir * 24.0, 82.0, Color(0.96, 0.44, 1.0, 0.25), 0.16)
+			var plasma_color := Color(0.98, 0.46, 1.0, 0.82)
+			_spawn_muzzle_light_cone(origin, dir, plasma_color, 126.0, 48.0, 0.14, 4.0)
+			_spawn_muzzle_heat_haze(origin + dir * 22.0, dir, plasma_color, 0.18, 1.18)
+			var plasma_glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 34.0, Color(1.0, 0.68, 1.0, 0.86), 118.0, 0.16)
+			if plasma_glow != null:
+				_track_transient_fx(plasma_glow, "projectile")
+		"flame":
+			_spawn_muzzle_light_cone(origin, dir, Color(1.0, 0.22, 0.08, 0.62), 132.0, 58.0, 0.13, 3.8)
+			_spawn_muzzle_heat_haze(origin + dir * 18.0, dir, Color(1.0, 0.34, 0.08, 0.48), 0.2, 1.05)
+		"cryo":
+			_spawn_muzzle_fork_lines(origin + dir * 16.0, dir, Color(0.74, 1.0, 1.0, 0.68), 5, 72.0, 28.0, 0.14, 3.2)
+		"tesla":
+			_spawn_muzzle_fork_lines(origin + dir * 16.0, dir, Color(0.74, 0.96, 1.0, 0.78), 6, 106.0, 36.0, 0.12, 3.0)
+		"venom":
+			_spawn_muzzle_bubbles(origin + dir * 12.0, dir, hot_color, 5, 0.28)
 
 func _projectile_visual_scale(shots: int, pierce: int, split: int, homing: float, splash: float, cloud: float) -> float:
 	var scale := 1.0
@@ -3430,11 +3450,23 @@ func _projectile_visual_scale(shots: int, pierce: int, split: int, homing: float
 	return clampf(scale, 0.78, 1.55)
 
 func _spawn_salvo_fan_vfx(origin: Vector2, direction: Vector2, spread: float, shots: int, element: String) -> void:
-	var color := _element_color(element)
+	var dir := _safe_vfx_direction(direction)
+	var spec := _muzzle_element_spec(element, _muzzle_weapon_profile(""))
+	var color: Color = spec.get("cone", _element_color(element))
 	color.a = 0.42
+	var fan_glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 18.0, color, 78.0 + float(mini(shots, 6)) * 6.0, 0.1)
+	if fan_glow != null:
+		_track_transient_fx(fan_glow, "projectile")
 	for i in range(mini(shots, 6)):
 		var offset: float = 0.0 if shots == 1 else lerpf(-spread, spread, float(i) / float(shots - 1))
-		_spawn_short_muzzle_spark(origin, direction.rotated(offset), element, color, 0.18)
+		var shot_dir := dir.rotated(offset)
+		_spawn_muzzle_light_cone(origin, shot_dir, color, 66.0, 14.0, 0.075, 2.2)
+		if i % 2 == 0 and _can_spawn_projectile_fx():
+			var fan_particles := VfxLib.spawn_particles($ProjectileLayer, origin + shot_dir * 22.0, color, 4, 260.0, 18.0, 0.1)
+			if fan_particles != null:
+				_track_transient_fx(fan_particles, "projectile")
+				if fan_particles is Node2D:
+					(fan_particles as Node2D).rotation = shot_dir.angle()
 
 func _spawn_homing_line_vfx(origin: Vector2, direction: Vector2, element: String) -> void:
 	var color := _element_color(element)
@@ -3452,25 +3484,469 @@ func _spawn_crit_shot_vfx(origin: Vector2, direction: Vector2, element: String) 
 	_spawn_short_muzzle_spark(origin, direction, element, color, 0.24, "res://assets/production/sprites/vfx/vfx_crit.png")
 
 func _spawn_short_muzzle_spark(origin: Vector2, direction: Vector2, element: String, color: Color, scale_mult := 0.18, texture_path := "") -> void:
-	var path := texture_path if texture_path != "" else _vfx_path("muzzle", element)
-	var tex := load(path) as Texture2D
-	if tex == null:
-		return
 	if not _can_spawn_projectile_fx():
+		return
+	var dir := _safe_vfx_direction(direction)
+	var spark_color := color
+	spark_color.a = minf(color.a, 0.58)
+	_spawn_muzzle_light_cone(origin, dir, spark_color, 54.0, 12.0, 0.07, 2.35)
+	var particles := VfxLib.spawn_particles($ProjectileLayer, origin + dir * 22.0, spark_color, 5, 285.0, 22.0, 0.1)
+	if particles != null:
+		_track_transient_fx(particles, "projectile")
+		if particles is Node2D:
+			(particles as Node2D).rotation = dir.angle()
+	if texture_path == "":
+		return
+	var tex := load(texture_path) as Texture2D
+	if tex == null or not _can_spawn_projectile_fx():
 		return
 	var spark := Sprite2D.new()
 	_track_transient_fx(spark, "projectile")
+	spark.name = "MuzzleAccent"
 	spark.texture = tex
-	spark.global_position = origin + direction.normalized() * 28.0
-	spark.rotation = direction.angle()
+	spark.global_position = origin + dir * 30.0
+	spark.rotation = dir.angle()
 	spark.scale = Vector2(scale_mult, scale_mult)
 	spark.modulate = color
+	spark.material = _new_muzzle_additive_material()
+	spark.z_index = 75
 	$ProjectileLayer.add_child(spark)
 	var tween := spark.create_tween()
-	tween.parallel().tween_property(spark, "global_position", spark.global_position + direction.normalized() * 18.0, 0.08)
-	tween.parallel().tween_property(spark, "scale", spark.scale * 0.68, 0.08)
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(spark, "global_position", spark.global_position + dir * 20.0, 0.08)
+	tween.parallel().tween_property(spark, "scale", spark.scale * 0.54, 0.08)
 	tween.parallel().tween_property(spark, "modulate:a", 0.0, 0.08)
 	tween.tween_callback(spark.queue_free)
+
+func _safe_vfx_direction(direction: Vector2) -> Vector2:
+	var dir := direction.normalized()
+	if dir.length_squared() <= 0.01:
+		return Vector2.UP
+	return dir
+
+func _muzzle_weapon_profile(visual_profile: String) -> String:
+	if visual_profile != "":
+		return visual_profile
+	match weapon_id:
+		"weapon_autocannon":
+			return "autocannon"
+		"weapon_flamethrower":
+			return "flame"
+		"weapon_cryocannon":
+			return "cryo"
+		"weapon_teslacoil":
+			return "tesla"
+		"weapon_venomlauncher":
+			return "venom"
+		_:
+			return ""
+
+func _muzzle_element_spec(element: String, profile := "") -> Dictionary:
+	var spec := {}
+	match element:
+		"fire":
+			spec = {
+				"hot": Color(1.0, 0.36, 0.08, 1.0),
+				"cone": Color(1.0, 0.18, 0.04, 0.68),
+				"smoke": Color(1.0, 0.36, 0.12, 0.2),
+				"glow_size": 124.0,
+				"glow_life": 0.15,
+				"cone_length": 116.0,
+				"cone_width": 48.0,
+				"cone_life": 0.13,
+				"intensity": 3.6,
+				"burst_amount": 20,
+				"burst_speed": 430.0,
+				"burst_spread": 46.0,
+				"burst_life": 0.22,
+				"smoke_amount": 8,
+			}
+		"ice":
+			spec = {
+				"hot": Color(0.72, 1.0, 1.0, 1.0),
+				"cone": Color(0.34, 0.9, 1.0, 0.58),
+				"smoke": Color(0.58, 0.96, 1.0, 0.22),
+				"glow_size": 114.0,
+				"glow_life": 0.14,
+				"cone_length": 96.0,
+				"cone_width": 52.0,
+				"cone_life": 0.13,
+				"intensity": 3.2,
+				"burst_amount": 18,
+				"burst_speed": 360.0,
+				"burst_spread": 58.0,
+				"burst_life": 0.24,
+				"smoke_amount": 10,
+			}
+		"lightning":
+			spec = {
+				"hot": Color(0.78, 0.96, 1.0, 1.0),
+				"cone": Color(0.58, 0.9, 1.0, 0.7),
+				"smoke": Color(0.44, 0.76, 1.0, 0.12),
+				"glow_size": 118.0,
+				"glow_life": 0.11,
+				"cone_length": 112.0,
+				"cone_width": 30.0,
+				"cone_life": 0.09,
+				"intensity": 4.4,
+				"burst_amount": 22,
+				"burst_speed": 610.0,
+				"burst_spread": 38.0,
+				"burst_life": 0.14,
+				"smoke_amount": 4,
+			}
+		"poison":
+			spec = {
+				"hot": Color(0.46, 1.0, 0.18, 1.0),
+				"cone": Color(0.32, 1.0, 0.2, 0.58),
+				"smoke": Color(0.34, 1.0, 0.16, 0.25),
+				"glow_size": 112.0,
+				"glow_life": 0.16,
+				"cone_length": 92.0,
+				"cone_width": 56.0,
+				"cone_life": 0.16,
+				"intensity": 3.0,
+				"burst_amount": 15,
+				"burst_speed": 285.0,
+				"burst_spread": 68.0,
+				"burst_life": 0.28,
+				"smoke_amount": 12,
+			}
+		_:
+			spec = {
+				"hot": Color(1.0, 0.9, 0.34, 1.0),
+				"cone": Color(1.0, 0.78, 0.24, 0.62),
+				"smoke": Color(0.72, 0.68, 0.58, 0.16),
+				"glow_size": 104.0,
+				"glow_life": 0.13,
+				"cone_length": 108.0,
+				"cone_width": 30.0,
+				"cone_life": 0.1,
+				"intensity": 3.1,
+				"burst_amount": 18,
+				"burst_speed": 520.0,
+				"burst_spread": 30.0,
+				"burst_life": 0.18,
+				"smoke_amount": 5,
+			}
+	match profile:
+		"rail":
+			spec["hot"] = Color(0.72, 1.0, 1.0, 1.0)
+			spec["cone"] = Color(0.58, 0.96, 1.0, 0.72)
+			spec["glow_size"] = 132.0
+			spec["cone_length"] = 148.0
+			spec["cone_width"] = 20.0
+			spec["intensity"] = 4.6
+			spec["burst_speed"] = 690.0
+			spec["burst_spread"] = 18.0
+			spec["burst_life"] = 0.12
+		"scatter":
+			spec["cone_width"] = maxf(float(spec.get("cone_width", 30.0)), 44.0)
+			spec["burst_amount"] = mini(int(spec.get("burst_amount", 18)) + 6, 30)
+			spec["burst_spread"] = maxf(float(spec.get("burst_spread", 34.0)), 64.0)
+		"plasma":
+			spec["hot"] = Color(1.0, 0.58, 1.0, 1.0)
+			spec["cone"] = Color(0.95, 0.36, 1.0, 0.68)
+			spec["smoke"] = Color(1.0, 0.42, 0.72, 0.16)
+			spec["glow_size"] = 138.0
+			spec["cone_length"] = 120.0
+			spec["cone_width"] = 54.0
+			spec["intensity"] = 4.1
+			spec["burst_life"] = 0.2
+		"flame":
+			spec["cone_length"] = maxf(float(spec.get("cone_length", 112.0)), 130.0)
+			spec["cone_width"] = maxf(float(spec.get("cone_width", 46.0)), 62.0)
+			spec["smoke_amount"] = maxi(int(spec.get("smoke_amount", 8)), 10)
+		"cryo":
+			spec["cone_width"] = maxf(float(spec.get("cone_width", 48.0)), 58.0)
+			spec["smoke_amount"] = maxi(int(spec.get("smoke_amount", 8)), 12)
+		"tesla":
+			spec["hot"] = Color(0.82, 0.98, 1.0, 1.0)
+			spec["cone"] = Color(0.56, 0.9, 1.0, 0.72)
+			spec["intensity"] = 4.6
+			spec["burst_speed"] = 640.0
+		"venom":
+			spec["cone_width"] = maxf(float(spec.get("cone_width", 52.0)), 66.0)
+			spec["smoke_amount"] = maxi(int(spec.get("smoke_amount", 10)), 14)
+	return spec
+
+func _spawn_muzzle_light_cone(origin: Vector2, direction: Vector2, color: Color, length: float, width: float, duration: float, intensity := 3.0) -> void:
+	if not _can_spawn_projectile_fx():
+		return
+	var dir := _safe_vfx_direction(direction)
+	var safe_length := clampf(length, 24.0, 190.0)
+	var safe_width := clampf(width, 8.0, 76.0)
+	var life := clampf(duration, 0.04, 0.24)
+	var root := Node2D.new()
+	root.name = "MuzzleLightCone"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.z_index = 73
+	root.rotation = dir.angle()
+	root.scale = Vector2(0.72, 1.12)
+	_track_transient_fx(root, "projectile")
+	$ProjectileLayer.add_child(root)
+	root.global_position = origin
+
+	var cone := Sprite2D.new()
+	cone.name = "AdditiveCone"
+	cone.texture = VfxLib.STREAK_TEXTURE
+	cone.centered = true
+	cone.position = Vector2(safe_length * 0.46, 0.0)
+	cone.scale = Vector2(safe_length / float(VfxLib.STREAK_TEXTURE.get_width()), safe_width / float(VfxLib.STREAK_TEXTURE.get_height()))
+	cone.modulate = color
+	cone.material = _new_muzzle_core_material(color, intensity, 0.74)
+	root.add_child(cone)
+
+	var core_color := color.lightened(0.28)
+	core_color.a = minf(color.a + 0.16, 0.96)
+	var core := Sprite2D.new()
+	core.name = "ShaderCore"
+	core.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	core.centered = true
+	core.position = Vector2(16.0, 0.0)
+	core.scale = Vector2.ONE * (safe_width * 0.74 / float(VfxLib.RADIAL_GLOW_TEXTURE.get_width()))
+	core.material = _new_muzzle_core_material(core_color, intensity + 0.65, 0.82)
+	root.add_child(core)
+
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2(1.08, 0.76), life)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, life)
+	tween.tween_callback(root.queue_free)
+
+func _spawn_muzzle_element_particles(origin: Vector2, direction: Vector2, element: String, profile: String) -> void:
+	var spec := _muzzle_element_spec(element, profile)
+	var dir := _safe_vfx_direction(direction)
+	var hot_color: Color = spec.get("hot", _element_color(element))
+	hot_color.a = 0.84
+	if _can_spawn_projectile_fx():
+		var burst := VfxLib.spawn_burst(
+			$ProjectileLayer,
+			origin + dir * 20.0,
+			hot_color,
+			int(spec.get("burst_amount", 16)),
+			float(spec.get("burst_speed", 420.0)),
+			float(spec.get("burst_spread", 38.0)),
+			float(spec.get("burst_life", 0.18))
+		)
+		if burst != null:
+			_track_transient_fx(burst, "projectile")
+			if burst is Node2D:
+				(burst as Node2D).rotation = dir.angle()
+	if _can_spawn_projectile_fx():
+		var mote_color := hot_color.lightened(0.18)
+		mote_color.a = 0.46
+		var motes := VfxLib.spawn_particles($ProjectileLayer, origin + dir * 10.0, mote_color, 7, float(spec.get("burst_speed", 420.0)) * 0.46, float(spec.get("burst_spread", 38.0)) + 24.0, 0.18)
+		if motes != null:
+			_track_transient_fx(motes, "projectile")
+			if motes is Node2D:
+				(motes as Node2D).rotation = dir.angle()
+	match element:
+		"fire":
+			_spawn_muzzle_heat_haze(origin + dir * 18.0, dir, Color(1.0, 0.24, 0.06, 0.44), 0.18, 0.95)
+		"ice":
+			_spawn_muzzle_fork_lines(origin + dir * 14.0, dir, Color(0.82, 1.0, 1.0, 0.62), 4, 62.0, 28.0, 0.13, 2.5)
+		"lightning":
+			_spawn_muzzle_fork_lines(origin + dir * 12.0, dir, Color(0.82, 0.98, 1.0, 0.82), 5, 96.0, 34.0, 0.11, 2.8)
+		"poison":
+			_spawn_muzzle_bubbles(origin + dir * 10.0, dir, Color(0.46, 1.0, 0.16, 0.46), 4, 0.26)
+
+func _spawn_muzzle_smoke(origin: Vector2, direction: Vector2, element: String, profile: String) -> void:
+	if not _can_spawn_projectile_fx():
+		return
+	var spec := _muzzle_element_spec(element, profile)
+	var smoke_color: Color = spec.get("smoke", Color(0.7, 0.68, 0.6, 0.14))
+	var amount := clampi(int(spec.get("smoke_amount", 6)), 3, 14)
+	var dir := _safe_vfx_direction(direction)
+	var particles := GPUParticles2D.new()
+	particles.name = "MuzzleSmokeParticles"
+	particles.process_mode = Node.PROCESS_MODE_PAUSABLE
+	particles.one_shot = true
+	particles.amount = amount
+	particles.lifetime = 0.28 if element != "poison" else 0.38
+	particles.explosiveness = 1.0
+	particles.randomness = 0.7
+	particles.local_coords = false
+	particles.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	particles.material = _new_muzzle_additive_material()
+	particles.z_index = 71
+	particles.visibility_rect = Rect2(-420.0, -420.0, 840.0, 840.0)
+
+	var process_material := ParticleProcessMaterial.new()
+	process_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
+	process_material.direction = Vector3(1.0, 0.0, 0.0)
+	process_material.spread = 58.0 if element != "poison" else 84.0
+	process_material.initial_velocity_min = 28.0 if element == "poison" else 46.0
+	process_material.initial_velocity_max = 116.0 if element == "poison" else 190.0
+	process_material.gravity = Vector3(0.0, -18.0 if element == "ice" else -6.0, 0.0)
+	process_material.damping_min = 28.0
+	process_material.damping_max = 58.0
+	process_material.angle_min = -35.0
+	process_material.angle_max = 35.0
+	process_material.angular_velocity_min = -80.0
+	process_material.angular_velocity_max = 80.0
+	process_material.scale_min = 0.16 if element != "poison" else 0.2
+	process_material.scale_max = 0.42 if element != "poison" else 0.58
+	process_material.scale_curve = _muzzle_smoke_scale_curve()
+	process_material.color_ramp = _muzzle_color_ramp(smoke_color.lightened(0.14), smoke_color, Color(smoke_color.r, smoke_color.g, smoke_color.b, 0.0))
+	particles.process_material = process_material
+
+	particles.finished.connect(particles.queue_free)
+	_track_transient_fx(particles, "projectile")
+	$ProjectileLayer.add_child(particles)
+	particles.global_position = origin + dir * 14.0
+	particles.rotation = dir.angle()
+	particles.emitting = true
+
+func _spawn_muzzle_heat_haze(origin: Vector2, direction: Vector2, color: Color, duration: float, scale_mult := 1.0) -> void:
+	if not _can_spawn_projectile_fx():
+		return
+	var dir := _safe_vfx_direction(direction)
+	var haze := Sprite2D.new()
+	haze.name = "MuzzleShaderHeatHaze"
+	haze.process_mode = Node.PROCESS_MODE_PAUSABLE
+	haze.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	haze.centered = true
+	haze.global_position = origin + dir * 18.0
+	haze.rotation = dir.angle()
+	haze.scale = Vector2(0.7, 0.34) * scale_mult
+	haze.modulate = color
+	haze.material = _new_muzzle_core_material(color, 2.45, 1.8)
+	haze.z_index = 72
+	_track_transient_fx(haze, "projectile")
+	$ProjectileLayer.add_child(haze)
+	var tween := haze.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(haze, "scale", Vector2(1.22, 0.58) * scale_mult, duration)
+	tween.parallel().tween_property(haze, "rotation", haze.rotation + 0.1, duration)
+	tween.parallel().tween_property(haze, "modulate:a", 0.0, duration)
+	tween.tween_callback(haze.queue_free)
+
+func _spawn_muzzle_fork_lines(origin: Vector2, direction: Vector2, color: Color, count: int, length: float, spread_deg: float, duration: float, width: float) -> void:
+	if not _can_spawn_projectile_fx():
+		return
+	var dir := _safe_vfx_direction(direction)
+	var root := Node2D.new()
+	root.name = "MuzzleForkLines"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = origin
+	root.rotation = dir.angle()
+	root.z_index = 76
+	_track_transient_fx(root, "projectile")
+	$ProjectileLayer.add_child(root)
+	var safe_count := clampi(count, 1, 7)
+	for i in range(safe_count):
+		var t := 0.5 if safe_count == 1 else float(i) / float(safe_count - 1)
+		var lateral := tan(deg_to_rad(lerpf(-spread_deg, spread_deg, t))) * length * 0.26
+		var jitter := randf_range(-8.0, 8.0)
+		var line := Line2D.new()
+		line.width = width * randf_range(0.72, 1.18)
+		line.default_color = color.lightened(randf_range(0.0, 0.25))
+		line.joint_mode = Line2D.LINE_JOINT_ROUND
+		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		line.end_cap_mode = Line2D.LINE_CAP_ROUND
+		line.texture = VfxLib.STREAK_TEXTURE
+		line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		line.material = _new_muzzle_additive_material()
+		line.points = PackedVector2Array([
+			Vector2(8.0, 0.0),
+			Vector2(length * randf_range(0.38, 0.58), lateral * 0.45 + jitter),
+			Vector2(length * randf_range(0.74, 1.05), lateral + randf_range(-10.0, 10.0)),
+		])
+		root.add_child(line)
+		if i % 2 == 0:
+			var branch := Line2D.new()
+			branch.width = maxf(width * 0.55, 1.2)
+			branch.default_color = Color(color.r, color.g, color.b, color.a * 0.72)
+			branch.joint_mode = Line2D.LINE_JOINT_ROUND
+			branch.begin_cap_mode = Line2D.LINE_CAP_ROUND
+			branch.end_cap_mode = Line2D.LINE_CAP_ROUND
+			branch.texture = VfxLib.STREAK_TEXTURE
+			branch.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+			branch.material = _new_muzzle_additive_material()
+			var branch_start := Vector2(length * 0.48, lateral * 0.42)
+			branch.points = PackedVector2Array([
+				branch_start,
+				branch_start + Vector2(length * 0.22, randf_range(-22.0, 22.0)),
+			])
+			root.add_child(branch)
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2(1.08, 0.82), duration)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
+	tween.tween_callback(root.queue_free)
+
+func _spawn_muzzle_bubbles(origin: Vector2, direction: Vector2, color: Color, count: int, duration: float) -> void:
+	if not _can_spawn_projectile_fx():
+		return
+	var dir := _safe_vfx_direction(direction)
+	var root := Node2D.new()
+	root.name = "MuzzlePoisonBubbles"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = origin
+	root.rotation = dir.angle()
+	root.z_index = 74
+	_track_transient_fx(root, "projectile")
+	$ProjectileLayer.add_child(root)
+	var safe_count := clampi(count, 2, 6)
+	for i in range(safe_count):
+		var bubble := Sprite2D.new()
+		bubble.name = "Bubble"
+		bubble.texture = VfxLib.RADIAL_GLOW_TEXTURE
+		bubble.centered = true
+		bubble.position = Vector2(randf_range(10.0, 34.0), randf_range(-18.0, 18.0))
+		bubble.scale = Vector2.ONE * randf_range(0.07, 0.14)
+		bubble.modulate = Color(color.r, color.g, color.b, randf_range(0.28, 0.5))
+		bubble.material = _new_muzzle_core_material(bubble.modulate, 2.2, 1.2)
+		root.add_child(bubble)
+		var travel := Vector2(randf_range(32.0, 76.0), randf_range(-36.0, 36.0))
+		var tween := bubble.create_tween()
+		tween.set_trans(Tween.TRANS_QUINT)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(bubble, "position", bubble.position + travel, duration)
+		tween.parallel().tween_property(bubble, "scale", bubble.scale * randf_range(1.5, 2.2), duration)
+		tween.parallel().tween_property(bubble, "modulate:a", 0.0, duration)
+	var root_tween := root.create_tween()
+	root_tween.tween_interval(duration + 0.02)
+	root_tween.tween_callback(root.queue_free)
+
+func _muzzle_color_ramp(start: Color, mid: Color, finish: Color) -> GradientTexture1D:
+	var gradient_resource := Gradient.new()
+	gradient_resource.set_offset(0, 0.0)
+	gradient_resource.set_color(0, start)
+	gradient_resource.set_offset(1, 1.0)
+	gradient_resource.set_color(1, finish)
+	gradient_resource.add_point(0.36, mid)
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient_resource
+	return texture
+
+func _muzzle_smoke_scale_curve() -> CurveTexture:
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.16))
+	curve.add_point(Vector2(0.35, 1.0))
+	curve.add_point(Vector2(1.0, 0.0))
+	var texture := CurveTexture.new()
+	texture.curve = curve
+	return texture
+
+func _new_muzzle_core_material(color: Color, intensity: float, core_power: float) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = VfxLib.GLOW_CORE_SHADER
+	material.set_shader_parameter("tint", color)
+	material.set_shader_parameter("intensity", intensity)
+	material.set_shader_parameter("core_power", core_power)
+	return material
+
+func _new_muzzle_additive_material() -> CanvasItemMaterial:
+	var material := CanvasItemMaterial.new()
+	material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	return material
 
 func _spawn_weapon_trace(start: Vector2, finish: Vector2, color: Color, width := 10.0, duration := 0.12) -> void:
 	if not _can_spawn_projectile_fx():
@@ -3482,6 +3958,9 @@ func _spawn_weapon_trace(start: Vector2, finish: Vector2, color: Color, width :=
 	trace.joint_mode = Line2D.LINE_JOINT_ROUND
 	trace.begin_cap_mode = Line2D.LINE_CAP_ROUND
 	trace.end_cap_mode = Line2D.LINE_CAP_ROUND
+	trace.texture = VfxLib.STREAK_TEXTURE
+	trace.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+	trace.material = _new_muzzle_additive_material()
 	trace.points = PackedVector2Array([$ProjectileLayer.to_local(start), $ProjectileLayer.to_local(finish)])
 	$ProjectileLayer.add_child(trace)
 	var tween := trace.create_tween()

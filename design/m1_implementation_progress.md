@@ -1130,3 +1130,27 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `godot --headless --path . --quit` -> exits 0.
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
 - `git diff --check` -> no whitespace errors.
+
+## VFX B3 Muzzle Flash Overhaul (2026-07-01)
+
+> Implemented only `design/vfx_b3_task.md`: muzzle/open-fire visual layer. Fire timing, damage, hit logic, data numbers, character/zombie/boss/weapon art, and render settings were not changed.
+
+- **Layered muzzle flash**: `_spawn_muzzle_flash` now builds every shot from `VfxLib.spawn_glow`, additive streak cones using `VfxLib.STREAK_TEXTURE`, `VfxLib.GLOW_CORE_SHADER` hot cores, `VfxLib.spawn_burst`, `VfxLib.spawn_particles`, and short-lived GPUParticles2D smoke/mist.
+- **Element readability**: physical uses yellow tracer/metal sparks; fire adds orange-red blast, embers, and shader heat haze; ice adds cyan mist and crystalline fork shards; lightning uses white-blue flash plus forked arcs; poison uses green gas and additive bubbles.
+- **Weapon/profile muzzle identity**: `_spawn_weapon_muzzle_profile_vfx` now differentiates autocannon, rail, scatter, plasma, flamethrower, cryocannon, tesla coil, and venom launcher muzzle accents without passing new profile strings into projectile gameplay.
+- **Salvo fan and short spark polish**: `_spawn_salvo_fan_vfx` and `_spawn_short_muzzle_spark` now use budgeted additive cones/particles instead of defaulting to old flat muzzle sprites; optional pellet/crit accent sprites remain additive-only secondary details.
+- **Hard constraints kept**: all new nodes are transient visual children under `ProjectileLayer`, with `_can_spawn_projectile_fx` gating and existing transient tracking; no `data/*.json`, art PNG, collision, projectile setup, damage, fire-rate, or `project.godot` edits were made.
+- **Scope note**: active-skill cast flourishes that still call `vfx_muzzle_*` sequences were left for the later skill VFX batch because B3 listed the four muzzle-fire functions as its target surface.
+
+### Verification (after VFX B3)
+
+- `godot --headless --import` -> exit 0. It reimported already-dirty background/icon/splash assets in the working tree.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5126 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 250 res:// references / res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completes through `level_099`.
+- `godot --headless --path . --quit` -> exits 0.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
+- `godot --headless --script tools/m1_smoke_test.gd` -> `M1 smoke test passed`; same known headless cleanup warnings.
+- `python3 tools/validate_data.py && python3 tools/check_res_refs.py` -> data validation passed; `checked 250 res:// references`; `res:// references OK`.
