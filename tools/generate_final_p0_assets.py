@@ -141,15 +141,46 @@ def draw_beveled_rect(size: tuple[int, int], accent: tuple[int, int, int], secon
 
 
 def make_button(path: Path, primary: bool) -> None:
-    accent = (255, 126, 32) if primary else (118, 174, 214)
-    secondary = (80, 226, 255) if primary else (255, 168, 78)
-    img = draw_beveled_rect((512, 160), accent, secondary, 34)
-    d = ImageDraw.Draw(img)
+    size = (512, 160)
+    w, h = size
+    radius = 34
+    img = Image.new("RGBA", size, (0, 0, 0, 0))
+
+    shadow = Image.new("RGBA", size, (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shadow)
+    sd.rounded_rectangle((20, 22, w - 20, h - 14), radius=radius, fill=(0, 0, 0, 170))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(15))
+    paste_alpha(img, shadow)
+
     if primary:
-        d.polygon([(62, 80), (92, 54), (92, 106)], fill=(255, 170, 55, 220))
-        d.polygon([(450, 80), (420, 54), (420, 106)], fill=(255, 170, 55, 220))
+        body_top = (38, 132, 124, 250)
+        body_bottom = (20, 72, 82, 252)
+        cyan_edge = (96, 232, 226, 235)
+        warm_edge = (255, 188, 96, 160)
+        highlight_alpha = 120
     else:
-        d.line((56, 80, 456, 80), fill=(118, 174, 214, 120), width=3)
+        body_top = (31, 47, 53, 246)
+        body_bottom = (13, 20, 28, 248)
+        cyan_edge = (100, 194, 218, 210)
+        warm_edge = (214, 150, 76, 112)
+        highlight_alpha = 72
+
+    body = gradient(size, body_top, body_bottom)
+    body = add_noise(body, 8)
+    mask = rounded_mask((w - 28, h - 30), radius)
+    clipped = body.crop((14, 10, w - 14, h - 20))
+    clipped.putalpha(mask)
+    img.alpha_composite(clipped, (14, 10))
+
+    paste_alpha(img, radial_glow(size, (w * 0.22, h * 0.08), (255, 196, 106, 80 if primary else 45), max(w, h) * 0.55))
+    paste_alpha(img, radial_glow(size, (w * 0.80, h * 0.26), (72, 230, 255, 90 if primary else 60), max(w, h) * 0.48))
+
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle((14, 10, w - 14, h - 20), radius=radius, outline=warm_edge, width=6)
+    d.rounded_rectangle((20, 16, w - 20, h - 26), radius=max(4, radius - 6), outline=cyan_edge, width=4)
+    d.rounded_rectangle((27, 24, w - 27, h - 34), radius=max(4, radius - 13), outline=(255, 245, 210, 58 if primary else 42), width=2)
+    d.line((48, 26, w - 48, 26), fill=(255, 255, 230, highlight_alpha), width=2)
+    d.line((54, h - 36, w - 54, h - 36), fill=(28, 10, 4, 84), width=2)
     save_png(path, img, "RGBA")
 
 
@@ -391,7 +422,8 @@ def copy_launch_source(imagegen_source: Path | None) -> Path | None:
     )
     if imagegen_source and imagegen_source.exists():
         dest = SOURCE_DIR / "final_p0_launch_source_2026_07_01.png"
-        shutil.copy2(imagegen_source, dest)
+        if imagegen_source.resolve() != dest.resolve():
+            shutil.copy2(imagegen_source, dest)
         return dest
     fallback = SOURCE_DIR / "final_p0_launch_source_2026_07_01.png"
     return fallback if fallback.exists() else None

@@ -62,6 +62,7 @@ After owner review of the "must redo only" thumbnail sheet, a P0 replacement pas
 - `assets/appstore/screenshots/**` drafts were regenerated for `ios_65`, `ios_67`, and `ipad_129` using the refreshed runtime screenshots and a premium App Store composition.
 - `assets/production/video/vid_app_preview.mp4` was replaced with an 18-second 1080x1920 rendered preview draft.
 - Flat UI kit assets under `assets/production/sprites/ui/` were replaced with a darker metal HUD family: buttons, panel, bars, icons, card frames, card utility icons, tags, stars, skill slots, and target strategy badges.
+- After review, the primary/secondary action buttons were corrected again so both use one shared bevel, border, glow, and lighting model; `meta/result/result.gd` no longer tints result action buttons into separate visual styles.
 - `assets/production/sprites/vfx/vfx_target_lock.png` was replaced for the visible lock-ring path.
 - Runtime `res://assets/sprites/...` visible refs were migrated to `res://assets/production/sprites/...`; `rg "res://assets/sprites/" meta gameplay ui core project.godot` now returns no matches.
 - Source prompt/spec/contact sheet were stored under `assets/production/source_refs/generated/`, and the replacements were registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
@@ -70,6 +71,7 @@ Current evidence:
 
 - `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
 - `tmp/final_p0_runtime_screens/`
+- `tmp/final_p0_runtime_screens/result_button_unified.png`
 - `tools/generate_final_p0_assets.py`
 
 Remaining P0-adjacent risk: the runtime screens still contain code-generated surfaces and primitives (`StyleBoxFlat`, `ColorRect`, raw labels, some procedural VFX). The new image assets improve the visible build, but a deeper UI-code skin pass is still needed before calling every runtime panel and effect fully final.

@@ -270,6 +270,7 @@ Added `design/assets/final_art_quality_audit_2026_07_01.md` as a project-level s
 - Added reproducible generation script `tools/generate_final_p0_assets.py`.
 - Stored source prompt/spec/contact sheet under `assets/production/source_refs/generated/`.
 - Registered the owner-directed generated replacements in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+- Unified the result screen action buttons after review: `ui_button_primary.png` and `ui_button_secondary.png` now share the same bevel, border, glow, and lighting model; `meta/result/result.gd` no longer tints the action button textures into mismatched styles.
 
 ### Evidence
 
@@ -278,6 +279,7 @@ Added `design/assets/final_art_quality_audit_2026_07_01.md` as a project-level s
 - `assets/production/source_refs/generated/final_p0_ui_store_spec_2026_07_01.json`
 - `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
 - `tmp/final_p0_runtime_screens/` contains fresh routed Godot screenshots used for the store composites.
+- `tmp/final_p0_runtime_screens/result_button_unified.png` captures the reviewed result page after the button-style correction.
 
 ### Verification during P0 pass
 

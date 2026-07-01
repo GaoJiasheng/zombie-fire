@@ -2212,36 +2212,28 @@ func _setup_wave_toast_banner() -> void:
 	banner.visible = false
 	$Hud.add_child(banner)
 
-	var glow := ColorRect.new()
-	glow.name = "BackGlow"
-	glow.position = Vector2(28, 18)
-	glow.size = WAVE_TOAST_SIZE - Vector2(56, 36)
-	glow.color = Color(1.0, 0.62, 0.16, 0.08)
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	banner.add_child(glow)
+	# 柔和暗色光带（径向渐变，四周淡出，无硬边框/硬直角）
+	var band := TextureRect.new()
+	band.name = "Band"
+	band.texture = _wave_toast_band_texture()
+	band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	band.stretch_mode = TextureRect.STRETCH_SCALE
+	band.position = Vector2.ZERO
+	band.size = WAVE_TOAST_SIZE
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.add_child(band)
 
-	wave_toast_panel = PanelContainer.new()
-	wave_toast_panel.name = "Plate"
-	wave_toast_panel.position = Vector2(36, 14)
-	wave_toast_panel.size = WAVE_TOAST_SIZE - Vector2(72, 28)
-	wave_toast_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wave_toast_panel.add_theme_stylebox_override("panel", _wave_toast_style(UiKit.GOLD))
-	banner.add_child(wave_toast_panel)
+	# 细金线点缀（两端淡出），压在文字下方，替代原来的粗框+破折号
+	var accent_line := TextureRect.new()
+	accent_line.name = "AccentLine"
+	accent_line.texture = _wave_toast_line_texture()
+	accent_line.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	accent_line.stretch_mode = TextureRect.STRETCH_SCALE
+	accent_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	accent_line.modulate = UiKit.GOLD
+	banner.add_child(accent_line)
 
-	for spec in [
-		{"name": "TopLine", "pos": Vector2(82, 10), "size": Vector2(516, 2)},
-		{"name": "BottomLine", "pos": Vector2(82, 84), "size": Vector2(516, 2)},
-		{"name": "LeftCap", "pos": Vector2(42, 45), "size": Vector2(52, 3)},
-		{"name": "RightCap", "pos": Vector2(586, 45), "size": Vector2(52, 3)}
-	]:
-		var divider := ColorRect.new()
-		divider.name = str(spec["name"])
-		divider.position = spec["pos"]
-		divider.size = spec["size"]
-		divider.color = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.92)
-		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		banner.add_child(divider)
-
+	wave_toast_panel = null
 	wave_toast_label = Label.new()
 	wave_toast_label.name = "Text"
 	wave_toast_label.position = Vector2.ZERO
@@ -2257,19 +2249,41 @@ func _setup_wave_toast_banner() -> void:
 	banner.add_child(wave_toast_label)
 	wave_toast_banner = banner
 
-func _wave_toast_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.020, 0.014, 0.72)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.86)
-	style.set_border_width_all(2)
-	style.border_width_left = 4
-	style.border_width_right = 4
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 16
-	style.content_margin_right = 16
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	return style
+func _wave_toast_band_texture() -> GradientTexture2D:
+	# 暗色椭圆光带：中心较实、四周淡出到全透明，横向拉伸后是柔和的横条，无硬边
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+	g.colors = PackedColorArray([
+		Color(0.028, 0.022, 0.016, 0.92),
+		Color(0.028, 0.022, 0.016, 0.60),
+		Color(0.028, 0.022, 0.016, 0.0),
+	])
+	var t := GradientTexture2D.new()
+	t.gradient = g
+	t.fill = GradientTexture2D.FILL_RADIAL
+	t.fill_from = Vector2(0.5, 0.5)
+	t.fill_to = Vector2(1.0, 0.5)
+	t.width = 256
+	t.height = 64
+	return t
+
+func _wave_toast_line_texture() -> GradientTexture2D:
+	# 细线：两端淡出到透明、中间实（配合 modulate 染成货币色）
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+	g.colors = PackedColorArray([
+		Color(1, 1, 1, 0.0),
+		Color(1, 1, 1, 0.95),
+		Color(1, 1, 1, 0.0),
+	])
+	var t := GradientTexture2D.new()
+	t.gradient = g
+	t.fill = GradientTexture2D.FILL_LINEAR
+	t.fill_from = Vector2(0.0, 0.5)
+	t.fill_to = Vector2(1.0, 0.5)
+	t.width = 256
+	t.height = 4
+	return t
 
 func _strategy_label(strategy: String) -> String:
 	match strategy:
@@ -6079,11 +6093,9 @@ func _show_wave_toast(text: String, color: Color) -> void:
 	wave_toast_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.82))
 	wave_toast_label.add_theme_constant_override("shadow_offset_x", 0)
 	wave_toast_label.add_theme_constant_override("shadow_offset_y", 3)
-	if wave_toast_panel != null and is_instance_valid(wave_toast_panel):
-		wave_toast_panel.add_theme_stylebox_override("panel", _wave_toast_style(accent))
-	for child in wave_toast_banner.get_children():
-		if child is ColorRect:
-			(child as ColorRect).color = Color(accent.r, accent.g, accent.b, 0.10 if child.name == "BackGlow" else 0.9)
+	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
+	if accent_line != null:
+		accent_line.modulate = Color(accent.r, accent.g, accent.b, 0.95)
 	wave_toast_banner.visible = true
 	wave_toast_banner.position = WAVE_TOAST_BASE_POSITION + Vector2(0, 18)
 	wave_toast_banner.scale = Vector2(0.92, 0.92)
@@ -6114,34 +6126,19 @@ func _layout_wave_toast(text: String) -> void:
 	var size := WAVE_TOAST_LONG_SIZE if long_text else WAVE_TOAST_SIZE
 	wave_toast_banner.size = size
 	wave_toast_banner.pivot_offset = size * 0.5
-	if wave_toast_panel != null and is_instance_valid(wave_toast_panel):
-		wave_toast_panel.position = Vector2(36, 14)
-		wave_toast_panel.size = size - Vector2(72, 28)
-	var glow := wave_toast_banner.get_node_or_null("BackGlow") as ColorRect
-	if glow != null:
-		glow.position = Vector2(28, 18)
-		glow.size = size - Vector2(56, 36)
-	wave_toast_label.position = Vector2(58, 14)
-	wave_toast_label.size = size - Vector2(116, 28)
+	var band := wave_toast_banner.get_node_or_null("Band") as TextureRect
+	if band != null:
+		band.position = Vector2.ZERO
+		band.size = size
+	wave_toast_label.position = Vector2(40, 4)
+	wave_toast_label.size = size - Vector2(80, 30)
 	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY if long_text else TextServer.AUTOWRAP_OFF
 	wave_toast_label.clip_text = true
-	for child in wave_toast_banner.get_children():
-		if not (child is ColorRect):
-			continue
-		var rect := child as ColorRect
-		match rect.name:
-			"TopLine":
-				rect.position = Vector2(82, 10)
-				rect.size = Vector2(size.x - 164, 2)
-			"BottomLine":
-				rect.position = Vector2(82, size.y - 12)
-				rect.size = Vector2(size.x - 164, 2)
-			"LeftCap":
-				rect.position = Vector2(42, size.y * 0.5 - 1.5)
-				rect.size = Vector2(52, 3)
-			"RightCap":
-				rect.position = Vector2(size.x - 94, size.y * 0.5 - 1.5)
-				rect.size = Vector2(52, 3)
+	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
+	if accent_line != null:
+		var line_w := size.x * 0.46
+		accent_line.size = Vector2(line_w, 3)
+		accent_line.position = Vector2((size.x - line_w) * 0.5, size.y - 22.0)
 
 func _show_onboarding_tip() -> void:
 	if onboarding_tip_shown:

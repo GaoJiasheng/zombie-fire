@@ -36,10 +36,7 @@ func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.018, 0.022, 0.030, 0.90), 3, 12))
 	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.12, 0.08, 0.03, 0.88), 2, 10))
 	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.CYAN, Color(0.025, 0.040, 0.052, 0.88), 2, 10))
-	$Content/Actions/PrimaryRow/UpgradeButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
-	$Content/Actions/PrimaryRow/RetryButton.modulate = Color(0.82, 0.86, 0.86, 1.0)
-	$Content/Actions/NextButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
-	$Content/Actions/MapButton.modulate = Color(0.82, 0.86, 0.86, 1.0)
+	_reset_action_button_tints()
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	UiKit.apply_label($Content/HeroCard/HeroBox/Title, 86, UiKit.TEXT_MAIN, 6)
 	UiKit.apply_label($Content/HeroCard/HeroBox/LevelName, 30, Color(0.78, 0.84, 0.84, 1.0), 3)
@@ -112,7 +109,7 @@ func _populate_actions(victory: bool) -> void:
 	if victory and next_level != "":
 		$Content/Actions/NextButton/NextLabel.text = "下一关"
 		$Content/Actions/NextButton.show()
-		$Content/Actions/NextButton.modulate = Color(1.0, 0.86, 0.54, 1.0)
+		$Content/Actions/NextButton.modulate = Color.WHITE
 	else:
 		$Content/Actions/NextButton.hide()
 	# On defeat, dim the upgrade button less aggressively
@@ -121,6 +118,17 @@ func _populate_actions(victory: bool) -> void:
 	# Retry button text
 	$Content/Actions/PrimaryRow/RetryButton/RetryLabel.text = "重打本关"
 	$Content/Actions/MapButton/MapLabel.text = "返回关卡"
+
+func _reset_action_button_tints() -> void:
+	for path in [
+		"Content/Actions/PrimaryRow/UpgradeButton",
+		"Content/Actions/PrimaryRow/RetryButton",
+		"Content/Actions/NextButton",
+		"Content/Actions/MapButton"
+	]:
+		var button := get_node_or_null(path) as CanvasItem
+		if button != null:
+			button.modulate = Color.WHITE
 
 func _refresh_star_row(stars: int) -> void:
 	var row := $Content/HeroCard/HeroBox/StarRow

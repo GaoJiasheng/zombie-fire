@@ -712,11 +712,11 @@ func _verify_wave_toast_wrapping(battle: Node) -> void:
 	battle._show_wave_toast(long_tip, Color(0.72, 0.92, 1.0))
 	var banner := battle.get_node("Hud/WaveBanner") as Control
 	var label := banner.get_node("Text") as Label
-	var plate := banner.get_node("Plate") as Control
+	_expect(banner.has_node("Band"), "wave toast must use the soft gradient band (not the old bordered plate)")
 	_expect(banner.size.y >= 128.0, "long wave toast must expand vertically for two-line copy")
 	_expect(label.autowrap_mode != TextServer.AUTOWRAP_OFF, "long wave toast must enable text wrapping")
 	_expect(label.clip_text, "long wave toast must clip text inside the card bounds")
-	_expect(label.size.x <= plate.size.x - 32.0, "long wave toast label must stay inside its plate")
+	_expect(label.size.x <= banner.size.x - 32.0, "long wave toast label must stay inside the banner bounds")
 	_expect(label.text == long_tip, "long wave toast must preserve the full onboarding copy")
 
 func _verify_skill_runtime_mods() -> void:
