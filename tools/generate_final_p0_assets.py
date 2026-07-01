@@ -9,7 +9,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,203 +114,281 @@ def save_png(path: Path, image: Image.Image, mode: str | None = None) -> None:
     out.save(path)
 
 
+def mix(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tuple[int, int, int]:
+    return tuple(int(a[i] * (1.0 - t) + b[i] * t) for i in range(3))
+
+
+def adjust(color: tuple[int, int, int], amount: int) -> tuple[int, int, int]:
+    return tuple(max(0, min(255, c + amount)) for c in color)
+
+
+def metal_texture(size: tuple[int, int], top: tuple[int, int, int, int], bottom: tuple[int, int, int, int], scratches: bool = True) -> Image.Image:
+    img = gradient(size, top, bottom)
+    img = add_noise(img, 10)
+    if scratches:
+        d = ImageDraw.Draw(img)
+        w, h = size
+        for _ in range(max(12, (w * h) // 18000)):
+            x = RNG.randint(0, max(0, w - 1))
+            y = RNG.randint(0, max(0, h - 1))
+            ln = RNG.randint(max(16, w // 18), max(24, w // 5))
+            col = (255, 255, 245, RNG.randint(8, 24)) if RNG.random() > 0.42 else (0, 0, 0, RNG.randint(10, 26))
+            d.line((x, y, min(w, x + ln), max(0, y + RNG.randint(-2, 2))), fill=col, width=1)
+    return img
+
+
+def stroke_from_mask(mask: Image.Image, width: int) -> Image.Image:
+    grown = mask.filter(ImageFilter.MaxFilter(max(3, width * 2 + 1)))
+    inner = mask.filter(ImageFilter.MinFilter(max(3, width * 2 + 1)))
+    return ImageChops.subtract(grown, inner)
+
+
+def apply_mask_color(size: tuple[int, int], mask: Image.Image, color: tuple[int, int, int, int]) -> Image.Image:
+    layer = Image.new("RGBA", size, color)
+    alpha = mask.point(lambda p: int(p * (color[3] / 255.0)))
+    layer.putalpha(alpha)
+    return layer
+
+
+def fill_mask_gradient(size: tuple[int, int], mask: Image.Image, top: tuple[int, int, int, int], bottom: tuple[int, int, int, int]) -> Image.Image:
+    layer = gradient(size, top, bottom)
+    alpha = mask.point(lambda p: int(p * (top[3] / 255.0)))
+    layer.putalpha(alpha)
+    return layer
+
+
+def rounded_rect_mask(canvas_size: tuple[int, int], box: tuple[int, int, int, int], radius: int) -> Image.Image:
+    mask = Image.new("L", canvas_size, 0)
+    d = ImageDraw.Draw(mask)
+    d.rounded_rectangle(box, radius=radius, fill=255)
+    return mask
+
+
+def alpha_composite_masked(dst: Image.Image, layer: Image.Image, mask: Image.Image, xy: tuple[int, int] = (0, 0)) -> None:
+    out = layer.convert("RGBA")
+    out.putalpha(mask)
+    dst.alpha_composite(out, xy)
+
+
 def draw_beveled_rect(size: tuple[int, int], accent: tuple[int, int, int], secondary: tuple[int, int, int] | None = None, radius: int = 28) -> Image.Image:
     w, h = size
     if secondary is None:
         secondary = (90, 225, 255)
     img = Image.new("RGBA", size, (0, 0, 0, 0))
-    shadow = Image.new("RGBA", size, (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle((18, 18, w - 18, h - 14), radius=radius, fill=(0, 0, 0, 145))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(14))
-    paste_alpha(img, shadow)
+    outer = (10, 8, w - 10, h - 12)
+    mid = (18, 16, w - 18, h - 22)
+    inner = (30, 28, w - 30, h - 36)
 
-    body = gradient(size, (30, 39, 48, 245), (9, 13, 19, 246))
-    body = add_noise(body, 9)
-    mask = rounded_mask((w - 28, h - 30), radius)
-    clipped = body.crop((14, 10, w - 14, h - 20))
-    clipped.putalpha(mask)
-    img.alpha_composite(clipped, (14, 10))
+    shadow_mask = rounded_rect_mask(size, outer, radius)
+    shadow = apply_mask_color(size, shadow_mask, (0, 0, 0, 168)).filter(ImageFilter.GaussianBlur(15))
+    img.alpha_composite(shadow, (0, 8))
+
+    outer_mask = rounded_rect_mask(size, outer, radius)
+    metal = metal_texture(size, (74, 78, 76, 255), (13, 17, 22, 255))
+    alpha_composite_masked(img, metal, outer_mask)
+
+    mid_mask = rounded_rect_mask(size, mid, max(4, radius - 7))
+    mid_fill = metal_texture(size, (38, 47, 52, 248), (7, 11, 16, 250))
+    alpha_composite_masked(img, mid_fill, mid_mask)
+
+    glass_mask = rounded_rect_mask(size, inner, max(4, radius - 16))
+    glass = metal_texture(size, (47, 42, 34, 242), (7, 16, 23, 244), True)
+    paste_alpha(glass, radial_glow(size, (w * 0.22, h * 0.08), (255, 176, 82, 56), max(w, h) * 0.54))
+    paste_alpha(glass, radial_glow(size, (w * 0.82, h * 0.20), (62, 226, 255, 62), max(w, h) * 0.44))
+    alpha_composite_masked(img, glass, glass_mask)
+
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((14, 10, w - 14, h - 20), radius=radius, outline=(accent[0], accent[1], accent[2], 220), width=5)
-    d.rounded_rectangle((22, 18, w - 22, h - 28), radius=max(4, radius - 8), outline=(secondary[0], secondary[1], secondary[2], 95), width=2)
-    d.line((34, 22, w - 34, 22), fill=(255, 230, 178, 120), width=2)
-    paste_alpha(img, radial_glow(size, (w * 0.25, h * 0.1), (255, 170, 70, 90), max(w, h) * 0.55))
-    paste_alpha(img, radial_glow(size, (w * 0.8, h * 0.25), (65, 220, 255, 65), max(w, h) * 0.5))
+    d.rounded_rectangle(outer, radius=radius, outline=(190, 198, 202, 178), width=3)
+    d.rounded_rectangle(mid, radius=max(4, radius - 7), outline=(accent[0], accent[1], accent[2], 230), width=4)
+    d.rounded_rectangle(inner, radius=max(4, radius - 16), outline=(secondary[0], secondary[1], secondary[2], 130), width=2)
+    d.line((inner[0] + 16, inner[1] + 2, inner[2] - 16, inner[1] + 2), fill=(255, 248, 224, 114), width=2)
+    d.line((inner[0] + 16, inner[3] - 2, inner[2] - 16, inner[3] - 2), fill=(0, 0, 0, 130), width=2)
+    cap = max(16, min(w, h) // 4)
+    for sx, sy, ex, ey in [
+        (mid[0], mid[1], mid[0] + cap, mid[1]),
+        (mid[2] - cap, mid[1], mid[2], mid[1]),
+        (mid[0], mid[3], mid[0] + cap, mid[3]),
+        (mid[2] - cap, mid[3], mid[2], mid[3]),
+    ]:
+        d.line((sx, sy, ex, ey), fill=(255, 154, 54, 185), width=3)
+    if w > 260 and h > 110:
+        for x in range(w // 2 - 34, w // 2 + 35, 17):
+            d.rounded_rectangle((x, h - 25, x + 9, h - 20), radius=2, fill=(255, 183, 58, 160))
     return img
 
 
 def make_button(path: Path, primary: bool) -> None:
-    size = (512, 160)
-    w, h = size
-    radius = 34
-    img = Image.new("RGBA", size, (0, 0, 0, 0))
-
-    shadow = Image.new("RGBA", size, (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle((20, 22, w - 20, h - 14), radius=radius, fill=(0, 0, 0, 170))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(15))
-    paste_alpha(img, shadow)
-
     if primary:
-        body_top = (38, 132, 124, 250)
-        body_bottom = (20, 72, 82, 252)
-        cyan_edge = (96, 232, 226, 235)
-        warm_edge = (255, 188, 96, 160)
-        highlight_alpha = 120
+        img = draw_beveled_rect((512, 160), (255, 154, 48), (73, 232, 242), 34)
+        paste_alpha(img, radial_glow((512, 160), (252, 76), (64, 220, 214, 80), 210))
     else:
-        body_top = (31, 47, 53, 246)
-        body_bottom = (13, 20, 28, 248)
-        cyan_edge = (100, 194, 218, 210)
-        warm_edge = (214, 150, 76, 112)
-        highlight_alpha = 72
-
-    body = gradient(size, body_top, body_bottom)
-    body = add_noise(body, 8)
-    mask = rounded_mask((w - 28, h - 30), radius)
-    clipped = body.crop((14, 10, w - 14, h - 20))
-    clipped.putalpha(mask)
-    img.alpha_composite(clipped, (14, 10))
-
-    paste_alpha(img, radial_glow(size, (w * 0.22, h * 0.08), (255, 196, 106, 80 if primary else 45), max(w, h) * 0.55))
-    paste_alpha(img, radial_glow(size, (w * 0.80, h * 0.26), (72, 230, 255, 90 if primary else 60), max(w, h) * 0.48))
-
+        img = draw_beveled_rect((512, 160), (146, 156, 156), (79, 199, 228), 34)
+        paste_alpha(img, gradient((512, 160), (0, 0, 0, 18), (0, 0, 0, 54)))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((14, 10, w - 14, h - 20), radius=radius, outline=warm_edge, width=6)
-    d.rounded_rectangle((20, 16, w - 20, h - 26), radius=max(4, radius - 6), outline=cyan_edge, width=4)
-    d.rounded_rectangle((27, 24, w - 27, h - 34), radius=max(4, radius - 13), outline=(255, 245, 210, 58 if primary else 42), width=2)
-    d.line((48, 26, w - 48, 26), fill=(255, 255, 230, highlight_alpha), width=2)
-    d.line((54, h - 36, w - 54, h - 36), fill=(28, 10, 4, 84), width=2)
+    d.line((72, 50, 440, 50), fill=(255, 255, 230, 34 if primary else 24), width=1)
+    d.line((72, 110, 440, 110), fill=(0, 0, 0, 54), width=1)
     save_png(path, img, "RGBA")
 
 
 def make_panel(path: Path) -> None:
-    img = draw_beveled_rect((640, 420), (224, 156, 74), (80, 220, 255), 22)
+    img = draw_beveled_rect((640, 420), (230, 150, 58), (68, 220, 245), 26)
     d = ImageDraw.Draw(img)
-    for i in range(6):
-        y = 80 + i * 44
-        d.line((52, y, 588, y), fill=(130, 180, 200, 25), width=1)
-    d.rectangle((42, 38, 598, 382), outline=(255, 158, 62, 58), width=2)
+    for i in range(7):
+        y = 72 + i * 42
+        d.line((64, y, 576, y), fill=(130, 180, 200, 22), width=1)
+    for x, y in [(34, 34), (576, 34), (34, 352), (576, 352)]:
+        d.ellipse((x, y, x + 10, y + 10), fill=(190, 196, 196, 80))
     save_png(path, img, "RGBA")
 
 
 def make_bar(path: Path, accent: tuple[int, int, int]) -> None:
     w, h = 640, 96
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle((14, 20, w - 14, h - 18), radius=24, fill=(0, 0, 0, 165))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(8))
-    paste_alpha(img, shadow)
+    mask = rounded_rect_mask((w, h), (10, 18, w - 10, h - 16), 24)
+    shadow = apply_mask_color((w, h), mask, (0, 0, 0, 170)).filter(ImageFilter.GaussianBlur(10))
+    img.alpha_composite(shadow, (0, 6))
+    metal = metal_texture((w, h), (48, 52, 52, 255), (8, 11, 15, 255))
+    alpha_composite_masked(img, metal, mask)
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((18, 18, w - 18, h - 20), radius=24, fill=(12, 18, 24, 238), outline=(accent[0], accent[1], accent[2], 210), width=4)
-    d.rounded_rectangle((42, 34, w - 42, h - 38), radius=12, fill=(3, 7, 11, 245), outline=(138, 158, 174, 90), width=2)
-    d.line((52, 37, w - 52, 37), fill=(255, 255, 255, 50), width=1)
-    d.rectangle((68, 25, 120, 30), fill=(accent[0], accent[1], accent[2], 150))
+    d.rounded_rectangle((10, 18, w - 10, h - 16), radius=24, outline=(188, 196, 198, 142), width=3)
+    d.rounded_rectangle((30, 30, w - 30, h - 28), radius=16, fill=(2, 6, 10, 232), outline=(*accent, 210), width=3)
+    d.rounded_rectangle((46, 39, w - 46, h - 39), radius=9, fill=(0, 2, 5, 245), outline=(255, 255, 240, 34), width=1)
+    d.line((56, 41, w - 56, 41), fill=(255, 255, 255, 42), width=1)
+    for i in range(8):
+        x = 70 + i * 20
+        d.polygon([(x, 35), (x + 13, 35), (x + 8, 46), (x - 5, 46)], fill=(*accent, 130 if i < 5 else 42))
+    paste_alpha(img, radial_glow((w, h), (w * 0.2, h * 0.5), (*accent, 70), 220))
     save_png(path, img, "RGBA")
 
 
 def make_badge_base(size: int = 256, accent: tuple[int, int, int] = (255, 145, 45)) -> Image.Image:
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    paste_alpha(img, radial_glow((size, size), (size * 0.5, size * 0.5), (*accent, 80), size * 0.52))
+    img = draw_beveled_rect((size, size), accent, (74, 214, 238), max(18, size // 5))
+    paste_alpha(img, radial_glow((size, size), (size * 0.50, size * 0.52), (*accent, 38), size * 0.48))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((24, 24, size - 24, size - 24), radius=44, fill=(13, 18, 25, 238), outline=(*accent, 230), width=6)
-    d.rounded_rectangle((34, 34, size - 34, size - 34), radius=34, outline=(255, 235, 190, 62), width=2)
+    inset = int(size * 0.18)
+    d.rounded_rectangle((inset, inset, size - inset, size - inset), radius=max(10, size // 8), fill=(4, 8, 12, 72), outline=(255, 245, 214, 28), width=max(1, size // 128))
     return img
 
 
-def draw_symbol(name: str, accent: tuple[int, int, int]) -> Image.Image:
-    size = 256
-    img = make_badge_base(size, accent)
-    d = ImageDraw.Draw(img)
+def symbol_mask(name: str, size: int = 256) -> Image.Image:
+    mask = Image.new("L", (size, size), 0)
+    d = ImageDraw.Draw(mask)
     cx, cy = 128, 128
-    fill = (*accent, 245)
-    white = (230, 240, 246, 235)
-    dark = (26, 16, 10, 180)
     if name in {"gold", "talent"}:
-        d.ellipse((72, 72, 184, 184), fill=fill, outline=(255, 230, 150, 250), width=8)
-        d.ellipse((96, 96, 160, 160), outline=dark, width=10)
-        d.line((128, 82, 128, 174), fill=(255, 245, 180, 90), width=3)
+        d.ellipse((70, 70, 186, 186), fill=255)
+        d.ellipse((92, 92, 164, 164), fill=0)
+        d.ellipse((106, 106, 150, 150), fill=255)
+        d.line((128, 82, 128, 174), fill=255, width=5)
     elif name == "xp":
-        d.polygon([(128, 50), (204, 128), (128, 206), (52, 128)], fill=fill, outline=white)
-        d.ellipse((104, 104, 152, 152), fill=(206, 238, 255, 220))
+        d.polygon([(128, 48), (207, 128), (128, 208), (49, 128)], fill=255)
+        d.ellipse((103, 103, 153, 153), fill=0)
+        d.ellipse((114, 114, 142, 142), fill=255)
     elif name == "star" or name == "star_filled":
         pts = []
         for i in range(10):
             a = -math.pi / 2 + i * math.pi / 5
             r = 78 if i % 2 == 0 else 34
             pts.append((cx + math.cos(a) * r, cy + math.sin(a) * r))
-        d.polygon(pts, fill=fill if name == "star_filled" else (0, 0, 0, 0), outline=fill)
-        d.line((78, 122, 178, 122), fill=(255, 255, 210, 95), width=3)
+        if name == "star_filled":
+            d.polygon(pts, fill=255)
+        else:
+            d.line(pts + [pts[0]], fill=255, width=12, joint="curve")
     elif name == "pause":
-        d.rounded_rectangle((80, 64, 110, 192), radius=8, fill=white)
-        d.rounded_rectangle((146, 64, 176, 192), radius=8, fill=white)
+        d.rounded_rectangle((80, 62, 112, 194), radius=9, fill=255)
+        d.rounded_rectangle((144, 62, 176, 194), radius=9, fill=255)
     elif name == "settings":
         for i in range(8):
             a = i * math.pi / 4
-            d.line((cx + math.cos(a) * 34, cy + math.sin(a) * 34, cx + math.cos(a) * 76, cy + math.sin(a) * 76), fill=white, width=12)
-        d.ellipse((76, 76, 180, 180), fill=white)
-        d.ellipse((108, 108, 148, 148), fill=(15, 20, 27, 255))
+            d.line((cx + math.cos(a) * 36, cy + math.sin(a) * 36, cx + math.cos(a) * 78, cy + math.sin(a) * 78), fill=255, width=14)
+        d.ellipse((74, 74, 182, 182), fill=255)
+        d.ellipse((106, 106, 150, 150), fill=0)
     elif name == "lock":
-        d.rounded_rectangle((68, 112, 188, 190), radius=14, fill=white)
-        d.arc((82, 56, 174, 150), 190, 350, fill=white, width=18)
-        d.rectangle((102, 100, 154, 126), fill=white)
+        d.rounded_rectangle((66, 112, 190, 192), radius=15, fill=255)
+        d.arc((82, 54, 174, 150), 190, 350, fill=255, width=20)
+        d.rectangle((102, 100, 154, 126), fill=255)
     elif name == "warning":
-        d.polygon([(128, 46), (212, 198), (44, 198)], fill=fill, outline=(255, 232, 120, 245))
-        d.rounded_rectangle((119, 96, 137, 148), radius=6, fill=(31, 24, 16, 230))
-        d.ellipse((118, 164, 138, 184), fill=(31, 24, 16, 230))
+        d.polygon([(128, 44), (215, 200), (41, 200)], fill=255)
+        d.rounded_rectangle((118, 94, 138, 150), radius=6, fill=0)
+        d.ellipse((117, 164, 139, 186), fill=0)
     elif name == "fire":
-        d.polygon([(132, 54), (184, 130), (146, 204), (78, 176), (68, 118)], fill=fill)
-        d.polygon([(118, 112), (148, 150), (126, 188), (96, 166)], fill=(255, 232, 95, 230))
+        d.polygon([(132, 50), (188, 130), (148, 207), (76, 178), (66, 118)], fill=255)
+        d.polygon([(118, 112), (150, 150), (126, 190), (94, 166)], fill=0)
     elif name == "ice":
         for i in range(6):
             a = i * math.pi / 3
-            d.line((cx, cy, cx + math.cos(a) * 78, cy + math.sin(a) * 78), fill=fill, width=8)
-        d.ellipse((112, 112, 144, 144), fill=white)
+            d.line((cx, cy, cx + math.cos(a) * 80, cy + math.sin(a) * 80), fill=255, width=10)
+        d.ellipse((110, 110, 146, 146), fill=255)
     elif name == "lightning":
-        d.polygon([(146, 42), (90, 130), (132, 130), (110, 214), (178, 106), (136, 106)], fill=fill)
+        d.polygon([(148, 40), (88, 132), (132, 132), (108, 216), (181, 103), (136, 103)], fill=255)
     elif name == "poison":
-        d.ellipse((76, 98, 190, 176), fill=fill)
-        d.ellipse((116, 108, 148, 140), fill=(235, 255, 180, 220))
-        d.ellipse((154, 94, 174, 114), fill=(235, 255, 180, 180))
+        d.ellipse((72, 96, 194, 178), fill=255)
+        d.ellipse((116, 108, 148, 140), fill=0)
+        d.ellipse((154, 94, 174, 114), fill=0)
     elif name == "physical":
-        d.polygon([(74, 82), (142, 54), (188, 120), (112, 204)], fill=fill, outline=white)
+        d.polygon([(72, 82), (144, 52), (190, 120), (112, 207)], fill=255)
+        d.polygon([(104, 104), (142, 88), (166, 123), (124, 168)], fill=0)
     elif name == "card_projectile":
-        d.line((62, 128, 194, 128), fill=fill, width=18)
-        d.polygon([(194, 128), (154, 98), (154, 158)], fill=fill)
+        d.line((60, 128, 194, 128), fill=255, width=18)
+        d.polygon([(198, 128), (154, 96), (154, 160)], fill=255)
     elif name == "card_control":
-        d.line((78, 78, 178, 178), fill=fill, width=9)
-        d.line((178, 78, 78, 178), fill=fill, width=9)
-        d.ellipse((98, 98, 158, 158), outline=white, width=6)
+        d.line((76, 76, 180, 180), fill=255, width=10)
+        d.line((180, 76, 76, 180), fill=255, width=10)
+        d.ellipse((98, 98, 158, 158), outline=255, width=7)
     elif name == "card_economy":
-        d.ellipse((70, 82, 154, 166), fill=fill)
-        d.rectangle((122, 104, 188, 174), fill=(255, 128, 74, 235))
-        d.polygon([(122, 104), (154, 70), (188, 104)], fill=(255, 220, 92, 235))
+        d.ellipse((68, 82, 156, 170), fill=255)
+        d.rectangle((122, 104, 190, 176), fill=255)
+        d.polygon([(122, 104), (156, 70), (190, 104)], fill=255)
     elif name == "strategy_breach":
-        d.ellipse((72, 72, 184, 184), outline=fill, width=10)
-        d.ellipse((108, 108, 148, 148), fill=(255, 225, 70, 240))
-        d.line((128, 42, 128, 74), fill=fill, width=8)
+        d.ellipse((70, 70, 186, 186), outline=255, width=12)
+        d.ellipse((106, 106, 150, 150), fill=255)
+        d.line((128, 40, 128, 76), fill=255, width=8)
+        d.line((128, 180, 128, 216), fill=255, width=8)
+        d.line((40, 128, 76, 128), fill=255, width=8)
+        d.line((180, 128, 216, 128), fill=255, width=8)
     elif name == "strategy_nearest":
-        d.line((62, 128, 194, 128), fill=white, width=12)
-        d.polygon([(194, 128), (158, 100), (158, 156)], fill=white)
+        d.line((60, 128, 194, 128), fill=255, width=13)
+        d.polygon([(198, 128), (158, 98), (158, 158)], fill=255)
     elif name == "strategy_elite":
-        d.polygon([(128, 58), (174, 174), (128, 146), (82, 174)], fill=fill)
-        d.polygon([(88, 84), (168, 84), (148, 126), (108, 126)], fill=(255, 122, 88, 230))
+        d.polygon([(128, 56), (176, 176), (128, 148), (80, 176)], fill=255)
+        d.polygon([(86, 84), (170, 84), (148, 128), (108, 128)], fill=0)
     elif name == "strategy_low_hp":
-        d.ellipse((64, 72, 136, 144), fill=(255, 80, 86, 235))
-        d.ellipse((120, 72, 192, 144), fill=(255, 80, 86, 235))
-        d.polygon([(64, 118), (192, 118), (128, 206)], fill=(255, 80, 86, 235))
-        d.line((70, 142, 112, 142, 128, 104, 152, 166, 184, 166), fill=(255, 245, 120, 245), width=8)
+        d.ellipse((62, 72, 136, 146), fill=255)
+        d.ellipse((120, 72, 194, 146), fill=255)
+        d.polygon([(62, 118), (194, 118), (128, 210)], fill=255)
+        d.line((70, 142, 112, 142, 128, 104, 152, 166, 186, 166), fill=0, width=8)
     elif name == "reroll":
-        d.arc((68, 70, 188, 190), 30, 310, fill=fill, width=12)
-        d.polygon([(172, 70), (205, 74), (184, 102)], fill=fill)
+        d.arc((66, 68, 190, 192), 30, 315, fill=255, width=14)
+        d.polygon([(172, 68), (207, 72), (184, 104)], fill=255)
     elif name == "skip":
-        d.polygon([(78, 64), (142, 128), (78, 192)], fill=fill)
-        d.polygon([(138, 64), (202, 128), (138, 192)], fill=fill)
+        d.polygon([(76, 62), (144, 128), (76, 194)], fill=255)
+        d.polygon([(136, 62), (204, 128), (136, 194)], fill=255)
     elif name == "pin":
-        d.polygon([(98, 54), (176, 54), (158, 128), (136, 128), (128, 206), (120, 128), (98, 128)], fill=fill)
+        d.polygon([(96, 52), (178, 52), (158, 128), (138, 128), (128, 208), (118, 128), (96, 128)], fill=255)
     else:
-        d.ellipse((82, 82, 174, 174), fill=fill)
+        d.ellipse((82, 82, 174, 174), fill=255)
+    return mask
+
+
+def render_symbol(mask: Image.Image, accent: tuple[int, int, int]) -> Image.Image:
+    size = mask.size
+    img = Image.new("RGBA", size, (0, 0, 0, 0))
+    glow = apply_mask_color(size, mask.filter(ImageFilter.GaussianBlur(9)), (*accent, 72))
+    img.alpha_composite(glow)
+    shadow = apply_mask_color(size, mask, (0, 0, 0, 170)).filter(ImageFilter.GaussianBlur(4))
+    img.alpha_composite(shadow, (5, 7))
+    fill = fill_mask_gradient(size, mask, (*adjust(accent, 46), 255), (*adjust(accent, -34), 255))
+    img.alpha_composite(fill)
+    edge = mask.filter(ImageFilter.FIND_EDGES).filter(ImageFilter.GaussianBlur(0.4))
+    img.alpha_composite(apply_mask_color(size, edge, (255, 255, 242, 118)), (-1, -1))
+    img.alpha_composite(apply_mask_color(size, edge, (0, 0, 0, 118)), (2, 3))
+    paste_alpha(img, radial_glow(size, (size[0] * 0.38, size[1] * 0.22), (255, 255, 230, 58), size[0] * 0.34))
+    return img
+
+
+def draw_symbol(name: str, accent: tuple[int, int, int]) -> Image.Image:
+    size = 256
+    img = make_badge_base(size, accent)
+    img.alpha_composite(render_symbol(symbol_mask(name, size), accent))
     return img
 
 

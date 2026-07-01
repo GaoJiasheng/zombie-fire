@@ -155,6 +155,8 @@ const MAX_HUD_TRANSIENT_FX := 52
 const MAX_HUD_PRIORITY_FX := 68
 const MAX_FLOAT_TEXTS := 8
 const MAX_PRIORITY_FLOAT_TEXTS := 12
+# 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
+const MULTISHOT_LANE_DEG := 7.0
 const WAVE_TOAST_BASE_POSITION := Vector2(200, 196)
 const WAVE_TOAST_SIZE := Vector2(680, 96)
 const WAVE_TOAST_LONG_SIZE := Vector2(680, 132)
@@ -2895,37 +2897,20 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
-	# 多重射击：优先让每条弹道分别对准一个“真实敌人”，均匀覆盖敌群、不打空。
-	# 弹道多于敌人数时，多出的弹道回卷到高优先目标并加入极小抖动，避免完全重叠。
-	# 没有任何可命中目标时，才退回“以敌群质心为中心的固定扇形”。
+	# 多重射击 = “固定夹角”的对称扇形：每条弹道之间角度固定、不各自变道锁敌（避免 imba）。
+	# 扇形整体“中心方向”对准敌群质心，所以它会随敌群转向、不再卡在竖直中线上打空。
+	# 每条弹道的固定夹角取自 MULTISHOT_LANE_DEG（不再用武器随机 spread——那会在 spread=0 时把所有
+	# 弹道叠成一条线，稍微偏一点就整组打空）；散射类武器额外的 spread 只做“下限加宽”。
 	var directions: Array[Vector2] = []
 	if shots <= 1:
 		directions.append(base_direction.normalized())
 		return directions
-	var candidates := _multi_shot_target_candidates(origin, base_direction)
-	if candidates.is_empty():
-		var center_dir := _multishot_center_direction(origin, base_direction)
-		var fan_spread: float = maxf(spread, deg_to_rad(6.0))
-		for index in range(shots):
-			var t: float = float(index) / float(shots - 1)
-			directions.append(center_dir.rotated(lerpf(-fan_spread, fan_spread, t)).normalized())
-		return directions
-	var count := candidates.size()
+	var center_dir := _multishot_center_direction(origin, base_direction)
+	var lane_step: float = maxf(deg_to_rad(MULTISHOT_LANE_DEG), spread / float(shots - 1))
+	var total: float = lane_step * float(shots - 1)
 	for index in range(shots):
-		var cand: Dictionary = candidates[index % count]
-		var enemy = cand.get("enemy")
-		var dir := base_direction
-		if is_instance_valid(enemy) and enemy is Node2D:
-			var to_enemy: Vector2 = (enemy as Node2D).global_position - origin
-			if to_enemy.length_squared() > 4.0:
-				dir = to_enemy
-		dir = dir.normalized()
-		if index >= count:
-			# 回卷（同一目标被多条弹道命中）时加入极小扇形抖动，让弹幕不完全叠一起
-			var wrap := index / count
-			var jitter := deg_to_rad(4.0) * (1.0 if index % 2 == 0 else -1.0) * float(wrap)
-			dir = dir.rotated(jitter)
-		directions.append(dir)
+		var offset: float = -total * 0.5 + lane_step * float(index)
+		directions.append(center_dir.rotated(offset).normalized())
 	return directions
 
 func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
