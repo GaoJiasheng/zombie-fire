@@ -1199,3 +1199,24 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
 - `git diff --check` -> no whitespace errors.
+
+## App Icon Redesign (2026-07-01)
+
+> Owner requested a redesigned app logo with top-tier model rendering. This pass changed only app branding image assets and asset provenance records; it did not change gameplay, data tables, levels, stats, render settings, or the fixed-bottom turret game form.
+
+- **App icon replaced**: `assets/app/app_icon_1024.png` now uses a full-bleed 1024x1024 RGB high-end 3D icon: bottom defense autocannon, orange muzzle blast, advancing zombie wave, and large armored boss silhouette. The design keeps the core tower-defense identity rather than depicting a free-moving shooter character.
+- **Old icon preserved**: previous icon was copied to `assets/app/app_icon_1024_before_redesign_2026_07_01.png` for comparison or rollback.
+- **Source provenance**: generated source image was copied to `assets/production/source_refs/generated/app_icon_1024_v2_generated_source.png`; prompt and generation notes live in `assets/production/source_refs/generated/app_icon_1024_v2_prompt.txt`.
+- **Production index**: `assets/production/OUTSOURCER_ASSET_INDEX.json` now records the owner-directed app icon replacement while preserving the existing `project.godot` icon path.
+
+### Verification (after app icon redesign)
+
+- `assets/app/app_icon_1024.png` -> 1024x1024 RGB, no alpha.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5129 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 250 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099` (`level_001: pressure=28.0, spawn_time=50.4s, boss=0`; `level_099: pressure=1482.3, spawn_time=94.4s, boss=1`).
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/TextServer/ObjectDB/RID cleanup warnings at exit.

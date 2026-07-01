@@ -17,7 +17,7 @@ The current repository build has the local app, asset, metadata, and validation 
 - Skill cards with icon, text, tags, and details.
 - Enemy animation, HP bars, combat VFX, reward float text.
 - Help/settings overlay with sound toggle and reset-save confirmation.
-- Candidate 1024 app icon at `assets/app/app_icon_1024.png`.
+- Redesigned high-end 1024 app icon at `assets/app/app_icon_1024.png`, with previous candidate backed up in `assets/app/app_icon_1024_before_redesign_2026_07_01.png`.
 - Candidate launch image at `assets/app/launch_1080x1920.png`.
 - Static privacy/support page drafts in `docs/public/`.
 - App Store metadata in `docs/app_store_metadata_zh.md`.
@@ -40,7 +40,7 @@ The current repository build has the local app, asset, metadata, and validation 
 - Balance: automated pressure and skill checks pass, but human tuning on real devices is still needed.
 - UI polish: map/loadout/result are serviceable; final acceptance depends on real-device screenshots and touch comfort.
 - Audio mix: all major sounds are wired, but relative loudness needs real-device tuning.
-- Brand: current app icon passes technical checks, but final art taste remains a human approval item.
+- Brand: redesigned app icon now passes technical checks and better reflects the turret-vs-horde core fantasy; final taste approval remains a human sign-off item.
 - Accessibility: no explicit text scaling, color-blind pass, or haptic settings yet.
 
 ## Recommended Release Bar

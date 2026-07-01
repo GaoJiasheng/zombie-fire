@@ -425,7 +425,7 @@ func _ready() -> void:
 	$Hud/CardPanel/SkipButton.pressed.connect(_on_skip_card)
 	$Hud/CardPanel/DetailOverlay/Panel/CloseButton.pressed.connect(_hide_card_detail)
 	$LockIndicator.texture = load("res://assets/sprites/vfx/vfx_target_lock.png")
-	$LockIndicator.modulate = Color(0.55, 0.9, 1.0, 0.7)  # 柔化：青白色低透明的锁定环，不再是刺眼红框
+	$LockIndicator.modulate = Color(0.6, 0.92, 1.0, 0.88)  # MiniMax HUD 锁定环，青白发光，加法融入战场
 	($LockIndicator as CanvasItem).material = VfxLib._new_additive_material()  # 加法发光，融入战场光感
 	_spawn_slow_field_visual()
 	_spawn_barrier_visual()

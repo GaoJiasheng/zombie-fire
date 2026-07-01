@@ -1,7 +1,7 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 5119,
+    "total_files": 5129,
     "parts_files": 414,
     "animation_files": 858,
     "sfx_files": 43,
@@ -129,6 +129,12 @@
       "source": "source_refs/generated/level_backgrounds_v2_spec.json",
       "derived": "contact_sheets/contact_level_backgrounds_v2.png",
       "reason": "Generated matching portrait crops and battle layout guides for the 10 new campaign backgrounds."
+    },
+    {
+      "path": "../app/app_icon_1024.png",
+      "source": "source_refs/generated/app_icon_1024_v2_prompt.txt",
+      "derived": "source_refs/generated/app_icon_1024_v2_generated_source.png",
+      "reason": "Owner requested a redesigned high-end rendered app logo; integrated icon keeps the existing project.godot app icon path and App Store 1024x1024 RGB requirement."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff."
