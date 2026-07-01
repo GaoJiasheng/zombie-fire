@@ -2593,12 +2593,13 @@ func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.42)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.22)), 2.0)
-	var target_position := Vector2(source.global_position.x, 1360.0)
-	_spawn_attack_telegraph(target_position, Color(0.42, 1.0, 0.24, 0.32), "毒雾")
+	var impact := Vector2(source.global_position.x, 1440.0)
+	_spawn_attack_telegraph(impact, Color(0.42, 1.0, 0.24, 0.32), "毒雾")
 	_spawn_enemy_attack_vfx(source, "toxic_cloud", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, float(source.mechanic_params.get("radius", 190.0)), Color(0.42, 1.0, 0.24, 0.28), 0.42)
+	_spawn_enemy_cast_bolt(source.global_position + Vector2(0, -30.0), impact, Color(0.52, 1.0, 0.3), "poison", false)
 	AudioManager.play_sfx("hit_poison", -5.0, 0.02)
-	_apply_enemy_skill_base_damage(source, damage, "毒雾", Color(0.56, 1.0, 0.32), target_position)
+	_apply_enemy_skill_base_damage(source, damage, "毒雾", Color(0.56, 1.0, 0.32), impact)
 
 func _process_juggernaut_pressure(source: Node, delta: float) -> void:
 	if source.global_position.y < float(source.mechanic_params.get("shock_y", 900.0)):
@@ -2711,10 +2712,11 @@ func _process_boss_pressure(source: Node, delta: float, interval: float, damage_
 	if source.has_method("play_special"):
 		source.play_special()
 	var pressure_damage := _enemy_skill_damage(source, damage_scale, 3.0)
-	_spawn_attack_telegraph(Vector2(source.global_position.x, 1360), Color(color.r, color.g, color.b, 0.34), label)
-	_spawn_boss_attack_vfx(source, label, color)
+	var impact := Vector2(source.global_position.x, 1440.0)
+	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.34), label)
+	_spawn_boss_attack_vfx(source, label, color, impact)
 	AudioManager.play_sfx("threat_warning", -5.0)
-	_apply_enemy_skill_base_damage(source, pressure_damage, label, color, Vector2(source.global_position.x, 1360))
+	_apply_enemy_skill_base_damage(source, pressure_damage, label, color, impact)
 
 func _process_freeze_field(source: Node, enemies: Array, delta: float) -> void:
 	if source.global_position.y < 520.0:
@@ -5343,20 +5345,88 @@ func _spawn_spit_attack_vfx(source: Node, target_position: Vector2) -> void:
 		spit.queue_free()
 	)
 
-func _spawn_boss_attack_vfx(source: Node, label: String, color: Color) -> void:
+func _spawn_boss_attack_vfx(source: Node, label: String, color: Color, impact := Vector2.ZERO) -> void:
 	if not is_instance_valid(source):
 		return
-	var path := "res://assets/production/sprites/vfx/vfx_boss_phase.png"
-	if label.contains("熔火"):
-		path = "res://assets/production/sprites/vfx/vfx_explosion_fire.png"
-	elif label.contains("寒潮"):
-		path = "res://assets/production/sprites/vfx/vfx_freeze.png"
-	elif label.contains("雷暴"):
-		path = "res://assets/production/sprites/vfx/vfx_chain_lightning.png"
-	elif label.contains("腐化"):
-		path = "res://assets/production/sprites/vfx/vfx_poison_cloud.png"
-	_spawn_attack_sprite(path, source.global_position + Vector2(0, -80), Color(color.r, color.g, color.b, 0.72), 1.05 if not bool(source.boss) else 1.45, 0.42)
-	_spawn_attack_ring(Vector2(source.global_position.x, 1360), 210.0 if not bool(source.boss) else 310.0, color, 0.32)
+	var element := _enemy_cast_element(label)
+	var is_boss := bool(source.boss)
+	if impact == Vector2.ZERO:
+		impact = Vector2(source.global_position.x, 1440.0)
+	# 起手炮口/聚能闪光（在施法者身上）
+	_spawn_attack_sprite(_vfx_path("muzzle", element), source.global_position + Vector2(0, -84), Color(color.r, color.g, color.b, 0.9), 1.5 if is_boss else 1.05, 0.34)
+	# 一颗能量弹从施法者飞向基地防线，落地炸开——让“掉血”有清晰的来龙去脉
+	_spawn_enemy_cast_bolt(source.global_position + Vector2(0, -40), impact, color, element, is_boss)
+
+# 敌方技能：识别元素（按飘字标签），用于选弹体/命中特效
+func _enemy_cast_element(label: String) -> String:
+	if label.contains("熔火") or label.contains("火") or label.contains("焚"):
+		return "fire"
+	if label.contains("寒") or label.contains("冰") or label.contains("霜"):
+		return "ice"
+	if label.contains("雷") or label.contains("电"):
+		return "lightning"
+	if label.contains("腐") or label.contains("毒"):
+		return "poison"
+	return "physical"
+
+func _enemy_proj_path(element: String) -> String:
+	var p := "res://assets/production/sprites/projectiles/proj_bullet_%s.png" % element
+	if ResourceLoader.exists(p):
+		return p
+	return "res://assets/production/sprites/projectiles/proj_bullet_physical.png"
+
+func _enemy_impact_sequence(element: String) -> String:
+	match element:
+		"fire":
+			return "vfx_explosion_fire"
+		"ice":
+			return "vfx_freeze"
+		"lightning":
+			return "vfx_hit_lightning"
+		"poison":
+			return "vfx_poison_cloud"
+		_:
+			return "vfx_hit_physical"
+
+# 敌方施法弹：加法发光弹体 + 拉长拖尾，飞向目标后炸开
+func _spawn_enemy_cast_bolt(origin: Vector2, target: Vector2, color: Color, element: String, is_boss: bool) -> void:
+	if not _can_spawn_projectile_fx(true):
+		_spawn_enemy_cast_impact(target, color, element, is_boss)
+		return
+	var bolt := Sprite2D.new()
+	_track_transient_fx(bolt, "projectile")
+	bolt.texture = load(_enemy_proj_path(element)) as Texture2D
+	bolt.global_position = origin
+	bolt.rotation = (target - origin).angle()
+	bolt.scale = Vector2(0.72, 0.72) if is_boss else Vector2(0.5, 0.5)
+	bolt.modulate = Color(color.r, color.g, color.b, 1.0)
+	bolt.z_index = 26
+	(bolt as CanvasItem).material = VfxLib._new_additive_material()
+	var streak := Sprite2D.new()
+	streak.texture = load("res://assets/production/sprites/vfx/vfx_input_streak.png") as Texture2D
+	streak.position = Vector2(-52, 0)  # 弹体本地 +x 为前进方向，拖尾拖在后面
+	streak.scale = Vector2(1.6, 0.55) if is_boss else Vector2(1.2, 0.42)
+	streak.modulate = Color(color.r, color.g, color.b, 0.62)
+	(streak as CanvasItem).material = VfxLib._new_additive_material()
+	bolt.add_child(streak)
+	$ProjectileLayer.add_child(bolt)
+	var dur := 0.30 if is_boss else 0.24
+	var tween := bolt.create_tween()
+	tween.parallel().tween_property(bolt, "global_position", target, dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(bolt, "scale", bolt.scale * 1.18, dur)
+	tween.tween_callback(func() -> void:
+		_spawn_enemy_cast_impact(target, color, element, is_boss)
+		bolt.queue_free()
+	)
+
+func _spawn_enemy_cast_impact(target: Vector2, color: Color, element: String, is_boss: bool) -> void:
+	var seq := _enemy_impact_sequence(element)
+	var fx := _spawn_vfx_sequence(seq, target, 1.35 if is_boss else 0.92, Color(color.r, color.g, color.b, 0.96), 1.0, randf_range(-0.3, 0.3), 1.16, Vector2(0, -12), randf_range(-0.3, 0.3), true)
+	if fx == null:
+		_spawn_attack_sprite(_attack_vfx_path(element), target, color, 1.2 if is_boss else 0.9, 0.3)
+	_spawn_attack_ring(target, 300.0 if is_boss else 190.0, color, 0.3)
+	if is_boss:
+		_shake_hud(7.0, 0.2)
 
 func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector2) -> void:
 	if not is_instance_valid(source):

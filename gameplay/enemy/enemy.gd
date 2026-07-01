@@ -71,6 +71,7 @@ var _shock_time := 0.0
 var _last_hit_weak := false
 var _last_hit_element := "physical"
 var _last_hit_vfx_at := -99.0
+var _last_recoil_at := -99.0
 # DoT floating-number accumulator. Each tick accumulates damage + time
 # locally; only when the bucket trips a 0.5s window (or ≥5 dmg) do we
 # emit one damage_dealt signal. Stops 60Hz stack-on-stack number spam
@@ -581,11 +582,24 @@ func _play_hurt_feedback(element := "physical") -> void:
 	_anim_state = "hurt"
 	_anim_time = 0.0
 	_anim_frame = 0
-	_hurt_recoil = Vector2(randf_range(-14.0, 14.0), -18.0 if not boss else -26.0)
+	# 受击抖动收小并限频重随机——高射速下不再逐帧乱跳成“红方框”，只是轻微一顿
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _last_recoil_at > 0.11:
+		_last_recoil_at = now
+		var mag := 6.0 if not boss else 4.0
+		_hurt_recoil = Vector2(randf_range(-mag, mag), -8.0 if not boss else -6.0)
 	if not _hurt_frames.is_empty():
 		$Sprite.texture = _hurt_frames[0]
-	_flash(Color(1, 0.4, 0.4))
+	_flash_hit()
 	_spawn_hit_vfx(element)
+
+# 命中高光：短促白热提亮（靠 bloom 发光），不再把整只僵尸乘成红色方块
+func _flash_hit() -> void:
+	if boss:
+		return
+	$Sprite.self_modulate = Color(1.5, 1.4, 1.32, _base_modulate.a)
+	var tween := create_tween()
+	tween.tween_property($Sprite, "self_modulate", _base_modulate, 0.13)
 
 func _spawn_hit_vfx(element := "physical") -> void:
 	var now := Time.get_ticks_msec() / 1000.0
