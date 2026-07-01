@@ -29,7 +29,7 @@ const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
-const FONT_SCALE := 1.22
+const FONT_SCALE := 1.3
 
 static func panel_style(accent := CYAN, bg := PANEL_BG, border_width := 2, radius := 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

@@ -1112,6 +1112,22 @@ func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
 
 # ========== Character detail modal ==========
 
+func _safe_area_canvas_insets() -> Vector4:
+	# 返回安全区(刘海/灵动岛/home 条)在画布坐标下的 左/上/右/下 内距;桌面/无刘海≈0。
+	var win := DisplayServer.window_get_size()
+	if win.x <= 0 or win.y <= 0:
+		return Vector4.ZERO
+	var safe := DisplayServer.get_display_safe_area()
+	var vis := get_viewport().get_visible_rect().size
+	var sx := vis.x / float(win.x)
+	var sy := vis.y / float(win.y)
+	return Vector4(
+		maxf(float(safe.position.x) * sx, 0.0),
+		maxf(float(safe.position.y) * sy, 0.0),
+		maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0),
+		maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0)
+	)
+
 func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	if _detail_modal != null and is_instance_valid(_detail_modal):
 		_detail_modal.queue_free()
@@ -1131,10 +1147,11 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.offset_left = 60.0
-	panel.offset_top = 90.0
-	panel.offset_right = -60.0
-	panel.offset_bottom = -90.0
+	var safe := _safe_area_canvas_insets()
+	panel.offset_left = 60.0 + safe.x
+	panel.offset_top = 90.0 + safe.y
+	panel.offset_right = -60.0 - safe.z
+	panel.offset_bottom = -90.0 - safe.w
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _build_panel_style())
 	_detail_modal.add_child(panel)

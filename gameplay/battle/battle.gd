@@ -321,7 +321,7 @@ var damage_numbers: Node2D
 var off_screen_indicators: Node2D
 var gold_fly: Node
 var last_impact_feedback_at := -99.0
-var _lock_indicator_base_scale := 0.42
+var _lock_indicator_base_scale := 0.3
 var _lock_pulse_tween: Tween
 var _last_kill_at_for_combo := -99.0
 
@@ -425,6 +425,8 @@ func _ready() -> void:
 	$Hud/CardPanel/SkipButton.pressed.connect(_on_skip_card)
 	$Hud/CardPanel/DetailOverlay/Panel/CloseButton.pressed.connect(_hide_card_detail)
 	$LockIndicator.texture = load("res://assets/sprites/vfx/vfx_target_lock.png")
+	$LockIndicator.modulate = Color(0.55, 0.9, 1.0, 0.7)  # 柔化：青白色低透明的锁定环，不再是刺眼红框
+	($LockIndicator as CanvasItem).material = VfxLib._new_additive_material()  # 加法发光，融入战场光感
 	_spawn_slow_field_visual()
 	_spawn_barrier_visual()
 	_build_skill_slots()
@@ -2877,17 +2879,38 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
-	# 多重射击：以玩家瞄准方向为中心、弹道之间“固定角度”均匀展开的扇形。
-	# 不再让每条弹道自动锁不同敌人（那样会全部命中、过强）。
+	# 多重射击：弹道之间“固定角度”均匀展开的扇形（不让每条弹道各自锁敌，避免全部命中过强）。
+	# 但扇形整体“中心方向”对准敌群质心，这样固定夹角的扇形能均匀覆盖敌人、不打空。
 	var directions: Array[Vector2] = []
 	if shots <= 1:
 		directions.append(base_direction.normalized())
 		return directions
+	var center_dir := _multishot_center_direction(origin, base_direction)
 	for index in range(shots):
 		var t: float = float(index) / float(shots - 1)
 		var offset: float = lerpf(-spread, spread, t)
-		directions.append(base_direction.rotated(offset).normalized())
+		directions.append(center_dir.rotated(offset).normalized())
 	return directions
+
+func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
+	# 敌群质心方向（只算尚未越过基线的敌人）；无敌人时退回原瞄准方向。
+	var sum := Vector2.ZERO
+	var n := 0
+	for e in $EnemyLayer.get_children():
+		if not is_instance_valid(e) or not (e is Node2D):
+			continue
+		var en := e as Node2D
+		if en.global_position.y > 1540.0:
+			continue
+		sum += en.global_position
+		n += 1
+	var safe_fallback := fallback.normalized() if fallback.length_squared() > 0.01 else Vector2.UP
+	if n == 0:
+		return safe_fallback
+	var dir := (sum / float(n)) - origin
+	if dir.length_squared() <= 4.0:
+		return safe_fallback
+	return dir.normalized()
 
 func _multi_shot_target_candidates(origin: Vector2, base_direction: Vector2) -> Array:
 	var candidates := []
@@ -7176,18 +7199,14 @@ func _apply_level_background() -> void:
 		push_warning("Missing battle background for %s: %s" % [env_id, path])
 		return
 	background.texture = texture
-	# 覆盖整个可见视口(含 expand 后多出来的高度),避免底部露出灰色清屏色。
-	var vis := get_viewport().get_visible_rect().size
-	if vis.x < 1080.0:
-		vis.x = 1080.0
-	if vis.y < 1920.0:
-		vis.y = 1920.0
-	background.position = vis * 0.5
+	# 背景与玩法坐标对齐:覆盖 1080x1920 玩法世界(中心 540,960),人物/刷怪/基座都对得上。
+	# expand 多出来的视口高度靠深色清屏色垫底(project.godot default_clear_color),不再位移背景。
+	background.position = Vector2(540, 960)
 	var texture_size := texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		background.scale = Vector2.ONE
 		return
-	var cover_scale := maxf(vis.x / texture_size.x, vis.y / texture_size.y)
+	var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)
 	background.scale = Vector2(cover_scale, cover_scale)
 	background.modulate = Color(1, 1, 1, 1)
 
