@@ -15,6 +15,7 @@ ENV_DIR = PROD / "environment"
 CONTACT_DIR = PROD / "contact_sheets"
 SOURCE_DIR = PROD / "source_refs" / "generated"
 W, H = 1080, 1920
+TARGET_W, TARGET_H = 1206, 2622
 
 
 BACKGROUND_SPECS = [
@@ -229,20 +230,18 @@ def _draw_battle_lane(img: Image.Image, rng: random.Random, spec: dict) -> None:
 	layer = _new_rgba()
 	d = ImageDraw.Draw(layer)
 	lane = [(360, 0), (720, 0), (900, H), (180, H)]
-	d.polygon(lane, fill=(11, 15, 17, 74))
-	d.line(lane + [lane[0]], fill=_hex(accent, 54), width=3)
+	d.polygon(lane, fill=(8, 12, 14, 24))
 	for y in range(120, H - 170, 130):
 		left, right = _lane_edges(y)
 		left2, right2 = _lane_edges(y + 88)
 		d.polygon(
 			[(left + 28, y), (right - 28, y), (right2 - 38, y + 88), (left2 + 38, y + 88)],
-			fill=(28, 32, 34, 44),
-			outline=(210, 210, 190, 28),
+			fill=(30, 33, 34, 16),
 		)
 	for y in range(70, H - 240, 210):
 		left, right = _lane_edges(y)
 		seg_w = max(5, int((right - left) * 0.025))
-		d.line([(W // 2, y), (W // 2 + rng.randint(-18, 18), y + 80)], fill=(226, 206, 145, 70), width=seg_w)
+		d.line([(W // 2, y), (W // 2 + rng.randint(-18, 18), y + 80)], fill=(226, 206, 145, 46), width=seg_w)
 	for _ in range(120):
 		y = rng.randint(80, H - 220)
 		left, right = _lane_edges(y)
@@ -251,7 +250,7 @@ def _draw_battle_lane(img: Image.Image, rng: random.Random, spec: dict) -> None:
 		for _i in range(rng.randint(2, 4)):
 			px, py = pts[-1]
 			pts.append((px + rng.randint(-22, 22), py + rng.randint(14, 42)))
-		_poly_line(d, pts, (4, 6, 7, rng.randint(62, 120)), rng.randint(1, 3))
+		_poly_line(d, pts, (4, 6, 7, rng.randint(22, 62)), rng.randint(1, 2))
 	if kind == "ice":
 		for _ in range(34):
 			y = rng.randint(120, H - 260)
@@ -272,15 +271,15 @@ def _draw_battle_lane(img: Image.Image, rng: random.Random, spec: dict) -> None:
 			for _i in range(3):
 				px, py = points[-1]
 				points.append((px + rng.randint(-35, 35), py + rng.randint(55, 130)))
-			_glow_line(layer, points, accent, rng.randint(3, 7), 10, 170)
+			_glow_line(layer, points, accent, rng.randint(2, 5), 6, 112)
 	img.alpha_composite(layer)
 
 
 def _draw_concrete_block(d: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, accent: str, alpha: int = 190) -> None:
 	pts = [(x, y), (x + w, y + 10), (x + w - 8, y + h), (x - 10, y + h - 12)]
 	d.polygon(pts, fill=(50, 55, 58, alpha), outline=(136, 150, 160, 95))
-	d.line([(x + 8, y + h // 2), (x + w - 10, y + h // 2 + 8)], fill=_hex(accent, 74), width=3)
-	d.rectangle([x + 18, y + 18, x + min(w - 22, 86), y + 30], fill=(230, 150, 60, 75))
+	d.line([(x + 8, y + h // 2), (x + w - 10, y + h // 2 + 8)], fill=_hex(accent, 34), width=2)
+	d.rectangle([x + 18, y + 18, x + min(w - 22, 86), y + 30], fill=(230, 150, 60, 42))
 
 
 def _draw_tank(d: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, accent: str, vertical: bool = False) -> None:
@@ -314,7 +313,7 @@ def _draw_side_barricades(img: Image.Image, rng: random.Random, spec: dict) -> N
 			edge = left if side < 0 else right
 			for i in range(3):
 				x = edge + side * (42 + i * 78)
-				_draw_concrete_block(d, x if side > 0 else x - 110, y + i * 28, 118, 70, accent, 170)
+				_draw_concrete_block(d, x if side > 0 else x - 110, y + i * 28, 118, 70, accent, 112)
 		for _ in range(18):
 			y = rng.randint(120, H - 280)
 			left, right = _lane_edges(y)
@@ -333,14 +332,14 @@ def _draw_bottom_gate(img: Image.Image, spec: dict) -> None:
 	d = ImageDraw.Draw(layer)
 	accent = spec["accent"]
 	y = 1508
-	d.polygon([(0, H), (0, y + 185), (230, y + 65), (850, y + 65), (1080, y + 185), (1080, H)], fill=(12, 15, 17, 214))
-	d.rectangle([210, y + 76, 870, y + 166], fill=(42, 45, 47, 216))
-	d.line([(198, y + 76), (882, y + 76)], fill=_hex(accent, 130), width=4)
+	d.polygon([(0, H), (0, y + 185), (230, y + 65), (850, y + 65), (1080, y + 185), (1080, H)], fill=(12, 15, 17, 170))
+	d.rectangle([210, y + 76, 870, y + 166], fill=(42, 45, 47, 176))
+	d.line([(198, y + 76), (882, y + 76)], fill=_hex(accent, 78), width=3)
 	for x in [210, 330, 750, 870]:
-		d.rectangle([x - 42, y + 38, x + 42, y + 196], fill=(54, 58, 60, 220), outline=(145, 150, 148, 100), width=2)
-		d.rectangle([x - 13, y + 52, x + 13, y + 83], fill=_hex(accent, 165))
+		d.rectangle([x - 42, y + 38, x + 42, y + 196], fill=(54, 58, 60, 174), outline=(145, 150, 148, 64), width=2)
+		d.rectangle([x - 13, y + 52, x + 13, y + 83], fill=_hex(accent, 112))
 	for x in range(270, 820, 92):
-		d.polygon([(x, y + 82), (x + 44, y + 82), (x + 16, y + 116), (x - 28, y + 116)], fill=(210, 130, 45, 120))
+		d.polygon([(x, y + 82), (x + 44, y + 82), (x + 16, y + 116), (x - 28, y + 116)], fill=(210, 130, 45, 74))
 	img.alpha_composite(layer)
 
 
@@ -350,7 +349,15 @@ def _draw_lava(layer: Image.Image, rng: random.Random, spec: dict) -> None:
 	for side_x in [120, 960]:
 		for i in range(4):
 			y = 210 + i * 330 + rng.randint(-40, 40)
-			_draw_ellipse_glow(layer, (side_x - 80, y - 44, side_x + 80, y + 44), accent, 90, 18)
+			pts = []
+			for a in range(0, 360, 45):
+				rx = rng.randint(42, 88)
+				ry = rng.randint(22, 54)
+				pts.append((side_x + int(math.cos(math.radians(a)) * rx), y + int(math.sin(math.radians(a)) * ry)))
+			soft = _new_rgba()
+			ImageDraw.Draw(soft).polygon(pts, fill=_hex(accent, 56))
+			layer.alpha_composite(soft.filter(ImageFilter.GaussianBlur(14)))
+			d.polygon(pts, fill=_hex(accent, 70), outline=_hex("#FFC45E", 75))
 			_draw_pipe(layer, (side_x, y + 35), (side_x + (-160 if side_x > 540 else 160), y + 160), accent, 14)
 	for _ in range(26):
 		x = rng.randint(110, 970)
@@ -359,10 +366,10 @@ def _draw_lava(layer: Image.Image, rng: random.Random, spec: dict) -> None:
 		for _i in range(rng.randint(3, 5)):
 			px, py = pts[-1]
 			pts.append((px + rng.randint(-55, 55), py + rng.randint(38, 96)))
-		_glow_line(layer, pts, accent, rng.randint(3, 8), 11, 150)
+		_glow_line(layer, pts, accent, rng.randint(2, 5), 7, 108)
 	for _ in range(140):
 		x, y = rng.randint(0, W), rng.randint(70, 1540)
-		d.ellipse([x, y, x + rng.randint(2, 5), y + rng.randint(2, 5)], fill=_hex("#FFD06A", rng.randint(70, 150)))
+		d.ellipse([x, y, x + rng.randint(2, 4), y + rng.randint(2, 4)], fill=_hex("#FFD06A", rng.randint(40, 100)))
 
 
 def _draw_ice(layer: Image.Image, rng: random.Random, spec: dict) -> None:
@@ -515,13 +522,13 @@ def _draw_core(layer: Image.Image, rng: random.Random, spec: dict) -> None:
 	secondary = spec["secondary"]
 	cx, cy = W // 2, 650
 	for r in [390, 295, 205, 120]:
-		d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=_hex(accent, max(36, 160 - r // 3)), width=8)
+		d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=_hex(accent, max(18, 78 - r // 8)), width=5)
 	for angle in range(0, 360, 30):
 		a = math.radians(angle)
 		p1 = (cx + math.cos(a) * 110, cy + math.sin(a) * 110)
 		p2 = (cx + math.cos(a) * 760, cy + math.sin(a) * 760)
-		_glow_line(layer, [p1, p2], rng.choice([accent, secondary]), 4, 12, 110)
-	_draw_ellipse_glow(layer, (cx - 95, cy - 95, cx + 95, cy + 95), accent, 110, 26)
+		_glow_line(layer, [p1, p2], rng.choice([accent, secondary]), 2, 7, 52)
+	_draw_ellipse_glow(layer, (cx - 95, cy - 95, cx + 95, cy + 95), accent, 70, 20)
 	for side in [-1, 1]:
 		for y in [240, 620, 1000, 1340]:
 			x = 90 if side < 0 else 810
@@ -563,6 +570,16 @@ def _vignette(img: Image.Image) -> Image.Image:
 	return Image.alpha_composite(img, dark)
 
 
+def _to_target_fullscreen(img: Image.Image) -> Image.Image:
+	"""Convert the design canvas to iPhone 17 full-screen portrait ratio."""
+	scale = max(TARGET_W / img.width, TARGET_H / img.height)
+	size = (int(img.width * scale + 0.5), int(img.height * scale + 0.5))
+	resized = img.resize(size, Image.Resampling.LANCZOS)
+	left = max(0, (size[0] - TARGET_W) // 2)
+	top = max(0, (size[1] - TARGET_H) // 2)
+	return resized.crop((left, top, left + TARGET_W, top + TARGET_H)).convert("RGB")
+
+
 def _atmosphere(img: Image.Image, rng: random.Random, spec: dict) -> Image.Image:
 	layer = _new_rgba()
 	d = ImageDraw.Draw(layer)
@@ -590,35 +607,130 @@ def _atmosphere(img: Image.Image, rng: random.Random, spec: dict) -> Image.Image
 	return _vignette(img)
 
 
+def _soft_spot(layer: Image.Image, x: int, y: int, w: int, h: int, color: str, alpha: int, blur: int) -> None:
+	spot = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+	d = ImageDraw.Draw(spot)
+	d.ellipse([x - w // 2, y - h // 2, x + w // 2, y + h // 2], fill=_hex(color, alpha))
+	layer.alpha_composite(spot.filter(ImageFilter.GaussianBlur(blur)))
+
+
+def _soft_streak(layer: Image.Image, rng: random.Random, color: str, alpha: int, count: int, vertical: bool = True) -> None:
+	dust = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+	d = ImageDraw.Draw(dust)
+	for _i in range(count):
+		x = rng.randint(-80, W + 80)
+		y = rng.randint(0, H - 180)
+		if vertical:
+			d.line([(x, y), (x + rng.randint(-18, 18), y + rng.randint(38, 110))], fill=_hex(color, rng.randint(max(8, alpha // 3), alpha)), width=rng.randint(1, 3))
+		else:
+			d.line([(x, y), (x + rng.randint(160, 420), y + rng.randint(-42, 42))], fill=_hex(color, rng.randint(max(8, alpha // 3), alpha)), width=rng.randint(2, 6))
+	layer.alpha_composite(dust.filter(ImageFilter.GaussianBlur(1.1)))
+
+
+def _soft_particle_field(layer: Image.Image, rng: random.Random, color: str, alpha: int, count: int, size: tuple[int, int]) -> None:
+	dots = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+	d = ImageDraw.Draw(dots)
+	for _i in range(count):
+		x = rng.randint(0, W)
+		y = rng.randint(0, H - 160)
+		r = rng.randint(size[0], size[1])
+		d.ellipse([x - r, y - r, x + r, y + r], fill=_hex(color, rng.randint(max(8, alpha // 3), alpha)))
+	layer.alpha_composite(dots.filter(ImageFilter.GaussianBlur(0.7)))
+
+
+def _premium_environment_pass(img: Image.Image, rng: random.Random, spec: dict) -> Image.Image:
+	kind = spec["kind"]
+	layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+	if kind == "lava":
+		_soft_spot(layer, 230, 460, 420, 280, "#F37525", 72, 48)
+		_soft_spot(layer, 860, 1030, 360, 260, "#F37525", 54, 56)
+		_soft_spot(layer, 540, 1480, 620, 220, "#F7A041", 42, 60)
+		_soft_particle_field(layer, rng, "#FFD078", 112, 170, (1, 3))
+		_soft_streak(layer, rng, "#E97835", 54, 18, vertical=False)
+	elif kind == "ice":
+		_soft_spot(layer, 220, 430, 500, 360, "#DDF9FF", 58, 44)
+		_soft_spot(layer, 890, 820, 470, 330, "#83E6FF", 48, 58)
+		_soft_particle_field(layer, rng, "#F1FCFF", 130, 220, (1, 3))
+		_soft_streak(layer, rng, "#CFF8FF", 64, 42, vertical=True)
+	elif kind == "factory":
+		_soft_spot(layer, 210, 650, 420, 250, "#D88937", 42, 48)
+		_soft_spot(layer, 860, 360, 360, 220, "#5AD6E8", 34, 46)
+		_soft_spot(layer, 850, 1270, 420, 280, "#D88937", 34, 62)
+		_soft_particle_field(layer, rng, "#BFC7C8", 52, 140, (1, 2))
+	elif kind == "toxic":
+		_soft_spot(layer, 185, 520, 430, 260, "#36F26E", 70, 56)
+		_soft_spot(layer, 895, 980, 500, 330, "#36F26E", 62, 70)
+		_soft_spot(layer, 560, 1370, 520, 260, "#9DFF83", 36, 78)
+		_soft_particle_field(layer, rng, "#7DFF80", 92, 150, (2, 5))
+	elif kind == "storm":
+		_soft_spot(layer, 230, 500, 470, 280, "#7B64FF", 46, 58)
+		_soft_spot(layer, 820, 820, 540, 300, "#FFE24A", 34, 72)
+		_soft_spot(layer, 540, 230, 620, 240, "#5AD6FF", 28, 80)
+		_soft_streak(layer, rng, "#BFD9FF", 58, 80, vertical=True)
+	elif kind == "water":
+		_soft_spot(layer, 540, 820, 860, 620, "#45D6FF", 42, 88)
+		_soft_spot(layer, 870, 1320, 420, 280, "#E6B569", 26, 64)
+		_soft_streak(layer, rng, "#9AEAFF", 42, 38, vertical=False)
+	elif kind == "desert":
+		_soft_spot(layer, 540, 650, 960, 760, "#E8A64A", 50, 98)
+		_soft_spot(layer, 260, 1280, 520, 260, "#F0C277", 30, 70)
+		_soft_streak(layer, rng, "#E8C47A", 58, 48, vertical=False)
+		_soft_particle_field(layer, rng, "#F3D08B", 88, 190, (1, 3))
+	elif kind == "void":
+		_soft_spot(layer, 520, 670, 880, 620, "#9C6DFF", 46, 96)
+		_soft_spot(layer, 810, 1130, 460, 360, "#FF6BE7", 28, 90)
+		_soft_particle_field(layer, rng, "#B595FF", 64, 130, (1, 3))
+	elif kind == "orbital":
+		_soft_spot(layer, 540, 500, 760, 440, "#C9E6FF", 42, 82)
+		_soft_spot(layer, 830, 1170, 420, 280, "#F6A642", 30, 64)
+		_soft_particle_field(layer, rng, "#AEEAFF", 70, 150, (1, 3))
+	elif kind == "core":
+		_soft_spot(layer, 540, 650, 760, 520, "#F6B63D", 64, 92)
+		_soft_spot(layer, 315, 1220, 420, 280, "#72EAFF", 28, 78)
+		_soft_particle_field(layer, rng, "#FFE19B", 84, 160, (1, 3))
+	layer = layer.filter(ImageFilter.GaussianBlur(0.4))
+	img = Image.alpha_composite(img, layer)
+	shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+	d = ImageDraw.Draw(shadow)
+	d.rectangle([0, 0, W, 210], fill=(0, 0, 0, 34))
+	d.rectangle([0, 1600, W, H], fill=(0, 0, 0, 48))
+	d.rectangle([0, 0, 110, H], fill=(0, 0, 0, 44))
+	d.rectangle([970, 0, W, H], fill=(0, 0, 0, 44))
+	return Image.alpha_composite(img, shadow)
+
+
 def render_background(spec: dict, seed: int) -> Image.Image:
 	rng = random.Random(seed)
-	base_path = BG_DIR / spec["base"]
+	base_path = BG_DIR / "bg_city_ruins.png"
 	alt_path = BG_DIR / spec["base_alt"]
 	base = _cover(base_path, 0.5, 0.48)
-	alt = _cover(alt_path, 0.5, 0.5)
-	alt = ImageEnhance.Brightness(alt).enhance(0.75)
-	base = Image.blend(base, alt, 0.18)
-	img = _grade(base, spec["tint"], spec["accent"])
-	_draw_battle_lane(img, rng, spec)
-	_draw_side_barricades(img, rng, spec)
-	_draw_theme(img, rng, spec)
-	_draw_bottom_gate(img, spec)
-	img = _atmosphere(img, rng, spec)
+	if alt_path.exists() and spec["kind"] in {"factory", "toxic", "water", "core"}:
+		alt = _cover(alt_path, 0.5, 0.52).filter(ImageFilter.GaussianBlur(3.0))
+		alt = ImageEnhance.Brightness(alt).enhance(0.62)
+		base = Image.blend(base, alt, 0.08)
+	img = _grade(base, spec["tint"], spec["accent"], contrast=1.08, color=1.02, brightness=0.94)
+	img = _premium_environment_pass(img, rng, spec)
+	img = _vignette(img)
 	img = ImageEnhance.Contrast(img).enhance(1.08)
 	img = ImageEnhance.Color(img).enhance(1.08)
 	img = ImageEnhance.Sharpness(img).enhance(1.06)
-	return img.convert("RGB")
+	return _to_target_fullscreen(img)
 
 
 def make_layout_guide(bg: Image.Image) -> Image.Image:
 	guide = bg.convert("RGBA")
-	layer = _new_rgba()
+	tw, th = guide.size
+	layer = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
 	d = ImageDraw.Draw(layer)
-	d.rectangle([0, 0, W, 150], outline=(80, 220, 255, 120), width=4)
-	d.rectangle([120, 150, 960, 360], outline=(255, 220, 80, 110), width=4)
-	d.rectangle([180, 360, 900, 1500], outline=(80, 255, 150, 100), width=4)
-	d.rectangle([130, 1430, 950, 1710], outline=(255, 90, 70, 130), width=4)
-	d.rectangle([0, 1780, W, H], outline=(170, 150, 255, 120), width=4)
+	sx = tw / W
+	sy = th / H
+	def box(x1: float, y1: float, x2: float, y2: float) -> list[int]:
+		return [int(x1 * sx), int(y1 * sy), int(x2 * sx), int(y2 * sy)]
+	d.rectangle(box(0, 0, W, 150), outline=(80, 220, 255, 120), width=4)
+	d.rectangle(box(120, 150, 960, 360), outline=(255, 220, 80, 110), width=4)
+	d.rectangle(box(180, 360, 900, 1500), outline=(80, 255, 150, 100), width=4)
+	d.rectangle(box(130, 1430, 950, 1710), outline=(255, 90, 70, 130), width=4)
+	d.rectangle(box(0, 1780, W, H), outline=(170, 150, 255, 120), width=4)
 	return Image.alpha_composite(guide, layer).convert("RGB")
 
 
@@ -661,13 +773,16 @@ def main() -> int:
 	spec_path.write_text(
 		json.dumps(
 			{
-				"id": "level_backgrounds_v3_concrete",
+				"id": "level_backgrounds_v3_iphone17_concrete",
 				"generated_by": "tools/generate_level_backgrounds.py",
-				"revision": "v3_concrete_scene_composites",
-				"note": "Replaced rejected abstract v2 backgrounds with concrete scene composites. Built-in image generation was attempted, but the output was unrelated and was not used. Final project assets are deterministic Pillow composites from existing production environment material plus theme-specific concrete props.",
-				"size": [W, H],
+				"revision": "v3_iphone17_fullscreen_concrete_scene_composites",
+				"note": "Replaced rejected abstract v2 backgrounds with concrete scene composites at iPhone 17 full-screen portrait ratio. Built-in image generation was attempted, but the output was unrelated and was not used. Final project assets are deterministic Pillow composites from existing production environment material plus theme-specific concrete props.",
+				"size": [TARGET_W, TARGET_H],
+				"design_canvas": [W, H],
+				"target_device_basis": "iPhone 17 portrait full-screen 1206x2622 px; same family ratio as iPhone 17 Pro Max 1320x2868.",
 				"mapping_policy": "One env/background per ten campaign levels: 001-010, 011-020, ..., 091-099.",
 				"style_constraints": [
+					"按 iPhone 17 竖屏全屏比例输出 1206x2622",
 					"具象 2.5D 竖版手游战场背景",
 					"每张图必须有可识别场景主题和道具",
 					"不使用抽象海报式几何图形作为主视觉",
@@ -685,7 +800,7 @@ def main() -> int:
 		encoding="utf-8",
 	)
 	written.append(str(spec_path.relative_to(ROOT)))
-	print(f"Generated {len(BACKGROUND_SPECS)} concrete level backgrounds")
+	print(f"Generated {len(BACKGROUND_SPECS)} iPhone 17 concrete level backgrounds")
 	for item in written:
 		print(item)
 	return 0

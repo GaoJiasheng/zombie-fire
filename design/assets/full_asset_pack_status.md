@@ -46,7 +46,7 @@ Current validation result:
   - icon
 - 8 projectile assets.
 - 21 single-frame VFX assets.
-- 16 backgrounds: the original menu/map/legacy backgrounds plus 10 owner-approved campaign battle backgrounds, one per ten-level segment.
+- 16 backgrounds: the original menu/map/legacy backgrounds plus 10 campaign battle backgrounds, one per ten-level segment. The new campaign set is integrated at iPhone 17 portrait full-screen ratio (`1206x2622`) and pending owner visual review.
 - UI/icon suite.
 - 10 contact sheets copied to `assets/production/contact_sheets/`.
 - Unit animation placeholder frame sets:

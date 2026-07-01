@@ -18,7 +18,7 @@
 | 09 轨道升降遗址 | `env_orbital_ruins` | 81–90 | T3+T4 | necrotitan(84) |
 | 10 终局核心 | `env_apex_core` | 91–99 | T4 | apex_overlord(99) |
 
-每段一套背景 `bg_*`，BGM 复用现有 battle city/subway/military/biolab 氛围组；背景变化强化"越深入越绝望"的氛围递进（见 `11`/`12`）。
+每段一套背景 `bg_*`，战斗背景源图按 iPhone 17 竖屏全屏比例 `1206x2622` 输出，BGM 复用现有 battle city/subway/military/biolab 氛围组；背景变化强化"越深入越绝望"的氛围递进（见 `11`/`12`）。
 
 ## 2. 建议等级曲线
 

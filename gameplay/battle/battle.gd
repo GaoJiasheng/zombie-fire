@@ -6,6 +6,7 @@ const PROJECTILE_SCENE := preload("res://gameplay/projectile/projectile.tscn")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
+const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const UiKit := preload("res://ui/ui_kit.gd")
 const BUTTON_PRIMARY_PATH := "res://assets/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/sprites/ui/ui_button_secondary.png"
@@ -3379,23 +3380,22 @@ func _transient_fx_count(parent: Node, bucket: String) -> int:
 	return count
 
 func _spawn_muzzle_flash(origin: Vector2, direction: Vector2, element := "physical", visual_profile := "") -> void:
-	var tex := load(_vfx_path("muzzle", element)) as Texture2D
-	if tex == null:
-		return
 	if not _can_spawn_projectile_fx():
 		return
-	var flash := Sprite2D.new()
-	_track_transient_fx(flash, "projectile")
-	flash.texture = tex
-	flash.global_position = origin
-	flash.rotation = direction.angle() + PI / 4.0
-	flash.scale = Vector2(0.28, 0.28)
-	flash.modulate = Color(1, 1, 1, 0.9)
-	$ProjectileLayer.add_child(flash)
-	var tween := flash.create_tween()
-	tween.parallel().tween_property(flash, "scale", Vector2(0.48, 0.48), 0.08)
-	tween.parallel().tween_property(flash, "modulate:a", 0.0, 0.08)
-	tween.tween_callback(flash.queue_free)
+	var dir := direction.normalized()
+	if dir.length_squared() <= 0.01:
+		dir = Vector2.UP
+	var color := _element_color(element)
+	color.a = 0.92
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 10.0, color, 96.0, 0.13)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	if _can_spawn_projectile_fx():
+		var burst := VfxLib.spawn_burst($ProjectileLayer, origin + dir * 18.0, color, 16, 465.0, 32.0, 0.18)
+		if burst != null:
+			_track_transient_fx(burst, "projectile")
+			if burst is Node2D:
+				(burst as Node2D).rotation = dir.angle()
 	_spawn_weapon_muzzle_profile_vfx(origin, direction, element, visual_profile)
 
 func _spawn_weapon_muzzle_profile_vfx(origin: Vector2, direction: Vector2, element: String, visual_profile: String) -> void:
@@ -4218,6 +4218,7 @@ func _spawn_feedback_managers() -> void:
 	screen_shake_node.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(screen_shake_node)
 	screen_shake_node.bind(self)
+	VfxLib.bind_screen_shake(screen_shake_node)
 	# Damage number layer
 	damage_numbers = preload("res://gameplay/hud/damage_number_layer.gd").new()
 	damage_numbers.name = "DamageNumbers"

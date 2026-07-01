@@ -1,18 +1,26 @@
 {
-  "id": "level_backgrounds_v2",
+  "id": "level_backgrounds_v3_iphone17_concrete",
   "generated_by": "tools/generate_level_backgrounds.py",
-  "note": "Built-in image generation was attempted first but produced an unrelated infographic; final project assets are deterministic Codex/Pillow generated backgrounds to keep size, readability, and data references controlled.",
+  "revision": "v3_iphone17_fullscreen_concrete_scene_composites",
+  "note": "Replaced rejected abstract v2 backgrounds with concrete scene composites at iPhone 17 full-screen portrait ratio. Built-in image generation was attempted, but the output was unrelated and was not used. Final project assets are deterministic Pillow composites from existing production environment material plus theme-specific concrete props.",
   "size": [
+    1206,
+    2622
+  ],
+  "design_canvas": [
     1080,
     1920
   ],
+  "target_device_basis": "iPhone 17 portrait full-screen 1206x2622 px; same family ratio as iPhone 17 Pro Max 1320x2868.",
   "mapping_policy": "One env/background per ten campaign levels: 001-010, 011-020, ..., 091-099.",
   "style_constraints": [
-    "premium 2.5D mobile-game battlefield",
-    "not a clone of the previous city-ruins road",
-    "top spawn and middle combat area stay readable",
-    "bottom defense zone leaves room for player/HUD",
-    "no text, no UI, no characters, no zombies"
+    "按 iPhone 17 竖屏全屏比例输出 1206x2622",
+    "具象 2.5D 竖版手游战场背景",
+    "每张图必须有可识别场景主题和道具",
+    "不使用抽象海报式几何图形作为主视觉",
+    "上方出生点和中部战斗区保持可读",
+    "底部门防区为角色、宠物、技能栏和 HUD 预留空间",
+    "无文字、无 UI、无角色、无僵尸"
   ],
   "backgrounds": [
     {
@@ -20,160 +28,130 @@
       "bg": "bg_lava_foundry",
       "title": "熔岩铸厂",
       "range": "001-010",
-      "palette": [
-        "#120B0A",
-        "#2A1410",
-        "#5A1B10",
-        "#F56A1A",
-        "#FFD36B",
-        "#3EC7FF"
-      ],
-      "mood": "molten foundry breach with lava channels and scorched metal",
-      "kind": "lava"
+      "base": "bg_military.png",
+      "base_alt": "bg_biolab.png",
+      "kind": "lava",
+      "accent": "#F37525",
+      "secondary": "#FFC45E",
+      "tint": "#2A1008",
+      "description": "熔岩铸厂、焦黑金属、熔沟、破损锻造设备"
     },
     {
       "env": "env_glacier_pass",
       "bg": "bg_glacier_pass",
       "title": "冰川断桥",
       "range": "011-020",
-      "palette": [
-        "#071018",
-        "#0B2338",
-        "#1C5D7C",
-        "#78D7FF",
-        "#D8F7FF",
-        "#C9A56A"
-      ],
-      "mood": "frozen highway pass with shattered ice cliffs and aurora glow",
-      "kind": "ice"
+      "base": "bg_city_ruins.png",
+      "base_alt": "bg_subway.png",
+      "kind": "ice",
+      "accent": "#78DFFF",
+      "secondary": "#E8FAFF",
+      "tint": "#082239",
+      "description": "冰封城市断桥、冻裂路面、冰崖、寒雾"
     },
     {
       "env": "env_abandoned_factory",
       "bg": "bg_abandoned_factory",
       "title": "废弃工厂",
       "range": "021-030",
-      "palette": [
-        "#090D0F",
-        "#151C21",
-        "#2B3236",
-        "#E08B32",
-        "#56D7E8",
-        "#C33838"
-      ],
-      "mood": "derelict cyberpunk factory floor, gantries and conveyor trenches",
-      "kind": "factory"
+      "base": "bg_subway.png",
+      "base_alt": "bg_military.png",
+      "kind": "factory",
+      "accent": "#D88937",
+      "secondary": "#5AD6E8",
+      "tint": "#11161A",
+      "description": "废弃工厂、传送带、吊臂、锈蚀机台"
     },
     {
       "env": "env_toxic_biolab",
       "bg": "bg_toxic_biolab",
       "title": "毒液生化舱",
       "range": "031-040",
-      "palette": [
-        "#04120D",
-        "#0B251A",
-        "#16452B",
-        "#31F26C",
-        "#A7FF8A",
-        "#42E8FF"
-      ],
-      "mood": "broken biolab, toxic vats, specimen chambers, clean central combat lane",
-      "kind": "toxic"
+      "base": "bg_biolab.png",
+      "base_alt": "bg_subway.png",
+      "kind": "toxic",
+      "accent": "#36F26E",
+      "secondary": "#9DFF83",
+      "tint": "#062314",
+      "description": "破损生化实验室、毒液池、培养舱、管线泄漏"
     },
     {
       "env": "env_storm_substation",
       "bg": "bg_storm_substation",
       "title": "雷暴变电站",
       "range": "041-050",
-      "palette": [
-        "#07101B",
-        "#121936",
-        "#202B58",
-        "#8E5CFF",
-        "#FFE74A",
-        "#55D6FF"
-      ],
-      "mood": "storm-lit power substation with tesla towers and electric arcs",
-      "kind": "storm"
+      "base": "bg_military.png",
+      "base_alt": "bg_subway.png",
+      "kind": "storm",
+      "accent": "#FFE24A",
+      "secondary": "#7B64FF",
+      "tint": "#0A1430",
+      "description": "雷暴变电站、特斯拉塔、变压器、电弧"
     },
     {
       "env": "env_flooded_subway",
       "bg": "bg_flooded_subway",
       "title": "沉没地铁",
       "range": "051-060",
-      "palette": [
-        "#061015",
-        "#0C2630",
-        "#133E4A",
-        "#4EDBFF",
-        "#E6B96B",
-        "#2A6E6A"
-      ],
-      "mood": "flooded subway station, reflective water, broken rails and neon leaks",
-      "kind": "water"
+      "base": "bg_subway.png",
+      "base_alt": "bg_city_ruins.png",
+      "kind": "water",
+      "accent": "#45D6FF",
+      "secondary": "#E6B569",
+      "tint": "#06212B",
+      "description": "积水地铁站、轨道、站台、反光水面"
     },
     {
       "env": "env_desert_refinery",
       "bg": "bg_desert_refinery",
       "title": "沙暴炼油区",
       "range": "061-070",
-      "palette": [
-        "#150E0A",
-        "#312014",
-        "#6F4A25",
-        "#E8A64A",
-        "#FFDB8A",
-        "#5BD7D2"
-      ],
-      "mood": "sandstorm refinery, rusted pipelines, burning stacks, dusty battlefield",
-      "kind": "desert"
+      "base": "bg_military.png",
+      "base_alt": "bg_city_ruins.png",
+      "kind": "desert",
+      "accent": "#E8A64A",
+      "secondary": "#5AD8D4",
+      "tint": "#3A2411",
+      "description": "沙暴炼油区、管线、油罐、燃烧塔、沙尘"
     },
     {
       "env": "env_void_cathedral",
       "bg": "bg_void_cathedral",
       "title": "虚空圣堂",
       "range": "071-080",
-      "palette": [
-        "#060611",
-        "#111024",
-        "#271A45",
-        "#8A5CFF",
-        "#FF5DE8",
-        "#E9D58C"
-      ],
-      "mood": "alien cathedral ruins, obsidian arches, violet rift energy",
-      "kind": "void"
+      "base": "bg_main_menu.png",
+      "base_alt": "bg_biolab.png",
+      "kind": "void",
+      "accent": "#9C6DFF",
+      "secondary": "#FF6BE7",
+      "tint": "#100A25",
+      "description": "崩塌圣堂、黑曜石拱门、裂隙能量、石板地面"
     },
     {
       "env": "env_orbital_ruins",
       "bg": "bg_orbital_ruins",
       "title": "轨道升降遗址",
       "range": "081-090",
-      "palette": [
-        "#070C12",
-        "#122030",
-        "#284258",
-        "#C0D7E8",
-        "#F6A642",
-        "#4CE8FF"
-      ],
-      "mood": "fallen orbital elevator base, massive cables and aerospace debris",
-      "kind": "orbital"
+      "base": "bg_military.png",
+      "base_alt": "bg_level_map.png",
+      "kind": "orbital",
+      "accent": "#C9E6FF",
+      "secondary": "#F6A642",
+      "tint": "#0A1722",
+      "description": "轨道升降机遗址、巨大缆索、航天残骸、冷色信标"
     },
     {
       "env": "env_apex_core",
       "bg": "bg_apex_core",
       "title": "终局核心",
       "range": "091-099",
-      "palette": [
-        "#070506",
-        "#17110B",
-        "#37220A",
-        "#F5B83D",
-        "#FFF0A1",
-        "#6FEAFF"
-      ],
-      "mood": "final reactor core fortress, gold plasma, black alloy floor, apex showdown",
-      "kind": "core"
+      "base": "bg_biolab.png",
+      "base_alt": "bg_level_map.png",
+      "kind": "core",
+      "accent": "#F6B63D",
+      "secondary": "#72EAFF",
+      "tint": "#160D05",
+      "description": "终局反应堆核心、黑金装甲地面、等离子管线"
     }
   ],
   "written": [

@@ -157,7 +157,7 @@
 - [x] 每类资产生成 contact sheet
 - [x] 标记每个资产状态：`needed / generated / reviewed / accepted / replace_later`
 - [x] M1 可玩关卡只使用 accepted 或 replace_later 状态资产
-- [x] 10 张新战斗背景按每十关一段落替换，并通过 `data/environments.json` 数据化加载；包含背景图、portrait、battle layout guide、contact sheet 和 source spec。
+- [x] 10 张新战斗背景按每十关一段落替换，并通过 `data/environments.json` 数据化加载；背景源图已按 iPhone 17 竖屏全屏比例 `1206x2622` 重出，包含 portrait、battle layout guide、contact sheet 和 source spec。
 
 ## 阶段 10 · M1 验收
 

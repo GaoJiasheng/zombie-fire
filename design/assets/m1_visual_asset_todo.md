@@ -219,5 +219,5 @@ M1 可以先用单帧或短序列帧，之后替换为完整序列。
 | `contact_ui.png` | UI 套件 | accepted |
 | `contact_vfx.png` | VFX 原型 | accepted |
 | `contact_backgrounds.png` | 背景 | accepted |
-| `contact_level_backgrounds_v2.png` | 10 段主线战斗背景 | accepted |
+| `contact_level_backgrounds_v2.png` | 10 段主线战斗背景 | reviewed | iPhone 17 竖屏全屏比例 `1206x2622`，已集成，待 owner 复核 |
 | `contact_battle_mock.png` | 角色/怪/炮塔/UI/背景同屏 | accepted |
