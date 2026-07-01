@@ -316,6 +316,7 @@ var combo_hud: Control
 var damage_numbers: Node2D
 var off_screen_indicators: Node2D
 var gold_fly: Node
+var last_impact_feedback_at := -99.0
 var _lock_indicator_base_scale := 0.42
 var _lock_pulse_tween: Tween
 var _last_kill_at_for_combo := -99.0
@@ -4259,6 +4260,7 @@ func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: 
 
 func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String) -> void:
 	_spawn_element_impact_vfx(primary, origin, element, visual_profile)
+	_trigger_impact_feedback(primary, damage, visual_profile)
 	if chain_depth <= 0:
 		_spawn_chain_projectiles(primary, origin, damage, element)
 	_apply_character_bullet_on_hit(primary, origin, damage, element)
@@ -4369,6 +4371,444 @@ func _chain_targets(origin: Vector2, primary: Node, count: int, radius: float) -
 			targets.append(target)
 	return targets
 
+func _impact_anchor(primary: Node, fallback: Vector2, vertical_offset := -38.0) -> Vector2:
+	var pos := fallback
+	var offset := vertical_offset
+	if primary != null and is_instance_valid(primary) and primary is Node2D:
+		pos = (primary as Node2D).global_position
+		if _is_boss_node(primary):
+			offset = minf(vertical_offset * 1.85, -72.0)
+	return pos + Vector2(randf_range(-8.0, 8.0), offset)
+
+func _is_boss_node(node: Node) -> bool:
+	if node == null or not is_instance_valid(node):
+		return false
+	var boss_value: Variant = node.get("boss")
+	return boss_value is bool and bool(boss_value)
+
+func _impact_palette(element: String, hit_kind := "normal") -> Dictionary:
+	match hit_kind:
+		"armor":
+			return {
+				"core": Color(1.0, 0.86, 0.42, 0.96),
+				"spark": Color(1.0, 0.7, 0.22, 0.9),
+				"ring": Color(1.0, 0.92, 0.62, 0.58),
+			}
+		"shield":
+			return {
+				"core": Color(0.72, 0.94, 1.0, 0.94),
+				"spark": Color(0.42, 0.82, 1.0, 0.82),
+				"ring": Color(0.48, 0.84, 1.0, 0.62),
+			}
+		"immune", "phase_evade":
+			return {
+				"core": Color(0.82, 0.9, 1.0, 0.76),
+				"spark": Color(0.64, 0.78, 1.0, 0.48),
+				"ring": Color(0.64, 0.82, 1.0, 0.54),
+			}
+		"weak":
+			return {
+				"core": Color(1.0, 0.96, 0.36, 1.0),
+				"spark": Color(1.0, 0.72, 0.18, 0.94),
+				"ring": Color(1.0, 0.9, 0.24, 0.7),
+			}
+	match element:
+		"fire":
+			return {
+				"core": Color(1.0, 0.32, 0.06, 0.95),
+				"spark": Color(1.0, 0.54, 0.12, 0.88),
+				"ring": Color(1.0, 0.24, 0.06, 0.5),
+			}
+		"ice":
+			return {
+				"core": Color(0.68, 0.98, 1.0, 0.94),
+				"spark": Color(0.54, 0.9, 1.0, 0.86),
+				"ring": Color(0.42, 0.86, 1.0, 0.56),
+			}
+		"lightning":
+			return {
+				"core": Color(0.84, 0.98, 1.0, 1.0),
+				"spark": Color(0.62, 0.92, 1.0, 0.92),
+				"ring": Color(0.58, 0.88, 1.0, 0.62),
+			}
+		"poison":
+			return {
+				"core": Color(0.42, 1.0, 0.18, 0.9),
+				"spark": Color(0.54, 1.0, 0.22, 0.78),
+				"ring": Color(0.26, 1.0, 0.16, 0.5),
+			}
+		_:
+			return {
+				"core": Color(1.0, 0.96, 0.78, 0.96),
+				"spark": Color(1.0, 0.72, 0.28, 0.86),
+				"ring": Color(1.0, 0.86, 0.42, 0.56),
+			}
+
+func _spawn_b4_impact_stack(position: Vector2, element: String, power := 1.0, hit_kind := "normal", priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var safe_power := clampf(power, 0.55, 2.5)
+	var palette := _impact_palette(element, hit_kind)
+	var core: Color = palette.get("core", Color.WHITE)
+	var spark: Color = palette.get("spark", core)
+	var ring: Color = palette.get("ring", core)
+	var life := 0.14 + safe_power * 0.035
+	var glow := VfxLib.spawn_glow($ProjectileLayer, position, core, 86.0 * safe_power, life)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_impact_core_flash(position, core, 0.18 + safe_power * 0.11, minf(life, 0.22), 3.1 + safe_power, priority)
+	if _can_spawn_projectile_fx(priority):
+		var burst := VfxLib.spawn_burst(
+			$ProjectileLayer,
+			position,
+			spark,
+			_impact_particle_count(element, hit_kind, safe_power),
+			_impact_particle_speed(element, hit_kind, safe_power),
+			_impact_particle_spread(element, hit_kind),
+			minf(life + 0.04, 0.34)
+		)
+		if burst != null:
+			_track_transient_fx(burst, "projectile")
+			if burst is Node2D:
+				(burst as Node2D).rotation = randf_range(-PI, PI)
+	_spawn_impact_shock_ring(position, ring, 48.0 * safe_power, 4.0 + safe_power * 2.0, life, priority)
+	match hit_kind:
+		"shield", "immune", "phase_evade":
+			_spawn_impact_fork_lines(position, ring, 5, 72.0 * safe_power, 0.15, 2.2 + safe_power, priority)
+		"armor", "weak":
+			_spawn_impact_streaks(position, spark, 5, 66.0 * safe_power, 0.13, 3.2 + safe_power, priority)
+		_:
+			match element:
+				"fire":
+					_spawn_impact_heat_haze(position, Color(1.0, 0.22, 0.04, 0.42), 0.18, safe_power, priority)
+					_spawn_impact_cloud(position + Vector2(0, -4), Color(1.0, 0.32, 0.08, 0.26), 8, 0.26, true, priority)
+				"ice":
+					_spawn_impact_fork_lines(position, Color(0.76, 1.0, 1.0, 0.72), 6, 58.0 * safe_power, 0.18, 2.6 + safe_power, priority)
+					_spawn_impact_cloud(position + Vector2(0, -6), Color(0.58, 0.94, 1.0, 0.22), 7, 0.3, true, priority)
+				"lightning":
+					_spawn_impact_fork_lines(position, Color(0.82, 0.98, 1.0, 0.86), 7, 78.0 * safe_power, 0.12, 2.8 + safe_power, priority)
+				"poison":
+					_spawn_impact_cloud(position + Vector2(0, -2), Color(0.38, 1.0, 0.16, 0.32), 10, 0.36, false, priority)
+					_spawn_impact_bubbles(position, Color(0.52, 1.0, 0.18, 0.46), 5, 0.32, safe_power, priority)
+				_:
+					_spawn_impact_streaks(position, Color(1.0, 0.86, 0.42, 0.72), 4, 58.0 * safe_power, 0.12, 3.0 + safe_power, priority)
+
+func _impact_particle_count(element: String, hit_kind: String, power: float) -> int:
+	var base := 12
+	match element:
+		"fire":
+			base = 18
+		"ice":
+			base = 15
+		"lightning":
+			base = 16
+		"poison":
+			base = 15
+		_:
+			base = 14
+	match hit_kind:
+		"armor", "weak":
+			base += 5
+		"immune", "phase_evade":
+			base -= 4
+	return clampi(int(round(float(base) * power)), 4, 30)
+
+func _impact_particle_speed(element: String, hit_kind: String, power: float) -> float:
+	var speed := 430.0
+	match element:
+		"fire":
+			speed = 440.0
+		"ice":
+			speed = 320.0
+		"lightning":
+			speed = 620.0
+		"poison":
+			speed = 230.0
+		_:
+			speed = 520.0
+	match hit_kind:
+		"armor", "weak":
+			speed += 120.0
+		"immune", "phase_evade":
+			speed *= 0.7
+	return speed * clampf(power, 0.65, 1.8)
+
+func _impact_particle_spread(element: String, hit_kind: String) -> float:
+	if hit_kind == "immune" or hit_kind == "phase_evade":
+		return 116.0
+	match element:
+		"fire":
+			return 104.0
+		"ice":
+			return 86.0
+		"lightning":
+			return 58.0
+		"poison":
+			return 132.0
+		_:
+			return 72.0
+
+func _spawn_impact_core_flash(position: Vector2, color: Color, scale_mult: float, duration: float, intensity: float, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var core := Sprite2D.new()
+	_track_transient_fx(core, "projectile")
+	core.name = "B4ImpactShaderCore"
+	core.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	core.centered = true
+	core.global_position = position
+	core.scale = Vector2.ONE * scale_mult
+	core.z_index = 78
+	core.material = _new_muzzle_core_material(color, intensity, 0.86)
+	$ProjectileLayer.add_child(core)
+	var tween := core.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(core, "scale", core.scale * 1.85, duration)
+	tween.parallel().tween_property(core, "modulate:a", 0.0, duration)
+	tween.tween_callback(core.queue_free)
+
+func _spawn_impact_shock_ring(position: Vector2, color: Color, radius: float, width: float, duration: float, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var root := Node2D.new()
+	_track_transient_fx(root, "projectile")
+	root.name = "B4ImpactShockRing"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = position
+	root.z_index = 76
+	root.scale = Vector2.ONE * 0.28
+	$ProjectileLayer.add_child(root)
+	var ring := _make_ring_line(radius, color, width, 64)
+	ring.texture = VfxLib.STREAK_TEXTURE
+	ring.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+	ring.material = _new_muzzle_additive_material()
+	root.add_child(ring)
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2.ONE, duration)
+	tween.parallel().tween_property(ring, "width", 1.0, duration)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
+	tween.tween_callback(root.queue_free)
+
+func _spawn_impact_streaks(position: Vector2, color: Color, count: int, radius: float, duration: float, width: float, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var root := Node2D.new()
+	_track_transient_fx(root, "projectile")
+	root.name = "B4ImpactStreaks"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = position
+	root.z_index = 77
+	$ProjectileLayer.add_child(root)
+	for i in range(clampi(count, 1, 8)):
+		var angle := randf_range(-PI, PI)
+		var dir := Vector2(cos(angle), sin(angle))
+		var start := dir * randf_range(6.0, 14.0)
+		var finish := dir * randf_range(radius * 0.52, radius)
+		var line := Line2D.new()
+		line.width = width * randf_range(0.72, 1.18)
+		line.default_color = color.lightened(randf_range(0.0, 0.2))
+		line.joint_mode = Line2D.LINE_JOINT_ROUND
+		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		line.end_cap_mode = Line2D.LINE_CAP_ROUND
+		line.texture = VfxLib.STREAK_TEXTURE
+		line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		line.material = _new_muzzle_additive_material()
+		line.points = PackedVector2Array([start, finish])
+		root.add_child(line)
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2.ONE * 1.08, duration)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
+	tween.tween_callback(root.queue_free)
+
+func _spawn_impact_fork_lines(position: Vector2, color: Color, count: int, radius: float, duration: float, width: float, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var root := Node2D.new()
+	_track_transient_fx(root, "projectile")
+	root.name = "B4ImpactForkLines"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = position
+	root.z_index = 79
+	$ProjectileLayer.add_child(root)
+	var safe_count := clampi(count, 1, 9)
+	for i in range(safe_count):
+		var base_angle := TAU * float(i) / float(safe_count) + randf_range(-0.28, 0.28)
+		var dir := Vector2(cos(base_angle), sin(base_angle))
+		var tangent := Vector2(-dir.y, dir.x)
+		var length := radius * randf_range(0.62, 1.08)
+		var elbow := dir * length * randf_range(0.35, 0.58) + tangent * randf_range(-18.0, 18.0)
+		var end := dir * length + tangent * randf_range(-24.0, 24.0)
+		var line := Line2D.new()
+		line.width = width * randf_range(0.65, 1.15)
+		line.default_color = color.lightened(randf_range(0.0, 0.28))
+		line.joint_mode = Line2D.LINE_JOINT_ROUND
+		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		line.end_cap_mode = Line2D.LINE_CAP_ROUND
+		line.texture = VfxLib.STREAK_TEXTURE
+		line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		line.material = _new_muzzle_additive_material()
+		line.points = PackedVector2Array([Vector2.ZERO, elbow, end])
+		root.add_child(line)
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2.ONE * 1.12, duration)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
+	tween.tween_callback(root.queue_free)
+
+func _spawn_impact_cloud(position: Vector2, color: Color, amount: int, duration: float, upward: bool, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var particles := GPUParticles2D.new()
+	particles.name = "B4ImpactCloudParticles"
+	particles.process_mode = Node.PROCESS_MODE_PAUSABLE
+	particles.one_shot = true
+	particles.amount = clampi(amount, 3, 18)
+	particles.lifetime = clampf(duration, 0.14, 0.42)
+	particles.explosiveness = 1.0
+	particles.randomness = 0.82
+	particles.local_coords = false
+	particles.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	particles.material = _new_muzzle_additive_material()
+	particles.z_index = 73
+	particles.visibility_rect = Rect2(-460.0, -460.0, 920.0, 920.0)
+	var process_material := ParticleProcessMaterial.new()
+	process_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
+	process_material.direction = Vector3(0.0, -1.0 if upward else 0.0, 0.0)
+	process_material.spread = 180.0
+	process_material.initial_velocity_min = 28.0 if not upward else 44.0
+	process_material.initial_velocity_max = 112.0 if not upward else 165.0
+	process_material.gravity = Vector3(0.0, -34.0 if upward else 26.0, 0.0)
+	process_material.damping_min = 22.0
+	process_material.damping_max = 58.0
+	process_material.angle_min = -35.0
+	process_material.angle_max = 35.0
+	process_material.angular_velocity_min = -90.0
+	process_material.angular_velocity_max = 90.0
+	process_material.scale_min = 0.16
+	process_material.scale_max = 0.48
+	process_material.scale_curve = _impact_cloud_scale_curve()
+	process_material.color_ramp = _impact_color_ramp(color.lightened(0.12), color, Color(color.r, color.g, color.b, 0.0))
+	particles.process_material = process_material
+	particles.finished.connect(particles.queue_free)
+	_track_transient_fx(particles, "projectile")
+	$ProjectileLayer.add_child(particles)
+	particles.global_position = position
+	particles.emitting = true
+
+func _spawn_impact_bubbles(position: Vector2, color: Color, count: int, duration: float, power := 1.0, priority := false) -> void:
+	var safe_count := clampi(count, 2, 8)
+	for i in range(safe_count):
+		if not _can_spawn_projectile_fx(priority):
+			break
+		var bubble := Sprite2D.new()
+		_track_transient_fx(bubble, "projectile")
+		bubble.name = "B4PoisonBubble"
+		bubble.texture = VfxLib.RADIAL_GLOW_TEXTURE
+		bubble.centered = true
+		bubble.global_position = position + Vector2(randf_range(-26.0, 26.0), randf_range(-18.0, 16.0))
+		bubble.scale = Vector2.ONE * randf_range(0.08, 0.16) * clampf(power, 0.8, 1.7)
+		bubble.modulate = color
+		bubble.material = _new_muzzle_core_material(color, 2.2, 1.25)
+		bubble.z_index = 77
+		$ProjectileLayer.add_child(bubble)
+		var travel := Vector2(randf_range(-38.0, 38.0), randf_range(-52.0, 18.0))
+		var tween := bubble.create_tween()
+		tween.set_trans(Tween.TRANS_QUINT)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(bubble, "global_position", bubble.global_position + travel, duration)
+		tween.parallel().tween_property(bubble, "scale", bubble.scale * randf_range(1.4, 2.1), duration)
+		tween.parallel().tween_property(bubble, "modulate:a", 0.0, duration)
+		tween.tween_callback(bubble.queue_free)
+
+func _spawn_impact_heat_haze(position: Vector2, color: Color, duration: float, power := 1.0, priority := false) -> void:
+	if not _can_spawn_projectile_fx(priority):
+		return
+	var haze := Sprite2D.new()
+	_track_transient_fx(haze, "projectile")
+	haze.name = "B4ImpactHeatHaze"
+	haze.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	haze.centered = true
+	haze.global_position = position
+	haze.rotation = randf_range(-0.35, 0.35)
+	haze.scale = Vector2(0.42, 0.22) * clampf(power, 0.8, 2.1)
+	haze.modulate = color
+	haze.material = _new_muzzle_core_material(color, 2.35, 1.65)
+	haze.z_index = 72
+	$ProjectileLayer.add_child(haze)
+	var tween := haze.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(haze, "scale", haze.scale * Vector2(2.4, 1.75), duration)
+	tween.parallel().tween_property(haze, "rotation", haze.rotation + randf_range(-0.12, 0.12), duration)
+	tween.parallel().tween_property(haze, "modulate:a", 0.0, duration)
+	tween.tween_callback(haze.queue_free)
+
+func _impact_color_ramp(start: Color, mid: Color, finish: Color) -> GradientTexture1D:
+	var gradient_resource := Gradient.new()
+	gradient_resource.set_offset(0, 0.0)
+	gradient_resource.set_color(0, start)
+	gradient_resource.set_offset(1, 1.0)
+	gradient_resource.set_color(1, finish)
+	gradient_resource.add_point(0.38, mid)
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient_resource
+	return texture
+
+func _impact_cloud_scale_curve() -> CurveTexture:
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.12))
+	curve.add_point(Vector2(0.32, 1.0))
+	curve.add_point(Vector2(1.0, 0.0))
+	var texture := CurveTexture.new()
+	texture.curve = curve
+	return texture
+
+func _impact_profile_power(visual_profile: String) -> float:
+	match visual_profile:
+		"rail":
+			return 1.45
+		"scatter":
+			return 0.78
+		"plasma":
+			return 1.65
+		"heavy":
+			return 1.35
+		"acid":
+			return 1.2
+		_:
+			return 1.0
+
+func _trigger_impact_feedback(primary: Node, damage: float, visual_profile: String) -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	var is_boss := _is_boss_node(primary)
+	var cooldown := 0.035 if is_boss else 0.055
+	if now - last_impact_feedback_at < cooldown:
+		return
+	last_impact_feedback_at = now
+	var profile_boost := 0.0
+	match visual_profile:
+		"rail":
+			profile_boost = 1.2
+		"plasma":
+			profile_boost = 1.0
+		"heavy":
+			profile_boost = 0.7
+		"scatter":
+			profile_boost = -0.2
+	var damage_boost := clampf(sqrt(maxf(damage, 0.0)) * 0.14, 0.0, 2.2)
+	var intensity := clampf(1.35 + damage_boost + profile_boost, 1.0, 5.8)
+	if is_boss:
+		intensity *= 1.28
+	VfxLib.screen_shake(intensity, 0.045 + minf(intensity, 5.0) * 0.006)
+	if hit_stop != null and (is_boss or visual_profile == "rail" or visual_profile == "plasma" or damage >= 32.0):
+		hit_stop.pulse(0.026 if not is_boss else 0.04)
+
 func _spawn_split_burst_vfx(origin: Vector2, direction: Vector2, fan: float, count: int, element: String) -> void:
 	var color := _element_color(element)
 	color.a = 0.76
@@ -4393,10 +4833,7 @@ func _spawn_split_burst_vfx(origin: Vector2, direction: Vector2, fan: float, cou
 		tween.tween_callback(shard.queue_free)
 
 func _spawn_element_impact_vfx(primary: Node, origin: Vector2, element: String, visual_profile := "") -> void:
-	var target_position := origin
-	if primary != null and is_instance_valid(primary) and primary is Node2D:
-		target_position = (primary as Node2D).global_position
-	var color := _element_color(element)
+	var target_position := _impact_anchor(primary, origin)
 	match visual_profile:
 		"rail":
 			_spawn_rail_impact_vfx(target_position, origin)
@@ -4407,21 +4844,7 @@ func _spawn_element_impact_vfx(primary: Node, origin: Vector2, element: String, 
 		"plasma":
 			_spawn_plasma_impact_vfx(target_position)
 			return
-	match element:
-		"fire":
-			_spawn_vfx_sequence("vfx_hit_fire", target_position + Vector2(randf_range(-12.0, 12.0), -42.0), 0.68, Color(1.0, 0.44, 0.12, 0.88), 1.24, randf_range(-0.28, 0.28), 1.12, Vector2(0, -16), randf_range(-0.36, 0.36))
-			_spawn_vfx_sequence("vfx_explosion_fire", target_position + Vector2(0, -34), 0.44, Color(1.0, 0.32, 0.1, 0.48), 0.92, randf_range(-0.2, 0.2), 1.08, Vector2(0, -8), randf_range(-0.24, 0.24))
-		"ice":
-			_spawn_vfx_sequence("vfx_hit_ice", target_position + Vector2(randf_range(-10.0, 10.0), -44.0), 0.7, Color(0.58, 0.92, 1.0, 0.88), 1.18, randf_range(-0.18, 0.18), 1.08, Vector2(0, -12), randf_range(-0.2, 0.2))
-			_spawn_vfx_sequence("vfx_freeze", target_position + Vector2(0, -36), 0.52, Color(0.62, 0.95, 1.0, 0.46), 0.96, randf_range(-0.16, 0.16), 1.06, Vector2(0, -8), 0.0)
-		"lightning":
-			_spawn_vfx_sequence("vfx_hit_lightning", target_position + Vector2(randf_range(-10.0, 10.0), -48.0), 0.76, Color(1.0, 0.92, 0.18, 0.9), 1.34, randf_range(-0.28, 0.28), 1.12, Vector2(0, -16), randf_range(-0.4, 0.4))
-			_spawn_vfx_sequence("vfx_chain_lightning", target_position + Vector2(0, -54), 0.56, Color(1.0, 0.9, 0.22, 0.58), 1.2, randf_range(-0.32, 0.32), 1.08, Vector2(0, -12), randf_range(-0.35, 0.35))
-		"poison":
-			_spawn_vfx_sequence("vfx_hit_poison", target_position + Vector2(randf_range(-12.0, 12.0), -38.0), 0.72, Color(0.5, 1.0, 0.28, 0.84), 1.18, randf_range(-0.26, 0.26), 1.14, Vector2(0, -14), randf_range(-0.3, 0.3))
-			_spawn_vfx_sequence("vfx_poison_cloud", target_position + Vector2(0, -28), 0.52, Color(0.48, 1.0, 0.25, 0.44), 0.9, randf_range(-0.16, 0.16), 1.12, Vector2(0, -6), 0.0)
-		_:
-			_spawn_vfx_sequence("vfx_hit_physical", target_position + Vector2(0, -34), 0.5, Color(color.r, color.g, color.b, 0.62), 1.2, randf_range(-0.24, 0.24), 1.08, Vector2(0, -10), 0.0)
+	_spawn_b4_impact_stack(target_position, element, _impact_profile_power(visual_profile), "normal", false)
 
 func _spawn_rail_impact_vfx(target_position: Vector2, hit_origin: Vector2) -> void:
 	var muzzle := _weapon_fire_origin()
@@ -4430,35 +4853,29 @@ func _spawn_rail_impact_vfx(target_position: Vector2, hit_origin: Vector2) -> vo
 		direction = (target_position - hit_origin).normalized()
 	if direction.length_squared() <= 0.01:
 		direction = Vector2.UP
-	_spawn_vfx_sequence("vfx_crit", target_position + Vector2(0, -38), 0.62, Color(0.64, 0.98, 1.0, 0.82), 1.35, direction.angle(), 1.12, direction * 14.0, 0.0)
-	_spawn_vfx_sequence("vfx_hit_lightning", target_position + Vector2(0, -34), 0.46, Color(0.62, 0.96, 1.0, 0.52), 1.18, randf_range(-0.22, 0.22), 1.06, Vector2(0, -10), 0.0)
+	_spawn_b4_impact_stack(target_position, "lightning", 1.45, "normal", true)
+	_spawn_weapon_trace(target_position - direction * 72.0, target_position + direction * 18.0, Color(0.78, 1.0, 1.0, 0.82), 13.0, 0.1)
+	_spawn_impact_fork_lines(target_position, Color(0.82, 0.98, 1.0, 0.9), 5, 92.0, 0.11, 2.4, true)
 
 func _spawn_scatter_impact_vfx(target_position: Vector2, element: String) -> void:
-	var color := Color(1.0, 0.78, 0.34, 0.72)
-	for i in range(6):
-		if not _can_spawn_projectile_fx():
-			break
-		var pellet := Sprite2D.new()
-		_track_transient_fx(pellet, "projectile")
-		pellet.texture = load("res://assets/production/sprites/projectiles/proj_scatter_pellet.png")
-		pellet.global_position = target_position + Vector2(randf_range(-28.0, 28.0), randf_range(-62.0, -18.0))
-		pellet.rotation = randf_range(-PI, PI)
-		pellet.scale = Vector2(0.18, 0.18)
-		pellet.modulate = color
-		$ProjectileLayer.add_child(pellet)
-		var travel := Vector2(randf_range(-42.0, 42.0), randf_range(-34.0, 18.0))
-		var tween := pellet.create_tween()
-		tween.parallel().tween_property(pellet, "global_position", pellet.global_position + travel, 0.12)
-		tween.parallel().tween_property(pellet, "scale", Vector2(0.05, 0.05), 0.12)
-		tween.parallel().tween_property(pellet, "modulate:a", 0.0, 0.12)
-		tween.tween_callback(pellet.queue_free)
-	_spawn_vfx_sequence("vfx_hit_physical", target_position + Vector2(0, -34), 0.42, Color(1.0, 0.72, 0.34, 0.58), 1.28, randf_range(-0.28, 0.28), 1.08, Vector2(0, -10), 0.0)
+	var base_color := _element_color(element)
+	for i in range(3):
+		var offset := Vector2(randf_range(-30.0, 30.0), randf_range(-18.0, 18.0))
+		_spawn_b4_impact_stack(target_position + offset, element, 0.62, "normal", false)
+	_spawn_impact_streaks(target_position, Color(1.0, 0.78, 0.32, 0.78), 7, 72.0, 0.12, 2.8, false)
+	if base_color != Color.WHITE:
+		var tint := base_color
+		tint.a = 0.46
+		_spawn_impact_cloud(target_position, tint, 5, 0.22, true, false)
 
 func _spawn_plasma_impact_vfx(target_position: Vector2) -> void:
-	_spawn_vfx_sequence("vfx_explosion_fire", target_position + Vector2(0, -36), 0.62, Color(1.0, 0.46, 0.18, 0.5), 0.95, randf_range(-0.22, 0.22), 1.12, Vector2(0, -12), randf_range(-0.3, 0.3))
-	_spawn_vfx_sequence("vfx_hit_lightning", target_position + Vector2(0, -48), 0.72, Color(0.95, 0.54, 1.0, 0.78), 1.2, randf_range(-0.26, 0.26), 1.1, Vector2(0, -14), randf_range(-0.32, 0.32))
+	_spawn_b4_impact_stack(target_position, "fire", 1.55, "normal", true)
+	_spawn_impact_core_flash(target_position + Vector2(0, -4), Color(1.0, 0.48, 1.0, 0.96), 0.42, 0.2, 4.8, true)
+	_spawn_impact_shock_ring(target_position, Color(1.0, 0.38, 1.0, 0.64), 96.0, 8.0, 0.2, true)
+	_spawn_impact_cloud(target_position, Color(1.0, 0.32, 0.92, 0.28), 10, 0.32, true, true)
 
 func _spawn_chain_flash(origin: Vector2, primary: Node) -> void:
+	_spawn_b4_impact_stack(origin, "lightning", 0.72, "normal", false)
 	var nearest: Node2D
 	var best_dist := 999999.0
 	for enemy in $EnemyLayer.get_children():
@@ -4471,6 +4888,7 @@ func _spawn_chain_flash(origin: Vector2, primary: Node) -> void:
 	if nearest == null:
 		return
 	_spawn_chain_arc(origin, nearest.global_position, "lightning")
+	_spawn_impact_core_flash(nearest.global_position + Vector2(0, -36), Color(0.82, 0.98, 1.0, 0.84), 0.22, 0.12, 4.2, false)
 
 func _spawn_chain_arc(start: Vector2, end: Vector2, element := "lightning") -> void:
 	var tex := load("res://assets/production/sprites/vfx/vfx_chain_lightning.png") as Texture2D
@@ -4495,80 +4913,57 @@ func _spawn_chain_arc(start: Vector2, end: Vector2, element := "lightning") -> v
 	tween.tween_callback(bolt.queue_free)
 
 func _spawn_radial_vfx(origin: Vector2, radius: float, color: Color) -> void:
-	var tex_path := "res://assets/production/sprites/vfx/vfx_explosion_fire.png" if color.r >= color.g else "res://assets/production/sprites/vfx/vfx_poison_cloud.png"
-	var tex := load(tex_path) as Texture2D
-	if tex:
-		if not _can_spawn_projectile_fx():
-			return
-		var burst := Sprite2D.new()
-		_track_transient_fx(burst, "projectile")
-		burst.texture = tex
-		burst.global_position = origin
-		burst.scale = Vector2(radius / 220.0, radius / 220.0)
-		burst.modulate = Color(color.r, color.g, color.b, 0.42)
-		$ProjectileLayer.add_child(burst)
-		var burst_tween := burst.create_tween()
-		burst_tween.parallel().tween_property(burst, "scale", burst.scale * 1.18, 0.22)
-		burst_tween.parallel().tween_property(burst, "modulate:a", 0.0, 0.22)
-		burst_tween.tween_callback(burst.queue_free)
+	var safe_radius := clampf(radius, 42.0, 360.0)
+	var element := "fire" if color.r >= color.g else "poison"
+	var power := clampf(safe_radius / 132.0, 0.72, 2.1)
+	_spawn_b4_impact_stack(origin, element, power, "normal", safe_radius > 180.0)
+	_spawn_impact_shock_ring(origin, Color(color.r, color.g, color.b, minf(color.a + 0.2, 0.68)), safe_radius, 7.0, 0.26, safe_radius > 180.0)
+	_spawn_impact_cloud(origin, Color(color.r, color.g, color.b, minf(color.a, 0.34)), 14 if element == "poison" else 10, 0.38, element != "poison", safe_radius > 180.0)
 
 func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hit_kind: String) -> void:
-	var color := _element_color(element)
-	var path := _vfx_path("hit", element)
-	var scale := 0.42
+	var kind := hit_kind
+	var power := 0.78
 	match hit_kind:
 		"armor":
-			path = "res://assets/production/sprites/vfx/vfx_crit.png"
-			color = Color(1.0, 0.82, 0.42, 0.86)
-			scale = 0.52
+			power = 1.05
 		"shield":
-			path = "res://assets/production/sprites/vfx/vfx_hit_immune.png"
-			color = Color(0.48, 0.82, 1.0, 0.82)
-			scale = 0.6
+			power = 1.12
 		"immune", "phase_evade":
-			path = "res://assets/production/sprites/vfx/vfx_hit_immune.png"
-			color = Color(0.78, 0.86, 1.0, 0.75)
-			scale = 0.5
+			power = 0.88
 		"weak":
-			path = "res://assets/production/sprites/vfx/vfx_crit.png"
-			color = Color(1.0, 0.9, 0.24, 0.95)
-			scale = 0.7
-	var sequence_id := "vfx_hit_physical"
-	if path.ends_with("vfx_crit.png"):
-		sequence_id = "vfx_crit"
-	elif path.ends_with("vfx_hit_immune.png"):
-		sequence_id = "vfx_hit_immune"
-	elif element == "fire":
-		sequence_id = "vfx_hit_fire"
-	elif element == "ice":
-		sequence_id = "vfx_hit_ice"
-	elif element == "lightning":
-		sequence_id = "vfx_hit_lightning"
-	elif element == "poison":
-		sequence_id = "vfx_hit_poison"
-	_spawn_vfx_sequence(sequence_id, position + Vector2(randf_range(-18.0, 18.0), randf_range(-45.0, -12.0)), scale, color, 1.2, randf_range(-0.28, 0.28), 1.08, Vector2(0, -10), randf_range(-0.28, 0.28))
+			power = 1.24
+		_:
+			kind = "normal"
+	var anchor := position + Vector2(randf_range(-16.0, 16.0), randf_range(-46.0, -18.0))
+	_spawn_b4_impact_stack(anchor, element, power, kind, weak_hit or kind != "normal")
 	if weak_hit:
-		_spawn_vfx_sequence("vfx_crit", position + Vector2(0, -40), 0.54, Color(1.0, 0.86, 0.24, 0.56), 1.3, randf_range(-0.22, 0.22), 1.1, Vector2(0, -12), 0.0)
+		_spawn_b4_impact_stack(position + Vector2(0, -44), element, 1.18, "weak", true)
 	if hit_kind == "armor" or hit_kind == "shield" or hit_kind == "immune":
-		_spawn_vfx_sequence(sequence_id, position + Vector2(0, -34), scale * 0.72, Color(color.r, color.g, color.b, minf(color.a, 0.46)), 1.05, randf_range(-0.18, 0.18), 1.06, Vector2(0, -8), 0.0)
+		var palette := _impact_palette(element, kind)
+		var ring: Color = palette.get("ring", Color.WHITE)
+		_spawn_impact_shock_ring(position + Vector2(0, -36), ring, 74.0, 5.0, 0.18, true)
 
 func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool) -> void:
-	var scale := 0.95 if not is_boss else 1.85
+	var scale := 1.0 if not is_boss else 2.05
 	_spawn_zombie_blood_pool(position, is_boss)
+	_spawn_b4_impact_stack(position + Vector2(0, -38 if not is_boss else -78), element, scale, "weak" if is_boss else "normal", is_boss)
 	match element:
 		"fire":
-			_spawn_vfx_sequence("vfx_explosion_fire", position + Vector2(0, -36), scale, Color(1.0, 0.4, 0.12, 0.78), 0.96, randf_range(-0.24, 0.24), 1.12, Vector2(0, -10), randf_range(-0.3, 0.3))
+			_spawn_impact_cloud(position + Vector2(0, -38 if not is_boss else -82), Color(1.0, 0.3, 0.06, 0.34), 12 if not is_boss else 18, 0.42, true, is_boss)
+			_spawn_impact_heat_haze(position + Vector2(0, -34 if not is_boss else -76), Color(1.0, 0.18, 0.04, 0.44), 0.28, scale, is_boss)
 		"ice":
-			_spawn_vfx_sequence("vfx_freeze", position + Vector2(0, -40), scale, Color(0.58, 0.9, 1.0, 0.82), 0.96, randf_range(-0.18, 0.18), 1.08, Vector2(0, -8), 0.0)
+			_spawn_impact_fork_lines(position + Vector2(0, -42 if not is_boss else -86), Color(0.76, 1.0, 1.0, 0.78), 7 if not is_boss else 9, 76.0 * scale, 0.24, 3.0, is_boss)
+			_spawn_impact_cloud(position + Vector2(0, -38 if not is_boss else -82), Color(0.56, 0.92, 1.0, 0.24), 10 if not is_boss else 16, 0.4, true, is_boss)
 			_spawn_death_shards(position, Color(0.64, 0.92, 1.0, 0.8), is_boss)
 		"lightning":
-			_spawn_vfx_sequence("vfx_chain_lightning", position + Vector2(0, -46), scale, Color(1.0, 0.92, 0.22, 0.86), 1.18, randf_range(-0.3, 0.3), 1.08, Vector2(0, -10), randf_range(-0.4, 0.4))
-			_spawn_death_shards(position, Color(1.0, 0.92, 0.22, 0.78), is_boss)
+			_spawn_impact_fork_lines(position + Vector2(0, -46 if not is_boss else -92), Color(0.82, 0.98, 1.0, 0.9), 8 if not is_boss else 9, 96.0 * scale, 0.16, 3.2, is_boss)
+			_spawn_death_shards(position, Color(0.72, 0.96, 1.0, 0.82), is_boss)
 		"poison":
-			_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_poison_cloud.png", position + Vector2(0, -24), Color(0.44, 1.0, 0.25, 0.72), scale, 0.46)
-			_spawn_attack_ring(position, 100.0 * scale, Color(0.42, 1.0, 0.25, 0.2), 0.36)
+			_spawn_impact_cloud(position + Vector2(0, -26 if not is_boss else -64), Color(0.36, 1.0, 0.16, 0.36), 14 if not is_boss else 18, 0.42, false, is_boss)
+			_spawn_impact_bubbles(position + Vector2(0, -30 if not is_boss else -70), Color(0.52, 1.0, 0.16, 0.5), 6 if not is_boss else 8, 0.42, scale, is_boss)
+			_spawn_impact_shock_ring(position, Color(0.36, 1.0, 0.16, 0.42), 104.0 * scale, 6.0, 0.34, is_boss)
 		_:
-			_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_death_dissolve.png", position + Vector2(0, -36), Color(1.0, 0.92, 0.74, 0.72), scale, 0.3)
+			_spawn_impact_streaks(position + Vector2(0, -36 if not is_boss else -76), Color(1.0, 0.84, 0.42, 0.76), 7 if not is_boss else 8, 86.0 * scale, 0.18, 3.5, is_boss)
 			_spawn_death_shards(position, Color(1.0, 0.86, 0.58, 0.62), is_boss)
 	if is_boss:
 		_show_screen_flash(Color(1.0, 0.78, 0.28, 0.16), 0.32)
@@ -4576,75 +4971,40 @@ func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool)
 func _spawn_zombie_blood_pool(position: Vector2, is_boss: bool) -> void:
 	if not _can_spawn_projectile_fx(is_boss):
 		return
-	var pool := Polygon2D.new()
-	_track_transient_fx(pool, "projectile")
-	var radius_x := 46.0 if not is_boss else 92.0
-	var radius_y := 18.0 if not is_boss else 34.0
-	var points := PackedVector2Array()
-	for i in range(14):
-		var angle := TAU * float(i) / 14.0
-		var wobble := randf_range(0.72, 1.18)
-		points.append(Vector2(cos(angle) * radius_x * wobble, sin(angle) * radius_y * randf_range(0.68, 1.15)))
-	pool.polygon = points
-	pool.global_position = position + Vector2(randf_range(-8.0, 8.0), randf_range(18.0, 34.0))
-	pool.rotation = randf_range(-0.16, 0.16)
-	pool.scale = Vector2(0.35, 0.35)
-	pool.color = Color(0.18, 0.72, 0.18, 0.32)
-	pool.z_index = -5
-	$ProjectileLayer.add_child(pool)
-	var tween := pool.create_tween()
-	tween.parallel().tween_property(pool, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(pool, "modulate:a", 0.78, 1.35)
-	tween.tween_interval(1.05 if not is_boss else 1.45)
-	tween.tween_property(pool, "modulate:a", 0.0, 0.72)
-	tween.tween_callback(pool.queue_free)
-
-	var drops := 4 if not is_boss else 9
-	for i in range(drops):
-		if not _can_spawn_projectile_fx(is_boss):
-			break
-		var drop := Polygon2D.new()
-		_track_transient_fx(drop, "projectile")
-		var drop_radius := randf_range(5.0, 11.0) if not is_boss else randf_range(8.0, 17.0)
-		drop.polygon = PackedVector2Array([
-			Vector2(0, -drop_radius),
-			Vector2(drop_radius * 0.8, -drop_radius * 0.2),
-			Vector2(drop_radius * 0.45, drop_radius * 0.75),
-			Vector2(-drop_radius * 0.65, drop_radius * 0.55),
-			Vector2(-drop_radius * 0.8, -drop_radius * 0.25),
-		])
-		drop.global_position = pool.global_position + Vector2(randf_range(-radius_x, radius_x), randf_range(-radius_y * 1.3, radius_y * 1.3))
-		drop.rotation = randf_range(-0.9, 0.9)
-		drop.scale = Vector2(0.35, 0.35)
-		drop.color = Color(0.34, 1.0, 0.22, 0.38)
-		drop.z_index = -4
-		$ProjectileLayer.add_child(drop)
-		var drop_tween := drop.create_tween()
-		drop_tween.parallel().tween_property(drop, "scale", Vector2.ONE, 0.14)
-		drop_tween.parallel().tween_property(drop, "modulate:a", 0.75, 1.3)
-		drop_tween.tween_interval(0.75 + randf_range(0.0, 0.45))
-		drop_tween.tween_property(drop, "modulate:a", 0.0, 0.72)
-		drop_tween.tween_callback(drop.queue_free)
+	var scale := 1.0 if not is_boss else 1.9
+	var residue_color := Color(0.26, 1.0, 0.16, 0.26)
+	var residue := VfxLib.spawn_glow($ProjectileLayer, position + Vector2(randf_range(-8.0, 8.0), randf_range(18.0, 32.0)), residue_color, 118.0 * scale, 0.5)
+	if residue != null:
+		_track_transient_fx(residue, "projectile")
+		if residue is Node2D:
+			(residue as Node2D).z_index = -4
+	_spawn_impact_cloud(position + Vector2(0, 18), Color(0.34, 1.0, 0.2, 0.24), 8 if not is_boss else 14, 0.42, false, is_boss)
+	_spawn_impact_bubbles(position + Vector2(0, 12), Color(0.46, 1.0, 0.18, 0.34), 3 if not is_boss else 6, 0.46, scale, is_boss)
 
 func _spawn_death_shards(position: Vector2, color: Color, is_boss: bool) -> void:
-	if not _can_spawn_hud_fx(is_boss):
+	if not _can_spawn_projectile_fx(is_boss):
 		return
-	var count := 8 if not is_boss else 18
+	var count := 8 if not is_boss else 14
 	for i in range(count):
-		if not _can_spawn_hud_fx(is_boss):
+		if not _can_spawn_projectile_fx(is_boss):
 			break
-		var shard := ColorRect.new()
-		_track_transient_fx(shard, "hud")
-		shard.color = color
-		shard.size = Vector2(8, 18) if not is_boss else Vector2(12, 28)
+		var shard := Sprite2D.new()
+		_track_transient_fx(shard, "projectile")
+		shard.name = "B4DeathShard"
+		shard.texture = VfxLib.STREAK_TEXTURE
+		shard.centered = true
 		shard.global_position = position + Vector2(randf_range(-18.0, 18.0), randf_range(-52.0, -16.0))
 		shard.rotation = randf_range(-1.0, 1.0)
-		shard.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		$Hud.add_child(shard)
+		shard.scale = Vector2(randf_range(0.18, 0.3), randf_range(0.035, 0.07)) * (1.35 if is_boss else 1.0)
+		shard.modulate = color
+		shard.material = _new_muzzle_core_material(color, 2.6, 1.1)
+		shard.z_index = 77
+		$ProjectileLayer.add_child(shard)
 		var travel := Vector2(randf_range(-85.0, 85.0), randf_range(-120.0, -35.0)) * (1.35 if is_boss else 1.0)
 		var tween := shard.create_tween()
 		tween.parallel().tween_property(shard, "global_position", shard.global_position + travel, 0.26)
 		tween.parallel().tween_property(shard, "rotation", shard.rotation + randf_range(-1.2, 1.2), 0.26)
+		tween.parallel().tween_property(shard, "scale", shard.scale * 0.32, 0.26)
 		tween.parallel().tween_property(shard, "modulate:a", 0.0, 0.26)
 		tween.tween_callback(shard.queue_free)
 
@@ -4956,8 +5316,7 @@ func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hi
 		damage_numbers.spawn_damage(enemy.global_position + Vector2(0, -34 if not bool(enemy.boss) else -76), amount, element, crit_hit, weak_hit)
 	# crit-only screen shake (light) and hit stop (very short)
 	if crit_hit:
-		if screen_shake_node:
-			screen_shake_node.shake(6.0, 0.08)
+		VfxLib.screen_shake(6.0, 0.08)
 		if hit_stop:
 			hit_stop.pulse(0.04)
 
@@ -4982,11 +5341,11 @@ func _trigger_kill_screen_shake(is_boss: bool) -> void:
 	if screen_shake_node == null:
 		return
 	if is_boss:
-		screen_shake_node.shake(18.0, 0.36)
+		VfxLib.screen_shake(18.0, 0.36)
 	elif kill_streak >= 8:
-		screen_shake_node.shake(7.0, 0.14)
+		VfxLib.screen_shake(7.0, 0.14)
 	elif kill_streak >= 4:
-		screen_shake_node.shake(4.0, 0.10)
+		VfxLib.screen_shake(4.0, 0.10)
 
 func _trigger_kill_hit_stop(is_boss: bool) -> void:
 	if hit_stop == null:

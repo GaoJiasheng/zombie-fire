@@ -1154,3 +1154,26 @@ The game is currently running on PID 13359 with the OLD code loaded. Restart the
 - `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
 - `godot --headless --script tools/m1_smoke_test.gd` -> `M1 smoke test passed`; same known headless cleanup warnings.
 - `python3 tools/validate_data.py && python3 tools/check_res_refs.py` -> data validation passed; `checked 250 res:// references`; `res:// references OK`.
+
+## VFX B4 Hit / Burst / Death Overhaul (2026-07-01)
+
+> Implemented only `design/vfx_b4_task.md`: hit, impact, radial burst, chain-flash, immune/weak hit, and death-burst visual layers. Hit detection, `take_damage`, damage math, data numbers, character/zombie/boss/weapon art, and render settings were not changed.
+
+- **Projectile impact flash**: `gameplay/projectile/projectile.gd::_spawn_impact_flash_at` now uses `VfxLib.spawn_glow`, `VfxLib.spawn_burst`, additive `VfxLib.STREAK_TEXTURE` shock rings, and profile/element-specific particle sizing instead of a single old hit sprite.
+- **Battle impact stack**: `gameplay/battle/battle.gd` now routes `_spawn_element_impact_vfx`, `_spawn_hit_layer_vfx`, `_spawn_rail_impact_vfx`, `_spawn_scatter_impact_vfx`, `_spawn_plasma_impact_vfx`, `_spawn_chain_flash`, and `_spawn_radial_vfx` through reusable B4 helpers for shader glow cores, additive shock rings, sparks, forked arcs/crystal lines, heat haze, poison bubbles, and small gas/mist particles.
+- **Death bursts**: `_spawn_death_element_vfx`, `_spawn_zombie_blood_pool`, and `_spawn_death_shards` now use glow/particle/streak VFX under `ProjectileLayer`; the prior B4 death-only `Polygon2D` residue and `ColorRect` shards were removed.
+- **Hit feedback**: projectile hit confirmation now applies budgeted `VfxLib.screen_shake` and existing `hit_stop` only with a short cooldown and profile/damage/boss scaling; crit and kill shakes also route through `VfxLib.screen_shake`.
+- **Hard constraints kept**: all new effects are transient visual nodes with `_can_spawn_projectile_fx` / `_track_transient_fx` budget gating; no `data/*.json`, collision, targeting, damage, enemy `take_damage`, art PNG, or `project.godot` render-setting edits were made.
+
+### Verification (after VFX B4)
+
+- `godot --headless --import` -> exit 0. It reimported already-dirty campaign background assets in the working tree.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5126 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 249 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `godot --headless --path . --quit` -> exits 0.
+- `godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings and resource-in-use messages at exit.
+- `godot --headless --script tools/m1_smoke_test.gd` -> `M1 smoke test passed`; same known headless cleanup warnings.
+- `python3 tools/validate_data.py && python3 tools/check_res_refs.py` -> data validation passed; `checked 249 res:// references`; `res:// references OK`.

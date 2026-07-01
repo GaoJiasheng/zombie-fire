@@ -207,4 +207,5 @@
 - [x] Godot 沙箱启动：`project.godot` 使用项目内隐藏 user data 目录，headless 下 AudioManager 不加载/播放音频流；`godot --headless --path . --quit` 当前 exit 0。
 - [x] VFX B2 子弹/投射物：`projectile.gd` 使用 B1 `VfxLib` 加法拖尾、shader 能量核、radial glow 光晕和预算门控粒子；未改碰撞半径/速度/伤害/穿透/命中逻辑，未触碰 `data/*.json` 或渲染方向。
 - [x] VFX B3 枪口闪光全套：`battle.gd` 枪口开火函数使用 B1/B2 `VfxLib`、加法光锥、glow shader 核心、火星/烟雾/毒雾粒子和元素分叉/气泡；未改开火时机、伤害、命中、碰撞、数据、角色/武器/敌人/Boss 图或渲染方向。
+- [x] VFX B4 命中/爆裂/死亡：`projectile.gd` 与 `battle.gd` 的命中、免疫、连锁、范围爆裂和死亡爆裂视觉改用 `VfxLib` glow/particles、加法 streak/ring、glow shader 核心与预算门控 `screen_shake`；未改命中判定、`take_damage`、伤害数值、数据、角色/武器/僵尸/Boss 图或渲染方向。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。

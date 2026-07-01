@@ -711,21 +711,34 @@ func _spawn_impact_flash_at(at_position: Vector2) -> void:
 	var parent := get_parent()
 	if parent == null:
 		return
-	if not _can_spawn_transient_fx(MAX_LAYER_HIT_FX):
+	if not _can_spawn_projectile_fx(true):
 		return
-	var flash := Sprite2D.new()
-	_track_transient_fx(flash)
-	flash.texture = load(_impact_vfx_path(element, visual_profile))
-	flash.global_position = at_position
-	flash.rotation = randf_range(-0.45, 0.45)
-	var scale_mult := 0.62 if visual_profile == "plasma" else 0.36 if visual_profile == "scatter" else 0.5 if visual_profile == "rail" else 0.44
-	flash.scale = Vector2(scale_mult, scale_mult) * visual_scale
-	flash.modulate = _projectile_color(element, visual_profile)
-	parent.add_child(flash)
-	var tween := flash.create_tween()
-	tween.parallel().tween_property(flash, "scale", flash.scale * 1.62, 0.18)
-	tween.parallel().tween_property(flash, "modulate:a", 0.0, 0.18)
-	tween.tween_callback(flash.queue_free)
+	var color := _impact_color_for(element, visual_profile)
+	var hot := color.lightened(0.34)
+	hot.a = 0.92
+	var life := _impact_lifetime_for(visual_profile)
+	var glow := VfxLib.spawn_glow(parent, at_position, hot, _impact_glow_size_for(visual_profile) * visual_scale, life)
+	if glow != null:
+		_track_transient_fx(glow)
+	if not _can_spawn_projectile_fx():
+		return
+	var direction := velocity.normalized()
+	if direction.length_squared() <= 0.01:
+		direction = Vector2.UP
+	var sparks := VfxLib.spawn_burst(
+		parent,
+		at_position,
+		color,
+		_impact_particle_amount_for(element, visual_profile),
+		_impact_particle_speed_for(element, visual_profile) * maxf(visual_scale, 0.82),
+		_impact_particle_spread_for(element, visual_profile),
+		life
+	)
+	if sparks != null:
+		_track_transient_fx(sparks)
+		if sparks is Node2D:
+			(sparks as Node2D).rotation = direction.angle() + PI
+	_spawn_impact_ring_at(parent, at_position, color, _impact_ring_radius_for(visual_profile) * visual_scale, life)
 
 func _spawn_pierce_flash() -> void:
 	var parent := get_parent()
@@ -759,6 +772,9 @@ func _spawn_pierce_trace(from: Vector2, to: Vector2) -> void:
 	_track_transient_fx(trace)
 	trace.width = 18.0 * maxf(visual_scale, 0.85)
 	trace.default_color = Color(0.62, 0.98, 1.0, 0.72) if visual_profile == "rail" else Color(1.0, 0.9, 0.36, 0.58)
+	trace.texture = VfxLib.STREAK_TEXTURE
+	trace.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+	trace.material = _new_additive_material()
 	trace.points = PackedVector2Array([start, finish])
 	parent.add_child(trace)
 	var tween := trace.create_tween()
@@ -788,6 +804,167 @@ func _battle_node() -> Node:
 
 func _track_transient_fx(node: Node) -> void:
 	node.set_meta("transient_vfx", true)
+
+func _spawn_impact_ring_at(parent: Node, at_position: Vector2, color: Color, radius: float, duration: float) -> void:
+	if parent == null or not _can_spawn_projectile_fx():
+		return
+	var root := Node2D.new()
+	_track_transient_fx(root)
+	root.name = "ProjectileImpactShockRing"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.global_position = at_position
+	root.z_index = 75
+	root.scale = Vector2.ONE * 0.34
+	parent.add_child(root)
+	var line := Line2D.new()
+	line.width = 5.0 if visual_profile == "rail" else 8.0
+	line.default_color = Color(color.r, color.g, color.b, minf(color.a, 0.62))
+	line.closed = true
+	line.joint_mode = Line2D.LINE_JOINT_ROUND
+	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	line.texture = VfxLib.STREAK_TEXTURE
+	line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+	line.material = _new_additive_material()
+	var segments := 56
+	for i in range(segments):
+		var angle := TAU * float(i) / float(segments)
+		line.add_point(Vector2(cos(angle), sin(angle)) * radius)
+	root.add_child(line)
+	var tween := root.create_tween()
+	tween.set_trans(Tween.TRANS_QUINT)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(root, "scale", Vector2.ONE, duration)
+	tween.parallel().tween_property(line, "width", 1.0, duration)
+	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
+	tween.tween_callback(root.queue_free)
+
+func _impact_color_for(elem: String, profile := "") -> Color:
+	match profile:
+		"rail":
+			return Color(0.7, 1.0, 1.0, 0.94)
+		"scatter":
+			return Color(1.0, 0.78, 0.34, 0.86)
+		"plasma":
+			return Color(1.0, 0.52, 1.0, 0.94)
+		"acid":
+			return Color(0.46, 1.0, 0.18, 0.9)
+	var color := _particle_color_for(elem, profile)
+	color.a = 0.88
+	return color
+
+func _impact_glow_size_for(profile := "") -> float:
+	match profile:
+		"rail":
+			return 118.0
+		"scatter":
+			return 62.0
+		"plasma":
+			return 146.0
+		"heavy":
+			return 132.0
+		"acid":
+			return 104.0
+		_:
+			return 88.0
+
+func _impact_ring_radius_for(profile := "") -> float:
+	match profile:
+		"rail":
+			return 78.0
+		"scatter":
+			return 38.0
+		"plasma":
+			return 94.0
+		"heavy":
+			return 86.0
+		"acid":
+			return 70.0
+		_:
+			return 58.0
+
+func _impact_particle_amount_for(elem: String, profile := "") -> int:
+	match profile:
+		"plasma":
+			return 18
+		"heavy":
+			return 16
+		"scatter":
+			return 8
+		"rail":
+			return 12
+		"acid":
+			return 14
+	match elem:
+		"fire":
+			return 16
+		"ice":
+			return 13
+		"lightning":
+			return 14
+		"poison":
+			return 13
+		_:
+			return 12
+
+func _impact_particle_speed_for(elem: String, profile := "") -> float:
+	match profile:
+		"rail":
+			return 660.0
+		"plasma":
+			return 420.0
+		"scatter":
+			return 390.0
+		"heavy":
+			return 470.0
+		"acid":
+			return 260.0
+	match elem:
+		"fire":
+			return 450.0
+		"ice":
+			return 330.0
+		"lightning":
+			return 590.0
+		"poison":
+			return 240.0
+		_:
+			return 520.0
+
+func _impact_particle_spread_for(elem: String, profile := "") -> float:
+	match profile:
+		"rail":
+			return 28.0
+		"scatter":
+			return 86.0
+		"plasma":
+			return 130.0
+		"acid":
+			return 122.0
+	match elem:
+		"fire":
+			return 96.0
+		"ice":
+			return 74.0
+		"lightning":
+			return 54.0
+		"poison":
+			return 118.0
+		_:
+			return 64.0
+
+func _impact_lifetime_for(profile := "") -> float:
+	match profile:
+		"rail":
+			return 0.13
+		"scatter":
+			return 0.12
+		"plasma":
+			return 0.22
+		"acid":
+			return 0.24
+		_:
+			return 0.16
 
 func _can_spawn_transient_fx(limit: int) -> bool:
 	var parent := get_parent()
