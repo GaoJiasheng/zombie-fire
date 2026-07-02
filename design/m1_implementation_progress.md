@@ -271,24 +271,35 @@ Added `design/assets/final_art_quality_audit_2026_07_01.md` as a project-level s
 - Stored source prompt/spec/contact sheet under `assets/production/source_refs/generated/`.
 - Registered the owner-directed generated replacements in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
 - Unified the result screen action buttons after review: `ui_button_primary.png` and `ui_button_secondary.png` now share the same bevel, border, glow, and lighting model; `meta/result/result.gd` no longer tints the action button textures into mismatched styles.
+- Raised the visible P0 UI batch again after review using a generated top-tier HUD material reference: buttons, panels, icon frames, card frames, slots, progress bars, and target-lock VFX now use one dark gunmetal/glass material family with cyan/orange rim lighting, bevel depth, controlled glow, and non-flat symbol rendering.
+- Recaptured the routed Godot runtime screens after the material pass and regenerated the App Store screenshot set, 18-second/432-frame app preview, and final replacement contact sheet from those fresh screens.
 
 ### Evidence
 
 - `assets/production/source_refs/generated/final_p0_launch_source_2026_07_01.png`
 - `assets/production/source_refs/generated/final_p0_launch_source_prompt_2026_07_01.txt`
+- `assets/production/source_refs/generated/final_p0_hud_reference_source_2026_07_01.png`
+- `assets/production/source_refs/generated/final_p0_hud_reference_prompt_2026_07_01.txt`
 - `assets/production/source_refs/generated/final_p0_ui_store_spec_2026_07_01.json`
 - `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
 - `tmp/final_p0_runtime_screens/` contains fresh routed Godot screenshots used for the store composites.
 - `tmp/final_p0_runtime_screens/result_button_unified.png` captures the reviewed result page after the button-style correction.
+- `assets/production/video/vid_app_preview.mp4` is 1080x1920, 18 seconds, 432 frames.
 
 ### Verification during P0 pass
 
-- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 5133 files`.
+- `python3 -m py_compile tools/generate_final_p0_assets.py` → pass.
+- `python3 tools/validate_asset_pack.py` → `Asset pack validation passed: 5146 files`.
 - `python3 tools/validate_data.py` → `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
 - `python3 tools/check_res_refs.py` → `checked 252 res:// references` / `res:// references OK`.
+- `python3 tools/check_level_pressure.py` → pass; 99 levels reported pressure/spawn estimates.
+- `python3 tools/simulate_card_director.py` → pass; 1000 card-offer simulations per level.
 - `python3 tools/check_app_store_assets.py` → `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` → `Visual screen check OK: 6 routed screenshots`; Godot still prints the known ObjectDB/resource cleanup warnings on some screenshot exits.
+- `git diff --check` → pass.
 - `rg "res://assets/sprites/" meta gameplay ui core project.godot` → no legacy visible runtime refs.
-- Godot routed screenshot capture succeeded for menu, map, loadout, collection, battle, and result. Godot still prints the known ObjectDB/resource cleanup warnings on some screenshot exits.
+- `/opt/homebrew/bin/godot --headless --path . --quit` → pass.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` → `M1 smoke test passed`; Godot still prints the known Canvas/TextServer/RID/ObjectDB/resource cleanup warnings at process exit.
 
 ### Remaining art risk
 
@@ -1275,6 +1286,92 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
 - `git diff --check` -> no whitespace errors.
 
+## Owner Reference Sheet Direct UI/VFX Integration Pass (2026-07-02)
+
+> Owner pointed out that the visible runtime still read as vector/procedural VFX. The correction in this pass is not another placeholder generator pass: the two owner-provided top-tier reference sheets are now copied into the production source refs, cut into actual runtime PNG assets, and made the default combat VFX path.
+
+- **Direct reference sources**: copied the owner UI/HUD/VFX sheet to `assets/production/source_refs/generated/user_ui_vfx_reference_sheet_2026_07_02.png` and the combat VFX sheet to `assets/production/source_refs/generated/user_combat_vfx_reference_sheet_2026_07_02.png`.
+- **Deterministic integration tool**: added `tools/integrate_user_reference_sheets.py`, which writes runtime UI skins/icons/card frames, VFX single sprites, and frame-based `assets/production/sprites/vfx_sequences/**` JSON/PNG sequences from those exact sheets. The script also creates `assets/production/source_refs/generated/owner_reference_sheet_final_ui_vfx_spec_2026_07_02.json` and updates `OUTSOURCER_ASSET_INDEX.json`.
+- **Crop corrections after visual QA**: fixed the card-frame crop boxes so `ui_card_frame_fire.png` and sibling card frames do not include adjacent cards; fixed lower VFX strip y offsets and left trimming so the sequence frames do not include the upper HUD widgets or baked weapon bodies as primary content.
+- **Review contact sheets**: generated `assets/production/contact_sheets/contact_owner_reference_ui_actual_2026_07_02.png` and `assets/production/contact_sheets/contact_owner_reference_vfx_actual_2026_07_02.png` for owner-facing verification.
+- **Runtime switch to authored bitmap sequences**: `gameplay/battle/battle.gd` now has `AUTHORED_BITMAP_VFX_ONLY := true`. Muzzle flash, hit layers, death bursts, split/radial/chain effects, enemy skill casts, breach attacks, boss casts, barrier gain/break, and skill-pick feedback return after the PNG sequence path instead of layering old `VfxLib`, `Line2D`, ring, or particle helpers.
+- **Projectile VFX switch**: `gameplay/projectile/projectile.gd` now has its own `AUTHORED_BITMAP_VFX_ONLY := true`; projectile trails/halo particles are disabled in this mode, and hit/pierce visuals call the battle sequence player (`vfx_hit_*`, `vfx_skill_cast_pierce`) instead of drawing Line2D streaks.
+- **Gameplay untouched**: damage, collisions, targeting, wave scripts, level data, economy, and character/weapon data were not changed.
+
+### Verification (after owner reference sheet direct integration pass)
+
+- `python3 -m py_compile tools/integrate_user_reference_sheets.py` -> pass.
+- `python3 tools/integrate_user_reference_sheets.py` -> integrated owner reference sheets into 632 written output entries after the crop corrections.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5906 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 272 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; some screenshot subprocesses still print the known Godot cleanup warnings.
+
+## Top-Tier UI And Combat VFX Second Pass (2026-07-02)
+
+> Owner asked to raise every visible border, hint, health/progress bar, button, zombie skill / hit effect, and hero active-skill effect to a flashy top-tier App Store-grade rendered standard, explicitly rejecting SVG/vector placeholders. This pass remains visual-only: no `data/*.json` content, damage, collision, level pressure, economy, targeting, or fixed-bottom-turret gameplay scope changed.
+
+- **Rendered reference boards**: generated top-tier raster reference boards through the built-in `image_gen` flow and copied them to `assets/production/source_refs/generated/ui_motion_top_tier_reference_2026_07_02.png` and `assets/production/source_refs/generated/combat_vfx_top_tier_reference_2026_07_02.png`.
+- **Repeatable bitmap generator**: added `tools/generate_top_tier_ui_motion_pass.py`. It writes only PNG raster assets, records source provenance, emits review contact sheets, and updates `OUTSOURCER_ASSET_INDEX.json`.
+- **UI skins upgraded**: reworked button, icon-frame, hint, level-card, panel, skill-slot, HP/wave/XP bar, target reticle, and card-frame surfaces into the shared dark gunmetal / glass / cyan-orange rim-light family. `UiKit` now exposes texture-backed helpers for these components, and battle / map / loadout / collection / result screens use the shared skins where they were still visually flat.
+- **Page-side flat styles retired**: cleaned the local page/battle `StyleBoxFlat` blocks for map resource chips, level cards, result hints, loadout buttons, collection buttons / pills / sections, battle active-skill controls, bottom skill cards, and combo HUD. `StyleBoxFlat` now remains only inside `UiKit` fallback helpers for missing texture assets.
+- **Attack-frame cleanup**: refreshed enemy and Boss attack/special motion frames and stripped the square backplates that were still visible in several Boss special frames.
+- **Combat VFX sequences**: added 6 hit sequences (`physical/fire/ice/lightning/poison/immune`), 27 zombie/enemy skill sequences, 5 character active-skill sequences, and 16 card skill-cast sequences under `assets/production/sprites/vfx_sequences/`.
+- **Runtime hookup**: `gameplay/battle/battle.gd` now plays authored frame sequences for elemental hits, armor/immune hits, zombie base attacks, acid spit impact, Boss cast starts, skill-card pickup flourishes, and all five character active-skill variants. Existing sprite/procedural effects remain as fallback / supporting layers rather than the primary look.
+- **Review sheets**: generated `contact_ui_component_polish_2026_07_02.png`, `contact_attack_motion_polish_2026_07_02.png`, `contact_skill_cast_vfx_2026_07_02.png`, `contact_hit_vfx_polish_2026_07_02.png`, `contact_enemy_skill_vfx_2026_07_02.png`, and `contact_character_active_vfx_2026_07_02.png`.
+
+### Verification (after top-tier UI and combat VFX second pass)
+
+- `python3 -m py_compile tools/generate_top_tier_ui_motion_pass.py` -> pass.
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` and `python3 -m json.tool assets/production/source_refs/generated/top_tier_ui_motion_second_pass_spec_2026_07_02.json` -> valid JSON.
+- Custom sequence scan -> 69 total VFX sequence folders; 6 hit, 27 enemy skill, 5 character active, and 16 card skill-cast sequence groups; 796 PNG frames under `assets/production/sprites/vfx_sequences/`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5899 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 272 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
+- `rg -n "StyleBoxFlat" ui gameplay meta --glob "*.gd"` -> only `ui/ui_kit.gd` fallback helpers remain.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+
+## Non-Shooting Animation Raster Polish Pass (2026-07-01)
+
+> Owner asked to continue the top-tier raster/rendered art cleanup and rejected vector/SVG placeholder direction. This pass targets animation frames outside the already regenerated `character_weapon_combos` firing set, so the improved firing timing and fused weapon/body motion are not overwritten.
+
+- **902 non-shooting animation PNGs polished**: added `tools/polish_non_shooting_animations.py` and processed `sprites/animations/characters`, `characters_weaponless`, `zombies`, `bosses`, `pets`, and `weapons`.
+- **Firing combos excluded**: `assets/production/sprites/animations/character_weapon_combos/**` was intentionally skipped so the P0 firing-motion work remains intact.
+- **Frame contracts preserved**: filenames, directories, frame counts, and canvas sizes are unchanged. No gameplay data, targeting, fire timing, damage, level mapping, or runtime logic changed.
+- **Alpha and clipping cleanup**: trimmed low-alpha full-canvas haze, enforced transparent borders, guarded clipped frames by fitting them back into their original canvas, and boosted existing rendered material contrast.
+- **Hurt-frame rectangle fix**: after the first pass, contact-sheet review exposed semi-transparent red rectangular backplates on hurt frames. A targeted repair removed 102 large mid-alpha red backplates while preserving bodies, hit sparks, and small impact shadows. The repair list is recorded in the source spec.
+- **Provenance**: review sheet is `assets/production/contact_sheets/contact_non_shooting_animation_polish_2026_07_01.png`; source spec is `assets/production/source_refs/generated/non_shooting_animation_polish_spec_2026_07_01.json`. `OUTSOURCER_ASSET_INDEX.json` records the owner-directed non-shooting animation polish pass.
+
+### Verification (after non-shooting animation raster polish pass)
+
+- `python3 -m py_compile tools/polish_non_shooting_animations.py` -> pass.
+- `python3 tools/polish_non_shooting_animations.py` -> polished 902 non-shooting animation PNGs.
+- Custom non-shooting animation scan -> 902 files checked; all non-empty, original sizes preserved, no edge-clipped frames, and no hurt-frame rectangular haze candidates remain.
+- `python3 -m json.tool assets/production/source_refs/generated/non_shooting_animation_polish_spec_2026_07_01.json` and `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5175 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 260 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot still prints the known small ObjectDB/resource cleanup warnings on some screenshot subprocess exits.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+- `python3 tools/check_release_candidate.py` -> still fails at pre-existing/non-art `tools/check_balance_profile.py` card-budget and collection-unlock distribution checks; this animation polish pass did not tune XP, card budgets, star costs, or collection pacing.
+
 ## App Icon Redesign (2026-07-01)
 
 > Owner requested a redesigned app logo with top-tier model rendering. This pass changed only app branding image assets and asset provenance records; it did not change gameplay, data tables, levels, stats, render settings, or the fixed-bottom turret game form.
@@ -1295,3 +1392,159 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
 - `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/TextServer/ObjectDB/RID cleanup warnings at exit.
+
+## Final Art P0 Shooting Motion and Store Screenshot Repair (2026-07-01)
+
+> Owner called out the character firing motion as the most uncomfortable remaining high-end art/feel issue. This pass changed only visual composition, firing-pose synchronization, screenshot capture safety, generated store presentation, and validation guardrails; gameplay scope, level data, damage math, and `data/*.json` content lists were not changed.
+
+- **Fused firing frames regenerated**: `tools/generate_character_weapon_combos.py` now outputs the 4 characters x 8 weapons x 19-frame action set with stronger attack timing: F1 shot flash, F2 heavy recoil, F3 settle, F4 recovery. The generator also clamps attack-frame alpha into a safe canvas margin so stronger recoil/flash does not clip at runtime.
+- **Runtime firing sync**: `gameplay/battle/battle.gd` now locks the fired aim direction, combo aim key, and muzzle reference during the attack window. Projectiles, muzzle VFX, and character attack frames stay tied to the same shot even if targeting changes immediately afterward.
+- **Muzzle constants synced from manifest**: the battle combo muzzle dictionaries were refreshed from `assets/production/source_refs/generated/character_weapon_combo_generation_manifest.json` after the safety-margin pass.
+- **Action evidence sheets**: added `assets/production/source_refs/generated/character_weapon_combo_shooting_focus_sheet_2026_07_01.png` and `assets/production/source_refs/generated/character_weapon_combo_shooting_polish_contact_sheet_2026_07_01.png` for visual QA.
+- **Store screenshot blank-content fix**: `main.gd::_apply_safe_area` now ignores desktop screenshot-process safe rects that are outside the current window. This prevents map/loadout `Root` content from being pushed offscreen when `tools/_shot.gd` captures runtime screens.
+- **Screenshot guardrail**: `tools/check_visual_screens.py` now requires higher luminance variance for map/loadout/collection screenshots, so a background-only capture no longer passes as valid.
+- **Smoke guardrails**: `tools/m1_smoke_test.gd` now checks firing-window aim/muzzle/attack-frame locking across all fused character/weapon combinations and isolates the multi-shot target test from existing live enemies.
+- **Store outputs refreshed**: regenerated `tmp/final_p0_runtime_screens/`, `assets/appstore/screenshots/**`, `assets/production/video/vid_app_preview.mp4`, and `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png` after the safe-area fix.
+
+### Verification (after shooting motion / store screenshot repair)
+
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/check_visual_screens.py tools/generate_final_p0_assets.py` -> pass.
+- `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` and `python3 -m json.tool assets/production/source_refs/generated/character_weapon_combo_generation_manifest.json` -> valid JSON.
+- `python3 tools/generate_character_weapon_combos.py` -> generated 608 character/weapon combo frames plus matrix/focus/polish sheets.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5148 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 252 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+
+## Runtime Top-Tier Art First Batch (2026-07-01)
+
+> Owner asked to continue the final-art upgrade in priority order, with top-tier App Store-grade raster/3D-rendered quality and no SVG/vector placeholder direction. This pass targets the highest-visibility remaining prototype feel: runtime UI skin surfaces, projectile sprites, VFX sequence frames, damage/bonus badges, slow-field, and barrier visuals. Gameplay data, level scripts, damage, collision, targeting, economy, and scope were not changed.
+
+- **Image generation reference**: produced a high-end raster HUD/projectile/VFX material board through the built-in `image_gen` tool and copied it to `assets/production/source_refs/generated/runtime_top_tier_imagegen_reference_2026_07_01.png`.
+- **New deterministic generator**: added `tools/generate_top_tier_runtime_art.py`, which writes runtime UI skin PNGs, regenerates all 11 projectile PNGs, regenerates existing VFX single sprites and sequence frames, adds `vfx_slow_field_band.png` / `vfx_barrier_glass.png`, emits a contact sheet, saves a source spec, and updates `OUTSOURCER_ASSET_INDEX.json`.
+- **Runtime UI skin hookup**: `ui/ui_kit.gd` now returns texture-backed `StyleBoxTexture` skins for common panel / plate / pill / resource-chip surfaces when the new runtime skin PNGs exist, with the old `StyleBoxFlat` path preserved as fallback.
+- **Combat feedback hookup**: damage numbers remain `Label` nodes for budget and smoke-test compatibility, but now get an authored bitmap badge style. The combo HUD frame uses `ui_combo_panel.png`. Slow field uses a texture-bearing `TextureRect`, and `vfx_slow_field.gdshader` now samples the texture detail. Barrier visuals add a rendered glass sprite while keeping the existing charge-driven edge lines.
+- **Asset provenance**: first-batch review output is `assets/production/source_refs/generated/runtime_top_tier_polish_contact_sheet_2026_07_01.png`; the full spec is `assets/production/source_refs/generated/runtime_top_tier_polish_spec_2026_07_01.json`.
+
+### Verification (after runtime top-tier art first batch)
+
+- `python3 -m py_compile tools/generate_top_tier_runtime_art.py` -> pass.
+- `python3 tools/generate_top_tier_runtime_art.py --reference <image_gen reference>` -> generated 230 PNG files.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5159 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 260 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot still prints the known small ObjectDB/resource cleanup warnings on some screenshot subprocess exits.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `python3 tools/check_release_candidate.py` -> fails at pre-existing/non-art `tools/check_balance_profile.py` card-budget and collection-unlock distribution checks; this pass did not tune balance or collection star costs.
+
+## Top-Tier Campaign Background Render Pass (2026-07-01)
+
+> Owner asked to continue final-art upgrades with top-tier App Store-grade raster rendering and explicitly rejected SVG/vector placeholder direction. This pass replaces the 10 campaign environment background pixels only; env IDs, `data/environments.json`, level ranges, gameplay logic, combat math, and fixed-bottom-turret form are unchanged.
+
+- **10 independent rendered environment sources**: generated one built-in `image_gen` source image per main campaign environment: lava foundry, glacier pass, abandoned factory, toxic biolab, storm substation, flooded subway, desert refinery, void cathedral, orbital ruins, and apex core.
+- **Final project integration**: added `tools/integrate_top_tier_backgrounds.py`, which copies the selected source renders into `assets/production/source_refs/generated/top_tier_background_sources_2026_07_01/`, crops/grades them into existing runtime `assets/production/sprites/backgrounds/bg_*.png` paths, and creates matching `assets/production/environment/*_portrait.png` plus development-only `*_battle_layout_guide.png`.
+- **Visual standard**: all selected sources are 3D-rendered / semi-realistic battlefields with distinct landmark identity, readable central combat lanes, and no UI/text/characters. The unused first desert refinery alternate is recorded in the spec but not integrated.
+- **Provenance**: review sheet is `assets/production/contact_sheets/contact_top_tier_backgrounds_2026_07_01.png`; source spec is `assets/production/source_refs/generated/top_tier_background_render_spec_2026_07_01.json`. `OUTSOURCER_ASSET_INDEX.json` now records the owner-directed top-tier background override.
+
+### Verification (after top-tier campaign background render pass)
+
+- `python3 -m py_compile tools/integrate_top_tier_backgrounds.py` -> pass.
+- `python3 tools/integrate_top_tier_backgrounds.py` -> integrated 10 top-tier rendered campaign backgrounds.
+- `python3 -m json.tool assets/production/source_refs/generated/top_tier_background_render_spec_2026_07_01.json` and `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5171 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 260 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot still prints the known small ObjectDB/resource cleanup warnings on some screenshot subprocess exits.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+- `python3 tools/check_release_candidate.py` -> still fails at pre-existing/non-art `tools/check_balance_profile.py` card-budget and collection-unlock distribution checks; this background render pass did not tune XP, cards, star costs, or collection pacing.
+
+## Skeletal Parts Raster Polish Pass (2026-07-01)
+
+> Owner asked to continue raising all remaining prototype-feeling assets to the top-tier rendered standard and explicitly rejected SVG/vector placeholder direction. These skeletal/body part files are not currently loaded by runtime scenes, but they are part of the production asset pack and were still marked as placeholder-derived cutouts.
+
+- **414 part PNGs polished**: added `tools/polish_skeletal_parts.py` and processed all `assets/production/sprites/parts/**` PNGs across characters, zombies, bosses, pets, and weapons.
+- **Contracts preserved**: all filenames, directories, IDs, and `256x256` transparent PNG canvases are unchanged. No gameplay data, runtime logic, stats, level mapping, or scene references changed.
+- **Cutout quality cleanup**: each visible part was re-centered with safe transparent margins, alpha edges were softened, and existing rendered material contrast/sharpness was boosted. This specifically reduces the old "cropped full-body fragment touching the canvas edge" feel.
+- **Empty part fixed**: `assets/production/sprites/parts/zombies/zombie_crawler/zombie_crawler_hand_r.png` had empty alpha after the quality scan; it was repaired by mirroring the polished left-hand part and recorded in the source spec.
+- **Placeholder notes retired**: every `*_parts.json` now records the 2026-07-01 raster cutout polish provenance instead of the old placeholder note.
+- **Provenance**: review sheet is `assets/production/contact_sheets/contact_skeletal_parts_polish_2026_07_01.png`; source spec is `assets/production/source_refs/generated/skeletal_parts_polish_spec_2026_07_01.json`. `OUTSOURCER_ASSET_INDEX.json` records the owner-directed `sprites/parts` polish pass.
+
+### Verification (after skeletal parts raster polish pass)
+
+- `python3 -m py_compile tools/polish_skeletal_parts.py` -> pass.
+- `python3 tools/polish_skeletal_parts.py` -> polished 414 skeletal/body part PNGs.
+- Custom parts quality scan -> 414 files checked; all non-empty, `256x256`, with at least 4px transparent margin.
+- `python3 -m json.tool assets/production/source_refs/generated/skeletal_parts_polish_spec_2026_07_01.json` and `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5173 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 260 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+
+## Runtime Geometry Residual Follow-Up (2026-07-02)
+
+> Owner asked whether the whole game is now free of cheap line/geometric placeholder graphics. The audit found that the combat VFX primary paths were bitmap-sequence first, but several visible combat helpers still spawned procedural lines/particles in authored mode. This follow-up removes those active combat leftovers without claiming the non-battle UI primitive layer is fully retired.
+
+- **Combat authored-only cleanup**: in `AUTHORED_BITMAP_VFX_ONLY` mode, salvo fan, homing assist, charge-shot power ring, and critical shot now return after playing authored PNG sequences instead of layering `VfxLib`, rings, lines, or particle helpers.
+- **Persistent combat field cleanup**: slow-field display keeps the rendered `TextureRect` / shader band but no longer creates the extra `Line2D` edge layer or `GPUParticles2D` motes in authored mode.
+- **Barrier cleanup**: the persistent barrier now uses the rendered glass sprite in authored mode and skips the previous `Polygon2D` fill plus `Line2D` frame/strut overlay. Barrier gain/break feedback remains PNG-sequence based.
+- **Known remaining scope**: source still contains fallback procedural helper definitions and non-combat/native UI primitives (`ColorRect` overlays/dividers, Label text, fallback `StyleBoxFlat`). Those are not now the primary combat VFX path, but they prevent a truthful "global zero geometry in source" claim.
+
+### Verification (after runtime geometry residual follow-up)
+
+- `python3 tools/check_res_refs.py` -> `checked 272 res:// references`; `res:// references OK`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 5906 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
+- `rg -n "Line2D|Polygon2D|GPUParticles2D|ColorRect|StyleBoxFlat|draw_" gameplay meta ui -g "*.gd" -g "*.tscn"` -> still finds fallback VFX helpers plus non-combat/native UI primitives, so this is not a source-global zero-geometry state.
+- `git diff --check` -> no whitespace errors.
+
+## Visible UI Line Polish Pass (2026-07-02)
+
+> Owner identified the remaining visible UI linework as the real quality problem. This pass targets player-facing geometric/primitive UI surfaces across map, loadout, collection, result, and battle HUD while preserving gameplay data, level routing, economy, selection behavior, and the fixed-bottom-turret combat form.
+
+- **Raster UI skins**: added `tools/generate_map_ui_line_polish.py` and generated texture-backed PNG skins for map level cards, locked cards, nav cards, resource chips, pills, index plates, deploy buttons, modal buttons, accent strips, stars, and gold/star currency icons. Outputs are transparent PNGs under `assets/production/sprites/ui/`, with spec `assets/production/source_refs/generated/map_ui_line_polish_spec_2026_07_02.json` and contact sheet `assets/production/contact_sheets/contact_map_ui_line_polish_2026_07_02.png`.
+- **Runtime hookup**: `ui/ui_kit.gd` now exposes `StyleBoxTexture` helpers and map-specific texture styles. `meta/map/map.gd`, `meta/loadout/loadout.gd`, `meta/collection/collection.gd`, `meta/result/result.gd`, `gameplay/battle/battle.gd`, and `gameplay/enemy/enemy.gd` use those skins for visible cards, chips, buttons, prompts, HP, XP, and enemy HP bars.
+- **Primitive cleanup**: removed or demoted visible divider/accent `ColorRect` usage in the audited screens, replaced the most obvious line-heavy strips with raster `TextureRect`/`StyleBoxTexture`, and left functional overlays/fallbacks intact where they are not the player-facing skin.
+- **Icon repair**: `ui_star_filled.png`, `ui_star_empty.png`, `icon_currency_star.png`, and `icon_currency_gold.png` were found to contain bad atlas fragments after the first screenshot review; the generator now rewrites them as standalone transparent PNG icons.
+- **Screenshot safety**: `main._apply_safe_area()` no longer applies mobile safe-area rects to desktop/headless screenshot runs, which prevents the UI root from being pushed off-screen on macOS captures.
+- **Review screenshots**: refreshed map, loadout, collection, battle, and result screenshots under `tmp/ui_line_polish_2026_07_02/screens/` after Godot reimport.
+
+### Verification (after visible UI line polish)
+
+- `python3 -m py_compile tools/generate_map_ui_line_polish.py` -> pass.
+- `python3 -m json.tool assets/production/source_refs/generated/map_ui_line_polish_spec_2026_07_02.json` and `python3 -m json.tool assets/production/OUTSOURCER_ASSET_INDEX.json` -> valid JSON.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 6631 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 272 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`; small `difficulty_coef` guardrail fixes were applied to `level_035`, `level_060`, `level_065`, `level_090`, and `level_095` so boss-level pressure is monotonic again.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.

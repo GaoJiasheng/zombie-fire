@@ -1,10 +1,15 @@
 {
   "date": "2026-07-01",
-  "scope": "P0 final-art replacement for launch image, App Store screenshots, app preview, flat UI kit, and legacy visible asset integration.",
-  "style": "2.5D cartoon-realistic, premium 3D-rendered dark metal HUD, warning orange edges, cyan tech accents, ruined-city/cyberpunk presentation.",
+  "scope": "P0 top-tier polish pass for launch image, App Store screenshots, app preview, flat UI kit, visible target lock, and legacy visible asset integration.",
+  "style": "2.5D cartoon-realistic, premium 3D-rendered dark gunmetal HUD, beveled glass, orange warning edge lights, cyan tech rim lights, ruined-city/cyberpunk presentation.",
+  "reference_sources": [
+    "source_refs/generated/final_p0_launch_source_2026_07_01.png",
+    "source_refs/generated/final_p0_hud_reference_source_2026_07_01.png"
+  ],
   "generated_with": [
     "built-in image_gen for launch key art source",
-    "local Pillow rendering for UI/store composites",
+    "built-in image_gen for top-tier HUD material reference source",
+    "local Pillow rendering for exact-size UI/store composites",
     "ffmpeg for app preview mp4"
   ],
   "constraints": [

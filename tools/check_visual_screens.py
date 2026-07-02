@@ -13,6 +13,11 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SIZE = (1080, 1920)
+MIN_LUMA_STDEV = {
+    "map": 20.0,
+    "loadout": 20.0,
+    "collection_characters": 18.0,
+}
 
 SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {}, "menu"),
@@ -64,8 +69,9 @@ def analyze(path: Path, label: str) -> list[str]:
     stdev = math.sqrt(variance)
     exact_black = sum(1 for r, g, b in pixels if r < 3 and g < 3 and b < 3) / count
 
-    if mean < 6.0 or stdev < 5.0:
-        errors.append(f"{label} screenshot looks blank; mean={mean:.1f} stdev={stdev:.1f}")
+    min_stdev = max(5.0, MIN_LUMA_STDEV.get(label, 5.0))
+    if mean < 6.0 or stdev < min_stdev:
+        errors.append(f"{label} screenshot looks blank or missing UI layers; mean={mean:.1f} stdev={stdev:.1f} min_stdev={min_stdev:.1f}")
     if exact_black > 0.35:
         errors.append(f"{label} screenshot has too much exact black area; black={exact_black:.2%}")
     return errors

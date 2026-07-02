@@ -213,5 +213,16 @@
 - [x] 全项目最终美术水准筛查：新增 `design/assets/final_art_quality_audit_2026_07_01.md`，按“3D 渲染 / 顶级美术 / App Store / 最终图”口径标出 P0/P1/P2 资产问题；本轮只审计，不批量替换素材。
 - [x] 最终美术 P0 替换（资产与集成）：启动图、App Store 截图草案、App Preview 草案、扁平 UI kit、运行时锁定圈和 legacy runtime refs 已完成专项替换；生成源图、spec 和 contact sheet 已放入 `assets/production/source_refs/generated/` 并登记到 `OUTSOURCER_ASSET_INDEX.json`。
 - [x] 结算页按钮风格统一：`ui_button_primary.png` / `ui_button_secondary.png` 改为同一 bevel / 描边 / 光源模型，`meta/result/result.gd` 不再给动作按钮额外染色；已截图到 `tmp/final_p0_runtime_screens/result_button_unified.png`。
-- [ ] 最终美术 P0 代码级余量：当前运行界面已吃到新 UI 资产，但仍有部分 `StyleBoxFlat` / `ColorRect` / 原生 Label / procedural VFX 属于后续更深一轮 UI skin 与动效替换，不影响本轮 P0 资产替换结论。
+- [x] 最终美术 P0 顶级材质拔高：基于 `image_gen` 顶级 HUD 材质参考重新打磨按钮、面板、图标底座、卡槽、进度条和准星，统一为暗金属 / 玻璃 / 青橙边缘光的 3D 渲染体系；已重跑运行截图、App Store 截图、18 秒 App Preview 和最终 contact sheet。
+- [x] 角色开枪动作 P0 手感拔高：全量重生成 4 角色 x 8 武器的融合开火帧，改为 F1 枪口爆发、F2 强后坐、F3 回稳、F4 归位；战斗运行时在开火窗口锁定本次 aim / 枪口 / 攻击帧，避免目标切换导致枪口、子弹和角色动作不同步。
+- [x] P0 商店截图空背景修复：`main._apply_safe_area()` 忽略桌面/截图进程返回的全局 display safe rect，避免 map/loadout 内容 Root 被推到屏幕外；已重新捕获 `tmp/final_p0_runtime_screens/`，重生成 App Store 截图和 App Preview，并加严 `tools/check_visual_screens.py` 的 UI 层截图阈值。
+- [x] 最终美术运行时第一批拔高：用 `image_gen` 顶级参考板 + 本地生成脚本重做 runtime UI skins、11 个投射物、VFX 单帧/序列、慢速场带和护盾玻璃贴图；`UiKit` 通用 panel/pill/resource chip、伤害数字、连击框、慢速场 shader、护盾显示已接入贴图化皮肤，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] 最终美术背景第二批拔高：用 built-in `image_gen` 独立生成 10 张主线环境顶级 3D 渲染源图，拒绝 SVG/矢量/扁平占位；已按现有 `data/environments.json` 路径覆盖 `bg_*`、portrait、layout guide，输出 source spec 与 contact sheet，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] 最终美术骨骼分件清理：414 张 `assets/production/sprites/parts/**` 分件保持 256×256 透明 PNG 合同，完成重新居中、安全边、alpha 边缘和材质对比清理；修复 `zombie_crawler_hand_r.png` 空 alpha，输出 source spec/contact sheet，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] 最终美术非开枪动画清理：902 张非融合开枪动画帧完成 alpha 边界、裁切保护和材质对比清理，明确跳过 `character_weapon_combos`；额外清理 102 张 hurt 帧的半透明红色矩形底，输出 source spec/contact sheet，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] 最终美术 UI / 战斗动效二轮：基于 built-in `image_gen` 顶级参考图和本地位图生成器，重做按钮、边框、提示、血条/经验条、技能卡/图标底座等 runtime skins；新增 6 套受击、27 套僵尸技能、5 套主角主动技能、16 套卡牌技能施法 PNG 帧序列，并在 `battle.gd` 接入受击、基地攻击、酸液、Boss 施法、选卡和主动技能播放路径；拒绝 SVG/矢量，输出 source refs/spec/contact sheets 并登记到 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] Owner 参考表 UI/VFX 直切与运行时接入：将 owner 提供的两张顶级 UI/VFX 参考表复制到 `assets/production/source_refs/generated/`，直接裁切成 runtime UI PNG、VFX 单帧和 `vfx_sequences/**` 序列帧；修正卡框相邻素材混入与枪口行上方 UI 混入问题；`battle.gd` / `projectile.gd` 默认开启 authored bitmap VFX only，枪口、命中、死亡、连锁、范围、敌方技能、Boss 施法、护盾获得/破裂、选卡与 projectile 穿透主路径均优先播放 PNG 序列，不再叠加旧 `VfxLib` / `Line2D` 程序化特效。
+- [x] 最终美术 P0 战斗代码级余量（三轮）：战斗 VFX 主路径已切到 owner 参考表 PNG 序列；齐射、追踪、蓄力、暴击、减速场和护盾常驻显示在 `AUTHORED_BITMAP_VFX_ONLY` 下不再生成额外 `Line2D` / `Polygon2D` / 粒子几何叠层。
+- [x] 最终美术 P0 可见 UI 线条贴图化：地图、出战、图鉴、结算和战斗 HUD 中玩家可见的剩余直线框、按钮框、关卡卡片、资源 chip、星级/金币图标、血条/经验条主路径改为透明 PNG / `StyleBoxTexture` 皮肤；桌面截图 safe-area 推屏问题同步修复，运行截图输出到 `tmp/ui_line_polish_2026_07_02/screens/`。
+- [ ] 源码全局零几何清理：功能性 `ColorRect` overlay、Label 文本、禁用/闪白遮罩和 fallback `StyleBoxFlat` 仍保留；这些不是玩家主视觉线框，但如果要求源码层面“零 UI primitive”，需要单独做更高风险的控件语义替换。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。

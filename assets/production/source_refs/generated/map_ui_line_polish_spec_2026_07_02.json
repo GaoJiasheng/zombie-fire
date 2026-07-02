@@ -1,0 +1,27 @@
+{
+  "stamp": "2026_07_02",
+  "intent": "Reduce ugly line-heavy map UI by replacing visible geometric line styling with authored raster HUD skins.",
+  "outputs": [
+    "assets/production/sprites/ui/ui_map_level_card_skin.png",
+    "assets/production/sprites/ui/ui_map_level_card_locked_skin.png",
+    "assets/production/sprites/ui/ui_map_nav_card_skin.png",
+    "assets/production/sprites/ui/ui_map_resource_chip_skin.png",
+    "assets/production/sprites/ui/ui_map_pill_skin.png",
+    "assets/production/sprites/ui/ui_map_index_plate_skin.png",
+    "assets/production/sprites/ui/ui_map_deploy_pill_skin.png",
+    "assets/production/sprites/ui/ui_map_accent_strip.png",
+    "assets/production/sprites/ui/ui_button_primary.png",
+    "assets/production/sprites/ui/ui_button_secondary.png",
+    "assets/production/sprites/ui/ui_modal_button_primary.png",
+    "assets/production/sprites/ui/ui_modal_button_secondary.png",
+    "assets/production/sprites/ui/icon_currency_gold.png",
+    "assets/production/sprites/ui/icon_currency_star.png",
+    "assets/production/sprites/ui/ui_star_filled.png",
+    "assets/production/sprites/ui/ui_star_empty.png"
+  ],
+  "contact_sheet": "assets/production/contact_sheets/contact_map_ui_line_polish_2026_07_02.png",
+  "notes": [
+    "No gameplay data, level logic, unlock logic, or economy values changed.",
+    "Generated outputs are transparent PNG skins, not SVG/vector assets."
+  ]
+}

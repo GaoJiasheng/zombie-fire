@@ -1,6 +1,6 @@
 {
   "id": "vfx_hit_immune",
-  "fps": 16,
+  "fps": 20,
   "frames": [
     "sprites/vfx_sequences/vfx_hit_immune/vfx_hit_immune_01.png",
     "sprites/vfx_sequences/vfx_hit_immune/vfx_hit_immune_02.png",
@@ -10,5 +10,7 @@
     "sprites/vfx_sequences/vfx_hit_immune/vfx_hit_immune_06.png",
     "sprites/vfx_sequences/vfx_hit_immune/vfx_hit_immune_07.png",
     "sprites/vfx_sequences/vfx_hit_immune/vfx_hit_immune_08.png"
-  ]
+  ],
+  "source": "assets/production/source_refs/generated/user_combat_vfx_reference_sheet_2026_07_02.png",
+  "integration": "cropped from owner-provided top-tier reference sheet; PNG bitmap sequence, no SVG/vector"
 }

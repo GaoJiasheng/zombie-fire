@@ -14,7 +14,10 @@ void fragment() {
 	float ripple_a = sin((uv.x * 18.0 + uv.y * 6.0 - TIME * drift_speed) * 6.28318) * 0.5 + 0.5;
 	float ripple_b = sin((uv.x * -10.0 + uv.y * 14.0 + TIME * drift_speed * 0.7) * 6.28318) * 0.5 + 0.5;
 	float scan = smoothstep(0.78, 1.0, max(ripple_a, ripple_b));
-	float alpha = (0.055 + scan * scan_strength + edge * 0.3) * field_mask * field_color.a * intensity;
+	vec4 tex = texture(TEXTURE, uv);
+	float detail = clamp(tex.a * 1.65, 0.0, 1.0);
+	float alpha = (0.055 + scan * scan_strength + edge * 0.3 + detail * 0.24) * field_mask * field_color.a * intensity;
 	vec3 color = field_color.rgb * (0.9 + scan * 1.45) + edge_color.rgb * edge * 0.7;
+	color = mix(color, max(color, tex.rgb * 1.2), detail * 0.72);
 	COLOR = vec4(color, alpha);
 }

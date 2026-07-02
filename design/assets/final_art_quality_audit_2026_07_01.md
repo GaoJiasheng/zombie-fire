@@ -63,16 +63,24 @@ After owner review of the "must redo only" thumbnail sheet, a P0 replacement pas
 - `assets/production/video/vid_app_preview.mp4` was replaced with an 18-second 1080x1920 rendered preview draft.
 - Flat UI kit assets under `assets/production/sprites/ui/` were replaced with a darker metal HUD family: buttons, panel, bars, icons, card frames, card utility icons, tags, stars, skill slots, and target strategy badges.
 - After review, the primary/secondary action buttons were corrected again so both use one shared bevel, border, glow, and lighting model; `meta/result/result.gd` no longer tints result action buttons into separate visual styles.
+- The reviewed P0 batch was then raised again with a generated top-tier HUD material reference: visible UI image assets now share a single dark gunmetal/glass 3D render language with cyan/orange rim lighting, bevel depth, controlled glow, and embossed icon symbols instead of flat vector shapes.
 - `assets/production/sprites/vfx/vfx_target_lock.png` was replaced for the visible lock-ring path.
 - Runtime `res://assets/sprites/...` visible refs were migrated to `res://assets/production/sprites/...`; `rg "res://assets/sprites/" meta gameplay ui core project.godot` now returns no matches.
+- Desktop/runtime screenshot capture for map/loadout was fixed after finding `DisplayServer.get_display_safe_area()` could return global display coordinates in the screenshot process and push non-battle UI roots offscreen; screenshots and App Store composites were regenerated with visible UI content.
 - Source prompt/spec/contact sheet were stored under `assets/production/source_refs/generated/`, and the replacements were registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
 
 Current evidence:
 
 - `assets/production/source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png`
+- `assets/production/source_refs/generated/final_p0_hud_reference_source_2026_07_01.png`
+- `assets/production/source_refs/generated/final_p0_hud_reference_prompt_2026_07_01.txt`
+- `assets/production/source_refs/generated/character_weapon_combo_shooting_focus_sheet_2026_07_01.png`
+- `assets/production/source_refs/generated/character_weapon_combo_shooting_polish_contact_sheet_2026_07_01.png`
 - `tmp/final_p0_runtime_screens/`
 - `tmp/final_p0_runtime_screens/result_button_unified.png`
 - `tools/generate_final_p0_assets.py`
+- `tools/generate_character_weapon_combos.py`
+- `tools/check_visual_screens.py`
 
 Remaining P0-adjacent risk: the runtime screens still contain code-generated surfaces and primitives (`StyleBoxFlat`, `ColorRect`, raw labels, some procedural VFX). The new image assets improve the visible build, but a deeper UI-code skin pass is still needed before calling every runtime panel and effect fully final.
 
@@ -200,6 +208,13 @@ Upgrade target:
 - Regenerate weak combinations instead of accepting a matrix-wide batch.
 - Add stronger skill-cast, recoil, hit-reaction, victory/defeat, and idle personality states.
 
+Update 2026-07-01: the owner-called-out firing discomfort has been addressed for the current fused combo set. `tools/generate_character_weapon_combos.py` now regenerates all 608 combo frames with a stronger F1 shot flash, F2 recoil, F3 settle, and F4 recovery rhythm; `gameplay/battle/battle.gd` locks the firing aim/muzzle/attack-frame set during the attack window so projectiles and character pose stay synchronized. Evidence sheets:
+
+- `assets/production/source_refs/generated/character_weapon_combo_shooting_focus_sheet_2026_07_01.png`
+- `assets/production/source_refs/generated/character_weapon_combo_shooting_polish_contact_sheet_2026_07_01.png`
+
+Remaining final-art scope for this group is no longer the basic shooting/recoil read, but additional personality states: skill-cast, hit-reaction, victory/defeat, and per-weapon live-play feel checks on device.
+
 ### Videos
 
 All 15 videos are currently 2-second placeholder-style clips:
@@ -265,3 +280,35 @@ The original P0 practical chunk has been completed for asset files and runtime r
 1. Replace remaining `StyleBoxFlat` / `ColorRect` panel construction with texture-backed skins or shared UI components where it affects visible polish.
 2. Replace remaining raw damage/status label styling with authored number/badge treatment.
 3. Continue P1 work on projectiles, VFX sequences, backgrounds, skeletal parts, and animation QA.
+
+Update 2026-07-01 runtime first batch: UI/projectile/VFX items above now have a first texture-backed upgrade pass. `tools/generate_top_tier_runtime_art.py` uses a built-in `image_gen` high-end material reference plus local raster generation to write runtime skin PNGs, all 11 projectile sprites, VFX singles/sequences, slow-field and barrier bitmaps, a spec, and a contact sheet:
+
+- `assets/production/source_refs/generated/runtime_top_tier_imagegen_reference_2026_07_01.png`
+- `assets/production/source_refs/generated/runtime_top_tier_polish_spec_2026_07_01.json`
+- `assets/production/source_refs/generated/runtime_top_tier_polish_contact_sheet_2026_07_01.png`
+
+Runtime hookups now cover common `UiKit` panel/pill/resource-chip styleboxes, damage number badges, combo frame, slow-field texture sampling, and rendered barrier glass. Remaining final-art work is no longer "all UI/projectiles/VFX are untouched"; it is the second-layer cleanup of local page-specific `StyleBoxFlat` / `ColorRect` / Line2D procedural pieces plus the larger P1 groups: backgrounds, skeletal parts, non-shooting animation states, videos, and audio.
+
+Update 2026-07-01 background render pass: the "Backgrounds / Environment Plates" P1 item has a top-tier replacement pass integrated for the 10 main campaign environments. Built-in `image_gen` was used to generate distinct 3D-rendered vertical battlefield source images, then `tools/integrate_top_tier_backgrounds.py` cropped/graded them into the existing runtime background, portrait, and layout-guide paths without changing `data/environments.json` references.
+
+- `assets/production/contact_sheets/contact_top_tier_backgrounds_2026_07_01.png`
+- `assets/production/source_refs/generated/top_tier_background_render_spec_2026_07_01.json`
+- `assets/production/source_refs/generated/top_tier_background_sources_2026_07_01/`
+
+Remaining final-art concern for backgrounds is now owner visual review and possible screenshot/trailer refresh alignment, not SVG/vector placeholder quality.
+
+Update 2026-07-01 skeletal parts polish pass: the `assets/production/sprites/parts/**` placeholder-derived cutout concern has a raster cleanup pass integrated. All 414 PNGs remain 256x256 transparent production parts, but visible pixels were re-centered with safe margins, alpha edges were softened, rendered material contrast was boosted, and the empty `zombie_crawler_hand_r.png` part was repaired from the polished left-hand mirror.
+
+- `assets/production/contact_sheets/contact_skeletal_parts_polish_2026_07_01.png`
+- `assets/production/source_refs/generated/skeletal_parts_polish_spec_2026_07_01.json`
+- `tools/polish_skeletal_parts.py`
+
+Remaining final-art concern for parts is now true hand-authored rigging/retopology if the project later ships a bone-driven animation system. For the current raster asset pack and runtime pipeline, these are no longer raw placeholder cutouts.
+
+Update 2026-07-01 non-shooting animation polish pass: the animation QA item has a raster cleanup pass integrated for the non-fused animation sets. `tools/polish_non_shooting_animations.py` processed 902 PNGs under `sprites/animations/characters`, `characters_weaponless`, `zombies`, `bosses`, `pets`, and `weapons`, while explicitly excluding `character_weapon_combos` so the firing-motion pass was preserved.
+
+- `assets/production/contact_sheets/contact_non_shooting_animation_polish_2026_07_01.png`
+- `assets/production/source_refs/generated/non_shooting_animation_polish_spec_2026_07_01.json`
+- `tools/polish_non_shooting_animations.py`
+
+The main visible cleanup was removing low-alpha full-canvas haze and 102 semi-transparent red rectangular hurt-frame backplates. Remaining animation final-art work is no longer basic cutout/rectangle cleanup; it is true authored animation direction, stronger state variety, and runtime animation tuning where needed.

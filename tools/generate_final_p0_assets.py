@@ -128,11 +128,11 @@ def metal_texture(size: tuple[int, int], top: tuple[int, int, int, int], bottom:
     if scratches:
         d = ImageDraw.Draw(img)
         w, h = size
-        for _ in range(max(12, (w * h) // 18000)):
+        for _ in range(max(8, (w * h) // 42000)):
             x = RNG.randint(0, max(0, w - 1))
             y = RNG.randint(0, max(0, h - 1))
-            ln = RNG.randint(max(16, w // 18), max(24, w // 5))
-            col = (255, 255, 245, RNG.randint(8, 24)) if RNG.random() > 0.42 else (0, 0, 0, RNG.randint(10, 26))
+            ln = RNG.randint(max(8, w // 28), max(14, w // 9))
+            col = (255, 255, 245, RNG.randint(3, 10)) if RNG.random() > 0.48 else (0, 0, 0, RNG.randint(4, 12))
             d.line((x, y, min(w, x + ln), max(0, y + RNG.randint(-2, 2))), fill=col, width=1)
     return img
 
@@ -188,11 +188,11 @@ def draw_beveled_rect(size: tuple[int, int], accent: tuple[int, int, int], secon
     alpha_composite_masked(img, metal, outer_mask)
 
     mid_mask = rounded_rect_mask(size, mid, max(4, radius - 7))
-    mid_fill = metal_texture(size, (38, 47, 52, 248), (7, 11, 16, 250))
+    mid_fill = metal_texture(size, (38, 47, 52, 248), (7, 11, 16, 250), False)
     alpha_composite_masked(img, mid_fill, mid_mask)
 
     glass_mask = rounded_rect_mask(size, inner, max(4, radius - 16))
-    glass = metal_texture(size, (47, 42, 34, 242), (7, 16, 23, 244), True)
+    glass = metal_texture(size, (47, 42, 34, 242), (7, 16, 23, 244), False)
     paste_alpha(glass, radial_glow(size, (w * 0.22, h * 0.08), (255, 176, 82, 56), max(w, h) * 0.54))
     paste_alpha(glass, radial_glow(size, (w * 0.82, h * 0.20), (62, 226, 255, 62), max(w, h) * 0.44))
     alpha_composite_masked(img, glass, glass_mask)
@@ -379,7 +379,7 @@ def render_symbol(mask: Image.Image, accent: tuple[int, int, int]) -> Image.Imag
     fill = fill_mask_gradient(size, mask, (*adjust(accent, 46), 255), (*adjust(accent, -34), 255))
     img.alpha_composite(fill)
     edge = mask.filter(ImageFilter.FIND_EDGES).filter(ImageFilter.GaussianBlur(0.4))
-    img.alpha_composite(apply_mask_color(size, edge, (255, 255, 242, 118)), (-1, -1))
+    img.alpha_composite(apply_mask_color(size, edge, (255, 255, 242, 118)))
     img.alpha_composite(apply_mask_color(size, edge, (0, 0, 0, 118)), (2, 3))
     paste_alpha(img, radial_glow(size, (size[0] * 0.38, size[1] * 0.22), (255, 255, 230, 58), size[0] * 0.34))
     return img
@@ -389,28 +389,54 @@ def draw_symbol(name: str, accent: tuple[int, int, int]) -> Image.Image:
     size = 256
     img = make_badge_base(size, accent)
     img.alpha_composite(render_symbol(symbol_mask(name, size), accent))
+    detail = Image.new("L", (size, size), 0)
+    dd = ImageDraw.Draw(detail)
+    detail_accent: tuple[int, int, int] | None = None
+    if name == "fire":
+        dd.polygon([(118, 112), (150, 150), (126, 190), (94, 166)], fill=255)
+        detail_accent = (255, 225, 72)
+    elif name == "xp":
+        dd.ellipse((112, 112, 144, 144), fill=255)
+        detail_accent = (215, 244, 255)
+    elif name == "poison":
+        dd.ellipse((116, 108, 148, 140), fill=255)
+        dd.ellipse((154, 94, 174, 114), fill=220)
+        detail_accent = (230, 255, 150)
+    elif name == "physical":
+        dd.polygon([(104, 104), (142, 88), (166, 123), (124, 168)], fill=255)
+        detail_accent = (245, 250, 255)
+    elif name == "strategy_elite":
+        dd.polygon([(86, 84), (170, 84), (148, 128), (108, 128)], fill=255)
+        detail_accent = (255, 118, 74)
+    elif name == "strategy_low_hp":
+        dd.line((70, 142, 112, 142, 128, 104, 152, 166, 186, 166), fill=255, width=8)
+        detail_accent = (255, 245, 118)
+    if detail_accent is not None:
+        img.alpha_composite(render_symbol(detail, detail_accent))
     return img
 
 
 def make_card_frame(path: Path, accent: tuple[int, int, int]) -> None:
     w, h = 360, 500
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    paste_alpha(img, radial_glow((w, h), (w * 0.5, h * 0.35), (*accent, 76), 240))
+    img = draw_beveled_rect((w, h), accent, (70, 210, 235), 30)
+    paste_alpha(img, radial_glow((w, h), (w * 0.5, h * 0.35), (*accent, 42), 220))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((16, 16, w - 16, h - 16), radius=26, fill=(12, 17, 24, 238), outline=(*accent, 228), width=6)
-    d.rounded_rectangle((28, 30, w - 28, h - 30), radius=18, outline=(255, 230, 190, 64), width=2)
-    d.rectangle((44, 58, w - 44, 64), fill=(*accent, 165))
-    d.rectangle((44, h - 70, w - 44, h - 64), fill=(*accent, 105))
+    d.rounded_rectangle((42, 58, w - 42, h - 74), radius=14, fill=(2, 7, 12, 118), outline=(255, 255, 232, 26), width=1)
+    d.line((54, 66, w - 54, 66), fill=(*accent, 140), width=3)
+    d.line((54, h - 82, w - 54, h - 82), fill=(*accent, 105), width=3)
+    for x, y in [(34, 34), (w - 54, 34), (34, h - 54), (w - 54, h - 54)]:
+        d.rounded_rectangle((x, y, x + 20, y + 20), radius=4, fill=(0, 0, 0, 74), outline=(*accent, 130), width=2)
     save_png(path, img, "RGBA")
 
 
 def make_skill_slot(path: Path, active: bool) -> None:
     accent = (255, 162, 54) if active else (86, 202, 238)
-    img = make_badge_base(220, accent)
+    img = draw_beveled_rect((220, 220), accent, (72, 220, 238), 42)
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((48, 48, 172, 172), radius=24, fill=(7, 12, 18, 215), outline=(*accent, 140), width=3)
+    d.rounded_rectangle((48, 48, 172, 172), radius=24, fill=(4, 8, 12, 190), outline=(*accent, 128), width=3)
+    d.rounded_rectangle((63, 63, 157, 157), radius=18, outline=(255, 245, 220, 34), width=1)
     if active:
-        paste_alpha(img, radial_glow((220, 220), (110, 110), (255, 122, 38, 80), 90))
+        paste_alpha(img, radial_glow((220, 220), (110, 110), (255, 122, 38, 112), 96))
     save_png(path, img, "RGBA")
 
 
@@ -419,13 +445,20 @@ def make_target_lock(path: Path) -> None:
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     accent = (122, 248, 238)
-    for start in [0, 90, 180, 270]:
-        d.arc((42, 42, 214, 214), start + 12, start + 68, fill=(*accent, 230), width=8)
-    d.line((128, 34, 128, 68), fill=(*accent, 220), width=6)
-    d.line((128, 188, 128, 222), fill=(*accent, 220), width=6)
-    d.line((34, 128, 68, 128), fill=(*accent, 220), width=6)
-    d.line((188, 128, 222, 128), fill=(*accent, 220), width=6)
-    paste_alpha(img, radial_glow((size, size), (128, 128), (*accent, 60), 126))
+    paste_alpha(img, radial_glow((size, size), (128, 128), (*accent, 94), 126))
+    for radius, alpha, width in [(190, 210, 8), (142, 125, 4), (92, 78, 3)]:
+        box = ((size - radius) // 2, (size - radius) // 2, (size + radius) // 2, (size + radius) // 2)
+        for start in [0, 90, 180, 270]:
+            d.arc(box, start + 10, start + 70, fill=(*accent, alpha), width=width)
+    d.ellipse((112, 112, 144, 144), fill=(*accent, 42))
+    for x1, y1, x2, y2 in [
+        (128, 28, 128, 72),
+        (128, 184, 128, 228),
+        (28, 128, 72, 128),
+        (184, 128, 228, 128),
+    ]:
+        d.line((x1, y1, x2, y2), fill=(*accent, 230), width=6)
+        d.line((x1, y1, x2, y2), fill=(255, 255, 255, 80), width=2)
     save_png(path, img, "RGBA")
 
 
@@ -728,7 +761,7 @@ def make_contact_sheet() -> None:
     rows = math.ceil(len(paths) / cols)
     sheet = Image.new("RGB", (32 * 2 + cols * tw + (cols - 1) * gap, 72 + rows * (th + 46 + gap)), (16, 20, 26))
     d = ImageDraw.Draw(sheet)
-    d.text((32, 24), "Final P0 Art Replacement Contact Sheet", fill=(238, 242, 248), font=load_font(28, True))
+    d.text((32, 24), "Top-Tier P0 HUD / Store Art Contact Sheet", fill=(238, 242, 248), font=load_font(28, True))
     for i, p in enumerate(paths):
         x = 32 + (i % cols) * (tw + gap)
         y = 72 + (i // cols) * (th + 46 + gap)
@@ -789,9 +822,18 @@ def update_index() -> None:
 def write_spec() -> None:
     spec = {
         "date": "2026-07-01",
-        "scope": "P0 final-art replacement for launch image, App Store screenshots, app preview, flat UI kit, and legacy visible asset integration.",
-        "style": "2.5D cartoon-realistic, premium 3D-rendered dark metal HUD, warning orange edges, cyan tech accents, ruined-city/cyberpunk presentation.",
-        "generated_with": ["built-in image_gen for launch key art source", "local Pillow rendering for UI/store composites", "ffmpeg for app preview mp4"],
+        "scope": "P0 top-tier polish pass for launch image, App Store screenshots, app preview, flat UI kit, visible target lock, and legacy visible asset integration.",
+        "style": "2.5D cartoon-realistic, premium 3D-rendered dark gunmetal HUD, beveled glass, orange warning edge lights, cyan tech rim lights, ruined-city/cyberpunk presentation.",
+        "reference_sources": [
+            "source_refs/generated/final_p0_launch_source_2026_07_01.png",
+            "source_refs/generated/final_p0_hud_reference_source_2026_07_01.png"
+        ],
+        "generated_with": [
+            "built-in image_gen for launch key art source",
+            "built-in image_gen for top-tier HUD material reference source",
+            "local Pillow rendering for exact-size UI/store composites",
+            "ffmpeg for app preview mp4"
+        ],
         "constraints": ["keep existing IDs and integration paths", "do not change gameplay scope", "do not alter data/*.json content lists"],
     }
     (SOURCE_DIR / "final_p0_ui_store_spec_2026_07_01.json").write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

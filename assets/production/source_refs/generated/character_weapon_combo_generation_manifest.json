@@ -26,15 +26,18 @@
   "source_characters": "assets/production/sprites/animations/characters_weaponless",
   "source_weapons": "assets/production/sprites/weapons/handheld",
   "preview": "assets/production/source_refs/generated/character_weapon_combo_matrix.png",
+  "shooting_preview": "assets/production/source_refs/generated/character_weapon_combo_shooting_polish_contact_sheet_2026_07_01.png",
+  "shooting_focus_preview": "assets/production/source_refs/generated/character_weapon_combo_shooting_focus_sheet_2026_07_01.png",
   "pose_policy": {
     "idle_hurt_layering": "weapon is rendered behind the character body; no floating front-mounted gun layer",
-    "attack_layering": "weapon is raised toward the battlefield with left/center/right aim variants, muzzle flash, and recoil frames",
-    "muzzle_reference": "attack_01"
+    "attack_layering": "weapon is raised toward the battlefield with left/center/right aim variants, frame-1 shot flash, heavy frame-2 recoil, visible settle, and recovered frame-4 stance",
+    "muzzle_reference": "attack_01",
+    "runtime_sync": "projectiles spawn from attack_01 muzzle offsets; battle.gd locks aim during the attack window"
   },
   "muzzle_offsets": {
     "char_vanguard/weapon_autocannon": [
       15.7,
-      -119.0
+      -118.4
     ],
     "char_vanguard/weapon_flamethrower": [
       20.8,
@@ -54,15 +57,15 @@
     ],
     "char_vanguard/weapon_railgun": [
       25.9,
-      -125.4
+      -123.5
     ],
     "char_vanguard/weapon_scattergun": [
       20.8,
-      -118.4
+      -117.1
     ],
     "char_vanguard/weapon_plasmacannon": [
       19.8,
-      -122.6
+      -120.6
     ],
     "char_blaze/weapon_autocannon": [
       18.2,
@@ -86,79 +89,79 @@
     ],
     "char_blaze/weapon_railgun": [
       27.5,
-      -123.8
+      -121.9
     ],
     "char_blaze/weapon_scattergun": [
       22.7,
-      -117.8
+      -117.1
     ],
     "char_blaze/weapon_plasmacannon": [
       21.1,
-      -121.3
+      -119.4
     ],
     "char_frost/weapon_autocannon": [
       18.9,
-      -116.5
+      -114.6
     ],
     "char_frost/weapon_flamethrower": [
       23.0,
-      -117.8
+      -115.8
     ],
     "char_frost/weapon_cryocannon": [
       24.3,
-      -117.8
+      -115.8
     ],
     "char_frost/weapon_teslacoil": [
       22.1,
-      -116.8
+      -114.9
     ],
     "char_frost/weapon_venomlauncher": [
       25.9,
-      -117.8
+      -115.8
     ],
     "char_frost/weapon_railgun": [
       28.5,
-      -121.9
+      -120.0
     ],
     "char_frost/weapon_scattergun": [
       23.4,
-      -116.2
+      -114.2
     ],
     "char_frost/weapon_plasmacannon": [
       22.4,
-      -119.7
+      -117.8
     ],
     "char_volt/weapon_autocannon": [
       17.6,
-      -117.8
+      -117.1
     ],
     "char_volt/weapon_flamethrower": [
       21.8,
-      -119.0
+      -118.4
     ],
     "char_volt/weapon_cryocannon": [
       23.0,
-      -119.0
+      -118.4
     ],
     "char_volt/weapon_teslacoil": [
       20.8,
-      -118.1
+      -117.4
     ],
     "char_volt/weapon_venomlauncher": [
       24.6,
-      -119.0
+      -118.4
     ],
     "char_volt/weapon_railgun": [
       27.2,
-      -123.2
+      -121.3
     ],
     "char_volt/weapon_scattergun": [
       22.1,
-      -117.4
+      -116.8
     ],
     "char_volt/weapon_plasmacannon": [
       21.1,
-      -121.0
+      -119.0
     ]
   },
   "muzzle_offsets_by_aim": {
@@ -185,7 +188,7 @@
       ],
       "char_vanguard/weapon_railgun": [
         -32.6,
-        -122.6
+        -120.6
       ],
       "char_vanguard/weapon_scattergun": [
         -33.9,
@@ -217,7 +220,7 @@
       ],
       "char_blaze/weapon_railgun": [
         -29.4,
-        -121.0
+        -120.3
       ],
       "char_blaze/weapon_scattergun": [
         -30.7,
@@ -229,35 +232,35 @@
       ],
       "char_frost/weapon_autocannon": [
         -33.9,
-        -110.4
+        -108.5
       ],
       "char_frost/weapon_flamethrower": [
         -30.4,
-        -113.3
+        -111.4
       ],
       "char_frost/weapon_cryocannon": [
         -29.1,
-        -113.9
+        -112.0
       ],
       "char_frost/weapon_teslacoil": [
         -31.4,
-        -111.7
+        -109.8
       ],
       "char_frost/weapon_venomlauncher": [
         -28.2,
-        -114.6
+        -112.6
       ],
       "char_frost/weapon_railgun": [
         -28.2,
-        -119.0
+        -117.1
       ],
       "char_frost/weapon_scattergun": [
         -29.1,
-        -112.0
+        -110.1
       ],
       "char_frost/weapon_plasmacannon": [
         -31.7,
-        -113.9
+        -112.0
       ],
       "char_volt/weapon_autocannon": [
         -35.2,
@@ -295,7 +298,7 @@
     "center": {
       "char_vanguard/weapon_autocannon": [
         15.7,
-        -119.0
+        -118.4
       ],
       "char_vanguard/weapon_flamethrower": [
         20.8,
@@ -315,15 +318,15 @@
       ],
       "char_vanguard/weapon_railgun": [
         25.9,
-        -125.4
+        -123.5
       ],
       "char_vanguard/weapon_scattergun": [
         20.8,
-        -118.4
+        -117.1
       ],
       "char_vanguard/weapon_plasmacannon": [
         19.8,
-        -122.6
+        -120.6
       ],
       "char_blaze/weapon_autocannon": [
         18.2,
@@ -347,208 +350,208 @@
       ],
       "char_blaze/weapon_railgun": [
         27.5,
-        -123.8
+        -121.9
       ],
       "char_blaze/weapon_scattergun": [
         22.7,
-        -117.8
+        -117.1
       ],
       "char_blaze/weapon_plasmacannon": [
         21.1,
-        -121.3
+        -119.4
       ],
       "char_frost/weapon_autocannon": [
         18.9,
-        -116.5
+        -114.6
       ],
       "char_frost/weapon_flamethrower": [
         23.0,
-        -117.8
+        -115.8
       ],
       "char_frost/weapon_cryocannon": [
         24.3,
-        -117.8
+        -115.8
       ],
       "char_frost/weapon_teslacoil": [
         22.1,
-        -116.8
+        -114.9
       ],
       "char_frost/weapon_venomlauncher": [
         25.9,
-        -117.8
+        -115.8
       ],
       "char_frost/weapon_railgun": [
         28.5,
-        -121.9
+        -120.0
       ],
       "char_frost/weapon_scattergun": [
         23.4,
-        -116.2
+        -114.2
       ],
       "char_frost/weapon_plasmacannon": [
         22.4,
-        -119.7
+        -117.8
       ],
       "char_volt/weapon_autocannon": [
         17.6,
-        -117.8
+        -117.1
       ],
       "char_volt/weapon_flamethrower": [
         21.8,
-        -119.0
+        -118.4
       ],
       "char_volt/weapon_cryocannon": [
         23.0,
-        -119.0
+        -118.4
       ],
       "char_volt/weapon_teslacoil": [
         20.8,
-        -118.1
+        -117.4
       ],
       "char_volt/weapon_venomlauncher": [
         24.6,
-        -119.0
+        -118.4
       ],
       "char_volt/weapon_railgun": [
         27.2,
-        -123.2
+        -121.3
       ],
       "char_volt/weapon_scattergun": [
         22.1,
-        -117.4
+        -116.8
       ],
       "char_volt/weapon_plasmacannon": [
         21.1,
-        -121.0
+        -119.0
       ]
     },
     "right": {
       "char_vanguard/weapon_autocannon": [
-        86.7,
+        84.8,
         -119.4
       ],
       "char_vanguard/weapon_flamethrower": [
-        91.5,
+        89.6,
         -117.4
       ],
       "char_vanguard/weapon_cryocannon": [
-        92.5,
+        90.6,
         -116.5
       ],
       "char_vanguard/weapon_teslacoil": [
-        89.9,
+        88.0,
         -117.4
       ],
       "char_vanguard/weapon_venomlauncher": [
-        93.1,
+        91.2,
         -115.2
       ],
       "char_vanguard/weapon_railgun": [
-        88.3,
+        86.4,
         -113.3
       ],
       "char_vanguard/weapon_scattergun": [
-        89.9,
+        88.0,
         -115.5
       ],
       "char_vanguard/weapon_plasmacannon": [
-        92.2,
+        90.2,
         -119.0
       ],
       "char_blaze/weapon_autocannon": [
-        87.4,
+        85.4,
         -118.4
       ],
       "char_blaze/weapon_flamethrower": [
-        90.9,
+        89.0,
         -116.5
       ],
       "char_blaze/weapon_cryocannon": [
-        91.8,
+        89.9,
         -115.5
       ],
       "char_blaze/weapon_teslacoil": [
-        89.3,
+        87.4,
         -116.2
       ],
       "char_blaze/weapon_venomlauncher": [
-        92.5,
+        90.6,
         -114.2
       ],
       "char_blaze/weapon_railgun": [
-        87.7,
+        85.8,
         -112.3
       ],
       "char_blaze/weapon_scattergun": [
-        90.2,
+        88.3,
         -114.9
       ],
       "char_blaze/weapon_plasmacannon": [
-        91.5,
+        89.6,
         -118.1
       ],
       "char_frost/weapon_autocannon": [
-        87.4,
-        -116.8
+        85.4,
+        -114.9
       ],
       "char_frost/weapon_flamethrower": [
-        91.5,
-        -114.9
+        89.6,
+        -113.0
       ],
       "char_frost/weapon_cryocannon": [
-        92.5,
-        -114.2
+        90.6,
+        -112.3
       ],
       "char_frost/weapon_teslacoil": [
-        90.2,
-        -114.9
+        88.3,
+        -113.0
       ],
       "char_frost/weapon_venomlauncher": [
-        93.1,
-        -113.0
+        91.2,
+        -111.0
       ],
       "char_frost/weapon_railgun": [
-        87.7,
-        -110.7
+        85.8,
+        -108.8
       ],
       "char_frost/weapon_scattergun": [
-        90.2,
-        -113.0
+        88.3,
+        -111.0
       ],
       "char_frost/weapon_plasmacannon": [
-        92.5,
-        -116.5
+        90.6,
+        -114.6
       ],
       "char_volt/weapon_autocannon": [
-        86.1,
+        84.8,
         -118.1
       ],
       "char_volt/weapon_flamethrower": [
-        90.2,
+        88.3,
         -116.2
       ],
       "char_volt/weapon_cryocannon": [
-        91.2,
+        89.3,
         -115.5
       ],
       "char_volt/weapon_teslacoil": [
-        89.0,
+        87.0,
         -116.2
       ],
       "char_volt/weapon_venomlauncher": [
-        91.8,
+        89.9,
         -114.2
       ],
       "char_volt/weapon_railgun": [
-        86.4,
+        84.5,
         -112.0
       ],
       "char_volt/weapon_scattergun": [
-        89.0,
+        87.0,
         -114.2
       ],
       "char_volt/weapon_plasmacannon": [
-        91.2,
+        89.3,
         -117.8
       ]
     }

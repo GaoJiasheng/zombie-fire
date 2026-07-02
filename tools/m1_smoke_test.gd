@@ -821,16 +821,14 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 		battle.get_node("EnemyLayer").add_child(target)
 		fake_targets.append(target)
 	var directions: Array[Vector2] = battle._primary_shot_directions(origin, Vector2.UP, 3, deg_to_rad(18.0))
-	var has_left := false
-	var has_right := false
+	_expect(directions.size() == 3, "multi-shot must return one direction per projectile")
 	for direction in directions:
-		_expect(direction.y < -0.45, "multi-shot target direction must point into the battlefield")
-		if direction.x < -0.08:
-			has_left = true
-		if direction.x > 0.08:
-			has_right = true
-	_expect(directions.size() == 3, "multi-shot targeting must return one direction per projectile")
-	_expect(has_left and has_right, "multi-shot targeting must assign side lanes to actual enemies")
+		_expect(direction.y < -0.45, "multi-shot lanes must point into the battlefield")
+	# 固定夹角扇形：相邻弹道之间夹角相等且>0（对称扇形，不各自锁敌 → 不 imba）
+	var ang_a := absf(directions[0].angle_to(directions[1]))
+	var ang_b := absf(directions[1].angle_to(directions[2]))
+	_expect(ang_a > 0.02 and ang_b > 0.02, "multi-shot must spread into a fan (distinct lanes)")
+	_expect(absf(ang_a - ang_b) < 0.03, "multi-shot fan must use a FIXED equal angle between adjacent lanes")
 	for target in fake_targets:
 		battle.get_node("EnemyLayer").remove_child(target)
 		target.free()
