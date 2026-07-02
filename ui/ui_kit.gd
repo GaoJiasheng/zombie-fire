@@ -27,6 +27,7 @@ const SUCCESS := Color(0.36, 0.80, 0.58, 1.0)
 const WARNING := Color(0.96, 0.72, 0.30, 1.0)
 const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
+const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
 const FONT_SCALE := 1.3
@@ -53,7 +54,77 @@ static func plate_style(accent := CYAN) -> StyleBoxFlat:
 	style.content_margin_right = 8
 	return style
 
-static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -> StyleBoxFlat:
+static func texture_style(path: String, margin := 24.0, content := 12.0, fallback_accent := CYAN) -> StyleBox:
+	if path != "" and ResourceLoader.exists(path):
+		var style := StyleBoxTexture.new()
+		style.texture = load(path) as Texture2D
+		style.texture_margin_left = margin
+		style.texture_margin_top = margin
+		style.texture_margin_right = margin
+		style.texture_margin_bottom = margin
+		style.content_margin_left = content
+		style.content_margin_top = content
+		style.content_margin_right = content
+		style.content_margin_bottom = content
+		return style
+	return panel_style(fallback_accent)
+
+static func panel_texture_style(content := 18.0) -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, content, CYAN)
+
+static func result_panel_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_result_panel_final.png", 42.0, 22.0, GOLD)
+
+static func reward_texture_style(kind: String) -> StyleBox:
+	if kind == "xp":
+		return texture_style(UI_TEXTURE_ROOT + "ui_result_reward_card_xp.png", 26.0, 16.0, CYAN)
+	return texture_style(UI_TEXTURE_ROOT + "ui_result_reward_card_gold.png", 26.0, 16.0, GOLD)
+
+static func icon_frame_texture_style(active := false, empty := false) -> StyleBox:
+	if empty:
+		return texture_style(UI_TEXTURE_ROOT + "ui_empty_equipment_socket.png", 32.0, 10.0, BORDER_SOFT)
+	if active:
+		return texture_style(UI_TEXTURE_ROOT + "ui_icon_frame_active.png", 32.0, 10.0, GOLD)
+	return texture_style(UI_TEXTURE_ROOT + "ui_icon_frame.png", 32.0, 10.0, CYAN)
+
+static func skill_slot_texture_style(active := false) -> StyleBox:
+	if active:
+		return texture_style(UI_TEXTURE_ROOT + "ui_skill_slot_active.png", 32.0, 10.0, GOLD)
+	return texture_style(UI_TEXTURE_ROOT + "ui_skill_slot.png", 32.0, 10.0, CYAN)
+
+static func map_level_card_texture_style(locked := false) -> StyleBox:
+	if locked:
+		return texture_style(UI_TEXTURE_ROOT + "ui_map_level_card_locked_skin.png", 34.0, 0.0, BORDER_SOFT)
+	return texture_style(UI_TEXTURE_ROOT + "ui_map_level_card_skin.png", 34.0, 0.0, CYAN)
+
+static func map_nav_card_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_map_nav_card_skin.png", 28.0, 0.0, CYAN)
+
+static func map_index_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_map_index_plate_skin.png", 22.0, 8.0, CYAN)
+
+static func map_pill_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_map_pill_skin.png", 24.0, 10.0, CYAN)
+
+static func deploy_pill_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_map_deploy_pill_skin.png", 24.0, 10.0, GOLD)
+
+static func resource_chip_texture_style() -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, GOLD)
+
+static func collection_card_texture_style(skill := false) -> StyleBox:
+	if skill:
+		return texture_style(UI_TEXTURE_ROOT + "ui_collection_skill_card_skin.png", 34.0, 0.0, CYAN)
+	return texture_style(UI_TEXTURE_ROOT + "ui_collection_card_skin.png", 36.0, 0.0, CYAN)
+
+static func hint_texture_style(warning := false) -> StyleBox:
+	if warning:
+		return texture_style(UI_TEXTURE_ROOT + "ui_warning_strip.png", 26.0, 16.0, WARNING)
+	return texture_style(UI_TEXTURE_ROOT + "ui_hint_strip.png", 26.0, 16.0, CYAN)
+
+static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -> StyleBox:
+	if ResourceLoader.exists(UI_TEXTURE_ROOT + "ui_map_pill_skin.png"):
+		return map_pill_texture_style()
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
@@ -202,7 +273,9 @@ static func press_feedback(control: Control) -> void:
 const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 
 # ---- 共享资源条(金币/星星/经验/战力)。各页面统一外观,只在此维护。----
-static func _resource_chip_style(accent: Color) -> StyleBoxFlat:
+static func _resource_chip_style(accent: Color) -> StyleBox:
+	if ResourceLoader.exists(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png"):
+		return resource_chip_texture_style()
 	var s := StyleBoxFlat.new()
 	s.bg_color = Color(0.012, 0.016, 0.022, 0.78)
 	s.set_border_width_all(2)

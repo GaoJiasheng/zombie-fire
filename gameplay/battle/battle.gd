@@ -292,7 +292,7 @@ var pet_level := 1
 var low_hp_warned := false
 var active_boss: Node = null
 var boss_hp_bar: Control = null
-var boss_hp_fill: ColorRect = null
+var boss_hp_fill: TextureRect = null
 var boss_hp_label: Label = null
 var last_threat_warning_at := -99.0
 var last_gold_sfx_at := -99.0
@@ -685,6 +685,17 @@ func _ensure_character_skill_icon_nodes() -> void:
 		fill.set_anchors_preset(Control.PRESET_FULL_RECT)
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fill.z_index = 6
+		fill.visible = false
+	if button.get_node_or_null("CooldownTexture") == null:
+		var cooldown := TextureRect.new()
+		cooldown.name = "CooldownTexture"
+		cooldown.texture = load("res://assets/production/sprites/ui/ui_cd_overlay.png")
+		cooldown.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		cooldown.stretch_mode = TextureRect.STRETCH_SCALE
+		cooldown.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cooldown.z_index = 6
+		cooldown.visible = false
+		button.add_child(cooldown)
 	var overlay := button.get_node_or_null("UnavailableOverlay") as ColorRect
 	if overlay != null:
 		overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -752,43 +763,11 @@ func _character_skill_accent() -> Color:
 		_:
 			return UiKit.GOLD
 
-func _character_skill_style(ready: bool, accent: Color, hovered: bool, pressed: bool = false) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var bg_alpha := 0.94 if ready else 0.72
-	if pressed:
-		bg_alpha = 0.98
-	elif hovered and ready:
-		bg_alpha = 0.98
-	style.bg_color = Color(0.03, 0.07, 0.11, bg_alpha)
-	var border_alpha := 1.0 if ready else 0.42
-	if hovered and ready:
-		border_alpha = 1.0
-	style.border_color = Color(accent.r, accent.g, accent.b, border_alpha)
-	style.set_border_width_all(4 if hovered and ready else 3)
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 10
-	style.content_margin_top = 6
-	style.content_margin_right = 10
-	style.content_margin_bottom = 6
-	if ready and hovered and not pressed:
-		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.34)
-		style.shadow_size = 8
-	return style
+func _character_skill_style(ready: bool, _accent: Color, _hovered: bool, _pressed: bool = false) -> StyleBox:
+	return UiKit.skill_slot_texture_style(ready)
 
-func _character_skill_icon_style(accent: Color, ready: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.012, 0.018, 0.025, 0.92 if ready else 0.78)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.86 if ready else 0.42)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 4
-	style.content_margin_top = 4
-	style.content_margin_right = 4
-	style.content_margin_bottom = 4
-	if ready:
-		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.28)
-		style.shadow_size = 10
-	return style
+func _character_skill_icon_style(_accent: Color, ready: bool) -> StyleBox:
+	return UiKit.icon_frame_texture_style(ready)
 
 func _character_skill_dot_style(accent: Color, pulse: float) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -860,7 +839,7 @@ func _ensure_skill_hint_overlay() -> void:
 	overlay.offset_right = 335.0
 	overlay.offset_top = -360.0
 	overlay.offset_bottom = -190.0
-	overlay.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.012, 0.018, 0.026, 0.94), 2, 8))
+	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	$Hud.add_child(overlay)
 
 	var margin := MarginContainer.new()
@@ -886,7 +865,7 @@ func _ensure_skill_hint_overlay() -> void:
 	icon_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_box.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.02, 0.03, 0.04, 0.88), 2, 8))
+	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	row.add_child(icon_box)
 
 	var icon := TextureRect.new()
@@ -952,10 +931,10 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 		return
 	var overlay := $Hud/SkillHintOverlay as PanelContainer
 	overlay.visible = true
-	overlay.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.012, 0.018, 0.026, 0.95), 2, 8))
+	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	var icon_box := overlay.get_node_or_null("Margin/Row/IconBox") as PanelContainer
 	if icon_box != null:
-		icon_box.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.02, 0.03, 0.04, 0.9), 2, 8))
+		icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	var icon := overlay.get_node_or_null("Margin/Row/IconBox/Icon") as TextureRect
 	if icon != null:
 		icon.texture = load(icon_path) if icon_path != "" and ResourceLoader.exists(icon_path) else null
@@ -1410,6 +1389,7 @@ func _update_character_skill_button() -> void:
 	var info: Dictionary = CharacterSkillText.signature_info(character_active_id)
 	var label: Label = $Hud/CharacterSkillButton/Label
 	var fill: ColorRect = $Hud/CharacterSkillButton/CooldownFill
+	var fill_texture := button.get_node_or_null("CooldownTexture") as TextureRect
 	var ready := character_active_cd <= 0.0 and not card_offer_active and not paused
 	button.disabled = not ready
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if ready else Control.CURSOR_ARROW
@@ -1433,13 +1413,19 @@ func _update_character_skill_button() -> void:
 				icon.texture = load(icon_path)
 		icon.modulate = Color.WHITE if ready else Color(0.78, 0.84, 0.9, 0.78)
 	var ratio := clampf(character_active_cd / maxf(character_active_cd_max, 0.1), 0.0, 1.0)
-	fill.visible = ratio > 0.0
-	fill.color = Color(0.0, 0.0, 0.0, 0.58)
-	fill.offset_left = 12.0
-	fill.offset_right = -12.0
-	fill.offset_bottom = -12.0
 	var fill_height := maxf(button.size.y - 24.0, 1.0)
-	fill.offset_top = 12.0 + fill_height * (1.0 - ratio)
+	if fill_texture != null:
+		fill.visible = false
+		fill_texture.visible = ratio > 0.0
+		fill_texture.position = Vector2(12.0, 12.0 + fill_height * (1.0 - ratio))
+		fill_texture.size = Vector2(maxf(button.size.x - 24.0, 1.0), fill_height * ratio)
+	else:
+		fill.visible = ratio > 0.0
+		fill.color = Color(0.0, 0.0, 0.0, 0.58)
+		fill.offset_left = 12.0
+		fill.offset_right = -12.0
+		fill.offset_bottom = -12.0
+		fill.offset_top = 12.0 + fill_height * (1.0 - ratio)
 	var cd_label := button.get_node_or_null("CooldownLabel") as Label
 	if cd_label != null:
 		cd_label.visible = character_active_cd > 0.0
@@ -1899,7 +1885,7 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	card.custom_minimum_size = Vector2(0, min_height)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.020, 0.026, 0.034, 0.84), 2, 8))
+	card.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	var body := VBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1908,9 +1894,12 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 10)
 	body.add_child(header)
-	var rail := ColorRect.new()
-	rail.custom_minimum_size = Vector2(5, 26)
-	rail.color = accent
+	var rail := TextureRect.new()
+	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	rail.custom_minimum_size = Vector2(18, 30)
+	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rail.stretch_mode = TextureRect.STRETCH_SCALE
+	rail.modulate = accent
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(rail)
 	var title := UiKit.label(title_text, 21, Color(0.95, 0.90, 0.76, 1.0), 2)
@@ -1993,14 +1982,18 @@ func _ensure_boss_hp_bar() -> void:
 	boss_hp_label.size = Vector2(760, 28)
 	boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	boss_hp_bar.add_child(boss_hp_label)
-	var track := ColorRect.new()
-	track.color = UiKit.PANEL_BG_DARK
+	var track := TextureRect.new()
+	track.texture = load("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
+	track.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	track.stretch_mode = TextureRect.STRETCH_SCALE
 	track.position = Vector2(0, 34)
 	track.size = Vector2(760, 22)
 	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.add_child(track)
-	boss_hp_fill = ColorRect.new()
-	boss_hp_fill.color = UiKit.DANGER
+	boss_hp_fill = TextureRect.new()
+	boss_hp_fill.texture = load("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
+	boss_hp_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	boss_hp_fill.stretch_mode = TextureRect.STRETCH_SCALE
 	boss_hp_fill.position = Vector2(2, 36)
 	boss_hp_fill.size = Vector2(756, 18)
 	boss_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2057,29 +2050,51 @@ func _viewport_safe_insets() -> Dictionary:
 	}
 
 func _apply_runtime_ui_styles() -> void:
-	# Bind HUD bar fills to the shared palette so color lives in one place (UiKit).
-	if has_node("Hud/TopBar/BaseHpBar/Fill"):
-		($Hud/TopBar/BaseHpBar/Fill as ColorRect).color = UiKit.DANGER
-	if has_node("Hud/TopBar/WaveProgress/Fill"):
-		($Hud/TopBar/WaveProgress/Fill as ColorRect).color = UiKit.INFO
+	_ensure_hud_fill_texture("Hud/TopBar/BaseHpBar", "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 11.0, 12.0)
+	_ensure_hud_fill_texture("Hud/TopBar/WaveProgress", "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 10.0, 10.0)
 	_style_xp_bar()
 	if has_node("Hud/CardPanel"):
 		var card_panel: Panel = $Hud/CardPanel
-		card_panel.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.018, 0.022, 0.030, 0.94), 3, 10))
+		card_panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 		UiKit.apply_label($Hud/CardPanel/CardTitle, 37, UiKit.TEXT_MAIN, 4)
 	if has_node("Hud/CardPanel/DetailOverlay/Panel"):
 		var detail: Panel = $Hud/CardPanel/DetailOverlay/Panel
-		detail.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.020, 0.026, 0.034, 0.98), 3, 10))
+		detail.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 		UiKit.apply_label($Hud/CardPanel/DetailOverlay/Panel/Title, 36, UiKit.TEXT_MAIN, 3)
 		UiKit.apply_label($Hud/CardPanel/DetailOverlay/Panel/Body, 25, Color(0.82, 0.88, 0.88, 1.0), 2)
 	if has_node("Hud/PauseOverlay/Panel"):
 		var pause_panel: Panel = $Hud/PauseOverlay/Panel
-		pause_panel.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.018, 0.022, 0.030, 0.96), 3, 10))
+		pause_panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 		UiKit.apply_label($Hud/PauseOverlay/Panel/Title, 50, UiKit.TEXT_MAIN, 4)
 		if has_node("Hud/PauseOverlay/Panel/BuildSummary"):
 			UiKit.apply_label($Hud/PauseOverlay/Panel/BuildSummary, 21, Color(0.82, 0.88, 0.88, 1.0), 2)
 		_setup_pause_overlay_layout()
 	_setup_wave_toast_banner()
+
+func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float, height: float) -> void:
+	var bar := get_node_or_null(bar_path) as Control
+	if bar == null:
+		return
+	bar.clip_contents = true
+	var legacy := bar.get_node_or_null("Fill") as CanvasItem
+	if legacy != null:
+		legacy.visible = false
+	var fill := bar.get_node_or_null("FillTexture") as TextureRect
+	if fill == null:
+		fill = TextureRect.new()
+		fill.name = "FillTexture"
+		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fill.z_index = 1
+		fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		fill.stretch_mode = TextureRect.STRETCH_SCALE
+		bar.add_child(fill)
+	if ResourceLoader.exists(texture_path):
+		fill.texture = load(texture_path)
+	fill.position = Vector2(4.0, top)
+	fill.size = Vector2(0.0, height)
+	var label := bar.get_node_or_null("Label") as CanvasItem
+	if label != null:
+		label.z_index = 3
 
 func _style_xp_bar() -> void:
 	if not has_node("Hud/BottomBar/XpBar"):
@@ -2089,20 +2104,12 @@ func _style_xp_bar() -> void:
 	xp_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if has_node("Hud/BottomBar/XpBar/Track"):
 		var track := $Hud/BottomBar/XpBar/Track as Panel
-		var track_style := StyleBoxFlat.new()
-		track_style.bg_color = Color(0.012, 0.017, 0.026, 0.86)
-		track_style.border_color = Color(0.52, 0.68, 0.82, 0.72)
-		track_style.set_border_width_all(2)
-		track_style.set_corner_radius_all(9)
+		var track_style := UiKit.texture_style("res://assets/production/sprites/ui/ui_run_xp_bar.png", 24.0, 0.0, UiKit.CYAN)
 		track.add_theme_stylebox_override("panel", track_style)
 		track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if has_node("Hud/BottomBar/XpBar/Fill"):
 		var fill := $Hud/BottomBar/XpBar/Fill as Panel
-		var fill_style := StyleBoxFlat.new()
-		fill_style.bg_color = Color(0.32, 0.78, 0.56, 0.96)
-		fill_style.border_color = Color(0.68, 1.0, 0.78, 0.22)
-		fill_style.set_border_width_all(1)
-		fill_style.set_corner_radius_all(7)
+		var fill_style := UiKit.texture_style("res://assets/production/sprites/ui/ui_bar_fill_xp.png", 18.0, 0.0, UiKit.SUCCESS)
 		fill.add_theme_stylebox_override("panel", fill_style)
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if has_node("Hud/BottomBar/XpBar/Label"):
@@ -2127,7 +2134,7 @@ func _setup_pause_overlay_layout() -> void:
 	panel.offset_right = 990.0
 	panel.offset_bottom = 1428.0
 	panel.clip_contents = true
-	panel.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.012, 0.016, 0.022, 0.97), 3, 10))
+	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
 	title.position = Vector2(0, 32)
 	title.size = Vector2(900, 70)
@@ -2216,10 +2223,9 @@ func _setup_wave_toast_banner() -> void:
 	banner.visible = false
 	$Hud.add_child(banner)
 
-	# 柔和暗色光带（径向渐变，四周淡出，无硬边框/硬直角）
 	var band := TextureRect.new()
 	band.name = "Band"
-	band.texture = _wave_toast_band_texture()
+	band.texture = load("res://assets/production/sprites/ui/ui_hint_strip.png")
 	band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	band.stretch_mode = TextureRect.STRETCH_SCALE
 	band.position = Vector2.ZERO
@@ -2227,14 +2233,15 @@ func _setup_wave_toast_banner() -> void:
 	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.add_child(band)
 
-	# 细金线点缀（两端淡出），压在文字下方，替代原来的粗框+破折号
 	var accent_line := TextureRect.new()
 	accent_line.name = "AccentLine"
-	accent_line.texture = _wave_toast_line_texture()
+	accent_line.texture = load("res://assets/production/sprites/ui/ui_map_pill_skin.png")
 	accent_line.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_line.stretch_mode = TextureRect.STRETCH_SCALE
 	accent_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	accent_line.modulate = UiKit.GOLD
+	accent_line.position = Vector2(72, 72)
+	accent_line.size = Vector2(WAVE_TOAST_SIZE.x - 144.0, 10.0)
 	banner.add_child(accent_line)
 
 	wave_toast_panel = null
@@ -2246,7 +2253,7 @@ func _setup_wave_toast_banner() -> void:
 	wave_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	wave_toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiKit.apply_label(wave_toast_label, 34, UiKit.GOLD, 5)
+	UiKit.apply_label(wave_toast_label, 28, UiKit.GOLD, 4)
 	wave_toast_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.78))
 	wave_toast_label.add_theme_constant_override("shadow_offset_x", 0)
 	wave_toast_label.add_theme_constant_override("shadow_offset_y", 3)
@@ -5875,14 +5882,24 @@ func _finish(victory: bool) -> void:
 
 func _update_hud() -> void:
 	var hp_pct := float(base_hp) / float(base_hp_max) if base_hp_max > 0 else 0.0
-	var hp_fill := $Hud/TopBar/BaseHpBar/Fill
-	hp_fill.offset_right = lerpf(4.0, HUD_HP_FILL_RIGHT, hp_pct)
+	var hp_width := maxf(0.0, lerpf(4.0, HUD_HP_FILL_RIGHT, hp_pct) - 4.0)
+	var hp_fill_texture := get_node_or_null("Hud/TopBar/BaseHpBar/FillTexture") as TextureRect
+	if hp_fill_texture != null:
+		hp_fill_texture.size.x = hp_width
+	else:
+		var hp_fill := $Hud/TopBar/BaseHpBar/Fill
+		hp_fill.offset_right = lerpf(4.0, HUD_HP_FILL_RIGHT, hp_pct)
 	$Hud/TopBar/BaseHpBar/Label.text = "生命 %d/%d" % [base_hp, base_hp_max]
 	_update_low_hp_pulse(hp_pct)
 	_update_boss_hp_bar()
 	var wave_pct := float(wave_index) / float(wave_total) if wave_total > 0 else 0.0
 	displayed_wave_pct = lerpf(displayed_wave_pct, wave_pct, 0.22)
-	$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct)
+	var wave_width := maxf(0.0, lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct) - 4.0)
+	var wave_fill_texture := get_node_or_null("Hud/TopBar/WaveProgress/FillTexture") as TextureRect
+	if wave_fill_texture != null:
+		wave_fill_texture.size.x = wave_width
+	else:
+		$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct)
 	$Hud/TopBar/WaveProgress/Label.text = "第 %d/%d 波" % [wave_index, wave_total]
 	var xp_pct := float(xp) / float(next_xp_offer) if next_xp_offer > 0 else 0.0
 	displayed_xp_pct = lerpf(displayed_xp_pct, clamp(xp_pct, 0.0, 1.0), 0.28)
@@ -6611,19 +6628,22 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.mouse_entered.connect(_show_skill_hint_for_skill.bind(skill_id))
 	card.mouse_exited.connect(_hide_skill_hint)
 	var accent := _skill_card_accent(skill_id, row)
-	card.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.015, 0.028, 0.045, 0.92), 3, 8))
+	card.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(true))
 
-	var accent_bar := ColorRect.new()
+	var accent_bar := TextureRect.new()
 	accent_bar.position = Vector2(0, 0)
-	accent_bar.size = Vector2(7, 196)
-	accent_bar.color = accent
+	accent_bar.size = Vector2(18, 196)
+	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
+	accent_bar.modulate = accent
 	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(accent_bar)
 
 	var icon_box := PanelContainer.new()
 	icon_box.position = Vector2(20, 24)
 	icon_box.size = Vector2(132, 132)
-	icon_box.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.02, 0.04, 0.06, 0.82), 2, 8))
+	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon_box)
 	var icon := TextureRect.new()

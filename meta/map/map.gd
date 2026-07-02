@@ -244,16 +244,6 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(stage)
 
-	var top_line := ColorRect.new()
-	top_line.color = Color(accent.r, accent.g, accent.b, 0.12)
-	top_line.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	top_line.offset_left = 26
-	top_line.offset_top = 10
-	top_line.offset_right = -26
-	top_line.offset_bottom = 12
-	top_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stage.add_child(top_line)
-
 	if mode == "characters":
 		_add_nav_character_bust(stage)
 	elif ResourceLoader.exists(icon_path):
@@ -304,27 +294,6 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(lbl)
 
-	var underline := ColorRect.new()
-	underline.color = Color(accent.r, accent.g, accent.b, 0.16)
-	underline.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	underline.offset_left = 42
-	underline.offset_top = -6
-	underline.offset_right = -42
-	underline.offset_bottom = -3
-	underline.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stage.add_child(underline)
-
-	if has_divider:
-		var divider := ColorRect.new()
-		divider.color = Color(0.80, 0.70, 0.52, 0.08)
-		divider.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
-		divider.offset_left = -1
-		divider.offset_top = 18
-		divider.offset_right = 0
-		divider.offset_bottom = -18
-		divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stage.add_child(divider)
-
 	var hit := Button.new()
 	hit.name = "HitArea"
 	hit.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -362,64 +331,19 @@ func _add_nav_character_bust(stage: Control) -> void:
 	center.add_child(clip)
 	UiKit.add_character_bust(clip, row, Vector2(112, 86), 128.0, -30.0, Color(1.02, 1.02, 0.98, 1.0))
 
-func _set_nav_card_style(card: PanelContainer, style: StyleBoxFlat) -> void:
+func _set_nav_card_style(card: PanelContainer, style: StyleBox) -> void:
 	if not is_instance_valid(card):
 		return
 	card.add_theme_stylebox_override("panel", style)
 
-func _build_nav_dock_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.012, 0.014, 0.018, 0.88)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(0.78, 0.58, 0.34, 0.34)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 8
-	style.content_margin_top = 7
-	style.content_margin_right = 8
-	style.content_margin_bottom = 7
-	return style
+func _build_nav_dock_style() -> StyleBox:
+	return UiKit.panel_texture_style(8.0)
 
-func _build_nav_card_style(accent: Color, highlighted: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.020, 0.024, 0.030, 0.92) if highlighted else Color(0.014, 0.017, 0.022, 0.76)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.52 if highlighted else 0.16)
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
+func _build_nav_card_style(_accent: Color, _highlighted: bool) -> StyleBox:
+	return UiKit.map_nav_card_texture_style()
 
-func _build_nav_status_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.014, 0.017, 0.022, 0.88)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.40)
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	style.content_margin_left = 6
-	style.content_margin_top = 1
-	style.content_margin_right = 6
-	style.content_margin_bottom = 1
-	return style
+func _build_nav_status_style(_accent: Color) -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
 func _nav_title(mode: String) -> String:
 	match mode:
@@ -537,8 +461,8 @@ func _open_collection(mode: String) -> void:
 
 func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, stars: int) -> TextureButton:
 	var button := TextureButton.new()
-	button.custom_minimum_size = Vector2(900, 142)
-	var base_texture := load(BUTTON_SECONDARY)
+	button.custom_minimum_size = Vector2(900, 148)
+	var base_texture := load("res://assets/production/sprites/ui/ui_map_level_card_skin.png")
 	button.texture_normal = base_texture
 	button.texture_hover = base_texture
 	button.texture_pressed = base_texture
@@ -574,17 +498,13 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	card_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(card_frame)
 
-	var warm_wash := ColorRect.new()
-	warm_wash.position = Vector2(612, 14)
-	warm_wash.size = Vector2(260, 112)
-	warm_wash.color = Color(0.75, 0.52, 0.20, 0.07 if unlocked else 0.025)
-	warm_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(warm_wash)
-
-	var accent_bar := ColorRect.new()
+	var accent_bar := TextureRect.new()
 	accent_bar.position = Vector2(20, 22)
-	accent_bar.size = Vector2(5, 98)
-	accent_bar.color = Color(accent.r, accent.g, accent.b, 0.80 if unlocked else 0.34)
+	accent_bar.size = Vector2(18, 98)
+	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
+	accent_bar.modulate = Color(accent.r, accent.g, accent.b, 0.92 if unlocked else 0.42)
 	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(accent_bar)
 
@@ -625,46 +545,11 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	_add_deploy_status(button, unlocked)
 	return button
 
-func _level_card_style(accent: Color, unlocked: bool, stars: int, variant: String) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.010, 0.014, 0.018, 0.985) if unlocked else Color(0.012, 0.014, 0.017, 0.94)
-	var border := accent
-	if stars >= 3:
-		border = UiKit.GOLD
-	if variant in ["boss", "boss_rush", "elite"]:
-		border = UiKit.DANGER if variant != "boss" else UiKit.GOLD
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(border.r, border.g, border.b, 0.50 if unlocked else 0.24)
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_right = 14
-	style.corner_radius_bottom_left = 14
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
+func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
+	return UiKit.map_level_card_texture_style(not unlocked)
 
-func _level_index_style(accent: Color, unlocked: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.011, 0.015, 0.020, 0.92) if unlocked else Color(0.010, 0.012, 0.016, 0.82)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.58 if unlocked else 0.28)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 8
-	style.content_margin_top = 2
-	style.content_margin_right = 8
-	style.content_margin_bottom = 2
-	return style
+func _level_index_style(_accent: Color, _unlocked: bool) -> StyleBox:
+	return UiKit.map_index_texture_style()
 
 func _add_deploy_status(parent: Control, unlocked: bool) -> void:
 	var status := PanelContainer.new()
@@ -672,7 +557,7 @@ func _add_deploy_status(parent: Control, unlocked: bool) -> void:
 	status.size = Vector2(198, 38)
 	var accent := UiKit.GOLD if unlocked else UiKit.TEXT_MUTED
 	var bg := Color(0.12, 0.075, 0.024, 0.86) if unlocked else Color(0.020, 0.022, 0.026, 0.70)
-	status.add_theme_stylebox_override("panel", UiKit.pill_style(accent, bg))
+	status.add_theme_stylebox_override("panel", UiKit.deploy_pill_texture_style())
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(status)
 
@@ -702,7 +587,7 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 	var pill := PanelContainer.new()
 	pill.position = Vector2(516, 20)
 	pill.size = Vector2(128, 40)
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.080, 0.050, 0.020, 0.86)))
+	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
 	var text := UiKit.label(label, 18, accent, 2)
@@ -714,7 +599,7 @@ func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, 
 	var pill := PanelContainer.new()
 	pill.position = pos
 	pill.size = size
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.016, 0.020, 0.026, 0.84)))
+	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
 	var label := UiKit.label(text, 18, UiKit.TEXT_MAIN, 2)
@@ -727,7 +612,7 @@ func _add_element_pill(parent: Control, pos: Vector2, size: Vector2, element: St
 	var accent := UiKit.element_color(element)
 	pill.position = pos
 	pill.size = size
-	pill.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.016, 0.020, 0.026, 0.84)))
+	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
 	var row := HBoxContainer.new()

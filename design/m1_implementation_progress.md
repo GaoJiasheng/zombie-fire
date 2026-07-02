@@ -1548,3 +1548,52 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; Godot screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
 - `git diff --check` -> no whitespace errors.
+
+## Final Visual Runtime Audit Follow-Up (2026-07-02)
+
+> Fresh routed screenshots were captured after the UI line polish pass because the owner requested a global pass over images and every major interface. This audit found that some runtime screens are improved but still not at the requested top-tier App Store level.
+
+- **Evidence generated**: full runtime screen sheet at `tmp/final_visual_todo_2026_07_02/current_runtime_screens_sheet.png`, problem crop sheet at `tmp/final_visual_todo_2026_07_02/final_visual_problem_thumbnails.png`, and per-screen captures under `tmp/final_visual_todo_2026_07_02/screens/`.
+- **TODO documented**: `design/assets/final_visual_todo_2026_07_02.md` tracks P0/P1/P2 work for battle HUD, map cards, loadout slots, collection rows, result panels, VFX sequence tails, production videos, and missing source-reference artifacts.
+- **Screenshot blocker fixed**: `main._apply_safe_area()` now skips desktop/headless platforms, so macOS routed captures do not apply mobile display safe-area offsets.
+- **Battle capture blocker fixed**: `battle.gd` runtime HUD fill styling now targets `CanvasItem.modulate`, avoiding a typed `ColorRect.color` write against Panel-backed fills during capture.
+- **Current validation delta**: `python3 tools/check_visual_screens.py` passes on fresh routed screenshots, but `python3 tools/check_visual_assets.py` fails because expected source refs / combo manifest / combo visual matrix are missing from the current filesystem. This makes visual source traceability an open P0 item, regardless of older progress notes.
+
+## Final Visual P0/P1 Implementation Pass (2026-07-02)
+
+> Owner explicitly requested simultaneous P0/P1 execution, higher concurrency, top-tier rendered App Store standard, and no SVG/vector fallback. This pass implements the open P0/P1 visual tasks from `design/assets/final_visual_todo_2026_07_02.md` while preserving gameplay data, IDs, paths, level logic, and the fixed-bottom-turret form.
+
+- **Asset generation**: added `tools/generate_final_visual_p0p1_assets.py`; generated 39 raster PNG UI skins, copied the image-generation HUD reference into source refs, rebuilt source sheets / combo manifest / combo matrix, repaired 41 empty VFX tail frames, and regenerated 14 placeholder-length videos to 6 seconds at the same paths.
+- **Runtime hookup**: `UiKit` now exposes texture-backed `StyleBoxTexture` helpers. Map, loadout, collection, result, and battle HUD surfaces consume PNG skins for cards, chips, panels, hint strips, resource bars, HP/XP fills, skill slots, empty equipment sockets, result rewards, and cooldown overlays.
+- **Primitive cleanup**: removed the main player-facing `ColorRect` line/divider/card surfaces from audited screens. Functional overlays, dim layers, flash layers, text labels, and fallback style builders remain as P2 source-level cleanup rather than player-facing final art defects.
+- **Review evidence**: after sheet is `tmp/final_visual_todo_2026_07_02/final_p0p1_runtime_screens_after.png`; source spec is `assets/production/source_refs/generated/final_visual_p0p1_asset_spec_2026_07_02.json`; UI contact sheet is `assets/production/contact_sheets/contact_final_visual_p0p1_ui_2026_07_02.png`.
+- **Traceability note**: `assets/production/source_refs/` and `assets/production/contact_sheets/` are ignored by `.gitignore`, but the required local files are present and `tools/check_visual_assets.py` now passes.
+
+### Verification (after final visual P0/P1 implementation)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 6436 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 268 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 660 battle sprite files`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; screenshot subprocesses still print known small ObjectDB/resource cleanup warnings on some exits.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+
+## Release Candidate Closure (2026-07-02)
+
+> After the final visual P0/P1 implementation, the unified release candidate gate still failed on balance-profile metadata and one visible English level label. This closure fixes those gate failures without changing the fixed-bottom-turret form, combat scripts, level IDs, enemy rosters, weapon stats, or hardcoding content outside `data/*.json`.
+
+- **Card-budget metadata aligned**: updated only the failing levels' `xp_first_offer`, `xp_offer_growth`, and `xp_offer_ramp` fields in `data/levels.json` so `tools/check_balance_profile.py` predicts the same card-pick budget already expressed by `target_card_picks`.
+- **Collection unlock pacing widened**: adjusted late star unlock costs for selected weapons, armor, chips, and pets to create real mid/late milestones around 62, 90, 120, 150, 210, and 230 stars, satisfying the release guardrail while preserving early defaults.
+- **Release strings fixed**: replaced the remaining visible `Lv.` labels in `meta/collection/collection.gd` with Chinese `等级` labels.
+- **Final status**: `python3 tools/check_release_candidate.py` now passes end to end. Godot 4.7 headless subprocesses still print the known cleanup warnings on exit, but all validation commands exit successfully.
+
+### Verification (after release candidate closure)
+
+- `python3 tools/check_balance_profile.py` -> `Balance profile OK`; unlock star range `0 -> 230`.
+- `python3 tools/check_economy_loop.py` -> `Economy loop OK`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_release_strings.py` -> `Release string check OK`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.

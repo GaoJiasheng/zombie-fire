@@ -226,3 +226,15 @@
 - [x] 最终美术 P0 可见 UI 线条贴图化：地图、出战、图鉴、结算和战斗 HUD 中玩家可见的剩余直线框、按钮框、关卡卡片、资源 chip、星级/金币图标、血条/经验条主路径改为透明 PNG / `StyleBoxTexture` 皮肤；桌面截图 safe-area 推屏问题同步修复，运行截图输出到 `tmp/ui_line_polish_2026_07_02/screens/`。
 - [ ] 源码全局零几何清理：功能性 `ColorRect` overlay、Label 文本、禁用/闪白遮罩和 fallback `StyleBoxFlat` 仍保留；这些不是玩家主视觉线框，但如果要求源码层面“零 UI primitive”，需要单独做更高风险的控件语义替换。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。
+
+## 阶段 13 · 最终视觉验收开放 TODO（2026-07-02 复扫）
+
+详单与截图证据见 `design/assets/final_visual_todo_2026_07_02.md`。
+
+- [x] P0：战斗顶部 HUD、底部 HUD、教学提示主路径已贴图化；HP/波次/XP/Boss HP 填充、技能按钮冷却遮罩和波次提示改为 PNG / `StyleBoxTexture`。
+- [x] P0：地图关卡卡片、顶部资源/tab、关卡编号、弱点/状态 chip 和出战按钮已切到同一套暗金属/玻璃 PNG 皮肤，移除主要可见裸 `ColorRect` 线条。
+- [x] P0：已重新生成 `assets/production/source_refs/`、`assets/production/contact_sheets/`、角色武器组合 manifest/matrix；`python3 tools/check_visual_assets.py` 当前通过。
+- [x] P1：出战空槽、图鉴列表、结算页奖励/提示/主面板已接入贴图皮肤，空装备槽不再使用裸 “＋” 占位。
+- [x] P1：41 个 VFX 透明尾帧已补为淡出残影；14 个 2 秒 production video 已保留原路径重制为 6 秒版本。
+- [x] 发布候选闭环：修正中后期 `xp_first_offer` / `xp_offer_growth` / `xp_offer_ramp` 元数据，使预测卡牌数与现有 `target_card_picks` 对齐；拉开 collection 星级解锁成本到 62/90/120/150/210/230；`meta/collection/collection.gd` 可见等级文案已去掉 `Lv.` 英文残留；`python3 tools/check_release_candidate.py` 当前通过。
+- [ ] P2：源码全局零几何清理仍未做；功能性 dim overlay、闪白、Label、fallback `StyleBoxFlat` 和小型状态点仍保留，不影响本轮玩家主视觉贴图化结论。

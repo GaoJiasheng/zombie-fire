@@ -28,6 +28,8 @@ func setup(main: Node, payload := {}) -> void:
 	_refresh()
 
 func _ready() -> void:
+	if has_node("Root/Main/TopNeonLine"):
+		($Root/Main/TopNeonLine as ColorRect).visible = false
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
@@ -252,7 +254,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	frame.name = "SummaryGrid"
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.BORDER_SOFT, Color(0.018, 0.024, 0.032, 0.82), 2, 7))
+	frame.add_theme_stylebox_override("panel", UiKit.panel_texture_style(14.0))
 	panel.add_child(frame)
 
 	var box := VBoxContainer.new()
@@ -272,9 +274,12 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	state.custom_minimum_size = Vector2(142, 38)
 	title_row.add_child(state)
 
-	var divider := ColorRect.new()
-	divider.custom_minimum_size = Vector2(0, 2)
-	divider.color = Color(0.80, 0.64, 0.38, 0.42)
+	var divider := TextureRect.new()
+	divider.custom_minimum_size = Vector2(0, 8)
+	divider.texture = load("res://assets/production/sprites/ui/ui_map_pill_skin.png")
+	divider.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	divider.stretch_mode = TextureRect.STRETCH_SCALE
+	divider.modulate = Color(1.0, 0.72, 0.36, 0.45)
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(divider)
 
@@ -330,7 +335,7 @@ func _summary_tile(label_text: String, value_text: String, accent: Color, icon_p
 	var tile := PanelContainer.new()
 	tile.custom_minimum_size = Vector2(0, 54)
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tile.add_theme_stylebox_override("panel", UiKit.panel_style(accent, Color(0.018, 0.024, 0.032, 0.82), 2, 7))
+	tile.add_theme_stylebox_override("panel", UiKit.panel_texture_style(10.0))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	tile.add_child(row)
@@ -500,20 +505,10 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	stack.add_child(desc_label)
 	return card
 
-func _signature_card_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 10
-	style.content_margin_top = 6
-	style.content_margin_right = 10
-	style.content_margin_bottom = 6
-	return style
+func _signature_card_style(_bg: Color, _border: Color) -> StyleBox:
+	return UiKit.panel_texture_style(10.0)
 
 func _gear_icon_button(table: String, slot: String, selected_id: String, _fallback_id: String) -> Control:
-	# 未拥有/未装备 -> 干净的空槽（虚线感的暗框 + “＋”），点击进入收藏/商店。
 	var has_item := selected_id != ""
 	var row := DataLoader.get_row(table, selected_id) if has_item else {}
 	var accent := Color(1.0, 0.72, 0.28, 0.9) if slot == "armor" else Color(0.42, 0.92, 1.0, 0.82)
@@ -529,18 +524,6 @@ func _gear_icon_button(table: String, slot: String, selected_id: String, _fallba
 		"%s：%s" % [_slot_label(slot), item_name]
 	)
 	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.62, 0.68, 0.74, 0.95)
-	if not has_item:
-		var glyph := Label.new()
-		glyph.name = "EmptyGlyph"
-		glyph.text = "＋"
-		glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		glyph.position = Vector2.ZERO
-		glyph.size = GEAR_CARD_SIZE
-		glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		glyph.add_theme_font_size_override("font_size", int(GEAR_CARD_SIZE.y * 0.4))
-		glyph.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 0.6))
-		card.add_child(glyph)
 	(card.get_node("HitArea") as Button).pressed.connect(_open_collection.bind(table))
 	return card
 
@@ -557,9 +540,7 @@ func _icon_card(card_name: String, texture_path: String, card_size: Vector2, mar
 	frame.position = Vector2.ZERO
 	frame.size = card_size
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var border := accent if selected else UiKit.BORDER_SOFT
-	var bg := Color(0.026, 0.034, 0.044, 0.86) if enabled else Color(0.018, 0.022, 0.028, 0.64)
-	frame.add_theme_stylebox_override("panel", _icon_button_style(bg, border, 3 if selected else 2))
+	frame.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(selected, texture_path == ""))
 	card.add_child(frame)
 
 	var icon := TextureRect.new()
@@ -599,24 +580,13 @@ func _slot_label(slot: String) -> String:
 			return slot
 
 func _apply_icon_button_style(button: Button, selected: bool, enabled: bool, accent: Color) -> void:
-	var border := accent if selected else UiKit.BORDER_SOFT
-	var bg := Color(0.026, 0.034, 0.044, 0.86) if enabled else Color(0.018, 0.022, 0.028, 0.64)
-	button.add_theme_stylebox_override("normal", _icon_button_style(bg, border, 3 if selected else 2))
-	button.add_theme_stylebox_override("hover", _icon_button_style(Color(0.05, 0.065, 0.075, 0.96), accent, 4))
-	button.add_theme_stylebox_override("pressed", _icon_button_style(Color(0.02, 0.026, 0.034, 1.0), UiKit.GOLD, 4))
-	button.add_theme_stylebox_override("disabled", _icon_button_style(Color(0.015, 0.02, 0.026, 0.72), Color(0.17, 0.23, 0.28, 0.72), 2))
+	button.add_theme_stylebox_override("normal", UiKit.icon_frame_texture_style(selected, not enabled))
+	button.add_theme_stylebox_override("hover", UiKit.icon_frame_texture_style(true, false))
+	button.add_theme_stylebox_override("pressed", UiKit.icon_frame_texture_style(true, false))
+	button.add_theme_stylebox_override("disabled", UiKit.icon_frame_texture_style(false, true))
 
-func _icon_button_style(bg: Color, border: Color, width: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(7)
-	style.content_margin_left = 8
-	style.content_margin_top = 8
-	style.content_margin_right = 8
-	style.content_margin_bottom = 8
-	return style
+func _icon_button_style(_bg: Color, _border: Color, _width: int) -> StyleBox:
+	return UiKit.icon_frame_texture_style(false)
 
 func _apply_transparent_button_style(button: Button) -> void:
 	for key in ["normal", "hover", "pressed", "disabled", "focus"]:
@@ -664,15 +634,8 @@ func _build_equip_nav() -> void:
 		button.pressed.connect(_open_collection.bind(str(item[1])))
 		$EquipNav.add_child(button)
 
-func _nav_button_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	return style
+func _nav_button_style(_bg: Color, _border: Color) -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
 func _resolve_level_id(payload: Dictionary) -> String:
 	var provided := str(payload.get("level_id", ""))

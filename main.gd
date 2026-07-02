@@ -51,6 +51,8 @@ func _apply_scene_change() -> void:
 		_apply_safe_area(current_scene as Control)
 
 func _apply_safe_area(root: Control) -> void:
+	if not OS.get_name() in ["iOS", "Android"]:
+		return
 	var win := DisplayServer.window_get_size()
 	if win.x <= 0 or win.y <= 0:
 		return

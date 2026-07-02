@@ -33,9 +33,9 @@ func _ready() -> void:
 	$Content/Actions/MapButton.pressed.connect(_on_map_pressed)
 
 func _apply_ui_style() -> void:
-	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.018, 0.022, 0.030, 0.90), 3, 12))
-	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, Color(0.12, 0.08, 0.03, 0.88), 2, 10))
-	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.CYAN, Color(0.025, 0.040, 0.052, 0.88), 2, 10))
+	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
+	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("gold"))
+	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("xp"))
 	_reset_action_button_tints()
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	UiKit.apply_label($Content/HeroCard/HeroBox/Title, 86, UiKit.TEXT_MAIN, 6)
@@ -90,19 +90,7 @@ func _populate_hint(victory: bool) -> void:
 		$Content/HintCard/HintBox/HintIcon.texture = load("res://assets/production/sprites/ui/icon_warning.png")
 
 func _set_hint_style(card: PanelContainer, kind: String) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.14, 0.045, 0.035, 0.88) if kind == "warning" else Color(0.045, 0.090, 0.055, 0.88)
-	style.border_width_left = 4
-	style.border_color = Color(0.94, 0.38, 0.28, 0.62) if kind == "warning" else Color(0.50, 0.74, 0.42, 0.62)
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_right = 10
-	style.corner_radius_bottom_left = 10
-	style.content_margin_left = 22
-	style.content_margin_top = 18
-	style.content_margin_right = 22
-	style.content_margin_bottom = 18
-	card.add_theme_stylebox_override("panel", style)
+	card.add_theme_stylebox_override("panel", UiKit.hint_texture_style(kind == "warning"))
 
 func _populate_actions(victory: bool) -> void:
 	$Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel.text = _upgrade_action_label(victory)

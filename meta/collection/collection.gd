@@ -154,8 +154,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, 172)
-	var base_texture := load(BUTTON_SECONDARY)
+	button.custom_minimum_size = Vector2(760, 190)
+	var base_texture := load("res://assets/production/sprites/ui/ui_collection_card_skin.png")
 	button.texture_normal = base_texture
 	button.texture_hover = base_texture
 	button.texture_pressed = base_texture
@@ -171,8 +171,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
 	frame.position = Vector2(16, 14)
-	frame.size = Vector2(728, 144)
-	frame.add_theme_stylebox_override("panel", UiKit.panel_style(accent if selected else Color(accent.r, accent.g, accent.b, 0.48), Color(0.018, 0.024, 0.032, 0.70), 3 if selected else 2, 8))
+	frame.size = Vector2(728, 162)
+	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(frame)
 
@@ -216,7 +216,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.text = _item_desc(item_id, row, unlocked)
 	desc.position = Vector2(170, 110)
-	desc.size = Vector2(400, 38)
+	desc.size = Vector2(400, 52)
 	UiKit.apply_label(desc, 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
@@ -264,7 +264,12 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var max_level := maxi(1, levels.size())
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, 142)
+	button.custom_minimum_size = Vector2(760, 158)
+	var base_texture := load("res://assets/production/sprites/ui/ui_collection_skill_card_skin.png")
+	button.texture_normal = base_texture
+	button.texture_hover = base_texture
+	button.texture_pressed = base_texture
+	button.texture_disabled = base_texture
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
@@ -274,16 +279,19 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var card := PanelContainer.new()
 	card.name = "SkillCard"
 	card.position = Vector2(10, 6)
-	card.size = Vector2(740, 130)
+	card.size = Vector2(740, 146)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(card)
 
-	var accent_bar := ColorRect.new()
+	var accent_bar := TextureRect.new()
 	accent_bar.name = "AccentBar"
-	accent_bar.color = Color(accent.r, accent.g, accent.b, 0.92)
 	accent_bar.position = Vector2(10, 6)
-	accent_bar.size = Vector2(5, 130)
+	accent_bar.size = Vector2(18, 132)
+	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
+	accent_bar.modulate = Color(accent.r, accent.g, accent.b, 0.92)
 	accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(accent_bar)
 
@@ -340,11 +348,14 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(effect)
 
-	var divider := ColorRect.new()
+	var divider := TextureRect.new()
 	divider.name = "MetaDivider"
-	divider.color = Color(accent.r, accent.g, accent.b, 0.22)
 	divider.position = Vector2(586, 26)
-	divider.size = Vector2(2, 82)
+	divider.size = Vector2(10, 92)
+	divider.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	divider.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	divider.stretch_mode = TextureRect.STRETCH_SCALE
+	divider.modulate = Color(accent.r, accent.g, accent.b, 0.30)
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(divider)
 
@@ -360,7 +371,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var max_value := Label.new()
 	max_value.name = "MaxLevelValue"
-	max_value.text = "Lv.%d" % max_level
+	max_value.text = "等级%d" % max_level
 	max_value.position = Vector2(608, 56)
 	max_value.size = Vector2(112, 36)
 	max_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -427,18 +438,8 @@ func _style_upgrade_button(button: Button, item_level: int) -> void:
 	button.add_theme_stylebox_override("pressed", _upgrade_style(Color(0.08, 0.16, 0.25, 0.96), Color(0.35, 0.68, 1.0, 0.95)))
 	button.add_theme_stylebox_override("disabled", _upgrade_style(Color(0.08, 0.1, 0.14, 0.76), Color(0.28, 0.34, 0.44, 0.78)))
 
-func _upgrade_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(2)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	return style
+func _upgrade_style(_bg: Color, _border: Color) -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
 func _growth_rank(level: int) -> int:
 	if level >= 40:
@@ -508,7 +509,7 @@ func _skill_first_effect_text(row: Dictionary) -> String:
 		return "效果：%s" % _format_tags(row.get("card_tags", []))
 	var first: Dictionary = levels[0]
 	var effect: Dictionary = first.get("effect", {})
-	return "Lv.1：%s" % SkillEffectText.format_effect(effect)
+	return "等级1：%s" % SkillEffectText.format_effect(effect)
 
 func _element_name(element: String) -> String:
 	match str(element):
@@ -663,7 +664,7 @@ func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Arra
 		"characters":
 			var g := float(row.get("atk_growth", 0.08)) * 0.52
 			rows.append({"label": "攻击", "cur": "+%d%%" % int(round(g * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(g * float(nxt - 1) * 100.0)), "delta": "每级 +%d%%" % int(round(g * 100.0))})
-			rows.append({"label": "主动/专属技能", "cur": "Lv.%d" % level, "next": "Lv.%d" % nxt, "delta": "威力随等级成长"})
+			rows.append({"label": "主动/专属技能", "cur": "等级%d" % level, "next": "等级%d" % nxt, "delta": "威力随等级成长"})
 		"armors":
 			var ag := float(row.get("level_hp_growth", 0.0))
 			var hp := float(row.get("hp_mult", 1.0))
@@ -900,7 +901,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	if mode != "skills" and SaveManager.is_item_unlocked(slot, item_id):
 		var preview := _upgrade_preview_rows(item_id, row, item_level)
 		if not preview.is_empty():
-			var up_section := _make_section_panel("升级预览  (Lv.%d → %d)" % [item_level, item_level + 1], UiKit.GREEN)
+			var up_section := _make_section_panel("升级预览  (等级%d → %d)" % [item_level, item_level + 1], UiKit.GREEN)
 			detail_content.add_child(up_section)
 			var up_grid := GridContainer.new()
 			up_grid.columns = 1
@@ -1013,20 +1014,8 @@ func _compact_close_button(node_name: String) -> Button:
 	button.add_theme_stylebox_override("disabled", _compact_close_style(Color(0.02, 0.025, 0.03, 0.30), Color(0.35, 0.4, 0.45, 0.35)))
 	return button
 
-func _compact_close_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(1)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 2
-	return style
+func _compact_close_style(_bg: Color, _border: Color) -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
 func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -> Array:
 	var stats := []
@@ -1046,7 +1035,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			var armor_g := float(row.get("level_hp_growth", 0.0))
 			var armor_now := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(item_level - 1, 0)))
 			var armor_max := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(max_level - 1, 0)))
-			stats.append({"label": "生命", "value": "+%d%%" % int(round((armor_now - 1.0) * 100.0)), "sub": "Lv.%d · 满级 +%d%%" % [item_level, int(round((armor_max - 1.0) * 100.0))]})
+			stats.append({"label": "生命", "value": "+%d%%" % int(round((armor_now - 1.0) * 100.0)), "sub": "等级%d · 满级 +%d%%" % [item_level, int(round((armor_max - 1.0) * 100.0))]})
 			stats.append({"label": "抗性", "value": _element_name(row.get("resist", "none")), "sub": "防线承压"})
 			stats.append({"label": "屏障", "value": "+%d" % int(row.get("breach_shield", 0)), "sub": "防线容错"})
 		"chips":
@@ -1055,14 +1044,14 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			var chip_now := chip_base * (1.0 + chip_g * float(max(item_level - 1, 0)))
 			var chip_max := chip_base * (1.0 + chip_g * float(max(max_level - 1, 0)))
 			stats.append({"label": "属性", "value": _stat_name(row.get("stat", "stat")), "sub": "核心芯片"})
-			stats.append({"label": "增幅", "value": _value_text(chip_now), "sub": "Lv.%d · 满级 %s" % [item_level, _value_text(chip_max)]})
+			stats.append({"label": "增幅", "value": _value_text(chip_now), "sub": "等级%d · 满级 %s" % [item_level, _value_text(chip_max)]})
 		"pets":
 			stats.append({"label": "定位", "value": _role_name(row.get("role", "-")), "sub": _element_name(row.get("element", "none"))})
 			if row.has("damage"):
 				var pet_g := float(row.get("level_damage_growth", 0.0))
 				var pet_now := float(row.get("damage", 0)) * (1.0 + pet_g * float(max(item_level - 1, 0)))
 				var pet_max := float(row.get("damage", 0)) * (1.0 + pet_g * float(max(max_level - 1, 0)))
-				stats.append({"label": "伤害", "value": "%d" % int(round(pet_now)), "sub": "Lv.%d · 满级 %d" % [item_level, int(round(pet_max))]})
+				stats.append({"label": "伤害", "value": "%d" % int(round(pet_now)), "sub": "等级%d · 满级 %d" % [item_level, int(round(pet_max))]})
 			if row.has("fire_rate"):
 				stats.append({"label": "频率", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "自动协战"})
 			if row.has("heal_per_wave"):
@@ -1429,91 +1418,20 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 
 # === Helper builders for the modal ===
 
-func _build_panel_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.020, 0.025, 0.033, 0.97)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
-	style.border_color = Color(0.78, 0.62, 0.38, 0.56)
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_right = 12
-	style.corner_radius_bottom_left = 12
-	style.content_margin_left = 28
-	style.content_margin_top = 28
-	style.content_margin_right = 28
-	style.content_margin_bottom = 28
-	return style
+func _build_panel_style() -> StyleBox:
+	return UiKit.result_panel_texture_style()
 
-func _build_portrait_frame_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.038, 0.050, 0.90)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
-	style.border_color = Color(0.58, 0.68, 0.74, 0.62)
-	style.corner_radius_top_left = 18
-	style.corner_radius_top_right = 18
-	style.corner_radius_bottom_right = 18
-	style.corner_radius_bottom_left = 18
-	style.content_margin_left = 6
-	style.content_margin_top = 6
-	style.content_margin_right = 6
-	style.content_margin_bottom = 6
-	return style
+func _build_portrait_frame_style() -> StyleBox:
+	return UiKit.icon_frame_texture_style(true)
 
-func _build_level_badge_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.13, 0.09, 0.035, 0.92)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(0.92, 0.68, 0.34, 0.62)
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_right = 14
-	style.corner_radius_bottom_left = 14
-	return style
+func _build_level_badge_style() -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
-func _build_skill_card_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.023, 0.030, 0.92)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.44)
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_right = 12
-	style.corner_radius_bottom_left = 12
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
+func _build_skill_card_style(_accent: Color) -> StyleBox:
+	return UiKit.collection_card_texture_style(true)
 
-func _build_skill_icon_frame_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.006, 0.010, 0.016, 0.94)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
+func _build_skill_icon_frame_style(_accent: Color) -> StyleBox:
+	return UiKit.icon_frame_texture_style(false)
 
 func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelContainer:
 	var pill := PanelContainer.new()
@@ -1530,23 +1448,8 @@ func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelCo
 	pill.add_child(label)
 	return pill
 
-func _build_pill_style(border_color: Color, fill_color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill_color
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = border_color
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 16
-	style.content_margin_top = 4
-	style.content_margin_right = 16
-	style.content_margin_bottom = 4
-	return style
+func _build_pill_style(_border_color: Color, _fill_color: Color) -> StyleBox:
+	return UiKit.map_pill_texture_style()
 
 func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
@@ -1560,9 +1463,12 @@ func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 	title_row.add_theme_constant_override("separation", 10)
 	inner.add_child(title_row)
 	# Accent bar
-	var bar := ColorRect.new()
-	bar.color = accent
-	bar.custom_minimum_size = Vector2(6, 32)
+	var bar := TextureRect.new()
+	bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	bar.custom_minimum_size = Vector2(18, 36)
+	bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bar.stretch_mode = TextureRect.STRETCH_SCALE
+	bar.modulate = accent
 	title_row.add_child(bar)
 	var title_label := Label.new()
 	title_label.text = title
@@ -1573,23 +1479,8 @@ func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 	title_row.add_child(title_label)
 	return panel
 
-func _build_section_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.026, 0.034, 0.044, 0.72)
-	style.border_width_left = 4
-	style.border_width_top = 0
-	style.border_width_right = 0
-	style.border_width_bottom = 0
-	style.border_color = accent
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 18
-	style.content_margin_top = 14
-	style.content_margin_right = 18
-	style.content_margin_bottom = 14
-	return style
+func _build_section_style(_accent: Color) -> StyleBox:
+	return UiKit.panel_texture_style(14.0)
 
 func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -> PanelContainer:
 	var pill := PanelContainer.new()

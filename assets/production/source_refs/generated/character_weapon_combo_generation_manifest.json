@@ -1,0 +1,16 @@
+{
+  "stamp": "2026_07_02",
+  "intent": "Source traceability manifest for fused character/weapon animation frames used by battle firing poses.",
+  "combo_frame_count": 608,
+  "characters": [
+    "char_blaze",
+    "char_frost",
+    "char_vanguard",
+    "char_volt"
+  ],
+  "sample_matrix": "source_refs/generated/character_weapon_combo_matrix.png",
+  "source_sheets": [
+    "source_refs/hero_battle_pose_sheet.png",
+    "source_refs/handheld_weapon_sheet.png"
+  ]
+}
