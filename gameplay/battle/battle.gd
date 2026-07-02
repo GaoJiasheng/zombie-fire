@@ -9,6 +9,8 @@ const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
 const UiKit := preload("res://ui/ui_kit.gd")
+const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
+const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_band.png")
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y := 1500.0
@@ -228,7 +230,7 @@ var manual_aim_until := 0.0
 var battle_finished := false
 var pre_final_offer_used := false
 var debug_overlay_on := false
-var slow_field_rect: ColorRect
+var slow_field_rect: TextureRect
 var slow_field_particles: GPUParticles2D
 var slow_field_edge_lines: Array[Line2D] = []
 var slow_field_rune_layer: Node2D
@@ -327,7 +329,7 @@ var wave_tip_shown := {}
 var kill_streak := 0
 var last_kill_at := -99.0
 var low_hp_pulse: Control
-var screen_flash: ColorRect
+var screen_flash: TextureRect
 var screen_flash_tween: Tween
 var wave_toast_tween: Tween
 var wave_toast_banner: Control
@@ -703,12 +705,9 @@ func _ensure_character_skill_icon_nodes() -> void:
 	var label := button.get_node_or_null("Label") as Label
 	if label != null:
 		label.visible = false
-	var fill := button.get_node_or_null("CooldownFill") as ColorRect
-	if fill != null:
-		fill.set_anchors_preset(Control.PRESET_FULL_RECT)
-		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		fill.z_index = 6
-		fill.visible = false
+	var legacy_fill := button.get_node_or_null("CooldownFill") as CanvasItem
+	if legacy_fill != null:
+		legacy_fill.visible = false
 	if button.get_node_or_null("CooldownTexture") == null:
 		var cooldown := TextureRect.new()
 		cooldown.name = "CooldownTexture"
@@ -719,7 +718,7 @@ func _ensure_character_skill_icon_nodes() -> void:
 		cooldown.z_index = 6
 		cooldown.visible = false
 		button.add_child(cooldown)
-	var overlay := button.get_node_or_null("UnavailableOverlay") as ColorRect
+	var overlay := button.get_node_or_null("UnavailableOverlay") as Control
 	if overlay != null:
 		overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 		overlay.offset_left = 0.0
@@ -792,16 +791,8 @@ func _character_skill_style(ready: bool, _accent: Color, _hovered: bool, _presse
 func _character_skill_icon_style(_accent: Color, ready: bool) -> StyleBox:
 	return UiKit.icon_frame_texture_style(ready)
 
-func _character_skill_dot_style(accent: Color, pulse: float) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var alpha := 0.46 + 0.42 * pulse
-	style.bg_color = Color(accent.r, accent.g, accent.b, alpha)
-	style.border_color = Color(1.0, 0.94, 0.68, 0.24 + 0.44 * pulse)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
-	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30 + 0.35 * pulse)
-	style.shadow_size = 3 + int(round(5.0 * pulse))
-	return style
+func _character_skill_dot_style(_accent: Color, _pulse: float) -> StyleBox:
+	return UiKit.icon_frame_texture_style(true)
 
 func _character_active_icon_path() -> String:
 	match character_active_id:
@@ -1411,7 +1402,6 @@ func _update_character_skill_button() -> void:
 		return
 	var info: Dictionary = CharacterSkillText.signature_info(character_active_id)
 	var label: Label = $Hud/CharacterSkillButton/Label
-	var fill: ColorRect = $Hud/CharacterSkillButton/CooldownFill
 	var fill_texture := button.get_node_or_null("CooldownTexture") as TextureRect
 	var ready := character_active_cd <= 0.0 and not card_offer_active and not paused
 	button.disabled = not ready
@@ -1438,17 +1428,9 @@ func _update_character_skill_button() -> void:
 	var ratio := clampf(character_active_cd / maxf(character_active_cd_max, 0.1), 0.0, 1.0)
 	var fill_height := maxf(button.size.y - 24.0, 1.0)
 	if fill_texture != null:
-		fill.visible = false
 		fill_texture.visible = ratio > 0.0
 		fill_texture.position = Vector2(12.0, 12.0 + fill_height * (1.0 - ratio))
 		fill_texture.size = Vector2(maxf(button.size.x - 24.0, 1.0), fill_height * ratio)
-	else:
-		fill.visible = ratio > 0.0
-		fill.color = Color(0.0, 0.0, 0.0, 0.58)
-		fill.offset_left = 12.0
-		fill.offset_right = -12.0
-		fill.offset_bottom = -12.0
-		fill.offset_top = 12.0 + fill_height * (1.0 - ratio)
 	var cd_label := button.get_node_or_null("CooldownLabel") as Label
 	if cd_label != null:
 		cd_label.visible = character_active_cd > 0.0
@@ -1495,12 +1477,12 @@ func _update_character_skill_orbit(button: Control, ready: bool, accent: Color) 
 func _flash_character_skill_button_unavailable() -> void:
 	if not has_node("Hud/CharacterSkillButton/UnavailableOverlay"):
 		return
-	var overlay: ColorRect = $Hud/CharacterSkillButton/UnavailableOverlay
-	overlay.color = Color(1, 0.34, 0.28, 0.0)
+	var overlay := $Hud/CharacterSkillButton/UnavailableOverlay as CanvasItem
+	overlay.modulate = Color(1, 0.34, 0.28, 0.0)
 	overlay.visible = true
 	var tween := overlay.create_tween()
-	tween.tween_property(overlay, "color", Color(1, 0.34, 0.28, 0.55), 0.08)
-	tween.tween_property(overlay, "color", Color(1, 0.34, 0.28, 0.0), 0.55)
+	tween.tween_property(overlay, "modulate", Color(1, 0.34, 0.28, 0.55), 0.08)
+	tween.tween_property(overlay, "modulate", Color(1, 0.34, 0.28, 0.0), 0.55)
 	tween.tween_callback(func() -> void:
 		if is_instance_valid(overlay):
 			overlay.visible = false
@@ -2148,8 +2130,8 @@ func _setup_pause_overlay_layout() -> void:
 		return
 	var overlay := $Hud/PauseOverlay as Control
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := $Hud/PauseOverlay/Dim as ColorRect
-	dim.color = Color(0.0, 0.0, 0.0, 0.72)
+	var dim := $Hud/PauseOverlay/Dim as Control
+	dim.modulate = Color(0.0, 0.0, 0.0, 0.72)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	var panel := $Hud/PauseOverlay/Panel as Panel
 	panel.offset_left = 90.0
@@ -3405,6 +3387,8 @@ func _load_frame_set(base: String, anim: String, max_count: int) -> Array[Textur
 func _image_resource_exists(path: String) -> bool:
 	if ResourceLoader.exists(path):
 		return true
+	if path.begins_with("res://"):
+		return false
 	return FileAccess.file_exists(path)
 
 func _load_image_texture(path: String) -> Texture2D:
@@ -3412,6 +3396,8 @@ func _load_image_texture(path: String) -> Texture2D:
 		var loaded := load(path) as Texture2D
 		if loaded != null:
 			return loaded
+	if path.begins_with("res://"):
+		return null
 	if not FileAccess.file_exists(path):
 		return null
 	var image := Image.new()
@@ -4362,8 +4348,11 @@ func _shake_hud(amount: float, duration: float) -> void:
 	tween.tween_property($Hud, "offset", original, 0.05)
 
 func _show_boss_banner(boss_name: String) -> void:
-	var banner := ColorRect.new()
-	banner.color = Color(0.38, 0.02, 0.0, 0.78)
+	var banner := TextureRect.new()
+	banner.texture = load("res://assets/production/sprites/ui/ui_warning_strip.png")
+	banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	banner.stretch_mode = TextureRect.STRETCH_SCALE
+	banner.modulate = Color(1.0, 0.30, 0.18, 0.92)
 	banner.position = Vector2(-1080, 520)
 	banner.size = Vector2(1080, 106)
 	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -5335,11 +5324,14 @@ func _spawn_low_hp_pulse() -> void:
 		{"name": "Left", "pos": Vector2(0, 0), "size": Vector2(82, 1920)},
 		{"name": "Right", "pos": Vector2(998, 0), "size": Vector2(82, 1920)}
 	]:
-		var edge := ColorRect.new()
+		var edge := TextureRect.new()
 		edge.name = str(spec.get("name", "Edge"))
+		edge.texture = load("res://assets/production/sprites/vfx/vfx_threat_warning.png")
+		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		edge.stretch_mode = TextureRect.STRETCH_SCALE
 		edge.position = spec.get("pos", Vector2.ZERO)
 		edge.size = spec.get("size", Vector2.ZERO)
-		edge.color = Color(1.0, 0.04, 0.0, 0.0)
+		edge.modulate = Color(1.0, 0.04, 0.0, 0.0)
 		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		low_hp_pulse.add_child(edge)
 
@@ -5391,9 +5383,9 @@ func _set_low_hp_pulse_alpha(alpha: float) -> void:
 	if low_hp_pulse == null:
 		return
 	for child in low_hp_pulse.get_children():
-		if child is ColorRect:
-			var edge := child as ColorRect
-			edge.color.a = clampf(alpha, 0.0, 0.07)
+		if child is CanvasItem:
+			var edge := child as CanvasItem
+			edge.modulate.a = clampf(alpha, 0.0, 0.07)
 
 func _spawn_spit_attack_vfx(source: Node, target_position: Vector2) -> void:
 	if not is_instance_valid(source):
@@ -6041,39 +6033,11 @@ func _on_hud_skill_slot_input(event: InputEvent, skill_id: String) -> void:
 		else:
 			_end_skill_hint_press()
 
-func _skill_card_style(lv: int, max_lv: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var accent := _skill_level_color(lv, max_lv)
-	style.bg_color = Color(0.04, 0.075, 0.105, 0.82)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.8)
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.content_margin_left = 4
-	style.content_margin_top = 4
-	style.content_margin_right = 4
-	style.content_margin_bottom = 4
-	return style
+func _skill_card_style(_lv: int, _max_lv: int) -> StyleBox:
+	return UiKit.collection_card_texture_style(true)
 
-func _skill_card_icon_style(lv: int, max_lv: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var accent := _skill_level_color(lv, max_lv)
-	style.bg_color = Color(0.1, 0.16, 0.22, 0.88)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r * 0.7, accent.g * 0.7, accent.b * 0.7, 0.6)
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	return style
+func _skill_card_icon_style(lv: int, max_lv: int) -> StyleBox:
+	return UiKit.icon_frame_texture_style(lv >= max_lv and lv > 0)
 
 func _skill_level_color(lv: int, max_lv: int) -> Color:
 	if lv >= max_lv and lv > 0:
@@ -6302,9 +6266,11 @@ func _apply_slow_field() -> void:
 	_update_slow_field_visual(slow_level)
 
 func _spawn_slow_field_visual() -> void:
-	slow_field_rect = ColorRect.new()
+	slow_field_rect = TextureRect.new()
 	slow_field_rect.name = "SlowFieldShaderTint"
-	slow_field_rect.color = Color(1.0, 1.0, 1.0, 1.0)
+	slow_field_rect.texture = SLOW_FIELD_BAND_TEXTURE
+	slow_field_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	slow_field_rect.stretch_mode = TextureRect.STRETCH_SCALE
 	slow_field_rect.position = Vector2(0, 0)
 	slow_field_rect.size = Vector2(1080, 80)
 	slow_field_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7310,18 +7276,20 @@ func _check_low_hp_warning() -> void:
 
 func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	if screen_flash == null or not is_instance_valid(screen_flash):
-		screen_flash = ColorRect.new()
+		screen_flash = TextureRect.new()
 		screen_flash.name = "ScreenFlash"
+		screen_flash.texture = SCREEN_FLASH_TEXTURE
+		screen_flash.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		screen_flash.stretch_mode = TextureRect.STRETCH_SCALE
 		screen_flash.position = Vector2.ZERO
 		screen_flash.size = Vector2(1080, 1920)
 		screen_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		$Hud.add_child(screen_flash)
 	if screen_flash_tween != null and screen_flash_tween.is_valid():
 		screen_flash_tween.kill()
-	var current_alpha := screen_flash.color.a * screen_flash.modulate.a
+	var current_alpha := screen_flash.modulate.a
 	var alpha := minf(maxf(color.a, current_alpha), 0.14)
-	screen_flash.color = Color(color.r, color.g, color.b, alpha)
-	screen_flash.modulate.a = 1.0
+	screen_flash.modulate = Color(color.r, color.g, color.b, alpha)
 	screen_flash_tween = screen_flash.create_tween()
 	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://zf_battle"]
+[gd_scene load_steps=16 format=3 uid="uid://zf_battle"]
 
 [ext_resource type="Script" path="res://gameplay/battle/battle.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/backgrounds/bg_lava_foundry.png" id="2_bg"]
@@ -10,6 +10,10 @@
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_button_primary.png" id="9_btn"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_button_secondary.png" id="10_btn2"]
 [ext_resource type="Script" path="res://gameplay/hud/combo_hud.gd" id="11_combo"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_bar_fill_hp.png" id="12_hpfill"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_bar_fill_wave.png" id="13_wavefill"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_cd_overlay.png" id="14_cd"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_panel_skin.png" id="15_dim"]
 
 [sub_resource type="Environment" id="Environment_battle_vfx"]
 glow_enabled = true
@@ -74,12 +78,14 @@ texture = ExtResource("3_hp")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Fill" type="ColorRect" parent="Hud/TopBar/BaseHpBar"]
+[node name="FillTexture" type="TextureRect" parent="Hud/TopBar/BaseHpBar"]
 offset_left = 4.0
 offset_top = 11.0
 offset_right = 556.0
 offset_bottom = 23.0
-color = Color(0.94, 0.28, 0.24, 1)
+texture = ExtResource("12_hpfill")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="Hud/TopBar/BaseHpBar"]
 offset_left = 0.0
@@ -106,12 +112,14 @@ texture = ExtResource("5_wave")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Fill" type="ColorRect" parent="Hud/TopBar/WaveProgress"]
+[node name="FillTexture" type="TextureRect" parent="Hud/TopBar/WaveProgress"]
 offset_left = 4.0
 offset_top = 10.0
 offset_right = 370.0
 offset_bottom = 20.0
-color = Color(0.46, 0.8, 0.86, 1)
+texture = ExtResource("13_wavefill")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Label" type="Label" parent="Hud/TopBar/WaveProgress"]
 offset_left = 0.0
@@ -241,22 +249,27 @@ tooltip_text = "角色主动技能 (1)"
 focus_mode = 0
 z_index = 60
 
-[node name="CooldownFill" type="ColorRect" parent="Hud/CharacterSkillButton"]
+[node name="CooldownTexture" type="TextureRect" parent="Hud/CharacterSkillButton"]
 offset_left = 6.0
 offset_top = 92.0
 offset_right = 92.0
 offset_bottom = 92.0
 mouse_filter = 2
-color = Color(0, 0, 0, 0.52)
+texture = ExtResource("14_cd")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="UnavailableOverlay" type="ColorRect" parent="Hud/CharacterSkillButton"]
+[node name="UnavailableOverlay" type="TextureRect" parent="Hud/CharacterSkillButton"]
 visible = false
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 104.0
 offset_bottom = 104.0
 mouse_filter = 2
-color = Color(1, 0.34, 0.28, 0)
+texture = ExtResource("14_cd")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1, 0.34, 0.28, 0)
 
 [node name="Label" type="Label" parent="Hud/CharacterSkillButton"]
 layout_mode = 0
@@ -425,12 +438,15 @@ offset_top = 0.0
 offset_right = 880.0
 offset_bottom = 890.0
 
-[node name="Dim" type="ColorRect" parent="Hud/CardPanel/DetailOverlay"]
+[node name="Dim" type="TextureRect" parent="Hud/CardPanel/DetailOverlay"]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 880.0
 offset_bottom = 890.0
-color = Color(0, 0, 0, 0.72)
+texture = ExtResource("15_dim")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0, 0, 0, 0.72)
 
 [node name="Panel" type="Panel" parent="Hud/CardPanel/DetailOverlay"]
 offset_left = 70.0
@@ -489,11 +505,14 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Dim" type="ColorRect" parent="Hud/PauseOverlay"]
+[node name="Dim" type="TextureRect" parent="Hud/PauseOverlay"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.65)
+texture = ExtResource("15_dim")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0, 0, 0, 0.65)
 
 [node name="Panel" type="Panel" parent="Hud/PauseOverlay"]
 offset_left = 160.0

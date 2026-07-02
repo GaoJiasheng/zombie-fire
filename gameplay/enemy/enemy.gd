@@ -8,6 +8,10 @@ signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool,
 const BREACH_Y := 1500.0
 const BASE_ATTACK_Y := 1435.0
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
+const HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_base_hp_bar.png")
+const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
+const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
+const SHIELD_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_wave.png")
 
 var data := {}
 var max_hp := 100.0
@@ -79,8 +83,8 @@ var _last_recoil_at := -99.0
 const DOT_TICK_WINDOW := 0.5
 const DOT_TICK_MIN_DMG := 5.0
 var _dot_tick_acc: Dictionary = {}
-var _hp_bg: ColorRect
-var _hp_fill: ColorRect
+var _hp_bg: TextureRect
+var _hp_fill: TextureRect
 var _status_aura: Sprite2D
 var _glacier_aura: Sprite2D
 var _rank_aura: Sprite2D
@@ -496,15 +500,20 @@ func _flash(color: Color) -> void:
 	tween.tween_property($Sprite, "self_modulate", _base_modulate, 0.18)
 
 func _build_hp_bar() -> void:
-	_hp_bg = ColorRect.new()
+	_hp_bg = TextureRect.new()
 	_hp_bg.name = "HpBar"
-	_hp_bg.color = Color(0.04, 0.04, 0.04, 0.88)
+	_hp_bg.texture = HP_TRACK_TEXTURE if not boss else BOSS_HP_TRACK_TEXTURE
+	_hp_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_hp_bg.stretch_mode = TextureRect.STRETCH_SCALE
 	_hp_bg.size = Vector2(118, 12) if not boss else Vector2(220, 18)
 	_hp_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_hp_bg)
 
-	_hp_fill = ColorRect.new()
-	_hp_fill.color = Color(0.86, 0.12, 0.12, 1.0) if not boss else Color(1.0, 0.42, 0.18, 1.0)
+	_hp_fill = TextureRect.new()
+	_hp_fill.texture = HP_FILL_TEXTURE
+	_hp_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_hp_fill.stretch_mode = TextureRect.STRETCH_SCALE
+	_hp_fill.modulate = Color(0.86, 0.12, 0.12, 1.0) if not boss else Color(1.0, 0.42, 0.18, 1.0)
 	_hp_fill.position = Vector2(2, 2)
 	_hp_fill.size = _hp_bg.size - Vector2(4, 4)
 	_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -566,13 +575,17 @@ func _update_hp_bar() -> void:
 	var ratio := clampf(hp / max_hp if max_hp > 0.0 else 0.0, 0.0, 1.0)
 	_hp_fill.size.x = max((_hp_bg.size.x - 4.0) * ratio, 0.0)
 	if shield_hp > 0.0:
-		_hp_fill.color = Color(0.38, 0.76, 1.0, 1.0)
+		_hp_fill.texture = SHIELD_FILL_TEXTURE
+		_hp_fill.modulate = Color(0.82, 0.96, 1.0, 1.0)
 	elif armor_hits_left > 0 and not armor_broken:
-		_hp_fill.color = Color(0.86, 0.68, 0.42, 1.0)
+		_hp_fill.texture = HP_FILL_TEXTURE
+		_hp_fill.modulate = Color(0.98, 0.78, 0.38, 1.0)
 	elif boss:
-		_hp_fill.color = Color(1.0, 0.42, 0.18, 1.0)
+		_hp_fill.texture = HP_FILL_TEXTURE
+		_hp_fill.modulate = Color(1.0, 0.42, 0.18, 1.0)
 	else:
-		_hp_fill.color = Color(0.86, 0.12, 0.12, 1.0)
+		_hp_fill.texture = HP_FILL_TEXTURE
+		_hp_fill.modulate = Color(0.94, 0.18, 0.16, 1.0)
 	_hp_bg.visible = boss or ratio < 0.999
 	_update_status_label()
 

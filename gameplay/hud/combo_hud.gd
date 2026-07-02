@@ -10,7 +10,7 @@ var _last_hit_time := -99.0
 var _milestone_index := 0
 var _base_scale := 1.0
 var _frame: Panel
-var _accent_bar: ColorRect
+var _accent_bar: TextureRect
 
 @onready var _label: Label = $Label
 @onready var _milestone: Label = $Milestone
@@ -41,9 +41,9 @@ func _setup_visuals() -> void:
 	_frame.z_index = -1
 	_frame.add_theme_stylebox_override("panel", _combo_frame_style())
 
-	_accent_bar = get_node_or_null("AccentBar") as ColorRect
+	_accent_bar = get_node_or_null("AccentBar") as TextureRect
 	if _accent_bar == null:
-		_accent_bar = ColorRect.new()
+		_accent_bar = TextureRect.new()
 		_accent_bar.name = "AccentBar"
 		add_child(_accent_bar)
 		move_child(_accent_bar, 1)
@@ -52,7 +52,10 @@ func _setup_visuals() -> void:
 	_accent_bar.offset_right = 38.0
 	_accent_bar.offset_bottom = 66.0
 	_accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_accent_bar.color = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.86)
+	_accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	_accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
+	_accent_bar.modulate = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.86)
 
 	_label.offset_left = 46.0
 	_label.offset_top = 12.0
@@ -72,18 +75,8 @@ func _setup_visuals() -> void:
 	_milestone.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))
 	_milestone.add_theme_constant_override("outline_size", 5)
 
-func _combo_frame_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.035, 0.028, 0.018, 0.76)
-	style.border_color = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.62)
-	style.set_border_width_all(2)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 2
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 2
-	style.shadow_color = Color(0, 0, 0, 0.42)
-	style.shadow_size = 8
-	return style
+func _combo_frame_style() -> StyleBox:
+	return UiKit.texture_style("res://assets/production/sprites/ui/ui_combo_panel.png", 28.0, 8.0, UiKit.GOLD)
 
 func register_kill() -> void:
 	_count += 1

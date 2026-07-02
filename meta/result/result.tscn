@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://zf_result"]
+[gd_scene load_steps=10 format=3 uid="uid://zf_result"]
 
 [ext_resource type="Script" path="res://meta/result/result.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/backgrounds/bg_city_ruins.png" id="4_bg"]
@@ -8,86 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/icon_currency_xp.png" id="8_xp"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/icon_warning.png" id="9_warn"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/icon_currency_star.png" id="10_star"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_card"]
-bg_color = Color(0.018, 0.022, 0.03, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.78, 0.62, 0.38, 0.55)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-content_margin_left = 24
-content_margin_top = 22
-content_margin_right = 24
-content_margin_bottom = 22
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_reward_gold"]
-bg_color = Color(0.12, 0.08, 0.03, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.88, 0.64, 0.32, 0.62)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-content_margin_left = 18
-content_margin_top = 18
-content_margin_right = 18
-content_margin_bottom = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_reward_xp"]
-bg_color = Color(0.025, 0.04, 0.052, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.46, 0.8, 0.86, 0.55)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-content_margin_left = 18
-content_margin_top = 18
-content_margin_right = 18
-content_margin_bottom = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_hint"]
-bg_color = Color(0.14, 0.045, 0.035, 0.88)
-border_width_left = 4
-border_width_top = 0
-border_width_right = 0
-border_width_bottom = 0
-border_color = Color(0.94, 0.38, 0.28, 0.62)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-content_margin_left = 22
-content_margin_top = 18
-content_margin_right = 22
-content_margin_bottom = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_hint_victory"]
-bg_color = Color(0.045, 0.09, 0.055, 0.88)
-border_width_left = 4
-border_width_top = 0
-border_width_right = 0
-border_width_bottom = 0
-border_color = Color(0.5, 0.74, 0.42, 0.62)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-content_margin_left = 22
-content_margin_top = 18
-content_margin_right = 22
-content_margin_bottom = 18
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_panel_skin.png" id="11_dim"]
 
 [node name="Result" type="Control"]
 layout_mode = 3
@@ -106,13 +27,16 @@ expand_mode = 1
 stretch_mode = 5
 modulate = Color(0.42, 0.42, 0.42, 1)
 
-[node name="Scrim" type="ColorRect" parent="."]
+[node name="Scrim" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-color = Color(0.006, 0.014, 0.02, 0.62)
+texture = ExtResource("11_dim")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.006, 0.014, 0.02, 0.62)
 
 [node name="Content" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -129,7 +53,6 @@ theme_override_constants/separation = 18
 
 [node name="HeroCard" type="PanelContainer" parent="Content"]
 custom_minimum_size = Vector2(980, 0)
-theme_override_styles/panel = SubResource("StyleBox_card")
 
 [node name="HeroBox" type="VBoxContainer" parent="Content/HeroCard"]
 theme_override_constants/separation = 8
@@ -167,7 +90,6 @@ theme_override_constants/separation = 18
 [node name="GoldCard" type="PanelContainer" parent="Content/RewardRow"]
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
-theme_override_styles/panel = SubResource("StyleBox_reward_gold")
 
 [node name="GoldBox" type="HBoxContainer" parent="Content/RewardRow/GoldCard"]
 theme_override_constants/separation = 18
@@ -197,7 +119,6 @@ theme_override_constants/outline_size = 3
 [node name="XpCard" type="PanelContainer" parent="Content/RewardRow"]
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
-theme_override_styles/panel = SubResource("StyleBox_reward_xp")
 
 [node name="XpBox" type="HBoxContainer" parent="Content/RewardRow/XpCard"]
 theme_override_constants/separation = 18
@@ -226,7 +147,6 @@ theme_override_constants/outline_size = 3
 
 [node name="HintCard" type="PanelContainer" parent="Content"]
 custom_minimum_size = Vector2(980, 0)
-theme_override_styles/panel = SubResource("StyleBox_hint")
 
 [node name="HintBox" type="HBoxContainer" parent="Content/HintCard"]
 theme_override_constants/separation = 18

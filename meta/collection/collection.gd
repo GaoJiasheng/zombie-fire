@@ -806,8 +806,11 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	_detail_modal.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_detail_modal)
 
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.78)
+	var dim := TextureRect.new()
+	dim.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
+	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	dim.stretch_mode = TextureRect.STRETCH_SCALE
+	dim.modulate = Color(0, 0, 0, 0.78)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_detail_modal.add_child(dim)
@@ -1175,8 +1178,11 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	_detail_modal.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_detail_modal)
 	# Dim background
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.78)
+	var dim := TextureRect.new()
+	dim.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
+	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	dim.stretch_mode = TextureRect.STRETCH_SCALE
+	dim.modulate = Color(0, 0, 0, 0.78)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_detail_modal.add_child(dim)

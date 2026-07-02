@@ -21,7 +21,7 @@ P0 and P1 are now implemented for the player-facing surfaces listed below.
 - Repaired 41 fully transparent VFX tail frames by replacing them with fading bitmap residue, so sequence endings no longer create blank-frame dead air.
 - Replaced 14 two-second production videos with six-second MP4s at the same paths.
 - Rewired map, loadout, collection, result, and battle HUD surfaces to consume PNG skins for cards, chips, reward panels, hint strips, icon frames, skill slots, health/XP fills, and cooldown overlays.
-- Remaining P2 cleanup is source-level primitive removal for functional overlays/fallbacks; this is lower priority than the visual surfaces and carries higher UI behavior risk.
+- P2 source-level UI primitive cleanup is now implemented: runtime UI overlays/fallbacks use texture-backed or empty style resources, and `ColorRect` / `StyleBoxFlat` are no longer present in `gameplay/`, `meta/`, or `ui/` `.gd/.tscn` files.
 
 ## P0 - Must Fix Before Final Visual Signoff
 
@@ -82,10 +82,11 @@ P0 and P1 are now implemented for the player-facing surfaces listed below.
 
 ## P2 - Internal Cleanup / Lower Priority
 
-1. Primitive drawing code remains in non-final or functional layers.
-   - Evidence: `rg "ColorRect|StyleBoxFlat|Line2D|Polygon2D|GPUParticles2D"` still finds hits in `meta/*`, `gameplay/*`, and `ui/ui_kit.gd`.
-   - Note: not every hit is a defect; dim overlays, hit targets, particles, and invisible layout helpers can remain. Only player-visible surfaces need replacement.
+1. Primitive drawing code remains in non-final or functional layers. **Status: UI primitive cleanup complete.**
+   - Evidence: `rg -n "ColorRect|StyleBoxFlat" gameplay meta ui -g '*.gd' -g '*.tscn'` returns no matches.
+   - Remaining scan hits for `Line2D|Polygon2D|GPUParticles2D` are confined to projectile, battle, and VFX implementation paths. They are texture/material-backed combat effects, not UI card/frame/overlay skins.
+   - Follow-up: `tools/m1_smoke_test.gd` exits 0 but Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings during process teardown. Screenshot helper teardown is fixed.
 
-2. App Store screenshots should be recaptured after P0/P1 visual work.
-   - Evidence: current runtime captures changed after safe-area and battle HUD crash fixes.
-   - Target: regenerate `assets/appstore/screenshots/ios_67/*.png` only after the final UI pass.
+2. App Store screenshots should be recaptured after P0/P1 visual work. **Status: complete.**
+   - Evidence: refreshed captures under `tmp/final_p0_runtime_screens/`, regenerated `assets/appstore/screenshots/**`, and rebuilt `assets/production/video/vid_app_preview.mp4`.
+   - Verification: `python3 tools/check_app_store_assets.py`, `python3 tools/check_visual_screens.py`, and `python3 tools/check_release_candidate.py` pass.

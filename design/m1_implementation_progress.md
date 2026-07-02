@@ -1624,3 +1624,29 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
 - `git diff --check` -> no whitespace errors.
 - `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+## Final Visual P0/P1/P2 Closure Pass (2026-07-02)
+
+> Owner requested P0/P1/P2 to run together and finish under the top-tier rendered App Store standard, with no SVG/vector fallback. This pass closes the remaining source-level UI primitive cleanup and regenerates App Store-facing deliverables after the runtime polish.
+
+- **UI primitive removal**: `gameplay/`, `meta/`, and `ui/` `.gd/.tscn` files no longer contain `ColorRect` or `StyleBoxFlat`. HP/wave/XP fills, enemy HP bars, cooldown overlays, dim/scrim layers, boss banners, low-HP pulses, slow-field bands, result/settings/loadout scrims, modal buttons, panel styles, pill/resource-chip styles, and fallback styles now use `TextureRect`, `StyleBoxTexture`, or `StyleBoxEmpty`.
+- **Combat VFX boundary**: remaining `Line2D` / `Polygon2D` / `GPUParticles2D` hits are limited to projectile, battle, and VFX implementation paths. They are combat effect primitives with authored textures/materials, not player-facing UI frame/card/button geometry.
+- **App Store refresh**: reran routed runtime capture into `tmp/final_p0_runtime_screens/`, then regenerated `assets/appstore/screenshots/**`, `assets/app/launch_1080x1920.png`, and `assets/production/video/vid_app_preview.mp4` from the final P0 visual pipeline.
+- **Screenshot teardown**: `tools/_shot.gd` now frees the routed `main.tscn`, releases audio, and waits extra frames before exit; screenshot-based checks no longer print the earlier ObjectDB/resource cleanup warnings.
+- **Smoke teardown status**: `tools/m1_smoke_test.gd` now releases every 99-level loop battle instance and defers success quit, but Godot 4.7 headless still prints Canvas/TextServer/RID cleanup warnings after `M1 smoke test passed`. The test exits 0 and `python3 tools/check_release_candidate.py` passes; this is tracked as a residual teardown-warning item, not a visual/runtime blocker.
+
+### Verification (after final P0/P1/P2 closure)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7020 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 284 res:// references`; `res:// references OK`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known cleanup warnings at process teardown.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_app_store_assets.py` -> `App Store asset check OK`.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `rg -n "ColorRect|StyleBoxFlat" gameplay meta ui -g '*.gd' -g '*.tscn'` -> no matches.
+- `git diff --check` -> no whitespace errors.

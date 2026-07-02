@@ -34,11 +34,22 @@ func _initialize() -> void:
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")
+		await _cleanup_scene(main)
 		quit(2)
 		return
 	image.save_png(out_path)
 	print("shot saved: ", out_path, " size=", image.get_size())
-	quit()
+	await _cleanup_scene(main)
+	quit(0)
+
+func _cleanup_scene(main: Node) -> void:
+	if main != null and is_instance_valid(main):
+		main.queue_free()
+	var audio := root.get_node_or_null("/root/AudioManager")
+	if audio != null and audio.has_method("release_for_tests"):
+		audio.release_for_tests()
+	for i in range(3):
+		await process_frame
 
 func _apply_equipment_override(save_manager: Node, equipment_override: Dictionary) -> void:
 	var shot_save: Dictionary = save_manager.save_data.duplicate(true)

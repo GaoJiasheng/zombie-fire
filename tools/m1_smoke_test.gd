@@ -436,8 +436,8 @@ func _initialize() -> void:
 				battle.xp = int(ceil(float(battle.next_xp_offer) * battle.PREFINAL_CARD_OFFER_XP_RATIO))
 				_expect(battle._maybe_show_pre_final_card_offer(), "pre-final wave transition should offer a near-ready skill card")
 				_dismiss_card_offer_for_smoke(battle)
-				battle.queue_free()
-		await process_frame
+			battle.queue_free()
+			await process_frame
 
 	var result := _instance("res://meta/result/result.tscn")
 	root.add_child(result)
@@ -484,9 +484,13 @@ func _initialize() -> void:
 	recovered_result.queue_free()
 	router.queue_free()
 	audio_manager.release_for_tests()
-	await process_frame
+	for i in range(4):
+		await process_frame
 
 	print("M1 smoke test passed")
+	call_deferred("_quit_success")
+
+func _quit_success() -> void:
 	quit(0)
 
 func _instance(path: String) -> Node:

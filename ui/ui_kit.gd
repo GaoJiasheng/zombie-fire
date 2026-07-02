@@ -32,27 +32,11 @@ const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
 const FONT_SCALE := 1.3
 
-static func panel_style(accent := CYAN, bg := PANEL_BG, border_width := 2, radius := 8) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.64)
-	style.set_border_width_all(border_width)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 14
-	style.content_margin_top = 10
-	style.content_margin_right = 14
-	style.content_margin_bottom = 10
-	return style
+static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
 
-static func plate_style(accent := CYAN) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.022, 0.028, 0.82)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.52)
-	style.border_width_top = 2
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	return style
+static func plate_style(_accent := CYAN) -> StyleBox:
+	return texture_style(UI_TEXTURE_ROOT + "ui_plate_skin.png", 28.0, 8.0, CYAN)
 
 static func texture_style(path: String, margin := 24.0, content := 12.0, fallback_accent := CYAN) -> StyleBox:
 	if path != "" and ResourceLoader.exists(path):
@@ -67,7 +51,12 @@ static func texture_style(path: String, margin := 24.0, content := 12.0, fallbac
 		style.content_margin_right = content
 		style.content_margin_bottom = content
 		return style
-	return panel_style(fallback_accent)
+	var empty := StyleBoxEmpty.new()
+	empty.content_margin_left = content
+	empty.content_margin_top = content
+	empty.content_margin_right = content
+	empty.content_margin_bottom = content
+	return empty
 
 static func panel_texture_style(content := 18.0) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, content, CYAN)
@@ -125,16 +114,7 @@ static func hint_texture_style(warning := false) -> StyleBox:
 static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -> StyleBox:
 	if ResourceLoader.exists(UI_TEXTURE_ROOT + "ui_map_pill_skin.png"):
 		return map_pill_texture_style()
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.58)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 12
-	style.content_margin_top = 4
-	style.content_margin_right = 12
-	style.content_margin_bottom = 4
-	return style
+	return texture_style(UI_TEXTURE_ROOT + "ui_pill_skin.png", 24.0, 10.0, accent)
 
 static func apply_label(label: Label, size := 22, color := TEXT_MAIN, outline := 3) -> void:
 	label.add_theme_font_size_override("font_size", int(round(size * FONT_SCALE)))
@@ -276,16 +256,7 @@ const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 static func _resource_chip_style(accent: Color) -> StyleBox:
 	if ResourceLoader.exists(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png"):
 		return resource_chip_texture_style()
-	var s := StyleBoxFlat.new()
-	s.bg_color = Color(0.012, 0.016, 0.022, 0.78)
-	s.set_border_width_all(2)
-	s.border_color = Color(accent.r, accent.g, accent.b, 0.42)
-	s.set_corner_radius_all(11)
-	s.content_margin_left = 14
-	s.content_margin_right = 14
-	s.content_margin_top = 6
-	s.content_margin_bottom = 6
-	return s
+	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, accent)
 
 static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> Button:
 	var btn := Button.new()
@@ -371,21 +342,11 @@ static func _modal_button(text: String, accent: Color, primary: bool) -> Button:
 	b.custom_minimum_size = Vector2(196, 82)
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", int(30 * FONT_SCALE))
-	var fill_bg: Color = Color(accent.r, accent.g, accent.b, 0.92) if primary else Color(0.10, 0.12, 0.15, 0.92)
 	var fg: Color = GREY_900 if primary else TEXT_MAIN
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = fill_bg
-	normal.set_corner_radius_all(14)
-	normal.set_border_width_all(2)
-	normal.border_color = Color(accent.r, accent.g, accent.b, 0.85 if primary else 0.42)
-	normal.content_margin_left = 18
-	normal.content_margin_right = 18
-	normal.content_margin_top = 10
-	normal.content_margin_bottom = 10
-	var hover := normal.duplicate() as StyleBoxFlat
-	hover.bg_color = Color(minf(fill_bg.r + 0.10, 1.0), minf(fill_bg.g + 0.10, 1.0), minf(fill_bg.b + 0.10, 1.0), fill_bg.a)
-	var pressed := normal.duplicate() as StyleBoxFlat
-	pressed.bg_color = Color(fill_bg.r * 0.82, fill_bg.g * 0.82, fill_bg.b * 0.82, fill_bg.a)
+	var texture_path := UI_TEXTURE_ROOT + ("ui_modal_button_primary.png" if primary else "ui_modal_button_secondary.png")
+	var normal := texture_style(texture_path, 34.0, 14.0, accent)
+	var hover := texture_style(texture_path, 34.0, 14.0, accent)
+	var pressed := texture_style(texture_path, 34.0, 14.0, accent)
 	b.add_theme_stylebox_override("normal", normal)
 	b.add_theme_stylebox_override("hover", hover)
 	b.add_theme_stylebox_override("pressed", pressed)
@@ -399,8 +360,11 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	var accent: Color = opts.get("accent", GOLD)
 	var layer := CanvasLayer.new()
 	layer.layer = 128
-	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.64)
+	var dim := TextureRect.new()
+	dim.texture = load(UI_TEXTURE_ROOT + "ui_panel_skin.png")
+	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	dim.stretch_mode = TextureRect.STRETCH_SCALE
+	dim.modulate = Color(0.0, 0.0, 0.0, 0.64)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	layer.add_child(dim)

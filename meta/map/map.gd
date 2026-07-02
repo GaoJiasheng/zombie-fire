@@ -133,44 +133,11 @@ func _resource_chip_name(title: String) -> String:
 		_:
 			return "ResourceChip"
 
-func _resource_chip_style(accent: Color, hovered: bool, pressed: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var alpha := 0.90 if hovered else 0.74
-	style.bg_color = Color(0.012, 0.016, 0.022, alpha)
-	if pressed:
-		style.bg_color = Color(0.018, 0.024, 0.032, 0.96)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.68 if hovered else 0.38)
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_right = 10
-	style.corner_radius_bottom_left = 10
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
+func _resource_chip_style(_accent: Color, _hovered: bool, _pressed: bool) -> StyleBox:
+	return UiKit.resource_chip_texture_style()
 
-func _resource_tip_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.010, 0.014, 0.020, 0.94)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.54)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 14
-	style.content_margin_top = 6
-	style.content_margin_right = 14
-	style.content_margin_bottom = 6
-	return style
+func _resource_tip_style(_accent: Color) -> StyleBox:
+	return UiKit.hint_texture_style(false)
 
 func _show_resource_tip(title: String, tip: String, accent: Color) -> void:
 	AudioManager.play_sfx("ui_click", -8.0)

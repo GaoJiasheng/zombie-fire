@@ -30,7 +30,7 @@ func _button(path: String) -> Button:
 	return _vbox.get_node(path) as Button
 
 func _apply_style() -> void:
-	$Center/Panel.add_theme_stylebox_override("panel", UiKit.panel_style(UiKit.GOLD, UiKit.PANEL_BG_DARK, 3, 14))
+	$Center/Panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
 	UiKit.apply_label(_vbox.get_node("Title") as Label, 52, UiKit.TEXT_MAIN, 4)
 	for section in ["AudioSection", "VideoSection", "DataSection", "AboutSection"]:
 		UiKit.apply_label(_vbox.get_node(section) as Label, 26, UiKit.GOLD, 2)

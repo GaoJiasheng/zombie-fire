@@ -224,8 +224,9 @@
 - [x] Owner 参考表 UI/VFX 直切与运行时接入：将 owner 提供的两张顶级 UI/VFX 参考表复制到 `assets/production/source_refs/generated/`，直接裁切成 runtime UI PNG、VFX 单帧和 `vfx_sequences/**` 序列帧；修正卡框相邻素材混入与枪口行上方 UI 混入问题；`battle.gd` / `projectile.gd` 默认开启 authored bitmap VFX only，枪口、命中、死亡、连锁、范围、敌方技能、Boss 施法、护盾获得/破裂、选卡与 projectile 穿透主路径均优先播放 PNG 序列，不再叠加旧 `VfxLib` / `Line2D` 程序化特效。
 - [x] 最终美术 P0 战斗代码级余量（三轮）：战斗 VFX 主路径已切到 owner 参考表 PNG 序列；齐射、追踪、蓄力、暴击、减速场和护盾常驻显示在 `AUTHORED_BITMAP_VFX_ONLY` 下不再生成额外 `Line2D` / `Polygon2D` / 粒子几何叠层。
 - [x] 最终美术 P0 可见 UI 线条贴图化：地图、出战、图鉴、结算和战斗 HUD 中玩家可见的剩余直线框、按钮框、关卡卡片、资源 chip、星级/金币图标、血条/经验条主路径改为透明 PNG / `StyleBoxTexture` 皮肤；桌面截图 safe-area 推屏问题同步修复，运行截图输出到 `tmp/ui_line_polish_2026_07_02/screens/`。
-- [ ] 源码全局零几何清理：功能性 `ColorRect` overlay、Label 文本、禁用/闪白遮罩和 fallback `StyleBoxFlat` 仍保留；这些不是玩家主视觉线框，但如果要求源码层面“零 UI primitive”，需要单独做更高风险的控件语义替换。
-- [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings，需要单独 teardown pass；本项不改变本轮原型替换结论。
+- [x] P2 源码级 UI primitive 清理：`gameplay/`、`meta/`、`ui/` 的 `.gd/.tscn` 中已清零 `ColorRect` / `StyleBoxFlat`；功能性 dim、闪白、冷却遮罩、血条/经验条和 panel fallback 改为 `TextureRect` / `StyleBoxTexture` / `StyleBoxEmpty`。剩余 `Line2D` / `Polygon2D` / `GPUParticles2D` 命中都位于 projectile/battle/vfx 战斗特效路径，不是 UI 线框皮肤。
+- [x] P2 App Store 截图重捕：重新捕获 `tmp/final_p0_runtime_screens/`，重生成 `assets/appstore/screenshots/**` 与 `assets/production/video/vid_app_preview.mp4`；`python3 tools/check_app_store_assets.py` 与 `python3 tools/check_visual_screens.py` 当前通过。
+- [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings；已修复 screenshot helper teardown，smoke 仍需后续专项 teardown，不影响 release candidate exit 0。
 
 ## 阶段 13 · 最终视觉验收开放 TODO（2026-07-02 复扫）
 
@@ -238,4 +239,4 @@
 - [x] P1：41 个 VFX 透明尾帧已补为淡出残影；14 个 2 秒 production video 已保留原路径重制为 6 秒版本。
 - [x] 发布候选闭环：修正中后期 `xp_first_offer` / `xp_offer_growth` / `xp_offer_ramp` 元数据，使预测卡牌数与现有 `target_card_picks` 对齐；拉开 collection 星级解锁成本到 62/90/120/150/210/230；`meta/collection/collection.gd` 可见等级文案已去掉 `Lv.` 英文残留；`python3 tools/check_release_candidate.py` 当前通过。
 - [x] P0：角色持枪开火动作升级为 4 角色 x 8 武器 x 3 方向 x 7 帧融合 PNG 序列；开火窗口锁定 aim / muzzle / frame，同时允许下一发和 smoke 显式方向更新；动作帧保留 3px 透明安全边，`python3 tools/check_visual_assets.py` 与 `python3 tools/check_release_candidate.py` 当前通过。
-- [ ] P2：源码全局零几何清理仍未做；功能性 dim overlay、闪白、Label、fallback `StyleBoxFlat` 和小型状态点仍保留，不影响本轮玩家主视觉贴图化结论。
+- [x] P2：源码级 UI primitive 清理完成；`rg -n "ColorRect|StyleBoxFlat" gameplay meta ui -g '*.gd' -g '*.tscn'` 当前无命中。剩余几何节点仅在战斗 VFX / projectile 路径，且 release candidate 通过。

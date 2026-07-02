@@ -29,7 +29,7 @@ func setup(main: Node, payload := {}) -> void:
 
 func _ready() -> void:
 	if has_node("Root/Main/TopNeonLine"):
-		($Root/Main/TopNeonLine as ColorRect).visible = false
+		($Root/Main/TopNeonLine as CanvasItem).visible = false
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
