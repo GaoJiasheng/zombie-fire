@@ -157,6 +157,8 @@ const MAX_FLOAT_TEXTS := 8
 const MAX_PRIORITY_FLOAT_TEXTS := 12
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
+# 基地单次受伤上限 = 最大血量的比例。防止 Boss/技能"一下打死"，任何来源都受此限制。
+const MAX_BASE_HIT_FRACTION := 0.4
 const WAVE_TOAST_BASE_POSITION := Vector2(200, 196)
 const WAVE_TOAST_SIZE := Vector2(680, 96)
 const WAVE_TOAST_LONG_SIZE := Vector2(680, 132)
@@ -2516,6 +2518,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	if battle_finished:
 		return
 	var final_damage := maxi(0, damage)
+	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * MAX_BASE_HIT_FRACTION))))  # 防秒杀
 	var shield_absorbed := false
 	if final_damage > 0 and breach_shields + skill_barriers_left > 0:
 		if breach_shields > 0:
@@ -5743,6 +5746,7 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	_play_character_hurt()
 	_shake_hud(5.0, 0.1)
 	var final_damage := int(ceil(float(damage) * breach_damage_mult))
+	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * MAX_BASE_HIT_FRACTION))))  # 防秒杀
 	var shield_absorbed := false
 	if breach_shields + skill_barriers_left > 0:
 		if breach_shields > 0:

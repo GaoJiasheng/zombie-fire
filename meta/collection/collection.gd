@@ -649,23 +649,58 @@ func _weapon_special_text(row: Dictionary) -> String:
 		return "扩散 %d" % int(special.get("spread", 0))
 	return "标准弹道"
 
+# 升级预览：返回 [{label, cur, next, delta}]，直观展示本级 → 下级各属性变化。
+func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Array:
+	var max_level := int(row.get("max_level", 30))
+	if level >= max_level:
+		return []
+	var nxt := level + 1
+	var rows := []
+	match mode:
+		"weapons":
+			rows.append({"label": "伤害", "cur": "+%d%%" % int(round(0.08 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.08 * float(nxt - 1) * 100.0)), "delta": "每级 +8%"})
+			rows.append({"label": "射速", "cur": "+%d%%" % int(round(0.025 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.025 * float(nxt - 1) * 100.0)), "delta": "每级 +2.5%"})
+		"characters":
+			var g := float(row.get("atk_growth", 0.08)) * 0.52
+			rows.append({"label": "攻击", "cur": "+%d%%" % int(round(g * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(g * float(nxt - 1) * 100.0)), "delta": "每级 +%d%%" % int(round(g * 100.0))})
+			rows.append({"label": "主动/专属技能", "cur": "Lv.%d" % level, "next": "Lv.%d" % nxt, "delta": "威力随等级成长"})
+		"armors":
+			var ag := float(row.get("level_hp_growth", 0.0))
+			var hp := float(row.get("hp_mult", 1.0))
+			rows.append({"label": "基地生命", "cur": "+%d%%" % int(round((hp * (1.0 + ag * float(level - 1)) - 1.0) * 100.0)), "next": "+%d%%" % int(round((hp * (1.0 + ag * float(nxt - 1)) - 1.0) * 100.0)), "delta": "每级 +%d%%" % int(round(hp * ag * 100.0))})
+		"chips":
+			var cg := float(row.get("level_value_growth", 0.0))
+			var base := float(row.get("value", 0))
+			rows.append({"label": _stat_name(row.get("stat", "增幅")), "cur": _value_text(base * (1.0 + cg * float(level - 1))), "next": _value_text(base * (1.0 + cg * float(nxt - 1))), "delta": "每级 +%s" % _value_text(base * cg)})
+		"pets":
+			if row.has("damage"):
+				var pg := float(row.get("level_damage_growth", 0.0))
+				var pbase := float(row.get("damage", 0))
+				rows.append({"label": "伤害", "cur": "%d" % int(round(pbase * (1.0 + pg * float(level - 1)))), "next": "%d" % int(round(pbase * (1.0 + pg * float(nxt - 1)))), "delta": "每级 +%d" % int(round(pbase * pg))})
+			if row.has("heal_per_wave"):
+				var hg := float(row.get("level_heal_growth", 0.0))
+				var hbase := float(row.get("heal_per_wave", 0))
+				rows.append({"label": "每波修复", "cur": "%d" % int(round(hbase * (1.0 + hg * float(level - 1)))), "next": "%d" % int(round(hbase * (1.0 + hg * float(nxt - 1)))), "delta": "每级 +%d%%" % int(round(hg * 100.0))})
+	return rows
+
 func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 	var level := SaveManager.get_item_level(item_id)
 	var max_level := int(row.get("max_level", 30))
 	if level >= max_level:
 		return "已满级"
-	var next := level + 1
-	if [8, 15, 25].has(next):
-		return "下级解锁质变档"
 	match mode:
+		"weapons":
+			return "下级 伤害+8% · 射速+2.5%"
 		"characters":
-			return "下级攻防成长"
+			return "下级 攻击+%d%%" % int(round(float(row.get("atk_growth", 0.08)) * 0.52 * 100.0))
 		"armors":
-			return "下级生命成长"
+			return "下级 生命+%d%%" % int(round(float(row.get("hp_mult", 1.0)) * float(row.get("level_hp_growth", 0.0)) * 100.0))
 		"chips":
-			return "下级芯片增幅"
+			return "下级 %s +%s" % [_stat_name(row.get("stat", "增幅")), _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))]
 		"pets":
-			return "下级宠物效率"
+			if row.has("damage"):
+				return "下级 伤害+%d" % int(round(float(row.get("damage", 0)) * float(row.get("level_damage_growth", 0.0))))
+			return "下级 效率提升"
 		_:
 			return "下级强化"
 
@@ -861,6 +896,18 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	stats_section.get_child(0).add_child(stats_grid)
 	for stat in _detail_stats_for_item(item_id, row, item_level):
 		stats_grid.add_child(_make_stat_pill(str(stat.get("label", "")), str(stat.get("value", "")), str(stat.get("sub", ""))))
+	# 升级预览：本级 → 下级，直观看到"升级到底加了什么"
+	if mode != "skills" and SaveManager.is_item_unlocked(slot, item_id):
+		var preview := _upgrade_preview_rows(item_id, row, item_level)
+		if not preview.is_empty():
+			var up_section := _make_section_panel("升级预览  (Lv.%d → %d)" % [item_level, item_level + 1], UiKit.GREEN)
+			detail_content.add_child(up_section)
+			var up_grid := GridContainer.new()
+			up_grid.columns = 1
+			up_grid.add_theme_constant_override("v_separation", 8)
+			up_section.get_child(0).add_child(up_grid)
+			for pr in preview:
+				up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", ""))))
 	if mode == "skills":
 		detail_content.add_child(_make_skill_levels_section(row, accent))
 
