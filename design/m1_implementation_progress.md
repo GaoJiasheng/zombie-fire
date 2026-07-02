@@ -1597,3 +1597,30 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
 - `python3 tools/check_release_strings.py` -> `Release string check OK`.
 - `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+## Top-Tier Character Weapon Action Pass (2026-07-02)
+
+> Owner called out the character gun-holding / firing action as the most uncomfortable remaining piece. This pass targets that P0 feel issue with raster animation polish only: IDs, paths, weapon stats, level data, damage, targeting, and the fixed-bottom-turret form are unchanged.
+
+- **7-frame fused action contract**: added `tools/generate_top_tier_character_weapon_actions.py` and regenerated / sanitized all 4 characters x 8 weapons x 3 aim directions into 7-frame attack sequences: ready, ignition, max recoil, vent, settle, recover, return.
+- **Top-tier raster treatment**: each action frame keeps the existing `380x520` transparent PNG contract while adding weapon-specific muzzle ignition, recoil lean, venting, motion streaks, material contrast, and ground pulse. The built-in `image_gen` reference board is copied to `assets/production/source_refs/generated/top_tier_character_weapon_action_reference_2026_07_02.png`.
+- **Runtime sync**: `gameplay/battle/battle.gd` now loads 7 attack frames per direction, uses weapon-specific attack durations/recoil pose strength, locks aim/muzzle/frame during the shot window, and syncs an explicit next-shot/test direction into the locked aim so projectile origins remain correct.
+- **Safe canvas margins**: the generator enforces a 3px transparent border and a `--sanitize-existing` mode; this fixed the first visual scan failure where muzzle streaks touched the canvas edge.
+- **Traceability**: source spec is `assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_02.json`; review sheet is `assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_02.png`; `OUTSOURCER_ASSET_INDEX.json` records `final_character_weapon_action_pass_2026_07_02`.
+
+### Verification (after top-tier character weapon action pass)
+
+- `python3 -m py_compile tools/generate_top_tier_character_weapon_actions.py` -> pass.
+- `python3 tools/generate_top_tier_character_weapon_actions.py --sanitize-existing` -> sanitized `672` character weapon action frames.
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exits 0 after reimporting modified / new action PNGs.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7017 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 268 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`; screenshot subprocesses still print the known small ObjectDB/resource cleanup warnings on some exits.
+- `git diff --check` -> no whitespace errors.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.

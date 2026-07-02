@@ -143,6 +143,27 @@ const CHARACTER_WEAPON_SCALE := {
 	"weapon_teslacoil": 0.58,
 	"weapon_venomlauncher": 0.57,
 }
+const CHARACTER_WEAPON_ACTION_FRAME_COUNT := 7
+const CHARACTER_WEAPON_ATTACK_DURATION := {
+	"weapon_autocannon": 0.30,
+	"weapon_cryocannon": 0.34,
+	"weapon_flamethrower": 0.36,
+	"weapon_plasmacannon": 0.36,
+	"weapon_railgun": 0.38,
+	"weapon_scattergun": 0.40,
+	"weapon_teslacoil": 0.32,
+	"weapon_venomlauncher": 0.36,
+}
+const CHARACTER_WEAPON_RECOIL_POSE := {
+	"weapon_autocannon": 13.0,
+	"weapon_cryocannon": 15.0,
+	"weapon_flamethrower": 12.0,
+	"weapon_plasmacannon": 18.0,
+	"weapon_railgun": 21.0,
+	"weapon_scattergun": 24.0,
+	"weapon_teslacoil": 13.0,
+	"weapon_venomlauncher": 16.0,
+}
 const SKILL_ORDER := ["skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing", "skill_critical", "skill_barrier", "skill_gold_rush", "skill_ricochet", "skill_salvo", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_charge_shot", "skill_recycle"]
 const SKILL_SLOT_LIMIT := 8
 const HUD_HP_FILL_RIGHT := 556.0
@@ -255,6 +276,8 @@ var character_weapon_direction := CHARACTER_WEAPON_DEFAULT_DIRECTION
 var character_weapon_combo_active := false
 var character_weapon_combo_muzzle := CHARACTER_WEAPON_SOCKET
 var character_weapon_combo_aim := "center"
+var character_weapon_combo_locked_aim := ""
+var character_attack_duration := 0.30
 var pet_idle_frames: Array[Texture2D] = []
 var pet_attack_frames: Array[Texture2D] = []
 var pet_anim_time := 0.0
@@ -3050,14 +3073,15 @@ func _load_character_animation_frames() -> void:
 	character_weapon_combo_active = false
 	character_weapon_combo_muzzle = CHARACTER_WEAPON_SOCKET
 	character_weapon_combo_aim = "center"
+	character_weapon_combo_locked_aim = ""
 	character_attack_left_frames = []
 	character_attack_right_frames = []
 	var combo_base := _character_weapon_combo_base(asset_id)
 	if _image_resource_exists("%s_idle_01.png" % combo_base):
 		character_idle_frames = _load_frame_set(combo_base, "idle", 4)
-		character_attack_left_frames = _load_frame_set(combo_base, "attack_left", 4)
-		character_attack_frames = _load_frame_set(combo_base, "attack", 4)
-		character_attack_right_frames = _load_frame_set(combo_base, "attack_right", 4)
+		character_attack_left_frames = _load_frame_set(combo_base, "attack_left", CHARACTER_WEAPON_ACTION_FRAME_COUNT)
+		character_attack_frames = _load_frame_set(combo_base, "attack", CHARACTER_WEAPON_ACTION_FRAME_COUNT)
+		character_attack_right_frames = _load_frame_set(combo_base, "attack_right", CHARACTER_WEAPON_ACTION_FRAME_COUNT)
 		character_hurt_frames = _load_frame_set(combo_base, "hurt", 3)
 		if character_attack_left_frames.is_empty():
 			character_attack_left_frames = character_attack_frames.duplicate()
@@ -3116,8 +3140,10 @@ func _process_character_animation(delta: float) -> void:
 		character_skill_time -= delta
 	elif character_attack_time > 0.0:
 		frames = _character_combo_attack_frames()
-		fps = 14.0
+		fps = float(maxi(frames.size(), 1)) / maxf(character_attack_duration, 0.08)
 		character_attack_time -= delta
+		if character_attack_time <= 0.0:
+			character_weapon_combo_locked_aim = ""
 	if not frames.is_empty():
 		character_anim_time += delta
 		var next_frame := int(character_anim_time * fps)
@@ -3135,17 +3161,20 @@ func _process_character_animation(delta: float) -> void:
 func _character_combo_attack_frames() -> Array[Texture2D]:
 	if not character_weapon_combo_active:
 		return character_attack_frames
-	if character_weapon_combo_aim == "left" and not character_attack_left_frames.is_empty():
+	var aim := _character_combo_effective_aim()
+	if aim == "left" and not character_attack_left_frames.is_empty():
 		return character_attack_left_frames
-	if character_weapon_combo_aim == "right" and not character_attack_right_frames.is_empty():
+	if aim == "right" and not character_attack_right_frames.is_empty():
 		return character_attack_right_frames
 	return character_attack_frames
 
 func _play_character_attack() -> void:
-	character_attack_time = 0.24
+	character_attack_duration = float(CHARACTER_WEAPON_ATTACK_DURATION.get(weapon_id, 0.32))
+	character_attack_time = character_attack_duration
 	character_anim_time = 0.0
 	character_anim_frame = 0
-	_play_character_weapon_recoil(0.16)
+	character_weapon_combo_locked_aim = character_weapon_combo_aim
+	_play_character_weapon_recoil(minf(character_attack_duration, 0.28))
 
 func _play_character_skill(duration := 0.56) -> void:
 	character_skill_time = duration
@@ -3178,8 +3207,12 @@ func _update_character_body_pose() -> void:
 		pose_offset += Vector2(0.0, -12.0 * pulse)
 		pose_scale *= 1.0 + 0.035 * pulse
 	elif character_attack_time > 0.0:
-		var attack_ratio := clampf(character_attack_time / 0.24, 0.0, 1.0)
-		pose_offset += -character_weapon_direction * (8.0 * sin((1.0 - attack_ratio) * PI))
+		var attack_ratio := clampf(character_attack_time / maxf(character_attack_duration, 0.08), 0.0, 1.0)
+		var pulse := sin((1.0 - attack_ratio) * PI)
+		var recoil_strength := float(CHARACTER_WEAPON_RECOIL_POSE.get(weapon_id, 14.0))
+		pose_offset += -character_weapon_direction * (recoil_strength * pulse)
+		pose_rotation = deg_to_rad(clampf(character_weapon_direction.x, -0.8, 0.8) * 2.2 * pulse)
+		pose_scale *= 1.0 + 0.012 * pulse
 	character_sprite.position = pose_offset
 	character_sprite.rotation = pose_rotation
 	character_sprite.scale = pose_scale
@@ -3205,7 +3238,8 @@ func _update_character_weapon_pose(delta: float) -> void:
 	if character_weapon_direction.length_squared() <= 0.01:
 		character_weapon_direction = CHARACTER_WEAPON_DEFAULT_DIRECTION
 	if character_weapon_combo_active:
-		_set_character_combo_aim_from_direction(character_weapon_direction)
+		if character_weapon_combo_locked_aim == "":
+			_set_character_combo_aim_from_direction(character_weapon_direction)
 		return
 	if character_weapon_sprite == null:
 		return
@@ -3271,11 +3305,17 @@ func _weapon_socket_global() -> Vector2:
 func _character_combo_key() -> String:
 	return "%s/%s" % [_character_asset_id(), weapon_id]
 
+func _character_combo_effective_aim() -> String:
+	if character_weapon_combo_locked_aim != "":
+		return character_weapon_combo_locked_aim
+	return character_weapon_combo_aim
+
 func _character_combo_muzzle_for_aim() -> Vector2:
 	var combo_key := _character_combo_key()
-	if character_weapon_combo_aim == "left":
+	var aim := _character_combo_effective_aim()
+	if aim == "left":
 		return CHARACTER_WEAPON_COMBO_MUZZLE_LEFT.get(combo_key, character_weapon_combo_muzzle)
-	if character_weapon_combo_aim == "right":
+	if aim == "right":
 		return CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT.get(combo_key, character_weapon_combo_muzzle)
 	return character_weapon_combo_muzzle
 
@@ -3290,6 +3330,8 @@ func _set_character_combo_aim_from_direction(direction: Vector2) -> void:
 		character_weapon_combo_aim = "right"
 	else:
 		character_weapon_combo_aim = "center"
+	if character_weapon_combo_locked_aim != "":
+		character_weapon_combo_locked_aim = character_weapon_combo_aim
 
 func _weapon_fire_origin(include_muzzle := true) -> Vector2:
 	var socket := _weapon_socket_global()

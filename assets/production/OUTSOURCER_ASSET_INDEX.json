@@ -1038,5 +1038,16 @@
       "assets/production/sprites/vfx_sequences/vfx_skill_cast_tesla/vfx_skill_cast_tesla_12.png"
     ],
     "quality_bar": "Raster PNG/MP4 replacements only; no SVG/vector outputs; existing IDs and paths preserved."
-  }
+  },
+  "items": [
+    {
+      "id": "final_character_weapon_action_pass_2026_07_02",
+      "category": "animation_polish",
+      "status": "accepted",
+      "description": "Top-tier raster action pass for fused character/weapon firing frames: 7-frame anticipation, muzzle ignition, recoil, venting, recovery.",
+      "source": "assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_02.json",
+      "derived": "assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_02.png",
+      "reference": "assets/production/source_refs/generated/top_tier_character_weapon_action_reference_2026_07_02.png"
+    }
+  ]
 }

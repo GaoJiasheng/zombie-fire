@@ -237,4 +237,5 @@
 - [x] P1：出战空槽、图鉴列表、结算页奖励/提示/主面板已接入贴图皮肤，空装备槽不再使用裸 “＋” 占位。
 - [x] P1：41 个 VFX 透明尾帧已补为淡出残影；14 个 2 秒 production video 已保留原路径重制为 6 秒版本。
 - [x] 发布候选闭环：修正中后期 `xp_first_offer` / `xp_offer_growth` / `xp_offer_ramp` 元数据，使预测卡牌数与现有 `target_card_picks` 对齐；拉开 collection 星级解锁成本到 62/90/120/150/210/230；`meta/collection/collection.gd` 可见等级文案已去掉 `Lv.` 英文残留；`python3 tools/check_release_candidate.py` 当前通过。
+- [x] P0：角色持枪开火动作升级为 4 角色 x 8 武器 x 3 方向 x 7 帧融合 PNG 序列；开火窗口锁定 aim / muzzle / frame，同时允许下一发和 smoke 显式方向更新；动作帧保留 3px 透明安全边，`python3 tools/check_visual_assets.py` 与 `python3 tools/check_release_candidate.py` 当前通过。
 - [ ] P2：源码全局零几何清理仍未做；功能性 dim overlay、闪白、Label、fallback `StyleBoxFlat` 和小型状态点仍保留，不影响本轮玩家主视觉贴图化结论。
