@@ -74,11 +74,12 @@ texture = ExtResource("3_hp")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Fill" type="Panel" parent="Hud/TopBar/BaseHpBar"]
+[node name="Fill" type="ColorRect" parent="Hud/TopBar/BaseHpBar"]
 offset_left = 4.0
 offset_top = 11.0
 offset_right = 556.0
 offset_bottom = 23.0
+color = Color(0.94, 0.28, 0.24, 1)
 
 [node name="Label" type="Label" parent="Hud/TopBar/BaseHpBar"]
 offset_left = 0.0
@@ -105,11 +106,12 @@ texture = ExtResource("5_wave")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Fill" type="Panel" parent="Hud/TopBar/WaveProgress"]
+[node name="Fill" type="ColorRect" parent="Hud/TopBar/WaveProgress"]
 offset_left = 4.0
 offset_top = 10.0
 offset_right = 370.0
 offset_bottom = 20.0
+color = Color(0.46, 0.8, 0.86, 1)
 
 [node name="Label" type="Label" parent="Hud/TopBar/WaveProgress"]
 offset_left = 0.0
