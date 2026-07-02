@@ -239,12 +239,22 @@ func get_loadout_power() -> int:
 	var chip_id := get_selected("chip")
 	var pet_id := get_selected("pet")
 	var power := 0.0
-	power += float(get_item_level(character_id)) * 1.15
+	var char_level := get_item_level(character_id)
+	power += float(char_level) * 1.15
 	power += float(get_item_level(weapon_id)) * 1.45
 	power += float(get_item_level(armor_id)) * 0.85
 	power += float(get_item_level(chip_id)) * 0.75
 	if pet_id != "":
 		power += float(get_item_level(pet_id)) * 0.55
+	# 技能永久升级(通用技能 base level)——战力的大头，此前完全没算
+	var skill_levels := 0
+	for v in save_data.get("skill_base_levels", {}).values():
+		skill_levels += int(v)
+	power += float(skill_levels) * 1.30
+	# 角色主动/专属技能(2 个 signature，威力随角色等级成长)
+	if character_id != "":
+		var sig_count := int(DataLoader.get_row("characters", character_id).get("signature_skills", []).size())
+		power += float(sig_count) * (1.5 + 0.55 * float(char_level))
 	return int(round(power))
 
 func get_recommended_power_for_level(level_id: String) -> int:
