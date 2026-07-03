@@ -29,106 +29,106 @@ const CHARACTER_WEAPON_MUZZLE_DISTANCE := {
 	"weapon_venomlauncher": 70.0,
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE := {
-	"char_vanguard/weapon_autocannon": Vector2(15.7, -119.0),
-	"char_vanguard/weapon_flamethrower": Vector2(20.8, -121.0),
-	"char_vanguard/weapon_cryocannon": Vector2(22.1, -121.0),
-	"char_vanguard/weapon_teslacoil": Vector2(19.5, -119.7),
-	"char_vanguard/weapon_venomlauncher": Vector2(23.0, -120.6),
-	"char_vanguard/weapon_railgun": Vector2(25.9, -125.4),
-	"char_vanguard/weapon_scattergun": Vector2(20.8, -118.4),
-	"char_vanguard/weapon_plasmacannon": Vector2(19.8, -122.6),
-	"char_blaze/weapon_autocannon": Vector2(18.2, -118.1),
-	"char_blaze/weapon_flamethrower": Vector2(21.8, -119.0),
-	"char_blaze/weapon_cryocannon": Vector2(23.4, -119.0),
-	"char_blaze/weapon_teslacoil": Vector2(21.8, -118.4),
-	"char_blaze/weapon_venomlauncher": Vector2(24.6, -119.4),
-	"char_blaze/weapon_railgun": Vector2(27.5, -123.8),
-	"char_blaze/weapon_scattergun": Vector2(22.7, -117.8),
-	"char_blaze/weapon_plasmacannon": Vector2(21.1, -121.3),
-	"char_frost/weapon_autocannon": Vector2(18.9, -116.5),
-	"char_frost/weapon_flamethrower": Vector2(23.0, -117.8),
-	"char_frost/weapon_cryocannon": Vector2(24.3, -117.8),
-	"char_frost/weapon_teslacoil": Vector2(22.1, -116.8),
-	"char_frost/weapon_venomlauncher": Vector2(25.9, -117.8),
-	"char_frost/weapon_railgun": Vector2(28.5, -121.9),
-	"char_frost/weapon_scattergun": Vector2(23.4, -116.2),
-	"char_frost/weapon_plasmacannon": Vector2(22.4, -119.7),
-	"char_volt/weapon_autocannon": Vector2(17.6, -117.8),
-	"char_volt/weapon_flamethrower": Vector2(21.8, -119.0),
-	"char_volt/weapon_cryocannon": Vector2(23.0, -119.0),
-	"char_volt/weapon_teslacoil": Vector2(20.8, -118.1),
-	"char_volt/weapon_venomlauncher": Vector2(24.6, -119.0),
-	"char_volt/weapon_railgun": Vector2(27.2, -123.2),
-	"char_volt/weapon_scattergun": Vector2(22.1, -117.4),
-	"char_volt/weapon_plasmacannon": Vector2(21.1, -121.0),
+	"char_vanguard/weapon_autocannon": Vector2(118.1, -97.0),
+	"char_vanguard/weapon_flamethrower": Vector2(89.9, -75.2),
+	"char_vanguard/weapon_cryocannon": Vector2(95.7, -78.4),
+	"char_vanguard/weapon_teslacoil": Vector2(93.8, -76.8),
+	"char_vanguard/weapon_venomlauncher": Vector2(92.8, -77.8),
+	"char_vanguard/weapon_railgun": Vector2(118.1, -99.5),
+	"char_vanguard/weapon_scattergun": Vector2(115.8, -97.9),
+	"char_vanguard/weapon_plasmacannon": Vector2(113.6, -95.0),
+	"char_blaze/weapon_autocannon": Vector2(115.2, -99.5),
+	"char_blaze/weapon_flamethrower": Vector2(89.6, -78.1),
+	"char_blaze/weapon_cryocannon": Vector2(94.4, -81.3),
+	"char_blaze/weapon_teslacoil": Vector2(93.1, -80.3),
+	"char_blaze/weapon_venomlauncher": Vector2(90.9, -81.0),
+	"char_blaze/weapon_railgun": Vector2(115.5, -100.8),
+	"char_blaze/weapon_scattergun": Vector2(114.6, -99.5),
+	"char_blaze/weapon_plasmacannon": Vector2(111.7, -97.6),
+	"char_frost/weapon_autocannon": Vector2(117.1, -94.7),
+	"char_frost/weapon_flamethrower": Vector2(91.5, -73.9),
+	"char_frost/weapon_cryocannon": Vector2(96.0, -77.1),
+	"char_frost/weapon_teslacoil": Vector2(94.7, -76.2),
+	"char_frost/weapon_venomlauncher": Vector2(93.1, -76.8),
+	"char_frost/weapon_railgun": Vector2(117.4, -97.6),
+	"char_frost/weapon_scattergun": Vector2(115.2, -94.7),
+	"char_frost/weapon_plasmacannon": Vector2(112.6, -93.1),
+	"char_volt/weapon_autocannon": Vector2(117.8, -87.0),
+	"char_volt/weapon_flamethrower": Vector2(92.8, -65.0),
+	"char_volt/weapon_cryocannon": Vector2(97.3, -68.8),
+	"char_volt/weapon_teslacoil": Vector2(96.0, -67.8),
+	"char_volt/weapon_venomlauncher": Vector2(94.4, -68.5),
+	"char_volt/weapon_railgun": Vector2(118.7, -88.6),
+	"char_volt/weapon_scattergun": Vector2(115.8, -86.4),
+	"char_volt/weapon_plasmacannon": Vector2(113.9, -85.4),
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE_LEFT := {
-	"char_vanguard/weapon_autocannon": Vector2(-39.0, -112.3),
-	"char_vanguard/weapon_flamethrower": Vector2(-35.2, -116.2),
-	"char_vanguard/weapon_cryocannon": Vector2(-33.9, -116.5),
-	"char_vanguard/weapon_teslacoil": Vector2(-35.5, -114.6),
-	"char_vanguard/weapon_venomlauncher": Vector2(-33.3, -116.8),
-	"char_vanguard/weapon_railgun": Vector2(-32.6, -122.6),
-	"char_vanguard/weapon_scattergun": Vector2(-33.9, -113.9),
-	"char_vanguard/weapon_plasmacannon": Vector2(-36.8, -117.1),
-	"char_blaze/weapon_autocannon": Vector2(-35.5, -112.0),
-	"char_blaze/weapon_flamethrower": Vector2(-32.6, -114.9),
-	"char_blaze/weapon_cryocannon": Vector2(-31.0, -115.8),
-	"char_blaze/weapon_teslacoil": Vector2(-33.0, -113.3),
-	"char_blaze/weapon_venomlauncher": Vector2(-30.1, -116.5),
-	"char_blaze/weapon_railgun": Vector2(-29.4, -121.0),
-	"char_blaze/weapon_scattergun": Vector2(-30.7, -113.6),
-	"char_blaze/weapon_plasmacannon": Vector2(-34.2, -116.2),
-	"char_frost/weapon_autocannon": Vector2(-33.9, -110.4),
-	"char_frost/weapon_flamethrower": Vector2(-30.4, -113.3),
-	"char_frost/weapon_cryocannon": Vector2(-29.1, -113.9),
-	"char_frost/weapon_teslacoil": Vector2(-31.4, -111.7),
-	"char_frost/weapon_venomlauncher": Vector2(-28.2, -114.6),
-	"char_frost/weapon_railgun": Vector2(-28.2, -119.0),
-	"char_frost/weapon_scattergun": Vector2(-29.1, -112.0),
-	"char_frost/weapon_plasmacannon": Vector2(-31.7, -113.9),
-	"char_volt/weapon_autocannon": Vector2(-35.2, -111.7),
-	"char_volt/weapon_flamethrower": Vector2(-31.7, -114.6),
-	"char_volt/weapon_cryocannon": Vector2(-30.4, -115.2),
-	"char_volt/weapon_teslacoil": Vector2(-32.6, -113.0),
-	"char_volt/weapon_venomlauncher": Vector2(-29.4, -115.8),
-	"char_volt/weapon_railgun": Vector2(-29.4, -120.3),
-	"char_volt/weapon_scattergun": Vector2(-30.4, -113.3),
-	"char_volt/weapon_plasmacannon": Vector2(-33.0, -115.2),
+	"char_vanguard/weapon_autocannon": Vector2(-14.1, -89.6),
+	"char_vanguard/weapon_flamethrower": Vector2(14.1, -68.2),
+	"char_vanguard/weapon_cryocannon": Vector2(9.3, -72.3),
+	"char_vanguard/weapon_teslacoil": Vector2(10.9, -71.7),
+	"char_vanguard/weapon_venomlauncher": Vector2(10.6, -69.8),
+	"char_vanguard/weapon_railgun": Vector2(-17.0, -91.5),
+	"char_vanguard/weapon_scattergun": Vector2(-14.1, -89.3),
+	"char_vanguard/weapon_plasmacannon": Vector2(-11.2, -88.3),
+	"char_blaze/weapon_autocannon": Vector2(-10.9, -92.8),
+	"char_blaze/weapon_flamethrower": Vector2(15.7, -72.3),
+	"char_blaze/weapon_cryocannon": Vector2(10.9, -76.5),
+	"char_blaze/weapon_teslacoil": Vector2(12.8, -75.5),
+	"char_blaze/weapon_venomlauncher": Vector2(12.5, -73.6),
+	"char_blaze/weapon_railgun": Vector2(-13.8, -94.4),
+	"char_blaze/weapon_scattergun": Vector2(-11.5, -91.8),
+	"char_blaze/weapon_plasmacannon": Vector2(-8.6, -90.6),
+	"char_frost/weapon_autocannon": Vector2(-7.7, -88.3),
+	"char_frost/weapon_flamethrower": Vector2(19.5, -68.8),
+	"char_frost/weapon_cryocannon": Vector2(14.7, -72.6),
+	"char_frost/weapon_teslacoil": Vector2(16.6, -71.0),
+	"char_frost/weapon_venomlauncher": Vector2(16.0, -69.8),
+	"char_frost/weapon_railgun": Vector2(-10.6, -90.6),
+	"char_frost/weapon_scattergun": Vector2(-7.7, -87.7),
+	"char_frost/weapon_plasmacannon": Vector2(-5.1, -87.4),
+	"char_volt/weapon_autocannon": Vector2(-6.4, -80.0),
+	"char_volt/weapon_flamethrower": Vector2(20.8, -61.1),
+	"char_volt/weapon_cryocannon": Vector2(16.0, -64.3),
+	"char_volt/weapon_teslacoil": Vector2(17.9, -62.7),
+	"char_volt/weapon_venomlauncher": Vector2(17.3, -61.4),
+	"char_volt/weapon_railgun": Vector2(-9.3, -82.2),
+	"char_volt/weapon_scattergun": Vector2(-6.4, -79.4),
+	"char_volt/weapon_plasmacannon": Vector2(-3.8, -78.4),
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT := {
-	"char_vanguard/weapon_autocannon": Vector2(86.7, -119.4),
-	"char_vanguard/weapon_flamethrower": Vector2(91.5, -117.4),
-	"char_vanguard/weapon_cryocannon": Vector2(92.5, -116.5),
-	"char_vanguard/weapon_teslacoil": Vector2(89.9, -117.4),
-	"char_vanguard/weapon_venomlauncher": Vector2(93.1, -115.2),
-	"char_vanguard/weapon_railgun": Vector2(88.3, -113.3),
-	"char_vanguard/weapon_scattergun": Vector2(89.9, -115.5),
-	"char_vanguard/weapon_plasmacannon": Vector2(92.2, -119.0),
-	"char_blaze/weapon_autocannon": Vector2(87.4, -118.4),
-	"char_blaze/weapon_flamethrower": Vector2(90.9, -116.5),
-	"char_blaze/weapon_cryocannon": Vector2(91.8, -115.5),
-	"char_blaze/weapon_teslacoil": Vector2(89.3, -116.2),
-	"char_blaze/weapon_venomlauncher": Vector2(92.5, -114.2),
-	"char_blaze/weapon_railgun": Vector2(87.7, -112.3),
-	"char_blaze/weapon_scattergun": Vector2(90.2, -114.9),
-	"char_blaze/weapon_plasmacannon": Vector2(91.5, -118.1),
-	"char_frost/weapon_autocannon": Vector2(87.4, -116.8),
-	"char_frost/weapon_flamethrower": Vector2(91.5, -114.9),
-	"char_frost/weapon_cryocannon": Vector2(92.5, -114.2),
-	"char_frost/weapon_teslacoil": Vector2(90.2, -114.9),
-	"char_frost/weapon_venomlauncher": Vector2(93.1, -113.0),
-	"char_frost/weapon_railgun": Vector2(87.7, -110.7),
-	"char_frost/weapon_scattergun": Vector2(90.2, -113.0),
-	"char_frost/weapon_plasmacannon": Vector2(92.5, -116.5),
-	"char_volt/weapon_autocannon": Vector2(86.1, -118.1),
-	"char_volt/weapon_flamethrower": Vector2(90.2, -116.2),
-	"char_volt/weapon_cryocannon": Vector2(91.2, -115.5),
-	"char_volt/weapon_teslacoil": Vector2(89.0, -116.2),
-	"char_volt/weapon_venomlauncher": Vector2(91.8, -114.2),
-	"char_volt/weapon_railgun": Vector2(86.4, -112.0),
-	"char_volt/weapon_scattergun": Vector2(89.0, -114.2),
-	"char_volt/weapon_plasmacannon": Vector2(91.2, -117.8),
+	"char_vanguard/weapon_autocannon": Vector2(147.8, -69.8),
+	"char_vanguard/weapon_flamethrower": Vector2(114.9, -58.6),
+	"char_vanguard/weapon_cryocannon": Vector2(120.6, -60.2),
+	"char_vanguard/weapon_teslacoil": Vector2(118.1, -58.9),
+	"char_vanguard/weapon_venomlauncher": Vector2(117.8, -59.8),
+	"char_vanguard/weapon_railgun": Vector2(150.4, -71.4),
+	"char_vanguard/weapon_scattergun": Vector2(147.2, -70.4),
+	"char_vanguard/weapon_plasmacannon": Vector2(145.0, -68.2),
+	"char_blaze/weapon_autocannon": Vector2(145.0, -73.0),
+	"char_blaze/weapon_flamethrower": Vector2(113.0, -61.1),
+	"char_blaze/weapon_cryocannon": Vector2(118.7, -63.4),
+	"char_blaze/weapon_teslacoil": Vector2(116.8, -62.7),
+	"char_blaze/weapon_venomlauncher": Vector2(116.2, -63.7),
+	"char_blaze/weapon_railgun": Vector2(146.6, -73.3),
+	"char_blaze/weapon_scattergun": Vector2(144.0, -73.9),
+	"char_blaze/weapon_plasmacannon": Vector2(142.1, -72.0),
+	"char_frost/weapon_autocannon": Vector2(146.6, -68.5),
+	"char_frost/weapon_flamethrower": Vector2(114.9, -57.9),
+	"char_frost/weapon_cryocannon": Vector2(120.6, -59.5),
+	"char_frost/weapon_teslacoil": Vector2(119.0, -58.2),
+	"char_frost/weapon_venomlauncher": Vector2(117.4, -59.5),
+	"char_frost/weapon_railgun": Vector2(149.8, -70.7),
+	"char_frost/weapon_scattergun": Vector2(145.6, -68.8),
+	"char_frost/weapon_plasmacannon": Vector2(143.7, -67.8),
+	"char_volt/weapon_autocannon": Vector2(147.8, -60.8),
+	"char_volt/weapon_flamethrower": Vector2(116.2, -49.6),
+	"char_volt/weapon_cryocannon": Vector2(121.9, -50.6),
+	"char_volt/weapon_teslacoil": Vector2(120.3, -50.6),
+	"char_volt/weapon_venomlauncher": Vector2(118.7, -51.8),
+	"char_volt/weapon_railgun": Vector2(151.0, -62.4),
+	"char_volt/weapon_scattergun": Vector2(146.9, -61.1),
+	"char_volt/weapon_plasmacannon": Vector2(145.0, -59.5),
 }
 const WEAPON_VISUAL_PROFILES := {
 	"weapon_railgun": "rail",
@@ -182,6 +182,9 @@ const MAX_PRIORITY_FLOAT_TEXTS := 12
 const MULTISHOT_LANE_DEG := 7.0
 # 基地单次受伤上限 = 最大血量的比例。防止 Boss/技能"一下打死"，任何来源都受此限制。
 const MAX_BASE_HIT_FRACTION := 0.4
+# 第4/5波单独加血量(绝不加速度)：局内前几波卡牌叠加后输出膨胀明显，后两波用血量拉回张力。
+# 只对普通僵尸生效，不叠加到 Boss 身上(Boss 已单独调过速度/血量)。
+const LATE_WAVE_HP_BONUS := {4: 1.20, 5: 1.35}
 const WAVE_TOAST_BASE_POSITION := Vector2(200, 196)
 const WAVE_TOAST_SIZE := Vector2(680, 96)
 const WAVE_TOAST_LONG_SIZE := Vector2(680, 132)
@@ -2421,6 +2424,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
+	if not is_boss:
+		hp_level_coef *= float(LATE_WAVE_HP_BONUS.get(wave_index, 1.0))
 	enemy.setup(row, hp_level_coef, is_boss)
 	enemy.hit_feedback.connect(_on_enemy_hit_feedback)
 	enemy.damage_dealt.connect(_on_enemy_damage_dealt)
@@ -2923,10 +2928,45 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 	var center_dir := _multishot_center_direction(origin, base_direction)
 	var lane_step: float = maxf(deg_to_rad(MULTISHOT_LANE_DEG), spread / float(shots - 1))
 	var total: float = lane_step * float(shots - 1)
+	# 质心是"平均位置"，敌人分两侧站时质心可能落在没人的空地——固定夹角的扇形整体套在质心上会全部打空。
+	# 保证至少一条弹道真的对着某个敌人：质心扇形覆盖不到任何敌人时，把整个扇形(角度仍固定)
+	# 重新对准"离质心方向最近的那个真实敌人"，而不是让每条弹道各自变道锁敌（那样才是 imba）。
+	var enemy_dirs := _battlefield_enemy_directions(origin)
+	if not enemy_dirs.is_empty():
+		var half_span: float = total * 0.5 + lane_step * 0.5
+		var covered := false
+		for d in enemy_dirs:
+			if absf(center_dir.angle_to(d)) <= half_span:
+				covered = true
+				break
+		if not covered:
+			var best_dir: Vector2 = enemy_dirs[0]
+			var best_diff := INF
+			for d in enemy_dirs:
+				var diff := absf(center_dir.angle_to(d))
+				if diff < best_diff:
+					best_diff = diff
+					best_dir = d
+			center_dir = best_dir
 	for index in range(shots):
 		var offset: float = -total * 0.5 + lane_step * float(index)
 		directions.append(center_dir.rotated(offset).normalized())
 	return directions
+
+func _battlefield_enemy_directions(origin: Vector2) -> Array[Vector2]:
+	# 场上所有尚未越线的敌人相对 origin 的单位方向（供多重射击"至少一条弹道命中"判定用）。
+	var dirs: Array[Vector2] = []
+	for e in $EnemyLayer.get_children():
+		if not is_instance_valid(e) or not (e is Node2D):
+			continue
+		var en := e as Node2D
+		if en.global_position.y > 1540.0:
+			continue
+		var to_enemy: Vector2 = en.global_position - origin
+		if to_enemy.length_squared() <= 4.0:
+			continue
+		dirs.append(to_enemy.normalized())
+	return dirs
 
 func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
 	# 敌群质心方向（只算尚未越过基线的敌人）；无敌人时退回原瞄准方向。

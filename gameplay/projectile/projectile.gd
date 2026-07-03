@@ -11,6 +11,12 @@ const PIERCE_SWEEP_RANGE := 420.0
 const PIERCE_SWEEP_HALF_WIDTH := 92.0
 const MAX_LAYER_TRAIL_FX := 110
 const MAX_LAYER_HIT_FX := 150
+# 追踪弹：出膛先直飞这么远才开始追踪(多弹道追踪弹否则出膛瞬间就一起拐向同一目标，弹道立刻重合)。
+const HOMING_ACTIVATION_DISTANCE := 90.0
+# 追踪弹转向速率上限(弧度/秒)，按 homing_strength 线性给速率、但绝不超过这个硬上限——
+# 不再用"每帧朝目标方向 lerp"的软插值(那样在角度接近180°时能几帧内掉头，看起来像瞬间转弯)。
+const HOMING_TURN_RATE_PER_STRENGTH := 1.6  # rad/sec，每点 homing_strength 贡献的转向速率
+const HOMING_MAX_TURN_RATE := 12.0  # rad/sec 硬上限（约 687°/秒，180°掉头至少需要约 0.26 秒）
 
 var velocity := Vector2.ZERO
 var damage := 10.0
@@ -26,6 +32,7 @@ var visual_profile := ""
 var trail_timer := 0.0
 var trail_interval := 0.028
 var lifetime := 0.0
+var _spawn_position := Vector2.ZERO
 var chain_depth := 0
 var texture_override_path := ""
 var hit_target_ids := {}
@@ -34,6 +41,7 @@ var _projectile_vfx_ready := false
 
 func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "") -> void:
 	global_position = origin
+	_spawn_position = origin
 	var flight_direction := direction.normalized()
 	velocity = flight_direction * speed * PROJECTILE_SPEED_MULTIPLIER
 	rotation = flight_direction.angle() - SPRITE_FORWARD_ANGLE
@@ -79,15 +87,25 @@ func _physics_process(delta: float) -> void:
 func _apply_homing(delta: float) -> void:
 	if homing_strength <= 0.0:
 		return
+	# 多弹道追踪弹刚出膛时方向各不相同；如果立刻开始追踪，全部瞬间拐向同一最近目标、弹道当场重合。
+	# 先直飞一段距离，弹道先明显分开，之后再各自追踪。
+	if global_position.distance_to(_spawn_position) < HOMING_ACTIVATION_DISTANCE:
+		return
 	var target := _nearest_enemy()
 	if target == null:
 		return
 	var speed := velocity.length()
 	if speed <= 0.0:
 		return
-	# 只转方向、保持速度（用 lerp 直接混合等长向量会缩短结果，导致追踪弹越转越慢最后卡住）。
+	# 硬性最大转向角速度：不再用"每帧朝目标方向 lerp"的软插值(那样能在角度接近180°时
+	# 几帧内转出接近原地掉头的急弯)。改成真正按角速度上限旋转当前方向。
 	var desired_dir := (target.global_position - global_position).normalized()
-	var new_dir := velocity.normalized().lerp(desired_dir, clampf(homing_strength * delta, 0.0, 0.32)).normalized()
+	var current_dir := velocity.normalized()
+	var angle_diff := current_dir.angle_to(desired_dir)
+	var turn_rate := minf(homing_strength * HOMING_TURN_RATE_PER_STRENGTH, HOMING_MAX_TURN_RATE)
+	var max_step := turn_rate * delta
+	var step := clampf(angle_diff, -max_step, max_step)
+	var new_dir := current_dir.rotated(step)
 	if new_dir.length_squared() <= 0.0:
 		return
 	velocity = new_dir * speed
