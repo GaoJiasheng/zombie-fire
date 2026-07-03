@@ -19,6 +19,41 @@ func _ready() -> void:
 	_refresh_header()
 	_build_nav()
 	_build_levels()
+	_ensure_endless_button()
+
+# 无限尸潮入口：复用玩家当前解锁到的最高一关作为难度种子，波次打完循环继续、每轮血量递增，
+# 直到漏怪耗尽基地生命结束。奖励按撑过的轮数发放(不影响正常关卡进度/解锁)。
+func _ensure_endless_button() -> void:
+	if get_node_or_null("Root/VBox/EndlessButton") != null:
+		return
+	var vbox := $Root/VBox as VBoxContainer
+	var wrap := get_node_or_null("Root/VBox/ResourceBarWrap") as Control
+	var btn := TextureButton.new()
+	btn.name = "EndlessButton"
+	btn.texture_normal = load("res://assets/production/sprites/ui/ui_button_secondary.png")
+	btn.ignore_texture_size = true
+	btn.stretch_mode = TextureButton.STRETCH_SCALE
+	btn.custom_minimum_size = Vector2(0, 74)
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	var best := SaveManager.get_endless_best_loops()
+	var label := Label.new()
+	label.name = "Label"
+	label.text = "无限尸潮" if best <= 0 else "无限尸潮 · 最佳 %d 轮" % best
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiKit.apply_label(label, 24, Color(1.0, 0.82, 0.5, 1.0), 3)
+	btn.add_child(label)
+	btn.pressed.connect(_on_endless_pressed)
+	vbox.add_child(btn)
+	if wrap != null:
+		vbox.move_child(btn, wrap.get_index() + 1)
+
+func _on_endless_pressed() -> void:
+	AudioManager.play_sfx("ui_confirm")
+	router.start_endless_level(SaveManager.get_highest_unlocked_level_id())
 
 func _apply_map_style() -> void:
 	var bg := get_node_or_null("Background") as TextureRect

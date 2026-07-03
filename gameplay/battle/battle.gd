@@ -207,6 +207,12 @@ var xp := 0
 var variant := "normal"
 var variant_gold_mult := 1.0
 var variant_xp_mult := 1.0
+# 无限尸潮：复用当前关卡数据循环刷完的波次，每轮血量按 ENDLESS_LOOP_HP_GROWTH 递增，
+# 只在漏怪耗尽基地生命时结束(没有"胜利"结算)，奖励按撑过的轮数发放。
+var is_endless_mode := false
+var endless_loop := 0
+var endless_difficulty_mult := 1.0
+const ENDLESS_LOOP_HP_GROWTH := 0.16
 var level_ordinal := 1
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
@@ -360,6 +366,7 @@ var _last_kill_at_for_combo := -99.0
 func setup(main: Node, payload := {}) -> void:
 	router = main
 	level_id = _resolve_level_id(payload)
+	is_endless_mode = bool(payload.get("endless", false))
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -2429,6 +2436,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
 	if not is_boss:
 		hp_level_coef *= float(LATE_WAVE_HP_BONUS.get(wave_index, 1.0))
+	if is_endless_mode:
+		hp_level_coef *= endless_difficulty_mult
 	enemy.setup(row, hp_level_coef, is_boss)
 	enemy.hit_feedback.connect(_on_enemy_hit_feedback)
 	enemy.damage_dealt.connect(_on_enemy_damage_dealt)
@@ -5929,8 +5938,17 @@ func _check_victory() -> void:
 		if _maybe_show_pre_final_card_offer():
 			return
 		_start_next_wave()
+	elif is_endless_mode:
+		_advance_endless_loop()
 	else:
 		_finish(true)
+
+func _advance_endless_loop() -> void:
+	endless_loop += 1
+	wave_index = 0
+	endless_difficulty_mult = 1.0 + ENDLESS_LOOP_HP_GROWTH * float(endless_loop)
+	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
+	_start_next_wave()
 
 func _finish(victory: bool) -> void:
 	if battle_finished:
@@ -5939,6 +5957,19 @@ func _finish(victory: bool) -> void:
 	_set_turret_fire_enabled(false)
 	_hide_skill_hint()
 	set_physics_process(false)
+	if is_endless_mode:
+		AudioManager.play_sfx("defeat", 1.0, 0.0)
+		_show_screen_flash(Color(0.85, 0.0, 0.0, 0.22), 0.28)
+		router.finish_level({
+			"level_id": level_id,
+			"endless": true,
+			"endless_loop": endless_loop,
+			"victory": false,
+			"stars": 0,
+			"gold": gold,
+			"xp": xp
+		})
+		return
 	AudioManager.play_sfx("victory" if victory else "defeat", 1.0, 0.0)
 	_show_screen_flash(Color(0.95, 0.78, 0.25, 0.18) if victory else Color(0.85, 0.0, 0.0, 0.22), 0.28)
 	var hp_ratio := float(base_hp) / float(base_hp_max)

@@ -6,6 +6,7 @@ class FakeRouter:
 	var last_route := ""
 	var last_payload := {}
 	var last_started_level := ""
+	var last_started_endless_level := ""
 	var last_result := {}
 	var run_context := {}
 
@@ -15,6 +16,9 @@ class FakeRouter:
 
 	func start_level(level_id: String) -> void:
 		last_started_level = level_id
+
+	func start_endless_level(level_id: String) -> void:
+		last_started_endless_level = level_id
 
 	func finish_level(result: Dictionary) -> void:
 		last_result = result
@@ -98,6 +102,7 @@ func _initialize() -> void:
 	await _verify_character_weapon_skins(data_loader, save_manager)
 	await _verify_character_active_skill_controls(data_loader, save_manager)
 	await _verify_bottom_skill_slot_level_merge(save_manager)
+	await _verify_endless_mode(save_manager)
 	await _verify_enemy_hit_flash_scope(data_loader)
 
 	var main := _instance("res://main.tscn")
@@ -1216,6 +1221,57 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	save_manager.save_data = original_save
 	router.queue_free()
 	await process_frame
+
+func _verify_endless_mode(save_manager: Node) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_001", "endless": true})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	_expect(battle.is_endless_mode, "battle must enter endless mode when payload requests it")
+	_expect(battle.endless_loop == 0 and is_equal_approx(battle.endless_difficulty_mult, 1.0), "endless mode must start at loop 0 with no HP escalation")
+	battle.wave_index = 1
+	var before: Node = battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 190), false)
+	var hp_before: float = before.max_hp
+	before.queue_free()
+	battle._advance_endless_loop()
+	_expect(battle.endless_loop == 1, "first loop completion must advance endless_loop to 1")
+	# _advance_endless_loop 把 wave_index 归零后立刻调用 _start_next_wave()(内部会 +1)，
+	# 所以函数返回时 wave_index==1，代表"重新从第一波开始播"而不是停在0。
+	_expect(battle.wave_index == 1, "advancing an endless loop must restart from the first wave")
+	_expect(battle.endless_difficulty_mult > 1.0, "advancing an endless loop must raise the HP escalation multiplier")
+	battle.wave_index = 1
+	var after: Node = battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 190), false)
+	var hp_after: float = after.max_hp
+	after.queue_free()
+	_expect(hp_after > hp_before * 1.1, "endless loop escalation must meaningfully raise spawned enemy HP, got %.1f -> %.1f" % [hp_before, hp_after])
+	battle._advance_endless_loop()
+	_expect(battle.endless_loop == 2, "second loop completion must advance endless_loop to 2")
+	var mult_loop1: float = 1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH)
+	var mult_loop2: float = 1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH) * 2.0
+	_expect(battle.endless_difficulty_mult > mult_loop1 - 0.001 and battle.endless_difficulty_mult < mult_loop2 + 0.001, "endless HP multiplier must escalate per loop as designed")
+	battle.base_hp = 0
+	battle._finish(false)
+	_expect(bool(router.last_result.get("endless", false)), "endless defeat must report an endless result to the router")
+	_expect(int(router.last_result.get("endless_loop", -1)) == 2, "endless defeat result must report the loop reached")
+	battle.queue_free()
+	save_manager.save_data = original_save
+	router.queue_free()
+	await process_frame
+
+	# apply_endless_result: 奖励发放 + 星星按轮数封顶 + 不写 levels_progress/unlocks。
+	var pre_save: Dictionary = save_manager.save_data.duplicate(true)
+	var pre_gold: int = save_manager.get_player_gold()
+	var pre_star: int = save_manager.get_player_star()
+	save_manager.apply_endless_result({"level_id": "level_001", "endless_loop": 9, "gold": 500, "xp": 300}, false)
+	_expect(save_manager.get_player_gold() == pre_gold + 500, "endless result must credit gold")
+	_expect(save_manager.get_player_star() == pre_star + mini(save_manager.ENDLESS_STAR_CAP, 9 / save_manager.ENDLESS_STAR_PER_LOOPS), "endless result must award capped star count from loops survived")
+	_expect(save_manager.get_endless_best_loops() == 9, "endless result must track the best loop count reached")
+	_expect(not save_manager.save_data.get("levels_progress", {}).has("level_001") or int(pre_save.get("levels_progress", {}).get("level_001", 0)) == int(save_manager.save_data.get("levels_progress", {}).get("level_001", 0)), "endless result must not alter normal level star progress")
+	save_manager.save_data = original_save
 
 func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 	var boss_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")

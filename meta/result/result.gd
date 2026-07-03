@@ -7,13 +7,19 @@ var level_id := "level_001"
 var next_level := ""
 var result_stars := 0
 var _result_return_payload := {}
+var is_endless_result := false
+var endless_loops := 0
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
 	level_id = _resolve_level_id(payload)
+	is_endless_result = bool(payload.get("endless", false))
+	endless_loops = int(payload.get("endless_loop", 0))
 	var victory := bool(payload.get("victory", false))
 	next_level = _resolve_next_level(payload, victory)
 	result_stars = int(payload.get("stars", 0))
+	if is_endless_result:
+		result_stars = mini(SaveManager.ENDLESS_STAR_CAP, endless_loops / SaveManager.ENDLESS_STAR_PER_LOOPS)
 	_result_return_payload = _build_result_return_payload(payload, victory)
 	AudioManager.play_bgm("victory" if victory else "defeat")
 	AudioManager.play_sfx("victory" if victory else "defeat")
@@ -56,18 +62,22 @@ func _apply_ui_style() -> void:
 			UiKit.apply_label(label, int(label.get_theme_font_size("font_size")), Color(1, 1, 1, 1), 5)
 
 func _populate_hero(victory: bool) -> void:
-	$Content/HeroCard/HeroBox/Title.text = DataLoader.tr_key("ui_victory") if victory else DataLoader.tr_key("ui_defeat")
+	if is_endless_result:
+		$Content/HeroCard/HeroBox/Title.text = "无限尸潮 · 坚持 %d 轮" % endless_loops
+		$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.78, 0.4, 1))
+	else:
+		$Content/HeroCard/HeroBox/Title.text = DataLoader.tr_key("ui_victory") if victory else DataLoader.tr_key("ui_defeat")
+		if victory:
+			$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.95, 0.55, 1))
+		else:
+			$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.55, 0.45, 1))
 	$Content/HeroCard/HeroBox/LevelName.text = DataLoader.level_display_name(level_id)
 	_refresh_star_row(result_stars)
-	if victory:
-		$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.95, 0.55, 1))
-	else:
-		$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.55, 0.45, 1))
 
 func _populate_rewards(payload: Dictionary, victory: bool) -> void:
 	var gold := int(payload.get("gold", 0))
 	var xp := int(payload.get("xp", 0))
-	if victory:
+	if victory or is_endless_result:
 		$Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue.text = "+%d" % gold
 		$Content/RewardRow/XpCard/XpBox/XpVBox/XpValue.text = "+%d" % xp
 	else:
@@ -171,7 +181,10 @@ func _on_map_pressed() -> void:
 
 func _on_retry_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")
-	router.start_level(level_id)
+	if is_endless_result:
+		router.start_endless_level(level_id)
+	else:
+		router.start_level(level_id)
 
 func _resolve_next_level(payload: Dictionary, victory: bool) -> String:
 	if not victory:

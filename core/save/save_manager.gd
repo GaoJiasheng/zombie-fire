@@ -11,6 +11,7 @@ var save_data := {
 	"levels_progress": {},
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
+	"endless_best_loops": 0,
 	"unlocks": {
 		"levels": ["level_001"],
 		"characters": ["vanguard"],
@@ -37,6 +38,7 @@ func _default_save() -> Dictionary:
 		"levels_progress": {},
 		"skill_base_levels": {},
 	"sig_skill_levels": {},
+	"endless_best_loops": 0,
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
@@ -132,6 +134,28 @@ func apply_level_result(result: Dictionary, persist := true) -> void:
 	_refresh_level_unlocks_from_progress()
 	if persist:
 		save_game()
+
+const ENDLESS_STAR_PER_LOOPS := 3  # 每撑过 3 轮尸潮 +1★
+const ENDLESS_STAR_CAP := 5  # 单局无限尸潮最多给的星星数(防止刷星)
+
+# 无限尸潮结算：只发金币/经验/(有上限的)星星，不写 levels_progress/unlocks，
+# 不影响正常关卡的星级记录和解锁进度。
+func apply_endless_result(result: Dictionary, persist := true) -> void:
+	var loops := int(result.get("endless_loop", 0))
+	var player: Dictionary = save_data.get("player", {})
+	player["gold"] = int(player.get("gold", 0)) + int(result.get("gold", 0))
+	player["xp"] = int(player.get("xp", 0)) + int(result.get("xp", 0))
+	var stars := mini(ENDLESS_STAR_CAP, loops / ENDLESS_STAR_PER_LOOPS)
+	if stars > 0:
+		player["star"] = int(player.get("star", 0)) + stars
+	save_data["player"] = player
+	if loops > int(save_data.get("endless_best_loops", 0)):
+		save_data["endless_best_loops"] = loops
+	if persist:
+		save_game()
+
+func get_endless_best_loops() -> int:
+	return int(save_data.get("endless_best_loops", 0))
 
 func repair_progression_unlocks() -> bool:
 	var changed := _refresh_level_unlocks_from_progress()
@@ -361,6 +385,16 @@ func is_level_unlocked(level_id: String) -> bool:
 	var unlocks: Dictionary = save_data.get("unlocks", {})
 	var levels: Array = unlocks.get("levels", ["level_001"])
 	return levels.has(level_id)
+
+# 无限尸潮的难度"种子"：玩家已合法解锁的最高一关(僵尸/环境/元素弱点数据都从它复用)。
+func get_highest_unlocked_level_id() -> String:
+	var rows: Array = DataLoader.get_table("levels")
+	var best := "level_001"
+	for row in rows:
+		var lvid := str(row.get("id", ""))
+		if is_level_unlocked(lvid):
+			best = lvid
+	return best
 
 func get_level_stars(level_id: String) -> int:
 	var levels_progress: Dictionary = save_data.get("levels_progress", {})

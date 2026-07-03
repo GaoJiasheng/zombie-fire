@@ -85,8 +85,18 @@ func start_level(level_id: String) -> void:
 	run_context = {"level_id": level_id}
 	change_scene("battle", run_context)
 
+# 无限尸潮：复用某个已解锁关卡的数据作为"种子"(僵尸/环境/元素弱点)，波次打完循环
+# 继续、每轮血量递增，直到漏怪耗尽基地生命。不走正常关卡的胜利/解锁流程。
+func start_endless_level(seed_level_id: String) -> void:
+	run_context = {"level_id": seed_level_id, "endless": true}
+	change_scene("battle", run_context)
+
 func finish_level(result: Dictionary, persist := true) -> void:
 	var normalized := result.duplicate()
+	if bool(normalized.get("endless", false)):
+		SaveManager.apply_endless_result(normalized, persist)
+		change_scene("result", normalized)
+		return
 	var active_level_id := _active_level_id()
 	var result_level_id := str(normalized.get("level_id", ""))
 	if active_level_id != "" and (result_level_id == "" or (result_level_id == "level_001" and active_level_id != "level_001")):
