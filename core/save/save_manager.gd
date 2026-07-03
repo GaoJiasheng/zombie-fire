@@ -261,6 +261,11 @@ func get_loadout_power() -> int:
 		power += float(get_sig_skill_level(character_id)) * 2.0
 	return int(round(power))
 
+# 系数校准(2026-07)：旧系数 4.3 是早期拍脑袋定的，从没和"真实可达战力"对过。
+# 单角色全部装备/16通用技能/专属主动技全部满级，实测约 352 战力(见 design 里的推导记录)。
+# 终章(recommend_level=50)按此系数算出 292，约为满配上限的 83%——即全满配玩家在终章前
+# 仍有约 20% 战力余裕，而不是之前 1.6 倍那种"推荐值远低于真实上限"的失真。
+const RECOMMENDED_POWER_COEF := 5.8
 func get_recommended_power_for_level(level_id: String) -> int:
 	var level := DataLoader.get_row("levels", level_id)
 	var recommended := int(level.get("recommend_level", 1))
@@ -269,7 +274,7 @@ func get_recommended_power_for_level(level_id: String) -> int:
 		if wave.has("boss"):
 			boss_bonus = 2
 			break
-	return int(round(float(recommended) * 4.3 + float(boss_bonus)))
+	return int(round(float(recommended) * RECOMMENDED_POWER_COEF + float(boss_bonus)))
 
 func get_player_gold() -> int:
 	var player: Dictionary = save_data.get("player", {})
