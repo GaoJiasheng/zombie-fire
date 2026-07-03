@@ -1315,6 +1315,18 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	filler.text = ""
 	stats_grid.add_child(filler)
 
+	# === 升级预览：本级 → 下级(角色此前一直缺失，只有武器/护甲/芯片/宠物有) ===
+	var char_preview := _upgrade_preview_rows(item_id, row, item_level)
+	if not char_preview.is_empty():
+		var up_section := _make_section_panel("升级预览  (等级%d → %d)" % [item_level, item_level + 1], UiKit.GREEN)
+		detail_content.add_child(up_section)
+		var up_grid := GridContainer.new()
+		up_grid.columns = 1
+		up_grid.add_theme_constant_override("v_separation", 8)
+		up_section.get_child(0).add_child(up_grid)
+		for pr in char_preview:
+			up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", ""))))
+
 	# === PASSIVE section (green accent) ===
 	var passive_id := str(row.get("passive", ""))
 	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
@@ -1374,6 +1386,34 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
+	# 升级按钮(角色此前一直缺失，只有武器/护甲/芯片/宠物能升级)
+	var char_can_upgrade := SaveManager.can_upgrade_item("characters", item_id)
+	var char_upgrade_cost := SaveManager.get_item_upgrade_cost("characters", item_id)
+	var char_max_level := int(row.get("max_level", 30))
+	var upgrade_btn := TextureButton.new()
+	upgrade_btn.name = "UpgradeButton"
+	upgrade_btn.texture_normal = load(BUTTON_SECONDARY)
+	upgrade_btn.ignore_texture_size = true
+	upgrade_btn.stretch_mode = TextureButton.STRETCH_SCALE
+	upgrade_btn.custom_minimum_size = Vector2(0, 110)
+	upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	upgrade_btn.size_flags_stretch_ratio = 1.35
+	upgrade_btn.disabled = not char_can_upgrade
+	upgrade_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	upgrade_btn.modulate = Color(1.0, 0.86, 0.54, 1.0) if char_can_upgrade else Color(0.5, 0.54, 0.6, 0.82)
+	upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
+	var upgrade_label := Label.new()
+	upgrade_label.text = ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost)
+	upgrade_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	upgrade_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	upgrade_label.add_theme_font_size_override("font_size", 36)
+	upgrade_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	upgrade_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	upgrade_label.add_theme_constant_override("outline_size", 3)
+	upgrade_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	upgrade_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	upgrade_btn.add_child(upgrade_label)
+	action_row.add_child(upgrade_btn)
 	var select_btn := TextureButton.new()
 	select_btn.texture_normal = load(BUTTON_SECONDARY)
 	select_btn.ignore_texture_size = true
