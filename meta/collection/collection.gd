@@ -600,6 +600,10 @@ func _tag_name(tag: String) -> String:
 			return "连锁"
 		"burn":
 			return "灼烧"
+		"haste":
+			return "急速"
+		"dps":
+			return "输出"
 		"fire", "ice", "lightning", "poison", "physical":
 			return _element_name(tag)
 		_:

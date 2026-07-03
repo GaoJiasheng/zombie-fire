@@ -6845,13 +6845,13 @@ func _card_tag_chip(tag: String, accent: Color) -> PanelContainer:
 
 func _tag_icon_path(tag: String) -> String:
 	match tag:
-		"projectile", "anti_swarm", "anti_armor", "pierce", "homing", "chain":
+		"projectile", "anti_swarm", "anti_armor", "pierce", "homing", "chain", "execute", "haste", "dps":
 			return "res://assets/production/sprites/ui/ui_card_tag_projectile.png"
 		"control", "defense":
 			return "res://assets/production/sprites/ui/ui_card_tag_control.png"
 		"economy":
 			return "res://assets/production/sprites/ui/ui_card_tag_economy.png"
-		"element", "fire", "ice", "lightning", "poison", "physical":
+		"element", "fire", "ice", "lightning", "poison", "physical", "burn":
 			return "res://assets/production/sprites/ui/ui_card_tag_element.png"
 		_:
 			return ""
@@ -6945,6 +6945,14 @@ func _tag_name(tag: String) -> String:
 			return "追踪"
 		"chain":
 			return "连锁"
+		"execute":
+			return "处决"
+		"burn":
+			return "灼烧"
+		"haste":
+			return "急速"
+		"dps":
+			return "输出"
 		"fire", "ice", "lightning", "poison", "physical":
 			return _element_name(tag)
 		_:
