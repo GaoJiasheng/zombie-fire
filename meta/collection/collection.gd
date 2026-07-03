@@ -154,7 +154,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, 190)
+	button.custom_minimum_size = Vector2(760, 210)
 	var base_texture := load("res://assets/production/sprites/ui/ui_collection_card_skin.png")
 	button.texture_normal = base_texture
 	button.texture_hover = base_texture
@@ -171,7 +171,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
 	frame.position = Vector2(16, 14)
-	frame.size = Vector2(728, 162)
+	frame.size = Vector2(728, 182)
 	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(frame)
@@ -216,7 +216,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.text = _item_desc(item_id, row, unlocked)
 	desc.position = Vector2(170, 110)
-	desc.size = Vector2(400, 52)
+	desc.size = Vector2(400, 72)
 	UiKit.apply_label(desc, 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
@@ -1158,6 +1158,10 @@ func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
 
 func _safe_area_canvas_insets() -> Vector4:
 	# 返回安全区(刘海/灵动岛/home 条)在画布坐标下的 左/上/右/下 内距;桌面/无刘海≈0。
+	# 桌面(macOS/Windows/Linux)的 get_display_safe_area() 返回的是桌面显示器坐标而非
+	# App 窗口坐标，直接套用会算出负宽度矩形，导致详情弹窗整个不可见——仅移动端才有意义。
+	if not OS.get_name() in ["iOS", "Android"]:
+		return Vector4.ZERO
 	var win := DisplayServer.window_get_size()
 	if win.x <= 0 or win.y <= 0:
 		return Vector4.ZERO
@@ -1386,7 +1390,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 		aff_row.add_theme_constant_override("separation", 8)
 		aff_section.get_child(0).add_child(aff_row)
 		for tag in card_affinity:
-			aff_row.add_child(_make_pill(str(tag), Color(0.45, 0.55, 0.85), Color(0.22, 0.32, 0.6, 0.8)))
+			aff_row.add_child(_make_pill(_tag_name(str(tag)), Color(0.45, 0.55, 0.85), Color(0.22, 0.32, 0.6, 0.8)))
 
 	# === Action buttons row ===
 	var spacer := Control.new()

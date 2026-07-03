@@ -6217,12 +6217,12 @@ func _show_wave_toast(text: String, color: Color) -> void:
 func _wave_toast_font_size(text: String) -> int:
 	if text.length() <= 7:
 		return 36
-	if text.length() <= 16:
+	if text.length() <= 13:
 		return 32
 	return 27
 
 func _layout_wave_toast(text: String) -> void:
-	var long_text := text.length() > 16
+	var long_text := text.length() > 13
 	var size := WAVE_TOAST_LONG_SIZE if long_text else WAVE_TOAST_SIZE
 	wave_toast_banner.size = size
 	wave_toast_banner.pivot_offset = size * 0.5
