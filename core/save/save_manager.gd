@@ -10,6 +10,7 @@ var save_data := {
 	"player": {"gold": 0, "xp": 0, "star": 0},
 	"levels_progress": {},
 	"skill_base_levels": {},
+	"sig_skill_levels": {},
 	"unlocks": {
 		"levels": ["level_001"],
 		"characters": ["vanguard"],
@@ -35,6 +36,7 @@ func _default_save() -> Dictionary:
 		"player": {"gold": 0, "xp": 0, "star": 0},
 		"levels_progress": {},
 		"skill_base_levels": {},
+	"sig_skill_levels": {},
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
@@ -255,6 +257,8 @@ func get_loadout_power() -> int:
 	if character_id != "":
 		var sig_count := int(DataLoader.get_row("characters", character_id).get("signature_skills", []).size())
 		power += float(sig_count) * (1.5 + 0.55 * float(char_level))
+		# 专属主动技独立经验等级(新增的投资轴，见 get_sig_skill_level)
+		power += float(get_sig_skill_level(character_id)) * 2.0
 	return int(round(power))
 
 func get_recommended_power_for_level(level_id: String) -> int:
@@ -451,5 +455,40 @@ func upgrade_skill_base(skill_id: String) -> bool:
 	var sbl: Dictionary = save_data.get("skill_base_levels", {})
 	sbl[skill_id] = get_skill_base_level(skill_id) + 1
 	save_data["skill_base_levels"] = sbl
+	save_game()
+	return true
+
+const SIG_SKILL_MAX_LEVEL := 5
+
+# 专属技能(主动技)独立经验升级——之前只有 16 个通用技能能花经验升级，专属技能只能
+# 被动跟着角色等级涨，玩家没法针对性投资。以 character_id 为 key(每个角色只有一个
+# 数据驱动的主动技 = characters.json 的 active_skill)。
+func get_sig_skill_level(character_id: String) -> int:
+	return int(save_data.get("sig_skill_levels", {}).get(character_id, 0))
+
+func get_sig_skill_upgrade_cost(character_id: String) -> int:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var costs: Array = economy.get("sig_skill_xp_costs", [200, 550, 1200, 2400, 4200])
+	var lvl := get_sig_skill_level(character_id)
+	if lvl >= costs.size():
+		return -1
+	return int(costs[lvl])
+
+func can_upgrade_sig_skill(character_id: String) -> bool:
+	if get_sig_skill_level(character_id) >= SIG_SKILL_MAX_LEVEL:
+		return false
+	var cost := get_sig_skill_upgrade_cost(character_id)
+	return cost >= 0 and get_player_xp() >= cost
+
+func upgrade_sig_skill(character_id: String) -> bool:
+	if not can_upgrade_sig_skill(character_id):
+		return false
+	var cost := get_sig_skill_upgrade_cost(character_id)
+	var player: Dictionary = save_data.get("player", {})
+	player["xp"] = get_player_xp() - cost
+	save_data["player"] = player
+	var ssl: Dictionary = save_data.get("sig_skill_levels", {})
+	ssl[character_id] = get_sig_skill_level(character_id) + 1
+	save_data["sig_skill_levels"] = ssl
 	save_game()
 	return true

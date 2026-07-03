@@ -1352,9 +1352,11 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 		empty.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		sig_section.get_child(0).add_child(empty)
 	else:
+		var active_skill_id := str(row.get("active_skill", {}).get("id", ""))
 		for sig_id in sig_ids:
 			var info: Dictionary = CharacterSkillText.signature_info(sig_id)
-			var kind: String = "主动" if sig_id in ["sig_vanguard_railvolley", "sig_blaze_meltdown", "sig_frost_glacier", "sig_volt_storm"] else "弹种"
+			var is_active_skill: bool = (str(sig_id) == active_skill_id)
+			var kind: String = "主动" if is_active_skill else "弹种"
 			# Map sig id to icon
 			var icon_path := "res://assets/production/sprites/ui/%s_icon.png" % sig_id
 			if not ResourceLoader.exists(icon_path):
@@ -1367,6 +1369,9 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 				UiKit.GOLD,
 				sig_section
 			))
+			# 专属主动技独立经验升级(此前只能被动跟着角色等级涨，玩家没法针对性投资)。
+			if is_active_skill:
+				sig_section.get_child(0).add_child(_make_sig_skill_upgrade_row(item_id))
 
 	# === AFFINITY TAGS section ===
 	var card_affinity: Array = row.get("card_affinity_tags", [])
@@ -1621,6 +1626,39 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(desc_label)
 	return row
+
+# 专属主动技独立升级行：等级 N/5 + 花经验升级按钮，紧跟在该技能的 _make_skill_row 下面。
+func _make_sig_skill_upgrade_row(character_id: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.custom_minimum_size = Vector2(0, 56)
+	var lvl := SaveManager.get_sig_skill_level(character_id)
+	var maxed := lvl >= SaveManager.SIG_SKILL_MAX_LEVEL
+	var level_label := Label.new()
+	level_label.text = "专属技能等级 %d/%d" % [lvl, SaveManager.SIG_SKILL_MAX_LEVEL]
+	level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	level_label.add_theme_font_size_override("font_size", 19)
+	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
+	row.add_child(level_label)
+	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
+	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
+	var btn := _detail_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true)
+	btn.custom_minimum_size = Vector2(180, 56)
+	btn.disabled = not can_up
+	btn.modulate = Color.WHITE if can_up else Color(0.5, 0.54, 0.6, 0.82)
+	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))
+	row.add_child(btn)
+	return row
+
+func _upgrade_sig_skill_from_detail(character_id: String) -> void:
+	if SaveManager.upgrade_sig_skill(character_id):
+		AudioManager.play_sfx("upgrade")
+		_refresh()
+		var fresh_row := DataLoader.get_row("characters", character_id)
+		_close_character_detail()
+		call_deferred("_show_character_detail", character_id, fresh_row)
+	else:
+		AudioManager.play_sfx("ui_click", -6.0)
 
 func _element_color(element: String) -> Color:
 	# Single source of truth: never diverge from UiKit element coding.

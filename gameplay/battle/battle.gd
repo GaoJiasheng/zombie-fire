@@ -1533,12 +1533,15 @@ func _vanguard_railvolley_damage(primary_damage := -1.0) -> float:
 	var mult := float(active.get("damage_mult", 1.25)) * _character_active_power_scale(active)
 	return primary_damage * maxf(mult, 1.0)
 
+const SIG_SKILL_LEVEL_DAMAGE_BONUS := 0.10  # 专属主动技每独立等级 +10% 伤害倍率(满5级 +50%)
+
 func _character_active_power_scale(active: Dictionary) -> float:
 	var level_delta := float(maxi(character_level - 1, 0))
 	var rank := float(_growth_rank(character_level))
 	var level_growth := float(active.get("level_damage_growth", 0.0))
 	var rank_bonus := float(active.get("rank_damage_bonus", 0.0))
-	return maxf(1.0, 1.0 + level_growth * level_delta + rank_bonus * rank)
+	var sig_level_bonus := float(SaveManager.get_sig_skill_level(character_id)) * SIG_SKILL_LEVEL_DAMAGE_BONUS
+	return maxf(1.0, 1.0 + level_growth * level_delta + rank_bonus * rank + sig_level_bonus)
 
 func _active_skill_duration(active: Dictionary, fallback: float) -> float:
 	var base := float(active.get("duration", fallback))
