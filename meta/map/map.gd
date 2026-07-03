@@ -331,7 +331,7 @@ func _add_nav_character_bust(stage: Control) -> void:
 	clip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(clip)
-	UiKit.add_character_bust(clip, row, Vector2(112, 86), 128.0, -30.0, Color(1.02, 1.02, 0.98, 1.0))
+	UiKit.add_character_bust(clip, row, Vector2(112, 86), 112.0, 6.0, Color(1.02, 1.02, 0.98, 1.0))
 
 func _set_nav_card_style(card: PanelContainer, style: StyleBox) -> void:
 	if not is_instance_valid(card):
@@ -407,7 +407,7 @@ func _nav_default_icon(mode: String) -> String:
 		"pets":
 			return "res://assets/production/sprites/pets/pet_turret_drone_icon.png"
 		"skills":
-			return "res://assets/production/sprites/ui/skill_critical_icon.png"
+			return "res://assets/production/sprites/ui/skill_barrier_icon.png"
 		_:
 			return "res://assets/production/sprites/ui/icon_warning.png"
 

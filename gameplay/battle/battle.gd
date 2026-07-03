@@ -15,7 +15,7 @@ const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_prima
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y := 1500.0
 const CHARACTER_BASE_POSITION := Vector2(540, 1652)
-const CHARACTER_VISUAL_BASE_SCALE := 0.64
+const CHARACTER_VISUAL_BASE_SCALE := 0.512
 const CHARACTER_WEAPON_SOCKET := Vector2(58, -28)
 const CHARACTER_WEAPON_DEFAULT_DIRECTION := Vector2(0, -1)
 const CHARACTER_WEAPON_MUZZLE_DISTANCE := {
@@ -168,9 +168,9 @@ const CHARACTER_WEAPON_RECOIL_POSE := {
 }
 const SKILL_ORDER := ["skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing", "skill_critical", "skill_barrier", "skill_gold_rush", "skill_ricochet", "skill_salvo", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_charge_shot", "skill_recycle"]
 const SKILL_SLOT_LIMIT := 8
-const HUD_HP_FILL_RIGHT := 556.0
-const HUD_WAVE_FILL_RIGHT := 556.0
-const HUD_XP_FILL_RIGHT := 716.0
+const HUD_HP_FILL_RIGHT := 812.0
+const HUD_WAVE_FILL_RIGHT := 812.0
+const HUD_XP_FILL_RIGHT := 778.0
 const ENABLE_DEBUG_OVERLAY := false
 const MAX_PROJECTILE_TRANSIENT_FX := 150
 const MAX_PROJECTILE_PRIORITY_FX := 185
@@ -857,12 +857,10 @@ func _ensure_skill_hint_overlay() -> void:
 	overlay.z_index = 620
 	overlay.anchor_left = 0.5
 	overlay.anchor_right = 0.5
-	overlay.anchor_top = 1.0
-	overlay.anchor_bottom = 1.0
 	overlay.offset_left = -335.0
 	overlay.offset_right = 335.0
-	overlay.offset_top = -360.0
-	overlay.offset_bottom = -190.0
+	overlay.offset_top = 1560.0
+	overlay.offset_bottom = 1730.0
 	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	$Hud.add_child(overlay)
 
@@ -2385,12 +2383,18 @@ func _start_next_wave() -> void:
 		for support in wave.get("support", []):
 			_queue_spawn_group(support, false)
 	else:
-		if wave_index == 1 and variant == "treasure":
+		if wave_index == 1 and variant == "treasure" and not is_endless_mode:
 			_show_wave_toast("宝箱关 · 金币 +50%", UiKit.GOLD)
-		elif wave_index == 1 and variant == "elite":
+		elif wave_index == 1 and variant == "elite" and not is_endless_mode:
 			_show_wave_toast("精英关 · 经验 +30%", UiKit.DANGER)
 		else:
-			var wave_text := "最终尸潮来袭" if wave_index >= waves.size() else "第 %d 波  尸潮来袭" % wave_index
+			var wave_text: String
+			if is_endless_mode:
+				wave_text = "第 %d 轮 · 第 %d 波" % [endless_loop + 1, wave_index]
+			elif wave_index >= waves.size():
+				wave_text = "最终尸潮来袭"
+			else:
+				wave_text = "第 %d 波  尸潮来袭" % wave_index
 			_show_wave_toast(wave_text, Color(1.0, 0.82, 0.25))
 		for group in wave.get("spawns", []):
 			_queue_spawn_group(group, false)
@@ -5881,7 +5885,7 @@ func _compute_level_total_run_xp() -> int:
 	return total
 
 func _pick_threshold(k: int) -> int:
-	if k > target_card_picks:
+	if k > target_card_picks and not is_endless_mode:
 		return 1000000000
 	if level_total_run_xp <= 0:
 		return int(level.get("xp_first_offer", 16)) * k
@@ -6015,7 +6019,10 @@ func _update_hud() -> void:
 		wave_fill_texture.size.x = wave_width
 	else:
 		$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct)
-	$Hud/TopBar/WaveProgress/Label.text = "第 %d/%d 波" % [wave_index, wave_total]
+	if is_endless_mode:
+		$Hud/TopBar/WaveProgress/Label.text = "第 %d 轮 · %d/%d 波" % [endless_loop + 1, wave_index, wave_total]
+	else:
+		$Hud/TopBar/WaveProgress/Label.text = "第 %d/%d 波" % [wave_index, wave_total]
 	var xp_pct := float(xp) / float(next_xp_offer) if next_xp_offer > 0 else 0.0
 	displayed_xp_pct = lerpf(displayed_xp_pct, clamp(xp_pct, 0.0, 1.0), 0.28)
 	$Hud/BottomBar/XpBar/Fill.offset_right = lerpf(4.0, HUD_XP_FILL_RIGHT, displayed_xp_pct)
@@ -6709,8 +6716,11 @@ func _skill_offer_level(skill_id: String) -> int:
 	return mini(skills.level(skill_id) + 1, skills.max_level(skill_id))
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
+	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
+	var stats_extra_h := 34.0 * float(stats_text.count("\n"))
+	var card_h := 196.0 + stats_extra_h
 	var card := Panel.new()
-	card.custom_minimum_size = Vector2(760, 196)
+	card.custom_minimum_size = Vector2(760, card_h)
 	card.clip_contents = true
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.gui_input.connect(_on_skill_card_input.bind(skill_id))
@@ -6721,7 +6731,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var accent_bar := TextureRect.new()
 	accent_bar.position = Vector2(0, 0)
-	accent_bar.size = Vector2(18, 196)
+	accent_bar.size = Vector2(18, card_h)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -6758,18 +6768,19 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var stats := Label.new()
 	stats.name = "Stats"
-	stats.text = SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
+	stats.text = stats_text
 	stats.position = Vector2(170, 54)
-	stats.size = Vector2(560, 56)
+	stats.size = Vector2(560, 56 + stats_extra_h)
 	UiKit.apply_label(stats, 22, UiKit.CYAN, 2)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stats.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	stats.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(stats)
 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(170, 112)
+	desc.position = Vector2(170, 112 + stats_extra_h)
 	desc.size = Vector2(560, 44)
 	UiKit.apply_label(desc, 19, Color(0.78, 0.9, 0.96, 1.0), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -6779,7 +6790,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(170, 156)
+	tags.position = Vector2(170, 156 + stats_extra_h)
 	tags.size = Vector2(520, 34)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
