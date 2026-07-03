@@ -267,6 +267,33 @@
       "source": "source_refs/generated/final_visual_p0p1_asset_spec_2026_07_02.json",
       "derived": "contact_sheets/contact_final_visual_p0p1_ui_2026_07_02.png",
       "reason": "Owner approved simultaneous P0/P1 final visual pass to remove remaining primitive UI geometry, empty VFX frames, and 2-second placeholder videos while preserving runtime paths."
+    },
+    {
+      "path": "sprites/animations/character_weapon_combos",
+      "source": "source_refs/generated/model_grip_fullregen_2026_07_03 + source_refs/generated/firing_pose_stage1_2026_07_03",
+      "derived": "assets/production/source_refs/generated/firing_pose_full_model_2026_07_03/full_model_firing_pose_runtime_sheet_2026_07_03.png",
+      "reason": "Owner approved the two-frame firing pose standard and requested all remaining characters/weapons be completed: all attack/attack_left/attack_right frames now use full model-rendered two-hand braced firing poses with no baked muzzle VFX.",
+      "count": 704,
+      "task": "design/ui_firing_pose_task.md §1",
+      "created_at": "2026-07-03T05:18:06.748130+00:00"
+    },
+    {
+      "path": "sprites/vfx_sequences + sprites/projectiles",
+      "source": "assets/production/source_refs/generated/vfx_full_redo_stage1_2026_07_03/vfx_full_redo_stage1_manifest_2026_07_03.json",
+      "derived": "assets/production/source_refs/generated/vfx_full_redo_stage1_2026_07_03/vfx_full_redo_stage1_actual_samples_sheet_2026_07_03.png",
+      "reason": "Owner requested design/vfx_full_redo_task.md be executed at top-tier VFX quality. Stage 1 replaces only the six required peak-frame sample files for review before full rollout.",
+      "count": 6,
+      "task": "design/vfx_full_redo_task.md §4 stage 1 samples",
+      "created_at": "2026-07-03T06:06:46.266897+00:00"
+    },
+    {
+      "path": "sprites/vfx_sequences + sprites/projectiles + sprites/animations/zombies/*/attack",
+      "source": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_manifest_2026_07_03.json",
+      "derived": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_runtime_samples_sheet_2026_07_03.png",
+      "reason": "Owner approved the six stage-1 VFX samples and requested full rollout under design/vfx_full_redo_task.md: active signature VFX, 15 skill-cast VFX, non-approved enemy-skill VFX, all five projectile bodies, and all zombie attack frames were replaced or rebuilt with high-end raster assets while preserving paths and data references. The zombie attack rebuild uses clean idle/walk body sources to remove baked straight action bars.",
+      "count": 573,
+      "task": "design/vfx_full_redo_task.md full rollout",
+      "created_at": "2026-07-03T16:44:43+0800"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1048,6 +1075,25 @@
       "source": "assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_02.json",
       "derived": "assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_02.png",
       "reference": "assets/production/source_refs/generated/top_tier_character_weapon_action_reference_2026_07_02.png"
+    },
+    {
+      "id": "final_character_weapon_grip_action_pass_2026_07_03",
+      "category": "animation_polish",
+      "status": "accepted",
+      "description": "Top-tier raster action pass for fused character/weapon firing frames: weapon-specific stock/trigger/foregrip/muzzle grip prototypes aligned to the accepted true-grip standard, 7-frame anticipation, braced recoil, recovery, and runtime-only muzzle/VFX policy.",
+      "source": "assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_03.json",
+      "derived": "assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_03.png",
+      "reference": "assets/production/source_refs/generated/top_tier_character_weapon_action_reference_2026_07_03.png",
+      "prototype_sheet": "assets/production/source_refs/generated/weapon_grip_prototype_anchor_sheet_2026_07_03.png"
+    },
+    {
+      "id": "vfx_full_redo_full_2026_07_03",
+      "category": "vfx_polish",
+      "status": "accepted_pending_runtime_review",
+      "description": "Full top-tier raster VFX redo after approved stage-1 samples: active signature VFX, skill-cast VFX, enemy skill VFX differentiation, projectile bodies, and clean-source rebuild of zombie attack frames to remove primitive straight-line action bars. Approved VFX families from design/vfx_full_redo_task.md §0 remain untouched.",
+      "source": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_manifest_2026_07_03.json",
+      "derived": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_runtime_samples_sheet_2026_07_03.png",
+      "attack_cleanup": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_zombie_attack_cleanup_sheet_2026_07_03.png"
     }
   ]
 }

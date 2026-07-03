@@ -215,6 +215,11 @@
 - [x] 结算页按钮风格统一：`ui_button_primary.png` / `ui_button_secondary.png` 改为同一 bevel / 描边 / 光源模型，`meta/result/result.gd` 不再给动作按钮额外染色；已截图到 `tmp/final_p0_runtime_screens/result_button_unified.png`。
 - [x] 最终美术 P0 顶级材质拔高：基于 `image_gen` 顶级 HUD 材质参考重新打磨按钮、面板、图标底座、卡槽、进度条和准星，统一为暗金属 / 玻璃 / 青橙边缘光的 3D 渲染体系；已重跑运行截图、App Store 截图、18 秒 App Preview 和最终 contact sheet。
 - [x] 角色开枪动作 P0 手感拔高：全量重生成 4 角色 x 8 武器的融合开火帧，改为 F1 枪口爆发、F2 强后坐、F3 回稳、F4 归位；战斗运行时在开火窗口锁定本次 aim / 枪口 / 攻击帧，避免目标切换导致枪口、子弹和角色动作不同步。
+- [x] 角色开枪动作真实握把二次修复：按 owner 指出的“手必须握在枪把上”标准重写融合姿势生成器；枪身使用 gunstock / trigger grip / foregrip / muzzle 锚点，后手锁在扳机握把、前手托护木，重新生成 4 角色 x 8 武器 x 3 方向 x 7 帧正式开火 PNG，并同步 battle muzzle 常量与 2026_07_03 contact sheet。
+- [x] 角色开枪动作 true-grip 三次修复：针对 `char_vanguard + weapon_autocannon` 的“单手端枪 / 站姿呆板 / 武器和手脱节”问题，使用 built-in `image_gen` 生成背视双手重武器参考图，抠透明后接入正式 7 帧攻击序列；同时全量角色攻击帧移除 baked muzzle flash / smoke / tracer，枪口 VFX 保持 runtime-only。
+- [x] 角色开枪动作 true-grip 全量覆盖：按 owner 确认的 `char_vanguard + weapon_autocannon` 标准，为 Blaze / Frost / Volt 补充同规格 built-in `image_gen` 背视双手重武器参考图，抠透明后把生成器升级为角色级 true-grip 基准；已重生成 4 角色 x 8 武器 x 3 方向 x 7 帧，共 672 张正式 attack PNG，完整 contact sheet 覆盖 32 个组合。
+- [x] 全武器握持原型对齐：8 把 `handheld/*_rifle.png` 建立逐枪 `stock / trigger / foregrip / muzzle` 锚点，清掉火焰/冰雾/闪电/毒雾手持源图的 baked muzzle VFX，左/中/右 aim 都按同一握持标准重新生成；最终 672 张 attack PNG 改回逐枪原型驱动，保留每把枪自己的外形而不是同一重炮换色。
+- [x] 全人物 / 全枪支 full-model 开火动作最终覆盖：按 `design/ui_firing_pose_task.md` owner 验收标准，使用 built-in `image_gen` 全模型渲染参考表重建 4 角色 x 8 武器 x 3 方向 x 7 帧，共 672 张正式 attack PNG；所有帧保持双手握持、宽站姿、重心前压、无 baked muzzle flash/smoke/tracer，`battle.gd` 三向 muzzle 常量同步按最终 PNG 重算并通过 32/32 方向偏移检查。
 - [x] P0 商店截图空背景修复：`main._apply_safe_area()` 忽略桌面/截图进程返回的全局 display safe rect，避免 map/loadout 内容 Root 被推到屏幕外；已重新捕获 `tmp/final_p0_runtime_screens/`，重生成 App Store 截图和 App Preview，并加严 `tools/check_visual_screens.py` 的 UI 层截图阈值。
 - [x] 最终美术运行时第一批拔高：用 `image_gen` 顶级参考板 + 本地生成脚本重做 runtime UI skins、11 个投射物、VFX 单帧/序列、慢速场带和护盾玻璃贴图；`UiKit` 通用 panel/pill/resource chip、伤害数字、连击框、慢速场 shader、护盾显示已接入贴图化皮肤，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
 - [x] 最终美术背景第二批拔高：用 built-in `image_gen` 独立生成 10 张主线环境顶级 3D 渲染源图，拒绝 SVG/矢量/扁平占位；已按现有 `data/environments.json` 路径覆盖 `bg_*`、portrait、layout guide，输出 source spec 与 contact sheet，并登记到 `OUTSOURCER_ASSET_INDEX.json`。
@@ -226,6 +231,7 @@
 - [x] 最终美术 P0 可见 UI 线条贴图化：地图、出战、图鉴、结算和战斗 HUD 中玩家可见的剩余直线框、按钮框、关卡卡片、资源 chip、星级/金币图标、血条/经验条主路径改为透明 PNG / `StyleBoxTexture` 皮肤；桌面截图 safe-area 推屏问题同步修复，运行截图输出到 `tmp/ui_line_polish_2026_07_02/screens/`。
 - [x] P2 源码级 UI primitive 清理：`gameplay/`、`meta/`、`ui/` 的 `.gd/.tscn` 中已清零 `ColorRect` / `StyleBoxFlat`；功能性 dim、闪白、冷却遮罩、血条/经验条和 panel fallback 改为 `TextureRect` / `StyleBoxTexture` / `StyleBoxEmpty`。剩余 `Line2D` / `Polygon2D` / `GPUParticles2D` 命中都位于 projectile/battle/vfx 战斗特效路径，不是 UI 线框皮肤。
 - [x] P2 App Store 截图重捕：重新捕获 `tmp/final_p0_runtime_screens/`，重生成 `assets/appstore/screenshots/**` 与 `assets/production/video/vid_app_preview.mp4`；`python3 tools/check_app_store_assets.py` 与 `python3 tools/check_visual_screens.py` 当前通过。
+- [x] VFX 全量返工铺开：按 `design/vfx_full_redo_task.md` 通过的 6 个样本标准，重做 4 个主动技、15 个技能触发、21 个未验收僵尸技能、5 个 projectile 本体；20 只僵尸的 80 张 attack 帧改用同僵尸 clean idle/walk 高质量源重建，彻底移除烘焙直线动作条；已保留 frost/venom/corrosion/storm-chain 等验收通过素材不动。
 - [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings；已修复 screenshot helper teardown，smoke 仍需后续专项 teardown，不影响 release candidate exit 0。
 
 ## 阶段 13 · 最终视觉验收开放 TODO（2026-07-02 复扫）

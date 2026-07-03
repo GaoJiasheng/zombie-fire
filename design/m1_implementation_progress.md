@@ -1625,6 +1625,105 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `git diff --check` -> no whitespace errors.
 - `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
 
+## Character Weapon True Grip Correction (2026-07-03)
+
+> Owner rejected the intermediate firing preview because the hands still did not actually hold the gun. This correction rebuilds the source pose logic around real rifle handling: shoulder line, trigger grip, foregrip support, muzzle, and synchronized shot origin.
+
+- **True grip anchors**: `tools/generate_character_weapon_combos.py` now tracks weapon `stock`, `trigger`, `foregrip`, and `muzzle` anchors instead of only pasting a rotated gun image. Attack poses use idle hero bodies plus a foreground rifle layer, with the rear hand locked to the pistol/trigger grip and the support hand locked under the foregrip/handguard.
+- **Realistic firing posture**: center/right/left attack variants were re-angled away from the previous vertical/floating pose into a shoulder-fired stance. Character-specific arm palettes and elbows are used so the hands read as armored/gloved hands gripping the weapon rather than generic line markers.
+- **Full raster regeneration**: regenerated the 608 base fused character/weapon frames, then regenerated the 672 production attack frames through `tools/generate_top_tier_character_weapon_actions.py` using the built-in `image_gen` reference at the 2026-07-03 quality bar.
+- **Runtime muzzle sync**: `gameplay/battle/battle.gd` `CHARACTER_WEAPON_COMBO_MUZZLE*` dictionaries were refreshed from the new anchor positions so muzzle flash, projectile origin, and fused sprite barrel position remain aligned.
+- **Traceability**: source spec is `assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_03.json`; review sheet is `assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_03.png`; `OUTSOURCER_ASSET_INDEX.json` records `final_character_weapon_grip_action_pass_2026_07_03`.
+
+### Verification (after true grip correction)
+
+- `python3 tools/generate_character_weapon_combos.py` -> generated `608` character/weapon combo frames.
+- `python3 tools/generate_top_tier_character_weapon_actions.py --reference .../ig_039d47eee87b45af016a46fa2798a4819184e5a8506148ec7f.png` -> generated `672` character weapon action frames.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7025 files`.
+- `python3 tools/check_res_refs.py` -> `checked 284 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+
+## Vanguard Autocannon True-Grip Reference Override (2026-07-03)
+
+> Owner rejected the previous preview again with three concrete issues: heavy guns were still effectively held one-handed, feet were too static, and weapon grips did not anatomically align with the hands. This correction treats the prior full-batch pass as not visually accepted for the key `char_vanguard + weapon_autocannon` firing pose.
+
+- **ImageGen pose benchmark**: generated a new built-in `image_gen` reference matching the owner prompt: 3/4 top-down back view, two-handed heavy autocannon grip, front hand on ribbed handguard, rear hand on trigger grip near the ribs, wide braced stance, forward torso lean, and no muzzle flash / smoke / tracer / projectile baked into the character art.
+- **Transparent source ref**: saved the raw chroma-key source at `assets/production/source_refs/generated/true_grip_vanguard_autocannon_reference_chromakey_2026_07_03.png`, removed the key into `assets/production/source_refs/generated/true_grip_vanguard_autocannon_reference_alpha_2026_07_03.png`, and stored the exact prompt in `assets/production/source_refs/generated/true_grip_vanguard_autocannon_prompt_2026_07_03.json`.
+- **Production override**: `tools/generate_top_tier_character_weapon_actions.py` now applies that transparent true-grip reference to `char_vanguard/weapon_autocannon` for all three aim directions and all seven attack frames, preserving the existing `380x520` RGBA sprite contract and paths.
+- **Runtime-only VFX policy**: character attack frames no longer bake muzzle flash, smoke, motion streaks, tracers, bullets, or ground pulse. Dynamic muzzle / projectile / hit VFX remain in `gameplay/battle/battle.gd`, layered at runtime.
+- **Scope note**: this single-combo override was superseded by the full character-level true-grip pass below; the final 2026-07-03 attack batch no longer leaves Blaze/Frost/Volt on the local two-hand anchor compositor.
+
+### Verification (after vanguard autocannon true-grip override)
+
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/generate_top_tier_character_weapon_actions.py` -> pass.
+- `python3 tools/generate_character_weapon_combos.py` -> generated `608` source character/weapon combo frames.
+- `python3 tools/generate_top_tier_character_weapon_actions.py --reference assets/production/source_refs/generated/true_grip_vanguard_autocannon_reference_alpha_2026_07_03.png` -> generated `672` character weapon action frames.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7033 files` before Godot import and `7035 files` in release-candidate check after `.import` generation.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 284 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exits 0 after reimporting generated PNGs.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+## Full Character True-Grip Attack Sweep (2026-07-03)
+
+> Owner accepted the `char_vanguard + weapon_autocannon` firing strip as the target standard and asked to apply that standard to all remaining firing materials.
+
+- **Character-level rendered references**: generated dedicated built-in `image_gen` true-grip references for `char_blaze`, `char_frost`, and `char_volt` matching the accepted vanguard standard: 3/4 top-down back view, both hands on the weapon, front hand on foregrip/barrel handguard, rear hand on trigger grip, wide recoil-bracing stance, forward torso lean, no baked muzzle flash/smoke/tracer/projectile, and no background scene elements.
+- **Transparent production sources**: copied the chroma-key references into `assets/production/source_refs/generated/true_grip_char_{blaze,frost,volt}_reference_chromakey_2026_07_03.png`, converted them to alpha PNGs, and recorded the source prompts in `assets/production/source_refs/generated/true_grip_character_reference_prompts_2026_07_03.json`.
+- **Generator upgrade**: `tools/generate_top_tier_character_weapon_actions.py` now uses `CHARACTER_TRUE_GRIP_REFERENCES` for all four locked heroes instead of a single `char_vanguard/weapon_autocannon` override. Every generated attack frame keeps the `380x520` RGBA sprite contract, 3px safe alpha margin, runtime-only VFX policy, and the 7-frame anticipation/brace/recoil-settle loop.
+- **Full production coverage**: regenerated `32` character/weapon entries (`4` characters x `8` weapons) across `3` attack directions and `7` frames, for `672` formal attack PNGs under `assets/production/sprites/animations/character_weapon_combos/`. The review sheet is `assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_03.png`, now expanded to all 32 combinations.
+- **Traceability**: source spec is `assets/production/source_refs/generated/top_tier_character_weapon_action_spec_2026_07_03.json`; asset index entry `final_character_weapon_grip_action_pass_2026_07_03` now describes character-level image-gen true-grip references.
+
+### Verification (after full character true-grip sweep)
+
+- `python3 -m py_compile tools/generate_top_tier_character_weapon_actions.py` -> pass.
+- `python3 tools/generate_top_tier_character_weapon_actions.py` -> generated `672` character weapon action frames.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7048 files` after Godot import.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> `checked 284 res:// references`; `res:// references OK`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exits 0 after importing `682` changed/generated assets.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `git diff --check` -> no whitespace errors.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK` including 6 routed visual screenshots.
+
+## Weapon Grip Prototype Alignment (2026-07-03)
+
+> Owner clarified that every gun's holding prototype must align to the accepted true-grip standard, not merely share the character-level pose.
+
+- **Per-weapon anchors**: `tools/generate_character_weapon_combos.py` now defines explicit `WEAPON_GRIP_ANCHORS` for all 8 handheld weapons: `stock`, `trigger`, `foregrip`, and `muzzle`. The old single percentage fallback is no longer the authority for weapon grip placement.
+- **Clean handheld prototypes**: `weapon_flamethrower_rifle.png`, `weapon_cryocannon_rifle.png`, `weapon_teslacoil_rifle.png`, and `weapon_venomlauncher_rifle.png` are sanitized before use so baked flame, ice spray, lightning, and poison mist do not become part of the gun length or muzzle anchor. Runtime VFX remains in `battle.gd`.
+- **Prototype review sheet**: `assets/production/source_refs/generated/weapon_grip_prototype_anchor_sheet_2026_07_03.png` visualizes all 8 weapon prototypes with stock/trigger/foregrip/muzzle markers.
+- **Left aim correction**: `attack_left` was retuned so the weapon remains visibly held across the body instead of being swallowed by the character silhouette.
+- **Final action source**: `tools/generate_top_tier_character_weapon_actions.py` now defaults to weapon-specific grip prototypes for the final 7-frame attack pass. Character-level image-gen references are retained as style benchmarks and are only used with explicit `--use-character-reference`.
+- **Production coverage**: regenerated the 608 base character/weapon combo frames, refreshed `battle.gd` combo muzzle constants, then regenerated 672 final attack PNGs. The final contact sheet still covers all 32 character/weapon combinations at `assets/production/contact_sheets/contact_character_weapon_action_top_tier_2026_07_03.png`.
+
+### Verification (after weapon grip prototype alignment)
+
+- `python3 -m py_compile tools/generate_character_weapon_combos.py tools/generate_top_tier_character_weapon_actions.py` -> pass.
+- `python3 tools/generate_character_weapon_combos.py` -> generated `608` character/weapon combo frames.
+- `python3 tools/generate_top_tier_character_weapon_actions.py` -> generated `672` character weapon action frames using weapon-specific prototypes by default.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7050 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `284` `res://` references; OK.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completes through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completes for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exits 0 after importing `795` changed/generated assets.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at exit.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK` including battle boot probe and 6 routed visual screenshots.
+- `git diff --check` -> no whitespace errors.
+
 ## Final Visual P0/P1/P2 Closure Pass (2026-07-02)
 
 > Owner requested P0/P1/P2 to run together and finish under the top-tier rendered App Store standard, with no SVG/vector fallback. This pass closes the remaining source-level UI primitive cleanup and regenerates App Store-facing deliverables after the runtime polish.
@@ -1649,4 +1748,54 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
 - `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
 - `rg -n "ColorRect|StyleBoxFlat" gameplay meta ui -g '*.gd' -g '*.tscn'` -> no matches.
+- `git diff --check` -> no whitespace errors.
+
+## Full Model Firing Pose Finalization (2026-07-03)
+
+> Owner requested that all remaining characters and guns match the accepted true-grip standard, with fully regenerated model art rather than a local vector/compositor shortcut.
+
+- **Model-rendered source mode**: added `tools/generate_full_model_firing_pose_actions.py`, using built-in `image_gen` full-model chroma-key sheets for all four locked heroes plus the two owner-approved stage-1 overrides as source inputs. The generator removes chroma background, keeps only the primary connected alpha component, normalizes runtime-safe margins, and writes traceable model refs under `assets/production/source_refs/generated/firing_pose_full_model_2026_07_03/`.
+- **Full production coverage**: regenerated all `4` characters x `8` weapons x `3` aim directions x `7` frames, for `672` production attack PNGs under `assets/production/sprites/animations/character_weapon_combos/`. The final action contract is two-handed grip, braced wide stance, forward recoil lean, no baked muzzle flash/smoke/tracer/projectile, and runtime-only VFX.
+- **Direction correction**: the center attack pose is rotated toward true upward fire, while left/right aim retain distinct mirrored/right-biased silhouettes. `gameplay/battle/battle.gd` `CHARACTER_WEAPON_COMBO_MUZZLE*` dictionaries were refreshed from the final PNGs; all 32 combos pass the smoke-test requirement that left/center/right muzzle origins are separated.
+- **Review evidence**: contact sheet `assets/production/source_refs/generated/firing_pose_full_model_2026_07_03/full_model_firing_pose_runtime_sheet_2026_07_03.png`; full sequence sheet `assets/production/source_refs/generated/firing_pose_full_model_2026_07_03/full_model_firing_pose_sequence_sheet_2026_07_03.png`; manifest `assets/production/source_refs/generated/firing_pose_full_model_2026_07_03/full_model_firing_pose_manifest_2026_07_03.json`.
+- **Traceability**: `assets/production/OUTSOURCER_ASSET_INDEX.json` records this owner-directed generated override as `design/ui_firing_pose_task.md §1`.
+
+### Verification (after full model firing pose finalization)
+
+- `python3 -m py_compile tools/generate_full_model_firing_pose_actions.py` -> pass.
+- `python3 tools/generate_full_model_firing_pose_actions.py` -> generated `704` files (`32` model refs + `672` runtime frames).
+- Muzzle spread probe -> `muzzle spread OK: 32/32`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `284` `res://` references; OK.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7148 files`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all 99 levels.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits 0.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `git diff --check` -> no whitespace errors.
+
+## VFX Full Redo Rollout (2026-07-03)
+
+> Owner approved the six `design/vfx_full_redo_task.md` stage-1 samples and requested full rollout at the same top-tier raster standard, with no SVG/vector fallback.
+
+- **Active signature VFX**: regenerated all frames for `vfx_active_sig_blaze_meltdown`, `vfx_active_sig_vanguard_overload`, `vfx_active_sig_vanguard_railvolley`, and `vfx_active_sig_volt_storm`; preserved approved `vfx_active_sig_frost_glacier`.
+- **Skill-cast VFX**: regenerated all frames for the 15 non-venom `vfx_skill_cast_*` folders with distinct signatures for barrier, critical, cryo, charge, gold, homing, incendiary, multishot, pierce, recycle, ricochet, salvo, slow field, split shot, and tesla; preserved approved `vfx_skill_cast_venom`.
+- **Enemy-skill VFX**: regenerated non-approved enemy skill families, including armor/ward, blast/enrage/explode/phase-burn/freeze, charge/juggernaut/leap/runner dash, soft-aura differentiation, and `mutate`; preserved the approved corrosion/regeneration/spit/toxic/storm-chain families.
+- **Projectiles and attack cleanup**: replaced all five `proj_bullet_<element>.png` bodies with rendered energy-ammo PNGs. The 20 zombie attack frame sets (`80` PNGs) were rebuilt from each zombie's clean idle/walk body sources with a four-frame forward-pressure/recovery cycle, removing baked straight action bars while keeping the existing zombie art family, frame count, dimensions, and runtime paths intact.
+- **Traceability**: source manifest and review sheets are under `assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/`, and `OUTSOURCER_ASSET_INDEX.json` records `design/vfx_full_redo_task.md full rollout`.
+
+### Verification (after VFX full redo rollout)
+
+- Target alpha/dimension scan -> checked `493` VFX/projectile PNGs plus `80` zombie attack PNGs; errors `0`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `284` `res://` references; OK.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7340 files`.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all `99` levels.
+- `/opt/homebrew/bin/godot --headless --path . --import` -> exits `0` after reimporting changed PNGs.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
 - `git diff --check` -> no whitespace errors.
