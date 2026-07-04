@@ -64,6 +64,14 @@ func _apply_safe_area(root: Control) -> void:
 	var bottom := maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0)
 	var left := maxf(float(safe.position.x) * sx, 0.0)
 	var right := maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0)
+	# 部分机型上 get_display_safe_area() 与窗口尺寸的坐标空间换算会出现偏差，
+	# 算出离谱的大内边距，把 Root 大片裁掉、露出下方清屏色形成大黑边(同类问题
+	# battle.gd 的 _viewport_safe_insets() 已用 120 上限兜过)。真实刘海/灵动岛/
+	# home 指示条不可能吃掉这么多，这里同样夹一个合理上限。
+	top = minf(top, 120.0)
+	bottom = minf(bottom, 120.0)
+	left = minf(left, 120.0)
+	right = minf(right, 120.0)
 	if top <= 0.5 and bottom <= 0.5 and left <= 0.5 and right <= 0.5:
 		return
 	# 只内缩“内容”子节点;背景/遮罩(Background/Scrim/Dim/Backdrop)保持满屏,避免灰边。

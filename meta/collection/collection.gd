@@ -1175,11 +1175,14 @@ func _safe_area_canvas_insets() -> Vector4:
 	var vis := get_viewport().get_visible_rect().size
 	var sx := vis.x / float(win.x)
 	var sy := vis.y / float(win.y)
+	# 部分机型上这套坐标换算会算出离谱的大内边距(同类问题 battle.gd 的
+	# _viewport_safe_insets() 已用 120 上限兜过)，真实刘海/灵动岛/home 指示条
+	# 不可能吃掉这么多，这里同样夹一个合理上限，避免详情弹窗被裁出大黑边。
 	return Vector4(
-		maxf(float(safe.position.x) * sx, 0.0),
-		maxf(float(safe.position.y) * sy, 0.0),
-		maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0),
-		maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0)
+		minf(maxf(float(safe.position.x) * sx, 0.0), 120.0),
+		minf(maxf(float(safe.position.y) * sy, 0.0), 120.0),
+		minf(maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0), 120.0),
+		minf(maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0), 120.0)
 	)
 
 func _show_character_detail(item_id: String, row: Dictionary) -> void:
