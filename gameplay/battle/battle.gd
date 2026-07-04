@@ -7560,49 +7560,61 @@ func _apply_level_background() -> void:
 		return
 	background.texture = texture
 	# 背景与玩法坐标对齐:覆盖 1080x1920 玩法世界(中心 540,960),人物/刷怪/基座都对得上。
-	# expand 多出来的视口高度不再让主背景挪位/整体拉伸(那样会带崩人物与背景基座的
-	# 对齐)，改由 _apply_background_extension() 另接一条同图底部无形变延伸截图垫上。
+	# expand 多出来的视口高度不能让主背景挪位/整体拉伸(那样会带崩人物与背景基座的
+	# 对齐)。也试过直接截同图最底部一截贴上去，但好几张环境图(比如毒液实验室)
+	# 底部就摆着箱子/灯柱这类独立道具，直接复制会在人物下方"凭空多出一个一模一样
+	# 的箱子"，比留黑边还突兀。现在改为只取样主背景实际最底部边缘的平均色，往下
+	# 铺一块同色纯色块——颜色上无缝接上，且不会引入任何重复可辨认的物件。
 	background.position = Vector2(540, 960)
 	var texture_size := texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		background.scale = Vector2.ONE
-		_apply_background_extension(null, 1.0, Vector2.ZERO, 1920.0)
+		_apply_background_extension(Color(0.02, 0.022, 0.03, 1.0), 1920.0)
 		return
 	var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)
 	background.scale = Vector2(cover_scale, cover_scale)
 	background.modulate = Color(1, 1, 1, 1)
-	_apply_background_extension(texture, cover_scale, texture_size, 960.0 + (texture_size.y * cover_scale) * 0.5)
+	var edge_color := _sample_background_edge_color(texture, texture_size)
+	_apply_background_extension(edge_color, 960.0 + (texture_size.y * cover_scale) * 0.5)
 
-func _apply_background_extension(texture: Texture2D, cover_scale: float, texture_size: Vector2, main_bottom_edge: float) -> void:
-	var ext := get_node_or_null("BackgroundExtension") as Sprite2D
+func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2) -> Color:
+	var image := texture.get_image()
+	if image == null:
+		return Color(0.05, 0.05, 0.05, 1.0)
+	if image.is_compressed():
+		image.decompress()
+	var sample_h := mini(32, int(texture_size.y))
+	var sum := Color(0.0, 0.0, 0.0, 0.0)
+	var count := 0
+	var y0 := int(texture_size.y) - sample_h
+	var step := maxi(1, int(texture_size.x) / 48)
+	for y in range(y0, int(texture_size.y)):
+		for x in range(0, int(texture_size.x), step):
+			sum += image.get_pixel(x, y)
+			count += 1
+	if count == 0:
+		return Color(0.05, 0.05, 0.05, 1.0)
+	return Color(sum.r / count, sum.g / count, sum.b / count, 1.0)
+
+func _apply_background_extension(edge_color: Color, main_bottom_edge: float) -> void:
+	var ext := get_node_or_null("BackgroundExtension") as ColorRect
 	if ext == null:
-		ext = Sprite2D.new()
+		ext = ColorRect.new()
 		ext.name = "BackgroundExtension"
-		ext.centered = false
+		ext.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(ext)
 		var bg := get_node_or_null("Background")
 		if bg != null:
 			move_child(ext, bg.get_index() + 1)
-	if texture == null:
-		ext.visible = false
-		return
-	# 更高宽比设备(如 iPhone 16 Pro Max)上 expand 拉伸会多出一截视口高度，主背景
-	# 只覆盖到与玩法坐标对齐的固定范围，多出来的部分原本用清屏色垫底、露出一大条
-	# 黑边。这里不动主背景，另外截同一张图最底部的一小条按 1:1 原比例(不拉伸变形)
-	# 续接到主背景实际覆盖到的位置往下,铺满到视口真实底部。
 	var vis := get_viewport().get_visible_rect().size
 	var target_bottom := maxf(vis.y, 1920.0)
 	var extra := target_bottom - main_bottom_edge
 	if extra <= 0.5:
 		ext.visible = false
 		return
-	var strip_h := minf(extra / cover_scale, texture_size.y)
-	ext.texture = texture
-	ext.region_enabled = true
-	ext.region_rect = Rect2(0.0, texture_size.y - strip_h, texture_size.x, strip_h)
-	ext.scale = Vector2(cover_scale, cover_scale)
-	ext.position = Vector2(540.0 - texture_size.x * cover_scale * 0.5, main_bottom_edge)
-	ext.modulate = Color(1, 1, 1, 1)
+	ext.color = edge_color
+	ext.position = Vector2(0.0, main_bottom_edge)
+	ext.size = Vector2(maxf(1080.0, vis.x), extra + 4.0)
 	ext.visible = true
 
 func _battle_bgm_id() -> String:
