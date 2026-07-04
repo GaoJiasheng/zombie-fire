@@ -13,8 +13,18 @@ const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_pan
 const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_band.png")
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
-const BREACH_Y := 1500.0
-const CHARACTER_BASE_POSITION := Vector2(540, 1652)
+const BREACH_Y_DESIGN := 1500.0
+const CHARACTER_BASE_Y_DESIGN := 1652.0
+# 比 1080x1920 设计画布更高宽比的设备(如 iPhone 16 Pro Max)上，expand 拉伸会
+# 多出一截视口高度。以前的做法是让人物/护栏底座这个"下方基座群组"固定钉在设计
+# 高度 1920 内，多出来的高度晾在下面垫色块——能看，但人物没有真正用到下面多出
+# 的那截屏幕，观感"没用满全屏"。现在把这一整个基座群组(人物、护栏/breach 线、
+# 底部 HUD 条)统一按 bottom_dock_shift 整体下移，钉到真实屏幕底部；背景图整体
+# 平移同样的距离(不缩放，内部构图完全不变形，天然继续对齐)，让出来的顶部空当
+# 用取样色块垫上——那是走廊纵深处，理应渐隐入暗，不会像"复制出一个箱子"那样突兀。
+var bottom_dock_shift := 0.0
+var BREACH_Y := 1500.0
+var CHARACTER_BASE_POSITION := Vector2(540, 1652)
 const CHARACTER_VISUAL_BASE_SCALE := 0.512
 const CHARACTER_WEAPON_SOCKET := Vector2(58, -28)
 const CHARACTER_WEAPON_DEFAULT_DIRECTION := Vector2(0, -1)
@@ -243,6 +253,7 @@ var slow_field_rect: TextureRect
 var slow_field_particles: GPUParticles2D
 var slow_field_edge_lines: Array[Line2D] = []
 var slow_field_rune_layer: Node2D
+var slow_field_sfx_level := 0
 var card_press_skill_id := ""
 var card_press_started_at := 0.0
 var card_long_press_opened := false
@@ -372,6 +383,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = false
 	Engine.time_scale = 1.0
+	# 先算好底部基座群组要整体下移多少，后面背景/人物/护栏/底部HUD都要用。
+	var vis_size := get_viewport().get_visible_rect().size
+	bottom_dock_shift = maxf(0.0, vis_size.y - 1920.0)
+	BREACH_Y = BREACH_Y_DESIGN + bottom_dock_shift
+	CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN + bottom_dock_shift)
 	# HUD controls must receive GUI input both during battle and while card
 	# offers pause the tree; individual buttons decide their own enabled state.
 	$Hud.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -439,7 +455,7 @@ func _ready() -> void:
 	_seed_character_affinity()
 	_apply_base_survivability()
 	turret = TURRET_SCENE.instantiate()
-	turret.position = Vector2(540, 1660)
+	turret.position = Vector2(540, 1660.0 + bottom_dock_shift)
 	turret.setup(DataLoader.get_row("weapons", weapon_id), weapon_level)
 	_apply_turret_modifiers()
 	turret.visible = false
@@ -647,7 +663,7 @@ func _apply_manual_aim() -> void:
 	turret.aim_at(manual_aim_point)
 
 func _bounded_aim_point(world_pos: Vector2) -> Vector2:
-	return Vector2(clampf(world_pos.x, 0.0, 1080.0), clampf(world_pos.y, 0.0, 1920.0))
+	return Vector2(clampf(world_pos.x, 0.0, 1080.0), clampf(world_pos.y, 0.0, 1920.0 + bottom_dock_shift))
 
 func _now_seconds() -> float:
 	return Time.get_ticks_msec() / 1000.0
@@ -859,8 +875,8 @@ func _ensure_skill_hint_overlay() -> void:
 	overlay.anchor_right = 0.5
 	overlay.offset_left = -335.0
 	overlay.offset_right = 335.0
-	overlay.offset_top = 1560.0
-	overlay.offset_bottom = 1730.0
+	overlay.offset_top = 1560.0 + bottom_dock_shift
+	overlay.offset_bottom = 1730.0 + bottom_dock_shift
 	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	$Hud.add_child(overlay)
 
@@ -1080,7 +1096,7 @@ func _cast_vanguard_railvolley() -> bool:
 	var volley_count := _vanguard_railvolley_count(active)
 	var primary_damage := _current_primary_shot_damage("physical")
 	var damage := _vanguard_railvolley_damage(primary_damage)
-	_active_skill_cast_intro("弹幕齐射", Color(1.0, 0.88, 0.42), "level_up")
+	_active_skill_cast_intro("弹幕齐射", Color(1.0, 0.88, 0.42), "sig_vanguard_railvolley")
 	var muzzle := _weapon_fire_origin()
 	_spawn_vfx_sequence("vfx_muzzle_physical", muzzle + Vector2(0, -28), 0.88, Color(1.0, 0.9, 0.46, 0.9), 1.4, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_crit", muzzle + Vector2(0, -76), 0.72, Color(1.0, 0.88, 0.36, 0.68), 1.25, randf_range(-0.2, 0.2), 1.18, Vector2(0, -22), randf_range(-0.4, 0.4), true)
@@ -1092,7 +1108,7 @@ func _cast_vanguard_railvolley() -> bool:
 func _trigger_vanguard_overload() -> void:
 	sig_vanguard_overload_used = true
 	sig_vanguard_overload_timer = 5.0
-	AudioManager.play_sfx("threat_warning", -4.0, 0.02)
+	AudioManager.play_sfx("skill_salvo", -5.0, 0.02)
 	_show_wave_toast("过载反击", Color(1.0, 0.42, 0.18))
 	_play_character_skill(0.46)
 	_spawn_vfx_sequence("vfx_levelup_glow", _weapon_fire_origin() + Vector2(0, -60), 0.94, Color(1.0, 0.48, 0.18, 0.76), 1.25, randf_range(-0.2, 0.2), 1.12, Vector2(0, -18), 0.32, true)
@@ -1105,7 +1121,7 @@ func _cast_blaze_meltdown() -> bool:
 	var damage := _character_active_damage("fire", float(active.get("damage_mult", 3.6)))
 	var target := _best_active_target()
 	var origin := target.global_position if target != null else _active_skill_fallback_point(0.46)
-	_active_skill_cast_intro("熔毁爆发", Color(1.0, 0.42, 0.14), "muzzle_fire")
+	_active_skill_cast_intro("熔毁爆发", Color(1.0, 0.42, 0.14), "sig_blaze_meltdown")
 	_spawn_vfx_sequence("vfx_muzzle_fire", _weapon_fire_origin() + Vector2(0, -38), 0.92, Color(1.0, 0.58, 0.2, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_explosion_fire", origin + Vector2(0, -44), maxf(radius / 300.0, 0.72), Color(1.0, 0.48, 0.16, 0.86), 0.92, randf_range(-0.24, 0.24), 1.16, Vector2(0, -12), randf_range(-0.25, 0.25), true)
 	for i in range(_blaze_meltdown_pulse_count(active)):
@@ -1118,9 +1134,9 @@ func _cast_frost_glacier() -> bool:
 	sig_frost_glacier_tick = 0.0
 	var field_y := _frost_glacier_field_y(active)
 	var tick_damage := _character_active_damage("ice", float(active.get("damage_mult", 0.34)))
-	_active_skill_cast_intro("冰川领域", Color(0.55, 0.9, 1.0), "muzzle_ice")
+	_active_skill_cast_intro("冰川领域", Color(0.55, 0.9, 1.0), "sig_frost_glacier")
 	_spawn_vfx_sequence("vfx_muzzle_ice", _weapon_fire_origin() + Vector2(0, -42), 0.9, Color(0.66, 0.94, 1.0, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1180), 2.05, Color(0.6, 0.92, 1.0, 0.46), 0.86, 0.0, 1.05, Vector2(0, -8), 0.0, true)
+	_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1180.0 + bottom_dock_shift), 2.05, Color(0.6, 0.92, 1.0, 0.46), 0.86, 0.0, 1.05, Vector2(0, -8), 0.0, true)
 	var wave_count := _frost_glacier_wave_count(active)
 	for i in range(wave_count):
 		var wave_y := lerpf(1220.0, field_y, float(i) / float(maxi(wave_count - 1, 1)))
@@ -1146,7 +1162,7 @@ func _process_frost_glacier(delta: float) -> void:
 			enemy.take_damage(tick_damage, "ice")
 	if should_tick:
 		var alpha := 0.34 + minf(float(affected), 7.0) * 0.018
-		_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1135), 1.8, Color(0.56, 0.92, 1.0, alpha), 0.9, 0.0, 1.04, Vector2(0, -8), 0.0, true)
+		_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1135.0 + bottom_dock_shift), 1.8, Color(0.56, 0.92, 1.0, alpha), 0.9, 0.0, 1.04, Vector2(0, -8), 0.0, true)
 
 func _apply_frost_glacier_status(enemy: Node, tick_damage: float, status_duration: float) -> void:
 	var active: Dictionary = character_data.get("active_skill", {})
@@ -1165,7 +1181,7 @@ func _cast_volt_storm() -> bool:
 	var max_targets := _volt_storm_max_targets(active)
 	var damage := _character_active_damage("lightning", float(active.get("damage_mult", 2.1)))
 	var strike_count := _volt_storm_strike_count(active, max_targets)
-	_active_skill_cast_intro("雷暴领域", Color(1.0, 0.9, 0.2), "muzzle_lightning")
+	_active_skill_cast_intro("雷暴领域", Color(1.0, 0.9, 0.2), "sig_volt_storm")
 	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(1.0, 0.92, 0.28, 0.86), 1.45, _weapon_fire_direction().angle(), 1.1, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_chain_lightning", _active_skill_fallback_point(0.38) + Vector2(0, -52), 1.2, Color(1.0, 0.94, 0.28, 0.62), 1.1, randf_range(-0.3, 0.3), 1.1, Vector2(0, -18), randf_range(-0.45, 0.45), true)
 	for i in range(strike_count):
@@ -1240,12 +1256,14 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 	var cast_origin := _weapon_fire_origin()
 	var sequence_id := "vfx_levelup_glow"
 	match sfx_id:
-		"muzzle_fire":
+		"muzzle_fire", "sig_blaze_meltdown":
 			sequence_id = "vfx_muzzle_fire"
-		"muzzle_ice":
+		"muzzle_ice", "sig_frost_glacier":
 			sequence_id = "vfx_muzzle_ice"
-		"muzzle_lightning":
+		"muzzle_lightning", "sig_volt_storm":
 			sequence_id = "vfx_muzzle_lightning"
+		"sig_vanguard_railvolley":
+			sequence_id = "vfx_muzzle_physical"
 		_:
 			sequence_id = "vfx_levelup_glow"
 	_spawn_vfx_sequence(sequence_id, cast_origin + Vector2(0, -58), 0.92, Color(color.r, color.g, color.b, 0.82), 1.28, randf_range(-0.16, 0.16), 1.12, Vector2(0, -16), randf_range(-0.32, 0.32), true)
@@ -1281,7 +1299,7 @@ func _vanguard_railvolley_hit(volley_index: int, volley_count: int, damage: floa
 	var color := Color(1.0, 0.88, 0.42, 0.74)
 	_spawn_vfx_sequence("vfx_muzzle_physical", origin + direction.normalized() * 34.0, 0.58, Color(1.0, 0.88, 0.38, 0.78), 1.55, direction.angle(), 1.05, direction.normalized() * 26.0, 0.0, true)
 	if volley_index % 2 == 0:
-		AudioManager.play_sfx("shot_autocannon", -8.0, 0.02)
+		AudioManager.play_sfx("shot_autocannon", -10.0, 0.02)
 	var targets := _active_target_candidates(3)
 	if targets.is_empty():
 		var points := _active_skill_fallback_chain_points(3)
@@ -1320,7 +1338,7 @@ func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_
 		var angle := TAU * float(pulse_index - offsets.size()) / 3.0 + 0.35
 		local_origin = origin + Vector2(cos(angle), sin(angle)) * radius * 0.34 + Vector2(0, -62)
 	var local_radius := radius * (0.48 + 0.12 * float(pulse_index))
-	AudioManager.play_sfx("muzzle_fire", -7.0, randf_range(-0.03, 0.04))
+	AudioManager.play_sfx("skill_incendiary", -9.0, randf_range(-0.03, 0.04))
 	_spawn_vfx_sequence("vfx_explosion_fire", local_origin + Vector2(0, -44), 0.9 + 0.18 * float(pulse_index), Color(1.0, 0.42, 0.12, 0.9), 1.0, randf_range(-0.22, 0.22), 1.18, Vector2(0, -20), randf_range(-0.3, 0.3), true)
 	for spark_index in range(3):
 		var angle := TAU * (float(spark_index) / 3.0) + float(pulse_index) * 0.42
@@ -1343,7 +1361,7 @@ func _frost_glacier_wave(wave_y: float, tick_damage: float, wave_index: int) -> 
 		return
 	var center := Vector2(540, wave_y)
 	var radius := 390.0 + float(wave_index) * 48.0
-	AudioManager.play_sfx("muzzle_ice", -8.0, randf_range(-0.03, 0.03))
+	AudioManager.play_sfx("skill_cryo", -9.5, randf_range(-0.03, 0.03))
 	for i in range(5):
 		var x := lerpf(210.0, 870.0, float(i) / 4.0) + randf_range(-18.0, 18.0)
 		var pos := Vector2(x, wave_y + randf_range(-20.0, 18.0))
@@ -1382,7 +1400,7 @@ func _volt_storm_strike(strike_index: int, max_targets: int, damage: float) -> v
 			var previous := targets[(strike_index - 1) % targets.size()]
 			if previous != null and is_instance_valid(previous):
 				start = previous.global_position
-	AudioManager.play_sfx("muzzle_lightning", -8.0, randf_range(-0.025, 0.035))
+	AudioManager.play_sfx("skill_tesla", -9.0, randf_range(-0.025, 0.035))
 	var strike_angle := (hit_position - start).angle()
 	_spawn_vfx_sequence("vfx_chain_lightning", hit_position + Vector2(0, -54), 0.86, Color(1.0, 0.92, 0.24, 0.92), 1.55, strike_angle + randf_range(-0.28, 0.28), 1.08, Vector2(0, -20), randf_range(-0.5, 0.5), true)
 	_spawn_vfx_sequence("vfx_hit_lightning", hit_position + Vector2(randf_range(-12.0, 12.0), -42.0), 0.7, Color(1.0, 0.94, 0.28, 0.82), 1.35, randf_range(-0.35, 0.35), 1.16, Vector2(0, -18), randf_range(-0.45, 0.45))
@@ -1743,7 +1761,7 @@ func _update_lock_indicator() -> void:
 func _update_off_screen_indicators() -> void:
 	if off_screen_indicators == null:
 		return
-	var viewport := Rect2(Vector2(0, 140), Vector2(1080, 1500))
+	var viewport := Rect2(Vector2(0, 140), Vector2(1080, BREACH_Y))
 	off_screen_indicators.refresh(viewport, Vector2.ZERO)
 
 func _pulse_lock_indicator() -> void:
@@ -2105,30 +2123,32 @@ func _layout_runtime_hud() -> void:
 	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
 	if bottom_bar != null:
 		bottom_bar.offset_left = 28.0
-		bottom_bar.offset_top = 1792.0
+		bottom_bar.offset_top = 1792.0 + bottom_dock_shift
 		bottom_bar.offset_right = -28.0
-		bottom_bar.offset_bottom = 1894.0
+		bottom_bar.offset_bottom = 1894.0 + bottom_dock_shift
 		bottom_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_layout_bottom_resource_bar()
 	var skill_slots := get_node_or_null("Hud/SkillSlots") as HBoxContainer
 	if skill_slots != null:
-		# 固定锚定设计高度(1920)内的绝对位置,不锚定屏幕真实底部——
-		# 否则在比 1080x1920 更高宽比的设备(如 iPhone 16 Pro Max)上会
-		# 悬空脱离下方 HUD 群组,漂进黑色空白区域。
+		# 固定锚定设计高度(1920)内的绝对位置,不锚定屏幕真实底部(anchor_bottom=1.0
+		# 那种锚法在更高宽比设备上会让这个元素自己漂到真实屏幕底部、和其它还留在
+		# 设计高度内的 HUD 元素脱节，比如漂进黑色空白区域)。真正要"用满全屏"是靠
+		# 下面这个 +bottom_dock_shift——同一个偏移量同时加到人物、护栏、这整个底部
+		# HUD 群组上，大家一起挪到真实屏幕底部，彼此之间的相对位置完全不变。
 		skill_slots.anchor_top = 0.0
 		skill_slots.anchor_bottom = 0.0
 		skill_slots.offset_left = 174.0
-		skill_slots.offset_top = 1684.0
+		skill_slots.offset_top = 1684.0 + bottom_dock_shift
 		skill_slots.offset_right = -174.0
-		skill_slots.offset_bottom = 1784.0
+		skill_slots.offset_bottom = 1784.0 + bottom_dock_shift
 		skill_slots.add_theme_constant_override("separation", 10)
 		skill_slots.alignment = BoxContainer.ALIGNMENT_CENTER
 	var active_button := get_node_or_null("Hud/CharacterSkillButton") as Control
 	if active_button != null:
 		active_button.offset_left = -154.0
-		active_button.offset_top = 1688.0
+		active_button.offset_top = 1688.0 + bottom_dock_shift
 		active_button.offset_right = -34.0
-		active_button.offset_bottom = 1808.0
+		active_button.offset_bottom = 1808.0 + bottom_dock_shift
 	var pause_button := get_node_or_null("PauseLayer/PauseButton") as TextureButton
 	if pause_button != null:
 		pause_button.offset_left = 18.0
@@ -2521,7 +2541,7 @@ func _apply_wave_start_support() -> void:
 	if heal <= 0:
 		return
 	base_hp = min(base_hp + heal, base_hp_max)
-	_spawn_float_text(Vector2(540, 1440), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
+	_spawn_float_text(Vector2(540, 1440.0 + bottom_dock_shift), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
 
 func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
 	for i in range(int(group.get("count", 1))):
@@ -2583,6 +2603,8 @@ func _process_enemy_mechanics(delta: float) -> void:
 			continue
 		_process_boss_phase_feedback(source)
 		match str(source.mechanic):
+			"basic", "tank":
+				_process_baseline_enemy_audio(source, delta)
 			"buff_aura":
 				_apply_speed_aura(source, enemies)
 				_process_aura_feedback(source, "buff_aura", delta)
@@ -2705,9 +2727,16 @@ func _process_aura_feedback(source: Node, kind: String, delta: float) -> void:
 	var label := "加速" if kind == "buff_aura" else "护盾" if kind == "shield_aura" else "守护"
 	if source.has_method("play_special"):
 		source.play_special(0.28)
+	_play_enemy_mechanic_sfx(source, -7.0, 0.02)
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -42.0))
 	_spawn_attack_ring(source.global_position, radius, color, 0.34)
 	_spawn_float_text(source.global_position + Vector2(0, -118.0), label, color)
+
+func _process_baseline_enemy_audio(source: Node, delta: float) -> void:
+	var interval := float(source.mechanic_params.get("audio_interval", 4.6 if str(source.mechanic) == "basic" else 3.4))
+	if not _enemy_mechanic_timer_ready(source, "baseline_audio", delta, interval, 0.8, 1.2):
+		return
+	_play_enemy_mechanic_sfx(source, -14.0, 0.04)
 
 func _process_runner_skill(source: Node, delta: float) -> void:
 	if source.global_position.y < float(source.mechanic_params.get("dash_y", 680.0)):
@@ -2746,6 +2775,7 @@ func _process_phase_enemy_skill(source: Node, delta: float) -> void:
 func _advance_enemy_with_skill(source: Node, kind: String, advance: float, label: String, color: Color, damage_scale: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.32)
+	_play_enemy_mechanic_sfx(source, -7.5, 0.025)
 	var old_y := float(source.global_position.y)
 	var cap_y := float(source.attack_line_y) - 18.0
 	source.global_position.y = minf(cap_y, old_y + advance)
@@ -2765,12 +2795,12 @@ func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.42)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.22)), 2.0)
-	var impact := Vector2(source.global_position.x, 1440.0)
+	var impact := Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
 	_spawn_attack_telegraph(impact, Color(0.42, 1.0, 0.24, 0.32), "毒雾")
 	_spawn_enemy_attack_vfx(source, "toxic_cloud", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, float(source.mechanic_params.get("radius", 190.0)), Color(0.42, 1.0, 0.24, 0.28), 0.42)
 	_spawn_enemy_cast_bolt(source.global_position + Vector2(0, -30.0), impact, Color(0.52, 1.0, 0.3), "poison", false)
-	AudioManager.play_sfx("hit_poison", -5.0, 0.02)
+	AudioManager.play_sfx("zombie_toxic", -6.5, 0.02)
 	_apply_enemy_skill_base_damage(source, damage, "毒雾", Color(0.56, 1.0, 0.32), impact)
 
 func _process_juggernaut_pressure(source: Node, delta: float) -> void:
@@ -2786,7 +2816,7 @@ func _process_juggernaut_pressure(source: Node, delta: float) -> void:
 	_spawn_enemy_attack_vfx(source, "juggernaut", source.global_position + Vector2(0, -42.0))
 	_spawn_attack_ring(source.global_position + Vector2(0, 70.0), 230.0, Color(color.r, color.g, color.b, 0.28), 0.38)
 	_spawn_attack_telegraph(Vector2(source.global_position.x, 1360.0), Color(color.r, color.g, color.b, 0.26), "震地")
-	AudioManager.play_sfx("threat_warning", -6.0, 0.02)
+	AudioManager.play_sfx("zombie_juggernaut", -6.5, 0.02)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.16)), 2.0)
 	_apply_enemy_skill_base_damage(source, damage, "震地", color, Vector2(source.global_position.x, 1360.0))
 
@@ -2800,6 +2830,7 @@ func _process_regen_feedback(source: Node, delta: float) -> void:
 	_spawn_enemy_attack_vfx(source, "regen", source.global_position + Vector2(0, -48.0))
 	_spawn_attack_ring(source.global_position, 150.0, Color(color.r, color.g, color.b, 0.24), 0.34)
 	_spawn_float_text(source.global_position + Vector2(0, -118.0), "再生", color)
+	AudioManager.play_sfx("zombie_regenerator", -8.0, 0.025)
 
 func _process_mutation(source: Node) -> void:
 	if source.has_meta("mutated"):
@@ -2820,7 +2851,7 @@ func _process_mutation(source: Node) -> void:
 	_spawn_enemy_attack_vfx(source, "mutate", source.global_position + Vector2(0, -62.0))
 	_spawn_attack_ring(source.global_position, 210.0, Color(0.88, 0.34, 1.0, 0.28), 0.42)
 	_spawn_float_text(source.global_position + Vector2(0, -132.0), "突变", Color(0.92, 0.45, 1.0))
-	AudioManager.play_sfx("threat_warning", -5.0, 0.02)
+	AudioManager.play_sfx("zombie_mutant", -6.0, 0.02)
 
 func _process_enrage_feedback(source: Node) -> void:
 	if not bool(source.enrage_triggered) or source.has_meta("enrage_feedback_done"):
@@ -2831,7 +2862,7 @@ func _process_enrage_feedback(source: Node) -> void:
 	_spawn_enemy_attack_vfx(source, "enrage", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, 185.0, Color(1.0, 0.32, 0.16, 0.3), 0.36)
 	_spawn_float_text(source.global_position + Vector2(0, -124.0), "狂暴", Color(1.0, 0.32, 0.16))
-	AudioManager.play_sfx("threat_warning", -6.0, 0.02)
+	AudioManager.play_sfx("zombie_berserker", -6.5, 0.02)
 
 func _process_passive_enemy_feedback(source: Node, delta: float) -> void:
 	var interval := float(source.mechanic_params.get("pulse_interval", 3.8))
@@ -2839,6 +2870,7 @@ func _process_passive_enemy_feedback(source: Node, delta: float) -> void:
 		return
 	var kind := str(source.mechanic)
 	var color := _attack_color_for_mechanic(kind)
+	_play_enemy_mechanic_sfx(source, -10.0, 0.035)
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -42.0))
 	if kind == "armor":
 		_spawn_float_text(source.global_position + Vector2(0, -116.0), "装甲", color)
@@ -2856,7 +2888,7 @@ func _process_summoner(source: Node, delta: float) -> void:
 	spawn_position.y = clampf(spawn_position.y, 190.0, 1220.0)
 	_spawn_enemy_attack_vfx(source, "summon", spawn_position)
 	_spawn_enemy_instance(str(source.mechanic_params.get("summon_id", "zombie_shambler")), spawn_position, false)
-	AudioManager.play_sfx("threat_warning", -6.0)
+	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -86), "召唤", Color(0.72, 0.4, 1.0))
 
 func _process_ranged_pressure(source: Node, delta: float) -> void:
@@ -2871,7 +2903,7 @@ func _process_ranged_pressure(source: Node, delta: float) -> void:
 	var target_position := Vector2(source.global_position.x, 1370)
 	_spawn_attack_telegraph(target_position, Color(0.46, 1.0, 0.25, 0.34), "腐蚀")
 	_spawn_spit_attack_vfx(source, target_position)
-	AudioManager.play_sfx("hit_poison", -4.0)
+	AudioManager.play_sfx("zombie_spitter", -5.5, 0.02)
 	_apply_enemy_skill_base_damage(source, spit_damage, "腐蚀", Color(0.56, 1.0, 0.32), target_position)
 
 func _process_boss_pressure(source: Node, delta: float, interval: float, damage_scale: float, label: String, color: Color) -> void:
@@ -2884,7 +2916,7 @@ func _process_boss_pressure(source: Node, delta: float, interval: float, damage_
 	if source.has_method("play_special"):
 		source.play_special()
 	var pressure_damage := _enemy_skill_damage(source, damage_scale, 3.0)
-	var impact := Vector2(source.global_position.x, 1440.0)
+	var impact := Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
 	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.34), label)
 	_spawn_boss_attack_vfx(source, label, color, impact)
 	AudioManager.play_sfx("threat_warning", -5.0)
@@ -2919,10 +2951,10 @@ func _process_boss_minions(source: Node, delta: float) -> void:
 	for offset in [-92.0, 0.0, 92.0]:
 		var spawn_position: Vector2 = source.global_position + Vector2(offset, 32.0)
 		spawn_position.x = clampf(spawn_position.x, 120.0, 960.0)
-		spawn_position.y = clampf(spawn_position.y, 220.0, 1180.0)
+		spawn_position.y = clampf(spawn_position.y, 220.0, 1180.0 + bottom_dock_shift)
 		_spawn_enemy_attack_vfx(source, "spawn_minions", spawn_position)
 		_spawn_enemy_instance("zombie_crawler", spawn_position, false)
-	AudioManager.play_sfx("threat_warning", -5.0)
+	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -130), "孵化尸群", Color(0.66, 1.0, 0.3))
 
 func _process_phase_shift(source: Node, delta: float) -> void:
@@ -2931,9 +2963,9 @@ func _process_phase_shift(source: Node, delta: float) -> void:
 		source.mechanic_timer = randf_range(2.4, 3.4)
 		if source.has_method("play_special"):
 			source.play_special(0.34)
-		AudioManager.play_sfx("threat_warning", -6.0)
+		AudioManager.play_sfx("zombie_phantom", -6.5, 0.02)
 		_spawn_enemy_attack_vfx(source, "phase_shift", source.global_position + Vector2(0, 86.0))
-		source.global_position.y = min(source.global_position.y + 86.0, 1440.0)
+		source.global_position.y = min(source.global_position.y + 86.0, 1440.0 + bottom_dock_shift)
 		_spawn_float_text(source.global_position + Vector2(0, -130), "相位突进", Color(0.62, 0.82, 1.0))
 
 func _process_apex_pressure(source: Node, enemies: Array, delta: float) -> void:
@@ -2993,6 +3025,10 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	AudioManager.play_sfx(_weapon_shot_sfx(weapon_id), -7.0)
 	if element != "physical":
 		AudioManager.play_sfx(_element_muzzle_sfx(element), -10.0, 0.025)
+	if shots > 1 and skills.level("skill_multishot") > 0:
+		AudioManager.play_sfx("skill_multishot", -11.0, 0.025)
+	if skills.level("skill_salvo") > 0 and randf() < 0.12:
+		AudioManager.play_sfx("skill_salvo", -12.0, 0.025)
 	if element == primary_weakness and randf() < 0.08:
 		_spawn_float_text(origin + Vector2(-120, -80), "弱点装填", Color(1.0, 0.86, 0.32))
 	if weapon_level >= 15 and randf() < 0.08:
@@ -3008,7 +3044,10 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var cloud: float = float(special.get("cloud", 0.0))
 	var visual_scale := _projectile_visual_scale(shots, pierce, split, homing, splash, cloud)
 	var shot_directions := _primary_shot_directions(origin, direction, shots, spread)
-	if skills.level("skill_charge_shot") > 0 and randf() < 0.18:
+	var charge_shot_triggered := skills.level("skill_charge_shot") > 0 and randf() < 0.18
+	if charge_shot_triggered:
+		AudioManager.play_sfx("skill_charge_shot_charge", -11.0, 0.02)
+		AudioManager.play_sfx("skill_charge_shot_release", -9.5, 0.02)
 		_spawn_float_text(origin + Vector2(105, -72), "蓄能弹", Color(1.0, 0.78, 0.24))
 	for i in range(shots):
 		var shot_direction: Vector2 = shot_directions[i] if i < shot_directions.size() else direction
@@ -3050,6 +3089,8 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
 	if homing > 0.0:
+		if skills.level("skill_homing") > 0:
+			AudioManager.play_sfx("skill_homing", -12.0, 0.02)
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
@@ -3096,7 +3137,7 @@ func _battlefield_enemy_directions(origin: Vector2) -> Array[Vector2]:
 		if not is_instance_valid(e) or not (e is Node2D):
 			continue
 		var en := e as Node2D
-		if en.global_position.y > 1540.0:
+		if en.global_position.y > 1540.0 + bottom_dock_shift:
 			continue
 		var to_enemy: Vector2 = en.global_position - origin
 		if to_enemy.length_squared() <= 4.0:
@@ -3112,7 +3153,7 @@ func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
 		if not is_instance_valid(e) or not (e is Node2D):
 			continue
 		var en := e as Node2D
-		if en.global_position.y > 1540.0:
+		if en.global_position.y > 1540.0 + bottom_dock_shift:
 			continue
 		sum += en.global_position
 		n += 1
@@ -3458,7 +3499,7 @@ func _weapon_socket_global() -> Vector2:
 		return character_rig.global_position + CHARACTER_WEAPON_SOCKET
 	if turret != null:
 		return turret.global_position
-	return Vector2(540, 1660)
+	return Vector2(540, 1660.0 + bottom_dock_shift)
 
 func _character_combo_key() -> String:
 	return "%s/%s" % [_character_asset_id(), weapon_id]
@@ -4443,6 +4484,7 @@ func _show_loadout_intro() -> void:
 	var text := "%s 等级%d  ·  %s 等级%d" % [character_name, character_level, weapon_name, weapon_level]
 	if not pet_data.is_empty():
 		text += "  ·  宠物 等级%d" % pet_level
+	AudioManager.play_sfx(_character_intro_sfx(), -4.0, 0.02)
 	_show_wave_toast(text, Color(0.78, 0.94, 1.0))
 
 func _spawn_loadout_badge(origin: Vector2, label_text: String, level: int, color: Color) -> void:
@@ -4472,6 +4514,8 @@ func _spawn_loadout_badge(origin: Vector2, label_text: String, level: int, color
 func _spawn_enemy_entry_vfx(enemy: Node, is_boss: bool) -> void:
 	if not is_instance_valid(enemy):
 		return
+	if not is_boss:
+		_play_enemy_mechanic_sfx(enemy, -15.0, 0.05)
 	var color := Color(1.0, 0.3, 0.16, 0.34) if is_boss else Color(0.74, 0.9, 1.0, 0.22)
 	var radius := 190.0 if is_boss else 82.0
 	_spawn_attack_ring(enemy.global_position + Vector2(0, -20), radius, color, 0.28)
@@ -4638,6 +4682,7 @@ func _pet_scaled_value(value_key: String, growth_key: String) -> float:
 	return value * (1.0 + growth * float(max(pet_level - 1, 0)))
 
 func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String) -> void:
+	AudioManager.play_sfx("skill_split_shot", -9.0, 0.025)
 	var fan := deg_to_rad(30.0 + float(count) * 10.0)
 	_spawn_split_burst_vfx(origin, direction, fan, count, element)
 	_spawn_attack_ring(origin, 92.0 + float(count) * 14.0, Color(_element_color(element).r, _element_color(element).g, _element_color(element).b, 0.26), 0.18)
@@ -4651,6 +4696,7 @@ func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: 
 
 func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String) -> void:
 	_spawn_element_impact_vfx(primary, origin, element, visual_profile)
+	_play_skill_impact_sfx(element)
 	_trigger_impact_feedback(primary, damage, visual_profile)
 	if chain_depth <= 0:
 		_spawn_chain_projectiles(primary, origin, damage, element)
@@ -4670,6 +4716,23 @@ func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float,
 		var falloff := 1.0 - clampf(target.global_position.distance_to(origin) / radius, 0.0, 1.0)
 		var scale := 0.45 if splash_radius >= cloud_radius else 0.32
 		target.take_damage(damage * scale * (0.55 + falloff * 0.45), element)
+
+func _play_skill_impact_sfx(element: String) -> void:
+	if skills.level("skill_pierce") > 0 and randf() < 0.16:
+		AudioManager.play_sfx("skill_pierce", -12.5, 0.025)
+	match element:
+		"fire":
+			if skills.level("skill_incendiary") > 0:
+				AudioManager.play_sfx("skill_incendiary", -12.0, 0.025)
+		"ice":
+			if skills.level("skill_cryo") > 0:
+				AudioManager.play_sfx("skill_cryo", -12.0, 0.025)
+		"lightning":
+			if skills.level("skill_tesla") > 0:
+				AudioManager.play_sfx("skill_tesla", -12.0, 0.025)
+		"poison":
+			if skills.level("skill_venom") > 0:
+				AudioManager.play_sfx("skill_venom", -12.0, 0.025)
 
 func _apply_character_bullet_on_hit(primary: Node, origin: Vector2, damage: float, element: String) -> void:
 	if primary == null or not is_instance_valid(primary) or not _is_character_affinity_element(element):
@@ -4729,6 +4792,8 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 	if chain_count <= 0:
 		return
 	var targets: Array[Node2D] = _chain_targets(origin, primary, chain_count, 430.0)
+	if not targets.is_empty():
+		AudioManager.play_sfx("skill_tesla" if element == "lightning" and skills.level("skill_tesla") > 0 else "skill_ricochet", -9.5, 0.025)
 	for target in targets:
 		if target == null or not is_instance_valid(target):
 			continue
@@ -5493,14 +5558,14 @@ func _spawn_low_hp_pulse() -> void:
 	low_hp_pulse = Control.new()
 	low_hp_pulse.name = "LowHpPulse"
 	low_hp_pulse.position = Vector2.ZERO
-	low_hp_pulse.size = Vector2(1080, 1920)
+	low_hp_pulse.size = Vector2(1080, 1920.0 + bottom_dock_shift)
 	low_hp_pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Hud.add_child(low_hp_pulse)
 	for spec in [
 		{"name": "Top", "pos": Vector2(0, 0), "size": Vector2(1080, 120)},
-		{"name": "Bottom", "pos": Vector2(0, 1760), "size": Vector2(1080, 160)},
-		{"name": "Left", "pos": Vector2(0, 0), "size": Vector2(82, 1920)},
-		{"name": "Right", "pos": Vector2(998, 0), "size": Vector2(82, 1920)}
+		{"name": "Bottom", "pos": Vector2(0, 1760.0 + bottom_dock_shift), "size": Vector2(1080, 160)},
+		{"name": "Left", "pos": Vector2(0, 0), "size": Vector2(82, 1920.0 + bottom_dock_shift)},
+		{"name": "Right", "pos": Vector2(998, 0), "size": Vector2(82, 1920.0 + bottom_dock_shift)}
 	]:
 		var edge := TextureRect.new()
 		edge.name = str(spec.get("name", "Edge"))
@@ -5592,7 +5657,7 @@ func _spawn_boss_attack_vfx(source: Node, label: String, color: Color, impact :=
 	var element := _enemy_cast_element(label)
 	var is_boss := bool(source.boss)
 	if impact == Vector2.ZERO:
-		impact = Vector2(source.global_position.x, 1440.0)
+		impact = Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
 	# 起手炮口/聚能闪光（在施法者身上）
 	_spawn_attack_sprite(_vfx_path("muzzle", element), source.global_position + Vector2(0, -84), Color(color.r, color.g, color.b, 0.9), 1.5 if is_boss else 1.05, 0.34)
 	# 一颗能量弹从施法者飞向基地防线，落地炸开——让“掉血”有清晰的来龙去脉
@@ -5820,7 +5885,10 @@ func _on_enemy_tree_exiting(enemy: Node) -> void:
 		enemy.threat_marker.queue_free()
 
 func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
-	AudioManager.play_sfx("enemy_death", -3.0)
+	var death_sfx := _zombie_mechanic_sfx(str(enemy.get("mechanic"))) if is_instance_valid(enemy) else ""
+	if death_sfx != "":
+		AudioManager.play_sfx(death_sfx, -9.0, 0.025)
+	AudioManager.play_sfx("enemy_death", -6.0)
 	if enemy == active_boss:
 		active_boss = null
 	if is_instance_valid(enemy):
@@ -5846,6 +5914,8 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 		if now - last_gold_sfx_at >= 0.18:
 			last_gold_sfx_at = now
 			AudioManager.play_sfx("gold_pickup", -8.0)
+			if skills.level("skill_gold_rush") > 0:
+				AudioManager.play_sfx("skill_gold_rush", -9.5, 0.02)
 	if enemy == target_manager.locked_enemy:
 		target_manager.clear_lock()
 	_try_show_xp_card_offer(enemy)
@@ -5855,6 +5925,8 @@ func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hi
 		damage_numbers.spawn_damage(enemy.global_position + Vector2(0, -34 if not bool(enemy.boss) else -76), amount, element, crit_hit, weak_hit)
 	# crit-only screen shake (light) and hit stop (very short)
 	if crit_hit:
+		if skills.level("skill_critical") > 0:
+			AudioManager.play_sfx("skill_critical", -9.5, 0.02)
 		VfxLib.screen_shake(6.0, 0.08)
 		if hit_stop:
 			hit_stop.pulse(0.04)
@@ -6489,8 +6561,12 @@ func _build_debug_text() -> String:
 func _apply_slow_field() -> void:
 	var slow_level := skills.level("skill_slow_field")
 	if slow_level <= 0:
+		slow_field_sfx_level = 0
 		_update_slow_field_visual(0)
 		return
+	if slow_level != slow_field_sfx_level:
+		slow_field_sfx_level = slow_level
+		AudioManager.play_sfx("skill_slow_field", -8.0, 0.02)
 	for enemy in $EnemyLayer.get_children():
 		if enemy.has_method("targeting_snapshot"):
 			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y)
@@ -6589,19 +6665,19 @@ func _update_slow_field_visual(slow_level: int) -> void:
 	var slow_pct: float
 	match slow_level:
 		1:
-			y_min = 1280.0
+			y_min = BREACH_Y - 220.0
 			slow_pct = 0.18
 		2:
-			y_min = 1220.0
+			y_min = BREACH_Y - 280.0
 			slow_pct = 0.26
 		3:
-			y_min = 1160.0
+			y_min = BREACH_Y - 340.0
 			slow_pct = 0.35
 		_:
-			y_min = 1500.0
+			y_min = BREACH_Y
 			slow_pct = 0.0
 	slow_field_rect.position = Vector2(0, y_min)
-	var field_height := maxf(1500.0 - y_min, 60.0)
+	var field_height := maxf(BREACH_Y - y_min, 60.0)
 	slow_field_rect.size = Vector2(1080, field_height)
 	slow_field_rect.visible = true
 	var field_color := Color(0.28, 0.76, 1.0, 0.14 + slow_pct * 0.23)
@@ -6816,7 +6892,7 @@ func _show_card_offer() -> void:
 	_set_card_offer_pause_active(true)
 	AudioManager.play_sfx("card_offer")
 	AudioManager.play_sfx("level_up", -2.0, 0.02)
-	_spawn_levelup_vfx(Vector2(540, 1580), Color(0.7, 0.95, 1.0))
+	_spawn_levelup_vfx(Vector2(540, 1580.0 + bottom_dock_shift), Color(0.7, 0.95, 1.0))
 	$Hud/CardPanel/CardTitle.text = _card_offer_title()
 	$Hud/CardPanel.visible = true
 	_animate_card_panel_in()
@@ -7232,7 +7308,7 @@ func _announce_build_feedback(key: String, text: String, color: Color, family: S
 	_show_wave_toast(text, color)
 	_spawn_build_banner(text, color)
 	_pulse_build_skill_slots(family)
-	_spawn_attack_ring(Vector2(540, 1540), 180.0, Color(color.r, color.g, color.b, 0.26), 0.28)
+	_spawn_attack_ring(Vector2(540, 1540.0 + bottom_dock_shift), 180.0, Color(color.r, color.g, color.b, 0.26), 0.28)
 
 func _spawn_build_banner(text: String, color: Color) -> void:
 	_show_wave_toast(text, color)
@@ -7373,8 +7449,11 @@ func _choose_card(skill_id: String) -> void:
 		_close_card_offer(false)
 		_update_character_skill_button()
 		return
+	var skill_sfx := _skill_sfx_id(skill_id)
+	if skill_sfx != "":
+		AudioManager.play_sfx(skill_sfx, -5.5, 0.02)
 	cards_picked += 1
-	_spawn_levelup_vfx(Vector2(540, 1580), Color(1.0, 0.86, 0.3))
+	_spawn_levelup_vfx(Vector2(540, 1580.0 + bottom_dock_shift), Color(1.0, 0.86, 0.3))
 	_spawn_skill_pick_vfx(skill_id)
 	if skill_id == "skill_barrier":
 		skill_barriers_left += skills.barrier_gain()
@@ -7397,7 +7476,7 @@ func _choose_card(skill_id: String) -> void:
 func _spawn_skill_pick_vfx(skill_id: String) -> void:
 	if not _can_spawn_projectile_fx(true):
 		return
-	var origin := Vector2(540, 1560)
+	var origin := Vector2(540, 1560.0 + bottom_dock_shift)
 	var color := _skill_signature_color(skill_id)
 	var hot := color.lightened(0.26)
 	hot.a = 0.9
@@ -7489,6 +7568,8 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 	AudioManager.play_sfx("hit_immune" if immune_hit else _element_hit_sfx(element), -8.0)
 	if not is_instance_valid(enemy):
 		return
+	if str(enemy.get("mechanic")) == "armor" and not immune_hit:
+		AudioManager.play_sfx("zombie_armored", -10.0, 0.02)
 	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
 	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
 	# 一次 _spawn_hit_layer_vfx——普通命中(hit_kind=="normal")两边其实是同一种粒子
@@ -7536,7 +7617,7 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 		screen_flash.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		screen_flash.stretch_mode = TextureRect.STRETCH_SCALE
 		screen_flash.position = Vector2.ZERO
-		screen_flash.size = Vector2(1080, 1920)
+		screen_flash.size = Vector2(1080, 1920.0 + bottom_dock_shift)
 		screen_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		$Hud.add_child(screen_flash)
 	if screen_flash_tween != null and screen_flash_tween.is_valid():
@@ -7559,25 +7640,29 @@ func _apply_level_background() -> void:
 		push_warning("Missing battle background for %s: %s" % [env_id, path])
 		return
 	background.texture = texture
-	# 背景与玩法坐标对齐:覆盖 1080x1920 玩法世界(中心 540,960),人物/刷怪/基座都对得上。
-	# expand 多出来的视口高度不能让主背景挪位/整体拉伸(那样会带崩人物与背景基座的
-	# 对齐)。也试过直接截同图最底部一截贴上去，但好几张环境图(比如毒液实验室)
-	# 底部就摆着箱子/灯柱这类独立道具，直接复制会在人物下方"凭空多出一个一模一样
-	# 的箱子"，比留黑边还突兀。现在改为只取样主背景实际最底部边缘的平均色，往下
-	# 铺一块同色纯色块——颜色上无缝接上，且不会引入任何重复可辨认的物件。
-	background.position = Vector2(540, 960)
+	# 背景与玩法坐标对齐:覆盖 1080x1920 玩法世界,人物/刷怪/基座都对得上。更高宽比
+	# 设备(如 iPhone 16 Pro Max)上，人物/护栏/底部HUD这整个"下方基座群组"统一
+	# 下移 bottom_dock_shift、钉到真实屏幕底部(见 _ready)；背景图也整体下移同样
+	# 的距离——只是平移，不缩放，内部构图完全不变形，和下移后的基座群组天然继续
+	# 对齐。之前试过原地不动只在底部另接一截同图，但好几张环境图(比如毒液实验室)
+	# 底部附近就摆着箱子/灯柱这类独立道具，接上去等于凭空复制出一个一模一样的
+	# 道具，比黑边还突兀；也试过把背景拉伸盖满，但每张环境图的护栏/道具具体画在
+	# 哪个高度都不一样(从 y1200 到 y1500+ 都有)，找不出一个安全的拉伸分界线。
+	# 现在这版不复制、不拉伸，只是整体平移，最安全。平移后上方让出来的空当(走廊
+	# 纵深处，此时还没有敌人)取样背景图自己最顶部边缘的颜色垫上，读作渐隐入暗。
+	background.position = Vector2(540, 960.0 + bottom_dock_shift)
 	var texture_size := texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		background.scale = Vector2.ONE
-		_apply_background_extension(Color(0.02, 0.022, 0.03, 1.0), 1920.0)
+		_apply_background_top_fill(Color(0.02, 0.022, 0.03, 1.0))
 		return
 	var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)
 	background.scale = Vector2(cover_scale, cover_scale)
 	background.modulate = Color(1, 1, 1, 1)
-	var edge_color := _sample_background_edge_color(texture, texture_size)
-	_apply_background_extension(edge_color, 960.0 + (texture_size.y * cover_scale) * 0.5)
+	var edge_color := _sample_background_edge_color(texture, texture_size, true)
+	_apply_background_top_fill(edge_color)
 
-func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2) -> Color:
+func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2, from_top := false) -> Color:
 	var image := texture.get_image()
 	if image == null:
 		return Color(0.05, 0.05, 0.05, 1.0)
@@ -7586,9 +7671,10 @@ func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2) ->
 	var sample_h := mini(32, int(texture_size.y))
 	var sum := Color(0.0, 0.0, 0.0, 0.0)
 	var count := 0
-	var y0 := int(texture_size.y) - sample_h
+	var y0 := 0 if from_top else int(texture_size.y) - sample_h
+	var y1 := sample_h if from_top else int(texture_size.y)
 	var step := maxi(1, int(texture_size.x) / 48)
-	for y in range(y0, int(texture_size.y)):
+	for y in range(y0, y1):
 		for x in range(0, int(texture_size.x), step):
 			sum += image.get_pixel(x, y)
 			count += 1
@@ -7596,25 +7682,39 @@ func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2) ->
 		return Color(0.05, 0.05, 0.05, 1.0)
 	return Color(sum.r / count, sum.g / count, sum.b / count, 1.0)
 
-func _apply_background_extension(edge_color: Color, main_bottom_edge: float) -> void:
-	var ext := get_node_or_null("BackgroundExtension") as ColorRect
+func _apply_background_top_fill(edge_color: Color) -> void:
+	var ext := get_node_or_null("BackgroundExtension") as TextureRect
 	if ext == null:
-		ext = ColorRect.new()
+		ext = TextureRect.new()
 		ext.name = "BackgroundExtension"
 		ext.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ext.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ext.stretch_mode = TextureRect.STRETCH_SCALE
 		add_child(ext)
 		var bg := get_node_or_null("Background")
 		if bg != null:
+			# 必须排在 EnemyLayer 等玩法层前面(紧跟在 Background 后面)，否则会盖住
+			# 生成在 y=0~bottom_dock_shift 这段空当附近的敌人/投射物。
 			move_child(ext, bg.get_index() + 1)
-	var vis := get_viewport().get_visible_rect().size
-	var target_bottom := maxf(vis.y, 1920.0)
-	var extra := target_bottom - main_bottom_edge
-	if extra <= 0.5:
+	if bottom_dock_shift <= 0.5:
 		ext.visible = false
 		return
-	ext.color = edge_color
-	ext.position = Vector2(0.0, main_bottom_edge)
-	ext.size = Vector2(maxf(1080.0, vis.x), extra + 4.0)
+	# 纯色块贴上去在真实背景边缘会有一条硬边(色块没有背景本身的颗粒/噪点纹理)。
+	# 改成从更暗的同色系渐变到取样色，越靠近背景衔接处颜色越接近背景边缘实际的
+	# 平均色，衔接处的硬边感明显减弱；越往上(真实的走廊纵深处)则自然暗下去，
+	# 读作雾气/暗部渐隐，而不是一块突兀的实色。
+	var gradient := Gradient.new()
+	var dark_color := Color(edge_color.r * 0.3, edge_color.g * 0.3, edge_color.b * 0.3, 1.0)
+	gradient.colors = PackedColorArray([dark_color, edge_color])
+	var gradient_texture := GradientTexture2D.new()
+	gradient_texture.gradient = gradient
+	gradient_texture.width = 4
+	gradient_texture.height = 128
+	gradient_texture.fill_from = Vector2(0.5, 0.0)
+	gradient_texture.fill_to = Vector2(0.5, 1.0)
+	ext.texture = gradient_texture
+	ext.position = Vector2(0.0, 0.0)
+	ext.size = Vector2(1080.0, bottom_dock_shift)
 	ext.visible = true
 
 func _battle_bgm_id() -> String:
@@ -7671,6 +7771,78 @@ func _element_hit_sfx(element: String) -> String:
 			return "hit_poison"
 		_:
 			return "hit_physical"
+
+func _skill_sfx_id(skill_id: String) -> String:
+	match skill_id:
+		"skill_charge_shot":
+			return "skill_charge_shot_charge"
+		"skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing", "skill_critical", "skill_barrier", "skill_gold_rush", "skill_ricochet", "skill_salvo", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_recycle":
+			return skill_id
+		_:
+			return ""
+
+func _character_intro_sfx() -> String:
+	match character_id:
+		"blaze":
+			return "char_blaze_intro"
+		"frost":
+			return "char_frost_intro"
+		"volt":
+			return "char_volt_intro"
+		_:
+			return "char_vanguard_intro"
+
+func _zombie_mechanic_sfx(mechanic: String) -> String:
+	match mechanic:
+		"buff_aura":
+			return "zombie_screamer"
+		"ranged_spit":
+			return "zombie_spitter"
+		"shield_aura":
+			return "zombie_shielder"
+		"leap":
+			return "zombie_hopper"
+		"juggernaut":
+			return "zombie_juggernaut"
+		"phase", "phase_shift":
+			return "zombie_phantom"
+		"summon", "spawn_minions":
+			return "zombie_necromancer"
+		"toxic_cloud":
+			return "zombie_toxic"
+		"charge":
+			return "zombie_charger"
+		"regen", "regenerate":
+			return "zombie_regenerator"
+		"split":
+			return "zombie_splitter"
+		"ward":
+			return "zombie_warden"
+		"mutate":
+			return "zombie_mutant"
+		"enrage":
+			return "zombie_berserker"
+		"runner":
+			return "zombie_runner"
+		"explode_on_death":
+			return "zombie_bomber"
+		"basic":
+			return "zombie_shambler"
+		"tank":
+			return "zombie_brute"
+		"armor", "armor_break":
+			return "zombie_armored"
+		"low_profile":
+			return "zombie_crawler"
+		_:
+			return ""
+
+func _play_enemy_mechanic_sfx(source: Node, volume_db := -8.0, pitch_variation := 0.03) -> void:
+	if source == null or not is_instance_valid(source):
+		return
+	var sfx_id := _zombie_mechanic_sfx(str(source.get("mechanic")))
+	if sfx_id != "":
+		AudioManager.play_sfx(sfx_id, volume_db, pitch_variation)
 
 func _element_name(element: String) -> String:
 	match element:

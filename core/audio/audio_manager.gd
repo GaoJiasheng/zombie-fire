@@ -21,6 +21,51 @@ const SFX := {
 	"hit_lightning": "res://assets/production/audio/sfx/sfx_hit_lightning.wav",
 	"hit_poison": "res://assets/production/audio/sfx/sfx_hit_poison.wav",
 	"hit_immune": "res://assets/production/audio/sfx/sfx_hit_immune.wav",
+	"skill_split_shot": "res://assets/production/audio/sfx/sfx_skill_split_shot.wav",
+	"skill_pierce": "res://assets/production/audio/sfx/sfx_skill_pierce.wav",
+	"skill_multishot": "res://assets/production/audio/sfx/sfx_skill_multishot.wav",
+	"skill_slow_field": "res://assets/production/audio/sfx/sfx_skill_slow_field.wav",
+	"skill_homing": "res://assets/production/audio/sfx/sfx_skill_homing.wav",
+	"skill_critical": "res://assets/production/audio/sfx/sfx_skill_critical.wav",
+	"skill_barrier": "res://assets/production/audio/sfx/sfx_skill_barrier.wav",
+	"skill_gold_rush": "res://assets/production/audio/sfx/sfx_skill_gold_rush.wav",
+	"skill_ricochet": "res://assets/production/audio/sfx/sfx_skill_ricochet.wav",
+	"skill_salvo": "res://assets/production/audio/sfx/sfx_skill_salvo.wav",
+	"skill_incendiary": "res://assets/production/audio/sfx/sfx_skill_incendiary.wav",
+	"skill_cryo": "res://assets/production/audio/sfx/sfx_skill_cryo.wav",
+	"skill_tesla": "res://assets/production/audio/sfx/sfx_skill_tesla.wav",
+	"skill_venom": "res://assets/production/audio/sfx/sfx_skill_venom.wav",
+	"skill_charge_shot_charge": "res://assets/production/audio/sfx/sfx_skill_charge_shot_charge.wav",
+	"skill_charge_shot_release": "res://assets/production/audio/sfx/sfx_skill_charge_shot_release.wav",
+	"skill_recycle": "res://assets/production/audio/sfx/sfx_skill_recycle.wav",
+	"char_vanguard_intro": "res://assets/production/audio/sfx/sfx_char_vanguard_intro.wav",
+	"sig_vanguard_railvolley": "res://assets/production/audio/sfx/sfx_sig_vanguard_railvolley.wav",
+	"char_blaze_intro": "res://assets/production/audio/sfx/sfx_char_blaze_intro.wav",
+	"sig_blaze_meltdown": "res://assets/production/audio/sfx/sfx_sig_blaze_meltdown.wav",
+	"char_frost_intro": "res://assets/production/audio/sfx/sfx_char_frost_intro.wav",
+	"sig_frost_glacier": "res://assets/production/audio/sfx/sfx_sig_frost_glacier.wav",
+	"char_volt_intro": "res://assets/production/audio/sfx/sfx_char_volt_intro.wav",
+	"sig_volt_storm": "res://assets/production/audio/sfx/sfx_sig_volt_storm.wav",
+	"zombie_screamer": "res://assets/production/audio/sfx/sfx_zombie_screamer.wav",
+	"zombie_spitter": "res://assets/production/audio/sfx/sfx_zombie_spitter.wav",
+	"zombie_shielder": "res://assets/production/audio/sfx/sfx_zombie_shielder.wav",
+	"zombie_hopper": "res://assets/production/audio/sfx/sfx_zombie_hopper.wav",
+	"zombie_juggernaut": "res://assets/production/audio/sfx/sfx_zombie_juggernaut.wav",
+	"zombie_phantom": "res://assets/production/audio/sfx/sfx_zombie_phantom.wav",
+	"zombie_necromancer": "res://assets/production/audio/sfx/sfx_zombie_necromancer.wav",
+	"zombie_toxic": "res://assets/production/audio/sfx/sfx_zombie_toxic.wav",
+	"zombie_charger": "res://assets/production/audio/sfx/sfx_zombie_charger.wav",
+	"zombie_regenerator": "res://assets/production/audio/sfx/sfx_zombie_regenerator.wav",
+	"zombie_splitter": "res://assets/production/audio/sfx/sfx_zombie_splitter.wav",
+	"zombie_warden": "res://assets/production/audio/sfx/sfx_zombie_warden.wav",
+	"zombie_mutant": "res://assets/production/audio/sfx/sfx_zombie_mutant.wav",
+	"zombie_berserker": "res://assets/production/audio/sfx/sfx_zombie_berserker.wav",
+	"zombie_runner": "res://assets/production/audio/sfx/sfx_zombie_runner.wav",
+	"zombie_bomber": "res://assets/production/audio/sfx/sfx_zombie_bomber.wav",
+	"zombie_shambler": "res://assets/production/audio/sfx/sfx_zombie_shambler.wav",
+	"zombie_brute": "res://assets/production/audio/sfx/sfx_zombie_brute.wav",
+	"zombie_armored": "res://assets/production/audio/sfx/sfx_zombie_armored.wav",
+	"zombie_crawler": "res://assets/production/audio/sfx/sfx_zombie_crawler.wav",
 	"enemy_death": "res://assets/production/audio/sfx/sfx_enemy_death_small.wav",
 	"enemy_breach": "res://assets/production/audio/sfx/sfx_enemy_breach.wav",
 	"threat_warning": "res://assets/production/audio/sfx/sfx_threat_warning.wav",
@@ -75,7 +120,7 @@ func _ready() -> void:
 	_bgm_player.bus = "Master"
 	_bgm_player.volume_db = -13.0
 	add_child(_bgm_player)
-	for i in range(12):
+	for i in range(24):
 		var player := AudioStreamPlayer.new()
 		player.bus = "Master"
 		player.volume_db = -6.0
@@ -137,6 +182,18 @@ func _is_rate_limited(id: String) -> bool:
 			min_gap = 0.035
 		"muzzle_fire", "muzzle_ice", "muzzle_lightning", "muzzle_poison":
 			min_gap = 0.06
+		"skill_split_shot", "skill_pierce", "skill_multishot", "skill_ricochet", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_critical", "skill_homing":
+			min_gap = 0.09
+		"skill_salvo", "skill_charge_shot_release":
+			min_gap = 0.16
+		"skill_gold_rush", "skill_slow_field", "skill_barrier", "skill_charge_shot_charge", "skill_recycle":
+			min_gap = 0.28
+		"zombie_runner":
+			min_gap = 0.38
+		"zombie_spitter", "zombie_hopper", "zombie_charger", "zombie_phantom", "zombie_mutant", "zombie_berserker", "zombie_bomber", "zombie_splitter":
+			min_gap = 0.55
+		"zombie_screamer", "zombie_shielder", "zombie_warden", "zombie_juggernaut", "zombie_necromancer", "zombie_toxic", "zombie_regenerator", "zombie_shambler", "zombie_brute", "zombie_armored", "zombie_crawler":
+			min_gap = 0.9
 		"enemy_death":
 			min_gap = 0.04
 		"enemy_breach", "threat_warning":

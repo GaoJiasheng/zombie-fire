@@ -1,10 +1,10 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 6423,
+    "total_files": 7548,
     "parts_files": 414,
     "animation_files": 1510,
-    "sfx_files": 43,
+    "sfx_files": 88,
     "bgm_files": 9,
     "video_files": 15,
     "background_files": 16,
@@ -300,6 +300,15 @@
       "source": "source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_manifest_2026_07_04.json",
       "derived": "source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_contact_sheet_2026_07_04.png",
       "reason": "Owner requested all 16 skill collection icons be regenerated at top-tier rendered App Store quality because the previous production set had 8 byte-identical duplicate pairs and several semantic/icon-color mismatches."
+    },
+    {
+      "path": "audio/sfx/sfx_skill_*.wav + audio/sfx/sfx_char_*.wav + audio/sfx/sfx_sig_*.wav + audio/sfx/sfx_zombie_*.wav",
+      "source": "source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_manifest_2026_07_05.json",
+      "derived": "source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_waveform_sheet_2026_07_05.png",
+      "reason": "Owner requested design/sfx_expansion_prompts_2026_07_05.md be executed with top-tier local rendering: 16 skill trigger SFX plus charge/release split, 4 character intros, 4 signature active skill SFX, and 20 zombie mechanic SFX. Existing weapon shots and elemental hit sounds were preserved.",
+      "count": 45,
+      "task": "design/sfx_expansion_prompts_2026_07_05.md full SFX expansion",
+      "created_at": "2026-07-05T00:45:00+0800"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1109,6 +1118,15 @@
       "source": "assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_manifest_2026_07_04.json",
       "derived": "assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_contact_sheet_2026_07_04.png",
       "prompt_doc": "design/skill_icon_regen_prompts_2026_07_04.md"
+    },
+    {
+      "id": "sfx_expansion_2026_07_05",
+      "category": "audio_sfx",
+      "status": "integrated",
+      "description": "Differentiated top-tier WAV SFX expansion for skill triggers, character intros/signature skills, and all 20 zombie mechanics; registered in AudioManager and connected to battle runtime triggers.",
+      "source": "assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_manifest_2026_07_05.json",
+      "derived": "assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_waveform_sheet_2026_07_05.png",
+      "reference": "design/sfx_expansion_prompts_2026_07_05.md"
     }
   ]
 }
