@@ -185,9 +185,9 @@ const MAX_BASE_HIT_FRACTION := 0.4
 # 第4/5波单独加血量(绝不加速度)：局内前几波卡牌叠加后输出膨胀明显，后两波用血量拉回张力。
 # 只对普通僵尸生效，不叠加到 Boss 身上(Boss 已单独调过速度/血量)。
 const LATE_WAVE_HP_BONUS := {4: 1.20, 5: 1.35}
-const WAVE_TOAST_BASE_POSITION := Vector2(200, 196)
-const WAVE_TOAST_SIZE := Vector2(680, 96)
-const WAVE_TOAST_LONG_SIZE := Vector2(680, 132)
+const WAVE_TOAST_BASE_POSITION := Vector2(280, 136)
+const WAVE_TOAST_SIZE := Vector2(520, 58)
+const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
 const ACTIVE_SKILL_DOT_COUNT := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
 const FROST_GLACIER_TICK_INTERVAL := 0.52
@@ -1082,7 +1082,7 @@ func _cast_vanguard_railvolley() -> bool:
 	var damage := _vanguard_railvolley_damage(primary_damage)
 	_active_skill_cast_intro("弹幕齐射", Color(1.0, 0.88, 0.42), "level_up")
 	var muzzle := _weapon_fire_origin()
-	_spawn_vfx_sequence("vfx_muzzle_physical", muzzle + Vector2(0, -28), 0.88, Color(1.0, 0.9, 0.46, 0.9), 1.4, -PI * 0.5, 1.08, Vector2.ZERO, 0.0, true)
+	_spawn_vfx_sequence("vfx_muzzle_physical", muzzle + Vector2(0, -28), 0.88, Color(1.0, 0.9, 0.46, 0.9), 1.4, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_crit", muzzle + Vector2(0, -76), 0.72, Color(1.0, 0.88, 0.36, 0.68), 1.25, randf_range(-0.2, 0.2), 1.18, Vector2(0, -22), randf_range(-0.4, 0.4), true)
 	for i in range(volley_count):
 		_active_skill_after(0.08 + float(i) * 0.15, Callable(self, "_vanguard_railvolley_hit").bind(i, volley_count, damage, primary_damage))
@@ -1106,7 +1106,7 @@ func _cast_blaze_meltdown() -> bool:
 	var target := _best_active_target()
 	var origin := target.global_position if target != null else _active_skill_fallback_point(0.46)
 	_active_skill_cast_intro("熔毁爆发", Color(1.0, 0.42, 0.14), "muzzle_fire")
-	_spawn_vfx_sequence("vfx_muzzle_fire", _weapon_fire_origin() + Vector2(0, -38), 0.92, Color(1.0, 0.58, 0.2, 0.86), 1.35, -PI * 0.5, 1.08, Vector2.ZERO, 0.0, true)
+	_spawn_vfx_sequence("vfx_muzzle_fire", _weapon_fire_origin() + Vector2(0, -38), 0.92, Color(1.0, 0.58, 0.2, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_explosion_fire", origin + Vector2(0, -44), maxf(radius / 300.0, 0.72), Color(1.0, 0.48, 0.16, 0.86), 0.92, randf_range(-0.24, 0.24), 1.16, Vector2(0, -12), randf_range(-0.25, 0.25), true)
 	for i in range(_blaze_meltdown_pulse_count(active)):
 		_active_skill_after(0.16 + float(i) * 0.22, Callable(self, "_blaze_meltdown_pulse").bind(origin, radius, damage, i))
@@ -1119,7 +1119,7 @@ func _cast_frost_glacier() -> bool:
 	var field_y := _frost_glacier_field_y(active)
 	var tick_damage := _character_active_damage("ice", float(active.get("damage_mult", 0.34)))
 	_active_skill_cast_intro("冰川领域", Color(0.55, 0.9, 1.0), "muzzle_ice")
-	_spawn_vfx_sequence("vfx_muzzle_ice", _weapon_fire_origin() + Vector2(0, -42), 0.9, Color(0.66, 0.94, 1.0, 0.86), 1.35, -PI * 0.5, 1.08, Vector2.ZERO, 0.0, true)
+	_spawn_vfx_sequence("vfx_muzzle_ice", _weapon_fire_origin() + Vector2(0, -42), 0.9, Color(0.66, 0.94, 1.0, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1180), 2.05, Color(0.6, 0.92, 1.0, 0.46), 0.86, 0.0, 1.05, Vector2(0, -8), 0.0, true)
 	var wave_count := _frost_glacier_wave_count(active)
 	for i in range(wave_count):
@@ -1166,7 +1166,7 @@ func _cast_volt_storm() -> bool:
 	var damage := _character_active_damage("lightning", float(active.get("damage_mult", 2.1)))
 	var strike_count := _volt_storm_strike_count(active, max_targets)
 	_active_skill_cast_intro("雷暴领域", Color(1.0, 0.9, 0.2), "muzzle_lightning")
-	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(1.0, 0.92, 0.28, 0.86), 1.45, -PI * 0.5, 1.1, Vector2.ZERO, 0.0, true)
+	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(1.0, 0.92, 0.28, 0.86), 1.45, _weapon_fire_direction().angle(), 1.1, Vector2.ZERO, 0.0, true)
 	_spawn_vfx_sequence("vfx_chain_lightning", _active_skill_fallback_point(0.38) + Vector2(0, -52), 1.2, Color(1.0, 0.94, 0.28, 0.62), 1.1, randf_range(-0.3, 0.3), 1.1, Vector2(0, -18), randf_range(-0.45, 0.45), true)
 	for i in range(strike_count):
 		_active_skill_after(0.08 + float(i) * 0.17, Callable(self, "_volt_storm_strike").bind(i, max_targets, damage))
@@ -2070,8 +2070,9 @@ func _viewport_safe_insets() -> Dictionary:
 	}
 
 func _apply_runtime_ui_styles() -> void:
-	_ensure_hud_fill_texture("Hud/TopBar/BaseHpBar", "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 11.0, 12.0)
-	_ensure_hud_fill_texture("Hud/TopBar/WaveProgress", "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 10.0, 10.0)
+	_layout_runtime_hud()
+	_ensure_hud_fill_texture("Hud/TopBar/BaseHpBar", "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 18.0, 16.0)
+	_ensure_hud_fill_texture("Hud/TopBar/WaveProgress", "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 15.0, 13.0)
 	_style_xp_bar()
 	if has_node("Hud/CardPanel"):
 		var card_panel: Panel = $Hud/CardPanel
@@ -2090,6 +2091,114 @@ func _apply_runtime_ui_styles() -> void:
 			UiKit.apply_label($Hud/PauseOverlay/Panel/BuildSummary, 21, Color(0.82, 0.88, 0.88, 1.0), 2)
 		_setup_pause_overlay_layout()
 	_setup_wave_toast_banner()
+
+func _layout_runtime_hud() -> void:
+	var top_bar := get_node_or_null("Hud/TopBar") as Control
+	if top_bar != null:
+		top_bar.offset_left = 142.0
+		top_bar.offset_top = 16.0
+		top_bar.offset_right = -142.0
+		top_bar.offset_bottom = 126.0
+		top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_layout_status_bar("Hud/TopBar/BaseHpBar", Vector2(0, 0), Vector2(796, 48), 18.0, 16.0, 22)
+		_layout_status_bar("Hud/TopBar/WaveProgress", Vector2(0, 58), Vector2(796, 42), 15.0, 13.0, 18)
+	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
+	if bottom_bar != null:
+		bottom_bar.offset_left = 28.0
+		bottom_bar.offset_top = 1792.0
+		bottom_bar.offset_right = -28.0
+		bottom_bar.offset_bottom = 1894.0
+		bottom_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_layout_bottom_resource_bar()
+	var skill_slots := get_node_or_null("Hud/SkillSlots") as HBoxContainer
+	if skill_slots != null:
+		# 固定锚定设计高度(1920)内的绝对位置,不锚定屏幕真实底部——
+		# 否则在比 1080x1920 更高宽比的设备(如 iPhone 16 Pro Max)上会
+		# 悬空脱离下方 HUD 群组,漂进黑色空白区域。
+		skill_slots.anchor_top = 0.0
+		skill_slots.anchor_bottom = 0.0
+		skill_slots.offset_left = 174.0
+		skill_slots.offset_top = 1684.0
+		skill_slots.offset_right = -174.0
+		skill_slots.offset_bottom = 1784.0
+		skill_slots.add_theme_constant_override("separation", 10)
+		skill_slots.alignment = BoxContainer.ALIGNMENT_CENTER
+	var active_button := get_node_or_null("Hud/CharacterSkillButton") as Control
+	if active_button != null:
+		active_button.offset_left = -154.0
+		active_button.offset_top = 1688.0
+		active_button.offset_right = -34.0
+		active_button.offset_bottom = 1808.0
+	var pause_button := get_node_or_null("PauseLayer/PauseButton") as TextureButton
+	if pause_button != null:
+		pause_button.offset_left = 18.0
+		pause_button.offset_top = 18.0
+		pause_button.offset_right = 100.0
+		pause_button.offset_bottom = 100.0
+		pause_button.ignore_texture_size = true
+		pause_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		pause_button.modulate = Color(0.92, 0.96, 1.0, 0.94)
+
+func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top: float, fill_height: float, font_size: int) -> void:
+	var bar := get_node_or_null(path) as Control
+	if bar == null:
+		return
+	bar.position = pos
+	bar.size = bar_size
+	bar.clip_contents = true
+	var under := bar.get_node_or_null("Under") as TextureRect
+	if under != null:
+		under.position = Vector2.ZERO
+		under.size = bar_size
+		under.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fill := bar.get_node_or_null("FillTexture") as TextureRect
+	if fill != null:
+		fill.position = Vector2(6.0, fill_top)
+		fill.size = Vector2(maxf(bar_size.x - 12.0, 1.0), fill_height)
+		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := bar.get_node_or_null("Label") as Label
+	if label != null:
+		label.position = Vector2.ZERO
+		label.size = bar_size
+		UiKit.apply_label(label, font_size, UiKit.TEXT_MAIN, 3)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _layout_bottom_resource_bar() -> void:
+	var gold_icon := get_node_or_null("Hud/BottomBar/GoldIcon") as TextureRect
+	if gold_icon != null:
+		gold_icon.position = Vector2(12.0, 20.0)
+		gold_icon.size = Vector2(54, 54)
+		gold_icon.custom_minimum_size = Vector2(54, 54)
+	var gold_label := get_node_or_null("Hud/BottomBar/GoldLabel") as Label
+	if gold_label != null:
+		gold_label.position = Vector2(72.0, 16.0)
+		gold_label.size = Vector2(140, 62)
+		UiKit.apply_label(gold_label, 26, UiKit.GOLD, 3)
+		gold_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var xp_icon := get_node_or_null("Hud/BottomBar/XpIcon") as TextureRect
+	if xp_icon != null:
+		xp_icon.position = Vector2(236.0, 25.0)
+		xp_icon.size = Vector2(44, 44)
+		xp_icon.custom_minimum_size = Vector2(44, 44)
+	var xp_bar := get_node_or_null("Hud/BottomBar/XpBar") as Control
+	if xp_bar != null:
+		xp_bar.position = Vector2(292.0, 21.0)
+		xp_bar.size = Vector2(704.0, 54.0)
+		xp_bar.clip_contents = true
+		var track := xp_bar.get_node_or_null("Track") as Panel
+		if track != null:
+			track.position = Vector2.ZERO
+			track.size = Vector2(704.0, 54.0)
+		var fill := xp_bar.get_node_or_null("Fill") as Panel
+		if fill != null:
+			fill.position = Vector2(7.0, 16.0)
+			fill.size = Vector2(690.0, 22.0)
+		var label := xp_bar.get_node_or_null("Label") as Label
+		if label != null:
+			label.position = Vector2.ZERO
+			label.size = Vector2(704.0, 54.0)
 
 func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float, height: float) -> void:
 	var bar := get_node_or_null(bar_path) as Control
@@ -2110,8 +2219,10 @@ func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float
 		bar.add_child(fill)
 	if ResourceLoader.exists(texture_path):
 		fill.texture = load(texture_path)
-	fill.position = Vector2(4.0, top)
-	fill.size = Vector2(0.0, height)
+	var fill_left := _hud_fill_left(bar_path, 6.0)
+	var fill_right := _hud_fill_right(bar_path, maxf(bar.size.x - 6.0, 1.0))
+	fill.position = Vector2(fill_left, top)
+	fill.size = Vector2(maxf(fill_right - fill_left, 1.0), height)
 	var label := bar.get_node_or_null("Label") as CanvasItem
 	if label != null:
 		label.z_index = 3
@@ -5129,6 +5240,8 @@ func _spawn_split_burst_vfx(origin: Vector2, direction: Vector2, fan: float, cou
 		tween.tween_callback(orb.queue_free)
 
 func _spawn_element_impact_vfx(primary: Node, origin: Vector2, element: String, visual_profile := "") -> void:
+	if is_instance_valid(primary):
+		primary.set_meta("_recent_impact_vfx_ms", Time.get_ticks_msec())
 	var target_position := _impact_anchor(primary, origin)
 	match visual_profile:
 		"rail":
@@ -5957,7 +6070,9 @@ func _check_victory() -> void:
 func _advance_endless_loop() -> void:
 	endless_loop += 1
 	wave_index = 0
-	endless_difficulty_mult = 1.0 + ENDLESS_LOOP_HP_GROWTH * float(endless_loop)
+	# 血量按轮次复利增长(而不是线性叠加):技能强化在无限模式里不设上限地持续变强,
+	# 线性血量增长追不上,会导致刷到二三十轮之后反而越打越轻松;复利增长保持长期挑战感。
+	endless_difficulty_mult = pow(1.0 + ENDLESS_LOOP_HP_GROWTH, float(endless_loop))
 	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
 	_start_next_wave()
 
@@ -6001,31 +6116,35 @@ func _finish(victory: bool) -> void:
 
 func _update_hud() -> void:
 	var hp_pct := float(base_hp) / float(base_hp_max) if base_hp_max > 0 else 0.0
-	var hp_width := maxf(0.0, lerpf(4.0, HUD_HP_FILL_RIGHT, hp_pct) - 4.0)
+	var hp_fill_left := _hud_fill_left("Hud/TopBar/BaseHpBar", 6.0)
+	var hp_fill_right := _hud_fill_right("Hud/TopBar/BaseHpBar", HUD_HP_FILL_RIGHT)
+	var hp_width := maxf(0.0, lerpf(hp_fill_left, hp_fill_right, hp_pct) - hp_fill_left)
 	var hp_fill_texture := get_node_or_null("Hud/TopBar/BaseHpBar/FillTexture") as TextureRect
 	if hp_fill_texture != null:
 		hp_fill_texture.size.x = hp_width
 	else:
 		var hp_fill := $Hud/TopBar/BaseHpBar/Fill
-		hp_fill.offset_right = lerpf(4.0, HUD_HP_FILL_RIGHT, hp_pct)
+		hp_fill.offset_right = lerpf(hp_fill_left, hp_fill_right, hp_pct)
 	$Hud/TopBar/BaseHpBar/Label.text = "生命 %d/%d" % [base_hp, base_hp_max]
 	_update_low_hp_pulse(hp_pct)
 	_update_boss_hp_bar()
 	var wave_pct := float(wave_index) / float(wave_total) if wave_total > 0 else 0.0
 	displayed_wave_pct = lerpf(displayed_wave_pct, wave_pct, 0.22)
-	var wave_width := maxf(0.0, lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct) - 4.0)
+	var wave_fill_left := _hud_fill_left("Hud/TopBar/WaveProgress", 6.0)
+	var wave_fill_right := _hud_fill_right("Hud/TopBar/WaveProgress", HUD_WAVE_FILL_RIGHT)
+	var wave_width := maxf(0.0, lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct) - wave_fill_left)
 	var wave_fill_texture := get_node_or_null("Hud/TopBar/WaveProgress/FillTexture") as TextureRect
 	if wave_fill_texture != null:
 		wave_fill_texture.size.x = wave_width
 	else:
-		$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(4.0, HUD_WAVE_FILL_RIGHT, displayed_wave_pct)
+		$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct)
 	if is_endless_mode:
 		$Hud/TopBar/WaveProgress/Label.text = "第 %d 轮 · %d/%d 波" % [endless_loop + 1, wave_index, wave_total]
 	else:
 		$Hud/TopBar/WaveProgress/Label.text = "第 %d/%d 波" % [wave_index, wave_total]
 	var xp_pct := float(xp) / float(next_xp_offer) if next_xp_offer > 0 else 0.0
 	displayed_xp_pct = lerpf(displayed_xp_pct, clamp(xp_pct, 0.0, 1.0), 0.28)
-	$Hud/BottomBar/XpBar/Fill.offset_right = lerpf(4.0, HUD_XP_FILL_RIGHT, displayed_xp_pct)
+	$Hud/BottomBar/XpBar/Fill.offset_right = lerpf(7.0, _hud_xp_fill_right(), displayed_xp_pct)
 	$Hud/BottomBar/XpBar/Label.text = "经验 %d/%d" % [xp, next_xp_offer]
 	$Hud/BottomBar/GoldLabel.text = "%d" % gold
 	_update_skill_slots()
@@ -6033,6 +6152,28 @@ func _update_hud() -> void:
 	_update_barrier_visual()
 	if debug_overlay_on:
 		$Hud/DebugOverlay.text = _build_debug_text()
+
+func _hud_fill_left(bar_path: String, fallback: float) -> float:
+	var bar := get_node_or_null(bar_path) as Control
+	if bar == null or bar.size.x <= 16.0:
+		return fallback
+	if bar_path.begins_with("Hud/TopBar"):
+		return bar.size.x * 0.31
+	return fallback
+
+func _hud_fill_right(bar_path: String, fallback: float) -> float:
+	var bar := get_node_or_null(bar_path) as Control
+	if bar == null or bar.size.x <= 16.0:
+		return fallback
+	if bar_path.begins_with("Hud/TopBar"):
+		return bar.size.x * 0.69
+	return maxf(8.0, bar.size.x - 6.0)
+
+func _hud_xp_fill_right() -> float:
+	var xp_bar := get_node_or_null("Hud/BottomBar/XpBar") as Control
+	if xp_bar == null or xp_bar.size.x <= 24.0:
+		return HUD_XP_FILL_RIGHT
+	return maxf(10.0, xp_bar.size.x - 7.0)
 
 func _build_skill_slots() -> void:
 	for child in $Hud/SkillSlots.get_children():
@@ -6052,7 +6193,7 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var max_lv := skills.max_level(skill_id)
 	var card := PanelContainer.new()
 	card.name = skill_id
-	card.custom_minimum_size = Vector2(62, 92)
+	card.custom_minimum_size = Vector2(60, 84)
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	card.clip_contents = true
@@ -6074,7 +6215,7 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	card.add_child(stack)
 	var icon_box := PanelContainer.new()
 	icon_box.name = "IconBox"
-	icon_box.custom_minimum_size = Vector2(54, 54)
+	icon_box.custom_minimum_size = Vector2(52, 52)
 	icon_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.add_theme_stylebox_override("panel", _skill_card_icon_style(lv, max_lv))
@@ -6086,8 +6227,8 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 		icon.texture = load(str(row.get("icon", "")))
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(48, 48)
-		icon.size = Vector2(48, 48)
+		icon.custom_minimum_size = Vector2(46, 46)
+		icon.size = Vector2(46, 46)
 		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6095,14 +6236,14 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var lv_badge := Label.new()
 	lv_badge.name = "LevelBadge"
 	lv_badge.text = "等级%d" % lv
-	lv_badge.add_theme_font_size_override("font_size", 16)
+	lv_badge.add_theme_font_size_override("font_size", 12)
 	var badge_color := _skill_level_color(lv, max_lv)
 	lv_badge.add_theme_color_override("font_color", badge_color)
 	lv_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	lv_badge.add_theme_constant_override("outline_size", 3)
 	lv_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lv_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lv_badge.custom_minimum_size = Vector2(54, 22)
+	lv_badge.custom_minimum_size = Vector2(54, 20)
 	lv_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(lv_badge)
 	return card
@@ -6216,10 +6357,10 @@ func _show_wave_toast(text: String, color: Color) -> void:
 
 func _wave_toast_font_size(text: String) -> int:
 	if text.length() <= 7:
-		return 36
+		return 22
 	if text.length() <= 13:
-		return 32
-	return 27
+		return 20
+	return 18
 
 func _layout_wave_toast(text: String) -> void:
 	var long_text := text.length() > 13
@@ -6230,15 +6371,15 @@ func _layout_wave_toast(text: String) -> void:
 	if band != null:
 		band.position = Vector2.ZERO
 		band.size = size
-	wave_toast_label.position = Vector2(40, 4)
-	wave_toast_label.size = size - Vector2(80, 30)
+	wave_toast_label.position = Vector2(34, 2)
+	wave_toast_label.size = size - Vector2(68, 22)
 	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY if long_text else TextServer.AUTOWRAP_OFF
 	wave_toast_label.clip_text = true
 	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
 	if accent_line != null:
 		var line_w := size.x * 0.46
 		accent_line.size = Vector2(line_w, 3)
-		accent_line.position = Vector2((size.x - line_w) * 0.5, size.y - 22.0)
+		accent_line.position = Vector2((size.x - line_w) * 0.5, size.y - 15.0)
 
 func _show_onboarding_tip() -> void:
 	if onboarding_tip_shown:
@@ -6248,13 +6389,13 @@ func _show_onboarding_tip() -> void:
 	match onboarding_stage:
 		"aim_and_first_card":
 			text = "自动开火会优先压制近线威胁，点僵尸可锁定优先击杀。"
-		"first_card":
+		"split_swarm":
 			text = "经验满后选择技能卡：清群拿分裂/多重，漏怪拿减速/追踪。"
-		"runner_threat":
+		"runner_priority":
 			text = "高速单位弱冰，减速和追踪能更稳地压住漏怪。"
-		"lock_and_pierce":
+		"tank_burst":
 			text = "重甲和支援要点名处理，锁定后配穿透更稳。"
-		"boss_pressure":
+		"first_boss":
 			text = "首领有弱点和护甲阶段，优先拿穿透、蓄能和克制元素。"
 		_:
 			if wave_index <= 1:
@@ -7342,6 +7483,13 @@ func _spawn_skill_to_slot_vfx(skill_id: String) -> void:
 func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak_hit: bool, hit_kind: String) -> void:
 	AudioManager.play_sfx("hit_immune" if immune_hit else _element_hit_sfx(element), -8.0)
 	if not is_instance_valid(enemy):
+		return
+	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
+	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
+	# 一次 _spawn_hit_layer_vfx——普通命中(hit_kind=="normal")两边其实是同一种粒子
+	# 爆发，叠在一起打就变成一大团不自然的定向喷射。弱点/破甲/护盾/免疫命中另有专属
+	# 提示效果，不去重。这里只对普通命中用极短时间窗去掉那份纯重复。
+	if hit_kind == "normal" and enemy.has_meta("_recent_impact_vfx_ms") and Time.get_ticks_msec() - int(enemy.get_meta("_recent_impact_vfx_ms")) < 50:
 		return
 	_spawn_hit_layer_vfx(enemy.global_position, element, weak_hit, hit_kind)
 

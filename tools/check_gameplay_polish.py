@@ -136,8 +136,16 @@ def main() -> int:
     skill_slots_idx = battle_scene.find('[node name="SkillSlots"')
     if skill_slots_idx == -1:
         errors.append("battle skill slots node missing")
-    elif "anchor_top = 1.0" not in battle_scene[skill_slots_idx:skill_slots_idx + 400]:
-        errors.append("battle skill slots must be anchored to the bottom edge of the HUD")
+    else:
+        skill_slots_block = battle_scene[skill_slots_idx:skill_slots_idx + 400]
+        if "anchor_bottom = 1.0" in skill_slots_block:
+            # anchor_bottom=1.0 锚定"屏幕真实底部"，在比 1080x1920 更高宽比的设备
+            # (如 iPhone 16 Pro Max) 上会让技能槽脱离下方 HUD 群组、悬空进黑色空白区。
+            errors.append("battle skill slots must not anchor to the real screen bottom edge (breaks on taller aspect ratios); use a fixed absolute offset within the 1920 design height instead")
+        else:
+            offset_top_match = re.search(r"offset_top = ([\d.]+)", skill_slots_block)
+            if not offset_top_match or float(offset_top_match.group(1)) < 1400.0:
+                errors.append("battle skill slots must sit in the lower portion of the HUD near the bottom bar cluster")
     for runtime_key in ["BarrierGlass", "_spawn_barrier_break_vfx", "_spawn_barrier_gain_vfx", "_barrier_charge_count"]:
         if runtime_key not in battle:
             errors.append(f"barrier glass runtime missing: {runtime_key}")

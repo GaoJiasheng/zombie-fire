@@ -11,6 +11,7 @@ func setup(main: Node, _payload := {}) -> void:
 	router = main
 
 func _ready() -> void:
+	_apply_layout()
 	_apply_style()
 	_button("SoundButton").pressed.connect(_on_sound)
 	_button("QualityButton").pressed.connect(_on_quality)
@@ -26,18 +27,28 @@ func _ready() -> void:
 	_refresh_backup()
 	_show_info("help")
 
+func _apply_layout() -> void:
+	$Center/Panel.custom_minimum_size = Vector2(880, 0)
+	_vbox.add_theme_constant_override("separation", 14)
+	for path in ["SoundButton", "QualityButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
+		_button(path).custom_minimum_size = Vector2(0, 88)
+	for path in ["AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+		_button(path).custom_minimum_size = Vector2(0, 80)
+	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(0, 230)
+	_button("BackButton").custom_minimum_size = Vector2(0, 96)
+
 func _button(path: String) -> Button:
 	return _vbox.get_node(path) as Button
 
 func _apply_style() -> void:
 	$Center/Panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
-	UiKit.apply_label(_vbox.get_node("Title") as Label, 52, UiKit.TEXT_MAIN, 4)
+	UiKit.apply_label(_vbox.get_node("Title") as Label, 46, UiKit.TEXT_MAIN, 4)
 	for section in ["AudioSection", "VideoSection", "DataSection", "AboutSection"]:
-		UiKit.apply_label(_vbox.get_node(section) as Label, 26, UiKit.GOLD, 2)
-	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 24, UiKit.GREY_300, 2)
+		UiKit.apply_label(_vbox.get_node(section) as Label, 22, UiKit.GOLD, 2)
+	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 20, UiKit.GREY_300, 2)
 	for path in ["SoundButton", "QualityButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
-		_style_button(_button(path), UiKit.CYAN)
-	_style_button(_button("BackButton"), UiKit.GOLD, 34)
+		_style_button(_button(path), UiKit.CYAN, 24)
+	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
 func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	for state in ["normal", "hover", "pressed", "focus"]:

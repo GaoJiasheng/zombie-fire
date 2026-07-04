@@ -33,7 +33,7 @@ func _ensure_endless_button() -> void:
 	btn.texture_normal = load("res://assets/production/sprites/ui/ui_button_secondary.png")
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_SCALE
-	btn.custom_minimum_size = Vector2(0, 74)
+	btn.custom_minimum_size = Vector2(0, 58)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	var best := SaveManager.get_endless_best_loops()
@@ -44,7 +44,7 @@ func _ensure_endless_button() -> void:
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiKit.apply_label(label, 24, Color(1.0, 0.82, 0.5, 1.0), 3)
+	UiKit.apply_label(label, 20, Color(1.0, 0.82, 0.5, 1.0), 3)
 	btn.add_child(label)
 	btn.pressed.connect(_on_endless_pressed)
 	vbox.add_child(btn)
@@ -59,7 +59,8 @@ func _apply_map_style() -> void:
 	var bg := get_node_or_null("Background") as TextureRect
 	if bg != null:
 		bg.modulate = Color(0.42, 0.39, 0.34, 1.0)
-	UiKit.apply_label(%Title, 48, UiKit.TEXT_MAIN, 5)
+	UiKit.apply_label(%Title, 44, UiKit.TEXT_MAIN, 5)
+	(%Nav as HBoxContainer).custom_minimum_size = Vector2(0, 122)
 	(%Progress as Label).visible = false
 	_ensure_resource_bar()
 
@@ -77,7 +78,9 @@ func _refresh_header() -> void:
 		SaveManager.get_player_gold(),
 		SaveManager.get_player_star(),
 		SaveManager.get_player_xp(),
-		SaveManager.get_loadout_power()
+		SaveManager.get_loadout_power(),
+		Vector2(174, 56),
+		26
 	)
 	for chip in bar.get_children():
 		bar.remove_child(chip)
@@ -101,7 +104,7 @@ func _ensure_resource_bar() -> VBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "Row"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 14)
+	row.add_theme_constant_override("separation", 10)
 	wrap.add_child(row)
 
 	var tip := PanelContainer.new()
@@ -215,7 +218,7 @@ func _build_nav() -> void:
 	var dock := PanelContainer.new()
 	dock.name = "FeatureDock"
 	dock.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dock.custom_minimum_size = Vector2(0, 142)
+	dock.custom_minimum_size = Vector2(0, 116)
 	dock.add_theme_stylebox_override("panel", _build_nav_dock_style())
 	nav.add_child(dock)
 
@@ -256,9 +259,9 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 		icon.offset_left = 16
-		icon.offset_top = 12
+		icon.offset_top = 8
 		icon.offset_right = -16
-		icon.offset_bottom = -38
+		icon.offset_bottom = -34
 		icon.modulate = Color(1.02, 1.02, 0.98, 1.0)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(icon)
@@ -266,10 +269,10 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var status_plate := PanelContainer.new()
 	status_plate.name = "StatusBadge"
 	status_plate.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	status_plate.offset_left = -70
-	status_plate.offset_top = 14
+	status_plate.offset_left = -66
+	status_plate.offset_top = 10
 	status_plate.offset_right = -12
-	status_plate.offset_bottom = 40
+	status_plate.offset_bottom = 34
 	status_plate.add_theme_stylebox_override("panel", _build_nav_status_style(accent))
 	status_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(status_plate)
@@ -287,12 +290,12 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	lbl.text = label
 	lbl.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	lbl.offset_left = 0
-	lbl.offset_top = -38
+	lbl.offset_top = -34
 	lbl.offset_right = 0
-	lbl.offset_bottom = -8
+	lbl.offset_bottom = -6
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(lbl, 25, UiKit.TEXT_MAIN, 4)
+	UiKit.apply_label(lbl, 21, UiKit.TEXT_MAIN, 4)
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(lbl)
 
@@ -317,9 +320,9 @@ func _add_nav_character_bust(stage: Control) -> void:
 	center.name = "IconCenter"
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	center.offset_left = 12
-	center.offset_top = 4
+	center.offset_top = 2
 	center.offset_right = -12
-	center.offset_bottom = -36
+	center.offset_bottom = -32
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(center)
 
@@ -327,11 +330,11 @@ func _add_nav_character_bust(stage: Control) -> void:
 	clip.name = "Icon"
 	clip.texture = null
 	clip.clip_contents = true
-	clip.custom_minimum_size = Vector2(112, 86)
+	clip.custom_minimum_size = Vector2(100, 76)
 	clip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(clip)
-	UiKit.add_character_bust(clip, row, Vector2(112, 86), 112.0, 6.0, Color(1.02, 1.02, 0.98, 1.0))
+	UiKit.add_character_bust(clip, row, Vector2(100, 76), 102.0, 4.0, Color(1.02, 1.02, 0.98, 1.0))
 
 func _set_nav_card_style(card: PanelContainer, style: StyleBox) -> void:
 	if not is_instance_valid(card):
@@ -463,7 +466,7 @@ func _open_collection(mode: String) -> void:
 
 func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, stars: int) -> TextureButton:
 	var button := TextureButton.new()
-	button.custom_minimum_size = Vector2(900, 148)
+	button.custom_minimum_size = Vector2(900, 132)
 	var base_texture := load("res://assets/production/sprites/ui/ui_map_level_card_skin.png")
 	button.texture_normal = base_texture
 	button.texture_hover = base_texture
@@ -501,8 +504,8 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.add_child(card_frame)
 
 	var accent_bar := TextureRect.new()
-	accent_bar.position = Vector2(20, 22)
-	accent_bar.size = Vector2(18, 98)
+	accent_bar.position = Vector2(22, 22)
+	accent_bar.size = Vector2(14, 82)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -512,37 +515,36 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 
 	var level_num := level_id.replace("level_", "")
 	var index_plate := PanelContainer.new()
-	index_plate.position = Vector2(34, 28)
-	index_plate.size = Vector2(92, 74)
+	index_plate.position = Vector2(44, 30)
+	index_plate.size = Vector2(82, 62)
 	index_plate.add_theme_stylebox_override("panel", _level_index_style(accent, unlocked))
 	index_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(index_plate)
-	var index_label := UiKit.label(level_num, 28, UiKit.TEXT_MAIN, 3)
+	var index_label := UiKit.label(level_num, 24, UiKit.TEXT_MAIN, 3)
 	index_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	index_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	index_plate.add_child(index_label)
 
 	var title := Label.new()
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
-	title.position = Vector2(146, 18)
-	title.size = Vector2(360, 46)
-	UiKit.apply_label(title, 32, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 3)
+	title.position = Vector2(148, 16)
+	title.size = Vector2(430, 42)
+	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	_add_card_pill(button, Vector2(146, 72), Vector2(172, 38), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_card_pill(button, Vector2(328, 72), Vector2(126, 38), "已解锁" if unlocked else "未解锁", UiKit.SUCCESS if unlocked else UiKit.TEXT_MUTED)
-	_add_element_pill(button, Vector2(464, 72), Vector2(138, 38), weakness)
+	_add_card_pill(button, Vector2(148, 68), Vector2(154, 34), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_element_pill(button, Vector2(318, 68), Vector2(124, 34), weakness)
 	_add_variant_marker(button, variant)
 
 	var star_row := HBoxContainer.new()
-	star_row.position = Vector2(662, 28)
-	star_row.size = Vector2(162, 46)
-	star_row.add_theme_constant_override("separation", 8)
+	star_row.position = Vector2(664, 24)
+	star_row.size = Vector2(150, 40)
+	star_row.add_theme_constant_override("separation", 6)
 	star_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(star_row)
 	for i in range(3):
-		star_row.add_child(UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(42, 42)))
+		star_row.add_child(UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(36, 36)))
 
 	_add_deploy_status(button, unlocked)
 	return button
@@ -555,15 +557,15 @@ func _level_index_style(_accent: Color, _unlocked: bool) -> StyleBox:
 
 func _add_deploy_status(parent: Control, unlocked: bool) -> void:
 	var status := PanelContainer.new()
-	status.position = Vector2(644, 80)
-	status.size = Vector2(198, 38)
+	status.position = Vector2(652, 74)
+	status.size = Vector2(184, 36)
 	var accent := UiKit.GOLD if unlocked else UiKit.TEXT_MUTED
 	var bg := Color(0.12, 0.075, 0.024, 0.86) if unlocked else Color(0.020, 0.022, 0.026, 0.70)
 	status.add_theme_stylebox_override("panel", UiKit.deploy_pill_texture_style())
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(status)
 
-	var label := UiKit.label("点击出战" if unlocked else "尚未解锁", 17, accent, 2)
+	var label := UiKit.label("出战" if unlocked else "未解锁", 16, accent, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status.add_child(label)
@@ -573,7 +575,7 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 	var accent := UiKit.GOLD
 	match variant:
 		"elite":
-			label = "精英"
+			label = "精英·奖励"
 			accent = UiKit.DANGER
 		"treasure":
 			label = "宝箱"
@@ -587,12 +589,12 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 		_:
 			return
 	var pill := PanelContainer.new()
-	pill.position = Vector2(516, 20)
-	pill.size = Vector2(128, 40)
+	pill.position = Vector2(468, 20)
+	pill.size = Vector2(116, 36)
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
-	var text := UiKit.label(label, 18, accent, 2)
+	var text := UiKit.label(label, 16, accent, 2)
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(text)
@@ -604,7 +606,7 @@ func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, 
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
-	var label := UiKit.label(text, 18, UiKit.TEXT_MAIN, 2)
+	var label := UiKit.label(text, 16, UiKit.TEXT_MAIN, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(label)
@@ -621,8 +623,8 @@ func _add_element_pill(parent: Control, pos: Vector2, size: Vector2, element: St
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 5)
 	pill.add_child(row)
-	row.add_child(UiKit.icon(UiKit.element_icon_path(element), Vector2(24, 24)))
-	var label := UiKit.label("弱%s" % _element_name(element), 17, UiKit.TEXT_MAIN, 2)
+	row.add_child(UiKit.icon(UiKit.element_icon_path(element), Vector2(22, 22)))
+	var label := UiKit.label("弱%s" % _element_name(element), 15, UiKit.TEXT_MAIN, 2)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(label)
 

@@ -1250,8 +1250,8 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	_expect(hp_after > hp_before * 1.1, "endless loop escalation must meaningfully raise spawned enemy HP, got %.1f -> %.1f" % [hp_before, hp_after])
 	battle._advance_endless_loop()
 	_expect(battle.endless_loop == 2, "second loop completion must advance endless_loop to 2")
-	var mult_loop1: float = 1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH)
-	var mult_loop2: float = 1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH) * 2.0
+	var mult_loop1: float = pow(1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH), 1.0)
+	var mult_loop2: float = pow(1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH), 2.0)
 	_expect(battle.endless_difficulty_mult > mult_loop1 - 0.001 and battle.endless_difficulty_mult < mult_loop2 + 0.001, "endless HP multiplier must escalate per loop as designed")
 	battle.base_hp = 0
 	battle._finish(false)

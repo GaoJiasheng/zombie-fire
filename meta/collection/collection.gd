@@ -174,6 +174,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	frame.size = Vector2(728, 182)
 	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.visible = false
 	button.add_child(frame)
 
 	var icon := TextureRect.new()
@@ -282,6 +283,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	card.size = Vector2(740, 146)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.visible = false
 	button.add_child(card)
 
 	var accent_bar := TextureRect.new()
@@ -321,7 +323,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	title.name = "Title"
 	title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
 	title.position = Vector2(148, 18)
-	title.size = Vector2(390, 40)
+	title.size = Vector2(468, 40)
 	title.clip_text = true
 	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -330,7 +332,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
 	tag_row.position = Vector2(148, 58)
-	tag_row.size = Vector2(392, 34)
+	tag_row.size = Vector2(468, 34)
 	tag_row.add_theme_constant_override("separation", 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -342,7 +344,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	effect.name = "EffectSummary"
 	effect.text = _skill_first_effect_text(row)
 	effect.position = Vector2(148, 94)
-	effect.size = Vector2(430, 30)
+	effect.size = Vector2(502, 30)
 	effect.clip_text = true
 	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -357,35 +359,36 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	divider.stretch_mode = TextureRect.STRETCH_SCALE
 	divider.modulate = Color(accent.r, accent.g, accent.b, 0.30)
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	divider.visible = false
 	button.add_child(divider)
 
 	var max_label := Label.new()
 	max_label.name = "MaxLevel"
-	max_label.text = "最高等级"
-	max_label.position = Vector2(608, 32)
-	max_label.size = Vector2(112, 24)
+	max_label.text = "上限"
+	max_label.position = Vector2(612, 30)
+	max_label.size = Vector2(96, 22)
 	max_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(max_label, 16, Color(0.64, 0.78, 0.80, 1.0), 2)
+	UiKit.apply_label(max_label, 13, Color(0.64, 0.78, 0.80, 0.86), 2)
 	max_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(max_label)
 
 	var max_value := Label.new()
 	max_value.name = "MaxLevelValue"
-	max_value.text = "等级%d" % max_level
-	max_value.position = Vector2(608, 56)
-	max_value.size = Vector2(112, 36)
+	max_value.text = "%d/%d" % [item_level, max_level]
+	max_value.position = Vector2(590, 54)
+	max_value.size = Vector2(140, 32)
 	max_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(max_value, 28, Color(accent.r, accent.g, accent.b, 1.0), 3)
+	UiKit.apply_label(max_value, 22, Color(accent.r, accent.g, accent.b, 1.0), 3)
 	max_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(max_value)
 
 	var hint := Label.new()
 	hint.name = "Hint"
-	hint.text = "点击查看"
-	hint.position = Vector2(608, 92)
-	hint.size = Vector2(112, 24)
+	hint.text = "详情"
+	hint.position = Vector2(606, 90)
+	hint.size = Vector2(108, 22)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(hint, 15, Color(0.86, 0.72, 0.46, 1.0), 2)
+	UiKit.apply_label(hint, 13, Color(0.86, 0.72, 0.46, 0.88), 2)
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(hint)
 	return button
@@ -826,6 +829,9 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	panel.offset_top = 150.0
 	panel.offset_right = -72.0
 	panel.offset_bottom = -140.0
+	if mode == "skills":
+		panel.offset_top = 230.0
+		panel.offset_bottom = -250.0
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _build_panel_style())
 	_detail_modal.add_child(panel)
@@ -996,7 +1002,7 @@ func _detail_button(node_name: String, text: String, primary: bool) -> TextureBu
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(label, 30, Color.WHITE, 3)
+	UiKit.apply_label(label, 24, Color.WHITE, 3)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(label)
 	return button
@@ -1394,7 +1400,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 
 	# === Action buttons row ===
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 12)
+	spacer.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer)
 	var action_row := HBoxContainer.new()
 	action_row.add_theme_constant_override("separation", 16)
@@ -1419,7 +1425,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	upgrade_label.text = ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost)
 	upgrade_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	upgrade_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	upgrade_label.add_theme_font_size_override("font_size", 36)
+	upgrade_label.add_theme_font_size_override("font_size", 30)
 	upgrade_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	upgrade_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	upgrade_label.add_theme_constant_override("outline_size", 3)
@@ -1442,7 +1448,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	select_label.text = "已装备" if selected else "选  定"
 	select_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	select_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	select_label.add_theme_font_size_override("font_size", 36)
+	select_label.add_theme_font_size_override("font_size", 30)
 	select_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	select_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	select_label.add_theme_constant_override("outline_size", 3)
@@ -1463,7 +1469,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	cancel_label.text = "关  闭"
 	cancel_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cancel_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	cancel_label.add_theme_font_size_override("font_size", 36)
+	cancel_label.add_theme_font_size_override("font_size", 30)
 	cancel_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	cancel_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	cancel_label.add_theme_constant_override("outline_size", 3)
@@ -1651,7 +1657,7 @@ func _make_sig_skill_upgrade_row(character_id: String) -> HBoxContainer:
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
 	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
 	var btn := _detail_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true)
-	btn.custom_minimum_size = Vector2(180, 56)
+	btn.custom_minimum_size = Vector2(244, 58)
 	btn.disabled = not can_up
 	btn.modulate = Color.WHITE if can_up else Color(0.5, 0.54, 0.6, 0.82)
 	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))
