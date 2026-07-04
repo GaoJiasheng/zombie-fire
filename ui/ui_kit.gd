@@ -30,7 +30,7 @@ const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
-const FONT_SCALE := 1.3
+const FONT_SCALE := 1.4
 
 static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
@@ -120,7 +120,9 @@ static func apply_label(label: Label, size := 22, color := TEXT_MAIN, outline :=
 	label.add_theme_font_size_override("font_size", int(round(size * FONT_SCALE)))
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
-	label.add_theme_constant_override("outline_size", outline)
+	# outline 此前一直是字面量、不随 FONT_SCALE 放大：字号越调越大后描边相对越来越
+	# 细，是"整体字体偏细"的一部分原因。这里让描边跟字号同步缩放，保持粗细观感。
+	label.add_theme_constant_override("outline_size", maxi(1, int(round(outline * FONT_SCALE))))
 
 static func label(text: String, size := 22, color := TEXT_MAIN, outline := 3) -> Label:
 	var node := Label.new()

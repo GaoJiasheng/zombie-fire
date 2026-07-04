@@ -165,6 +165,9 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	button.clip_contents = true
 	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.62, 0.64, 0.66, 0.9)
 	button.disabled = false
+	# PASS 而非默认 STOP：让触摸拖拽能穿到 ItemScroll 去滚动(点按仍能开详情，滚动时
+	# 自动取消误触)，同类问题 map.gd 的关卡卡片已用这个写法修过(见其注释)。
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	# 点卡片永远只看详情，绝不直接购买（购买走卡片上的“购买”按钮或详情页里的购买按钮）。
 	button.pressed.connect(_show_item_detail.bind(item_id, row))
 
@@ -274,7 +277,9 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
-	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	# PASS 而非 STOP：让触摸拖拽能穿到 ItemScroll 去滚动(点按仍能开详情，滚动时
+	# 自动取消误触)，同类问题 map.gd 的关卡卡片已用这个写法修过(见其注释)。
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	button.pressed.connect(_show_item_detail.bind(item_id, row))
 
 	var card := PanelContainer.new()

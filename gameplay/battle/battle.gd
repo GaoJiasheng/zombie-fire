@@ -2635,7 +2635,9 @@ func _apply_speed_aura(source: Node, enemies: Array) -> void:
 		if enemy == source or not is_instance_valid(enemy):
 			continue
 		if enemy.global_position.distance_to(source.global_position) <= radius:
-			enemy.speed_mult *= speed_boost
+			# 取全场最强的单个光环效果，而不是按范围内光环源数量连乘——密集刷同类
+			# 光环怪(如成群守护者)聚在一起时，连乘会指数级失控。
+			enemy.speed_mult = maxf(enemy.speed_mult, speed_boost)
 
 func _apply_damage_reduction_aura(source: Node, enemies: Array) -> void:
 	var radius := float(source.mechanic_params.get("radius", 280.0))
@@ -2644,7 +2646,10 @@ func _apply_damage_reduction_aura(source: Node, enemies: Array) -> void:
 		if enemy == source or not is_instance_valid(enemy):
 			continue
 		if enemy.global_position.distance_to(source.global_position) <= radius:
-			enemy.external_damage_mult *= damage_mult
+			# 同上：减伤取全场最强单个光环，不按范围内光环源数量连乘。此前连乘在
+			# 守护者刷成一整群、互相都在彼此 320 半径内时会把承伤压到 0.66^N，
+			# 群怪聚集(如第38关第3波)时几乎变成打不死，这是真实的"无敌"bug而非设计如此。
+			enemy.external_damage_mult = minf(enemy.external_damage_mult, damage_mult)
 
 func _enemy_mechanic_timer_ready(source: Node, key: String, delta: float, interval: float, jitter := 0.0, initial_delay := 0.4) -> bool:
 	var meta_key := "mechanic_timer_%s" % key
