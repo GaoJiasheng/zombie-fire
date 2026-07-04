@@ -294,6 +294,12 @@
       "count": 573,
       "task": "design/vfx_full_redo_task.md full rollout",
       "created_at": "2026-07-03T16:44:43+0800"
+    },
+    {
+      "path": "sprites/ui/skill_*_icon.png",
+      "source": "source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_manifest_2026_07_04.json",
+      "derived": "source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_contact_sheet_2026_07_04.png",
+      "reason": "Owner requested all 16 skill collection icons be regenerated at top-tier rendered App Store quality because the previous production set had 8 byte-identical duplicate pairs and several semantic/icon-color mismatches."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1094,6 +1100,15 @@
       "source": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_manifest_2026_07_03.json",
       "derived": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_full_runtime_samples_sheet_2026_07_03.png",
       "attack_cleanup": "assets/production/source_refs/generated/vfx_full_redo_full_2026_07_03/vfx_full_redo_zombie_attack_cleanup_sheet_2026_07_03.png"
+    },
+    {
+      "id": "skill_icon_regen_2026_07_04",
+      "category": "ui_icon_polish",
+      "status": "accepted_pending_runtime_review",
+      "description": "Top-tier raster regeneration for all 16 skill collection icons. Each skill now has a distinct centered rendered composition, preserved metal sci-fi frame style, correct game-element colors, 256x256 RGBA output, and no duplicate byte hashes.",
+      "source": "assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_manifest_2026_07_04.json",
+      "derived": "assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_contact_sheet_2026_07_04.png",
+      "prompt_doc": "design/skill_icon_regen_prompts_2026_07_04.md"
     }
   ]
 }
