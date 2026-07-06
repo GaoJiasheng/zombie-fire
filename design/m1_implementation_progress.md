@@ -11,6 +11,9 @@ all five battle scenes, and the result scene.
 
 ### Implemented (new since previous checkpoint)
 
+- **全关卡挑战模式**：地图关卡卡片改为“进入关卡 / 挑战模式”双按钮；挑战战斗通过 `challenge` route payload 贯穿 loadout / battle / result，敌人 HP 提高到 1.5 倍，推荐战力同步抬高到 1.5 倍，漏怪伤害仍使用挑战专用加压倍率。
+- **挑战星级经济**：`SaveManager.challenge_progress` 独立记录每关挑战最高星，`apply_challenge_result()` 只发本次星级超过历史最高的差额；重复通关不会重复给星，也不会解锁下一普通关。
+- **战斗背景堡垒对齐**：以 `env_abandoned_factory` 的底部横向堡垒位置为基准，平移其余 9 张战斗背景并保留 1080×1920 合约；处理记录在 `assets/production/source_refs/generated/background_fortress_alignment_2026_07_06.json`，对照图在 `assets/production/contact_sheets/contact_background_fortress_alignment_2026_07_06.png`。
 - **HUD bars**: `BaseHpBar`, `WaveProgress`, `XpBar` with real `ui_base_hp_bar` / `ui_wave_progress` / `ui_run_xp_bar` textures and `ColorRect` fill driven by HP / wave / XP ratios.
 - **Pause overlay**: `Hud/PauseOverlay` with dim layer + centered panel; Resume / Restart / Map buttons on `ui_button_primary` / `ui_button_secondary`. Toggled by `icon_pause.png` button or `Esc` (`InputManager.pause_pressed`).
 - **Result screen**: real `ui_button_primary.png` for Retry, `ui_button_secondary.png` for Map. Retry replays `level_id` via `router.start_level`.
@@ -1799,3 +1802,297 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
 - `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
 - `git diff --check` -> no whitespace errors.
+
+## Runtime UI Deep Polish Pass (2026-07-04)
+
+> Owner requested that every uncomfortable or low-end runtime UI surface found in the self-audit be fixed in order, using the top-tier rendered App Store standard rather than reverting to vector/primitive-looking lines.
+
+- **Battle HUD**: tightened the top HP/wave bars into the rendered grooves, rebuilt bottom XP/resource layout, anchored the bottom skill shelf to the HUD bottom edge, and resized the onboarding/wave toast so long Chinese copy wraps cleanly without becoming a giant flat banner.
+- **Map**: reduced the over-thick header and nav dock, compacted level rows, removed redundant unlock pills, tightened star/deploy/status clusters, and kept the rendered card skin as the main readable surface instead of straight-line UI clutter.
+- **Loadout**: rebuilt runtime spacing so the character/weapon panels, gear slots, details panel, and start button read as one hierarchy; empty armor/chip/pet slots now use labeled rendered placeholders instead of black voids.
+- **Collection**: removed duplicate inner frames on rows, widened skill title/tag/effect copy, compacted skill detail modals, and reduced oversized detail buttons so list/detail pages no longer feel like stacked prototype boxes.
+- **Result and settings**: compressed result action buttons into a cleaner hierarchy, shrank the secondary map button, added a rendered background layer to settings, and reduced settings typography/button heights for a polished modal feel.
+- **Review evidence**: latest routed screenshots and contact sheet are under `tmp/ui_polish_after_2026_07_04/`, especially `contact_sheet_latest.png`.
+
+### Verification (after runtime UI deep polish)
+
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7420 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `286` `res://` references; OK.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all `99` levels.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `git diff --check` -> no whitespace errors.
+
+## Skill Icon Full Regeneration (2026-07-04)
+
+> Owner requested direct execution of `design/skill_icon_regen_prompts_2026_07_04.md` at the top-tier rendered standard. The original production set had only `8` unique PNG hashes across `16` skill icons, causing collection-page duplicates and semantic mismatches.
+
+- **Generation path**: used built-in `image_gen` once per skill icon, with the existing production frame/material sheet as style reference. Outputs were copied into `assets/production/source_refs/generated/skill_icon_regen_2026_07_04/` and locally chroma-keyed to transparent RGBA.
+- **Production replacement**: overwrote all `16` `assets/production/sprites/ui/skill_*_icon.png` files at `256x256` RGBA while preserving existing filenames and `data/skills.json` references.
+- **Semantic fixes**: split shot, pierce, multishot, slow field, homing, critical, barrier, gold rush, ricochet, salvo, incendiary, cryo, tesla, venom, charge shot, and recycle now each have distinct centered compositions. Tesla uses the game-standard gold lightning color, and fire/poison no longer share a green cloud.
+- **Traceability**: manifest `assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_manifest_2026_07_04.json`; review sheet `assets/production/source_refs/generated/skill_icon_regen_2026_07_04/skill_icon_regen_contact_sheet_2026_07_04.png`; registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+
+### Verification (after skill icon full regeneration)
+
+- Skill icon PNG integrity scan -> `16/16` files are `256x256` RGBA, transparent corners OK, and `16` unique SHA-256 hashes.
+- `python3 tools/check_visual_assets.py` -> pass.
+- `python3 tools/check_res_refs.py` -> pass.
+- `godot --path . --script res://tools/_shot.gd -- collection '{"mode":"skills"}' tmp/skill_icon_regen_2026_07_04/collection_skills_after.png` -> screenshot captured for visual review.
+- `python3 tools/check_release_candidate.py` -> pass.
+- `git diff --check` -> no whitespace errors.
+
+## SFX Expansion Full Integration (2026-07-05)
+
+> Owner requested direct execution of `design/sfx_expansion_prompts_2026_07_05.md` at the best local-rendered quality, while preserving existing weapon shot and elemental hit sounds.
+
+- **Generated SFX**: added `45` new `pcm_s16le / 44.1kHz / mono` WAV files under `assets/production/audio/sfx/`: `17` skill trigger sounds, `8` character intro/signature active sounds, and `20` zombie mechanic sounds.
+- **Traceability**: deterministic local renderer `tools/generate_sfx_expansion_2026_07_05.py`; manifest `assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_manifest_2026_07_05.json`; waveform review sheet `assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_waveform_sheet_2026_07_05.png`.
+- **Runtime integration**: `AudioManager` now registers all new keys, expands the SFX pool, and rate-limits high-frequency skill/zombie sounds. Battle runtime now plays character intro SFX, four dedicated signature active SFX, skill acquisition/trigger SFX, projectile split/chain/element trigger SFX, critical/gold-rush SFX, and zombie mechanic SFX for aura, spit, leap, charge, phase, summon, toxic, regen, split, mutate, enrage, runner, bomber, basic/brute/armor/crawler.
+
+### Verification (after SFX expansion)
+
+- Generated SFX manifest scan -> `45` outputs, duration range `0.11s` to `5.35s`, peak range locked at `-4.7 dBFS`.
+- Godot import check -> all `45` new WAV files have `.import` files; rerun screenshot check no longer reports audio loader errors.
+- `python3 -m py_compile tools/generate_sfx_expansion_2026_07_05.py` -> pass.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7548 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all `99` levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `git diff --check` -> no whitespace errors.
+
+## Runtime Layout Breathing Pass (2026-07-05)
+
+> Owner reported that the battle pause overlay and chip collection page felt cramped and visually constrained in-device screenshots.
+
+- **Battle pause overlay**: widened and raised the pause panel, increased the content stack height, expanded status/loadout/skill section spacing, and resized metric pills so enlarged Chinese UI text no longer clips inside old 54px rows.
+- **Pause action buttons**: rebuilt internal label geometry for the global `UiKit.FONT_SCALE`; title/subtitle/icon/arrow now fit inside 96px rendered buttons without overlapping or reading like pasted text.
+- **Toast collision fix**: entering pause now hides any active wave/weakness toast, and paused battle state suppresses new top toasts so tutorial/weakness banners cannot sit on top of the pause modal.
+- **Collection chip/equipment page**: increased root margins, title/resource/list separation, list row gaps, and roomy card height for weapons/armors/chips/pets. Resource chips are slightly smaller and centered so the header breathes before the list starts.
+- **Screenshot evidence**: `tmp/ui_layout_polish_2026_07_05/battle_pause_after_v2.png` and `tmp/ui_layout_polish_2026_07_05/collection_chips_after.png`.
+
+### Verification (after runtime layout breathing pass)
+
+- `git diff --check` -> no whitespace errors.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"chips"}' tmp/ui_layout_polish_2026_07_05/collection_chips_after.png` -> screenshot captured at `1080x1920`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- battle '{"level_id":"level_039","pause":true}' tmp/ui_layout_polish_2026_07_05/battle_pause_after_v2.png` -> pause screenshot captured at `1080x1920`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7548 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all `99` levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+## Selection Action Button Polish (2026-07-05)
+
+> Owner reported that purchase/equip actions across selection pages looked too small and should read as explicit armored buttons, with unavailable actions clearly greyed out.
+
+- **Collection card actions**: role/weapon/armor/chip/pet list cards now always show a large right-side rendered `TextureButton`: `购买 XX★`, `XX★ 不足`, `装  备` / `选  定`, or grey `已装备`. The old small native `Button` and tiny growth badge path were removed from the main card action area.
+- **Disabled state**: unavailable buttons use the same rendered armor texture but grey modulation and muted label color, instead of disappearing or reading like a small status tag.
+- **Detail modal actions**: item detail buy/equip/upgrade/close buttons and character detail upgrade/select/close buttons now share the same large armored button builder. Character signature skill upgrade buttons were enlarged to match the same visual language.
+- **Purchase confirmation**: shared modal confirm/cancel buttons in `UiKit` were enlarged so the final "购买" confirmation no longer feels smaller than the selection-page action.
+- **Screenshot helper**: `tools/_shot.gd` now supports `detail_item` for routed detail-modal screenshots, and waits for the modal fade animation before capture.
+- **Screenshot evidence**: `tmp/selection_button_polish_2026_07_05/collection_chips_buttons.png`, `collection_weapons_buttons.png`, `collection_characters_buttons.png`, `detail_chip_attack_buttons_v2.png`, and `detail_character_buttons_v2.png`.
+
+### Verification (after selection action button polish)
+
+- `git diff --check` -> no whitespace errors.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"chips"}' tmp/selection_button_polish_2026_07_05/collection_chips_buttons.png` -> screenshot captured at `1080x1920`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"weapons"}' tmp/selection_button_polish_2026_07_05/collection_weapons_buttons.png` -> screenshot captured at `1080x1920`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"characters"}' tmp/selection_button_polish_2026_07_05/collection_characters_buttons.png` -> screenshot captured at `1080x1920`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"chips","detail_item":"chip_attack"}' tmp/selection_button_polish_2026_07_05/detail_chip_attack_buttons_v2.png` -> detail screenshot captured at `1080x1920`.
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- collection '{"mode":"characters","detail_item":"vanguard"}' tmp/selection_button_polish_2026_07_05/detail_character_buttons_v2.png` -> detail screenshot captured at `1080x1920`.
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7548 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> card offer simulation completed for all `99` levels.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+
+## Battle HUD / Endless / Pet / Projectile Polish (2026-07-05)
+
+> Owner requested battle HUD breathing fixes, less intrusive hint banners, Endless-mode escalation/reward retention, richer pet growth, and hard lifetime bounds for homing/split projectiles.
+
+- **Battle HUD**: moved the base HP bar from the top stack into the bottom bar beside XP, shifted XP left, compacted gold labels above `999` into `k` notation, and rebuilt the top wave bar so the rendered frame actually stretches instead of being aspect-centered. Wave fill is now warm gold and sits inside the track, removing the misleading blue sliver.
+- **Hint banner cadence**: wave/weakness toast now sits below the top HUD and above battle midline, preserves long wrapped onboarding copy, and rate-limits non-critical short hints. Boss/final-wave/low-HP warnings remain immediate.
+- **Endless mode**: pause-to-map now routes through Endless result settlement so current `gold` / `xp` is preserved. Each Endless final wave guarantees at least one boss; boss count increases every three loops up to six, and HP scaling is linear via `1.0 + 0.22 * endless_loop`, applied to normal enemies and bosses.
+- **Pets**: `data/pets.json` now defines `stat_bonus` plus `level_stat_growth` for each pet. Runtime applies pet growth to damage, fire rate, element damage, crit, slow strength, base HP, breach mitigation, chain/pierce, and gold gain; collection detail cards expose these bonuses.
+- **Projectiles**: all projectiles, including homing/split paths, despawn after `5.0s`; any projectile leaving the 1080x1920 playfield plus a small margin is removed and no longer returns to screen.
+- **Screenshot evidence**: `tmp/hud_endless_pet_projectile_polish_2026_07_05/battle_hud_after_v7.png` and `tmp/hud_endless_pet_projectile_polish_2026_07_05/pet_detail_bonus.png`.
+
+### Verification (after HUD / Endless / Pet / Projectile polish)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7548 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completed `1000` runs per level.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `git diff --check` -> no whitespace errors.
+
+## All-Level Tall-Screen Battle Background / Breach-Line Fix (2026-07-06)
+
+> Owner reported that a high-screen battle screenshot had a black strip above the background, and that zombies began damaging the base while still visibly too far from the character/base model. Follow-up clarification: this must be fixed globally, not only for the reported screenshot or level.
+
+- **Background anchoring**: `_apply_level_background()` now treats `1920 + bottom_dock_shift` as the visible battle height, cover-scales the current environment background against that height, and pins the background bottom edge to the real viewport bottom. This preserves the bottom composition while filling the extra top area instead of leaving a black/gradient strip.
+- **Top-fill cleanup**: the old `BackgroundExtension` fallback is hidden after successful cover-scale placement, so high-screen devices use the actual rendered background rather than a flat dark patch.
+- **Breach trigger line**: `enemy.gd` now exposes `configure_attack_line(base_line_y)`. Battle enemy spawning calls it with the runtime `BREACH_Y`, so normal zombies and bosses begin base attacks near the shifted player/base model instead of the old 1920-design coordinate.
+- **Boss spawn regression fix**: while wiring the attack-line injection, the spawn path was normalized so bosses and normal enemies both run `setup()`, connect feedback/death/breach signals, and inherit endless difficulty scaling.
+- **Threat warning sync**: `防线告急` ring/toast thresholds now derive from `BREACH_Y`, placing warning feedback near the real bottom defense line on high-screen layouts.
+- **Projectile bounds sync**: projectile off-screen cleanup now uses the current visible viewport size, keeping the previous 5-second lifetime cap while preventing high-screen bottom shots from being culled against the old 1920px limit.
+- **All-level guardrail**: new `tools/check_tall_battle_layout.py` scans all 99 levels, every environment row, all level spawn/boss ids, four viewport heights (`1920/2046/2340/2622`), and source snippets for bottom-anchored cover scaling plus `configure_attack_line(BREACH_Y)`. It is now part of `tools/check_release_candidate.py`.
+- **Evidence**: high-screen capture `tmp/battle_safe_area_breach_fix_2026_07_06/battle_tall_after.png` was generated with a 1080x2340 request; the desktop capture environment produced `1080x2046`, still covering the tall-viewport case. Top-band pixel scan showed no solid black strip (`top160 exact_blackish=0.1667%`).
+- **Environment review sheet**: all 10 campaign environments were cropped through the same 1080x2340 cover rule into `tmp/battle_safe_area_breach_fix_2026_07_06/all_campaign_env_tall_cover_sheet.png`.
+
+### Verification (after tall-screen background / breach-line fix)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7548 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `python3 tools/check_visual_assets.py` -> `Visual asset check OK: 948 battle sprite files`.
+- `python3 tools/check_tall_battle_layout.py` -> `Tall battle layout OK: 99 levels, 10 campaign envs, 14 total env rows, heights=1920,2046,2340,2622`.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`.
+- `python3 tools/simulate_card_director.py` -> completed `1000` runs per level.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 6 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `git diff --check` -> no whitespace errors.
+
+## Battle Character / HUD Overlap Audit (2026-07-06)
+
+> Owner asked to re-confirm whether the character model, HP bar, XP bar, and skill controls can be blocked in battle.
+
+- **Root cause found**: the previous bottom-centered skill shelf could overlap the largest character/weapon attack silhouettes, especially true-grip heavy-gun frames. HP and XP were not overlapping each other, but the skill shelf was too close to the character body and weapon pose.
+- **Skill shelf relocation**: `Hud/SkillSlots` is now a compact lower-left two-row `GridContainer` with 8 columns, 16-skill capacity, and smaller rendered skill cards. This preserves all owned skills while freeing the bottom-center character silhouette and bottom-right active-skill area.
+- **Runtime sync**: `_layout_runtime_hud()` now uses the same lower-left grid geometry at runtime, so tall-screen bottom docking keeps the relative HUD spacing stable.
+- **Regression guard**: added `tools/check_battle_hud_overlap.py`, which computes alpha-channel visible bounds for 4 characters x 8 weapons x idle/attack-left/attack/attack-right/hurt frames under max growth visual scale `1.16`, then checks those bounds against wave bar, skill grid, active skill button, gold, XP, and HP rects. It also verifies the full 16-skill grid capacity.
+- **Release candidate coverage**: `tools/check_release_candidate.py` now runs both `check_tall_battle_layout.py` and `check_battle_hud_overlap.py` before app-store/string/simulation checks.
+- **Screenshot evidence**: `tmp/hud_overlap_check_2026_07_06/battle_level_003.png`.
+
+### Verification (after battle character / HUD overlap audit)
+
+- `python3 tools/check_battle_hud_overlap.py` -> `Battle HUD overlap OK: 896 character/weapon frames, max growth scale=1.16, min skill gap=21.4px, min bottom-resource gap=10.1px`.
+- `python3 tools/check_tall_battle_layout.py` -> `Tall battle layout OK: 99 levels, 10 campaign envs, 14 total env rows, heights=1920,2046,2340,2622`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `331` `res://` references; OK.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `git diff --check` -> no whitespace errors.
+
+## Battle Base-Line Alignment Audit (2026-07-06)
+
+> Owner asked to confirm that zombie base attacks, the base barrier, and the slow-field area all align to the same inner/outer defense line.
+
+- **Root cause found**: normal enemy base attacks already used runtime `BREACH_Y`, but several visual and skill-pressure paths still carried old fixed y targets such as `1360`, `1370`, and `1440 + bottom_dock_shift`. Slow-field visuals were `BREACH_Y`-based, while the actual slow判定 still read fixed `data/skills.json` `y_min` values.
+- **Single line source**: `battle.gd` now has `_base_line_y()`, `_base_line_inner_y()`, and `_base_damage_impact_position()` helpers. Ordinary breach damage, ranged corrosion, toxic cloud, juggernaut shock, frost field, boss pressure, death blast base damage, and repair feedback all use those helpers.
+- **Barrier alignment**: `BarrierGlass` is centered on `_base_line_y()`, and shield-break VFX uses the same `_base_damage_impact_position()` as base damage, so shield block / break feedback sits on the same defense line as incoming attacks.
+- **Slow-field alignment**: `SkillRuntime.slow_mult_for_y()` now accepts the runtime base line and converts authored design offsets from `data/skills.json` relative to that line. The visual slow-field rectangle, its bottom edge line, particles, and actual slow判定 all share the same bottom edge at `_base_line_y()`.
+- **Warning alignment**: near-line rings and `防线告急` thresholds now use named insets from `_base_line_inner_y(...)`, rather than raw y constants.
+- **Regression guard**: added `tools/check_battle_line_alignment.py` and wired it into `tools/check_release_candidate.py`. It rejects old fixed base-impact y coordinates and verifies attack line, barrier, and slow-field code all derive from `BREACH_Y`.
+
+### Verification (after battle base-line alignment audit)
+
+- `python3 tools/check_battle_line_alignment.py` -> `Battle line alignment OK: attack line, base impact, barrier, and slow field all derive from BREACH_Y`.
+- `python3 tools/check_tall_battle_layout.py` -> `Tall battle layout OK: 99 levels, 10 campaign envs, 14 total env rows, heights=1920,2046,2340,2622`.
+- `python3 tools/check_battle_hud_overlap.py` -> `Battle HUD overlap OK: 896 character/weapon frames, max growth scale=1.16, min skill gap=21.4px, min bottom-resource gap=10.1px`.
+- `python3 tools/validate_data.py && python3 tools/check_res_refs.py` -> data valid; checked `331` `res://` references; OK.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+
+## Audio Overlap / Stinger Ownership Audit (2026-07-06)
+
+> Owner reported that some effects felt like multiple music tracks were playing at once.
+
+- **Root cause found**: BGM itself was already a singleton `AudioStreamPlayer`, but result audio had two ownership points: `battle._finish()` played victory/defeat SFX and `meta/result.setup()` immediately played the same SFX again while starting result BGM. In addition, long character signature SFX (`sig_vanguard_railvolley`, `sig_blaze_meltdown`, `sig_frost_glacier`, `sig_volt_storm`) could keep playing across BGM switches.
+- **Single result owner**: battle finish no longer plays victory/defeat stingers. Result scene owns the result BGM and the single short win/loss stinger.
+- **Music-like SFX mutex**: `AudioManager.MUSIC_LIKE_SFX` marks long signature cues plus win/loss stingers. Starting a music-like SFX stops any previous music-like SFX, and switching BGM clears any lingering music-like SFX before the new music starts.
+- **Meta-screen BGM cleanup**: `loadout` and `collection` now explicitly restore `map` BGM on entry, so the result music cannot carry into upgrade/equipment browsing after pressing result actions.
+- **Regression guard**: added `tools/check_audio_overlap.py` and wired it into `tools/check_release_candidate.py`. It verifies singleton player ownership, music-like SFX mutex metadata, result stinger ownership, and the map-BGM restore on loadout/collection.
+
+## Fire Hit / Active Skill Media Review (2026-07-06)
+
+> Owner reported that fire bullets produced a side-plume flame near zombies, and that the fire active-skill flame had visible cutout edges. The request was to review all active skill VFX/SFX and rebuild any weak media at top rendered quality.
+
+- **Root cause found**: the fire hit single-frame and sequence assets were directional plume/fireball crops, so placing them on enemy bodies looked like fire spraying in from one side. The runtime also stacked projectile-direction impact bursts, B4 fire impact cloud/heat haze, and active-skill generic muzzle intro on top of authored fire VFX.
+- **Rendered VFX rebuild**: generated a new high-end rendered VFX reference board with built-in `image_gen`, copied it into `assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/`, and added `tools/regenerate_active_skill_vfx_2026_07_06.py` to extract/clean alpha and rebuild production PNG sequences.
+- **Replaced assets**: regenerated `vfx_hit_fire` (12 frames), `vfx_explosion_fire` (16 frames), and all five active signature sequences (`vfx_active_sig_vanguard_railvolley`, `vfx_active_sig_vanguard_overload`, `vfx_active_sig_blaze_meltdown`, `vfx_active_sig_frost_glacier`, `vfx_active_sig_volt_storm`) with transparent PNG frames and refreshed the single-frame `vfx_hit_fire.png` / `vfx_explosion_fire.png`.
+- **Alpha cleanup**: the generator removes black sheet backgrounds, low-alpha compression haze, and adjacent-frame bleed; frost/volt sequences use local high-resolution particle/ice/electric renderers to avoid sheet-cell rectangular artifacts.
+- **Runtime cleanup**: `battle.gd` now uses the new centered fire hit/explosion sequences for fire impact, radial fire, and fire death bursts. Signature active-skill intro no longer spawns a second generic muzzle sequence. `projectile.gd` suppresses the directional fire impact burst for normal fire bullets, leaving the centered battle impact as the visible hit effect.
+- **SFX review**: active-skill SFX files were present, mono 44.1 kHz, within the expected duration/peak/RMS ranges, and already protected by the music-like mutex from the audio-overlap pass; no audio file replacement was needed.
+- **Regression guard**: added `tools/check_active_skill_media.py` and wired it into `tools/check_release_candidate.py`. It verifies active/fire sequence frame counts, clean alpha canvas edges, centered fire impact/explosion, and active-skill SFX duration/loudness bounds.
+- **Evidence**: contact sheets at `assets/production/contact_sheets/contact_fire_vfx_review_2026_07_06.png` and `assets/production/contact_sheets/contact_active_skill_vfx_review_2026_07_06.png`; manifest at `assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/active_skill_vfx_manifest_2026_07_06.json`.
+
+### Verification (after fire hit / active skill media review)
+
+- `python3 tools/check_active_skill_media.py` -> `Active skill media OK: fire VFX centered, alpha edges clean, active SFX bounded`.
+
+## Map Selection Alignment Polish (2026-07-06)
+
+> Owner pointed out that the map selection page still had visible alignment issues: top equipment status badges leaked out of their icon cells, star rows had uneven vertical padding, and "进入" / "挑战模式" were stacked too tightly for phone tapping.
+
+- **Top nav cells**: the six feature cards now share a tighter 114px height contract. Status badges are wider, clipped, and rendered inside each icon cell, so `等级1` / `未装` / `图鉴` no longer push past the square card edge under the global enlarged font scale.
+- **Level card grid**: each level card now uses a stable right-side block with two centered star rows above a dedicated action row. Normal/challenge stars have equal line height and spacing, instead of sharing cramped coordinates with the old vertical button column.
+- **Action ergonomics**: "进入" and "挑战模式" are horizontal rendered `TextureButton`s with consistent 44px height, greyed but still labeled when locked, making the row easier to tap on a phone while reducing vertical pressure.
+- **Variant badge cleanup**: boss/elite/treasure markers moved back beside the title area, leaving the button row visually independent.
+- **Screenshot evidence**: `tmp/map_ui_alignment_polish_2026_07_06_v2.png`.
+
+### Verification (after map selection alignment polish)
+
+- `/opt/homebrew/bin/godot --path . --script res://tools/_shot.gd -- map '{}' tmp/map_ui_alignment_polish_2026_07_06_v2.png` -> screenshot captured at `1080x1920`.
+
+## Campaign Chapter Map / Sub-Level Flow (2026-07-06)
+
+> Owner requested a clearer campaign-map structure like stage-based mobile games: every ten levels should form one larger map/chapter, clearing a chapter should reveal the next, level 5 should be a small boss, and level 10 should be a major boss.
+
+- **Two-layer campaign flow**: `meta/map/map.gd` now renders a first-screen chapter map made from the existing `levels[].chapter` / `levels[].env` data. Selecting an unlocked chapter opens the existing sub-level list for that chapter, preserving the current per-level layout and normal/challenge buttons.
+- **Data-driven story**: `data/environments.json` now carries `chapter_title`, `story`, and `objective` for the ten campaign environments. The chapter UI reads these fields from data instead of hardcoding story copy in the scene script.
+- **Boss markers**: each chapter card highlights the level-5 small boss and level-10 major boss (or the final boss-rush row in chapter 10), with cleared/locked state derived from save progress.
+- **Unlock model**: a chapter is available when its first level is unlocked, so clearing level 010 naturally unfolds chapter 2 through the existing progression rules; locked chapter CTA text explains which previous chapter must be cleared.
+- **Visual polish**: chapter cards use the existing high-end rendered environment portraits as the art layer, the runtime rendered UI skins for the frame/button/progress components, and deterministic CJK line wrapping to keep story copy out of the right-side progression area.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts the chapter overview first, then opens chapter 1 and asserts the sub-level list and normal/challenge buttons. `tools/check_visual_screens.py` now captures both `map` and `map_chapter`.
+- **Screenshot evidence**: `tmp/chapter_map_overview_2026_07_06.png` and `tmp/chapter_map_detail_2026_07_06.png`.
+
+### Verification (after campaign chapter map / sub-level flow)
+
+- `python3 tools/validate_asset_pack.py` -> `Asset pack validation passed: 7554 files`.
+- `python3 tools/validate_data.py` -> `Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments`.
+- `python3 tools/check_res_refs.py` -> checked `335` `res://` references; OK.
+- `python3 tools/check_level_pressure.py` -> completed through `level_099`; every level-5 and level-10 chapter endpoint is still a boss row in pressure output.
+- `python3 tools/simulate_card_director.py` -> completed `1000` runs per level.
+- `/opt/homebrew/bin/godot --headless --path . --quit` -> exits `0`.
+- `/opt/homebrew/bin/godot --headless --path . --script res://tools/m1_smoke_test.gd` -> `M1 smoke test passed`; Godot 4.7 headless still prints the known Canvas/CanvasItem/ObjectDB/RID cleanup warnings at process teardown.
+- `python3 tools/check_visual_screens.py` -> `Visual screen check OK: 7 routed screenshots`.
+- `python3 tools/check_release_candidate.py` -> `Release candidate check OK`.
+- `git diff --check` -> no whitespace errors.
+
+## Projectile Ballistics / Homing Guardrails (2026-07-06)
+
+> Owner required homing bullets to feel like real projectiles: leave the muzzle first, avoid instant pivots, never return from off-screen, and always self-clear after five seconds.
+
+- **One-second muzzle flight**: `gameplay/projectile/projectile.gd` now arms homing only after `HOMING_ACTIVATION_DELAY = 1.0`, so homing/split projectiles first fly straight from the gun barrel before steering.
+- **Minimum turn radius**: homing steering now uses `_homing_turn_rate_limit(speed)`, combining `homing_strength`, a `460px` minimum turn radius, and a hard `3.4 rad/s` cap. This replaces the old free `lerp`/small-radius turn feel and prevents visible in-place pivots.
+- **Strict bounds cleanup**: projectiles check the current visible viewport before and after movement. Once `x/y` leaves the visible playfield, the projectile is queued for deletion immediately instead of being allowed to arc back in.
+- **Lifetime cap**: `PROJECTILE_MAX_LIFETIME = 5.0` is enforced before homing/movement every physics tick, covering normal, split, chain, and homing projectiles through the shared projectile runtime.
+- **Regression guardrails**: `tools/m1_smoke_test.gd` now directly asserts the one-second straight segment, post-delay steering, turn-rate cap, off-screen cleanup, and five-second cleanup. `tools/check_gameplay_polish.py` statically requires the new homing/lifetime constants and turn-limit helper.
