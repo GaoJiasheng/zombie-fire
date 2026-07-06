@@ -3,6 +3,9 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
+const ACTION_ACTIVE_MODULATE := Color(1.0, 0.86, 0.54, 1.0)
+const ACTION_SECONDARY_MODULATE := Color(0.86, 0.90, 0.92, 1.0)
+const ACTION_DISABLED_MODULATE := Color(0.48, 0.52, 0.58, 0.86)
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 
@@ -10,6 +13,7 @@ var router: Node
 var mode := "characters"
 var _return_to := "map"
 var _return_level_id := ""
+var _return_challenge_mode := false
 var _loadout_return_to := "map"
 var _loadout_return_payload := {}
 var _detail_modal: Control = null
@@ -22,17 +26,20 @@ func setup(main: Node, payload := {}) -> void:
 	mode = str(data.get("mode", "characters"))
 	_return_to = str(data.get("return_to", "map"))
 	_return_level_id = str(data.get("level_id", data.get("return_level_id", "")))
+	_return_challenge_mode = bool(data.get("challenge", false))
 	_loadout_return_to = _sanitize_loadout_return_to(str(data.get("loadout_return_to", "map")))
 	_loadout_return_payload = _sanitize_payload(data.get("loadout_return_payload", {}))
 	if _return_to == "loadout" and _return_level_id == "" and router != null:
 		var context: Variant = router.get("run_context")
 		if context is Dictionary:
 			_return_level_id = str(context.get("level_id", ""))
+			_return_challenge_mode = bool(context.get("challenge", _return_challenge_mode))
 	if _return_to != "loadout":
 		_return_to = "map"
 	_refresh()
 
 func _ready() -> void:
+	AudioManager.play_bgm("map")
 	(%BackButton as TextureButton).pressed.connect(_on_back_pressed)
 	_refresh_back_button()
 	_refresh()
@@ -45,6 +52,8 @@ func _on_back_pressed() -> void:
 		var payload := {}
 		if _return_level_id != "":
 			payload["level_id"] = _return_level_id
+		if _return_challenge_mode:
+			payload["challenge"] = true
 		payload["return_to"] = _loadout_return_to
 		if not _loadout_return_payload.is_empty():
 			payload["return_payload"] = _loadout_return_payload.duplicate(true)
@@ -77,6 +86,7 @@ func _refresh() -> void:
 	(%Title as Label).text = _title()
 	_refresh_resource_bar()
 	var item_list := %ItemList as VBoxContainer
+	item_list.add_theme_constant_override("separation", 18 if _uses_spacious_collection_cards() else 14)
 	for child in item_list.get_children():
 		child.queue_free()
 	var table_data: Dictionary = _table()
@@ -90,10 +100,16 @@ func _refresh_resource_bar() -> void:
 	var existing := parent.get_node_or_null("ResourceBar")
 	if existing != null:
 		existing.free()
-	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power())
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power(), Vector2(174, 58), 25)
 	bar.name = "ResourceBar"
+	bar.custom_minimum_size = Vector2(0, 66)
+	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	bar.add_theme_constant_override("separation", 12)
 	parent.add_child(bar)
 	parent.move_child(bar, prog.get_index() + 1)
+
+func _uses_spacious_collection_cards() -> bool:
+	return mode in ["weapons", "armors", "chips", "pets"]
 
 func _title() -> String:
 	match mode:
@@ -152,9 +168,11 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var unlocked := true if mode == "skills" else SaveManager.is_item_unlocked(slot, item_id)
 	var selected := slot != "" and SaveManager.get_selected(slot) == item_id
 	var item_level := SaveManager.get_item_level(item_id)
+	var spacious := _uses_spacious_collection_cards()
+	var card_height := 238.0 if spacious else 224.0
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, 210)
+	button.custom_minimum_size = Vector2(760, card_height)
 	var base_texture := load("res://assets/production/sprites/ui/ui_collection_card_skin.png")
 	button.texture_normal = base_texture
 	button.texture_hover = base_texture
@@ -174,7 +192,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
 	frame.position = Vector2(16, 14)
-	frame.size = Vector2(728, 182)
+	frame.size = Vector2(728, card_height - 28.0)
 	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.visible = false
@@ -182,8 +200,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.position = Vector2(36, 22) if mode == "characters" else Vector2(48, 42)
-	icon.size = Vector2(118, 126) if mode == "characters" else Vector2(88, 88)
+	icon.position = Vector2(36, 22) if mode == "characters" else Vector2(48, 54)
+	icon.size = Vector2(118, 126) if mode == "characters" else Vector2(92, 92)
 	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -201,17 +219,17 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var title := Label.new()
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
-	title.position = Vector2(170, 26)
-	title.size = Vector2(390, 40)
-	UiKit.apply_label(title, 28, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
+	title.position = Vector2(170, 34 if spacious else 26)
+	title.size = Vector2(350, 46 if spacious else 40)
+	UiKit.apply_label(title, 27 if spacious else 28, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
 	var tag_row := HBoxContainer.new()
-	tag_row.position = Vector2(170, 70)
-	tag_row.size = Vector2(400, 34)
-	tag_row.add_theme_constant_override("separation", 8)
+	tag_row.position = Vector2(170, 84 if spacious else 70)
+	tag_row.size = Vector2(350, 36)
+	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
 	for tag_text in _item_tags(row, unlocked).slice(0, 3):
@@ -219,46 +237,41 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var desc := Label.new()
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(170, 110)
-	desc.size = Vector2(400, 72)
-	UiKit.apply_label(desc, 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
+	desc.position = Vector2(170, 128 if spacious else 110)
+	desc.size = Vector2(350, 78 if spacious else 72)
+	UiKit.apply_label(desc, 17 if spacious else 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(desc)
 
-	if unlocked and mode != "skills":
-		var badge := Label.new()
-		badge.name = "GrowthBadge"
-		badge.text = "已装备" if selected else _growth_badge_text(item_level)
-		badge.position = Vector2(588, 64)
-		badge.size = Vector2(134, 32)
-		UiKit.apply_label(badge, 17, Color(1.0, 0.88, 0.34, 1.0) if selected else _level_tint(item_level), 2)
-		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(badge)
-	elif not unlocked:
-		var buy_price := SaveManager.get_unlock_price_star(_data_table_name(), item_id)
-		var can_buy := SaveManager.get_player_star() >= buy_price
-		var buy_btn := Button.new()
-		buy_btn.text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
-		buy_btn.position = Vector2(560, 52)
-		buy_btn.size = Vector2(156, 52)
-		buy_btn.custom_minimum_size = Vector2(156, 52)
-		buy_btn.disabled = not can_buy
-		buy_btn.focus_mode = Control.FOCUS_NONE
-		buy_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-		buy_btn.add_theme_font_size_override("font_size", int(round(19 * UiKit.FONT_SCALE)))
-		var buy_accent := Color(1.0, 0.84, 0.30) if can_buy else Color(0.42, 0.46, 0.52)
-		for st in ["normal", "hover", "pressed", "focus"]:
-			buy_btn.add_theme_stylebox_override(st, UiKit.pill_style(buy_accent))
-		buy_btn.add_theme_stylebox_override("disabled", UiKit.pill_style(Color(0.34, 0.38, 0.44)))
-		buy_btn.add_theme_color_override("font_color", Color(1.0, 0.88, 0.42))
-		buy_btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.58, 0.64))
-		if can_buy:
-			buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
-		button.add_child(buy_btn)
+	if mode != "skills":
+		var action_text := "已装备" if selected else ("选  定" if mode == "characters" else "装  备")
+		var action_enabled := unlocked and not selected
+		var action_primary := true
+		var action_callback: Callable = _select_item.bind(slot, item_id)
+		if not unlocked:
+			action_primary = true
+			action_enabled = false
+			action_callback = Callable()
+			var buy_price := SaveManager.get_unlock_price_star(_data_table_name(), item_id)
+			var can_buy := SaveManager.get_player_star() >= buy_price
+			action_text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
+			action_enabled = can_buy
+			action_callback = _purchase_item_flow.bind(item_id, row)
+		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
+		var action_pos := Vector2(548, 142 if spacious else 122)
+		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
+		if action_enabled and action_callback.is_valid():
+			action_btn.pressed.connect(action_callback)
+		button.add_child(action_btn)
+	return button
+
+func _card_action_button(node_name: String, text: String, enabled: bool, primary: bool, pos: Vector2, button_size: Vector2) -> TextureButton:
+	var button := _armored_action_button(node_name, text, enabled, primary, button_size, 18)
+	button.position = pos
+	button.size = button_size
+	button.custom_minimum_size = button_size
 	return button
 
 func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton:
@@ -948,14 +961,14 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var can_buy := SaveManager.get_player_star() >= buy_price
 		var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
 		buy_btn.disabled = not can_buy
-		buy_btn.modulate = Color.WHITE if can_buy else Color(0.5, 0.54, 0.6, 0.82)
+		buy_btn.modulate = ACTION_ACTIVE_MODULATE if can_buy else ACTION_DISABLED_MODULATE
 		buy_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
 		action_row.add_child(buy_btn)
 	elif mode != "skills":
 		var equip_btn := _detail_button("EquipButton", "已装备" if selected else "装  备", true)
 		equip_btn.disabled = selected
-		equip_btn.modulate = Color(0.58, 0.62, 0.68, 0.88) if selected else Color.WHITE
+		equip_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
 		equip_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		equip_btn.size_flags_stretch_ratio = 1.35
 		equip_btn.pressed.connect(_select_item_and_close.bind(slot, item_id))
@@ -965,7 +978,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var cost := SaveManager.get_item_upgrade_cost(table, item_id) if table != "" else 0
 		var upgrade_btn := _detail_button("UpgradeButton", "升级  %d" % cost, false)
 		upgrade_btn.disabled = not can_upgrade
-		upgrade_btn.modulate = Color.WHITE if can_upgrade else Color(0.5, 0.54, 0.6, 0.82)
+		upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if can_upgrade else ACTION_DISABLED_MODULATE
 		upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 		action_row.add_child(upgrade_btn)
@@ -977,7 +990,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var skill_label := ("已精通 %d/%d" % [skill_lvl, skill_max]) if skill_lvl >= skill_max else ("升级 %d经验  (%d/%d)" % [skill_cost, skill_lvl, skill_max])
 		var skill_btn := _detail_button("SkillUpgradeButton", skill_label, true)
 		skill_btn.disabled = not can_up
-		skill_btn.modulate = Color.WHITE if can_up else Color(0.5, 0.54, 0.6, 0.82)
+		skill_btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 		skill_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		skill_btn.size_flags_stretch_ratio = 1.35
 		skill_btn.pressed.connect(_upgrade_skill_from_detail.bind(item_id, row))
@@ -994,20 +1007,30 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _detail_button(node_name: String, text: String, primary: bool) -> TextureButton:
+	return _armored_action_button(node_name, text, true, primary, Vector2(0, 112), 24)
+
+func _armored_action_button(node_name: String, text: String, enabled: bool, primary: bool, button_size: Vector2, font_size: int) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = node_name
-	button.texture_normal = load(BUTTON_SECONDARY)
+	var active_texture := load(BUTTON_PRIMARY if primary else BUTTON_SECONDARY)
+	var disabled_texture := load(BUTTON_SECONDARY)
+	button.texture_normal = active_texture
+	button.texture_hover = active_texture
+	button.texture_pressed = active_texture
+	button.texture_disabled = disabled_texture
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
-	button.custom_minimum_size = Vector2(0, 90)
+	button.custom_minimum_size = button_size
+	button.disabled = not enabled
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
-	button.modulate = Color(1.0, 0.86, 0.54, 1.0) if primary else Color(0.86, 0.90, 0.92, 1.0)
+	button.modulate = (ACTION_ACTIVE_MODULATE if primary else ACTION_SECONDARY_MODULATE) if enabled else ACTION_DISABLED_MODULATE
 	var label := Label.new()
+	label.name = "ActionLabel"
 	label.text = text
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(label, 24, Color.WHITE, 3)
+	UiKit.apply_label(label, font_size, Color.WHITE if enabled else Color(0.74, 0.78, 0.82, 1.0), 3)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(label)
 	return button
@@ -1076,11 +1099,65 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 				stats.append({"label": "修复", "value": "%d / 波" % int(row.get("heal_per_wave", 0)), "sub": "每级 +%d%%" % int(round(float(row.get("level_heal_growth", 0.0)) * 100.0))})
 			if row.has("gold_mult"):
 				stats.append({"label": "收益", "value": _value_text(row.get("gold_mult", 0)), "sub": "每级 +%s" % _value_text(row.get("level_gold_growth", 0))})
+			for bonus in _pet_stat_bonus_stats(row, item_level, max_level):
+				stats.append(bonus)
 		"skills":
 			var levels: Array = row.get("levels", [])
 			stats.append({"label": "类型", "value": _kind_name(str(row.get("kind", "passive"))), "sub": _format_tags(row.get("card_tags", []))})
 			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": "逐级叠加"})
 	return stats
+
+func _pet_stat_bonus_stats(row: Dictionary, item_level: int, max_level: int) -> Array:
+	var stats := []
+	var base_map: Dictionary = row.get("stat_bonus", {})
+	if base_map.is_empty():
+		return stats
+	var growth_map: Dictionary = row.get("level_stat_growth", {})
+	for stat in base_map.keys():
+		var base := float(base_map.get(stat, 0.0))
+		var growth := float(growth_map.get(stat, 0.0))
+		var now := base + growth * float(max(item_level - 1, 0))
+		var max_value := base + growth * float(max(max_level - 1, 0))
+		stats.append({
+			"label": _pet_stat_name(str(stat)),
+			"value": _pet_stat_value_text(str(stat), now),
+			"sub": "等级%d · 满级 %s" % [item_level, _pet_stat_value_text(str(stat), max_value)]
+		})
+	return stats
+
+func _pet_stat_name(stat: String) -> String:
+	match stat:
+		"damage_mult":
+			return "主炮伤害"
+		"fire_rate_mult":
+			return "射速"
+		"element_damage_mult":
+			return "元素增伤"
+		"crit_rate":
+			return "暴击"
+		"slow_strength_mult":
+			return "减速"
+		"base_hp_mult":
+			return "生命"
+		"breach_damage_reduction":
+			return "防线减伤"
+		"chain_bonus":
+			return "连锁"
+		"pierce_bonus":
+			return "穿透"
+		"gold_mult":
+			return "金币"
+		_:
+			return stat
+
+func _pet_stat_value_text(stat: String, value: float) -> String:
+	match stat:
+		"chain_bonus", "pierce_bonus":
+			return "+%d" % int(round(value))
+		"crit_rate", "damage_mult", "fire_rate_mult", "element_damage_mult", "slow_strength_mult", "base_hp_mult", "breach_damage_reduction", "gold_mult":
+			return "+%d%%" % int(round(value * 100.0))
+		_:
+			return _value_text(value)
 
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
 	match mode:
@@ -1417,73 +1494,27 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var char_can_upgrade := SaveManager.can_upgrade_item("characters", item_id)
 	var char_upgrade_cost := SaveManager.get_item_upgrade_cost("characters", item_id)
 	var char_max_level := int(row.get("max_level", 30))
-	var upgrade_btn := TextureButton.new()
-	upgrade_btn.name = "UpgradeButton"
-	upgrade_btn.texture_normal = load(BUTTON_SECONDARY)
-	upgrade_btn.ignore_texture_size = true
-	upgrade_btn.stretch_mode = TextureButton.STRETCH_SCALE
-	upgrade_btn.custom_minimum_size = Vector2(0, 110)
+	var upgrade_btn := _detail_button("UpgradeButton", ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost), false)
+	upgrade_btn.custom_minimum_size = Vector2(0, 112)
 	upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	upgrade_btn.size_flags_stretch_ratio = 1.35
 	upgrade_btn.disabled = not char_can_upgrade
-	upgrade_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-	upgrade_btn.modulate = Color(1.0, 0.86, 0.54, 1.0) if char_can_upgrade else Color(0.5, 0.54, 0.6, 0.82)
+	upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if char_can_upgrade else ACTION_DISABLED_MODULATE
 	upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
-	var upgrade_label := Label.new()
-	upgrade_label.text = ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost)
-	upgrade_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	upgrade_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	upgrade_label.add_theme_font_size_override("font_size", 30)
-	upgrade_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	upgrade_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	upgrade_label.add_theme_constant_override("outline_size", 3)
-	upgrade_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	upgrade_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	upgrade_btn.add_child(upgrade_label)
 	action_row.add_child(upgrade_btn)
-	var select_btn := TextureButton.new()
-	select_btn.texture_normal = load(BUTTON_SECONDARY)
-	select_btn.ignore_texture_size = true
-	select_btn.stretch_mode = TextureButton.STRETCH_SCALE
-	select_btn.custom_minimum_size = Vector2(0, 110)
+	var select_btn := _detail_button("SelectButton", "已装备" if selected else "选  定", true)
+	select_btn.custom_minimum_size = Vector2(0, 112)
 	select_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	select_btn.size_flags_stretch_ratio = 2.0
 	select_btn.disabled = selected
-	select_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-	select_btn.modulate = Color(1.0, 0.86, 0.54, 1.0) if not selected else Color(0.68, 0.72, 0.76, 0.84)
+	select_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
 	select_btn.pressed.connect(_select_character_and_close.bind(item_id))
-	var select_label := Label.new()
-	select_label.text = "已装备" if selected else "选  定"
-	select_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	select_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	select_label.add_theme_font_size_override("font_size", 30)
-	select_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	select_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	select_label.add_theme_constant_override("outline_size", 3)
-	select_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	select_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	select_btn.add_child(select_label)
 	action_row.add_child(select_btn)
-	var cancel_btn := TextureButton.new()
-	cancel_btn.texture_normal = load(BUTTON_SECONDARY)
-	cancel_btn.ignore_texture_size = true
-	cancel_btn.stretch_mode = TextureButton.STRETCH_SCALE
-	cancel_btn.custom_minimum_size = Vector2(0, 110)
+	var cancel_btn := _detail_button("CancelButton", "关  闭", false)
+	cancel_btn.custom_minimum_size = Vector2(0, 112)
 	cancel_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cancel_btn.size_flags_stretch_ratio = 1.0
-	cancel_btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	cancel_btn.pressed.connect(_close_character_detail)
-	var cancel_label := Label.new()
-	cancel_label.text = "关  闭"
-	cancel_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cancel_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	cancel_label.add_theme_font_size_override("font_size", 30)
-	cancel_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	cancel_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	cancel_label.add_theme_constant_override("outline_size", 3)
-	cancel_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	cancel_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cancel_btn.add_child(cancel_label)
 	action_row.add_child(cancel_btn)
 
 	_detail_modal.modulate.a = 1.0
@@ -1665,9 +1696,9 @@ func _make_sig_skill_upgrade_row(character_id: String) -> HBoxContainer:
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
 	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
 	var btn := _detail_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true)
-	btn.custom_minimum_size = Vector2(244, 58)
+	btn.custom_minimum_size = Vector2(286, 72)
 	btn.disabled = not can_up
-	btn.modulate = Color.WHITE if can_up else Color(0.5, 0.54, 0.6, 0.82)
+	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))
 	row.add_child(btn)
 	return row

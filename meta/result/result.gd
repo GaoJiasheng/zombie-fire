@@ -8,12 +8,14 @@ var next_level := ""
 var result_stars := 0
 var _result_return_payload := {}
 var is_endless_result := false
+var is_challenge_result := false
 var endless_loops := 0
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
 	level_id = _resolve_level_id(payload)
 	is_endless_result = bool(payload.get("endless", false))
+	is_challenge_result = bool(payload.get("challenge", false))
 	endless_loops = int(payload.get("endless_loop", 0))
 	var victory := bool(payload.get("victory", false))
 	next_level = _resolve_next_level(payload, victory)
@@ -65,6 +67,9 @@ func _populate_hero(victory: bool) -> void:
 	if is_endless_result:
 		$Content/HeroCard/HeroBox/Title.text = "无限尸潮 · 坚持 %d 轮" % endless_loops
 		$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.78, 0.4, 1))
+	elif is_challenge_result:
+		$Content/HeroCard/HeroBox/Title.text = "挑战完成" if victory else "挑战失败"
+		$Content/HeroCard/HeroBox/Title.add_theme_color_override("font_color", Color(1, 0.78, 0.4, 1) if victory else Color(1, 0.55, 0.45, 1))
 	else:
 		$Content/HeroCard/HeroBox/Title.text = DataLoader.tr_key("ui_victory") if victory else DataLoader.tr_key("ui_defeat")
 		if victory:
@@ -104,7 +109,7 @@ func _set_hint_style(card: PanelContainer, kind: String) -> void:
 
 func _populate_actions(victory: bool) -> void:
 	$Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel.text = _upgrade_action_label(victory)
-	if victory and next_level != "":
+	if victory and next_level != "" and not is_challenge_result:
 		$Content/Actions/NextButton/NextLabel.text = "下一关"
 		$Content/Actions/NextButton.show()
 		$Content/Actions/NextButton.modulate = Color.WHITE
@@ -114,7 +119,7 @@ func _populate_actions(victory: bool) -> void:
 	if not victory:
 		$Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel.text = _upgrade_action_label(false)
 	# Retry button text
-	$Content/Actions/PrimaryRow/RetryButton/RetryLabel.text = "重打本关"
+	$Content/Actions/PrimaryRow/RetryButton/RetryLabel.text = "重打挑战" if is_challenge_result else "重打本关"
 	$Content/Actions/MapButton/MapLabel.text = "返回关卡"
 
 func _reset_action_button_tints() -> void:
@@ -158,6 +163,7 @@ func _on_upgrade_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")
 	router.change_scene("loadout", {
 		"level_id": level_id,
+		"challenge": is_challenge_result,
 		"return_to": "result",
 		"return_payload": _result_return_payload,
 	})
@@ -183,11 +189,15 @@ func _on_retry_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")
 	if is_endless_result:
 		router.start_endless_level(level_id)
+	elif is_challenge_result:
+		router.start_challenge_level(level_id)
 	else:
 		router.start_level(level_id)
 
 func _resolve_next_level(payload: Dictionary, victory: bool) -> String:
 	if not victory:
+		return ""
+	if is_challenge_result:
 		return ""
 	var campaign_next := _campaign_next_level(level_id)
 	if campaign_next != "":
@@ -226,6 +236,9 @@ func _build_result_return_payload(payload: Dictionary, victory: bool) -> Diction
 		result_payload["xp"] = 0
 	if next_level != "":
 		result_payload["next_level"] = next_level
+	if is_challenge_result:
+		result_payload["challenge"] = true
+		result_payload.erase("next_level")
 	return result_payload
 
 func _router_level_id() -> String:
@@ -240,7 +253,12 @@ func _router_level_id() -> String:
 
 func _result_hint(victory: bool) -> String:
 	if victory:
+		if is_challenge_result:
+			return "挑战星按最高星级补差额发放；重复通关不会重复给星。当前战力 %d。" % SaveManager.get_loadout_power()
 		return "当前战力 %d。继续推关前可强化武器、角色或核心芯片。" % SaveManager.get_loadout_power()
+	if is_challenge_result:
+		var challenge_power := int(ceil(float(SaveManager.get_recommended_power_for_level(level_id)) * 1.5))
+		return "挑战尸潮更硬、漏怪更痛。战力 %d / 建议 %d，先补强克制配装再回来。" % [SaveManager.get_loadout_power(), challenge_power]
 	var recommended_power := SaveManager.get_recommended_power_for_level(level_id)
 	if SaveManager.get_loadout_power() < recommended_power:
 		return "战力 %d / 推荐 %d。优先强化武器、角色或核心芯片。" % [SaveManager.get_loadout_power(), recommended_power]

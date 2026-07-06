@@ -104,6 +104,15 @@ const BGM := {
 	"defeat": "res://assets/production/audio/bgm/bgm_result_defeat.wav",
 }
 
+const MUSIC_LIKE_SFX := {
+	"sig_vanguard_railvolley": true,
+	"sig_blaze_meltdown": true,
+	"sig_frost_glacier": true,
+	"sig_volt_storm": true,
+	"victory": true,
+	"defeat": true,
+}
+
 var enabled := true
 var _sfx_cache := {}
 var _bgm_cache := {}
@@ -133,6 +142,7 @@ func _exit_tree() -> void:
 func play_bgm(id: String) -> void:
 	if _headless_audio or not enabled or not BGM.has(id) or _current_bgm == id:
 		return
+	_stop_music_like_sfx()
 	_current_bgm = id
 	var stream := _load_bgm(id)
 	if stream == null:
@@ -166,11 +176,15 @@ func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	var stream := _load_sfx(id)
 	if stream == null:
 		return
+	if MUSIC_LIKE_SFX.has(id):
+		_stop_music_like_sfx()
 	var player := _next_sfx_player()
 	player.stop()
 	player.stream = stream
 	player.volume_db = -6.0 + volume_db
 	player.pitch_scale = randf_range(1.0 - pitch_variation, 1.0 + pitch_variation)
+	player.set_meta("audio_id", id)
+	player.set_meta("music_like", MUSIC_LIKE_SFX.has(id))
 	player.play()
 
 func _is_rate_limited(id: String) -> bool:
@@ -186,6 +200,8 @@ func _is_rate_limited(id: String) -> bool:
 			min_gap = 0.09
 		"skill_salvo", "skill_charge_shot_release":
 			min_gap = 0.16
+		"sig_vanguard_railvolley", "sig_blaze_meltdown", "sig_frost_glacier", "sig_volt_storm":
+			min_gap = 1.2
 		"skill_gold_rush", "skill_slow_field", "skill_barrier", "skill_charge_shot_charge", "skill_recycle":
 			min_gap = 0.28
 		"zombie_runner":
@@ -198,6 +214,8 @@ func _is_rate_limited(id: String) -> bool:
 			min_gap = 0.04
 		"enemy_breach", "threat_warning":
 			min_gap = 0.75
+		"victory", "defeat":
+			min_gap = 0.8
 		"gold_pickup":
 			min_gap = 0.12
 		_:
@@ -231,6 +249,17 @@ func _load_bgm(id: String) -> AudioStream:
 	if not _bgm_cache.has(id):
 		_bgm_cache[id] = load(BGM[id])
 	return _bgm_cache[id]
+
+func _stop_music_like_sfx() -> void:
+	for player in _sfx_pool:
+		if player == null:
+			continue
+		if player.playing and bool(player.get_meta("music_like", false)):
+			player.stop()
+			player.stream = null
+		if not player.playing and bool(player.get_meta("music_like", false)):
+			player.set_meta("audio_id", "")
+			player.set_meta("music_like", false)
 
 func _next_sfx_player() -> AudioStreamPlayer:
 	for player in _sfx_pool:

@@ -9,6 +9,7 @@ var save_data := {
 	"version": 1,
 	"player": {"gold": 0, "xp": 0, "star": 0},
 	"levels_progress": {},
+	"challenge_progress": {},
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
 	"endless_best_loops": 0,
@@ -36,9 +37,10 @@ func _default_save() -> Dictionary:
 		"version": 1,
 		"player": {"gold": 0, "xp": 0, "star": 0},
 		"levels_progress": {},
+		"challenge_progress": {},
 		"skill_base_levels": {},
-	"sig_skill_levels": {},
-	"endless_best_loops": 0,
+		"sig_skill_levels": {},
+		"endless_best_loops": 0,
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
@@ -132,6 +134,26 @@ func apply_level_result(result: Dictionary, persist := true) -> void:
 	save_data["player"] = player
 	save_data["unlocks"] = unlocks
 	_refresh_level_unlocks_from_progress()
+	if persist:
+		save_game()
+
+func apply_challenge_result(result: Dictionary, persist := true) -> void:
+	var level_id := str(result.get("level_id", ""))
+	if level_id == "" or DataLoader.get_row("levels", level_id).is_empty():
+		push_error("Cannot apply challenge result without a valid level_id: %s" % str(result))
+		return
+	var stars: int = int(result.get("stars", 0))
+	var challenge_progress: Dictionary = save_data.get("challenge_progress", {})
+	var player: Dictionary = save_data.get("player", {})
+	var previous: int = int(challenge_progress.get(level_id, 0))
+	var star_delta: int = max(stars - previous, 0)
+	if stars > previous:
+		challenge_progress[level_id] = stars
+	player["gold"] = int(player.get("gold", 0)) + int(result.get("gold", 0))
+	player["xp"] = int(player.get("xp", 0)) + int(result.get("xp", 0))
+	player["star"] = int(player.get("star", 0)) + star_delta
+	save_data["challenge_progress"] = challenge_progress
+	save_data["player"] = player
 	if persist:
 		save_game()
 
@@ -272,6 +294,7 @@ func get_loadout_power() -> int:
 	power += float(get_item_level(chip_id)) * 0.75
 	if pet_id != "":
 		power += float(get_item_level(pet_id)) * 0.55
+		power += _pet_stat_power(pet_id)
 	# 技能永久升级(通用技能 base level)——战力的大头，此前完全没算
 	var skill_levels := 0
 	for v in save_data.get("skill_base_levels", {}).values():
@@ -284,6 +307,29 @@ func get_loadout_power() -> int:
 		# 专属主动技独立经验等级(新增的投资轴，见 get_sig_skill_level)
 		power += float(get_sig_skill_level(character_id)) * 2.0
 	return int(round(power))
+
+func _pet_stat_power(pet_id: String) -> float:
+	if pet_id == "":
+		return 0.0
+	var row := DataLoader.get_row("pets", pet_id)
+	if row.is_empty():
+		return 0.0
+	var level := get_item_level(pet_id)
+	var base_map: Dictionary = row.get("stat_bonus", {})
+	var growth_map: Dictionary = row.get("level_stat_growth", {})
+	var score := 0.0
+	for stat in base_map.keys():
+		var value := float(base_map.get(stat, 0.0)) + float(growth_map.get(stat, 0.0)) * float(max(level - 1, 0))
+		match str(stat):
+			"damage_mult", "fire_rate_mult", "element_damage_mult", "base_hp_mult":
+				score += value * 16.0
+			"crit_rate", "breach_damage_reduction", "slow_strength_mult", "gold_mult":
+				score += value * 10.0
+			"chain_bonus", "pierce_bonus":
+				score += value * 1.4
+			_:
+				score += value * 4.0
+	return score
 
 # 系数校准(2026-07)：旧系数 4.3 是早期拍脑袋定的，从没和"真实可达战力"对过。
 # 单角色全部装备/16通用技能/专属主动技全部满级，实测约 352 战力(见 design 里的推导记录)。
@@ -400,11 +446,18 @@ func get_level_stars(level_id: String) -> int:
 	var levels_progress: Dictionary = save_data.get("levels_progress", {})
 	return int(levels_progress.get(level_id, 0))
 
+func get_challenge_stars(level_id: String) -> int:
+	var challenge_progress: Dictionary = save_data.get("challenge_progress", {})
+	return int(challenge_progress.get(level_id, 0))
+
 func get_total_stars() -> int:
 	var levels_progress: Dictionary = save_data.get("levels_progress", {})
+	var challenge_progress: Dictionary = save_data.get("challenge_progress", {})
 	var total := 0
 	for level_id in levels_progress.keys():
 		total += int(levels_progress.get(level_id, 0))
+	for level_id in challenge_progress.keys():
+		total += int(challenge_progress.get(level_id, 0))
 	return total
 
 

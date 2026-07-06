@@ -1,14 +1,20 @@
 {
   "id": "vfx_hit_fire",
-  "fps": 20,
+  "fps": 22,
   "frames": [
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_01.png",
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_02.png",
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_03.png",
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_04.png",
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_05.png",
-    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_06.png"
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_06.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_07.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_08.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_09.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_10.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_11.png",
+    "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_12.png"
   ],
-  "source": "assets/production/source_refs/generated/user_ui_vfx_reference_sheet_2026_07_02.png",
-  "integration": "cropped from owner-provided top-tier reference sheet; PNG bitmap sequence, no SVG/vector"
+  "source": "assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/top_tier_active_skill_vfx_reference_2026_07_06.png",
+  "integration": "AI-rendered reference sheet extraction plus local alpha cleanup; PNG bitmap sequence, no SVG/vector primitives"
 }

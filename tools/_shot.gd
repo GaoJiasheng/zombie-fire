@@ -31,6 +31,17 @@ func _initialize() -> void:
 	for i in range(12):
 		await process_frame
 		await physics_frame
+	if bool(payload.get("pause", false)) and main.current_scene != null and main.current_scene.has_method("_set_battle_paused"):
+		main.current_scene.call("_set_battle_paused", true, false)
+		for i in range(2):
+			await process_frame
+	if payload.has("detail_item") and main.current_scene != null and main.current_scene.has_method("_show_item_detail"):
+		var detail_item := str(payload.get("detail_item", ""))
+		var table_data: Dictionary = _current_collection_table(str(payload.get("mode", "")))
+		if detail_item != "" and table_data.has(detail_item):
+			main.current_scene.call("_show_item_detail", detail_item, table_data[detail_item])
+			for i in range(18):
+				await process_frame
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")
@@ -43,6 +54,8 @@ func _initialize() -> void:
 	quit(0)
 
 func _cleanup_scene(main: Node) -> void:
+	paused = false
+	Engine.time_scale = 1.0
 	if main != null and is_instance_valid(main):
 		main.queue_free()
 	var audio := root.get_node_or_null("/root/AudioManager")
@@ -73,3 +86,20 @@ func _ensure_unlocked(unlocks: Dictionary, key: String, item_id: String) -> void
 	if not items.has(item_id):
 		items.append(item_id)
 	unlocks[key] = items
+
+func _current_collection_table(mode: String) -> Dictionary:
+	match mode:
+		"characters":
+			return root.get_node("/root/DataLoader").get_table("characters")
+		"weapons":
+			return root.get_node("/root/DataLoader").get_table("weapons")
+		"armors":
+			return root.get_node("/root/DataLoader").get_table("armors")
+		"chips":
+			return root.get_node("/root/DataLoader").get_table("chips")
+		"pets":
+			return root.get_node("/root/DataLoader").get_table("pets")
+		"skills":
+			return root.get_node("/root/DataLoader").get_table("skills")
+		_:
+			return {}

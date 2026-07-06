@@ -158,12 +158,15 @@
     "name_key":"pet_frost_wisp", "element":"ice",
     "atk_coef":0.6, "attack_type":"ice_bolt",
     "pet_skill":{"id":"frost_aura","cd":8,"effect":{"slow":0.3,"radius":300}},
+    "stat_bonus":{"slow_strength_mult":0.08,"base_hp_mult":0.025}, // 可选：宠物提供的全局属性
+    "level_stat_growth":{"slow_strength_mult":0.006,"base_hp_mult":0.002}, // 可选：每级成长
     "rarity":"epic","max_level":60,"cost_base_gold":350,
     "unlock":{"type":"star","price":6},
     "sprite_prefix":"pet_frost_wisp"
   }
 }
 ```
+`stat_bonus` 当前支持：`damage_mult`、`fire_rate_mult`、`element_damage_mult`、`crit_rate`、`slow_strength_mult`、`base_hp_mult`、`breach_damage_reduction`、`chain_bonus`、`pierce_bonus`、`gold_mult`。数值型百分比使用小数（`0.08` = +8%），`chain_bonus` / `pierce_bonus` 使用可四舍五入的数量值。
 
 ## zombies.json
 ```jsonc
@@ -204,6 +207,9 @@
 {
   "env_lava_foundry": {
     "name": "熔岩铸厂",
+    "chapter_title": "第一战区 · 熔岩铸厂",
+    "story": "旧城熔炉重新点火，尸潮沿燃烧街区冲向中央防线。先锋队必须夺回十号闸门，切断第一条进攻通道。",
+    "objective": "守住熔炉大道，击破驻守十号闸门的大首领。",
     "level_range": "001-010",
     "battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
     "portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
@@ -212,7 +218,7 @@
   }
 }
 ```
-`levels[].env` 必须引用本表。战斗背景、环境预览图、布局安全区和 BGM 都从本表读取，避免在场景脚本里硬编码环境资源。主线新增战斗背景按 iPhone 17 竖屏全屏比例 `1206x2622` 输出，运行时由 Battle 场景按可见视口 cover 缩放。
+`levels[].env` 必须引用本表。战斗背景、环境预览图、布局安全区、BGM、章节地图标题、章节故事和章节目标都从本表读取，避免在场景脚本里硬编码环境资源或关卡叙事。主线新增战斗背景按 iPhone 17 竖屏全屏比例 `1206x2622` 输出，运行时由 Battle 场景按可见视口 cover 缩放。
 
 ## levels.json （数组，见 08 完整示例）
 ```jsonc

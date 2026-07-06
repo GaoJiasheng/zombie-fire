@@ -11,12 +11,15 @@ const PIERCE_SWEEP_RANGE := 420.0
 const PIERCE_SWEEP_HALF_WIDTH := 92.0
 const MAX_LAYER_TRAIL_FX := 110
 const MAX_LAYER_HIT_FX := 150
-# 追踪弹：出膛先直飞这么远才开始追踪(多弹道追踪弹否则出膛瞬间就一起拐向同一目标，弹道立刻重合)。
-const HOMING_ACTIVATION_DISTANCE := 90.0
-# 追踪弹转向速率上限(弧度/秒)，按 homing_strength 线性给速率、但绝不超过这个硬上限——
+# 追踪弹：出膛后必须先直飞 1 秒，形成清楚的枪管弹道，再进入导引。
+const HOMING_ACTIVATION_DELAY := 1.0
+# 追踪弹转向速率上限(弧度/秒)，按 homing_strength 线性给速率，同时受最小转弯半径约束。
 # 不再用"每帧朝目标方向 lerp"的软插值(那样在角度接近180°时能几帧内掉头，看起来像瞬间转弯)。
 const HOMING_TURN_RATE_PER_STRENGTH := 1.6  # rad/sec，每点 homing_strength 贡献的转向速率
-const HOMING_MAX_TURN_RATE := 12.0  # rad/sec 硬上限（约 687°/秒，180°掉头至少需要约 0.26 秒）
+const HOMING_MIN_TURN_RADIUS := 460.0  # px，保证追踪弹是大弧线转向，而不是原地急转
+const HOMING_MAX_TURN_RATE := 3.4  # rad/sec 额外硬上限，避免高速弹也转出过小视觉半径
+const PROJECTILE_MAX_LIFETIME := 5.0
+const PROJECTILE_OFFSCREEN_MARGIN := 0.0
 
 var velocity := Vector2.ZERO
 var damage := 10.0
@@ -76,20 +79,34 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	lifetime += delta
+	if lifetime >= PROJECTILE_MAX_LIFETIME:
+		queue_free()
+		return
+	if _is_outside_screen():
+		queue_free()
+		return
 	_apply_homing(delta)
 	position += velocity * delta
 	if velocity.length_squared() > 1.0:
 		rotation = velocity.angle() - SPRITE_FORWARD_ANGLE
 	_process_trail(delta)
-	if position.y < -80 or position.y > 2020 or position.x < -80 or position.x > 1160:
+	if _is_outside_screen():
 		queue_free()
+		return
+
+func _is_outside_screen() -> bool:
+	var p := global_position
+	var viewport_size := get_viewport().get_visible_rect().size
+	var max_x := maxf(1080.0, viewport_size.x)
+	var max_y := maxf(1920.0, viewport_size.y)
+	return p.y < -PROJECTILE_OFFSCREEN_MARGIN or p.y > max_y + PROJECTILE_OFFSCREEN_MARGIN or p.x < -PROJECTILE_OFFSCREEN_MARGIN or p.x > max_x + PROJECTILE_OFFSCREEN_MARGIN
 
 func _apply_homing(delta: float) -> void:
 	if homing_strength <= 0.0:
 		return
 	# 多弹道追踪弹刚出膛时方向各不相同；如果立刻开始追踪，全部瞬间拐向同一最近目标、弹道当场重合。
-	# 先直飞一段距离，弹道先明显分开，之后再各自追踪。
-	if global_position.distance_to(_spawn_position) < HOMING_ACTIVATION_DISTANCE:
+	# 先从枪口按原方向飞满一秒，之后再进入有限半径追踪。
+	if lifetime < HOMING_ACTIVATION_DELAY:
 		return
 	var target := _nearest_enemy()
 	if target == null:
@@ -102,13 +119,18 @@ func _apply_homing(delta: float) -> void:
 	var desired_dir := (target.global_position - global_position).normalized()
 	var current_dir := velocity.normalized()
 	var angle_diff := current_dir.angle_to(desired_dir)
-	var turn_rate := minf(homing_strength * HOMING_TURN_RATE_PER_STRENGTH, HOMING_MAX_TURN_RATE)
+	var turn_rate := _homing_turn_rate_limit(speed)
 	var max_step := turn_rate * delta
 	var step := clampf(angle_diff, -max_step, max_step)
 	var new_dir := current_dir.rotated(step)
 	if new_dir.length_squared() <= 0.0:
 		return
 	velocity = new_dir * speed
+
+func _homing_turn_rate_limit(speed: float) -> float:
+	var strength_limit := homing_strength * HOMING_TURN_RATE_PER_STRENGTH
+	var radius_limit := speed / HOMING_MIN_TURN_RADIUS
+	return minf(minf(strength_limit, radius_limit), HOMING_MAX_TURN_RATE)
 
 func _nearest_enemy() -> Node2D:
 	var best: Node2D
@@ -739,6 +761,9 @@ func _spawn_impact_flash_at(at_position: Vector2) -> void:
 	if glow != null:
 		_track_transient_fx(glow)
 	if not _can_spawn_projectile_fx():
+		return
+	if element == "fire" and visual_profile != "plasma":
+		_spawn_impact_ring_at(parent, at_position, color, _impact_ring_radius_for(visual_profile) * visual_scale * 0.72, life * 0.82)
 		return
 	var direction := velocity.normalized()
 	if direction.length_squared() <= 0.01:

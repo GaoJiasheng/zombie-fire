@@ -1,6 +1,9 @@
 {
 	"env_lava_foundry": {
 		"name": "熔岩铸厂",
+		"chapter_title": "第一战区 · 熔岩铸厂",
+		"story": "旧城熔炉重新点火，尸潮沿燃烧街区冲向中央防线。先锋队必须夺回十号闸门，切断第一条进攻通道。",
+		"objective": "守住熔炉大道，击破驻守十号闸门的大首领。",
 		"level_range": "001-010",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
 		"portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
@@ -9,6 +12,9 @@
 	},
 	"env_glacier_pass": {
 		"name": "冰川断桥",
+		"chapter_title": "第二战区 · 冰川断桥",
+		"story": "极寒风暴冻结了北线桥群，尸群借冰面越过断裂高速。守军需要重启桥塔，封死冰层通路。",
+		"objective": "穿过断桥与冰雾地带，在第二座桥塔前击破大首领。",
 		"level_range": "011-020",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_glacier_pass.png",
 		"portrait": "res://assets/production/environment/bg_glacier_pass_portrait.png",
@@ -17,6 +23,9 @@
 	},
 	"env_abandoned_factory": {
 		"name": "废弃工厂",
+		"chapter_title": "第三战区 · 废弃工厂",
+		"story": "旧军工厂的自动线仍在运转，尸潮把废料管廊变成巢穴。夺回厂区，才能恢复重炮弹药补给。",
+		"objective": "清理装配线与地下管廊，夺回工厂核心闸门。",
 		"level_range": "021-030",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_abandoned_factory.png",
 		"portrait": "res://assets/production/environment/bg_abandoned_factory_portrait.png",
@@ -25,6 +34,9 @@
 	},
 	"env_toxic_biolab": {
 		"name": "毒液生化舱",
+		"chapter_title": "第四战区 · 毒液生化舱",
+		"story": "生化舱破裂后毒雾灌满下层城市，变异体在培养池中持续增殖。必须关闭泄漏源。",
+		"objective": "压制毒雾扩散，摧毁生化舱深处的母巢。",
 		"level_range": "031-040",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_toxic_biolab.png",
 		"portrait": "res://assets/production/environment/bg_toxic_biolab_portrait.png",
@@ -33,6 +45,9 @@
 	},
 	"env_storm_substation": {
 		"name": "雷暴变电站",
+		"chapter_title": "第五战区 · 雷暴变电站",
+		"story": "变电站被雷暴尸群占据，失控电弧正在吸引更多感染体。重启主变压器是恢复城区电网的唯一机会。",
+		"objective": "穿越高压廊道，击破守在主变压器前的大首领。",
 		"level_range": "041-050",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_storm_substation.png",
 		"portrait": "res://assets/production/environment/bg_storm_substation_portrait.png",
@@ -41,6 +56,9 @@
 	},
 	"env_flooded_subway": {
 		"name": "沉没地铁",
+		"chapter_title": "第六战区 · 沉没地铁",
+		"story": "地铁隧道被洪水淹没，尸群从暗河和月台夹击防线。守军要夺回地下换乘枢纽。",
+		"objective": "沿水下月台推进，封锁通往基地的地下入口。",
 		"level_range": "051-060",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_flooded_subway.png",
 		"portrait": "res://assets/production/environment/bg_flooded_subway_portrait.png",
@@ -49,6 +67,9 @@
 	},
 	"env_desert_refinery": {
 		"name": "沙暴炼油区",
+		"chapter_title": "第七战区 · 沙暴炼油区",
+		"story": "沙暴掩护了炼油区尸潮，燃料罐随时可能把整条防线点燃。必须夺回能源节点。",
+		"objective": "突破沙尘和油罐阵地，控制炼油区主泵站。",
 		"level_range": "061-070",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_desert_refinery.png",
 		"portrait": "res://assets/production/environment/bg_desert_refinery_portrait.png",
@@ -57,6 +78,9 @@
 	},
 	"env_void_cathedral": {
 		"name": "虚空圣堂",
+		"chapter_title": "第八战区 · 虚空圣堂",
+		"story": "紫色裂隙撕开旧城中心，圣堂废墟中出现异常能量回声。这里是尸潮变异的源头之一。",
+		"objective": "关闭虚空裂隙，击破圣堂深处的异化守卫。",
 		"level_range": "071-080",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_void_cathedral.png",
 		"portrait": "res://assets/production/environment/bg_void_cathedral_portrait.png",
@@ -65,6 +89,9 @@
 	},
 	"env_orbital_ruins": {
 		"name": "轨道升降遗址",
+		"chapter_title": "第九战区 · 轨道升降遗址",
+		"story": "坠毁的轨道设施压在城市边缘，残骸中仍有自动防御与感染信号。向上推进才能发现终局核心。",
+		"objective": "穿过轨道残骸，夺回通往核心区的升降通路。",
 		"level_range": "081-090",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_orbital_ruins.png",
 		"portrait": "res://assets/production/environment/bg_orbital_ruins_portrait.png",
@@ -73,6 +100,9 @@
 	},
 	"env_apex_core": {
 		"name": "终局核心",
+		"chapter_title": "第十战区 · 终局核心",
+		"story": "尸潮的主控核心埋在能源塔底部，所有变异信号都在这里汇聚。最后一条防线必须向核心反推。",
+		"objective": "击穿核心外壳，在最终战中终结尸潮指挥源。",
 		"level_range": "091-099",
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_apex_core.png",
 		"portrait": "res://assets/production/environment/bg_apex_core_portrait.png",

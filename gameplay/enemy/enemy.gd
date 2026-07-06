@@ -6,7 +6,7 @@ signal hit_feedback(enemy: Node, element: String, immune_hit: bool, weak_hit: bo
 signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool)
 
 const BREACH_Y := 1500.0
-const BASE_ATTACK_Y := 1435.0
+const BASE_ATTACK_Y := 1500.0
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_base_hp_bar.png")
 const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
@@ -249,6 +249,12 @@ func _configure_base_attack() -> void:
 	base_attack_damage = int(mechanic_params.get("base_attack_damage", base_attack_damage))
 	base_attack_interval = float(mechanic_params.get("base_attack_interval", base_attack_interval))
 	base_attack_kind = str(mechanic_params.get("base_attack_kind", base_attack_kind))
+
+func configure_attack_line(base_line_y: float) -> void:
+	if boss:
+		attack_line_y = base_line_y - 80.0 + randf_range(-14.0, 18.0)
+	else:
+		attack_line_y = base_line_y + randf_range(-18.0, 26.0)
 
 func _enter_base_attack() -> void:
 	attacking_base = true

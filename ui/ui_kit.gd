@@ -341,9 +341,9 @@ static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect
 static func _modal_button(text: String, accent: Color, primary: bool) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(196, 82)
+	b.custom_minimum_size = Vector2(236, 96)
 	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_font_size_override("font_size", int(30 * FONT_SCALE))
+	b.add_theme_font_size_override("font_size", int(26 * FONT_SCALE))
 	var fg: Color = GREY_900 if primary else TEXT_MAIN
 	var texture_path := UI_TEXTURE_ROOT + ("ui_modal_button_primary.png" if primary else "ui_modal_button_secondary.png")
 	var normal := texture_style(texture_path, 34.0, 14.0, accent)

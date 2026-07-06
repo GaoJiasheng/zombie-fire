@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SIZE = (1080, 1920)
 MIN_LUMA_STDEV = {
     "map": 20.0,
+    "map_chapter": 20.0,
     "loadout": 20.0,
     "collection_characters": 18.0,
 }
@@ -22,6 +23,7 @@ MIN_LUMA_STDEV = {
 SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {}, "menu"),
     ("map", {}, "map"),
+    ("map", {"chapter": 1}, "map_chapter"),
     ("loadout", {"level_id": "level_003"}, "loadout"),
     ("collection", {"mode": "characters"}, "collection_characters"),
     ("battle", {"level_id": "level_001"}, "battle"),

@@ -94,6 +94,15 @@ def main() -> int:
         errors.append("weapon_autocannon must not use the old base-cannon prototype path")
     if "homing_strength" not in projectile or "_apply_homing" not in projectile:
         errors.append("projectile must keep homing runtime support")
+    for runtime_key in [
+        "HOMING_ACTIVATION_DELAY := 1.0",
+        "HOMING_MIN_TURN_RADIUS",
+        "_homing_turn_rate_limit",
+        "PROJECTILE_MAX_LIFETIME := 5.0",
+        "PROJECTILE_OFFSCREEN_MARGIN := 0.0",
+    ]:
+        if runtime_key not in projectile:
+            errors.append(f"projectile homing/lifetime guard missing: {runtime_key}")
     if "SPRITE_FORWARD_ANGLE := 0.0" not in projectile:
         errors.append("projectile runtime must assume right-facing sprites as the zero-angle baseline")
     if "PROJECTILE_SPEED_MULTIPLIER := 0.5" not in projectile:

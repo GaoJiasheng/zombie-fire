@@ -15,13 +15,17 @@ const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_prima
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
+const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
+const BASE_LINE_NEAR_WARNING_INSET := 300.0
+const BASE_LINE_BOSS_NEAR_WARNING_INSET := 360.0
+const BASE_LINE_WARNING_INSET := 190.0
+const BASE_LINE_BOSS_WARNING_INSET := 240.0
 # 比 1080x1920 设计画布更高宽比的设备(如 iPhone 16 Pro Max)上，expand 拉伸会
 # 多出一截视口高度。以前的做法是让人物/护栏底座这个"下方基座群组"固定钉在设计
 # 高度 1920 内，多出来的高度晾在下面垫色块——能看，但人物没有真正用到下面多出
 # 的那截屏幕，观感"没用满全屏"。现在把这一整个基座群组(人物、护栏/breach 线、
-# 底部 HUD 条)统一按 bottom_dock_shift 整体下移，钉到真实屏幕底部；背景图整体
-# 平移同样的距离(不缩放，内部构图完全不变形，天然继续对齐)，让出来的顶部空当
-# 用取样色块垫上——那是走廊纵深处，理应渐隐入暗，不会像"复制出一个箱子"那样突兀。
+# 底部 HUD 条)统一按 bottom_dock_shift 整体下移，钉到真实屏幕底部；背景图保持
+# 底边不动，按当前可见高度做 cover 缩放，向上补满高屏设备，避免顶部黑条。
 var bottom_dock_shift := 0.0
 var BREACH_Y := 1500.0
 var CHARACTER_BASE_POSITION := Vector2(540, 1652)
@@ -178,6 +182,8 @@ const CHARACTER_WEAPON_RECOIL_POSE := {
 }
 const SKILL_ORDER := ["skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing", "skill_critical", "skill_barrier", "skill_gold_rush", "skill_ricochet", "skill_salvo", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_charge_shot", "skill_recycle"]
 const SKILL_SLOT_LIMIT := 8
+const HUD_HP_BAR_PATH := "Hud/BottomBar/BaseHpBar"
+const HUD_WAVE_BAR_PATH := "Hud/TopBar/WaveProgress"
 const HUD_HP_FILL_RIGHT := 812.0
 const HUD_WAVE_FILL_RIGHT := 812.0
 const HUD_XP_FILL_RIGHT := 778.0
@@ -195,9 +201,10 @@ const MAX_BASE_HIT_FRACTION := 0.4
 # 第4/5波单独加血量(绝不加速度)：局内前几波卡牌叠加后输出膨胀明显，后两波用血量拉回张力。
 # 只对普通僵尸生效，不叠加到 Boss 身上(Boss 已单独调过速度/血量)。
 const LATE_WAVE_HP_BONUS := {4: 1.20, 5: 1.35}
-const WAVE_TOAST_BASE_POSITION := Vector2(280, 136)
+const WAVE_TOAST_BASE_POSITION := Vector2(280, 214)
 const WAVE_TOAST_SIZE := Vector2(520, 58)
 const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
+const WAVE_TOAST_MIN_INTERVAL := 1.65
 const ACTIVE_SKILL_DOT_COUNT := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
 const FROST_GLACIER_TICK_INTERVAL := 0.52
@@ -206,6 +213,9 @@ const FROST_GLACIER_NORMAL_SPEED := 0.40
 const FROST_GLACIER_BOSS_SPEED := 0.62
 const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
 const MANUAL_AIM_RELEASE_GRACE := 0.18
+const CHALLENGE_HP_MULT := 1.5
+const CHALLENGE_BREACH_DAMAGE_MULT := 1.25
+const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 
 var router: Node
 var level := {}
@@ -217,12 +227,15 @@ var xp := 0
 var variant := "normal"
 var variant_gold_mult := 1.0
 var variant_xp_mult := 1.0
-# 无限尸潮：复用当前关卡数据循环刷完的波次，每轮血量按 ENDLESS_LOOP_HP_GROWTH 递增，
+# 无限尸潮：复用当前关卡数据循环刷完的波次，每轮血量按 ENDLESS_LOOP_HP_GROWTH 线性递增，
 # 只在漏怪耗尽基地生命时结束(没有"胜利"结算)，奖励按撑过的轮数发放。
 var is_endless_mode := false
+var is_challenge_mode := false
 var endless_loop := 0
 var endless_difficulty_mult := 1.0
-const ENDLESS_LOOP_HP_GROWTH := 0.16
+const ENDLESS_LOOP_HP_GROWTH := 0.22
+const ENDLESS_BOSS_COUNT_STEP := 3
+const ENDLESS_BOSS_COUNT_CAP := 6
 var level_ordinal := 1
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
@@ -355,6 +368,10 @@ var wave_toast_tween: Tween
 var wave_toast_banner: Control
 var wave_toast_panel: PanelContainer
 var wave_toast_label: Label
+var wave_fill_material: ShaderMaterial
+var last_wave_toast_at := -99.0
+var pending_wave_toast := {}
+var pending_wave_toast_timer_active := false
 var displayed_wave_pct := 0.0
 var displayed_xp_pct := 0.0
 var build_feedback_shown := {}
@@ -378,6 +395,7 @@ func setup(main: Node, payload := {}) -> void:
 	router = main
 	level_id = _resolve_level_id(payload)
 	is_endless_mode = bool(payload.get("endless", false))
+	is_challenge_mode = bool(payload.get("challenge", false))
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -403,7 +421,10 @@ func _ready() -> void:
 	primary_weakness = str(level.get("primary_weakness", "physical"))
 	onboarding_stage = str(level.get("onboarding_stage", ""))
 	_apply_variant_modifiers()
-	loadout_power_ratio = float(SaveManager.get_loadout_power()) / maxf(float(SaveManager.get_recommended_power_for_level(level_id)), 1.0)
+	var recommended_power := float(SaveManager.get_recommended_power_for_level(level_id))
+	if is_challenge_mode:
+		recommended_power *= CHALLENGE_RECOMMENDED_POWER_MULT
+	loadout_power_ratio = float(SaveManager.get_loadout_power()) / maxf(recommended_power, 1.0)
 	wave_total = int(level.get("waves", []).size())
 	base_hp_max = int(level.get("base_hp_ref", 100))
 	base_hp = base_hp_max
@@ -433,6 +454,9 @@ func _ready() -> void:
 	low_hp_warned = false
 	last_threat_warning_at = -99.0
 	last_gold_sfx_at = -99.0
+	last_wave_toast_at = -99.0
+	pending_wave_toast = {}
+	pending_wave_toast_timer_active = false
 	onboarding_tip_shown = false
 	wave_tip_shown = {}
 	kill_streak = 0
@@ -1254,6 +1278,10 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16)
 	_active_skill_screen_shake(5.5, 0.12)
 	var cast_origin := _weapon_fire_origin()
+	if sfx_id.begins_with("sig_"):
+		if character_active_id != "":
+			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true)
+		return
 	var sequence_id := "vfx_levelup_glow"
 	match sfx_id:
 		"muzzle_fire", "sig_blaze_meltdown":
@@ -1697,6 +1725,7 @@ func _apply_base_survivability() -> void:
 	hp_mult *= float(armor_data.get("hp_mult", 1.0))
 	hp_mult *= 1.0 + float(armor_data.get("level_hp_growth", 0.018)) * float(max(armor_level - 1, 0))
 	hp_mult *= _chip_multiplier("base_hp_mult")
+	hp_mult *= 1.0 + _pet_stat_value("base_hp_mult")
 	if loadout_power_ratio < 0.82:
 		hp_mult *= 1.08
 	base_hp_max = int(round(float(base_hp_max) * hp_mult))
@@ -1704,11 +1733,13 @@ func _apply_base_survivability() -> void:
 	breach_shields = int(armor_data.get("breach_shield", 0))
 	skill_barriers_left = 0
 	breach_damage_mult = 1.0 - _chip_value("breach_damage_reduction")
+	breach_damage_mult *= maxf(0.35, 1.0 - _pet_stat_value("breach_damage_reduction"))
 	if str(armor_data.get("resist", "none")) == primary_weakness:
 		breach_damage_mult *= 0.88
 	gold_mult = _chip_multiplier("gold_mult")
 	if pet_data.get("role", "") == "economy":
 		gold_mult *= 1.0 + _pet_scaled_value("gold_mult", "level_gold_growth")
+	gold_mult *= 1.0 + _pet_stat_value("gold_mult")
 	match str(character_data.get("passive", "")):
 		"breach_guard":
 			# 不再默认给屏障（屏障只来自屏障技能）；改为防线伤害减免，保留防御定位。
@@ -1719,21 +1750,25 @@ func _apply_base_survivability() -> void:
 			slow_strength_bonus = 1.18
 			if _growth_rank(character_level) >= 1:
 				slow_strength_bonus = 1.28
+	slow_strength_bonus *= 1.0 + _pet_stat_value("slow_strength_mult")
 
 func _apply_turret_modifiers() -> void:
 	var attack_mult := float(character_data.get("base_atk", 100)) / 100.0
 	attack_mult *= 1.0 + float(character_data.get("atk_growth", 0.08)) * 0.45 * float(max(character_level - 1, 0))
 	attack_mult *= _chip_multiplier("damage_mult")
+	attack_mult *= 1.0 + _pet_stat_value("damage_mult")
 	var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
 	if weapon_element != "physical":
 		attack_mult *= _chip_multiplier("element_damage_mult")
+	if weapon_element != "physical" or str(pet_data.get("element", "")) == weapon_element:
+		attack_mult *= 1.0 + _pet_stat_value("element_damage_mult")
 	turret.damage_mult *= attack_mult
-	turret.fire_rate *= float(character_data.get("fire_rate_mod", 1.0)) * _chip_multiplier("fire_rate_mult") * (1.0 + 0.01 * float(max(chip_level - 1, 0)))
+	turret.fire_rate *= float(character_data.get("fire_rate_mod", 1.0)) * _chip_multiplier("fire_rate_mult") * (1.0 + 0.01 * float(max(chip_level - 1, 0))) * (1.0 + _pet_stat_value("fire_rate_mult"))
 	turret.turn_speed *= float(character_data.get("aim_turn_speed", 1.0))
-	crit_rate = float(character_data.get("crit_rate_base", 0.0)) + _chip_value("crit_rate")
-	pierce_bonus = int(round(_chip_value("pierce_bonus")))
+	crit_rate = float(character_data.get("crit_rate_base", 0.0)) + _chip_value("crit_rate") + _pet_stat_value("crit_rate")
+	pierce_bonus = int(round(_chip_value("pierce_bonus"))) + int(round(_pet_stat_value("pierce_bonus")))
 	element_damage_bonus = 1.0
-	chain_bonus = 0
+	chain_bonus = int(round(_pet_stat_value("chain_bonus")))
 
 func _chip_multiplier(stat: String) -> float:
 	return 1.0 + _chip_value(stat)
@@ -1746,6 +1781,15 @@ func _chip_value(stat: String) -> float:
 		return value + float(_growth_rank(chip_level))
 	var growth := float(chip_data.get("level_value_growth", 0.035))
 	return value * (1.0 + growth * float(max(chip_level - 1, 0)))
+
+func _pet_stat_value(stat: String) -> float:
+	if pet_data.is_empty():
+		return 0.0
+	var base_map: Dictionary = pet_data.get("stat_bonus", {})
+	var growth_map: Dictionary = pet_data.get("level_stat_growth", {})
+	var base := float(base_map.get(stat, 0.0))
+	var growth := float(growth_map.get(stat, 0.0))
+	return base + growth * float(max(pet_level - 1, 0))
 
 func _update_lock_indicator() -> void:
 	if target_manager.has_lock():
@@ -1809,6 +1853,7 @@ func _set_battle_paused(active: bool, play_sfx := false) -> void:
 		manual_aim_active = false
 		manual_aim_until = 0.0
 		_hide_skill_hint()
+		_hide_wave_toast()
 		_refresh_pause_build_summary()
 	else:
 		_hide_skill_hint()
@@ -1863,13 +1908,13 @@ func _rebuild_pause_overlay_content() -> void:
 	content.add_child(_pause_skill_card())
 
 func _pause_status_card() -> PanelContainer:
-	var card := _pause_section("战场状态", UiKit.GOLD, 154)
+	var card := _pause_section("战场状态", UiKit.GOLD, 184)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 12)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("关卡", DataLoader.level_display_name(level_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("建议等级", str(int(level.get("recommend_level", 1))), UiKit.GOLD))
@@ -1878,13 +1923,13 @@ func _pause_status_card() -> PanelContainer:
 	return card
 
 func _pause_loadout_card() -> PanelContainer:
-	var card := _pause_section("出战配置", UiKit.CYAN, 190)
+	var card := _pause_section("出战配置", UiKit.CYAN, 282)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 12)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("英雄", _display_name(character_data, character_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("武器", "%s  等级%d" % [_display_name(DataLoader.get_row("weapons", weapon_id), weapon_id), weapon_level], UiKit.GOLD))
@@ -1900,13 +1945,13 @@ func _pause_loadout_card() -> PanelContainer:
 	return card
 
 func _pause_skill_card() -> PanelContainer:
-	var card := _pause_section("已带技能", UiKit.PURPLE, 218)
+	var card := _pause_section("已带技能", UiKit.PURPLE, 230)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 4
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
 	body.add_child(grid)
 	if skill_slot_ids.is_empty():
 		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 22, UiKit.TEXT_MUTED, 2)
@@ -1927,38 +1972,38 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	var body := VBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 10)
+	body.add_theme_constant_override("separation", 14)
 	card.add_child(body)
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 10)
+	header.add_theme_constant_override("separation", 12)
 	body.add_child(header)
 	var rail := TextureRect.new()
 	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
-	rail.custom_minimum_size = Vector2(18, 30)
+	rail.custom_minimum_size = Vector2(18, 34)
 	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rail.stretch_mode = TextureRect.STRETCH_SCALE
 	rail.modulate = accent
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(rail)
-	var title := UiKit.label(title_text, 21, Color(0.95, 0.90, 0.76, 1.0), 2)
+	var title := UiKit.label(title_text, 20, Color(0.95, 0.90, 0.76, 1.0), 2)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title)
 	return card
 
 func _pause_metric(label_text: String, value_text: String, accent: Color) -> PanelContainer:
 	var metric := PanelContainer.new()
-	metric.custom_minimum_size = Vector2(0, 54)
+	metric.custom_minimum_size = Vector2(0, 64)
 	metric.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	metric.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	metric.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.76)))
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 10)
 	metric.add_child(row)
-	var key := UiKit.label(label_text, 17, Color(0.62, 0.78, 0.82, 1.0), 2)
-	key.custom_minimum_size = Vector2(82, 0)
+	var key := UiKit.label(label_text, 15, Color(0.62, 0.78, 0.82, 1.0), 2)
+	key.custom_minimum_size = Vector2(100, 0)
 	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(key)
-	var value := UiKit.label(value_text, 20, UiKit.TEXT_MAIN, 2)
+	var value := UiKit.label(value_text, 17, UiKit.TEXT_MAIN, 2)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.clip_text = true
@@ -1998,6 +2043,8 @@ func _display_name(row: Dictionary, fallback: String) -> String:
 
 func _apply_variant_modifiers() -> void:
 	variant = str(level.get("variant", "normal"))
+	variant_gold_mult = 1.0
+	variant_xp_mult = 1.0
 	match variant:
 		"treasure":
 			variant_gold_mult = 1.5
@@ -2089,8 +2136,8 @@ func _viewport_safe_insets() -> Dictionary:
 
 func _apply_runtime_ui_styles() -> void:
 	_layout_runtime_hud()
-	_ensure_hud_fill_texture("Hud/TopBar/BaseHpBar", "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 18.0, 16.0)
-	_ensure_hud_fill_texture("Hud/TopBar/WaveProgress", "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 15.0, 13.0)
+	_ensure_hud_fill_texture(HUD_HP_BAR_PATH, "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 18.0, 16.0)
+	_ensure_hud_fill_texture(HUD_WAVE_BAR_PATH, "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 16.0, 14.0)
 	_style_xp_bar()
 	if has_node("Hud/CardPanel"):
 		var card_panel: Panel = $Hud/CardPanel
@@ -2111,15 +2158,15 @@ func _apply_runtime_ui_styles() -> void:
 	_setup_wave_toast_banner()
 
 func _layout_runtime_hud() -> void:
+	_ensure_hp_bar_in_bottom_bar()
 	var top_bar := get_node_or_null("Hud/TopBar") as Control
 	if top_bar != null:
-		top_bar.offset_left = 142.0
-		top_bar.offset_top = 16.0
-		top_bar.offset_right = -142.0
-		top_bar.offset_bottom = 126.0
+		top_bar.offset_left = 124.0
+		top_bar.offset_top = 18.0
+		top_bar.offset_right = -124.0
+		top_bar.offset_bottom = 78.0
 		top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_layout_status_bar("Hud/TopBar/BaseHpBar", Vector2(0, 0), Vector2(796, 48), 18.0, 16.0, 22)
-		_layout_status_bar("Hud/TopBar/WaveProgress", Vector2(0, 58), Vector2(796, 42), 15.0, 13.0, 18)
+		_layout_status_bar(HUD_WAVE_BAR_PATH, Vector2(0, 0), Vector2(832, 48), 16.0, 14.0, 20)
 	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
 	if bottom_bar != null:
 		bottom_bar.offset_left = 28.0
@@ -2128,7 +2175,7 @@ func _layout_runtime_hud() -> void:
 		bottom_bar.offset_bottom = 1894.0 + bottom_dock_shift
 		bottom_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_layout_bottom_resource_bar()
-	var skill_slots := get_node_or_null("Hud/SkillSlots") as HBoxContainer
+	var skill_slots := get_node_or_null("Hud/SkillSlots") as GridContainer
 	if skill_slots != null:
 		# 固定锚定设计高度(1920)内的绝对位置,不锚定屏幕真实底部(anchor_bottom=1.0
 		# 那种锚法在更高宽比设备上会让这个元素自己漂到真实屏幕底部、和其它还留在
@@ -2137,12 +2184,13 @@ func _layout_runtime_hud() -> void:
 		# HUD 群组上，大家一起挪到真实屏幕底部，彼此之间的相对位置完全不变。
 		skill_slots.anchor_top = 0.0
 		skill_slots.anchor_bottom = 0.0
-		skill_slots.offset_left = 174.0
-		skill_slots.offset_top = 1684.0 + bottom_dock_shift
-		skill_slots.offset_right = -174.0
+		skill_slots.offset_left = 10.0
+		skill_slots.offset_top = 1654.0 + bottom_dock_shift
+		skill_slots.offset_right = 420.0
 		skill_slots.offset_bottom = 1784.0 + bottom_dock_shift
-		skill_slots.add_theme_constant_override("separation", 10)
-		skill_slots.alignment = BoxContainer.ALIGNMENT_CENTER
+		skill_slots.columns = 8
+		skill_slots.add_theme_constant_override("h_separation", 6)
+		skill_slots.add_theme_constant_override("v_separation", 6)
 	var active_button := get_node_or_null("Hud/CharacterSkillButton") as Control
 	if active_button != null:
 		active_button.offset_left = -154.0
@@ -2159,6 +2207,21 @@ func _layout_runtime_hud() -> void:
 		pause_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		pause_button.modulate = Color(0.92, 0.96, 1.0, 0.94)
 
+func _ensure_hp_bar_in_bottom_bar() -> void:
+	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
+	if bottom_bar == null:
+		return
+	var hp_bar := get_node_or_null(HUD_HP_BAR_PATH) as Control
+	if hp_bar == null:
+		hp_bar = get_node_or_null("Hud/TopBar/BaseHpBar") as Control
+	if hp_bar == null:
+		return
+	if hp_bar.get_parent() != bottom_bar:
+		var old_parent := hp_bar.get_parent()
+		if old_parent != null:
+			old_parent.remove_child(hp_bar)
+		bottom_bar.add_child(hp_bar)
+
 func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top: float, fill_height: float, font_size: int) -> void:
 	var bar := get_node_or_null(path) as Control
 	if bar == null:
@@ -2170,11 +2233,15 @@ func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top:
 	if under != null:
 		under.position = Vector2.ZERO
 		under.size = bar_size
+		under.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		under.stretch_mode = TextureRect.STRETCH_SCALE
 		under.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var fill := bar.get_node_or_null("FillTexture") as TextureRect
 	if fill != null:
 		fill.position = Vector2(6.0, fill_top)
 		fill.size = Vector2(maxf(bar_size.x - 12.0, 1.0), fill_height)
+		fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		fill.stretch_mode = TextureRect.STRETCH_SCALE
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var label := bar.get_node_or_null("Label") as Label
 	if label != null:
@@ -2188,37 +2255,40 @@ func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top:
 func _layout_bottom_resource_bar() -> void:
 	var gold_icon := get_node_or_null("Hud/BottomBar/GoldIcon") as TextureRect
 	if gold_icon != null:
-		gold_icon.position = Vector2(12.0, 20.0)
+		gold_icon.position = Vector2(8.0, 22.0)
 		gold_icon.size = Vector2(54, 54)
 		gold_icon.custom_minimum_size = Vector2(54, 54)
 	var gold_label := get_node_or_null("Hud/BottomBar/GoldLabel") as Label
 	if gold_label != null:
-		gold_label.position = Vector2(72.0, 16.0)
-		gold_label.size = Vector2(140, 62)
+		gold_label.position = Vector2(64.0, 16.0)
+		gold_label.size = Vector2(112, 62)
 		UiKit.apply_label(gold_label, 26, UiKit.GOLD, 3)
 		gold_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var xp_icon := get_node_or_null("Hud/BottomBar/XpIcon") as TextureRect
 	if xp_icon != null:
-		xp_icon.position = Vector2(236.0, 25.0)
+		xp_icon.position = Vector2(184.0, 27.0)
 		xp_icon.size = Vector2(44, 44)
 		xp_icon.custom_minimum_size = Vector2(44, 44)
 	var xp_bar := get_node_or_null("Hud/BottomBar/XpBar") as Control
 	if xp_bar != null:
-		xp_bar.position = Vector2(292.0, 21.0)
-		xp_bar.size = Vector2(704.0, 54.0)
+		xp_bar.position = Vector2(232.0, 21.0)
+		xp_bar.size = Vector2(386.0, 54.0)
 		xp_bar.clip_contents = true
 		var track := xp_bar.get_node_or_null("Track") as Panel
 		if track != null:
 			track.position = Vector2.ZERO
-			track.size = Vector2(704.0, 54.0)
+			track.size = Vector2(386.0, 54.0)
 		var fill := xp_bar.get_node_or_null("Fill") as Panel
 		if fill != null:
 			fill.position = Vector2(7.0, 16.0)
-			fill.size = Vector2(690.0, 22.0)
+			fill.size = Vector2(372.0, 22.0)
 		var label := xp_bar.get_node_or_null("Label") as Label
 		if label != null:
 			label.position = Vector2.ZERO
-			label.size = Vector2(704.0, 54.0)
+			label.size = Vector2(386.0, 54.0)
+	var hp_bar := get_node_or_null(HUD_HP_BAR_PATH) as Control
+	if hp_bar != null:
+		_layout_status_bar(HUD_HP_BAR_PATH, Vector2(632.0, 21.0), Vector2(384.0, 54.0), 18.0, 16.0, 22)
 
 func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float, height: float) -> void:
 	var bar := get_node_or_null(bar_path) as Control
@@ -2234,11 +2304,12 @@ func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float
 		fill.name = "FillTexture"
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fill.z_index = 1
-		fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		fill.stretch_mode = TextureRect.STRETCH_SCALE
 		bar.add_child(fill)
+	fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fill.stretch_mode = TextureRect.STRETCH_SCALE
 	if ResourceLoader.exists(texture_path):
 		fill.texture = load(texture_path)
+	fill.material = _wave_fill_material() if bar_path == HUD_WAVE_BAR_PATH else null
 	var fill_left := _hud_fill_left(bar_path, 6.0)
 	var fill_right := _hud_fill_right(bar_path, maxf(bar.size.x - 6.0, 1.0))
 	fill.position = Vector2(fill_left, top)
@@ -2246,6 +2317,24 @@ func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float
 	var label := bar.get_node_or_null("Label") as CanvasItem
 	if label != null:
 		label.z_index = 3
+
+func _wave_fill_material() -> ShaderMaterial:
+	if wave_fill_material != null:
+		return wave_fill_material
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+uniform vec4 fill_tint : source_color = vec4(1.0, 0.66, 0.20, 1.0);
+void fragment() {
+	vec4 tex = texture(TEXTURE, UV);
+	float light = max(max(tex.r, tex.g), tex.b);
+	vec3 warm = mix(fill_tint.rgb * 0.58, min(fill_tint.rgb * 1.22, vec3(1.0)), light);
+	COLOR = vec4(warm, tex.a);
+}
+"""
+	wave_fill_material = ShaderMaterial.new()
+	wave_fill_material.shader = shader
+	return wave_fill_material
 
 func _style_xp_bar() -> void:
 	if not has_node("Hud/BottomBar/XpBar"):
@@ -2280,18 +2369,18 @@ func _setup_pause_overlay_layout() -> void:
 	dim.modulate = Color(0.0, 0.0, 0.0, 0.72)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	var panel := $Hud/PauseOverlay/Panel as Panel
-	panel.offset_left = 90.0
-	panel.offset_top = 250.0
-	panel.offset_right = 990.0
-	panel.offset_bottom = 1428.0
+	panel.offset_left = 64.0
+	panel.offset_top = 210.0
+	panel.offset_right = 1016.0
+	panel.offset_bottom = 1500.0
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
-	title.position = Vector2(0, 32)
-	title.size = Vector2(900, 70)
+	title.position = Vector2(0, 34)
+	title.size = Vector2(952, 72)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(title, 52, UiKit.TEXT_MAIN, 4)
+	UiKit.apply_label(title, 48, UiKit.TEXT_MAIN, 4)
 	var legacy_summary := $Hud/PauseOverlay/Panel/BuildSummary as Label
 	legacy_summary.visible = false
 	var content := panel.get_node_or_null("PauseContent") as VBoxContainer
@@ -2299,13 +2388,13 @@ func _setup_pause_overlay_layout() -> void:
 		content = VBoxContainer.new()
 		content.name = "PauseContent"
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		content.add_theme_constant_override("separation", 14)
 		panel.add_child(content)
-	content.position = Vector2(54, 124)
-	content.size = Vector2(792, 668)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(78, 824), Vector2(744, 88), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(78, 930), Vector2(744, 88), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(78, 1036), Vector2(744, 88), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
+	content.add_theme_constant_override("separation", 18)
+	content.position = Vector2(66, 124)
+	content.size = Vector2(820, 760)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(84, 924), Vector2(784, 96), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(84, 1048), Vector2(784, 96), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(84, 1172), Vector2(784, 96), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
 
 func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_size: Vector2, icon_path: String, title_text: String, subtitle_text: String, primary: bool) -> void:
 	button.offset_left = pos.x
@@ -2331,30 +2420,30 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 			old.free()
 	var icon_plate := PanelContainer.new()
 	icon_plate.name = "IconPlate"
-	icon_plate.position = Vector2(18, 14)
+	icon_plate.position = Vector2(22, 18)
 	icon_plate.size = Vector2(62, 60)
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
 	button.add_child(icon_plate)
-	var icon := UiKit.icon(icon_path, Vector2(44, 44))
+	var icon := UiKit.icon(icon_path, Vector2(42, 42))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(title_text, 30, Color.WHITE, 3)
+	var title := UiKit.label(title_text, 24, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = Vector2(104, 12)
-	title.size = Vector2(430, 34)
+	title.position = Vector2(112, 12)
+	title.size = Vector2(button_size.x - 206.0, 40)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(title)
-	var sub := UiKit.label(subtitle_text, 18, Color(0.74, 0.82, 0.82, 0.94), 2)
+	var sub := UiKit.label(subtitle_text, 14, Color(0.74, 0.82, 0.82, 0.94), 2)
 	sub.name = "ActionSub"
-	sub.position = Vector2(104, 48)
-	sub.size = Vector2(430, 28)
+	sub.position = Vector2(112, 54)
+	sub.size = Vector2(button_size.x - 206.0, 26)
 	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(sub)
-	var arrow := UiKit.label(">", 34, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
+	var arrow := UiKit.label(">", 30, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
 	arrow.name = "ActionArrow"
-	arrow.position = Vector2(button_size.x - 76.0, 18)
-	arrow.size = Vector2(42, 50)
+	arrow.position = Vector2(button_size.x - 78.0, 22)
+	arrow.size = Vector2(42, 52)
 	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(arrow)
@@ -2475,6 +2564,9 @@ func _on_restart_pressed() -> void:
 func _on_pause_to_map() -> void:
 	AudioManager.play_sfx("ui_click")
 	_set_battle_paused(false, false)
+	if is_endless_mode:
+		_finish(false)
+		return
 	router.change_scene("map")
 
 func _process_spawns(delta: float) -> void:
@@ -2511,6 +2603,8 @@ func _start_next_wave() -> void:
 		pending_spawns.append({"type": boss_id, "interval": 1.0, "lane": "center", "boss": true})
 		if variant == "boss_rush":
 			pending_spawns.append({"type": "boss_tank_titan", "interval": 2.4, "lane": "left", "boss": true})
+		if is_endless_mode and _is_endless_final_wave(waves):
+			_queue_endless_final_bosses(1)
 		for support in wave.get("support", []):
 			_queue_spawn_group(support, false)
 	else:
@@ -2527,10 +2621,43 @@ func _start_next_wave() -> void:
 			else:
 				wave_text = "第 %d 波  尸潮来袭" % wave_index
 			_show_wave_toast(wave_text, Color(1.0, 0.82, 0.25))
-		for group in wave.get("spawns", []):
-			_queue_spawn_group(group, false)
+			for group in wave.get("spawns", []):
+				_queue_spawn_group(group, false)
+			if is_endless_mode and _is_endless_final_wave(waves):
+				_show_wave_toast("第 %d 轮最终波 · 首领压境" % (endless_loop + 1), Color(1.0, 0.36, 0.18))
+				_queue_endless_final_bosses(0)
 	active_spawning = true
 	spawn_timer = 0.2
+
+func _is_endless_final_wave(waves: Array) -> bool:
+	return is_endless_mode and not waves.is_empty() and wave_index >= waves.size()
+
+func _queue_endless_final_bosses(existing_boss_count: int) -> void:
+	var count := maxi(0, _endless_boss_count() - existing_boss_count)
+	var lanes := ["center", "left", "right", "spread", "left", "right"]
+	for i in range(count):
+		pending_spawns.append({
+			"type": _endless_boss_id(i),
+			"interval": 2.0 if i == 0 and existing_boss_count <= 0 else 1.6,
+			"lane": lanes[i % lanes.size()],
+			"boss": true
+		})
+
+func _endless_boss_count() -> int:
+	return clampi(1 + int(endless_loop / ENDLESS_BOSS_COUNT_STEP), 1, ENDLESS_BOSS_COUNT_CAP)
+
+func _endless_boss_id(offset := 0) -> String:
+	var bosses: Dictionary = DataLoader.get_table("bosses")
+	var eligible: Array[String] = []
+	var virtual_level := level_ordinal + endless_loop * 5
+	for boss_id in bosses.keys():
+		var row: Dictionary = bosses[boss_id]
+		if int(row.get("appear_level", 1)) <= virtual_level:
+			eligible.append(str(boss_id))
+	if eligible.is_empty():
+		return "boss_tank_titan"
+	eligible.sort()
+	return eligible[(eligible.size() - 1 + offset) % eligible.size()]
 
 func _apply_wave_start_support() -> void:
 	if pet_data.get("role", "") != "repair":
@@ -2541,7 +2668,7 @@ func _apply_wave_start_support() -> void:
 	if heal <= 0:
 		return
 	base_hp = min(base_hp + heal, base_hp_max)
-	_spawn_float_text(Vector2(540, 1440.0 + bottom_dock_shift), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
+	_spawn_float_text(_base_damage_impact_position(540.0) + Vector2(0, -60.0), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
 
 func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
 	for i in range(int(group.get("count", 1))):
@@ -2577,7 +2704,11 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 		hp_level_coef *= float(LATE_WAVE_HP_BONUS.get(wave_index, 1.0))
 	if is_endless_mode:
 		hp_level_coef *= endless_difficulty_mult
+	if is_challenge_mode:
+		hp_level_coef *= CHALLENGE_HP_MULT
 	enemy.setup(row, hp_level_coef, is_boss)
+	if enemy.has_method("configure_attack_line"):
+		enemy.call("configure_attack_line", BREACH_Y)
 	enemy.hit_feedback.connect(_on_enemy_hit_feedback)
 	enemy.damage_dealt.connect(_on_enemy_damage_dealt)
 	enemy.died.connect(_on_enemy_died)
@@ -2689,9 +2820,52 @@ func _enemy_skill_damage(source: Node, scale: float, minimum := 1.0) -> int:
 	var raw := maxf(minimum, float(source.breach_damage) * scale)
 	return maxi(0, int(ceil(raw * breach_damage_mult)))
 
+func _base_line_y() -> float:
+	return BREACH_Y
+
+func _base_line_inner_y(offset: float) -> float:
+	return _base_line_y() - offset
+
+func _base_damage_impact_position(x: float) -> Vector2:
+	return Vector2(clampf(x, 96.0, 984.0), _base_line_y())
+
+func _slow_field_inner_offset_for_level(slow_level: int) -> float:
+	match slow_level:
+		1:
+			return 220.0
+		2:
+			return 280.0
+		3:
+			return 340.0
+		4:
+			return 400.0
+		5:
+			return 460.0
+		_:
+			return BASE_LINE_DEFAULT_SLOW_FIELD_INSET
+
+func _slow_field_strength_for_level(slow_level: int) -> float:
+	match slow_level:
+		1:
+			return 0.18
+		2:
+			return 0.26
+		3:
+			return 0.35
+		4:
+			return 0.43
+		5:
+			return 0.52
+		_:
+			return 0.0
+
+func _slow_field_min_y_for_level(slow_level: int) -> float:
+	return _base_line_inner_y(_slow_field_inner_offset_for_level(slow_level))
+
 func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, color: Color, target_position: Vector2) -> void:
 	if battle_finished:
 		return
+	var impact_position := _base_damage_impact_position(target_position.x)
 	var final_damage := maxi(0, damage)
 	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * MAX_BASE_HIT_FRACTION))))  # 防秒杀
 	var shield_absorbed := false
@@ -2705,15 +2879,15 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	if is_instance_valid(source):
 		_spawn_breach_attack_vfx(source, shield_absorbed)
 	if shield_absorbed:
-		_spawn_barrier_break_vfx(Vector2(target_position.x, BREACH_Y - 30.0))
+		_spawn_barrier_break_vfx(impact_position)
 		_update_barrier_visual()
-		_spawn_float_text(target_position, "格挡", Color(0.64, 0.9, 1.0))
+		_spawn_float_text(impact_position, "格挡", Color(0.64, 0.9, 1.0))
 		return
 	if final_damage <= 0:
 		return
 	base_hp = max(base_hp - final_damage, 0)
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.12)
-	_spawn_float_text(target_position, "-%d %s" % [final_damage, label], color)
+	_spawn_float_text(impact_position, "-%d %s" % [final_damage, label], color)
 	_check_low_hp_warning()
 	if base_hp <= 0:
 		_finish(false)
@@ -2782,9 +2956,9 @@ func _advance_enemy_with_skill(source: Node, kind: String, advance: float, label
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -36.0))
 	_spawn_attack_telegraph(source.global_position + Vector2(0, 74.0), Color(color.r, color.g, color.b, 0.24), label)
 	AudioManager.play_sfx("threat_warning", -7.0, 0.02)
-	if old_y >= 1160.0:
+	if old_y >= _base_line_inner_y(BASE_LINE_DEFAULT_SLOW_FIELD_INSET):
 		var damage := _enemy_skill_damage(source, damage_scale, 1.0)
-		_apply_enemy_skill_base_damage(source, damage, label, color, Vector2(source.global_position.x, 1370.0))
+		_apply_enemy_skill_base_damage(source, damage, label, color, _base_damage_impact_position(source.global_position.x))
 
 func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	if source.global_position.y < float(source.mechanic_params.get("trigger_y", 760.0)):
@@ -2795,7 +2969,7 @@ func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.42)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.22)), 2.0)
-	var impact := Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
+	var impact := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(impact, Color(0.42, 1.0, 0.24, 0.32), "毒雾")
 	_spawn_enemy_attack_vfx(source, "toxic_cloud", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, float(source.mechanic_params.get("radius", 190.0)), Color(0.42, 1.0, 0.24, 0.28), 0.42)
@@ -2815,10 +2989,11 @@ func _process_juggernaut_pressure(source: Node, delta: float) -> void:
 	var color := Color(0.96, 0.72, 0.42)
 	_spawn_enemy_attack_vfx(source, "juggernaut", source.global_position + Vector2(0, -42.0))
 	_spawn_attack_ring(source.global_position + Vector2(0, 70.0), 230.0, Color(color.r, color.g, color.b, 0.28), 0.38)
-	_spawn_attack_telegraph(Vector2(source.global_position.x, 1360.0), Color(color.r, color.g, color.b, 0.26), "震地")
+	var impact := _base_damage_impact_position(source.global_position.x)
+	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.26), "震地")
 	AudioManager.play_sfx("zombie_juggernaut", -6.5, 0.02)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.16)), 2.0)
-	_apply_enemy_skill_base_damage(source, damage, "震地", color, Vector2(source.global_position.x, 1360.0))
+	_apply_enemy_skill_base_damage(source, damage, "震地", color, impact)
 
 func _process_regen_feedback(source: Node, delta: float) -> void:
 	if float(source.hp) >= float(source.max_hp) * 0.98:
@@ -2900,7 +3075,7 @@ func _process_ranged_pressure(source: Node, delta: float) -> void:
 	var interval := float(source.mechanic_params.get("skill_interval", 4.2))
 	source.mechanic_timer = randf_range(interval, interval + 0.9)
 	var spit_damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.35)), 2.0)
-	var target_position := Vector2(source.global_position.x, 1370)
+	var target_position := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(target_position, Color(0.46, 1.0, 0.25, 0.34), "腐蚀")
 	_spawn_spit_attack_vfx(source, target_position)
 	AudioManager.play_sfx("zombie_spitter", -5.5, 0.02)
@@ -2916,7 +3091,7 @@ func _process_boss_pressure(source: Node, delta: float, interval: float, damage_
 	if source.has_method("play_special"):
 		source.play_special()
 	var pressure_damage := _enemy_skill_damage(source, damage_scale, 3.0)
-	var impact := Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
+	var impact := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.34), label)
 	_spawn_boss_attack_vfx(source, label, color, impact)
 	AudioManager.play_sfx("threat_warning", -5.0)
@@ -2935,11 +3110,12 @@ func _process_freeze_field(source: Node, enemies: Array, delta: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special()
 	_spawn_float_text(source.global_position + Vector2(0, -120), "寒潮领域", Color(0.45, 0.86, 1.0))
-	_spawn_attack_telegraph(Vector2(source.global_position.x, 1360), Color(0.45, 0.86, 1.0, 0.32), "寒潮")
-	_spawn_boss_attack_vfx(source, "寒潮领域", Color(0.45, 0.86, 1.0))
+	var impact := _base_damage_impact_position(source.global_position.x)
+	_spawn_attack_telegraph(impact, Color(0.45, 0.86, 1.0, 0.32), "寒潮")
+	_spawn_boss_attack_vfx(source, "寒潮领域", Color(0.45, 0.86, 1.0), impact)
 	var frost_damage := _enemy_skill_damage(source, 0.24, 2.0)
 	AudioManager.play_sfx("hit_ice", -4.0)
-	_apply_enemy_skill_base_damage(source, frost_damage, "寒潮", Color(0.45, 0.86, 1.0), Vector2(source.global_position.x, 1360))
+	_apply_enemy_skill_base_damage(source, frost_damage, "寒潮", Color(0.45, 0.86, 1.0), impact)
 
 func _process_boss_minions(source: Node, delta: float) -> void:
 	source.mechanic_timer -= delta
@@ -2965,7 +3141,7 @@ func _process_phase_shift(source: Node, delta: float) -> void:
 			source.play_special(0.34)
 		AudioManager.play_sfx("zombie_phantom", -6.5, 0.02)
 		_spawn_enemy_attack_vfx(source, "phase_shift", source.global_position + Vector2(0, 86.0))
-		source.global_position.y = min(source.global_position.y + 86.0, 1440.0 + bottom_dock_shift)
+		source.global_position.y = min(source.global_position.y + 86.0, _base_line_inner_y(60.0))
 		_spawn_float_text(source.global_position + Vector2(0, -130), "相位突进", Color(0.62, 0.82, 1.0))
 
 func _process_apex_pressure(source: Node, enemies: Array, delta: float) -> void:
@@ -4936,8 +5112,7 @@ func _spawn_b4_impact_stack(position: Vector2, element: String, power := 1.0, hi
 		_:
 			match element:
 				"fire":
-					_spawn_impact_heat_haze(position, Color(1.0, 0.22, 0.04, 0.42), 0.18, safe_power, priority)
-					_spawn_impact_cloud(position + Vector2(0, -4), Color(1.0, 0.32, 0.08, 0.26), 8, 0.26, true, priority)
+					_spawn_vfx_sequence("vfx_hit_fire", position + Vector2(0, -4), 0.38 + safe_power * 0.08, Color(1.0, 0.48, 0.14, 0.78), 1.22, randf_range(-0.18, 0.18), 1.12, Vector2(0, -8), randf_range(-0.22, 0.22), priority)
 				"ice":
 					_spawn_impact_fork_lines(position, Color(0.76, 1.0, 1.0, 0.72), 6, 58.0 * safe_power, 0.18, 2.6 + safe_power, priority)
 					_spawn_impact_cloud(position + Vector2(0, -6), Color(0.58, 0.94, 1.0, 0.22), 7, 0.3, true, priority)
@@ -5448,7 +5623,10 @@ func _spawn_radial_vfx(origin: Vector2, radius: float, color: Color) -> void:
 	_spawn_b4_impact_stack(origin, element, power, "normal", safe_radius > 180.0)
 	_spawn_impact_shock_ring(origin, Color(color.r, color.g, color.b, minf(color.a + 0.2, 0.68)), safe_radius, 7.0, 0.26, safe_radius > 180.0)
 	_spawn_impact_streaks(origin, Color(color.r, color.g, color.b, minf(color.a + 0.18, 0.7)), 6, safe_radius * 0.72, 0.2, 3.4, safe_radius > 180.0)
-	_spawn_impact_cloud(origin, Color(color.r, color.g, color.b, minf(color.a, 0.34)), 14 if element == "poison" else 10, 0.38, element != "poison", safe_radius > 180.0)
+	if element == "fire":
+		_spawn_vfx_sequence("vfx_explosion_fire", origin + Vector2(0, -10), clampf(safe_radius / 250.0, 0.58, 1.45), Color(1.0, 0.46, 0.12, minf(color.a + 0.28, 0.86)), 1.08, randf_range(-0.18, 0.18), 1.12, Vector2(0, -14), randf_range(-0.24, 0.24), safe_radius > 180.0)
+	else:
+		_spawn_impact_cloud(origin, Color(color.r, color.g, color.b, minf(color.a, 0.34)), 14 if element == "poison" else 10, 0.38, element != "poison", safe_radius > 180.0)
 
 func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hit_kind: String) -> void:
 	var kind := hit_kind
@@ -5479,8 +5657,7 @@ func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool)
 	_spawn_b4_impact_stack(position + Vector2(0, -38 if not is_boss else -78), element, scale, "weak" if is_boss else "normal", is_boss)
 	match element:
 		"fire":
-			_spawn_impact_cloud(position + Vector2(0, -38 if not is_boss else -82), Color(1.0, 0.3, 0.06, 0.34), 12 if not is_boss else 18, 0.42, true, is_boss)
-			_spawn_impact_heat_haze(position + Vector2(0, -34 if not is_boss else -76), Color(1.0, 0.18, 0.04, 0.44), 0.28, scale, is_boss)
+			_spawn_vfx_sequence("vfx_explosion_fire", position + Vector2(0, -38 if not is_boss else -82), 0.62 if not is_boss else 1.24, Color(1.0, 0.42, 0.12, 0.82), 1.0, randf_range(-0.18, 0.18), 1.12, Vector2(0, -12 if not is_boss else -22), randf_range(-0.24, 0.24), is_boss)
 		"ice":
 			_spawn_impact_fork_lines(position + Vector2(0, -42 if not is_boss else -86), Color(0.76, 1.0, 1.0, 0.78), 7 if not is_boss else 9, 76.0 * scale, 0.24, 3.0, is_boss)
 			_spawn_impact_cloud(position + Vector2(0, -38 if not is_boss else -82), Color(0.56, 0.92, 1.0, 0.24), 10 if not is_boss else 16, 0.4, true, is_boss)
@@ -5657,7 +5834,7 @@ func _spawn_boss_attack_vfx(source: Node, label: String, color: Color, impact :=
 	var element := _enemy_cast_element(label)
 	var is_boss := bool(source.boss)
 	if impact == Vector2.ZERO:
-		impact = Vector2(source.global_position.x, 1440.0 + bottom_dock_shift)
+		impact = _base_damage_impact_position(source.global_position.x)
 	# 起手炮口/聚能闪光（在施法者身上）
 	_spawn_attack_sprite(_vfx_path("muzzle", element), source.global_position + Vector2(0, -84), Color(color.r, color.g, color.b, 0.9), 1.5 if is_boss else 1.05, 0.34)
 	# 一颗能量弹从施法者飞向基地防线，落地炸开——让“掉血”有清晰的来龙去脉
@@ -5764,7 +5941,7 @@ func _spawn_breach_attack_vfx(enemy: Node, shielded: bool) -> void:
 	if mechanic == "" or mechanic == "<null>":
 		mechanic = str(enemy.mechanic)
 	var color := Color(0.58, 0.86, 1.0, 0.78) if shielded else _attack_color_for_mechanic(mechanic)
-	var target := Vector2(enemy.global_position.x, minf(enemy.global_position.y + 54.0, BREACH_Y + 10.0))
+	var target := _base_damage_impact_position(enemy.global_position.x)
 	var path := "res://assets/production/sprites/vfx/vfx_hit_immune.png" if shielded else _attack_vfx_path(mechanic)
 	_spawn_attack_sprite(path, target, color, _breach_attack_scale(mechanic), 0.26)
 	_spawn_attack_ring(target, 118.0 * _breach_attack_scale(mechanic), color, 0.22)
@@ -6033,14 +6210,18 @@ func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: 
 			target.take_damage(18.0 * damage_scale * float(turret.damage_mult), "fire")
 	if enemy.global_position.y > 1080.0:
 		var base_damage := _enemy_skill_damage(enemy, damage_scale, 2.0)
-		_apply_enemy_skill_base_damage(enemy, base_damage, "爆裂", color, enemy.global_position + Vector2(0, -80))
+		_apply_enemy_skill_base_damage(enemy, base_damage, "爆裂", color, _base_damage_impact_position(enemy.global_position.x))
 
 func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	AudioManager.play_sfx("enemy_breach", -4.0)
 	_play_character_hurt()
 	_shake_hud(5.0, 0.1)
 	var final_damage := int(ceil(float(damage) * breach_damage_mult))
-	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * MAX_BASE_HIT_FRACTION))))  # 防秒杀
+	var max_hit_fraction := MAX_BASE_HIT_FRACTION
+	if is_challenge_mode:
+		final_damage = int(ceil(float(final_damage) * CHALLENGE_BREACH_DAMAGE_MULT))
+		max_hit_fraction = minf(0.75, MAX_BASE_HIT_FRACTION * CHALLENGE_BREACH_DAMAGE_MULT)
+	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * max_hit_fraction))))  # 防秒杀
 	var shield_absorbed := false
 	if breach_shields + skill_barriers_left > 0:
 		if breach_shields > 0:
@@ -6054,7 +6235,7 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 		var text := "格挡" if final_damage <= 0 else "-%d" % final_damage
 		_spawn_float_text(enemy.global_position + Vector2(randf_range(-16.0, 16.0), -104), text, Color(1.0, 0.18, 0.18))
 		if shield_absorbed:
-			_spawn_barrier_break_vfx(Vector2(enemy.global_position.x, BREACH_Y - 30.0))
+			_spawn_barrier_break_vfx(_base_damage_impact_position(enemy.global_position.x))
 			_update_barrier_visual()
 	base_hp = max(base_hp - final_damage, 0)
 	if final_damage > 0:
@@ -6147,9 +6328,7 @@ func _check_victory() -> void:
 func _advance_endless_loop() -> void:
 	endless_loop += 1
 	wave_index = 0
-	# 血量按轮次复利增长(而不是线性叠加):技能强化在无限模式里不设上限地持续变强,
-	# 线性血量增长追不上,会导致刷到二三十轮之后反而越打越轻松;复利增长保持长期挑战感。
-	endless_difficulty_mult = pow(1.0 + ENDLESS_LOOP_HP_GROWTH, float(endless_loop))
+	endless_difficulty_mult = 1.0 + ENDLESS_LOOP_HP_GROWTH * float(endless_loop)
 	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
 	_start_next_wave()
 
@@ -6161,7 +6340,6 @@ func _finish(victory: bool) -> void:
 	_hide_skill_hint()
 	set_physics_process(false)
 	if is_endless_mode:
-		AudioManager.play_sfx("defeat", 1.0, 0.0)
 		_show_screen_flash(Color(0.85, 0.0, 0.0, 0.22), 0.28)
 		router.finish_level({
 			"level_id": level_id,
@@ -6173,7 +6351,6 @@ func _finish(victory: bool) -> void:
 			"xp": xp
 		})
 		return
-	AudioManager.play_sfx("victory" if victory else "defeat", 1.0, 0.0)
 	_show_screen_flash(Color(0.95, 0.78, 0.25, 0.18) if victory else Color(0.85, 0.0, 0.0, 0.22), 0.28)
 	var hp_ratio := float(base_hp) / float(base_hp_max)
 	var stars := 0
@@ -6182,48 +6359,58 @@ func _finish(victory: bool) -> void:
 	var first_clear_bonus := 0
 	if victory and SaveManager.get_level_stars(level_id) == 0:
 		first_clear_bonus = int(level.get("first_clear_reward", {}).get("gold", 0))
-	router.finish_level({
+	var result := {
 		"level_id": level_id,
-		"next_level": level.get("next_level", ""),
 		"victory": victory,
 		"stars": stars,
 		"gold": gold + first_clear_bonus,
 		"xp": xp
-	})
+	}
+	if is_challenge_mode:
+		result["challenge"] = true
+		result["gold"] = gold
+	else:
+		result["next_level"] = level.get("next_level", "")
+	router.finish_level(result)
 
 func _update_hud() -> void:
 	var hp_pct := float(base_hp) / float(base_hp_max) if base_hp_max > 0 else 0.0
-	var hp_fill_left := _hud_fill_left("Hud/TopBar/BaseHpBar", 6.0)
-	var hp_fill_right := _hud_fill_right("Hud/TopBar/BaseHpBar", HUD_HP_FILL_RIGHT)
+	var hp_fill_left := _hud_fill_left(HUD_HP_BAR_PATH, 6.0)
+	var hp_fill_right := _hud_fill_right(HUD_HP_BAR_PATH, HUD_HP_FILL_RIGHT)
 	var hp_width := maxf(0.0, lerpf(hp_fill_left, hp_fill_right, hp_pct) - hp_fill_left)
-	var hp_fill_texture := get_node_or_null("Hud/TopBar/BaseHpBar/FillTexture") as TextureRect
+	var hp_fill_texture := get_node_or_null("%s/FillTexture" % HUD_HP_BAR_PATH) as TextureRect
 	if hp_fill_texture != null:
 		hp_fill_texture.size.x = hp_width
-	else:
-		var hp_fill := $Hud/TopBar/BaseHpBar/Fill
+	elif has_node("%s/Fill" % HUD_HP_BAR_PATH):
+		var hp_fill := get_node("%s/Fill" % HUD_HP_BAR_PATH)
 		hp_fill.offset_right = lerpf(hp_fill_left, hp_fill_right, hp_pct)
-	$Hud/TopBar/BaseHpBar/Label.text = "生命 %d/%d" % [base_hp, base_hp_max]
+	var hp_label := get_node_or_null("%s/Label" % HUD_HP_BAR_PATH) as Label
+	if hp_label != null:
+		hp_label.text = "生命 %d/%d" % [base_hp, base_hp_max]
 	_update_low_hp_pulse(hp_pct)
 	_update_boss_hp_bar()
 	var wave_pct := float(wave_index) / float(wave_total) if wave_total > 0 else 0.0
 	displayed_wave_pct = lerpf(displayed_wave_pct, wave_pct, 0.22)
-	var wave_fill_left := _hud_fill_left("Hud/TopBar/WaveProgress", 6.0)
-	var wave_fill_right := _hud_fill_right("Hud/TopBar/WaveProgress", HUD_WAVE_FILL_RIGHT)
+	var wave_fill_left := _hud_fill_left(HUD_WAVE_BAR_PATH, 6.0)
+	var wave_fill_right := _hud_fill_right(HUD_WAVE_BAR_PATH, HUD_WAVE_FILL_RIGHT)
 	var wave_width := maxf(0.0, lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct) - wave_fill_left)
-	var wave_fill_texture := get_node_or_null("Hud/TopBar/WaveProgress/FillTexture") as TextureRect
+	var wave_fill_texture := get_node_or_null("%s/FillTexture" % HUD_WAVE_BAR_PATH) as TextureRect
 	if wave_fill_texture != null:
 		wave_fill_texture.size.x = wave_width
-	else:
-		$Hud/TopBar/WaveProgress/Fill.offset_right = lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct)
+	elif has_node("%s/Fill" % HUD_WAVE_BAR_PATH):
+		get_node("%s/Fill" % HUD_WAVE_BAR_PATH).offset_right = lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct)
+	var wave_label := get_node_or_null("%s/Label" % HUD_WAVE_BAR_PATH) as Label
 	if is_endless_mode:
-		$Hud/TopBar/WaveProgress/Label.text = "第 %d 轮 · %d/%d 波" % [endless_loop + 1, wave_index, wave_total]
+		if wave_label != null:
+			wave_label.text = "第 %d 轮 · %d/%d 波" % [endless_loop + 1, wave_index, wave_total]
 	else:
-		$Hud/TopBar/WaveProgress/Label.text = "第 %d/%d 波" % [wave_index, wave_total]
+		if wave_label != null:
+			wave_label.text = "第 %d/%d 波" % [wave_index, wave_total]
 	var xp_pct := float(xp) / float(next_xp_offer) if next_xp_offer > 0 else 0.0
 	displayed_xp_pct = lerpf(displayed_xp_pct, clamp(xp_pct, 0.0, 1.0), 0.28)
 	$Hud/BottomBar/XpBar/Fill.offset_right = lerpf(7.0, _hud_xp_fill_right(), displayed_xp_pct)
 	$Hud/BottomBar/XpBar/Label.text = "经验 %d/%d" % [xp, next_xp_offer]
-	$Hud/BottomBar/GoldLabel.text = "%d" % gold
+	$Hud/BottomBar/GoldLabel.text = _format_compact_number(gold)
 	_update_skill_slots()
 	_update_character_skill_button()
 	_update_barrier_visual()
@@ -6234,16 +6421,16 @@ func _hud_fill_left(bar_path: String, fallback: float) -> float:
 	var bar := get_node_or_null(bar_path) as Control
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
-	if bar_path.begins_with("Hud/TopBar"):
-		return bar.size.x * 0.31
+	if bar_path == HUD_WAVE_BAR_PATH:
+		return bar.size.x * 0.115
 	return fallback
 
 func _hud_fill_right(bar_path: String, fallback: float) -> float:
 	var bar := get_node_or_null(bar_path) as Control
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
-	if bar_path.begins_with("Hud/TopBar"):
-		return bar.size.x * 0.69
+	if bar_path == HUD_WAVE_BAR_PATH:
+		return bar.size.x * 0.91
 	return maxf(8.0, bar.size.x - 6.0)
 
 func _hud_xp_fill_right() -> float:
@@ -6251,6 +6438,14 @@ func _hud_xp_fill_right() -> float:
 	if xp_bar == null or xp_bar.size.x <= 24.0:
 		return HUD_XP_FILL_RIGHT
 	return maxf(10.0, xp_bar.size.x - 7.0)
+
+func _format_compact_number(value: int) -> String:
+	if abs(value) < 1000:
+		return "%d" % value
+	var compact := float(value) / 1000.0
+	if compact < 10.0:
+		return "%.1fk" % compact
+	return "%dk" % int(round(compact))
 
 func _build_skill_slots() -> void:
 	for child in $Hud/SkillSlots.get_children():
@@ -6270,7 +6465,7 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var max_lv := skills.max_level(skill_id)
 	var card := PanelContainer.new()
 	card.name = skill_id
-	card.custom_minimum_size = Vector2(60, 84)
+	card.custom_minimum_size = Vector2(46, 58)
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	card.clip_contents = true
@@ -6287,12 +6482,12 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var stack := VBoxContainer.new()
 	stack.name = "HBox"
 	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.add_theme_constant_override("separation", 2)
+	stack.add_theme_constant_override("separation", 1)
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(stack)
 	var icon_box := PanelContainer.new()
 	icon_box.name = "IconBox"
-	icon_box.custom_minimum_size = Vector2(52, 52)
+	icon_box.custom_minimum_size = Vector2(38, 38)
 	icon_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.add_theme_stylebox_override("panel", _skill_card_icon_style(lv, max_lv))
@@ -6304,8 +6499,8 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 		icon.texture = load(str(row.get("icon", "")))
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(46, 46)
-		icon.size = Vector2(46, 46)
+		icon.custom_minimum_size = Vector2(34, 34)
+		icon.size = Vector2(34, 34)
 		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6313,14 +6508,14 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var lv_badge := Label.new()
 	lv_badge.name = "LevelBadge"
 	lv_badge.text = "等级%d" % lv
-	lv_badge.add_theme_font_size_override("font_size", 12)
+	lv_badge.add_theme_font_size_override("font_size", 10)
 	var badge_color := _skill_level_color(lv, max_lv)
 	lv_badge.add_theme_color_override("font_color", badge_color)
 	lv_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	lv_badge.add_theme_constant_override("outline_size", 3)
 	lv_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lv_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lv_badge.custom_minimum_size = Vector2(54, 20)
+	lv_badge.custom_minimum_size = Vector2(44, 15)
 	lv_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(lv_badge)
 	return card
@@ -6399,6 +6594,18 @@ func _update_skill_slots() -> void:
 			(icon_box as PanelContainer).add_theme_stylebox_override("panel", _skill_card_icon_style(lv, max_lv))
 
 func _show_wave_toast(text: String, color: Color) -> void:
+	if paused:
+		return
+	var now := _now_seconds()
+	var priority := _wave_toast_is_priority(text)
+	if not priority and now - last_wave_toast_at < WAVE_TOAST_MIN_INTERVAL:
+		pending_wave_toast = {"text": text, "color": color}
+		if not pending_wave_toast_timer_active:
+			pending_wave_toast_timer_active = true
+			var delay := maxf(0.12, WAVE_TOAST_MIN_INTERVAL - (now - last_wave_toast_at))
+			get_tree().create_timer(delay).timeout.connect(_flush_pending_wave_toast)
+		return
+	last_wave_toast_at = now
 	_setup_wave_toast_banner()
 	if wave_toast_banner == null or wave_toast_label == null:
 		return
@@ -6431,6 +6638,31 @@ func _show_wave_toast(text: String, color: Color) -> void:
 		wave_toast_banner.scale = Vector2.ONE
 		wave_toast_banner.position = WAVE_TOAST_BASE_POSITION
 	)
+
+func _wave_toast_is_priority(text: String) -> bool:
+	if text.length() > 18:
+		return true
+	return text.contains("首领") or text.contains("防线") or text.contains("基地") or text.contains("最终") or text.contains("强度提升")
+
+func _flush_pending_wave_toast() -> void:
+	pending_wave_toast_timer_active = false
+	if pending_wave_toast.is_empty() or paused or battle_finished:
+		pending_wave_toast = {}
+		return
+	var toast := pending_wave_toast.duplicate()
+	pending_wave_toast = {}
+	var toast_color: Color = toast.get("color", Color(1.0, 0.82, 0.25))
+	_show_wave_toast(str(toast.get("text", "")), toast_color)
+
+func _hide_wave_toast() -> void:
+	if wave_toast_tween != null and wave_toast_tween.is_valid():
+		wave_toast_tween.kill()
+	if wave_toast_banner != null and is_instance_valid(wave_toast_banner):
+		wave_toast_banner.visible = false
+		wave_toast_banner.modulate = Color.WHITE
+		wave_toast_banner.scale = Vector2.ONE
+		wave_toast_banner.position = WAVE_TOAST_BASE_POSITION
+	pending_wave_toast = {}
 
 func _wave_toast_font_size(text: String) -> int:
 	if text.length() <= 7:
@@ -6569,7 +6801,7 @@ func _apply_slow_field() -> void:
 		AudioManager.play_sfx("skill_slow_field", -8.0, 0.02)
 	for enemy in $EnemyLayer.get_children():
 		if enemy.has_method("targeting_snapshot"):
-			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y)
+			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())
 			if slow_mult < 1.0:
 				slow_mult = max(0.45, 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
 			enemy.speed_mult *= slow_mult
@@ -6661,23 +6893,10 @@ func _update_slow_field_visual(slow_level: int) -> void:
 			slow_field_particles.emitting = false
 			slow_field_particles.visible = false
 		return
-	var y_min: float
-	var slow_pct: float
-	match slow_level:
-		1:
-			y_min = BREACH_Y - 220.0
-			slow_pct = 0.18
-		2:
-			y_min = BREACH_Y - 280.0
-			slow_pct = 0.26
-		3:
-			y_min = BREACH_Y - 340.0
-			slow_pct = 0.35
-		_:
-			y_min = BREACH_Y
-			slow_pct = 0.0
+	var y_min := _slow_field_min_y_for_level(slow_level)
+	var slow_pct := _slow_field_strength_for_level(slow_level)
 	slow_field_rect.position = Vector2(0, y_min)
-	var field_height := maxf(BREACH_Y - y_min, 60.0)
+	var field_height := maxf(_base_line_y() - y_min, 60.0)
 	slow_field_rect.size = Vector2(1080, field_height)
 	slow_field_rect.visible = true
 	var field_color := Color(0.28, 0.76, 1.0, 0.14 + slow_pct * 0.23)
@@ -6697,7 +6916,7 @@ func _update_slow_field_edges(y_min: float, field_height: float, slow_pct: float
 	slow_field_rune_layer.visible = true
 	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 340.0)
 	var top_y := y_min + 6.0
-	var bottom_y := y_min + field_height - 8.0
+	var bottom_y := _base_line_y()
 	var current_y := y_min + field_height * (0.44 + sin(Time.get_ticks_msec() / 980.0) * 0.08)
 	for i in range(slow_field_edge_lines.size()):
 		var edge := slow_field_edge_lines[i]
@@ -6741,7 +6960,7 @@ func _update_slow_field_particles(y_min: float, field_height: float, slow_pct: f
 func _spawn_barrier_visual() -> void:
 	barrier_visual = Node2D.new()
 	barrier_visual.name = "BarrierGlass"
-	barrier_visual.position = Vector2(540, BREACH_Y - 30.0)
+	barrier_visual.position = Vector2(540, _base_line_y())
 	barrier_visual.visible = false
 	$SlowFieldLayer.add_child(barrier_visual)
 
@@ -7586,11 +7805,13 @@ func _process_threat_feedback(enemies: Array) -> void:
 	for enemy in enemies:
 		if not is_instance_valid(enemy):
 			continue
-		if enemy.global_position.y >= 1160.0 and not enemy.has_meta("near_line_warned"):
+		var near_line_y := _base_line_inner_y(BASE_LINE_BOSS_NEAR_WARNING_INSET if bool(enemy.boss) else BASE_LINE_NEAR_WARNING_INSET)
+		var warning_line_y := _base_line_inner_y(BASE_LINE_BOSS_WARNING_INSET if bool(enemy.boss) else BASE_LINE_WARNING_INSET)
+		if enemy.global_position.y >= near_line_y and not enemy.has_meta("near_line_warned"):
 			enemy.set_meta("near_line_warned", true)
 			var color := _attack_color_for_mechanic(str(enemy.mechanic))
-			_spawn_attack_ring(Vector2(enemy.global_position.x, 1450.0), 96.0 if not bool(enemy.boss) else 150.0, Color(color.r, color.g, color.b, 0.28), 0.2)
-		if enemy.global_position.y >= 1260.0:
+			_spawn_attack_ring(_base_damage_impact_position(enemy.global_position.x) + Vector2(0.0, -50.0), 96.0 if not bool(enemy.boss) else 150.0, Color(color.r, color.g, color.b, 0.28), 0.2)
+		if enemy.global_position.y >= warning_line_y:
 			if now - last_threat_warning_at < 2.2:
 				continue
 			last_threat_warning_at = now
@@ -7644,13 +7865,11 @@ func _apply_level_background() -> void:
 	# 设备(如 iPhone 16 Pro Max)上，人物/护栏/底部HUD这整个"下方基座群组"统一
 	# 下移 bottom_dock_shift、钉到真实屏幕底部(见 _ready)；背景图也整体下移同样
 	# 的距离——只是平移，不缩放，内部构图完全不变形，和下移后的基座群组天然继续
-	# 对齐。之前试过原地不动只在底部另接一截同图，但好几张环境图(比如毒液实验室)
-	# 底部附近就摆着箱子/灯柱这类独立道具，接上去等于凭空复制出一个一模一样的
-	# 道具，比黑边还突兀；也试过把背景拉伸盖满，但每张环境图的护栏/道具具体画在
-	# 哪个高度都不一样(从 y1200 到 y1500+ 都有)，找不出一个安全的拉伸分界线。
-	# 现在这版不复制、不拉伸，只是整体平移，最安全。平移后上方让出来的空当(走廊
-	# 纵深处，此时还没有敌人)取样背景图自己最顶部边缘的颜色垫上，读作渐隐入暗。
-	background.position = Vector2(540, 960.0 + bottom_dock_shift)
+	# 对齐。中间试过按可见高度整体 cover 缩放(底边钉住、顶部自然补满)，但那样是
+	# 按统一倍率缩放，而人物/护栏走的是固定像素平移，两者不是同一种变换——算出来
+	# 背景里的护栏画面会比实际 breach 线/人物位置高出几十到上百像素(设备越高越
+	# 明显)，重新变成"人物和背景基座脱节"，这正是最早那次"人物位置对齐"问题的
+	# 成因，不能再犯。平移不缩放才能保证两者用同一套位移量、严格对齐。
 	var texture_size := texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		background.scale = Vector2.ONE
@@ -7658,6 +7877,7 @@ func _apply_level_background() -> void:
 		return
 	var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)
 	background.scale = Vector2(cover_scale, cover_scale)
+	background.position = Vector2(540, 960.0 + bottom_dock_shift)
 	background.modulate = Color(1, 1, 1, 1)
 	var edge_color := _sample_background_edge_color(texture, texture_size, true)
 	_apply_background_top_fill(edge_color)

@@ -1127,6 +1127,26 @@
       "source": "assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_manifest_2026_07_05.json",
       "derived": "assets/production/source_refs/generated/sfx_expansion_2026_07_05/sfx_expansion_waveform_sheet_2026_07_05.png",
       "reference": "design/sfx_expansion_prompts_2026_07_05.md"
+    },
+    {
+      "id": "background_fortress_alignment_2026_07_06",
+      "category": "environment_polish",
+      "status": "integrated",
+      "description": "Aligned the bottom horizontal fortress/barricade band across all 10 campaign battle backgrounds to the accepted env_abandoned_factory reference height while preserving 1080x1920 PNG contracts and existing environment IDs/paths.",
+      "source": "assets/production/source_refs/generated/background_fortress_alignment_2026_07_06.json",
+      "derived": "assets/production/contact_sheets/contact_background_fortress_alignment_2026_07_06.png"
+    },
+    {
+      "id": "active_skill_fire_vfx_review_2026_07_06",
+      "category": "vfx_polish",
+      "status": "accepted_runtime_pending",
+      "description": "Owner-requested review and replacement of fire hit/explosion and all character active skill VFX to remove side-plume fire, hard cutout edges, and geometric/vector-looking active skill frames.",
+      "source": "assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/active_skill_vfx_manifest_2026_07_06.json",
+      "reference": "assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/top_tier_active_skill_vfx_reference_2026_07_06.png",
+      "derived": [
+        "assets/production/contact_sheets/contact_fire_vfx_review_2026_07_06.png",
+        "assets/production/contact_sheets/contact_active_skill_vfx_review_2026_07_06.png"
+      ]
     }
   ]
 }

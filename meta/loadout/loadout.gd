@@ -6,12 +6,14 @@ const MAIN_ICON_SIZE := Vector2(296, 296)
 const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
 const HERO_BUST_IMAGE_WIDTH := 378.0
 const HERO_BUST_Y_OFFSET := -58.0
-const GEAR_CARD_SIZE := Vector2(220, 220)
-const GEAR_ROW_SEPARATION := 60
+const GEAR_CARD_SIZE := Vector2(176, 176)
+const GEAR_ROW_SEPARATION := 34
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
+const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 
 var router: Node
 var level_id := "level_001"
+var is_challenge_mode := false
 var _return_to := "map"
 var _return_payload := {}
 
@@ -21,22 +23,30 @@ func setup(main: Node, payload := {}) -> void:
 	if payload is Dictionary:
 		data = payload
 	level_id = _resolve_level_id(data)
+	is_challenge_mode = bool(data.get("challenge", data.get("mode_challenge", false)))
 	_return_to = _sanitize_return_to(str(data.get("return_to", "map")))
 	_return_payload = _sanitize_return_payload(data.get("return_payload", {}))
 	if _return_to == "result" and not _return_payload.has("level_id"):
 		_return_payload["level_id"] = level_id
+	if is_challenge_mode:
+		_return_payload["challenge"] = true
 	_refresh()
 
 func _ready() -> void:
+	AudioManager.play_bgm("map")
 	if has_node("Root/Main/TopNeonLine"):
 		($Root/Main/TopNeonLine as CanvasItem).visible = false
+	_apply_runtime_layout()
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
 	(%BackButton as TextureButton).modulate = Color(0.82, 0.86, 0.86, 1.0)
 	(%StartButton as TextureButton).pressed.connect(func() -> void:
 		AudioManager.play_sfx("ui_confirm")
-		router.start_level(level_id)
+		if is_challenge_mode:
+			router.start_challenge_level(level_id)
+		else:
+			router.start_level(level_id)
 	)
 	$UpgradeButton.pressed.connect(func() -> void:
 		var weapon_id := SaveManager.get_selected("weapon")
@@ -53,6 +63,32 @@ func _ready() -> void:
 	_refresh_back_button()
 	_refresh()
 	_build_equip_nav()
+
+func _apply_runtime_layout() -> void:
+	var root := $Root as MarginContainer
+	root.add_theme_constant_override("margin_top", 38)
+	root.add_theme_constant_override("margin_bottom", 36)
+	var main := $Root/Main as VBoxContainer
+	main.add_theme_constant_override("separation", 13)
+	if has_node("Root/Main/UnitsRow"):
+		var units := $Root/Main/UnitsRow as HBoxContainer
+		units.custom_minimum_size = Vector2(0, 430)
+	if has_node("Root/Main/GearIconRow"):
+		var gear := %GearIconRow as HBoxContainer
+		gear.custom_minimum_size = Vector2(0, 176)
+		gear.add_theme_constant_override("separation", GEAR_ROW_SEPARATION)
+	if has_node("Root/Main/DetailsPanel"):
+		(%DetailsPanel as Control).custom_minimum_size = Vector2(0, 226)
+	if has_node("Root/Main/BottomSpacer"):
+		var spacer := $Root/Main/BottomSpacer as Control
+		spacer.custom_minimum_size = Vector2(0, 10)
+		spacer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if has_node("Root/Main/StartButton"):
+		var start := %StartButton as TextureButton
+		start.custom_minimum_size = Vector2(760, 112)
+		var start_label := start.get_node_or_null("Label") as Label
+		if start_label != null:
+			start_label.add_theme_font_size_override("font_size", 38)
 
 func _bind_open_hit(panel: Control, mode: String) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -83,6 +119,12 @@ func _refresh_back_button() -> void:
 	if label == null:
 		return
 	label.text = "返回结算" if _return_to == "result" else "返回关卡"
+
+func _refresh_start_button() -> void:
+	var label := (%StartButton as TextureButton).get_node_or_null("Label") as Label
+	if label == null:
+		return
+	label.text = "开始挑战" if is_challenge_mode else "开始战斗"
 
 func _refresh_resource_bar() -> void:
 	var main := $Root/Main as VBoxContainer
@@ -122,7 +164,7 @@ func _refresh() -> void:
 	var upgrade_cost := SaveManager.get_weapon_upgrade_cost(weapon_id)
 	var gold := SaveManager.get_player_gold()
 	var power := SaveManager.get_loadout_power()
-	var recommended_power := SaveManager.get_recommended_power_for_level(level_id)
+	var recommended_power := _recommended_power_for_current_mode()
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var character_name := DataLoader.tr_key(DataLoader.get_row("characters", char_id).get("name_key", char_id))
@@ -136,8 +178,10 @@ func _refresh() -> void:
 	var counter_state := "克制有效" if _loadout_counters(weakness, char_id, weapon_id, chip_id) else "克制一般"
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
-	$Summary.text = "%s  |  五波尸潮  |  主弱点 %s\n战力 %d / %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
+	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
+	$Summary.text = "%s  |  %s  |  主弱点 %s\n战力 %d / %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
 		DataLoader.level_display_name(level_id),
+		mode_label,
 		_element_name(weakness),
 		power,
 		recommended_power,
@@ -155,7 +199,7 @@ func _refresh() -> void:
 		" 等级%d" % pet_level if pet_id != "" else ""
 	]
 	$Summary.visible = false
-	_refresh_summary_panel(level_id, weakness, power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "")
+	_refresh_summary_panel(level_id, weakness, power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
 	var weapon_icon := %WeaponIcon as TextureRect
 	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
 	weapon_icon.modulate = Color.WHITE
@@ -172,6 +216,8 @@ func _refresh() -> void:
 		["宠物", pet_level]
 	])
 	$Objective.text = _level_objective(level_id)
+	if is_challenge_mode:
+		$Objective.text = "挑战模式：同关卡强化尸潮，胜利可拿独立三颗星；重复通关只补最高星差额。\n" + $Objective.text
 	if power < recommended_power:
 		$Objective.text += "\n提示：战力偏低，优先升级武器、角色或当前芯片。"
 	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
@@ -189,6 +235,7 @@ func _refresh() -> void:
 	]
 	$UpgradeButton.disabled = not SaveManager.can_upgrade_weapon(weapon_id)
 	$UpgradeButton.modulate = Color(1, 1, 1, 1) if not $UpgradeButton.disabled else Color(0.55, 0.55, 0.55, 0.85)
+	_refresh_start_button()
 	_rebuild_character_bar(char_id)
 	_rebuild_gear_icon_row(armor_id, chip_id, pet_id)
 	_refresh_signature_panel(char_id)
@@ -242,7 +289,7 @@ func _row_name(table: String, item_id: String) -> String:
 		return item_id
 	return DataLoader.tr_key(row.get("name_key", item_id))
 
-func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool) -> void:
+func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
 	var panel: Control = %DetailsPanel
 	var old := panel.get_node_or_null("SummaryGrid")
 	if old != null:
@@ -267,7 +314,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)
 	box.add_child(title_row)
-	var title := UiKit.label("战术摘要", 23, UiKit.TEXT_MAIN, 4)
+	var title := UiKit.label("挑战摘要" if challenge_mode else "战术摘要", 23, UiKit.TEXT_MAIN, 4)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var state := UiKit.pill(counter_state, UiKit.GREEN if counter_state == "克制有效" else UiKit.GOLD, 18)
@@ -289,7 +336,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(grid)
-	grid.add_child(_summary_cell("关卡", "%s / 五波" % DataLoader.level_display_name(display_level_id), UiKit.CYAN, ""))
+	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
 	grid.add_child(_summary_cell("战力", "%d / %d" % [power, recommended_power], UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
@@ -523,7 +570,17 @@ func _gear_icon_button(table: String, slot: String, selected_id: String, _fallba
 		accent,
 		"%s：%s" % [_slot_label(slot), item_name]
 	)
-	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.62, 0.68, 0.74, 0.95)
+	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.74, 0.80, 0.86, 0.90)
+	var slot_label := Label.new()
+	slot_label.name = "SlotLabel"
+	slot_label.text = _slot_label(slot) if has_item else "%s空槽" % _slot_label(slot)
+	slot_label.position = Vector2(10, GEAR_CARD_SIZE.y - 42.0)
+	slot_label.size = Vector2(GEAR_CARD_SIZE.x - 20.0, 28.0)
+	slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	slot_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiKit.apply_label(slot_label, 15, UiKit.TEXT_MAIN if has_item else UiKit.TEXT_MUTED, 2)
+	slot_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(slot_label)
 	(card.get_node("HitArea") as Button).pressed.connect(_open_collection.bind(table))
 	return card
 
@@ -661,6 +718,12 @@ func _sanitize_return_payload(payload: Variant) -> Dictionary:
 		return payload.duplicate(true)
 	return {}
 
+func _recommended_power_for_current_mode() -> int:
+	var base := SaveManager.get_recommended_power_for_level(level_id)
+	if is_challenge_mode:
+		return int(ceil(float(base) * CHALLENGE_RECOMMENDED_POWER_MULT))
+	return base
+
 func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chip_id: String) -> bool:
 	var character := DataLoader.get_row("characters", char_id)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
@@ -690,6 +753,7 @@ func _open_collection(mode: String) -> void:
 		"mode": mode,
 		"return_to": "loadout",
 		"level_id": level_id,
+		"challenge": is_challenge_mode,
 		"loadout_return_to": _return_to,
 		"loadout_return_payload": _return_payload,
 	})

@@ -1,6 +1,8 @@
 class_name SkillRuntime
 extends RefCounted
 
+const SLOW_FIELD_DESIGN_BASE_LINE_Y := 1500.0
+
 var owned := {}
 var _order: Array[String] = []
 
@@ -90,13 +92,15 @@ func projectile_mods() -> Dictionary:
 func fire_rate_multiplier() -> float:
 	return 1.0 + _eff("skill_salvo", "fire_rate_mult")
 
-func slow_mult_for_y(y: float) -> float:
+func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_Y) -> float:
 	var slow := _eff("skill_slow_field", "slow") + _eff("skill_cryo", "slow")
 	if slow <= 0.0:
 		return 1.0
-	var y_min := 1160.0
+	var y_min := base_line_y - 340.0
 	if level("skill_slow_field") > 0:
-		y_min = _eff("skill_slow_field", "y_min", 1160.0)
+		var design_y_min := _eff("skill_slow_field", "y_min", 1160.0)
+		var design_offset := maxf(0.0, SLOW_FIELD_DESIGN_BASE_LINE_Y - design_y_min)
+		y_min = base_line_y - design_offset
 	if y < y_min:
 		return 1.0
 	return max(0.4, 1.0 - slow)

@@ -6,6 +6,7 @@ class FakeRouter:
 	var last_route := ""
 	var last_payload := {}
 	var last_started_level := ""
+	var last_started_challenge_level := ""
 	var last_started_endless_level := ""
 	var last_result := {}
 	var run_context := {}
@@ -16,6 +17,9 @@ class FakeRouter:
 
 	func start_level(level_id: String) -> void:
 		last_started_level = level_id
+
+	func start_challenge_level(level_id: String) -> void:
+		last_started_challenge_level = level_id
 
 	func start_endless_level(level_id: String) -> void:
 		last_started_endless_level = level_id
@@ -98,6 +102,7 @@ func _initialize() -> void:
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
 	_verify_projectile_visual_profiles()
+	_verify_projectile_ballistics_rules()
 	await _verify_turret_muzzle_sockets(data_loader)
 	await _verify_character_weapon_skins(data_loader, save_manager)
 	await _verify_character_active_skill_controls(data_loader, save_manager)
@@ -146,10 +151,23 @@ func _initialize() -> void:
 	_expect(str(map_character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "map character feature card must use frameless 正脸立绘")
 	var level_list: Node = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null, "map level list must be scrollable")
-	_expect(level_list.get_child_count() >= 99, "map must render the launch campaign")
-	_expect(level_list.get_child(0) is TextureButton, "map levels must use styled texture buttons")
-	_expect((level_list.get_child(0).get_child(0) as Label).text == "001 城市缺口", "map must show three-digit level number and display name")
-	_expect((level_list.get_child(10).get_child(0) as Label).text == "011 废街突围", "map must show authored names beyond the first ten levels")
+	_expect(level_list.get_child_count() >= 10, "map must render ten chapter cards before sub-level cards")
+	var first_chapter: Node = level_list.get_child(0)
+	_expect(first_chapter is TextureButton, "map chapters must use styled texture buttons")
+	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
+	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
+	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
+	_expect(first_chapter.find_child("EnterChapterButton", true, false) != null, "map chapter cards must expose an explicit chapter entry button")
+	main.current_scene._open_chapter(1)
+	await process_frame
+	level_list = main.current_scene.find_child("LevelList", true, false)
+	_expect(level_list != null and level_list.get_child_count() >= 11, "chapter detail must render a header plus its ten sub-level cards")
+	_expect(level_list.get_child(0).find_child("BackToChapterMapButton", true, false) != null, "chapter detail must expose a back-to-chapter-map button")
+	var first_level: Node = level_list.get_child(1)
+	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
+	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
+	_expect(first_level.find_child("EnterLevelButton", true, false) != null, "chapter level cards must expose an explicit normal entry button")
+	_expect(first_level.find_child("ChallengeLevelButton", true, false) != null, "chapter level cards must expose an explicit challenge mode button")
 	main.change_scene("collection", {"mode": "characters"})
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "main must route to character collection")
@@ -268,6 +286,22 @@ func _initialize() -> void:
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
 	_expect(main.current_scene.get_node("Summary").text.contains("五波") or main.current_scene.get_node("Objective").text.contains("五波"), "loadout copy must mention five-wave pacing")
 	_expect(main.current_scene.get_node("EquipNav").get_child_count() >= 5, "loadout must link to all equipment categories")
+	main.change_scene("loadout", {"level_id": "level_001", "challenge": true})
+	await process_frame
+	_expect(main.current_scene.name == "Loadout", "main must route to challenge loadout")
+	_expect(main.current_scene.is_challenge_mode, "challenge loadout must keep the challenge flag")
+	_expect((main.current_scene.find_child("StartButton", true, false).get_node("Label") as Label).text == "开始挑战", "challenge loadout start button must label challenge entry")
+	(main.current_scene.find_child("StartButton", true, false) as TextureButton).emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Battle", "challenge start must route to battle")
+	_expect(main.current_scene.is_challenge_mode, "battle must enter challenge mode when started from challenge loadout")
+	main.finish_level({"victory": true, "stars": 3, "gold": 0, "xp": 0, "challenge": true}, false)
+	await process_frame
+	_expect(main.current_scene.name == "Result", "challenge finish must route to result")
+	_expect(main.current_scene.is_challenge_result, "challenge result must keep the challenge flag")
+	_expect(main.current_scene.next_level == "", "challenge result must not expose campaign next-level progression")
+	main.change_scene("loadout", {"level_id": "level_001"})
+	await process_frame
 	var character_panel: Node = main.current_scene.find_child("CharacterPanel", true, false)
 	_expect(character_panel != null and character_panel.has_node("OpenHitArea"), "loadout character panel must open collection as a layer")
 	(character_panel.get_node("OpenHitArea") as Button).emit_signal("pressed")
@@ -933,6 +967,42 @@ func _verify_projectile_visual_profiles() -> void:
 			_expect(sprite.scale.x >= 0.36 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
 		projectile.queue_free()
 
+func _verify_projectile_ballistics_rules() -> void:
+	var projectile := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(projectile)
+	var target := FakeDamageTarget.new()
+	target.global_position = Vector2(900, 1500)
+	target.add_to_group("enemies")
+	root.add_child(target)
+	projectile.setup(Vector2(540, 1500), Vector2.UP, 1000.0, 10.0, "physical", 0, 0, 0.55, 5.0)
+	var initial_dir: Vector2 = projectile.velocity.normalized()
+	projectile._physics_process(0.5)
+	_expect(projectile.velocity.normalized().dot(initial_dir) > 0.999, "homing projectile must fly straight for the first second after muzzle exit")
+	var before_turn_dir: Vector2 = projectile.velocity.normalized()
+	var speed: float = projectile.velocity.length()
+	projectile._physics_process(0.6)
+	var after_turn_dir: Vector2 = projectile.velocity.normalized()
+	var turn_angle := absf(before_turn_dir.angle_to(after_turn_dir))
+	var max_turn := float(projectile._homing_turn_rate_limit(speed)) * 0.6 + 0.015
+	_expect(turn_angle > 0.05, "homing projectile must start steering after the one-second arming delay")
+	_expect(turn_angle <= max_turn, "homing projectile turn must respect the minimum turn radius, got %.3f > %.3f" % [turn_angle, max_turn])
+	target.queue_free()
+	projectile.queue_free()
+
+	var offscreen := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(offscreen)
+	offscreen.setup(Vector2(540, 10), Vector2.UP, 1000.0, 10.0, "physical")
+	offscreen._physics_process(0.05)
+	_expect(offscreen.is_queued_for_deletion(), "projectiles must be destroyed immediately after leaving the visible screen bounds")
+	offscreen.queue_free()
+
+	var expired := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(expired)
+	expired.setup(Vector2(540, 960), Vector2.UP, 1000.0, 10.0, "physical")
+	expired._physics_process(5.0)
+	_expect(expired.is_queued_for_deletion(), "projectiles must be force-cleared after five seconds in flight")
+	expired.queue_free()
+
 func _verify_turret_muzzle_sockets(data_loader: Node) -> void:
 	var expected := {
 		"weapon_autocannon": Vector2(34, -204),
@@ -1206,7 +1276,7 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	await process_frame
 	await physics_frame
 	var slots := battle.get_node("Hud/SkillSlots")
-	_expect(slots is HBoxContainer, "battle skill slots must use the bottom horizontal shelf")
+	_expect(slots is GridContainer, "battle skill slots must use the compact lower-left grid")
 	_expect(slots.get_child_count() == 1, "tesla weapon seed must create exactly one skill slot")
 	_expect(slots.has_node("skill_tesla"), "tesla weapon seed must use the tesla skill slot")
 	var slot := slots.get_node("skill_tesla")
@@ -1370,6 +1440,18 @@ func _verify_progression_unlock_repair(save_manager: Node) -> void:
 	save_manager.save_data = save_manager._default_save()
 	save_manager.apply_level_result({"level_id": "level_002", "victory": false, "stars": 0, "next_level": "level_003", "gold": 0, "xp": 0}, false)
 	_expect(not save_manager.is_level_unlocked("level_003"), "defeat result must not unlock level_003")
+
+	save_manager.save_data = save_manager._default_save()
+	var star_before_challenge: int = save_manager.get_player_star()
+	save_manager.apply_challenge_result({"level_id": "level_002", "victory": true, "stars": 2, "gold": 0, "xp": 0}, false)
+	_expect(save_manager.get_challenge_stars("level_002") == 2, "challenge result must store challenge stars separately")
+	_expect(save_manager.get_level_stars("level_002") == 0, "challenge result must not overwrite normal level stars")
+	_expect(save_manager.get_player_star() == star_before_challenge + 2, "first challenge clear must credit earned challenge stars")
+	_expect(not save_manager.is_level_unlocked("level_003"), "challenge clear must not unlock the next campaign level")
+	save_manager.apply_challenge_result({"level_id": "level_002", "victory": true, "stars": 2, "gold": 0, "xp": 0}, false)
+	_expect(save_manager.get_player_star() == star_before_challenge + 2, "repeating the same challenge stars must not duplicate star currency")
+	save_manager.apply_challenge_result({"level_id": "level_002", "victory": true, "stars": 3, "gold": 0, "xp": 0}, false)
+	_expect(save_manager.get_player_star() == star_before_challenge + 3, "improving challenge stars must only credit the delta")
 	save_manager.save_data = original_save
 
 func _expect(condition: bool, message: String) -> void:

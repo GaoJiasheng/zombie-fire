@@ -93,6 +93,10 @@ func start_level(level_id: String) -> void:
 	run_context = {"level_id": level_id}
 	change_scene("battle", run_context)
 
+func start_challenge_level(level_id: String) -> void:
+	run_context = {"level_id": level_id, "challenge": true}
+	change_scene("battle", run_context)
+
 # 无限尸潮：复用某个已解锁关卡的数据作为"种子"(僵尸/环境/元素弱点)，波次打完循环
 # 继续、每轮血量递增，直到漏怪耗尽基地生命。不走正常关卡的胜利/解锁流程。
 func start_endless_level(seed_level_id: String) -> void:
@@ -101,14 +105,20 @@ func start_endless_level(seed_level_id: String) -> void:
 
 func finish_level(result: Dictionary, persist := true) -> void:
 	var normalized := result.duplicate()
-	if bool(normalized.get("endless", false)):
-		SaveManager.apply_endless_result(normalized, persist)
-		change_scene("result", normalized)
-		return
 	var active_level_id := _active_level_id()
 	var result_level_id := str(normalized.get("level_id", ""))
 	if active_level_id != "" and (result_level_id == "" or (result_level_id == "level_001" and active_level_id != "level_001")):
 		normalized["level_id"] = active_level_id
+	if bool(normalized.get("endless", false)):
+		SaveManager.apply_endless_result(normalized, persist)
+		change_scene("result", normalized)
+		return
+	if bool(normalized.get("challenge", run_context.get("challenge", false))):
+		normalized["challenge"] = true
+		normalized.erase("next_level")
+		SaveManager.apply_challenge_result(normalized, persist)
+		change_scene("result", normalized)
+		return
 	if bool(normalized.get("victory", false)):
 		var level_id := str(normalized.get("level_id", ""))
 		var next_level := _campaign_next_level(level_id)
@@ -130,6 +140,15 @@ func _normalize_route_payload(route: String, payload: Variant) -> Dictionary:
 				payload_level_id = active_level_id
 		if payload_level_id != "":
 			run_context["level_id"] = payload_level_id
+		if normalized.has("challenge"):
+			if bool(normalized.get("challenge", false)):
+				run_context["challenge"] = true
+			else:
+				run_context.erase("challenge")
+		elif route == "loadout":
+			run_context.erase("challenge")
+		elif bool(run_context.get("challenge", false)):
+			normalized["challenge"] = true
 	return normalized
 
 func _active_level_id() -> String:

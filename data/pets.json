@@ -6,6 +6,14 @@
 		"damage": 10,
 		"element": "physical",
 		"level_damage_growth": 0.06,
+		"stat_bonus": {
+			"damage_mult": 0.03,
+			"fire_rate_mult": 0.015
+		},
+		"level_stat_growth": {
+			"damage_mult": 0.003,
+			"fire_rate_mult": 0.002
+		},
 		"max_level": 30,
 		"cost_base_gold": 130,
 		"unlock_cost_star": 35,
@@ -19,6 +27,14 @@
 		"damage": 12,
 		"element": "fire",
 		"level_damage_growth": 0.065,
+		"stat_bonus": {
+			"element_damage_mult": 0.05,
+			"crit_rate": 0.015
+		},
+		"level_stat_growth": {
+			"element_damage_mult": 0.004,
+			"crit_rate": 0.001
+		},
 		"max_level": 30,
 		"cost_base_gold": 145,
 		"unlock_cost_star": 38,
@@ -32,6 +48,14 @@
 		"damage": 8,
 		"element": "ice",
 		"level_damage_growth": 0.055,
+		"stat_bonus": {
+			"slow_strength_mult": 0.08,
+			"base_hp_mult": 0.025
+		},
+		"level_stat_growth": {
+			"slow_strength_mult": 0.006,
+			"base_hp_mult": 0.002
+		},
 		"max_level": 30,
 		"cost_base_gold": 135,
 		"unlock_cost_star": 40,
@@ -45,6 +69,14 @@
 		"damage": 9,
 		"element": "lightning",
 		"level_damage_growth": 0.06,
+		"stat_bonus": {
+			"chain_bonus": 1,
+			"fire_rate_mult": 0.02
+		},
+		"level_stat_growth": {
+			"chain_bonus": 0.08,
+			"fire_rate_mult": 0.002
+		},
 		"max_level": 30,
 		"cost_base_gold": 145,
 		"unlock_cost_star": 45,
@@ -56,6 +88,14 @@
 		"role": "repair",
 		"heal_per_wave": 8,
 		"level_heal_growth": 0.04,
+		"stat_bonus": {
+			"base_hp_mult": 0.07,
+			"breach_damage_reduction": 0.05
+		},
+		"level_stat_growth": {
+			"base_hp_mult": 0.003,
+			"breach_damage_reduction": 0.002
+		},
 		"max_level": 30,
 		"cost_base_gold": 125,
 		"unlock_cost_star": 120,
@@ -67,6 +107,14 @@
 		"role": "economy",
 		"gold_mult": 0.08,
 		"level_gold_growth": 0.025,
+		"stat_bonus": {
+			"gold_mult": 0.04,
+			"damage_mult": 0.015
+		},
+		"level_stat_growth": {
+			"gold_mult": 0.004,
+			"damage_mult": 0.0015
+		},
 		"max_level": 30,
 		"cost_base_gold": 155,
 		"unlock_cost_star": 230,
