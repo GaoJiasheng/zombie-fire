@@ -35,6 +35,42 @@ ARMOR_HP_MULT = 1.20      # armor_kevlar (typical)
 BOSS_LEAK = 0.12
 NORMAL_LEAK = 0.05
 
+DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.20, "4": 1.44, "5": 1.62}
+DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.20, "4": 1.20, "5": 1.20}
+DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
+
+
+def wave_number(wave: dict) -> int:
+    try:
+        return int(wave.get("wave", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False) -> float:
+    key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
+    defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
+    table = economy.get(key, defaults)
+    if not isinstance(table, dict):
+        table = defaults
+    return float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+
+
+def level_number(level: dict) -> int:
+    try:
+        return int(str(level.get("id", "level_000")).split("_")[-1])
+    except (TypeError, ValueError):
+        return 0
+
+
+def boss_hp_level_bonus(economy: dict, level: dict) -> float:
+    rule = economy.get("boss_hp_level_bonus", DEFAULT_BOSS_HP_LEVEL_BONUS)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_BOSS_HP_LEVEL_BONUS
+    start_level = int(rule.get("start_level", DEFAULT_BOSS_HP_LEVEL_BONUS["start_level"]))
+    multiplier = float(rule.get("multiplier", DEFAULT_BOSS_HP_LEVEL_BONUS["multiplier"]))
+    return multiplier if level_number(level) >= start_level else 1.0
+
 
 def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_level: int, skill_mult: float) -> float:
     chars = json.loads(CHARS_PATH.read_text(encoding="utf-8"))
@@ -56,17 +92,20 @@ def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_le
     return damage * fr * skill_mult
 
 
-def level_enemy_hp(level: dict, zombies: dict, bosses: dict) -> tuple[float, int]:
+def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, int]:
     diff = float(level["difficulty_coef"])
     hp_base = float(level.get("base_hp_ref", 50.0))
     total_hp = 0.0
     count = 0
+    boss_level_bonus = boss_hp_level_bonus(economy, level)
     for wave in level.get("waves", []):
+        wave_no = wave_number(wave)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no)
         # Normal spawns
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            hp = hp_base * float(z.get("hp_coef", 1.0)) * diff
+            hp = hp_base * float(z.get("hp_coef", 1.0)) * diff * mob_bonus
             c = int(spawn.get("count", 0))
             total_hp += hp * c
             count += c
@@ -74,14 +113,14 @@ def level_enemy_hp(level: dict, zombies: dict, bosses: dict) -> tuple[float, int
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff
+            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True) * boss_level_bonus
             total_hp += boss_hp
             count += 1
         # Boss support mobs
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            hp = hp_base * float(z.get("hp_coef", 1.0)) * diff
+            hp = hp_base * float(z.get("hp_coef", 1.0)) * diff * mob_bonus
             c = int(spawn.get("count", 0))
             total_hp += hp * c
             count += c
@@ -103,26 +142,28 @@ def estimate_skill_mult(level: dict) -> float:
     return min(3.2, 1.0 + 0.28 * cards + 0.035 * max(cards - 3, 0) ** 2)
 
 
-def leak_damage(level: dict, zombies: dict, bosses: dict, is_boss_level: bool) -> float:
+def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss_level: bool) -> float:
     """Expected breach damage given a leak rate."""
     diff = float(level["difficulty_coef"])
     leak = BOSS_LEAK if is_boss_level else NORMAL_LEAK
     total = 0.0
     for wave in level.get("waves", []):
+        wave_no = wave_number(wave)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no)
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
             total += bd * int(spawn.get("count", 0))
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * diff
+            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * diff * late_wave_hp_bonus(economy, wave_no, True)
             total += bd
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
             total += bd * int(spawn.get("count", 0))
     return total * leak
 
@@ -135,6 +176,7 @@ def main() -> None:
     levels: list[dict] = json.loads(LEVELS_PATH.read_text(encoding="utf-8"))
     zombies: dict[str, dict] = json.loads(ZOMBIES_PATH.read_text(encoding="utf-8"))
     bosses: dict[str, dict] = json.loads(BOSSES_PATH.read_text(encoding="utf-8"))
+    economy: dict = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
 
     print(f"{'level':<11} {'ch':<3} {'recom':<5} {'coef':<6} {'cards':>5} {'spawn':>6} {'hp_total':>9} {'dps_ns':>6} {'dps_ws':>6} {'t_ns':>6} {'t_ws':>6} {'leak%':>6}  notes")
     print("-" * 110)
@@ -142,7 +184,7 @@ def main() -> None:
     rows = []
     for lv in levels:
         n = int(lv["id"].split("_")[1])
-        hp_total, count = level_enemy_hp(lv, zombies, bosses)
+        hp_total, count = level_enemy_hp(lv, zombies, bosses, economy)
         char_level = int(lv.get("recommend_level", n))
         weapon_level = char_level
         dps_ns = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, 1.0)
@@ -152,7 +194,7 @@ def main() -> None:
         time_ws = hp_total / max(dps_ws, 1.0)
         spawn_time = level_spawn_time(lv)
         boss_lvl = is_boss_level(lv)
-        leak = leak_damage(lv, zombies, bosses, boss_lvl)
+        leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         # base_hp_ref * armor_mult is the real starting HP
         leak_pct = min(100.0, leak / max(float(lv.get("base_hp_ref", 100)) * ARMOR_HP_MULT, 1.0) * 100.0)
         rows.append((n, lv.get("chapter", 0), char_level, float(lv["difficulty_coef"]),

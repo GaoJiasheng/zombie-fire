@@ -246,6 +246,9 @@
   "ENEMY_SPEED_MULT": 0.82,
   "PLAYER_FIRE_RATE_MULT": 0.25,
   "PLAYER_SHOT_DAMAGE_MULT": 3.0,
+  "late_wave_hp_bonus": {"3":1.2,"4":1.44,"5":1.62},
+  "late_wave_boss_hp_bonus": {"3":1.2,"4":1.2,"5":1.2},
+  "boss_hp_level_bonus": {"start_level":20,"multiplier":2.0},
   "level_xp_coef": 50, "level_xp_pow": 1.5,
   "atk_growth_default": 0.08, "hp_growth_default": 0.06,
   "talent_per_level_early": 1, "talent_per_level_late": 2, "talent_late_from": 40,
@@ -265,6 +268,9 @@
 }
 ```
 - `PLAYER_FIRE_RATE_MULT / PLAYER_SHOT_DAMAGE_MULT` 是主武器手感旋钮：当前基础射速节奏值为 `0.25`，单发伤害补偿为 `3.0`；关卡压力由 `tools/rebalance_difficulty.py` 按推荐等级 DPS 重新反推。
+- `late_wave_hp_bonus` 是普通僵尸/支援怪的后半段波次血量旋钮；当前第 3 波 +20%，第 4 波在原 1.20 基础上再 +20% 到 1.44，第 5 波在原 1.35 基础上再 +20% 到 1.62。
+- `late_wave_boss_hp_bonus` 是 Boss 单独旋钮，避免 Boss 误吃普通怪后期加成；当前第 5 波 Boss 按 owner 要求整体 +20%。
+- `boss_hp_level_bonus` 是关卡段 boss 血量旋钮；当前从第 20 关开始，所有 boss 额外乘 `2.0`，只影响 boss HP/压力估算，不提高 boss 伤害。
 
 ## challenges.json （数组，M3/M4 后启用）
 ```jsonc

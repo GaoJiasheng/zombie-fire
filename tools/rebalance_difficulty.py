@@ -48,6 +48,10 @@ INTRO_STAGES = {
 BASE_WEAPON_DAMAGE = 28.0
 CHIP_DAMAGE_MULT = 1.20
 
+DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.20, "4": 1.44, "5": 1.62}
+DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.20, "4": 1.20, "5": 1.20}
+DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
+
 
 def load_json(name: str):
     return json.loads((DATA / f"{name}.json").read_text(encoding="utf-8"))
@@ -55,6 +59,31 @@ def load_json(name: str):
 
 def dump_json(path: Path, data) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
+
+
+def wave_number(wave: dict) -> int:
+    try:
+        return int(wave.get("wave", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False) -> float:
+    key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
+    defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
+    table = economy.get(key, defaults)
+    if not isinstance(table, dict):
+        table = defaults
+    return float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+
+
+def boss_hp_level_bonus(economy: dict, level_no: int) -> float:
+    rule = economy.get("boss_hp_level_bonus", DEFAULT_BOSS_HP_LEVEL_BONUS)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_BOSS_HP_LEVEL_BONUS
+    start_level = int(rule.get("start_level", DEFAULT_BOSS_HP_LEVEL_BONUS["start_level"]))
+    multiplier = float(rule.get("multiplier", DEFAULT_BOSS_HP_LEVEL_BONUS["multiplier"]))
+    return multiplier if level_no >= start_level else 1.0
 
 
 def base_hp_ref(n: int) -> int:
@@ -418,21 +447,28 @@ def reward_gold_mult(n: int) -> float:
     return round(max(0.18, 0.56 - 0.0036 * n), 2)
 
 
-def level_pressure(level: dict, zombies: dict, bosses: dict) -> float:
+def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> float:
     # Mirrors tools/check_level_pressure.py so the monotonic pass optimizes the
     # exact metric the validator enforces (uses hp_coef * bd_coef, boss hp * 8).
     raw = 0.0
+    try:
+        level_no = int(str(level.get("id", "level_000")).split("_")[-1])
+    except (TypeError, ValueError):
+        level_no = 0
+    boss_level_bonus = boss_hp_level_bonus(economy, level_no)
     for wave in level.get("waves", []):
+        wave_no = wave_number(wave)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no)
         for grp in wave.get("spawns", []) + wave.get("support", []):
             row = zombies[grp["type"]]
             count = int(grp.get("count", 1))
-            raw += count * float(row.get("hp_coef", 1.0)) * float(row.get("bd_coef", 1.0))
+            raw += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
         if "boss" in wave:
-            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * 8.0
+            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True) * boss_level_bonus * 8.0
     return raw * float(level.get("difficulty_coef", 1.0))
 
 
-def enforce_monotonic_pressure(levels: list[dict], zombies: dict, bosses: dict) -> None:
+def enforce_monotonic_pressure(levels: list[dict], zombies: dict, bosses: dict, economy: dict) -> None:
     # Boss levels are intentional periodic spikes, so we make the two streams
     # (boss / non-boss) each monotonic non-decreasing instead of the raw series.
     # difficulty_coef is only ever scaled UP, so the game never gets easier.
@@ -442,12 +478,12 @@ def enforce_monotonic_pressure(levels: list[dict], zombies: dict, bosses: dict) 
             level_is_boss = any("boss" in wave for wave in level.get("waves", []))
             if level_is_boss != boss_stream:
                 continue
-            pressure = level_pressure(level, zombies, bosses)
+            pressure = level_pressure(level, zombies, bosses, economy)
             if prev is not None and pressure < prev * min_growth:
                 target = prev * min_growth
                 scale = target / max(pressure, 1e-6)
                 level["difficulty_coef"] = round(float(level["difficulty_coef"]) * scale, 3)
-                pressure = level_pressure(level, zombies, bosses)
+                pressure = level_pressure(level, zombies, bosses, economy)
             prev = pressure
 
 
@@ -485,7 +521,7 @@ def build_levels() -> list[dict]:
             "reward_gold_mult": reward_gold_mult(n),
         }
         levels.append(level)
-    enforce_monotonic_pressure(levels, zombies, bosses)
+    enforce_monotonic_pressure(levels, zombies, bosses, economy)
     return levels
 
 

@@ -4,6 +4,20 @@
 	"ENEMY_SPEED_MULT": 0.41,
 	"PLAYER_FIRE_RATE_MULT": 0.25,
 	"PLAYER_SHOT_DAMAGE_MULT": 3.0,
+	"late_wave_hp_bonus": {
+		"3": 1.2,
+		"4": 1.44,
+		"5": 1.62
+	},
+	"late_wave_boss_hp_bonus": {
+		"3": 1.2,
+		"4": 1.2,
+		"5": 1.2
+	},
+	"boss_hp_level_bonus": {
+		"start_level": 20,
+		"multiplier": 2.0
+	},
 	"level_xp_coef": 50,
 	"level_xp_pow": 1.0,
 	"weakness_mult": 1.5,

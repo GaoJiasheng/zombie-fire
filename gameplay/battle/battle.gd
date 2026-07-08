@@ -24,8 +24,8 @@ const BASE_LINE_BOSS_WARNING_INSET := 240.0
 # 多出一截视口高度。以前的做法是让人物/护栏底座这个"下方基座群组"固定钉在设计
 # 高度 1920 内，多出来的高度晾在下面垫色块——能看，但人物没有真正用到下面多出
 # 的那截屏幕，观感"没用满全屏"。现在把这一整个基座群组(人物、护栏/breach 线、
-# 底部 HUD 条)统一按 bottom_dock_shift 整体下移，钉到真实屏幕底部；背景图保持
-# 底边不动，按当前可见高度做 cover 缩放，向上补满高屏设备，避免顶部黑条。
+# 底部 HUD 条)统一按 bottom_dock_shift 整体下移，钉到真实屏幕底部；战斗背景使用
+# 1080x2622 的高屏画布，运行时只做底边锚定，避免顶部再出现黑色补条。
 var bottom_dock_shift := 0.0
 var BREACH_Y := 1500.0
 var CHARACTER_BASE_POSITION := Vector2(540, 1652)
@@ -145,6 +145,7 @@ const CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT := {
 	"char_volt/weapon_plasmacannon": Vector2(68.5, -142.5),
 }
 const WEAPON_VISUAL_PROFILES := {
+	"weapon_flamethrower": "flame",
 	"weapon_railgun": "rail",
 	"weapon_scattergun": "scatter",
 	"weapon_plasmacannon": "plasma",
@@ -196,11 +197,14 @@ const MAX_FLOAT_TEXTS := 8
 const MAX_PRIORITY_FLOAT_TEXTS := 12
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
+const MAX_MULTISHOT_LANES := 5
 # 基地单次受伤上限 = 最大血量的比例。防止 Boss/技能"一下打死"，任何来源都受此限制。
 const MAX_BASE_HIT_FRACTION := 0.4
-# 第4/5波单独加血量(绝不加速度)：局内前几波卡牌叠加后输出膨胀明显，后两波用血量拉回张力。
-# 只对普通僵尸生效，不叠加到 Boss 身上(Boss 已单独调过速度/血量)。
-const LATE_WAVE_HP_BONUS := {4: 1.20, 5: 1.35}
+# 第3/4/5波单独加血量(绝不加速度)：局内前两波保持开局节奏，后半段用血量拉回张力。
+# 运行时优先读取 economy.json，同步给校验/模拟工具；这里是缺省兜底。
+const DEFAULT_LATE_WAVE_HP_BONUS := {3: 1.20, 4: 1.44, 5: 1.62}
+const DEFAULT_LATE_WAVE_BOSS_HP_BONUS := {3: 1.20, 4: 1.20, 5: 1.20}
+const DEFAULT_BOSS_HP_LEVEL_BONUS := {"start_level": 20, "multiplier": 2.0}
 const WAVE_TOAST_BASE_POSITION := Vector2(280, 214)
 const WAVE_TOAST_SIZE := Vector2(520, 58)
 const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
@@ -2679,6 +2683,26 @@ func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
 			"boss": is_boss
 		})
 
+func _late_wave_hp_bonus(current_wave: int, is_boss_enemy: bool, economy: Dictionary) -> float:
+	var key := "late_wave_boss_hp_bonus" if is_boss_enemy else "late_wave_hp_bonus"
+	var fallback := DEFAULT_LATE_WAVE_BOSS_HP_BONUS if is_boss_enemy else DEFAULT_LATE_WAVE_HP_BONUS
+	var table_var = economy.get(key, fallback)
+	var table: Dictionary = table_var if table_var is Dictionary else fallback
+	if table.has(str(current_wave)):
+		return float(table[str(current_wave)])
+	return float(table.get(current_wave, fallback.get(current_wave, 1.0)))
+
+func _boss_level_hp_bonus(current_level: int, is_boss_enemy: bool, economy: Dictionary) -> float:
+	if not is_boss_enemy:
+		return 1.0
+	var rule_var = economy.get("boss_hp_level_bonus", DEFAULT_BOSS_HP_LEVEL_BONUS)
+	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_BOSS_HP_LEVEL_BONUS
+	var start_level := int(rule.get("start_level", DEFAULT_BOSS_HP_LEVEL_BONUS.get("start_level", 20)))
+	var multiplier := float(rule.get("multiplier", DEFAULT_BOSS_HP_LEVEL_BONUS.get("multiplier", 2.0)))
+	if current_level >= start_level:
+		return multiplier
+	return 1.0
+
 func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
 	var x := 540.0
 	match lane:
@@ -2700,8 +2724,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
-	if not is_boss:
-		hp_level_coef *= float(LATE_WAVE_HP_BONUS.get(wave_index, 1.0))
+	hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
+	hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
 	if is_endless_mode:
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
@@ -3188,7 +3212,8 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var mods := skills.projectile_mods()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
-	var shots: int = 1 + int(mods.get("extra_projectiles", 0)) + maxi(int(special.get("pellets", 1)) - 1, 0)
+	var multishot_lanes := clampi(1 + int(mods.get("extra_projectiles", 0)), 1, MAX_MULTISHOT_LANES)
+	var shots: int = multishot_lanes + maxi(int(special.get("pellets", 1)) - 1, 0)
 	if sig_vanguard_barrage_timer > 0.0:
 		shots += 1
 		if _growth_rank(character_level) >= 2:
@@ -3220,6 +3245,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var cloud: float = float(special.get("cloud", 0.0))
 	var visual_scale := _projectile_visual_scale(shots, pierce, split, homing, splash, cloud)
 	var shot_directions := _primary_shot_directions(origin, direction, shots, spread)
+	var lane_damage_mult := _multishot_damage_multiplier(multishot_lanes)
 	var charge_shot_triggered := skills.level("skill_charge_shot") > 0 and randf() < 0.18
 	if charge_shot_triggered:
 		AudioManager.play_sfx("skill_charge_shot_charge", -11.0, 0.02)
@@ -3228,8 +3254,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	for i in range(shots):
 		var shot_direction: Vector2 = shot_directions[i] if i < shot_directions.size() else direction
 		var damage: float = base_damage * float(turret.damage_mult) * skills.damage_multiplier()
-		if shots > 1:
-			damage *= clampf(1.0 / sqrt(float(shots)), 0.42, 1.0)
+		damage *= lane_damage_mult
 		damage *= _character_bullet_damage_multiplier(element)
 		if sig_vanguard_barrage_timer > 0.0:
 			damage *= 1.08
@@ -3255,11 +3280,28 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, spread, shots, element)
 
+func _multishot_damage_multiplier(lane_count: int) -> float:
+	# Per-projectile falloff is intentionally mild: multishot should still feel like a power spike,
+	# but homing + dense lanes should not multiply into full-damage swarms.
+	match clampi(lane_count, 1, MAX_MULTISHOT_LANES):
+		1:
+			return 1.0
+		2:
+			return 0.85
+		3:
+			return 0.80
+		4:
+			return 0.75
+		_:
+			return 0.70
+
 func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "") -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var element := skills.projectile_element(str(weapon.get("element", "physical")))
 	var profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
+	if element == "fire" and profile == "":
+		profile = "fire_round"
 	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile)
 	projectile.split_requested.connect(_on_projectile_split_requested)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
@@ -4961,7 +5003,8 @@ func _split_target_directions(origin: Vector2, base_direction: Vector2, count: i
 func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, element: String) -> void:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
-	var chain_count := int(skills.level("skill_ricochet")) + int(special.get("chain", 0)) + _character_chain_bonus_for(element)
+	var mods := skills.projectile_mods()
+	var chain_count := int(mods.get("chain", 0)) + int(special.get("chain", 0)) + _character_chain_bonus_for(element)
 	if element == "lightning" and skills.level("skill_tesla") > 0:
 		chain_count += 1
 	chain_count = mini(chain_count, 5)
@@ -5654,10 +5697,14 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool) -> void:
 	var scale := 1.0 if not is_boss else 2.05
 	_spawn_zombie_blood_pool(position, is_boss)
+	if element == "fire" and not is_boss:
+		_spawn_centered_fire_death_vfx(position)
+		return
 	_spawn_b4_impact_stack(position + Vector2(0, -38 if not is_boss else -78), element, scale, "weak" if is_boss else "normal", is_boss)
 	match element:
 		"fire":
-			_spawn_vfx_sequence("vfx_explosion_fire", position + Vector2(0, -38 if not is_boss else -82), 0.62 if not is_boss else 1.24, Color(1.0, 0.42, 0.12, 0.82), 1.0, randf_range(-0.18, 0.18), 1.12, Vector2(0, -12 if not is_boss else -22), randf_range(-0.24, 0.24), is_boss)
+			if is_boss:
+				_spawn_vfx_sequence("vfx_explosion_fire", position + Vector2(0, -82), 1.24, Color(1.0, 0.42, 0.12, 0.82), 1.0, randf_range(-0.18, 0.18), 1.12, Vector2(0, -22), randf_range(-0.24, 0.24), true)
 		"ice":
 			_spawn_impact_fork_lines(position + Vector2(0, -42 if not is_boss else -86), Color(0.76, 1.0, 1.0, 0.78), 7 if not is_boss else 9, 76.0 * scale, 0.24, 3.0, is_boss)
 			_spawn_impact_cloud(position + Vector2(0, -38 if not is_boss else -82), Color(0.56, 0.92, 1.0, 0.24), 10 if not is_boss else 16, 0.4, true, is_boss)
@@ -5674,6 +5721,17 @@ func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool)
 			_spawn_death_shards(position, Color(1.0, 0.86, 0.58, 0.62), is_boss)
 	if is_boss:
 		_show_screen_flash(Color(1.0, 0.78, 0.28, 0.16), 0.32)
+
+func _spawn_centered_fire_death_vfx(position: Vector2) -> void:
+	var anchor := position + Vector2(0, -38)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, anchor, Color(1.0, 0.42, 0.1, 0.58), 112.0, 0.24)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_impact_core_flash(anchor, Color(1.0, 0.5, 0.16, 0.78), 0.42, 0.16, 4.2, false)
+	_spawn_vfx_sequence("vfx_hit_fire", anchor, 0.34, Color(1.0, 0.5, 0.16, 0.58), 1.36, 0.0, 0.94, Vector2(0, -2), 0.0, false)
+	_spawn_impact_shock_ring(anchor + Vector2(0, 2), Color(1.0, 0.54, 0.16, 0.42), 64.0, 3.6, 0.16, false)
+	_spawn_impact_cloud(anchor + Vector2(0, -4), Color(1.0, 0.38, 0.1, 0.26), 7, 0.24, true, false)
+	_spawn_death_shards(position, Color(1.0, 0.62, 0.24, 0.66), false)
 
 func _spawn_zombie_blood_pool(position: Vector2, is_boss: bool) -> void:
 	if not _can_spawn_projectile_fx(is_boss):
@@ -6422,7 +6480,7 @@ func _hud_fill_left(bar_path: String, fallback: float) -> float:
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
 	if bar_path == HUD_WAVE_BAR_PATH:
-		return bar.size.x * 0.115
+		return 6.0
 	return fallback
 
 func _hud_fill_right(bar_path: String, fallback: float) -> float:
@@ -6430,7 +6488,7 @@ func _hud_fill_right(bar_path: String, fallback: float) -> float:
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
 	if bar_path == HUD_WAVE_BAR_PATH:
-		return bar.size.x * 0.91
+		return maxf(8.0, bar.size.x - 6.0)
 	return maxf(8.0, bar.size.x - 6.0)
 
 func _hud_xp_fill_right() -> float:
@@ -7119,14 +7177,14 @@ func _show_card_offer() -> void:
 func _card_offer_title() -> String:
 	var tags: Array = level.get("threat_tags", [])
 	if tags.has("fast"):
-		return "选择强化：优先减速/追踪"
+		return "选择强化 · 优先减速 / 追踪"
 	if tags.has("tank") or tags.has("boss"):
-		return "选择强化：优先穿透/蓄能"
+		return "选择强化 · 优先穿透 / 蓄能"
 	if tags.has("support"):
-		return "选择强化：优先锁定/连锁"
+		return "选择强化 · 优先锁定 / 连锁"
 	if tags.has("breach"):
-		return "选择强化：优先清群/防线"
-	return "选择强化：围绕当前武器成型"
+		return "选择强化 · 优先清群 / 防线"
+	return "选择强化 · 围绕当前武器成型"
 
 func _animate_card_panel_in(delay := 0.0) -> void:
 	var panel: Control = $Hud/CardPanel
@@ -7158,8 +7216,8 @@ func _skill_offer_level(skill_id: String) -> int:
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
-	var stats_extra_h := 34.0 * float(stats_text.count("\n"))
-	var card_h := 196.0 + stats_extra_h
+	var stats_extra_h := 20.0 * float(stats_text.count("\n"))
+	var card_h := 208.0 + stats_extra_h
 	var card := Panel.new()
 	card.custom_minimum_size = Vector2(760, card_h)
 	card.clip_contents = true
@@ -7172,7 +7230,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var accent_bar := TextureRect.new()
 	accent_bar.position = Vector2(0, 0)
-	accent_bar.size = Vector2(18, card_h)
+	accent_bar.size = Vector2(16, card_h)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -7181,8 +7239,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.add_child(accent_bar)
 
 	var icon_box := PanelContainer.new()
-	icon_box.position = Vector2(20, 24)
-	icon_box.size = Vector2(132, 132)
+	icon_box.position = Vector2(26, 39)
+	icon_box.size = Vector2(116, 116)
 	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon_box)
@@ -7191,28 +7249,30 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	icon.texture = load(row.get("icon", ""))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.position = Vector2(27, 25)
-	icon.size = Vector2(118, 118)
-	icon.custom_minimum_size = Vector2(118, 118)
+	icon.position = Vector2(32, 45)
+	icon.size = Vector2(104, 104)
+	icon.custom_minimum_size = Vector2(104, 104)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon)
 
 	var title := Label.new()
 	title.name = "Title"
 	title.text = "%s  等级%d" % [display_name, lv]
-	title.position = Vector2(170, 14)
-	title.size = Vector2(370, 40)
-	UiKit.apply_label(title, 31, Color(0.96, 0.99, 1.0, 1.0), 3)
+	title.position = Vector2(172, 22)
+	title.size = Vector2(348, 38)
+	UiKit.apply_label(title, 29, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(title)
 
 	var stats := Label.new()
 	stats.name = "Stats"
 	stats.text = stats_text
-	stats.position = Vector2(170, 54)
-	stats.size = Vector2(560, 56 + stats_extra_h)
-	UiKit.apply_label(stats, 22, UiKit.CYAN, 2)
+	stats.position = Vector2(172, 66)
+	stats.size = Vector2(538, 44 + stats_extra_h)
+	UiKit.apply_label(stats, 20, UiKit.CYAN, 2)
+	stats.add_theme_constant_override("line_spacing", 5)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	stats.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7221,9 +7281,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(170, 112 + stats_extra_h)
-	desc.size = Vector2(560, 44)
-	UiKit.apply_label(desc, 19, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.position = Vector2(172, 116 + stats_extra_h)
+	desc.size = Vector2(538, 44)
+	UiKit.apply_label(desc, 18, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.add_theme_constant_override("line_spacing", 4)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7231,8 +7292,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(170, 156 + stats_extra_h)
-	tags.size = Vector2(520, 34)
+	tags.position = Vector2(172, 162 + stats_extra_h)
+	tags.size = Vector2(512, 32)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(tags)
@@ -7243,12 +7304,12 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	if reason != "":
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
-		badge.position = Vector2(538, 18)
-		badge.size = Vector2(196, 34)
+		badge.position = Vector2(524, 24)
+		badge.size = Vector2(204, 32)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
-		var badge_text := UiKit.label("推荐 · %s" % reason, 18, UiKit.GOLD, 3)
+		var badge_text := UiKit.label("推荐 · %s" % reason, 17, UiKit.GOLD, 3)
 		badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		badge.add_child(badge_text)
@@ -7605,7 +7666,7 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_pierce":
 			return "主弹可以继续穿透后排敌人。3级起附带额外伤害，满级穿透6名并显著增伤，适合处理巨臂和首领护甲。"
 		"skill_multishot":
-			return "每次开火额外发射弹丸。等级越高弹丸越多，满级一次5发额外弹丸形成宽幅扇面，手感上是纯火力压制。"
+			return "每次开火额外发射弹丸，最多形成5条弹道。多弹道每发有轻微衰减，但可与追踪、穿透、分裂和跳弹继续叠加。"
 		"skill_slow_field":
 			return "在防线前展开持续减速区。等级越高，区域越靠前、减速越强，3级会显示更宽的青色力场。"
 		"skill_homing":
@@ -7617,7 +7678,7 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_gold_rush":
 			return "本局获得金币提高。它不会直接提高战力，但能让过关后的武器和装备成长更快，适合低压波次选择。"
 		"skill_ricochet":
-			return "命中后产生额外弹射弹，和分裂弹共享清群定位。等级越高弹射数量越多，适合尸潮密度高的关卡。"
+			return "命中后产生额外弹射弹，只负责连锁跳弹，不自带分裂或散射。等级越高弹射数量越多，适合尸潮密度高的关卡。"
 		"skill_salvo":
 			return "提高武器攻击速度。等级越高射击间隔越短，适合搭配穿透、暴击和元素弹，在后期高数量尸潮里保持稳定压制。"
 		"skill_incendiary":
@@ -7861,26 +7922,25 @@ func _apply_level_background() -> void:
 		push_warning("Missing battle background for %s: %s" % [env_id, path])
 		return
 	background.texture = texture
-	# 背景与玩法坐标对齐:覆盖 1080x1920 玩法世界,人物/刷怪/基座都对得上。更高宽比
-	# 设备(如 iPhone 16 Pro Max)上，人物/护栏/底部HUD这整个"下方基座群组"统一
-	# 下移 bottom_dock_shift、钉到真实屏幕底部(见 _ready)；背景图也整体下移同样
-	# 的距离——只是平移，不缩放，内部构图完全不变形，和下移后的基座群组天然继续
-	# 对齐。中间试过按可见高度整体 cover 缩放(底边钉住、顶部自然补满)，但那样是
-	# 按统一倍率缩放，而人物/护栏走的是固定像素平移，两者不是同一种变换——算出来
-	# 背景里的护栏画面会比实际 breach 线/人物位置高出几十到上百像素(设备越高越
-	# 明显)，重新变成"人物和背景基座脱节"，这正是最早那次"人物位置对齐"问题的
-	# 成因，不能再犯。平移不缩放才能保证两者用同一套位移量、严格对齐。
+	# 背景与玩法坐标对齐:10 张主线战斗背景已经扩展成 1080x2622，高出来的部分
+	# 只在高屏设备顶部露出；原 1080x1920 内容仍贴在扩展画布底部。这样 1920
+	# 设备看到的仍是原构图，高屏设备顶部看到真实环境延展，而背景里的护栏/基座
+	# 和玩法 BREACH_Y 继续使用同一底边锚点，不再靠黑色 BackgroundExtension 补空。
 	var texture_size := texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		background.scale = Vector2.ONE
-		_apply_background_top_fill(Color(0.02, 0.022, 0.03, 1.0))
+		_hide_background_top_fill()
 		return
-	var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)
+	var visible_height := _battle_visible_height()
+	var cover_scale := maxf(1080.0 / texture_size.x, visible_height / texture_size.y)
 	background.scale = Vector2(cover_scale, cover_scale)
-	background.position = Vector2(540, 960.0 + bottom_dock_shift)
+	background.position = Vector2(540, visible_height - texture_size.y * cover_scale * 0.5)
 	background.modulate = Color(1, 1, 1, 1)
-	var edge_color := _sample_background_edge_color(texture, texture_size, true)
-	_apply_background_top_fill(edge_color)
+	_hide_background_top_fill()
+
+func _battle_visible_height() -> float:
+	var viewport_height := get_viewport().get_visible_rect().size.y
+	return maxf(1920.0 + bottom_dock_shift, viewport_height)
 
 func _sample_background_edge_color(texture: Texture2D, texture_size: Vector2, from_top := false) -> Color:
 	var image := texture.get_image()
@@ -7936,6 +7996,11 @@ func _apply_background_top_fill(edge_color: Color) -> void:
 	ext.position = Vector2(0.0, 0.0)
 	ext.size = Vector2(1080.0, bottom_dock_shift)
 	ext.visible = true
+
+func _hide_background_top_fill() -> void:
+	var ext := get_node_or_null("BackgroundExtension") as TextureRect
+	if ext != null:
+		ext.visible = false
 
 func _battle_bgm_id() -> String:
 	var env := _environment_row(str(level.get("env", "env_lava_foundry")))

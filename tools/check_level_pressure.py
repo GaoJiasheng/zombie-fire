@@ -11,9 +11,47 @@ def load(name: str):
     return json.loads((ROOT / "data" / f"{name}.json").read_text(encoding="utf-8"))
 
 
+DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.20, "4": 1.44, "5": 1.62}
+DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.20, "4": 1.20, "5": 1.20}
+DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
+
+
+def wave_number(wave: dict) -> int:
+    try:
+        return int(wave.get("wave", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False) -> float:
+    key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
+    defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
+    table = economy.get(key, defaults)
+    if not isinstance(table, dict):
+        table = defaults
+    return float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+
+
+def level_number(level: dict) -> int:
+    try:
+        return int(str(level.get("id", "level_000")).split("_")[-1])
+    except (TypeError, ValueError):
+        return 0
+
+
+def boss_hp_level_bonus(economy: dict, level: dict) -> float:
+    rule = economy.get("boss_hp_level_bonus", DEFAULT_BOSS_HP_LEVEL_BONUS)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_BOSS_HP_LEVEL_BONUS
+    start_level = int(rule.get("start_level", DEFAULT_BOSS_HP_LEVEL_BONUS["start_level"]))
+    multiplier = float(rule.get("multiplier", DEFAULT_BOSS_HP_LEVEL_BONUS["multiplier"]))
+    return multiplier if level_number(level) >= start_level else 1.0
+
+
 def main() -> int:
     zombies = load("zombies")
     bosses = load("bosses")
+    economy = load("economy")
     levels = load("levels")
     errors: list[str] = []
     print("Level pressure estimate")
@@ -22,19 +60,22 @@ def main() -> int:
         pressure = 0.0
         duration = 0.0
         boss_count = 0
+        boss_level_bonus = boss_hp_level_bonus(economy, level)
         for wave in level.get("waves", []):
+            wave_no = wave_number(wave)
+            mob_bonus = late_wave_hp_bonus(economy, wave_no)
             for group in wave.get("spawns", []):
                 row = zombies[group["type"]]
                 count = int(group.get("count", 1))
-                pressure += count * float(row.get("hp_coef", 1.0)) * float(row.get("bd_coef", 1.0))
+                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
                 duration += count * float(group.get("interval", 0.8))
             if "boss" in wave:
                 boss_count += 1
-                pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * 8.0
+                pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True) * boss_level_bonus * 8.0
             for group in wave.get("support", []):
                 row = zombies[group["type"]]
                 count = int(group.get("count", 1))
-                pressure += count * float(row.get("hp_coef", 1.0)) * float(row.get("bd_coef", 1.0))
+                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
                 duration += count * float(group.get("interval", 0.8))
         pressure *= float(level.get("difficulty_coef", 1.0))
         series.append((level["id"], pressure, boss_count > 0))

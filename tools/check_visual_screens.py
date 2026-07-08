@@ -20,7 +20,20 @@ MIN_LUMA_STDEV = {
     "collection_characters": 18.0,
 }
 
-SCREENS: list[tuple[str, dict, str]] = [
+TALL_BATTLE_LEVELS: list[tuple[str, str]] = [
+    ("env_lava_foundry", "level_001"),
+    ("env_glacier_pass", "level_011"),
+    ("env_abandoned_factory", "level_021"),
+    ("env_toxic_biolab", "level_031"),
+    ("env_storm_substation", "level_041"),
+    ("env_flooded_subway", "level_051"),
+    ("env_desert_refinery", "level_061"),
+    ("env_void_cathedral", "level_071"),
+    ("env_orbital_ruins", "level_081"),
+    ("env_apex_core", "level_091"),
+]
+
+BASE_SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {}, "menu"),
     ("map", {}, "map"),
     ("map", {"chapter": 1}, "map_chapter"),
@@ -33,6 +46,15 @@ SCREENS: list[tuple[str, dict, str]] = [
         "result",
     ),
 ]
+
+SCREENS: list[tuple[str, dict, str]] = (
+    BASE_SCREENS[:-1]
+    + [
+        ("battle", {"level_id": level_id, "viewport_size": [1080, 2340]}, f"battle_tall_{env_id}")
+        for env_id, level_id in TALL_BATTLE_LEVELS
+    ]
+    + BASE_SCREENS[-1:]
+)
 
 
 def capture(route: str, payload: dict, out_path: Path) -> int:
@@ -60,7 +82,10 @@ def analyze(path: Path, label: str) -> list[str]:
         return [f"{label} screenshot was not written"]
     with Image.open(path) as source:
         image = source.convert("RGB")
-    if image.size != EXPECTED_SIZE:
+    if label.startswith("battle_tall"):
+        if image.size[0] != EXPECTED_SIZE[0] or image.size[1] <= EXPECTED_SIZE[1]:
+            errors.append(f"{label} screenshot must exercise a tall viewport wider than 1920px high, got {image.size}")
+    elif image.size != EXPECTED_SIZE:
         errors.append(f"{label} screenshot size must be {EXPECTED_SIZE}, got {image.size}")
 
     pixels = list(image.getdata())
@@ -76,6 +101,33 @@ def analyze(path: Path, label: str) -> list[str]:
         errors.append(f"{label} screenshot looks blank or missing UI layers; mean={mean:.1f} stdev={stdev:.1f} min_stdev={min_stdev:.1f}")
     if exact_black > 0.35:
         errors.append(f"{label} screenshot has too much exact black area; black={exact_black:.2%}")
+    if label.startswith("battle_tall"):
+        top_h = min(320, image.size[1])
+        top_pixels = list(image.crop((0, 0, image.size[0], top_h)).getdata())
+        top_count = max(1, len(top_pixels))
+        top_luma = [(r * 0.2126 + g * 0.7152 + b * 0.0722) for r, g, b in top_pixels]
+        top_mean = sum(top_luma) / top_count
+        top_variance = sum((value - top_mean) ** 2 for value in top_luma) / top_count
+        top_stdev = math.sqrt(top_variance)
+        top_dark = sum(1 for value in top_luma if value < 18.0) / top_count
+        if top_dark > 0.72 and top_mean < 22.0 and top_stdev < 24.0:
+            errors.append(
+                f"{label} top band still reads as a dark blank strip; "
+                f"mean={top_mean:.1f} stdev={top_stdev:.1f} dark<18={top_dark:.2%}"
+            )
+        play_band = image.crop((0, min(120, image.size[1] - 1), image.size[0], min(260, image.size[1])))
+        play_pixels = list(play_band.getdata())
+        play_count = max(1, len(play_pixels))
+        play_luma = [(r * 0.2126 + g * 0.7152 + b * 0.0722) for r, g, b in play_pixels]
+        play_mean = sum(play_luma) / play_count
+        play_variance = sum((value - play_mean) ** 2 for value in play_luma) / play_count
+        play_stdev = math.sqrt(play_variance)
+        play_dark = sum(1 for value in play_luma if value < 18.0) / play_count
+        if play_dark > 0.70 and play_mean < 22.0 and play_stdev < 24.0:
+            errors.append(
+                f"{label} playable top extension still looks like black filler; "
+                f"mean={play_mean:.1f} stdev={play_stdev:.1f} dark<18={play_dark:.2%}"
+            )
     return errors
 
 

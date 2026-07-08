@@ -14,6 +14,11 @@ func _initialize() -> void:
 		if parsed is Dictionary:
 			payload = parsed
 	var out_path := args[2] if args.size() > 2 else "/tmp/zf_shot_%s.png" % route
+	if payload.has("viewport_size") and payload["viewport_size"] is Array and (payload["viewport_size"] as Array).size() >= 2:
+		var viewport_size: Array = payload["viewport_size"]
+		root.size = Vector2i(int(viewport_size[0]), int(viewport_size[1]))
+		DisplayServer.window_set_size(root.size)
+		await process_frame
 
 	var dl := root.get_node("/root/DataLoader")
 	dl.load_all()
@@ -42,6 +47,10 @@ func _initialize() -> void:
 			main.current_scene.call("_show_item_detail", detail_item, table_data[detail_item])
 			for i in range(18):
 				await process_frame
+	if bool(payload.get("card_offer", false)) and main.current_scene != null and main.current_scene.has_method("_show_card_offer"):
+		main.current_scene.call("_show_card_offer")
+		for i in range(18):
+			await process_frame
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")

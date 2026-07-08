@@ -10,8 +10,12 @@ const LEVEL_RIGHT_X := 532.0
 const LEVEL_RIGHT_W := 338.0
 const LEVEL_BUTTON_Y := 98.0
 const LEVEL_BUTTON_H := 44.0
-const CHAPTER_CARD_HEIGHT := 282.0
-const CHAPTER_HERO_HEIGHT := 256.0
+const CHAPTER_CARD_HEIGHT := 294.0
+const CHAPTER_HERO_HEIGHT := 276.0
+const CHAPTER_TEXT_X := 64.0
+const CHAPTER_TEXT_W := 500.0
+const CHAPTER_RIGHT_X := 628.0
+const CHAPTER_RIGHT_W := 300.0
 
 var router: Node
 var resource_tip_tween: Tween = null
@@ -69,10 +73,17 @@ func _apply_map_style() -> void:
 	var bg := get_node_or_null("Background") as TextureRect
 	if bg != null:
 		bg.modulate = Color(0.42, 0.39, 0.34, 1.0)
-	UiKit.apply_label(%Title, 44, UiKit.TEXT_MAIN, 5)
+	_apply_page_title_style(44)
 	(%Nav as HBoxContainer).custom_minimum_size = Vector2(0, 118)
 	(%Progress as Label).visible = false
 	_ensure_resource_bar()
+
+func _apply_page_title_style(size: int) -> void:
+	var title := %Title as Label
+	UiKit.apply_label(title, size, UiKit.TEXT_MAIN, 5)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.clip_text = true
 
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 6
@@ -221,6 +232,7 @@ func _build_levels() -> void:
 			_build_chapter_levels(level_list, current)
 			return
 	selected_chapter = 0
+	_apply_page_title_style(44)
 	(%Title as Label).text = "战区地图"
 	for chapter in chapters:
 		level_list.add_child(_build_chapter_card(chapter))
@@ -229,6 +241,7 @@ func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> vo
 	var env := _chapter_env(chapter)
 	var chapter_id := int(chapter.get("chapter", 1))
 	var title := str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")]))
+	_apply_page_title_style(40)
 	(%Title as Label).text = title
 	level_list.add_child(_build_chapter_header(chapter))
 	for level in chapter.get("levels", []):
@@ -396,44 +409,45 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 
 	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 24, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
 	title.name = "ChapterTitle"
-	title.position = Vector2(36, 26)
-	title.size = Vector2(560, 46)
+	title.position = Vector2(CHAPTER_TEXT_X, 30)
+	title.size = Vector2(CHAPTER_TEXT_W, 46)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.clip_text = true
 	button.add_child(title)
 
 	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 14, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	range.name = "ChapterRange"
-	range.position = Vector2(38, 76)
-	range.size = Vector2(190, 28)
+	range.position = Vector2(CHAPTER_TEXT_X, 82)
+	range.size = Vector2(170, 28)
 	button.add_child(range)
 
-	_add_chapter_status_pill(button, Vector2(218, 75), _chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED)
+	_add_chapter_status_pill(button, Vector2(CHAPTER_TEXT_X + 206, 81), _chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED)
 
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), 24), 15, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 2)
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), 28), 15, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 2)
 	story.name = "ChapterStory"
-	story.position = Vector2(36, 110)
-	story.size = Vector2(526, 72)
+	story.position = Vector2(CHAPTER_TEXT_X, 118)
+	story.size = Vector2(CHAPTER_TEXT_W, 74)
 	story.autowrap_mode = TextServer.AUTOWRAP_OFF
 	story.clip_text = true
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	button.add_child(story)
 
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), 31), 13, UiKit.TEXT_MUTED, 2)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), 34), 13, UiKit.TEXT_MUTED, 2)
 	objective.name = "ChapterObjective"
-	objective.position = Vector2(36, 184)
-	objective.size = Vector2(520, 38)
+	objective.position = Vector2(CHAPTER_TEXT_X, 210)
+	objective.size = Vector2(CHAPTER_TEXT_W, 38)
 	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
 	objective.clip_text = true
 	button.add_child(objective)
 
-	_add_chapter_progress(button, chapter, Vector2(590, 28), unlocked, accent)
+	_add_chapter_progress(button, chapter, Vector2(CHAPTER_RIGHT_X, 34), unlocked, accent, Vector2(CHAPTER_RIGHT_W, 112))
 	var small_boss := _chapter_boss_level(chapter, false)
 	var major_boss := _chapter_boss_level(chapter, true)
-	_add_chapter_boss_node(button, Vector2(596, 154), small_boss, "小首领", false, unlocked)
-	_add_chapter_boss_node(button, Vector2(742, 154), major_boss, "大首领", true, unlocked)
+	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 8, 164), small_boss, "小首领", false, unlocked)
+	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 156, 164), major_boss, "大首领", true, unlocked)
 
 	var action_label := "进入战区" if unlocked else _chapter_next_lock_text(chapter)
-	_add_chapter_action_button(button, Vector2(604, 218), Vector2(270, 46), action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
+	_add_chapter_action_button(button, Vector2(CHAPTER_RIGHT_X + 16, 232), Vector2(CHAPTER_RIGHT_W - 32, 48), action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
 	return button
 
 func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) -> void:
@@ -470,7 +484,7 @@ func _add_chapter_frame(parent: Control, accent: Color, unlocked: bool) -> void:
 	rail.name = "ChapterRouteRail"
 	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	rail.position = Vector2(20, 28)
-	rail.size = Vector2(14, CHAPTER_CARD_HEIGHT - 56)
+	rail.size = Vector2(14, maxf(72.0, parent.custom_minimum_size.y - 56.0))
 	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rail.stretch_mode = TextureRect.STRETCH_SCALE
 	rail.modulate = Color(accent.r, accent.g, accent.b, 0.95 if unlocked else 0.35)
@@ -490,11 +504,11 @@ func _add_chapter_status_pill(parent: Control, pos: Vector2, text: String, accen
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(label)
 
-func _add_chapter_progress(parent: Control, chapter: Dictionary, pos: Vector2, unlocked: bool, accent: Color) -> void:
+func _add_chapter_progress(parent: Control, chapter: Dictionary, pos: Vector2, unlocked: bool, accent: Color, panel_size := Vector2(282, 104)) -> void:
 	var panel := Control.new()
 	panel.name = "ChapterProgress"
 	panel.position = pos
-	panel.size = Vector2(282, 104)
+	panel.size = panel_size
 	panel.clip_contents = true
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(panel)
@@ -510,8 +524,8 @@ func _add_chapter_progress(parent: Control, chapter: Dictionary, pos: Vector2, u
 	panel.add_child(skin)
 
 	var title := UiKit.label("战区进度", 13, accent if unlocked else UiKit.TEXT_MUTED, 2)
-	title.position = Vector2(18, 10)
-	title.size = Vector2(120, 26)
+	title.position = Vector2(24, 12)
+	title.size = Vector2(panel_size.x - 48, 26)
 	panel.add_child(title)
 	var count := _chapter_cleared_count(chapter)
 	var total_levels := int((chapter.get("levels", []) as Array).size())
@@ -519,10 +533,10 @@ func _add_chapter_progress(parent: Control, chapter: Dictionary, pos: Vector2, u
 	var star_total := _chapter_total_stars(chapter)
 	var value := UiKit.label("%d/%d  %d/%d★" % [count, total_levels, stars, star_total], 18, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 3)
 	value.name = "ChapterProgressValue"
-	value.position = Vector2(18, 38)
-	value.size = Vector2(230, 36)
+	value.position = Vector2(24, 42)
+	value.size = Vector2(panel_size.x - 48, 36)
 	panel.add_child(value)
-	_add_progress_micro_bar(panel, Vector2(18, 78), Vector2(236, 14), float(count) / maxf(float(total_levels), 1.0), accent, unlocked)
+	_add_progress_micro_bar(panel, Vector2(24, 82), Vector2(panel_size.x - 56, 14), float(count) / maxf(float(total_levels), 1.0), accent, unlocked)
 
 func _add_progress_micro_bar(parent: Control, pos: Vector2, size: Vector2, ratio: float, accent: Color, enabled: bool) -> void:
 	var bar := TextureProgressBar.new()
@@ -550,7 +564,7 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	var panel := Control.new()
 	panel.name = "MajorBossNode" if major else "SmallBossNode"
 	panel.position = pos
-	panel.size = Vector2(126, 48)
+	panel.size = Vector2(136, 52)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(panel)
 	var skin := TextureRect.new()
@@ -567,13 +581,15 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	var accent := UiKit.DANGER if major else UiKit.WARNING
 	var text := UiKit.label("%s  %s" % [number, label_text], 12, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	text.position = Vector2(8, 2)
-	text.size = Vector2(110, 22)
+	text.size = Vector2(120, 24)
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text.clip_text = true
 	panel.add_child(text)
 	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未展开"), 10, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
-	state.position = Vector2(8, 24)
-	state.size = Vector2(110, 18)
+	state.position = Vector2(8, 27)
+	state.size = Vector2(120, 18)
 	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	state.clip_text = true
 	panel.add_child(state)
 
 func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, text: String, enabled: bool, callback: Callable, node_name: String) -> void:
@@ -624,25 +640,29 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 
 	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 24, UiKit.TEXT_MAIN, 4)
 	title.name = "ChapterDetailTitle"
-	title.position = Vector2(36, 28)
-	title.size = Vector2(600, 48)
+	title.position = Vector2(CHAPTER_TEXT_X, 34)
+	title.size = Vector2(CHAPTER_TEXT_W, 44)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.clip_text = true
 	header.add_child(title)
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), 24), 15, UiKit.TEXT_MAIN, 2)
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), 28), 15, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
-	story.position = Vector2(38, 88)
-	story.size = Vector2(510, 72)
+	story.position = Vector2(CHAPTER_TEXT_X, 92)
+	story.size = Vector2(CHAPTER_TEXT_W, 74)
 	story.autowrap_mode = TextServer.AUTOWRAP_OFF
 	story.clip_text = true
+	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	header.add_child(story)
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), 31), 13, UiKit.TEXT_MUTED, 2)
-	objective.position = Vector2(38, 164)
-	objective.size = Vector2(510, 42)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), 34), 13, UiKit.TEXT_MUTED, 2)
+	objective.position = Vector2(CHAPTER_TEXT_X, 182)
+	objective.size = Vector2(CHAPTER_TEXT_W, 42)
 	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
 	objective.clip_text = true
+	objective.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	header.add_child(objective)
 
-	_add_chapter_progress(header, chapter, Vector2(606, 36), true, accent)
-	_add_chapter_action_button(header, Vector2(612, 180), Vector2(250, 48), "返回战区地图", true, _back_to_chapter_map, "BackToChapterMapButton")
+	_add_chapter_progress(header, chapter, Vector2(CHAPTER_RIGHT_X, 40), true, accent, Vector2(CHAPTER_RIGHT_W, 112))
+	_add_chapter_action_button(header, Vector2(CHAPTER_RIGHT_X + 16, 196), Vector2(CHAPTER_RIGHT_W - 32, 48), "返回战区地图", true, _back_to_chapter_map, "BackToChapterMapButton")
 	return header
 
 func _open_chapter(chapter_id: int) -> void:
@@ -721,10 +741,10 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var status_plate := PanelContainer.new()
 	status_plate.name = "StatusBadge"
 	status_plate.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	status_plate.offset_left = -90
-	status_plate.offset_top = 12
-	status_plate.offset_right = -14
-	status_plate.offset_bottom = 40
+	status_plate.offset_left = -100
+	status_plate.offset_top = 14
+	status_plate.offset_right = -20
+	status_plate.offset_bottom = 42
 	status_plate.add_theme_stylebox_override("panel", _build_nav_status_style(accent))
 	status_plate.clip_contents = true
 	status_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -83,10 +83,11 @@ func projectile_mods() -> Dictionary:
 		"pierce": int(_eff("skill_pierce", "pierce") + _eff("skill_homing", "pierce")),
 		"extra_projectiles": int(_eff("skill_multishot", "extra_projectiles")),
 		"spread_deg": 8.0 + _eff("skill_multishot", "spread"),
-		"split": int(_eff("skill_split_shot", "split") + _eff("skill_ricochet", "split")),
+		"split": int(_eff("skill_split_shot", "split")),
 		"split_falloff": split_falloff,
 		"homing": _eff("skill_homing", "homing"),
-		"ricochet": level("skill_ricochet")
+		"ricochet": int(_eff("skill_ricochet", "chain")),
+		"chain": int(_eff("skill_ricochet", "chain"))
 	}
 
 func fire_rate_multiplier() -> float:

@@ -276,7 +276,7 @@ func _card_action_button(node_name: String, text: String, enabled: bool, primary
 
 func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var accent := _mode_accent(row)
-	var item_level := maxi(1, SaveManager.get_item_level(item_id))
+	var item_level := SaveManager.get_skill_base_level(item_id)
 	var levels: Array = row.get("levels", [])
 	var max_level := maxi(1, levels.size())
 	var button := TextureButton.new()
@@ -360,7 +360,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var effect := Label.new()
 	effect.name = "EffectSummary"
-	effect.text = _skill_first_effect_text(row)
+	effect.text = _skill_effect_summary(row, item_level)
 	effect.position = Vector2(148, 94)
 	effect.size = Vector2(502, 30)
 	effect.clip_text = true
@@ -382,7 +382,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var max_label := Label.new()
 	max_label.name = "MaxLevel"
-	max_label.text = "上限"
+	max_label.text = "等级"
 	max_label.position = Vector2(612, 30)
 	max_label.size = Vector2(96, 22)
 	max_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -531,6 +531,18 @@ func _skill_first_effect_text(row: Dictionary) -> String:
 	var first: Dictionary = levels[0]
 	var effect: Dictionary = first.get("effect", {})
 	return "等级1：%s" % SkillEffectText.format_effect(effect)
+
+func _skill_effect_summary(row: Dictionary, current_level: int) -> String:
+	var levels: Array = row.get("levels", [])
+	if levels.is_empty():
+		return "效果：%s" % _format_tags(row.get("card_tags", []))
+	var max_level := levels.size()
+	if current_level <= 0:
+		var first: Dictionary = levels[0]
+		return "当前：未升级 · 首级 %s" % SkillEffectText.format_effect(first.get("effect", {}))
+	var clamped := clampi(current_level, 1, max_level)
+	var effect := SkillEffectText.effect_for_level(row, clamped)
+	return "当前：%s" % SkillEffectText.format_effect(effect)
 
 func _element_name(element: String) -> String:
 	match str(element):
@@ -821,7 +833,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		_detail_modal.queue_free()
 	var slot := _slot()
 	var table := _data_table_name()
-	var item_level := SaveManager.get_item_level(item_id)
+	var item_level := SaveManager.get_skill_base_level(item_id) if mode == "skills" else SaveManager.get_item_level(item_id)
 	var selected := slot != "" and SaveManager.get_selected(slot) == item_id
 	var accent := _mode_accent(row)
 	_detail_modal = Control.new()
@@ -941,7 +953,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 			for pr in preview:
 				up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", ""))))
 	if mode == "skills":
-		detail_content.add_child(_make_skill_levels_section(row, accent))
+		detail_content.add_child(_make_skill_levels_section(row, accent, item_level))
 
 	var desc_section := _make_section_panel("战术说明", Color(0.68, 0.82, 1.0, 0.82))
 	detail_content.add_child(desc_section)
@@ -1104,6 +1116,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 		"skills":
 			var levels: Array = row.get("levels", [])
 			stats.append({"label": "类型", "value": _kind_name(str(row.get("kind", "passive"))), "sub": _format_tags(row.get("card_tags", []))})
+			stats.append({"label": "当前", "value": "%d / %d" % [item_level, levels.size()], "sub": "永久技能等级"})
 			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": "逐级叠加"})
 	return stats
 
@@ -1174,7 +1187,7 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 		_:
 			return _item_desc(item_id, row, true)
 
-func _make_skill_levels_section(row: Dictionary, accent: Color) -> PanelContainer:
+func _make_skill_levels_section(row: Dictionary, accent: Color, current_level: int) -> PanelContainer:
 	var section := _make_section_panel("各级加成", accent)
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 8)
@@ -1183,14 +1196,17 @@ func _make_skill_levels_section(row: Dictionary, accent: Color) -> PanelContaine
 	for level in row.get("levels", []):
 		var lv := int(level.get("lv", list.get_child_count() + 1))
 		var effect: Dictionary = level.get("effect", {})
-		list.add_child(_make_skill_level_row(lv, SkillEffectText.format_effect(effect), accent))
+		list.add_child(_make_skill_level_row(lv, SkillEffectText.format_effect(effect), accent, current_level))
 	return section
 
-func _make_skill_level_row(level: int, effect_text: String, accent: Color) -> PanelContainer:
+func _make_skill_level_row(level: int, effect_text: String, accent: Color, current_level: int) -> PanelContainer:
 	var pill := PanelContainer.new()
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pill.custom_minimum_size = Vector2(0, 58)
-	pill.add_theme_stylebox_override("panel", _build_pill_style(Color(accent.r, accent.g, accent.b, 0.72), Color(0.026, 0.036, 0.048, 0.78)))
+	var active := current_level >= level
+	var border := Color(accent.r, accent.g, accent.b, 0.86 if active else 0.46)
+	var fill := Color(0.038, 0.058, 0.074, 0.88) if active else Color(0.026, 0.036, 0.048, 0.68)
+	pill.add_theme_stylebox_override("panel", _build_pill_style(border, fill))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1200,7 +1216,7 @@ func _make_skill_level_row(level: int, effect_text: String, accent: Color) -> Pa
 	level_label.custom_minimum_size = Vector2(88, 0)
 	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	level_label.add_theme_font_size_override("font_size", 20)
-	level_label.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0, 1.0))
+	level_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.56, 1.0) if active else Color(0.72, 0.82, 0.86, 0.88))
 	level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
 	level_label.add_theme_constant_override("outline_size", 2)
 	row.add_child(level_label)
@@ -1208,9 +1224,9 @@ func _make_skill_level_row(level: int, effect_text: String, accent: Color) -> Pa
 	value_label.text = effect_text
 	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value_label.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0, 1.0) if active else Color(0.72, 0.82, 0.86, 0.86))
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value_label.add_theme_font_size_override("font_size", 19)
-	value_label.add_theme_color_override("font_color", Color(0.78, 0.92, 1.0, 0.96))
 	value_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
 	value_label.add_theme_constant_override("outline_size", 1)
 	row.add_child(value_label)

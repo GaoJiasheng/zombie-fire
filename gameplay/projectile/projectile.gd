@@ -59,6 +59,8 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	visual_scale = clampf(scale_mult, 0.72, 1.75)
 	texture_override_path = texture_override
 	visual_profile = _resolved_visual_profile(profile, texture_override_path)
+	if element == "fire" and visual_profile == "":
+		visual_profile = "fire_round"
 	chain_depth = chain_depth_value
 	hit_target_ids = {}
 	_projectile_vfx_ready = false
@@ -272,6 +274,10 @@ func _element_color(elem: String) -> Color:
 
 func _projectile_color(elem: String, profile := "") -> Color:
 	match profile:
+		"fire_round":
+			return Color(1.0, 0.54, 0.16, 1.0)
+		"flame":
+			return Color(1.0, 0.36, 0.08, 1.0)
 		"rail":
 			return Color(0.62, 0.96, 1.0, 1.0)
 		"scatter":
@@ -287,10 +293,16 @@ func _projectile_color(elem: String, profile := "") -> Color:
 	return _element_color(elem)
 
 func _projectile_sprite_color(_elem: String, _profile := "") -> Color:
+	if _profile == "fire_round":
+		return Color(1.0, 0.58, 0.22, 1.0)
 	return Color.WHITE
 
 func _projectile_texture_path(elem: String, profile := "") -> String:
 	match profile:
+		"fire_round":
+			return "res://assets/production/sprites/projectiles/proj_bullet_physical.png"
+		"flame":
+			return "res://assets/production/sprites/projectiles/proj_bullet_fire.png"
 		"rail":
 			return "res://assets/production/sprites/projectiles/proj_rail_slug.png"
 		"scatter":
@@ -318,6 +330,10 @@ func _projectile_texture_path(elem: String, profile := "") -> String:
 func _projectile_sprite_scale(profile := "") -> Vector2:
 	# 子弹视觉整体缩小约 28%（仅视觉，碰撞箱不变）。
 	match profile:
+		"fire_round":
+			return Vector2(0.20, 0.16)
+		"flame":
+			return Vector2(0.22, 0.18)
 		"rail":
 			return Vector2(0.52, 0.17)
 		"scatter":
@@ -344,6 +360,10 @@ func _collision_radius_mult(profile := "") -> float:
 
 func _trail_interval_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.044
+		"flame":
+			return 0.034
 		"rail":
 			return 0.016
 		"scatter":
@@ -378,6 +398,10 @@ func _trail_length_for(profile := "") -> float:
 
 func _trail_width_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 4.8
+		"flame":
+			return 7.2
 		"rail":
 			return 10.0
 		"scatter":
@@ -427,6 +451,10 @@ func _particle_color_for(elem: String, profile := "") -> Color:
 
 func _halo_size_for(profile := "") -> Vector2:
 	match profile:
+		"fire_round":
+			return Vector2(54.0, 36.0)
+		"flame":
+			return Vector2(72.0, 46.0)
 		"rail":
 			return Vector2(196.0, 42.0)
 		"scatter":
@@ -444,6 +472,10 @@ func _halo_size_for(profile := "") -> Vector2:
 
 func _core_size_for(profile := "") -> Vector2:
 	match profile:
+		"fire_round":
+			return Vector2(24.0, 18.0)
+		"flame":
+			return Vector2(34.0, 24.0)
 		"rail":
 			return Vector2(82.0, 18.0)
 		"scatter":
@@ -461,6 +493,10 @@ func _core_size_for(profile := "") -> Vector2:
 
 func _halo_alpha_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.26
+		"flame":
+			return 0.38
 		"scatter":
 			return 0.34
 		"rail":
@@ -474,6 +510,10 @@ func _halo_alpha_for(profile := "") -> float:
 
 func _trail_alpha_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.36
+		"flame":
+			return 0.48
 		"rail":
 			return 0.78
 		"plasma":
@@ -487,6 +527,10 @@ func _trail_alpha_for(profile := "") -> float:
 
 func _particle_alpha_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.34
+		"flame":
+			return 0.46
 		"plasma":
 			return 0.82
 		"rail":
@@ -498,6 +542,10 @@ func _particle_alpha_for(profile := "") -> float:
 
 func _core_intensity_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 2.35
+		"flame":
+			return 2.95
 		"rail":
 			return 3.35
 		"scatter":
@@ -513,6 +561,10 @@ func _core_intensity_for(profile := "") -> float:
 
 func _core_power_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 1.18
+		"flame":
+			return 1.24
 		"rail":
 			return 1.85
 		"plasma":
@@ -526,6 +578,10 @@ func _core_power_for(profile := "") -> float:
 
 func _trail_point_count_for(profile := "") -> int:
 	match profile:
+		"fire_round":
+			return 7
+		"flame":
+			return 9
 		"rail":
 			return 14
 		"plasma":
@@ -554,6 +610,10 @@ func _trail_point_distance_for(profile := "") -> float:
 
 func _trail_particle_amount_for(elem: String, profile := "") -> int:
 	match profile:
+		"fire_round":
+			return 2
+		"flame":
+			return 3
 		"plasma":
 			return 6
 		"heavy":
@@ -580,6 +640,10 @@ func _trail_particle_amount_for(elem: String, profile := "") -> int:
 
 func _trail_particle_speed_for(elem: String, profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 170.0
+		"flame":
+			return 230.0
 		"rail":
 			return 460.0
 		"plasma":
@@ -604,6 +668,10 @@ func _trail_particle_speed_for(elem: String, profile := "") -> float:
 
 func _trail_particle_spread_for(elem: String, profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 22.0
+		"flame":
+			return 34.0
 		"rail":
 			return 12.0
 		"plasma":
@@ -626,6 +694,10 @@ func _trail_particle_spread_for(elem: String, profile := "") -> float:
 
 func _trail_particle_lifetime_for(elem: String, profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.09
+		"flame":
+			return 0.13
 		"rail":
 			return 0.1
 		"scatter":
@@ -648,6 +720,10 @@ func _trail_particle_lifetime_for(elem: String, profile := "") -> float:
 
 func _particle_offset_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 14.0
+		"flame":
+			return 20.0
 		"rail":
 			return 44.0
 		"plasma":
@@ -977,6 +1053,8 @@ func _spawn_impact_ring_at(parent: Node, at_position: Vector2, color: Color, rad
 
 func _impact_color_for(elem: String, profile := "") -> Color:
 	match profile:
+		"fire_round", "flame":
+			return Color(1.0, 0.48, 0.12, 0.84)
 		"rail":
 			return Color(0.7, 1.0, 1.0, 0.94)
 		"scatter":
@@ -991,6 +1069,10 @@ func _impact_color_for(elem: String, profile := "") -> Color:
 
 func _impact_glow_size_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 58.0
+		"flame":
+			return 72.0
 		"rail":
 			return 118.0
 		"scatter":
@@ -1006,6 +1088,10 @@ func _impact_glow_size_for(profile := "") -> float:
 
 func _impact_ring_radius_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 38.0
+		"flame":
+			return 48.0
 		"rail":
 			return 78.0
 		"scatter":
@@ -1021,6 +1107,10 @@ func _impact_ring_radius_for(profile := "") -> float:
 
 func _impact_particle_amount_for(elem: String, profile := "") -> int:
 	match profile:
+		"fire_round":
+			return 7
+		"flame":
+			return 10
 		"plasma":
 			return 18
 		"heavy":
@@ -1045,6 +1135,10 @@ func _impact_particle_amount_for(elem: String, profile := "") -> int:
 
 func _impact_particle_speed_for(elem: String, profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 270.0
+		"flame":
+			return 340.0
 		"rail":
 			return 660.0
 		"plasma":
@@ -1069,6 +1163,10 @@ func _impact_particle_speed_for(elem: String, profile := "") -> float:
 
 func _impact_particle_spread_for(elem: String, profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 44.0
+		"flame":
+			return 64.0
 		"rail":
 			return 28.0
 		"scatter":
@@ -1091,6 +1189,10 @@ func _impact_particle_spread_for(elem: String, profile := "") -> float:
 
 func _impact_lifetime_for(profile := "") -> float:
 	match profile:
+		"fire_round":
+			return 0.11
+		"flame":
+			return 0.13
 		"rail":
 			return 0.13
 		"scatter":

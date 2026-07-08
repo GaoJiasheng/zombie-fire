@@ -41,6 +41,25 @@ def projectile_axis_degrees(path: Path) -> float:
     return math.degrees(0.5 * math.atan2(2 * sxy, sxx - syy))
 
 
+def rendered_projectile_metrics(path: Path) -> dict[str, float]:
+    image = Image.open(path).convert("RGBA")
+    visible = []
+    edge_alpha = 0
+    for y in range(image.height):
+        for x in range(image.width):
+            r, g, b, a = image.getpixel((x, y))
+            if x == 0 or y == 0 or x == image.width - 1 or y == image.height - 1:
+                edge_alpha = max(edge_alpha, a)
+            if a > 32:
+                visible.append((r // 8, g // 8, b // 8))
+    coverage = len(visible) / max(1, image.width * image.height)
+    return {
+        "coverage": coverage,
+        "unique_q8": float(len(set(visible))),
+        "edge_alpha": float(edge_alpha),
+    }
+
+
 def main() -> int:
     skills = load_json("data/skills.json")
     weapons = load_json("data/weapons.json")
@@ -113,8 +132,28 @@ def main() -> int:
         axis = projectile_axis_degrees(path)
         if abs(axis) > 8.0:
             errors.append(f"{path.name} must be authored right-facing; axis is {axis:.1f} degrees")
+    for projectile_name in ["proj_heavy_charge.png", "proj_scatter_pellet.png"]:
+        projectile_path = ROOT / "assets/production/sprites/projectiles" / projectile_name
+        if not projectile_path.exists():
+            errors.append(f"missing rendered projectile replacement: {projectile_name}")
+            continue
+        metrics = rendered_projectile_metrics(projectile_path)
+        if not (0.055 <= metrics["coverage"] <= 0.32):
+            errors.append(f"{projectile_name} alpha coverage looks wrong for a rendered projectile: {metrics['coverage']:.3f}")
+        if metrics["unique_q8"] < 900:
+            errors.append(f"{projectile_name} has too little raster color variation; likely reverted to flat geometry ({metrics['unique_q8']:.0f})")
+        if metrics["edge_alpha"] > 4.0:
+            errors.append(f"{projectile_name} alpha touches canvas edge; check matte/crop ({metrics['edge_alpha']:.0f})")
     if "button.clip_contents = true" not in collection:
         errors.append("collection rows must clip dynamic portraits")
+    if "SaveManager.get_skill_base_level(item_id)" not in collection:
+        errors.append("collection skill rows must display permanent skill_base_levels, not generic item levels")
+    skill_button_match = re.search(r"func _build_skill_item_button[\s\S]*?\nfunc ", collection)
+    skill_button_body = skill_button_match.group(0) if skill_button_match else ""
+    if "SaveManager.get_item_level(item_id)" in skill_button_body:
+        errors.append("collection skill list must not force skill cards through SaveManager.get_item_level(item_id)")
+    if 'max_label.text = "上限"' in collection and "_build_skill_item_button" in collection:
+        errors.append("collection skill list must label the right-side value as current level, not 上限")
     for required_clip in ["card.clip_contents = true"]:
         if required_clip not in battle:
             errors.append(f"battle dynamic icon container missing: {required_clip}")
@@ -127,6 +166,18 @@ def main() -> int:
             errors.append(f"battle must not drop reward chips on the combat field: {stale_reward}")
     if "_spawn_zombie_blood_pool" not in battle:
         errors.append("enemy deaths must leave a short-lived zombie blood cleanup effect")
+    if 'enemy.set_meta("death_element", str(reward.get("death_element", "physical")))' not in battle:
+        errors.append("enemy deaths must preserve the final hit element for elemental death readability")
+    if 'if not bool(reward.get("weak_kill", false)) and not bool(reward.get("boss", false)):' in battle:
+        errors.append("ordinary non-weak enemy deaths must not be normalized to physical; polish the element VFX instead")
+    if 'stack_element := "physical" if element == "fire" and not is_boss else element' in battle:
+        errors.append("ordinary fire deaths must not hide their element by routing through physical impact stacks")
+    if "_spawn_centered_fire_death_vfx(position)" not in battle:
+        errors.append("ordinary fire deaths must use the centered burn-out VFX path, not projectile-like spray")
+    if '_spawn_vfx_sequence("vfx_explosion_fire", position + Vector2(0, -38 if not is_boss else -82)' in battle:
+        errors.append("ordinary enemy fire deaths must not use the large vfx_explosion_fire plume")
+    if '_spawn_vfx_sequence("vfx_hit_fire", position + Vector2(0, -38)' in battle:
+        errors.append("ordinary enemy fire deaths must not call hit-fire directly from the generic death branch; use centered fire death VFX")
     if "$Hud.add_child(ring)" in battle:
         errors.append("battle attack rings must render in the combat layer, not as HUD rectangles")
     for stale_tracer in ["var ray := ColorRect.new()", "var line := ColorRect.new()", "var flare := ColorRect.new()"]:
@@ -172,6 +223,7 @@ def main() -> int:
         '"weapon_railgun": "rail"',
         '"weapon_scattergun": "scatter"',
         '"weapon_plasmacannon": "plasma"',
+        '"weapon_flamethrower": "flame"',
         "_weapon_visual_profile",
         "_spawn_weapon_muzzle_profile_vfx",
         "_spawn_rail_impact_vfx",
@@ -186,12 +238,18 @@ def main() -> int:
         '_projectile_texture_path(element, visual_profile)',
         '_projectile_sprite_scale(visual_profile)',
         '_projectile_color(element, visual_profile)',
+        '"fire_round"',
+        '"flame"',
         '"rail"',
         '"scatter"',
         '"plasma"',
     ]:
         if runtime_key not in projectile:
             errors.append(f"projectile-specific visual profile missing: {runtime_key}")
+    if "if element == \"fire\" and profile == \"\":\n\t\tprofile = \"fire_round\"" not in battle:
+        errors.append("ordinary fire bullets must use compact fire_round visual profile instead of the flamethrower plume")
+    if "if element == \"fire\" and visual_profile == \"\":\n\t\tvisual_profile = \"fire_round\"" not in projectile:
+        errors.append("projectile fire fallback must resolve to compact fire_round profile")
     if "暂无可释放目标" in battle:
         errors.append("character active skills must not fail silently or require targets; use fallback cast VFX instead")
     if 'icon.global_position = Vector2(512, 1420)' in battle:

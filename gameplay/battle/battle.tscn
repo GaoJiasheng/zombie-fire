@@ -369,31 +369,31 @@ autowrap_mode = 3
 [node name="CardPanel" type="Panel" parent="Hud"]
 visible = false
 offset_left = 96.0
-offset_top = 390.0
+offset_top = 374.0
 offset_right = 984.0
-offset_bottom = 1280.0
+offset_bottom = 1336.0
 
 [node name="CardTitle" type="Label" parent="Hud/CardPanel"]
 offset_left = 30.0
-offset_top = 28.0
+offset_top = 24.0
 offset_right = 850.0
-offset_bottom = 92.0
-theme_override_font_sizes/font_size = 37
+offset_bottom = 84.0
+theme_override_font_sizes/font_size = 35
 text = "选择强化"
 horizontal_alignment = 1
 
 [node name="Cards" type="VBoxContainer" parent="Hud/CardPanel"]
 offset_left = 60.0
-offset_top = 130.0
+offset_top = 108.0
 offset_right = 820.0
-offset_bottom = 748.0
-theme_override_constants/separation = 14
+offset_bottom = 832.0
+theme_override_constants/separation = 16
 
 [node name="RerollButton" type="TextureButton" parent="Hud/CardPanel"]
 offset_left = 220.0
-offset_top = 788.0
+offset_top = 852.0
 offset_right = 540.0
-offset_bottom = 868.0
+offset_bottom = 926.0
 texture_normal = ExtResource("9_btn")
 ignore_texture_size = true
 stretch_mode = 0
@@ -410,9 +410,9 @@ vertical_alignment = 1
 
 [node name="SkipButton" type="TextureButton" parent="Hud/CardPanel"]
 offset_left = 560.0
-offset_top = 788.0
+offset_top = 852.0
 offset_right = 880.0
-offset_bottom = 868.0
+offset_bottom = 926.0
 texture_normal = ExtResource("10_btn2")
 ignore_texture_size = true
 stretch_mode = 0

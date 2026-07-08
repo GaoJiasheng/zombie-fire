@@ -2096,3 +2096,91 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Strict bounds cleanup**: projectiles check the current visible viewport before and after movement. Once `x/y` leaves the visible playfield, the projectile is queued for deletion immediately instead of being allowed to arc back in.
 - **Lifetime cap**: `PROJECTILE_MAX_LIFETIME = 5.0` is enforced before homing/movement every physics tick, covering normal, split, chain, and homing projectiles through the shared projectile runtime.
 - **Regression guardrails**: `tools/m1_smoke_test.gd` now directly asserts the one-second straight segment, post-delay steering, turn-rate cap, off-screen cleanup, and five-second cleanup. `tools/check_gameplay_polish.py` statically requires the new homing/lifetime constants and turn-limit helper.
+
+## Tall Battle Background Black-Band Closure (2026-07-07)
+
+> Owner provided a storm-substation battle screenshot where the top of the screen still read as a large black empty band above the environment.
+
+- **Root cause found**: the prior high-screen fix kept the integrated campaign battle backgrounds at `1080x1920` and filled extra tall-screen height with a sampled `BackgroundExtension` gradient. On dark environments, especially `env_storm_substation`, this still looked like a black blank top strip even though it was not exact pure black.
+- **Asset-level fix**: added `tools/extend_tall_battle_backgrounds_2026_07_07.py` and regenerated the 10 campaign battle backgrounds to `1080x2622`. The original `1080x1920` combat composition is preserved at the bottom of each canvas, while the extra top `702px` is built from the same environment image with lifted detail, texture grain, and seam blending.
+- **Runtime fix**: `_apply_level_background()` now bottom-anchors the full background texture against `1920 + bottom_dock_shift` and hides `BackgroundExtension`. This keeps the background barricade/base art aligned with `BREACH_Y` while high-screen devices reveal real rendered environment art at the top instead of a dark gradient fill.
+- **Guardrail tightening**: `tools/check_tall_battle_layout.py` now requires every campaign environment used by the 99-level release path to be `1080x2622`, validates the bottom-anchored breach-line transform for `1920/2046/2340/2622`, and rejects high-screen top bands that still read as low-detail dark filler. `tools/check_visual_screens.py` now captures an actual `battle_tall` routed screenshot via `tools/_shot.gd` `viewport_size`.
+- **Traceability**: manifest `assets/production/source_refs/generated/tall_battle_background_extension_2026_07_07/tall_battle_background_extension_manifest_2026_07_07.json`; contact sheet `assets/production/contact_sheets/contact_tall_battle_backgrounds_2026_07_07.png`.
+- **Screenshot evidence**: `tmp/battle_storm_substation_tall_2340_fix_2026_07_07.png` captured the reported storm-substation environment in a tall viewport; local window constraints produced `1080x2046`, still exercising the high-screen path. The screenshot top band no longer contains the large black blank area, while the bottom barricade/player composition remains aligned.
+- **All-campaign runtime confirmation**: `tools/check_visual_screens.py` now captures high-screen battle screenshots for all 10 campaign environments (`level_001/011/021/031/041/051/061/071/081/091`) instead of only `env_storm_substation`. Runtime review sheet: `tmp/tall_battle_all_env_confirm_2026_07_07/all_campaign_tall_battle_runtime_sheet.png`.
+
+## Projectile Raster Re-Render / Fire-Round Split (2026-07-07)
+
+> Owner rejected remaining geometric projectile prototypes in the current projectile probe and reiterated that visible assets must be rendered bitmap art, not line/shape icons.
+
+- **Problem found**: `proj_heavy_charge.png` and `proj_scatter_pellet.png` still read as geometric UI symbols (target ring / pie wedge) instead of projectile art. The normal `skill_incendiary` path also reused the large fireball projectile sprite, which made clustered hits near enemies read as a side-plume flame.
+- **Rendered replacements**: used built-in `image_gen` to generate two non-geometric projectile renders on chroma-key backgrounds, removed the key locally, and replaced `assets/production/sprites/projectiles/proj_heavy_charge.png` plus `assets/production/sprites/projectiles/proj_scatter_pellet.png` as 256x256 RGBA sprites.
+- **Runtime split**: `weapon_flamethrower` now explicitly uses the `flame` projectile profile, while ordinary fire-element conversion (`skill_incendiary`) falls back to a compact `fire_round` profile. This keeps the real flamethrower visually fiery but prevents normal fire bullets from producing the oversized horizontal fireball look.
+- **Traceability**: manifest `assets/production/source_refs/generated/projectile_regen_2026_07_07/projectile_regen_manifest_2026_07_07.json`; contact sheet `tmp/projectile_regen_2026_07_07/projectile_regen_contact_sheet.png`.
+
+## Chapter Detail Layout Polish (2026-07-07)
+
+> Owner pointed out that the chapter detail map still felt cramped, with the story/title text sitting too close to panel borders.
+
+- **Header safe area**: `meta/map/map.gd` now uses explicit chapter-detail layout constants. The detail header height increased from `256` to `276`, the chapter page title drops to `40px`, and the chapter header title/story/objective block uses a `64px` left inset instead of hugging the rendered frame.
+- **Right module spacing**: `ChapterProgress` now supports an explicit panel size and uses `24px` internal padding. The back-to-chapter-map button is inset under the progress module instead of sitting tight against the module edge.
+- **Frame/rail sizing**: the chapter frame rail now derives from each card's actual height, so the hero/detail panel and normal chapter cards no longer share a mismatched fixed rail length.
+- **Nav badge cleanup**: the top collection navigation badges (`等级1` / `未装` / `图鉴`) were shifted inward so enlarged Chinese text no longer reads as pressed against the icon-card border.
+- **Screenshot evidence**: `tmp/map_chapter_layout_polish_2026_07_07.png`.
+
+## Chapter Overview List Layout Polish (2026-07-07)
+
+> Follow-up after the detail-card fix: the outer chapter list had the same compressed edge feel, especially on the chapter title/story block and the right-side progress/Boss/action cluster.
+
+- **Outer-card safe area**: `Chapter%02dCard` now uses the same `64px` left text inset and a wider `294px` card height. Title, range, status, story, and objective copy are aligned to a stable text column instead of starting near the rendered border.
+- **Right action column**: the overview card now uses the shared `300px` right column for progress, small-Boss node, major-Boss node, and the enter/locked action button. This keeps all right-side modules visually centered and avoids the earlier stacked-tag feel.
+- **Boss chip readability**: Boss node chips were widened from `126x48` to `136x52`, with clipped labels and slightly more vertical spacing for `005 小首领` / `010 大首领` plus state text.
+- **Screenshot evidence**: `tmp/map_chapter_overview_layout_polish_2026_07_07.png`.
+
+## Weapon Shot SFX Realism Pass (2026-07-07)
+
+> Owner reported that the current gunfire sounded like a frog croak. The issue was real: `sfx_shot_autocannon.wav` had about `0.90` low-frequency energy ratio and very low zero-crossing, which made it read as a tonal low "gulp" instead of a gunshot. `sfx_muzzle_fire.wav` had the same risk at about `0.80` low-frequency ratio.
+
+- **Rebuilt shot layer**: regenerated all 8 weapon shot files at the same paths under `assets/production/audio/sfx/sfx_shot_*.wav`. The new sounds use short broadband blast noise, muzzle snap, and mechanical clack instead of low sine/chirp-heavy tones.
+- **Rebuilt muzzle layer**: regenerated all 4 elemental muzzle files under `sfx_muzzle_*.wav`, because fire/plasma/ice/lightning/poison weapons layer these on top of the shot file during `_on_turret_fired()`.
+- **Mix targets**: all 12 files are mono `44.1kHz`, short `0.120-0.245s`, normalized to about `-4.2dBFS` peak, with RMS around `-13` to `-15.5dBFS`. Autocannon low-frequency ratio is now about `0.20`; fire muzzle is about `0.01`.
+- **Traceability**: old files were backed up under `assets/production/source_refs/generated/weapon_sfx_realism_2026_07_07/original_weapon_shots/`; manifest is `weapon_sfx_realism_manifest_2026_07_07.json`; waveform review sheet is `weapon_sfx_realism_waveform_sheet_2026_07_07.png`.
+- **Regression guard**: added `tools/check_weapon_sfx_quality.py` and wired it into `tools/check_release_candidate.py` to reject future shot/muzzle files that are too tonal, too low-frequency dominated, too long, or outside the mobile mix peak/RMS window.
+
+## Multishot / Homing Stack Balance Pass (2026-07-07)
+
+> Owner called out that multishot bullets needed mild falloff, especially when stacked with homing, but should not be over-nerfed.
+
+- **Damage falloff table**: `_on_turret_fired()` now applies `_multishot_damage_multiplier()` per projectile lane: 1 lane = `1.00`, 2 lanes = `0.85`, 3 lanes = `0.80`, 4 lanes = `0.75`, and 5+ lanes = `0.70`.
+- **Lane cap**: `skill_multishot` is capped at `MAX_MULTISHOT_LANES = 5` total lanes. `data/skills.json` Lv5 now keeps the 5-lane ceiling instead of creating a sixth full extra projectile.
+- **No implicit split/ricochet**: `SkillRuntime.projectile_mods()` no longer merges `skill_ricochet` into the `split` field. Split-shot remains the only source of main-projectile split; ricochet exposes `chain` only.
+- **Stacking preserved**: multishot, homing, pierce, split-shot, and ricochet can still be owned together. The guardrail is damage and behavior clarity, not exclusivity.
+- **Regression guard**: `tools/m1_smoke_test.gd` now asserts the falloff table, the 5-lane clamp, homing + multishot stacking, and ricochet-not-split semantics.
+
+## Late-Wave Difficulty +20% Pass (2026-07-07)
+
+> Owner asked to globally raise waves 3, 4, and 5 by 20%.
+
+- **Data-driven tuning knobs**: added `late_wave_hp_bonus` and `late_wave_boss_hp_bonus` to `data/economy.json`, then documented them in `design/data/schema.md`.
+- **Runtime effect**: `gameplay/battle/battle.gd` now reads those economy knobs when spawning enemies. Wave 3 ordinary enemies are `1.20x`; wave 4 ordinary enemies are `1.44x`; wave 5 ordinary/support enemies are `1.62x`. Bosses use the separate boss table, currently `1.20x`, so the final-wave boss pressure rises without accidentally inheriting the larger ordinary-mob curve.
+- **Tooling aligned**: `tools/check_level_pressure.py`, `tools/check_balance_profile.py`, `tools/simulate_balance.py`, and `tools/rebalance_difficulty.py` now include the late-wave multipliers in their pressure/HP estimates.
+- **Campaign floor restored**: the updated pressure model exposed several same-stream difficulty dips after the late-wave multipliers were counted. `data/levels.json` received minimal upward-only `difficulty_coef` floor adjustments on affected levels; no waves, enemy groups, rewards, unlocks, or chapter structure were regenerated.
+
+## Nearline Ice Death VFX Plume Fix (2026-07-08)
+
+> Owner reported that the `近线·冰` zombie death effect looked like a flame plume spraying from the right side and felt out of place.
+
+- **Root cause**: ordinary enemy death VFX used the last hit element, which is correct for readability, but the ordinary fire death branch could still read like a projectile plume when clustered on top of enemies. The issue is the fire death presentation, not the elemental-death rule itself.
+- **Runtime fix**: enemy deaths now preserve `death_element` directly from the last hit. A `近线·冰` zombie killed by fire still gets a fire death, but that death is no longer rendered as a side-spraying flame.
+- **Fire death polish**: ordinary fire deaths now route through `_spawn_centered_fire_death_vfx()`: a compact centered burn-out, short radial shock ring, upward ember/smoke dissipation, and small orange shards. The large `vfx_explosion_fire` sequence remains reserved for boss deaths.
+- **Regression guard**: `tools/check_gameplay_polish.py` now rejects both bad fixes: normalizing ordinary deaths back to physical, and reintroducing the generic large/plume fire death path for ordinary enemies.
+
+## Level 20+ Boss HP Doubling (2026-07-08)
+
+> Owner reported that bosses from around level 20 still felt too easy and requested all bosses from level 20 onward to gain double HP.
+
+- **Data-driven knob**: `data/economy.json` now defines `boss_hp_level_bonus: {"start_level": 20, "multiplier": 2.0}` so this can be tuned without editing level scripts or boss rows.
+- **Runtime effect**: `gameplay/battle/battle.gd` multiplies HP for every `is_boss` spawn when `level_ordinal >= 20`. This covers normal campaign boss levels, challenge-mode boss levels, and multi-boss finale spawns; challenge mode still stacks its own HP multiplier after the boss-level HP bonus.
+- **Damage untouched**: the multiplier is HP-only. Boss `bd_coef`, pressure damage, base attack cadence, waves, rewards, unlocks, and boss mechanics were not changed.
+- **Boss-stream floor restored**: after the 2x HP multiplier, some later boss rows still fell below earlier boss rows because their source boss coefficients differ. `level_035/040/060/065/090/095/099` received minimal upward `difficulty_coef` floor adjustments so the boss stream remains non-decreasing and the finale is again the peak.
+- **Tooling aligned**: `tools/check_level_pressure.py`, `tools/check_balance_profile.py`, `tools/simulate_balance.py`, and `tools/rebalance_difficulty.py` now include the same level-based boss HP bonus in their HP/pressure calculations.

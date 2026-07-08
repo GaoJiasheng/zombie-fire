@@ -6,12 +6,14 @@ import re
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LOGICAL_WIDTH = 1080.0
 DESIGN_HEIGHT = 1920.0
+EXTENDED_HEIGHT = 2622.0
 TALL_VIEWPORT_HEIGHTS = (1920.0, 2046.0, 2340.0, 2622.0)
 NORMAL_ATTACK_OFFSET_RANGE = (-18.0, 26.0)
 BOSS_ATTACK_OFFSET_RANGE = (-94.0, -62.0)
@@ -41,31 +43,54 @@ def _res_path(path: str) -> Path:
     return ROOT / path
 
 
-def _background_cover_errors(label: str, image_size: tuple[int, int]) -> list[str]:
-    # 背景固定按设计尺寸(1080x1920)算 cover_scale、只做整体平移(bottom_dock_shift)，
-    # 不随可见高度整体缩放——这样背景里画的护栏/基座和玩法坐标系里实际的动态
-    # breach 线才能保证严格对齐:同一个 shift 同时用在人物/护栏(玩法坐标)和背景
-    # 平移量上。之前踩过的坑：如果背景改成按可见高度整体 cover 缩放，画面里的
-    # 护栏就会和实际 breach 线产生随设备高度增长而扩大的错位(验证过 iPhone 16
-    # Pro Max 尺寸下能到 90px+)，等价于历史上那次"人物位置对齐"回归——这里直接
-    # 验证"设计画布内 y=1500(护栏/barricade 美术参考线)经平移后是否精确落在
-    # 动态 breach_y 上"这个真正要保的不变量，而不是去断言某种缩放公式本身。
+def _luminance(image: Image.Image) -> np.ndarray:
+    arr = np.asarray(image.convert("RGB"), dtype=np.float32)
+    return arr[:, :, 0] * 0.2126 + arr[:, :, 1] * 0.7152 + arr[:, :, 2] * 0.0722
+
+
+def _background_cover_errors(label: str, image: Image.Image, require_extended: bool) -> list[str]:
+    # 主线背景现在是 1080x2622：原 1080x1920 战斗构图贴在画布底部，上方多出的
+    # 702px 是真实环境延展。运行时按底边锚定，所以 1920 设备看到原构图，高屏设备
+    # 只多看到顶部延展，不再使用黑色/渐变补条。这里验证两个不变量：
+    # 1) 主线背景有足够高度覆盖 2622 高屏；
+    # 2) 扩展画布底部 1920 区域内的 y=1500 防线，经底边锚定后仍等于 BREACH_Y。
     errors: list[str] = []
-    width, height = image_size
+    width, height = image.size
     if width <= 0 or height <= 0:
-        return [f"{label}: invalid background size {image_size}"]
-    cover_scale = max(LOGICAL_WIDTH / float(width), DESIGN_HEIGHT / float(height))
+        return [f"{label}: invalid background size {image.size}"]
+    if require_extended and (width != int(LOGICAL_WIDTH) or height != int(EXTENDED_HEIGHT)):
+        errors.append(f"{label}: campaign battle background must be 1080x2622 after tall-screen extension, got {width}x{height}")
+    if require_extended:
+        extension_h = float(height) - DESIGN_HEIGHT
+        if extension_h < 690.0:
+            errors.append(f"{label}: top extension too short ({extension_h:.1f}px), high-screen devices will expose filler")
+    else:
+        extension_h = max(0.0, float(height) - DESIGN_HEIGHT)
     for visible_height in TALL_VIEWPORT_HEIGHTS:
         bottom_shift = max(0.0, visible_height - DESIGN_HEIGHT)
-        background_center_y = 960.0 + bottom_shift
+        cover_scale = max(LOGICAL_WIDTH / float(width), visible_height / float(height))
+        background_center_y = visible_height - float(height) * cover_scale * 0.5
         design_breach_y = 1500.0
-        screen_y_of_barricade_art = background_center_y + (design_breach_y - float(height) / 2.0) * cover_scale
+        screen_y_of_barricade_art = background_center_y + (extension_h + design_breach_y - float(height) / 2.0) * cover_scale
         expected_breach_y = design_breach_y + bottom_shift
         if abs(screen_y_of_barricade_art - expected_breach_y) > 0.5:
             errors.append(
                 f"{label}: background barricade art misaligned with dynamic breach line at height "
                 f"{visible_height:.0f} (art={screen_y_of_barricade_art:.1f}px, breach_y={expected_breach_y:.1f}px)"
             )
+        if require_extended and visible_height > DESIGN_HEIGHT:
+            crop_top = max(0, int(round(float(height) - visible_height / cover_scale)))
+            visible = image.crop((0, crop_top, width, min(height, crop_top + int(round(visible_height / cover_scale)))))
+            top_band = visible.crop((0, 0, visible.width, min(240, visible.height)))
+            lum = _luminance(top_band)
+            dark_ratio = float((lum < 18.0).mean())
+            mean_luma = float(lum.mean())
+            std_luma = float(lum.std())
+            if dark_ratio > 0.72 and mean_luma < 22.0 and std_luma < 18.0:
+                errors.append(
+                    f"{label}: high-screen top band still reads as blank dark filler at height {visible_height:.0f} "
+                    f"(mean={mean_luma:.1f}, std={std_luma:.1f}, dark<18={dark_ratio:.1%})"
+                )
     return errors
 
 
@@ -97,8 +122,13 @@ def _source_guard_errors() -> list[str]:
     battle_source = (ROOT / "gameplay/battle/battle.gd").read_text(encoding="utf-8")
     enemy_source = (ROOT / "gameplay/enemy/enemy.gd").read_text(encoding="utf-8")
     required_battle_snippets = [
-        "background.position = Vector2(540, 960.0 + bottom_dock_shift)",
-        "var cover_scale := maxf(1080.0 / texture_size.x, 1920.0 / texture_size.y)",
+        "func _battle_visible_height() -> float:",
+        "var visible_height := _battle_visible_height()",
+        "var cover_scale := maxf(1080.0 / texture_size.x, visible_height / texture_size.y)",
+        "background.position = Vector2(540, visible_height - texture_size.y * cover_scale * 0.5)",
+        "_hide_background_top_fill()",
+        "if bar_path == HUD_WAVE_BAR_PATH:\n\t\treturn 6.0",
+        "if bar_path == HUD_WAVE_BAR_PATH:\n\t\treturn maxf(8.0, bar.size.x - 6.0)",
         'enemy.call("configure_attack_line", BREACH_Y)',
     ]
     for snippet in required_battle_snippets:
@@ -121,8 +151,9 @@ def main() -> int:
     if len(levels) != 99:
         errors.append(f"expected 99 levels, found {len(levels)}")
 
-    # Check every environment referenced by levels, plus legacy environment rows,
-    # because all battle backgrounds share the same runtime placement function.
+    used_envs = sorted({str(level.get("env", "")) for level in levels})
+    # Campaign environments are shown by the 99-level release path and must carry the
+    # full tall-screen canvas. Legacy environment rows only need to stay valid refs.
     for env_id, env in environments.items():
         if not isinstance(env, dict):
             errors.append(f"{env_id}: environment row must be an object")
@@ -136,7 +167,7 @@ def main() -> int:
             errors.append(f"{env_id}: background does not exist: {background_path}")
             continue
         with Image.open(full_path) as image:
-            errors.extend(_background_cover_errors(env_id, image.size))
+            errors.extend(_background_cover_errors(env_id, image, env_id in used_envs))
 
     for level in levels:
         level_id = str(level.get("id", "<missing>"))
@@ -169,7 +200,6 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    used_envs = sorted({str(level.get("env", "")) for level in levels})
     print(
         "Tall battle layout OK: "
         f"{len(levels)} levels, {len(used_envs)} campaign envs, "
