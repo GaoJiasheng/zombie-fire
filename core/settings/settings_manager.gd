@@ -1,9 +1,11 @@
 extends Node
 
 const SETTINGS_PATH := "user://settings_main.json"
+const BATTLE_SPEEDS := [1.0, 2.0, 5.0]
 
 var settings := {
-	"quality": "standard"
+	"quality": "standard",
+	"battle_speed": 1.0
 }
 
 func _ready() -> void:
@@ -33,6 +35,18 @@ func get_quality() -> String:
 
 func quality_label() -> String:
 	return "标准 60帧" if get_quality() == "standard" else "省电 30帧"
+
+# 战斗加速：只在战斗场景里有意义，不放进 apply_settings()（那个函数管的是
+# Engine.max_fps 这种全局即时生效的东西），由 battle.gd 自己读取应用。
+func cycle_battle_speed() -> float:
+	var idx := BATTLE_SPEEDS.find(get_battle_speed())
+	var next: float = BATTLE_SPEEDS[(idx + 1) % BATTLE_SPEEDS.size()] if idx >= 0 else BATTLE_SPEEDS[0]
+	settings["battle_speed"] = next
+	save_settings()
+	return next
+
+func get_battle_speed() -> float:
+	return float(settings.get("battle_speed", 1.0))
 
 func apply_settings() -> void:
 	Engine.max_fps = 30 if get_quality() == "battery" else 60

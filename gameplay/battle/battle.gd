@@ -33,6 +33,9 @@ const BASE_LINE_BOSS_WARNING_INSET := 240.0
 var bottom_dock_shift := 0.0
 var BREACH_Y := 1500.0
 var CHARACTER_BASE_POSITION := Vector2(540, 1652)
+## 战斗加速：1.0/2.0/5.0，从 SettingsManager 读取、按玩家上次的选择恢复；
+## 只在战斗场景生效，离开战斗时 main.gd 会把 Engine.time_scale 复位成 1.0。
+var battle_speed := 1.0
 const CHARACTER_VISUAL_BASE_SCALE := 0.512
 const CHARACTER_WEAPON_SOCKET := Vector2(58, -28)
 const CHARACTER_WEAPON_DEFAULT_DIRECTION := Vector2(0, -1)
@@ -420,7 +423,8 @@ func setup(main: Node, payload := {}) -> void:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = false
-	Engine.time_scale = 1.0
+	battle_speed = SettingsManager.get_battle_speed()
+	Engine.time_scale = battle_speed
 	# 先算好底部基座群组要整体下移多少，后面背景/人物/护栏/底部HUD都要用。
 	var vis_size := get_viewport().get_visible_rect().size
 	bottom_dock_shift = maxf(0.0, vis_size.y - 1920.0)
@@ -601,7 +605,7 @@ func _set_card_offer_pause_active(active: bool) -> void:
 		card_long_press_opened = false
 		skill_hint_press_kind = ""
 		skill_hint_long_press_opened = false
-		Engine.time_scale = 1.0
+		Engine.time_scale = battle_speed
 	get_tree().paused = paused or card_offer_active
 	_update_character_skill_button()
 
@@ -1913,6 +1917,9 @@ func _set_pause_background_hud_hidden(hidden: bool) -> void:
 	var pause_button := get_node_or_null("PauseLayer/PauseButton") as CanvasItem
 	if pause_button != null:
 		pause_button.visible = not hidden
+	var speed_button := get_node_or_null("PauseLayer/SpeedButton") as CanvasItem
+	if speed_button != null:
+		speed_button.visible = not hidden
 	if boss_hp_bar != null and is_instance_valid(boss_hp_bar):
 		if hidden:
 			boss_hp_bar.visible = false
@@ -2229,6 +2236,7 @@ func _apply_runtime_ui_styles() -> void:
 
 func _layout_runtime_hud() -> void:
 	_ensure_hp_bar_in_bottom_bar()
+	_ensure_speed_button()
 	var top_bar := get_node_or_null("Hud/TopBar") as Control
 	if top_bar != null:
 		top_bar.offset_left = 180.0
@@ -2276,6 +2284,14 @@ func _layout_runtime_hud() -> void:
 		pause_button.ignore_texture_size = true
 		pause_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		pause_button.modulate = Color(0.92, 0.96, 1.0, 0.94)
+	# 镜像暂停按钮，放右上角；这块正好是空的(ObjectivePanel 从 offset_top=100
+	# 才开始)，不受 bottom_dock_shift 影响(顶部锚定，和暂停按钮一样)。
+	var speed_button := get_node_or_null("PauseLayer/SpeedButton") as Button
+	if speed_button != null:
+		speed_button.offset_left = 980.0
+		speed_button.offset_top = 18.0
+		speed_button.offset_right = 1062.0
+		speed_button.offset_bottom = 100.0
 
 func _layout_card_offer_panel() -> void:
 	var panel := get_node_or_null("Hud/CardPanel") as Panel
@@ -2428,6 +2444,47 @@ func _ensure_hp_bar_in_bottom_bar() -> void:
 		if old_parent != null:
 			old_parent.remove_child(hp_bar)
 		bottom_bar.add_child(hp_bar)
+
+func _ensure_speed_button() -> void:
+	if not has_node("PauseLayer") or has_node("PauseLayer/SpeedButton"):
+		_update_speed_button_visual()
+		return
+	var button := Button.new()
+	button.name = "SpeedButton"
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_filter = Control.MOUSE_FILTER_STOP
+	button.tooltip_text = "战斗加速"
+	button.add_theme_font_size_override("font_size", 26)
+	button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
+	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	button.add_theme_constant_override("outline_size", 3)
+	button.pressed.connect(_cycle_battle_speed)
+	$PauseLayer.add_child(button)
+	_update_speed_button_visual()
+
+func _update_speed_button_visual() -> void:
+	var button := get_node_or_null("PauseLayer/SpeedButton") as Button
+	if button == null:
+		return
+	var boosted := battle_speed > 1.0
+	button.text = "%dX" % int(round(battle_speed))
+	# 直接复用 icon_frame 贴图，但用比 icon_frame_texture_style() 默认更小的
+	# margin——那个默认 margin(32px)是给 120px+ 的图鉴/技能格子配的，按钮只有
+	# 82px 见方时边框相对贴图会被压得太挤，实测会糊成一个圆斑；同一张图换小
+	# margin 就能在小尺寸下正常显示方角边框。
+	var path := UiKit.UI_TEXTURE_ROOT + ("ui_icon_frame_active.png" if boosted else "ui_icon_frame.png")
+	var style := UiKit.texture_style(path, 14.0, 6.0, UiKit.GOLD if boosted else UiKit.CYAN)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		button.add_theme_stylebox_override(state, style)
+	button.add_theme_color_override("font_color", UiKit.GOLD if boosted else UiKit.TEXT_MAIN)
+
+func _cycle_battle_speed() -> void:
+	battle_speed = SettingsManager.cycle_battle_speed()
+	Engine.time_scale = battle_speed
+	if hit_stop != null and is_instance_valid(hit_stop):
+		hit_stop.target_scale = battle_speed
+	_update_speed_button_visual()
+	AudioManager.play_sfx("ui_click")
 
 func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top: float, fill_height: float, font_size: int) -> void:
 	var bar := get_node_or_null(path) as Control
@@ -6120,6 +6177,7 @@ func _spawn_feedback_managers() -> void:
 	hit_stop = preload("res://core/feedback/hit_stop.gd").new()
 	hit_stop.name = "HitStop"
 	hit_stop.process_mode = Node.PROCESS_MODE_PAUSABLE
+	hit_stop.target_scale = battle_speed
 	add_child(hit_stop)
 	# Screen shake
 	screen_shake_node = preload("res://core/feedback/screen_shake.gd").new()
