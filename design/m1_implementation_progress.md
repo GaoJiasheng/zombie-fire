@@ -2391,3 +2391,41 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Wave fill cleanup**: `tools/generate_wave_progress_native_2026_07_11.py` no longer draws interior outlines or segmented highlight strokes inside `ui_wave_progress_fill_native.png`; the fill is now a single thick warm-gold capsule with only broad soft bloom.
 - **Chapter card height**: outer chapter cards increased from `294` to `344` height. The left story/objective column, right progress panel, boss chips, and `进入战区` action button were moved into a taller rhythm so the enlarged Chinese copy no longer clips.
 - **Visual verification**: `tmp/wave_progress_clean_fill_2026_07_12_v2.png` confirms the runtime wave fill has no thin horizontal line artifact. `tmp/map_chapter_overview_spacious_2026_07_12.png` confirms the chapter overview uses taller cards with readable text.
+
+## Collection Purchase State Readability (2026-07-12)
+
+> Owner clarified the intended collection/shop state: if an item can be purchased but is not owned, the purchase button should be bright while the whole row remains dark; after purchase, the button becomes equip/equipped and the whole row becomes bright.
+
+- **Locked-row layering**: `meta/collection/collection.gd` no longer dims the whole row through parent `modulate`, because that also dimmed the embedded purchase button. Locked rows now add a `LockedCardVeil` over the card body, while the action button renders above that veil.
+- **State contract**: affordable locked items show a bright enabled `购买 N★` button on a dark row; unaffordable locked items keep a disabled grey button; owned rows remove the veil and show `装备` / `已装备` in the bright owned-card state.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now builds a weapon collection state with enough stars but only two unlocked weapons, asserts the locked purchasable row has a dark veil and an enabled purchase button above it, then purchases that row and verifies it unlocks, auto-equips, removes the veil, and shows `已装备`.
+- **Visual verification**: `tmp/collection_weapon_purchase_state_2026_07_12_v2.png`.
+
+## Card Offer Tall-Screen Layout Polish (2026-07-12)
+
+> Owner pointed out the mid-battle skill choice popup still looked cramped on a tall phone screenshot and should use more of the available vertical space, with the whole modal placed slightly lower.
+
+- **Tall-screen adaptive panel**: `gameplay/battle/battle.gd` now lays out `Hud/CardPanel` from shared constants, increases the base modal height, and adds a capped downward shift / height bonus when the viewport is taller than 1080x1920.
+- **Card rhythm**: each offer card starts taller, with larger title type, more generous stat/description line spacing, and tags moved off the lower edge. Level/recommendation badges and tag chips now keep explicit safe insets inside the rendered armor frame instead of touching or crossing the card chrome. The reroll/skip buttons are anchored from the panel bottom instead of fixed to the old compressed y-coordinate.
+- **Detail overlay**: long-press skill detail sizing now follows the active card panel size, so the detail modal remains centered and spacious after the main panel grows.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now expects the larger, lower card offer panel, checks that the card list has enough vertical breathing room, and fails if small badges/tag chips cross the card safe bounds.
+- **Visual verification**: `tmp/card_offer_badge_inset_2026_07_12_v2.png`, `tmp/card_offer_badge_inset_2340_2026_07_12_v2.png`, and `tmp/card_offer_detail_tall_layout_2026_07_12.png`.
+
+## Map Top Navigation Scale Polish (2026-07-12)
+
+> Owner liked the enlarged map navigation cells, but asked for the Endless entry to be taller and for the icons inside the cells to be larger. Follow-up feedback called out the character thumbnail specifically as still sitting too low.
+
+- **Endless entry**: `meta/map/map.gd` now uses the native `980x96` armored button size for `无限尸潮` instead of the thin `980x58` strip, with a slightly larger label.
+- **Navigation cells**: the top six feature cells are taller, with larger icon drawing bounds and compact `LvN / 未装 / 图鉴` status badges so status text no longer competes with the art.
+- **Character thumbnail alignment**: the character bust viewport was enlarged and shifted upward. Runtime captures checked all four playable characters (`vanguard`, `blaze`, `frost`, `volt`) so the crop is not tuned only for one model.
+- **Visual verification**: `tmp/map_nav_icon_endless_size_2026_07_12.png` and `tmp/map_nav_char_after_offset_sheet_2026_07_12.png`.
+
+## Tall-Screen Modal Vertical Rhythm (2026-07-12)
+
+> Owner reported that result screens and similar popup prompts feel shifted too high on tall iPhone screenshots, leaving too much empty lower space.
+
+- **Shared high-screen offset**: `UiKit.tall_modal_shift()` centralizes the rule: 1080x1920 keeps the original authored positions, while taller viewports add a capped downward offset derived from the extra height.
+- **Result screens**: `meta/result/result.gd` applies the shared offset to the entire result `Content` stack, covering normal, challenge, defeat, and Endless result variants without changing their internal spacing.
+- **Battle popups**: pause overlay, mid-battle card offer, and skill-detail overlay now share the same high-screen vertical rhythm. The card offer still keeps its existing height bonus, but the top-level placement now uses the shared formula.
+- **Confirm modals**: `UiKit.confirm_modal()` also shifts its center container on tall screens, so collection/shop purchase prompts do not remain visually high after the main popups are corrected.
+- **Visual verification**: tall 1080x2340 captures: `tmp/result_modal_tall_shift_2026_07_12.png`, `tmp/pause_modal_tall_shift_2026_07_12.png`, `tmp/card_offer_modal_tall_shift_2026_07_12.png`, `tmp/card_detail_modal_tall_shift_2026_07_12.png`.

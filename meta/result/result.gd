@@ -53,10 +53,11 @@ func _apply_layout_constraints() -> void:
 	var content_width := _native_result_content_width(raw_width)
 	_content_width = content_width
 	var content := $Content as Control
+	var modal_shift := UiKit.tall_modal_shift(viewport_size.y, 160.0, 0.34)
 	content.offset_left = -content_width * 0.5
 	content.offset_right = content_width * 0.5
-	content.offset_top = -820.0
-	content.offset_bottom = 660.0
+	content.offset_top = -820.0 + modal_shift
+	content.offset_bottom = 660.0 + modal_shift
 	content.add_theme_constant_override("separation", 12)
 	for path in ["Content/HeroCard", "Content/RewardRow", "Content/HintCard", "Content/Actions"]:
 		var node := get_node_or_null(path) as Control

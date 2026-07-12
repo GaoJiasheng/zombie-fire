@@ -225,6 +225,13 @@ const FROST_GLACIER_STATUS_REFRESH := 0.86
 const FROST_GLACIER_NORMAL_SPEED := 0.40
 const FROST_GLACIER_BOSS_SPEED := 0.62
 const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
+const CARD_OFFER_PANEL_POS := Vector2(54.0, 342.0)
+const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1256.0)
+const CARD_OFFER_CARDS_POS := Vector2(54.0, 126.0)
+const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
+const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
+const CARD_OFFER_CARD_WIDTH := 864.0
+const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
 const MANUAL_AIM_RELEASE_GRACE := 0.18
 const CHALLENGE_HP_MULT := 1.5
 const CHALLENGE_BREACH_DAMAGE_MULT := 1.25
@@ -2274,39 +2281,43 @@ func _layout_card_offer_panel() -> void:
 	var panel := get_node_or_null("Hud/CardPanel") as Panel
 	if panel == null:
 		return
-	panel.position = Vector2(54, 276)
-	panel.size = Vector2(972, 1030)
+	var viewport_extra_h := maxf(0.0, get_viewport_rect().size.y - 1920.0)
+	var tall_shift_y := UiKit.tall_modal_shift(get_viewport_rect().size.y, 160.0, 0.34)
+	var tall_height_bonus := minf(90.0, viewport_extra_h * 0.12)
+	panel.position = CARD_OFFER_PANEL_POS + Vector2(0.0, tall_shift_y)
+	panel.size = CARD_OFFER_PANEL_SIZE + Vector2(0.0, tall_height_bonus)
+	var button_y := panel.size.y - 124.0
 	var title := panel.get_node_or_null("CardTitle") as Label
 	if title != null:
-		title.position = Vector2(48, 28)
-		title.size = Vector2(876, 66)
+		title.position = Vector2(54, 30)
+		title.size = Vector2(864, 76)
 		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var cards := panel.get_node_or_null("Cards") as VBoxContainer
 	if cards != null:
-		cards.position = Vector2(64, 120)
-		cards.size = Vector2(844, 748)
-		cards.add_theme_constant_override("separation", 18)
+		cards.position = CARD_OFFER_CARDS_POS
+		cards.size = Vector2(CARD_OFFER_CARDS_SIZE.x, maxf(CARD_OFFER_CARDS_SIZE.y, button_y - CARD_OFFER_CARDS_POS.y - 62.0))
+		cards.add_theme_constant_override("separation", 22)
 	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
 	if reroll != null:
-		reroll.position = Vector2(78, 900)
-		reroll.size = Vector2(412, 88)
-		reroll.custom_minimum_size = Vector2(412, 88)
+		reroll.position = Vector2(78, button_y)
+		reroll.size = CARD_OFFER_BUTTON_SIZE
+		reroll.custom_minimum_size = CARD_OFFER_BUTTON_SIZE
 		var label := reroll.get_node_or_null("RerollLabel") as Label
 		if label != null:
 			label.position = Vector2.ZERO
-			label.size = Vector2(412, 88)
+			label.size = CARD_OFFER_BUTTON_SIZE
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var skip := panel.get_node_or_null("SkipButton") as TextureButton
 	if skip != null:
-		skip.position = Vector2(522, 900)
-		skip.size = Vector2(412, 88)
-		skip.custom_minimum_size = Vector2(412, 88)
+		skip.position = Vector2(522, button_y)
+		skip.size = CARD_OFFER_BUTTON_SIZE
+		skip.custom_minimum_size = CARD_OFFER_BUTTON_SIZE
 		var label := skip.get_node_or_null("SkipLabel") as Label
 		if label != null:
 			label.position = Vector2.ZERO
-			label.size = Vector2(412, 88)
+			label.size = CARD_OFFER_BUTTON_SIZE
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
@@ -2315,8 +2326,10 @@ func _layout_card_detail_overlay() -> void:
 	var panel := get_node_or_null("Hud/CardPanel/DetailOverlay/Panel") as Panel
 	if overlay == null or panel == null:
 		return
-	overlay.position = Vector2.ZERO
-	overlay.size = Vector2(888, 840)
+	var host_panel := get_node_or_null("Hud/CardPanel") as Control
+	var host_size := host_panel.size if host_panel != null else CARD_OFFER_PANEL_SIZE
+	overlay.position = Vector2(42, 112)
+	overlay.size = Vector2(host_size.x - 84.0, host_size.y - 210.0)
 	overlay.clip_contents = true
 	var dim := overlay.get_node_or_null("Dim") as TextureRect
 	if dim != null:
@@ -2325,8 +2338,8 @@ func _layout_card_detail_overlay() -> void:
 		dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		dim.stretch_mode = TextureRect.STRETCH_SCALE
 		dim.modulate = Color(0.0, 0.0, 0.0, 0.82)
-	panel.position = Vector2(42, 54)
-	panel.size = Vector2(804, 724)
+	panel.position = Vector2(42, 42)
+	panel.size = Vector2(804, 854)
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var icon := panel.get_node_or_null("Icon") as TextureRect
@@ -2344,33 +2357,33 @@ func _layout_card_detail_overlay() -> void:
 		UiKit.apply_label(title, 24, UiKit.TEXT_MAIN, 3)
 	var current := _ensure_card_detail_label(panel, "Body")
 	current.position = Vector2(44, 144)
-	current.size = Vector2(716, 68)
+	current.size = Vector2(716, 76)
 	current.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	current.clip_text = true
 	current.add_theme_constant_override("line_spacing", 4)
 	UiKit.apply_label(current, 16, UiKit.CYAN, 2)
 	var levels_title := _ensure_card_detail_label(panel, "AllLevelsTitle")
-	levels_title.position = Vector2(44, 226)
+	levels_title.position = Vector2(44, 238)
 	levels_title.size = Vector2(716, 34)
 	levels_title.text = "全部等级"
 	levels_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.apply_label(levels_title, 17, UiKit.GOLD, 2)
 	var levels := _ensure_card_detail_label(panel, "AllLevelsBody")
-	levels.position = Vector2(44, 266)
-	levels.size = Vector2(716, 178)
+	levels.position = Vector2(44, 278)
+	levels.size = Vector2(716, 222)
 	levels.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	levels.clip_text = true
 	levels.add_theme_constant_override("line_spacing", 4)
 	UiKit.apply_label(levels, 13, Color(0.86, 0.92, 0.92, 1.0), 2)
 	var desc := _ensure_card_detail_label(panel, "DescBody")
-	desc.position = Vector2(44, 464)
-	desc.size = Vector2(716, 92)
+	desc.position = Vector2(44, 526)
+	desc.size = Vector2(716, 104)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.add_theme_constant_override("line_spacing", 4)
 	UiKit.apply_label(desc, 15, Color(0.84, 0.92, 0.94, 1.0), 2)
 	var tags := _ensure_card_detail_label(panel, "TagsBody")
-	tags.position = Vector2(44, 572)
+	tags.position = Vector2(44, 654)
 	tags.size = Vector2(716, 36)
 	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tags.clip_text = true
@@ -2378,7 +2391,7 @@ func _layout_card_detail_overlay() -> void:
 	UiKit.apply_label(tags, 14, UiKit.TEXT_MUTED, 2)
 	var close := panel.get_node_or_null("CloseButton") as TextureButton
 	if close != null:
-		close.position = Vector2(242, 624)
+		close.position = Vector2(242, 740)
 		close.size = Vector2(320, 74)
 		close.custom_minimum_size = Vector2(320, 74)
 		close.ignore_texture_size = true
@@ -2593,6 +2606,7 @@ func _style_xp_bar() -> void:
 func _setup_pause_overlay_layout() -> void:
 	if not has_node("Hud/PauseOverlay/Panel"):
 		return
+	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 160.0, 0.34)
 	var overlay := $Hud/PauseOverlay as Control
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var scrim := overlay.get_node_or_null("Scrim") as ColorRect
@@ -2613,9 +2627,9 @@ func _setup_pause_overlay_layout() -> void:
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var panel := $Hud/PauseOverlay/Panel as Panel
 	panel.offset_left = 64.0
-	panel.offset_top = 184.0
+	panel.offset_top = 184.0 + modal_shift
 	panel.offset_right = 1016.0
-	panel.offset_bottom = 1452.0
+	panel.offset_bottom = 1452.0 + modal_shift
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
@@ -7522,10 +7536,10 @@ func _skill_offer_level(skill_id: String) -> int:
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
-	var stats_extra_h := 19.0 * float(stats_text.count("\n"))
-	var card_h := 208.0 + stats_extra_h
+	var stats_extra_h := minf(28.0, 18.0 * float(stats_text.count("\n")))
+	var card_h := CARD_OFFER_CARD_BASE_HEIGHT + stats_extra_h
 	var card := Panel.new()
-	card.custom_minimum_size = Vector2(844, card_h)
+	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, card_h)
 	card.clip_contents = true
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.gui_input.connect(_on_skill_card_input.bind(skill_id))
@@ -7545,7 +7559,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.add_child(accent_bar)
 
 	var icon_box := PanelContainer.new()
-	icon_box.position = Vector2(32, 44)
+	icon_box.position = Vector2(32, 58)
 	icon_box.size = Vector2(116, 116)
 	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7555,7 +7569,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	icon.texture = load(row.get("icon", ""))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.position = Vector2(40, 52)
+	icon.position = Vector2(40, 66)
 	icon.size = Vector2(100, 100)
 	icon.custom_minimum_size = Vector2(100, 100)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7564,9 +7578,9 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var title := Label.new()
 	title.name = "Title"
 	title.text = display_name
-	title.position = Vector2(176, 24)
-	title.size = Vector2(326, 42)
-	UiKit.apply_label(title, 25, Color(0.96, 0.99, 1.0, 1.0), 3)
+	title.position = Vector2(176, 28)
+	title.size = Vector2(362, 48)
+	UiKit.apply_label(title, 28, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7574,8 +7588,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
-	level_badge.position = Vector2(520, 28)
-	level_badge.size = Vector2(114, 34)
+	level_badge.position = Vector2(548, 36)
+	level_badge.size = Vector2(110, 34)
 	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
 	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(level_badge)
@@ -7588,8 +7602,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	if reason != "":
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
-		badge.position = Vector2(654, 28)
-		badge.size = Vector2(160, 34)
+		badge.position = Vector2(676, 36)
+		badge.size = Vector2(136, 34)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
@@ -7602,10 +7616,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var stats := Label.new()
 	stats.name = "Stats"
 	stats.text = stats_text
-	stats.position = Vector2(176, 72)
-	stats.size = Vector2(620, 48 + stats_extra_h)
-	UiKit.apply_label(stats, 17, UiKit.CYAN, 2)
-	stats.add_theme_constant_override("line_spacing", 4)
+	stats.position = Vector2(176, 86)
+	stats.size = Vector2(622, 54 + stats_extra_h)
+	UiKit.apply_label(stats, 18, UiKit.CYAN, 2)
+	stats.add_theme_constant_override("line_spacing", 6)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	stats.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7614,10 +7628,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(176, 126 + stats_extra_h)
-	desc.size = Vector2(620, 44)
-	UiKit.apply_label(desc, 16, Color(0.78, 0.9, 0.96, 1.0), 2)
-	desc.add_theme_constant_override("line_spacing", 4)
+	desc.position = Vector2(176, 150 + stats_extra_h)
+	desc.size = Vector2(622, 46)
+	UiKit.apply_label(desc, 17, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.add_theme_constant_override("line_spacing", 5)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7625,8 +7639,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(176, 174 + stats_extra_h)
-	tags.size = Vector2(620, 30)
+	tags.position = Vector2(176, card_h - 78.0)
+	tags.size = Vector2(622, 30)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(tags)

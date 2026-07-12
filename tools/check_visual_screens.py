@@ -13,6 +13,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SIZE = (1080, 1920)
+TALL_SCREEN_LABEL_PREFIXES = ("battle_tall", "result_tall", "pause_tall", "card_offer_tall")
 MIN_LUMA_STDEV = {
     "map": 20.0,
     "map_chapter": 20.0,
@@ -53,6 +54,23 @@ SCREENS: list[tuple[str, dict, str]] = (
         ("battle", {"level_id": level_id, "viewport_size": [1080, 2340]}, f"battle_tall_{env_id}")
         for env_id, level_id in TALL_BATTLE_LEVELS
     ]
+    + [
+        (
+            "result",
+            {
+                "level_id": "level_004",
+                "victory": True,
+                "challenge": True,
+                "stars": 3,
+                "gold": 686,
+                "xp": 458,
+                "viewport_size": [1080, 2340],
+            },
+            "result_tall_challenge",
+        ),
+        ("battle", {"level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]}, "pause_tall"),
+        ("battle", {"level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]}, "card_offer_tall"),
+    ]
     + BASE_SCREENS[-1:]
 )
 
@@ -82,7 +100,7 @@ def analyze(path: Path, label: str) -> list[str]:
         return [f"{label} screenshot was not written"]
     with Image.open(path) as source:
         image = source.convert("RGB")
-    if label.startswith("battle_tall"):
+    if label.startswith(TALL_SCREEN_LABEL_PREFIXES):
         if image.size[0] != EXPECTED_SIZE[0] or image.size[1] <= EXPECTED_SIZE[1]:
             errors.append(f"{label} screenshot must exercise a tall viewport wider than 1920px high, got {image.size}")
     elif image.size != EXPECTED_SIZE:

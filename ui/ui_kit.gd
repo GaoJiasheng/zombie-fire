@@ -28,6 +28,7 @@ const WARNING := Color(0.96, 0.72, 0.30, 1.0)
 const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
+const DESIGN_HEIGHT := 1920.0
 const NATIVE_BUTTON_SIZES := [
 	Vector2i(154, 44),
 	Vector2i(166, 58),
@@ -70,6 +71,9 @@ const NATIVE_BUTTON_SIZES := [
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
 const FONT_SCALE := 1.4
 static var _TEXTURE_CACHE: Dictionary = {}
+
+static func tall_modal_shift(viewport_height: float, max_shift := 160.0, ratio := 0.34) -> float:
+	return minf(max_shift, maxf(0.0, viewport_height - DESIGN_HEIGHT) * ratio)
 
 static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
@@ -514,6 +518,12 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	layer.add_child(dim)
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var viewport_h := DESIGN_HEIGHT
+	if host != null and host.get_viewport() != null:
+		viewport_h = host.get_viewport().get_visible_rect().size.y
+	var modal_shift := tall_modal_shift(viewport_h, 150.0, 0.32)
+	center.offset_top = modal_shift
+	center.offset_bottom = modal_shift
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(center)
 	var panel := PanelContainer.new()

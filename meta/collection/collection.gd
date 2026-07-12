@@ -6,6 +6,7 @@ const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondar
 const ACTION_ACTIVE_MODULATE := Color(1.0, 0.86, 0.54, 1.0)
 const ACTION_SECONDARY_MODULATE := Color(0.86, 0.90, 0.92, 1.0)
 const ACTION_DISABLED_MODULATE := Color(0.48, 0.52, 0.58, 0.86)
+const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_skin.png"
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 
@@ -182,7 +183,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
-	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.62, 0.64, 0.66, 0.9)
+	button.modulate = Color.WHITE
 	button.disabled = false
 	# PASS 而非默认 STOP：让触摸拖拽能穿到 ItemScroll 去滚动(点按仍能开详情，滚动时
 	# 自动取消误触)，同类问题 map.gd 的关卡卡片已用这个写法修过(见其注释)。
@@ -247,6 +248,13 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	button.add_child(desc)
 
 	if mode != "skills":
+		var buy_price := 0
+		var can_buy := false
+		if not unlocked:
+			buy_price = SaveManager.get_unlock_price_star(_data_table_name(), item_id)
+			can_buy = SaveManager.get_player_star() >= buy_price
+			_add_locked_card_veil(button, card_height, can_buy)
+
 		var action_text := "已装备" if selected else ("选  定" if mode == "characters" else "装  备")
 		var action_enabled := unlocked and not selected
 		var action_primary := true
@@ -255,18 +263,30 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 			action_primary = true
 			action_enabled = false
 			action_callback = Callable()
-			var buy_price := SaveManager.get_unlock_price_star(_data_table_name(), item_id)
-			var can_buy := SaveManager.get_player_star() >= buy_price
 			action_text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
 			action_enabled = can_buy
 			action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
 		var action_pos := Vector2(548, 142 if spacious else 122)
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
+		action_btn.z_index = 3
 		if action_enabled and action_callback.is_valid():
 			action_btn.pressed.connect(action_callback)
 		button.add_child(action_btn)
 	return button
+
+func _add_locked_card_veil(parent: Control, card_height: float, can_buy: bool) -> void:
+	var veil := TextureRect.new()
+	veil.name = "LockedCardVeil"
+	veil.texture = load(LOCKED_CARD_VEIL_TEXTURE)
+	veil.position = Vector2(18, 16)
+	veil.size = Vector2(724, card_height - 32.0)
+	veil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	veil.stretch_mode = TextureRect.STRETCH_SCALE
+	veil.modulate = Color(0.0, 0.0, 0.0, 0.46 if can_buy else 0.58)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil.z_index = 2
+	parent.add_child(veil)
 
 func _card_action_button(node_name: String, text: String, enabled: bool, primary: bool, pos: Vector2, button_size: Vector2) -> TextureButton:
 	var button := _armored_action_button(node_name, text, enabled, primary, button_size, 18)

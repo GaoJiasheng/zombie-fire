@@ -256,6 +256,8 @@
 - [x] P1：SFX 全量差异化扩展；按 `design/sfx_expansion_prompts_2026_07_05.md` 本地渲染 45 条顶级 WAV（技能、角色 intro/主动技、20 种僵尸机制），接入 `AudioManager`、选卡/子弹触发/主动技/僵尸机制运行时路径，并登记 manifest 与波形总览。
 - [x] P1：暂停层与图鉴/芯片页拥挤感修复；暂停面板加宽加高、信息卡/按钮字号重新排版并在暂停态隐藏顶部 toast，图鉴资源条和装备/芯片/宠物/武器列表行距放开，验证截图见 `tmp/ui_layout_polish_2026_07_05/`；`python3 tools/check_release_candidate.py` 当前通过。
 - [x] P1：全选择界面购买/装备按钮放大并装甲化；图鉴角色/武器/护甲/芯片/宠物列表卡片改为持续显示大号购买/装备/已装备按钮，详情页和购买确认弹窗按钮同步放大，不可点击态统一灰化；验证截图见 `tmp/selection_button_polish_2026_07_05/`。
+- [x] P1：图鉴购买态层级修复；未拥有但星星足够购买的条目保持整行暗态，只让“购买”按钮保持亮态；购买成功后解锁并自动装备，整行切换为拥有亮态，按钮切为装备/已装备。验证截图见 `tmp/collection_weapon_purchase_state_2026_07_12_v2.png`。
+- [x] P1：局内三选一强化弹窗长屏布局二次修复；弹窗整体加高、在高屏设备上自适应下移并轻微增高，三张技能卡与底部按钮区重新拉开，小 badge / 标签 chip 内缩到装甲卡片框内，长按详情层同步跟随新面板尺寸。验证截图见 `tmp/card_offer_badge_inset_2026_07_12_v2.png` 与 `tmp/card_offer_badge_inset_2340_2026_07_12_v2.png`。
 - [x] P1：战斗 HUD / Endless / 宠物成长 / 子弹生命周期打磨；生命条移到底部与经验条并排，金币超过 999 使用 `k` 缩写，波次条拉长且暖金填充，Toast 避开上下 HUD 并节流；无尽模式中途退出保留金币收益、每轮最终波保证 Boss，后续已改为复利升压；宠物增加可成长全局属性；追踪/分裂弹 5 秒或出屏即销毁。验证截图见 `tmp/hud_endless_pet_projectile_polish_2026_07_05/`，`python3 tools/check_release_candidate.py` 当前通过。
 - [x] P1：子弹弹道规则细化；追踪弹出膛后先按枪管方向直飞 `1.0s`，再按最小转弯半径 `460px` 的角速度上限导引，避免原地掉头；所有子弹离开当前可见 1080x1920/高屏视口立即清除，飞行 `5.0s` 强制清除。`tools/m1_smoke_test.gd` 与 `tools/check_gameplay_polish.py` 已加回归护栏。
 - [x] P1：多重射击/追踪叠加数值收口；多重射击最多 5 条弹道，按 2/3/4/5 条分别每发 `0.85/0.80/0.75/0.70` 伤害倍率衰减，避免追踪弹叠加后变成全额伤害弹幕；多重射击默认不附带弹射或分裂，跳弹技能只提供 `chain`，仍可和追踪、穿透、分裂等正常叠加。
@@ -269,6 +271,7 @@
 - [x] P1：火焰命中与主动技能 VFX/SFX 重审修复；用 built-in `image_gen` 生成顶级渲染参考板并以本地脚本重建 `vfx_hit_fire`、`vfx_explosion_fire` 和 5 套角色主动技能 PNG 序列，火焰命中改为中心爆燃并去除抠图硬边/相邻帧串格；`battle.gd`/`projectile.gd` 取消火焰命中旧方向性粒子叠层，主动技能 intro 不再重复叠通用 muzzle；新增 `tools/check_active_skill_media.py` 并接入 release candidate，检查火焰中心性、alpha 边界、序列帧数和主动技 SFX 时长/响度。
 - [x] P1：几何 projectile 原型重渲染；owner 指出 `proj_heavy_charge.png` / `proj_scatter_pellet.png` 仍像几何线条图标，已用 built-in `image_gen` 重新生成非几何渲染弹体并本地抠成 256x256 RGBA；普通 `skill_incendiary` 火焰弹拆为紧凑 `fire_round` 视觉，不再复用火焰喷射器大火球贴图。对比图见 `tmp/projectile_regen_2026_07_07/projectile_regen_contact_sheet.png`。
 - [x] P1：关卡选择页对齐重构；顶部“角色/武器/护甲/芯片/宠物/技能”入口角标改为内嵌徽标，不再出框；关卡卡片右侧固定为两行星级区 + 横排“进入 / 挑战模式”按钮，星级上下间距、按钮高度和点击面积统一。验证截图见 `tmp/map_ui_alignment_polish_2026_07_06_v2.png`。
+- [x] P1：战区地图顶部入口条尺寸二次打磨；`无限尸潮` 改用 980x96 原生装甲按钮，顶部六个入口卡片整体加高，图标可视区域和角色头像裁切框放大，状态角标改为短格式 `LvN / 未装 / 图鉴`，避免大字压住图标；四名角色头像统一上移并逐一截图确认。验证截图见 `tmp/map_nav_icon_endless_size_2026_07_12.png` 与 `tmp/map_nav_char_after_offset_sheet_2026_07_12.png`。
 - [x] P1：大战区外层列表排版打磨；外层章节卡片统一 64px 左侧安全边距、300px 右侧操作列，标题/关卡范围/故事/目标不再贴边，右侧战区进度、双 Boss 节点和“进入战区”按钮统一对齐。后续按 owner 反馈把章节卡片高度从 `294` 提到 `344`，扩大故事/目标文字区，避免大字号裁字；验证截图见 `tmp/map_chapter_overview_spacious_2026_07_12.png`。
 - [x] P1：战区详情页文字贴边修复；章节详情头卡统一安全内边距，左侧标题/故事/目标不再贴卡片边线，右侧“战区进度”和“返回战区地图”按钮内收，顶部装备入口角标也向内留边。验证截图见 `tmp/map_chapter_layout_polish_2026_07_07.png`。
 - [x] P1：大战区章节地图落地；地图首屏从 99 个关卡直列表改为 10 个每十关一组的大战区卡片，数据化展示章节标题、故事、目标、进度、小 Boss（每 5 关）和大 Boss（每 10 关 / 终局），肃清上一战区后展开下一战区；进入大战区后再显示原分关卡列表，并保留“进入 / 挑战模式”横排按钮。验证截图见 `tmp/chapter_map_overview_2026_07_06.png` 与 `tmp/chapter_map_detail_2026_07_06.png`。
@@ -295,3 +298,4 @@
 - [x] P1：无尽模式首轮曲线独立化；无论从哪一关进入，无尽都使用 `economy.json.endless_template_level = level_025` 作为首轮波次、HP、金币等级和推荐强度模板，目标是 20-30 关战力可完成第一轮；后续轮次仍按 `endless_loop_hp_growth = 0.50` 复利升压。第一轮 Boss 移除硬免疫墙，避免出现“开局不掉血”的体验，smoke test 覆盖 `level_001` 与 `level_076` 入口一致性。
 - [x] P1：战斗 HUD 主动技能横线与 HP 槽修复；重生成 `ui_skill_slot*.png`，去掉右下主动技能按钮的外伸黄色横线；重建 `ui_base_hp_bar.png` / `ui_bar_fill_hp.png` 为独立空槽 + 红色填充，并在 `battle.gd` 用 `FillClip` 裁切 HP 填充，避免拉伸和出槽。
 - [x] P1：顶部波次条原生重渲染与 Boss 规则反馈；owner 确认问题是顶部黄色波次条，已把 `ui_wave_progress.png` 重建为 720x46 原生槽体，并新增 `ui_wave_progress_fill_native.png`，运行时用 `FillClip` 裁切进度而不是拉伸黄条；后续移除黄条填充里的内描边/分段细线，改成厚实金色胶囊填充；Boss 免疫/护盾/相位/破甲命中增加高优先级弱点提示浮字；追踪弹在近距离 Boss 压线时跳过 1 秒出膛延迟但继续遵守最小转向半径。
+- [x] P1：高屏结算/弹框垂直位置统一修复；结算页、暂停页、三选一强化页、强化详情页和通用确认弹框都接入同一套高屏下移公式，1080x1920 保持原布局，高屏 iPhone 按额外高度下沉，避免弹框整体偏上。验证截图见 `tmp/result_modal_tall_shift_2026_07_12.png`、`tmp/pause_modal_tall_shift_2026_07_12.png`、`tmp/card_offer_modal_tall_shift_2026_07_12.png`、`tmp/card_detail_modal_tall_shift_2026_07_12.png`。

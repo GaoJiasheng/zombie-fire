@@ -44,7 +44,7 @@ func _ensure_endless_button() -> void:
 	var wrap := get_node_or_null("Root/VBox/ResourceBarWrap") as Control
 	var btn := TextureButton.new()
 	btn.name = "EndlessButton"
-	UiKit.apply_armored_texture_button(btn, false, Vector2(980, 58), true)
+	UiKit.apply_armored_texture_button(btn, false, Vector2(980, 96), true)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	var best := SaveManager.get_endless_best_loops()
@@ -55,7 +55,7 @@ func _ensure_endless_button() -> void:
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiKit.apply_label(label, 20, Color(1.0, 0.82, 0.5, 1.0), 3)
+	UiKit.apply_label(label, 22, Color(1.0, 0.82, 0.5, 1.0), 3)
 	btn.add_child(label)
 	btn.pressed.connect(_on_endless_pressed)
 	vbox.add_child(btn)
@@ -71,7 +71,7 @@ func _apply_map_style() -> void:
 	if bg != null:
 		bg.modulate = Color(0.42, 0.39, 0.34, 1.0)
 	_apply_page_title_style(44)
-	(%Nav as HBoxContainer).custom_minimum_size = Vector2(0, 118)
+	(%Nav as HBoxContainer).custom_minimum_size = Vector2(0, 150)
 	(%Progress as Label).visible = false
 	_ensure_resource_bar()
 
@@ -684,7 +684,7 @@ func _build_nav() -> void:
 	var dock := PanelContainer.new()
 	dock.name = "FeatureDock"
 	dock.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dock.custom_minimum_size = Vector2(0, 114)
+	dock.custom_minimum_size = Vector2(0, 146)
 	dock.add_theme_stylebox_override("panel", _build_nav_dock_style())
 	nav.add_child(dock)
 
@@ -703,14 +703,14 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var card := PanelContainer.new()
 	card.name = "%sNavCard" % mode
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.custom_minimum_size = Vector2(0, 114)
+	card.custom_minimum_size = Vector2(0, 144)
 	var card_rest_style := _build_nav_card_style(accent, false)
 	var card_hover_style := _build_nav_card_style(accent, true)
 	card.add_theme_stylebox_override("panel", card_rest_style)
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var stage := Control.new()
-	stage.custom_minimum_size = Vector2(0, 112)
+	stage.custom_minimum_size = Vector2(0, 142)
 	stage.clip_contents = true
 	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(stage)
@@ -724,10 +724,10 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.offset_left = 16
-		icon.offset_top = 10
-		icon.offset_right = -16
-		icon.offset_bottom = -32
+		icon.offset_left = 12
+		icon.offset_top = 30
+		icon.offset_right = -12
+		icon.offset_bottom = -36
 		icon.modulate = Color(1.02, 1.02, 0.98, 1.0)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(icon)
@@ -735,17 +735,17 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var status_plate := PanelContainer.new()
 	status_plate.name = "StatusBadge"
 	status_plate.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	status_plate.offset_left = -100
-	status_plate.offset_top = 14
-	status_plate.offset_right = -20
-	status_plate.offset_bottom = 42
+	status_plate.offset_left = -76
+	status_plate.offset_top = 7
+	status_plate.offset_right = -12
+	status_plate.offset_bottom = 35
 	status_plate.add_theme_stylebox_override("panel", _build_nav_status_style(accent))
 	status_plate.clip_contents = true
 	status_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(status_plate)
 
 	var status := Label.new()
-	status.text = _nav_status_text(mode)
+	status.text = _nav_status_short_text(mode)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status.clip_text = true
@@ -758,9 +758,9 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	lbl.text = label
 	lbl.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	lbl.offset_left = 0
-	lbl.offset_top = -32
+	lbl.offset_top = -38
 	lbl.offset_right = 0
-	lbl.offset_bottom = -5
+	lbl.offset_bottom = -3
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.apply_label(lbl, 20, UiKit.TEXT_MAIN, 4)
@@ -787,10 +787,10 @@ func _add_nav_character_bust(stage: Control) -> void:
 	var center := CenterContainer.new()
 	center.name = "IconCenter"
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.offset_left = 12
-	center.offset_top = 6
-	center.offset_right = -12
-	center.offset_bottom = -31
+	center.offset_left = 8
+	center.offset_top = 22
+	center.offset_right = -8
+	center.offset_bottom = -40
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(center)
 
@@ -798,11 +798,11 @@ func _add_nav_character_bust(stage: Control) -> void:
 	clip.name = "Icon"
 	clip.texture = null
 	clip.clip_contents = true
-	clip.custom_minimum_size = Vector2(100, 72)
+	clip.custom_minimum_size = Vector2(124, 80)
 	clip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(clip)
-	UiKit.add_character_bust(clip, row, Vector2(100, 72), 100.0, 3.0, Color(1.02, 1.02, 0.98, 1.0))
+	UiKit.add_character_bust(clip, row, Vector2(124, 80), 124.0, -10.0, Color(1.04, 1.04, 0.98, 1.0))
 
 func _set_nav_card_style(card: PanelContainer, style: StyleBox) -> void:
 	if not is_instance_valid(card):
@@ -927,6 +927,17 @@ func _nav_status_text(mode: String) -> String:
 	if item_id == "":
 		return "未装"
 	return "等级%d" % SaveManager.get_item_level(item_id)
+
+func _nav_status_short_text(mode: String) -> String:
+	if mode == "skills":
+		return "图鉴"
+	var slot := _nav_slot(mode)
+	if slot == "":
+		return ""
+	var item_id := SaveManager.get_selected(slot)
+	if item_id == "":
+		return "未装"
+	return "Lv%d" % SaveManager.get_item_level(item_id)
 
 func _open_collection(mode: String) -> void:
 	AudioManager.play_sfx("ui_click")

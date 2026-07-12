@@ -283,7 +283,21 @@ func _initialize() -> void:
 	collection_back.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "skill collection opened from map must route back to map")
-	save_manager.save_data = smoke_save_snapshot.duplicate(true)
+	var collection_test_save: Dictionary = save_manager._default_save()
+	var collection_player: Dictionary = collection_test_save.get("player", {}).duplicate(true)
+	collection_player["gold"] = 184321
+	collection_player["xp"] = 32752
+	collection_player["star"] = 73
+	collection_test_save["player"] = collection_player
+	var collection_unlocks: Dictionary = collection_test_save.get("unlocks", {}).duplicate(true)
+	collection_unlocks["weapons"] = ["weapon_autocannon", "weapon_cryocannon"]
+	collection_test_save["unlocks"] = collection_unlocks
+	var collection_equipment: Dictionary = collection_test_save.get("equipment", {}).duplicate(true)
+	collection_equipment["weapon_autocannon"] = 5
+	collection_equipment["weapon_cryocannon"] = 1
+	collection_equipment["selected_weapon"] = "weapon_cryocannon"
+	collection_test_save["equipment"] = collection_equipment
+	save_manager.save_data = collection_test_save
 	main.change_scene("collection", {"mode": "weapons"})
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "main must route to collection")
@@ -291,13 +305,48 @@ func _initialize() -> void:
 	var weapon_list: Node = main.current_scene.find_child("ItemList", true, false)
 	_expect(weapon_list.get_child_count() >= 8, "collection must render weapon pool")
 	var first_weapon: TextureButton = null
+	var purchasable_weapon: TextureButton = null
 	for weapon_child in weapon_list.get_children():
-		if weapon_child is TextureButton and not (weapon_child as TextureButton).disabled:
-			first_weapon = weapon_child
-			break
+		if not (weapon_child is TextureButton):
+			continue
+		var weapon_button := weapon_child as TextureButton
+		var card_action := weapon_button.find_child("CardActionButton", true, false) as TextureButton
+		if first_weapon == null and not weapon_button.has_node("LockedCardVeil"):
+			first_weapon = weapon_button
+		if purchasable_weapon == null and weapon_button.has_node("LockedCardVeil") and card_action != null and not card_action.disabled:
+			purchasable_weapon = weapon_button
 	_expect(first_weapon != null, "collection must expose at least one unlocked weapon")
+	_expect(purchasable_weapon != null, "collection must expose a purchasable locked weapon when player has enough stars")
+	var purchasable_veil := purchasable_weapon.get_node("LockedCardVeil") as TextureRect
+	var purchase_action := purchasable_weapon.find_child("CardActionButton", true, false) as TextureButton
+	var purchase_label := purchase_action.get_node("ActionLabel") as Label
+	_expect(purchasable_veil != null, "purchasable locked weapon rows must keep the card body dark")
+	_expect(purchase_action != null and not purchase_action.disabled, "purchasable locked weapon rows must keep the purchase button bright and enabled")
+	_expect(purchase_action.z_index > purchasable_veil.z_index, "purchase button must render above the locked-row dark veil")
+	_expect(purchase_label.text.begins_with("购买"), "purchasable locked weapon action must read as purchase, got %s" % purchase_label.text)
+	_expect(not first_weapon.has_node("LockedCardVeil"), "owned weapon rows must not use the locked dark veil")
 	_expect(not first_weapon.has_node("UpgradeButton"), "collection rows must keep actions inside detail")
-	first_weapon.emit_signal("pressed")
+	var purchased_weapon_id := String(purchasable_weapon.name)
+	main.current_scene._do_purchase("weapons", purchased_weapon_id)
+	await process_frame
+	await process_frame
+	_expect(save_manager.is_item_unlocked("weapon", purchased_weapon_id), "purchased weapon must be unlocked")
+	_expect(save_manager.get_selected("weapon") == purchased_weapon_id, "purchased weapon must auto-equip after purchase")
+	weapon_list = main.current_scene.find_child("ItemList", true, false)
+	var purchased_weapon: TextureButton = null
+	for weapon_child in weapon_list.get_children():
+		if not (weapon_child is TextureButton):
+			continue
+		var weapon_button := weapon_child as TextureButton
+		var card_action := weapon_button.find_child("CardActionButton", true, false) as TextureButton
+		var action_label: Label = null
+		if card_action != null:
+			action_label = card_action.get_node("ActionLabel") as Label
+		if not weapon_button.has_node("LockedCardVeil") and action_label != null and action_label.text == "已装备":
+			purchased_weapon = weapon_button
+			break
+	_expect(purchased_weapon != null, "purchased weapon row must become bright and show equipped state")
+	purchased_weapon.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.has_node("ItemDetail"), "collection row click must open item detail")
 	var item_detail: Node = main.current_scene.get_node("ItemDetail")
@@ -309,6 +358,7 @@ func _initialize() -> void:
 	_expect(item_detail.find_child("UpgradeButton", true, false) != null, "item detail must expose upgrade action")
 	main.current_scene._close_character_detail()
 	await process_frame
+	save_manager.save_data = smoke_save_snapshot.duplicate(true)
 	main.change_scene("loadout", {"level_id": "level_001"})
 	await process_frame
 	_expect(main.current_scene.name == "Loadout", "main must route to loadout")
@@ -763,8 +813,22 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 	_expect(battle.get_node("Hud").process_mode == Node.PROCESS_MODE_ALWAYS, "HUD must remain interactive during card offer pause")
 	var card_panel := battle.get_node("Hud/CardPanel") as Control
 	_expect(card_panel.process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
-	_expect(card_panel.size.y >= 980.0 and card_panel.size.y <= 1040.0, "card offer panel should use the available vertical space without becoming full-screen")
-	_expect(card_panel.position.y >= 240.0 and card_panel.position.y + card_panel.size.y <= 1340.0, "card offer panel must leave battle context visible above and below")
+	_expect(card_panel.size.y >= 1240.0 and card_panel.size.y <= 1280.0, "card offer panel should use more of the tall-screen vertical space without becoming full-screen")
+	_expect(card_panel.position.y >= 330.0 and card_panel.position.y + card_panel.size.y <= 1630.0, "card offer panel must sit lower while leaving battle context visible above and below")
+	var cards := card_panel.get_node("Cards") as Control
+	_expect(cards.size.y >= 920.0, "card offer list must give three skill cards enough vertical breathing room")
+	for card_node in cards.get_children():
+		var skill_card := card_node as Control
+		if skill_card == null:
+			continue
+		var card_size := skill_card.size
+		var tags := skill_card.get_node_or_null("Tags") as Control
+		if tags != null:
+			_expect(tags.position.y + tags.size.y <= card_size.y - 28.0, "card tag chips must stay inside the rendered card frame")
+		for badge_name in ["LevelBadge", "RecommendBadge"]:
+			var badge := skill_card.get_node_or_null(badge_name) as Control
+			if badge != null:
+				_expect(badge.position.x + badge.size.x <= card_size.x - 40.0, "%s must keep a safe right inset inside the card" % badge_name)
 	var reroll := card_panel.get_node("RerollButton") as TextureButton
 	var skip := card_panel.get_node("SkipButton") as TextureButton
 	var reroll_texture_path := str(reroll.texture_normal.resource_path) if reroll.texture_normal != null else ""
