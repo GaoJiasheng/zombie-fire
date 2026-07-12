@@ -2429,3 +2429,12 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Battle popups**: pause overlay, mid-battle card offer, and skill-detail overlay now share the same high-screen vertical rhythm. The card offer still keeps its existing height bonus, but the top-level placement now uses the shared formula.
 - **Confirm modals**: `UiKit.confirm_modal()` also shifts its center container on tall screens, so collection/shop purchase prompts do not remain visually high after the main popups are corrected.
 - **Visual verification**: tall 1080x2340 captures: `tmp/result_modal_tall_shift_2026_07_12.png`, `tmp/pause_modal_tall_shift_2026_07_12.png`, `tmp/card_offer_modal_tall_shift_2026_07_12.png`, `tmp/card_detail_modal_tall_shift_2026_07_12.png`.
+
+## Pause Modal Readability Pass (2026-07-12)
+
+> Owner pointed out the pause page still looked cramped: the panel had available space, but the body copy and button text were too small and visually compressed.
+
+- **Panel rhythm**: the pause panel is now wider/taller on the authored 1080x1920 layout while still using the shared tall-screen offset. The title, content stack, and action block use clearer vertical zones instead of leaving a small text cluster inside a large dark board.
+- **Readable cards**: `战场状态`, `出战配置`, and `已带技能` cards have larger minimum heights, larger section headers, larger metric pills, wider key/value spacing, and bigger skill chips. Skill chips moved from four narrow columns to three wider columns so names and levels do not read like thumbnails.
+- **Native button size**: the three pause actions now use the existing `760x112` native armored button textures, with larger icon plates, title text, subtitles, and arrows. This keeps the owner-approved armored texture standard without stretching a small button model.
+- **Visual verification**: `tmp/pause_readability_layout_default_2026_07_12.png` checks the 1080x1920 layout, and `tmp/pause_readability_layout_tall_2026_07_12.png` checks the tall 1080x2340 placement.

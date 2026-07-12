@@ -299,3 +299,4 @@
 - [x] P1：战斗 HUD 主动技能横线与 HP 槽修复；重生成 `ui_skill_slot*.png`，去掉右下主动技能按钮的外伸黄色横线；重建 `ui_base_hp_bar.png` / `ui_bar_fill_hp.png` 为独立空槽 + 红色填充，并在 `battle.gd` 用 `FillClip` 裁切 HP 填充，避免拉伸和出槽。
 - [x] P1：顶部波次条原生重渲染与 Boss 规则反馈；owner 确认问题是顶部黄色波次条，已把 `ui_wave_progress.png` 重建为 720x46 原生槽体，并新增 `ui_wave_progress_fill_native.png`，运行时用 `FillClip` 裁切进度而不是拉伸黄条；后续移除黄条填充里的内描边/分段细线，改成厚实金色胶囊填充；Boss 免疫/护盾/相位/破甲命中增加高优先级弱点提示浮字；追踪弹在近距离 Boss 压线时跳过 1 秒出膛延迟但继续遵守最小转向半径。
 - [x] P1：高屏结算/弹框垂直位置统一修复；结算页、暂停页、三选一强化页、强化详情页和通用确认弹框都接入同一套高屏下移公式，1080x1920 保持原布局，高屏 iPhone 按额外高度下沉，避免弹框整体偏上。验证截图见 `tmp/result_modal_tall_shift_2026_07_12.png`、`tmp/pause_modal_tall_shift_2026_07_12.png`、`tmp/card_offer_modal_tall_shift_2026_07_12.png`、`tmp/card_detail_modal_tall_shift_2026_07_12.png`。
+- [x] P1：暂停弹框可读性重排；暂停页面板改为更宽高的舒展版，标题、战场状态、出战配置、已带技能和底部三枚操作按钮整体字号上调，技能 chip 改为三列大卡，按钮切到 760x112 原生装甲尺寸，避免小字堆叠和按钮拉伸。验证截图见 `tmp/pause_readability_layout_default_2026_07_12.png` 与 `tmp/pause_readability_layout_tall_2026_07_12.png`。

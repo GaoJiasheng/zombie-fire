@@ -1973,13 +1973,13 @@ func _rebuild_pause_overlay_content() -> void:
 	content.add_child(_pause_skill_card())
 
 func _pause_status_card() -> PanelContainer:
-	var card := _pause_section("战场状态", UiKit.GOLD, 154)
+	var card := _pause_section("战场状态", UiKit.GOLD, 178)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 10)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("关卡", DataLoader.level_display_name(level_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("建议等级", str(int(level.get("recommend_level", 1))), UiKit.GOLD))
@@ -1988,13 +1988,13 @@ func _pause_status_card() -> PanelContainer:
 	return card
 
 func _pause_loadout_card() -> PanelContainer:
-	var card := _pause_section("出战配置", UiKit.CYAN, 236)
+	var card := _pause_section("出战配置", UiKit.CYAN, 284)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 10)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("英雄", _display_name(character_data, character_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("武器", "%s  等级%d" % [_display_name(DataLoader.get_row("weapons", weapon_id), weapon_id), weapon_level], UiKit.GOLD))
@@ -2011,19 +2011,19 @@ func _pause_loadout_card() -> PanelContainer:
 
 func _pause_skill_card() -> PanelContainer:
 	var skill_count := maxi(skill_slot_ids.size(), 1)
-	var rows := int(ceil(float(skill_count) / 4.0))
-	var card_height := clampf(94.0 + float(rows) * 52.0 + float(maxi(rows - 1, 0)) * 8.0, 154.0, 310.0)
+	var rows := int(ceil(float(skill_count) / 3.0))
+	var card_height := clampf(112.0 + float(rows) * 66.0 + float(maxi(rows - 1, 0)) * 10.0, 178.0, 254.0)
 	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
-	grid.columns = 4
+	grid.columns = 3
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 10)
 	body.add_child(grid)
 	if skill_slot_ids.is_empty():
-		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 15, UiKit.TEXT_MUTED, 2)
-		empty.custom_minimum_size = Vector2(740, 52)
+		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 17, UiKit.TEXT_MUTED, 2)
+		empty.custom_minimum_size = Vector2(740, 66)
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		body.add_child(empty)
 		return card
@@ -2040,39 +2040,39 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	var body := VBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 10)
+	body.add_theme_constant_override("separation", 12)
 	card.add_child(body)
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 12)
+	header.add_theme_constant_override("separation", 14)
 	body.add_child(header)
 	var rail := TextureRect.new()
 	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
-	rail.custom_minimum_size = Vector2(16, 28)
+	rail.custom_minimum_size = Vector2(18, 34)
 	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rail.stretch_mode = TextureRect.STRETCH_SCALE
 	rail.modulate = accent
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(rail)
-	var title := UiKit.label(title_text, 17, Color(0.95, 0.90, 0.76, 1.0), 2)
+	var title := UiKit.label(title_text, 19, Color(0.95, 0.90, 0.76, 1.0), 2)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title)
 	return card
 
 func _pause_metric(label_text: String, value_text: String, accent: Color) -> PanelContainer:
 	var metric := PanelContainer.new()
-	metric.custom_minimum_size = Vector2(0, 50)
+	metric.custom_minimum_size = Vector2(0, 62)
 	metric.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	metric.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	metric.clip_contents = true
 	metric.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.76)))
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
+	row.add_theme_constant_override("separation", 8)
 	metric.add_child(row)
-	var key := UiKit.label(label_text, 12, Color(0.62, 0.78, 0.82, 1.0), 2)
-	key.custom_minimum_size = Vector2(78, 0)
+	var key := UiKit.label(label_text, 14, Color(0.62, 0.78, 0.82, 1.0), 2)
+	key.custom_minimum_size = Vector2(94, 0)
 	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(key)
-	var value := UiKit.label(value_text, 13, UiKit.TEXT_MAIN, 2)
+	var value := UiKit.label(value_text, 15, UiKit.TEXT_MAIN, 2)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.clip_text = true
@@ -2083,23 +2083,23 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var row: Dictionary = DataLoader.get_row("skills", skill_id)
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(174, 52)
+	chip.custom_minimum_size = Vector2(250, 66)
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 6)
+	hbox.add_theme_constant_override("separation", 10)
 	chip.add_child(hbox)
-	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(34, 34))
+	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(44, 44))
 	hbox.add_child(icon)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 0)
 	hbox.add_child(col)
-	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), 11, UiKit.TEXT_MAIN, 2)
+	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), 13, UiKit.TEXT_MAIN, 2)
 	name.clip_text = true
 	col.add_child(name)
-	var level := UiKit.label("Lv%d" % skills.level(skill_id), 10, UiKit.GOLD, 2)
+	var level := UiKit.label("Lv%d" % skills.level(skill_id), 12, UiKit.GOLD, 2)
 	col.add_child(level)
 	return chip
 
@@ -2683,18 +2683,18 @@ func _setup_pause_overlay_layout() -> void:
 	dim.visible = false
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var panel := $Hud/PauseOverlay/Panel as Panel
-	panel.offset_left = 64.0
-	panel.offset_top = 184.0 + modal_shift
-	panel.offset_right = 1016.0
-	panel.offset_bottom = 1452.0 + modal_shift
+	panel.offset_left = 54.0
+	panel.offset_top = 156.0 + modal_shift
+	panel.offset_right = 1026.0
+	panel.offset_bottom = 1526.0 + modal_shift
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
-	title.position = Vector2(0, 34)
-	title.size = Vector2(952, 72)
+	title.position = Vector2(0, 38)
+	title.size = Vector2(972, 86)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(title, 48, UiKit.TEXT_MAIN, 4)
+	UiKit.apply_label(title, 52, UiKit.TEXT_MAIN, 4)
 	var legacy_summary := $Hud/PauseOverlay/Panel/BuildSummary as Label
 	legacy_summary.visible = false
 	var content := panel.get_node_or_null("PauseContent") as VBoxContainer
@@ -2703,12 +2703,12 @@ func _setup_pause_overlay_layout() -> void:
 		content.name = "PauseContent"
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
-	content.add_theme_constant_override("separation", 18)
-	content.position = Vector2(66, 124)
-	content.size = Vector2(820, 700)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(84, 868), Vector2(784, 96), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(84, 988), Vector2(784, 96), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(84, 1108), Vector2(784, 96), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
+	content.add_theme_constant_override("separation", 20)
+	content.position = Vector2(68, 142)
+	content.size = Vector2(836, 778)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(106, 950), Vector2(760, 112), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(106, 1084), Vector2(760, 112), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(106, 1218), Vector2(760, 112), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
 
 func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_size: Vector2, icon_path: String, title_text: String, subtitle_text: String, primary: bool) -> void:
 	if button == null:
@@ -2730,30 +2730,30 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 			old.free()
 	var icon_plate := PanelContainer.new()
 	icon_plate.name = "IconPlate"
-	icon_plate.position = Vector2(24, 20)
-	icon_plate.size = Vector2(58, 56)
+	icon_plate.position = Vector2(28, 22)
+	icon_plate.size = Vector2(68, 68)
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
 	button.add_child(icon_plate)
-	var icon := UiKit.icon(icon_path, Vector2(38, 38))
+	var icon := UiKit.icon(icon_path, Vector2(44, 44))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(title_text, 21, Color.WHITE, 3)
+	var title := UiKit.label(title_text, 24, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = Vector2(112, 10)
-	title.size = Vector2(button_size.x - 206.0, 40)
+	title.position = Vector2(120, 10)
+	title.size = Vector2(button_size.x - 218.0, 48)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(title)
-	var sub := UiKit.label(subtitle_text, 11, Color(0.74, 0.82, 0.82, 0.94), 2)
+	var sub := UiKit.label(subtitle_text, 13, Color(0.74, 0.82, 0.82, 0.94), 2)
 	sub.name = "ActionSub"
-	sub.position = Vector2(112, 56)
-	sub.size = Vector2(button_size.x - 206.0, 26)
+	sub.position = Vector2(120, 62)
+	sub.size = Vector2(button_size.x - 218.0, 32)
 	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(sub)
-	var arrow := UiKit.label(">", 30, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
+	var arrow := UiKit.label(">", 34, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
 	arrow.name = "ActionArrow"
-	arrow.position = Vector2(button_size.x - 78.0, 22)
-	arrow.size = Vector2(42, 52)
+	arrow.position = Vector2(button_size.x - 86.0, 26)
+	arrow.size = Vector2(48, 60)
 	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(arrow)
