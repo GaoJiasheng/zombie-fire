@@ -35,8 +35,10 @@ ARMOR_HP_MULT = 1.20      # armor_kevlar (typical)
 BOSS_LEAK = 0.12
 NORMAL_LEAK = 0.05
 
-DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.20, "4": 1.44, "5": 1.62}
-DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.20, "4": 1.20, "5": 1.20}
+DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
+DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
+DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 45, "full_level": 85, "max_mult": 1.22}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 
 
@@ -47,13 +49,38 @@ def wave_number(wave: dict) -> int:
         return 0
 
 
-def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False) -> float:
+def late_wave_level_ramp(economy: dict, level_no: int) -> float:
+    rule = economy.get("late_wave_level_ramp", DEFAULT_LATE_WAVE_LEVEL_RAMP)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_LATE_WAVE_LEVEL_RAMP
+    start_level = float(rule.get("start_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["start_level"]))
+    full_level = float(rule.get("full_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["full_level"]))
+    max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["max_mult"]))
+    if float(level_no) < start_level:
+        return 1.0
+    if full_level <= start_level:
+        return max_mult
+    t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+    return 1.0 + (max_mult - 1.0) * t
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0) -> float:
     key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
     defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
     table = economy.get(key, defaults)
     if not isinstance(table, dict):
         table = defaults
-    return float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+    base = float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+    if wave_no >= 3:
+        base *= late_wave_level_ramp(economy, level_no)
+    return base
+
+
+def late_wave_count_mult(economy: dict, wave_no: int) -> float:
+    table = economy.get("late_wave_count_mult", DEFAULT_LATE_WAVE_COUNT_MULT)
+    if not isinstance(table, dict):
+        table = DEFAULT_LATE_WAVE_COUNT_MULT
+    return max(1.0, float(table.get(str(wave_no), table.get(wave_no, DEFAULT_LATE_WAVE_COUNT_MULT.get(str(wave_no), 1.0)))))
 
 
 def level_number(level: dict) -> int:
@@ -98,22 +125,24 @@ def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
     total_hp = 0.0
     count = 0
     boss_level_bonus = boss_hp_level_bonus(economy, level)
+    level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+        count_mult = late_wave_count_mult(economy, wave_no)
         # Normal spawns
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             hp = hp_base * float(z.get("hp_coef", 1.0)) * diff * mob_bonus
-            c = int(spawn.get("count", 0))
+            c = int(round(int(spawn.get("count", 0)) * count_mult))
             total_hp += hp * c
             count += c
         # Boss entry (last wave typically)
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True) * boss_level_bonus
+            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no) * boss_level_bonus
             total_hp += boss_hp
             count += 1
         # Boss support mobs
@@ -121,17 +150,18 @@ def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             hp = hp_base * float(z.get("hp_coef", 1.0)) * diff * mob_bonus
-            c = int(spawn.get("count", 0))
+            c = int(round(int(spawn.get("count", 0)) * count_mult))
             total_hp += hp * c
             count += c
     return total_hp, count
 
 
-def level_spawn_time(level: dict) -> float:
+def level_spawn_time(level: dict, economy: dict) -> float:
     duration = 0.0
     for wave in level.get("waves", []):
+        count_mult = late_wave_count_mult(economy, wave_number(wave))
         for spawn in wave.get("spawns", []) + wave.get("support", []):
-            duration += int(spawn.get("count", 0)) * float(spawn.get("interval", 0.8))
+            duration += int(round(int(spawn.get("count", 0)) * count_mult)) * float(spawn.get("interval", 0.8))
     return duration
 
 
@@ -147,24 +177,26 @@ def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss
     diff = float(level["difficulty_coef"])
     leak = BOSS_LEAK if is_boss_level else NORMAL_LEAK
     total = 0.0
+    level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+        count_mult = late_wave_count_mult(economy, wave_no)
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
-            total += bd * int(spawn.get("count", 0))
+            total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * diff * late_wave_hp_bonus(economy, wave_no, True)
+            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no)
             total += bd
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
-            total += bd * int(spawn.get("count", 0))
+            total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
     return total * leak
 
 
@@ -192,7 +224,7 @@ def main() -> None:
         dps_ws = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult)
         time_ns = hp_total / max(dps_ns, 1.0)
         time_ws = hp_total / max(dps_ws, 1.0)
-        spawn_time = level_spawn_time(lv)
+        spawn_time = level_spawn_time(lv, economy)
         boss_lvl = is_boss_level(lv)
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         # base_hp_ref * armor_mult is the real starting HP

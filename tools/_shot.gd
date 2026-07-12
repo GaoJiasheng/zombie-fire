@@ -24,11 +24,15 @@ func _initialize() -> void:
 	dl.load_all()
 	var sm := root.get_node("/root/SaveManager")
 	sm.load_game()
+	if payload.has("save_override") and payload["save_override"] is Dictionary:
+		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
 		_apply_equipment_override(sm, payload["equipment"])
 	var main = (load("res://main.tscn") as PackedScene).instantiate()
 	root.add_child(main)
 	await process_frame
+	if payload.has("save_override") and payload["save_override"] is Dictionary:
+		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
 		_apply_equipment_override(sm, payload["equipment"])
 	if route != "menu":
@@ -51,6 +55,14 @@ func _initialize() -> void:
 		main.current_scene.call("_show_card_offer")
 		for i in range(18):
 			await process_frame
+	if payload.has("card_detail") and main.current_scene != null and main.current_scene.has_method("_show_card_detail"):
+		var skill_id := str(payload.get("card_detail", "skill_split_shot"))
+		if skill_id != "":
+			if main.current_scene.has_node("Hud/CardPanel"):
+				main.current_scene.get_node("Hud/CardPanel").visible = true
+			main.current_scene.call("_show_card_detail", skill_id)
+			for i in range(18):
+				await process_frame
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")
@@ -86,6 +98,17 @@ func _apply_equipment_override(save_manager: Node, equipment_override: Dictionar
 	_ensure_unlocked(unlocks, "chips", str(equipment.get("selected_chip", "")))
 	_ensure_unlocked(unlocks, "pets", str(equipment.get("selected_pet", "")))
 	shot_save["unlocks"] = unlocks
+	save_manager.save_data = shot_save
+
+func _apply_save_override(save_manager: Node, save_override: Dictionary) -> void:
+	var shot_save: Dictionary = save_manager.save_data.duplicate(true)
+	for key in save_override.keys():
+		if shot_save.has(key) and shot_save[key] is Dictionary and save_override[key] is Dictionary:
+			var nested: Dictionary = shot_save[key].duplicate(true)
+			nested.merge(save_override[key], true)
+			shot_save[key] = nested
+		else:
+			shot_save[key] = save_override[key]
 	save_manager.save_data = shot_save
 
 func _ensure_unlocked(unlocks: Dictionary, key: String, item_id: String) -> void:

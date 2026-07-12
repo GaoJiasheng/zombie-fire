@@ -18,6 +18,7 @@ const HOMING_ACTIVATION_DELAY := 1.0
 const HOMING_TURN_RATE_PER_STRENGTH := 1.6  # rad/sec，每点 homing_strength 贡献的转向速率
 const HOMING_MIN_TURN_RADIUS := 460.0  # px，保证追踪弹是大弧线转向，而不是原地急转
 const HOMING_MAX_TURN_RATE := 3.4  # rad/sec 额外硬上限，避免高速弹也转出过小视觉半径
+const HOMING_BOSS_CLOSE_RANGE := 620.0
 const PROJECTILE_MAX_LIFETIME := 5.0
 const PROJECTILE_OFFSCREEN_MARGIN := 0.0
 
@@ -109,10 +110,17 @@ func _apply_homing(delta: float) -> void:
 	# 多弹道追踪弹刚出膛时方向各不相同；如果立刻开始追踪，全部瞬间拐向同一最近目标、弹道当场重合。
 	# 先从枪口按原方向飞满一秒，之后再进入有限半径追踪。
 	if lifetime < HOMING_ACTIVATION_DELAY:
+		var close_boss := _nearest_close_boss()
+		if close_boss == null:
+			return
+		_apply_homing_to_target(close_boss, delta)
 		return
 	var target := _nearest_enemy()
 	if target == null:
 		return
+	_apply_homing_to_target(target, delta)
+
+func _apply_homing_to_target(target: Node2D, delta: float) -> void:
 	var speed := velocity.length()
 	if speed <= 0.0:
 		return
@@ -147,6 +155,26 @@ func _nearest_enemy() -> Node2D:
 		if dist < best_dist:
 			best = enemy_node
 			best_dist = dist
+	return best
+
+func _nearest_close_boss() -> Node2D:
+	var best: Node2D
+	var best_dist := INF
+	var max_dist_sq := HOMING_BOSS_CLOSE_RANGE * HOMING_BOSS_CLOSE_RANGE
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		var enemy_node := enemy as Node2D
+		var boss_value: Variant = enemy_node.get("boss")
+		if not (boss_value is bool and bool(boss_value)):
+			continue
+		if enemy_node.global_position.y > 1540.0:
+			continue
+		var dist := global_position.distance_squared_to(enemy_node.global_position)
+		if dist > max_dist_sq or dist >= best_dist:
+			continue
+		best = enemy_node
+		best_dist = dist
 	return best
 
 func _process_trail(delta: float) -> void:

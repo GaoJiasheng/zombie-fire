@@ -2,6 +2,10 @@ extends Node
 
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
+const POWER_PER_SKILL_BASE_LEVEL := 2.20
+const POWER_PER_SIG_SKILL_LEVEL := 3.00
+const POWER_SIG_SKILL_BASE := 1.80
+const POWER_SIG_SKILL_LEVEL_SCALE := 0.65
 
 enum PurchaseResult { OK, ALREADY_OWNED, NOT_ENOUGH_STAR, INVALID }
 
@@ -157,19 +161,12 @@ func apply_challenge_result(result: Dictionary, persist := true) -> void:
 	if persist:
 		save_game()
 
-const ENDLESS_STAR_PER_LOOPS := 3  # 每撑过 3 轮尸潮 +1★
-const ENDLESS_STAR_CAP := 5  # 单局无限尸潮最多给的星星数(防止刷星)
-
-# 无限尸潮结算：只发金币/经验/(有上限的)星星，不写 levels_progress/unlocks，
-# 不影响正常关卡的星级记录和解锁进度。
+# 无限尸潮结算：只发金币，不发经验/星星，不写 levels_progress/unlocks。
+# 不影响正常关卡的星级记录、星币、经验和解锁进度。
 func apply_endless_result(result: Dictionary, persist := true) -> void:
 	var loops := int(result.get("endless_loop", 0))
 	var player: Dictionary = save_data.get("player", {})
 	player["gold"] = int(player.get("gold", 0)) + int(result.get("gold", 0))
-	player["xp"] = int(player.get("xp", 0)) + int(result.get("xp", 0))
-	var stars := mini(ENDLESS_STAR_CAP, loops / ENDLESS_STAR_PER_LOOPS)
-	if stars > 0:
-		player["star"] = int(player.get("star", 0)) + stars
 	save_data["player"] = player
 	if loops > int(save_data.get("endless_best_loops", 0)):
 		save_data["endless_best_loops"] = loops
@@ -299,13 +296,13 @@ func get_loadout_power() -> int:
 	var skill_levels := 0
 	for v in save_data.get("skill_base_levels", {}).values():
 		skill_levels += int(v)
-	power += float(skill_levels) * 1.30
+	power += float(skill_levels) * POWER_PER_SKILL_BASE_LEVEL
 	# 角色主动/专属技能(2 个 signature，威力随角色等级成长)
 	if character_id != "":
 		var sig_count := int(DataLoader.get_row("characters", character_id).get("signature_skills", []).size())
-		power += float(sig_count) * (1.5 + 0.55 * float(char_level))
+		power += float(sig_count) * (POWER_SIG_SKILL_BASE + POWER_SIG_SKILL_LEVEL_SCALE * float(char_level))
 		# 专属主动技独立经验等级(新增的投资轴，见 get_sig_skill_level)
-		power += float(get_sig_skill_level(character_id)) * 2.0
+		power += float(get_sig_skill_level(character_id)) * POWER_PER_SIG_SKILL_LEVEL
 	return int(round(power))
 
 func _pet_stat_power(pet_id: String) -> float:
@@ -331,20 +328,55 @@ func _pet_stat_power(pet_id: String) -> float:
 				score += value * 4.0
 	return score
 
-# 系数校准(2026-07)：旧系数 4.3 是早期拍脑袋定的，从没和"真实可达战力"对过。
-# 单角色全部装备/16通用技能/专属主动技全部满级，实测约 352 战力(见 design 里的推导记录)。
-# 终章(recommend_level=50)按此系数算出 292，约为满配上限的 83%——即全满配玩家在终章前
-# 仍有约 20% 战力余裕，而不是之前 1.6 倍那种"推荐值远低于真实上限"的失真。
-const RECOMMENDED_POWER_COEF := 5.8
+# 系数校准(2026-07)：推荐战力不再只看装备等级，也要反映中后局卡牌/技能 DPS 爆发。
+# 玩家当前战力由 get_loadout_power() 统计装备、通用技能永久等级、主动技等级和宠物属性；
+# 推荐战力用关卡推荐等级 + 局内卡牌预算 + 后半波压力来给门槛，避免低显示战力靠后半局技能爆发越级太多。
+const RECOMMENDED_POWER_COEF := 6.25
 func get_recommended_power_for_level(level_id: String) -> int:
 	var level := DataLoader.get_row("levels", level_id)
 	var recommended := int(level.get("recommend_level", 1))
 	var boss_bonus := 0
 	for wave in level.get("waves", []):
 		if wave.has("boss"):
-			boss_bonus = 2
+			boss_bonus = 6
 			break
-	return int(round(float(recommended) * RECOMMENDED_POWER_COEF + float(boss_bonus)))
+	var card_budget_bonus := maxi(0, int(level.get("target_card_picks", 0)) - 4) * 4
+	var late_wave_bonus := _recommended_power_late_wave_bonus(level)
+	return int(round(float(recommended) * RECOMMENDED_POWER_COEF + float(card_budget_bonus + boss_bonus + late_wave_bonus)))
+
+func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var level_parts := str(level.get("id", "level_001")).split("_")
+	var level_no := int(level_parts[level_parts.size() - 1]) if level_parts.size() > 0 else 1
+	var ramp_mult := _recommended_power_late_wave_ramp_mult(economy, level_no)
+	var late_score := 0.0
+	var table_var = economy.get("late_wave_hp_bonus", {})
+	var boss_table_var = economy.get("late_wave_boss_hp_bonus", {})
+	var table: Dictionary = table_var if table_var is Dictionary else {}
+	var boss_table: Dictionary = boss_table_var if boss_table_var is Dictionary else {}
+	for wave in level.get("waves", []):
+		var wave_no := int(wave.get("wave", 0))
+		if wave_no < 3:
+			continue
+		var wave_mult := float(table.get(str(wave_no), table.get(wave_no, 1.0))) * ramp_mult
+		late_score += maxf(0.0, wave_mult - 1.0)
+		if wave.has("boss"):
+			var boss_mult := float(boss_table.get(str(wave_no), boss_table.get(wave_no, 1.0))) * ramp_mult
+			late_score += maxf(0.0, boss_mult - 1.0) * 0.85
+	return int(round(late_score * 4.0))
+
+func _recommended_power_late_wave_ramp_mult(economy: Dictionary, level_no: int) -> float:
+	var rule_var = economy.get("late_wave_level_ramp", {})
+	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
+	var start_level := float(rule.get("start_level", 9999))
+	var full_level := float(rule.get("full_level", start_level))
+	var max_mult := float(rule.get("max_mult", 1.0))
+	if float(level_no) < start_level:
+		return 1.0
+	if full_level <= start_level:
+		return max_mult
+	var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
+	return lerpf(1.0, max_mult, t)
 
 func get_player_gold() -> int:
 	var player: Dictionary = save_data.get("player", {})
@@ -431,6 +463,9 @@ func is_level_unlocked(level_id: String) -> bool:
 	var unlocks: Dictionary = save_data.get("unlocks", {})
 	var levels: Array = unlocks.get("levels", ["level_001"])
 	return levels.has(level_id)
+
+func is_challenge_unlocked(level_id: String) -> bool:
+	return is_level_unlocked(level_id) and get_level_stars(level_id) >= 3
 
 # 无限尸潮的难度"种子"：玩家已合法解锁的最高一关(僵尸/环境/元素弱点数据都从它复用)。
 func get_highest_unlocked_level_id() -> String:

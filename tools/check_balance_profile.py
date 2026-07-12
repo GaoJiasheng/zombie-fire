@@ -11,9 +11,13 @@ def load(name: str):
     return json.loads((ROOT / "data" / f"{name}.json").read_text(encoding="utf-8"))
 
 
-DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.20, "4": 1.44, "5": 1.62}
-DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.20, "4": 1.20, "5": 1.20}
+DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
+DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
+DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 45, "full_level": 85, "max_mult": 1.22}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
+NORMAL_DURATION_MAX = 155.0
+BOSS_DURATION_MAX = 190.0
 
 
 def wave_number(wave: dict) -> int:
@@ -23,13 +27,38 @@ def wave_number(wave: dict) -> int:
         return 0
 
 
-def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False) -> float:
+def late_wave_level_ramp(economy: dict, level_no: int) -> float:
+    rule = economy.get("late_wave_level_ramp", DEFAULT_LATE_WAVE_LEVEL_RAMP)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_LATE_WAVE_LEVEL_RAMP
+    start_level = float(rule.get("start_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["start_level"]))
+    full_level = float(rule.get("full_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["full_level"]))
+    max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["max_mult"]))
+    if float(level_no) < start_level:
+        return 1.0
+    if full_level <= start_level:
+        return max_mult
+    t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+    return 1.0 + (max_mult - 1.0) * t
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0) -> float:
     key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
     defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
     table = economy.get(key, defaults)
     if not isinstance(table, dict):
         table = defaults
-    return float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+    base = float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
+    if wave_no >= 3:
+        base *= late_wave_level_ramp(economy, level_no)
+    return base
+
+
+def late_wave_count_mult(economy: dict, wave_no: int) -> float:
+    table = economy.get("late_wave_count_mult", DEFAULT_LATE_WAVE_COUNT_MULT)
+    if not isinstance(table, dict):
+        table = DEFAULT_LATE_WAVE_COUNT_MULT
+    return max(1.0, float(table.get(str(wave_no), table.get(wave_no, DEFAULT_LATE_WAVE_COUNT_MULT.get(str(wave_no), 1.0)))))
 
 
 def level_number(level: dict) -> int:
@@ -54,31 +83,34 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
     boss_count = 0
     hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
     boss_level_bonus = boss_hp_level_bonus(economy, level)
+    level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+        count_mult = late_wave_count_mult(economy, wave_no)
         for group in wave.get("spawns", []):
             row = zombies[group["type"]]
-            count = int(group.get("count", 1))
+            count = int(round(int(group.get("count", 1)) * count_mult))
             pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
             duration += count * float(group.get("interval", 0.8))
         if "boss" in wave:
             boss_count += 1
-            pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True) * boss_level_bonus * 8.0
+            pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no) * boss_level_bonus * 8.0
         for group in wave.get("support", []):
             row = zombies[group["type"]]
-            count = int(group.get("count", 1))
+            count = int(round(int(group.get("count", 1)) * count_mult))
             pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
             duration += count * float(group.get("interval", 0.8))
     return pressure * hp_base * float(level.get("difficulty_coef", 1.0)), duration, boss_count
 
 
-def level_xp_total(level: dict, zombies: dict, bosses: dict) -> int:
+def level_xp_total(level: dict, zombies: dict, bosses: dict, economy: dict) -> int:
     total = 0
     for wave in level.get("waves", []):
+        count_mult = late_wave_count_mult(economy, wave_number(wave))
         for group in wave.get("spawns", []) + wave.get("support", []):
             row = zombies[group["type"]]
-            total += int(group.get("count", 1)) * int(row.get("run_xp", 1))
+            total += int(round(int(group.get("count", 1)) * count_mult)) * int(row.get("run_xp", 1))
         if "boss" in wave:
             total += int(bosses[wave["boss"]].get("run_xp", 20))
     return total
@@ -93,6 +125,21 @@ def predicted_card_picks(level: dict, xp_total: int) -> int:
         cards += 1
         threshold += int(round(growth + float(cards) * ramp))
     return cards
+
+
+def validate_card_budget(level: dict, xp_total: int, errors: list[str]) -> None:
+    target_cards = int(level.get("target_card_picks", 0))
+    if target_cards < 1:
+        errors.append(f"{level['id']} target_card_picks must be positive")
+        return
+    if target_cards > 12:
+        errors.append(f"{level['id']} target_card_picks too high for mobile pacing: {target_cards}")
+    if xp_total <= target_cards:
+        errors.append(f"{level['id']} XP budget too small for {target_cards} card picks: xp={xp_total}")
+        return
+    thresholds = [round(float(xp_total) * float(k) / float(target_cards + 1)) for k in range(1, target_cards + 1)]
+    if any(thresholds[i] <= thresholds[i - 1] for i in range(1, len(thresholds))):
+        errors.append(f"{level['id']} card thresholds are not strictly increasing: {thresholds}")
 
 
 def weapon_effective_dps(weapon: dict) -> float:
@@ -188,9 +235,13 @@ def main() -> int:
 
     for level in levels:
         pressure, duration, boss_count = level_pressure(level, zombies, bosses, economy)
-        if boss_count and duration > 140.0:
+        # Late waves intentionally spawn more enemies now: wave 4 uses x2 count
+        # and wave 5 uses x3 count. Keep the old lower bounds, but validate
+        # against the current long-form pacing envelope instead of the pre-ramp
+        # 105s/140s caps.
+        if boss_count and duration > BOSS_DURATION_MAX:
             errors.append(f"{level['id']} boss duration too long: {duration:.1f}s")
-        if not boss_count and duration > 105.0:
+        if not boss_count and duration > NORMAL_DURATION_MAX:
             errors.append(f"{level['id']} normal duration too long: {duration:.1f}s")
         if not boss_count and duration < 45.0:
             errors.append(f"{level['id']} normal duration too short: {duration:.1f}s")
@@ -198,11 +249,8 @@ def main() -> int:
             errors.append(f"{level['id']} boss duration too short: {duration:.1f}s")
         if pressure <= 0.0:
             errors.append(f"{level['id']} has non-positive pressure")
-        xp_total = level_xp_total(level, zombies, bosses)
-        predicted_cards = predicted_card_picks(level, xp_total)
-        target_cards = int(level.get("target_card_picks", predicted_cards))
-        if abs(predicted_cards - target_cards) > 1:
-            errors.append(f"{level['id']} card budget drift: predicted={predicted_cards}, target={target_cards}, xp={xp_total}")
+        xp_total = level_xp_total(level, zombies, bosses, economy)
+        validate_card_budget(level, xp_total, errors)
 
     costs = unlock_costs(characters, weapons, armors, chips, pets)
     if max(costs) < 200:

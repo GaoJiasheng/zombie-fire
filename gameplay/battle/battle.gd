@@ -11,10 +11,14 @@ const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gd
 const UiKit := preload("res://ui/ui_kit.gd")
 const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
 const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_band.png")
+const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
+const PET_BASE_X_DESIGN := 725.0
+const PET_BASE_LINE_OFFSET := 125.0
+const PET_IDLE_FLOAT_AMPLITUDE := 8.0
 const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
 const BASE_LINE_NEAR_WARNING_INSET := 300.0
 const BASE_LINE_BOSS_NEAR_WARNING_INSET := 360.0
@@ -186,7 +190,10 @@ const SKILL_SLOT_LIMIT := 8
 const HUD_HP_BAR_PATH := "Hud/BottomBar/BaseHpBar"
 const HUD_WAVE_BAR_PATH := "Hud/TopBar/WaveProgress"
 const HUD_HP_FILL_RIGHT := 812.0
-const HUD_WAVE_FILL_RIGHT := 812.0
+const HUD_WAVE_FILL_TEXTURE := "res://assets/production/sprites/ui/ui_wave_progress_fill_native.png"
+const HUD_WAVE_FILL_LEFT := 40.0
+const HUD_WAVE_FILL_RIGHT := 680.0
+const HUD_WAVE_BAR_SIZE := Vector2(720, 46)
 const HUD_XP_FILL_RIGHT := 778.0
 const ENABLE_DEBUG_OVERLAY := false
 const MAX_PROJECTILE_TRANSIENT_FX := 150
@@ -202,8 +209,10 @@ const MAX_MULTISHOT_LANES := 5
 const MAX_BASE_HIT_FRACTION := 0.4
 # 第3/4/5波单独加血量(绝不加速度)：局内前两波保持开局节奏，后半段用血量拉回张力。
 # 运行时优先读取 economy.json，同步给校验/模拟工具；这里是缺省兜底。
-const DEFAULT_LATE_WAVE_HP_BONUS := {3: 1.20, 4: 1.44, 5: 1.62}
-const DEFAULT_LATE_WAVE_BOSS_HP_BONUS := {3: 1.20, 4: 1.20, 5: 1.20}
+const DEFAULT_LATE_WAVE_HP_BONUS := {3: 1.45, 4: 1.85, 5: 2.30}
+const DEFAULT_LATE_WAVE_COUNT_MULT := {4: 2.0, 5: 3.0}
+const DEFAULT_LATE_WAVE_BOSS_HP_BONUS := {3: 1.30, 4: 1.50, 5: 1.75}
+const DEFAULT_LATE_WAVE_LEVEL_RAMP := {"start_level": 45, "full_level": 85, "max_mult": 1.22}
 const DEFAULT_BOSS_HP_LEVEL_BONUS := {"start_level": 20, "multiplier": 2.0}
 const WAVE_TOAST_BASE_POSITION := Vector2(280, 214)
 const WAVE_TOAST_SIZE := Vector2(520, 58)
@@ -231,13 +240,14 @@ var xp := 0
 var variant := "normal"
 var variant_gold_mult := 1.0
 var variant_xp_mult := 1.0
-# 无限尸潮：复用当前关卡数据循环刷完的波次，每轮血量按 ENDLESS_LOOP_HP_GROWTH 线性递增，
-# 只在漏怪耗尽基地生命时结束(没有"胜利"结算)，奖励按撑过的轮数发放。
+# 无限尸潮：使用 economy.endless_template_level 作为独立模板，不继承入口关卡难度；
+# 每轮血量按 ENDLESS_LOOP_HP_GROWTH 复利递增，只在漏怪耗尽基地生命时结算。
 var is_endless_mode := false
 var is_challenge_mode := false
 var endless_loop := 0
 var endless_difficulty_mult := 1.0
-const ENDLESS_LOOP_HP_GROWTH := 0.22
+var endless_template_level_id := ""
+const ENDLESS_LOOP_HP_GROWTH := 0.50
 const ENDLESS_BOSS_COUNT_STEP := 3
 const ENDLESS_BOSS_COUNT_CAP := 6
 var level_ordinal := 1
@@ -326,8 +336,7 @@ var pet_cooldown := 0.0
 var breach_shields := 0
 var skill_barriers_left := 0
 var barrier_visual: Node2D
-var barrier_fill: Polygon2D
-var barrier_edges: Array[Line2D] = []
+var barrier_sprite: Sprite2D
 var gold_mult := 1.0
 var breach_damage_mult := 1.0
 var crit_rate := 0.0
@@ -416,8 +425,10 @@ func _ready() -> void:
 	_configure_pause_process_modes()
 	level = DataLoader.get_row("levels", level_id)
 	_apply_level_background()
-	level_ordinal = maxi(1, int(str(level_id).get_slice("_", 1)))
 	var _econ: Dictionary = DataLoader.get_table("economy")
+	level_ordinal = _level_ordinal_from_id(level_id)
+	if is_endless_mode:
+		_apply_endless_template_level(_econ)
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
 	econ_gold_per = float(_econ.get("gold_drop_per_level", 0.6))
 	econ_xp_growth = float(_econ.get("xp_per_kill_growth", 0.06))
@@ -425,7 +436,8 @@ func _ready() -> void:
 	primary_weakness = str(level.get("primary_weakness", "physical"))
 	onboarding_stage = str(level.get("onboarding_stage", ""))
 	_apply_variant_modifiers()
-	var recommended_power := float(SaveManager.get_recommended_power_for_level(level_id))
+	var recommended_level_id := endless_template_level_id if is_endless_mode and endless_template_level_id != "" else level_id
+	var recommended_power := float(SaveManager.get_recommended_power_for_level(recommended_level_id))
 	if is_challenge_mode:
 		recommended_power *= CHALLENGE_RECOMMENDED_POWER_MULT
 	loadout_power_ratio = float(SaveManager.get_loadout_power()) / maxf(recommended_power, 1.0)
@@ -1488,11 +1500,11 @@ func _update_character_skill_button() -> void:
 				icon.texture = load(icon_path)
 		icon.modulate = Color.WHITE if ready else Color(0.78, 0.84, 0.9, 0.78)
 	var ratio := clampf(character_active_cd / maxf(character_active_cd_max, 0.1), 0.0, 1.0)
-	var fill_height := maxf(button.size.y - 24.0, 1.0)
 	if fill_texture != null:
-		fill_texture.visible = ratio > 0.0
-		fill_texture.position = Vector2(12.0, 12.0 + fill_height * (1.0 - ratio))
-		fill_texture.size = Vector2(maxf(button.size.x - 24.0, 1.0), fill_height * ratio)
+		fill_texture.visible = ratio > 0.04
+		fill_texture.position = Vector2(12.0, 12.0)
+		fill_texture.size = Vector2(maxf(button.size.x - 24.0, 1.0), maxf(button.size.y - 24.0, 1.0))
+		fill_texture.modulate = Color(0.42, 0.55, 0.62, lerpf(0.0, 0.46, ratio))
 	var cd_label := button.get_node_or_null("CooldownLabel") as Label
 	if cd_label != null:
 		cd_label.visible = character_active_cd > 0.0
@@ -1723,6 +1735,27 @@ func _resolve_level_id(payload: Dictionary) -> String:
 				return active
 	return "level_001"
 
+func _level_ordinal_from_id(source_level_id: String) -> int:
+	return maxi(1, int(str(source_level_id).get_slice("_", 1)))
+
+func _apply_endless_template_level(economy: Dictionary) -> void:
+	endless_template_level_id = _resolve_endless_template_level_id(economy)
+	var template_level := DataLoader.get_row("levels", endless_template_level_id)
+	if template_level.is_empty():
+		push_warning("Endless template level missing: %s; using entry level %s" % [endless_template_level_id, level_id])
+		endless_template_level_id = level_id
+		return
+	level = template_level.duplicate(true)
+	level_ordinal = _level_ordinal_from_id(endless_template_level_id)
+
+func _resolve_endless_template_level_id(economy: Dictionary) -> String:
+	var configured := str(economy.get("endless_template_level", "level_025"))
+	if configured != "" and not DataLoader.get_row("levels", configured).is_empty():
+		return configured
+	if not DataLoader.get_row("levels", "level_025").is_empty():
+		return "level_025"
+	return level_id
+
 func _apply_base_survivability() -> void:
 	var hp_mult := float(character_data.get("base_hp", 100)) / 100.0
 	hp_mult *= 1.0 + float(character_data.get("hp_growth", 0.06)) * 0.45 * float(max(character_level - 1, 0))
@@ -1862,8 +1895,22 @@ func _set_battle_paused(active: bool, play_sfx := false) -> void:
 	else:
 		_hide_skill_hint()
 	$Hud/PauseOverlay.visible = paused
+	_set_pause_background_hud_hidden(paused)
 	get_tree().paused = paused or card_offer_active
 	_update_character_skill_button()
+
+func _set_pause_background_hud_hidden(hidden: bool) -> void:
+	var top_bar := get_node_or_null("Hud/TopBar") as CanvasItem
+	if top_bar != null:
+		top_bar.visible = not hidden
+	var pause_button := get_node_or_null("PauseLayer/PauseButton") as CanvasItem
+	if pause_button != null:
+		pause_button.visible = not hidden
+	if boss_hp_bar != null and is_instance_valid(boss_hp_bar):
+		if hidden:
+			boss_hp_bar.visible = false
+		else:
+			_update_boss_hp_bar()
 
 func _refresh_pause_build_summary() -> void:
 	_rebuild_pause_overlay_content()
@@ -1912,13 +1959,13 @@ func _rebuild_pause_overlay_content() -> void:
 	content.add_child(_pause_skill_card())
 
 func _pause_status_card() -> PanelContainer:
-	var card := _pause_section("战场状态", UiKit.GOLD, 184)
+	var card := _pause_section("战场状态", UiKit.GOLD, 154)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 12)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("关卡", DataLoader.level_display_name(level_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("建议等级", str(int(level.get("recommend_level", 1))), UiKit.GOLD))
@@ -1927,13 +1974,13 @@ func _pause_status_card() -> PanelContainer:
 	return card
 
 func _pause_loadout_card() -> PanelContainer:
-	var card := _pause_section("出战配置", UiKit.CYAN, 282)
+	var card := _pause_section("出战配置", UiKit.CYAN, 236)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 12)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("英雄", _display_name(character_data, character_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("武器", "%s  等级%d" % [_display_name(DataLoader.get_row("weapons", weapon_id), weapon_id), weapon_level], UiKit.GOLD))
@@ -1949,17 +1996,20 @@ func _pause_loadout_card() -> PanelContainer:
 	return card
 
 func _pause_skill_card() -> PanelContainer:
-	var card := _pause_section("已带技能", UiKit.PURPLE, 230)
+	var skill_count := maxi(skill_slot_ids.size(), 1)
+	var rows := int(ceil(float(skill_count) / 4.0))
+	var card_height := clampf(94.0 + float(rows) * 52.0 + float(maxi(rows - 1, 0)) * 8.0, 154.0, 310.0)
+	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 4
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	if skill_slot_ids.is_empty():
-		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 22, UiKit.TEXT_MUTED, 2)
-		empty.custom_minimum_size = Vector2(740, 72)
+		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 15, UiKit.TEXT_MUTED, 2)
+		empty.custom_minimum_size = Vector2(740, 52)
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		body.add_child(empty)
 		return card
@@ -1976,38 +2026,39 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	var body := VBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 14)
+	body.add_theme_constant_override("separation", 10)
 	card.add_child(body)
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 12)
 	body.add_child(header)
 	var rail := TextureRect.new()
 	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
-	rail.custom_minimum_size = Vector2(18, 34)
+	rail.custom_minimum_size = Vector2(16, 28)
 	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rail.stretch_mode = TextureRect.STRETCH_SCALE
 	rail.modulate = accent
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(rail)
-	var title := UiKit.label(title_text, 20, Color(0.95, 0.90, 0.76, 1.0), 2)
+	var title := UiKit.label(title_text, 17, Color(0.95, 0.90, 0.76, 1.0), 2)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title)
 	return card
 
 func _pause_metric(label_text: String, value_text: String, accent: Color) -> PanelContainer:
 	var metric := PanelContainer.new()
-	metric.custom_minimum_size = Vector2(0, 64)
+	metric.custom_minimum_size = Vector2(0, 50)
 	metric.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	metric.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	metric.clip_contents = true
 	metric.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.76)))
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 6)
 	metric.add_child(row)
-	var key := UiKit.label(label_text, 15, Color(0.62, 0.78, 0.82, 1.0), 2)
-	key.custom_minimum_size = Vector2(100, 0)
+	var key := UiKit.label(label_text, 12, Color(0.62, 0.78, 0.82, 1.0), 2)
+	key.custom_minimum_size = Vector2(78, 0)
 	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(key)
-	var value := UiKit.label(value_text, 17, UiKit.TEXT_MAIN, 2)
+	var value := UiKit.label(value_text, 13, UiKit.TEXT_MAIN, 2)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.clip_text = true
@@ -2018,22 +2069,23 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var row: Dictionary = DataLoader.get_row("skills", skill_id)
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(178, 72)
+	chip.custom_minimum_size = Vector2(174, 52)
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
+	hbox.add_theme_constant_override("separation", 6)
 	chip.add_child(hbox)
-	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(46, 46))
+	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(34, 34))
 	hbox.add_child(icon)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 0)
 	hbox.add_child(col)
-	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), 16, UiKit.TEXT_MAIN, 2)
+	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), 11, UiKit.TEXT_MAIN, 2)
 	name.clip_text = true
 	col.add_child(name)
-	var level := UiKit.label("等级%d" % skills.level(skill_id), 15, UiKit.GOLD, 2)
+	var level := UiKit.label("Lv%d" % skills.level(skill_id), 10, UiKit.GOLD, 2)
 	col.add_child(level)
 	return chip
 
@@ -2096,6 +2148,9 @@ func _update_boss_hp_bar() -> void:
 		boss_hp_bar.visible = false
 		return
 	var ratio := clampf(float(active_boss.hp) / maxf(float(active_boss.max_hp), 1.0), 0.0, 1.0)
+	if paused:
+		boss_hp_bar.visible = false
+		return
 	boss_hp_bar.visible = true
 	boss_hp_fill.size.x = 756.0 * ratio
 	var boss_name := DataLoader.tr_key(active_boss.data.get("name_key", "")) if active_boss.data is Dictionary else ""
@@ -2141,17 +2196,21 @@ func _viewport_safe_insets() -> Dictionary:
 func _apply_runtime_ui_styles() -> void:
 	_layout_runtime_hud()
 	_ensure_hud_fill_texture(HUD_HP_BAR_PATH, "res://assets/production/sprites/ui/ui_bar_fill_hp.png", 18.0, 16.0)
-	_ensure_hud_fill_texture(HUD_WAVE_BAR_PATH, "res://assets/production/sprites/ui/ui_bar_fill_wave.png", 16.0, 14.0)
+	_ensure_hud_fill_texture(HUD_WAVE_BAR_PATH, HUD_WAVE_FILL_TEXTURE, 14.0, 18.0)
 	_style_xp_bar()
 	if has_node("Hud/CardPanel"):
 		var card_panel: Panel = $Hud/CardPanel
 		card_panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
-		UiKit.apply_label($Hud/CardPanel/CardTitle, 37, UiKit.TEXT_MAIN, 4)
+		_layout_card_offer_panel()
+		UiKit.apply_label($Hud/CardPanel/CardTitle, 34, UiKit.TEXT_MAIN, 4)
+		UiKit.apply_armored_texture_button($Hud/CardPanel/RerollButton as TextureButton, true, Vector2(412, 88), true)
+		UiKit.apply_armored_texture_button($Hud/CardPanel/SkipButton as TextureButton, false, Vector2(412, 88), true)
+		UiKit.apply_label($Hud/CardPanel/RerollButton/RerollLabel, 25, UiKit.TEXT_MAIN, 3)
+		UiKit.apply_label($Hud/CardPanel/SkipButton/SkipLabel, 25, UiKit.TEXT_MAIN, 3)
 	if has_node("Hud/CardPanel/DetailOverlay/Panel"):
 		var detail: Panel = $Hud/CardPanel/DetailOverlay/Panel
 		detail.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
-		UiKit.apply_label($Hud/CardPanel/DetailOverlay/Panel/Title, 36, UiKit.TEXT_MAIN, 3)
-		UiKit.apply_label($Hud/CardPanel/DetailOverlay/Panel/Body, 25, Color(0.82, 0.88, 0.88, 1.0), 2)
+		_layout_card_detail_overlay()
 	if has_node("Hud/PauseOverlay/Panel"):
 		var pause_panel: Panel = $Hud/PauseOverlay/Panel
 		pause_panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
@@ -2165,12 +2224,12 @@ func _layout_runtime_hud() -> void:
 	_ensure_hp_bar_in_bottom_bar()
 	var top_bar := get_node_or_null("Hud/TopBar") as Control
 	if top_bar != null:
-		top_bar.offset_left = 124.0
+		top_bar.offset_left = 180.0
 		top_bar.offset_top = 18.0
-		top_bar.offset_right = -124.0
-		top_bar.offset_bottom = 78.0
+		top_bar.offset_right = -180.0
+		top_bar.offset_bottom = 74.0
 		top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_layout_status_bar(HUD_WAVE_BAR_PATH, Vector2(0, 0), Vector2(832, 48), 16.0, 14.0, 20)
+		_layout_status_bar(HUD_WAVE_BAR_PATH, Vector2(0, 0), HUD_WAVE_BAR_SIZE, 14.0, 18.0, 18)
 	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
 	if bottom_bar != null:
 		bottom_bar.offset_left = 28.0
@@ -2211,6 +2270,137 @@ func _layout_runtime_hud() -> void:
 		pause_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		pause_button.modulate = Color(0.92, 0.96, 1.0, 0.94)
 
+func _layout_card_offer_panel() -> void:
+	var panel := get_node_or_null("Hud/CardPanel") as Panel
+	if panel == null:
+		return
+	panel.position = Vector2(54, 276)
+	panel.size = Vector2(972, 1030)
+	var title := panel.get_node_or_null("CardTitle") as Label
+	if title != null:
+		title.position = Vector2(48, 28)
+		title.size = Vector2(876, 66)
+		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var cards := panel.get_node_or_null("Cards") as VBoxContainer
+	if cards != null:
+		cards.position = Vector2(64, 120)
+		cards.size = Vector2(844, 748)
+		cards.add_theme_constant_override("separation", 18)
+	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
+	if reroll != null:
+		reroll.position = Vector2(78, 900)
+		reroll.size = Vector2(412, 88)
+		reroll.custom_minimum_size = Vector2(412, 88)
+		var label := reroll.get_node_or_null("RerollLabel") as Label
+		if label != null:
+			label.position = Vector2.ZERO
+			label.size = Vector2(412, 88)
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var skip := panel.get_node_or_null("SkipButton") as TextureButton
+	if skip != null:
+		skip.position = Vector2(522, 900)
+		skip.size = Vector2(412, 88)
+		skip.custom_minimum_size = Vector2(412, 88)
+		var label := skip.get_node_or_null("SkipLabel") as Label
+		if label != null:
+			label.position = Vector2.ZERO
+			label.size = Vector2(412, 88)
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+func _layout_card_detail_overlay() -> void:
+	var overlay := get_node_or_null("Hud/CardPanel/DetailOverlay") as Control
+	var panel := get_node_or_null("Hud/CardPanel/DetailOverlay/Panel") as Panel
+	if overlay == null or panel == null:
+		return
+	overlay.position = Vector2.ZERO
+	overlay.size = Vector2(888, 840)
+	overlay.clip_contents = true
+	var dim := overlay.get_node_or_null("Dim") as TextureRect
+	if dim != null:
+		dim.position = Vector2.ZERO
+		dim.size = overlay.size
+		dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		dim.stretch_mode = TextureRect.STRETCH_SCALE
+		dim.modulate = Color(0.0, 0.0, 0.0, 0.82)
+	panel.position = Vector2(42, 54)
+	panel.size = Vector2(804, 724)
+	panel.clip_contents = true
+	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
+	var icon := panel.get_node_or_null("Icon") as TextureRect
+	if icon != null:
+		icon.position = Vector2(44, 40)
+		icon.size = Vector2(96, 96)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var title := panel.get_node_or_null("Title") as Label
+	if title != null:
+		title.position = Vector2(166, 40)
+		title.size = Vector2(586, 54)
+		title.clip_text = true
+		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UiKit.apply_label(title, 24, UiKit.TEXT_MAIN, 3)
+	var current := _ensure_card_detail_label(panel, "Body")
+	current.position = Vector2(44, 144)
+	current.size = Vector2(716, 68)
+	current.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	current.clip_text = true
+	current.add_theme_constant_override("line_spacing", 4)
+	UiKit.apply_label(current, 16, UiKit.CYAN, 2)
+	var levels_title := _ensure_card_detail_label(panel, "AllLevelsTitle")
+	levels_title.position = Vector2(44, 226)
+	levels_title.size = Vector2(716, 34)
+	levels_title.text = "全部等级"
+	levels_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiKit.apply_label(levels_title, 17, UiKit.GOLD, 2)
+	var levels := _ensure_card_detail_label(panel, "AllLevelsBody")
+	levels.position = Vector2(44, 266)
+	levels.size = Vector2(716, 178)
+	levels.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	levels.clip_text = true
+	levels.add_theme_constant_override("line_spacing", 4)
+	UiKit.apply_label(levels, 13, Color(0.86, 0.92, 0.92, 1.0), 2)
+	var desc := _ensure_card_detail_label(panel, "DescBody")
+	desc.position = Vector2(44, 464)
+	desc.size = Vector2(716, 92)
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.clip_text = true
+	desc.add_theme_constant_override("line_spacing", 4)
+	UiKit.apply_label(desc, 15, Color(0.84, 0.92, 0.94, 1.0), 2)
+	var tags := _ensure_card_detail_label(panel, "TagsBody")
+	tags.position = Vector2(44, 572)
+	tags.size = Vector2(716, 36)
+	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tags.clip_text = true
+	tags.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiKit.apply_label(tags, 14, UiKit.TEXT_MUTED, 2)
+	var close := panel.get_node_or_null("CloseButton") as TextureButton
+	if close != null:
+		close.position = Vector2(242, 624)
+		close.size = Vector2(320, 74)
+		close.custom_minimum_size = Vector2(320, 74)
+		close.ignore_texture_size = true
+		UiKit.apply_armored_texture_button(close, false, Vector2(320, 74), true)
+		var close_label := close.get_node_or_null("Label") as Label
+		if close_label != null:
+			close_label.position = Vector2.ZERO
+			close_label.size = Vector2(320, 74)
+			close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			close_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			UiKit.apply_label(close_label, 21, UiKit.TEXT_MAIN, 3)
+
+func _ensure_card_detail_label(panel: Control, node_name: String) -> Label:
+	var label := panel.get_node_or_null(node_name) as Label
+	if label == null:
+		label = Label.new()
+		label.name = node_name
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(label)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
 func _ensure_hp_bar_in_bottom_bar() -> void:
 	var bottom_bar := get_node_or_null("Hud/BottomBar") as Control
 	if bottom_bar == null:
@@ -2238,7 +2428,7 @@ func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top:
 		under.position = Vector2.ZERO
 		under.size = bar_size
 		under.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		under.stretch_mode = TextureRect.STRETCH_SCALE
+		under.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED if path == HUD_WAVE_BAR_PATH else TextureRect.STRETCH_SCALE
 		under.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var fill := bar.get_node_or_null("FillTexture") as TextureRect
 	if fill != null:
@@ -2316,11 +2506,47 @@ func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float
 	fill.material = _wave_fill_material() if bar_path == HUD_WAVE_BAR_PATH else null
 	var fill_left := _hud_fill_left(bar_path, 6.0)
 	var fill_right := _hud_fill_right(bar_path, maxf(bar.size.x - 6.0, 1.0))
-	fill.position = Vector2(fill_left, top)
-	fill.size = Vector2(maxf(fill_right - fill_left, 1.0), height)
+	if bar_path == HUD_HP_BAR_PATH or bar_path == HUD_WAVE_BAR_PATH:
+		var clip := _ensure_hud_fill_clip(bar, fill_left, top, maxf(fill_right - fill_left, 1.0), height)
+		if fill.get_parent() != clip:
+			var old_parent := fill.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fill)
+			clip.add_child(fill)
+		fill.position = Vector2.ZERO
+		fill.size = Vector2(maxf(fill_right - fill_left, 1.0), height)
+		fill.z_index = 0
+	else:
+		fill.position = Vector2(fill_left, top)
+		fill.size = Vector2(maxf(fill_right - fill_left, 1.0), height)
 	var label := bar.get_node_or_null("Label") as CanvasItem
 	if label != null:
 		label.z_index = 3
+
+func _ensure_hud_fill_clip(bar: Control, fill_left: float, top: float, width: float, height: float) -> Control:
+	var clip := bar.get_node_or_null("FillClip") as Control
+	if clip == null:
+		clip = Control.new()
+		clip.name = "FillClip"
+		clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip.z_index = 1
+		bar.add_child(clip)
+		var label := bar.get_node_or_null("Label") as CanvasItem
+		if label != null:
+			bar.move_child(label, bar.get_child_count() - 1)
+	clip.clip_contents = true
+	clip.position = Vector2(fill_left, top)
+	clip.size = Vector2(width, height)
+	return clip
+
+func _hud_fill_clip(bar_path: String) -> Control:
+	return get_node_or_null("%s/FillClip" % bar_path) as Control
+
+func _hud_fill_texture(bar_path: String) -> TextureRect:
+	var direct := get_node_or_null("%s/FillTexture" % bar_path) as TextureRect
+	if direct != null:
+		return direct
+	return get_node_or_null("%s/FillClip/FillTexture" % bar_path) as TextureRect
 
 func _wave_fill_material() -> ShaderMaterial:
 	if wave_fill_material != null:
@@ -2369,14 +2595,27 @@ func _setup_pause_overlay_layout() -> void:
 		return
 	var overlay := $Hud/PauseOverlay as Control
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var scrim := overlay.get_node_or_null("Scrim") as ColorRect
+	if scrim == null:
+		scrim = ColorRect.new()
+		scrim.name = "Scrim"
+		overlay.add_child(scrim)
+		overlay.move_child(scrim, 0)
+	scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scrim.offset_left = 0.0
+	scrim.offset_top = 0.0
+	scrim.offset_right = 0.0
+	scrim.offset_bottom = 0.0
+	scrim.color = Color(0.0, 0.0, 0.0, 0.68)
+	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := $Hud/PauseOverlay/Dim as Control
-	dim.modulate = Color(0.0, 0.0, 0.0, 0.72)
-	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.visible = false
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var panel := $Hud/PauseOverlay/Panel as Panel
 	panel.offset_left = 64.0
-	panel.offset_top = 210.0
+	panel.offset_top = 184.0
 	panel.offset_right = 1016.0
-	panel.offset_bottom = 1500.0
+	panel.offset_bottom = 1452.0
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
@@ -2395,25 +2634,21 @@ func _setup_pause_overlay_layout() -> void:
 		panel.add_child(content)
 	content.add_theme_constant_override("separation", 18)
 	content.position = Vector2(66, 124)
-	content.size = Vector2(820, 760)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(84, 924), Vector2(784, 96), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(84, 1048), Vector2(784, 96), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(84, 1172), Vector2(784, 96), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
+	content.size = Vector2(820, 700)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(84, 868), Vector2(784, 96), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(84, 988), Vector2(784, 96), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(84, 1108), Vector2(784, 96), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
 
 func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_size: Vector2, icon_path: String, title_text: String, subtitle_text: String, primary: bool) -> void:
+	if button == null:
+		return
 	button.offset_left = pos.x
 	button.offset_top = pos.y
 	button.offset_right = pos.x + button_size.x
 	button.offset_bottom = pos.y + button_size.y
 	button.custom_minimum_size = button_size
 	button.ignore_texture_size = true
-	button.stretch_mode = TextureButton.STRETCH_SCALE
-	var texture := load(BUTTON_PRIMARY_PATH if primary else BUTTON_SECONDARY_PATH)
-	button.texture_normal = texture
-	button.texture_hover = texture
-	button.texture_pressed = texture
-	button.texture_disabled = texture
-	button.modulate = Color(1.0, 0.86, 0.56, 1.0) if primary else Color(0.82, 0.88, 0.92, 1.0)
+	UiKit.apply_armored_texture_button(button, primary, button_size, true)
 	button.clip_contents = true
 	var old_label := button.get_node_or_null("Label") as Label
 	if old_label != null:
@@ -2424,23 +2659,23 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 			old.free()
 	var icon_plate := PanelContainer.new()
 	icon_plate.name = "IconPlate"
-	icon_plate.position = Vector2(22, 18)
-	icon_plate.size = Vector2(62, 60)
+	icon_plate.position = Vector2(24, 20)
+	icon_plate.size = Vector2(58, 56)
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
 	button.add_child(icon_plate)
-	var icon := UiKit.icon(icon_path, Vector2(42, 42))
+	var icon := UiKit.icon(icon_path, Vector2(38, 38))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(title_text, 24, Color.WHITE, 3)
+	var title := UiKit.label(title_text, 21, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = Vector2(112, 12)
+	title.position = Vector2(112, 10)
 	title.size = Vector2(button_size.x - 206.0, 40)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(title)
-	var sub := UiKit.label(subtitle_text, 14, Color(0.74, 0.82, 0.82, 0.94), 2)
+	var sub := UiKit.label(subtitle_text, 11, Color(0.74, 0.82, 0.82, 0.94), 2)
 	sub.name = "ActionSub"
-	sub.position = Vector2(112, 54)
+	sub.position = Vector2(112, 56)
 	sub.size = Vector2(button_size.x - 206.0, 26)
 	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(sub)
@@ -2675,7 +2910,10 @@ func _apply_wave_start_support() -> void:
 	_spawn_float_text(_base_damage_impact_position(540.0) + Vector2(0, -60.0), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
 
 func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
-	for i in range(int(group.get("count", 1))):
+	var count := int(group.get("count", 1))
+	if not is_boss:
+		count = _scaled_wave_group_count(count, wave_index)
+	for i in range(count):
 		pending_spawns.append({
 			"type": group.get("type", "zombie_shambler"),
 			"interval": group.get("interval", 0.8),
@@ -2683,14 +2921,44 @@ func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
 			"boss": is_boss
 		})
 
+func _scaled_wave_group_count(base_count: int, current_wave: int) -> int:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var mult := _late_wave_count_mult(current_wave, economy)
+	return maxi(1, int(round(float(maxi(base_count, 1)) * mult)))
+
+func _late_wave_count_mult(current_wave: int, economy: Dictionary) -> float:
+	var table_var = economy.get("late_wave_count_mult", DEFAULT_LATE_WAVE_COUNT_MULT)
+	var table: Dictionary = table_var if table_var is Dictionary else DEFAULT_LATE_WAVE_COUNT_MULT
+	if table.has(str(current_wave)):
+		return maxf(1.0, float(table[str(current_wave)]))
+	return maxf(1.0, float(table.get(current_wave, DEFAULT_LATE_WAVE_COUNT_MULT.get(current_wave, 1.0))))
+
 func _late_wave_hp_bonus(current_wave: int, is_boss_enemy: bool, economy: Dictionary) -> float:
 	var key := "late_wave_boss_hp_bonus" if is_boss_enemy else "late_wave_hp_bonus"
 	var fallback := DEFAULT_LATE_WAVE_BOSS_HP_BONUS if is_boss_enemy else DEFAULT_LATE_WAVE_HP_BONUS
 	var table_var = economy.get(key, fallback)
 	var table: Dictionary = table_var if table_var is Dictionary else fallback
+	var base := 1.0
 	if table.has(str(current_wave)):
-		return float(table[str(current_wave)])
-	return float(table.get(current_wave, fallback.get(current_wave, 1.0)))
+		base = float(table[str(current_wave)])
+	else:
+		base = float(table.get(current_wave, fallback.get(current_wave, 1.0)))
+	if current_wave >= 3:
+		base *= _late_wave_level_ramp_mult(economy)
+	return base
+
+func _late_wave_level_ramp_mult(economy: Dictionary) -> float:
+	var rule_var = economy.get("late_wave_level_ramp", DEFAULT_LATE_WAVE_LEVEL_RAMP)
+	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_LATE_WAVE_LEVEL_RAMP
+	var start_level := float(rule.get("start_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("start_level", 45)))
+	var full_level := float(rule.get("full_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("full_level", 85)))
+	var max_mult := float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("max_mult", 1.22)))
+	if float(level_ordinal) < start_level:
+		return 1.0
+	if full_level <= start_level:
+		return max_mult
+	var t := clampf((float(level_ordinal) - start_level) / (full_level - start_level), 0.0, 1.0)
+	return lerpf(1.0, max_mult, t)
 
 func _boss_level_hp_bonus(current_level: int, is_boss_enemy: bool, economy: Dictionary) -> float:
 	if not is_boss_enemy:
@@ -2719,8 +2987,12 @@ func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
 func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false) -> Node:
 	var row := DataLoader.get_row("bosses" if is_boss else "zombies", enemy_id).duplicate(true)
 	var economy: Dictionary = DataLoader.get_table("economy")
-	var enemy_speed_mult := float(economy.get("ENEMY_SPEED_MULT", 1.0))
-	row["speed"] = float(row.get("speed", 80.0)) * enemy_speed_mult
+	if is_endless_mode and is_boss:
+		_apply_endless_boss_opening_grace(row, economy)
+	var speed_mult := float(economy.get("ENEMY_SPEED_MULT", 1.0))
+	if is_boss:
+		speed_mult *= float(economy.get("BOSS_SPEED_MULT", 1.0))
+	row["speed"] = float(row.get("speed", 80.0)) * speed_mult
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
@@ -2745,6 +3017,19 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.threat_marker.position = enemy.global_position + Vector2(0, -90 if not is_boss else -160)
 	_spawn_enemy_entry_vfx(enemy, is_boss)
 	return enemy
+
+func _apply_endless_boss_opening_grace(row: Dictionary, economy: Dictionary) -> void:
+	var grace_loops := maxi(0, int(economy.get("endless_boss_immunity_grace_loops", 1)))
+	if endless_loop >= grace_loops:
+		return
+	row["immune"] = []
+	if str(row.get("mechanic", "")) == "armor_break":
+		var params_var = row.get("mechanic_params", {})
+		var params: Dictionary = params_var.duplicate(true) if params_var is Dictionary else {}
+		var cap := maxi(0, int(economy.get("endless_first_loop_armor_hits_cap", 8)))
+		if cap > 0:
+			params["armor_hits"] = mini(int(params.get("armor_hits", cap)), cap)
+		row["mechanic_params"] = params
 
 func _process_enemy_mechanics(delta: float) -> void:
 	var enemies := $EnemyLayer.get_children()
@@ -2847,6 +3132,9 @@ func _enemy_skill_damage(source: Node, scale: float, minimum := 1.0) -> int:
 func _base_line_y() -> float:
 	return BREACH_Y
 
+func _pet_anchor_position() -> Vector2:
+	return Vector2(PET_BASE_X_DESIGN, _base_line_y() + PET_BASE_LINE_OFFSET)
+
 func _base_line_inner_y(offset: float) -> float:
 	return _base_line_y() - offset
 
@@ -2856,15 +3144,15 @@ func _base_damage_impact_position(x: float) -> Vector2:
 func _slow_field_inner_offset_for_level(slow_level: int) -> float:
 	match slow_level:
 		1:
-			return 220.0
+			return 440.0
 		2:
-			return 280.0
+			return 560.0
 		3:
-			return 340.0
+			return 680.0
 		4:
-			return 400.0
+			return 800.0
 		5:
-			return 460.0
+			return 920.0
 		_:
 			return BASE_LINE_DEFAULT_SLOW_FIELD_INSET
 
@@ -3423,7 +3711,7 @@ func _spawn_pet() -> void:
 	pet_sprite.name = "Pet"
 	pet_sprite.process_mode = Node.PROCESS_MODE_PAUSABLE
 	pet_sprite.texture = load(pet_data.get("sprite", pet_data.get("icon", "")))
-	pet_sprite.position = Vector2(725, 1625)
+	pet_sprite.position = _pet_anchor_position()
 	pet_sprite.scale = Vector2(0.26, 0.26) * _visual_level_scale(pet_level)
 	pet_sprite.modulate = Color.WHITE
 	add_child(pet_sprite)
@@ -3806,7 +4094,7 @@ func _update_pet_animation(delta: float) -> void:
 	if next_frame != pet_anim_frame:
 		pet_anim_frame = next_frame
 		pet_sprite.texture = frames[pet_anim_frame]
-	pet_sprite.position.y = 1625.0 - absf(sin(Time.get_ticks_msec() / 300.0)) * 8.0
+	pet_sprite.position.y = _pet_anchor_position().y - absf(sin(Time.get_ticks_msec() / 300.0)) * PET_IDLE_FLOAT_AMPLITUDE
 	_update_pet_aura(delta)
 
 func _load_frame_set(base: String, anim: String, max_count: int) -> Array[Texture2D]:
@@ -6017,7 +6305,7 @@ func _attack_vfx_path(kind: String) -> String:
 		"buff_aura", "support_strike", "mutate":
 			return "res://assets/production/sprites/vfx/vfx_boss_phase.png"
 		"enrage":
-			return "res://assets/production/sprites/vfx/vfx_explosion_fire.png"
+			return "res://assets/production/sprites/vfx/vfx_enemy_skill_enrage.png"
 		"freeze_field":
 			return "res://assets/production/sprites/vfx/vfx_freeze.png"
 		"storm_chain":
@@ -6304,13 +6592,16 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 
 func _compute_level_total_run_xp() -> int:
 	var total := 0
+	var economy: Dictionary = DataLoader.get_table("economy")
 	for w in level.get("waves", []):
+		var wave_no := int(w.get("wave", 0))
+		var count_mult := _late_wave_count_mult(wave_no, economy)
 		if w.has("boss"):
 			total += int(DataLoader.get_row("bosses", str(w.get("boss", ""))).get("run_xp", 0))
 		for s in w.get("spawns", []):
-			total += int(s.get("count", 0)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
 		for s in w.get("support", []):
-			total += int(s.get("count", 0)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
 	return total
 
 func _pick_threshold(k: int) -> int:
@@ -6322,6 +6613,12 @@ func _pick_threshold(k: int) -> int:
 
 func _next_pick_threshold() -> int:
 	return _pick_threshold(cards_picked + 1)
+
+func _advance_card_xp_after_pick() -> void:
+	if is_endless_mode:
+		xp = 0
+		displayed_xp_pct = 0.0
+	next_xp_offer = _next_pick_threshold()
 
 func _try_show_xp_card_offer(ignored_enemy: Node = null) -> bool:
 	if xp < next_xp_offer:
@@ -6386,9 +6683,14 @@ func _check_victory() -> void:
 func _advance_endless_loop() -> void:
 	endless_loop += 1
 	wave_index = 0
-	endless_difficulty_mult = 1.0 + ENDLESS_LOOP_HP_GROWTH * float(endless_loop)
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var loop_growth := _endless_loop_hp_growth(economy)
+	endless_difficulty_mult = pow(1.0 + loop_growth, float(endless_loop))
 	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
 	_start_next_wave()
+
+func _endless_loop_hp_growth(economy: Dictionary) -> float:
+	return maxf(ENDLESS_LOOP_HP_GROWTH, float(economy.get("endless_loop_hp_growth", ENDLESS_LOOP_HP_GROWTH)))
 
 func _finish(victory: bool) -> void:
 	if battle_finished:
@@ -6406,7 +6708,7 @@ func _finish(victory: bool) -> void:
 			"victory": false,
 			"stars": 0,
 			"gold": gold,
-			"xp": xp
+			"xp": 0
 		})
 		return
 	_show_screen_flash(Color(0.95, 0.78, 0.25, 0.18) if victory else Color(0.85, 0.0, 0.0, 0.22), 0.28)
@@ -6436,9 +6738,14 @@ func _update_hud() -> void:
 	var hp_fill_left := _hud_fill_left(HUD_HP_BAR_PATH, 6.0)
 	var hp_fill_right := _hud_fill_right(HUD_HP_BAR_PATH, HUD_HP_FILL_RIGHT)
 	var hp_width := maxf(0.0, lerpf(hp_fill_left, hp_fill_right, hp_pct) - hp_fill_left)
-	var hp_fill_texture := get_node_or_null("%s/FillTexture" % HUD_HP_BAR_PATH) as TextureRect
+	var hp_fill_texture := _hud_fill_texture(HUD_HP_BAR_PATH)
 	if hp_fill_texture != null:
-		hp_fill_texture.size.x = hp_width
+		var hp_fill_clip := _hud_fill_clip(HUD_HP_BAR_PATH)
+		if hp_fill_clip != null:
+			hp_fill_clip.size.x = hp_width
+			hp_fill_texture.size.x = maxf(hp_fill_right - hp_fill_left, 1.0)
+		else:
+			hp_fill_texture.size.x = hp_width
 	elif has_node("%s/Fill" % HUD_HP_BAR_PATH):
 		var hp_fill := get_node("%s/Fill" % HUD_HP_BAR_PATH)
 		hp_fill.offset_right = lerpf(hp_fill_left, hp_fill_right, hp_pct)
@@ -6452,9 +6759,14 @@ func _update_hud() -> void:
 	var wave_fill_left := _hud_fill_left(HUD_WAVE_BAR_PATH, 6.0)
 	var wave_fill_right := _hud_fill_right(HUD_WAVE_BAR_PATH, HUD_WAVE_FILL_RIGHT)
 	var wave_width := maxf(0.0, lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct) - wave_fill_left)
-	var wave_fill_texture := get_node_or_null("%s/FillTexture" % HUD_WAVE_BAR_PATH) as TextureRect
+	var wave_fill_texture := _hud_fill_texture(HUD_WAVE_BAR_PATH)
 	if wave_fill_texture != null:
-		wave_fill_texture.size.x = wave_width
+		var wave_fill_clip := _hud_fill_clip(HUD_WAVE_BAR_PATH)
+		if wave_fill_clip != null:
+			wave_fill_clip.size.x = wave_width
+			wave_fill_texture.size.x = maxf(wave_fill_right - wave_fill_left, 1.0)
+		else:
+			wave_fill_texture.size.x = wave_width
 	elif has_node("%s/Fill" % HUD_WAVE_BAR_PATH):
 		get_node("%s/Fill" % HUD_WAVE_BAR_PATH).offset_right = lerpf(wave_fill_left, wave_fill_right, displayed_wave_pct)
 	var wave_label := get_node_or_null("%s/Label" % HUD_WAVE_BAR_PATH) as Label
@@ -6467,7 +6779,7 @@ func _update_hud() -> void:
 	var xp_pct := float(xp) / float(next_xp_offer) if next_xp_offer > 0 else 0.0
 	displayed_xp_pct = lerpf(displayed_xp_pct, clamp(xp_pct, 0.0, 1.0), 0.28)
 	$Hud/BottomBar/XpBar/Fill.offset_right = lerpf(7.0, _hud_xp_fill_right(), displayed_xp_pct)
-	$Hud/BottomBar/XpBar/Label.text = "经验 %d/%d" % [xp, next_xp_offer]
+	$Hud/BottomBar/XpBar/Label.text = "经验 %s/%s" % [_format_compact_number(xp), _format_compact_number(next_xp_offer)]
 	$Hud/BottomBar/GoldLabel.text = _format_compact_number(gold)
 	_update_skill_slots()
 	_update_character_skill_button()
@@ -6480,7 +6792,9 @@ func _hud_fill_left(bar_path: String, fallback: float) -> float:
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
 	if bar_path == HUD_WAVE_BAR_PATH:
-		return 6.0
+		return minf(HUD_WAVE_FILL_LEFT, maxf(6.0, bar.size.x * 0.5 - 320.0))
+	if bar_path == HUD_HP_BAR_PATH:
+		return maxf(18.0, bar.size.x * 0.07)
 	return fallback
 
 func _hud_fill_right(bar_path: String, fallback: float) -> float:
@@ -6488,7 +6802,9 @@ func _hud_fill_right(bar_path: String, fallback: float) -> float:
 	if bar == null or bar.size.x <= 16.0:
 		return fallback
 	if bar_path == HUD_WAVE_BAR_PATH:
-		return maxf(8.0, bar.size.x - 6.0)
+		return maxf(_hud_fill_left(bar_path, 6.0) + 1.0, minf(HUD_WAVE_FILL_RIGHT, bar.size.x * 0.5 + 320.0))
+	if bar_path == HUD_HP_BAR_PATH:
+		return maxf(32.0, bar.size.x - maxf(18.0, bar.size.x * 0.07))
 	return maxf(8.0, bar.size.x - 6.0)
 
 func _hud_xp_fill_right() -> float:
@@ -6498,12 +6814,22 @@ func _hud_xp_fill_right() -> float:
 	return maxf(10.0, xp_bar.size.x - 7.0)
 
 func _format_compact_number(value: int) -> String:
-	if abs(value) < 1000:
+	var sign: String = "-" if value < 0 else ""
+	var abs_value: int = absi(value)
+	if abs_value < 1000:
 		return "%d" % value
-	var compact := float(value) / 1000.0
+	var divisor: float = 1000.0
+	var unit: String = "k"
+	if abs_value >= 1000000000:
+		divisor = 1000000000.0
+		unit = "b"
+	elif abs_value >= 1000000:
+		divisor = 1000000.0
+		unit = "m"
+	var compact := float(abs_value) / divisor
 	if compact < 10.0:
-		return "%.1fk" % compact
-	return "%dk" % int(round(compact))
+		return "%s%.1f%s" % [sign, compact, unit]
+	return "%s%d%s" % [sign, int(round(compact)), unit]
 
 func _build_skill_slots() -> void:
 	for child in $Hud/SkillSlots.get_children():
@@ -6862,6 +7188,8 @@ func _apply_slow_field() -> void:
 			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())
 			if slow_mult < 1.0:
 				slow_mult = max(0.45, 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
+				if enemy.has_method("mark_ice_slow_visual"):
+					enemy.mark_ice_slow_visual(0.18)
 			enemy.speed_mult *= slow_mult
 	_update_slow_field_visual(slow_level)
 
@@ -7020,55 +7348,29 @@ func _spawn_barrier_visual() -> void:
 	barrier_visual.name = "BarrierGlass"
 	barrier_visual.position = Vector2(540, _base_line_y())
 	barrier_visual.visible = false
+	barrier_visual.z_index = 7
 	$SlowFieldLayer.add_child(barrier_visual)
 
-	barrier_fill = Polygon2D.new()
-	barrier_fill.name = "Fill"
-	barrier_fill.polygon = PackedVector2Array([
-		Vector2(-430, 18),
-		Vector2(-350, -86),
-		Vector2(350, -86),
-		Vector2(430, 18),
-		Vector2(336, 76),
-		Vector2(-336, 76),
-	])
-	barrier_fill.material = _new_muzzle_additive_material()
-	barrier_visual.add_child(barrier_fill)
-
-	barrier_edges = []
-	for points in [
-		[Vector2(-430, 18), Vector2(-350, -86), Vector2(350, -86), Vector2(430, 18)],
-		[Vector2(-336, 76), Vector2(336, 76)],
-		[Vector2(-220, 58), Vector2(-160, -64)],
-		[Vector2(0, 68), Vector2(0, -76)],
-		[Vector2(220, 58), Vector2(160, -64)],
-	]:
-		var edge := Line2D.new()
-		edge.points = PackedVector2Array(points)
-		edge.width = 4.0
-		edge.antialiased = true
-		edge.texture = VfxLib.STREAK_TEXTURE
-		edge.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-		edge.material = _new_muzzle_additive_material()
-		barrier_visual.add_child(edge)
-		barrier_edges.append(edge)
+	barrier_sprite = Sprite2D.new()
+	barrier_sprite.name = "RenderedShield"
+	barrier_sprite.texture = BARRIER_GLASS_TEXTURE
+	barrier_sprite.centered = true
+	barrier_visual.add_child(barrier_sprite)
 	_update_barrier_visual()
 
 func _barrier_charge_count() -> int:
 	return breach_shields + skill_barriers_left
 
 func _update_barrier_visual() -> void:
-	if barrier_visual == null or barrier_fill == null:
+	if barrier_visual == null or barrier_sprite == null:
 		return
 	var charges := _barrier_charge_count()
 	barrier_visual.visible = charges > 0
 	if charges <= 0:
 		return
 	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 240.0)
-	var alpha := clampf(0.12 + float(charges) * 0.035 + pulse * 0.035, 0.12, 0.28)
-	barrier_fill.color = Color(0.42, 0.86, 1.0, alpha)
-	for edge in barrier_edges:
-		edge.default_color = Color(0.72, 0.94, 1.0, clampf(alpha + 0.22, 0.32, 0.58))
+	var alpha := clampf(0.48 + float(charges) * 0.08 + pulse * 0.08, 0.48, 0.82)
+	barrier_sprite.modulate = Color(0.86, 0.98, 1.0, alpha)
 
 func _spawn_barrier_gain_vfx() -> void:
 	_update_barrier_visual()
@@ -7201,6 +7503,7 @@ func _render_card_offer(owned_snapshot: Dictionary) -> void:
 	for child in cards.get_children():
 		child.queue_free()
 	$Hud/CardPanel/DetailOverlay.visible = false
+	_set_card_offer_base_content_visible(true)
 	for skill_id in card_director.offer(level, owned_snapshot):
 		var row := DataLoader.get_row("skills", skill_id)
 		var name := DataLoader.tr_key(row.get("name_key", skill_id))
@@ -7208,18 +7511,21 @@ func _render_card_offer(owned_snapshot: Dictionary) -> void:
 		cards.add_child(_build_skill_card(skill_id, row, name, lv))
 	var reroll_label: Label = $Hud/CardPanel/RerollButton/RerollLabel
 	reroll_label.text = "重抽 (%d)" % reroll_charges
-	$Hud/CardPanel/RerollButton.disabled = reroll_charges <= 0
-	$Hud/CardPanel/RerollButton.modulate = Color(1, 1, 1, 1) if reroll_charges > 0 else Color(0.5, 0.5, 0.5, 1)
+	UiKit.apply_armored_texture_button($Hud/CardPanel/RerollButton as TextureButton, true, Vector2(412, 88), reroll_charges > 0)
+	UiKit.apply_armored_texture_button($Hud/CardPanel/SkipButton as TextureButton, false, Vector2(412, 88), true)
+	UiKit.apply_label(reroll_label, 25, UiKit.TEXT_MAIN if reroll_charges > 0 else UiKit.GREY_300, 3)
+	var skip_label := $Hud/CardPanel/SkipButton/SkipLabel as Label
+	UiKit.apply_label(skip_label, 25, UiKit.TEXT_MAIN, 3)
 
 func _skill_offer_level(skill_id: String) -> int:
 	return mini(skills.level(skill_id) + 1, skills.max_level(skill_id))
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
-	var stats_extra_h := 20.0 * float(stats_text.count("\n"))
+	var stats_extra_h := 19.0 * float(stats_text.count("\n"))
 	var card_h := 208.0 + stats_extra_h
 	var card := Panel.new()
-	card.custom_minimum_size = Vector2(760, card_h)
+	card.custom_minimum_size = Vector2(844, card_h)
 	card.clip_contents = true
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.gui_input.connect(_on_skill_card_input.bind(skill_id))
@@ -7230,7 +7536,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var accent_bar := TextureRect.new()
 	accent_bar.position = Vector2(0, 0)
-	accent_bar.size = Vector2(16, card_h)
+	accent_bar.size = Vector2(12, card_h)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -7239,7 +7545,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.add_child(accent_bar)
 
 	var icon_box := PanelContainer.new()
-	icon_box.position = Vector2(26, 39)
+	icon_box.position = Vector2(32, 44)
 	icon_box.size = Vector2(116, 116)
 	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7249,30 +7555,57 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	icon.texture = load(row.get("icon", ""))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.position = Vector2(32, 45)
-	icon.size = Vector2(104, 104)
-	icon.custom_minimum_size = Vector2(104, 104)
+	icon.position = Vector2(40, 52)
+	icon.size = Vector2(100, 100)
+	icon.custom_minimum_size = Vector2(100, 100)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon)
 
 	var title := Label.new()
 	title.name = "Title"
-	title.text = "%s  等级%d" % [display_name, lv]
-	title.position = Vector2(172, 22)
-	title.size = Vector2(348, 38)
-	UiKit.apply_label(title, 29, Color(0.96, 0.99, 1.0, 1.0), 3)
+	title.text = display_name
+	title.position = Vector2(176, 24)
+	title.size = Vector2(326, 42)
+	UiKit.apply_label(title, 25, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(title)
 
+	var level_badge := PanelContainer.new()
+	level_badge.name = "LevelBadge"
+	level_badge.position = Vector2(520, 28)
+	level_badge.size = Vector2(114, 34)
+	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
+	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(level_badge)
+	var level_text := UiKit.label("等级 %d" % lv, 14, Color(0.82, 0.96, 1.0, 1.0), 2)
+	level_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	level_badge.add_child(level_text)
+
+	var reason := _skill_recommendation_reason(skill_id, row)
+	if reason != "":
+		var badge := PanelContainer.new()
+		badge.name = "RecommendBadge"
+		badge.position = Vector2(654, 28)
+		badge.size = Vector2(160, 34)
+		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(badge)
+		var badge_text := UiKit.label("推荐 · %s" % reason, 12, UiKit.GOLD, 2)
+		badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		badge_text.clip_text = true
+		badge.add_child(badge_text)
+
 	var stats := Label.new()
 	stats.name = "Stats"
 	stats.text = stats_text
-	stats.position = Vector2(172, 66)
-	stats.size = Vector2(538, 44 + stats_extra_h)
-	UiKit.apply_label(stats, 20, UiKit.CYAN, 2)
-	stats.add_theme_constant_override("line_spacing", 5)
+	stats.position = Vector2(176, 72)
+	stats.size = Vector2(620, 48 + stats_extra_h)
+	UiKit.apply_label(stats, 17, UiKit.CYAN, 2)
+	stats.add_theme_constant_override("line_spacing", 4)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	stats.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -7281,9 +7614,9 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(172, 116 + stats_extra_h)
-	desc.size = Vector2(538, 44)
-	UiKit.apply_label(desc, 18, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.position = Vector2(176, 126 + stats_extra_h)
+	desc.size = Vector2(620, 44)
+	UiKit.apply_label(desc, 16, Color(0.78, 0.9, 0.96, 1.0), 2)
 	desc.add_theme_constant_override("line_spacing", 4)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
@@ -7292,27 +7625,13 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(172, 162 + stats_extra_h)
-	tags.size = Vector2(512, 32)
+	tags.position = Vector2(176, 174 + stats_extra_h)
+	tags.size = Vector2(620, 30)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(tags)
 	for tag in row.get("card_tags", []).slice(0, 3):
 		tags.add_child(_card_tag_chip(str(tag), accent))
-
-	var reason := _skill_recommendation_reason(skill_id, row)
-	if reason != "":
-		var badge := PanelContainer.new()
-		badge.name = "RecommendBadge"
-		badge.position = Vector2(524, 24)
-		badge.size = Vector2(204, 32)
-		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
-		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(badge)
-		var badge_text := UiKit.label("推荐 · %s" % reason, 17, UiKit.GOLD, 3)
-		badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge.add_child(badge_text)
 
 	return card
 
@@ -7331,16 +7650,16 @@ func _skill_card_accent(skill_id: String, row: Dictionary) -> Color:
 
 func _card_tag_chip(tag: String, accent: Color) -> PanelContainer:
 	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(116, 32)
+	chip.custom_minimum_size = Vector2(104, 28)
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.02, 0.045, 0.065, 0.82)))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 5)
+	row.add_theme_constant_override("separation", 4)
 	chip.add_child(row)
 	var icon_path := _tag_icon_path(tag)
 	if icon_path != "":
-		row.add_child(UiKit.icon(icon_path, Vector2(22, 22)))
-	var label := UiKit.label(_tag_name(tag), 15, Color(0.9, 0.98, 1.0, 1.0), 2)
+		row.add_child(UiKit.icon(icon_path, Vector2(18, 18)))
+	var label := UiKit.label(_tag_name(tag), 12, Color(0.9, 0.98, 1.0, 1.0), 2)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(label)
 	return chip
@@ -7409,21 +7728,29 @@ func _show_card_detail(skill_id: String) -> void:
 	var row := DataLoader.get_row("skills", skill_id)
 	var lv := _skill_offer_level(skill_id)
 	var current_lv := skills.level(skill_id)
+	_layout_card_detail_overlay()
+	_set_card_offer_base_content_visible(false)
 	$Hud/CardPanel/DetailOverlay.visible = true
 	$Hud/CardPanel/DetailOverlay/Panel/Icon.texture = load(row.get("icon", ""))
 	$Hud/CardPanel/DetailOverlay/Panel/Title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", skill_id)), lv]
-	$Hud/CardPanel/DetailOverlay/Panel/Body.text = "%s\n\n%s\n\n%s\n\n标签：%s" % [
-		SkillEffectText.format_offer_block(row, lv, current_lv),
-		"全部等级：\n%s" % SkillEffectText.format_all_levels(row, lv),
-		_skill_long_desc(skill_id, lv),
-		_format_card_tags(row.get("card_tags", []))
-	]
+	$Hud/CardPanel/DetailOverlay/Panel/Body.text = SkillEffectText.format_offer_block(row, lv, current_lv)
+	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsTitle.text = "全部等级"
+	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsBody.text = SkillEffectText.format_all_levels(row, lv)
+	$Hud/CardPanel/DetailOverlay/Panel/DescBody.text = _skill_long_desc(skill_id, lv)
+	$Hud/CardPanel/DetailOverlay/Panel/TagsBody.text = "标签：%s" % _format_card_tags(row.get("card_tags", []))
 
 func _hide_card_detail() -> void:
 	AudioManager.play_sfx("ui_click", -5.0)
 	$Hud/CardPanel/DetailOverlay.visible = false
+	_set_card_offer_base_content_visible(true)
 	card_press_skill_id = ""
 	card_long_press_opened = false
+
+func _set_card_offer_base_content_visible(is_visible: bool) -> void:
+	for path in ["Hud/CardPanel/CardTitle", "Hud/CardPanel/Cards", "Hud/CardPanel/RerollButton", "Hud/CardPanel/SkipButton"]:
+		var node := get_node_or_null(path) as CanvasItem
+		if node != null:
+			node.visible = is_visible
 
 func _tag_name(tag: String) -> String:
 	match str(tag):
@@ -7713,7 +8040,7 @@ func _on_skip_card() -> void:
 	_close_card_offer(false)
 	_update_character_skill_button()
 	cards_picked += 1
-	next_xp_offer = _next_pick_threshold()
+	_advance_card_xp_after_pick()
 
 func _choose_card(skill_id: String) -> void:
 	AudioManager.play_sfx("card_pick")
@@ -7749,7 +8076,7 @@ func _choose_card(skill_id: String) -> void:
 	_show_wave_toast("%s 已生效" % DataLoader.tr_key(DataLoader.get_row("skills", skill_id).get("name_key", skill_id)), Color(1.0, 0.86, 0.28))
 	_update_skill_slots()
 	_spawn_skill_to_slot_vfx(skill_id)
-	next_xp_offer = _next_pick_threshold()
+	_advance_card_xp_after_pick()
 	_close_card_offer(false)
 	_update_character_skill_button()
 
@@ -7850,6 +8177,8 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 		return
 	if str(enemy.get("mechanic")) == "armor" and not immune_hit:
 		AudioManager.play_sfx("zombie_armored", -10.0, 0.02)
+	if immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade":
+		_show_enemy_hit_rule_feedback(enemy, element, hit_kind)
 	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
 	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
 	# 一次 _spawn_hit_layer_vfx——普通命中(hit_kind=="normal")两边其实是同一种粒子
@@ -7858,6 +8187,78 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 	if hit_kind == "normal" and enemy.has_meta("_recent_impact_vfx_ms") and Time.get_ticks_msec() - int(enemy.get_meta("_recent_impact_vfx_ms")) < 50:
 		return
 	_spawn_hit_layer_vfx(enemy.global_position, element, weak_hit, hit_kind)
+
+func _show_enemy_hit_rule_feedback(enemy: Node, element: String, hit_kind: String) -> void:
+	if not is_instance_valid(enemy) or not enemy is Node2D:
+		return
+	var text := _enemy_hit_rule_text(enemy, element, hit_kind)
+	if text == "":
+		return
+	var now := _now_seconds()
+	var meta_key := "_last_rule_feedback_at"
+	var last := -99.0
+	if enemy.has_meta(meta_key):
+		last = float(enemy.get_meta(meta_key))
+	var previous_text := str(enemy.get_meta("_last_rule_feedback_text")) if enemy.has_meta("_last_rule_feedback_text") else ""
+	var cooldown := 0.55 if _is_boss_node(enemy) else 0.9
+	if text == previous_text and now - last < cooldown:
+		return
+	enemy.set_meta(meta_key, now)
+	enemy.set_meta("_last_rule_feedback_text", text)
+	var boss_hit := _is_boss_node(enemy)
+	var y_offset := -176.0 if boss_hit else -112.0
+	var color := _enemy_hit_rule_color(element, hit_kind)
+	var width := 380.0 if boss_hit else 270.0
+	_spawn_float_text((enemy as Node2D).global_position + Vector2(-width * 0.5, y_offset), text, color, true, 26 if boss_hit else 22, width)
+
+func _enemy_hit_rule_text(enemy: Node, element: String, hit_kind: String) -> String:
+	var weakness_text := _enemy_weakness_suffix(enemy)
+	match hit_kind:
+		"armor":
+			return "装甲吸收 · 破甲中"
+		"shield":
+			return "护盾吸收%s" % weakness_text
+		"phase_evade":
+			return "相位闪避 · 雷电可破"
+		"immune":
+			return "%s免疫%s" % [_element_combat_label(element), weakness_text]
+		_:
+			var immune_list: Variant = enemy.get("immune")
+			if immune_list is Array and (immune_list as Array).has(element):
+				return "%s免疫%s" % [_element_combat_label(element), weakness_text]
+	return ""
+
+func _enemy_weakness_suffix(enemy: Node) -> String:
+	var weak := str(enemy.get("weakness"))
+	if weak == "" or weak == "none":
+		return ""
+	return " · 弱点%s" % _element_combat_label(weak)
+
+func _element_combat_label(element: String) -> String:
+	match element:
+		"physical":
+			return "物理"
+		"fire":
+			return "火焰"
+		"ice":
+			return "冰霜"
+		"lightning":
+			return "雷电"
+		"poison":
+			return "毒素"
+		_:
+			return element
+
+func _enemy_hit_rule_color(element: String, hit_kind: String) -> Color:
+	match hit_kind:
+		"armor":
+			return Color(1.0, 0.82, 0.28, 1.0)
+		"shield":
+			return Color(0.58, 0.92, 1.0, 1.0)
+		"phase_evade":
+			return Color(0.72, 0.84, 1.0, 1.0)
+		_:
+			return _element_color(element).lightened(0.18)
 
 func _process_threat_feedback(enemies: Array) -> void:
 	if enemies.is_empty():
@@ -8163,17 +8564,17 @@ func _boss_intro_sfx(boss_id: String) -> String:
 		_:
 			return "boss_intro_tank_titan"
 
-func _spawn_float_text(world_pos: Vector2, text: String, color: Color) -> void:
-	var priority := text.contains("首领") or text.contains("防线") or text.contains("基地")
+func _spawn_float_text(world_pos: Vector2, text: String, color: Color, priority_override := false, font_size := 21, width := 220.0) -> void:
+	var priority := priority_override or text.contains("首领") or text.contains("防线") or text.contains("基地") or text.contains("免疫") or text.contains("护盾") or text.contains("装甲") or text.contains("相位")
 	if not _can_spawn_float_text(priority):
 		return
 	var label := Label.new()
 	_track_transient_fx(label, "float_text")
 	label.text = text
 	label.position = world_pos
-	label.size = Vector2(220, 34)
+	label.size = Vector2(width, 40)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 21)
+	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	label.add_theme_constant_override("outline_size", 4)

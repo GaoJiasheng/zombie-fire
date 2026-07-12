@@ -63,6 +63,7 @@ func _on_back_pressed() -> void:
 
 func _refresh_back_button() -> void:
 	var button := %BackButton as TextureButton
+	UiKit.apply_armored_texture_button(button, false, Vector2(560, 104), true)
 	var label := button.get_node_or_null("Label") as Label
 	if label == null:
 		return
@@ -524,14 +525,6 @@ func _item_stat_summary(row: Dictionary) -> String:
 		_:
 			return ""
 
-func _skill_first_effect_text(row: Dictionary) -> String:
-	var levels: Array = row.get("levels", [])
-	if levels.is_empty():
-		return "效果：%s" % _format_tags(row.get("card_tags", []))
-	var first: Dictionary = levels[0]
-	var effect: Dictionary = first.get("effect", {})
-	return "等级1：%s" % SkillEffectText.format_effect(effect)
-
 func _skill_effect_summary(row: Dictionary, current_level: int) -> String:
 	var levels: Array = row.get("levels", [])
 	if levels.is_empty():
@@ -965,6 +958,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	desc_section.get_child(0).add_child(desc_label)
 
 	var action_row := HBoxContainer.new()
+	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
 	if mode != "skills" and not SaveManager.is_item_unlocked(slot, item_id):
@@ -974,15 +968,14 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
 		buy_btn.disabled = not can_buy
 		buy_btn.modulate = ACTION_ACTIVE_MODULATE if can_buy else ACTION_DISABLED_MODULATE
-		buy_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
 		action_row.add_child(buy_btn)
 	elif mode != "skills":
 		var equip_btn := _detail_button("EquipButton", "已装备" if selected else "装  备", true)
 		equip_btn.disabled = selected
 		equip_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
-		equip_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		equip_btn.size_flags_stretch_ratio = 1.35
+		equip_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		equip_btn.pressed.connect(_select_item_and_close.bind(slot, item_id))
 		action_row.add_child(equip_btn)
 
@@ -991,7 +984,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var upgrade_btn := _detail_button("UpgradeButton", "升级  %d" % cost, false)
 		upgrade_btn.disabled = not can_upgrade
 		upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if can_upgrade else ACTION_DISABLED_MODULATE
-		upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 		action_row.add_child(upgrade_btn)
 	else:
@@ -1003,12 +996,11 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var skill_btn := _detail_button("SkillUpgradeButton", skill_label, true)
 		skill_btn.disabled = not can_up
 		skill_btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
-		skill_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		skill_btn.size_flags_stretch_ratio = 1.35
+		skill_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		skill_btn.pressed.connect(_upgrade_skill_from_detail.bind(item_id, row))
 		action_row.add_child(skill_btn)
 	var close_bottom := _detail_button("CloseBottomButton", "关  闭", false)
-	close_bottom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	close_bottom.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_bottom.pressed.connect(_close_character_detail)
 	action_row.add_child(close_bottom)
 
@@ -1019,21 +1011,12 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _detail_button(node_name: String, text: String, primary: bool) -> TextureButton:
-	return _armored_action_button(node_name, text, true, primary, Vector2(0, 112), 24)
+	return _armored_action_button(node_name, text, true, primary, Vector2(286, 112), 24)
 
 func _armored_action_button(node_name: String, text: String, enabled: bool, primary: bool, button_size: Vector2, font_size: int) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = node_name
-	var active_texture := load(BUTTON_PRIMARY if primary else BUTTON_SECONDARY)
-	var disabled_texture := load(BUTTON_SECONDARY)
-	button.texture_normal = active_texture
-	button.texture_hover = active_texture
-	button.texture_pressed = active_texture
-	button.texture_disabled = disabled_texture
-	button.ignore_texture_size = true
-	button.stretch_mode = TextureButton.STRETCH_SCALE
-	button.custom_minimum_size = button_size
-	button.disabled = not enabled
+	UiKit.apply_armored_texture_button(button, primary, button_size, enabled)
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.modulate = (ACTION_ACTIVE_MODULATE if primary else ACTION_SECONDARY_MODULATE) if enabled else ACTION_DISABLED_MODULATE
 	var label := Label.new()
@@ -1504,6 +1487,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	spacer.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer)
 	var action_row := HBoxContainer.new()
+	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
 	# 升级按钮(角色此前一直缺失，只有武器/护甲/芯片/宠物能升级)
@@ -1511,25 +1495,22 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var char_upgrade_cost := SaveManager.get_item_upgrade_cost("characters", item_id)
 	var char_max_level := int(row.get("max_level", 30))
 	var upgrade_btn := _detail_button("UpgradeButton", ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost), false)
-	upgrade_btn.custom_minimum_size = Vector2(0, 112)
-	upgrade_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	upgrade_btn.size_flags_stretch_ratio = 1.35
+	upgrade_btn.custom_minimum_size = Vector2(286, 112)
+	upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	upgrade_btn.disabled = not char_can_upgrade
 	upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if char_can_upgrade else ACTION_DISABLED_MODULATE
 	upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 	action_row.add_child(upgrade_btn)
 	var select_btn := _detail_button("SelectButton", "已装备" if selected else "选  定", true)
-	select_btn.custom_minimum_size = Vector2(0, 112)
-	select_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	select_btn.size_flags_stretch_ratio = 2.0
+	select_btn.custom_minimum_size = Vector2(286, 112)
+	select_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	select_btn.disabled = selected
 	select_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
 	select_btn.pressed.connect(_select_character_and_close.bind(item_id))
 	action_row.add_child(select_btn)
 	var cancel_btn := _detail_button("CancelButton", "关  闭", false)
-	cancel_btn.custom_minimum_size = Vector2(0, 112)
-	cancel_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cancel_btn.size_flags_stretch_ratio = 1.0
+	cancel_btn.custom_minimum_size = Vector2(286, 112)
+	cancel_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	cancel_btn.pressed.connect(_close_character_detail)
 	action_row.add_child(cancel_btn)
 
@@ -1711,7 +1692,7 @@ func _make_sig_skill_upgrade_row(character_id: String) -> HBoxContainer:
 	row.add_child(level_label)
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
 	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
-	var btn := _detail_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true)
+	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 72), 18)
 	btn.custom_minimum_size = Vector2(286, 72)
 	btn.disabled = not can_up
 	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE

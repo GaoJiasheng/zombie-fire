@@ -1,7 +1,7 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 7599,
+    "total_files": 7704,
     "parts_files": 414,
     "animation_files": 1510,
     "sfx_files": 88,
@@ -327,6 +327,36 @@
       "source": "source_refs/generated/seamless_tall_battle_backgrounds_2026_07_08/seamless_tall_battle_backgrounds_manifest_2026_07_08.json",
       "derived": "contact_sheets/contact_seamless_tall_battle_backgrounds_2026_07_08.png",
       "reason": "Owner reported the previous tall-screen top extension still looked abrupt. Rebuilt all ten campaign battle backgrounds from the original full-height 1206x2622 rendered environment sources, then reapplied fortress alignment as a shallow top-safe shift instead of a 702px mirrored extension."
+    },
+    {
+      "path": "sprites/vfx/vfx_enemy_skill_enrage.png + sprites/vfx_sequences/vfx_enemy_skill_enrage + centered fire hit/explosion sequences",
+      "source": "source_refs/generated/centered_fire_enrage_vfx_2026_07_08.json",
+      "derived": "contact_sheets/contact_centered_fire_enrage_vfx_2026_07_08.png",
+      "reason": "Owner reported a rightward fire plume on near-line ice zombies. Rebuilt enrage fallback as a centered rage pulse and centered fire hit/explosion bitmap sequences so enemy rage, hit, death, and area fire VFX no longer read as a sideways flamethrower."
+    },
+    {
+      "path": "sprites/ui/ui_button_primary.png, sprites/ui/ui_button_secondary.png, sprites/ui/ui_button_*_native_*.png",
+      "source": "source_refs/generated/native_button_reference_owner_2026_07_09.jpg",
+      "derived": "contact_sheets/contact_native_button_textures_2026_07_09.png",
+      "reason": "Owner rejected the soft/geometric multi-size button sheet and provided a hard-surface armored button reference. Rebuilt the global button system as 72 native-size raster PNG textures plus refreshed primary/secondary fallback buttons, preserving the orange/cyan armored material standard and avoiding a single stretched source texture."
+    },
+    {
+      "path": "sprites/vfx/vfx_barrier_glass.png",
+      "source": "source_refs/generated/barrier_glass_redo_2026_07_09/imagegen_barrier_source.png + source_refs/generated/barrier_glass_redo_2026_07_09/barrier_glass_manifest.json",
+      "derived": "contact_sheets/barrier_glass_redo_2026_07_09.png",
+      "reason": "Owner called the defense-line barrier prototype ugly. Replaced the runtime geometric Polygon2D/Line2D shield with a high-quality raster energy-glass barrier PNG while preserving the existing vfx_barrier_glass runtime path."
+    },
+    {
+      "path": "sprites/ui/ui_skill_slot.png, sprites/ui/ui_skill_slot_active.png, sprites/ui/ui_base_hp_bar.png, sprites/ui/ui_bar_fill_hp.png",
+      "source": "source_refs/generated/hud_slot_hp_polish_2026_07_10/hud_slot_hp_polish_manifest.json",
+      "derived": "contact_sheets/hud_slot_hp_polish_2026_07_10.png",
+      "reason": "Owner reported two thin yellow horizontal lines on the bottom-right active-skill button and a stretched/misaligned HP-bar slot. Rebuilt the skill slots without protruding horizontal decorations and rebuilt the HP track/fill as an empty armored slot plus independent red fill texture."
+    },
+    {
+      "path": "sprites/ui/ui_wave_progress.png, sprites/ui/ui_wave_progress_fill_native.png",
+      "source": "source_refs/generated/wave_progress_native_2026_07_11/wave_progress_native_manifest.json",
+      "derived": "contact_sheets/wave_progress_native_2026_07_11.png",
+      "reason": "Owner clarified the remaining stretched bar issue was the top wave progress bar, not the bottom HP bar. Rebuilt the wave slot at its exact 720x46 HUD size and added a 640x18 native fill texture that is clipped at runtime instead of horizontally scaled; follow-up removed interior thin highlight lines from the yellow fill."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1176,6 +1206,60 @@
       "count": 12,
       "task": "weapon shot SFX realism pass",
       "created_at": "2026-07-07T06:43:17.431333+00:00"
+    },
+    {
+      "path": "audio/sfx/sfx_hit_*.wav",
+      "source": "assets/production/source_refs/generated/hit_sfx_impact_2026_07_08/hit_sfx_impact_manifest_2026_07_08.json",
+      "derived": "assets/production/source_refs/generated/hit_sfx_impact_2026_07_08/hit_sfx_impact_waveform_sheet_2026_07_08.png",
+      "reason": "Owner reported bullet impact sounds on zombies felt wrong. Rebuilt physical, fire, ice, lightning, poison, and immune hit SFX with distinct material signatures: metal/flesh thunk, hot fire pop/sizzle, brittle ice shatter, electric zap, corrosive splash, and shield ping while preserving existing IDs and runtime paths.",
+      "count": 6,
+      "task": "elemental projectile hit SFX impact pass",
+      "created_at": "2026-07-08T10:10:54.240646+00:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/vfx_enemy_skill_enrage + sprites/vfx/vfx_enemy_skill_enrage.png + vfx_hit_fire/vfx_explosion_fire refresh",
+      "source": "assets/production/source_refs/generated/centered_fire_enrage_vfx_2026_07_08.json",
+      "derived": "assets/production/contact_sheets/contact_centered_fire_enrage_vfx_2026_07_08.png",
+      "reason": "Replace the illogical sideways fire plume with centered bitmap fire/enrage effects while preserving runtime IDs.",
+      "count": 48,
+      "task": "centered fire and enrage VFX pass",
+      "created_at": "2026-07-08T17:00:00+08:00"
+    },
+    {
+      "path": "sprites/ui/ui_button_primary.png + sprites/ui/ui_button_secondary.png + sprites/ui/ui_button_*_native_*.png",
+      "source": "assets/production/source_refs/generated/native_button_reference_owner_2026_07_09.jpg",
+      "derived": "assets/production/contact_sheets/contact_native_button_textures_2026_07_09.png",
+      "reason": "Global buttons must match the owner-approved thick armored material reference, reject geometric line buttons, and use native-size rendered textures for each runtime button dimension instead of relying on one stretched master image.",
+      "count": 74,
+      "task": "global native armored button texture replacement",
+      "created_at": "2026-07-09T09:33:22+08:00"
+    },
+    {
+      "path": "sprites/vfx/vfx_barrier_glass.png",
+      "source": "assets/production/source_refs/generated/barrier_glass_redo_2026_07_09/barrier_glass_manifest.json",
+      "derived": "assets/production/contact_sheets/barrier_glass_redo_2026_07_09.png",
+      "reason": "Replace primitive defense-line barrier geometry with a rendered transparent PNG forcefield using the locked sci-fi/post-apocalyptic quality standard.",
+      "count": 1,
+      "task": "defense barrier rendered PNG replacement",
+      "created_at": "2026-07-09T18:30:00+08:00"
+    },
+    {
+      "path": "sprites/ui/ui_menu_title_shichao_fangxian.png",
+      "source": "assets/production/source_refs/generated/menu_title_logo_2026_07_10/menu_title_logo_2026_07_10.md",
+      "derived": "assets/production/sprites/ui/ui_menu_title_shichao_fangxian.png",
+      "reason": "Owner rejected font/art-text title passes. Replaced the main title with an image-generated hard-surface 3D title render, then locally extracted alpha and fit it as the runtime PNG.",
+      "count": 1,
+      "task": "main menu rendered title logo",
+      "created_at": "2026-07-10T18:01:00+08:00"
+    },
+    {
+      "path": "sprites/ui/ui_wave_progress.png + sprites/ui/ui_wave_progress_fill_native.png",
+      "source": "assets/production/source_refs/generated/wave_progress_native_2026_07_11/wave_progress_native_manifest.json",
+      "derived": "assets/production/contact_sheets/wave_progress_native_2026_07_11.png",
+      "reason": "Rebuild the top wave-progress HUD at native runtime size and drive progress by clipping a full-width rendered fill, eliminating horizontal/vertical stretching artifacts and the follow-up thin-line artifact inside the yellow fill.",
+      "count": 2,
+      "task": "native wave progress HUD rerender",
+      "created_at": "2026-07-11T00:00:00+08:00"
     }
   ]
 }

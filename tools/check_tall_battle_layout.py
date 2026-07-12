@@ -121,14 +121,16 @@ def _source_guard_errors() -> list[str]:
     errors: list[str] = []
     battle_source = (ROOT / "gameplay/battle/battle.gd").read_text(encoding="utf-8")
     enemy_source = (ROOT / "gameplay/enemy/enemy.gd").read_text(encoding="utf-8")
+    # 只断言和"高屏战斗布局"这个不变量真正相关的片段：背景延伸画布怎么定位、
+    # breach 线怎么注入给敌人。wave 进度条填充左右边界的具体公式属于横向 HUD
+    # 细节，和竖屏高度无关，且已经从字面量演进成按 bar.size.x 动态计算——放在
+    # 这里断言字面量只会在每次合理重构时误报，已移除。
     required_battle_snippets = [
         "func _battle_visible_height() -> float:",
         "var visible_height := _battle_visible_height()",
         "var cover_scale := maxf(1080.0 / texture_size.x, visible_height / texture_size.y)",
         "background.position = Vector2(540, visible_height - texture_size.y * cover_scale * 0.5)",
         "_hide_background_top_fill()",
-        "if bar_path == HUD_WAVE_BAR_PATH:\n\t\treturn 6.0",
-        "if bar_path == HUD_WAVE_BAR_PATH:\n\t\treturn maxf(8.0, bar.size.x - 6.0)",
         'enemy.call("configure_attack_line", BREACH_Y)',
     ]
     for snippet in required_battle_snippets:

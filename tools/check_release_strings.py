@@ -32,6 +32,9 @@ VISIBLE_UI_FORBIDDEN = [
     "DEBUG",
     "Lv.",
 ]
+VISIBLE_UI_LITERAL_ALLOWLIST = {
+    "BOSS_SPEED_MULT",
+}
 
 
 def _collect_files(items: list[str]) -> list[Path]:
@@ -60,6 +63,8 @@ def main() -> int:
     for path in _collect_files(UI_SCAN):
         text = path.read_text(errors="ignore")
         for literal in _string_literals(text):
+            if literal in VISIBLE_UI_LITERAL_ALLOWLIST:
+                continue
             for token in VISIBLE_UI_FORBIDDEN:
                 if token in literal:
                     errors.append(f"{path.relative_to(ROOT)} contains visible English UI string: {literal}")

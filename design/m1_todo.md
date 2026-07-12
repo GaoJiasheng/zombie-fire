@@ -127,7 +127,10 @@
 - [x] 元素命中特效：火焰弹燃烧/爆裂、冰霜弹冻结、闪电弹电击、毒素弹毒雾命中反馈
 - [x] 全枪械弹道/命中特效：自动、火焰、冰霜、电、毒保留元素特效；磁轨炮有穿甲光轨，散弹炮有多 pellet 碎片命中，等离子炮有紫橙能量核和冲击波。
 - [x] 分裂弹可视化：命中后有爆裂环、小弹飞散、追踪 mini projectile，能明确看到分裂行为
-- [x] Lv3 质变卡至少 1 个可见效果（skill_slow_field Lv3 在 y>=1160 显示青色减速带，alpha 0.27；skill_split_shot Lv3 5 弹 80° 扇面；skill_pierce Lv3 pierce=3 + 1.15x；skill_multishot Lv3 4 弹 12° 扇面）
+- [x] Lv3 质变卡至少 1 个可见效果（skill_slow_field Lv3 在 y>=820 显示青色减速带，alpha 0.27；skill_split_shot Lv3 5 弹 80° 扇面；skill_pierce Lv3 pierce=3 + 1.15x；skill_multishot Lv3 4 弹 12° 扇面）
+- [x] `skill_slow_field` 范围翻倍：Lv1-Lv5 覆盖高度从 220/280/340/400/460px 扩到 440/560/680/800/920px；数据判定 `y_min` 与战斗可视 offset 同步，减速强度不变。
+- [x] 宠物/机器人战斗位置贴近防线：宠物出生与待机浮动改为基于 `BREACH_Y` 的防线锚点，并随高屏 `bottom_dock_shift` 一起下移，避免真机上悬在旧 1920 画布高度。
+- [x] 无尽模式选卡后经验清管：无尽模式成功升级/跳过技能后会清零当前局内 XP 条，并重新等待下一管经验，避免 XP 溢出导致连续重复弹三选一。
 
 ## 阶段 7 · 5 关节奏
 
@@ -253,7 +256,7 @@
 - [x] P1：SFX 全量差异化扩展；按 `design/sfx_expansion_prompts_2026_07_05.md` 本地渲染 45 条顶级 WAV（技能、角色 intro/主动技、20 种僵尸机制），接入 `AudioManager`、选卡/子弹触发/主动技/僵尸机制运行时路径，并登记 manifest 与波形总览。
 - [x] P1：暂停层与图鉴/芯片页拥挤感修复；暂停面板加宽加高、信息卡/按钮字号重新排版并在暂停态隐藏顶部 toast，图鉴资源条和装备/芯片/宠物/武器列表行距放开，验证截图见 `tmp/ui_layout_polish_2026_07_05/`；`python3 tools/check_release_candidate.py` 当前通过。
 - [x] P1：全选择界面购买/装备按钮放大并装甲化；图鉴角色/武器/护甲/芯片/宠物列表卡片改为持续显示大号购买/装备/已装备按钮，详情页和购买确认弹窗按钮同步放大，不可点击态统一灰化；验证截图见 `tmp/selection_button_polish_2026_07_05/`。
-- [x] P1：战斗 HUD / Endless / 宠物成长 / 子弹生命周期打磨；生命条移到底部与经验条并排，金币超过 999 使用 `k` 缩写，波次条拉长且暖金填充，Toast 避开上下 HUD 并节流；无尽模式中途退出保留收益、每轮最终波保证 Boss 且线性升压；宠物增加可成长全局属性；追踪/分裂弹 5 秒或出屏即销毁。验证截图见 `tmp/hud_endless_pet_projectile_polish_2026_07_05/`，`python3 tools/check_release_candidate.py` 当前通过。
+- [x] P1：战斗 HUD / Endless / 宠物成长 / 子弹生命周期打磨；生命条移到底部与经验条并排，金币超过 999 使用 `k` 缩写，波次条拉长且暖金填充，Toast 避开上下 HUD 并节流；无尽模式中途退出保留金币收益、每轮最终波保证 Boss，后续已改为复利升压；宠物增加可成长全局属性；追踪/分裂弹 5 秒或出屏即销毁。验证截图见 `tmp/hud_endless_pet_projectile_polish_2026_07_05/`，`python3 tools/check_release_candidate.py` 当前通过。
 - [x] P1：子弹弹道规则细化；追踪弹出膛后先按枪管方向直飞 `1.0s`，再按最小转弯半径 `460px` 的角速度上限导引，避免原地掉头；所有子弹离开当前可见 1080x1920/高屏视口立即清除，飞行 `5.0s` 强制清除。`tools/m1_smoke_test.gd` 与 `tools/check_gameplay_polish.py` 已加回归护栏。
 - [x] P1：多重射击/追踪叠加数值收口；多重射击最多 5 条弹道，按 2/3/4/5 条分别每发 `0.85/0.80/0.75/0.70` 伤害倍率衰减，避免追踪弹叠加后变成全额伤害弹幕；多重射击默认不附带弹射或分裂，跳弹技能只提供 `chain`，仍可和追踪、穿透、分裂等正常叠加。
 - [x] P1：全关卡高屏战斗背景与防线触发修复；战斗背景改为底边固定的 cover 缩放，保留底部构图并向上补满高屏设备，99 关 / 10 个主线环境 / 14 个环境行均不再出现顶部缺口；僵尸攻击线改为按运行时 `BREACH_Y` 注入，普通怪、Boss、召唤怪都接近人物/基地模型后才开始攻击；威胁提示阈值同步按动态防线计算。新增 `tools/check_tall_battle_layout.py` 并接入 release candidate，验证截图见 `tmp/battle_safe_area_breach_fix_2026_07_06/battle_tall_after.png` 与 `tmp/battle_safe_area_breach_fix_2026_07_06/all_campaign_env_tall_cover_sheet.png`。
@@ -262,12 +265,33 @@
 - [x] P1：防线内外侧对齐复查修复；普通僵尸/Boss 基地攻击线、远程腐蚀/毒雾/震地/寒潮/Boss 压制等基地受击爆点、基地护罩中心与破盾点、减速力场底边和实际减速判定全部改为从同一条运行时 `BREACH_Y` 派生；新增 `tools/check_battle_line_alignment.py` 并接入 release candidate，防止回退到旧固定 y 坐标。
 - [x] P1：音乐/长音效叠播排查修复；BGM 保持全局单播放器，角色主动技长音效与胜败 stinger 纳入 `AudioManager.MUSIC_LIKE_SFX` 互斥组，切 BGM 时清理音乐型长音效；结算胜败音效只由 `meta/result` 单点触发，`loadout` / `collection` 进入时恢复地图 BGM，防止结算音乐串到装备/图鉴界面；新增 `tools/check_audio_overlap.py` 并接入 release candidate。
 - [x] P1：开火音效仿真化；owner 反馈枪声像“青蛙叫”，已重建 8 个 `sfx_shot_*.wav` 和 4 个 `sfx_muzzle_*.wav` 为短促宽频枪口爆音 / 机械机件 / 能量尾音组合，机炮低频占比从约 `0.90` 降到约 `0.20`，火系 muzzle 低频占比从约 `0.80` 降到约 `0.01`；新增 `tools/check_weapon_sfx_quality.py` 并接入 release candidate。波形与指标见 `assets/production/source_refs/generated/weapon_sfx_realism_2026_07_07/weapon_sfx_realism_waveform_sheet_2026_07_07.png`。
+- [x] P1：子弹命中音效差异化；owner 反馈子弹打到僵尸身上的受击声音怪，已重建 `sfx_hit_physical/fire/ice/lightning/poison/immune.wav`：物理为金属/肉体撞击，火焰为短促爆燃 + 灼烧尾音，冰霜为冰晶碎裂，闪电为明亮电击，毒素为腐蚀液体溅射，免疫为护盾金属 ping；新增 `tools/check_hit_sfx_quality.py` 并接入 release candidate。波形与指标见 `assets/production/source_refs/generated/hit_sfx_impact_2026_07_08/hit_sfx_impact_waveform_sheet_2026_07_08.png`。
 - [x] P1：火焰命中与主动技能 VFX/SFX 重审修复；用 built-in `image_gen` 生成顶级渲染参考板并以本地脚本重建 `vfx_hit_fire`、`vfx_explosion_fire` 和 5 套角色主动技能 PNG 序列，火焰命中改为中心爆燃并去除抠图硬边/相邻帧串格；`battle.gd`/`projectile.gd` 取消火焰命中旧方向性粒子叠层，主动技能 intro 不再重复叠通用 muzzle；新增 `tools/check_active_skill_media.py` 并接入 release candidate，检查火焰中心性、alpha 边界、序列帧数和主动技 SFX 时长/响度。
 - [x] P1：几何 projectile 原型重渲染；owner 指出 `proj_heavy_charge.png` / `proj_scatter_pellet.png` 仍像几何线条图标，已用 built-in `image_gen` 重新生成非几何渲染弹体并本地抠成 256x256 RGBA；普通 `skill_incendiary` 火焰弹拆为紧凑 `fire_round` 视觉，不再复用火焰喷射器大火球贴图。对比图见 `tmp/projectile_regen_2026_07_07/projectile_regen_contact_sheet.png`。
 - [x] P1：关卡选择页对齐重构；顶部“角色/武器/护甲/芯片/宠物/技能”入口角标改为内嵌徽标，不再出框；关卡卡片右侧固定为两行星级区 + 横排“进入 / 挑战模式”按钮，星级上下间距、按钮高度和点击面积统一。验证截图见 `tmp/map_ui_alignment_polish_2026_07_06_v2.png`。
-- [x] P1：大战区外层列表排版打磨；外层章节卡片统一 64px 左侧安全边距、300px 右侧操作列，标题/关卡范围/故事/目标不再贴边，右侧战区进度、双 Boss 节点和“进入战区”按钮统一对齐。验证截图见 `tmp/map_chapter_overview_layout_polish_2026_07_07.png`。
+- [x] P1：大战区外层列表排版打磨；外层章节卡片统一 64px 左侧安全边距、300px 右侧操作列，标题/关卡范围/故事/目标不再贴边，右侧战区进度、双 Boss 节点和“进入战区”按钮统一对齐。后续按 owner 反馈把章节卡片高度从 `294` 提到 `344`，扩大故事/目标文字区，避免大字号裁字；验证截图见 `tmp/map_chapter_overview_spacious_2026_07_12.png`。
 - [x] P1：战区详情页文字贴边修复；章节详情头卡统一安全内边距，左侧标题/故事/目标不再贴卡片边线，右侧“战区进度”和“返回战区地图”按钮内收，顶部装备入口角标也向内留边。验证截图见 `tmp/map_chapter_layout_polish_2026_07_07.png`。
 - [x] P1：大战区章节地图落地；地图首屏从 99 个关卡直列表改为 10 个每十关一组的大战区卡片，数据化展示章节标题、故事、目标、进度、小 Boss（每 5 关）和大 Boss（每 10 关 / 终局），肃清上一战区后展开下一战区；进入大战区后再显示原分关卡列表，并保留“进入 / 挑战模式”横排按钮。验证截图见 `tmp/chapter_map_overview_2026_07_06.png` 与 `tmp/chapter_map_detail_2026_07_06.png`。
 - [x] P1：第 3/4/5 波全局难度 +20%；通过 `economy.json` 后半段波次 HP 旋钮实现，普通/支援怪第 3 波 `1.20x`、第 4 波 `1.44x`、第 5 波 `1.62x`，Boss 独立 `1.20x`；同步运行时、压力检查与模拟工具口径，并对出现同类型压力回落的关卡做最小上调。
 - [x] P1：第 20 关起 Boss 血量翻倍；新增 `economy.json.boss_hp_level_bonus`，运行时所有 `is_boss` 敌人在 `level_020+` 额外乘 `2.0` HP，挑战模式继续叠加挑战 HP 系数；压力/平衡/模拟工具已同步，只调 boss HP 不调 boss 伤害；为避免翻倍后 Boss 流压力回落，最小上调 `level_035/040/060/065/090/095/099` 的 `difficulty_coef` 下限。
 - [x] P1：近线·冰普通小怪死亡火焰喷射感修复；死亡仍保留最后一击元素语义，但普通火系死亡改为尸体中心的短促燃尽、上升烟尘和径向冲击，不再归一成物理，也不再播放横向喷射感或大号 `vfx_explosion_fire`。
+- [x] P1：敌人狂暴/火焰兜底横喷修复；定位到截图中的右侧火焰来自 `enrage` 敌人技能反馈兜底与旧火焰序列的横向火舌读法，已新增 `vfx_enemy_skill_enrage.png` 专用居中狂暴脉冲，并重建 `vfx_enemy_skill_enrage` / `vfx_hit_fire` / `vfx_explosion_fire` 序列为居中爆燃/热浪效果；`tools/check_gameplay_polish.py` 已加防回归，禁止 `enrage` 再退回大号横喷火焰。
+- [x] P1：10 张主线高屏战斗背景无缝重建；从已生成的全高顶级环境源图重新裁切/平滑重映射到 `1080x2622`，保留第三关基准防线底部对齐，去掉顶部突兀补片感；运行时总览见 `tmp/seamless_tall_backgrounds_runtime_2026_07_08/all_campaign_tall_battle_runtime_sheet.png`。
+- [x] P1：局内三选一强化弹窗文字排版修复；弹窗高度、标题、卡片、描述、标签和底部按钮重新留白，标题改为更清晰的 `选择强化 · 优先 X / Y`，避免卡片文案贴边、行距怪和按钮挤压；截图见 `tmp/card_offer_layout_polish_2026_07_08.png`。
+- [x] P1：技能图鉴永久等级显示根因修复；技能列表、详情和升级刷新统一读取 `SaveManager.get_skill_base_level()`，不再通过通用装备 `get_item_level()` 显示成等级 1；`tools/m1_smoke_test.gd` 加入 4/2/0 多等级断言，截图见 `tmp/collection_skills_mixed_levels_fix_2026_07_08.png`。
+- [x] P1：第 3 波以后难度再平衡；普通怪第 3/4/5 波 HP 旋钮提高到 `1.45/1.85/2.30`，Boss 波提高到 `1.30/1.50/1.75`，并从第 45-85 关线性叠到额外 `1.22x`，重点修复第 68 关低战力仍能通关的问题。战力显示同步提高通用技能永久等级与角色主动技等级权重，`level_068` 推荐战力 smoke 下限提高到 230+。
+- [x] P1：Boss 走路速度 +50%；新增 `economy.json.BOSS_SPEED_MULT = 1.5`，运行时只对 `is_boss` 敌人在共享 `ENEMY_SPEED_MULT` 之后追加倍率，普通僵尸速度不变；`tools/m1_smoke_test.gd` 已断言经济旋钮与真实 boss spawn speed。
+- [x] P1：冰子弹/冰技能减速可读性提升；被冰弹、冰主动技能或减速力场影响的僵尸会在减速期间叠加冰蓝色 sprite tint，视觉计时与数值减速分离，不额外改变减速倍率。
+- [x] P1：全局按钮按 owner 指定厚装甲参考重做；撤回几何线条按钮方向，基于 `native_button_reference_owner_2026_07_09.jpg` 直接生成 72 张 runtime native 尺寸 PNG，并刷新 `ui_button_primary.png` / `ui_button_secondary.png` fallback；后续已把红/蓝分区改为柔和的暖/冷边缘光 + 中性 gunmetal 过渡；`UiKit` 按按钮尺寸解析 `ui_button_*_native_WxH.png`，结果、暂停、三选一、出战和设置页截图见 `tmp/button_runtime_native_review_2026_07_09.png`，smoke 回归断言禁止回到旧几何按钮批次。
+- [x] P1：局内技能详情弹层排版修复；三选一长按/右键详情从旧的单个 `Body` 长文本改为本级数值、全部等级、长描述、标签和关闭按钮分区布局，打开详情时隐藏底层卡片/重抽/跳过按钮，避免文字溢出、关闭按钮压住等级列表和底层按钮透出。验证截图见 `tmp/card_detail_layout_polish_2026_07_08_v2.png`，`tools/m1_smoke_test.gd` 已加入详情弹层不重叠断言。
+- [x] P1：所有模式第 4/5 波刷怪数量加强；新增 `economy.json.late_wave_count_mult = {"4":2,"5":3}`，运行时 `_queue_spawn_group()` 统一应用到普通、挑战和无尽模式的普通/支援怪，第 4 波数量翻倍、第 5 波数量三倍；`_compute_level_total_run_xp()`、压力检查、平衡档案、模拟和重建关卡工具已同步同一口径，smoke test 覆盖三种模式。
+- [x] P1：防线屏障原型重渲染；用 built-in `image_gen` 生成高质感能量玻璃屏障源图，本地抠透明/适配为 `assets/production/sprites/vfx/vfx_barrier_glass.png`，运行时删除 `Polygon2D/Line2D` 原型屏障，改为普通 alpha 混合 Sprite，保留获得/破碎粒子反馈；来源和对比见 `assets/production/contact_sheets/barrier_glass_redo_2026_07_09.png`。
+- [x] P1：结算页移动端布局修复；无限模式长标题拆成主标题 `无限尸潮` + 副标题 `坚持 N 轮 · 关卡名`，奖励数字改为 `k/m` 缩写，Hero/奖励/提示/按钮统一 920px 内安全宽度并联动装甲按钮尺寸，避免标题出框、按钮撑破容器和奖励卡拥挤。截图见 `tmp/result_layout_after_2026_07_08.png` 与 `tmp/result_layout_victory_after_2026_07_08.png`，`tools/m1_smoke_test.gd` 已加无限结算标题和大数字格式断言。
+- [x] P1：无尽模式难度曲线加陡；新增 `economy.json.endless_loop_hp_growth = 0.50`，完成整轮后的 HP 倍率从旧线性 `1.0 + 0.22 * loop` 改为复利 `pow(1.5, loop)`，普通怪和 Boss 都走同一无尽 HP 系数，smoke test 断言每轮至少比上一轮提高 50%。
+- [x] P1：无尽模式奖励口径收口；无尽结算只发金币，不发账号经验和星星，最高轮数仍记录；`battle.gd` 无尽 payload 固定 `xp=0/stars=0`，`SaveManager.apply_endless_result()` 即使收到旧 `xp/stars` 字段也忽略，结算页隐藏经验卡和星星行，smoke test 覆盖存档、payload 和 UI 三层。
+- [x] P1：主菜单标题霸气化；`尸潮防线` 从普通 Label 换成透明 PNG 标题模型 `assets/production/sprites/ui/ui_menu_title_shichao_fangxian.png`，按 owner 反馈放弃本地字体特效方向，改用 image_gen 直接渲染裂纹钢石 3D 大字并本地抠透明/适配到 runtime；副标题文案改为 `火力封锁，寸土不让`，来源说明登记到 `assets/production/source_refs/generated/menu_title_logo_2026_07_10/` 与 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] P1：关卡入口锁定规则修复；地图关卡卡片普通入口只按关卡解锁启用，挑战入口必须同关普通模式已拿 3 星才可点击；未达成时按钮灰化且 `_open_challenge_level()` 路由防护会阻止绕过，smoke test 覆盖未通关 / 普通 2 星 / 普通 3 星三种状态。
+- [x] P1：所有敌人行进速度全局 +20%；`economy.json.ENEMY_SPEED_MULT` 从 `0.41` 提高到 `0.492`，运行时普通僵尸和 Boss 都走同一全局速度旋钮，Boss 仍额外叠加既有 `BOSS_SPEED_MULT = 1.5`；smoke test 已同步断言新倍率。
+- [x] P1：无尽模式首轮曲线独立化；无论从哪一关进入，无尽都使用 `economy.json.endless_template_level = level_025` 作为首轮波次、HP、金币等级和推荐强度模板，目标是 20-30 关战力可完成第一轮；后续轮次仍按 `endless_loop_hp_growth = 0.50` 复利升压。第一轮 Boss 移除硬免疫墙，避免出现“开局不掉血”的体验，smoke test 覆盖 `level_001` 与 `level_076` 入口一致性。
+- [x] P1：战斗 HUD 主动技能横线与 HP 槽修复；重生成 `ui_skill_slot*.png`，去掉右下主动技能按钮的外伸黄色横线；重建 `ui_base_hp_bar.png` / `ui_bar_fill_hp.png` 为独立空槽 + 红色填充，并在 `battle.gd` 用 `FillClip` 裁切 HP 填充，避免拉伸和出槽。
+- [x] P1：顶部波次条原生重渲染与 Boss 规则反馈；owner 确认问题是顶部黄色波次条，已把 `ui_wave_progress.png` 重建为 720x46 原生槽体，并新增 `ui_wave_progress_fill_native.png`，运行时用 `FillClip` 裁切进度而不是拉伸黄条；后续移除黄条填充里的内描边/分段细线，改成厚实金色胶囊填充；Boss 免疫/护盾/相位/破甲命中增加高优先级弱点提示浮字；追踪弹在近距离 Boss 压线时跳过 1 秒出膛延迟但继续遵守最小转向半径。

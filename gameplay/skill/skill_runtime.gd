@@ -99,7 +99,7 @@ func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_
 		return 1.0
 	var y_min := base_line_y - 340.0
 	if level("skill_slow_field") > 0:
-		var design_y_min := _eff("skill_slow_field", "y_min", 1160.0)
+		var design_y_min := _eff("skill_slow_field", "y_min", 820.0)
 		var design_offset := maxf(0.0, SLOW_FIELD_DESIGN_BASE_LINE_Y - design_y_min)
 		y_min = base_line_y - design_offset
 	if y < y_min:

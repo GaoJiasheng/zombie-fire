@@ -12,6 +12,7 @@ const HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_base_hp
 const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
 const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
 const SHIELD_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_wave.png")
+const ICE_SLOW_TINT := Color(0.56, 0.9, 1.28, 1.0)
 
 var data := {}
 var max_hp := 100.0
@@ -69,6 +70,8 @@ var _poison_time := 0.0
 var _poison_dps := 0.0
 var _element_slow_time := 0.0
 var _element_slow_mult := 1.0
+var _ice_slow_visual_time := 0.0
+var _ice_slow_tint_active := false
 var _glacier_field_time := 0.0
 var _glacier_field_base_scale := Vector2.ONE
 var _shock_time := 0.0
@@ -295,6 +298,7 @@ func take_damage(amount: float, element := "physical") -> void:
 				if armor_hits_left <= 0:
 					armor_broken = true
 					_base_modulate = Color(1.0, 0.55, 0.55)
+					_sync_sprite_status_tint(true)
 					_flash(_base_modulate)
 					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
 					if threat_marker and is_instance_valid(threat_marker):
@@ -351,6 +355,7 @@ func _process_self_mechanic(delta: float) -> void:
 		speed *= float(mechanic_params.get("speed_mult", 1.35))
 		breach_damage = int(round(float(breach_damage) * float(mechanic_params.get("damage_mult", 1.25))))
 		_base_modulate = Color(1.0, 0.52, 0.32)
+		_sync_sprite_status_tint(true)
 		_flash(_base_modulate)
 	elif mechanic == "charge" and global_position.y > float(mechanic_params.get("trigger_y", 760.0)):
 		speed_mult = max(speed_mult, 1.08)
@@ -383,6 +388,7 @@ func _apply_element_status(applied_damage: float, element: String) -> void:
 		"ice":
 			_element_slow_time = max(_element_slow_time, 1.8)
 			_element_slow_mult = min(_element_slow_mult, 0.72 if not boss else 0.84)
+			_sync_sprite_status_tint(true)
 			_flash(Color(0.45, 0.86, 1.0))
 		"lightning":
 			_shock_time = max(_shock_time, 0.35)
@@ -402,6 +408,7 @@ func amplify_character_status(element: String, source_damage: float, rank: int, 
 			if boss:
 				target_slow = max(target_slow, 0.74)
 			_element_slow_mult = min(_element_slow_mult, clampf(target_slow, 0.48, 0.86))
+			_sync_sprite_status_tint(true)
 			_flash(Color(0.48, 0.9, 1.0))
 		"lightning":
 			_shock_time = max(_shock_time, 0.52 + 0.08 * float(rank) + bonus)
@@ -420,8 +427,15 @@ func apply_glacier_field(_source_damage: float, rank: int, bonus: float = 0.0, d
 		target_slow = maxf(target_slow, speed_factor)
 	_element_slow_mult = minf(_element_slow_mult, clampf(target_slow, 0.36 if not boss else 0.58, 0.86))
 	if not was_active:
+		_sync_sprite_status_tint(true)
 		_flash(Color(0.62, 0.94, 1.0))
 	_update_status_aura()
+
+func mark_ice_slow_visual(duration := 0.18) -> void:
+	if _dying:
+		return
+	_ice_slow_visual_time = maxf(_ice_slow_visual_time, duration)
+	_sync_sprite_status_tint(true)
 
 func is_controlled() -> bool:
 	return _element_slow_time > 0.0 or _glacier_field_time > 0.0 or _shock_time > 0.0
@@ -454,12 +468,15 @@ func _process_element_status(delta: float) -> void:
 		speed_mult *= _element_slow_mult
 	else:
 		_element_slow_mult = 1.0
+	if _ice_slow_visual_time > 0.0:
+		_ice_slow_visual_time -= delta
 	if _glacier_field_time > 0.0:
 		_glacier_field_time -= delta
 	if _shock_time > 0.0:
 		_shock_time -= delta
 		speed_mult *= 0.55 if not boss else 0.75
 	_update_status_aura()
+	_sync_sprite_status_tint()
 
 # Accumulates per-element DoT damage into a small bucket. The previous
 # implementation called _apply_status_damage every frame, which both
@@ -500,10 +517,11 @@ func _apply_status_damage(amount: float, element: String) -> void:
 func _flash(color: Color) -> void:
 	if boss:
 		return
-	var flash_color := Color(color.r, color.g, color.b, _base_modulate.a)
+	var rest_color := _sprite_rest_modulate()
+	var flash_color := Color(color.r, color.g, color.b, rest_color.a)
 	$Sprite.self_modulate = flash_color
 	var tween := create_tween()
-	tween.tween_property($Sprite, "self_modulate", _base_modulate, 0.18)
+	tween.tween_property($Sprite, "self_modulate", rest_color, 0.18)
 
 func _build_hp_bar() -> void:
 	_hp_bg = TextureRect.new()
@@ -616,9 +634,10 @@ func _play_hurt_feedback(element := "physical") -> void:
 func _flash_hit() -> void:
 	if boss:
 		return
-	$Sprite.self_modulate = Color(1.5, 1.4, 1.32, _base_modulate.a)
+	var rest_color := _sprite_rest_modulate()
+	$Sprite.self_modulate = Color(1.5, 1.4, 1.32, rest_color.a)
 	var tween := create_tween()
-	tween.tween_property($Sprite, "self_modulate", _base_modulate, 0.13)
+	tween.tween_property($Sprite, "self_modulate", rest_color, 0.13)
 
 func _spawn_hit_vfx(element := "physical") -> void:
 	var now := Time.get_ticks_msec() / 1000.0
@@ -839,6 +858,29 @@ func _update_status_aura() -> void:
 		_status_aura.modulate = Color(1.0, 0.36, 0.12, 0.42)
 	elif _poison_time > 0.0:
 		_status_aura.modulate = Color(0.42, 1.0, 0.25, 0.42)
+
+func _has_ice_slow_tint() -> bool:
+	return _element_slow_time > 0.0 or _glacier_field_time > 0.0 or _ice_slow_visual_time > 0.0
+
+func _sprite_rest_modulate() -> Color:
+	if not _has_ice_slow_tint():
+		return _base_modulate
+	var strength := 0.34 if not boss else 0.26
+	return Color(
+		lerpf(_base_modulate.r, ICE_SLOW_TINT.r, strength),
+		lerpf(_base_modulate.g, ICE_SLOW_TINT.g, strength),
+		lerpf(_base_modulate.b, ICE_SLOW_TINT.b, strength),
+		_base_modulate.a
+	)
+
+func _sync_sprite_status_tint(force := false) -> void:
+	var active := _has_ice_slow_tint()
+	if _dying or _hurt_time > 0.0:
+		return
+	if not force and active == _ice_slow_tint_active:
+		return
+	_ice_slow_tint_active = active
+	$Sprite.self_modulate = _sprite_rest_modulate()
 
 func _update_status_label() -> void:
 	if _status_label == null:

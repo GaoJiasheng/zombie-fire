@@ -71,6 +71,30 @@
 
 `bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。
 
+## economy.json 后半波压力旋钮
+
+```jsonc
+{
+  "late_wave_hp_bonus": {"3": 1.45, "4": 1.85, "5": 2.30},
+  "late_wave_count_mult": {"4": 2, "5": 3},
+  "late_wave_boss_hp_bonus": {"3": 1.30, "4": 1.50, "5": 1.75},
+  "late_wave_level_ramp": {"start_level": 45, "full_level": 85, "max_mult": 1.22},
+  "endless_template_level": "level_025",
+  "endless_boss_immunity_grace_loops": 1,
+  "endless_first_loop_armor_hits_cap": 8,
+  "endless_loop_hp_growth": 0.50
+}
+```
+
+- `late_wave_hp_bonus` 只加第 3 波及以后普通/支援怪 HP，不影响第 1/2 波开局节奏。
+- `late_wave_count_mult` 只加普通/支援怪数量；当前第 4 波 `2x`、第 5 波 `3x`，普通、挑战、无尽模式共享同一运行时入口。
+- `late_wave_boss_hp_bonus` 是 Boss 波单独 HP 旋钮，避免 Boss 误吃普通怪的高倍率。
+- `late_wave_level_ramp` 从 `start_level` 到 `full_level` 线性叠加，专门吸收中后期局内技能成型后的 DPS 爆发。
+- `endless_template_level` 是无限尸潮的独立模板关卡；无论从哪一关入口进入，无尽首轮都按该模板的波次、推荐强度、金币等级和 HP 基准起步。
+- `endless_boss_immunity_grace_loops` 控制无尽前几轮 Boss 是否移除硬免疫，避免第一轮出现“打不掉血”的元素/破甲墙。
+- `endless_first_loop_armor_hits_cap` 是无尽开局破甲 Boss 的护甲命中上限兜底。
+- `endless_loop_hp_growth` 是无尽模式每完成一整轮后的 HP 复利成长下限；当前 `0.50` 表示第 2/3/4 轮约为 `1.5x/2.25x/3.375x`，运行时不会低于代码默认下限。
+
 ## skills.json （映射，含成长树）
 ```jsonc
 {
@@ -243,13 +267,19 @@
 ```jsonc
 {
   "GLOBAL_HP_BASE": 50, "GLOBAL_DMG_BASE": 10,
-  "ENEMY_SPEED_MULT": 0.82,
+  "ENEMY_SPEED_MULT": 0.492,
+  "BOSS_SPEED_MULT": 1.5,
   "PLAYER_FIRE_RATE_MULT": 0.25,
   "PLAYER_SHOT_DAMAGE_MULT": 3.0,
-  "late_wave_hp_bonus": {"3":1.2,"4":1.44,"5":1.62},
-  "late_wave_boss_hp_bonus": {"3":1.2,"4":1.2,"5":1.2},
+  "late_wave_hp_bonus": {"3":1.45,"4":1.85,"5":2.3},
+  "late_wave_count_mult": {"4":2,"5":3},
+  "late_wave_boss_hp_bonus": {"3":1.3,"4":1.5,"5":1.75},
+  "late_wave_level_ramp": {"start_level":45,"full_level":85,"max_mult":1.22},
   "boss_hp_level_bonus": {"start_level":20,"multiplier":2.0},
-  "level_xp_coef": 50, "level_xp_pow": 1.5,
+  "endless_template_level": "level_025",
+  "endless_boss_immunity_grace_loops": 1,
+  "endless_first_loop_armor_hits_cap": 8,
+  "level_xp_coef": 50, "level_xp_pow": 1.0,
   "atk_growth_default": 0.08, "hp_growth_default": 0.06,
   "talent_per_level_early": 1, "talent_per_level_late": 2, "talent_late_from": 40,
   "scale_linear": 0.10, "scale_quad": 0.004,
@@ -267,10 +297,16 @@
   "star_total_cap": 297
 }
 ```
+- `ENEMY_SPEED_MULT` 是普通僵尸与 Boss 共享的基础移动速度旋钮；`BOSS_SPEED_MULT` 是 Boss 专用追加倍率，当前 `1.5` 表示 Boss 在共享速度口径之上再快 50%，不影响普通僵尸、HP、伤害或奖励。
 - `PLAYER_FIRE_RATE_MULT / PLAYER_SHOT_DAMAGE_MULT` 是主武器手感旋钮：当前基础射速节奏值为 `0.25`，单发伤害补偿为 `3.0`；关卡压力由 `tools/rebalance_difficulty.py` 按推荐等级 DPS 重新反推。
-- `late_wave_hp_bonus` 是普通僵尸/支援怪的后半段波次血量旋钮；当前第 3 波 +20%，第 4 波在原 1.20 基础上再 +20% 到 1.44，第 5 波在原 1.35 基础上再 +20% 到 1.62。
-- `late_wave_boss_hp_bonus` 是 Boss 单独旋钮，避免 Boss 误吃普通怪后期加成；当前第 5 波 Boss 按 owner 要求整体 +20%。
+- `late_wave_hp_bonus` 是普通僵尸/支援怪的后半段波次血量旋钮；当前第 3/4/5 波分别为 `1.45/1.85/2.30`。
+- `late_wave_count_mult` 是普通僵尸/支援怪的后半段波次数量旋钮；当前第 4/5 波分别为 `2x/3x`，普通模式、挑战模式和无尽模式都由同一运行时队列函数应用。
+- `late_wave_boss_hp_bonus` 是 Boss 单独旋钮，避免 Boss 误吃普通怪后期加成；当前第 3/4/5 波分别为 `1.30/1.50/1.75`。
+- `late_wave_level_ramp` 是中后期后半段波次追加升压；当前从第 45 关线性提高，到第 85 关达到 `1.22x`。
 - `boss_hp_level_bonus` 是关卡段 boss 血量旋钮；当前从第 20 关开始，所有 boss 额外乘 `2.0`，只影响 boss HP/压力估算，不提高 boss 伤害。
+- `endless_template_level` 固定无尽首轮的独立模板，当前 `level_025` 表示无尽开局约等价二三十关，不继承入口关卡的高阶波次或 HP 曲线。
+- `endless_boss_immunity_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 直接成为硬免疫墙；后续轮次恢复 Boss 原本免疫机制。
+- `endless_loop_hp_growth` 是无尽模式完成整轮后的复利 HP 成长；当前每轮至少比上一轮提高 50%，覆盖普通怪和 Boss，普通主线/挑战模式不受影响。
 
 ## challenges.json （数组，M3/M4 后启用）
 ```jsonc

@@ -60,6 +60,45 @@ def rendered_projectile_metrics(path: Path) -> dict[str, float]:
     }
 
 
+def vfx_alpha_balance(path: Path) -> dict[str, float]:
+    image = Image.open(path).convert("RGBA")
+    pixels = image.load()
+    points: list[tuple[int, int, int]] = []
+    left_alpha = 0
+    right_alpha = 0
+    edge_alpha = 0
+    for y in range(image.height):
+        for x in range(image.width):
+            a = pixels[x, y][3]
+            if x == 0 or y == 0 or x == image.width - 1 or y == image.height - 1:
+                edge_alpha = max(edge_alpha, a)
+            if a <= 8:
+                continue
+            points.append((x, y, a))
+            if x < image.width // 2:
+                left_alpha += a
+            else:
+                right_alpha += a
+    total = left_alpha + right_alpha
+    if total <= 0 or not points:
+        return {"centroid_x": 0.5, "skew": 0.0, "edge_alpha": float(edge_alpha), "coverage": 0.0}
+    weighted_x = sum(float(x) * float(a) for x, _, a in points) / float(total)
+    return {
+        "centroid_x": weighted_x / max(float(image.width - 1), 1.0),
+        "skew": float(right_alpha - left_alpha) / float(total),
+        "edge_alpha": float(edge_alpha),
+        "coverage": len(points) / max(1, image.width * image.height),
+    }
+
+
+def sequence_frame_paths(sequence_id: str) -> list[Path]:
+    sequence_json = ROOT / "assets/production/sprites/vfx_sequences" / sequence_id / f"{sequence_id}_sequence.json"
+    if not sequence_json.exists():
+        return []
+    data = json.loads(sequence_json.read_text())
+    return [ROOT / "assets/production" / str(frame) for frame in data.get("frames", [])]
+
+
 def main() -> int:
     skills = load_json("data/skills.json")
     weapons = load_json("data/weapons.json")
@@ -72,11 +111,56 @@ def main() -> int:
     loadout = (ROOT / "meta/loadout/loadout.gd").read_text()
     result = (ROOT / "meta/result/result.gd").read_text()
     collection = (ROOT / "meta/collection/collection.gd").read_text()
+    map_screen = (ROOT / "meta/map/map.gd").read_text()
+    ui_kit = (ROOT / "ui/ui_kit.gd").read_text()
     projectile = (ROOT / "gameplay/projectile/projectile.gd").read_text()
     enemy = (ROOT / "gameplay/enemy/enemy.gd").read_text()
     turret = (ROOT / "gameplay/turret/turret.gd").read_text()
     save = (ROOT / "core/save/save_manager.gd").read_text()
     errors: list[str] = []
+
+    if "ui_button_armored" in ui_kit:
+        errors.append("UiKit must not reference the rejected geometric ui_button_armored batch")
+    if 'ui_button_%s_native_%dx%d.png' not in ui_kit or "func _native_button_size" not in ui_kit:
+        errors.append("UiKit buttons must route through native rendered button textures, not stretch one master button")
+    native_size_matches = re.findall(r"Vector2i\((\d+),\s*(\d+)\)", re.search(r"const NATIVE_BUTTON_SIZES := \[[\s\S]*?\]", ui_kit).group(0) if "const NATIVE_BUTTON_SIZES" in ui_kit else "")
+    if not native_size_matches:
+        errors.append("UiKit native button size registry is missing")
+    for width_s, height_s in native_size_matches:
+        width = int(width_s)
+        height = int(height_s)
+        for kind in ["primary", "secondary"]:
+            button_path = ROOT / "assets/production/sprites/ui" / f"ui_button_{kind}_native_{width}x{height}.png"
+            if not button_path.exists():
+                errors.append(f"missing native rendered button texture: {button_path.relative_to(ROOT)}")
+                continue
+            image = Image.open(button_path).convert("RGBA")
+            if image.size != (width, height):
+                errors.append(f"{button_path.name} has wrong dimensions {image.size}, expected {(width, height)}")
+            pixels = image.load()
+            green_spill = 0
+            visible = 0
+            edge_alpha = 0
+            colors: set[tuple[int, int, int]] = set()
+            for y in range(image.height):
+                for x in range(image.width):
+                    r, g, b, a = pixels[x, y]
+                    if x == 0 or y == 0 or x == image.width - 1 or y == image.height - 1:
+                        edge_alpha = max(edge_alpha, a)
+                    if a <= 18:
+                        continue
+                    visible += 1
+                    colors.add((r // 10, g // 10, b // 10))
+                    if g > 120 and g > r * 1.45 and g > b * 1.45:
+                        green_spill += 1
+            if visible <= int(width * height * 0.08):
+                errors.append(f"{button_path.name} has too little visible button coverage")
+            if len(colors) < max(90, min(700, int(width * height * 0.01))):
+                errors.append(f"{button_path.name} has too little raster material variation; likely flat/geometric")
+            if green_spill > max(4, visible * 0.002):
+                errors.append(f"{button_path.name} still has chroma-key green fringe pixels: {green_spill}")
+            if edge_alpha > 18:
+                errors.append(f"{button_path.name} alpha touches canvas edge; button crop may be clipped")
 
     if len(skills) < 16:
         errors.append(f"skill pool too small: {len(skills)}")
@@ -115,6 +199,8 @@ def main() -> int:
         errors.append("projectile must keep homing runtime support")
     for runtime_key in [
         "HOMING_ACTIVATION_DELAY := 1.0",
+        "HOMING_BOSS_CLOSE_RANGE",
+        "_nearest_close_boss",
         "HOMING_MIN_TURN_RADIUS",
         "_homing_turn_rate_limit",
         "PROJECTILE_MAX_LIFETIME := 5.0",
@@ -152,8 +238,14 @@ def main() -> int:
     skill_button_body = skill_button_match.group(0) if skill_button_match else ""
     if "SaveManager.get_item_level(item_id)" in skill_button_body:
         errors.append("collection skill list must not force skill cards through SaveManager.get_item_level(item_id)")
+    if "_skill_first_effect_text" in collection:
+        errors.append("collection must not keep the stale skill level-1 summary helper")
     if 'max_label.text = "上限"' in collection and "_build_skill_item_button" in collection:
         errors.append("collection skill list must label the right-side value as current level, not 上限")
+    map_status_match = re.search(r"func _nav_status_text[\s\S]*?\nfunc ", map_screen)
+    map_status_body = map_status_match.group(0) if map_status_match else ""
+    if 'if mode == "skills":\n\t\treturn "图鉴"' not in map_status_body:
+        errors.append("map top skill navigation status must stay as 图鉴, not an equipment level")
     for required_clip in ["card.clip_contents = true"]:
         if required_clip not in battle:
             errors.append(f"battle dynamic icon container missing: {required_clip}")
@@ -178,8 +270,39 @@ def main() -> int:
         errors.append("ordinary enemy fire deaths must not use the large vfx_explosion_fire plume")
     if '_spawn_vfx_sequence("vfx_hit_fire", position + Vector2(0, -38)' in battle:
         errors.append("ordinary enemy fire deaths must not call hit-fire directly from the generic death branch; use centered fire death VFX")
+    if '"enrage":\n\t\t\treturn "res://assets/production/sprites/vfx/vfx_explosion_fire.png"' in battle:
+        errors.append("enemy enrage fallback must not use vfx_explosion_fire; it causes illogical sideways fire plumes on near-line ice enemies")
+    if '"enrage":\n\t\t\treturn "res://assets/production/sprites/vfx/vfx_enemy_skill_enrage.png"' not in battle:
+        errors.append("enemy enrage fallback must use centered vfx_enemy_skill_enrage.png")
+    enrage_static = ROOT / "assets/production/sprites/vfx/vfx_enemy_skill_enrage.png"
+    if not enrage_static.exists():
+        errors.append("missing centered enemy enrage static fallback: assets/production/sprites/vfx/vfx_enemy_skill_enrage.png")
+    for sequence_id, expected_count in {
+        "vfx_enemy_skill_enrage": 12,
+        "vfx_hit_fire": 12,
+        "vfx_explosion_fire": 16,
+    }.items():
+        frames = sequence_frame_paths(sequence_id)
+        if len(frames) != expected_count:
+            errors.append(f"{sequence_id} must reference {expected_count} centered frames, found {len(frames)}")
+            continue
+        for frame in frames:
+            if not frame.exists():
+                errors.append(f"missing VFX sequence frame: {frame.relative_to(ROOT)}")
+                continue
+            metrics = vfx_alpha_balance(frame)
+            if abs(metrics["centroid_x"] - 0.5) > 0.08:
+                errors.append(f"{frame.relative_to(ROOT)} alpha centroid is too directional: {metrics['centroid_x']:.3f}")
+            if abs(metrics["skew"]) > 0.18:
+                errors.append(f"{frame.relative_to(ROOT)} alpha is side-plume biased: skew={metrics['skew']:.3f}")
+            if metrics["edge_alpha"] > 12.0:
+                errors.append(f"{frame.relative_to(ROOT)} alpha touches canvas edge: {metrics['edge_alpha']:.1f}")
     if "$Hud.add_child(ring)" in battle:
         errors.append("battle attack rings must render in the combat layer, not as HUD rectangles")
+    if "func mark_ice_slow_visual" not in enemy or "ICE_SLOW_TINT" not in enemy or "_sprite_rest_modulate" not in enemy:
+        errors.append("ice slow must tint slowed enemies blue via enemy.gd, not only spawn a one-frame hit flash")
+    if 'enemy.mark_ice_slow_visual(0.18)' not in battle:
+        errors.append("slow-field runtime must mark slowed enemies with the ice-blue visual tint")
     for stale_tracer in ["var ray := ColorRect.new()", "var line := ColorRect.new()", "var flare := ColorRect.new()"]:
         if stale_tracer in battle:
             errors.append(f"battle cannon VFX must not use HUD ColorRect tracers: {stale_tracer}")
@@ -209,6 +332,30 @@ def main() -> int:
     for runtime_key in ["BarrierGlass", "_spawn_barrier_break_vfx", "_spawn_barrier_gain_vfx", "_barrier_charge_count"]:
         if runtime_key not in battle:
             errors.append(f"barrier glass runtime missing: {runtime_key}")
+    if "BARRIER_GLASS_TEXTURE" not in battle or "barrier_sprite.texture = BARRIER_GLASS_TEXTURE" not in battle:
+        errors.append("defense barrier must use the rendered vfx_barrier_glass.png texture")
+    if "barrier_fill = Polygon2D.new()" in battle or "barrier_edges" in battle:
+        errors.append("defense barrier must not revert to Polygon2D/Line2D prototype geometry")
+    if "barrier_sprite.material = _new_muzzle_additive_material()" in battle:
+        errors.append("rendered barrier sprite must use normal alpha blending so gunmetal projectors remain visible")
+    barrier_path = ROOT / "assets/production/sprites/vfx/vfx_barrier_glass.png"
+    if not barrier_path.exists():
+        errors.append("missing rendered defense barrier texture: assets/production/sprites/vfx/vfx_barrier_glass.png")
+    else:
+        barrier = Image.open(barrier_path).convert("RGBA")
+        if barrier.size != (960, 260):
+            errors.append(f"vfx_barrier_glass.png has wrong dimensions {barrier.size}, expected (960, 260)")
+        alpha = barrier.getchannel("A")
+        if alpha.getbbox() is None:
+            errors.append("vfx_barrier_glass.png has no visible alpha content")
+        edge_alpha = max(
+            [barrier.getpixel((x, 0))[3] for x in range(barrier.width)]
+            + [barrier.getpixel((x, barrier.height - 1))[3] for x in range(barrier.width)]
+            + [barrier.getpixel((0, y))[3] for y in range(barrier.height)]
+            + [barrier.getpixel((barrier.width - 1, y))[3] for y in range(barrier.height)]
+        )
+        if edge_alpha > 8:
+            errors.append("vfx_barrier_glass.png alpha touches canvas edge; barrier crop may be clipped")
     for runtime_key in ["hit_target_ids", "chain_depth", "proj_split_mini.png", "_split_target_directions", "_spawn_chain_projectiles", "_apply_pierce_sweep", "_spawn_pierce_trace"]:
         if runtime_key not in battle and runtime_key not in projectile:
             errors.append(f"projectile chaining/pierce runtime missing: {runtime_key}")

@@ -15,6 +15,6 @@
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_11.png",
     "sprites/vfx_sequences/vfx_hit_fire/vfx_hit_fire_12.png"
   ],
-  "source": "assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/top_tier_active_skill_vfx_reference_2026_07_06.png",
-  "integration": "AI-rendered reference sheet extraction plus local alpha cleanup; PNG bitmap sequence, no SVG/vector primitives"
+  "source": "assets/production/source_refs/generated/centered_fire_enrage_vfx_2026_07_08.json",
+  "integration": "Local bitmap rerender from accepted fire reference frames: mirrored, centered, alpha-cleaned and heat-polished to remove side-plume directionality; PNG only, no SVG/vector primitives."
 }

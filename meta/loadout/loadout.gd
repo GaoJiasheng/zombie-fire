@@ -39,8 +39,8 @@ func _ready() -> void:
 	_apply_runtime_layout()
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
-	(%StartButton as TextureButton).modulate = Color(1.0, 0.86, 0.54, 1.0)
-	(%BackButton as TextureButton).modulate = Color(0.82, 0.86, 0.86, 1.0)
+	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(760, 112), true)
+	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 84), true)
 	(%StartButton as TextureButton).pressed.connect(func() -> void:
 		AudioManager.play_sfx("ui_confirm")
 		if is_challenge_mode:
@@ -86,6 +86,7 @@ func _apply_runtime_layout() -> void:
 	if has_node("Root/Main/StartButton"):
 		var start := %StartButton as TextureButton
 		start.custom_minimum_size = Vector2(760, 112)
+		UiKit.apply_armored_texture_button(start, true, Vector2(760, 112), true)
 		var start_label := start.get_node_or_null("Label") as Label
 		if start_label != null:
 			start_label.add_theme_font_size_override("font_size", 38)
@@ -115,6 +116,7 @@ func _on_back_pressed() -> void:
 
 func _refresh_back_button() -> void:
 	var button := %BackButton as TextureButton
+	UiKit.apply_armored_texture_button(button, false, Vector2(170, 84), true)
 	var label := button.get_node_or_null("Label") as Label
 	if label == null:
 		return
@@ -682,12 +684,7 @@ func _build_equip_nav() -> void:
 		var button := Button.new()
 		button.text = str(item[0])
 		button.custom_minimum_size = Vector2(166, 58)
-		button.add_theme_font_size_override("font_size", 22)
-		button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
-		button.add_theme_color_override("font_hover_color", UiKit.GOLD)
-		button.add_theme_stylebox_override("normal", _nav_button_style(Color(0.028, 0.034, 0.044, 0.86), UiKit.BORDER_SOFT))
-		button.add_theme_stylebox_override("hover", _nav_button_style(Color(0.06, 0.065, 0.07, 0.94), UiKit.GOLD))
-		button.add_theme_stylebox_override("pressed", _nav_button_style(Color(0.025, 0.028, 0.034, 0.98), UiKit.CYAN))
+		UiKit.apply_armored_button(button, false, Vector2(166, 58), 18, true)
 		button.pressed.connect(_open_collection.bind(str(item[1])))
 		$EquipNav.add_child(button)
 

@@ -9,6 +9,19 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Pet / Robot Defense-Line Anchor (2026-07-08)
+
+- Pet combat sprite placement now derives from the same runtime base line as the breach/barrier/slow-field systems: `BREACH_Y + PET_BASE_LINE_OFFSET`.
+- Tall devices no longer leave the pet pinned to the old 1920 design canvas; it follows `bottom_dock_shift` with the defense line and character dock.
+- The idle hover animation uses the same anchor instead of resetting to a hardcoded `y=1625`.
+- `tools/check_battle_line_alignment.py` now rejects the old hardcoded pet position, and `tools/m1_smoke_test.gd` exercises a 1080x2340 viewport with an equipped pet.
+
+### Endless XP Card-Offer Fix (2026-07-08)
+
+- Fixed the endless-mode card loop where XP stayed above the next threshold after a skill upgrade, causing repeated card offers.
+- Added `_advance_card_xp_after_pick()`: normal campaign keeps cumulative XP thresholds; endless mode clears the current XP bar after a successful pick or skip and then waits for the next fill.
+- `tools/m1_smoke_test.gd` now forces an endless XP overflow, picks `skill_pierce`, and asserts XP resets to 0 and does not immediately re-open the card offer.
+
 ### Implemented (new since previous checkpoint)
 
 - **全关卡挑战模式**：地图关卡卡片改为“进入关卡 / 挑战模式”双按钮；挑战战斗通过 `challenge` route payload 贯穿 loadout / battle / result，敌人 HP 提高到 1.5 倍，推荐战力同步抬高到 1.5 倍，漏怪伤害仍使用挑战专用加压倍率。
@@ -20,7 +33,7 @@ all five battle scenes, and the result scene.
 - **Reroll (1 charge per run)**: `reroll_charges` initialized to 1, decremented in `_on_reroll_pressed`. CardPanel button shows "重抽 (n)", disabled + dimmed at 0.
 - **Skip card**: CardPanel Skip button grants a small XP threshold bump without picking a card.
 - **Lv3 qualitative feedback**:
-  - `skill_slow_field` Lv3 draws a wide translucent cyan band starting at `y = 1160`, alpha `~0.27`.
+  - `skill_slow_field` Lv3 draws a wide translucent cyan band starting at `y = 820`, alpha `~0.27`.
   - `skill_split_shot` Lv3 fires 5 split bullets in an 80° fan (vs 50° at Lv1).
   - `skill_pierce` Lv3 = `pierce: 3, dmg_mult: 1.15`.
   - `skill_multishot` Lv3 = `extra_projectiles: 3, spread: 12°` (4-shot fan).
@@ -1933,7 +1946,7 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - **Battle HUD**: moved the base HP bar from the top stack into the bottom bar beside XP, shifted XP left, compacted gold labels above `999` into `k` notation, and rebuilt the top wave bar so the rendered frame actually stretches instead of being aspect-centered. Wave fill is now warm gold and sits inside the track, removing the misleading blue sliver.
 - **Hint banner cadence**: wave/weakness toast now sits below the top HUD and above battle midline, preserves long wrapped onboarding copy, and rate-limits non-critical short hints. Boss/final-wave/low-HP warnings remain immediate.
-- **Endless mode**: pause-to-map now routes through Endless result settlement so current `gold` / `xp` is preserved. Each Endless final wave guarantees at least one boss; boss count increases every three loops up to six, and HP scaling is linear via `1.0 + 0.22 * endless_loop`, applied to normal enemies and bosses.
+- **Endless mode**: pause-to-map now routes through Endless result settlement so current `gold` / `xp` is preserved. Each Endless final wave guarantees at least one boss; boss count increases every three loops up to six. The original linear HP scaling was later superseded by the 2026-07-09 compound `endless_loop_hp_growth` rule below.
 - **Pets**: `data/pets.json` now defines `stat_bonus` plus `level_stat_growth` for each pet. Runtime applies pet growth to damage, fire rate, element damage, crit, slow strength, base HP, breach mitigation, chain/pierce, and gold gain; collection detail cards expose these bonuses.
 - **Projectiles**: all projectiles, including homing/split paths, despawn after `5.0s`; any projectile leaving the 1080x1920 playfield plus a small margin is removed and no longer returns to screen.
 - **Screenshot evidence**: `tmp/hud_endless_pet_projectile_polish_2026_07_05/battle_hud_after_v7.png` and `tmp/hud_endless_pet_projectile_polish_2026_07_05/pet_detail_bonus.png`.
@@ -2147,6 +2160,16 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Traceability**: old files were backed up under `assets/production/source_refs/generated/weapon_sfx_realism_2026_07_07/original_weapon_shots/`; manifest is `weapon_sfx_realism_manifest_2026_07_07.json`; waveform review sheet is `weapon_sfx_realism_waveform_sheet_2026_07_07.png`.
 - **Regression guard**: added `tools/check_weapon_sfx_quality.py` and wired it into `tools/check_release_candidate.py` to reject future shot/muzzle files that are too tonal, too low-frequency dominated, too long, or outside the mobile mix peak/RMS window.
 
+## Elemental Hit SFX Impact Pass (2026-07-08)
+
+> Owner reported that bullet impact sounds on zombies felt strange and requested different impact sounds by projectile type: fire should feel like a fire projectile impact, ice like ice shattering, lightning like electricity, and ordinary bullets like physical collision.
+
+- **Runtime path confirmed**: projectile hits already flow through `enemy.take_damage()` -> `hit_feedback` -> `battle.gd::_element_hit_sfx()`, so no damage or collision code needed to change. The problem was the impact WAV quality/identity, not hit routing.
+- **Rebuilt hit layer**: regenerated the six runtime hit files in place: `sfx_hit_physical.wav`, `sfx_hit_fire.wav`, `sfx_hit_ice.wav`, `sfx_hit_lightning.wav`, `sfx_hit_poison.wav`, and `sfx_hit_immune.wav`.
+- **Material signatures**: physical now uses a short metal/flesh collision thunk; fire uses a hot pop plus sizzle tail; ice uses brittle crystal shards; lightning uses bright multi-crack electric zaps; poison uses corrosive splash/bubble hiss; immune uses a shield/metal ping.
+- **Traceability**: old files are backed up under `assets/production/source_refs/generated/hit_sfx_impact_2026_07_08/original_hit_sfx/`; manifest is `hit_sfx_impact_manifest_2026_07_08.json`; waveform review sheet is `hit_sfx_impact_waveform_sheet_2026_07_08.png`.
+- **Regression guard**: added `tools/check_hit_sfx_quality.py` and wired it into `tools/check_release_candidate.py`. It checks 44.1kHz mono, short duration, peak/RMS range, low-frequency dominance, and element-distinct spectrum rules so impact sounds do not regress into the same muddy placeholder.
+
 ## Multishot / Homing Stack Balance Pass (2026-07-07)
 
 > Owner called out that multishot bullets needed mild falloff, especially when stacked with homing, but should not be over-nerfed.
@@ -2183,4 +2206,188 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Runtime effect**: `gameplay/battle/battle.gd` multiplies HP for every `is_boss` spawn when `level_ordinal >= 20`. This covers normal campaign boss levels, challenge-mode boss levels, and multi-boss finale spawns; challenge mode still stacks its own HP multiplier after the boss-level HP bonus.
 - **Damage untouched**: the multiplier is HP-only. Boss `bd_coef`, pressure damage, base attack cadence, waves, rewards, unlocks, and boss mechanics were not changed.
 - **Boss-stream floor restored**: after the 2x HP multiplier, some later boss rows still fell below earlier boss rows because their source boss coefficients differ. `level_035/040/060/065/090/095/099` received minimal upward `difficulty_coef` floor adjustments so the boss stream remains non-decreasing and the finale is again the peak.
-- **Tooling aligned**: `tools/check_level_pressure.py`, `tools/check_balance_profile.py`, `tools/simulate_balance.py`, and `tools/rebalance_difficulty.py` now include the same level-based boss HP bonus in their HP/pressure calculations.
+- **Tooling aligned**: `tools/check_level_pressure.py`, `tools/check_balance_profile.py`, `tools/simulate_balance.py`, and `tools/rebalance_difficulty.py` now include the same level-based boss HP bonus in their HP/pressure calculations. `tools/m1_smoke_test.gd` also instantiates `level_020` in normal and challenge mode, spawns the real boss row, and asserts normal HP includes `2.0x` while challenge HP equals normal boss HP times `CHALLENGE_HP_MULT`.
+
+## Seamless Background / Card Layout / Skill Level Display Pass (2026-07-08)
+
+> Owner reported three visual/state issues from live screenshots: the ten tall battle backgrounds still had an obvious top fill, the battle card-offer panel copy felt cramped and misaligned, and skill codex rows showed level 1 even when skills were unupgraded or upgraded beyond level 1.
+
+- **Ten seamless tall backgrounds**: added `tools/regenerate_seamless_tall_backgrounds_2026_07_08.py` and rebuilt all 10 campaign battle backgrounds from the existing full-height rendered environment portraits. The script crops to `1080x2622`, applies a smooth vertical remap to preserve the approved barricade/base alignment, and avoids a hard top-patch boundary. Runtime sheet: `tmp/seamless_tall_backgrounds_runtime_2026_07_08/all_campaign_tall_battle_runtime_sheet.png`; contact sheet: `assets/production/contact_sheets/contact_seamless_tall_battle_backgrounds_2026_07_08.png`.
+- **Card-offer layout polish**: `gameplay/battle/battle.tscn` and `_build_skill_card()` now give the mid-battle reinforcement popup more vertical breathing room. Card title, stat lines, description copy, tags, and bottom actions have fixed spacing so Chinese text no longer sits tight against borders. Evidence: `tmp/card_offer_layout_polish_2026_07_08.png`.
+- **Skill-level root cause fixed**: skill codex rows and detail panels now read `SaveManager.get_skill_base_level(item_id)` for skills instead of generic equipment `get_item_level(item_id)`. This fixes both unupgraded skills incorrectly showing `等级1` and upgraded skills being stuck at `等级1`; a temporary 4/2/0 level screenshot now renders `等级4 / 4/5`, `等级2 / 2/5`, and `等级0 / 0/5` on the same screen.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts mixed skill levels in the collection UI, `tools/check_gameplay_polish.py` rejects stale skill-level display helpers and generic item-level reads in skill rows, and `tools/_shot.gd` supports a screenshot-only `save_override` payload for visual state probes.
+
+## Slow Field Range Doubling (2026-07-08)
+
+> Owner requested doubling the slow-field range.
+
+- **Data contract**: `data/skills.json` keeps the existing slow percentages but doubles the covered height for `skill_slow_field` Lv1-Lv5 from `220/280/340/400/460px` to `440/560/680/800/920px`, giving `y_min = 1060/940/820/700/580`.
+- **Runtime visual sync**: `gameplay/battle/battle.gd` now uses matching slow-field visual offsets, so the rendered field, particle band, and actual slow判定 stay aligned to the same base line.
+- **Regression coverage**: `tools/m1_smoke_test.gd` asserts every slow-field level's `y_min` and verifies the battle visual offset remains derived from the same doubled range.
+
+## Late-Wave Skill-DPS Rebalance (2026-07-08)
+
+> Owner reported that `level_068` could still be cleared at about `140` displayed power against roughly `203` recommended power, and pointed out that active/passive skill levels materially change DPS after cards come online.
+
+- **Root cause**: `get_loadout_power()` already counted `skill_base_levels` and `sig_skill_levels`, but their weights were too conservative for the real DPS impact. The recommended-power display was also mostly a linear recommended-level number, while the difficulty curve did not absorb enough post-wave-3 skill-card burst.
+- **Late-wave HP**: `data/economy.json` now raises ordinary/support enemy HP on waves 3/4/5 to `1.45/1.85/2.30`; Boss-wave HP uses its own `1.30/1.50/1.75` table. Waves 1/2 are intentionally unchanged so early no-card pacing stays fair.
+- **Mid/late campaign ramp**: added `late_wave_level_ramp` from level 45 to 85, reaching `1.22x`, so the pressure ramps where permanent upgrades and in-run card stacks are strongest. Runtime `battle.gd`, `check_level_pressure.py`, `check_balance_profile.py`, `simulate_balance.py`, and `rebalance_difficulty.py` all read the same rule.
+- **Power accounting**: increased visible power contribution for common passive skill base levels and character active skill levels, and made recommended power include card budget plus late-wave pressure. `tools/m1_smoke_test.gd` now asserts skill levels visibly move loadout power and `level_068` recommended power stays above `230`.
+
+## Boss Walking Speed +50% (2026-07-08)
+
+> Owner requested all bosses to walk 50% faster.
+
+- **Data-driven knob**: `data/economy.json` now defines `BOSS_SPEED_MULT: 1.5`, separate from the shared `ENEMY_SPEED_MULT` so ordinary zombies keep their current pacing.
+- **Runtime effect**: `gameplay/battle/battle.gd::_spawn_enemy_instance()` now applies `speed = boss_row.speed * ENEMY_SPEED_MULT * BOSS_SPEED_MULT` only for `is_boss` spawns. Boss HP, damage, rewards, attack cadence, normal zombie speed, and level wave scripts are unchanged.
+- **Regression coverage**: `tools/m1_smoke_test.gd` asserts both the economy value and a real `level_020` boss instance speed, so future data or spawn-path changes cannot silently drop the +50% boss movement multiplier.
+
+## Ice Slow Readability Tint (2026-07-08)
+
+> Owner suggested that ice bullets and ice skills would read better if slowed zombies received an ice-blue color.
+
+- **Enemy-level visual state**: `gameplay/enemy/enemy.gd` now derives the sprite rest color from the current status state. Ice bullet slow, character ice status amplification, glacier field, and a new pure-visual slow marker all tint the enemy sprite toward ice blue while active, then restore to the original/enrage/armor-break base color when the timer ends.
+- **Slow field coverage**: `gameplay/battle/battle.gd::_apply_slow_field()` now marks enemies that actually receive a slow multiplier with `mark_ice_slow_visual(0.18)`. This is deliberately visual-only, so the slow field does not gain a hidden second slow layer.
+- **Regression coverage**: `tools/m1_smoke_test.gd` instantiates a real zombie and asserts the tint turns blue during the visual slow timer and restores afterward. `tools/check_gameplay_polish.py` guards the enemy tint path and the slow-field hook.
+
+## Approved Armored Buttons + Card Offer Layout Pass (2026-07-08)
+
+> Owner pointed out that the pause buttons were visibly stretched and then asked for global button refresh across different sizes. Owner also flagged the mid-battle reinforcement card-offer page as cramped and the top wave progress bar as too long.
+
+- **Button visual standard correction**: a generated multi-size button batch was later rejected by the owner because its diagonal linework read as geometric rather than the accepted armored material style. The batch and its source/contact artifacts were removed, and `OUTSOURCER_ASSET_INDEX.json` no longer registers it.
+- **Shared runtime hookup**: `ui/ui_kit.gd` keeps the shared `apply_armored_texture_button()` and `apply_armored_button()` entrypoints, but they now resolve back to the approved `ui_button_primary.png` / `ui_button_secondary.png` art. Layout code may still size controls for hit area, but the texture standard stays the original armored button look.
+- **Battle card-offer polish**: `gameplay/battle/battle.gd` still lays out the three skill cards with fixed content zones for icon, title, level badge, recommendation badge, stat line, description, and tags. The bottom reroll/skip actions use the approved primary/secondary armored button art with the compact card-offer layout.
+- **Top wave bar restraint**: the top wave progress frame is now centered at 720px wide instead of the old 832px span; fill sizing derives from the runtime frame width, so the yellow fill no longer drifts against the compact slot.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts the compact top wave bar, contained wave fill, compact card-offer panel, and approved primary/secondary armored button textures, preventing a return to the deleted geometric button batch.
+
+## Global Native Armored Button Texture Pass (2026-07-09)
+
+> Owner rejected the softer generated button sheet and required all global buttons to use the provided thick hard-surface armored material, with no geometric-line look and no reliance on one stretched master texture.
+
+- **Owner reference as source of truth**: `tools/generate_native_button_textures_2026_07_09.py` now extracts from `assets/production/source_refs/generated/native_button_reference_owner_2026_07_09.jpg` instead of the rejected model-interpreted master. The script removes green spill, preserves the reference's orange left edge / cyan right edge / dark gunmetal center, and generates each runtime size as its own PNG.
+- **Native-size button atlas**: generated 72 transparent PNGs under `assets/production/sprites/ui/ui_button_{primary,secondary}_native_WxH.png`, plus refreshed `ui_button_primary.png` and `ui_button_secondary.png` as 512x160 fallbacks. The contact sheet is `assets/production/contact_sheets/contact_native_button_textures_2026_07_09.png`.
+- **Color transition refinement**: after review, the owner accepted the material quality but called out the red/blue split as too abrupt. The generator now lowers chroma, adds a wide neutral gunmetal transition layer, and keeps orange/cyan as soft edge/rim light rather than a hard two-color gradient.
+- **Runtime routing**: `ui/ui_kit.gd` added `NATIVE_BUTTON_SIZES` and resolves `apply_armored_texture_button()` / `apply_armored_button()` to the closest matching native texture before falling back. Because newly generated PNGs may not have `.import` files yet, `UiKit` can also load raw `res://` PNGs into cached `ImageTexture`s while preserving the resource path for smoke assertions. Result, pause, card-offer, loadout, collection-detail, settings, menu, and shared modal buttons now share the same owner-approved armored material family.
+- **Layout protection**: result-page action widths now snap to native button widths (`840/880/904/920` and matching half-widths) so the long `返回关卡` and endless-result actions do not visibly stretch. Collection detail buttons also use fixed native widths instead of expanding action-row children.
+- **Visual evidence**: runtime review sheet `tmp/button_runtime_native_review_2026_07_09.png`, with source screenshots `tmp/result_buttons_native_2026_07_09.png`, `tmp/pause_buttons_native_2026_07_09.png`, `tmp/card_offer_buttons_native_2026_07_09.png`, `tmp/loadout_buttons_native_2026_07_09.png`, and `tmp/settings_buttons_native_2026_07_09.png`.
+- **Regression coverage**: `tools/check_gameplay_polish.py` verifies every declared native button texture exists at the declared dimensions and rejects `ui_button_armored` references. `tools/m1_smoke_test.gd` now checks card-offer actions use the native 320x74 primary/secondary textures.
+
+## Card Detail Modal Layout Pass (2026-07-08)
+
+> Owner showed the mid-battle skill detail overlay where the close button sat in the middle of the level list and long Chinese copy spilled outside the detail panel.
+
+- **Root cause**: the detail modal still used the old fixed-size `DetailOverlay/Panel` and wrote current value, all levels, long description, and tags into one `Body` label. The body was only about 300px tall while the content was much longer, so it overlapped the close button and escaped the panel.
+- **Runtime fix**: `gameplay/battle/battle.gd` now lays out the skill detail overlay as a 804x724 modal with fixed zones: icon/title, current-level value, all-levels block, long description, tags, and bottom close action. The old `Body` label is retained as the current-level block for scene compatibility, while `AllLevelsTitle`, `AllLevelsBody`, `DescBody`, and `TagsBody` are created at runtime.
+- **Cleaner modal state**: when the detail overlay opens, the underlying card title/cards/reroll/skip controls are hidden so old buttons do not bleed through the translucent detail panel. They are restored when the overlay closes or a new offer is rendered.
+- **Visual evidence and tooling**: `tools/_shot.gd` accepts `card_detail` to capture this modal directly. Evidence screenshot: `tmp/card_detail_layout_polish_2026_07_08_v2.png`. `tools/m1_smoke_test.gd` now asserts that detail sections do not overlap the description, tags, or close button.
+
+## Centered Fire / Enrage VFX Fix (2026-07-08)
+
+> Owner pointed at a battle screenshot where a flame plume appeared to spray sideways near `近线·冰` enemies and asked where it came from.
+
+- **Root cause**: the label `近线·冰` only means the enemy is weak to ice; the orange plume was not an ice-zombie attack. It came from enemy skill/fire VFX fallback behavior: `enrage` feedback could fall back to `vfx_explosion_fire.png`, and the existing fire hit/explosion frames still had a directional fireball silhouette when many enemies overlapped.
+- **Runtime fix**: `_attack_vfx_path("enrage")` now falls back to `vfx_enemy_skill_enrage.png`, a dedicated centered rage pulse, instead of the large fire explosion. This keeps low-HP/enrage feedback logically attached to the enemy body rather than looking like a flamethrower sweep.
+- **Asset refresh**: added `tools/regenerate_centered_fire_enrage_vfx_2026_07_08.py` and rebuilt `vfx_enemy_skill_enrage` as 12 centered frames plus a static fallback. `vfx_hit_fire` and `vfx_explosion_fire` were also refreshed as centered burn / burst bitmap sequences so remaining fire hits, boss fire deaths, and area fire effects do not read as rightward spray.
+- **Asset registration**: generated sources are recorded in `assets/production/source_refs/generated/centered_fire_enrage_vfx_2026_07_08.json`, with review sheet `assets/production/contact_sheets/contact_centered_fire_enrage_vfx_2026_07_08.png`; `OUTSOURCER_ASSET_INDEX.json` records the owner-directed replacement and refreshed file count.
+- **Regression guard**: `tools/check_gameplay_polish.py` now rejects `enrage` falling back to `vfx_explosion_fire`, verifies the enrage fallback exists, checks expected sequence frame counts, and measures fire/enrage alpha balance so future replacements cannot reintroduce side-biased plumes or hard edge artifacts.
+
+## Result Screen Mobile Layout Pass (2026-07-08)
+
+> Owner showed an iPhone result screenshot where `无限尸潮 · 坚持 3 轮` overflowed the card, reward cards felt cramped, and the action buttons visually fought the page width.
+
+- **Root cause**: `meta/result/result.gd` used the same hero title field for short results (`胜利`) and long endless summaries. Combined with the global `UiKit.FONT_SCALE = 1.4`, the endless title rendered at roughly 100+ px and exceeded the result card safe width. Action buttons were also still assigned fixed legacy widths (`980/484`), so they could widen the layout even after the container was narrowed.
+- **Hero hierarchy fix**: endless results now use `无限尸潮` as the hero title and move loop count + level name into the subtitle (`坚持 N 轮 · 关卡名`). Standard victory/defeat and challenge results keep their compact title treatment.
+- **Responsive width fix**: the result page now computes a capped content width (`max 920px`, safe side margins), applies it to hero/reward/hint/action groups, and sizes action hit areas from that live width while retaining the approved primary/secondary armored button textures.
+- **Reward readability**: large gold/xp rewards use compact result formatting (`24.5k`, `4.6k`, `m` for million scale), while small values remain unchanged. Reward card icons and values were reduced slightly so the two-card row breathes on mobile. Endless rewards were later tightened to gold-only in the 2026-07-09 reward-policy pass below.
+- **Visual evidence**: high-screen endless screenshot `tmp/result_layout_after_2026_07_08.png`; 1080x1920 standard victory screenshot `tmp/result_layout_victory_after_2026_07_08.png`; defeat path screenshot `tmp/result_layout_defeat_after_2026_07_08.png`.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts the endless result title remains short, loop count lives in the subtitle, and large gold rewards use compact `k` formatting.
+
+## Late Wave Count Multiplier + Barrier Render (2026-07-09)
+
+> Owner requested every level, including challenge mode and endless mode, to make wave 4 spawn twice as many zombies and wave 5 spawn three times as many zombies. Owner also rejected the prototype defense-line barrier render as too rough.
+
+- **Data-driven count knob**: `data/economy.json` now defines `late_wave_count_mult: {"4":2,"5":3}`. Runtime `_queue_spawn_group()` applies this once at spawn-queue construction, so normal, challenge, and endless modes share the same rule for ordinary/support zombies. Boss entities are not duplicated by this knob.
+- **XP / balance sync**: `_compute_level_total_run_xp()` now uses the same count multiplier, keeping card-offer thresholds aligned with actual spawned XP. `tools/check_level_pressure.py`, `tools/check_balance_profile.py`, `tools/simulate_balance.py`, and `tools/rebalance_difficulty.py` all read the same multiplier.
+- **Regression coverage**: `tools/m1_smoke_test.gd` instantiates normal, challenge, and endless payloads for `level_001`, jumps to waves 4 and 5, and asserts queued mob counts are exactly `2x` and `3x`.
+- **Barrier visual replacement**: `assets/production/sprites/vfx/vfx_barrier_glass.png` was rebuilt from a built-in `image_gen` source with local transparent extraction and 960x260 runtime fitting. The previous runtime `Polygon2D/Line2D` shield was removed in favor of a rendered Sprite using ordinary alpha blending so the dark gunmetal projectors and glass depth remain visible.
+- **Asset registration**: source and manifest live under `assets/production/source_refs/generated/barrier_glass_redo_2026_07_09/`; review sheet is `assets/production/contact_sheets/barrier_glass_redo_2026_07_09.png`; `OUTSOURCER_ASSET_INDEX.json` records the owner-directed replacement.
+
+## Endless Difficulty Curve Steepening (2026-07-09)
+
+> Owner reported Endless-mode difficulty growth was too flat and requested every completed loop to increase difficulty by at least 50%.
+
+- **Compound growth**: `data/economy.json` now defines `endless_loop_hp_growth: 0.50`, and runtime Endless scaling changed from the old linear `1.0 + 0.22 * endless_loop` to `pow(1.0 + growth, endless_loop)`.
+- **Scope**: the multiplier applies to all Endless-mode enemies and bosses through the existing shared HP coefficient path. Normal campaign and challenge mode are unchanged.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts the first completed Endless loop reaches at least `1.5x`, the second reaches at least `2.25x`, and spawned enemy HP rises by at least 50% after the first loop.
+
+## Endless Gold-Only Reward Policy (2026-07-09)
+
+> Owner clarified that Endless mode should not award stars or account XP; it should only award gold.
+
+- **Save contract**: `SaveManager.apply_endless_result()` now ignores incoming `xp` and `stars` fields and credits only `gold`, while still recording `endless_best_loops`.
+- **Runtime payload**: `gameplay/battle/battle.gd` now reports Endless results with `stars: 0` and `xp: 0`, so result routing and return payloads do not imply account progression rewards.
+- **Result UI**: Endless results hide the star row and XP reward card. The hint copy now explicitly says Endless only settles gold, while the level subtitle still shows the survived loop count.
+- **Regression coverage**: `tools/m1_smoke_test.gd` asserts the battle payload has no XP/stars, the save layer does not change player XP/star even if stale fields are passed, and the result page displays gold only.
+
+## Main Menu Title Render Pass (2026-07-09 / corrected 2026-07-10)
+
+> Owner said the four title characters `尸潮防线` needed a more dominant, aggressive font treatment and rejected the old subtitle wording.
+
+- **Rendered title asset**: `tools/process_menu_title_imagegen_2026_07_10.py` now produces `assets/production/sprites/ui/ui_menu_title_shichao_fangxian.png` from an image-generated hard-surface title render, then removes the checkerboard preview background and fits it into a transparent `1080x360` runtime PNG.
+- **Owner correction**: the earlier local font-effect passes still read as decorative art text. The accepted direction is a standalone cracked gunmetal/stone 3D title model: large slab characters, deep extrusion, hard bevels, orange lower heat and cyan upper rim lighting.
+- **Regression guard**: `tools/render_menu_title_logo_2026_07_09.py` is now only a compatibility wrapper that calls the 2026-07-10 imagegen-source processor, preventing future handoff commands from overwriting the accepted PNG with the rejected local font-art render.
+- **Runtime integration**: `meta/menu/menu.tscn` now uses the title PNG through a `TextureRect`; `meta/menu/menu.gd` assigns the same texture at runtime and changes the subtitle to `火力封锁，寸土不让`.
+- **Visual verification**: after forcing Godot reimport with `godot --headless --import --path .`, the menu screenshot `tmp/zombie_menu_title_imagegen_after_import_2026_07_10.png` shows the new 3D title model on the main menu without stretching or button overlap.
+- **Asset registration**: source and notes live under `assets/production/source_refs/generated/menu_title_logo_2026_07_10/`, and the new title texture is registered in `assets/production/OUTSOURCER_ASSET_INDEX.json`.
+
+## Level Entry / Challenge Unlock Gate (2026-07-09)
+
+> Owner clarified that a sub-level should not allow challenge mode until the same level has been cleared in normal mode with 3 stars; locked/unqualified buttons should be grey.
+
+- **Save-layer rule**: `SaveManager.is_challenge_unlocked(level_id)` now returns true only when the level is unlocked and `levels_progress[level_id] >= 3`. Challenge progress alone does not unlock the challenge entry.
+- **Map UI state**: normal `进入` buttons still use the existing level-unlock rule, while `挑战模式` buttons use the stricter normal-3-star gate. Locked challenge buttons now receive disabled armored-button art and muted star-row styling.
+- **Route guard**: `_open_level()` and `_open_challenge_level()` both re-check the corresponding gate before routing to loadout, so a future stray signal/call cannot bypass the greyed-out button.
+- **Regression coverage**: `tools/m1_smoke_test.gd` uses a controlled map save to assert level_001 unlocked/0-star has normal enabled and challenge disabled, level_002 2-star still has challenge disabled, and level_003 3-star enables challenge. The save-layer test also asserts challenge stars do not unlock the challenge entry without normal 3 stars.
+
+## Global Enemy Speed Increase (2026-07-09)
+
+> Owner requested all zombie movement speed to increase by 20% across every level and enemy type.
+
+- **Global data knob**: `data/economy.json.ENEMY_SPEED_MULT` changed from `0.41` to `0.492`, preserving the existing data-driven spawn path instead of editing individual zombie, boss, or level rows.
+- **Scope**: runtime `_spawn_enemy_instance()` applies `ENEMY_SPEED_MULT` to both normal zombies and bosses; bosses still additionally multiply by `BOSS_SPEED_MULT = 1.5`, so this change raises the full enemy roster by 20% on top of any existing boss-specific speed tuning.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now asserts the new `0.492` global speed multiplier while retaining the Boss `1.5x` check and spawned-boss speed formula check.
+
+## Endless Independent Opening Curve (2026-07-09)
+
+> Owner reported that Endless wave 1 could feel like a late-campaign wall and clarified that Endless should not inherit the entry level; first loop should be clearable around level 20-30 power.
+
+- **Root cause**: Endless reused the selected campaign level's `waves`, `difficulty_coef`, `base_hp_ref`, `level_ordinal`, Boss pool, and late-wave/Boss HP bonuses. Entering from a late level could therefore start Endless with level-70+ HP coefficients and hard-immunity Boss behavior.
+- **Independent template**: `data/economy.json` now defines `endless_template_level: "level_025"`. Battle still uses the entry level for background/result routing, but Endless gameplay uses the template level for wave scripts, primary weakness, base HP reference, target card budget, gold level, and recommended-power comparison.
+- **Opening Boss grace**: `endless_boss_immunity_grace_loops: 1` removes hard Boss immunities during the first loop so the opening run does not present as "not losing HP"; later loops restore original Boss immunity mechanics while continuing to compound HP via `endless_loop_hp_growth`.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now instantiates Endless from both `level_001` and `level_076`, asserts both resolve to `level_025`, checks first-loop mob HP equality across entry levels, and verifies first-loop Boss hard immunity is removed.
+
+## Combat HUD Active Skill / HP Slot Polish (2026-07-10)
+
+> Owner reported that the bottom-right active-skill button still showed two thin yellow horizontal lines, and that the HP bar slot looked stretched/misaligned.
+
+- **Active-skill slot source fix**: `ui_skill_slot.png` and `ui_skill_slot_active.png` were regenerated as raster armored slots without protruding top/bottom horizontal decorations. The active skill icon still uses the existing skill icon art, but the parent slot no longer paints the yellow line artifact.
+- **HP slot art rebuild**: `ui_base_hp_bar.png` is now an empty armored HP slot instead of a track that already contains a red filled bar; `ui_bar_fill_hp.png` is the only red health fill layer.
+- **Runtime fill fix**: `battle.gd` now uses a clipped `FillClip` wrapper for the HP fill texture, keeping the fill texture at its native full size and changing only the clip width as HP changes. HP fill bounds now use the real inner slot margins instead of the generic 6px progress-bar margins.
+- **Visual verification**: runtime capture `tmp/hud_slot_hp_after_margin_2026_07_10.png` confirms the active-skill horizontal lines are gone and the HP fill sits inside the rebuilt armored slot.
+
+## Wave Progress / Boss Immunity Feedback (2026-07-11)
+
+> Owner clarified the remaining "stretched bar" issue was the top yellow wave-progress bar, not the bottom HP bar. Owner also asked hard-immunity Boss hits to explain why damage is not landing, and homing bullets should skip their muzzle-delay when a Boss is already close.
+
+- **Wave bar art rebuild**: `ui_wave_progress.png` was rebuilt at its exact runtime size (`720x46`) instead of reusing a `640x96` slot compressed into the HUD. A dedicated `ui_wave_progress_fill_native.png` (`640x18`) now provides the yellow fill layer.
+- **Runtime fill fix**: the top wave progress uses the same `FillClip` contract as the HP bar: the full fill texture remains native-size, while progress changes only the clipping container width. This removes horizontal compression and keeps the yellow fill inside the glass channel.
+- **Boss rule feedback**: immune / shield / phase / armor-break hits now emit high-priority, throttled floating text such as `火焰免疫 · 弱点冰霜`, `相位闪避 · 雷电可破`, or `装甲吸收 · 破甲中`, so players can understand no-damage cases immediately.
+- **Homing Boss close-range exception**: homing projectiles still fly straight for the first second against normal targets, but a Boss inside `HOMING_BOSS_CLOSE_RANGE` bypasses the delay and starts steering immediately, still under the existing minimum turn-radius limit.
+
+## Wave Fill / Chapter Overview Breathing Follow-Up (2026-07-12)
+
+> Owner liked the yellow wave-progress direction but called out thin interior horizontal lines, and reported that the larger chapter-map text was being clipped inside the outer chapter cards.
+
+- **Wave fill cleanup**: `tools/generate_wave_progress_native_2026_07_11.py` no longer draws interior outlines or segmented highlight strokes inside `ui_wave_progress_fill_native.png`; the fill is now a single thick warm-gold capsule with only broad soft bloom.
+- **Chapter card height**: outer chapter cards increased from `294` to `344` height. The left story/objective column, right progress panel, boss chips, and `进入战区` action button were moved into a taller rhythm so the enlarged Chinese copy no longer clips.
+- **Visual verification**: `tmp/wave_progress_clean_fill_2026_07_12_v2.png` confirms the runtime wave fill has no thin horizontal line artifact. `tmp/map_chapter_overview_spacious_2026_07_12.png` confirms the chapter overview uses taller cards with readable text.

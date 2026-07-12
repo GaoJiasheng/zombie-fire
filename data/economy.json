@@ -1,23 +1,37 @@
 {
 	"GLOBAL_HP_BASE": 50,
 	"GLOBAL_DMG_BASE": 10,
-	"ENEMY_SPEED_MULT": 0.41,
+	"ENEMY_SPEED_MULT": 0.492,
+	"BOSS_SPEED_MULT": 1.5,
 	"PLAYER_FIRE_RATE_MULT": 0.25,
 	"PLAYER_SHOT_DAMAGE_MULT": 3.0,
 	"late_wave_hp_bonus": {
-		"3": 1.2,
-		"4": 1.44,
-		"5": 1.62
+		"3": 1.45,
+		"4": 1.85,
+		"5": 2.3
+	},
+	"late_wave_count_mult": {
+		"4": 2,
+		"5": 3
 	},
 	"late_wave_boss_hp_bonus": {
-		"3": 1.2,
-		"4": 1.2,
-		"5": 1.2
+		"3": 1.3,
+		"4": 1.5,
+		"5": 1.75
+	},
+	"late_wave_level_ramp": {
+		"start_level": 45,
+		"full_level": 85,
+		"max_mult": 1.22
 	},
 	"boss_hp_level_bonus": {
 		"start_level": 20,
 		"multiplier": 2.0
 	},
+	"endless_template_level": "level_025",
+	"endless_boss_immunity_grace_loops": 1,
+	"endless_first_loop_armor_hits_cap": 8,
+	"endless_loop_hp_growth": 0.5,
 	"level_xp_coef": 50,
 	"level_xp_pow": 1.0,
 	"weakness_mult": 1.5,

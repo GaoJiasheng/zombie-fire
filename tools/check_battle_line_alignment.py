@@ -36,6 +36,8 @@ def main() -> int:
         'enemy.call("configure_attack_line", BREACH_Y)',
         "func _base_line_y() -> float:",
         "return BREACH_Y",
+        "func _pet_anchor_position() -> Vector2:",
+        "return Vector2(PET_BASE_X_DESIGN, _base_line_y() + PET_BASE_LINE_OFFSET)",
         "func _base_damage_impact_position(x: float) -> Vector2:",
         "Vector2(clampf(x, 96.0, 984.0), _base_line_y())",
         "func _slow_field_min_y_for_level(slow_level: int) -> float:",
@@ -77,6 +79,13 @@ def main() -> int:
         "_spawn_barrier_visual": [
             "barrier_visual.position = Vector2(540, _base_line_y())",
         ],
+        "_spawn_pet": [
+            "pet_sprite.position = _pet_anchor_position()",
+        ],
+        "_update_pet_animation": [
+            "pet_sprite.position.y = _pet_anchor_position().y",
+            "PET_IDLE_FLOAT_AMPLITUDE",
+        ],
     }
     for func_name, snippets in body_expectations.items():
         body = _func_body(battle, func_name)
@@ -94,6 +103,8 @@ def main() -> int:
         (r"BREACH_Y\s*-\s*30\.0", "old shield offset BREACH_Y-30"),
         (r"BREACH_Y\s*\+\s*10\.0", "old breach impact offset BREACH_Y+10"),
         (r"slow_mult_for_y\(enemy\.global_position\.y\)", "slow field called without runtime base_line_y"),
+        (r"pet_sprite\.position\s*=\s*Vector2\(725,\s*1625\)", "old hardcoded pet anchor y=1625"),
+        (r"pet_sprite\.position\.y\s*=\s*1625\.0", "old hardcoded pet animation y=1625"),
     ]
     for pattern, label in forbidden_battle_patterns:
         if re.search(pattern, battle):

@@ -28,9 +28,48 @@ const WARNING := Color(0.96, 0.72, 0.30, 1.0)
 const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
+const NATIVE_BUTTON_SIZES := [
+	Vector2i(154, 44),
+	Vector2i(166, 58),
+	Vector2i(170, 84),
+	Vector2i(172, 44),
+	Vector2i(174, 72),
+	Vector2i(176, 76),
+	Vector2i(236, 96),
+	Vector2i(260, 112),
+	Vector2i(268, 48),
+	Vector2i(286, 72),
+	Vector2i(286, 80),
+	Vector2i(286, 112),
+	Vector2i(320, 74),
+	Vector2i(320, 80),
+	Vector2i(412, 88),
+	Vector2i(432, 88),
+	Vector2i(440, 80),
+	Vector2i(440, 88),
+	Vector2i(444, 88),
+	Vector2i(452, 88),
+	Vector2i(484, 102),
+	Vector2i(512, 160),
+	Vector2i(560, 104),
+	Vector2i(600, 120),
+	Vector2i(760, 88),
+	Vector2i(760, 112),
+	Vector2i(780, 148),
+	Vector2i(784, 96),
+	Vector2i(840, 88),
+	Vector2i(880, 88),
+	Vector2i(880, 96),
+	Vector2i(904, 88),
+	Vector2i(920, 88),
+	Vector2i(980, 58),
+	Vector2i(980, 96),
+	Vector2i(980, 100),
+]
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
 const FONT_SCALE := 1.4
+static var _TEXTURE_CACHE: Dictionary = {}
 
 static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
@@ -39,9 +78,10 @@ static func plate_style(_accent := CYAN) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_plate_skin.png", 28.0, 8.0, CYAN)
 
 static func texture_style(path: String, margin := 24.0, content := 12.0, fallback_accent := CYAN) -> StyleBox:
-	if path != "" and ResourceLoader.exists(path):
+	var texture := _load_texture(path)
+	if texture != null:
 		var style := StyleBoxTexture.new()
-		style.texture = load(path) as Texture2D
+		style.texture = texture
 		style.texture_margin_left = margin
 		style.texture_margin_top = margin
 		style.texture_margin_right = margin
@@ -57,6 +97,122 @@ static func texture_style(path: String, margin := 24.0, content := 12.0, fallbac
 	empty.content_margin_right = content
 	empty.content_margin_bottom = content
 	return empty
+
+static func armored_button_path(primary := true, button_size := Vector2(512, 160), disabled := false) -> String:
+	var native_size := _native_button_size(button_size)
+	var kind := "primary" if primary and not disabled else "secondary"
+	var native_path := "%sui_button_%s_native_%dx%d.png" % [UI_TEXTURE_ROOT, kind, native_size.x, native_size.y]
+	if _resource_or_file_exists(native_path):
+		return native_path
+	if disabled:
+		return UI_TEXTURE_ROOT + "ui_button_secondary.png"
+	return UI_TEXTURE_ROOT + ("ui_button_primary.png" if primary else "ui_button_secondary.png")
+
+static func armored_button_texture(primary := true, button_size := Vector2(512, 160), disabled := false) -> Texture2D:
+	var path := armored_button_path(primary, button_size, disabled)
+	var texture := _load_texture(path)
+	if texture != null:
+		return texture
+	var fallback := UI_TEXTURE_ROOT + ("ui_button_primary.png" if primary else "ui_button_secondary.png")
+	return _load_texture(fallback)
+
+static func apply_armored_texture_button(button: TextureButton, primary := true, button_size := Vector2(512, 160), enabled := true) -> void:
+	if button == null:
+		return
+	var normal := armored_button_texture(primary, button_size, false)
+	var disabled_tex := armored_button_texture(false, button_size, true)
+	button.texture_normal = normal
+	button.texture_hover = normal
+	button.texture_pressed = normal
+	button.texture_disabled = disabled_tex
+	button.ignore_texture_size = true
+	button.stretch_mode = TextureButton.STRETCH_SCALE
+	button.disabled = not enabled
+	button.custom_minimum_size = button_size
+	if button_size.x > 0.0 and button_size.y > 0.0:
+		button.size = button_size
+	button.modulate = Color.WHITE if enabled else Color(0.72, 0.76, 0.80, 0.92)
+
+static func armored_button_style(primary := true, button_size := Vector2(512, 160), disabled := false) -> StyleBox:
+	var native_size := _native_button_size(button_size)
+	var target_h := float(native_size.y)
+	var margin := clampf(target_h * 0.34, 16.0, 48.0)
+	var content := clampf(target_h * 0.14, 8.0, 18.0)
+	return texture_style(armored_button_path(primary, Vector2(native_size.x, native_size.y), disabled), margin, content, GOLD if primary else CYAN)
+
+static func apply_armored_button(button: Button, primary := true, button_size := Vector2(512, 96), font_size := 24, enabled := true) -> void:
+	if button == null:
+		return
+	button.custom_minimum_size = button_size
+	button.focus_mode = Control.FOCUS_NONE
+	button.disabled = not enabled
+	for state in ["normal", "hover", "pressed", "focus"]:
+		button.add_theme_stylebox_override(state, armored_button_style(primary, button_size, false))
+	button.add_theme_stylebox_override("disabled", armored_button_style(false, button_size, true))
+	button.add_theme_color_override("font_color", TEXT_MAIN if enabled else GREY_300)
+	button.add_theme_color_override("font_hover_color", TEXT_MAIN)
+	button.add_theme_color_override("font_pressed_color", GOLD if primary else CYAN)
+	button.add_theme_color_override("font_disabled_color", GREY_300)
+	button.add_theme_font_size_override("font_size", int(round(font_size * FONT_SCALE)))
+
+static func _native_button_size(button_size: Vector2) -> Vector2i:
+	var target_w := int(round(button_size.x))
+	var target_h := int(round(button_size.y))
+	if target_w <= 0:
+		if target_h >= 108:
+			target_w = 286
+		elif target_h >= 90:
+			target_w = 286
+		else:
+			target_w = 320
+	if target_h <= 0:
+		target_h = 96
+	if target_w == 512 and target_h == 160:
+		return Vector2i(512, 160)
+	var best: Vector2i = NATIVE_BUTTON_SIZES[0]
+	var best_score := INF
+	var target_ratio := float(target_w) / maxf(float(target_h), 1.0)
+	for candidate: Vector2i in NATIVE_BUTTON_SIZES:
+		var height_score := absf(float(candidate.y - target_h)) * 12.0
+		var width_score := absf(float(candidate.x - target_w))
+		var ratio_score := absf((float(candidate.x) / maxf(float(candidate.y), 1.0)) - target_ratio) * 22.0
+		var score := height_score + width_score + ratio_score
+		if score < best_score:
+			best_score = score
+			best = candidate
+	return best
+
+static func _resource_or_file_exists(path: String) -> bool:
+	if path == "":
+		return false
+	if ResourceLoader.exists(path):
+		return true
+	return FileAccess.file_exists(_global_path(path))
+
+static func _load_texture(path: String) -> Texture2D:
+	if path == "":
+		return null
+	if _TEXTURE_CACHE.has(path):
+		return _TEXTURE_CACHE[path] as Texture2D
+	if ResourceLoader.exists(path):
+		var resource_texture := load(path) as Texture2D
+		if resource_texture != null:
+			_TEXTURE_CACHE[path] = resource_texture
+			return resource_texture
+	var global_path := _global_path(path)
+	if FileAccess.file_exists(global_path):
+		var image := Image.load_from_file(global_path)
+		if image != null and not image.is_empty():
+			var texture := ImageTexture.create_from_image(image)
+			texture.take_over_path(path)
+			_TEXTURE_CACHE[path] = texture
+			return texture
+	return null
+
+static func _global_path(path: String) -> String:
+	if path.begins_with("res://"):
+		return ProjectSettings.globalize_path(path)
+	return path
 
 static func panel_texture_style(content := 18.0) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, content, CYAN)
@@ -338,24 +494,10 @@ static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect
 # ---- 统一购买/确认弹框(所有商店、所有货币共用同一个模型)。----
 # opts: title, message, cost_text, cost_icon, accent, confirm_text, cancel_text,
 #       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
-static func _modal_button(text: String, accent: Color, primary: bool) -> Button:
+static func _modal_button(text: String, _accent: Color, primary: bool) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(236, 96)
-	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_font_size_override("font_size", int(26 * FONT_SCALE))
-	var fg: Color = GREY_900 if primary else TEXT_MAIN
-	var texture_path := UI_TEXTURE_ROOT + ("ui_modal_button_primary.png" if primary else "ui_modal_button_secondary.png")
-	var normal := texture_style(texture_path, 34.0, 14.0, accent)
-	var hover := texture_style(texture_path, 34.0, 14.0, accent)
-	var pressed := texture_style(texture_path, 34.0, 14.0, accent)
-	b.add_theme_stylebox_override("normal", normal)
-	b.add_theme_stylebox_override("hover", hover)
-	b.add_theme_stylebox_override("pressed", pressed)
-	b.add_theme_stylebox_override("focus", normal)
-	b.add_theme_color_override("font_color", fg)
-	b.add_theme_color_override("font_hover_color", fg)
-	b.add_theme_color_override("font_pressed_color", fg)
+	apply_armored_button(b, primary, Vector2(236, 96), 26, true)
 	return b
 
 static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:

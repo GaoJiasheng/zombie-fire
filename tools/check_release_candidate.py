@@ -21,6 +21,7 @@ COMMANDS = [
     ["python3", "tools/check_gameplay_polish.py"],
     ["python3", "tools/check_audio_overlap.py"],
     ["python3", "tools/check_weapon_sfx_quality.py"],
+    ["python3", "tools/check_hit_sfx_quality.py"],
     ["python3", "tools/check_active_skill_media.py"],
     ["python3", "tools/check_tall_battle_layout.py"],
     ["python3", "tools/check_battle_line_alignment.py"],

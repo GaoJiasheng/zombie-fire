@@ -51,12 +51,18 @@ func _apply_style() -> void:
 	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
 func _style_button(button: Button, accent: Color, font_size := 30) -> void:
-	for state in ["normal", "hover", "pressed", "focus"]:
-		button.add_theme_stylebox_override(state, UiKit.pill_style(accent))
-	button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
-	button.add_theme_color_override("font_hover_color", UiKit.TEXT_MAIN)
-	button.add_theme_color_override("font_pressed_color", accent)
-	button.add_theme_font_size_override("font_size", font_size)
+	var button_size := Vector2(880, maxf(button.custom_minimum_size.y, 88.0))
+	var parent := button.get_parent()
+	if parent is HBoxContainer:
+		var sibling_count := (parent as HBoxContainer).get_child_count()
+		if sibling_count >= 3:
+			button_size = Vector2(286, 80)
+		else:
+			button_size = Vector2(440, 88)
+	if button.name == "BackButton":
+		button_size = Vector2(880, 96)
+	var primary := accent == UiKit.GOLD
+	UiKit.apply_armored_button(button, primary, button_size, font_size, not button.disabled)
 
 func _on_sound() -> void:
 	AudioManager.toggle_enabled()

@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_button_secondary.png" id="10_btn2"]
 [ext_resource type="Script" path="res://gameplay/hud/combo_hud.gd" id="11_combo"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_bar_fill_hp.png" id="12_hpfill"]
-[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_bar_fill_wave.png" id="13_wavefill"]
+[ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_wave_progress_fill_native.png" id="13_wavefill"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_cd_overlay.png" id="14_cd"]
 [ext_resource type="Texture2D" path="res://assets/production/sprites/ui/ui_panel_skin.png" id="15_dim"]
 
@@ -113,10 +113,10 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="FillTexture" type="TextureRect" parent="Hud/TopBar/WaveProgress"]
-offset_left = 4.0
-offset_top = 10.0
-offset_right = 542.0
-offset_bottom = 20.0
+offset_left = 40.0
+offset_top = 14.0
+offset_right = 680.0
+offset_bottom = 32.0
 texture = ExtResource("13_wavefill")
 expand_mode = 1
 stretch_mode = 5
