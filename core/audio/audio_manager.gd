@@ -113,63 +113,141 @@ const MUSIC_LIKE_SFX := {
 	"defeat": true,
 }
 
+const UI_SFX := {
+	"ui_click": true,
+	"ui_confirm": true,
+	"level_up": true,
+	"card_offer": true,
+	"card_pick": true,
+	"reroll": true,
+	"pause": true,
+	"resume": true,
+	"lock": true,
+	"upgrade": true,
+	"gold_pickup": true,
+	"star_gain": true,
+}
+
+const AUDIO_BUSES := [&"BGM", &"SFX", &"UI"]
+const BGM_PLAYER_COUNT := 2
+const SFX_POOL_SIZE := 24
+const DEFAULT_BGM_FADE_SECONDS := 0.45
+const DEFAULT_BGM_STOP_FADE_SECONDS := 0.25
+const SILENT_DB := -80.0
+
 var enabled := true
 var _sfx_cache := {}
 var _bgm_cache := {}
-var _bgm_player: AudioStreamPlayer
+var _bgm_players: Array[AudioStreamPlayer] = []
 var _sfx_pool: Array[AudioStreamPlayer] = []
 var _current_bgm := ""
 var _last_sfx_time := {}
 var _headless_audio := false
+var _active_bgm_index := -1
+var _bgm_transition := {}
+var _manual_paused := false
+var _application_paused := false
+var _tree_paused := false
+var _pause_ui_too := false
+var _missing_audio_reported := {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_headless_audio = DisplayServer.get_name() == "headless"
-	_bgm_player = AudioStreamPlayer.new()
-	_bgm_player.bus = "Master"
-	_bgm_player.volume_db = -13.0
-	add_child(_bgm_player)
-	for i in range(24):
+	for i in range(BGM_PLAYER_COUNT):
+		var bgm_player := AudioStreamPlayer.new()
+		bgm_player.name = "BGMPlayer%d" % i
+		bgm_player.bus = &"BGM"
+		bgm_player.volume_db = SILENT_DB
+		add_child(bgm_player)
+		_bgm_players.append(bgm_player)
+	for i in range(SFX_POOL_SIZE):
 		var player := AudioStreamPlayer.new()
-		player.bus = "Master"
-		player.volume_db = -6.0
+		player.name = "SFXPlayer%02d" % i
+		player.bus = &"SFX"
+		player.volume_db = 0.0
+		player.finished.connect(_on_sfx_finished.bind(player))
 		add_child(player)
 		_sfx_pool.append(player)
+	_set_managed_buses_muted(not enabled)
+	var startup_issues := validate_audio_configuration(false)
+	for issue in startup_issues:
+		push_warning("AudioManager: %s" % issue)
+
+func _process(delta: float) -> void:
+	_update_bgm_transition(delta)
+	var tree_paused_now := get_tree() != null and get_tree().paused
+	if tree_paused_now != _tree_paused:
+		_tree_paused = tree_paused_now
+		_sync_pause_state()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_PAUSED:
+		_application_paused = true
+		_sync_pause_state()
+	elif what == NOTIFICATION_APPLICATION_RESUMED:
+		_application_paused = false
+		_sync_pause_state()
 
 func _exit_tree() -> void:
 	release_for_tests()
 
-func play_bgm(id: String) -> void:
-	if _headless_audio or not enabled or not BGM.has(id) or _current_bgm == id:
+func play_bgm(id: String, fade_duration := DEFAULT_BGM_FADE_SECONDS) -> void:
+	if _headless_audio:
+		return
+	if not BGM.has(id):
+		_report_missing_audio("BGM id '%s' is not registered" % id)
+		return
+	if _current_bgm == id and _active_bgm_index >= 0 and _bgm_players[_active_bgm_index].playing:
 		return
 	_stop_music_like_sfx()
-	_current_bgm = id
 	var stream := _load_bgm(id)
 	if stream == null:
 		return
-	_bgm_player.stop()
-	_bgm_player.stream = stream
-	_bgm_player.play()
+	_complete_bgm_transition()
+	var previous_index := _active_bgm_index
+	var next_index := 0 if previous_index != 0 else 1
+	var next_player := _bgm_players[next_index]
+	_clear_bgm_player(next_player)
+	next_player.stream = stream
+	next_player.volume_db = SILENT_DB
+	next_player.play()
+	_current_bgm = id
+	_active_bgm_index = next_index
+	_begin_bgm_transition(previous_index, next_index, maxf(0.0, float(fade_duration)))
+	_sync_pause_state()
 
-func stop_bgm() -> void:
+func stop_bgm(fade_duration := DEFAULT_BGM_STOP_FADE_SECONDS) -> void:
 	_current_bgm = ""
-	if _bgm_player != null:
-		_bgm_player.stop()
+	_complete_bgm_transition()
+	if _active_bgm_index < 0:
+		return
+	var previous_index := _active_bgm_index
+	_active_bgm_index = -1
+	_begin_bgm_transition(previous_index, -1, maxf(0.0, float(fade_duration)))
 
 func release_for_tests() -> void:
-	stop_bgm()
-	if _bgm_player != null:
-		_bgm_player.stream = null
+	_current_bgm = ""
+	_bgm_transition.clear()
+	_active_bgm_index = -1
+	for player in _bgm_players:
+		_clear_bgm_player(player)
+		player.free()
 	for player in _sfx_pool:
-		if player != null:
-			player.stop()
-			player.stream = null
+		_clear_sfx_player(player)
+		player.free()
+	_bgm_players.clear()
+	_sfx_pool.clear()
 	_sfx_cache.clear()
 	_bgm_cache.clear()
 	_last_sfx_time.clear()
+	_missing_audio_reported.clear()
 
 func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
-	if _headless_audio or not enabled or not SFX.has(id):
+	if _headless_audio or not enabled:
+		return
+	if not SFX.has(id):
+		_report_missing_audio("SFX id '%s' is not registered" % id)
 		return
 	if _is_rate_limited(id):
 		return
@@ -178,14 +256,22 @@ func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 		return
 	if MUSIC_LIKE_SFX.has(id):
 		_stop_music_like_sfx()
-	var player := _next_sfx_player()
-	player.stop()
+	var priority := get_sfx_priority(id)
+	var player := _select_sfx_player(id, priority)
+	if player == null:
+		return
+	_clear_sfx_player(player)
 	player.stream = stream
-	player.volume_db = -6.0 + volume_db
-	player.pitch_scale = randf_range(1.0 - pitch_variation, 1.0 + pitch_variation)
+	player.bus = get_sfx_bus(id)
+	player.volume_db = float(volume_db)
+	var variation := absf(float(pitch_variation))
+	player.pitch_scale = randf_range(maxf(0.01, 1.0 - variation), 1.0 + variation)
 	player.set_meta("audio_id", id)
 	player.set_meta("music_like", MUSIC_LIKE_SFX.has(id))
+	player.set_meta("priority", priority)
+	player.set_meta("started_msec", Time.get_ticks_msec())
 	player.play()
+	player.stream_paused = _should_pause_player(player)
 
 func _is_rate_limited(id: String) -> bool:
 	var min_gap := 0.0
@@ -230,24 +316,66 @@ func _is_rate_limited(id: String) -> bool:
 	return false
 
 func toggle_enabled() -> bool:
-	enabled = not enabled
-	if enabled:
-		if _current_bgm != "":
-			_bgm_player.play()
-	else:
-		_bgm_player.stop()
-		for player in _sfx_pool:
-			player.stop()
+	set_enabled(not enabled)
 	return enabled
+
+func set_enabled(value: bool) -> void:
+	enabled = value
+	_set_managed_buses_muted(not enabled)
+
+func set_bgm_volume(value: float) -> void:
+	set_bus_volume(&"BGM", value)
+
+func set_sfx_volume(value: float) -> void:
+	set_bus_volume(&"SFX", value)
+
+func set_ui_volume(value: float) -> void:
+	set_bus_volume(&"UI", value)
+
+func set_bus_volume(bus_name: StringName, value: float) -> void:
+	var bus_index := AudioServer.get_bus_index(bus_name)
+	if bus_index < 0:
+		_report_missing_audio("audio bus '%s' is missing" % bus_name)
+		return
+	var linear_value := clampf(value, 0.0, 1.0)
+	AudioServer.set_bus_volume_db(bus_index, SILENT_DB if linear_value <= 0.0001 else linear_to_db(linear_value))
+
+func get_bus_volume(bus_name: StringName) -> float:
+	var bus_index := AudioServer.get_bus_index(bus_name)
+	if bus_index < 0:
+		return 0.0
+	var volume_db := AudioServer.get_bus_volume_db(bus_index)
+	return 0.0 if volume_db <= SILENT_DB else db_to_linear(volume_db)
+
+func pause_audio(include_ui := false) -> void:
+	_manual_paused = true
+	_pause_ui_too = bool(include_ui)
+	_sync_pause_state()
+
+func resume_audio() -> void:
+	_manual_paused = false
+	_pause_ui_too = false
+	_sync_pause_state()
 
 func _load_sfx(id: String) -> AudioStream:
 	if not _sfx_cache.has(id):
-		_sfx_cache[id] = load(SFX[id])
+		var path := str(SFX[id])
+		if not ResourceLoader.exists(path):
+			_report_missing_audio("missing SFX asset for '%s': %s" % [id, path])
+			return null
+		_sfx_cache[id] = load(path)
 	return _sfx_cache[id]
 
 func _load_bgm(id: String) -> AudioStream:
 	if not _bgm_cache.has(id):
-		_bgm_cache[id] = load(BGM[id])
+		var path := str(BGM[id])
+		if not ResourceLoader.exists(path):
+			_report_missing_audio("missing BGM asset for '%s': %s" % [id, path])
+			return null
+		var stream: AudioStream = load(path)
+		if stream is AudioStreamWAV:
+			(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+		_bgm_cache[id] = stream
 	return _bgm_cache[id]
 
 func _stop_music_like_sfx() -> void:
@@ -255,14 +383,233 @@ func _stop_music_like_sfx() -> void:
 		if player == null:
 			continue
 		if player.playing and bool(player.get_meta("music_like", false)):
-			player.stop()
-			player.stream = null
-		if not player.playing and bool(player.get_meta("music_like", false)):
-			player.set_meta("audio_id", "")
-			player.set_meta("music_like", false)
+			_clear_sfx_player(player)
+		elif not player.playing and bool(player.get_meta("music_like", false)):
+			_clear_sfx_player(player)
 
-func _next_sfx_player() -> AudioStreamPlayer:
+func get_sfx_priority(id: String) -> int:
+	if id.begins_with("boss_intro_") or id in ["enemy_breach", "threat_warning", "victory", "defeat"]:
+		return 100
+	if id in ["hit_immune", "level_up", "card_offer", "card_pick", "pause", "resume", "lock"]:
+		return 85
+	if id.begins_with("sig_") or id.begins_with("char_") or id.begins_with("skill_"):
+		return 70
+	if UI_SFX.has(id):
+		return 65
+	if id.begins_with("zombie_"):
+		return 50
+	if id.begins_with("hit_"):
+		return 40
+	if id.begins_with("shot_") or id.begins_with("muzzle_"):
+		return 30
+	if id == "enemy_death":
+		return 20
+	return 45
+
+func get_sfx_concurrency_limit(id: String) -> int:
+	if MUSIC_LIKE_SFX.has(id) or id.begins_with("boss_intro_") or id in ["enemy_breach", "threat_warning", "hit_immune"]:
+		return 1
+	if id.begins_with("shot_") or id.begins_with("muzzle_") or id.begins_with("hit_"):
+		return 3
+	if id == "enemy_death" or id.begins_with("zombie_"):
+		return 2
+	if UI_SFX.has(id):
+		return 2
+	return 2
+
+func get_sfx_bus(id: String) -> StringName:
+	return &"UI" if UI_SFX.has(id) else &"SFX"
+
+func validate_audio_configuration(load_streams := false) -> PackedStringArray:
+	var issues := PackedStringArray()
+	for bus_name in AUDIO_BUSES:
+		if AudioServer.get_bus_index(bus_name) < 0:
+			issues.append("missing audio bus: %s" % bus_name)
+	for id in BGM:
+		var path := str(BGM[id])
+		if not ResourceLoader.exists(path):
+			issues.append("missing BGM asset for '%s': %s" % [id, path])
+		elif load_streams:
+			var stream: AudioStream = load(path)
+			if stream == null:
+				issues.append("BGM asset failed to load for '%s': %s" % [id, path])
+			elif stream is AudioStreamWAV and (stream as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_DISABLED:
+				issues.append("BGM loop is disabled for '%s': %s" % [id, path])
+	for id in SFX:
+		var path := str(SFX[id])
+		if not ResourceLoader.exists(path):
+			issues.append("missing SFX asset for '%s': %s" % [id, path])
+	if _bgm_players.size() != BGM_PLAYER_COUNT:
+		issues.append("BGM player leak/config mismatch: expected %d, found %d" % [BGM_PLAYER_COUNT, _bgm_players.size()])
+	if _sfx_pool.size() != SFX_POOL_SIZE:
+		issues.append("SFX player leak/config mismatch: expected %d, found %d" % [SFX_POOL_SIZE, _sfx_pool.size()])
+	var player_instance_ids := {}
+	for player in _bgm_players + _sfx_pool:
+		if player == null or player.get_parent() != self:
+			issues.append("audio player is null or detached from AudioManager")
+			continue
+		var instance_id := player.get_instance_id()
+		if player_instance_ids.has(instance_id):
+			issues.append("audio player is registered more than once: %s" % instance_id)
+		player_instance_ids[instance_id] = true
+	var element_paths := {}
+	for element_id in ["hit_physical", "hit_fire", "hit_ice", "hit_lightning", "hit_poison"]:
+		if not SFX.has(element_id):
+			issues.append("element hit entry is missing: %s" % element_id)
+			continue
+		var element_path := str(SFX[element_id])
+		if element_paths.has(element_path):
+			issues.append("element hit entries share an asset: %s and %s" % [element_paths[element_path], element_id])
+		element_paths[element_path] = element_id
+	return issues
+
+func get_audio_diagnostics(load_streams := false) -> Dictionary:
+	var active_sfx := 0
+	var idle_stream_references := 0
+	for player in _sfx_pool:
+		if player.playing:
+			active_sfx += 1
+		elif player.stream != null:
+			idle_stream_references += 1
+	return {
+		"issues": validate_audio_configuration(load_streams),
+		"current_bgm": _current_bgm,
+		"active_bgm_players": _count_active_bgm_players(),
+		"active_sfx_players": active_sfx,
+		"idle_sfx_stream_references": idle_stream_references,
+		"bgm_player_count": _bgm_players.size(),
+		"sfx_player_count": _sfx_pool.size(),
+		"headless": _headless_audio,
+		"enabled": enabled,
+	}
+
+func _select_sfx_player(id: String, priority: int) -> AudioStreamPlayer:
+	if _count_playing_sfx(id) >= get_sfx_concurrency_limit(id):
+		return null
 	for player in _sfx_pool:
 		if not player.playing:
 			return player
-	return _sfx_pool[0]
+	var candidate: AudioStreamPlayer = null
+	var candidate_priority := 1000000
+	var candidate_started := 0
+	for player in _sfx_pool:
+		var active_priority := int(player.get_meta("priority", 0))
+		var active_started := int(player.get_meta("started_msec", 0))
+		if candidate == null or active_priority < candidate_priority or (active_priority == candidate_priority and active_started < candidate_started):
+			candidate = player
+			candidate_priority = active_priority
+			candidate_started = active_started
+	if candidate == null or priority <= candidate_priority:
+		return null
+	return candidate
+
+func _count_playing_sfx(id: String) -> int:
+	var count := 0
+	for player in _sfx_pool:
+		if player.playing and str(player.get_meta("audio_id", "")) == id:
+			count += 1
+	return count
+
+func _on_sfx_finished(player: AudioStreamPlayer) -> void:
+	_clear_sfx_player(player)
+
+func _clear_sfx_player(player: AudioStreamPlayer) -> void:
+	if player == null:
+		return
+	player.stop()
+	player.stream_paused = false
+	player.stream = null
+	player.bus = &"SFX"
+	player.volume_db = 0.0
+	player.pitch_scale = 1.0
+	player.set_meta("audio_id", "")
+	player.set_meta("music_like", false)
+	player.set_meta("priority", 0)
+	player.set_meta("started_msec", 0)
+
+func _begin_bgm_transition(from_index: int, to_index: int, duration: float) -> void:
+	if duration <= 0.0:
+		if from_index >= 0 and from_index != to_index:
+			_clear_bgm_player(_bgm_players[from_index])
+		if to_index >= 0:
+			_bgm_players[to_index].volume_db = 0.0
+		_bgm_transition.clear()
+		return
+	_bgm_transition = {
+		"from": from_index,
+		"to": to_index,
+		"elapsed": 0.0,
+		"duration": duration,
+	}
+	_update_bgm_transition(0.0)
+
+func _update_bgm_transition(delta: float) -> void:
+	if _bgm_transition.is_empty():
+		return
+	var duration := maxf(0.001, float(_bgm_transition["duration"]))
+	var elapsed := minf(duration, float(_bgm_transition["elapsed"]) + delta)
+	_bgm_transition["elapsed"] = elapsed
+	var weight := elapsed / duration
+	var from_index := int(_bgm_transition["from"])
+	var to_index := int(_bgm_transition["to"])
+	if from_index >= 0:
+		_bgm_players[from_index].volume_db = _gain_to_db(1.0 - weight)
+	if to_index >= 0:
+		_bgm_players[to_index].volume_db = _gain_to_db(weight)
+	if elapsed >= duration:
+		_complete_bgm_transition()
+
+func _complete_bgm_transition() -> void:
+	if _bgm_transition.is_empty():
+		return
+	var from_index := int(_bgm_transition["from"])
+	var to_index := int(_bgm_transition["to"])
+	if from_index >= 0 and from_index != to_index:
+		_clear_bgm_player(_bgm_players[from_index])
+	if to_index >= 0:
+		_bgm_players[to_index].volume_db = 0.0
+	_bgm_transition.clear()
+
+func _gain_to_db(gain: float) -> float:
+	return SILENT_DB if gain <= 0.0001 else linear_to_db(gain)
+
+func _clear_bgm_player(player: AudioStreamPlayer) -> void:
+	if player == null:
+		return
+	player.stop()
+	player.stream_paused = false
+	player.stream = null
+	player.volume_db = SILENT_DB
+
+func _count_active_bgm_players() -> int:
+	var count := 0
+	for player in _bgm_players:
+		if player.playing:
+			count += 1
+	return count
+
+func _set_managed_buses_muted(muted: bool) -> void:
+	for bus_name in AUDIO_BUSES:
+		var bus_index := AudioServer.get_bus_index(bus_name)
+		if bus_index >= 0:
+			AudioServer.set_bus_mute(bus_index, muted)
+
+func _sync_pause_state() -> void:
+	var pause_bgm_and_sfx := _manual_paused or _application_paused or _tree_paused
+	for player in _bgm_players:
+		player.stream_paused = pause_bgm_and_sfx
+	for player in _sfx_pool:
+		player.stream_paused = _should_pause_player(player)
+
+func _should_pause_player(player: AudioStreamPlayer) -> bool:
+	if _application_paused:
+		return true
+	if not (_manual_paused or _tree_paused):
+		return false
+	return _pause_ui_too or player.bus != &"UI"
+
+func _report_missing_audio(message: String) -> void:
+	if _missing_audio_reported.has(message):
+		return
+	_missing_audio_reported[message] = true
+	push_warning("AudioManager: %s" % message)

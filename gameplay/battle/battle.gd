@@ -270,7 +270,7 @@ var wave_index := 0
 var wave_total := 0
 var active_spawning := false
 var turret: Node2D
-var target_manager := TargetingManager.new()
+var target_manager: TargetingManager
 var card_director := CardDirector.new()
 var skills := SkillRuntime.new()
 var next_xp_offer := 12
@@ -425,11 +425,12 @@ func _ready() -> void:
 	get_tree().paused = false
 	battle_speed = SettingsManager.get_battle_speed()
 	Engine.time_scale = battle_speed
-	# 先算好底部基座群组要整体下移多少，后面背景/人物/护栏/底部HUD都要用。
-	var vis_size := get_viewport().get_visible_rect().size
-	bottom_dock_shift = maxf(0.0, vis_size.y - 1920.0)
-	BREACH_Y = BREACH_Y_DESIGN + bottom_dock_shift
-	CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN + bottom_dock_shift)
+	# Combat geometry stays fixed at the authored 1080x1920 coordinates on every
+	# device. Tall-screen accommodation belongs to background/safe-area layers;
+	# it must not give enemies extra travel time or move the breach line.
+	bottom_dock_shift = 0.0
+	BREACH_Y = BREACH_Y_DESIGN
+	CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN)
 	# HUD controls must receive GUI input both during battle and while card
 	# offers pause the tree; individual buttons decide their own enabled state.
 	$Hud.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -500,6 +501,7 @@ func _ready() -> void:
 	_ensure_boss_hp_bar()
 	_spawn_low_hp_pulse()
 	_spawn_feedback_managers()
+	target_manager = TargetingManager.new()
 	add_child(target_manager)
 	_load_equipment()
 	_configure_character_active_skill()
@@ -1657,10 +1659,8 @@ func _blaze_meltdown_pulse_count(active: Dictionary) -> int:
 func _frost_glacier_duration(active: Dictionary) -> float:
 	return _active_skill_duration(active, FROST_GLACIER_MIN_DURATION)
 
-func _frost_glacier_field_y(active: Dictionary) -> float:
-	var base := float(active.get("field_y", 860.0))
-	var extend := float(active.get("rank_field_y_extend", 0.0)) * float(_growth_rank(character_level))
-	return clampf(base - extend, 640.0, base)
+func _frost_glacier_field_y(_active: Dictionary) -> float:
+	return 120.0
 
 func _frost_glacier_wave_count(active: Dictionary) -> int:
 	var base := int(active.get("base_waves", 4))
@@ -2158,7 +2158,9 @@ func _ensure_boss_hp_bar() -> void:
 func _update_boss_hp_bar() -> void:
 	if boss_hp_bar == null or not is_instance_valid(boss_hp_bar):
 		return
-	if active_boss == null or not is_instance_valid(active_boss) or not active_boss.boss:
+	if active_boss == null or not is_instance_valid(active_boss) or not active_boss.boss or float(active_boss.hp) <= 0.0:
+		_refresh_active_boss()
+	if active_boss == null or not is_instance_valid(active_boss):
 		boss_hp_bar.visible = false
 		return
 	var ratio := clampf(float(active_boss.hp) / maxf(float(active_boss.max_hp), 1.0), 0.0, 1.0)
@@ -2168,7 +2170,26 @@ func _update_boss_hp_bar() -> void:
 	boss_hp_bar.visible = true
 	boss_hp_fill.size.x = 756.0 * ratio
 	var boss_name := DataLoader.tr_key(active_boss.data.get("name_key", "")) if active_boss.data is Dictionary else ""
-	boss_hp_label.text = "%s  %d%%" % [boss_name, int(round(ratio * 100.0))]
+	var boss_count := _living_boss_count()
+	var count_suffix := "  x%d" % boss_count if boss_count > 1 else ""
+	boss_hp_label.text = "%s%s  %d%%" % [boss_name, count_suffix, int(round(ratio * 100.0))]
+
+func _living_boss_count() -> int:
+	var count := 0
+	for candidate in $EnemyLayer.get_children():
+		if is_instance_valid(candidate) and bool(candidate.get("boss")) and float(candidate.get("hp")) > 0.0 and not candidate.is_queued_for_deletion():
+			count += 1
+	return count
+
+func _refresh_active_boss() -> void:
+	active_boss = null
+	var best_y := -INF
+	for candidate in $EnemyLayer.get_children():
+		if not is_instance_valid(candidate) or not bool(candidate.get("boss")) or float(candidate.get("hp")) <= 0.0 or candidate.is_queued_for_deletion():
+			continue
+		if float(candidate.global_position.y) > best_y:
+			best_y = float(candidate.global_position.y)
+			active_boss = candidate
 
 func _apply_safe_area() -> void:
 	# Only shift HUD for insets inside the game window (notch / home indicator).
@@ -2966,8 +2987,12 @@ func _endless_boss_id(offset := 0) -> String:
 			eligible.append(str(boss_id))
 	if eligible.is_empty():
 		return "boss_tank_titan"
-	eligible.sort()
-	return eligible[(eligible.size() - 1 + offset) % eligible.size()]
+	eligible.sort_custom(func(a: String, b: String) -> bool:
+		var a_level := int((bosses.get(a, {}) as Dictionary).get("appear_level", 1))
+		var b_level := int((bosses.get(b, {}) as Dictionary).get("appear_level", 1))
+		return a_level < b_level if a_level != b_level else a < b
+	)
+	return eligible[posmod(eligible.size() - 1 - offset, eligible.size())]
 
 func _apply_wave_start_support() -> void:
 	if pet_data.get("role", "") != "repair":
@@ -3055,7 +3080,7 @@ func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
 			x = randf_range(150, 930)
 	_spawn_enemy_instance(enemy_id, Vector2(x, 190), is_boss)
 
-func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false) -> Node:
+func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0) -> Node:
 	var row := DataLoader.get_row("bosses" if is_boss else "zombies", enemy_id).duplicate(true)
 	var economy: Dictionary = DataLoader.get_table("economy")
 	if is_endless_mode and is_boss:
@@ -3066,6 +3091,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	row["speed"] = float(row.get("speed", 80.0)) * speed_mult
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
+	enemy.set_meta("reward_scale", clampf(reward_scale, 0.0, 1.0))
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
 	hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
 	hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
@@ -3080,7 +3106,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.damage_dealt.connect(_on_enemy_damage_dealt)
 	enemy.died.connect(_on_enemy_died)
 	enemy.breached.connect(_on_enemy_breached)
-	if is_boss:
+	if is_boss and (active_boss == null or not is_instance_valid(active_boss)):
 		active_boss = enemy
 	$EnemyLayer.add_child(enemy)
 	$ThreatMarkerLayer.add_child(enemy.threat_marker)
@@ -3213,19 +3239,17 @@ func _base_damage_impact_position(x: float) -> Vector2:
 	return Vector2(clampf(x, 96.0, 984.0), _base_line_y())
 
 func _slow_field_inner_offset_for_level(slow_level: int) -> float:
-	match slow_level:
-		1:
-			return 440.0
-		2:
-			return 560.0
-		3:
-			return 680.0
-		4:
-			return 800.0
-		5:
-			return 920.0
-		_:
-			return BASE_LINE_DEFAULT_SLOW_FIELD_INSET
+	var row: Dictionary = DataLoader.get_row("skills", "skill_slow_field")
+	for entry_var in row.get("levels", []):
+		if not entry_var is Dictionary:
+			continue
+		var entry: Dictionary = entry_var
+		if int(entry.get("lv", 0)) != slow_level:
+			continue
+		var effect: Dictionary = entry.get("effect", {})
+		var y_min := float(effect.get("y_min", SkillRuntime.SLOW_FIELD_DESIGN_BASE_LINE_Y - BASE_LINE_DEFAULT_SLOW_FIELD_INSET))
+		return maxf(0.0, SkillRuntime.SLOW_FIELD_DESIGN_BASE_LINE_Y - y_min)
+	return BASE_LINE_DEFAULT_SLOW_FIELD_INSET
 
 func _slow_field_strength_for_level(slow_level: int) -> float:
 	match slow_level:
@@ -3445,7 +3469,7 @@ func _process_summoner(source: Node, delta: float) -> void:
 	spawn_position.x = clampf(spawn_position.x, 120.0, 960.0)
 	spawn_position.y = clampf(spawn_position.y, 190.0, 1220.0)
 	_spawn_enemy_attack_vfx(source, "summon", spawn_position)
-	_spawn_enemy_instance(str(source.mechanic_params.get("summon_id", "zombie_shambler")), spawn_position, false)
+	_spawn_enemy_instance(str(source.mechanic_params.get("summon_id", "zombie_shambler")), spawn_position, false, 0.0)
 	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -86), "召唤", Color(0.72, 0.4, 1.0))
 
@@ -3512,7 +3536,7 @@ func _process_boss_minions(source: Node, delta: float) -> void:
 		spawn_position.x = clampf(spawn_position.x, 120.0, 960.0)
 		spawn_position.y = clampf(spawn_position.y, 220.0, 1180.0 + bottom_dock_shift)
 		_spawn_enemy_attack_vfx(source, "spawn_minions", spawn_position)
-		_spawn_enemy_instance("zombie_crawler", spawn_position, false)
+		_spawn_enemy_instance("zombie_crawler", spawn_position, false, 0.0)
 	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -130), "孵化尸群", Color(0.66, 1.0, 0.3))
 
@@ -3571,13 +3595,15 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var mods := skills.projectile_mods()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
-	var multishot_lanes := clampi(1 + int(mods.get("extra_projectiles", 0)), 1, MAX_MULTISHOT_LANES)
-	var shots: int = multishot_lanes + maxi(int(special.get("pellets", 1)) - 1, 0)
+	var multishot_lanes := 1 + int(mods.get("extra_projectiles", 0))
 	if sig_vanguard_barrage_timer > 0.0:
-		shots += 1
+		multishot_lanes += 1
 		if _growth_rank(character_level) >= 2:
-			shots += 1
-	var spread: float = deg_to_rad(float(mods.get("spread_deg", 0.0)) + float(special.get("spread", 0.0)))
+			multishot_lanes += 1
+	multishot_lanes = clampi(multishot_lanes, 1, MAX_MULTISHOT_LANES)
+	var pellet_count := maxi(1, int(special.get("pellets", 1)))
+	var lane_spread := deg_to_rad(float(mods.get("spread_deg", 0.0)))
+	var pellet_spread := deg_to_rad(float(special.get("spread", 0.0)))
 	var homing: float = float(mods.get("homing", 0)) * 1.8
 	var element: String = skills.projectile_element(str(weapon.get("element", "physical")))
 	var visual_profile := _weapon_visual_profile(weapon_id)
@@ -3585,7 +3611,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	AudioManager.play_sfx(_weapon_shot_sfx(weapon_id), -7.0)
 	if element != "physical":
 		AudioManager.play_sfx(_element_muzzle_sfx(element), -10.0, 0.025)
-	if shots > 1 and skills.level("skill_multishot") > 0:
+	if multishot_lanes > 1 and skills.level("skill_multishot") > 0:
 		AudioManager.play_sfx("skill_multishot", -11.0, 0.025)
 	if skills.level("skill_salvo") > 0 and randf() < 0.12:
 		AudioManager.play_sfx("skill_salvo", -12.0, 0.025)
@@ -3602,14 +3628,18 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var split: int = int(mods.get("split", 0)) + int(special.get("split", 0))
 	var splash: float = maxf(float(special.get("splash", 0.0)), _character_splash_bonus(element))
 	var cloud: float = float(special.get("cloud", 0.0))
+	var lane_directions := _primary_shot_directions(origin, direction, multishot_lanes, lane_spread)
+	var shot_directions := _lane_pellet_directions(lane_directions, pellet_count, pellet_spread)
+	var shots := shot_directions.size()
 	var visual_scale := _projectile_visual_scale(shots, pierce, split, homing, splash, cloud)
-	var shot_directions := _primary_shot_directions(origin, direction, shots, spread)
 	var lane_damage_mult := _multishot_damage_multiplier(multishot_lanes)
-	var charge_shot_triggered := skills.level("skill_charge_shot") > 0 and randf() < 0.18
-	if charge_shot_triggered:
-		AudioManager.play_sfx("skill_charge_shot_charge", -11.0, 0.02)
-		AudioManager.play_sfx("skill_charge_shot_release", -9.5, 0.02)
-		_spawn_float_text(origin + Vector2(105, -72), "蓄能弹", Color(1.0, 0.78, 0.24))
+	var armor_penetration := skills.armor_penetration()
+	var status_strength := skills.projectile_status_strength(element)
+	var preferred_target: Node2D = target_manager.locked_enemy if target_manager.has_lock() else null
+	var penetration_feedback_triggered := armor_penetration > 0.0 and randf() < 0.14
+	if penetration_feedback_triggered:
+		AudioManager.play_sfx("skill_pierce", -11.0, 0.02)
+		_spawn_float_text(origin + Vector2(105, -72), "伤害穿透", Color(1.0, 0.78, 0.24))
 	for i in range(shots):
 		var shot_direction: Vector2 = shot_directions[i] if i < shot_directions.size() else direction
 		var damage: float = base_damage * float(turret.damage_mult) * skills.damage_multiplier()
@@ -3634,10 +3664,25 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 			splash,
 			cloud,
 			visual_scale,
-			visual_profile
+			visual_profile,
+			armor_penetration,
+			status_strength,
+			preferred_target
 		)
 	if shots >= 3:
-		_spawn_salvo_fan_vfx(origin, direction, spread, shots, element)
+		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element)
+
+func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float) -> Array[Vector2]:
+	var result: Array[Vector2] = []
+	for lane_direction in lane_directions:
+		var center := lane_direction.normalized()
+		if pellet_count <= 1 or pellet_spread <= 0.0:
+			result.append(center)
+			continue
+		for pellet_index in range(pellet_count):
+			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
+			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
+	return result
 
 func _multishot_damage_multiplier(lane_count: int) -> float:
 	# Per-projectile falloff is intentionally mild: multishot should still feel like a power spike,
@@ -3654,14 +3699,14 @@ func _multishot_damage_multiplier(lane_count: int) -> float:
 		_:
 			return 0.70
 
-func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "") -> void:
+func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var element := skills.projectile_element(str(weapon.get("element", "physical")))
 	var profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
 	if element == "fire" and profile == "":
 		profile = "fire_round"
-	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile)
+	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile, armor_penetration, status_strength, preferred_target)
 	projectile.split_requested.connect(_on_projectile_split_requested)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
@@ -4241,10 +4286,23 @@ func _track_transient_fx(node: Node, bucket: String) -> void:
 		node.set_meta("transient_vfx", true)
 
 func _can_spawn_projectile_fx(priority := false) -> bool:
-	return _transient_fx_count($ProjectileLayer, "projectile") < (MAX_PROJECTILE_PRIORITY_FX if priority else MAX_PROJECTILE_TRANSIENT_FX)
+	var base_limit := MAX_PROJECTILE_PRIORITY_FX if priority else MAX_PROJECTILE_TRANSIENT_FX
+	return _transient_fx_count($ProjectileLayer, "projectile") < _scaled_vfx_budget(base_limit, priority)
 
 func _can_spawn_hud_fx(priority := false) -> bool:
-	return _transient_fx_count($Hud, "hud") < (MAX_HUD_PRIORITY_FX if priority else MAX_HUD_TRANSIENT_FX)
+	var base_limit := MAX_HUD_PRIORITY_FX if priority else MAX_HUD_TRANSIENT_FX
+	return _transient_fx_count($Hud, "hud") < _scaled_vfx_budget(base_limit, priority)
+
+func _scaled_vfx_budget(base_limit: int, priority: bool) -> int:
+	var scale := 1.0
+	if SettingsManager.get_quality() == "battery":
+		scale *= 0.62 if priority else 0.48
+	var enemy_count := $EnemyLayer.get_child_count() if has_node("EnemyLayer") else 0
+	if enemy_count >= 100:
+		scale *= 0.72 if priority else 0.54
+	elif enemy_count >= 60:
+		scale *= 0.86 if priority else 0.72
+	return maxi(18 if priority else 12, int(round(float(base_limit) * scale)))
 
 func _can_spawn_float_text(priority := false) -> bool:
 	return _transient_fx_count($Hud, "float_text") < (MAX_PRIORITY_FLOAT_TEXTS if priority else MAX_FLOAT_TEXTS)
@@ -5094,13 +5152,13 @@ func _spawn_enemy_entry_vfx(enemy: Node, is_boss: bool) -> void:
 	if not is_boss:
 		_play_enemy_mechanic_sfx(enemy, -15.0, 0.05)
 	var color := Color(1.0, 0.3, 0.16, 0.34) if is_boss else Color(0.74, 0.9, 1.0, 0.22)
-	var radius := 190.0 if is_boss else 82.0
-	_spawn_attack_ring(enemy.global_position + Vector2(0, -20), radius, color, 0.28)
-	if is_boss:
+	var sequence := "vfx_boss_phase" if is_boss else "vfx_levelup_glow"
+	var fx := _spawn_vfx_sequence(sequence, enemy.global_position + Vector2(0, -34), 1.05 if is_boss else 0.42, Color(color.r, color.g, color.b, 0.62), 1.15, randf_range(-0.16, 0.16), 1.08, Vector2(0, -8), randf_range(-0.18, 0.18), is_boss)
+	if fx == null and is_boss:
 		_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_threat_warning.png", enemy.global_position + Vector2(0, -86), Color(1.0, 0.28, 0.12, 0.72), 1.3, 0.38)
 
 func _spawn_attack_telegraph(origin: Vector2, color: Color, label_text: String) -> void:
-	_spawn_attack_ring(origin, 96.0, color, 0.24)
+	_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_threat_warning.png", origin, Color(color.r, color.g, color.b, 0.64), 0.58, 0.24)
 	if not _can_spawn_float_text(true):
 		return
 	var label := Label.new()
@@ -5258,7 +5316,7 @@ func _pet_scaled_value(value_key: String, growth_key: String) -> float:
 	var growth := float(pet_data.get(growth_key, 0.0))
 	return value * (1.0 + growth * float(max(pet_level - 1, 0)))
 
-func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String) -> void:
+func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String, armor_penetration: float, status_strength: float) -> void:
 	AudioManager.play_sfx("skill_split_shot", -9.0, 0.025)
 	var fan := deg_to_rad(30.0 + float(count) * 10.0)
 	_spawn_split_burst_vfx(origin, direction, fan, count, element)
@@ -5267,16 +5325,16 @@ func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: 
 	for i in range(count):
 		var projectile := PROJECTILE_SCENE.instantiate()
 		var split_direction: Vector2 = target_directions[i]
-		projectile.setup(origin + split_direction * 22.0, split_direction, 1180.0, damage, element, 0, 0, 0.55, 2.6, 0.0, 0.0, 0.82, 0, "res://assets/production/sprites/projectiles/proj_split_mini.png")
+		projectile.setup(origin + split_direction * 22.0, split_direction, 1180.0, damage, element, 0, 0, 0.55, 2.6, 0.0, 0.0, 0.82, 0, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		$ProjectileLayer.call_deferred("add_child", projectile)
 
-func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String) -> void:
+func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float) -> void:
 	_spawn_element_impact_vfx(primary, origin, element, visual_profile)
 	_play_skill_impact_sfx(element)
 	_trigger_impact_feedback(primary, damage, visual_profile)
 	if chain_depth <= 0:
-		_spawn_chain_projectiles(primary, origin, damage, element)
+		_spawn_chain_projectiles(primary, origin, damage, element, armor_penetration, status_strength)
 	_apply_character_bullet_on_hit(primary, origin, damage, element)
 	var radius: float = maxf(splash_radius, cloud_radius)
 	if radius <= 0.0:
@@ -5292,7 +5350,7 @@ func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float,
 			continue
 		var falloff := 1.0 - clampf(target.global_position.distance_to(origin) / radius, 0.0, 1.0)
 		var scale := 0.45 if splash_radius >= cloud_radius else 0.32
-		target.take_damage(damage * scale * (0.55 + falloff * 0.45), element)
+		target.take_damage(damage * scale * (0.55 + falloff * 0.45), element, armor_penetration, status_strength)
 
 func _play_skill_impact_sfx(element: String) -> void:
 	if skills.level("skill_pierce") > 0 and randf() < 0.16:
@@ -5359,13 +5417,11 @@ func _split_target_directions(origin: Vector2, base_direction: Vector2, count: i
 		directions.append(base_direction.rotated(offset).normalized())
 	return directions
 
-func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, element: String) -> void:
+func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, element: String, armor_penetration: float, status_strength: float) -> void:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
 	var mods := skills.projectile_mods()
 	var chain_count := int(mods.get("chain", 0)) + int(special.get("chain", 0)) + _character_chain_bonus_for(element)
-	if element == "lightning" and skills.level("skill_tesla") > 0:
-		chain_count += 1
 	chain_count = mini(chain_count, 5)
 	if chain_count <= 0:
 		return
@@ -5379,7 +5435,7 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 		var projectile := PROJECTILE_SCENE.instantiate()
 		var chain_element := "lightning" if element == "physical" else element
 		_spawn_chain_arc(origin, target.global_position, chain_element)
-		projectile.setup(origin + direction * 18.0, direction, 1500.0, damage * 0.42, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.52, 1, "res://assets/production/sprites/projectiles/proj_split_mini.png")
+		projectile.setup(origin + direction * 18.0, direction, 1500.0, damage * 0.42, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.52, 1, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength, target)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		$ProjectileLayer.call_deferred("add_child", projectile)
 
@@ -5428,13 +5484,19 @@ func _impact_palette(element: String, hit_kind := "normal") -> Dictionary:
 				"spark": Color(1.0, 0.7, 0.22, 0.9),
 				"ring": Color(1.0, 0.92, 0.62, 0.58),
 			}
+		"armor_pierce":
+			return {
+				"core": Color(1.0, 0.94, 0.48, 1.0),
+				"spark": Color(1.0, 0.72, 0.18, 0.94),
+				"ring": Color(1.0, 0.88, 0.36, 0.66),
+			}
 		"shield":
 			return {
 				"core": Color(0.72, 0.94, 1.0, 0.94),
 				"spark": Color(0.42, 0.82, 1.0, 0.82),
 				"ring": Color(0.48, 0.84, 1.0, 0.62),
 			}
-		"immune", "phase_evade":
+		"immune", "phase_evade", "suppressed":
 			return {
 				"core": Color(0.82, 0.9, 1.0, 0.76),
 				"spark": Color(0.64, 0.78, 1.0, 0.48),
@@ -5507,7 +5569,7 @@ func _spawn_b4_impact_stack(position: Vector2, element: String, power := 1.0, hi
 				(burst as Node2D).rotation = randf_range(-PI, PI)
 	_spawn_impact_shock_ring(position, ring, 48.0 * safe_power, 4.0 + safe_power * 2.0, life, priority)
 	match hit_kind:
-		"shield", "immune", "phase_evade":
+		"shield", "immune", "phase_evade", "suppressed":
 			_spawn_impact_fork_lines(position, ring, 5, 72.0 * safe_power, 0.15, 2.2 + safe_power, priority)
 		"armor", "weak":
 			_spawn_impact_streaks(position, spark, 5, 66.0 * safe_power, 0.13, 3.2 + safe_power, priority)
@@ -5567,7 +5629,7 @@ func _impact_particle_speed(element: String, hit_kind: String, power: float) -> 
 	return speed * clampf(power, 0.65, 1.8)
 
 func _impact_particle_spread(element: String, hit_kind: String) -> float:
-	if hit_kind == "immune" or hit_kind == "phase_evade":
+	if hit_kind == "immune" or hit_kind == "phase_evade" or hit_kind == "suppressed":
 		return 116.0
 	match element:
 		"fire":
@@ -6036,6 +6098,8 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 	match hit_kind:
 		"armor":
 			power = 1.05
+		"armor_pierce":
+			power = 1.18
 		"shield":
 			power = 1.12
 		"immune", "phase_evade":
@@ -6048,7 +6112,7 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 	_spawn_b4_impact_stack(anchor, element, power, kind, weak_hit or kind != "normal")
 	if weak_hit:
 		_spawn_b4_impact_stack(position + Vector2(0, -44), element, 1.18, "weak", true)
-	if hit_kind == "armor" or hit_kind == "shield" or hit_kind == "immune":
+	if hit_kind == "armor" or hit_kind == "armor_pierce" or hit_kind == "shield" or hit_kind == "immune":
 		var palette := _impact_palette(element, kind)
 		var ring: Color = palette.get("ring", Color.WHITE)
 		_spawn_impact_shock_ring(position + Vector2(0, -36), ring, 74.0, 5.0, 0.18, true)
@@ -6325,7 +6389,7 @@ func _spawn_enemy_cast_impact(target: Vector2, color: Color, element: String, is
 	var fx := _spawn_vfx_sequence(seq, target, 1.35 if is_boss else 0.92, Color(color.r, color.g, color.b, 0.96), 1.0, randf_range(-0.3, 0.3), 1.16, Vector2(0, -12), randf_range(-0.3, 0.3), true)
 	if fx == null:
 		_spawn_attack_sprite(_attack_vfx_path(element), target, color, 1.2 if is_boss else 0.9, 0.3)
-	_spawn_attack_ring(target, 300.0 if is_boss else 190.0, color, 0.3)
+		_spawn_attack_ring(target, 300.0 if is_boss else 190.0, color, 0.3)
 	if is_boss:
 		_shake_hud(7.0, 0.2)
 
@@ -6338,19 +6402,19 @@ func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector
 	if fx == null:
 		var path := _attack_vfx_path(kind)
 		_spawn_attack_sprite(path, target_position, color, 0.66 if not is_boss_source else 1.12, 0.32)
-	match kind:
-		"summon", "spawn_minions":
-			_spawn_attack_ring(target_position, 72.0, color, 0.22)
-		"phase", "phase_shift":
-			_spawn_attack_ring(target_position, 115.0, color, 0.2)
-		"runner_dash", "leap_strike", "charge":
-			_spawn_attack_ring(target_position, 120.0, color, 0.22)
-		"buff_aura", "shield_aura", "ward", "regen", "mutate", "enrage":
-			_spawn_attack_ring(target_position, 138.0, color, 0.24)
-		"explode_on_death", "juggernaut":
-			_spawn_attack_ring(target_position, 185.0, color, 0.28)
-		"toxic_cloud":
-			_spawn_attack_ring(target_position, 225.0, color, 0.32)
+		match kind:
+			"summon", "spawn_minions":
+				_spawn_attack_ring(target_position, 72.0, color, 0.22)
+			"phase", "phase_shift":
+				_spawn_attack_ring(target_position, 115.0, color, 0.2)
+			"runner_dash", "leap_strike", "charge":
+				_spawn_attack_ring(target_position, 120.0, color, 0.22)
+			"buff_aura", "shield_aura", "ward", "regen", "mutate", "enrage":
+				_spawn_attack_ring(target_position, 138.0, color, 0.24)
+			"explode_on_death", "juggernaut":
+				_spawn_attack_ring(target_position, 185.0, color, 0.28)
+			"toxic_cloud":
+				_spawn_attack_ring(target_position, 225.0, color, 0.32)
 
 func _spawn_breach_attack_vfx(enemy: Node, shielded: bool) -> void:
 	if not is_instance_valid(enemy):
@@ -6361,8 +6425,10 @@ func _spawn_breach_attack_vfx(enemy: Node, shielded: bool) -> void:
 	var color := Color(0.58, 0.86, 1.0, 0.78) if shielded else _attack_color_for_mechanic(mechanic)
 	var target := _base_damage_impact_position(enemy.global_position.x)
 	var path := "res://assets/production/sprites/vfx/vfx_hit_immune.png" if shielded else _attack_vfx_path(mechanic)
-	_spawn_attack_sprite(path, target, color, _breach_attack_scale(mechanic), 0.26)
-	_spawn_attack_ring(target, 118.0 * _breach_attack_scale(mechanic), color, 0.22)
+	var sequence := "vfx_hit_ice" if shielded else "vfx_enemy_skill_%s" % mechanic
+	var fx := _spawn_vfx_sequence(sequence, target, _breach_attack_scale(mechanic), Color(color.r, color.g, color.b, 0.86), 1.18, randf_range(-0.14, 0.14), 1.08, Vector2(0, -8), randf_range(-0.16, 0.16), shielded)
+	if fx == null:
+		_spawn_attack_sprite(path, target, color, _breach_attack_scale(mechanic), 0.26)
 
 func _attack_vfx_path(kind: String) -> String:
 	match kind:
@@ -6483,9 +6549,11 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	var death_sfx := _zombie_mechanic_sfx(str(enemy.get("mechanic"))) if is_instance_valid(enemy) else ""
 	if death_sfx != "":
 		AudioManager.play_sfx(death_sfx, -9.0, 0.025)
-	AudioManager.play_sfx("enemy_death", -6.0)
+	else:
+		AudioManager.play_sfx("enemy_death", -6.0)
 	if enemy == active_boss:
 		active_boss = null
+		_refresh_active_boss()
 	if is_instance_valid(enemy):
 		enemy.set_meta("death_element", str(reward.get("death_element", "physical")))
 	_resolve_death_mechanic(enemy)
@@ -6495,8 +6563,9 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	_trigger_kill_screen_shake(bool(reward.get("boss", false)))
 	_trigger_kill_hit_stop(bool(reward.get("boss", false)))
 	var gold_per_kill := econ_gold_base + econ_gold_per * float(level_ordinal)
-	var reward_gold := int(round(float(reward.get("gold_coef", 1.0)) * gold_per_kill * float(level.get("reward_gold_mult", 1.0)) * gold_mult * skills.gold_multiplier() * variant_gold_mult))
-	var reward_xp := int(round(float(reward.get("xp", 0)) * variant_xp_mult))
+	var reward_scale := float(enemy.get_meta("reward_scale", 1.0)) if is_instance_valid(enemy) else 1.0
+	var reward_gold := int(round(float(reward.get("gold_coef", 1.0)) * gold_per_kill * float(level.get("reward_gold_mult", 1.0)) * gold_mult * skills.gold_multiplier() * variant_gold_mult * reward_scale))
+	var reward_xp := int(round(float(reward.get("xp", 0)) * variant_xp_mult * reward_scale))
 	gold += reward_gold
 	xp += reward_xp
 	if is_instance_valid(enemy):
@@ -6616,7 +6685,7 @@ func _resolve_death_mechanic(enemy: Node) -> void:
 			_enemy_death_blast(enemy, 220.0, 0.28, Color(0.42, 1.0, 0.28))
 		"split":
 			for offset in [-46.0, 46.0]:
-				_spawn_enemy_instance("zombie_crawler", enemy.global_position + Vector2(offset, 16.0), false)
+				_spawn_enemy_instance("zombie_crawler", enemy.global_position + Vector2(offset, 16.0), false, 0.0)
 
 func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: Color) -> void:
 	_spawn_enemy_attack_vfx(enemy, str(enemy.mechanic), enemy.global_position)
@@ -7437,11 +7506,14 @@ func _update_barrier_visual() -> void:
 	if barrier_visual == null or barrier_sprite == null:
 		return
 	var charges := _barrier_charge_count()
-	barrier_visual.visible = charges > 0
-	if charges <= 0:
+	var skill_level := skills.level("skill_barrier")
+	var has_barrier := charges > 0 or skill_level > 0
+	barrier_visual.visible = has_barrier
+	if not has_barrier:
 		return
 	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 240.0)
-	var alpha := clampf(0.48 + float(charges) * 0.08 + pulse * 0.08, 0.48, 0.82)
+	var hp_ratio := clampf(float(base_hp) / float(maxi(base_hp_max, 1)), 0.0, 1.0)
+	var alpha := clampf(0.4 + float(charges) * 0.08 + float(skill_level) * 0.035 + hp_ratio * 0.05 + pulse * 0.07, 0.44, 0.82)
 	barrier_sprite.modulate = Color(0.86, 0.98, 1.0, alpha)
 
 func _spawn_barrier_gain_vfx() -> void:
@@ -8030,13 +8102,13 @@ func _skill_short_desc(skill_id: String, lv: int) -> String:
 		"skill_multishot":
 			return "额外发射弹丸，正面火力明显变宽。"
 		"skill_slow_field":
-			return "防线前生成减速区，压住漏怪节奏。"
+			return "防线前生成大范围减速区，等级越高覆盖越靠前。"
 		"skill_homing":
 			return "子弹获得轻微追踪，减少高速怪和斜线目标漏枪。"
 		"skill_critical":
-			return "提高暴击率和伤害，对精英与首领更有效。"
+			return "蓄力打出重击，提高暴击概率、暴击伤害和主弹威力。"
 		"skill_barrier":
-			return "获得一次防线拦截，挡下下一只冲线僵尸。"
+			return "提高基地生命上限，并立即补上新增防线生命。"
 		"skill_gold_rush":
 			return "提高本局金币收益，适合滚长期养成。"
 		"skill_ricochet":
@@ -8052,9 +8124,9 @@ func _skill_short_desc(skill_id: String, lv: int) -> String:
 		"skill_venom":
 			return "毒素弹药模块；物理枪转毒，毒系武器升级中毒。"
 		"skill_charge_shot":
-			return "提升主弹伤害，让单点击杀更干脆。"
+			return "主弹获得伤害穿透，能把部分伤害打进护甲本体。"
 		"skill_recycle":
-			return "获得额外重抽次数，提高技能成型稳定性。"
+			return "获得1次重抽机会，提高本局技能成型稳定性。"
 		_:
 			return "强化当前战斗能力。"
 
@@ -8067,13 +8139,13 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_multishot":
 			return "每次开火额外发射弹丸，最多形成5条弹道。多弹道每发有轻微衰减，但可与追踪、穿透、分裂和跳弹继续叠加。"
 		"skill_slow_field":
-			return "在防线前展开持续减速区。等级越高，区域越靠前、减速越强，3级会显示更宽的青色力场。"
+			return "在防线前展开持续减速区。等级越高，覆盖范围按30%/40%/50%/60%/70%向前扩大；减速强度仍按原数值成长。"
 		"skill_homing":
 			return "子弹飞行中会向最近目标修正方向。等级越高修正越明显，能显著改善斜线开火、高速小怪和残血补刀的手感。"
 		"skill_critical":
-			return "提高暴击概率与全局伤害，3级起额外提高暴击伤害，满级暴伤大幅跃升。适合搭配高射速武器，面对精英、首领和护盾怪收益最高。"
+			return "原弱点暴击重命名为蓄能重击。提高暴击概率、全局伤害，3级起提高暴击伤害；适合高射速武器和首领战。"
 		"skill_barrier":
-			return "立刻补充技能护盾，下一次敌人冲线时不扣基地生命。多次选择可叠加，满级单次补充2层，是后期容错核心。"
+			return "不再按僵尸次数格挡，而是直接提高基地生命上限。等级成长为+20%/+40%/+60%/+80%/+120%，并立即补上新增生命。"
 		"skill_gold_rush":
 			return "本局获得金币提高。它不会直接提高战力，但能让过关后的武器和装备成长更快，适合低压波次选择。"
 		"skill_ricochet":
@@ -8089,9 +8161,9 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_venom":
 			return "弹药元素模块，同组互斥。物理武器会转为毒素；毒系武器只升级中毒效果，不会和特斯拉弹等其他弹药共存。毒素偏向破厚血和护甲压力。"
 		"skill_charge_shot":
-			return "提高所有主弹基础伤害。它没有复杂机制，但能直接缩短击杀时间，适合补足单体输出短板。"
+			return "改为伤害穿透。它提供直接伤害加成，并让主弹对护甲/护盾单位造成一部分本体穿透伤害，适合处理厚甲首领。"
 		"skill_recycle":
-			return "补充重抽机会，满级单次补充2次。拿到它以后，后续技能选择更容易围绕角色、武器和关卡威胁成型。"
+			return "只提供1次额外重抽，不再升级。拿到它以后，后续技能选择更容易围绕角色、武器和关卡威胁成型。"
 		_:
 			return "获得一项战斗强化。"
 
@@ -8118,6 +8190,7 @@ func _choose_card(skill_id: String) -> void:
 	AudioManager.play_sfx("card_pick")
 	AudioManager.play_sfx("level_up", -3.0, 0.02)
 	_hide_skill_hint()
+	var previous_skill_level := skills.level(skill_id)
 	if not _skill_compatible_with_weapon(skill_id):
 		_show_wave_toast("该弹药与当前武器不兼容", Color(1.0, 0.55, 0.24))
 		_close_card_offer(false)
@@ -8135,8 +8208,7 @@ func _choose_card(skill_id: String) -> void:
 	_spawn_levelup_vfx(Vector2(540, 1580.0 + bottom_dock_shift), Color(1.0, 0.86, 0.3))
 	_spawn_skill_pick_vfx(skill_id)
 	if skill_id == "skill_barrier":
-		skill_barriers_left += skills.barrier_gain()
-		_spawn_barrier_gain_vfx()
+		_apply_barrier_base_hp_bonus(previous_skill_level)
 	if skill_id == "skill_recycle":
 		reroll_charges += skills.reroll_gain()
 	if skill_id == "skill_salvo" and turret != null:
@@ -8151,6 +8223,31 @@ func _choose_card(skill_id: String) -> void:
 	_advance_card_xp_after_pick()
 	_close_card_offer(false)
 	_update_character_skill_button()
+
+func _skill_effect_float_for_level(skill_id: String, target_level: int, key: String) -> float:
+	if target_level <= 0:
+		return 0.0
+	var row: Dictionary = DataLoader.get_row("skills", skill_id)
+	var chosen: Dictionary = {}
+	for entry in row.get("levels", []):
+		if entry is Dictionary and int(entry.get("lv", 0)) <= target_level:
+			chosen = entry.get("effect", {})
+	return float(chosen.get(key, 0.0))
+
+func _apply_barrier_base_hp_bonus(previous_level: int) -> void:
+	var current_level := skills.level("skill_barrier")
+	var previous_bonus := _skill_effect_float_for_level("skill_barrier", previous_level, "base_hp_mult")
+	var current_bonus := _skill_effect_float_for_level("skill_barrier", current_level, "base_hp_mult")
+	if current_bonus <= previous_bonus or base_hp_max <= 0:
+		return
+	var old_max := base_hp_max
+	var base_without_barrier := float(base_hp_max) / maxf(1.0 + previous_bonus, 0.05)
+	base_hp_max = maxi(1, int(round(base_without_barrier * (1.0 + current_bonus))))
+	var hp_gain := maxi(0, base_hp_max - old_max)
+	base_hp = mini(base_hp + hp_gain, base_hp_max)
+	_update_hud()
+	_spawn_barrier_gain_vfx()
+	_spawn_float_text(Vector2(354, 1710.0 + bottom_dock_shift), "防线生命 +%d%%" % int(round((current_bonus - previous_bonus) * 100.0)), Color(0.62, 1.0, 0.78), true, 26, 360.0)
 
 func _spawn_skill_pick_vfx(skill_id: String) -> void:
 	if not _can_spawn_projectile_fx(true):
@@ -8249,7 +8346,7 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 		return
 	if str(enemy.get("mechanic")) == "armor" and not immune_hit:
 		AudioManager.play_sfx("zombie_armored", -10.0, 0.02)
-	if immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade":
+	if immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade" or hit_kind == "armor_pierce" or hit_kind == "suppressed":
 		_show_enemy_hit_rule_feedback(enemy, element, hit_kind)
 	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
 	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
@@ -8288,12 +8385,16 @@ func _enemy_hit_rule_text(enemy: Node, element: String, hit_kind: String) -> Str
 	match hit_kind:
 		"armor":
 			return "装甲吸收 · 破甲中"
+		"armor_pierce":
+			return "伤害穿透 · 直击本体"
 		"shield":
 			return "护盾吸收%s" % weakness_text
 		"phase_evade":
 			return "相位闪避 · 雷电可破"
 		"immune":
 			return "%s免疫%s" % [_element_combat_label(element), weakness_text]
+		"suppressed":
+			return "%s抗性 · 伤害18%%%s" % [_element_combat_label(element), weakness_text]
 		_:
 			var immune_list: Variant = enemy.get("immune")
 			if immune_list is Array and (immune_list as Array).has(element):
@@ -8325,6 +8426,8 @@ func _enemy_hit_rule_color(element: String, hit_kind: String) -> Color:
 	match hit_kind:
 		"armor":
 			return Color(1.0, 0.82, 0.28, 1.0)
+		"armor_pierce":
+			return Color(1.0, 0.92, 0.42, 1.0)
 		"shield":
 			return Color(0.58, 0.92, 1.0, 1.0)
 		"phase_evade":
@@ -8533,7 +8636,7 @@ func _element_hit_sfx(element: String) -> String:
 func _skill_sfx_id(skill_id: String) -> String:
 	match skill_id:
 		"skill_charge_shot":
-			return "skill_charge_shot_charge"
+			return "skill_pierce"
 		"skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing", "skill_critical", "skill_barrier", "skill_gold_rush", "skill_ricochet", "skill_salvo", "skill_incendiary", "skill_cryo", "skill_tesla", "skill_venom", "skill_recycle":
 			return skill_id
 		_:

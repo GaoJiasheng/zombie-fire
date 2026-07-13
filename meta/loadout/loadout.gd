@@ -41,6 +41,8 @@ func _ready() -> void:
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(760, 112), true)
 	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 84), true)
+	UiKit.attach_touch_target(%BackButton as TextureButton)
+	(%StartButton as TextureButton).set_meta("critical_touch", true)
 	(%StartButton as TextureButton).pressed.connect(func() -> void:
 		AudioManager.play_sfx("ui_confirm")
 		if is_challenge_mode:
@@ -356,9 +358,9 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		pet_name,
 		" 等级%d" % pet_level if has_pet else ""
 	]
-	loadout.custom_minimum_size = Vector2(0, 56)
+	loadout.custom_minimum_size = Vector2(0, 68)
 	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	loadout.clip_text = true
+	loadout.clip_text = false
 	UiKit.apply_label(loadout, 21, UiKit.TEXT_MAIN, 4)
 	box.add_child(loadout)
 
@@ -520,7 +522,7 @@ func _refresh_signature_panel(char_id: String) -> void:
 
 func _signature_card(kind: String, title: String, desc: String, accent: Color) -> PanelContainer:
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(250, 106)
+	card.custom_minimum_size = Vector2(250, 118)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.add_theme_stylebox_override("panel", _signature_card_style(Color(0.022, 0.028, 0.036, 0.9), accent))
 	card.tooltip_text = "%s：%s\n%s" % [kind, title, desc]
@@ -529,7 +531,7 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	card.add_child(stack)
 	var kind_label := Label.new()
 	kind_label.text = kind
-	kind_label.add_theme_font_size_override("font_size", 13)
+	kind_label.add_theme_font_size_override("font_size", 16)
 	kind_label.add_theme_color_override("font_color", accent)
 	kind_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	kind_label.add_theme_constant_override("outline_size", 2)
@@ -544,8 +546,8 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	stack.add_child(title_label)
 	var desc_label := Label.new()
 	desc_label.text = desc.replace("已生效：", "").replace("主动：", "").replace("自动：", "").replace("弹种：", "")
-	desc_label.custom_minimum_size = Vector2(0, 42)
-	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.custom_minimum_size = Vector2(0, 48)
+	desc_label.add_theme_font_size_override("font_size", 16)
 	desc_label.add_theme_color_override("font_color", Color(0.76, 0.9, 0.96, 0.96))
 	desc_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	desc_label.add_theme_constant_override("outline_size", 2)
@@ -575,7 +577,7 @@ func _gear_icon_button(table: String, slot: String, selected_id: String, _fallba
 	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.74, 0.80, 0.86, 0.90)
 	var slot_label := Label.new()
 	slot_label.name = "SlotLabel"
-	slot_label.text = _slot_label(slot) if has_item else "%s空槽" % _slot_label(slot)
+	slot_label.text = _slot_label(slot) if has_item else "%s · 选择" % _slot_label(slot)
 	slot_label.position = Vector2(10, GEAR_CARD_SIZE.y - 42.0)
 	slot_label.size = Vector2(GEAR_CARD_SIZE.x - 20.0, 28.0)
 	slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -614,6 +616,27 @@ func _icon_card(card_name: String, texture_path: String, card_size: Vector2, mar
 	icon.size = icon.custom_minimum_size
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon)
+	if texture_path == "":
+		var plus := Label.new()
+		plus.name = "EmptyPlus"
+		plus.text = "+"
+		plus.position = Vector2(20, 20)
+		plus.size = Vector2(card_size.x - 40.0, 74)
+		plus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		plus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UiKit.apply_label(plus, 38, UiKit.CYAN, 3)
+		plus.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(plus)
+		var choose := Label.new()
+		choose.name = "EmptyChooseLabel"
+		choose.text = "点击选择"
+		choose.position = Vector2(16, 88)
+		choose.size = Vector2(card_size.x - 32.0, 34)
+		choose.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		choose.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UiKit.apply_label(choose, 17, UiKit.TEXT_MAIN, 2)
+		choose.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(choose)
 
 	var hit_area := Button.new()
 	hit_area.name = "HitArea"

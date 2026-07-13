@@ -29,6 +29,7 @@ const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
 const DESIGN_HEIGHT := 1920.0
+const MIN_TOUCH_TARGET := Vector2(88.0, 88.0)
 const NATIVE_BUTTON_SIZES := [
 	Vector2i(154, 44),
 	Vector2i(166, 58),
@@ -72,8 +73,244 @@ const NATIVE_BUTTON_SIZES := [
 const FONT_SCALE := 1.4
 static var _TEXTURE_CACHE: Dictionary = {}
 
+static func release_cached_resources_for_tests() -> void:
+	_TEXTURE_CACHE.clear()
+
 static func tall_modal_shift(viewport_height: float, max_shift := 160.0, ratio := 0.34) -> float:
 	return minf(max_shift, maxf(0.0, viewport_height - DESIGN_HEIGHT) * ratio)
+
+static func safe_area_canvas_insets(viewport: Viewport) -> Vector4:
+	if viewport == null:
+		return Vector4.ZERO
+	var debug_insets := _debug_safe_area_insets()
+	if debug_insets != Vector4.ZERO:
+		return debug_insets
+	if not OS.get_name() in ["iOS", "Android"]:
+		return Vector4.ZERO
+	var safe_pixels := DisplayServer.get_display_safe_area()
+	if safe_pixels.size.x <= 0 or safe_pixels.size.y <= 0:
+		return Vector4.ZERO
+	var canvas_rect := viewport.get_visible_rect()
+	var screen_transform := viewport.get_screen_transform()
+	if absf(screen_transform.determinant()) <= 0.00001:
+		return Vector4.ZERO
+	var inverse := screen_transform.affine_inverse()
+	var safe_start := inverse * Vector2(safe_pixels.position)
+	var safe_end := inverse * Vector2(safe_pixels.end)
+	var safe_canvas := Rect2(safe_start, safe_end - safe_start).abs().intersection(canvas_rect)
+	if safe_canvas.size.x <= 0.0 or safe_canvas.size.y <= 0.0:
+		return Vector4.ZERO
+	return Vector4(
+		maxf(safe_canvas.position.x - canvas_rect.position.x, 0.0),
+		maxf(safe_canvas.position.y - canvas_rect.position.y, 0.0),
+		maxf(canvas_rect.end.x - safe_canvas.end.x, 0.0),
+		maxf(canvas_rect.end.y - safe_canvas.end.y, 0.0)
+	)
+
+static func _debug_safe_area_insets() -> Vector4:
+	if not OS.is_debug_build():
+		return Vector4.ZERO
+	var raw := OS.get_environment("ZOMBIE_FIRE_DEBUG_SAFE_INSETS").strip_edges()
+	if raw == "":
+		return Vector4.ZERO
+	var parts := raw.split(",")
+	if parts.size() != 4:
+		return Vector4.ZERO
+	return Vector4(
+		maxf(float(parts[0]), 0.0),
+		maxf(float(parts[1]), 0.0),
+		maxf(float(parts[2]), 0.0),
+		maxf(float(parts[3]), 0.0)
+	)
+
+static func safe_content_rect(viewport: Viewport, insets := Vector4(-1, -1, -1, -1)) -> Rect2:
+	if viewport == null:
+		return Rect2()
+	var canvas_rect := viewport.get_visible_rect()
+	var resolved: Vector4 = insets
+	if resolved.x < 0.0:
+		resolved = safe_area_canvas_insets(viewport)
+	return Rect2(
+		canvas_rect.position + Vector2(resolved.x, resolved.y),
+		Vector2(
+			maxf(0.0, canvas_rect.size.x - resolved.x - resolved.z),
+			maxf(0.0, canvas_rect.size.y - resolved.y - resolved.w)
+		)
+	)
+
+static func apply_safe_area_to_root(root: Control, insets: Vector4) -> void:
+	if root == null:
+		return
+	for child in root.get_children():
+		if not (child is Control):
+			continue
+		var control := child as Control
+		var node_name := str(control.name).to_lower()
+		if node_name.contains("background") or node_name.contains("scrim") or node_name.contains("dim") or node_name.contains("backdrop") or node_name == "bg":
+			continue
+		if not (is_equal_approx(control.anchor_left, 0.0) and is_equal_approx(control.anchor_top, 0.0) and is_equal_approx(control.anchor_right, 1.0) and is_equal_approx(control.anchor_bottom, 1.0)):
+			continue
+		if not control.has_meta("safe_area_base_offsets"):
+			control.set_meta("safe_area_base_offsets", Vector4(control.offset_left, control.offset_top, control.offset_right, control.offset_bottom))
+		var base: Vector4 = control.get_meta("safe_area_base_offsets")
+		control.offset_left = base.x + insets.x
+		control.offset_top = base.y + insets.y
+		control.offset_right = base.z - insets.z
+		control.offset_bottom = base.w - insets.w
+		control.set_meta("safe_area_content", true)
+		var available_width := root.get_viewport_rect().size.x - insets.x - insets.z
+		if control is MarginContainer:
+			available_width -= float(control.get_theme_constant("margin_left") + control.get_theme_constant("margin_right"))
+		_fit_named_title_textures(control, maxf(available_width, 1.0))
+
+static func _fit_named_title_textures(node: Node, available_width: float) -> void:
+	if node is TextureRect and node.name.to_lower() == "title":
+		var texture_rect := node as TextureRect
+		if not texture_rect.has_meta("safe_area_base_minimum"):
+			texture_rect.set_meta("safe_area_base_minimum", texture_rect.custom_minimum_size)
+		var base_minimum: Vector2 = texture_rect.get_meta("safe_area_base_minimum")
+		if base_minimum.x > 0.0:
+			var fitted_width := minf(base_minimum.x, available_width)
+			texture_rect.custom_minimum_size = Vector2(fitted_width, base_minimum.y * fitted_width / base_minimum.x)
+	for child in node.get_children():
+		_fit_named_title_textures(child, available_width)
+
+static func attach_touch_target(button: BaseButton, minimum_size := MIN_TOUCH_TARGET) -> Button:
+	if button == null:
+		return null
+	button.set_meta("critical_touch", true)
+	var existing := button.get_node_or_null("TouchTarget") as Button
+	if existing != null:
+		return existing
+	var visual_size := button.size
+	if visual_size.x <= 0.0 or visual_size.y <= 0.0:
+		visual_size = button.custom_minimum_size
+	if visual_size.x >= minimum_size.x and visual_size.y >= minimum_size.y:
+		button.set_meta("touch_target_size", visual_size)
+		return null
+	var hit_size := Vector2(maxf(visual_size.x, minimum_size.x), maxf(visual_size.y, minimum_size.y))
+	var hit := Button.new()
+	hit.name = "TouchTarget"
+	hit.position = (visual_size - hit_size) * 0.5
+	hit.size = hit_size
+	hit.custom_minimum_size = hit_size
+	hit.text = ""
+	hit.focus_mode = Control.FOCUS_NONE
+	hit.mouse_filter = Control.MOUSE_FILTER_STOP
+	hit.disabled = button.disabled
+	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+		hit.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	hit.pressed.connect(func() -> void:
+		if is_instance_valid(button) and not button.disabled:
+			button.emit_signal("pressed")
+	)
+	button.add_child(hit)
+	button.set_meta("touch_target_node", NodePath("TouchTarget"))
+	button.set_meta("touch_target_size", hit_size)
+	return hit
+
+static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
+	var issues: Array[String] = []
+	if root == null or root.get_viewport() == null:
+		return issues
+	var controls: Array[Control] = []
+	_collect_controls(root, controls)
+	var viewport_rect := root.get_viewport().get_visible_rect()
+	var safe_rect := safe_content_rect(root.get_viewport(), insets)
+	var critical: Array[Dictionary] = []
+	for control in controls:
+		if not control.is_visible_in_tree():
+			continue
+		var rect := control.get_global_rect()
+		if control.has_meta("safe_area_content") and not _rect_contains(safe_rect, rect, 1.5):
+			issues.append("safe-area breach: %s rect=%s safe=%s min-chain=%s" % [str(root.get_path_to(control)), str(rect), str(safe_rect), _minimum_width_chain(control)])
+		if control is BaseButton and _is_critical_touch(control as BaseButton):
+			var button := control as BaseButton
+			var hit_control: Control = button
+			if button.has_meta("touch_target_node"):
+				hit_control = button.get_node_or_null(button.get_meta("touch_target_node")) as Control
+				if hit_control == null:
+					hit_control = button
+			var hit_rect := hit_control.get_global_rect()
+			var visible_hit := hit_rect.intersection(viewport_rect)
+			if visible_hit.size.x >= hit_rect.size.x * 0.8 and visible_hit.size.y >= hit_rect.size.y * 0.8 and _visible_in_clip_ancestors(button, hit_rect):
+				if hit_rect.size.x + 0.5 < MIN_TOUCH_TARGET.x or hit_rect.size.y + 0.5 < MIN_TOUCH_TARGET.y:
+					issues.append("touch target too small: %s size=%s" % [str(root.get_path_to(button)), str(hit_rect.size)])
+				critical.append({"node": button, "rect": hit_rect})
+		if control is Label:
+			_audit_label_clip(root, control as Label, viewport_rect, issues)
+	for i in range(critical.size()):
+		for j in range(i + 1, critical.size()):
+			var left_node: Node = critical[i]["node"]
+			var right_node: Node = critical[j]["node"]
+			if left_node.is_ancestor_of(right_node) or right_node.is_ancestor_of(left_node):
+				continue
+			var overlap: Rect2 = (critical[i]["rect"] as Rect2).intersection(critical[j]["rect"] as Rect2)
+			if overlap.size.x > 8.0 and overlap.size.y > 8.0:
+				issues.append("touch targets overlap: %s and %s overlap=%s" % [str(root.get_path_to(left_node)), str(root.get_path_to(right_node)), str(overlap.size)])
+	return issues
+
+static func _collect_controls(node: Node, output: Array[Control]) -> void:
+	for child in node.get_children():
+		if child is Control:
+			output.append(child as Control)
+		_collect_controls(child, output)
+
+static func _is_critical_touch(button: BaseButton) -> bool:
+	if bool(button.get_meta("critical_touch", false)):
+		return true
+	var node_name := str(button.name).to_lower()
+	return node_name.ends_with("button") or node_name.contains("hitarea")
+
+static func _audit_label_clip(root: Control, label_node: Label, viewport_rect: Rect2, issues: Array[String]) -> void:
+	if not label_node.clip_text or label_node.autowrap_mode != TextServer.AUTOWRAP_OFF or label_node.text.strip_edges() == "":
+		return
+	var rect := label_node.get_global_rect()
+	var visible_rect := rect.intersection(viewport_rect)
+	if visible_rect.size.x < rect.size.x * 0.8 or visible_rect.size.y < rect.size.y * 0.8 or not _visible_in_clip_ancestors(label_node, rect):
+		return
+	var font := label_node.get_theme_font("font")
+	var font_size := label_node.get_theme_font_size("font_size")
+	var required_width := 0.0
+	for line in label_node.text.split("\n"):
+		required_width = maxf(required_width, font.get_string_size(str(line), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x)
+	if required_width > rect.size.x + 2.0:
+		issues.append("text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(label_node)), required_width, rect.size.x, label_node.text.replace("\n", " ")])
+
+static func _rect_contains(outer: Rect2, inner: Rect2, tolerance: float) -> bool:
+	return inner.position.x >= outer.position.x - tolerance \
+		and inner.position.y >= outer.position.y - tolerance \
+		and inner.end.x <= outer.end.x + tolerance \
+		and inner.end.y <= outer.end.y + tolerance
+
+static func _visible_in_clip_ancestors(control: Control, rect: Rect2) -> bool:
+	var ancestor := control.get_parent()
+	while ancestor is Control:
+		var ancestor_control := ancestor as Control
+		if ancestor_control is ScrollContainer or ancestor_control.clip_contents:
+			var clipped := rect.intersection(ancestor_control.get_global_rect())
+			if clipped.size.x < rect.size.x * 0.8 or clipped.size.y < rect.size.y * 0.8:
+				return false
+		ancestor = ancestor.get_parent()
+	return true
+
+static func _minimum_width_chain(control: Control) -> String:
+	var parts: Array[String] = []
+	var current := control
+	for _depth in range(8):
+		parts.append("%s:%.0f" % [str(current.name), current.get_combined_minimum_size().x])
+		var widest: Control = null
+		var widest_width := 0.0
+		for child in current.get_children():
+			if child is Control:
+				var width := (child as Control).get_combined_minimum_size().x
+				if width > widest_width:
+					widest = child as Control
+					widest_width = width
+		if widest == null or widest_width <= 0.0:
+			break
+		current = widest
+	return " > ".join(parts)
 
 static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
@@ -147,6 +384,13 @@ static func armored_button_style(primary := true, button_size := Vector2(512, 16
 static func apply_armored_button(button: Button, primary := true, button_size := Vector2(512, 96), font_size := 24, enabled := true) -> void:
 	if button == null:
 		return
+	if button.get_parent() is HBoxContainer:
+		var sibling_count := button.get_parent().get_child_count()
+		if sibling_count >= 3:
+			button_size.x = minf(button_size.x, 236.0)
+		elif sibling_count == 2:
+			button_size.x = minf(button_size.x, 360.0)
+	button_size.y = maxf(button_size.y, MIN_TOUCH_TARGET.y)
 	button.custom_minimum_size = button_size
 	button.focus_mode = Control.FOCUS_NONE
 	button.disabled = not enabled
@@ -519,12 +763,17 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var viewport_h := DESIGN_HEIGHT
+	var safe := Vector4.ZERO
 	if host != null and host.get_viewport() != null:
 		viewport_h = host.get_viewport().get_visible_rect().size.y
+		safe = safe_area_canvas_insets(host.get_viewport())
 	var modal_shift := tall_modal_shift(viewport_h, 150.0, 0.32)
-	center.offset_top = modal_shift
-	center.offset_bottom = modal_shift
+	center.offset_left = safe.x
+	center.offset_top = safe.y + modal_shift
+	center.offset_right = -safe.z
+	center.offset_bottom = -safe.w + modal_shift
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.set_meta("safe_area_content", true)
 	layer.add_child(center)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", panel_style(accent, PANEL_BG_DARK, 3, 20))

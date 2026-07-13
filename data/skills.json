@@ -162,35 +162,35 @@
 				"lv": 1,
 				"effect": {
 					"slow": 0.18,
-					"y_min": 1060
+					"y_min": 1050
 				}
 			},
 			{
 				"lv": 2,
 				"effect": {
 					"slow": 0.26,
-					"y_min": 940
+					"y_min": 900
 				}
 			},
 			{
 				"lv": 3,
 				"effect": {
 					"slow": 0.35,
-					"y_min": 820
+					"y_min": 750
 				}
 			},
 			{
 				"lv": 4,
 				"effect": {
 					"slow": 0.43,
-					"y_min": 700
+					"y_min": 600
 				}
 			},
 			{
 				"lv": 5,
 				"effect": {
 					"slow": 0.52,
-					"y_min": 580
+					"y_min": 450
 				}
 			}
 		]
@@ -310,31 +310,31 @@
 			{
 				"lv": 1,
 				"effect": {
-					"shields": 1
+					"base_hp_mult": 0.2
 				}
 			},
 			{
 				"lv": 2,
 				"effect": {
-					"shields": 1
+					"base_hp_mult": 0.4
 				}
 			},
 			{
 				"lv": 3,
 				"effect": {
-					"shields": 1
+					"base_hp_mult": 0.6
 				}
 			},
 			{
 				"lv": 4,
 				"effect": {
-					"shields": 1
+					"base_hp_mult": 0.8
 				}
 			},
 			{
 				"lv": 5,
 				"effect": {
-					"shields": 2
+					"base_hp_mult": 1.2
 				}
 			}
 		]
@@ -699,31 +699,36 @@
 			{
 				"lv": 1,
 				"effect": {
-					"dmg_mult": 0.12
+					"dmg_mult": 0.08,
+					"armor_penetration": 0.2
 				}
 			},
 			{
 				"lv": 2,
 				"effect": {
-					"dmg_mult": 0.24
+					"dmg_mult": 0.16,
+					"armor_penetration": 0.32
 				}
 			},
 			{
 				"lv": 3,
 				"effect": {
-					"dmg_mult": 0.36
+					"dmg_mult": 0.24,
+					"armor_penetration": 0.44
 				}
 			},
 			{
 				"lv": 4,
 				"effect": {
-					"dmg_mult": 0.5
+					"dmg_mult": 0.34,
+					"armor_penetration": 0.58
 				}
 			},
 			{
 				"lv": 5,
 				"effect": {
-					"dmg_mult": 0.7
+					"dmg_mult": 0.48,
+					"armor_penetration": 0.75
 				}
 			}
 		]
@@ -744,30 +749,6 @@
 				"lv": 1,
 				"effect": {
 					"reroll": 1
-				}
-			},
-			{
-				"lv": 2,
-				"effect": {
-					"reroll": 1
-				}
-			},
-			{
-				"lv": 3,
-				"effect": {
-					"reroll": 1
-				}
-			},
-			{
-				"lv": 4,
-				"effect": {
-					"reroll": 1
-				}
-			},
-			{
-				"lv": 5,
-				"effect": {
-					"reroll": 2
 				}
 			}
 		]

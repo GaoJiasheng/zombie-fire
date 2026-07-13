@@ -1,5 +1,7 @@
 extends Node
 
+const UiKit := preload("res://ui/ui_kit.gd")
+
 const ROUTES := {
 	"menu": "res://meta/menu/menu.tscn",
 	"map": "res://meta/map/map.tscn",
@@ -15,13 +17,31 @@ var run_context := {}
 var _scene_change_pending := false
 var _pending_route := "menu"
 var _pending_payload := {}
+var _current_route := ""
 
 func _ready() -> void:
-	DataLoader.load_all()
+	if not DataLoader.load_all():
+		push_error("Fatal data load failure: %s" % ", ".join(DataLoader.load_errors))
+		get_tree().quit(2)
+		return
 	SaveManager.load_game()
 	get_tree().paused = false
 	Engine.time_scale = 1.0
+	get_viewport().size_changed.connect(_refresh_safe_area)
 	change_scene("menu")
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			if is_instance_valid(InputManager) and InputManager.has_method("cancel_active_input"):
+				InputManager.cancel_active_input()
+			if is_instance_valid(AudioManager) and AudioManager.has_method("pause_audio"):
+				AudioManager.pause_audio()
+			if is_instance_valid(SaveManager):
+				SaveManager.save_game()
+		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
+			if is_instance_valid(AudioManager) and AudioManager.has_method("resume_audio"):
+				AudioManager.resume_audio()
 
 func change_scene(route: String, payload := {}) -> void:
 	_pending_route = route
@@ -34,6 +54,7 @@ func change_scene(route: String, payload := {}) -> void:
 func _apply_scene_change() -> void:
 	_scene_change_pending = false
 	var route := _pending_route
+	_current_route = route
 	var normalized_payload := _pending_payload
 	get_tree().paused = false
 	Engine.time_scale = 1.0
@@ -49,45 +70,25 @@ func _apply_scene_change() -> void:
 	# 给 UI 界面统一加“安全区(刘海/灵动岛/home 指示条)”内边距；battle 保持铺满。
 	if route != "battle" and current_scene is Control:
 		_apply_safe_area(current_scene as Control)
+		if OS.is_debug_build() and OS.get_environment("ZOMBIE_FIRE_UI_AUDIT") == "1":
+			call_deferred("_emit_ui_audit", route, current_scene)
 
 func _apply_safe_area(root: Control) -> void:
-	if not OS.get_name() in ["iOS", "Android"]:
+	UiKit.apply_safe_area_to_root(root, UiKit.safe_area_canvas_insets(get_viewport()))
+
+func _refresh_safe_area() -> void:
+	if _current_route == "battle" or not (current_scene is Control):
 		return
-	var win := DisplayServer.window_get_size()
-	if win.x <= 0 or win.y <= 0:
+	_apply_safe_area(current_scene as Control)
+
+func _emit_ui_audit(route: String, scene: Node) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if scene != current_scene or route != _current_route or not (scene is Control):
 		return
-	var safe := DisplayServer.get_display_safe_area()
-	var vis := get_viewport().get_visible_rect().size
-	var sx := vis.x / float(win.x)
-	var sy := vis.y / float(win.y)
-	var top := maxf(float(safe.position.y) * sy, 0.0)
-	var bottom := maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0)
-	var left := maxf(float(safe.position.x) * sx, 0.0)
-	var right := maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0)
-	# 部分机型上 get_display_safe_area() 与窗口尺寸的坐标空间换算会出现偏差，
-	# 算出离谱的大内边距，把 Root 大片裁掉、露出下方清屏色形成大黑边(同类问题
-	# battle.gd 的 _viewport_safe_insets() 已用 120 上限兜过)。真实刘海/灵动岛/
-	# home 指示条不可能吃掉这么多，这里同样夹一个合理上限。
-	top = minf(top, 120.0)
-	bottom = minf(bottom, 120.0)
-	left = minf(left, 120.0)
-	right = minf(right, 120.0)
-	if top <= 0.5 and bottom <= 0.5 and left <= 0.5 and right <= 0.5:
-		return
-	# 只内缩“内容”子节点;背景/遮罩(Background/Scrim/Dim/Backdrop)保持满屏,避免灰边。
-	for child in root.get_children():
-		if not (child is Control):
-			continue
-		var c := child as Control
-		var n := str(c.name).to_lower()
-		if n.contains("background") or n.contains("scrim") or n.contains("dim") or n.contains("backdrop") or n == "bg":
-			continue
-		# 仅处理铺满型内容容器(锚点为全矩形),避免破坏居中弹窗等布局。
-		if is_equal_approx(c.anchor_left, 0.0) and is_equal_approx(c.anchor_top, 0.0) and is_equal_approx(c.anchor_right, 1.0) and is_equal_approx(c.anchor_bottom, 1.0):
-			c.offset_left = left
-			c.offset_top = top
-			c.offset_right = -right
-			c.offset_bottom = -bottom
+	var insets := UiKit.safe_area_canvas_insets(get_viewport())
+	var issues := UiKit.audit_ui(scene as Control, insets)
+	print("UI_AUDIT_JSON:", JSON.stringify({"route": route, "issues": issues, "insets": [insets.x, insets.y, insets.z, insets.w]}))
 
 func start_level(level_id: String) -> void:
 	run_context = {"level_id": level_id}

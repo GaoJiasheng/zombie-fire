@@ -13,6 +13,7 @@ const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_bo
 const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
 const SHIELD_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_wave.png")
 const ICE_SLOW_TINT := Color(0.56, 0.9, 1.28, 1.0)
+const BOSS_IMMUNE_DAMAGE_FLOOR := 0.18
 
 var data := {}
 var max_hp := 100.0
@@ -148,6 +149,14 @@ func _build_threat_marker() -> void:
 	threat_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	threat_marker.visible = not threat_marker.text.is_empty()
 
+func _exit_tree() -> void:
+	if threat_marker == null or not is_instance_valid(threat_marker):
+		return
+	if threat_marker.is_inside_tree():
+		threat_marker.queue_free()
+	else:
+		threat_marker.free()
+
 func _threat_text() -> String:
 	var tags: Array = data.get("threat_tags", [])
 	var weak := _weakness_hint()
@@ -279,7 +288,7 @@ func _process_base_attack(delta: float) -> void:
 	_play_attack_animation(0.36 if not boss else 0.48)
 	breached.emit(self, base_attack_damage)
 
-func take_damage(amount: float, element := "physical") -> void:
+func take_damage(amount: float, element := "physical", armor_penetration := 0.0, status_strength := -1.0) -> void:
 	if _dying:
 		return
 	_last_hit_weak = false
@@ -289,8 +298,23 @@ func take_damage(amount: float, element := "physical") -> void:
 		_flash(Color(0.45, 0.8, 1.0, 0.72))
 		return
 	var final_damage := amount * external_damage_mult
+	var penetration := clampf(armor_penetration, 0.0, 0.95)
+	var resolved_hit_kind := "normal"
 	if immune.has(element):
-		if boss and not armor_broken:
+		if penetration > 0.0:
+			if boss and not armor_broken and armor_hits_left > 0:
+				armor_hits_left -= 1
+				if armor_hits_left <= 0:
+					armor_broken = true
+					_base_modulate = Color(1.0, 0.55, 0.55)
+					_sync_sprite_status_tint(true)
+					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
+					if threat_marker and is_instance_valid(threat_marker):
+						threat_marker.text = "破甲"
+						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
+			final_damage *= penetration
+			resolved_hit_kind = "armor_pierce"
+		elif boss and not armor_broken and armor_hits_left > 0:
 			if armor_hits_left > 0:
 				armor_hits_left -= 1
 				_emit_hit_feedback(element, true, false, "armor")
@@ -306,6 +330,12 @@ func take_damage(amount: float, element := "physical") -> void:
 						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
 				return
 			armor_broken = true
+		elif boss:
+			# Campaign bosses must never become a hard lock for a valid equipped
+			# weapon. An immune element is heavily suppressed, but still chips the
+			# boss while the UI points the player toward the intended weakness.
+			final_damage *= BOSS_IMMUNE_DAMAGE_FLOOR
+			resolved_hit_kind = "suppressed"
 		else:
 			_emit_hit_feedback(element, true, false, "immune")
 			_flash(Color(0.8, 0.8, 0.8))
@@ -316,20 +346,24 @@ func take_damage(amount: float, element := "physical") -> void:
 	if resist != "none" and element == resist:
 		final_damage *= 0.5
 	if shield_hp > 0.0 and element != weakness:
-		var absorbed: float = min(shield_hp, final_damage)
+		var bypass_damage := final_damage * penetration
+		var blockable_damage := final_damage - bypass_damage
+		var absorbed: float = min(shield_hp, blockable_damage)
 		shield_hp -= absorbed
-		final_damage -= absorbed
+		final_damage = bypass_damage + maxf(blockable_damage - absorbed, 0.0)
 		_flash(Color(0.45, 0.72, 1.0))
 		if final_damage <= 0.0:
 			_emit_hit_feedback(element, true, false, "shield")
 			_update_hp_bar()
 			return
+		if bypass_damage > 0.0 and absorbed > 0.0:
+			resolved_hit_kind = "armor_pierce"
 	hp -= final_damage
-	_apply_element_status(final_damage, element)
+	_apply_element_status(final_damage, element, status_strength)
 	_update_hp_bar()
 	var crit_hit := _last_hit_weak or final_damage >= max_hp * (0.22 if not boss else 0.12)
 	damage_dealt.emit(self, final_damage, element, crit_hit, _last_hit_weak)
-	_emit_hit_feedback(element, false, _last_hit_weak, "weak" if _last_hit_weak else "normal")
+	_emit_hit_feedback(element, false, _last_hit_weak, "weak" if _last_hit_weak else resolved_hit_kind)
 	_play_hurt_feedback(element)
 	if crit_hit:
 		_spawn_crit_vfx(Color(1.0, 0.86, 0.28) if _last_hit_weak else Color(1.0, 0.38, 0.22))
@@ -375,19 +409,24 @@ func _process_self_mechanic(delta: float) -> void:
 			speed_mult *= 1.08
 			external_damage_mult *= 0.9
 
-func _apply_element_status(applied_damage: float, element: String) -> void:
+func _apply_element_status(applied_damage: float, element: String, status_strength := -1.0) -> void:
 	match element:
 		"fire":
 			_burn_time = max(_burn_time, 2.2)
-			_burn_dps = max(_burn_dps, applied_damage * 0.22)
+			var burn_ratio := status_strength if status_strength >= 0.0 else 0.22
+			_burn_dps = max(_burn_dps, applied_damage * clampf(burn_ratio, 0.0, 1.2))
 			_flash(Color(1.0, 0.42, 0.18))
 		"poison":
 			_poison_time = max(_poison_time, 3.2)
-			_poison_dps = max(_poison_dps, applied_damage * 0.16)
+			var poison_ratio := status_strength if status_strength >= 0.0 else 0.16
+			_poison_dps = max(_poison_dps, applied_damage * clampf(poison_ratio, 0.0, 1.0))
 			_flash(Color(0.42, 1.0, 0.28))
 		"ice":
 			_element_slow_time = max(_element_slow_time, 1.8)
-			_element_slow_mult = min(_element_slow_mult, 0.72 if not boss else 0.84)
+			var slow_ratio := status_strength if status_strength >= 0.0 else 0.28
+			if boss:
+				slow_ratio *= 0.65
+			_element_slow_mult = min(_element_slow_mult, clampf(1.0 - slow_ratio, 0.5 if not boss else 0.66, 0.92))
 			_sync_sprite_status_tint(true)
 			_flash(Color(0.45, 0.86, 1.0))
 		"lightning":
@@ -419,8 +458,8 @@ func apply_glacier_field(_source_damage: float, rank: int, bonus: float = 0.0, d
 	if _dying:
 		return
 	var was_active := _glacier_field_time > 0.0
-	_glacier_field_time = maxf(_glacier_field_time, duration)
-	_element_slow_time = maxf(_element_slow_time, duration + 0.08)
+	_glacier_field_time = maxf(_glacier_field_time, duration + 0.24)
+	_element_slow_time = maxf(_element_slow_time, duration + 0.28)
 	var ranked_slow: float = 0.66 - 0.035 * float(rank) - bonus
 	var target_slow: float = minf(speed_factor, ranked_slow)
 	if boss:
@@ -579,10 +618,10 @@ func _build_model_polish_layers() -> void:
 	_glacier_aura.name = "GlacierAura"
 	_glacier_aura.texture = load("res://assets/production/sprites/vfx/vfx_freeze.png")
 	_glacier_aura.position = Vector2(0, -42 if not boss else -84)
-	_glacier_field_base_scale = Vector2(0.28, 0.28) if not boss else Vector2(0.52, 0.52)
+	_glacier_field_base_scale = Vector2(0.34, 0.34) if not boss else Vector2(0.62, 0.62)
 	_glacier_aura.scale = _glacier_field_base_scale
 	_glacier_aura.z_index = 2
-	_glacier_aura.modulate = Color(0.62, 0.95, 1.0, 0.58)
+	_glacier_aura.modulate = Color(0.7, 0.98, 1.0, 0.68)
 	_glacier_aura.visible = false
 	add_child(_glacier_aura)
 

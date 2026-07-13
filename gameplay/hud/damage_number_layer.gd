@@ -24,6 +24,7 @@ func spawn_damage(position: Vector2, amount: float, element: String, crit := fal
 		return
 	var rounded := int(round(amount))
 	var label := Label.new()
+	label.name = "DamageNumber"
 	label.set_meta("important_damage", important)
 	label.text = str(rounded)
 	label.add_theme_font_size_override("font_size", 26 if not crit else 44)

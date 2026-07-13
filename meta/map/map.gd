@@ -5,13 +5,13 @@ const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.pn
 const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
-const LEVEL_CARD_HEIGHT := 150.0
+const LEVEL_CARD_HEIGHT := 168.0
 const LEVEL_RIGHT_X := 532.0
 const LEVEL_RIGHT_W := 338.0
-const LEVEL_BUTTON_Y := 98.0
+const LEVEL_BUTTON_Y := 116.0
 const LEVEL_BUTTON_H := 44.0
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 276.0
+const CHAPTER_HERO_HEIGHT := 292.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -44,7 +44,7 @@ func _ensure_endless_button() -> void:
 	var wrap := get_node_or_null("Root/VBox/ResourceBarWrap") as Control
 	var btn := TextureButton.new()
 	btn.name = "EndlessButton"
-	UiKit.apply_armored_texture_button(btn, false, Vector2(980, 96), true)
+	UiKit.apply_armored_texture_button(btn, false, Vector2(880, 96), true)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	var best := SaveManager.get_endless_best_loops()
@@ -388,16 +388,16 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.name = "Chapter%02dCard" % chapter_id
 	button.custom_minimum_size = Vector2(0, CHAPTER_CARD_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.texture_normal = load("res://assets/production/sprites/ui/ui_map_level_card_skin.png")
-	button.texture_hover = button.texture_normal
-	button.texture_pressed = button.texture_normal
-	button.texture_disabled = button.texture_normal
+	button.texture_normal = null
+	button.texture_hover = null
+	button.texture_pressed = null
+	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	button.modulate = Color.WHITE if unlocked else Color(0.52, 0.55, 0.58, 0.78)
+	button.modulate = Color.WHITE if unlocked else Color(0.72, 0.75, 0.78, 0.90)
 	if unlocked:
 		button.pressed.connect(_open_chapter.bind(chapter_id))
 
@@ -409,10 +409,10 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	title.position = Vector2(CHAPTER_TEXT_X, 30)
 	title.size = Vector2(CHAPTER_TEXT_W, 54)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = true
+	title.clip_text = false
 	button.add_child(title)
 
-	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 16, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 18, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	range.name = "ChapterRange"
 	range.position = Vector2(CHAPTER_TEXT_X, 92)
 	range.size = Vector2(184, 32)
@@ -420,17 +420,17 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 
 	_add_chapter_status_pill(button, Vector2(CHAPTER_TEXT_X + 214, 92), _chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED)
 
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), 24), 18, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 2)
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), 18), 18, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 2)
 	story.name = "ChapterStory"
 	story.position = Vector2(CHAPTER_TEXT_X, 134)
 	story.size = Vector2(CHAPTER_TEXT_W, 102)
 	story.autowrap_mode = TextServer.AUTOWRAP_OFF
 	story.clip_text = false
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	story.add_theme_constant_override("line_spacing", 5)
+	story.add_theme_constant_override("line_spacing", 2)
 	button.add_child(story)
 
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), 28), 16, UiKit.TEXT_MUTED, 2)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), 20), 17, UiKit.TEXT_MUTED, 2)
 	objective.name = "ChapterObjective"
 	objective.position = Vector2(CHAPTER_TEXT_X, 254)
 	objective.size = Vector2(CHAPTER_TEXT_W, 58)
@@ -468,7 +468,7 @@ func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) ->
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	dim.stretch_mode = TextureRect.STRETCH_SCALE
-	dim.modulate = Color(0.0, 0.0, 0.0, 0.58 if unlocked else 0.72)
+	dim.modulate = Color(0.0, 0.0, 0.0, 0.56 if unlocked else 0.50)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(dim)
 
@@ -498,7 +498,7 @@ func _add_chapter_status_pill(parent: Control, pos: Vector2, text: String, accen
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
-	var label := UiKit.label(text, 15, accent, 2)
+	var label := UiKit.label(text, 16, accent, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(label)
@@ -522,7 +522,7 @@ func _add_chapter_progress(parent: Control, chapter: Dictionary, pos: Vector2, u
 	skin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(skin)
 
-	var title := UiKit.label("战区进度", 15, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	var title := UiKit.label("战区进度", 16, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	title.position = Vector2(24, 14)
 	title.size = Vector2(panel_size.x - 48, 28)
 	panel.add_child(title)
@@ -578,13 +578,13 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	var number := DataLoader.level_number(level_id)
 	var cleared := SaveManager.get_level_stars(level_id) > 0
 	var accent := UiKit.DANGER if major else UiKit.WARNING
-	var text := UiKit.label("%s  %s" % [number, label_text], 14, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	var text := UiKit.label("%s  %s" % [number, label_text], 15, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	text.position = Vector2(8, 2)
 	text.size = Vector2(120, 26)
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	text.clip_text = true
 	panel.add_child(text)
-	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未展开"), 12, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
+	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未展开"), 14, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
 	state.position = Vector2(8, 29)
 	state.size = Vector2(120, 20)
 	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -603,12 +603,14 @@ func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, te
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)
-	var label := UiKit.label(text, 17 if enabled else 14, Color(1.0, 0.88, 0.58, 1.0) if enabled else Color(0.70, 0.75, 0.78, 0.9), 3)
+	var label := UiKit.label(text, 18 if enabled else 15, Color(1.0, 0.88, 0.58, 1.0) if enabled else Color(0.78, 0.82, 0.84, 0.96), 3)
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.clip_text = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action.add_child(label)
+	UiKit.attach_touch_target(action)
 
 func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	var chapter_id := int(chapter.get("chapter", 1))
@@ -618,12 +620,11 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	header.name = "ChapterHeader"
 	header.custom_minimum_size = Vector2(0, CHAPTER_HERO_HEIGHT)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.texture_normal = load("res://assets/production/sprites/ui/ui_map_level_card_skin.png")
-	header.texture_hover = header.texture_normal
-	header.texture_pressed = header.texture_normal
-	header.texture_disabled = header.texture_normal
+	header.texture_normal = null
+	header.texture_hover = null
+	header.texture_pressed = null
+	header.texture_disabled = null
 	header.ignore_texture_size = true
-	header.stretch_mode = TextureButton.STRETCH_SCALE
 	header.clip_contents = true
 	header.focus_mode = Control.FOCUS_NONE
 	header.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -635,22 +636,22 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	title.position = Vector2(CHAPTER_TEXT_X, 32)
 	title.size = Vector2(CHAPTER_TEXT_W, 50)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = true
+	title.clip_text = false
 	header.add_child(title)
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), 24), 18, UiKit.TEXT_MAIN, 2)
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), 18), 18, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
 	story.position = Vector2(CHAPTER_TEXT_X, 94)
-	story.size = Vector2(CHAPTER_TEXT_W, 82)
+	story.size = Vector2(CHAPTER_TEXT_W, 106)
 	story.autowrap_mode = TextServer.AUTOWRAP_OFF
-	story.clip_text = true
+	story.clip_text = false
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 3)
 	header.add_child(story)
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), 28), 16, UiKit.TEXT_MUTED, 2)
-	objective.position = Vector2(CHAPTER_TEXT_X, 188)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), 20), 16, UiKit.TEXT_MUTED, 2)
+	objective.position = Vector2(CHAPTER_TEXT_X, 214)
 	objective.size = Vector2(CHAPTER_TEXT_W, 52)
 	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
-	objective.clip_text = true
+	objective.clip_text = false
 	objective.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	objective.add_theme_constant_override("line_spacing", 3)
 	header.add_child(objective)
@@ -749,7 +750,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status.clip_text = true
-	UiKit.apply_label(status, 12, UiKit.TEXT_MAIN, 2)
+	UiKit.apply_label(status, 14, UiKit.TEXT_MAIN, 2)
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_plate.add_child(status)
 
@@ -947,11 +948,10 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	var button := TextureButton.new()
 	button.custom_minimum_size = Vector2(0, LEVEL_CARD_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var base_texture := load("res://assets/production/sprites/ui/ui_map_level_card_skin.png")
-	button.texture_normal = base_texture
-	button.texture_hover = base_texture
-	button.texture_pressed = base_texture
-	button.texture_disabled = base_texture
+	button.texture_normal = null
+	button.texture_hover = null
+	button.texture_pressed = null
+	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
@@ -959,7 +959,7 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.focus_mode = Control.FOCUS_NONE
 	# PASS 而非默认 STOP：让触摸拖拽能穿到 ScrollContainer 去滚动(点按仍能进关，滚动时会自动取消误触)。
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.58, 0.60, 0.62, 0.82)
+	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.72, 0.75, 0.78, 0.92)
 
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var accent := UiKit.element_color(weakness)
@@ -1007,8 +1007,11 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	var title := Label.new()
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
 	title.position = Vector2(148, 18)
-	title.size = Vector2(360, 44)
-	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 3)
+	var title_width := 264.0 if variant in ["elite", "treasure", "boss", "boss_rush"] else 360.0
+	title.size = Vector2(title_width, 44)
+	var title_font_size := 24 if title.text.length() > 10 else 28
+	UiKit.apply_label(title, title_font_size, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
+	title.clip_text = false
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
@@ -1090,7 +1093,7 @@ func _add_star_progress_row(parent: Control, pos: Vector2, label_text: String, s
 	row.add_theme_constant_override("separation", 5)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(row)
-	var label := UiKit.label(label_text, 14, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	var label := UiKit.label(label_text, 15, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	label.custom_minimum_size = Vector2(48, 32)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1116,6 +1119,7 @@ func _add_level_action_button(parent: Control, pos: Vector2, size: Vector2, text
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action.add_child(label)
+	UiKit.attach_touch_target(action)
 
 func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, accent: Color) -> void:
 	var pill := PanelContainer.new()
@@ -1124,7 +1128,7 @@ func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, 
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(pill)
-	var label := UiKit.label(text, 16, UiKit.TEXT_MAIN, 2)
+	var label := UiKit.label(text, 17, UiKit.TEXT_MAIN, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(label)
@@ -1142,7 +1146,7 @@ func _add_element_pill(parent: Control, pos: Vector2, size: Vector2, element: St
 	row.add_theme_constant_override("separation", 5)
 	pill.add_child(row)
 	row.add_child(UiKit.icon(UiKit.element_icon_path(element), Vector2(22, 22)))
-	var label := UiKit.label("弱%s" % _element_name(element), 15, UiKit.TEXT_MAIN, 2)
+	var label := UiKit.label("弱%s" % _element_name(element), 16, UiKit.TEXT_MAIN, 2)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(label)
 

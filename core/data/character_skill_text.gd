@@ -24,7 +24,7 @@ const SIG_SKILL_DESCRIPTIONS := {
 	"sig_vanguard_overload": {"name": "过载反击", "desc": "自动：基地生命低于 30% 时触发 5 秒强攻（每关 1 次）。"},
 	"sig_blaze_meltdown": {"name": "熔毁爆发", "desc": "主动：锁定高威胁目标引爆火焰范围伤害，并点燃周围敌人；随角色等级明显提升伤害、范围和爆发段数。"},
 	"sig_blaze_napalm": {"name": "凝固汽油", "desc": "弹种：火焰弹获得小范围爆燃和更强灼烧。"},
-	"sig_frost_glacier": {"name": "冰川领域", "desc": "主动：在防线前展开寒冰领域，持续减速并周期造成冰霜伤害；随角色等级提升持续、覆盖和冻结强度。"},
+	"sig_frost_glacier": {"name": "冰川领域", "desc": "主动：展开全屏寒冰领域，持续减速并周期造成冰霜伤害；被影响目标会保持冰冻覆盖效果。"},
 	"sig_frost_shatter": {"name": "冰碎", "desc": "弹种：冰霜弹命中受控目标时追加碎冰伤害。"},
 	"sig_volt_chain": {"name": "闪电链", "desc": "弹种：闪电弹获得额外连锁目标，成长后连锁数继续提高。"},
 	"sig_volt_storm": {"name": "雷暴领域", "desc": "主动：向多名高威胁敌人释放雷击并附加震击；随角色等级提升目标数、雷击次数和伤害。"},

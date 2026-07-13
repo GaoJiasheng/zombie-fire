@@ -81,6 +81,11 @@ func cycle_strategy() -> void:
 	current_strategy = strategies[(index + 1) % strategies.size()]
 	target_strategy_changed.emit(current_strategy)
 
+func cancel_active_input() -> void:
+	_cancel_aim_press()
+	_last_tap_time = 0.0
+	_last_tap_pos = Vector2.ZERO
+
 func _handle_touch_lock(pos: Vector2) -> void:
 	var now := _now_seconds()
 	if now - _last_tap_time <= 0.32 and pos.distance_to(_last_tap_pos) <= 90.0:

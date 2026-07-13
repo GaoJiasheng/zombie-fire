@@ -53,11 +53,14 @@ func _apply_layout_constraints() -> void:
 	var content_width := _native_result_content_width(raw_width)
 	_content_width = content_width
 	var content := $Content as Control
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var safe_center_shift := (safe.y - safe.w) * 0.5
 	var modal_shift := UiKit.tall_modal_shift(viewport_size.y, 160.0, 0.34)
 	content.offset_left = -content_width * 0.5
 	content.offset_right = content_width * 0.5
-	content.offset_top = -820.0 + modal_shift
-	content.offset_bottom = 660.0 + modal_shift
+	content.offset_top = -820.0 + modal_shift + safe_center_shift
+	content.offset_bottom = 700.0 + modal_shift + safe_center_shift
+	content.set_meta("safe_area_content", true)
 	content.add_theme_constant_override("separation", 12)
 	for path in ["Content/HeroCard", "Content/RewardRow", "Content/HintCard", "Content/Actions"]:
 		var node := get_node_or_null(path) as Control
@@ -65,17 +68,19 @@ func _apply_layout_constraints() -> void:
 			node.custom_minimum_size.x = content_width
 	$Content/HeroCard/HeroBox.add_theme_constant_override("separation", 6)
 	$Content/HeroCard/HeroBox/Title.custom_minimum_size = Vector2(content_width - 96.0, 0)
-	$Content/HeroCard/HeroBox/Title.clip_text = true
+	$Content/HeroCard/HeroBox/Title.clip_text = false
 	$Content/HeroCard/HeroBox/LevelName.custom_minimum_size = Vector2(content_width - 120.0, 0)
+	$Content/HeroCard/HeroBox/LevelName.clip_text = false
 	$Content/RewardRow.add_theme_constant_override("separation", 16)
 	_configure_reward_layout()
 	for path in ["Content/RewardRow/GoldCard/GoldBox/GoldIcon", "Content/RewardRow/XpCard/XpBox/XpIcon"]:
 		var icon := get_node_or_null(path) as Control
 		if icon != null:
 			icon.custom_minimum_size = Vector2(58, 58)
-	$Content/HintCard.custom_minimum_size = Vector2(content_width, 58)
+	$Content/HintCard.custom_minimum_size = Vector2(content_width, 96)
 	$Content/HintCard/HintBox.add_theme_constant_override("separation", 12)
-	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = Vector2(42, 42)
+	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = Vector2(52, 52)
+	$Content/HintCard/HintBox/Hint.custom_minimum_size = Vector2(content_width - 120.0, 72)
 
 func _native_result_content_width(raw_width: float) -> float:
 	if raw_width >= 912.0:
@@ -212,6 +217,7 @@ func _reset_action_button_tints() -> void:
 		if button != null:
 			var button_size: Vector2 = spec["size"]
 			UiKit.apply_armored_texture_button(button, bool(spec["primary"]), button_size, true)
+			button.set_meta("critical_touch", true)
 
 func _refresh_star_row(stars: int) -> void:
 	var row := $Content/HeroCard/HeroBox/StarRow

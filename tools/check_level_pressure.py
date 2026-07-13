@@ -89,6 +89,10 @@ def main() -> int:
         boss_count = 0
         boss_level_bonus = boss_hp_level_bonus(economy, level)
         level_no = level_number(level)
+        # Runtime enemy.setup uses 50 * hp_coef *
+        # (difficulty_coef * base_hp_ref / 50). Keep this checker on the same
+        # scale so late levels are not understated by an order of magnitude.
+        hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
         for wave in level.get("waves", []):
             wave_no = wave_number(wave)
             mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
@@ -106,7 +110,7 @@ def main() -> int:
                 count = int(round(int(group.get("count", 1)) * count_mult))
                 pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
                 duration += count * float(group.get("interval", 0.8))
-        pressure *= float(level.get("difficulty_coef", 1.0))
+        pressure *= hp_base * float(level.get("difficulty_coef", 1.0))
         series.append((level["id"], pressure, boss_count > 0))
         print(f"{level['id']}: pressure={pressure:.1f}, spawn_time={duration:.1f}s, boss={boss_count}")
         min_duration = 40.0 if boss_count else 36.0

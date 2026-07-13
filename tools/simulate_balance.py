@@ -29,7 +29,6 @@ ECONOMY_PATH = ROOT / "data" / "economy.json"
 GLOBAL_DMG_BASE = 10.0
 BASE_WEAPON_DAMAGE = 28.0
 
-SKILL_MULT = 3.0          # capped Lv.3 skill system; per-level estimate adjusts from card budget
 CHIP_DAMAGE_MULT = 1.20   # chip_attack at moderate level
 ARMOR_HP_MULT = 1.20      # armor_kevlar (typical)
 BOSS_LEAK = 0.12
@@ -116,7 +115,9 @@ def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_le
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef
     damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))
     fr = fire_rate * weapon_fr_mult * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25)) * fire_rate_mod
-    return damage * fr * skill_mult
+    affinity_mult = 1.10 if weapon.get("element", "physical") == char.get("element_focus", "") else 1.0
+    pierce_throughput = 1.18 if char_id == "vanguard" else 1.0
+    return damage * fr * skill_mult * affinity_mult * pierce_throughput
 
 
 def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, int]:
@@ -167,35 +168,37 @@ def level_spawn_time(level: dict, economy: dict) -> float:
 
 def estimate_skill_mult(level: dict) -> float:
     cards = int(level.get("target_card_picks", 4))
-    # Capped skills create meaningful but not unbounded growth. This assumes a
-    # mixed build instead of every pick landing on perfect DPS cards.
-    return min(3.2, 1.0 + 0.28 * cards + 0.035 * max(cards - 3, 0) ** 2)
+    # This is effective crowd throughput, not only character-sheet single-target
+    # DPS. Later card budgets combine lanes, pierce, chain/splash, status damage
+    # and cadence, so their contribution compounds while remaining below a
+    # perfect all-DPS draft.
+    return min(13.5, 1.0 + 0.42 * cards + 0.08 * cards * cards)
 
 
 def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss_level: bool) -> float:
     """Expected breach damage given a leak rate."""
-    diff = float(level["difficulty_coef"])
     leak = BOSS_LEAK if is_boss_level else NORMAL_LEAK
     total = 0.0
     level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
         count_mult = late_wave_count_mult(economy, wave_no)
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
+            # Breach damage is configured from bd_coef only at runtime; enemy
+            # HP/difficulty/late-wave multipliers must not inflate it here.
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0))
             total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no)
+            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0))
             total += bd
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * diff * mob_bonus
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0))
             total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
     return total * leak
 
@@ -204,7 +207,7 @@ def is_boss_level(level: dict) -> bool:
     return any("boss" in w for w in level.get("waves", []))
 
 
-def main() -> None:
+def main() -> int:
     levels: list[dict] = json.loads(LEVELS_PATH.read_text(encoding="utf-8"))
     zombies: dict[str, dict] = json.loads(ZOMBIES_PATH.read_text(encoding="utf-8"))
     bosses: dict[str, dict] = json.loads(BOSSES_PATH.read_text(encoding="utf-8"))
@@ -261,7 +264,14 @@ def main() -> None:
     too_hard = sum(1 for r in rows if r[10] > 180)
     print(f"Levels < 30s (with skill): {too_easy}")
     print(f"Levels > 180s (with skill): {too_hard}")
+    extreme = [r for r in rows if r[10] > max(240.0, r[5] * 2.5)]
+    if extreme:
+        print("Balance simulation failed: extreme predicted clear times")
+        for row in extreme:
+            print(f"- level_{row[0]:03d}: clear={row[10]:.1f}s spawn={row[5]:.1f}s")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

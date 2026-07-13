@@ -36,7 +36,7 @@ func max_level(skill_id: String) -> int:
 	for level_row in levels:
 		if level_row is Dictionary:
 			max_value = maxi(max_value, int(level_row.get("lv", 0)))
-	return maxi(max_value, 3)
+	return max_value if max_value > 0 else 3
 
 func _data_loader() -> Node:
 	var loop := Engine.get_main_loop()
@@ -87,8 +87,21 @@ func projectile_mods() -> Dictionary:
 		"split_falloff": split_falloff,
 		"homing": _eff("skill_homing", "homing"),
 		"ricochet": int(_eff("skill_ricochet", "chain")),
-		"chain": int(_eff("skill_ricochet", "chain"))
+		"chain": int(_eff("skill_ricochet", "chain") + _eff("skill_tesla", "chain"))
 	}
+
+func projectile_status_strength(element: String) -> float:
+	match element:
+		"fire":
+			return _eff("skill_incendiary", "burn", 0.22)
+		"ice":
+			return _eff("skill_cryo", "slow", 0.18)
+		"poison":
+			return _eff("skill_venom", "poison", 0.16)
+		"lightning":
+			return 1.0 if level("skill_tesla") > 0 else 0.0
+		_:
+			return 0.0
 
 func fire_rate_multiplier() -> float:
 	return 1.0 + _eff("skill_salvo", "fire_rate_mult")
@@ -123,15 +136,20 @@ func crit_damage_mult() -> float:
 	# Base crit multiplier is 1.85; high-level critical adds a burst spike.
 	return 1.85 + _eff("skill_critical", "crit_dmg")
 
+func armor_penetration() -> float:
+	return clampf(_eff("skill_charge_shot", "armor_penetration"), 0.0, 0.95)
+
 func gold_multiplier() -> float:
 	return 1.0 + _eff("skill_gold_rush", "gold_mult")
 
+func barrier_base_hp_bonus() -> float:
+	return _eff("skill_barrier", "base_hp_mult")
+
 func barrier_shields() -> int:
-	return int(_eff("skill_barrier", "shields"))
+	return 0
 
 func barrier_gain() -> int:
-	# Shields granted by a single pick at the just-acquired level (lv5 = 2).
-	return maxi(1, int(_eff("skill_barrier", "shields")))
+	return 0
 
 func reroll_gain() -> int:
 	return maxi(1, int(_eff("skill_recycle", "reroll")))

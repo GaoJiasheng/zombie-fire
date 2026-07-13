@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import subprocess
 import sys
 import tempfile
@@ -13,7 +14,14 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SIZE = (1080, 1920)
-TALL_SCREEN_LABEL_PREFIXES = ("battle_tall", "result_tall", "pause_tall", "card_offer_tall")
+TALL_SCREEN_LABEL_PREFIXES = (
+    "battle_tall",
+    "result_tall",
+    "pause_tall",
+    "card_offer_tall",
+    "collection_detail_tall",
+)
+DEBUG_SAFE_INSETS = [44, 132, 44, 102]
 MIN_LUMA_STDEV = {
     "map": 20.0,
     "map_chapter": 20.0,
@@ -39,7 +47,15 @@ BASE_SCREENS: list[tuple[str, dict, str]] = [
     ("map", {}, "map"),
     ("map", {"chapter": 1}, "map_chapter"),
     ("loadout", {"level_id": "level_003"}, "loadout"),
+    (
+        "loadout",
+        {"level_id": "level_003", "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""}},
+        "loadout_empty_slots",
+    ),
     ("collection", {"mode": "characters"}, "collection_characters"),
+    ("collection", {"mode": "weapons"}, "collection_weapons_locked"),
+    ("collection", {"mode": "skills"}, "collection_skills_info"),
+    ("settings", {}, "settings"),
     ("battle", {"level_id": "level_001"}, "battle"),
     (
         "result",
@@ -70,12 +86,51 @@ SCREENS: list[tuple[str, dict, str]] = (
         ),
         ("battle", {"level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]}, "pause_tall"),
         ("battle", {"level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]}, "card_offer_tall"),
+        ("menu", {"_visual_safe_insets": DEBUG_SAFE_INSETS}, "menu_safe_area"),
+        ("map", {"_visual_safe_insets": DEBUG_SAFE_INSETS}, "map_safe_area"),
+        (
+            "loadout",
+            {
+                "level_id": "level_003",
+                "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""},
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "loadout_safe_area",
+        ),
+        ("collection", {"mode": "skills", "_visual_safe_insets": DEBUG_SAFE_INSETS}, "collection_skills_safe_area"),
+        (
+            "collection",
+            {
+                "mode": "skills",
+                "detail_item": "skill_split_shot",
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_detail_tall_safe_area",
+        ),
+        ("settings", {"_visual_safe_insets": DEBUG_SAFE_INSETS}, "settings_safe_area"),
+        (
+            "result",
+            {
+                "level_id": "level_004",
+                "victory": True,
+                "challenge": True,
+                "stars": 3,
+                "gold": 686,
+                "xp": 458,
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "result_tall_safe_area",
+        ),
     ]
     + BASE_SCREENS[-1:]
 )
 
 
-def capture(route: str, payload: dict, out_path: Path) -> int:
+def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], str]:
+    runtime_payload = dict(payload)
+    safe_insets = runtime_payload.pop("_visual_safe_insets", None)
     command = [
         "godot",
         "--path",
@@ -84,14 +139,51 @@ def capture(route: str, payload: dict, out_path: Path) -> int:
         "res://tools/_shot.gd",
         "--",
         route,
-        json.dumps(payload, ensure_ascii=False),
+        json.dumps(runtime_payload, ensure_ascii=False),
         str(out_path),
     ]
+    env = os.environ.copy()
+    env["ZOMBIE_FIRE_UI_AUDIT"] = "1"
+    if safe_insets:
+        env["ZOMBIE_FIRE_DEBUG_SAFE_INSETS"] = ",".join(str(value) for value in safe_insets)
+    else:
+        env.pop("ZOMBIE_FIRE_DEBUG_SAFE_INSETS", None)
     try:
-        result = subprocess.run(command, cwd=ROOT, timeout=25)
+        result = subprocess.run(command, cwd=ROOT, timeout=25, env=env, capture_output=True, text=True)
     except subprocess.TimeoutExpired:
-        return 124
-    return result.returncode
+        return 124, [], "capture timed out"
+    audit_issues: list[str] = []
+    audit_seen = route == "battle"
+    for line in result.stdout.splitlines():
+        if not line.startswith("UI_AUDIT_JSON:"):
+            continue
+        try:
+            report = json.loads(line.removeprefix("UI_AUDIT_JSON:"))
+        except json.JSONDecodeError:
+            continue
+        if report.get("route") == route:
+            audit_seen = True
+            audit_issues = [str(issue) for issue in report.get("issues", [])]
+    if result.returncode == 0 and not audit_seen:
+        audit_issues.append(f"{route} did not emit a runtime UI audit")
+    combined_output = "\n".join(part for part in [result.stdout.strip(), result.stderr.strip()] if part)
+    return result.returncode, audit_issues, combined_output
+
+
+def check_layout_contracts() -> list[str]:
+    errors: list[str] = []
+    project_text = (ROOT / "project.godot").read_text(encoding="utf-8")
+    if 'window/stretch/mode="canvas_items"' not in project_text:
+        errors.append("project.godot must keep canvas_items stretch mode")
+    if 'window/stretch/aspect="expand"' not in project_text:
+        errors.append("project.godot must expand the 1080x1920 world to fill tall displays")
+    implementation = "\n".join(
+        (ROOT / path).read_text(encoding="utf-8")
+        for path in ["main.gd", "meta/collection/collection.gd"]
+    )
+    if "minf(top, 120.0)" in implementation or "minf(maxf(float(safe.position" in implementation:
+        errors.append("safe-area handling regressed to the old 120px hard clamp")
+    return errors
 
 
 def analyze(path: Path, label: str) -> list[str]:
@@ -102,7 +194,7 @@ def analyze(path: Path, label: str) -> list[str]:
         image = source.convert("RGB")
     if label.startswith(TALL_SCREEN_LABEL_PREFIXES):
         if image.size[0] != EXPECTED_SIZE[0] or image.size[1] <= EXPECTED_SIZE[1]:
-            errors.append(f"{label} screenshot must exercise a tall viewport wider than 1920px high, got {image.size}")
+            errors.append(f"{label} screenshot must exercise a viewport taller than 1920px, got {image.size}")
     elif image.size != EXPECTED_SIZE:
         errors.append(f"{label} screenshot size must be {EXPECTED_SIZE}, got {image.size}")
 
@@ -150,15 +242,18 @@ def analyze(path: Path, label: str) -> list[str]:
 
 
 def main() -> int:
-    errors: list[str] = []
+    errors: list[str] = check_layout_contracts()
     with tempfile.TemporaryDirectory(prefix="zombie_fire_screens_") as tmp:
         tmp_dir = Path(tmp)
         for route, payload, label in SCREENS:
             out_path = tmp_dir / f"{label}.png"
-            code = capture(route, payload, out_path)
+            code, audit_issues, output = capture(route, payload, out_path)
             if code != 0:
                 errors.append(f"{label} capture failed with exit code {code}")
+                if output:
+                    errors.append(f"{label} capture output: {output[-1200:]}")
                 continue
+            errors.extend(f"{label} runtime audit: {issue}" for issue in audit_issues)
             errors.extend(analyze(out_path, label))
 
     if errors:

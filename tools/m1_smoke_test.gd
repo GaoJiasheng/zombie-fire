@@ -1,5 +1,7 @@
 extends SceneTree
 
+const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
+
 class FakeRouter:
 	extends Node
 
@@ -33,7 +35,7 @@ class FakeDamageTarget:
 	var hits := 0
 	var total_damage := 0.0
 
-	func take_damage(amount: float, _element := "physical") -> void:
+	func take_damage(amount: float, _element := "physical", _armor_penetration := 0.0, _status_strength := -1.0) -> void:
 		hits += 1
 		total_damage += amount
 
@@ -226,7 +228,7 @@ func _initialize() -> void:
 	var character_close := character_detail.find_child("CloseButton", true, false) as Button
 	_expect(character_close != null, "character detail top close must be a compact button")
 	_expect(character_close.text == "×", "character detail top close must use an icon-only x")
-	_expect(character_close.custom_minimum_size.x <= 64.0 and character_close.custom_minimum_size.y <= 64.0, "character detail top close must not use a large text button")
+	_expect(character_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and character_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "character detail top close must keep an accessible mobile touch target")
 	main.current_scene._close_character_detail()
 	await process_frame
 	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
@@ -253,21 +255,15 @@ func _initialize() -> void:
 	_expect(not skill_item.has_node("Frame"), "skill collection rows must not render the old nested inner frame")
 	var skill_card := skill_item.get_node("SkillCard") as PanelContainer
 	_expect(skill_card != null and skill_card.size.x >= 720.0, "skill collection card must span the row without a disconnected right panel")
-	_expect(skill_item.has_node("MaxLevelValue"), "skill collection card must show max level in the right meta area")
+	_expect(skill_item.has_node("InfoButton"), "skill collection card must expose a dedicated accessible detail control")
 	var skill_title := skill_item.get_node("Title") as Label
-	var skill_level_value := skill_item.get_node("MaxLevelValue") as Label
 	_expect(skill_title.text.find("等级4") >= 0, "upgraded skill collection row must show its actual permanent level, got %s" % skill_title.text)
-	_expect(skill_level_value.text == "4/5", "upgraded skill collection row must show 4/5, got %s" % skill_level_value.text)
 	var second_skill_item := skill_list.get_child(1)
 	var second_skill_title := second_skill_item.get_node("Title") as Label
-	var second_skill_level_value := second_skill_item.get_node("MaxLevelValue") as Label
 	_expect(second_skill_title.text.find("等级2") >= 0, "second upgraded skill row must show level 2, got %s" % second_skill_title.text)
-	_expect(second_skill_level_value.text == "2/5", "second upgraded skill row must show 2/5, got %s" % second_skill_level_value.text)
 	var third_skill_item := skill_list.get_child(2)
 	var third_skill_title := third_skill_item.get_node("Title") as Label
-	var third_skill_level_value := third_skill_item.get_node("MaxLevelValue") as Label
 	_expect(third_skill_title.text.find("等级0") >= 0, "unupgraded skill row must show level 0, got %s" % third_skill_title.text)
-	_expect(third_skill_level_value.text == "0/5", "unupgraded skill row must show 0/5, got %s" % third_skill_level_value.text)
 	skill_item.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.has_node("ItemDetail"), "skill collection row click must open skill detail")
@@ -275,7 +271,7 @@ func _initialize() -> void:
 	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
-	_expect(skill_close.custom_minimum_size.x <= 64.0 and skill_close.custom_minimum_size.y <= 64.0, "skill detail top close must not use a large text button")
+	_expect(skill_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and skill_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "skill detail top close must keep an accessible mobile touch target")
 	skill_close.emit_signal("pressed")
 	await process_frame
 	_expect(not main.current_scene.has_node("ItemDetail"), "skill detail compact close must dismiss the modal")
@@ -353,7 +349,7 @@ func _initialize() -> void:
 	var item_close := item_detail.find_child("CloseButton", true, false) as Button
 	_expect(item_close != null, "item detail top close must be a compact button")
 	_expect(item_close.text == "×", "item detail top close must use an icon-only x")
-	_expect(item_close.custom_minimum_size.x <= 64.0 and item_close.custom_minimum_size.y <= 64.0, "item detail top close must not use a large text button")
+	_expect(item_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and item_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "item detail top close must keep an accessible mobile touch target")
 	_expect(item_detail.find_child("EquipButton", true, false) != null, "item detail must expose equip action")
 	_expect(item_detail.find_child("UpgradeButton", true, false) != null, "item detail must expose upgrade action")
 	main.current_scene._close_character_detail()
@@ -530,6 +526,7 @@ func _initialize() -> void:
 		if battle.level_id == "level_001":
 			_verify_manual_aim_battle_priority(battle)
 			_verify_multi_shot_targeting(battle)
+			_verify_barrier_visual_runtime(battle)
 			await _verify_base_attack_runtime(battle)
 			_verify_pause_freezes_battle(battle)
 			await _verify_runtime_skill_hints(battle)
@@ -654,9 +651,12 @@ func _initialize() -> void:
 	recovered_result.queue_free()
 	router.queue_free()
 	audio_manager.release_for_tests()
+	for tween in get_processed_tweens():
+		tween.kill()
+	UiKit.release_cached_resources_for_tests()
+	SequenceVfx.release_cached_resources_for_tests()
 	for i in range(4):
 		await process_frame
-
 	print("M1 smoke test passed")
 	call_deferred("_quit_success")
 
@@ -756,7 +756,7 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 	battle.setup(router, {"level_id": "level_001"})
 	root.add_child(battle)
 	await process_frame
-	_expect(float(battle.bottom_dock_shift) >= 300.0, "pet anchor regression must exercise a tall viewport")
+	_expect(absf(float(battle.bottom_dock_shift)) <= 0.1, "tall viewports must preserve fixed battle geometry under aspect keep")
 	_expect(battle.pet_sprite != null, "battle must spawn equipped pet for line-anchor regression")
 	var expected_anchor: Vector2 = battle._pet_anchor_position()
 	_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet must stay on the defense-line anchor hover band, got %.1f expected %.1f" % [battle.pet_sprite.position.y, expected_anchor.y])
@@ -1084,11 +1084,11 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 	var row: Dictionary = data_loader.get_row("skills", "skill_slow_field")
 	_expect(not row.is_empty(), "slow field skill row must exist")
 	var expected_y_min := {
-		1: 1060.0,
-		2: 940.0,
-		3: 820.0,
-		4: 700.0,
-		5: 580.0,
+		1: 1050.0,
+		2: 900.0,
+		3: 750.0,
+		4: 600.0,
+		5: 450.0,
 	}
 	var battle := _instance("res://gameplay/battle/battle.tscn")
 	for entry_var in row.get("levels", []):
@@ -1099,7 +1099,7 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		var effect: Dictionary = entry.get("effect", {})
 		var y_min := float(effect.get("y_min", -1.0))
 		var expected := float(expected_y_min[lv])
-		_expect(absf(y_min - expected) <= 0.001, "slow field Lv%d y_min must double its previous range to %.0f, got %.0f" % [lv, expected, y_min])
+		_expect(absf(y_min - expected) <= 0.001, "slow field Lv%d y_min must match 30/40/50/60/70 coverage contract at %.0f, got %.0f" % [lv, expected, y_min])
 		var visual_offset := float(battle._slow_field_inner_offset_for_level(lv))
 		_expect(absf(visual_offset - (1500.0 - expected)) <= 0.001, "slow field Lv%d visual offset must match data y_min; got %.0f expected %.0f" % [lv, visual_offset, 1500.0 - expected])
 		var runtime := SkillRuntime.new()
@@ -1107,7 +1107,7 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		var slow_pct := float(effect.get("slow", 0.0))
 		_expect(is_equal_approx(runtime.slow_mult_for_y(expected - 1.0), 1.0), "slow field Lv%d runtime must not slow before y_min %.0f" % [lv, expected])
 		_expect(absf(runtime.slow_mult_for_y(expected + 1.0) - maxf(0.4, 1.0 - slow_pct)) <= 0.001, "slow field Lv%d runtime must slow after y_min %.0f" % [lv, expected])
-	battle.queue_free()
+	battle.free()
 
 func _verify_ammo_element_rules(save_manager: Node) -> void:
 	var runtime := SkillRuntime.new()
@@ -1154,11 +1154,14 @@ func _verify_feedback_budget_guards() -> void:
 		_expect(first_damage.get_theme_font_size("font_size") <= 30, "normal damage numbers must stay compact red hit text")
 	damage_layer.spawn_damage(Vector2(540, 620), 999.0, "fire", true, true)
 	_expect(damage_layer.get_child_count() <= 58, "damage number layer must keep cap after important damage")
-	damage_layer.queue_free()
+	damage_layer.reset()
+	await process_frame
+	damage_layer.free()
 
 	var fake_battle := Node2D.new()
 	root.add_child(fake_battle)
 	var gold_label := Label.new()
+	gold_label.name = "SmokeGoldLabel"
 	var gold_icon := TextureRect.new()
 	fake_battle.add_child(gold_label)
 	fake_battle.add_child(gold_icon)
@@ -1168,8 +1171,8 @@ func _verify_feedback_budget_guards() -> void:
 	for i in range(24):
 		gold_fx.fly_to_hud(Vector2(120 + i, 800), 10)
 	_expect(fake_battle.get_child_count() <= 12, "gold reward flash must cap active coin/ring nodes")
-	gold_fx.queue_free()
-	fake_battle.queue_free()
+	gold_fx.free()
+	fake_battle.free()
 
 	var offscreen := preload("res://gameplay/hud/off_screen_indicator.gd").new()
 	root.add_child(offscreen)
@@ -1292,6 +1295,23 @@ func _verify_base_attack_runtime(battle: Node) -> void:
 	_expect(is_instance_valid(enemy), "enemy must remain targetable while attacking the base")
 	_expect(bool(enemy.get("attacking_base")), "enemy must enter persistent base attack state instead of disappearing")
 	_expect(int(battle.base_hp) < hp_before, "base attack state must tick damage over time")
+
+func _verify_barrier_visual_runtime(battle: Node) -> void:
+	var owned_before: Dictionary = battle.skills.owned.duplicate(true)
+	var breach_shields_before := int(battle.breach_shields)
+	var skill_barriers_before := int(battle.skill_barriers_left)
+	battle.breach_shields = 0
+	battle.skill_barriers_left = 0
+	battle.skills.owned.erase("skill_barrier")
+	battle._update_barrier_visual()
+	_expect(not battle.barrier_visual.visible, "barrier visual must stay hidden before the defense skill is learned")
+	battle.skills.owned["skill_barrier"] = 1
+	battle._update_barrier_visual()
+	_expect(battle.barrier_visual.visible, "barrier visual must remain visible after barrier becomes a base-HP skill")
+	battle.skills.owned = owned_before
+	battle.breach_shields = breach_shields_before
+	battle.skill_barriers_left = skill_barriers_before
+	battle._update_barrier_visual()
 
 func _verify_projectile_pierce_runtime() -> void:
 	var projectile := _instance("res://gameplay/projectile/projectile.tscn")
@@ -1863,6 +1883,8 @@ func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 	target.breach_damage = 20
 	battle.breach_damage_mult = 0.5
 	_expect(battle._enemy_skill_damage(target, 0.35, 2.0) == 4, "enemy skill damage must respect breach damage mitigation")
+	target.free()
+	battle.free()
 
 func _color_close(a: Color, b: Color, tolerance := 0.01) -> bool:
 	return absf(a.r - b.r) <= tolerance and absf(a.g - b.g) <= tolerance and absf(a.b - b.b) <= tolerance and absf(a.a - b.a) <= tolerance

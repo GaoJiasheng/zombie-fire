@@ -2,6 +2,9 @@ extends Sprite2D
 
 static var sequence_cache: Dictionary = {}
 
+static func release_cached_resources_for_tests() -> void:
+	sequence_cache.clear()
+
 var frames: Array[Texture2D] = []
 var fps := 16.0
 var elapsed := 0.0

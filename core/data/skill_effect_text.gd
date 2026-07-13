@@ -17,12 +17,17 @@ const KEY_ORDER := [
 	"fire_rate_mult",
 	"crit_add",
 	"crit_dmg",
+	"base_hp_mult",
+	"armor_penetration",
 	"gold_mult",
 	"shields",
 	"reroll",
 ]
 
 static func value_text(value: Variant) -> String:
+	return _value_text_for_key("", value)
+
+static func _value_text_for_key(key: String, value: Variant) -> String:
 	if not _is_numeric_value(value):
 		if value is bool:
 			return "开启" if bool(value) else "关闭"
@@ -33,6 +38,9 @@ static func value_text(value: Variant) -> String:
 			return " / ".join(parts)
 		return str(value)
 	var numeric := float(value)
+	if key == "y_min":
+		var coverage := clampf((1500.0 - numeric) / 1500.0, 0.0, 1.0)
+		return "%d%%" % int(round(coverage * 100.0))
 	if absf(numeric) < 1.0 and not is_equal_approx(numeric, 0.0):
 		return "%d%%" % int(round(numeric * 100.0))
 	if absf(numeric - round(numeric)) > 0.001:
@@ -73,6 +81,10 @@ static func key_name(key: String) -> String:
 			return "暴击率"
 		"crit_dmg":
 			return "暴击伤害"
+		"base_hp_mult":
+			return "基地生命"
+		"armor_penetration":
+			return "伤害穿透"
 		"gold_mult":
 			return "金币"
 		"shields":
@@ -104,12 +116,12 @@ static func format_effect(effect: Dictionary) -> String:
 	for key in KEY_ORDER:
 		if not effect.has(key):
 			continue
-		parts.append("%s %s" % [key_name(key), value_text(effect.get(key))])
+		parts.append("%s %s" % [key_name(key), _value_text_for_key(key, effect.get(key))])
 		seen[key] = true
 	for key in effect.keys():
 		if seen.has(key):
 			continue
-		parts.append("%s %s" % [key_name(str(key)), value_text(effect.get(key))])
+		parts.append("%s %s" % [key_name(str(key)), _value_text_for_key(str(key), effect.get(key))])
 	return " · ".join(parts)
 
 static func format_level_line(lv: int, effect: Dictionary) -> String:

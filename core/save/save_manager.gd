@@ -2,6 +2,7 @@ extends Node
 
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
+const CURRENT_SAVE_VERSION := 1
 const POWER_PER_SKILL_BASE_LEVEL := 2.20
 const POWER_PER_SIG_SKILL_LEVEL := 3.00
 const POWER_SIG_SKILL_BASE := 1.80
@@ -9,8 +10,12 @@ const POWER_SIG_SKILL_LEVEL_SCALE := 0.65
 
 enum PurchaseResult { OK, ALREADY_OWNED, NOT_ENOUGH_STAR, INVALID }
 
+var _save_path := SAVE_PATH
+var _backup_path := BACKUP_PATH
+var _last_persistence_error := ""
+
 var save_data := {
-	"version": 1,
+	"version": CURRENT_SAVE_VERSION,
 	"player": {"gold": 0, "xp": 0, "star": 0},
 	"levels_progress": {},
 	"challenge_progress": {},
@@ -38,7 +43,7 @@ var save_data := {
 
 func _default_save() -> Dictionary:
 	return {
-		"version": 1,
+		"version": CURRENT_SAVE_VERSION,
 		"player": {"gold": 0, "xp": 0, "star": 0},
 		"levels_progress": {},
 		"challenge_progress": {},
@@ -70,45 +75,331 @@ func reset_game() -> void:
 	save_game()
 
 func load_game() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
-		save_game()
+	if FileAccess.file_exists(_save_path):
+		var main_record := _read_save_record(_save_path, "main save")
+		if not main_record.is_empty():
+			save_data = main_record["data"]
+			var repaired := _refresh_level_unlocks_from_progress()
+			if bool(main_record.get("requires_write", false)) or repaired:
+				save_game()
+			return
+
+		var corrupt_preserved := _preserve_corrupt_file(_save_path)
+		var backup_record := _read_save_record(_backup_path, "backup save") if FileAccess.file_exists(_backup_path) else {}
+		if not backup_record.is_empty():
+			save_data = backup_record["data"]
+			_refresh_level_unlocks_from_progress()
+			if corrupt_preserved:
+				_write_save_atomically(_save_path, save_data, "recovered main save")
+			return
+
+		save_data = _default_save()
+		if corrupt_preserved:
+			_write_save_atomically(_save_path, save_data, "replacement main save")
 		return
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
-	if parsed is Dictionary:
-		save_data = _merged_save(parsed)
-		repair_progression_unlocks()
+
+	var backup_record := _read_save_record(_backup_path, "backup save") if FileAccess.file_exists(_backup_path) else {}
+	if not backup_record.is_empty():
+		save_data = backup_record["data"]
+		_refresh_level_unlocks_from_progress()
+		_write_save_atomically(_save_path, save_data, "recovered missing main save")
+		return
+
+	save_data = _default_save()
+	_write_save_atomically(_save_path, save_data, "initial main save")
 
 func _merged_save(parsed: Dictionary) -> Dictionary:
-	var merged := _default_save()
-	for key in parsed.keys():
-		if merged.has(key) and merged[key] is Dictionary and parsed[key] is Dictionary:
-			var nested: Dictionary = merged[key]
-			nested.merge(parsed[key], true)
-			merged[key] = nested
-		else:
-			merged[key] = parsed[key]
-	return merged
+	var prepared := _prepare_save(parsed, "save payload")
+	return prepared if not prepared.is_empty() else _default_save()
 
 func save_game() -> void:
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify(save_data, "\t"))
+	var prepared := _prepare_save(save_data, "in-memory save")
+	if prepared.is_empty():
+		return
+
+	var previous_main: Dictionary = {}
+	if FileAccess.file_exists(_save_path):
+		var previous_record := _read_save_record(_save_path, "existing main save")
+		if previous_record.is_empty():
+			if not _preserve_corrupt_file(_save_path):
+				_report_persistence_error("refusing to overwrite an invalid main save that could not be preserved")
+				return
+		else:
+			previous_main = previous_record["data"]
+
+	if not _write_save_atomically(_save_path, prepared, "main save"):
+		return
+
+	save_data = prepared
+	if not previous_main.is_empty():
+		_write_save_atomically(_backup_path, previous_main, "automatic backup")
 
 func backup_game() -> void:
-	var file := FileAccess.open(BACKUP_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify(save_data, "\t"))
+	var prepared := _prepare_save(save_data, "in-memory backup")
+	if not prepared.is_empty():
+		_write_save_atomically(_backup_path, prepared, "manual backup")
 
 func has_backup() -> bool:
-	return FileAccess.file_exists(BACKUP_PATH)
+	return FileAccess.file_exists(_backup_path) and not _read_save_record(_backup_path, "backup save").is_empty()
 
 func restore_backup() -> bool:
-	if not has_backup():
+	if not FileAccess.file_exists(_backup_path):
 		return false
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(BACKUP_PATH))
-	if not parsed is Dictionary:
+	var backup_record := _read_save_record(_backup_path, "backup save")
+	if backup_record.is_empty():
 		return false
-	save_data = _merged_save(parsed)
-	save_game()
+	var restored: Dictionary = backup_record["data"]
+	var original_data := save_data
+	save_data = restored
+	_refresh_level_unlocks_from_progress()
+	restored = save_data
+	save_data = original_data
+
+	if FileAccess.file_exists(_save_path):
+		var main_record := _read_save_record(_save_path, "main save before restore")
+		if main_record.is_empty() and not _preserve_corrupt_file(_save_path):
+			_report_persistence_error("refusing to restore over an invalid main save that could not be preserved")
+			return false
+	if not _write_save_atomically(_save_path, restored, "restored main save"):
+		return false
+	save_data = restored
 	return true
+
+func _read_save_record(path: String, label: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_report_persistence_error("cannot open %s at %s: %s" % [label, path, error_string(FileAccess.get_open_error())])
+		return {}
+	var contents := file.get_as_text()
+	var read_error := file.get_error()
+	file.close()
+	if read_error != OK:
+		_report_persistence_error("cannot read %s at %s: %s" % [label, path, error_string(read_error)])
+		return {}
+
+	var json := JSON.new()
+	var parse_error := json.parse(contents)
+	if parse_error != OK:
+		_report_persistence_error("cannot parse %s at %s (line %d): %s" % [label, path, json.get_error_line(), json.get_error_message()])
+		return {}
+	var parsed: Variant = json.data
+	var prepared := _prepare_save(parsed, label)
+	if prepared.is_empty():
+		return {}
+	return {
+		"data": prepared,
+		"requires_write": prepared != parsed
+	}
+
+func _prepare_save(candidate: Variant, label: String) -> Dictionary:
+	if not candidate is Dictionary:
+		_report_persistence_error("%s root must be a dictionary" % label)
+		return {}
+	var migrated := _migrate_save(candidate)
+	if migrated.is_empty():
+		_report_persistence_error("%s has an unsupported or invalid version" % label)
+		return {}
+	if not _validate_save_shape(migrated, label):
+		return {}
+	var merged := _merge_defaults_recursive(_default_save(), migrated)
+	merged["version"] = CURRENT_SAVE_VERSION
+	return merged
+
+func _migrate_save(candidate: Dictionary) -> Dictionary:
+	var migrated: Dictionary = candidate.duplicate(true)
+	var version := _save_version(migrated)
+	if version < 0 or version > CURRENT_SAVE_VERSION:
+		return {}
+	while version < CURRENT_SAVE_VERSION:
+		match version:
+			0:
+				migrated = _migrate_v0_to_v1(migrated)
+			_:
+				return {}
+		var next_version := _save_version(migrated)
+		if next_version <= version:
+			return {}
+		version = next_version
+	return migrated
+
+func _migrate_v0_to_v1(candidate: Dictionary) -> Dictionary:
+	var migrated: Dictionary = candidate.duplicate(true)
+	# Legacy unlocks remain owned; defaults add only fields absent from the old save.
+	migrated["version"] = 1
+	return migrated
+
+func _save_version(candidate: Dictionary) -> int:
+	if not candidate.has("version"):
+		return 0
+	var raw_version: Variant = candidate["version"]
+	if typeof(raw_version) != TYPE_INT and typeof(raw_version) != TYPE_FLOAT:
+		return -1
+	var numeric_version := float(raw_version)
+	if not is_finite(numeric_version) or numeric_version != floorf(numeric_version):
+		return -1
+	return int(numeric_version)
+
+func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
+	for required_key in ["player", "unlocks", "equipment"]:
+		if not candidate.has(required_key) or not candidate[required_key] is Dictionary:
+			_report_persistence_error("%s is missing dictionary field '%s'" % [label, required_key])
+			return false
+	if not _matches_default_schema(candidate, _default_save()):
+		_report_persistence_error("%s contains a known field with an invalid type" % label)
+		return false
+	for progress_key in ["levels_progress", "challenge_progress", "skill_base_levels", "sig_skill_levels"]:
+		var progress: Dictionary = candidate.get(progress_key, {})
+		for value in progress.values():
+			if not _is_finite_number(value):
+				_report_persistence_error("%s field '%s' contains a non-numeric value" % [label, progress_key])
+				return false
+	var unlocks: Dictionary = candidate["unlocks"]
+	for unlock_key in ["levels", "characters", "weapons", "armors", "chips", "pets"]:
+		for item_id in unlocks.get(unlock_key, []):
+			if typeof(item_id) != TYPE_STRING:
+				_report_persistence_error("%s unlock list '%s' contains a non-string id" % [label, unlock_key])
+				return false
+	var equipment: Dictionary = candidate["equipment"]
+	for equipment_key in equipment.keys():
+		var equipment_value: Variant = equipment[equipment_key]
+		if str(equipment_key).begins_with("selected_"):
+			if typeof(equipment_value) != TYPE_STRING:
+				_report_persistence_error("%s equipment selection '%s' must be a string" % [label, equipment_key])
+				return false
+		elif not _is_finite_number(equipment_value):
+			_report_persistence_error("%s equipment level '%s' must be numeric" % [label, equipment_key])
+			return false
+	return true
+
+func _is_finite_number(value: Variant) -> bool:
+	if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:
+		return false
+	return is_finite(float(value))
+
+func _matches_default_schema(value: Variant, default_value: Variant) -> bool:
+	if default_value is Dictionary:
+		if not value is Dictionary:
+			return false
+		for key in default_value.keys():
+			if value.has(key) and not _matches_default_schema(value[key], default_value[key]):
+				return false
+		return true
+	if default_value is Array:
+		return value is Array
+	var default_type := typeof(default_value)
+	var value_type := typeof(value)
+	if default_type == TYPE_INT or default_type == TYPE_FLOAT:
+		return value_type == TYPE_INT or value_type == TYPE_FLOAT
+	return value_type == default_type
+
+func _merge_defaults_recursive(defaults: Dictionary, candidate: Dictionary) -> Dictionary:
+	var merged: Dictionary = defaults.duplicate(true)
+	for key in candidate.keys():
+		if merged.has(key) and merged[key] is Dictionary and candidate[key] is Dictionary:
+			merged[key] = _merge_defaults_recursive(merged[key], candidate[key])
+		else:
+			merged[key] = candidate[key]
+	return merged
+
+func _write_save_atomically(path: String, data: Dictionary, label: String) -> bool:
+	var prepared := _prepare_save(data, label)
+	if prepared.is_empty():
+		return false
+	var temp_path := "%s.tmp" % path
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
+	if file == null:
+		_report_persistence_error("cannot open temporary %s at %s: %s" % [label, temp_path, error_string(FileAccess.get_open_error())])
+		return false
+	file.store_string(JSON.stringify(prepared, "\t"))
+	file.flush()
+	var write_error := file.get_error()
+	file.close()
+	if write_error != OK:
+		_report_persistence_error("cannot flush temporary %s at %s: %s" % [label, temp_path, error_string(write_error)])
+		_discard_temp_file(temp_path)
+		return false
+
+	var verification := _read_save_record(temp_path, "temporary %s" % label)
+	if verification.is_empty():
+		_report_persistence_error("temporary %s failed validation at %s" % [label, temp_path])
+		_discard_temp_file(temp_path)
+		return false
+	var rename_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), ProjectSettings.globalize_path(path))
+	if rename_error != OK:
+		_report_persistence_error("cannot atomically replace %s at %s: %s" % [label, path, error_string(rename_error)])
+		_discard_temp_file(temp_path)
+		return false
+	return true
+
+func _preserve_corrupt_file(path: String) -> bool:
+	var source := FileAccess.open(path, FileAccess.READ)
+	if source == null:
+		_report_persistence_error("cannot open invalid save for preservation at %s: %s" % [path, error_string(FileAccess.get_open_error())])
+		return false
+	var source_length := source.get_length()
+	var bytes := source.get_buffer(source_length)
+	source.close()
+	if bytes.size() != source_length:
+		_report_persistence_error("cannot read all bytes from invalid save at %s" % path)
+		return false
+	var corrupt_path := _next_corrupt_copy_path(path)
+	if not _write_bytes_atomically(corrupt_path, bytes, "corrupt save copy"):
+		return false
+	print("SaveManager: preserved invalid save at %s" % corrupt_path)
+	return true
+
+func _next_corrupt_copy_path(path: String) -> String:
+	var extension := path.get_extension()
+	var base := path.get_basename() if extension != "" else path
+	var suffix := ".%s" % extension if extension != "" else ""
+	var timestamp := int(Time.get_unix_time_from_system())
+	var candidate := "%s.corrupt.%d%s" % [base, timestamp, suffix]
+	var sequence := 1
+	while FileAccess.file_exists(candidate) or DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(candidate)):
+		candidate = "%s.corrupt.%d.%d%s" % [base, timestamp, sequence, suffix]
+		sequence += 1
+	return candidate
+
+func _write_bytes_atomically(path: String, bytes: PackedByteArray, label: String) -> bool:
+	var temp_path := "%s.tmp" % path
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
+	if file == null:
+		_report_persistence_error("cannot open temporary %s at %s: %s" % [label, temp_path, error_string(FileAccess.get_open_error())])
+		return false
+	file.store_buffer(bytes)
+	file.flush()
+	var write_error := file.get_error()
+	file.close()
+	if write_error != OK:
+		_report_persistence_error("cannot flush temporary %s at %s: %s" % [label, temp_path, error_string(write_error)])
+		_discard_temp_file(temp_path)
+		return false
+
+	var verification := FileAccess.open(temp_path, FileAccess.READ)
+	if verification == null:
+		_report_persistence_error("cannot reopen temporary %s at %s: %s" % [label, temp_path, error_string(FileAccess.get_open_error())])
+		_discard_temp_file(temp_path)
+		return false
+	var verified_bytes := verification.get_buffer(verification.get_length())
+	verification.close()
+	if verified_bytes != bytes:
+		_report_persistence_error("temporary %s byte verification failed at %s" % [label, temp_path])
+		_discard_temp_file(temp_path)
+		return false
+	var rename_error := DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), ProjectSettings.globalize_path(path))
+	if rename_error != OK:
+		_report_persistence_error("cannot atomically place %s at %s: %s" % [label, path, error_string(rename_error)])
+		_discard_temp_file(temp_path)
+		return false
+	return true
+
+func _discard_temp_file(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+func _report_persistence_error(message: String) -> void:
+	_last_persistence_error = message
+	push_error("SaveManager: %s" % message)
 
 func apply_level_result(result: Dictionary, persist := true) -> void:
 	var level_id := str(result.get("level_id", ""))
@@ -285,10 +576,15 @@ func get_loadout_power() -> int:
 	var pet_id := get_selected("pet")
 	var power := 0.0
 	var char_level := get_item_level(character_id)
-	power += float(char_level) * 1.15
-	power += float(get_item_level(weapon_id)) * 1.45
-	power += float(get_item_level(armor_id)) * 0.85
-	power += float(get_item_level(chip_id)) * 0.75
+	var character := DataLoader.get_row("characters", character_id)
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var armor := DataLoader.get_row("armors", armor_id)
+	var character_offense := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
+	var weapon_quality := sqrt(maxf(_weapon_effective_dps(weapon) / 4.0, 0.35))
+	power += float(char_level) * 1.15 * character_offense
+	power += float(get_item_level(weapon_id)) * 1.45 * weapon_quality
+	power += float(get_item_level(armor_id)) * 0.85 * sqrt(maxf(float(armor.get("hp_mult", 1.0)), 0.5))
+	power += float(get_item_level(chip_id)) * 0.75 * _chip_power_quality(chip_id)
 	if pet_id != "":
 		power += float(get_item_level(pet_id)) * 0.55
 		power += _pet_stat_power(pet_id)
@@ -304,6 +600,33 @@ func get_loadout_power() -> int:
 		# 专属主动技独立经验等级(新增的投资轴，见 get_sig_skill_level)
 		power += float(get_sig_skill_level(character_id)) * POWER_PER_SIG_SKILL_LEVEL
 	return int(round(power))
+
+func _weapon_effective_dps(weapon: Dictionary) -> float:
+	if weapon.is_empty():
+		return 4.0
+	var effective := float(weapon.get("base_atk_coef", 1.0)) * float(weapon.get("fire_rate", 4.0))
+	var special: Dictionary = weapon.get("special", {})
+	var pellets := maxi(1, int(special.get("pellets", 1)))
+	if pellets > 1:
+		effective *= 1.0 + float(pellets - 1) * 0.62
+	effective *= 1.0 + 0.18 * float(special.get("pierce", 0))
+	effective *= 1.0 + 0.36 * float(special.get("chain", 0))
+	if float(special.get("splash", 0.0)) > 0.0 or float(special.get("cloud", 0.0)) > 0.0:
+		effective *= 1.28
+	effective *= 1.0 + 0.65 * (float(special.get("burn", 0.0)) + float(special.get("poison", 0.0)))
+	return effective
+
+func _chip_power_quality(chip_id: String) -> float:
+	var chip := DataLoader.get_row("chips", chip_id)
+	match str(chip.get("stat", "")):
+		"damage_mult", "fire_rate_mult", "element_damage_mult":
+			return 1.12
+		"crit_rate", "pierce_bonus":
+			return 1.08
+		"base_hp_mult", "breach_damage_reduction":
+			return 1.04
+		_:
+			return 1.0
 
 func _pet_stat_power(pet_id: String) -> float:
 	if pet_id == "":
@@ -352,14 +675,18 @@ func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
 	var late_score := 0.0
 	var table_var = economy.get("late_wave_hp_bonus", {})
 	var boss_table_var = economy.get("late_wave_boss_hp_bonus", {})
+	var count_table_var = economy.get("late_wave_count_mult", {})
 	var table: Dictionary = table_var if table_var is Dictionary else {}
 	var boss_table: Dictionary = boss_table_var if boss_table_var is Dictionary else {}
+	var count_table: Dictionary = count_table_var if count_table_var is Dictionary else {}
 	for wave in level.get("waves", []):
 		var wave_no := int(wave.get("wave", 0))
 		if wave_no < 3:
 			continue
 		var wave_mult := float(table.get(str(wave_no), table.get(wave_no, 1.0))) * ramp_mult
 		late_score += maxf(0.0, wave_mult - 1.0)
+		var count_mult := float(count_table.get(str(wave_no), count_table.get(wave_no, 1.0)))
+		late_score += maxf(0.0, count_mult - 1.0) * 0.9
 		if wave.has("boss"):
 			var boss_mult := float(boss_table.get(str(wave_no), boss_table.get(wave_no, 1.0))) * ramp_mult
 			late_score += maxf(0.0, boss_mult - 1.0) * 0.85

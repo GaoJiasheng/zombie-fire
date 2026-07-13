@@ -43,9 +43,9 @@ layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="Center/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 56
+theme_override_constants/margin_left = 34
 theme_override_constants/margin_top = 44
-theme_override_constants/margin_right = 56
+theme_override_constants/margin_right = 34
 theme_override_constants/margin_bottom = 44
 
 [node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
@@ -109,27 +109,28 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="HelpButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "操作说明"
 
 [node name="PrivacyButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "隐私"
 
 [node name="SupportButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "支持"
 
 [node name="InfoBody" type="Label" parent="Center/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 230)
+custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 autowrap_mode = 3
+clip_text = true
 
 [node name="BackButton" type="Button" parent="Center/Panel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 96)

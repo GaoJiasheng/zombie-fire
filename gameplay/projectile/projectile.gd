@@ -1,7 +1,7 @@
 extends Area2D
 
-signal split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String)
-signal hit_confirmed(target: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String)
+signal split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String, armor_penetration: float, status_strength: float)
+signal hit_confirmed(target: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float)
 
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 
@@ -9,6 +9,9 @@ const SPRITE_FORWARD_ANGLE := 0.0
 const PROJECTILE_SPEED_MULTIPLIER := 0.5
 const PIERCE_SWEEP_RANGE := 420.0
 const PIERCE_SWEEP_HALF_WIDTH := 92.0
+const PIERCE_RETARGET_RANGE := 720.0
+const PIERCE_RETARGET_MAX_TURN := 1.92 # 约 110°，允许命中后的折射转向，但不允许原地掉头。
+const PIERCE_RETARGET_BACKTRACK_Y := 140.0
 const MAX_LAYER_TRAIL_FX := 110
 const MAX_LAYER_HIT_FX := 150
 # 追踪弹：出膛后必须先直飞 1 秒，形成清楚的枪管弹道，再进入导引。
@@ -31,6 +34,8 @@ var split_falloff := 0.55
 var homing_strength := 0.0
 var splash_radius := 0.0
 var cloud_radius := 0.0
+var armor_penetration := 0.0
+var status_strength := -1.0
 var visual_scale := 1.0
 var visual_profile := ""
 var trail_timer := 0.0
@@ -42,8 +47,9 @@ var texture_override_path := ""
 var hit_target_ids := {}
 var _flight_trail: Node
 var _projectile_vfx_ready := false
+var _preferred_target_ref: WeakRef
 
-func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "") -> void:
+func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null) -> void:
 	global_position = origin
 	_spawn_position = origin
 	var flight_direction := direction.normalized()
@@ -57,6 +63,9 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	homing_strength = homing
 	splash_radius = splash
 	cloud_radius = cloud
+	armor_penetration = clampf(penetration, 0.0, 0.95)
+	status_strength = status_effect_strength
+	_preferred_target_ref = weakref(preferred_target) if preferred_target != null else null
 	visual_scale = clampf(scale_mult, 0.72, 1.75)
 	texture_override_path = texture_override
 	visual_profile = _resolved_visual_profile(profile, texture_override_path)
@@ -115,10 +124,24 @@ func _apply_homing(delta: float) -> void:
 			return
 		_apply_homing_to_target(close_boss, delta)
 		return
-	var target := _nearest_enemy()
+	var target := _preferred_target()
+	if target == null:
+		target = _nearest_enemy()
 	if target == null:
 		return
 	_apply_homing_to_target(target, delta)
+
+func _preferred_target() -> Node2D:
+	if _preferred_target_ref == null:
+		return null
+	var target: Variant = _preferred_target_ref.get_ref()
+	if not is_instance_valid(target) or not target is Node2D:
+		_preferred_target_ref = null
+		return null
+	var target_node := target as Node2D
+	if hit_target_ids.has(target_node.get_instance_id()) or target_node.global_position.y > 1540.0:
+		return null
+	return target_node
 
 func _apply_homing_to_target(target: Node2D, delta: float) -> void:
 	var speed := velocity.length()
@@ -149,6 +172,8 @@ func _nearest_enemy() -> Node2D:
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		var enemy_node := enemy as Node2D
+		if hit_target_ids.has(enemy_node.get_instance_id()):
+			continue
 		if enemy_node.global_position.y > 1540.0:
 			continue
 		var dist := global_position.distance_squared_to(enemy_node.global_position)
@@ -165,6 +190,8 @@ func _nearest_close_boss() -> Node2D:
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		var enemy_node := enemy as Node2D
+		if hit_target_ids.has(enemy_node.get_instance_id()):
+			continue
 		var boss_value: Variant = enemy_node.get("boss")
 		if not (boss_value is bool and bool(boss_value)):
 			continue
@@ -778,11 +805,11 @@ func _hit(target: Node) -> void:
 	hit_target_ids[target_id] = true
 	var hit_origin := global_position
 	var flight_direction := velocity.normalized()
-	target.take_damage(damage, element)
+	target.take_damage(damage, element, armor_penetration, status_strength)
 	_spawn_impact_flash()
-	hit_confirmed.emit(target, hit_origin, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile)
+	hit_confirmed.emit(target, hit_origin, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength)
 	if split_count > 0:
-		split_requested.emit(hit_origin, flight_direction, split_count, damage * split_falloff, element)
+		split_requested.emit(hit_origin, flight_direction, split_count, damage * split_falloff, element, armor_penetration, status_strength)
 	if pierce_left <= 0:
 		queue_free()
 	else:
@@ -794,6 +821,7 @@ func _hit(target: Node) -> void:
 		else:
 			pierce_left = remaining_pass_throughs
 			global_position = hit_origin + flight_direction * (52.0 + 24.0 * float(swept_hits))
+			_retarget_after_pierce(global_position, flight_direction, remaining_pass_throughs)
 			_spawn_pierce_flash()
 
 func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max_hits: int) -> int:
@@ -834,12 +862,100 @@ func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max
 		hit_target_ids[enemy_id] = true
 		var hit_pos := enemy_node.global_position
 		_spawn_pierce_trace(trace_start, hit_pos)
-		enemy_node.take_damage(damage, element)
+		enemy_node.take_damage(damage, element, armor_penetration, status_strength)
 		_spawn_impact_flash_at(hit_pos)
-		hit_confirmed.emit(enemy_node, hit_pos, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile)
+		hit_confirmed.emit(enemy_node, hit_pos, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength)
 		trace_start = hit_pos
 		hits += 1
 	return hits
+
+func _retarget_after_pierce(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> void:
+	if current_direction.length_squared() <= 0.0 or velocity.length_squared() <= 1.0:
+		return
+	var target := _best_pierce_retarget(origin, current_direction.normalized(), remaining_pass_throughs)
+	if target == null:
+		return
+	var desired := (target.global_position - origin).normalized()
+	if desired.length_squared() <= 0.0:
+		return
+	var turn := current_direction.normalized().angle_to(desired)
+	if absf(turn) > PIERCE_RETARGET_MAX_TURN:
+		return
+	var speed := velocity.length()
+	velocity = desired * speed
+	rotation = desired.angle() - SPRITE_FORWARD_ANGLE
+	if homing_strength > 0.0:
+		lifetime = maxf(lifetime, HOMING_ACTIVATION_DELAY)
+
+func _best_pierce_retarget(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> Node2D:
+	var best: Node2D
+	var best_score := -INF
+	var max_future_hits := maxi(1, remaining_pass_throughs + 1)
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		if not enemy.has_method("take_damage"):
+			continue
+		var enemy_node := enemy as Node2D
+		if hit_target_ids.has(enemy_node.get_instance_id()):
+			continue
+		if enemy_node.global_position.y > 1540.0:
+			continue
+		if enemy_node.global_position.y > origin.y + PIERCE_RETARGET_BACKTRACK_Y:
+			continue
+		var to_enemy := enemy_node.global_position - origin
+		var distance := to_enemy.length()
+		if distance <= 24.0 or distance > PIERCE_RETARGET_RANGE:
+			continue
+		var desired := to_enemy / distance
+		var turn := absf(current_direction.angle_to(desired))
+		if turn > PIERCE_RETARGET_MAX_TURN:
+			continue
+		var chain_value := _pierce_retarget_chain_value(origin, desired, max_future_hits)
+		if chain_value <= 0.0:
+			continue
+		var boss_bonus := 0.0
+		var boss_value: Variant = enemy_node.get("boss")
+		if boss_value is bool and bool(boss_value):
+			boss_bonus = 160.0
+		var score := chain_value * 520.0 + boss_bonus - distance * 0.42 - turn * 95.0
+		if score > best_score:
+			best = enemy_node
+			best_score = score
+	return best
+
+func _pierce_retarget_chain_value(origin: Vector2, direction: Vector2, max_hits: int) -> float:
+	if max_hits <= 0 or direction.length_squared() <= 0.0:
+		return 0.0
+	var candidates: Array = []
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy is Node2D:
+			continue
+		if not enemy.has_method("take_damage"):
+			continue
+		var enemy_node := enemy as Node2D
+		if hit_target_ids.has(enemy_node.get_instance_id()):
+			continue
+		var to_enemy := enemy_node.global_position - origin
+		var forward := to_enemy.dot(direction)
+		if forward <= 18.0 or forward > PIERCE_RETARGET_RANGE:
+			continue
+		var lateral := absf(to_enemy.cross(direction))
+		if lateral > _pierce_sweep_half_width(enemy_node):
+			continue
+		candidates.append({"enemy": enemy_node, "forward": forward})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("forward", 0.0)) < float(b.get("forward", 0.0))
+	)
+	var value := 0.0
+	var hits := 0
+	for candidate in candidates:
+		if hits >= max_hits:
+			break
+		var forward := float(candidate.get("forward", PIERCE_RETARGET_RANGE))
+		value += 1.0 + (PIERCE_RETARGET_RANGE - forward) / PIERCE_RETARGET_RANGE
+		hits += 1
+	return value
 
 func _pierce_sweep_half_width(enemy: Node2D) -> float:
 	var width := PIERCE_SWEEP_HALF_WIDTH * maxf(visual_scale, 0.9)

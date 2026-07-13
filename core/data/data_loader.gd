@@ -17,11 +17,22 @@ const TABLES := [
 ]
 
 var tables := {}
+var load_errors: Array[String] = []
 
-func load_all() -> void:
+func load_all() -> bool:
 	tables.clear()
+	load_errors.clear()
 	for table in TABLES:
-		tables[table] = _load_json("res://data/%s.json" % table)
+		var path := "res://data/%s.json" % table
+		var loaded: Variant = _load_json(path)
+		if loaded == null:
+			load_errors.append(path)
+			continue
+		tables[table] = loaded
+	return load_errors.is_empty()
+
+func is_ready() -> bool:
+	return load_errors.is_empty() and tables.size() == TABLES.size()
 
 func get_table(table: String) -> Variant:
 	return tables.get(table, {})
@@ -61,10 +72,10 @@ func level_display_name(level_id: String) -> String:
 func _load_json(path: String) -> Variant:
 	if not FileAccess.file_exists(path):
 		push_error("Missing data file: %s" % path)
-		return {}
+		return null
 	var text := FileAccess.get_file_as_string(path)
 	var parsed: Variant = JSON.parse_string(text)
 	if parsed == null:
 		push_error("Invalid JSON: %s" % path)
-		return {}
+		return null
 	return parsed

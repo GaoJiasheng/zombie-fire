@@ -16,6 +16,14 @@ all five battle scenes, and the result scene.
 - The idle hover animation uses the same anchor instead of resetting to a hardcoded `y=1625`.
 - `tools/check_battle_line_alignment.py` now rejects the old hardcoded pet position, and `tools/m1_smoke_test.gd` exercises a 1080x2340 viewport with an equipped pet.
 
+### Skill Rule Rebalance (2026-07-13)
+
+- `skill_slow_field` keeps the original slow-strength curve, but its field coverage is now 30% / 40% / 50% / 60% / 70% by level.
+- `skill_barrier` no longer grants zombie-count shields; it increases base HP max by +20% / +40% / +60% / +80% / +120%, immediately healing the newly added max HP so the bottom HP bar reflects the upgrade.
+- `skill_critical` is now localized as `蓄能重击`; the previous `skill_charge_shot` identity is now `伤害穿透`, adding direct damage and partial armor/shield bypass to main projectiles.
+- `skill_recycle` is capped to one level and only grants +1 reroll.
+- Frost's `sig_frost_glacier` is now full-screen control with persistent ice-blue frozen coverage on affected enemies during the active window.
+
 ### Endless XP Card-Offer Fix (2026-07-08)
 
 - Fixed the endless-mode card loop where XP stayed above the next threshold after a skill upgrade, causing repeated card offers.
@@ -2438,3 +2446,16 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Readable cards**: `战场状态`, `出战配置`, and `已带技能` cards have larger minimum heights, larger section headers, larger metric pills, wider key/value spacing, and bigger skill chips. Skill chips moved from four narrow columns to three wider columns so names and levels do not read like thumbnails.
 - **Native button size**: the three pause actions now use the existing `760x112` native armored button textures, with larger icon plates, title text, subtitles, and arrows. This keeps the owner-approved armored texture standard without stretching a small button model.
 - **Visual verification**: `tmp/pause_readability_layout_default_2026_07_12.png` checks the 1080x1920 layout, and `tmp/pause_readability_layout_tall_2026_07_12.png` checks the tall 1080x2340 placement.
+
+## App Store Launch Hardening (2026-07-13)
+
+> A full product review was converted into release-facing fixes rather than another isolated visual pass. The focus was player progress safety, combat-rule consistency, mobile readability/performance, and deterministic release gates.
+
+- **Save integrity**: `SaveManager` now writes validated temporary data before atomic replacement and keeps a recoverable previous copy. `tools/save_integrity_test.gd` covers normal persistence, corrupted primary data, backup recovery, and simulated write failure.
+- **Combat correctness**: summoned/split enemies no longer duplicate rewards; final/Endless boss selection is strongest-eligible first; chain and splash hits preserve armor penetration and elemental status; homing honors the manual-lock target; native weapon pellets and multishot lanes no longer multiply the lane penalty incorrectly.
+- **Boss accessibility**: hard-immunity mechanics still communicate their intended weakness, but unresolved immunity now retains a small damage floor so a valid run cannot become permanently unwinnable. Suppressed-hit messaging remains throttled and explicit.
+- **Runtime lifecycle**: app background/focus transitions save immediately, cancel active pointer state, and suspend/resume audio. `DataLoader` now reports parse/load failure and `main.gd` refuses to route into a partially loaded game.
+- **Performance/readability**: authored bitmap VFX are the normal enemy skill/impact path, with procedural geometry limited to missing-asset fallback. Particle density steps down in battery-saving mode and under heavy enemy counts. Battle HUD and fixed world geometry keep the authored 1080x1920 composition under `canvas_items` + `keep`.
+- **Audio robustness**: the project now has an explicit bus layout plus automated checks for BGM looping, SFX priority, concurrency, and complete player teardown. Long BGM import policy avoids unnecessary memory residency.
+- **Mobile UI**: shared safe-area handling and touch-target expansion cover primary meta screens and dialogs. The chapter detail header was given real vertical space so three-line story copy cannot collide with the objective. `tools/check_visual_screens.py` renders 31 routes including all ten campaign environments on tall screens and safe-area variants.
+- **Release gates**: export configuration, Godot-log cleanliness, package contents/size, battle boot, screenshot rendering, asset/data/reference validation, and smoke coverage are wired into `tools/check_release_candidate.py`. The complete candidate check passed in this worktree; this pass does not claim physical-device playtesting or a new TestFlight upload.

@@ -175,11 +175,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(760, card_height)
-	var base_texture := load("res://assets/production/sprites/ui/ui_collection_card_skin.png")
-	button.texture_normal = base_texture
-	button.texture_hover = base_texture
-	button.texture_pressed = base_texture
-	button.texture_disabled = base_texture
+	button.texture_normal = null
+	button.texture_hover = null
+	button.texture_pressed = null
+	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
@@ -197,7 +196,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	frame.size = Vector2(728, card_height - 28.0)
 	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.visible = false
+	frame.visible = true
 	button.add_child(frame)
 
 	var icon := TextureRect.new()
@@ -216,6 +215,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 		icon.texture = load(row.get("icon", row.get("portrait", "")))
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	button.add_child(icon)
+	icon.z_index = 2
 	icon.set_deferred("position", icon.position)
 	icon.set_deferred("size", icon.size)
 
@@ -227,6 +227,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
+	title.z_index = 2
 
 	var tag_row := HBoxContainer.new()
 	tag_row.position = Vector2(170, 84 if spacious else 70)
@@ -234,6 +235,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
+	tag_row.z_index = 2
 	for tag_text in _item_tags(row, unlocked).slice(0, 3):
 		tag_row.add_child(UiKit.pill(str(tag_text), accent, 15))
 
@@ -246,6 +248,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(desc)
+	desc.z_index = 2
 
 	if mode != "skills":
 		var buy_price := 0
@@ -283,9 +286,9 @@ func _add_locked_card_veil(parent: Control, card_height: float, can_buy: bool) -
 	veil.size = Vector2(724, card_height - 32.0)
 	veil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	veil.stretch_mode = TextureRect.STRETCH_SCALE
-	veil.modulate = Color(0.0, 0.0, 0.0, 0.46 if can_buy else 0.58)
+	veil.modulate = Color(0.0, 0.0, 0.0, 0.24 if can_buy else 0.32)
 	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	veil.z_index = 2
+	veil.z_index = 1
 	parent.add_child(veil)
 
 func _card_action_button(node_name: String, text: String, enabled: bool, primary: bool, pos: Vector2, button_size: Vector2) -> TextureButton:
@@ -293,21 +296,19 @@ func _card_action_button(node_name: String, text: String, enabled: bool, primary
 	button.position = pos
 	button.size = button_size
 	button.custom_minimum_size = button_size
+	UiKit.attach_touch_target(button)
 	return button
 
 func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var accent := _mode_accent(row)
 	var item_level := SaveManager.get_skill_base_level(item_id)
-	var levels: Array = row.get("levels", [])
-	var max_level := maxi(1, levels.size())
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(760, 158)
-	var base_texture := load("res://assets/production/sprites/ui/ui_collection_skill_card_skin.png")
-	button.texture_normal = base_texture
-	button.texture_hover = base_texture
-	button.texture_pressed = base_texture
-	button.texture_disabled = base_texture
+	button.texture_normal = null
+	button.texture_hover = null
+	button.texture_pressed = null
+	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
 	button.clip_contents = true
@@ -322,7 +323,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	card.size = Vector2(740, 146)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.visible = false
+	card.visible = true
 	button.add_child(card)
 
 	var accent_bar := TextureRect.new()
@@ -362,7 +363,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	title.name = "Title"
 	title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
 	title.position = Vector2(148, 18)
-	title.size = Vector2(468, 40)
+	title.size = Vector2(470, 40)
 	title.clip_text = true
 	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -371,7 +372,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
 	tag_row.position = Vector2(148, 58)
-	tag_row.size = Vector2(468, 34)
+	tag_row.size = Vector2(470, 34)
 	tag_row.add_theme_constant_override("separation", 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -383,53 +384,30 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	effect.name = "EffectSummary"
 	effect.text = _skill_effect_summary(row, item_level)
 	effect.position = Vector2(148, 94)
-	effect.size = Vector2(502, 30)
+	effect.size = Vector2(470, 36)
 	effect.clip_text = true
 	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(effect)
 
-	var divider := TextureRect.new()
-	divider.name = "MetaDivider"
-	divider.position = Vector2(586, 26)
-	divider.size = Vector2(10, 92)
-	divider.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
-	divider.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	divider.stretch_mode = TextureRect.STRETCH_SCALE
-	divider.modulate = Color(accent.r, accent.g, accent.b, 0.30)
-	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	divider.visible = false
-	button.add_child(divider)
-
-	var max_label := Label.new()
-	max_label.name = "MaxLevel"
-	max_label.text = "等级"
-	max_label.position = Vector2(612, 30)
-	max_label.size = Vector2(96, 22)
-	max_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(max_label, 13, Color(0.64, 0.78, 0.80, 0.86), 2)
-	max_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(max_label)
-
-	var max_value := Label.new()
-	max_value.name = "MaxLevelValue"
-	max_value.text = "%d/%d" % [item_level, max_level]
-	max_value.position = Vector2(590, 54)
-	max_value.size = Vector2(140, 32)
-	max_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(max_value, 22, Color(accent.r, accent.g, accent.b, 1.0), 3)
-	max_value.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(max_value)
-
-	var hint := Label.new()
-	hint.name = "Hint"
-	hint.text = "详情"
-	hint.position = Vector2(606, 90)
-	hint.size = Vector2(108, 22)
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiKit.apply_label(hint, 13, Color(0.86, 0.72, 0.46, 0.88), 2)
-	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(hint)
+	var info_button := Button.new()
+	info_button.name = "InfoButton"
+	info_button.text = "i"
+	info_button.position = Vector2(646, 34)
+	info_button.size = Vector2(88, 88)
+	info_button.custom_minimum_size = Vector2(88, 88)
+	info_button.focus_mode = Control.FOCUS_NONE
+	info_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	info_button.tooltip_text = "查看技能详情与等级效果"
+	info_button.add_theme_font_size_override("font_size", 34)
+	info_button.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 1.0))
+	info_button.add_theme_color_override("font_hover_color", Color.WHITE)
+	info_button.add_theme_color_override("font_pressed_color", UiKit.GOLD)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		info_button.add_theme_stylebox_override(state, UiKit.map_pill_texture_style())
+	info_button.set_meta("critical_touch", true)
+	info_button.pressed.connect(_show_item_detail.bind(item_id, row))
+	button.add_child(info_button)
 	return button
 
 func _mode_accent(row: Dictionary) -> Color:
@@ -868,14 +846,17 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	var panel := PanelContainer.new()
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.offset_left = 72.0
-	panel.offset_top = 150.0
-	panel.offset_right = -72.0
-	panel.offset_bottom = -140.0
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 150.0, 0.30)
+	panel.offset_left = 72.0 + safe.x
+	panel.offset_top = 150.0 + safe.y + modal_shift
+	panel.offset_right = -72.0 - safe.z
+	panel.offset_bottom = -140.0 - safe.w + modal_shift
 	if mode == "skills":
-		panel.offset_top = 230.0
-		panel.offset_bottom = -250.0
+		panel.offset_top = 230.0 + safe.y + modal_shift
+		panel.offset_bottom = -250.0 - safe.w + modal_shift
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.set_meta("safe_area_content", true)
 	panel.add_theme_stylebox_override("panel", _build_panel_style())
 	_detail_modal.add_child(panel)
 
@@ -1054,7 +1035,7 @@ func _compact_close_button(node_name: String) -> Button:
 	var button := Button.new()
 	button.name = node_name
 	button.text = "×"
-	button.custom_minimum_size = Vector2(56, 56)
+	button.custom_minimum_size = UiKit.MIN_TOUCH_TARGET
 	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1264,27 +1245,7 @@ func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
 # ========== Character detail modal ==========
 
 func _safe_area_canvas_insets() -> Vector4:
-	# 返回安全区(刘海/灵动岛/home 条)在画布坐标下的 左/上/右/下 内距;桌面/无刘海≈0。
-	# 桌面(macOS/Windows/Linux)的 get_display_safe_area() 返回的是桌面显示器坐标而非
-	# App 窗口坐标，直接套用会算出负宽度矩形，导致详情弹窗整个不可见——仅移动端才有意义。
-	if not OS.get_name() in ["iOS", "Android"]:
-		return Vector4.ZERO
-	var win := DisplayServer.window_get_size()
-	if win.x <= 0 or win.y <= 0:
-		return Vector4.ZERO
-	var safe := DisplayServer.get_display_safe_area()
-	var vis := get_viewport().get_visible_rect().size
-	var sx := vis.x / float(win.x)
-	var sy := vis.y / float(win.y)
-	# 部分机型上这套坐标换算会算出离谱的大内边距(同类问题 battle.gd 的
-	# _viewport_safe_insets() 已用 120 上限兜过)，真实刘海/灵动岛/home 指示条
-	# 不可能吃掉这么多，这里同样夹一个合理上限，避免详情弹窗被裁出大黑边。
-	return Vector4(
-		minf(maxf(float(safe.position.x) * sx, 0.0), 120.0),
-		minf(maxf(float(safe.position.y) * sy, 0.0), 120.0),
-		minf(maxf(float(win.x - safe.position.x - safe.size.x) * sx, 0.0), 120.0),
-		minf(maxf(float(win.y - safe.position.y - safe.size.y) * sy, 0.0), 120.0)
-	)
+	return UiKit.safe_area_canvas_insets(get_viewport())
 
 func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	if _detail_modal != null and is_instance_valid(_detail_modal):
@@ -1309,11 +1270,13 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var safe := _safe_area_canvas_insets()
+	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 150.0, 0.30)
 	panel.offset_left = 60.0 + safe.x
-	panel.offset_top = 90.0 + safe.y
+	panel.offset_top = 90.0 + safe.y + modal_shift
 	panel.offset_right = -60.0 - safe.z
-	panel.offset_bottom = -90.0 - safe.w
+	panel.offset_bottom = -90.0 - safe.w + modal_shift
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.set_meta("safe_area_content", true)
 	panel.add_theme_stylebox_override("panel", _build_panel_style())
 	_detail_modal.add_child(panel)
 	# Inner VBox — vertical sections
@@ -1396,7 +1359,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			affinity_text += "  ".join(bonuses)
 			var affinity_label := Label.new()
 			affinity_label.text = affinity_text
-			affinity_label.add_theme_font_size_override("font_size", 19)
+			affinity_label.add_theme_font_size_override("font_size", 21)
 			affinity_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1, 0.95))
 			affinity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			name_col.add_child(affinity_label)
@@ -1614,7 +1577,7 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -
 	var label := Label.new()
 	label.text = label_text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 17)
+	label.add_theme_font_size_override("font_size", 18)
 	label.add_theme_color_override("font_color", Color(0.7, 0.88, 1, 0.9))
 	v.add_child(label)
 	var value := Label.new()
@@ -1631,7 +1594,7 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		sub.add_theme_font_size_override("font_size", 14)
+		sub.add_theme_font_size_override("font_size", 16)
 		sub.add_theme_color_override("font_color", Color(0.55, 0.85, 1, 0.75))
 		v.add_child(sub)
 	return pill
@@ -1685,13 +1648,13 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	kind_label_text.text = kind_label
 	kind_label_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind_label_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	kind_label_text.add_theme_font_size_override("font_size", 16)
+	kind_label_text.add_theme_font_size_override("font_size", 18)
 	kind_label_text.add_theme_color_override("font_color", accent)
 	kind_pill.add_child(kind_label_text)
 	# Description
 	var desc_label := Label.new()
 	desc_label.text = desc
-	desc_label.add_theme_font_size_override("font_size", 17)
+	desc_label.add_theme_font_size_override("font_size", 19)
 	desc_label.add_theme_color_override("font_color", Color(0.78, 0.88, 0.95, 1))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(desc_label)

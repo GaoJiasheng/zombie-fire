@@ -237,7 +237,7 @@
 - [x] P2 源码级 UI primitive 清理：`gameplay/`、`meta/`、`ui/` 的 `.gd/.tscn` 中已清零 `ColorRect` / `StyleBoxFlat`；功能性 dim、闪白、冷却遮罩、血条/经验条和 panel fallback 改为 `TextureRect` / `StyleBoxTexture` / `StyleBoxEmpty`。剩余 `Line2D` / `Polygon2D` / `GPUParticles2D` 命中都位于 projectile/battle/vfx 战斗特效路径，不是 UI 线框皮肤。
 - [x] P2 App Store 截图重捕：重新捕获 `tmp/final_p0_runtime_screens/`，重生成 `assets/appstore/screenshots/**` 与 `assets/production/video/vid_app_preview.mp4`；`python3 tools/check_app_store_assets.py` 与 `python3 tools/check_visual_screens.py` 当前通过。
 - [x] VFX 全量返工铺开：按 `design/vfx_full_redo_task.md` 通过的 6 个样本标准，重做 4 个主动技、15 个技能触发、21 个未验收僵尸技能、5 个 projectile 本体；20 只僵尸的 80 张 attack 帧改用同僵尸 clean idle/walk 高质量源重建，彻底移除烘焙直线动作条；已保留 frost/venom/corrosion/storm-chain 等验收通过素材不动。
-- [ ] Godot smoke 退出清理：`godot --headless --path . --script res://tools/m1_smoke_test.gd` 功能回归通过，但 Godot 4.7 headless 退出仍输出 Canvas/TextServer/RID cleanup warnings；已修复 screenshot helper teardown，smoke 仍需后续专项 teardown，不影响 release candidate exit 0。
+- [x] Godot smoke 退出清理：补齐 Battle/TargetManager、Enemy threat marker、UiKit/SequenceVfx 缓存与 AudioManager 测试销毁路径；`godot --headless --path . --script res://tools/m1_smoke_test.gd` 现在功能通过且退出无 Canvas/TextServer/RID 泄漏告警。
 
 ## 阶段 13 · 最终视觉验收开放 TODO（2026-07-02 复扫）
 
@@ -300,3 +300,16 @@
 - [x] P1：顶部波次条原生重渲染与 Boss 规则反馈；owner 确认问题是顶部黄色波次条，已把 `ui_wave_progress.png` 重建为 720x46 原生槽体，并新增 `ui_wave_progress_fill_native.png`，运行时用 `FillClip` 裁切进度而不是拉伸黄条；后续移除黄条填充里的内描边/分段细线，改成厚实金色胶囊填充；Boss 免疫/护盾/相位/破甲命中增加高优先级弱点提示浮字；追踪弹在近距离 Boss 压线时跳过 1 秒出膛延迟但继续遵守最小转向半径。
 - [x] P1：高屏结算/弹框垂直位置统一修复；结算页、暂停页、三选一强化页、强化详情页和通用确认弹框都接入同一套高屏下移公式，1080x1920 保持原布局，高屏 iPhone 按额外高度下沉，避免弹框整体偏上。验证截图见 `tmp/result_modal_tall_shift_2026_07_12.png`、`tmp/pause_modal_tall_shift_2026_07_12.png`、`tmp/card_offer_modal_tall_shift_2026_07_12.png`、`tmp/card_detail_modal_tall_shift_2026_07_12.png`。
 - [x] P1：暂停弹框可读性重排；暂停页面板改为更宽高的舒展版，标题、战场状态、出战配置、已带技能和底部三枚操作按钮整体字号上调，技能 chip 改为三列大卡，按钮切到 760x112 原生装甲尺寸，避免小字堆叠和按钮拉伸。验证截图见 `tmp/pause_readability_layout_default_2026_07_12.png` 与 `tmp/pause_readability_layout_tall_2026_07_12.png`。
+- [x] P1：技能规则二次平衡；减速力场覆盖改为 30%/40%/50%/60%/70%，减速强度保留原曲线；防线屏障改为增加基地生命上限 +20%/+40%/+60%/+80%/+120% 并即时补满新增血量；“弱点暴击”重命名为“蓄能重击”；原“蓄能重击”改为“伤害穿透”，提供直接伤害和护甲/护盾本体穿透；战术回收收口为单级 +1 重抽。
+- [x] P1：冰川领域主动技改为全屏控制；触发后几乎覆盖全战场，持续减速并周期造成冰霜伤害，被影响僵尸在控制期间保持冰蓝冻结覆盖效果，避免只靠瞬时波纹导致控制状态不可读。
+
+## 阶段 14 · App Store 上线级加固（2026-07-13）
+
+- [x] P0：存档改为临时文件写入 + 校验 + 原子替换，保留上一份可恢复备份；损坏主存档会自动回退备份，新增独立故障注入测试覆盖截断 JSON、写入失败与恢复路径。
+- [x] P0：战斗结算与终局规则收口；召唤/分裂子单位不再重复发金币经验，终局/无尽 Boss 选择按 `appear_level` 取当前可用最强项，Boss 硬免疫保留规则提示同时提供最低伤害通路，避免错误配装造成绝对软锁。
+- [x] P0：弹道与技能组合一致化；手动锁定目标会传给追踪弹，近距离 Boss 可立即导引，连锁/范围伤害继续携带破甲与元素状态，武器原生 pellet 与多重射击 lane 分层计算且只对 lane 使用既定衰减。
+- [x] P0：应用生命周期加固；切后台/失焦时立即落盘、取消残留触控与瞄准输入、暂停音频，恢复前台时统一恢复音频状态；数据表加载失败会阻止进入不完整运行态。
+- [x] P1：战斗 VFX 以 authored PNG 序列为主路径，程序化圆环仅保留缺图兜底；低电量或高敌人数时主动收紧粒子预算，避免第 4/5 波密集尸潮出现移动端掉帧和视觉噪声。
+- [x] P1：音频总线、BGM 循环、优先级与并发上限建立自动检查，测试销毁后播放器零残留；导入设置统一关闭不必要的长音频常驻内存。
+- [x] P1：全局移动端 UI 统一安全区与最小触控面积，修复战区详情正文/任务目标重叠；31 个路由截图覆盖 10 张高屏战斗背景、暂停、三选一、技能详情、结算与 debug safe-area。
+- [x] P1：发布门禁补充导出预设、Godot 日志告警、包内容/体积和战斗启动检查；候选包脚本只有在静态数据、真实渲染截图、smoke 与日志检查全部通过后才允许进入上传阶段；本轮 `python3 tools/check_release_candidate.py` 已完整通过。
