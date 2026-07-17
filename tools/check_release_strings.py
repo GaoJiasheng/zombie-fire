@@ -5,8 +5,8 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-SCAN = ["meta", "gameplay", "core", "main.gd", "main.tscn", "project.godot", "docs/app_store_metadata_zh.md"]
-UI_SCAN = ["meta", "gameplay", "core", "main.gd", "main.tscn"]
+SCAN = ["meta", "gameplay", "core", "data", "main.gd", "main.tscn", "project.godot", "docs/app_store_metadata_zh.md"]
+UI_SCAN = ["meta", "gameplay", "core", "data", "main.gd", "main.tscn"]
 FORBIDDEN = [
     "F3",
     "调试信息",
@@ -42,7 +42,7 @@ def _collect_files(items: list[str]) -> list[Path]:
     for item in items:
         path = ROOT / item
         if path.is_dir():
-            files.extend(p for p in path.rglob("*") if p.suffix in {".gd", ".tscn", ".md"})
+            files.extend(p for p in path.rglob("*") if p.suffix in {".gd", ".tscn", ".md", ".json"})
         elif path.exists():
             files.append(path)
     return files
