@@ -1,6 +1,8 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const PRIVACY_POLICY_URL := "https://blog.gavingao.cn/zombie-fire/privacy.html"
+const SUPPORT_URL := "https://blog.gavingao.cn/zombie-fire/support.html"
 
 var router: Node
 var reset_armed := false
@@ -27,8 +29,8 @@ func _ready() -> void:
 	_button("DataRow/RestoreButton").pressed.connect(_on_restore)
 	_button("ResetButton").pressed.connect(_on_reset)
 	_button("AboutRow/HelpButton").pressed.connect(_show_info.bind("help"))
-	_button("AboutRow/PrivacyButton").pressed.connect(_show_info.bind("privacy"))
-	_button("AboutRow/SupportButton").pressed.connect(_show_info.bind("support"))
+	_button("AboutRow/PrivacyButton").pressed.connect(_on_open_privacy)
+	_button("AboutRow/SupportButton").pressed.connect(_on_open_support)
 	_button("BackButton").pressed.connect(_on_back)
 	_refresh_audio_controls()
 	_refresh_quality()
@@ -199,11 +201,25 @@ func _show_info(mode: String) -> void:
 	var body := _vbox.get_node("InfoBody") as Label
 	match mode:
 		"privacy":
-			body.text = "隐私：当前版本不采集个人数据，不包含广告、账号、内购、推送或第三方追踪。\n游戏进度只保存在本机，包括关卡星级、金币、经验和武器等级。"
+			body.text = "隐私：当前版本不采集个人数据，不包含广告、账号、内购、推送或第三方追踪。\n游戏进度只保存在本机；点击“隐私政策”可在浏览器查看完整政策。"
 		"support":
-			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤，并通过应用商店页面中的支持入口联系我们。"
+			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击“联系支持”可查看联系方式。"
 		_:
 			body.text = "操作说明：\n拖动调整枪口；右键或双击目标，锁定优先攻击。\n经验满后选技能，长按查看详情；局外更换角色和装备并升级。"
+
+func _on_open_privacy() -> void:
+	_show_info("privacy")
+	_open_external_url(PRIVACY_POLICY_URL)
+
+func _on_open_support() -> void:
+	_show_info("support")
+	_open_external_url(SUPPORT_URL)
+
+func _open_external_url(url: String) -> void:
+	var error := OS.shell_open(url)
+	if error != OK:
+		var body := _vbox.get_node("InfoBody") as Label
+		body.text += "\n无法自动打开浏览器，请访问：%s" % url
 
 func _on_back() -> void:
 	AudioManager.play_sfx("ui_click")

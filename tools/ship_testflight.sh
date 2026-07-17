@@ -107,6 +107,22 @@ run_godot_logged() {
     python3 tools/check_godot_log.py "$log_path"
 }
 
+remove_unused_ios_permission_descriptions() {
+    local plist="build/ios/ZombieFire/ZombieFire-Info.plist"
+    local plist_buddy="/usr/libexec/PlistBuddy"
+    local key
+    [[ -f "$plist" ]] || die "generated iOS Info.plist not found: $plist"
+    [[ -x "$plist_buddy" ]] || die "PlistBuddy is not available"
+    for key in NSCameraUsageDescription NSMicrophoneUsageDescription NSPhotoLibraryUsageDescription; do
+        if "$plist_buddy" -c "Print :$key" "$plist" >/dev/null 2>&1; then
+            "$plist_buddy" -c "Delete :$key" "$plist"
+        fi
+        if "$plist_buddy" -c "Print :$key" "$plist" >/dev/null 2>&1; then
+            die "unused permission description remains in generated Info.plist: $key"
+        fi
+    done
+}
+
 cd "$PROJ"
 
 log "Synchronizing release-only asset exclusions"
@@ -137,6 +153,8 @@ run_godot_logged "$WORK_DIR/godot_export.log" \
 
 [[ -d build/ios/ZombieFire.xcodeproj ]] || die "Godot did not generate the Xcode project"
 [[ -s build/ios/ZombieFire.pck ]] || die "Godot did not generate a non-empty PCK"
+log "Removing unused iOS permission descriptions"
+remove_unused_ios_permission_descriptions
 python3 tools/check_release_package.py \
     --pck build/ios/ZombieFire.pck \
     --xcode-project build/ios/ZombieFire.xcodeproj

@@ -2615,3 +2615,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Public hosting**: the isolated `docs/public` subtree is published from the repository's `gh-pages` branch. GitHub Pages build `1099985827` and deployment run `29565073497` completed successfully.
 - **Transport and availability**: HTTPS enforcement is enabled for the approved `blog.gavingao.cn` certificate. The site root, privacy page, and support page each returned HTTP 200 after deployment.
 - **App Store URLs**: privacy policy `https://blog.gavingao.cn/zombie-fire/privacy.html`; support `https://blog.gavingao.cn/zombie-fire/support.html`. App Store Connect field entry remains an owner/account action.
+
+## App Store Review Readiness And In-App Privacy Links (2026-07-17)
+
+- **Reviewer-accessible links**: Settings now exposes explicit `隐私政策 ↗` and `联系支持 ↗` controls. They open the published HTTPS pages in the system browser and keep an on-page fallback URL if the platform cannot open the link.
+- **Public contact**: the privacy and support pages now publish `gaojiasheng.him@foxmail.com`; the metadata draft records Gao Jiasheng / `+65 8218 5126`, with no login or demo account required.
+- **Permission minimization**: the release script deletes Godot's unused camera, microphone and photo-library usage descriptions from the generated Xcode Info.plist. The signed-IPA checker rejects any recurrence of those unused declarations.
+- **Visual and release verification**: standard `1080×1920` and safe-area `1080×2340` settings captures have zero runtime UI issues and preserve full copy/button bounds. `python3 tools/check_release_candidate.py` passed the full source gate, M1 smoke and all 46 routed screenshots.

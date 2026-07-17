@@ -44,6 +44,11 @@ REQUIRED_FONT_PACKAGE_PATHS = {
     "assets/production/fonts/font_main.provenance.json",
     "assets/production/fonts/font_main.ttf.import",
 }
+UNUSED_PERMISSION_USAGE_KEYS = {
+    "NSCameraUsageDescription",
+    "NSMicrophoneUsageDescription",
+    "NSPhotoLibraryUsageDescription",
+}
 
 
 class PackageCheckError(RuntimeError):
@@ -297,6 +302,11 @@ def check_ipa(
             actual = str(info.get(key, ""))
             if actual != expected:
                 raise PackageCheckError(f"IPA {key} mismatch: expected {expected}, got {actual or '<missing>'}")
+        unexpected_permission_keys = sorted(UNUSED_PERMISSION_USAGE_KEYS.intersection(info))
+        if unexpected_permission_keys:
+            raise PackageCheckError(
+                "IPA declares unused privacy permissions: " + ", ".join(unexpected_permission_keys)
+            )
         if info.get("CFBundlePackageType") != "APPL":
             raise PackageCheckError("IPA does not identify its payload as an application")
         if info.get("MinimumOSVersion") != "14.0":

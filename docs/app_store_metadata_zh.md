@@ -51,4 +51,13 @@ Support URL: `https://blog.gavingao.cn/zombie-fire/support.html`
 
 ## Review Notes Draft
 
-The game is playable offline. Use the Start button to enter the level map. Level 1 is unlocked by default. Complete levels to unlock the next level. The collection buttons on the map and loadout screens open character, weapon, armor, chip, pet, and skill pages. Settings include independent audio volumes, quality, reduced effects, haptics, save backup/restore, and save reset.
+Zombie Fire is a fully offline single-player game. No account, sign-in, or test account is required. Use the Start button to enter the level map. Level 1 is unlocked by default. Complete levels to unlock the next level. The collection buttons on the map and loadout screens open character, weapon, armor, chip, pet, and skill pages. Settings include independent audio volumes, quality, reduced effects, haptics, save backup/restore, save reset, a public privacy-policy link, and a public support link. The app has no ads, analytics, in-app purchases, push notifications, tracking, or network services.
+
+## App Review Contact
+
+- First name: Jiasheng
+- Last name: Gao
+- Phone: +65 8218 5126
+- Email: gaojiasheng.him@foxmail.com
+- Sign-in required: No
+- Demo account: Not applicable

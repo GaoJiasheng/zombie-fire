@@ -216,13 +216,13 @@ text = "操作说明"
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "隐私"
+text = "隐私政策 ↗"
 
 [node name="SupportButton" type="Button" parent="Center/Panel/Margin/VBox/AboutRow"]
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "支持"
+text = "联系支持 ↗"
 
 [node name="InfoBody" type="Label" parent="Center/Panel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 170)
