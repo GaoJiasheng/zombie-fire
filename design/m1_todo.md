@@ -413,3 +413,4 @@
 ## 阶段 26 · 仓库开源授权与发布（2026-07-17）
 
 - [x] P0：根目录加入标准 Apache License 2.0 `LICENSE` 与版权 `NOTICE`；第三方组件和素材继续遵循各自授权，未来荧黑明确保留 SIL OFL 1.1。
+- [x] P0：完整发布门禁、iPhone-only 导出、Xcode Archive / App Store Distribution 与 IPA 审计通过；TestFlight `1.0.0 (32)` 上传成功，Delivery UUID `cdc4d138-441a-4a07-bffd-8e4a28bb23e9`，Apple 最终状态为 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`。

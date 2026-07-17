@@ -2600,3 +2600,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - **Project grant**: the repository root now includes the unmodified Apache License 2.0 text and a `NOTICE` naming the project copyright holder.
 - **Third-party boundary**: the notice explicitly preserves separate licenses and provenance for third-party components and assets; Glow Sans SC / 未来荧黑 remains under SIL OFL 1.1 and points to the bundled license and provenance files.
+
+## TestFlight Build 32 (2026-07-17)
+
+- **Release gate**: `python3 tools/check_release_candidate.py` passed the full source candidate, including the licensed Glow Sans font check, data/assets/references, balance and card simulations, Godot boot, battle boot, M1 smoke, App Store assets, and all 46 routed UI screenshots.
+- **Exported-runtime proof**: the Build 32 PCK contains 5,770 files and 2,772 imported resources at 568.3 MiB. The generated Xcode target is iPhone-only; exported-PCK battle boot and M1 smoke both passed before signing.
+- **Signed artifact**: Xcode Archive and App Store Distribution export succeeded for `1.0.0 (32)`. The audited IPA is 596.6 MiB (`625,547,695` bytes), SHA-256 `db5f1ce80cae0ea0fa43d2799a2b47a4b2efd9b51c64dda99262a5e3c1a10225`.
+- **Apple delivery**: upload returned `UPLOAD SUCCEEDED with no errors`, Delivery UUID `cdc4d138-441a-4a07-bffd-8e4a28bb23e9`. Final polling reached `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE`, and `IS-ON-APP-STORE-CONNECT: true`.
+- **Local-copy note**: macOS denied replacing the existing Desktop copy, but the validated source artifact remains at `build/ios/ZombieFire.ipa`; this did not affect the successful App Store Connect delivery.
