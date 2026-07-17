@@ -414,3 +414,8 @@
 
 - [x] P0：根目录加入标准 Apache License 2.0 `LICENSE` 与版权 `NOTICE`；第三方组件和素材继续遵循各自授权，未来荧黑明确保留 SIL OFL 1.1。
 - [x] P0：完整发布门禁、iPhone-only 导出、Xcode Archive / App Store Distribution 与 IPA 审计通过；TestFlight `1.0.0 (32)` 上传成功，Delivery UUID `cdc4d138-441a-4a07-bffd-8e4a28bb23e9`，Apple 最终状态为 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`。
+
+## 阶段 27 · App Store 隐私政策公开托管（2026-07-17）
+
+- [x] P0：将隐私政策完善为中英文正式页面，覆盖零数据收集、本地存档、删除方式、第三方服务、儿童隐私和未来变更；同时提供公开支持入口。
+- [x] P0：从独立 `gh-pages` 分支发布 GitHub Pages，启用强制 HTTPS；隐私政策、支持页及站点首页均返回 HTTP 200。

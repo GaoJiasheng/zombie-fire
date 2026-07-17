@@ -4,7 +4,8 @@ Everything that can be completed and validated locally is owned by the repositor
 
 ## Required Before Upload
 
-- [ ] Host `docs/public/privacy.html` and `docs/public/support.html` on public HTTPS URLs; enter both URLs in App Store Connect.
+- [x] Host `docs/public/privacy.html` and `docs/public/support.html` on public HTTPS URLs through GitHub Pages.
+- [ ] Enter `https://blog.gavingao.cn/zombie-fire/privacy.html` and `https://blog.gavingao.cn/zombie-fire/support.html` in App Store Connect.
 - [ ] Complete App Store Connect metadata, category, age-rating questionnaire, app-privacy answers, review notes, and contact details using `docs/app_store_metadata_zh.md` as the draft.
 - [ ] Confirm the final app name, subtitle, icon, five iPhone 6.7-inch screenshots, five iPhone 6.5-inch screenshots, and App Preview candidate.
 - [ ] Confirm Apple Developer team, distribution certificate, provisioning, and App Store Connect API-key access on the release Mac.

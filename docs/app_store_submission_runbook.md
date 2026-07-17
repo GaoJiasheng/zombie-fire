@@ -20,10 +20,10 @@ Before exporting, edit `export_presets.cfg`:
 - `application/bundle_identifier`
 - `codesign/identity`
 
-Use the final public URLs for:
+Use the published GitHub Pages URLs:
 
-- Privacy policy: host `docs/public/privacy.html`.
-- Support page: host `docs/public/support.html`.
+- Privacy policy: `https://blog.gavingao.cn/zombie-fire/privacy.html`
+- Support page: `https://blog.gavingao.cn/zombie-fire/support.html`
 
 ## Store Assets
 

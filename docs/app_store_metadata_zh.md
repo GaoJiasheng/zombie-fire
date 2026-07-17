@@ -45,6 +45,10 @@ Contains stylized zombie combat and fantasy violence. No realistic gore in curre
 
 Current build does not collect personal data, does not include ads, analytics, account login, in-app purchases, push notifications, or third-party tracking.
 
+Privacy Policy URL: `https://blog.gavingao.cn/zombie-fire/privacy.html`
+
+Support URL: `https://blog.gavingao.cn/zombie-fire/support.html`
+
 ## Review Notes Draft
 
 The game is playable offline. Use the Start button to enter the level map. Level 1 is unlocked by default. Complete levels to unlock the next level. The collection buttons on the map and loadout screens open character, weapon, armor, chip, pet, and skill pages. Settings include independent audio volumes, quality, reduced effects, haptics, save backup/restore, and save reset.

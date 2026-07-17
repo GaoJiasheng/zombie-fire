@@ -2608,3 +2608,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Signed artifact**: Xcode Archive and App Store Distribution export succeeded for `1.0.0 (32)`. The audited IPA is 596.6 MiB (`625,547,695` bytes), SHA-256 `db5f1ce80cae0ea0fa43d2799a2b47a4b2efd9b51c64dda99262a5e3c1a10225`.
 - **Apple delivery**: upload returned `UPLOAD SUCCEEDED with no errors`, Delivery UUID `cdc4d138-441a-4a07-bffd-8e4a28bb23e9`. Final polling reached `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE`, and `IS-ON-APP-STORE-CONNECT: true`.
 - **Local-copy note**: macOS denied replacing the existing Desktop copy, but the validated source artifact remains at `build/ios/ZombieFire.ipa`; this did not affect the successful App Store Connect delivery.
+
+## Public Privacy Policy And GitHub Pages (2026-07-17)
+
+- **Policy completeness**: `docs/public/privacy.html` is now a bilingual Chinese/English policy that explicitly documents zero collection, device-local saves, player-controlled deletion, absence of ads/analytics/accounts/purchases/tracking, children's privacy, and the update rule for any future networked feature.
+- **Public hosting**: the isolated `docs/public` subtree is published from the repository's `gh-pages` branch. GitHub Pages build `1099985827` and deployment run `29565073497` completed successfully.
+- **Transport and availability**: HTTPS enforcement is enabled for the approved `blog.gavingao.cn` certificate. The site root, privacy page, and support page each returned HTTP 200 after deployment.
+- **App Store URLs**: privacy policy `https://blog.gavingao.cn/zombie-fire/privacy.html`; support `https://blog.gavingao.cn/zombie-fire/support.html`. App Store Connect field entry remains an owner/account action.
