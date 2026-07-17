@@ -169,6 +169,65 @@ theme_override_colors/font_color = Color(1, 0.94, 0.78, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 
+[node name="ReportButton" type="TextureButton" parent="Content"]
+custom_minimum_size = Vector2(980, 88)
+texture_normal = ExtResource("3_btn2")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ReportLabel" type="Label" parent="Content/ReportButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "展开战斗战报  ›"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.38, 0.76, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+mouse_filter = 2
+
+[node name="ReportPanel" type="PanelContainer" parent="Content"]
+custom_minimum_size = Vector2(980, 0)
+visible = false
+
+[node name="ReportBox" type="VBoxContainer" parent="Content/ReportPanel"]
+theme_override_constants/separation = 8
+
+[node name="Heading" type="Label" parent="Content/ReportPanel/ReportBox"]
+text = "战 斗 战 报"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.88, 0.64, 0.32, 1)
+
+[node name="Overview" type="Label" parent="Content/ReportPanel/ReportBox"]
+text = "用时 0:00  ·  总伤害 0  ·  击杀 0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 21
+
+[node name="Output" type="Label" parent="Content/ReportPanel/ReportBox"]
+text = "主力 物理  ·  暴击伤害 0  ·  弱点伤害 0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.46, 0.8, 0.86, 1)
+
+[node name="Defense" type="Label" parent="Content/ReportPanel/ReportBox"]
+text = "防线承伤 0  ·  格挡 0  ·  控制 0.0秒"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.66, 0.74, 0.76, 1)
+
+[node name="Coach" type="Label" parent="Content/ReportPanel/ReportBox"]
+text = "战术建议"
+horizontal_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.96, 0.72, 0.3, 1)
+
 [node name="Actions" type="VBoxContainer" parent="Content"]
 custom_minimum_size = Vector2(980, 0)
 theme_override_constants/separation = 10

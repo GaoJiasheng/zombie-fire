@@ -63,7 +63,7 @@
 - [x] **C2 菜单/HUD 容器化重构** 〔L〕✅ —— C2a 菜单 / C2d map / C2e collection / C2c loadout / C2b 战斗HUD 全部完成。
   - 列表/线性场景（menu / map / collection）：统一 `MarginContainer + VBoxContainer` 根布局，关键节点 `unique_name_in_owner` + `%` 访问，smoke 改 `find_child`。
   - loadout：可见结构节点（两栏单位/装备行/摘要/按钮）移入 `MarginContainer+VBox+HBox` 容器，删除手动对齐引擎（`_apply_loadout_alignment`/`_center_rect_in_control`/`_align_label_to_control`），隐藏遗留节点保留在根；底部弹性 spacer 让“进入战斗”贴底。
-  - 战斗 HUD：overlay 仪表盘不适合线性容器化，改用**边缘锚定**（底部条/技能槽/角色技能按钮锚底边、右下按钮锚右下角、暂停遮罩锚满屏），与 C1 安全区 `position += inset` 逻辑兼容。`stretch=canvas_items` 默认 keep aspect 下视觉不变，但异形屏/expand 模式贴边更准。
+  - 战斗 HUD：overlay 仪表盘不适合线性容器化，改用**边缘锚定**（底部条/技能槽/角色技能按钮锚底边、右下按钮锚右下角、暂停遮罩锚满屏），与 C1 安全区 `position += inset` 逻辑兼容。当前发布合同固定为 `stretch=canvas_items + aspect=expand`，高屏只扩展战场上方空间，底部交互继续贴合安全区。
   - 新增 `tools/_shot.gd` 视觉验证工具（经真实路由加载场景并截图 viewport），全部场景已逐一截图确认布局正确。`check_release_candidate` 13 项全绿。
 - [x] **C3 设置页独立分组** 〔S〕 ✅ 新建 `meta/settings/`（容器布局，音频/画面/数据/关于四组），`main.gd` 加 `settings` 路由，菜单「操作说明」改「设置」；旧 HelpOverlay 下线。
 - [x] **C4 战斗中层反馈** 〔S〕 ✅ 复用波次横幅/Boss 入场/低血脉冲/连击，补齐 Boss 专属血条（运行时构建，跟踪 `active_boss`，死亡清理）。

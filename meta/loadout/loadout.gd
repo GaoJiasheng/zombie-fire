@@ -2,14 +2,20 @@ extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
+const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const MAIN_ICON_SIZE := Vector2(296, 296)
 const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
 const HERO_BUST_IMAGE_WIDTH := 378.0
-const HERO_BUST_Y_OFFSET := -58.0
+# All four frameless portraits share the same 642x962 source canvas. At the
+# authored zoom their first opaque pixels begin about 39px below the image top;
+# -30 keeps roughly 10px of visible headroom without shrinking the character.
+const HERO_BUST_Y_OFFSET := -30.0
 const GEAR_CARD_SIZE := Vector2(176, 176)
 const GEAR_ROW_SEPARATION := 34
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
+const DETAILS_PANEL_HEIGHT := 316.0
+const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 
 var router: Node
 var level_id := "level_001"
@@ -80,10 +86,10 @@ func _apply_runtime_layout() -> void:
 		gear.custom_minimum_size = Vector2(0, 176)
 		gear.add_theme_constant_override("separation", GEAR_ROW_SEPARATION)
 	if has_node("Root/Main/DetailsPanel"):
-		(%DetailsPanel as Control).custom_minimum_size = Vector2(0, 226)
+		(%DetailsPanel as Control).custom_minimum_size = Vector2(0, DETAILS_PANEL_HEIGHT)
 	if has_node("Root/Main/BottomSpacer"):
 		var spacer := $Root/Main/BottomSpacer as Control
-		spacer.custom_minimum_size = Vector2(0, 10)
+		spacer.custom_minimum_size = Vector2(0, BOTTOM_ACTION_SPACER_HEIGHT)
 		spacer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if has_node("Root/Main/StartButton"):
 		var start := %StartButton as TextureButton
@@ -168,6 +174,7 @@ func _refresh() -> void:
 	var upgrade_cost := SaveManager.get_weapon_upgrade_cost(weapon_id)
 	var gold := SaveManager.get_player_gold()
 	var power := SaveManager.get_loadout_power()
+	var projected_power := SaveManager.get_projected_combat_power_for_level(level_id)
 	var recommended_power := _recommended_power_for_current_mode()
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
@@ -183,11 +190,12 @@ func _refresh() -> void:
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
-	$Summary.text = "%s  |  %s  |  主弱点 %s\n战力 %d / %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
+	$Summary.text = "%s  |  %s  |  主弱点 %s\n战前 %d  |  预计成型 %d / 推荐 %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
 		DataLoader.level_display_name(level_id),
 		mode_label,
 		_element_name(weakness),
 		power,
+		projected_power,
 		recommended_power,
 		counter_state,
 		gold,
@@ -203,7 +211,7 @@ func _refresh() -> void:
 		" 等级%d" % pet_level if pet_id != "" else ""
 	]
 	$Summary.visible = false
-	_refresh_summary_panel(level_id, weakness, power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
+	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
 	var weapon_icon := %WeaponIcon as TextureRect
 	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
 	weapon_icon.modulate = Color.WHITE
@@ -221,9 +229,16 @@ func _refresh() -> void:
 	])
 	$Objective.text = _level_objective(level_id)
 	if is_challenge_mode:
-		$Objective.text = "挑战模式：同关卡强化尸潮，胜利可拿独立三颗星；重复通关只补最高星差额。\n" + $Objective.text
-	if power < recommended_power:
-		$Objective.text += "\n提示：战力偏低，优先升级武器、角色或当前芯片。"
+		var challenge_rule := ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
+		$Objective.text = "%s\n压力：%s；推荐战力 +%d%%。\n应对：%s\n%s" % [
+			ChallengeRules.headline(challenge_rule),
+			ChallengeRules.pressure_text(challenge_rule),
+			int(round((float(challenge_rule.get("recommended_power_mult", 1.5)) - 1.0) * 100.0)),
+			str(challenge_rule.get("counter_hint", "围绕弱点配装。")),
+			$Objective.text,
+		]
+	if projected_power < recommended_power:
+		$Objective.text += "\n提示：预计成型战力仍偏低；该数值已计入永久技能等级和本关选卡预算。"
 	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
 		$Objective.text += "\n提示：当前配装命中主弱点，战斗中弱点装填更强。"
 	$GoldLabel.text = "金币  %d" % gold
@@ -293,7 +308,7 @@ func _row_name(table: String, item_id: String) -> String:
 		return item_id
 	return DataLoader.tr_key(row.get("name_key", item_id))
 
-func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
+func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, projected_power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
 	var panel: Control = %DetailsPanel
 	var old := panel.get_node_or_null("SummaryGrid")
 	if old != null:
@@ -342,7 +357,9 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	box.add_child(grid)
 	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
-	grid.add_child(_summary_cell("战力", "%d / %d" % [power, recommended_power], UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("战前", "%d" % power, UiKit.CYAN, ""))
+	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("成型", "%d" % projected_power, UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()
@@ -741,14 +758,16 @@ func _sanitize_return_payload(payload: Variant) -> Dictionary:
 func _recommended_power_for_current_mode() -> int:
 	var base := SaveManager.get_recommended_power_for_level(level_id)
 	if is_challenge_mode:
-		return int(ceil(float(base) * CHALLENGE_RECOMMENDED_POWER_MULT))
+		var challenge_rule := ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
+		return int(ceil(float(base) * float(challenge_rule.get("recommended_power_mult", CHALLENGE_RECOMMENDED_POWER_MULT))))
 	return base
 
 func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chip_id: String) -> bool:
-	var character := DataLoader.get_row("characters", char_id)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
-	var chip := DataLoader.get_row("chips", chip_id)
-	return str(character.get("element_focus", "")) == weakness or str(weapon.get("element", "")) == weakness or (str(chip.get("stat", "")) == "element_damage_mult" and weakness != "physical")
+	# Character affinity and an elemental chip amplify matching attacks, but they
+	# do not convert a mismatched main weapon. The loadout summary must describe
+	# sustained primary fire, especially for the element-locked final boss.
+	return str(weapon.get("element", "")) == weakness
 
 func _element_name(element: String) -> String:
 	match element:

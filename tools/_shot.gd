@@ -40,6 +40,19 @@ func _initialize() -> void:
 	for i in range(12):
 		await process_frame
 		await physics_frame
+	if payload.has("debug_spawn_boss") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy"):
+		var boss_id := str(payload.get("debug_spawn_boss", ""))
+		if boss_id != "":
+			main.current_scene.call("_spawn_enemy", boss_id, "center", true)
+	if bool(payload.get("debug_barrier", false)) and main.current_scene != null and main.current_scene.has_method("_update_barrier_visual"):
+		var skill_runtime: Variant = main.current_scene.get("skills")
+		if skill_runtime != null and skill_runtime.has_method("add_skill"):
+			skill_runtime.call("add_skill", "skill_barrier")
+		main.current_scene.call("_update_barrier_visual")
+	var warmup_frames := clampi(int(payload.get("warmup_frames", 0)), 0, 600)
+	for i in range(warmup_frames):
+		await process_frame
+		await physics_frame
 	if bool(payload.get("pause", false)) and main.current_scene != null and main.current_scene.has_method("_set_battle_paused"):
 		main.current_scene.call("_set_battle_paused", true, false)
 		for i in range(2):

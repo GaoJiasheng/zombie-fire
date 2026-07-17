@@ -334,7 +334,12 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 			# Campaign bosses must never become a hard lock for a valid equipped
 			# weapon. An immune element is heavily suppressed, but still chips the
 			# boss while the UI points the player toward the intended weakness.
-			final_damage *= BOSS_IMMUNE_DAMAGE_FLOOR
+			var immune_damage_floor := clampf(
+				float(mechanic_params.get("immune_damage_floor", BOSS_IMMUNE_DAMAGE_FLOOR)),
+				0.01,
+				1.0
+			)
+			final_damage *= immune_damage_floor
 			resolved_hit_kind = "suppressed"
 		else:
 			_emit_hit_feedback(element, true, false, "immune")
@@ -557,10 +562,16 @@ func _flash(color: Color) -> void:
 	if boss:
 		return
 	var rest_color := _sprite_rest_modulate()
-	var flash_color := Color(color.r, color.g, color.b, rest_color.a)
+	var strength := 0.32 if SettingsManager.reduced_effects_enabled() else 1.0
+	var flash_color := Color(
+		lerpf(rest_color.r, color.r, strength),
+		lerpf(rest_color.g, color.g, strength),
+		lerpf(rest_color.b, color.b, strength),
+		rest_color.a
+	)
 	$Sprite.self_modulate = flash_color
 	var tween := create_tween()
-	tween.tween_property($Sprite, "self_modulate", rest_color, 0.18)
+	tween.tween_property($Sprite, "self_modulate", rest_color, 0.11 if SettingsManager.reduced_effects_enabled() else 0.18)
 
 func _build_hp_bar() -> void:
 	_hp_bg = TextureRect.new()
@@ -674,9 +685,9 @@ func _flash_hit() -> void:
 	if boss:
 		return
 	var rest_color := _sprite_rest_modulate()
-	$Sprite.self_modulate = Color(1.5, 1.4, 1.32, rest_color.a)
+	$Sprite.self_modulate = Color(1.16, 1.13, 1.10, rest_color.a) if SettingsManager.reduced_effects_enabled() else Color(1.5, 1.4, 1.32, rest_color.a)
 	var tween := create_tween()
-	tween.tween_property($Sprite, "self_modulate", rest_color, 0.13)
+	tween.tween_property($Sprite, "self_modulate", rest_color, 0.08 if SettingsManager.reduced_effects_enabled() else 0.13)
 
 func _spawn_hit_vfx(element := "physical") -> void:
 	var now := Time.get_ticks_msec() / 1000.0

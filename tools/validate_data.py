@@ -10,6 +10,7 @@ DATA = ROOT / "data"
 TABLES = [
     "elements",
     "economy",
+    "challenges",
     "characters",
     "weapons",
     "armors",
@@ -61,6 +62,45 @@ def main() -> int:
     bosses = set(tables["bosses"].keys())
     environments = set(tables["environments"].keys())
 
+    challenges = tables["challenges"]
+    expected_chapters = {f"chapter_{index:02d}" for index in range(1, 11)}
+    if set(challenges.keys()) != expected_chapters:
+        errors.append("challenges.json must define chapter_01 through chapter_10 exactly")
+    for challenge_id, row in challenges.items():
+        for key in ("id", "name", "summary", "counter_hint"):
+            if not str(row.get(key, "")).strip():
+                errors.append(f"{challenge_id}.{key} missing")
+        for key, low, high in (
+            ("hp_mult", 1.0, 1.6),
+            ("speed_mult", 1.0, 1.25),
+            ("breach_damage_mult", 1.0, 1.25),
+            ("mechanic_rate_mult", 1.0, 1.3),
+            ("recommended_power_mult", 1.0, 2.0),
+        ):
+            value = float(row.get(key, 0.0))
+            if not low <= value <= high:
+                errors.append(f"{challenge_id}.{key} must be in [{low}, {high}], got {value}")
+
+    skill_pressure = tables["economy"].get("run_skill_pressure")
+    if not isinstance(skill_pressure, dict):
+        errors.append("economy.run_skill_pressure must be an object")
+    else:
+        reference_picks = int(skill_pressure.get("reference_card_picks", 0))
+        hp_conversion = float(skill_pressure.get("hp_conversion", -1.0))
+        max_hp_mult = float(skill_pressure.get("max_hp_mult", 0.0))
+        speed_conversion = float(skill_pressure.get("speed_conversion", -1.0))
+        max_speed_mult = float(skill_pressure.get("max_speed_mult", 0.0))
+        if reference_picks < 1:
+            errors.append("economy.run_skill_pressure.reference_card_picks must be >= 1")
+        if not 0.0 <= hp_conversion <= 1.0:
+            errors.append("economy.run_skill_pressure.hp_conversion must be in [0, 1]")
+        if not 1.0 <= max_hp_mult <= 2.0:
+            errors.append("economy.run_skill_pressure.max_hp_mult must be in [1, 2]")
+        if not 0.0 <= speed_conversion <= 0.5:
+            errors.append("economy.run_skill_pressure.speed_conversion must be in [0, 0.5]")
+        if not 1.0 <= max_speed_mult <= 1.5:
+            errors.append("economy.run_skill_pressure.max_speed_mult must be in [1, 1.5]")
+
     for char_id, row in tables["characters"].items():
         if row.get("element_focus") not in elements:
             errors.append(f"{char_id}.element_focus unknown: {row.get('element_focus')}")
@@ -78,6 +118,16 @@ def main() -> int:
                 errors.append(f"{char_id}.weapon-scaling active skill growth is too high: {active.get('level_damage_growth')}")
             if basis == "character" and float(active.get("level_damage_growth", 0.0)) <= 0.0:
                 errors.append(f"{char_id}.character-scaling active skill must define positive level_damage_growth")
+            sig_damage = float(active.get("sig_level_damage_bonus", 0.0))
+            sig_cooldown = float(active.get("sig_level_cooldown_reduction", 0.0))
+            if not 0.0 < sig_damage <= 0.25:
+                errors.append(f"{char_id}.active_skill.sig_level_damage_bonus must be in (0, 0.25]")
+            if not 0.0 < sig_cooldown <= 0.08:
+                errors.append(f"{char_id}.active_skill.sig_level_cooldown_reduction must be in (0, 0.08]")
+            for threshold_key in ("sig_level_extra_pulse_levels", "sig_level_extra_wave_levels"):
+                thresholds = active.get(threshold_key, [])
+                if thresholds and (not isinstance(thresholds, list) or any(int(value) < 1 or int(value) > 5 for value in thresholds)):
+                    errors.append(f"{char_id}.active_skill.{threshold_key} must contain levels in [1, 5]")
         check_asset(errors, char_id, row, ["portrait"])
 
     for weapon_id, row in tables["weapons"].items():
@@ -171,7 +221,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills, {len(environments)} environments")
+    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills, {len(environments)} environments, {len(challenges)} challenge rules")
     return 0
 
 

@@ -3,8 +3,8 @@
 
 For each level, estimate:
   - Total enemy HP, including the boss wave's HP and boss support.
-  - Player DPS at the level's recommended character level, with vanguard +
-    autocannon, weapon level = character level, base chips/armor, current
+  - Player DPS at the level's recommended progression level (clamped to each
+    item's real max), with vanguard + autocannon, base chips/armor, current
     economy pacing knobs, and the skill-card multiplier implied by card budget.
   - Predicted clear time + estimated leak damage (5% leak on non-boss
     levels, 12% leak on boss levels because the boss can't be ignored).
@@ -17,6 +17,8 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+
+from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
 
 ROOT = Path(__file__).resolve().parent.parent
 LEVELS_PATH = ROOT / "data" / "levels.json"
@@ -37,7 +39,8 @@ NORMAL_LEAK = 0.05
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
 DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
 DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
-DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 45, "full_level": 85, "max_mult": 1.22}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
+DEFAULT_LATE_WAVE_DAMAGE_RAMP = {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 2.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.15}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 
 
@@ -57,13 +60,40 @@ def late_wave_level_ramp(economy: dict, level_no: int) -> float:
     max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["max_mult"]))
     if float(level_no) < start_level:
         return 1.0
-    if full_level <= start_level:
-        return max_mult
-    t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
-    return 1.0 + (max_mult - 1.0) * t
+    ramp_mult = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        curve_power = max(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_LEVEL_RAMP["curve_power"])))
+        ramp_mult = 1.0 + (max_mult - 1.0) * (t ** curve_power)
+    final_level = int(rule.get("final_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_level"]))
+    if level_no >= final_level:
+        ramp_mult *= max(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_mult"])))
+    return ramp_mult
 
 
-def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0) -> float:
+def late_wave_damage_ramp(economy: dict, level_no: int, wave_no: int) -> float:
+    rule = economy.get("late_wave_damage_ramp", DEFAULT_LATE_WAVE_DAMAGE_RAMP)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_LATE_WAVE_DAMAGE_RAMP
+    if wave_no < int(rule.get("start_wave", DEFAULT_LATE_WAVE_DAMAGE_RAMP["start_wave"])):
+        return 1.0
+    start_level = float(rule.get("start_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP["start_level"]))
+    full_level = float(rule.get("full_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP["full_level"]))
+    max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_DAMAGE_RAMP["max_mult"]))
+    if float(level_no) < start_level:
+        return 1.0
+    ramp_mult = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        curve_power = max(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_DAMAGE_RAMP["curve_power"])))
+        ramp_mult = 1.0 + (max_mult - 1.0) * (t ** curve_power)
+    final_level = int(rule.get("final_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP["final_level"]))
+    if level_no >= final_level:
+        ramp_mult *= max(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_DAMAGE_RAMP["final_mult"])))
+    return ramp_mult
+
+
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0, card_picks: int = 4) -> float:
     key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
     defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
     table = economy.get(key, defaults)
@@ -72,6 +102,7 @@ def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no
     base = float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
     if wave_no >= 3:
         base *= late_wave_level_ramp(economy, level_no)
+        base *= run_skill_hp_pressure(card_picks, economy)
     return base
 
 
@@ -127,9 +158,10 @@ def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
     count = 0
     boss_level_bonus = boss_hp_level_bonus(economy, level)
     level_no = level_number(level)
+    card_picks = int(level.get("target_card_picks", 4))
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
         count_mult = late_wave_count_mult(economy, wave_no)
         # Normal spawns
         for spawn in wave.get("spawns", []):
@@ -143,7 +175,7 @@ def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no) * boss_level_bonus
+            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus
             total_hp += boss_hp
             count += 1
         # Boss support mobs
@@ -172,7 +204,7 @@ def estimate_skill_mult(level: dict) -> float:
     # DPS. Later card budgets combine lanes, pierce, chain/splash, status damage
     # and cadence, so their contribution compounds while remaining below a
     # perfect all-DPS draft.
-    return min(13.5, 1.0 + 0.42 * cards + 0.08 * cards * cards)
+    return estimate_skill_throughput(cards)
 
 
 def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss_level: bool) -> float:
@@ -182,23 +214,24 @@ def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss
     level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
+        damage_mult = late_wave_damage_ramp(economy, level_no, wave_no)
         count_mult = late_wave_count_mult(economy, wave_no)
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             # Breach damage is configured from bd_coef only at runtime; enemy
             # HP/difficulty/late-wave multipliers must not inflate it here.
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0))
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * damage_mult
             total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
-            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0))
+            bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * damage_mult
             total += bd
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
-            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0))
+            bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * damage_mult
             total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
     return total * leak
 
@@ -211,6 +244,8 @@ def main() -> int:
     levels: list[dict] = json.loads(LEVELS_PATH.read_text(encoding="utf-8"))
     zombies: dict[str, dict] = json.loads(ZOMBIES_PATH.read_text(encoding="utf-8"))
     bosses: dict[str, dict] = json.loads(BOSSES_PATH.read_text(encoding="utf-8"))
+    characters: dict[str, dict] = json.loads(CHARS_PATH.read_text(encoding="utf-8"))
+    weapons: dict[str, dict] = json.loads(WEAPONS_PATH.read_text(encoding="utf-8"))
     economy: dict = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
 
     print(f"{'level':<11} {'ch':<3} {'recom':<5} {'coef':<6} {'cards':>5} {'spawn':>6} {'hp_total':>9} {'dps_ns':>6} {'dps_ws':>6} {'t_ns':>6} {'t_ws':>6} {'leak%':>6}  notes")
@@ -220,8 +255,9 @@ def main() -> int:
     for lv in levels:
         n = int(lv["id"].split("_")[1])
         hp_total, count = level_enemy_hp(lv, zombies, bosses, economy)
-        char_level = int(lv.get("recommend_level", n))
-        weapon_level = char_level
+        recommended_level = int(lv.get("recommend_level", n))
+        char_level = min(recommended_level, int(characters["vanguard"].get("max_level", 40)))
+        weapon_level = min(recommended_level, int(weapons["weapon_autocannon"].get("max_level", 50)))
         dps_ns = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, 1.0)
         skill_mult = estimate_skill_mult(lv)
         dps_ws = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult)
@@ -261,15 +297,39 @@ def main() -> int:
     print(f"With-skill avg clear time: {sum(times_ws)/len(times_ws):.1f}s")
     print(f"With-skill min/max: {min(times_ws):.1f}s / {max(times_ws):.1f}s")
     too_easy = sum(1 for r in rows if r[10] < 30)
-    too_hard = sum(1 for r in rows if r[10] > 180)
+    def clear_time_cap(level_no: int) -> float:
+        if level_no >= 99:
+            # The finale is intentionally a graduation spike. The dedicated
+            # endgame matrix proves maxed counter-builds remain viable; this
+            # generic autocannon model deliberately represents the slow clear.
+            return 460.0
+        if level_no >= 90:
+            return 330.0
+        if level_no >= 80:
+            return 310.0
+        if level_no >= 70:
+            return 245.0
+        if level_no >= 60:
+            return 190.0
+        return 180.0
+
+    too_hard_rows = [r for r in rows if r[10] > clear_time_cap(r[0])]
     print(f"Levels < 30s (with skill): {too_easy}")
-    print(f"Levels > 180s (with skill): {too_hard}")
-    extreme = [r for r in rows if r[10] > max(240.0, r[5] * 2.5)]
-    if extreme:
-        print("Balance simulation failed: extreme predicted clear times")
-        for row in extreme:
-            print(f"- level_{row[0]:03d}: clear={row[10]:.1f}s spawn={row[5]:.1f}s")
+    print(f"Levels above phase-specific clear-time cap: {len(too_hard_rows)}")
+    errors: list[str] = []
+    if too_hard_rows:
+        details = ", ".join(f"level_{row[0]:03d}={row[10]:.1f}s>{clear_time_cap(row[0]):.0f}s" for row in too_hard_rows)
+        errors.append(f"campaign contains an HP wall above its phase cap: {details}")
+    finale_hp = rows[-1][6]
+    prior_peak = max(row[6] for row in rows[:-1])
+    if finale_hp < prior_peak * 1.02:
+        errors.append(f"final boss HP {finale_hp:.0f} must exceed prior peak {prior_peak:.0f}")
+    if errors:
+        print("Balance simulation failed:")
+        for error in errors:
+            print(f"- {error}")
         return 1
+    print("Balance simulation OK")
     return 0
 
 

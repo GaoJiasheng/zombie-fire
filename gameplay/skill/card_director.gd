@@ -4,25 +4,7 @@ extends RefCounted
 # 连续多少次三选一都没命中角色/武器适配技能后触发保底(economy.json 的
 # pity_after_missing_core_tag)；实例跟随 battle 生命周期存活，天然按局重置。
 var _missed_core_tag_streak := 0
-
-var skill_pool := [
-	"skill_split_shot",
-	"skill_pierce",
-	"skill_multishot",
-	"skill_slow_field",
-	"skill_incendiary",
-	"skill_cryo",
-	"skill_tesla",
-	"skill_venom",
-	"skill_critical",
-	"skill_charge_shot",
-	"skill_ricochet",
-	"skill_homing",
-	"skill_barrier",
-	"skill_recycle",
-	"skill_gold_rush",
-	"skill_salvo"
-]
+var _offer_index := 0
 
 func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	var weighted: Array[String] = []
@@ -32,7 +14,10 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	if data_loader == null:
 		return []
 	var skills: Dictionary = data_loader.get_table("skills")
-	for skill_id in skill_pool:
+	var skill_ids: Array = skills.keys()
+	skill_ids.sort()
+	for skill_id_var in skill_ids:
+		var skill_id := str(skill_id_var)
 		var row: Dictionary = skills.get(skill_id, {})
 		if not _allowed_by_selected_weapon(skill_id, row, owned):
 			continue
@@ -64,8 +49,74 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 			if is_economy:
 				economy_count += 1
 		weighted = weighted.filter(func(id: String) -> bool: return id != picked)
+	_offer_index += 1
+	_apply_opening_shape(result, eligible, skills, economy_rules, level)
 	_apply_pity(result, eligible, skills, economy_rules)
 	return result
+
+func _apply_opening_shape(result: Array[String], eligible: Array[String], skills: Dictionary, economy_rules: Dictionary, level: Dictionary) -> void:
+	var opening_offers := maxi(0, int(economy_rules.get("opening_identity_offer_count", 2)))
+	if _offer_index > opening_offers or result.is_empty():
+		return
+	if bool(economy_rules.get("opening_avoid_economy", true)):
+		for index in range(result.size()):
+			var row: Dictionary = skills.get(result[index], {})
+			if row.get("card_tags", []).has("economy"):
+				_replace_with_tags(result, eligible, skills, index, ["projectile", "element", "control", "defense"], true)
+	_replace_with_loadout_match(result, eligible, skills, 0)
+	if _offer_index == 1:
+		if result.size() > 1:
+			_replace_with_tags(result, eligible, skills, 1, economy_rules.get("opening_damage_tags", ["anti_swarm", "projectile", "dps"]), true)
+		if result.size() > 2:
+			_replace_with_tags(result, eligible, skills, 2, economy_rules.get("opening_safety_tags", ["control", "defense"]), true)
+	elif result.size() > 1:
+		_replace_with_tags(result, eligible, skills, 1, _counter_tags_for_level(level), true)
+
+func _replace_with_loadout_match(result: Array[String], eligible: Array[String], skills: Dictionary, index: int) -> void:
+	if index < 0 or index >= result.size():
+		return
+	if _matches_selected_loadout(skills.get(result[index], {})):
+		return
+	for skill_id in eligible:
+		if result.has(skill_id) or not _matches_selected_loadout(skills.get(skill_id, {})):
+			continue
+		result[index] = skill_id
+		return
+
+func _replace_with_tags(result: Array[String], eligible: Array[String], skills: Dictionary, index: int, wanted_tags: Array, reject_economy: bool) -> void:
+	if index < 0 or index >= result.size():
+		return
+	var current_tags: Array = skills.get(result[index], {}).get("card_tags", [])
+	if _has_any_tag(current_tags, wanted_tags) and (not reject_economy or not current_tags.has("economy")):
+		return
+	for skill_id in eligible:
+		if result.has(skill_id):
+			continue
+		var tags: Array = skills.get(skill_id, {}).get("card_tags", [])
+		if reject_economy and tags.has("economy"):
+			continue
+		if _has_any_tag(tags, wanted_tags):
+			result[index] = skill_id
+			return
+
+func _has_any_tag(tags: Array, wanted_tags: Array) -> bool:
+	for tag in wanted_tags:
+		if tags.has(tag):
+			return true
+	return false
+
+func _counter_tags_for_level(level: Dictionary) -> Array:
+	var tags: Array = []
+	for threat in level.get("threat_tags", []):
+		match str(threat):
+			"fast": tags.append_array(["control", "ice"])
+			"tank": tags.append_array(["anti_armor", "pierce", "execute"])
+			"support": tags.append_array(["homing", "chain"])
+			"burst": tags.append("defense")
+			"breach": tags.append_array(["anti_swarm", "defense"])
+	if tags.is_empty():
+		tags = ["anti_swarm", "control", "defense"]
+	return tags
 
 # 连续 N 次三选一都没有一张命中角色/武器适配技能时,强制把本次的最后一张
 # 换成一张命中适配的技能(economy.json 的 pity_after_missing_core_tag)。

@@ -3,7 +3,9 @@ extends Node
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
 const CURRENT_SAVE_VERSION := 1
-const POWER_PER_SKILL_BASE_LEVEL := 2.20
+const POWER_REFERENCE_CARD_PICKS := 4
+const POWER_SKILL_THROUGHPUT_CAP := 13.5
+const POWER_SKILL_SCORE_EXPONENT := 0.5
 const POWER_PER_SIG_SKILL_LEVEL := 3.00
 const POWER_SIG_SKILL_BASE := 1.80
 const POWER_SIG_SKILL_LEVEL_SCALE := 0.65
@@ -569,8 +571,36 @@ func get_weapon_fire_rate_multiplier(weapon_id: String) -> float:
 	return 1.0 + 0.025 * float(max(get_weapon_level(weapon_id) - 1, 0))
 
 func get_loadout_power() -> int:
+	var reference_levels := _projected_run_skill_levels(POWER_REFERENCE_CARD_PICKS, "")
+	return int(round(_loadout_core_power() * _skill_power_scale(reference_levels)))
+
+func get_projected_combat_power_for_level(level_id: String) -> int:
+	var level := DataLoader.get_row("levels", level_id)
+	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
+	var weakness := str(level.get("primary_weakness", "physical"))
+	var projected_levels := _projected_run_skill_levels(card_picks, weakness)
+	return get_combat_power_for_skill_levels(projected_levels)
+
+func get_combat_power_for_skill_levels(run_skill_levels: Dictionary) -> int:
+	return int(round(_loadout_core_power() * _skill_power_scale(run_skill_levels)))
+
+func get_power_breakdown_for_level(level_id: String, challenge := false) -> Dictionary:
+	var recommended := get_recommended_power_for_level(level_id)
+	if challenge:
+		recommended = int(ceil(float(recommended) * 1.5))
+	return {
+		"standing": get_loadout_power(),
+		"projected": get_projected_combat_power_for_level(level_id),
+		"recommended": recommended,
+	}
+
+func _loadout_core_power() -> float:
 	var character_id := get_selected("character")
 	var weapon_id := get_selected("weapon")
+	if character_id == "":
+		character_id = "vanguard"
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
 	var armor_id := get_selected("armor")
 	var chip_id := get_selected("chip")
 	var pet_id := get_selected("pet")
@@ -583,23 +613,188 @@ func get_loadout_power() -> int:
 	var weapon_quality := sqrt(maxf(_weapon_effective_dps(weapon) / 4.0, 0.35))
 	power += float(char_level) * 1.15 * character_offense
 	power += float(get_item_level(weapon_id)) * 1.45 * weapon_quality
-	power += float(get_item_level(armor_id)) * 0.85 * sqrt(maxf(float(armor.get("hp_mult", 1.0)), 0.5))
-	power += float(get_item_level(chip_id)) * 0.75 * _chip_power_quality(chip_id)
+	if armor_id != "":
+		power += float(get_item_level(armor_id)) * 0.85 * sqrt(maxf(float(armor.get("hp_mult", 1.0)), 0.5))
+	if chip_id != "":
+		power += float(get_item_level(chip_id)) * 0.75 * _chip_power_quality(chip_id)
 	if pet_id != "":
 		power += float(get_item_level(pet_id)) * 0.55
 		power += _pet_stat_power(pet_id)
-	# 技能永久升级(通用技能 base level)——战力的大头，此前完全没算
-	var skill_levels := 0
-	for v in save_data.get("skill_base_levels", {}).values():
-		skill_levels += int(v)
-	power += float(skill_levels) * POWER_PER_SKILL_BASE_LEVEL
-	# 角色主动/专属技能(2 个 signature，威力随角色等级成长)
 	if character_id != "":
 		var sig_count := int(DataLoader.get_row("characters", character_id).get("signature_skills", []).size())
 		power += float(sig_count) * (POWER_SIG_SKILL_BASE + POWER_SIG_SKILL_LEVEL_SCALE * float(char_level))
-		# 专属主动技独立经验等级(新增的投资轴，见 get_sig_skill_level)
 		power += float(get_sig_skill_level(character_id)) * POWER_PER_SIG_SKILL_LEVEL
-	return int(round(power))
+	return maxf(power, 1.0)
+
+func _projected_run_skill_levels(card_picks: int, weakness: String) -> Dictionary:
+	var projected: Dictionary = {}
+	var skills_table: Dictionary = DataLoader.get_table("skills")
+	if skills_table.is_empty():
+		return projected
+	_seed_projected_weapon_element(projected, skills_table)
+	for _pick in range(maxi(card_picks, 0)):
+		var current_score := _combat_skill_effect_multiplier(projected)
+		var best_score := current_score
+		var best_id := ""
+		var best_levels: Dictionary = {}
+		var ids := skills_table.keys()
+		ids.sort()
+		for id_var in ids:
+			var skill_id := str(id_var)
+			var row: Dictionary = skills_table.get(skill_id, {})
+			if not _power_skill_compatible_with_weapon(row):
+				continue
+			var candidate := _power_candidate_skill_levels(projected, skill_id, row, skills_table)
+			if candidate.is_empty():
+				continue
+			var candidate_score := _combat_skill_effect_multiplier(candidate)
+			if str(row.get("ammo_element", "")) == weakness:
+				candidate_score += 0.015
+			if candidate_score > best_score + 0.0001:
+				best_score = candidate_score
+				best_id = skill_id
+				best_levels = candidate
+		if best_id == "":
+			break
+		projected = best_levels
+	return projected
+
+func _seed_projected_weapon_element(projected: Dictionary, skills_table: Dictionary) -> void:
+	var weapon_id := get_selected("weapon")
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	if weapon_element == "" or weapon_element == "physical":
+		return
+	for id_var in skills_table.keys():
+		var skill_id := str(id_var)
+		var row: Dictionary = skills_table.get(skill_id, {})
+		if str(row.get("exclusive_group", "")) != "projectile_element":
+			continue
+		if str(row.get("ammo_element", "")) != weapon_element:
+			continue
+		projected[skill_id] = clampi(maxi(get_skill_base_level(skill_id), 1), 1, _power_skill_max_level(row))
+		return
+
+func _power_candidate_skill_levels(current: Dictionary, skill_id: String, row: Dictionary, skills_table: Dictionary) -> Dictionary:
+	var max_level := _power_skill_max_level(row)
+	var current_level := int(current.get(skill_id, 0))
+	if current_level >= max_level:
+		return {}
+	var next_level := mini(max_level, current_level + 1)
+	if current_level <= 0:
+		next_level = clampi(maxi(get_skill_base_level(skill_id), 1), 1, max_level)
+	var candidate: Dictionary = current.duplicate(true)
+	var exclusive_group := str(row.get("exclusive_group", ""))
+	if exclusive_group != "":
+		for peer_var in skills_table.keys():
+			var peer_id := str(peer_var)
+			if peer_id == skill_id:
+				continue
+			var peer: Dictionary = skills_table.get(peer_id, {})
+			if str(peer.get("exclusive_group", "")) == exclusive_group:
+				candidate.erase(peer_id)
+	candidate[skill_id] = next_level
+	return candidate
+
+func _power_skill_max_level(row: Dictionary) -> int:
+	var result := 1
+	for entry_var in row.get("levels", []):
+		if entry_var is Dictionary:
+			result = maxi(result, int((entry_var as Dictionary).get("lv", 1)))
+	return result
+
+func _power_skill_compatible_with_weapon(row: Dictionary) -> bool:
+	if str(row.get("exclusive_group", "")) != "projectile_element":
+		return true
+	var weapon_id := get_selected("weapon")
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	return weapon_element == "" or weapon_element == "physical" or str(row.get("ammo_element", "")) == weapon_element
+
+func _skill_power_scale(run_skill_levels: Dictionary) -> float:
+	return pow(_combat_skill_effect_multiplier(run_skill_levels), POWER_SKILL_SCORE_EXPONENT)
+
+func _combat_skill_effect_multiplier(run_skill_levels: Dictionary) -> float:
+	var damage_add := 0.0
+	var fire_rate_add := 0.0
+	var crit_add := 0.0
+	var crit_damage_add := 0.0
+	var extra_projectiles := 0
+	var pierce := 0
+	var split := 0
+	var split_falloff := 0.55
+	var chain := 0
+	var homing := 0.0
+	var burn := 0.0
+	var poison := 0.0
+	var slow := 0.0
+	var barrier_hp := 0.0
+	var armor_penetration := 0.0
+	for id_var in run_skill_levels.keys():
+		var skill_id := str(id_var)
+		var effect := _power_skill_effect(skill_id, int(run_skill_levels.get(id_var, 0)))
+		damage_add += float(effect.get("dmg_mult", 0.0))
+		fire_rate_add += float(effect.get("fire_rate_mult", 0.0))
+		crit_add += float(effect.get("crit_add", 0.0))
+		crit_damage_add += float(effect.get("crit_dmg", 0.0))
+		extra_projectiles = maxi(extra_projectiles, int(effect.get("extra_projectiles", 0)))
+		pierce += int(effect.get("pierce", 0))
+		split = maxi(split, int(effect.get("split", 0)))
+		if effect.has("falloff"):
+			split_falloff = float(effect.get("falloff", split_falloff))
+		chain += int(effect.get("chain", 0))
+		homing += float(effect.get("homing", 0.0))
+		burn += float(effect.get("burn", 0.0))
+		poison += float(effect.get("poison", 0.0))
+		slow += float(effect.get("slow", 0.0))
+		barrier_hp += float(effect.get("base_hp_mult", 0.0))
+		armor_penetration += float(effect.get("armor_penetration", 0.0))
+	var direct_factor := maxf(1.0, 1.0 + damage_add)
+	var cadence_factor := maxf(1.0, 1.0 + fire_rate_add)
+	var base_crit_rate := 0.08
+	var base_crit_expectation := 1.0 + base_crit_rate * 0.85
+	var upgraded_crit_expectation := 1.0 + clampf(base_crit_rate + crit_add, 0.0, 0.85) * (0.85 + crit_damage_add)
+	var crit_factor := maxf(1.0, upgraded_crit_expectation / base_crit_expectation)
+	var lane_count := clampi(1 + extra_projectiles, 1, 5)
+	var lane_total := float(lane_count) * _power_multishot_lane_damage(lane_count)
+	var lane_factor := 1.0 + maxf(0.0, lane_total - 1.0) * 0.55
+	var secondary_gain := float(pierce) * 0.075
+	secondary_gain += float(split) * clampf(split_falloff, 0.0, 1.0) * 0.11
+	secondary_gain += float(chain) * 0.09
+	secondary_gain += homing * 0.03
+	var coverage_factor := 1.0 + minf(1.75, secondary_gain)
+	var status_factor := 1.0 + burn * 0.28 + poison * 0.32
+	var penetration_factor := 1.0 + clampf(armor_penetration, 0.0, 0.95) * 0.22
+	var offense := direct_factor * cadence_factor * crit_factor * lane_factor * coverage_factor * status_factor * penetration_factor
+	var survival := 1.0 + maxf(0.0, barrier_hp) * 0.22 + clampf(slow, 0.0, 0.75) * 0.30
+	var combined := 1.0 + maxf(0.0, offense - 1.0) * 0.82 + maxf(0.0, survival - 1.0) * 0.18
+	return clampf(combined, 1.0, POWER_SKILL_THROUGHPUT_CAP)
+
+func _power_multishot_lane_damage(lane_count: int) -> float:
+	match clampi(lane_count, 1, 5):
+		1:
+			return 1.0
+		2:
+			return 0.85
+		3:
+			return 0.80
+		4:
+			return 0.75
+		_:
+			return 0.70
+
+func _power_skill_effect(skill_id: String, level: int) -> Dictionary:
+	if level <= 0:
+		return {}
+	var chosen: Dictionary = {}
+	for entry_var in DataLoader.get_row("skills", skill_id).get("levels", []):
+		if entry_var is Dictionary:
+			var entry := entry_var as Dictionary
+			if int(entry.get("lv", 0)) <= level:
+				chosen = entry.get("effect", {})
+	return chosen
 
 func _weapon_effective_dps(weapon: Dictionary) -> float:
 	if weapon.is_empty():
@@ -651,9 +846,8 @@ func _pet_stat_power(pet_id: String) -> float:
 				score += value * 4.0
 	return score
 
-# 系数校准(2026-07)：推荐战力不再只看装备等级，也要反映中后局卡牌/技能 DPS 爆发。
-# 玩家当前战力由 get_loadout_power() 统计装备、通用技能永久等级、主动技等级和宠物属性；
-# 推荐战力用关卡推荐等级 + 局内卡牌预算 + 后半波压力来给门槛，避免低显示战力靠后半局技能爆发越级太多。
+# 推荐战力和玩家战力使用同一套“战前核心 + 局内技能成型”量纲。
+# 四次选卡是战力面板的基准；更多选卡带来的乘法协同会同时抬高关卡推荐值和晚波压力。
 const RECOMMENDED_POWER_COEF := 6.25
 func get_recommended_power_for_level(level_id: String) -> int:
 	var level := DataLoader.get_row("levels", level_id)
@@ -663,9 +857,39 @@ func get_recommended_power_for_level(level_id: String) -> int:
 		if wave.has("boss"):
 			boss_bonus = 6
 			break
-	var card_budget_bonus := maxi(0, int(level.get("target_card_picks", 0)) - 4) * 4
 	var late_wave_bonus := _recommended_power_late_wave_bonus(level)
-	return int(round(float(recommended) * RECOMMENDED_POWER_COEF + float(card_budget_bonus + boss_bonus + late_wave_bonus)))
+	var base_power := float(recommended) * RECOMMENDED_POWER_COEF + float(boss_bonus + late_wave_bonus)
+	return int(round(base_power * get_card_budget_power_factor_for_level(level_id)))
+
+func get_card_budget_power_factor_for_level(level_id: String) -> float:
+	var level := DataLoader.get_row("levels", level_id)
+	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var pressure_var = economy.get("run_skill_pressure", {})
+	var pressure: Dictionary = pressure_var if pressure_var is Dictionary else {}
+	var reference_picks := maxi(1, int(pressure.get("reference_card_picks", POWER_REFERENCE_CARD_PICKS)))
+	var reference := _generic_card_skill_throughput(reference_picks)
+	var current := _generic_card_skill_throughput(card_picks)
+	return maxf(1.0, pow(current / maxf(reference, 0.01), POWER_SKILL_SCORE_EXPONENT))
+
+func get_run_skill_hp_pressure_for_level(level_id: String) -> float:
+	return _run_skill_pressure_for_level(level_id, "hp_conversion", "max_hp_mult", 0.65, 1.60)
+
+func get_run_skill_speed_pressure_for_level(level_id: String) -> float:
+	return _run_skill_pressure_for_level(level_id, "speed_conversion", "max_speed_mult", 0.15, 1.15)
+
+func _run_skill_pressure_for_level(level_id: String, conversion_key: String, cap_key: String, fallback_conversion: float, fallback_cap: float) -> float:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var pressure_var = economy.get("run_skill_pressure", {})
+	var pressure: Dictionary = pressure_var if pressure_var is Dictionary else {}
+	var factor := get_card_budget_power_factor_for_level(level_id)
+	var conversion := maxf(0.0, float(pressure.get(conversion_key, fallback_conversion)))
+	var cap := maxf(1.0, float(pressure.get(cap_key, fallback_cap)))
+	return minf(cap, 1.0 + maxf(0.0, factor - 1.0) * conversion)
+
+func _generic_card_skill_throughput(card_picks: int) -> float:
+	var picks := float(maxi(card_picks, 0))
+	return minf(POWER_SKILL_THROUGHPUT_CAP, 1.0 + 0.42 * picks + 0.08 * picks * picks)
 
 func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
 	var economy: Dictionary = DataLoader.get_table("economy")
@@ -698,12 +922,17 @@ func _recommended_power_late_wave_ramp_mult(economy: Dictionary, level_no: int) 
 	var start_level := float(rule.get("start_level", 9999))
 	var full_level := float(rule.get("full_level", start_level))
 	var max_mult := float(rule.get("max_mult", 1.0))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", 1.0)))
 	if float(level_no) < start_level:
 		return 1.0
-	if full_level <= start_level:
-		return max_mult
-	var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
-	return lerpf(1.0, max_mult, t)
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", 0))
+	if final_level > 0 and level_no >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", 1.0)))
+	return ramp_mult
 
 func get_player_gold() -> int:
 	var player: Dictionary = save_data.get("player", {})

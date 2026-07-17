@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from combat_power_model import run_skill_hp_pressure
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -14,7 +16,7 @@ def load(name: str):
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
 DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
 DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
-DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 45, "full_level": 85, "max_mult": 1.22}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 
 
@@ -34,13 +36,18 @@ def late_wave_level_ramp(economy: dict, level_no: int) -> float:
     max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["max_mult"]))
     if float(level_no) < start_level:
         return 1.0
-    if full_level <= start_level:
-        return max_mult
-    t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
-    return 1.0 + (max_mult - 1.0) * t
+    ramp_mult = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        curve_power = max(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_LEVEL_RAMP["curve_power"])))
+        ramp_mult = 1.0 + (max_mult - 1.0) * (t ** curve_power)
+    final_level = int(rule.get("final_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_level"]))
+    if level_no >= final_level:
+        ramp_mult *= max(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_mult"])))
+    return ramp_mult
 
 
-def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0) -> float:
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0, card_picks: int = 4) -> float:
     key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
     defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
     table = economy.get(key, defaults)
@@ -49,6 +56,7 @@ def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no
     base = float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
     if wave_no >= 3:
         base *= late_wave_level_ramp(economy, level_no)
+        base *= run_skill_hp_pressure(card_picks, economy)
     return base
 
 
@@ -89,26 +97,27 @@ def main() -> int:
         boss_count = 0
         boss_level_bonus = boss_hp_level_bonus(economy, level)
         level_no = level_number(level)
+        card_picks = int(level.get("target_card_picks", 4))
         # Runtime enemy.setup uses 50 * hp_coef *
         # (difficulty_coef * base_hp_ref / 50). Keep this checker on the same
         # scale so late levels are not understated by an order of magnitude.
         hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
         for wave in level.get("waves", []):
             wave_no = wave_number(wave)
-            mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+            mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
             count_mult = late_wave_count_mult(economy, wave_no)
             for group in wave.get("spawns", []):
                 row = zombies[group["type"]]
                 count = int(round(int(group.get("count", 1)) * count_mult))
-                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
+                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
                 duration += count * float(group.get("interval", 0.8))
             if "boss" in wave:
                 boss_count += 1
-                pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no) * boss_level_bonus * 8.0
+                pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus
             for group in wave.get("support", []):
                 row = zombies[group["type"]]
                 count = int(round(int(group.get("count", 1)) * count_mult))
-                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
+                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
                 duration += count * float(group.get("interval", 0.8))
         pressure *= hp_base * float(level.get("difficulty_coef", 1.0))
         series.append((level["id"], pressure, boss_count > 0))

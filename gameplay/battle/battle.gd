@@ -5,6 +5,7 @@ const TURRET_SCENE := preload("res://gameplay/turret/turret.tscn")
 const PROJECTILE_SCENE := preload("res://gameplay/projectile/projectile.tscn")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
+const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
@@ -12,6 +13,8 @@ const UiKit := preload("res://ui/ui_kit.gd")
 const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
 const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_band.png")
 const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
+const BARRIER_VISUAL_Z := 7
+const DEFENSE_ACTOR_Z := 10
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y_DESIGN := 1500.0
@@ -33,9 +36,10 @@ const BASE_LINE_BOSS_WARNING_INSET := 240.0
 var bottom_dock_shift := 0.0
 var BREACH_Y := 1500.0
 var CHARACTER_BASE_POSITION := Vector2(540, 1652)
-## 战斗加速：1.0/2.0/5.0，从 SettingsManager 读取、按玩家上次的选择恢复；
+## 战斗加速按最高已解锁关卡开放：30关显示并开放2X，50关开放5X。
 ## 只在战斗场景生效，离开战斗时 main.gd 会把 Engine.time_scale 复位成 1.0。
 var battle_speed := 1.0
+var battle_speed_progress_level := 1
 const CHARACTER_VISUAL_BASE_SCALE := 0.512
 const CHARACTER_WEAPON_SOCKET := Vector2(58, -28)
 const CHARACTER_WEAPON_DEFAULT_DIRECTION := Vector2(0, -1)
@@ -215,12 +219,13 @@ const MAX_BASE_HIT_FRACTION := 0.4
 const DEFAULT_LATE_WAVE_HP_BONUS := {3: 1.45, 4: 1.85, 5: 2.30}
 const DEFAULT_LATE_WAVE_COUNT_MULT := {4: 2.0, 5: 3.0}
 const DEFAULT_LATE_WAVE_BOSS_HP_BONUS := {3: 1.30, 4: 1.50, 5: 1.75}
-const DEFAULT_LATE_WAVE_LEVEL_RAMP := {"start_level": 45, "full_level": 85, "max_mult": 1.22}
+const DEFAULT_LATE_WAVE_LEVEL_RAMP := {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
+const DEFAULT_LATE_WAVE_DAMAGE_RAMP := {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 2.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.15}
 const DEFAULT_BOSS_HP_LEVEL_BONUS := {"start_level": 20, "multiplier": 2.0}
-const WAVE_TOAST_BASE_POSITION := Vector2(280, 214)
-const WAVE_TOAST_SIZE := Vector2(520, 58)
+const WAVE_TOAST_BASE_POSITION := Vector2(290, 96)
+const WAVE_TOAST_SIZE := Vector2(500, 54)
 const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
-const WAVE_TOAST_MIN_INTERVAL := 1.65
+const WAVE_TOAST_MIN_INTERVAL := 2.50
 const ACTIVE_SKILL_DOT_COUNT := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
 const FROST_GLACIER_TICK_INTERVAL := 0.52
@@ -237,7 +242,6 @@ const CARD_OFFER_CARD_WIDTH := 864.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
 const MANUAL_AIM_RELEASE_GRACE := 0.18
 const CHALLENGE_HP_MULT := 1.5
-const CHALLENGE_BREACH_DAMAGE_MULT := 1.25
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 
 var router: Node
@@ -254,6 +258,7 @@ var variant_xp_mult := 1.0
 # 每轮血量按 ENDLESS_LOOP_HP_GROWTH 复利递增，只在漏怪耗尽基地生命时结算。
 var is_endless_mode := false
 var is_challenge_mode := false
+var challenge_rule: Dictionary = {}
 var endless_loop := 0
 var endless_difficulty_mult := 1.0
 var endless_template_level_id := ""
@@ -379,6 +384,11 @@ var last_threat_warning_at := -99.0
 var last_gold_sfx_at := -99.0
 var primary_weakness := "physical"
 var loadout_power_ratio := 1.0
+var power_level_id := "level_001"
+var projected_combat_power := 1
+var recommended_combat_power := 1
+var run_skill_hp_pressure_mult := 1.0
+var run_skill_speed_pressure_mult := 1.0
 var onboarding_stage := ""
 var onboarding_tip_shown := false
 var wave_tip_shown := {}
@@ -401,6 +411,19 @@ var build_feedback_shown := {}
 var weak_kill_feedback_count := 0
 var weak_kill_feedback_pending := false
 var last_weak_kill_feedback_at := -99.0
+var battle_elapsed_seconds := 0.0
+var battle_damage_total := 0.0
+var battle_damage_by_element: Dictionary = {}
+var battle_crit_damage := 0.0
+var battle_weak_damage := 0.0
+var battle_kills := 0
+var battle_boss_kills := 0
+var battle_base_damage_taken := 0
+var battle_base_damage_prevented := 0
+var battle_control_seconds := 0.0
+var battle_active_skill_casts := 0
+var battle_max_kill_streak := 0
+var battle_last_boss_id := ""
 
 # Stage 1 P0 — combat feel & feedback
 var hit_stop: Node
@@ -423,14 +446,17 @@ func setup(main: Node, payload := {}) -> void:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = false
-	battle_speed = SettingsManager.get_battle_speed()
+	battle_speed_progress_level = _level_ordinal_from_id(SaveManager.get_highest_unlocked_level_id())
+	battle_speed = SettingsManager.get_battle_speed(battle_speed_progress_level)
 	Engine.time_scale = battle_speed
-	# Combat geometry stays fixed at the authored 1080x1920 coordinates on every
-	# device. Tall-screen accommodation belongs to background/safe-area layers;
-	# it must not give enemies extra travel time or move the breach line.
-	bottom_dock_shift = 0.0
-	BREACH_Y = BREACH_Y_DESIGN
-	CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN)
+	# On tall iPhones, keep the top HUD fixed while docking the complete defense
+	# group to the real viewport bottom. The 1080x2622 backgrounds use the same
+	# bottom anchor, so the authored barricade, breach line, hero, pet and bottom
+	# HUD remain one coherent composition instead of drifting apart vertically.
+	var visible_size := get_viewport().get_visible_rect().size
+	bottom_dock_shift = maxf(0.0, visible_size.y - 1920.0)
+	BREACH_Y = BREACH_Y_DESIGN + bottom_dock_shift
+	CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN + bottom_dock_shift)
 	# HUD controls must receive GUI input both during battle and while card
 	# offers pause the tree; individual buttons decide their own enabled state.
 	$Hud.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -439,6 +465,7 @@ func _ready() -> void:
 	_apply_level_background()
 	var _econ: Dictionary = DataLoader.get_table("economy")
 	level_ordinal = _level_ordinal_from_id(level_id)
+	challenge_rule = ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
 	if is_endless_mode:
 		_apply_endless_template_level(_econ)
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
@@ -448,11 +475,14 @@ func _ready() -> void:
 	primary_weakness = str(level.get("primary_weakness", "physical"))
 	onboarding_stage = str(level.get("onboarding_stage", ""))
 	_apply_variant_modifiers()
-	var recommended_level_id := endless_template_level_id if is_endless_mode and endless_template_level_id != "" else level_id
-	var recommended_power := float(SaveManager.get_recommended_power_for_level(recommended_level_id))
+	power_level_id = endless_template_level_id if is_endless_mode and endless_template_level_id != "" else level_id
+	recommended_combat_power = SaveManager.get_recommended_power_for_level(power_level_id)
 	if is_challenge_mode:
-		recommended_power *= CHALLENGE_RECOMMENDED_POWER_MULT
-	loadout_power_ratio = float(SaveManager.get_loadout_power()) / maxf(recommended_power, 1.0)
+		recommended_combat_power = int(ceil(float(recommended_combat_power) * _challenge_mult("recommended_power_mult", CHALLENGE_RECOMMENDED_POWER_MULT)))
+	projected_combat_power = SaveManager.get_projected_combat_power_for_level(power_level_id)
+	loadout_power_ratio = float(projected_combat_power) / maxf(float(recommended_combat_power), 1.0)
+	run_skill_hp_pressure_mult = SaveManager.get_run_skill_hp_pressure_for_level(power_level_id)
+	run_skill_speed_pressure_mult = SaveManager.get_run_skill_speed_pressure_for_level(power_level_id)
 	wave_total = int(level.get("waves", []).size())
 	base_hp_max = int(level.get("base_hp_ref", 100))
 	base_hp = base_hp_max
@@ -492,6 +522,7 @@ func _ready() -> void:
 	displayed_wave_pct = 0.0
 	displayed_xp_pct = 0.0
 	build_feedback_shown = {}
+	_reset_battle_report()
 	$Hud/DebugOverlay.visible = false
 	$Hud/PauseOverlay.visible = false
 	$Hud/CardPanel.visible = false
@@ -629,12 +660,15 @@ func _physics_process(delta: float) -> void:
 	if card_offer_active:
 		_set_turret_fire_enabled(false)
 		return
+	var real_delta := delta / maxf(battle_speed, 1.0)
+	battle_elapsed_seconds += real_delta
+	_update_battle_report_control(real_delta)
 	_sync_logic_turret_to_character()
 	_update_auto_target()
 	_process_character_animation(delta)
 	_process_character_signatures(delta)
 	_process_pet(delta)
-	_process_enemy_mechanics(delta)
+	_process_enemy_mechanics(delta * _challenge_mult("mechanic_rate_mult"))
 	_apply_slow_field()
 	_process_spawns(delta)
 	_check_victory()
@@ -745,7 +779,7 @@ func _load_equipment() -> void:
 func _configure_character_active_skill() -> void:
 	var active: Dictionary = character_data.get("active_skill", {})
 	character_active_id = str(active.get("id", ""))
-	character_active_cd_max = float(active.get("cooldown", 16.0))
+	character_active_cd_max = _active_skill_cooldown(active)
 	character_active_cd = 0.0
 	if has_node("Hud/CharacterSkillButton"):
 		$Hud/CharacterSkillButton.visible = character_active_id != ""
@@ -1123,7 +1157,9 @@ func _on_character_skill_pressed() -> void:
 		_show_wave_toast("技能暂不可用", Color(0.72, 0.92, 1.0))
 		AudioManager.play_sfx("ui_click", -6.0)
 		return
+	battle_active_skill_casts += 1
 	_play_character_skill()
+	SettingsManager.pulse_haptic("medium")
 	character_active_cd = character_active_cd_max
 	_update_character_skill_button()
 	_update_character_skill_button()
@@ -1357,9 +1393,10 @@ func _vanguard_railvolley_hit(volley_index: int, volley_count: int, damage: floa
 	_spawn_vfx_sequence("vfx_muzzle_physical", origin + direction.normalized() * 34.0, 0.58, Color(1.0, 0.88, 0.38, 0.78), 1.55, direction.angle(), 1.05, direction.normalized() * 26.0, 0.0, true)
 	if volley_index % 2 == 0:
 		AudioManager.play_sfx("shot_autocannon", -10.0, 0.02)
-	var targets := _active_target_candidates(3)
+	var target_count := _vanguard_railvolley_target_count(character_data.get("active_skill", {}))
+	var targets := _active_target_candidates(target_count)
 	if targets.is_empty():
-		var points := _active_skill_fallback_chain_points(3)
+		var points := _active_skill_fallback_chain_points(target_count)
 		for i in range(points.size()):
 			var point := points[i] + Vector2(randf_range(-28.0, 28.0), randf_range(-32.0, 22.0))
 			_spawn_vfx_sequence("vfx_hit_physical", point, 0.46, Color(1.0, 0.88, 0.38, 0.72), 1.3, randf_range(-0.4, 0.4), 1.12, Vector2(0, -14), randf_range(-0.35, 0.35))
@@ -1408,7 +1445,7 @@ func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_
 		if dist > local_radius:
 			continue
 		var falloff := 1.0 - clampf(dist / local_radius, 0.0, 1.0)
-		_active_skill_apply_hit(enemy, damage * weights[mini(pulse_index, weights.size() - 1)] * (0.58 + falloff * 0.42), "fire")
+		_active_skill_apply_hit(enemy, damage * weights[mini(pulse_index, weights.size() - 1)] * (0.58 + falloff * 0.42), "fire", _active_skill_status_scale(character_data.get("active_skill", {})))
 	_active_skill_screen_shake(5.0 + float(pulse_index) * 1.8, 0.12)
 	if pulse_index == 3:
 		_show_screen_flash(Color(1.0, 0.38, 0.12, 0.12), 0.2)
@@ -1617,27 +1654,55 @@ func _vanguard_railvolley_damage(primary_damage := -1.0) -> float:
 	var mult := float(active.get("damage_mult", 1.25)) * _character_active_power_scale(active)
 	return primary_damage * maxf(mult, 1.0)
 
-const SIG_SKILL_LEVEL_DAMAGE_BONUS := 0.10  # 专属主动技每独立等级 +10% 伤害倍率(满5级 +50%)
-
 func _character_active_power_scale(active: Dictionary) -> float:
 	var level_delta := float(maxi(character_level - 1, 0))
 	var rank := float(_growth_rank(character_level))
 	var level_growth := float(active.get("level_damage_growth", 0.0))
 	var rank_bonus := float(active.get("rank_damage_bonus", 0.0))
-	var sig_level_bonus := float(SaveManager.get_sig_skill_level(character_id)) * SIG_SKILL_LEVEL_DAMAGE_BONUS
+	var sig_level_bonus := float(_sig_skill_level()) * float(active.get("sig_level_damage_bonus", 0.1))
 	return maxf(1.0, 1.0 + level_growth * level_delta + rank_bonus * rank + sig_level_bonus)
+
+func _sig_skill_level() -> int:
+	return clampi(SaveManager.get_sig_skill_level(character_id), 0, SaveManager.SIG_SKILL_MAX_LEVEL)
+
+func _sig_level_steps(active: Dictionary, key: String) -> int:
+	var every := maxi(1, int(active.get(key, 999)))
+	return floori(float(_sig_skill_level()) / float(every))
+
+func _sig_level_threshold_count(active: Dictionary, key: String) -> int:
+	var thresholds_var: Variant = active.get(key, [])
+	if not thresholds_var is Array:
+		return 0
+	var count := 0
+	for threshold in thresholds_var:
+		if _sig_skill_level() >= int(threshold):
+			count += 1
+	return count
+
+func _active_skill_cooldown(active: Dictionary) -> float:
+	var base := float(active.get("cooldown", 16.0))
+	var reduction := clampf(float(active.get("sig_level_cooldown_reduction", 0.0)) * float(_sig_skill_level()), 0.0, 0.35)
+	return maxf(4.0, base * (1.0 - reduction))
+
+func _active_skill_status_scale(active: Dictionary) -> float:
+	return 1.0 + float(active.get("sig_level_status_bonus", 0.0)) * float(_sig_skill_level())
 
 func _active_skill_duration(active: Dictionary, fallback: float) -> float:
 	var base := float(active.get("duration", fallback))
 	var rank_bonus := float(active.get("rank_duration_bonus", 0.0)) * float(_growth_rank(character_level))
 	var level_bonus := float(active.get("level_duration_growth", 0.0)) * float(maxi(character_level - 1, 0))
-	return maxf(fallback, base + rank_bonus + level_bonus)
+	var sig_bonus := float(active.get("sig_level_duration_bonus", 0.0)) * float(_sig_skill_level())
+	return maxf(fallback, base + rank_bonus + level_bonus + sig_bonus)
 
 func _vanguard_railvolley_count(active: Dictionary) -> int:
 	var base := int(active.get("base_volleys", 5))
 	var rank_bonus := int(active.get("rank_extra_volleys", 0)) * _growth_rank(character_level)
 	var max_extra := int(active.get("max_extra_volleys", rank_bonus))
-	return maxi(base + mini(rank_bonus, max_extra), base)
+	var sig_bonus := _sig_level_steps(active, "sig_level_extra_volley_every")
+	return maxi(base + mini(rank_bonus, max_extra) + sig_bonus, base)
+
+func _vanguard_railvolley_target_count(active: Dictionary) -> int:
+	return 3 + _sig_level_steps(active, "sig_level_extra_target_every")
 
 func _vanguard_railvolley_fire_rate_mult(active: Dictionary) -> float:
 	var base := float(active.get("barrage_fire_rate_mult", 1.25))
@@ -1649,12 +1714,14 @@ func _blaze_meltdown_radius(active: Dictionary) -> float:
 	var base := float(active.get("radius", 260.0))
 	var level_bonus := base * float(active.get("level_radius_growth", 0.0)) * float(maxi(character_level - 1, 0))
 	var rank_bonus := float(active.get("rank_radius_bonus", 24.0)) * float(_growth_rank(character_level))
-	return maxf(base, base + level_bonus + rank_bonus)
+	var sig_bonus := base * float(active.get("sig_level_radius_bonus", 0.0)) * float(_sig_skill_level())
+	return maxf(base, base + level_bonus + rank_bonus + sig_bonus)
 
 func _blaze_meltdown_pulse_count(active: Dictionary) -> int:
 	var base := int(active.get("base_pulses", 4))
 	var rank_bonus := int(active.get("rank_extra_pulses", 0)) * _growth_rank(character_level)
-	return clampi(base + rank_bonus, base, 7)
+	var sig_bonus := _sig_level_threshold_count(active, "sig_level_extra_pulse_levels")
+	return clampi(base + rank_bonus + sig_bonus, base, 9)
 
 func _frost_glacier_duration(active: Dictionary) -> float:
 	return _active_skill_duration(active, FROST_GLACIER_MIN_DURATION)
@@ -1665,7 +1732,8 @@ func _frost_glacier_field_y(_active: Dictionary) -> float:
 func _frost_glacier_wave_count(active: Dictionary) -> int:
 	var base := int(active.get("base_waves", 4))
 	var rank_bonus := int(active.get("rank_extra_waves", 0)) * _growth_rank(character_level)
-	return clampi(base + rank_bonus, base, 7)
+	var sig_bonus := _sig_level_threshold_count(active, "sig_level_extra_wave_levels")
+	return clampi(base + rank_bonus + sig_bonus, base, 9)
 
 func _frost_glacier_slow_bonus(active: Dictionary) -> float:
 	var level_bonus := float(active.get("level_slow_bonus_growth", 0.0)) * float(maxi(character_level - 1, 0))
@@ -1676,17 +1744,20 @@ func _frost_glacier_speed_factor(active: Dictionary, is_boss: bool) -> float:
 	var base := FROST_GLACIER_BOSS_SPEED if is_boss else FROST_GLACIER_NORMAL_SPEED
 	var rank_bonus := float(active.get("rank_slow_bonus", 0.0)) * float(_growth_rank(character_level)) * 0.35
 	var level_bonus := float(active.get("level_slow_bonus_growth", 0.0)) * float(maxi(character_level - 1, 0)) * 0.45
+	var sig_bonus := float(active.get("sig_level_slow_factor_bonus", 0.0)) * float(_sig_skill_level())
 	var floor_value := 0.52 if is_boss else 0.28
-	return clampf(base - rank_bonus - level_bonus, floor_value, base)
+	return clampf(base - rank_bonus - level_bonus - sig_bonus, floor_value, base)
 
 func _volt_storm_max_targets(active: Dictionary) -> int:
 	var base := int(active.get("max_targets", 6))
 	var rank_bonus := int(active.get("rank_target_bonus", 0)) * _growth_rank(character_level)
-	return maxi(base + rank_bonus, base)
+	var sig_bonus := _sig_level_steps(active, "sig_level_extra_target_every")
+	return maxi(base + rank_bonus + sig_bonus, base)
 
 func _volt_storm_strike_count(active: Dictionary, max_targets: int) -> int:
 	var rank_bonus := int(active.get("rank_extra_strikes", 0)) * _growth_rank(character_level)
-	return maxi(max_targets + 2 + rank_bonus, max_targets + 2)
+	var sig_bonus := _sig_level_steps(active, "sig_level_extra_strike_every")
+	return maxi(max_targets + 2 + rank_bonus + sig_bonus, max_targets + 2)
 
 func _player_shot_damage_multiplier() -> float:
 	var economy: Dictionary = DataLoader.get_table("economy")
@@ -1774,7 +1845,9 @@ func _apply_base_survivability() -> void:
 	hp_mult *= 1.0 + float(armor_data.get("level_hp_growth", 0.018)) * float(max(armor_level - 1, 0))
 	hp_mult *= _chip_multiplier("base_hp_mult")
 	hp_mult *= 1.0 + _pet_stat_value("base_hp_mult")
-	if loadout_power_ratio < 0.82:
+	# Early/mid campaign keeps a small accessibility cushion. Endgame is a real
+	# build check: an underpowered loadout must not gain hidden survivability.
+	if loadout_power_ratio < 0.82 and level_ordinal < 50:
 		hp_mult *= 1.08
 	base_hp_max = int(round(float(base_hp_max) * hp_mult))
 	base_hp = base_hp_max
@@ -1919,7 +1992,7 @@ func _set_pause_background_hud_hidden(hidden: bool) -> void:
 		pause_button.visible = not hidden
 	var speed_button := get_node_or_null("PauseLayer/SpeedButton") as CanvasItem
 	if speed_button != null:
-		speed_button.visible = not hidden
+		speed_button.visible = not hidden and _is_speed_button_unlocked()
 	if boss_hp_bar != null and is_instance_valid(boss_hp_bar):
 		if hidden:
 			boss_hp_bar.visible = false
@@ -2172,7 +2245,8 @@ func _update_boss_hp_bar() -> void:
 	var boss_name := DataLoader.tr_key(active_boss.data.get("name_key", "")) if active_boss.data is Dictionary else ""
 	var boss_count := _living_boss_count()
 	var count_suffix := "  x%d" % boss_count if boss_count > 1 else ""
-	boss_hp_label.text = "%s%s  %d%%" % [boss_name, count_suffix, int(round(ratio * 100.0))]
+	var weakness := _element_name(str(active_boss.data.get("weakness", "physical"))) if active_boss.data is Dictionary else ""
+	boss_hp_label.text = "%s%s · 弱%s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
 
 func _living_boss_count() -> int:
 	var count := 0
@@ -2198,7 +2272,7 @@ func _apply_safe_area() -> void:
 	var insets := _viewport_safe_insets()
 	if insets.top <= 0.0 and insets.bottom <= 0.0:
 		return
-	for path in ["Hud/TopBar", "PauseLayer/PauseButton"]:
+	for path in ["Hud/TopBar", "PauseLayer/PauseButton", "PauseLayer/SpeedButton"]:
 		if not has_node(path):
 			continue
 		var control := get_node(path) as Control
@@ -2212,20 +2286,10 @@ func _apply_safe_area() -> void:
 		control.offset_bottom -= insets.bottom
 
 func _viewport_safe_insets() -> Dictionary:
-	var viewport_size := get_viewport().get_visible_rect().size
-	if viewport_size.y <= 0.0:
-		return {"top": 0.0, "bottom": 0.0}
-	var screen_size: Vector2i = DisplayServer.screen_get_size(DisplayServer.SCREEN_OF_MAIN_WINDOW)
-	if screen_size.y <= 0:
-		return {"top": 0.0, "bottom": 0.0}
-	var safe_area: Rect2i = DisplayServer.get_display_safe_area()
-	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(DisplayServer.SCREEN_OF_MAIN_WINDOW)
-	var scale_y := viewport_size.y / float(screen_size.y)
-	var top := maxf(0.0, float(safe_area.position.y - usable_rect.position.y) * scale_y)
-	var bottom := maxf(0.0, float(usable_rect.end.y - safe_area.end.y) * scale_y)
+	var canvas_insets := UiKit.safe_area_canvas_insets(get_viewport())
 	return {
-		"top": clampf(top, 0.0, 120.0),
-		"bottom": clampf(bottom, 0.0, 120.0),
+		"top": clampf(canvas_insets.y, 0.0, 120.0),
+		"bottom": clampf(canvas_insets.w, 0.0, 120.0),
 	}
 
 func _apply_runtime_ui_styles() -> void:
@@ -2487,6 +2551,14 @@ func _update_speed_button_visual() -> void:
 	var button := get_node_or_null("PauseLayer/SpeedButton") as Button
 	if button == null:
 		return
+	var unlocked := _is_speed_button_unlocked()
+	button.visible = unlocked and not paused
+	button.disabled = not unlocked
+	button.tooltip_text = (
+		"战斗加速：1X / 2X / 5X"
+		if battle_speed_progress_level >= SettingsManager.BATTLE_SPEED_5X_LEVEL
+		else "战斗加速：最高 2X（第50关解锁 5X）"
+	)
 	var boosted := battle_speed > 1.0
 	button.text = "%dX" % int(round(battle_speed))
 	# 直接复用 icon_frame 贴图，但用比 icon_frame_texture_style() 默认更小的
@@ -2500,12 +2572,17 @@ func _update_speed_button_visual() -> void:
 	button.add_theme_color_override("font_color", UiKit.GOLD if boosted else UiKit.TEXT_MAIN)
 
 func _cycle_battle_speed() -> void:
-	battle_speed = SettingsManager.cycle_battle_speed()
+	if not _is_speed_button_unlocked():
+		return
+	battle_speed = SettingsManager.cycle_battle_speed(battle_speed_progress_level)
 	Engine.time_scale = battle_speed
 	if hit_stop != null and is_instance_valid(hit_stop):
 		hit_stop.target_scale = battle_speed
 	_update_speed_button_visual()
 	AudioManager.play_sfx("ui_click")
+
+func _is_speed_button_unlocked() -> bool:
+	return SettingsManager.is_battle_speed_unlocked(battle_speed_progress_level)
 
 func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top: float, fill_height: float, font_size: int) -> void:
 	var bar := get_node_or_null(path) as Control
@@ -2687,22 +2764,15 @@ func _setup_pause_overlay_layout() -> void:
 	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 160.0, 0.34)
 	var overlay := $Hud/PauseOverlay as Control
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	var scrim := overlay.get_node_or_null("Scrim") as ColorRect
-	if scrim == null:
-		scrim = ColorRect.new()
-		scrim.name = "Scrim"
-		overlay.add_child(scrim)
-		overlay.move_child(scrim, 0)
+	var scrim := $Hud/PauseOverlay/Dim as TextureRect
+	scrim.visible = true
 	scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scrim.offset_left = 0.0
 	scrim.offset_top = 0.0
 	scrim.offset_right = 0.0
 	scrim.offset_bottom = 0.0
-	scrim.color = Color(0.0, 0.0, 0.0, 0.68)
+	scrim.modulate = Color(0.0, 0.0, 0.0, 0.68)
 	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := $Hud/PauseOverlay/Dim as Control
-	dim.visible = false
-	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var panel := $Hud/PauseOverlay/Panel as Panel
 	panel.offset_left = 54.0
 	panel.offset_top = 156.0 + modal_shift
@@ -2830,6 +2900,17 @@ func _setup_wave_toast_banner() -> void:
 	wave_toast_label.add_theme_constant_override("shadow_offset_y", 3)
 	banner.add_child(wave_toast_label)
 	wave_toast_banner = banner
+	wave_toast_banner.position = _wave_toast_target_position()
+
+func _wave_toast_target_position() -> Vector2:
+	var banner_size := WAVE_TOAST_SIZE
+	if wave_toast_banner != null and is_instance_valid(wave_toast_banner):
+		banner_size = wave_toast_banner.size
+	var target_y := WAVE_TOAST_BASE_POSITION.y
+	var top_bar := get_node_or_null("Hud/TopBar") as Control
+	if top_bar != null:
+		target_y = maxf(target_y, top_bar.offset_bottom + 22.0)
+	return Vector2((1080.0 - banner_size.x) * 0.5, target_y)
 
 func _wave_toast_band_texture() -> GradientTexture2D:
 	# 暗色椭圆光带：中心较实、四周淡出到全透明，横向拉伸后是柔和的横条，无硬边
@@ -2925,6 +3006,7 @@ func _start_next_wave() -> void:
 	_show_wave_tip(wave)
 	if wave.has("boss"):
 		AudioManager.play_bgm("boss")
+		SettingsManager.pulse_haptic("heavy")
 		var boss_id: String = wave.get("boss", "boss_tank_titan")
 		AudioManager.play_sfx(_boss_intro_sfx(boss_id), 1.5, 0.015)
 		_show_screen_flash(Color(1.0, 0.18, 0.08, 0.22), 0.22)
@@ -3041,20 +3123,47 @@ func _late_wave_hp_bonus(current_wave: int, is_boss_enemy: bool, economy: Dictio
 		base = float(table.get(current_wave, fallback.get(current_wave, 1.0)))
 	if current_wave >= 3:
 		base *= _late_wave_level_ramp_mult(economy)
+		base *= run_skill_hp_pressure_mult
 	return base
 
 func _late_wave_level_ramp_mult(economy: Dictionary) -> float:
 	var rule_var = economy.get("late_wave_level_ramp", DEFAULT_LATE_WAVE_LEVEL_RAMP)
 	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_LATE_WAVE_LEVEL_RAMP
-	var start_level := float(rule.get("start_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("start_level", 45)))
-	var full_level := float(rule.get("full_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("full_level", 85)))
-	var max_mult := float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("max_mult", 1.22)))
+	var start_level := float(rule.get("start_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("start_level", 50)))
+	var full_level := float(rule.get("full_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("full_level", 98)))
+	var max_mult := float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("max_mult", 1.80)))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("curve_power", 1.0))))
 	if float(level_ordinal) < start_level:
 		return 1.0
-	if full_level <= start_level:
-		return max_mult
-	var t := clampf((float(level_ordinal) - start_level) / (full_level - start_level), 0.0, 1.0)
-	return lerpf(1.0, max_mult, t)
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(level_ordinal) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("final_level", 99)))
+	if level_ordinal >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP.get("final_mult", 1.20))))
+	return ramp_mult
+
+func _late_wave_damage_ramp_mult(economy: Dictionary) -> float:
+	var rule_var = economy.get("late_wave_damage_ramp", DEFAULT_LATE_WAVE_DAMAGE_RAMP)
+	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_LATE_WAVE_DAMAGE_RAMP
+	var start_wave := int(rule.get("start_wave", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("start_wave", 3)))
+	if wave_index < start_wave:
+		return 1.0
+	var start_level := float(rule.get("start_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("start_level", 50)))
+	var full_level := float(rule.get("full_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("full_level", 98)))
+	var max_mult := float(rule.get("max_mult", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("max_mult", 2.0)))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("curve_power", 1.0))))
+	if float(level_ordinal) < start_level:
+		return 1.0
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(level_ordinal) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("final_level", 99)))
+	if level_ordinal >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_DAMAGE_RAMP.get("final_mult", 1.15))))
+	return ramp_mult
 
 func _boss_level_hp_bonus(current_level: int, is_boss_enemy: bool, economy: Dictionary) -> float:
 	if not is_boss_enemy:
@@ -3088,7 +3197,12 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var speed_mult := float(economy.get("ENEMY_SPEED_MULT", 1.0))
 	if is_boss:
 		speed_mult *= float(economy.get("BOSS_SPEED_MULT", 1.0))
+	if wave_index >= 3:
+		speed_mult *= run_skill_speed_pressure_mult
+	if is_challenge_mode:
+		speed_mult *= _challenge_mult("speed_mult")
 	row["speed"] = float(row.get("speed", 80.0)) * speed_mult
+	row["bd_coef"] = float(row.get("bd_coef", 1.0)) * _late_wave_damage_ramp_mult(economy)
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	enemy.set_meta("reward_scale", clampf(reward_scale, 0.0, 1.0))
@@ -3098,7 +3212,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	if is_endless_mode:
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
-		hp_level_coef *= CHALLENGE_HP_MULT
+		hp_level_coef *= _challenge_mult("hp_mult", CHALLENGE_HP_MULT)
 	enemy.setup(row, hp_level_coef, is_boss)
 	if enemy.has_method("configure_attack_line"):
 		enemy.call("configure_attack_line", BREACH_Y)
@@ -3108,6 +3222,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.breached.connect(_on_enemy_breached)
 	if is_boss and (active_boss == null or not is_instance_valid(active_boss)):
 		active_boss = enemy
+	if is_boss:
+		battle_last_boss_id = enemy_id
 	$EnemyLayer.add_child(enemy)
 	$ThreatMarkerLayer.add_child(enemy.threat_marker)
 	enemy.tree_exiting.connect(_on_enemy_tree_exiting.bind(enemy))
@@ -3224,7 +3340,7 @@ func _enemy_mechanic_timer_ready(source: Node, key: String, delta: float, interv
 
 func _enemy_skill_damage(source: Node, scale: float, minimum := 1.0) -> int:
 	var raw := maxf(minimum, float(source.breach_damage) * scale)
-	return maxi(0, int(ceil(raw * breach_damage_mult)))
+	return maxi(0, int(ceil(raw * breach_damage_mult * _challenge_mult("breach_damage_mult"))))
 
 func _base_line_y() -> float:
 	return BREACH_Y
@@ -3275,6 +3391,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	var impact_position := _base_damage_impact_position(target_position.x)
 	var final_damage := maxi(0, damage)
 	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * MAX_BASE_HIT_FRACTION))))  # 防秒杀
+	var preventable_damage := final_damage
 	var shield_absorbed := false
 	if final_damage > 0 and breach_shields + skill_barriers_left > 0:
 		if breach_shields > 0:
@@ -3286,6 +3403,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	if is_instance_valid(source):
 		_spawn_breach_attack_vfx(source, shield_absorbed)
 	if shield_absorbed:
+		battle_base_damage_prevented += preventable_damage
 		_spawn_barrier_break_vfx(impact_position)
 		_update_barrier_visual()
 		_spawn_float_text(impact_position, "格挡", Color(0.64, 0.9, 1.0))
@@ -3293,6 +3411,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	if final_damage <= 0:
 		return
 	base_hp = max(base_hp - final_damage, 0)
+	battle_base_damage_taken += final_damage
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.12)
 	_spawn_float_text(impact_position, "-%d %s" % [final_damage, label], color)
 	_check_low_hp_warning()
@@ -3568,12 +3687,22 @@ func _process_boss_phase_feedback(source: Node) -> void:
 		source.set_meta("armor_break_announced", true)
 		_announce_boss_phase(source, "护甲破裂", Color(1.0, 0.42, 0.22, 1.0))
 	var hp_ratio: float = float(source.hp) / float(source.max_hp)
-	if hp_ratio <= 0.34 and not source.has_meta("boss_phase_3_announced"):
-		source.set_meta("boss_phase_3_announced", true)
-		_announce_boss_phase(source, "三阶段狂暴", Color(1.0, 0.18, 0.12, 1.0))
-	elif hp_ratio <= 0.67 and not source.has_meta("boss_phase_2_announced"):
-		source.set_meta("boss_phase_2_announced", true)
-		_announce_boss_phase(source, "进入二阶段", Color(1.0, 0.72, 0.24, 1.0))
+	var cues: Array = source.data.get("phase_cues", []) if source.data is Dictionary else []
+	if cues.is_empty():
+		cues = [
+			{"threshold": 0.67, "text": "进入二阶段", "color": "ffb83d"},
+			{"threshold": 0.34, "text": "三阶段狂暴", "color": "ff2e1f"},
+		]
+	for index in range(cues.size() - 1, -1, -1):
+		var cue_var: Variant = cues[index]
+		if not cue_var is Dictionary:
+			continue
+		var cue: Dictionary = cue_var
+		var meta_key := "boss_phase_cue_%d_announced" % index
+		if hp_ratio <= float(cue.get("threshold", 0.0)) and not source.has_meta(meta_key):
+			source.set_meta(meta_key, true)
+			_announce_boss_phase(source, str(cue.get("text", "阶段转换")), Color.from_string(str(cue.get("color", "ffb83d")), Color(1.0, 0.72, 0.24, 1.0)))
+			break
 
 func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 	if not is_instance_valid(source):
@@ -3830,6 +3959,7 @@ func _spawn_pet() -> void:
 	pet_sprite.position = _pet_anchor_position()
 	pet_sprite.scale = Vector2(0.26, 0.26) * _visual_level_scale(pet_level)
 	pet_sprite.modulate = Color.WHITE
+	pet_sprite.z_index = DEFENSE_ACTOR_Z
 	add_child(pet_sprite)
 	_load_pet_animation_frames(str(pet_data.get("sprite", "")))
 	_attach_growth_badge(pet_sprite, pet_level, Vector2(-88, -152))
@@ -3842,6 +3972,7 @@ func _spawn_character() -> void:
 	character_rig.name = "CharacterRig"
 	character_rig.process_mode = Node.PROCESS_MODE_PAUSABLE
 	character_rig.position = CHARACTER_BASE_POSITION
+	character_rig.z_index = DEFENSE_ACTOR_Z
 	add_child(character_rig)
 
 	character_sprite = Sprite2D.new()
@@ -4297,6 +4428,12 @@ func _scaled_vfx_budget(base_limit: int, priority: bool) -> int:
 	var scale := 1.0
 	if SettingsManager.get_quality() == "battery":
 		scale *= 0.62 if priority else 0.48
+	if SettingsManager.reduced_effects_enabled():
+		scale *= 0.82 if priority else 0.68
+	if battle_speed >= 4.5:
+		scale *= 0.64 if priority else 0.42
+	elif battle_speed >= 1.5:
+		scale *= 0.82 if priority else 0.66
 	var enemy_count := $EnemyLayer.get_child_count() if has_node("EnemyLayer") else 0
 	if enemy_count >= 100:
 		scale *= 0.72 if priority else 0.54
@@ -4305,7 +4442,8 @@ func _scaled_vfx_budget(base_limit: int, priority: bool) -> int:
 	return maxi(18 if priority else 12, int(round(float(base_limit) * scale)))
 
 func _can_spawn_float_text(priority := false) -> bool:
-	return _transient_fx_count($Hud, "float_text") < (MAX_PRIORITY_FLOAT_TEXTS if priority else MAX_FLOAT_TEXTS)
+	var base_limit := MAX_PRIORITY_FLOAT_TEXTS if priority else MAX_FLOAT_TEXTS
+	return _transient_fx_count($Hud, "float_text") < _scaled_vfx_budget(base_limit, priority)
 
 func _transient_fx_count(parent: Node, bucket: String) -> int:
 	var count := 0
@@ -6546,6 +6684,9 @@ func _on_enemy_tree_exiting(enemy: Node) -> void:
 		enemy.threat_marker.queue_free()
 
 func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
+	battle_kills += 1
+	if bool(reward.get("boss", false)):
+		battle_boss_kills += 1
 	var death_sfx := _zombie_mechanic_sfx(str(enemy.get("mechanic"))) if is_instance_valid(enemy) else ""
 	if death_sfx != "":
 		AudioManager.play_sfx(death_sfx, -9.0, 0.025)
@@ -6585,6 +6726,13 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	_try_show_xp_card_offer(enemy)
 
 func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool) -> void:
+	var applied := maxf(amount, 0.0)
+	battle_damage_total += applied
+	battle_damage_by_element[element] = float(battle_damage_by_element.get(element, 0.0)) + applied
+	if crit_hit:
+		battle_crit_damage += applied
+	if weak_hit:
+		battle_weak_damage += applied
 	if damage_numbers and is_instance_valid(enemy):
 		damage_numbers.spawn_damage(enemy.global_position + Vector2(0, -34 if not bool(enemy.boss) else -76), amount, element, crit_hit, weak_hit)
 	# crit-only screen shake (light) and hit stop (very short)
@@ -6631,6 +6779,7 @@ func _trigger_kill_hit_stop(is_boss: bool) -> void:
 func _process_kill_feedback(enemy: Node, reward: Dictionary) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	kill_streak = kill_streak + 1 if now - last_kill_at <= 1.35 else 1
+	battle_max_kill_streak = maxi(battle_max_kill_streak, kill_streak)
 	last_kill_at = now
 	if not is_instance_valid(enemy):
 		return
@@ -6703,12 +6852,10 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	AudioManager.play_sfx("enemy_breach", -4.0)
 	_play_character_hurt()
 	_shake_hud(5.0, 0.1)
-	var final_damage := int(ceil(float(damage) * breach_damage_mult))
+	var final_damage := int(ceil(float(damage) * breach_damage_mult * _challenge_mult("breach_damage_mult")))
 	var max_hit_fraction := MAX_BASE_HIT_FRACTION
-	if is_challenge_mode:
-		final_damage = int(ceil(float(final_damage) * CHALLENGE_BREACH_DAMAGE_MULT))
-		max_hit_fraction = minf(0.75, MAX_BASE_HIT_FRACTION * CHALLENGE_BREACH_DAMAGE_MULT)
 	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * max_hit_fraction))))  # 防秒杀
+	var preventable_damage := final_damage
 	var shield_absorbed := false
 	if breach_shields + skill_barriers_left > 0:
 		if breach_shields > 0:
@@ -6724,7 +6871,10 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 		if shield_absorbed:
 			_spawn_barrier_break_vfx(_base_damage_impact_position(enemy.global_position.x))
 			_update_barrier_visual()
+	if shield_absorbed:
+		battle_base_damage_prevented += preventable_damage
 	base_hp = max(base_hp - final_damage, 0)
+	battle_base_damage_taken += final_damage
 	if final_damage > 0:
 		_show_screen_flash(Color(1.0, 0.05, 0.03, 0.06), 0.1)
 	_check_low_hp_warning()
@@ -6849,7 +6999,13 @@ func _finish(victory: bool) -> void:
 			"victory": false,
 			"stars": 0,
 			"gold": gold,
-			"xp": 0
+			"xp": 0,
+			"standing_power": SaveManager.get_loadout_power(),
+			"projected_power": projected_combat_power,
+			"combat_power": SaveManager.get_combat_power_for_skill_levels(skills.owned),
+			"recommended_power": recommended_combat_power,
+			"run_skill_levels": skills.owned.duplicate(true),
+			"battle_report": _build_battle_report(),
 		})
 		return
 	_show_screen_flash(Color(0.95, 0.78, 0.25, 0.18) if victory else Color(0.85, 0.0, 0.0, 0.22), 0.28)
@@ -6865,7 +7021,13 @@ func _finish(victory: bool) -> void:
 		"victory": victory,
 		"stars": stars,
 		"gold": gold + first_clear_bonus,
-		"xp": xp
+		"xp": xp,
+		"standing_power": SaveManager.get_loadout_power(),
+		"projected_power": projected_combat_power,
+		"combat_power": SaveManager.get_combat_power_for_skill_levels(skills.owned),
+		"recommended_power": recommended_combat_power,
+		"run_skill_levels": skills.owned.duplicate(true),
+		"battle_report": _build_battle_report(),
 	}
 	if is_challenge_mode:
 		result["challenge"] = true
@@ -6873,6 +7035,59 @@ func _finish(victory: bool) -> void:
 	else:
 		result["next_level"] = level.get("next_level", "")
 	router.finish_level(result)
+
+func _challenge_mult(key: String, fallback := 1.0) -> float:
+	if not is_challenge_mode:
+		return 1.0
+	return maxf(0.1, float(challenge_rule.get(key, fallback)))
+
+func _reset_battle_report() -> void:
+	battle_elapsed_seconds = 0.0
+	battle_damage_total = 0.0
+	battle_damage_by_element = {}
+	battle_crit_damage = 0.0
+	battle_weak_damage = 0.0
+	battle_kills = 0
+	battle_boss_kills = 0
+	battle_base_damage_taken = 0
+	battle_base_damage_prevented = 0
+	battle_control_seconds = 0.0
+	battle_active_skill_casts = 0
+	battle_max_kill_streak = 0
+	battle_last_boss_id = ""
+
+func _update_battle_report_control(real_delta: float) -> void:
+	var controlled := 0
+	for enemy in $EnemyLayer.get_children():
+		if is_instance_valid(enemy) and enemy.has_method("is_controlled") and enemy.is_controlled():
+			controlled += 1
+	battle_control_seconds += real_delta * float(controlled)
+
+func _build_battle_report() -> Dictionary:
+	var top_element := "physical"
+	var top_damage := -1.0
+	for element in battle_damage_by_element.keys():
+		var value := float(battle_damage_by_element.get(element, 0.0))
+		if value > top_damage:
+			top_damage = value
+			top_element = str(element)
+	return {
+		"duration_seconds": battle_elapsed_seconds,
+		"damage_total": battle_damage_total,
+		"damage_by_element": battle_damage_by_element.duplicate(true),
+		"top_element": top_element,
+		"crit_damage": battle_crit_damage,
+		"weak_damage": battle_weak_damage,
+		"kills": battle_kills,
+		"boss_kills": battle_boss_kills,
+		"base_damage_taken": battle_base_damage_taken,
+		"base_damage_prevented": battle_base_damage_prevented,
+		"control_seconds": battle_control_seconds,
+		"active_skill_casts": battle_active_skill_casts,
+		"max_kill_streak": battle_max_kill_streak,
+		"boss_id": battle_last_boss_id,
+		"challenge_rule": challenge_rule.duplicate(true) if is_challenge_mode else {},
+	}
 
 func _update_hud() -> void:
 	var hp_pct := float(base_hp) / float(base_hp_max) if base_hp_max > 0 else 0.0
@@ -7146,22 +7361,23 @@ func _show_wave_toast(text: String, color: Color) -> void:
 	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
 	if accent_line != null:
 		accent_line.modulate = Color(accent.r, accent.g, accent.b, 0.95)
+	var target_position := _wave_toast_target_position()
 	wave_toast_banner.visible = true
-	wave_toast_banner.position = WAVE_TOAST_BASE_POSITION + Vector2(0, 18)
+	wave_toast_banner.position = target_position + Vector2(0, 18)
 	wave_toast_banner.scale = Vector2(0.92, 0.92)
 	wave_toast_banner.modulate = Color(1, 1, 1, 0.0)
 	wave_toast_tween = wave_toast_banner.create_tween()
 	wave_toast_tween.tween_property(wave_toast_banner, "modulate:a", 1.0, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	wave_toast_tween.parallel().tween_property(wave_toast_banner, "position", WAVE_TOAST_BASE_POSITION, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	wave_toast_tween.parallel().tween_property(wave_toast_banner, "position", target_position, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	wave_toast_tween.parallel().tween_property(wave_toast_banner, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	wave_toast_tween.tween_interval(1.05)
+	wave_toast_tween.tween_interval(0.82)
 	wave_toast_tween.tween_property(wave_toast_banner, "modulate:a", 0.0, 0.28)
 	wave_toast_tween.parallel().tween_property(wave_toast_banner, "scale", Vector2(1.04, 1.04), 0.28)
 	wave_toast_tween.tween_callback(func() -> void:
 		wave_toast_banner.visible = false
 		wave_toast_banner.modulate.a = 1.0
 		wave_toast_banner.scale = Vector2.ONE
-		wave_toast_banner.position = WAVE_TOAST_BASE_POSITION
+		wave_toast_banner.position = target_position
 	)
 
 func _wave_toast_is_priority(text: String) -> bool:
@@ -7186,7 +7402,7 @@ func _hide_wave_toast() -> void:
 		wave_toast_banner.visible = false
 		wave_toast_banner.modulate = Color.WHITE
 		wave_toast_banner.scale = Vector2.ONE
-		wave_toast_banner.position = WAVE_TOAST_BASE_POSITION
+		wave_toast_banner.position = _wave_toast_target_position()
 	pending_wave_toast = {}
 
 func _wave_toast_font_size(text: String) -> int:
@@ -7201,6 +7417,7 @@ func _layout_wave_toast(text: String) -> void:
 	var size := WAVE_TOAST_LONG_SIZE if long_text else WAVE_TOAST_SIZE
 	wave_toast_banner.size = size
 	wave_toast_banner.pivot_offset = size * 0.5
+	wave_toast_banner.position = _wave_toast_target_position()
 	var band := wave_toast_banner.get_node_or_null("Band") as TextureRect
 	if band != null:
 		band.position = Vector2.ZERO
@@ -7268,7 +7485,7 @@ func _battle_objective_text() -> String:
 
 func _current_loadout_hits_weakness() -> bool:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
-	return str(character_data.get("element_focus", "")) == primary_weakness or str(weapon.get("element", "")) == primary_weakness or (str(chip_data.get("stat", "")) == "element_damage_mult" and primary_weakness != "physical")
+	return str(weapon.get("element", "")) == primary_weakness
 
 func _show_wave_tip(wave: Dictionary) -> void:
 	var key := "wave_%d" % wave_index
@@ -7489,7 +7706,7 @@ func _spawn_barrier_visual() -> void:
 	barrier_visual.name = "BarrierGlass"
 	barrier_visual.position = Vector2(540, _base_line_y())
 	barrier_visual.visible = false
-	barrier_visual.z_index = 7
+	barrier_visual.z_index = BARRIER_VISUAL_Z
 	$SlowFieldLayer.add_child(barrier_visual)
 
 	barrier_sprite = Sprite2D.new()
@@ -8481,10 +8698,11 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	if screen_flash_tween != null and screen_flash_tween.is_valid():
 		screen_flash_tween.kill()
 	var current_alpha := screen_flash.modulate.a
-	var alpha := minf(maxf(color.a, current_alpha), 0.14)
+	var alpha_cap := 0.055 if SettingsManager.reduced_effects_enabled() else 0.14
+	var alpha := minf(maxf(color.a, current_alpha), alpha_cap)
 	screen_flash.modulate = Color(color.r, color.g, color.b, alpha)
 	screen_flash_tween = screen_flash.create_tween()
-	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration)
+	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration * (0.62 if SettingsManager.reduced_effects_enabled() else 1.0))
 
 func _apply_level_background() -> void:
 	var background := get_node_or_null("Background") as Sprite2D

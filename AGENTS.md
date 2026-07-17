@@ -14,7 +14,7 @@ Fixed bottom turret. Enemies push down from the top toward the base line. Auto f
 ## Golden rules (do not violate without explicit owner approval)
 
 1. Do NOT expand scope. Current scope is the expanded build (99 levels, 4 characters, 8 weapons, armor/chip/pet, 20 zombies, 8 bosses, 16 skills, collection + star-gated unlocks). Treat new work as verify / tune / bugfix / polish unless told otherwise.
-2. Keep the core form: Godot 4 + GDScript, 1080×1920 vertical, stretch `canvas_items` aspect `keep`, fixed bottom turret defense. Never turn it into a free-moving top-down shooter.
+2. Keep the core form: Godot 4 + GDScript, 1080×1920 vertical, stretch `canvas_items` aspect `expand`, fixed bottom turret defense. `expand` is required for tall iPhones so the battlefield fills the display without black bars. Never turn it into a free-moving top-down shooter.
 3. Data-driven. Content lives in `data/*.json` — never hardcode content lists in gameplay code when JSON exists. Keep `design/data/schema.md` and `design/data/naming_convention.md` aligned with any data/naming change.
 4. Assets: prefer the existing pack under `assets/production/`. Generated replacements are allowed only when quality requires or the owner asks; keep IDs/data refs/paths, match the locked visual style, store source prompts under `assets/production/source_refs/generated/`, and register in `assets/production/OUTSOURCER_ASSET_INDEX.json`. If an asset seems missing: report the exact path/ID and stop.
 5. Never leave a level unwinnable. Physical-immunity bosses need an armor-break/weakness path (M1 boss = `boss_tank_titan`, M1 weapon = physical `weapon_autocannon`).

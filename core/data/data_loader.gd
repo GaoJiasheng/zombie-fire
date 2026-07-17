@@ -3,6 +3,7 @@ extends Node
 const TABLES := [
 	"elements",
 	"economy",
+	"challenges",
 	"characters",
 	"weapons",
 	"armors",

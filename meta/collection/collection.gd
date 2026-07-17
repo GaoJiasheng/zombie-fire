@@ -9,6 +9,9 @@ const ACTION_DISABLED_MODULATE := Color(0.48, 0.52, 0.58, 0.86)
 const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_skin.png"
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
+const COLLECTION_CARD_WIDTH := 760.0
+const CHARACTER_LIST_BUST_Y := -4.0
+const CHARACTER_DETAIL_BUST_Y := -12.0
 
 var router: Node
 var mode := "characters"
@@ -94,6 +97,11 @@ func _refresh() -> void:
 	var table_data: Dictionary = _table()
 	for item_id: String in table_data.keys():
 		item_list.add_child(_build_item_button(item_id, table_data[item_id]))
+	var scroll_end_padding := Control.new()
+	scroll_end_padding.name = "ScrollEndPadding"
+	scroll_end_padding.custom_minimum_size = Vector2(0, 44)
+	scroll_end_padding.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	item_list.add_child(scroll_end_padding)
 
 func _refresh_resource_bar() -> void:
 	var prog := %Progress as Label
@@ -174,7 +182,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var card_height := 238.0 if spacious else 224.0
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, card_height)
+	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, card_height)
+	# ItemList expands to the safe-area width (904px at 1080). The card artwork is
+	# authored at 760px, so an expanding button left-pins every fixed-position child.
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
 	button.texture_pressed = null
@@ -210,7 +221,9 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	if mode == "characters":
 		icon.texture = null
 		icon.clip_contents = true
-		UiKit.add_character_bust(icon, row, Vector2(118, 126), 156.0, -24.0)
+		# The frameless portraits have only ~11px of transparent headroom at this
+		# scale. Keep a visible safety margin instead of cropping the hairline.
+		UiKit.add_character_bust(icon, row, Vector2(118, 126), 156.0, CHARACTER_LIST_BUST_Y)
 	else:
 		icon.texture = load(row.get("icon", row.get("portrait", "")))
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -304,7 +317,8 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var item_level := SaveManager.get_skill_base_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(760, 158)
+	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 158)
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
 	button.texture_pressed = null
@@ -830,6 +844,9 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	_detail_modal = Control.new()
 	_detail_modal.name = "ItemDetail"
 	_detail_modal.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Collection row children use z=1..3 for veils, portraits and actions. Keep the
+	# entire modal above that local stack so list text cannot punch through it.
+	_detail_modal.z_index = 64
 	_detail_modal.mouse_filter = Control.MOUSE_FILTER_STOP
 	_detail_modal.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_detail_modal)
@@ -993,8 +1010,8 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var skill_max := SaveManager.get_skill_base_max(item_id)
 		var skill_cost := SaveManager.get_skill_base_upgrade_cost(item_id)
 		var can_up := SaveManager.can_upgrade_skill_base(item_id)
-		var skill_label := ("已精通 %d/%d" % [skill_lvl, skill_max]) if skill_lvl >= skill_max else ("升级 %d经验  (%d/%d)" % [skill_cost, skill_lvl, skill_max])
-		var skill_btn := _detail_button("SkillUpgradeButton", skill_label, true)
+		var skill_label := "已精通" if skill_lvl >= skill_max else ("升级技能  %d经验" % skill_cost)
+		var skill_btn := _armored_action_button("SkillUpgradeButton", skill_label, true, true, Vector2(412, 112), 22)
 		skill_btn.disabled = not can_up
 		skill_btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 		skill_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1253,6 +1270,9 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	_detail_modal = Control.new()
 	_detail_modal.name = "CharacterDetail"
 	_detail_modal.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Character cards also own positive-z children; without an explicit modal
+	# layer those children render over the detail panel on-device.
+	_detail_modal.z_index = 64
 	_detail_modal.mouse_filter = Control.MOUSE_FILTER_STOP
 	_detail_modal.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_detail_modal)
@@ -1302,7 +1322,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.custom_minimum_size = Vector2(230, 230)
 	portrait_frame.add_child(portrait)
-	UiKit.add_character_bust(portrait, row, Vector2(230, 230), 320.0, -54.0)
+	UiKit.add_character_bust(portrait, row, Vector2(230, 230), 320.0, CHARACTER_DETAIL_BUST_Y)
 	# Name + role + tags column
 	var name_col := VBoxContainer.new()
 	name_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1452,7 +1472,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			))
 			# 专属主动技独立经验升级(此前只能被动跟着角色等级涨，玩家没法针对性投资)。
 			if is_active_skill:
-				sig_section.get_child(0).add_child(_make_sig_skill_upgrade_row(item_id))
+				sig_section.get_child(0).add_child(_make_sig_skill_upgrade_row(item_id, active_skill_id))
 
 	# === AFFINITY TAGS section ===
 	var card_affinity: Array = row.get("card_affinity_tags", [])
@@ -1661,22 +1681,32 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	return row
 
 # 专属主动技独立升级行：等级 N/5 + 花经验升级按钮，紧跟在该技能的 _make_skill_row 下面。
-func _make_sig_skill_upgrade_row(character_id: String) -> HBoxContainer:
+func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	row.custom_minimum_size = Vector2(0, 56)
+	row.custom_minimum_size = Vector2(0, 88)
 	var lvl := SaveManager.get_sig_skill_level(character_id)
 	var maxed := lvl >= SaveManager.SIG_SKILL_MAX_LEVEL
+	var text_column := VBoxContainer.new()
+	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_column.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_column.add_theme_constant_override("separation", 3)
+	row.add_child(text_column)
 	var level_label := Label.new()
 	level_label.text = "专属技能等级 %d/%d" % [lvl, SaveManager.SIG_SKILL_MAX_LEVEL]
-	level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	level_label.add_theme_font_size_override("font_size", 19)
+	level_label.add_theme_font_size_override("font_size", 20)
 	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
-	row.add_child(level_label)
+	text_column.add_child(level_label)
+	var growth_label := Label.new()
+	growth_label.text = CharacterSkillText.signature_level_growth(signature_id)
+	growth_label.add_theme_font_size_override("font_size", 15)
+	growth_label.add_theme_color_override("font_color", Color(0.66, 0.78, 0.84, 1))
+	growth_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text_column.add_child(growth_label)
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
 	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
-	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 72), 18)
-	btn.custom_minimum_size = Vector2(286, 72)
+	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 80), 18)
+	btn.custom_minimum_size = Vector2(286, 80)
 	btn.disabled = not can_up
 	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))

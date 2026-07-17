@@ -7,6 +7,8 @@ import math
 import random
 import shutil
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
@@ -592,9 +594,9 @@ def screenshot_source(route: str, screens_dir: Path) -> Path | None:
     candidates = {
         "battle": ["battle.png", "01_battle.png"],
         "map": ["map.png", "02_map.png"],
-        "skills": [],
+        "skills": ["skills.png", "03_skills.png"],
         "loadout": ["loadout.png", "04_loadout.png"],
-        "boss": ["battle.png", "05_boss.png"],
+        "boss": ["05_boss.png", "boss.png"],
     }
     for name in candidates.get(route, []):
         p = screens_dir / name
@@ -625,10 +627,11 @@ def draw_store_art(screen: Image.Image, target_size: tuple[int, int], headline: 
     d.text((bx + int(w * 0.028), by + int(w * 0.013)), badge, fill=(255, 198, 98), font=badge_font)
 
     phone_w = int(w * (0.72 if w < 1600 else 0.58))
-    phone_h = int(phone_w * 1920 / 1080)
+    source_aspect = screen.height / max(screen.width, 1)
+    phone_h = int(phone_w * source_aspect)
     if phone_h > int(h * 0.67):
         phone_h = int(h * 0.67)
-        phone_w = int(phone_h * 1080 / 1920)
+        phone_w = int(phone_h / source_aspect)
     phone_x = (w - phone_w) // 2
     phone_y = int(h * 0.29)
     shadow = Image.new("RGBA", target_size, (0, 0, 0, 0))
@@ -659,18 +662,18 @@ def generate_store_screens(screens_dir: Path) -> None:
     sizes = {
         "ios_65": (1242, 2688),
         "ios_67": (1290, 2796),
-        "ipad_129": (2048, 2732),
     }
     route_images: dict[str, Image.Image] = {}
     for route, *_ in routes:
-        if route == "skills":
-            route_images[route] = make_runtime_skill_cards((1080, 1920))
+        src = screenshot_source(route, screens_dir)
+        if src is None:
+            route_images[route] = (
+                make_runtime_skill_cards((1080, 1920))
+                if route == "skills"
+                else cover_image(APP_DIR / "launch_1080x1920.png", (1080, 1920))
+            )
         else:
-            src = screenshot_source(route, screens_dir)
-            if src is None:
-                route_images[route] = cover_image(APP_DIR / "launch_1080x1920.png", (1080, 1920))
-            else:
-                route_images[route] = Image.open(src).convert("RGB")
+            route_images[route] = Image.open(src).convert("RGB")
     for folder, size in sizes.items():
         out_dir = STORE_DIR / folder
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -687,53 +690,8 @@ def generate_store_screens(screens_dir: Path) -> None:
 
 
 def make_preview_video(screens_dir: Path) -> None:
-    frame_dir = OUT_DIR / "preview_frames"
-    if frame_dir.exists():
-        shutil.rmtree(frame_dir)
-    frame_dir.mkdir(parents=True)
-    frames: list[Image.Image] = []
-    sources = [
-        APP_DIR / "launch_1080x1920.png",
-        screenshot_source("battle", screens_dir),
-        screenshot_source("map", screens_dir),
-        None,
-        screenshot_source("loadout", screens_dir),
-        screenshot_source("boss", screens_dir),
-    ]
-    for src in sources:
-        if src is None:
-            frames.append(make_runtime_skill_cards((1080, 1920)))
-        else:
-            frames.append(cover_image(Path(src), (1080, 1920)))
-    fps = 24
-    total_per = fps * 3
-    idx = 0
-    for i, im in enumerate(frames):
-        for f in range(total_per):
-            t = f / max(1, total_per - 1)
-            zoom = 1.0 + 0.025 * t
-            sw, sh = int(1080 / zoom), int(1920 / zoom)
-            crop = im.crop(((1080 - sw) // 2, (1920 - sh) // 2, (1080 + sw) // 2, (1920 + sh) // 2)).resize((1080, 1920), Image.Resampling.LANCZOS).convert("RGBA")
-            if i > 0 and f < 10:
-                prev = frames[i - 1].resize((1080, 1920), Image.Resampling.LANCZOS).convert("RGBA")
-                crop = Image.blend(prev, crop, f / 10)
-            crop.convert("RGB").save(frame_dir / f"frame_{idx:04d}.png")
-            idx += 1
-    output = VIDEO_DIR / "vid_app_preview.mp4"
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-framerate",
-        str(fps),
-        "-i",
-        str(frame_dir / "frame_%04d.png"),
-        "-vf",
-        "format=yuv420p",
-        "-movflags",
-        "+faststart",
-        str(output),
-    ]
-    subprocess.run(cmd, cwd=ROOT, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    _ = screens_dir
+    subprocess.run([sys.executable, str(ROOT / "tools/build_app_preview.py")], cwd=ROOT, check=True)
 
 
 def make_contact_sheet() -> None:
@@ -805,12 +763,12 @@ def update_index() -> None:
             "derived": "source_refs/generated/final_p0_replacement_contact_sheet_2026_07_01.png",
             "reason": "Owner approved P0 App Store screenshot draft regeneration after UI final-art pass.",
         },
-        {
-            "path": "video/vid_app_preview.mp4",
-            "source": "source_refs/generated/final_p0_ui_store_spec_2026_07_01.json",
-            "derived": "video/vid_app_preview.mp4",
-            "reason": "Owner approved replacing the 2-second placeholder app preview with a rendered 18-second vertical preview draft from current game screens.",
-        },
+		{
+			"path": "video/vid_app_preview.mp4",
+			"source": "video/vid_app_preview_provenance.json",
+			"derived": "video/vid_app_preview.mp4",
+			"reason": "Launch App Preview rebuilt as an 18-second live Godot runtime capture with real combat, card choice, boss phase, active skill, and game audio.",
+		},
     ]
     existing = {entry.get("path") for entry in overrides}
     for entry in entries:

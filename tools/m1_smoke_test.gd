@@ -99,6 +99,8 @@ func _initialize() -> void:
 	_expect(absf(fire_rate_mult - 0.25) <= 0.001, "initial player fire rate must use the retuned +50% paced value")
 	_expect(absf(fire_rate_mult * shot_damage_mult - 0.75) <= 0.005, "fire-rate retune must preserve the intended shot damage product")
 	_verify_progression_unlock_repair(save_manager)
+	await _verify_battle_speed_progression_gate(save_manager)
+	await _verify_battle_speed_stress(save_manager)
 	_verify_power_skill_level_accounting(save_manager)
 	_verify_manual_aim_input(input_manager)
 	_verify_targeting_frontline_priority()
@@ -108,6 +110,7 @@ func _initialize() -> void:
 	_verify_ammo_element_rules(save_manager)
 	await _verify_feedback_budget_guards()
 	await _verify_late_wave_count_multipliers(data_loader, save_manager)
+	await _verify_endgame_pressure_ramp(data_loader, save_manager)
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
 	_verify_projectile_visual_profiles()
@@ -209,6 +212,7 @@ func _initialize() -> void:
 	_expect(main.current_scene.name == "Collection", "main must route to character collection")
 	var character_item: Node = main.current_scene.find_child("ItemList", true, false).get_child(0)
 	_expect(character_item is TextureButton, "character collection rows must use styled texture buttons")
+	_expect((character_item as Control).size_flags_horizontal == Control.SIZE_SHRINK_CENTER, "character collection rows must center their fixed-width artwork inside the safe-area list")
 	_expect((character_item as Control).clip_contents, "character collection rows must clip portrait content")
 	_expect((character_item as Control).custom_minimum_size.y >= 128.0, "character collection rows must be tall enough for portraits")
 	_expect(character_item.has_node("Icon"), "character collection rows must render a bounded portrait")
@@ -220,11 +224,16 @@ func _initialize() -> void:
 	_expect(character_bust != null and character_bust.texture != null, "character collection portrait must render a bust image")
 	_expect(str(character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "character collection portrait must use frameless 正脸立绘")
 	_expect(character_bust.size.y > character_icon.size.y, "character collection portrait must be zoomed and cropped")
+	_expect(character_bust.position.y >= -4.0, "character collection portrait must preserve headroom, got y=%s" % str(character_bust.position.y))
 	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
 	character_item.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.has_node("CharacterDetail"), "character row click must open character detail")
 	var character_detail: Node = main.current_scene.get_node("CharacterDetail")
+	_expect((character_detail as Control).z_index >= 64, "character detail must render above positive-z collection row children")
+	var detail_portrait := character_detail.find_child("PortraitClip", true, false) as TextureRect
+	var detail_bust := detail_portrait.get_node_or_null("BustImage") as TextureRect if detail_portrait != null else null
+	_expect(detail_bust != null and detail_bust.position.y >= -12.0, "character detail portrait must preserve headroom")
 	var character_close := character_detail.find_child("CloseButton", true, false) as Button
 	_expect(character_close != null, "character detail top close must be a compact button")
 	_expect(character_close.text == "×", "character detail top close must use an icon-only x")
@@ -251,6 +260,7 @@ func _initialize() -> void:
 	_expect(skill_list != null and skill_list.get_child_count() >= 16, "skill collection must render the skill codex")
 	var skill_item: Node = skill_list.get_child(0)
 	_expect(skill_item is TextureButton, "skill collection rows must use clickable texture buttons")
+	_expect((skill_item as Control).size_flags_horizontal == Control.SIZE_SHRINK_CENTER, "skill collection rows must center their fixed-width artwork inside the safe-area list")
 	_expect(skill_item.has_node("SkillCard"), "skill collection rows must use one full-width visual card")
 	_expect(not skill_item.has_node("Frame"), "skill collection rows must not render the old nested inner frame")
 	var skill_card := skill_item.get_node("SkillCard") as PanelContainer
@@ -268,6 +278,7 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.has_node("ItemDetail"), "skill collection row click must open skill detail")
 	var skill_detail: Node = main.current_scene.get_node("ItemDetail")
+	_expect((skill_detail as Control).z_index >= 64, "item detail must render above positive-z collection row children")
 	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
@@ -369,6 +380,17 @@ func _initialize() -> void:
 	_expect(loadout_bust != null and loadout_bust.texture != null, "loadout hero frame must render a bust image")
 	_expect(str(loadout_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "loadout hero bust must use frameless 正脸立绘")
 	_expect(loadout_bust.size.y > loadout_character_icon.size.y, "loadout hero bust must be zoomed and cropped")
+	for character_id in ["vanguard", "blaze", "frost", "volt"]:
+		var character_row: Dictionary = data_loader.get_row("characters", character_id)
+		main.current_scene._refresh_character_bust(character_row)
+		var loadout_variant_bust := loadout_character_icon.get_node("BustImage") as TextureRect
+		var portrait_image := loadout_variant_bust.texture.get_image()
+		var opaque_bounds := portrait_image.get_used_rect()
+		var portrait_scale := loadout_variant_bust.size.x / maxf(float(portrait_image.get_width()), 1.0)
+		var visible_headroom := loadout_variant_bust.position.y + float(opaque_bounds.position.y) * portrait_scale
+		_expect(visible_headroom >= 6.0, "%s loadout portrait head must not be clipped; headroom=%.1f" % [character_id, visible_headroom])
+		_expect(visible_headroom <= 20.0, "%s loadout portrait must stay visually large; headroom=%.1f" % [character_id, visible_headroom])
+	main.current_scene._refresh_character_bust(data_loader.get_row("characters", save_manager.get_selected("character")))
 	_expect(main.current_scene.find_child("GrowthBadge", true, false) != null, "loadout must show visible growth tier")
 	_expect(main.current_scene.has_node("GearBadges"), "loadout must summarize gear levels")
 	_expect(main.current_scene.has_node("EquipNav"), "loadout must expose equipment navigation")
@@ -384,7 +406,12 @@ func _initialize() -> void:
 	_expect(main.current_scene.get_node("CharacterSelectBar").get_child_count() >= 4, "loadout character bar must render direct portrait buttons")
 	_expect(main.current_scene.find_child("GearIconRow", true, false).get_child_count() == 3, "loadout gear row must render armor/chip/pet icons")
 	_expect(main.current_scene.get_node("SignatureCards").get_child_count() >= 3, "loadout must show passive and two signature previews")
+	var loadout_details := main.current_scene.find_child("DetailsPanel", true, false) as Control
+	var loadout_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
+	var loadout_action_gap := loadout_start.get_global_rect().position.y - (loadout_details.get_global_rect().position.y + loadout_details.get_global_rect().size.y)
+	_expect(loadout_action_gap >= 50.0, "loadout bottom action must keep a clear gap below the tactical summary")
 	_expect(main.current_scene.get_node("Summary").text.contains("001 城市缺口"), "loadout must show player-facing level name")
+	_expect(main.current_scene.get_node("Summary").text.contains("预计成型"), "loadout must distinguish standing and projected in-run combat power")
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
 	_expect(main.current_scene.get_node("Summary").text.contains("五波") or main.current_scene.get_node("Objective").text.contains("五波"), "loadout copy must mention five-wave pacing")
 	_expect(main.current_scene.get_node("EquipNav").get_child_count() >= 5, "loadout must link to all equipment categories")
@@ -596,13 +623,38 @@ func _initialize() -> void:
 
 	var result := _instance("res://meta/result/result.tscn")
 	root.add_child(result)
-	result.setup(router, {"level_id": "level_001", "victory": true, "stars": 3, "gold": 120, "xp": 12})
+	result.setup(router, {
+		"level_id": "level_001", "victory": true, "stars": 3, "gold": 120, "xp": 12,
+		"battle_report": {
+			"duration_seconds": 95.0, "damage_total": 12800.0,
+			"damage_by_element": {"fire": 9600.0}, "top_element": "fire",
+			"crit_damage": 3200.0, "weak_damage": 4800.0, "kills": 42,
+			"boss_kills": 1, "base_damage_taken": 12, "base_damage_prevented": 8,
+			"control_seconds": 6.5, "active_skill_casts": 3, "max_kill_streak": 11,
+		}
+	})
 	await process_frame
+	await process_frame
+	var result_content := result.get_node("Content") as Control
+	var result_rect := result_content.get_global_rect()
+	var result_center_y := result_rect.position.y + result_rect.size.y * 0.5
+	_expect(absf(result_center_y - (root.size.y * 0.5 + result.RESULT_VISUAL_NUDGE_Y)) <= 36.0, "result stack must be visually centered on iPhone canvas; center=%.1f" % result_center_y)
+	_expect(result_rect.position.y >= 0.0 and result_rect.end.y <= root.size.y, "result stack must remain fully visible after centering")
 	_expect(result.get_node("Content/HeroCard/HeroBox/LevelName").text.contains("001 城市缺口"), "result must show player-facing level name")
 	_expect(not result.get_node("Content/HeroCard/HeroBox/LevelName").text.contains("level_001"), "result must not expose internal level id")
 	_expect(result.get_node("Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue").text.contains("120"), "result gold card must show earned gold")
 	_expect(result.get_node("Content/RewardRow/XpCard/XpBox/XpVBox/XpValue").text.contains("12"), "result xp card must show earned xp")
 	_expect(result.get_node("Content/HintCard/HintBox/Hint").text != "", "result must show next action hint")
+	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
+	_expect(result.get_node("Content/ReportPanel/ReportBox/Overview").text.contains("1:35"), "battle report must format combat duration")
+	_expect(result.get_node("Content/ReportPanel/ReportBox/Output").text.contains("火焰"), "battle report must show dominant damage element")
+	result._on_report_pressed()
+	await process_frame
+	await process_frame
+	_expect(result.get_node("Content/ReportPanel").visible, "battle report button must expand report details")
+	var expanded_rect := result_content.get_global_rect()
+	_expect(expanded_rect.position.y >= 0.0 and expanded_rect.end.y <= root.size.y, "expanded battle report must remain inside the iPhone canvas")
+	result._on_report_pressed()
 	_expect(result.has_node("Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel"), "result must expose recommended upgrade action")
 	_expect(result.get_node("Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel").text != "", "result upgrade action must be labelled")
 	_expect(result.has_node("Content/Actions/NextButton"), "result must expose next button")
@@ -709,10 +761,11 @@ func _verify_level20_boss_hp_modes(router: Node, data_loader: Node) -> void:
 	await physics_frame
 	challenge_battle.wave_index = 5
 	var challenge_boss: Node = challenge_battle._spawn_enemy_instance(boss_id, Vector2(540, 190), true)
-	var expected_challenge_hp := expected_normal_hp * float(challenge_battle.CHALLENGE_HP_MULT)
+	var challenge_hp_mult := float(challenge_battle._challenge_mult("hp_mult", challenge_battle.CHALLENGE_HP_MULT))
+	var expected_challenge_hp := expected_normal_hp * challenge_hp_mult
 	var challenge_boss_hp := float(challenge_boss.max_hp)
 	_expect(absf(challenge_boss_hp - expected_challenge_hp) <= maxf(1.0, expected_challenge_hp * 0.001), "challenge level_020 boss must stack 2.0x boss HP and challenge HP; got %.1f expected %.1f" % [challenge_boss_hp, expected_challenge_hp])
-	_expect(absf(challenge_boss_hp / maxf(normal_boss_hp, 1.0) - float(challenge_battle.CHALLENGE_HP_MULT)) <= 0.01, "challenge boss HP must be normal boss HP * challenge multiplier")
+	_expect(absf(challenge_boss_hp / maxf(normal_boss_hp, 1.0) - challenge_hp_mult) <= 0.01, "challenge boss HP must be normal boss HP * chapter challenge multiplier")
 	challenge_boss.queue_free()
 	challenge_battle.queue_free()
 	await process_frame
@@ -738,6 +791,12 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var test_save: Dictionary = _battle_smoke_loadout(snapshot)
 	var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
+	var levels: Array = unlocks.get("levels", []).duplicate()
+	for level_no in range(1, 51):
+		var level_id := "level_%03d" % level_no
+		if not levels.has(level_id):
+			levels.append(level_id)
+	unlocks["levels"] = levels
 	var pets: Array = unlocks.get("pets", []).duplicate()
 	if not pets.has("pet_turret_drone"):
 		pets.append("pet_turret_drone")
@@ -748,21 +807,48 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 	equipment["pet_turret_drone"] = maxi(1, int(equipment.get("pet_turret_drone", 1)))
 	test_save["equipment"] = equipment
 	save_manager.save_data = test_save
-	root.size = Vector2i(1080, 2340)
-	await process_frame
 	var router := FakeRouter.new()
 	root.add_child(router)
-	var battle := _instance("res://gameplay/battle/battle.tscn")
-	battle.setup(router, {"level_id": "level_001"})
-	root.add_child(battle)
-	await process_frame
-	_expect(absf(float(battle.bottom_dock_shift)) <= 0.1, "tall viewports must preserve fixed battle geometry under aspect keep")
-	_expect(battle.pet_sprite != null, "battle must spawn equipped pet for line-anchor regression")
-	var expected_anchor: Vector2 = battle._pet_anchor_position()
-	_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet must stay on the defense-line anchor hover band, got %.1f expected %.1f" % [battle.pet_sprite.position.y, expected_anchor.y])
-	battle._update_pet_animation(0.016)
-	_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet idle float must stay attached to the defense-line anchor")
-	battle.queue_free()
+	var viewport_heights := [1920, 2046, 2337, 2340, 2348, 2622]
+	for viewport_height in viewport_heights:
+		root.size = Vector2i(1080, viewport_height)
+		await process_frame
+		var battle := _instance("res://gameplay/battle/battle.tscn")
+		battle.setup(router, {"level_id": "level_001"})
+		root.add_child(battle)
+		await process_frame
+		await process_frame
+		var expected_shift := maxf(0.0, float(viewport_height) - 1920.0)
+		var context := " at 1080x%d" % viewport_height
+		_expect(absf(float(battle.bottom_dock_shift) - expected_shift) <= 0.1, "battle base group must bottom-dock" + context)
+		_expect(absf(float(battle.BREACH_Y) - (float(battle.BREACH_Y_DESIGN) + expected_shift)) <= 0.1, "breach line must follow the bottom dock" + context)
+		_expect(absf(float(battle.CHARACTER_BASE_POSITION.y) - (float(battle.CHARACTER_BASE_Y_DESIGN) + expected_shift)) <= 0.1, "hero must follow the bottom dock" + context)
+		var top_bar := battle.get_node("Hud/TopBar") as Control
+		var bottom_bar := battle.get_node("Hud/BottomBar") as Control
+		var skill_slots := battle.get_node("Hud/SkillSlots") as Control
+		var active_skill := battle.get_node("Hud/CharacterSkillButton") as Control
+		var pause_button := battle.get_node("PauseLayer/PauseButton") as Control
+		var speed_button := battle.get_node("PauseLayer/SpeedButton") as Control
+		_expect(absf(bottom_bar.offset_top - (1792.0 + expected_shift)) <= 0.1, "bottom HUD must follow the bottom dock" + context)
+		_expect(absf(skill_slots.offset_top - (1654.0 + expected_shift)) <= 0.1, "skill slots must follow the bottom dock" + context)
+		_expect(absf(active_skill.offset_top - (1688.0 + expected_shift)) <= 0.1, "active skill must follow the bottom dock" + context)
+		_expect(bottom_bar.offset_bottom <= float(viewport_height) + 0.1, "bottom HUD must remain on-screen" + context)
+		_expect(skill_slots.offset_bottom <= float(viewport_height) + 0.1, "skill slots must remain on-screen" + context)
+		_expect(active_skill.offset_bottom <= float(viewport_height) + 0.1, "active skill must remain on-screen" + context)
+		_expect(speed_button.visible, "speed button must be visible after level 30" + context)
+		_expect(absf(pause_button.offset_top - speed_button.offset_top) <= 0.1 and absf(pause_button.offset_bottom - speed_button.offset_bottom) <= 0.1, "pause and speed controls must share a top row" + context)
+		_expect(pause_button.offset_right <= top_bar.offset_left + 0.1, "pause control must not overlap the wave bar" + context)
+		_expect(speed_button.offset_left >= 1080.0 + top_bar.offset_right - 0.1, "speed control must not overlap the wave bar" + context)
+		_expect(speed_button.offset_right <= 1080.0 + 0.1, "speed control must remain on-screen" + context)
+		var toast_position: Vector2 = battle._wave_toast_target_position()
+		_expect(toast_position.y >= top_bar.offset_bottom + 21.9, "battle hints must clear the wave bar" + context)
+		_expect(battle.pet_sprite != null, "battle must spawn equipped pet for line-anchor regression" + context)
+		var expected_anchor: Vector2 = battle._pet_anchor_position()
+		_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet must stay on the defense-line anchor hover band%s, got %.1f expected %.1f" % [context, battle.pet_sprite.position.y, expected_anchor.y])
+		battle._update_pet_animation(0.016)
+		_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet idle float must stay attached to the defense-line anchor" + context)
+		battle.queue_free()
+		await process_frame
 	router.queue_free()
 	root.size = original_size
 	save_manager.save_data = original_save
@@ -790,9 +876,23 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	skilled_save["sig_skill_levels"] = {"vanguard": 4}
 	save_manager.save_data = skilled_save
 	var skilled_power := int(save_manager.get_loadout_power())
-	_expect(skilled_power >= base_power + 30, "loadout power must visibly account for passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
+	_expect(skilled_power >= base_power + 20, "loadout power must visibly account for passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
+	var projected_power := int(save_manager.get_projected_combat_power_for_level("level_097"))
+	var final_power := int(save_manager.get_combat_power_for_skill_levels({
+		"skill_split_shot": 5,
+		"skill_pierce": 5,
+		"skill_multishot": 5,
+		"skill_critical": 5,
+		"skill_salvo": 5,
+	}))
+	_expect(projected_power > skilled_power, "ten-card late levels must expose projected combat growth beyond standing power; standing=%d projected=%d" % [skilled_power, projected_power])
+	_expect(final_power > skilled_power, "actual run skill levels must produce a distinct final combat power; standing=%d final=%d" % [skilled_power, final_power])
 	var level68_power := int(save_manager.get_recommended_power_for_level("level_068"))
 	_expect(level68_power >= 230, "level_068 recommended power must include late-wave skill-DPS pressure, got %d" % level68_power)
+	var level97_power := int(save_manager.get_recommended_power_for_level("level_097"))
+	_expect(level97_power >= 600, "level_097 recommended power must include its ten-card build budget, got %d" % level97_power)
+	_expect(float(save_manager.get_run_skill_hp_pressure_for_level("level_097")) >= 1.45, "level_097 late waves must absorb ten-card DPS growth through authored HP pressure")
+	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
 func _dismiss_card_offer_for_smoke(battle: Node) -> void:
@@ -1110,6 +1210,7 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 	battle.free()
 
 func _verify_ammo_element_rules(save_manager: Node) -> void:
+	var data_loader := root.get_node("DataLoader")
 	var runtime := SkillRuntime.new()
 	_expect(runtime.add_skill("skill_tesla"), "tesla ammo must be addable")
 	_expect(runtime.projectile_element("physical") == "lightning", "physical weapons can be converted to tesla ammo")
@@ -1134,8 +1235,33 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	_expect(not plasma_offers.has("skill_cryo"), "plasma cannon must not offer cryo ammo")
 
 	equipment["selected_weapon"] = "weapon_autocannon"
+	equipment["selected_character"] = "vanguard"
 	test_save["equipment"] = equipment
 	save_manager.save_data = test_save
+	var opening_director := CardDirector.new()
+	var opening_level: Dictionary = data_loader.get_row("levels", "level_001")
+	var opening_offer := opening_director.offer(opening_level, {}, 3)
+	_expect(opening_offer.size() == 3, "opening card offer must keep three distinct choices")
+	var opening_has_damage := false
+	var opening_has_safety := false
+	var opening_has_core := false
+	for skill_id in opening_offer:
+		var opening_row: Dictionary = data_loader.get_row("skills", skill_id)
+		var opening_tags: Array = opening_row.get("card_tags", [])
+		_expect(not opening_tags.has("economy"), "opening card offer must not spend a slot on an economy card")
+		opening_has_damage = opening_has_damage or opening_tags.has("anti_swarm") or opening_tags.has("projectile") or opening_tags.has("dps")
+		opening_has_safety = opening_has_safety or opening_tags.has("control") or opening_tags.has("defense")
+		opening_has_core = opening_has_core or opening_director._matches_selected_loadout(opening_row)
+	_expect(opening_has_damage, "first card offer must include an immediate damage identity choice")
+	_expect(opening_has_safety, "first card offer must include a control or defense stabilizer")
+	_expect(opening_has_core, "first card offer must include a selected-loadout affinity choice")
+	var second_offer := opening_director.offer(opening_level, {}, 3)
+	var second_has_core := false
+	for skill_id in second_offer:
+		var second_row: Dictionary = data_loader.get_row("skills", skill_id)
+		_expect(not second_row.get("card_tags", []).has("economy"), "second card offer must not spend a slot on an economy card")
+		second_has_core = second_has_core or opening_director._matches_selected_loadout(second_row)
+	_expect(second_has_core, "second card offer must reinforce the selected-loadout identity")
 	var physical_offers := director.offer({"card_bias": {}, "threat_tags": []}, {"skill_tesla": 1}, 16)
 	_expect(physical_offers.has("skill_tesla"), "physical weapon should continue upgrading the chosen ammo module")
 	_expect(not physical_offers.has("skill_venom"), "physical weapon must not offer a second ammo module after tesla is chosen")
@@ -1240,6 +1366,60 @@ func _verify_late_wave_count_multipliers(data_loader: Node, save_manager: Node) 
 	save_manager.save_data = original_save
 	await process_frame
 
+func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = _battle_smoke_loadout(original_save)
+	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+	equipment["selected_character"] = "vanguard"
+	equipment["selected_weapon"] = "weapon_autocannon"
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_099"})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	var economy: Dictionary = data_loader.get_table("economy")
+	battle.level_ordinal = 98
+	var pre_final_hp_ramp := float(battle._late_wave_level_ramp_mult(economy))
+	_expect(absf(pre_final_hp_ramp - 1.8) <= 0.001, "level_098 late-wave HP ramp must already reach 1.8x, got %.3f" % pre_final_hp_ramp)
+	battle.wave_index = 3
+	var pre_final_damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
+	_expect(absf(pre_final_damage_ramp - 2.0) <= 0.001, "level_098 late-wave base-damage ramp must already reach 2.0x, got %.3f" % pre_final_damage_ramp)
+	battle.level_ordinal = 99
+	var hp_ramp := float(battle._late_wave_level_ramp_mult(economy))
+	_expect(absf(hp_ramp - 2.16) <= 0.001, "level_099 late-wave HP ramp must reach 2.16x, got %.3f" % hp_ramp)
+	var damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
+	_expect(absf(damage_ramp - 2.30) <= 0.001, "level_099 late-wave base-damage ramp must reach 2.30x, got %.3f" % damage_ramp)
+
+	var zombie_id := "zombie_berserker"
+	var zombie_row: Dictionary = data_loader.get_row("zombies", zombie_id)
+	var enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
+	var level_row: Dictionary = data_loader.get_row("levels", "level_099")
+	var level_coef := float(level_row.get("difficulty_coef", 1.0)) * float(level_row.get("base_hp_ref", 50)) / 50.0
+	var expected_hp := 50.0 * float(zombie_row.get("hp_coef", 1.0)) * level_coef * float(battle._late_wave_hp_bonus(3, false, economy))
+	var expected_breach := int(10.0 * float(zombie_row.get("bd_coef", 1.0)) * damage_ramp)
+	_expect(absf(float(enemy.max_hp) - expected_hp) <= maxf(1.0, expected_hp * 0.001), "level_099 wave-3 enemy must receive the full authored HP ramp")
+	_expect(int(enemy.breach_damage) == expected_breach, "level_099 wave-3 enemy must receive the full authored damage ramp; got %d expected %d" % [int(enemy.breach_damage), expected_breach])
+	enemy.queue_free()
+
+	battle.wave_index = 2
+	_expect(absf(float(battle._late_wave_damage_ramp_mult(economy)) - 1.0) <= 0.001, "waves 1-2 must stay outside the late-game damage ramp")
+	var apex: Dictionary = data_loader.get_row("bosses", "boss_apex_overlord")
+	var apex_params: Dictionary = apex.get("mechanic_params", {})
+	_expect(absf(float(apex_params.get("immune_damage_floor", 0.18)) - 0.08) <= 0.001, "final boss mismatched-element damage floor must be 8 percent")
+	_expect(int(save_manager.get_recommended_power_for_level("level_099")) >= 390, "level_099 recommended power must reflect graduation pressure")
+
+	battle.queue_free()
+	router.queue_free()
+	save_manager.save_data = original_save
+	await process_frame
+
 func _wave_mob_count(wave: Dictionary) -> int:
 	var total := 0
 	for group in wave.get("spawns", []) + wave.get("support", []):
@@ -1308,6 +1488,15 @@ func _verify_barrier_visual_runtime(battle: Node) -> void:
 	battle.skills.owned["skill_barrier"] = 1
 	battle._update_barrier_visual()
 	_expect(battle.barrier_visual.visible, "barrier visual must remain visible after barrier becomes a base-HP skill")
+	_expect(
+		battle.character_rig != null and battle.character_rig.z_index > battle.barrier_visual.z_index,
+		"character must render above barrier glass"
+	)
+	if battle.pet_sprite != null:
+		_expect(
+			battle.pet_sprite.z_index > battle.barrier_visual.z_index,
+			"pet must render above barrier glass"
+		)
 	battle.skills.owned = owned_before
 	battle.breach_shields = breach_shields_before
 	battle.skill_barriers_left = skill_barriers_before
@@ -1539,6 +1728,9 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 	for character_id in character_table.keys():
 		var character_key := str(character_id)
 		var test_save: Dictionary = _battle_smoke_loadout(original_save)
+		var initial_sig_levels: Dictionary = test_save.get("sig_skill_levels", {}).duplicate(true)
+		initial_sig_levels[character_key] = 0
+		test_save["sig_skill_levels"] = initial_sig_levels
 		var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
 		var characters: Array = unlocks.get("characters", []).duplicate()
 		if not characters.has(character_key):
@@ -1564,6 +1756,42 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		var active: Dictionary = battle.character_data.get("active_skill", {})
 		var scaling_basis := str(active.get("scaling_basis", ""))
 		_expect(["weapon", "character"].has(scaling_basis), "%s active skill must declare weapon or character scaling" % character_key)
+		var base_sig_power := float(battle._character_active_power_scale(active))
+		var base_sig_cooldown := float(battle._active_skill_cooldown(active))
+		var base_sig_duration := float(battle._active_skill_duration(active, float(active.get("duration", 0.0))))
+		var base_vanguard_volleys := int(battle._vanguard_railvolley_count(active))
+		var base_vanguard_targets := int(battle._vanguard_railvolley_target_count(active))
+		var base_blaze_radius := float(battle._blaze_meltdown_radius(active))
+		var base_blaze_pulses := int(battle._blaze_meltdown_pulse_count(active))
+		var base_frost_waves := int(battle._frost_glacier_wave_count(active))
+		var base_frost_speed := float(battle._frost_glacier_speed_factor(active, false))
+		var base_volt_targets := int(battle._volt_storm_max_targets(active))
+		var base_volt_strikes := int(battle._volt_storm_strike_count(active, base_volt_targets))
+		var max_sig_levels: Dictionary = save_manager.save_data.get("sig_skill_levels", {}).duplicate(true)
+		max_sig_levels[character_key] = save_manager.SIG_SKILL_MAX_LEVEL
+		save_manager.save_data["sig_skill_levels"] = max_sig_levels
+		_expect(float(battle._character_active_power_scale(active)) >= base_sig_power + 0.49, "%s max signature level must add about 50%% active damage" % character_key)
+		_expect(float(battle._active_skill_cooldown(active)) <= base_sig_cooldown * 0.851, "%s max signature level must reduce cooldown by 15%%" % character_key)
+		match character_key:
+			"vanguard":
+				_expect(float(battle._active_skill_duration(active, 6.0)) >= base_sig_duration + 1.7, "vanguard signature levels must extend barrage duration")
+				_expect(int(battle._vanguard_railvolley_count(active)) >= base_vanguard_volleys + 2, "vanguard signature levels must add volleys")
+				_expect(int(battle._vanguard_railvolley_target_count(active)) >= base_vanguard_targets + 2, "vanguard signature levels must add targets")
+			"blaze":
+				_expect(float(battle._blaze_meltdown_radius(active)) >= base_blaze_radius * 1.24, "blaze signature levels must expand blast radius")
+				_expect(int(battle._blaze_meltdown_pulse_count(active)) >= base_blaze_pulses + 2, "blaze signature levels must add pulse stages")
+				_expect(float(battle._active_skill_status_scale(active)) >= 1.39, "blaze signature levels must strengthen burn status")
+			"frost":
+				_expect(float(battle._frost_glacier_duration(active)) >= base_sig_duration + 2.4, "frost signature levels must extend full-screen field duration")
+				_expect(int(battle._frost_glacier_wave_count(active)) >= base_frost_waves + 2, "frost signature levels must add cold waves")
+				_expect(float(battle._frost_glacier_speed_factor(active, false)) <= base_frost_speed - 0.07, "frost signature levels must strengthen slow")
+			"volt":
+				var max_volt_targets := int(battle._volt_storm_max_targets(active))
+				_expect(max_volt_targets >= base_volt_targets + 2, "volt signature levels must add targets")
+				_expect(int(battle._volt_storm_strike_count(active, max_volt_targets)) >= base_volt_strikes + 4, "volt signature levels must add targets and extra strikes")
+		var reset_sig_levels: Dictionary = save_manager.save_data.get("sig_skill_levels", {}).duplicate(true)
+		reset_sig_levels[character_key] = 0
+		save_manager.save_data["sig_skill_levels"] = reset_sig_levels
 		var original_character_level := int(battle.character_level)
 		var active_element := str(battle.character_data.get("element_focus", "physical"))
 		var active_mult := float(active.get("damage_mult", 1.0))
@@ -1922,6 +2150,102 @@ func _verify_progression_unlock_repair(save_manager: Node) -> void:
 	save_manager.apply_challenge_result({"level_id": "level_002", "victory": true, "stars": 3, "gold": 0, "xp": 0}, false)
 	_expect(save_manager.get_player_star() == star_before_challenge + 3, "improving challenge stars must only credit the delta")
 	save_manager.save_data = original_save
+
+func _verify_battle_speed_progression_gate(save_manager: Node) -> void:
+	var settings_manager := root.get_node("/root/SettingsManager")
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var original_settings: Dictionary = settings_manager.settings.duplicate(true)
+	var router := FakeRouter.new()
+	root.add_child(router)
+
+	var tiers := [
+		{"level": 29, "expected_speed": 1.0, "visible": false},
+		{"level": 30, "expected_speed": 2.0, "visible": true},
+		{"level": 50, "expected_speed": 5.0, "visible": true},
+	]
+	for tier in tiers:
+		var highest_level := int(tier["level"])
+		var test_save: Dictionary = _battle_smoke_loadout(original_save)
+		var unlocked_levels: Array = []
+		for level_no in range(1, highest_level + 1):
+			unlocked_levels.append("level_%03d" % level_no)
+		test_save["unlocks"]["levels"] = unlocked_levels
+		save_manager.save_data = test_save
+		settings_manager.settings["battle_speed"] = 5.0
+
+		var battle := _instance("res://gameplay/battle/battle.tscn")
+		battle.setup(router, {"level_id": "level_001"})
+		root.add_child(battle)
+		await process_frame
+		await physics_frame
+		var speed_button := battle.get_node("PauseLayer/SpeedButton") as Button
+		_expect(battle.battle_speed_progress_level == highest_level, "battle speed gate must use highest unlocked campaign level %d" % highest_level)
+		_expect(is_equal_approx(float(battle.battle_speed), float(tier["expected_speed"])), "level %d speed gate must clamp stale 5X to %.0fX" % [highest_level, float(tier["expected_speed"])])
+		_expect(speed_button.visible == bool(tier["visible"]), "speed button visibility must match level %d unlock tier" % highest_level)
+		if highest_level == 30:
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 1.0), "level 30 speed button must wrap from 2X to 1X without exposing 5X")
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 2.0), "level 30 speed button must cycle back to 2X")
+		if highest_level == 50:
+			settings_manager.settings["battle_speed"] = 2.0
+			battle.battle_speed = 2.0
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 5.0), "level 50 speed button must unlock the 5X option")
+		battle.queue_free()
+		await process_frame
+		Engine.time_scale = 1.0
+
+	settings_manager.settings = original_settings
+	settings_manager.save_settings()
+	save_manager.save_data = original_save
+	router.queue_free()
+	await process_frame
+
+func _verify_battle_speed_stress(save_manager: Node) -> void:
+	var settings_manager := root.get_node("/root/SettingsManager")
+	var input_manager := root.get_node("/root/InputManager")
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var original_settings: Dictionary = settings_manager.settings.duplicate(true)
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var test_save: Dictionary = _battle_smoke_loadout(original_save)
+	var unlocked_levels: Array = []
+	for level_no in range(1, 51):
+		unlocked_levels.append("level_%03d" % level_no)
+	test_save["unlocks"]["levels"] = unlocked_levels
+	save_manager.save_data = test_save
+	settings_manager.settings["battle_speed"] = 5.0
+
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_001"})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	_expect(is_equal_approx(float(battle.battle_speed), 5.0), "5X stress battle must start at the unlocked 5X speed")
+	var peak_enemies := 0
+	var peak_projectiles := 0
+	for frame in range(240):
+		if frame == 72:
+			input_manager.skill_pressed.emit(0)
+		await physics_frame
+		if not is_instance_valid(battle):
+			_expect(false, "5X stress battle scene must remain valid")
+			break
+		peak_enemies = maxi(peak_enemies, battle.get_node("EnemyLayer").get_child_count())
+		peak_projectiles = maxi(peak_projectiles, battle.get_node("ProjectileLayer").get_child_count())
+	_expect(is_instance_valid(battle) and not battle.battle_finished, "5X battle must remain active through the stress window")
+	_expect(peak_enemies < 220, "5X enemy population must remain bounded; peak=%d" % peak_enemies)
+	_expect(peak_projectiles < 480, "5X projectile population must remain bounded; peak=%d" % peak_projectiles)
+	if is_instance_valid(battle):
+		battle.queue_free()
+	await process_frame
+	Engine.time_scale = 1.0
+	settings_manager.settings = original_settings
+	settings_manager.save_settings()
+	save_manager.save_data = original_save
+	router.queue_free()
+	await process_frame
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

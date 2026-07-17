@@ -66,6 +66,84 @@ custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 text = "声音：开"
 
+[node name="MusicRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Center/Panel/Margin/VBox/MusicRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "音乐"
+vertical_alignment = 1
+
+[node name="Slider" type="HSlider" parent="Center/Panel/Margin/VBox/MusicRow"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 5.0
+value = 82.0
+
+[node name="Value" type="Label" parent="Center/Panel/Margin/VBox/MusicRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "82%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EffectsRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Center/Panel/Margin/VBox/EffectsRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "战斗音效"
+vertical_alignment = 1
+
+[node name="Slider" type="HSlider" parent="Center/Panel/Margin/VBox/EffectsRow"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 5.0
+value = 90.0
+
+[node name="Value" type="Label" parent="Center/Panel/Margin/VBox/EffectsRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "90%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="UiRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Center/Panel/Margin/VBox/UiRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "界面音效"
+vertical_alignment = 1
+
+[node name="Slider" type="HSlider" parent="Center/Panel/Margin/VBox/UiRow"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 5.0
+value = 88.0
+
+[node name="Value" type="Label" parent="Center/Panel/Margin/VBox/UiRow"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "88%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="VideoSection" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 text = "画面"
@@ -74,6 +152,26 @@ text = "画面"
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 text = "画质：标准"
+
+[node name="AccessibilitySection" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "舒适度"
+
+[node name="AccessibilityRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ReduceEffectsButton" type="Button" parent="Center/Panel/Margin/VBox/AccessibilityRow"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "减弱闪烁震动：关"
+
+[node name="HapticsButton" type="Button" parent="Center/Panel/Margin/VBox/AccessibilityRow"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "触感反馈：开"
 
 [node name="DataSection" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
@@ -127,7 +225,7 @@ size_flags_horizontal = 3
 text = "支持"
 
 [node name="InfoBody" type="Label" parent="Center/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 250)
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 autowrap_mode = 3
 clip_text = true

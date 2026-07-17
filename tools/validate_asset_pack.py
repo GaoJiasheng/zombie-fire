@@ -411,6 +411,8 @@ def main() -> int:
                 expect(missing, PROD / "sprites/parts" / kind / item / f"{item}_{part}.png")
             expect(missing, PROD / "sprites/parts" / kind / item / f"{item}_parts.json")
     expect(missing, PROD / "fonts/font_main.ttf")
+    expect(missing, PROD / "fonts/OFL-GlowSans.txt")
+    expect(missing, PROD / "fonts/font_main.provenance.json")
     expect(missing, PROD / "INTEGRATION_ASSET_MANIFEST.json")
     expect(missing, PROD / "OUTSOURCER_ASSET_INDEX.json")
     if missing:

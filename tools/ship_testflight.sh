@@ -109,6 +109,9 @@ run_godot_logged() {
 
 cd "$PROJ"
 
+log "Synchronizing release-only asset exclusions"
+python3 tools/sync_release_export_excludes.py --write
+
 log "Running the complete release-candidate gate before changing the build number"
 python3 tools/check_release_candidate.py
 
@@ -134,7 +137,17 @@ run_godot_logged "$WORK_DIR/godot_export.log" \
 
 [[ -d build/ios/ZombieFire.xcodeproj ]] || die "Godot did not generate the Xcode project"
 [[ -s build/ios/ZombieFire.pck ]] || die "Godot did not generate a non-empty PCK"
-python3 tools/check_release_package.py --pck build/ios/ZombieFire.pck
+python3 tools/check_release_package.py \
+    --pck build/ios/ZombieFire.pck \
+    --xcode-project build/ios/ZombieFire.xcodeproj
+
+log "Smoke-testing the exported PCK"
+run_godot_logged "$WORK_DIR/pck_battle_boot.log" \
+    "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
+    --script "$PROJ/tools/_battle_boot_probe.gd"
+run_godot_logged "$WORK_DIR/pck_m1_smoke.log" \
+    "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
+    --script "$PROJ/tools/m1_smoke_test.gd"
 
 PBX="build/ios/ZombieFire.xcodeproj/project.pbxproj"
 [[ -f "$PBX" ]] || die "Xcode project file is missing"
@@ -170,6 +183,7 @@ cat > "$EXPORT_OPTIONS" <<PLIST
   <key>teamID</key><string>$TEAM</string>
   <key>signingStyle</key><string>automatic</string>
   <key>destination</key><string>export</string>
+  <key>manageAppVersionAndBuildNumber</key><false/>
   <key>uploadSymbols</key><true/>
 </dict></plist>
 PLIST

@@ -5,6 +5,8 @@ import json
 import math
 from pathlib import Path
 
+from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 LEVELS_PATH = DATA / "levels.json"
@@ -51,7 +53,7 @@ CHIP_DAMAGE_MULT = 1.20
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
 DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
 DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
-DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 45, "full_level": 85, "max_mult": 1.22}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 
 
@@ -79,13 +81,18 @@ def late_wave_level_ramp(economy: dict, level_no: int) -> float:
     max_mult = float(rule.get("max_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["max_mult"]))
     if float(level_no) < start_level:
         return 1.0
-    if full_level <= start_level:
-        return max_mult
-    t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
-    return 1.0 + (max_mult - 1.0) * t
+    ramp_mult = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        curve_power = max(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_LEVEL_RAMP["curve_power"])))
+        ramp_mult = 1.0 + (max_mult - 1.0) * (t ** curve_power)
+    final_level = int(rule.get("final_level", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_level"]))
+    if level_no >= final_level:
+        ramp_mult *= max(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_LEVEL_RAMP["final_mult"])))
+    return ramp_mult
 
 
-def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0) -> float:
+def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no: int = 0, card_picks: int = 4) -> float:
     key = "late_wave_boss_hp_bonus" if boss else "late_wave_hp_bonus"
     defaults = DEFAULT_LATE_WAVE_BOSS_HP_BONUS if boss else DEFAULT_LATE_WAVE_HP_BONUS
     table = economy.get(key, defaults)
@@ -94,6 +101,7 @@ def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no
     base = float(table.get(str(wave_no), table.get(wave_no, defaults.get(str(wave_no), 1.0))))
     if wave_no >= 3:
         base *= late_wave_level_ramp(economy, level_no)
+        base *= run_skill_hp_pressure(card_picks, economy)
     return base
 
 
@@ -146,8 +154,7 @@ def target_card_picks(n: int) -> int:
 
 
 def estimate_skill_mult(n: int) -> float:
-    cards = target_card_picks(n)
-    return min(3.2, 1.0 + 0.28 * cards + 0.035 * max(cards - 3, 0) ** 2)
+    return estimate_skill_throughput(target_card_picks(n))
 
 
 def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) -> float:
@@ -485,16 +492,17 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> f
     except (TypeError, ValueError):
         level_no = 0
     boss_level_bonus = boss_hp_level_bonus(economy, level_no)
+    card_picks = int(level.get("target_card_picks", 4))
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no)
+        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
         count_mult = late_wave_count_mult(economy, wave_no)
         for grp in wave.get("spawns", []) + wave.get("support", []):
             row = zombies[grp["type"]]
             count = int(round(int(grp.get("count", 1)) * count_mult))
             raw += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
         if "boss" in wave:
-            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no) * boss_level_bonus * 8.0
+            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * 8.0
     return raw * float(level.get("difficulty_coef", 1.0))
 
 

@@ -98,7 +98,7 @@ score = distance_to_line_score
 
 ## 6. 窗口缩放与适配（方案 A 等比，见 `10 §5`）
 
-- `project.godot`：`display/window/stretch/mode = "canvas_items"`，`aspect = "keep"`，base 1080×1920。
+- `project.godot`：`display/window/stretch/mode = "canvas_items"`，`aspect = "expand"`，base 1080×1920；高屏 iPhone 向上扩展可见世界，底部防线保持锚定，禁止恢复会产生黑边的 `keep`。
 - macOS：窗口 `resizable=true`，最小尺寸 ~405×720；记忆上次窗口尺寸/位置到存档。
 - 等比缩放 = 大屏看到更大更清晰的**同一份**画面（不改游戏区域、不改难度）。
 - iOS：全屏，按安全区（刘海/Home 条）内缩 UI；逻辑分辨率不变。

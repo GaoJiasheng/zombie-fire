@@ -32,7 +32,7 @@ all five battle scenes, and the result scene.
 
 ### Implemented (new since previous checkpoint)
 
-- **全关卡挑战模式**：地图关卡卡片改为“进入关卡 / 挑战模式”双按钮；挑战战斗通过 `challenge` route payload 贯穿 loadout / battle / result，敌人 HP 提高到 1.5 倍，推荐战力同步抬高到 1.5 倍，漏怪伤害仍使用挑战专用加压倍率。
+- **全关卡挑战模式**：地图关卡卡片改为“进入关卡 / 挑战模式”双按钮；挑战战斗通过 `challenge` route payload 贯穿 loadout / battle / result，敌人 HP 提高到 1.5 倍，推荐战力同步抬高到 1.5 倍。挑战模式不再额外放大漏怪伤害，规则与玩家可见文案严格一致。
 - **挑战星级经济**：`SaveManager.challenge_progress` 独立记录每关挑战最高星，`apply_challenge_result()` 只发本次星级超过历史最高的差额；重复通关不会重复给星，也不会解锁下一普通关。
 - **战斗背景堡垒对齐**：以 `env_abandoned_factory` 的底部横向堡垒位置为基准，平移其余 9 张战斗背景并保留 1080×1920 合约；处理记录在 `assets/production/source_refs/generated/background_fortress_alignment_2026_07_06.json`，对照图在 `assets/production/contact_sheets/contact_background_fortress_alignment_2026_07_06.png`。
 - **HUD bars**: `BaseHpBar`, `WaveProgress`, `XpBar` with real `ui_base_hp_bar` / `ui_wave_progress` / `ui_run_xp_bar` textures and `ColorRect` fill driven by HP / wave / XP ratios.
@@ -2455,7 +2455,148 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Combat correctness**: summoned/split enemies no longer duplicate rewards; final/Endless boss selection is strongest-eligible first; chain and splash hits preserve armor penetration and elemental status; homing honors the manual-lock target; native weapon pellets and multishot lanes no longer multiply the lane penalty incorrectly.
 - **Boss accessibility**: hard-immunity mechanics still communicate their intended weakness, but unresolved immunity now retains a small damage floor so a valid run cannot become permanently unwinnable. Suppressed-hit messaging remains throttled and explicit.
 - **Runtime lifecycle**: app background/focus transitions save immediately, cancel active pointer state, and suspend/resume audio. `DataLoader` now reports parse/load failure and `main.gd` refuses to route into a partially loaded game.
-- **Performance/readability**: authored bitmap VFX are the normal enemy skill/impact path, with procedural geometry limited to missing-asset fallback. Particle density steps down in battery-saving mode and under heavy enemy counts. Battle HUD and fixed world geometry keep the authored 1080x1920 composition under `canvas_items` + `keep`.
+- **Performance/readability**: authored bitmap VFX are the normal enemy skill/impact path, with procedural geometry limited to missing-asset fallback. Particle density steps down in battery-saving mode and under heavy enemy counts. Under `canvas_items` + `expand`, the top HUD stays fixed while the complete defense group follows the extra viewport height, keeping the rendered barricade, breach line, hero, pet and bottom HUD aligned on tall iPhones.
 - **Audio robustness**: the project now has an explicit bus layout plus automated checks for BGM looping, SFX priority, concurrency, and complete player teardown. Long BGM import policy avoids unnecessary memory residency.
 - **Mobile UI**: shared safe-area handling and touch-target expansion cover primary meta screens and dialogs. The chapter detail header was given real vertical space so three-line story copy cannot collide with the objective. `tools/check_visual_screens.py` renders 31 routes including all ten campaign environments on tall screens and safe-area variants.
 - **Release gates**: export configuration, Godot-log cleanliness, package contents/size, battle boot, screenshot rendering, asset/data/reference validation, and smoke coverage are wired into `tools/check_release_candidate.py`. The complete candidate check passed in this worktree; this pass does not claim physical-device playtesting or a new TestFlight upload.
+
+## Battle Speed Progression Gate (2026-07-14)
+
+- **Progress-based visibility**: battle speed now keys off the highest legitimately unlocked campaign level. The top-right control stays hidden below level 30, appears with `1X / 2X` at level 30, and adds `5X` at level 50.
+- **Legacy save safety**: a previously saved `5X` preference is clamped to `1X` below level 30 and `2X` from levels 30-49, so a hidden or locked tier can never remain active in combat.
+- **Regression coverage**: `tools/m1_smoke_test.gd` constructs level-29, level-30, and level-50 progression states and verifies visibility, runtime speed clamping, and the exact cycle options at each tier.
+
+## iPhone Launch Finalization (2026-07-14)
+
+- **iPhone-only artifact contract**: corrected the Godot enum to `application/targeted_device_family=0` and verified a fresh export produces `TARGETED_DEVICE_FAMILY=1` in all four Xcode build configurations. `check_release_package.py` now audits both generated Xcode projects and signed IPA `UIDeviceFamily`, fullscreen, and portrait keys; `ship_testflight.sh` runs the Xcode-project audit before archiving.
+- **Active-skill finish**: replaced the clipped Blaze meltdown with a 14-frame safe-canvas raster sequence and implemented distinct level growth for every character active skill. Permanent collection text and schema validation expose the same runtime rules.
+- **Accessibility and audio control**: settings now persist independent music, effects, and interface volumes plus reduced-effects and haptics switches. Combat shake, flash, active-skill feedback, and Boss feedback consume those settings.
+- **UI final pass**: locked chapter cards, collection skill details, result placement, and toast cadence were adjusted for tall iPhones. Current evidence includes `tmp/app_store_audit_2026_07_14/result_tall_after_final.png`, `collection_skill_detail_after.png`, and `map_after_contrast.png`.
+- **Campaign smoothing**: `tools/smooth_campaign_difficulty.py` recalibrated only `difficulty_coef`; simulated clear-time estimates now average 105.3 seconds, peak at 154.0 seconds, have zero levels over 180 seconds, and preserve the final level as the maximum HP-pressure point.
+- **Animation/performance gates**: release checks now cover all 96 character/weapon/direction attack sequences for real adjacent-frame motion and recoil. The smoke suite also runs a sustained 5X battle with an active skill and enforces live enemy/projectile bounds.
+- **Store refresh**: `tools/refresh_iphone_store_screens.py` captures the current battle, map, real card-offer, loadout, and Boss screens and rebuilds only the iPhone 6.5/6.7 screenshot sets and current App Preview. Preview intermediates now use a system temporary directory instead of dirtying tracked files.
+- **Texture-only runtime UI closure**: the settings volume sliders now use the authored wave-progress armor and XP-energy fill textures instead of `StyleBoxFlat`, with the default geometric grabber suppressed. The pause overlay reuses its authored texture scrim. `tools/check_runtime_ui_primitives.py` is part of the release candidate and rejects any future `ColorRect` or `StyleBoxFlat` under `gameplay/`, `meta/`, or `ui/`. Visual evidence: `tmp/app_store_audit_2026_07_14/settings_texture_slider_v2.png` and `pause_texture_scrim.png`.
+- **Verification**: `python3 tools/check_release_candidate.py` passed all asset, data, reference, pressure, balance, animation, audio, active-skill, tall-background, line-alignment, HUD-overlap, store-asset, Godot startup, battle boot, smoke, and 31-route visual checks. A fresh 678.2 MiB PCK and generated Xcode project also passed package and iPhone-family validation. Physical-device and App Store owner actions are isolated in `design/iphone_app_store_owner_todo_2026_07_14.md`.
+
+## Loadout Bottom Action Spacing (2026-07-14)
+
+- **Root cause**: the runtime layout collapsed `BottomSpacer` to 10 px while the tactical summary needed more height than its 226 px minimum, so the summary chrome and last text row visually collided with the armored start button.
+- **Layout correction**: the tactical summary now reserves 260 px and the bottom action spacer reserves 28 px. Together with the container separation this keeps a clear visual break without stretching or replacing the native 760x112 armored button.
+- **Regression coverage**: `tools/m1_smoke_test.gd` now measures the runtime global rectangles and requires at least 50 px between `DetailsPanel` and `StartButton`.
+- **Visual verification**: `tmp/loadout_overlap_fix_2026_07_14/loadout_after_1920.png` and `tmp/loadout_overlap_fix_2026_07_14/loadout_after_tall.png` confirm the standard and tall iPhone layouts.
+
+## Tall iPhone Battle Bottom Dock Alignment (2026-07-15)
+
+- **Root cause**: the 1080×2622 environment background remained bottom-anchored, but `_ready()` forced `bottom_dock_shift` to zero. The background fortress therefore moved to the correct tall-screen position while the breach line, hero, pet, active skill and bottom HUD stayed on the old 1920 canvas and appeared collectively too high.
+- **Unified correction**: runtime visible height now drives `bottom_dock_shift`; `BREACH_Y` and `CHARACTER_BASE_POSITION` inherit it, and the existing shared anchors move the whole defense group without changing the standard 1080×1920 composition or the top HUD.
+- **Speed control safe area**: the dynamically created `SpeedButton` now uses the same top safe-area offset as the pause control and wave bar. Its mirrored 82×82 placement remains at the right edge but no longer sits above the other top controls on notched iPhones.
+- **Regression coverage**: `tools/m1_smoke_test.gd` checks the 1080×2340 breach, hero, pet and bottom-bar anchors; `tools/check_tall_battle_layout.py` locks the runtime formulas; `tools/check_visual_screens.py` adds a tall safe-area battle with the speed tier unlocked.
+- **Visual evidence**: before/after captures are in `tmp/tall_battle_bottom_dock_2026_07_15/before_level_099.png`, `after_level_099.png`, and `after_safe_area_speed_unlocked.png`.
+
+## iPhone Viewport Matrix Verification (2026-07-15)
+
+- **Supported geometry matrix**: battle layout now runs exact headless checks at normalized 1080-wide heights `1920`, `2046`, `2337`, `2340`, `2348`, and the `2622` asset-boundary stress height. Every tier verifies the dynamic breach line, hero, pet, bottom HUD, skill slots, active skill, pause control, and level-gated speed control.
+- **Meta-screen coverage**: `tools/check_visual_screens.py` now renders and audits 38 routed states. Tall safe-area routes explicitly cover menu, chapter map, level map, loadout, character collection, settings, battle, card offer, pause, skill detail, and result screens; runtime audits reject unsafe content, undersized touch targets, clickable overlap, and clipped single-line labels.
+- **Top feedback correction**: manual review exposed a battle-only gap in the generic audit: a long weakness hint could overlap the safe-area-shifted wave bar. `WaveBanner` now derives its position from the live `TopBar` bottom edge with a 22 px gap and remains horizontally centered at either banner width.
+- **Visual evidence**: representative safe-area captures and the six-page review sheet are in `tmp/iphone_layout_matrix_2026_07_15/`; `battle_tall_safe_after.png` confirms pause, wave, speed, hint, defense group, and bottom resources occupy distinct bands.
+
+## Loadout Character Bust Headroom (2026-07-15)
+
+- **Root cause**: all four frameless portraits use a common `642x962` canvas with their first opaque pixels near source y=67–69. The `378px` runtime zoom combined with the old `-58px` image offset placed those pixels about 18px above the portrait viewport, flattening every character's hair or head accessory against the crop edge.
+- **Composition correction**: `meta/loadout/loadout.gd` keeps the approved portrait scale and panel geometry, but moves the shared bust offset to `-30px`. This yields roughly 9–11px of visible headroom for Vanguard, Blaze, Frost, and Volt without shrinking their silhouettes or moving the weapon panel.
+- **Regression coverage**: `tools/m1_smoke_test.gd` loads every portrait, reads its actual non-transparent bounds, and requires 6–20px of runtime headroom. `tools/check_visual_screens.py` adds four explicit loadout-character routes, raising the visual matrix to 42 states.
+- **Visual evidence**: per-character before/after captures and the four-character comparison are in `tmp/loadout_character_headroom_2026_07_15/`; `after_sheet.png` confirms hair, goggles, ponytail, and head accessories remain complete.
+
+## TestFlight Build 29 (2026-07-15)
+
+- **Release gate**: `python3 tools/check_release_candidate.py` passed asset/data/reference validation, pressure and balance simulation, runtime UI checks, Godot startup, battle boot, M1 smoke, and all 42 routed visual screenshots before the build number changed.
+- **Artifact audit**: version `1.0.0` build `29` exported as an iPhone-only App Store IPA; package validation passed at `706.3 MiB`.
+- **Upload result**: App Store Connect returned `UPLOAD SUCCEEDED with no errors`; Delivery UUID `bd54b3c7-3cbb-4868-89b0-7f0a853252a3`. The uploaded IPA is retained at `build/ios/ZombieFire.ipa` and copied to `~/Desktop/ZombieFire.ipa`.
+
+## Lossless Release Package Optimization (2026-07-15)
+
+- **Runtime/source separation**: iOS export now excludes the 414-piece authoring cutout library and 307 generated VFX tail-cache frames that are outside their runtime sequence manifests. Production PNGs and import metadata remain in the repository; no live frame was deleted, recompressed, resized, or recolored.
+- **Manifest-derived guardrail**: `tools/release_export_rules.py` derives exact exclusions from the current VFX manifests, while `tools/sync_release_export_excludes.py` keeps the local ignored iOS preset synchronized. `ship_testflight.sh` runs the sync before the complete RC gate.
+- **Package proof**: `check_release_package.py` now rejects excluded authoring/tail paths in the PCK and verifies that every VFX frame named by a runtime manifest is still present. The optimized PCK boots with `--main-pack` and passes import-cache, Xcode, and signed IPA audits.
+- **Measured result**: PCK `678.2 -> 584.9 MiB` (`-93.3 MiB`, `-13.8%`); signed App Store IPA `706.3 -> 613.2 MiB` (`-93.1 MiB`, `-13.2%`). The local probe preserved version `1.0.0` build `29` and was not uploaded.
+- **Repository hygiene**: `tmp/` is ignored for future QA outputs. Existing 13.49 GiB reachable binary history is left untouched because shrinking it requires a coordinated Git LFS/history rewrite; details are recorded in `design/release_size_optimization_2026_07_15.md`.
+
+## Late-Campaign Graduation Curve (2026-07-15)
+
+- **Linear lead-in**: campaign late-wave HP and breach pressure now grow linearly from level 50 through level 98. Level 97 reaches `1.783x HP / 1.979x damage`; level 98 reaches `1.80x / 2.0x`, so the final chapter cannot remain easy before a single last-level wall.
+- **Finale step**: level 99 applies a separate graduation multiplier, reaching `2.16x` late-wave HP and `2.30x` late-wave breach pressure. Its displayed recommended power now resolves to `400`.
+- **Build contract**: the final boss keeps an `8%` wrong-element damage floor for soft-lock safety, but only main-weapon element can claim the weakness counter. The conservative matrix retains three maxed physical primaries as viable clears: autocannon `165.9s`, railgun `106.2s`, and scattergun `133.4s`; the observed level-41 fire plasma mismatch estimates at `963.8s`.
+- **Runtime parity**: the campaign simulator, pressure checker, balance profile, recommendation formula, rebalance helper, release gate, and Godot smoke test all consume the same authored ramp and terminal multiplier fields.
+- **Verification**: `python3 tools/check_release_candidate.py` passed the complete asset/data/reference suite, pressure and balance models, Godot boot and M1 smoke, plus all 42 routed visual screenshots.
+
+## Barrier Actor Compositing Order (2026-07-16)
+
+- **Layer correction**: the rendered barrier glass remains on world layer `7`, while the hero rig and pet now share defense-actor layer `10`. Character, weapon and pet pixels therefore remain in front of the translucent shield while the shield continues to cover the base fortification.
+- **Regression coverage**: the M1 smoke test requires the live character and equipped pet to render above `BarrierGlass`; the visual capture helper can force the learned barrier state with `debug_barrier` for screenshot review.
+- **Visual evidence**: `/tmp/zombie_fire_barrier_layering_after.png` confirms the hero and fire pet retain their original material colors and silhouettes in front of the blue shield on a tall battle viewport.
+
+## TestFlight Build 30 (2026-07-16)
+
+- **Release gate**: `tools/ship_testflight.sh` completed the full release-candidate suite, including 42 routed screenshots, runtime UI checks, late-campaign balance, Godot startup, battle boot, source smoke, and exported-PCK smoke.
+- **Artifact audit**: version `1.0.0` build `30` exported as an iPhone-only App Store IPA. The final package is `613.2 MiB`; the repository and Desktop copies share SHA-256 `cd9f1bf2c010c3aa2c70fa22c4cf2524d7d70ead37652e4a575485adee04971a`.
+- **Upload result**: App Store Connect returned `UPLOAD SUCCEEDED with no errors`; Delivery UUID `95403f3f-e921-4fbc-911c-96ae86291287`. The audited IPA remains at `build/ios/ZombieFire.ipa` and `~/Desktop/ZombieFire.ipa`.
+
+## Skill-Aware Combat Power And Result Centering (2026-07-16)
+
+- **Result placement**: `meta/result/result.gd` now centers the measured result stack inside the current iPhone safe area and applies a small `-24px` optical nudge. It no longer inherits the generic tall-modal downward shift that made the compact victory page look low. Visual evidence: `/tmp/zf_result_skill_power_centered.png`.
+- **Three power states**: SaveManager now calculates standing power from the complete core loadout plus permanent skill investment, projected power from the current level's authored card budget and compatible skill effects, and final power from the exact skills/levels owned at battle end. Economy and reroll-only cards intentionally contribute no combat power.
+- **Shared effect model**: damage, fire rate, expected critical damage, multishot with lane attenuation, pierce, split, chain, homing, burn/poison, armor penetration, slow and barrier health all contribute through one bounded throughput model. The loadout, battle setup, result payload, balance scripts and smoke tests consume the same scale.
+- **Late-wave absorption**: levels with more than the four-card reference budget convert part of that theoretical build growth into static wave-3+ pressure. A ten-card level resolves to roughly `1.54x` additional HP pressure and `1.12x` movement pressure, both capped; challenge HP remains a separate `1.5x` layer. No player-health, live-DPS or win/loss rubber-banding is used.
+- **Late-game calibration**: normal recommendations now resolve to `630/642` for levels 97/98 and `686` for level 99; challenge recommendations are `945/963/1029`. The dedicated finale matrix keeps max physical autocannon/railgun/scattergun clears at about `252/162/203s`, with at least one sub-180-second counter build.
+- **UI evidence**: `/tmp/zf_loadout_skill_power_l97.png` shows the expanded `战前 / 成型 / 推荐` comparison without clipping; `/tmp/zf_result_skill_power_centered.png` shows the centered result and final-power copy.
+- **Verification**: the complete `tools/check_release_candidate.py` gate passed, including asset/data/reference checks, campaign/card simulations, endgame matrix, audio/VFX/attack checks, Godot boot, M1 smoke and all 42 routed UI screenshots. The final result capture is `/tmp/zf_result_skill_power_final.png`.
+
+## Pre-Launch Top-Tier Polish Candidate (2026-07-16)
+
+- **Actionable result screen**: battles now accumulate real elapsed time, damage by element, critical/weakness output, kills, boss kills, base damage, prevented damage, controlled enemy-seconds, active-skill casts and kill streaks. The result screen exposes a collapsed battle report and gives Boss- or challenge-specific coaching after failure.
+- **Strategic challenge identity**: `data/challenges.json` defines one fixed variant per chapter. HP, movement, breach damage and mechanic cadence are independent knobs; loadout shows the exact rule, pressure summary and counter hint before entry. Runtime, recommendation display, schema validation and smoke coverage use the same rule.
+- **Opening-build identity**: the real GDScript card director now reads the authored skill table instead of maintaining a parallel pool. Offer one guarantees loadout affinity, immediate damage and control/defense; offer two guarantees affinity plus a threat counter. Pure economy options are kept out of both opening offers.
+- **Boss readability**: all eight bosses carry explicit counter guidance, multi-phase bosses have authored phase cues, the live boss label includes weakness, and result coaching reuses the same data instead of hard-coded prose.
+- **Density-aware presentation**: float text and VFX share a budget that scales with quality mode, reduced effects, enemy density, battery state and 1X/2X/5X speed. This protects late-wave readability without deleting authored effects or changing combat math.
+- **Store-facing truth**: App Preview is now an 18-second capture of the real Godot battle, card choice, boss phase and active skill. Store checks enforce exact screenshot order, dimensions, alpha, perceptual uniqueness and real H.264/AAC preview constraints with capture provenance.
+- **Font experiment (superseded)**: Build 31 temporarily replaced the previous runtime font with Noto Sans SC. Physical-device review later found unacceptable thin strokes and line metrics, so the replacement and its release gate were rolled back in the July 17 regression pass below.
+- **Lossless package trim**: export rules now also exclude the unused authoring sprite tree and superseded app-icon source/import while retaining every repository source and live `res://` dependency.
+- **Verification boundary**: automated RC covers data, source/runtime references, pressure/balance, card offers, App Store assets, fonts, Godot boot, battle boot, M1 smoke and routed UI screenshots. Physical-iPhone thermal/performance, touch feel, speaker/headphone mix and haptics remain explicit Owner sign-off work.
+
+## TestFlight Build 31 (2026-07-16)
+
+- **Release gate**: the complete source RC passed after the result-report action was aligned to the shared 88px mobile touch-target minimum. All 42 routed screenshots passed the runtime safety, clipping, overlap and touch audit.
+- **Exported-runtime proof**: the Build 31 PCK contains 5,768 files and 2,772 imported resources at 573.2 MiB. The generated Xcode project is iPhone-only, and the exported PCK independently passed battle boot plus the full M1 smoke suite.
+- **Signed artifact**: Xcode Archive and App Store export succeeded for `1.0.0 (31)`. The audited IPA is 601.5 MiB (`630,698,896` bytes), SHA-256 `015c5fe9445ff9624fb143fd8c2a713eba1c61c5198e1a27bf10a652a4ba81b9`.
+- **Apple delivery**: preflight validation returned `VERIFY SUCCEEDED with no errors`; TestFlight upload then returned `UPLOAD SUCCEEDED with no errors`, Delivery UUID `47c498c5-a6ae-4f61-8957-3c73518b5d5b`. Final polling reached `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE`, and `IS-ON-APP-STORE-CONNECT: true`.
+- **Measured package gain**: compared with Build 30, PCK size moved from 584.9 to 573.2 MiB and signed IPA size moved from 613.2 to 601.5 MiB, a further 11.7 MiB lossless reduction.
+
+## Build 31 Device Typography And Collection Regression Fix (2026-07-17)
+
+- **Owner evidence**: physical-iPhone screenshots showed the replacement global font reading too thin across the map and collection; the character list lost its former visual hierarchy, and character-detail content appeared corrupted.
+- **Font rollback**: restored the exact pre-Build-31 `font_main.ttf` requested by the Owner and removed the Noto-specific license/hash gate and metadata so release checks cannot claim a font that is no longer shipped. The rest of the Build 31 gameplay and polish remains unchanged.
+- **Actual detail root cause**: the apparent character-detail “garbling” was not encoding damage. Collection card children render at positive z-indices, while the modal previously stayed at z=0, so portraits, labels and action buttons from the list drew over the modal. Both item and character detail roots now render at z=64.
+- **Coverage correction**: the release visual suite previously captured the character list and a skill detail, but not character detail. A tall safe-area character-detail route and smoke assertions for modal layering are now mandatory.
+
+## Character Collection Composition Correction (2026-07-17)
+
+- **Owner evidence**: follow-up screenshots exposed two composition defects left behind after the typography rollback: the 760px authored card content was pinned to the left edge of a 904px safe-area list, and both list/detail bust crops used negative Y offsets that consumed the portraits' limited transparent head margin.
+- **True centering**: collection row buttons now use `SIZE_SHRINK_CENTER`; their fixed-position frame, portrait, copy and action controls therefore move as one 760px composition and sit symmetrically around the 1080px screen center. The same rule applies to character, equipment and skill rows.
+- **Shared portrait framing**: all four character list busts use a `-4px` Y offset and all four detail busts use `-12px`. With the common 642×962 frameless source canvas and first opaque pixels at y=67–69, this preserves visible headroom without shrinking the approved character scale.
+- **Regression coverage**: M1 smoke asserts centered fixed-width rows and both crop offsets. The tall safe-area detail matrix now renders Vanguard, Blaze, Frost and Volt individually, bringing the routed visual suite from 43 to 46 states.
+- **Visual evidence**: `/tmp/zf_collection_centered_v2.png` and `/tmp/zf_detail_{vanguard,blaze,frost,volt}_headroom.png` were inspected at the physical-iPhone normalized 1080×2046 output size; every head/accessory is complete and the list margins are symmetric.
+
+## Licensed Glow Sans Global Typography And Visual Regression (2026-07-17)
+
+- **Owner selection**: the global Godot font resource now ships the official `GlowSansSC-Normal-Medium.otf` binary from Glow Sans SC / 未来荧黑 v0.93. The existing `res://assets/production/fonts/font_main.ttf` resource path is intentionally retained, while the binary remains byte-for-byte identical to the official release (`9,176,176` bytes; SHA-256 `56481618894253fb71427a097706f9a440806b4957a7381946dc6464b98aa192`).
+- **License evidence**: `assets/production/fonts/OFL-GlowSans.txt` contains the upstream SIL OFL 1.1 notice and copyright; `font_main.provenance.json` records the repository, v0.93 release, archive hash, source filename, shipped hash and integration decision. `tools/check_font_license.py` is part of every Release Candidate run.
+- **Package compliance**: the iOS export preset explicitly includes the OFL notice and provenance. `tools/check_release_package.py` now rejects a PCK missing either file or the runtime font import metadata. A clean test export passed at `5,770` files, `2,772` imported resources and `568.3 MiB`.
+- **Visual review**: all `46` routed screenshots passed runtime layout audits and image checks. Contact sheets at `/tmp/zf_glow_visual_review_20260717/contact_{1,2,3,4}.jpg` were manually reviewed, including standard/tall map, loadout, battle environments, card offer, pause, result, collection lists and all four character details. Character cards remain centered, portrait headroom remains intact, and detail modal layers remain clean.
+- **Follow-up correction**: the first review found the settings help copy wrapping one line beyond its clipped 170px body under the new glyph metrics. The copy was shortened without removing controls, then recaptured at standard and tall safe-area sizes in `/tmp/zf_glow_settings_fixed_v2.png` and `/tmp/zf_glow_settings_tall_fixed_v2.png`; both now show the full text.
+- **Store consistency**: the five live iPhone showcase routes were recaptured with Glow Sans and regenerated into both `ios_65` and `ios_67` screenshot sets without rebuilding the App Preview video. `python3 tools/check_app_store_assets.py` passed, and `/tmp/zf_glow_appstore_ios67_contact.jpg` was manually reviewed for composition and font consistency.
+- **Verification**: `python3 tools/check_release_candidate.py` passed the complete source gate, including font license, resources/data/references, balance/card simulations, audio/VFX, Godot boot, battle boot, M1 smoke and 46 routed screenshots. The exported PCK independently passed `python3 tools/check_release_package.py --pck /tmp/zf_glow_license_audit.pck`.
+
+## Apache-2.0 Repository License (2026-07-17)
+
+- **Project grant**: the repository root now includes the unmodified Apache License 2.0 text and a `NOTICE` naming the project copyright holder.
+- **Third-party boundary**: the notice explicitly preserves separate licenses and provenance for third-party components and assets; Glow Sans SC / 未来荧黑 remains under SIL OFL 1.1 and points to the bundled license and provenance files.

@@ -56,7 +56,7 @@
 - 游戏以固定逻辑分辨率 1080×1920 渲染；窗口可自由拖拽放大缩小。
 - **等比缩放（contain）**：画面整体放大/缩小填充窗口，多余区域用背景/留边（pillarbox），**游戏区域内容不变**——保证难度/视野与 iOS 完全一致、公平。
 - 大屏 = 更大更清晰的同一份画面（不是看到更多战场）。
-- Godot：`window/stretch/mode = canvas_items`，`aspect = keep`，根 `Camera2D`/CanvasLayer 固定逻辑尺寸。
+- Godot：`window/stretch/mode = canvas_items`，`aspect = expand`；根 `Camera2D`/CanvasLayer 以 1080×1920 为最低逻辑画布，高屏 iPhone 只扩展上方可见区域，底部防线/HUD 保持锚定。
 - 记忆上次窗口尺寸/位置到存档（见 `13`）。
 - 最小窗口尺寸限制（如 ≥ 405×720）避免 UI 过小。
 

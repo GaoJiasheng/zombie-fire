@@ -31,9 +31,8 @@ Draft screenshot sets are in:
 
 - `assets/appstore/screenshots/ios_67/`
 - `assets/appstore/screenshots/ios_65/`
-- `assets/appstore/screenshots/ipad_129/`
 
-Use real device screenshots instead if final review prefers true captured device output.
+The current release is iPhone-only. Do not upload the legacy iPad draft directory. Use physical-device captures instead if final review prefers true captured device output.
 
 ## Manual QA Gate
 
@@ -42,10 +41,12 @@ Before upload, complete `design/app_store_qa_checklist.md` on physical devices. 
 - levels `1`, `5`, `10`, `20`, `50`, `75`, `95`, and `99`
 - fresh install
 - save persistence after relaunch
-- sound/quality toggles
+- independent volume, quality, reduced-effects, and haptics controls
 - privacy/support panels
 - collection equipment changes
 - battle win/loss/retry/result flow
+- speed unlocks: hidden below level 30, 2X from level 30, 5X from level 50
+- background/resume save behavior
 - 30-minute continuous play
 
 ## App Store Connect Notes

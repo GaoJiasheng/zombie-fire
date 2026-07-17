@@ -1,11 +1,14 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const CONTENT_MAX_WIDTH := 920.0
 const CONTENT_SIDE_MARGIN := 88.0
 const HERO_TITLE_NORMAL_SIZE := 70
 const HERO_TITLE_LONG_SIZE := 58
 const HERO_TITLE_SHORT_SIZE := 78
+const RESULT_VISUAL_NUDGE_Y := -24.0
+const RESULT_FALLBACK_HEIGHT := 900.0
 
 var router: Node
 var level_id := "level_001"
@@ -16,6 +19,12 @@ var is_endless_result := false
 var is_challenge_result := false
 var endless_loops := 0
 var _content_width := CONTENT_MAX_WIDTH
+var standing_power := 1
+var projected_power := 1
+var combat_power := 1
+var recommended_power := 1
+var battle_report: Dictionary = {}
+var challenge_rule: Dictionary = {}
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -26,6 +35,14 @@ func setup(main: Node, payload := {}) -> void:
 	var victory := bool(payload.get("victory", false))
 	next_level = _resolve_next_level(payload, victory)
 	result_stars = int(payload.get("stars", 0))
+	standing_power = int(payload.get("standing_power", SaveManager.get_loadout_power()))
+	projected_power = int(payload.get("projected_power", SaveManager.get_projected_combat_power_for_level(level_id)))
+	combat_power = int(payload.get("combat_power", projected_power))
+	recommended_power = int(payload.get("recommended_power", SaveManager.get_recommended_power_for_level(level_id)))
+	battle_report = payload.get("battle_report", {}).duplicate(true)
+	challenge_rule = ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
+	if is_challenge_result and not payload.has("recommended_power"):
+		recommended_power = int(ceil(float(recommended_power) * float(challenge_rule.get("recommended_power_mult", 1.5))))
 	if is_endless_result:
 		result_stars = 0
 	_result_return_payload = _build_result_return_payload(payload, victory)
@@ -34,9 +51,11 @@ func setup(main: Node, payload := {}) -> void:
 	_populate_hero(victory)
 	_populate_rewards(payload, victory)
 	_populate_hint(victory)
+	_populate_battle_report(victory)
 	_populate_actions(victory)
 	if victory:
 		SaveManager.repair_progression_unlocks()
+	call_deferred("_center_result_content")
 	call_deferred("_animate_result_entry", victory)
 
 func _ready() -> void:
@@ -46,6 +65,7 @@ func _ready() -> void:
 	$Content/Actions/PrimaryRow/RetryButton.pressed.connect(_on_retry_pressed)
 	$Content/Actions/NextButton.pressed.connect(_on_next_pressed)
 	$Content/Actions/MapButton.pressed.connect(_on_map_pressed)
+	$Content/ReportButton.pressed.connect(_on_report_pressed)
 
 func _apply_layout_constraints() -> void:
 	var viewport_size := get_viewport_rect().size
@@ -55,14 +75,12 @@ func _apply_layout_constraints() -> void:
 	var content := $Content as Control
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var safe_center_shift := (safe.y - safe.w) * 0.5
-	var modal_shift := UiKit.tall_modal_shift(viewport_size.y, 160.0, 0.34)
 	content.offset_left = -content_width * 0.5
 	content.offset_right = content_width * 0.5
-	content.offset_top = -820.0 + modal_shift + safe_center_shift
-	content.offset_bottom = 700.0 + modal_shift + safe_center_shift
+	_set_result_content_height(RESULT_FALLBACK_HEIGHT, safe_center_shift)
 	content.set_meta("safe_area_content", true)
 	content.add_theme_constant_override("separation", 12)
-	for path in ["Content/HeroCard", "Content/RewardRow", "Content/HintCard", "Content/Actions"]:
+	for path in ["Content/HeroCard", "Content/RewardRow", "Content/HintCard", "Content/ReportButton", "Content/ReportPanel", "Content/Actions"]:
 		var node := get_node_or_null(path) as Control
 		if node != null:
 			node.custom_minimum_size.x = content_width
@@ -81,6 +99,24 @@ func _apply_layout_constraints() -> void:
 	$Content/HintCard/HintBox.add_theme_constant_override("separation", 12)
 	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = Vector2(52, 52)
 	$Content/HintCard/HintBox/Hint.custom_minimum_size = Vector2(content_width - 120.0, 72)
+	$Content/ReportButton.custom_minimum_size = Vector2(content_width, UiKit.MIN_TOUCH_TARGET.y)
+	$Content/ReportPanel.custom_minimum_size.x = content_width
+	call_deferred("_center_result_content")
+
+func _center_result_content() -> void:
+	if not is_inside_tree():
+		return
+	var content := $Content as Control
+	var minimum_height := maxf(content.get_combined_minimum_size().y, 1.0)
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var safe_center_shift := (safe.y - safe.w) * 0.5
+	_set_result_content_height(minimum_height, safe_center_shift)
+
+func _set_result_content_height(content_height: float, safe_center_shift: float) -> void:
+	var content := $Content as Control
+	var center_y := safe_center_shift + RESULT_VISUAL_NUDGE_Y
+	content.offset_top = center_y - content_height * 0.5
+	content.offset_bottom = center_y + content_height * 0.5
 
 func _native_result_content_width(raw_width: float) -> float:
 	if raw_width >= 912.0:
@@ -95,6 +131,8 @@ func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("gold"))
 	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("xp"))
+	$Content/ReportPanel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
+	UiKit.apply_armored_texture_button($Content/ReportButton, false, Vector2(_content_width, UiKit.MIN_TOUCH_TARGET.y), true)
 	_reset_action_button_tints()
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	_apply_title_label_style(HERO_TITLE_NORMAL_SIZE, UiKit.TEXT_MAIN)
@@ -104,6 +142,12 @@ func _apply_ui_style() -> void:
 	UiKit.apply_label($Content/RewardRow/XpCard/XpBox/XpVBox/XpLabel, 18, UiKit.CYAN, 2)
 	UiKit.apply_label($Content/RewardRow/XpCard/XpBox/XpVBox/XpValue, 40, UiKit.CYAN, 4)
 	UiKit.apply_label($Content/HintCard/HintBox/Hint, 22, UiKit.TEXT_MAIN, 2)
+	UiKit.apply_label($Content/ReportButton/ReportLabel, 22, UiKit.CYAN, 4)
+	UiKit.apply_label($Content/ReportPanel/ReportBox/Heading, 18, UiKit.GOLD, 2)
+	UiKit.apply_label($Content/ReportPanel/ReportBox/Overview, 20, UiKit.TEXT_MAIN, 2)
+	UiKit.apply_label($Content/ReportPanel/ReportBox/Output, 19, UiKit.CYAN, 2)
+	UiKit.apply_label($Content/ReportPanel/ReportBox/Defense, 19, UiKit.TEXT_MUTED, 2)
+	UiKit.apply_label($Content/ReportPanel/ReportBox/Coach, 18, UiKit.WARNING, 2)
 	for path in [
 		"Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel",
 		"Content/Actions/PrimaryRow/RetryButton/RetryLabel",
@@ -128,7 +172,7 @@ func _populate_hero(victory: bool) -> void:
 		_apply_title_label_style(HERO_TITLE_SHORT_SIZE, Color(1, 0.78, 0.4, 1))
 	elif is_challenge_result:
 		$Content/HeroCard/HeroBox/Title.text = "挑战完成" if victory else "挑战失败"
-		$Content/HeroCard/HeroBox/LevelName.text = level_name
+		$Content/HeroCard/HeroBox/LevelName.text = "%s · %s" % [level_name, str(challenge_rule.get("name", "高压尸潮"))]
 		_apply_title_label_style(HERO_TITLE_LONG_SIZE, Color(1, 0.78, 0.4, 1) if victory else Color(1, 0.55, 0.45, 1))
 	else:
 		$Content/HeroCard/HeroBox/Title.text = DataLoader.tr_key("ui_victory") if victory else DataLoader.tr_key("ui_defeat")
@@ -188,6 +232,45 @@ func _populate_hint(victory: bool) -> void:
 
 func _set_hint_style(card: PanelContainer, kind: String) -> void:
 	card.add_theme_stylebox_override("panel", UiKit.hint_texture_style(kind == "warning"))
+
+func _populate_battle_report(victory: bool) -> void:
+	var duration := int(round(float(battle_report.get("duration_seconds", 0.0))))
+	var minutes := int(duration / 60)
+	var seconds := duration % 60
+	var damage := int(round(float(battle_report.get("damage_total", 0.0))))
+	var kills := int(battle_report.get("kills", 0))
+	var boss_kills := int(battle_report.get("boss_kills", 0))
+	var streak := int(battle_report.get("max_kill_streak", 0))
+	var top_element := str(battle_report.get("top_element", "physical"))
+	var top_damage := float(battle_report.get("damage_by_element", {}).get(top_element, 0.0))
+	var top_share := int(round(top_damage / maxf(float(damage), 1.0) * 100.0))
+	$Content/ReportPanel/ReportBox/Overview.text = "用时 %d:%02d  ·  总伤害 %s  ·  击杀 %d%s  ·  最高 %d 连斩" % [minutes, seconds, _format_result_number(damage), kills, "（首领 %d）" % boss_kills if boss_kills > 0 else "", streak]
+	$Content/ReportPanel/ReportBox/Output.text = "主力 %s %d%%  ·  暴击伤害 %s  ·  弱点伤害 %s" % [_element_name(top_element), top_share, _format_result_number(int(round(float(battle_report.get("crit_damage", 0.0))))), _format_result_number(int(round(float(battle_report.get("weak_damage", 0.0)))))]
+	$Content/ReportPanel/ReportBox/Defense.text = "防线承伤 %d  ·  格挡 %d  ·  控制 %.1f秒  ·  主动技能 %d次" % [int(battle_report.get("base_damage_taken", 0)), int(battle_report.get("base_damage_prevented", 0)), float(battle_report.get("control_seconds", 0.0)), int(battle_report.get("active_skill_casts", 0))]
+	$Content/ReportPanel/ReportBox/Coach.text = _battle_report_coach(victory)
+
+func _battle_report_coach(victory: bool) -> String:
+	if is_challenge_result:
+		return "挑战规则：%s。应对：%s" % [ChallengeRules.pressure_text(challenge_rule), str(challenge_rule.get("counter_hint", "围绕弱点配装。"))]
+	if not victory:
+		var boss_id := str(battle_report.get("boss_id", ""))
+		if boss_id != "":
+			var boss_hint := str(DataLoader.get_row("bosses", boss_id).get("counter_hint", ""))
+			if boss_hint != "":
+				return "失败复盘：%s" % boss_hint
+		var weak_damage := float(battle_report.get("weak_damage", 0.0))
+		var total_damage := maxf(float(battle_report.get("damage_total", 0.0)), 1.0)
+		if weak_damage / total_damage < 0.12:
+			return "失败复盘：弱点伤害占比较低，换用本关克制元素并优先拿核心伤害牌。"
+		if int(battle_report.get("base_damage_taken", 0)) > 0 and float(battle_report.get("control_seconds", 0.0)) < 2.0:
+			return "失败复盘：防线承压但控制不足，补一张减速、冰霜或屏障牌。"
+	return "复盘建议：保持主伤害流派，再补一张控制或防线牌，成型会更稳定。"
+
+func _on_report_pressed() -> void:
+	AudioManager.play_sfx("ui_click", -6.0)
+	$Content/ReportPanel.visible = not $Content/ReportPanel.visible
+	$Content/ReportButton/ReportLabel.text = "收起战斗战报  ⌃" if $Content/ReportPanel.visible else "展开战斗战报  ›"
+	call_deferred("_center_result_content")
 
 func _populate_actions(victory: bool) -> void:
 	$Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel.text = _upgrade_action_label(victory)
@@ -354,17 +437,15 @@ func _router_level_id() -> String:
 
 func _result_hint(victory: bool) -> String:
 	if is_endless_result:
-		return "无尽模式只结算金币；经验和星星不发放。最高坚持轮数会记录。"
+		return "无尽只结算金币。战前 %d → 终局 %d；记录最高轮数。" % [standing_power, combat_power]
 	if victory:
 		if is_challenge_result:
-			return "挑战星按最高星级补差额发放；重复通关不会重复给星。当前战力 %d。" % SaveManager.get_loadout_power()
-		return "当前战力 %d。继续推关前可强化武器、角色或核心芯片。" % SaveManager.get_loadout_power()
+			return "战前 %d → 终局 %d / 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
+		return "战前 %d → 终局 %d / 关卡 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
 	if is_challenge_result:
-		var challenge_power := int(ceil(float(SaveManager.get_recommended_power_for_level(level_id)) * 1.5))
-		return "挑战尸潮更硬、漏怪更痛。战力 %d / 建议 %d，先补强克制配装再回来。" % [SaveManager.get_loadout_power(), challenge_power]
-	var recommended_power := SaveManager.get_recommended_power_for_level(level_id)
-	if SaveManager.get_loadout_power() < recommended_power:
-		return "战力 %d / 推荐 %d。优先强化武器、角色或核心芯片。" % [SaveManager.get_loadout_power(), recommended_power]
+		return "挑战压力 %d；本局成型 %d。优先补强克制配装和核心技能。" % [recommended_power, combat_power]
+	if combat_power < recommended_power:
+		return "本局成型 %d / 压力 %d。优先强化武器、角色或核心技能。" % [combat_power, recommended_power]
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
 	match level_id:
@@ -380,8 +461,7 @@ func _result_hint(victory: bool) -> String:
 func _upgrade_action_label(victory: bool) -> String:
 	if victory:
 		return "强化再出发"
-	var recommended_power := SaveManager.get_recommended_power_for_level(level_id)
-	if SaveManager.get_loadout_power() < recommended_power:
+	if combat_power < recommended_power:
 		return "补强战力"
 	return "调整克制"
 

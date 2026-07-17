@@ -7,6 +7,7 @@ export_presets.cfg
 
 # 构建产物 / 大文件 / 系统垃圾(2026-06 补)
 build/
+tmp/
 *.ipa
 *.xcarchive
 .DS_Store

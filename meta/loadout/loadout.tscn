@@ -268,12 +268,13 @@ theme_override_constants/separation = 60
 
 [node name="DetailsPanel" type="Control" parent="Root/Main"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 236)
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 
 [node name="BottomSpacer" type="Control" parent="Root/Main"]
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 4
 
 [node name="StartButton" type="TextureButton" parent="Root/Main"]
 unique_name_in_owner = true

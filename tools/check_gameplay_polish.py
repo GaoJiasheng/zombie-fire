@@ -338,6 +338,18 @@ def main() -> int:
         errors.append("defense barrier must not revert to Polygon2D/Line2D prototype geometry")
     if "barrier_sprite.material = _new_muzzle_additive_material()" in battle:
         errors.append("rendered barrier sprite must use normal alpha blending so gunmetal projectors remain visible")
+    layer_contract = [
+        "barrier_visual.z_index = BARRIER_VISUAL_Z",
+        "character_rig.z_index = DEFENSE_ACTOR_Z",
+        "pet_sprite.z_index = DEFENSE_ACTOR_Z",
+    ]
+    for required in layer_contract:
+        if required not in battle:
+            errors.append(f"defense actors must render above barrier glass: missing {required}")
+    barrier_z_match = re.search(r"const BARRIER_VISUAL_Z := (\d+)", battle)
+    actor_z_match = re.search(r"const DEFENSE_ACTOR_Z := (\d+)", battle)
+    if barrier_z_match and actor_z_match and int(actor_z_match.group(1)) <= int(barrier_z_match.group(1)):
+        errors.append("defense actor layer must be greater than the barrier glass layer")
     barrier_path = ROOT / "assets/production/sprites/vfx/vfx_barrier_glass.png"
     if not barrier_path.exists():
         errors.append("missing rendered defense barrier texture: assets/production/sprites/vfx/vfx_barrier_glass.png")

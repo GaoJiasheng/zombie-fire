@@ -23,6 +23,11 @@ func unbind() -> void:
 func shake(intensity: float, duration: float) -> void:
 	if _target == null:
 		return
+	if SettingsManager.reduced_effects_enabled():
+		intensity *= 0.28
+		duration *= 0.60
+		if intensity < 0.75 or duration < 0.025:
+			return
 	if intensity > _shake_intensity or _shake_time < duration * 0.4:
 		_shake_intensity = intensity
 	if duration > _shake_time:

@@ -2,7 +2,7 @@
 
 ## Current Verdict
 
-Repository release-candidate ready; external App Store submission work remains.
+Repository-side iPhone release-candidate work is complete; owner-controlled App Store submission work remains.
 
 The current repository build has the local app, asset, metadata, and validation pieces expected for a release-candidate pass. It still cannot be called submitted or App Store ready until signing, public URLs, real-device QA, and App Store Connect setup are completed.
 
@@ -16,32 +16,33 @@ The current repository build has the local app, asset, metadata, and validation 
 - BGM/SFX wiring.
 - Skill cards with icon, text, tags, and details.
 - Enemy animation, HP bars, combat VFX, reward float text.
-- Help/settings overlay with sound toggle and reset-save confirmation.
+- Settings with independent music/effects/interface volume, reduced-effects mode, haptics toggle, quality mode, and reset-save confirmation.
 - Redesigned high-end 1024 app icon at `assets/app/app_icon_1024.png`, with previous candidate backed up in `assets/app/app_icon_1024_before_redesign_2026_07_01.png`.
 - Candidate launch image at `assets/app/launch_1080x1920.png`.
 - Static privacy/support page drafts in `docs/public/`.
 - App Store metadata in `docs/app_store_metadata_zh.md`.
-- iPhone/iPad screenshot draft sets in `assets/appstore/screenshots/`.
+- iPhone screenshot sets in `assets/appstore/screenshots/` (the current release is iPhone-only).
 - iOS privacy manifest draft at `ios/PrivacyInfo.xcprivacy`.
-- Godot iOS/macOS export preset draft in `export_presets.cfg`.
-- Release validation tools for data, assets, balance, App Store assets, and release strings.
+- iPhone-only Godot iOS export preset in `export_presets.cfg`; generated Xcode projects are checked for `TARGETED_DEVICE_FAMILY=1`.
+- Owner-selected Glow Sans SC / 未来荧黑 Normal Medium global UI font, with the official SIL OFL 1.1 notice and provenance forced into the release PCK.
+- Release validation tools for data, assets, balance, animation motion, 5X battle stress, App Store assets, package contents, and release strings.
 
 ## Blocking Before App Store Submission
 
 - Real iOS device playtest and performance profiling.
-- True device screenshots if generated screenshot drafts are not accepted for final submission.
+- Final owner approval of the refreshed current-build iPhone screenshots.
 - Public privacy policy URL and support URL.
 - Apple Developer signing/export setup.
 - App Store Connect metadata, age rating, review notes, and build upload.
-- At least one full visible QA pass for representative early, mid, late, and Boss levels.
+- At least one physical-iPhone QA pass for representative early, mid, late, Boss, challenge, and Endless levels.
 
 ## Product Quality Gaps
 
-- Balance: automated pressure and skill checks pass, but human tuning on real devices is still needed.
-- UI polish: map/loadout/result are serviceable; final acceptance depends on real-device screenshots and touch comfort.
-- Audio mix: all major sounds are wired, but relative loudness needs real-device tuning.
+- Balance: automated pressure, campaign-duration, skill, and 5X stress checks pass; final feel still needs physical-device playtesting.
+- UI polish: routed tall-screen and safe-area screenshots pass; final acceptance depends on real-device touch comfort.
+- Audio mix: independent buses, concurrency limits, and loop checks pass; speaker/headphone loudness still needs real-device tuning.
 - Brand: redesigned app icon now passes technical checks and better reflects the turret-vs-horde core fantasy; final taste approval remains a human sign-off item.
-- Accessibility: no explicit text scaling, color-blind pass, or haptic settings yet.
+- Accessibility: reduced-effects and haptics controls are implemented; color-only communication and text legibility still need a human device pass.
 
 ## Recommended Release Bar
 

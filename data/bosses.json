@@ -12,6 +12,7 @@
 			"physical"
 		],
 		"weakness": "fire",
+		"counter_hint": "连续命中击破装甲，破甲后立刻用火焰与主动技能集火。",
 		"mechanic": "armor_break",
 		"mechanic_params": {
 			"armor_hits": 30
@@ -31,6 +32,10 @@
 			"fire"
 		],
 		"weakness": "ice",
+		"counter_hint": "冰霜克制熔火，保留控制与爆发跨过狂暴阈值。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "熔火过载", "color": "ff7a24"}
+		],
 		"mechanic": "phase_burn",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_inferno_maw_prototype.png"
@@ -48,6 +53,10 @@
 			"ice"
 		],
 		"weakness": "fire",
+		"counter_hint": "用火焰压制寒潮，阶段转换时主动技能清掉近线敌群。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "寒潮扩张", "color": "67c9ff"}
+		],
 		"mechanic": "freeze_field",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_frost_warden_prototype.png"
@@ -65,6 +74,10 @@
 			"lightning"
 		],
 		"weakness": "poison",
+		"counter_hint": "毒素可克制雷暴本体，先清支援单位以切断连锁增幅。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "雷链增幅", "color": "ffe34d"}
+		],
 		"mechanic": "storm_chain",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_storm_caller_prototype.png"
@@ -82,6 +95,10 @@
 			"poison"
 		],
 		"weakness": "fire",
+		"counter_hint": "火焰优先烧掉召唤物，手动锁定母体阻止尸群滚雪球。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "孵化增殖", "color": "89ff62"}
+		],
 		"mechanic": "spawn_minions",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_plague_mother_prototype.png"
@@ -99,6 +116,10 @@
 			"physical"
 		],
 		"weakness": "lightning",
+		"counter_hint": "用闪电和追踪覆盖相位路线，主动技能留给连续突进。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "相位加速", "color": "91a8ff"}
+		],
 		"mechanic": "phase_shift",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_void_phantom_prototype.png"
@@ -116,6 +137,11 @@
 			"poison"
 		],
 		"weakness": "fire",
+		"counter_hint": "用火焰压制再生，阶段转换后立即爆发，避免血线回升。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "腐化再生", "color": "81ff62"},
+			{"threshold": 0.34, "text": "亡者狂暴", "color": "ff3d28"}
+		],
 		"mechanic": "regenerate",
 		"mechanic_params": {},
 		"sprite": "res://assets/production/sprites/bosses/boss_necrotitan_prototype.png"
@@ -136,8 +162,15 @@
 			"poison"
 		],
 		"weakness": "physical",
+		"counter_hint": "使用物理破防主轴，并搭配控制或屏障穿过复合机制阶段。",
+		"phase_cues": [
+			{"threshold": 0.67, "text": "终焉护阵", "color": "ffb02e"},
+			{"threshold": 0.34, "text": "灾变狂潮", "color": "ff241f"}
+		],
 		"mechanic": "multi_phase",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"immune_damage_floor": 0.08
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_apex_overlord_prototype.png"
 	}
 }

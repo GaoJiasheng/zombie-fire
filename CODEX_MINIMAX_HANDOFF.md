@@ -94,7 +94,7 @@ Do not change these without explicit user approval:
 
 - Engine: Godot 4 + GDScript.
 - Logical resolution: 1080x1920 vertical.
-- Stretch mode: `canvas_items`, aspect `keep`.
+- Stretch mode: `canvas_items`, aspect `expand` (required for tall iPhones; do not restore `keep`, which creates black bars).
 - M1 scope: 5 playable levels only.
 - M1 playable character: `vanguard` only.
 - M1 weapon: `weapon_autocannon` only.

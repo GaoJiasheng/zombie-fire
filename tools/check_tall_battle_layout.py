@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 LOGICAL_WIDTH = 1080.0
 DESIGN_HEIGHT = 1920.0
 EXTENDED_HEIGHT = 2622.0
-TALL_VIEWPORT_HEIGHTS = (1920.0, 2046.0, 2340.0, 2622.0)
+# Normalize every supported iPhone viewport to the 1080px-wide design canvas.
+# 1920 covers the short-screen floor, 2337-2348 covers current notch / Dynamic
+# Island families, and 2622 is the shipped background's upper stress boundary.
+TALL_VIEWPORT_HEIGHTS = (1920.0, 2046.0, 2337.0, 2340.0, 2348.0, 2622.0)
 NORMAL_ATTACK_OFFSET_RANGE = (-18.0, 26.0)
 BOSS_ATTACK_OFFSET_RANGE = (-94.0, -62.0)
 
@@ -126,6 +129,12 @@ def _source_guard_errors() -> list[str]:
     # 细节，和竖屏高度无关，且已经从字面量演进成按 bar.size.x 动态计算——放在
     # 这里断言字面量只会在每次合理重构时误报，已移除。
     required_battle_snippets = [
+        "bottom_dock_shift = maxf(0.0, visible_size.y - 1920.0)",
+        "BREACH_Y = BREACH_Y_DESIGN + bottom_dock_shift",
+        "CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN + bottom_dock_shift)",
+        '["Hud/TopBar", "PauseLayer/PauseButton", "PauseLayer/SpeedButton"]',
+        "func _wave_toast_target_position() -> Vector2:",
+        "target_y = maxf(target_y, top_bar.offset_bottom + 22.0)",
         "func _battle_visible_height() -> float:",
         "var visible_height := _battle_visible_height()",
         "var cover_scale := maxf(1080.0 / texture_size.x, visible_height / texture_size.y)",

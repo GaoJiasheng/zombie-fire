@@ -1,0 +1,17 @@
+{
+  "asset": "assets/production/fonts/font_main.ttf",
+  "family": "Glow Sans SC / 未来荧黑",
+  "style": "Normal Medium",
+  "release": "v0.93",
+  "source_repository": "https://github.com/welai/glow-sans",
+  "source_release": "https://github.com/welai/glow-sans/releases/tag/v0.93",
+  "source_archive": "GlowSansSC-Normal-v0.93.zip",
+  "source_archive_sha256": "aa2e1fdb20337113a1d2670b695bfee83910eefa2e48f51c704e5f4a9f8ec9f1",
+  "source_file": "GlowSansSC-Normal-Medium.otf",
+  "shipped_sha256": "56481618894253fb71427a097706f9a440806b4957a7381946dc6464b98aa192",
+  "shipped_bytes": 9176176,
+  "binary_unchanged": true,
+  "license": "SIL Open Font License 1.1",
+  "license_file": "assets/production/fonts/OFL-GlowSans.txt",
+  "integration_note": "The official OTF binary is shipped byte-for-byte unchanged. The existing font_main.ttf resource filename is retained to avoid changing the global Godot resource path."
+}

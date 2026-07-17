@@ -61,7 +61,7 @@ Current validation result:
 - Placeholder MP4 videos.
 - `OUTSOURCER_ASSET_INDEX.json`.
 - Placeholder skeletal body part PNGs and part manifests.
-- Production fallback font file.
+- Production Glow Sans SC / 未来荧黑 Normal Medium font, official OFL notice, and source/hash provenance.
 
 ### Audio
 
@@ -114,6 +114,6 @@ These are intentionally not final-polish assets yet:
 - Final mastered BGM/SFX.
 - Final polished video/CG files.
 - Final App Store preview video.
-- Final custom brand font, if desired. Current `font_main.ttf` is already available as a production fallback.
+- Runtime `font_main.ttf` now contains the owner-selected official Glow Sans SC / 未来荧黑 Normal Medium v0.93 binary. `fonts/OFL-GlowSans.txt` and `fonts/font_main.provenance.json` record the SIL OFL 1.1 grant, source release, exact byte size, and SHA-256; the release gate and exported-PCK audit require these files.
 
 The current pack is enough for Godot outsourcing to integrate the whole game without waiting for art/audio.

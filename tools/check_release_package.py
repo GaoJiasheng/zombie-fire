@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import plistlib
 import re
 import struct
@@ -10,34 +11,17 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    from release_export_rules import required_release_excludes, runtime_vfx_frame_paths
+except ModuleNotFoundError:  # Supports importing this checker as tools.check_release_package.
+    from tools.release_export_rules import required_release_excludes, runtime_vfx_frame_paths
+
 ROOT = Path(__file__).resolve().parents[1]
 PRESET_PATH = ROOT / "export_presets.cfg"
 EXPECTED_BUNDLE_ID = "com.gaojiasheng.zombiefire"
 
-REQUIRED_EXCLUDES = {
-    ".git/*",
-    ".godot/*",
-    "tmp/*",
-    "build/*",
-    "docs/*",
-    "design/*",
-    "tools/*",
-    "scratchpad/*",
-    "assets/m1_visual/*",
-    "assets/appstore/*",
-    "assets/production/environment/*",
-    "assets/production/video/*",
-    "assets/production/flow/*",
-    "assets/production/source_refs/*",
-    "assets/production/contact_sheets/*",
-    "extension_api.json",
-    "*.md",
-    "*.markdown",
-}
-FORBIDDEN_PACK_PREFIXES = tuple(
-    item[:-1] for item in REQUIRED_EXCLUDES if item.endswith("/*") and not item.startswith(".godot/")
-)
-FORBIDDEN_PACK_FILES = {"extension_api.json"}
+REQUIRED_EXCLUDES = required_release_excludes()
+FORBIDDEN_PACK_PATTERNS = tuple(item for item in REQUIRED_EXCLUDES if not item.startswith(".godot/"))
 FORBIDDEN_PACK_SUFFIXES = (
     ".ai",
     ".aseprite",
@@ -55,6 +39,11 @@ FORBIDDEN_PACK_SUFFIXES = (
 MAX_PCK_BYTES = 1400 * 1024 * 1024
 MAX_IPA_BYTES = 1600 * 1024 * 1024
 MAX_PACK_FILES = 20_000
+REQUIRED_FONT_PACKAGE_PATHS = {
+    "assets/production/fonts/OFL-GlowSans.txt",
+    "assets/production/fonts/font_main.provenance.json",
+    "assets/production/fonts/font_main.ttf.import",
+}
 
 
 class PackageCheckError(RuntimeError):
@@ -104,6 +93,8 @@ def check_preset() -> tuple[str, str]:
         raise PackageCheckError(f"iOS preset is missing required excludes: {', '.join(missing)}")
     if preset_value(options, "application/export_project_only") != "true":
         raise PackageCheckError("iOS preset must export the Xcode project only; archive/export is owned by the release script")
+    if preset_value(options, "application/targeted_device_family") != "0":
+        raise PackageCheckError("iOS preset must target iPhone only (targeted_device_family=0)")
 
     bundle_id = preset_value(options, "application/bundle_identifier")
     build = preset_value(options, "application/version")
@@ -116,6 +107,22 @@ def check_preset() -> tuple[str, str]:
         raise PackageCheckError(f"invalid iOS short version: {short_version}")
     print(f"iOS export preset passed: build={build}, version={short_version}, excludes={len(excludes)}")
     return build, short_version
+
+
+def check_xcode_project(path: Path) -> None:
+    pbxproj = path / "project.pbxproj" if path.suffix == ".xcodeproj" else path
+    if not pbxproj.is_file():
+        raise PackageCheckError(f"Xcode project file not found: {pbxproj}")
+    text = pbxproj.read_text(encoding="utf-8")
+    families = re.findall(r'TARGETED_DEVICE_FAMILY\s*=\s*"?([^";]+)"?;', text)
+    if not families:
+        raise PackageCheckError("Xcode project has no TARGETED_DEVICE_FAMILY setting")
+    normalized = {value.strip() for value in families}
+    if normalized != {"1"}:
+        raise PackageCheckError(
+            f"Xcode project must target iPhone only (TARGETED_DEVICE_FAMILY=1); found {sorted(normalized)}"
+        )
+    print(f"Xcode iPhone target passed: {len(families)} build configurations use TARGETED_DEVICE_FAMILY=1")
 
 
 def read_u32(handle) -> int:
@@ -199,8 +206,7 @@ def check_pck(path: Path) -> int:
     forbidden = sorted(
         entry.path
         for entry in entries
-        if entry.path in FORBIDDEN_PACK_FILES
-        or entry.path.startswith(FORBIDDEN_PACK_PREFIXES)
+        if any(fnmatch.fnmatchcase(entry.path, pattern) for pattern in FORBIDDEN_PACK_PATTERNS)
         or entry.path.lower().endswith(FORBIDDEN_PACK_SUFFIXES)
     )
     if forbidden:
@@ -209,6 +215,17 @@ def check_pck(path: Path) -> int:
         raise PackageCheckError(f"PCK contains release-excluded paths: {sample}{suffix}")
 
     entry_by_path = {entry.path: entry for entry in entries}
+    missing_font_files = sorted(REQUIRED_FONT_PACKAGE_PATHS - entry_by_path.keys())
+    if missing_font_files:
+        raise PackageCheckError(
+            "PCK is missing the licensed runtime font notice/provenance: " + ", ".join(missing_font_files)
+        )
+    required_vfx_metadata = {f"{frame}.import" for frame in runtime_vfx_frame_paths()}
+    missing_vfx_metadata = sorted(required_vfx_metadata - entry_by_path.keys())
+    if missing_vfx_metadata:
+        sample = ", ".join(missing_vfx_metadata[:10])
+        suffix = f" (+{len(missing_vfx_metadata) - 10} more)" if len(missing_vfx_metadata) > 10 else ""
+        raise PackageCheckError(f"PCK is missing runtime VFX frames: {sample}{suffix}")
     imported = {entry.path for entry in entries if entry.path.startswith(".godot/imported/")}
     referenced_imports: set[str] = set()
     import_ref_re = re.compile(rb'res://(\.godot/imported/[^"\s]+)')
@@ -284,6 +301,13 @@ def check_ipa(
             raise PackageCheckError("IPA does not identify its payload as an application")
         if info.get("MinimumOSVersion") != "14.0":
             raise PackageCheckError(f"unexpected IPA minimum iOS version: {info.get('MinimumOSVersion', '<missing>')}")
+        if info.get("UIDeviceFamily") != [1]:
+            raise PackageCheckError(f"IPA must target iPhone only; UIDeviceFamily={info.get('UIDeviceFamily', '<missing>')}")
+        if info.get("UIRequiresFullScreen") is not True:
+            raise PackageCheckError("IPA must require full-screen presentation")
+        orientations = info.get("UISupportedInterfaceOrientations")
+        if orientations != ["UIInterfaceOrientationPortrait"]:
+            raise PackageCheckError(f"IPA must be portrait-only; orientations={orientations}")
 
         minimum_sizes = {
             f"{app_root}ZombieFire": 1024 * 1024,
@@ -315,6 +339,7 @@ def main() -> int:
     parser.add_argument("--preset-only", action="store_true")
     parser.add_argument("--pck", type=Path)
     parser.add_argument("--ipa", type=Path)
+    parser.add_argument("--xcode-project", type=Path)
     parser.add_argument("--expected-build")
     parser.add_argument("--expected-short-version")
     parser.add_argument("--source-pck", type=Path)
@@ -323,6 +348,8 @@ def main() -> int:
         preset_build, preset_short_version = check_preset()
         if args.pck:
             check_pck(args.pck)
+        if args.xcode_project:
+            check_xcode_project(args.xcode_project)
         if args.ipa:
             check_ipa(
                 args.ipa,
@@ -330,7 +357,7 @@ def main() -> int:
                 args.expected_short_version or preset_short_version,
                 args.source_pck,
             )
-        if args.preset_only and (args.pck or args.ipa):
+        if args.preset_only and (args.pck or args.ipa or args.xcode_project):
             raise PackageCheckError("--preset-only cannot be combined with artifact checks")
     except (OSError, PackageCheckError, plistlib.InvalidFileException, zipfile.BadZipFile) as exc:
         print(f"Release package validation failed: {exc}", file=sys.stderr)

@@ -48,6 +48,11 @@
       "level_damage_growth": 0.004, // weapon 挂钩技能应低，避免和主武器成长重复爆炸
       "rank_damage_bonus": 0.03,
       "rank_duration_bonus": 0.20,
+	  "sig_level_damage_bonus": 0.10, // 独立专属技能等级每级伤害增幅
+	  "sig_level_cooldown_reduction": 0.03, // 每级缩短基础冷却 3%
+	  "sig_level_duration_bonus": 0.35, // 可选：每级增加持续秒数
+	  "sig_level_extra_volley_every": 2, // 可选：每 N 级增加一次机制数量
+	  "sig_level_extra_target_every": 2,
       "max_extra_volleys": 1
     },
     "bullet_affinity": {
@@ -68,6 +73,7 @@
 
 - `weapon`：基于当前主武器攻击，技能本身只给轻量成长，适合弹幕齐射这类“主武器强化”技能。
 - `character`：基于角色自身攻击和角色等级，不重复吃主武器等级，技能成长可以更明显，适合火焰、冰霜、雷电等角色领域/爆发技能。
+- `sig_level_*`：角色专属主动技的独立 `0-5` 级成长。所有主动技必须至少声明伤害增幅与冷却缩减；各技能再通过持续时间、范围、状态强度、阈值数组或每 N 级机制增量形成可感知质变。
 
 `bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。
 
@@ -77,8 +83,16 @@
 {
   "late_wave_hp_bonus": {"3": 1.45, "4": 1.85, "5": 2.30},
   "late_wave_count_mult": {"4": 2, "5": 3},
+  "run_skill_pressure": {
+    "reference_card_picks": 4,
+    "hp_conversion": 0.65,
+    "max_hp_mult": 1.60,
+    "speed_conversion": 0.15,
+    "max_speed_mult": 1.15
+  },
   "late_wave_boss_hp_bonus": {"3": 1.30, "4": 1.50, "5": 1.75},
-  "late_wave_level_ramp": {"start_level": 45, "full_level": 85, "max_mult": 1.22},
+  "late_wave_level_ramp": {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20},
+  "late_wave_damage_ramp": {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 2.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.15},
   "endless_template_level": "level_025",
   "endless_boss_immunity_grace_loops": 1,
   "endless_first_loop_armor_hits_cap": 8,
@@ -88,8 +102,11 @@
 
 - `late_wave_hp_bonus` 只加第 3 波及以后普通/支援怪 HP，不影响第 1/2 波开局节奏。
 - `late_wave_count_mult` 只加普通/支援怪数量；当前第 4 波 `2x`、第 5 波 `3x`，普通、挑战、无尽模式共享同一运行时入口。
+- `run_skill_pressure` 把关卡 `target_card_picks` 对应的局内技能成型空间换算成第 3 波以后的附加压力。`reference_card_picks` 是战力面板基准；当前十次选卡关卡的额外压力约为 `1.54x HP / 1.12x 移速`，并分别受 `max_hp_mult / max_speed_mult` 限制。
+- 该压力只读取关卡静态选卡预算，不读取玩家当前血量、实时 DPS 或输赢记录，因此不是动态追赶或惩罚性橡皮筋。挑战模式仍在同一基础上额外应用既定 `1.5x` 敌人生命。
 - `late_wave_boss_hp_bonus` 是 Boss 波单独 HP 旋钮，避免 Boss 误吃普通怪的高倍率。
-- `late_wave_level_ramp` 从 `start_level` 到 `full_level` 线性叠加，专门吸收中后期局内技能成型后的 DPS 爆发。
+- `late_wave_level_ramp` 从 `start_level` 到 `full_level` 按 `curve_power` 递增，专门吸收中后期局内技能成型后的 DPS 爆发；当前只影响第 3 波及以后。达到 `final_level` 时再乘 `final_mult`，用于把终局考核与 50–98 的常规成长分开。
+- `late_wave_damage_ramp` 同步提高第 `start_wave` 波后的压线/技能伤害，并支持同样的终局倍率，防止低输出配装只靠高基地血量把高 HP 敌人慢慢磨死；无尽模式使用 `level_025` 模板，因此不误吃主线 50+ 曲线。
 - `endless_template_level` 是无限尸潮的独立模板关卡；无论从哪一关入口进入，无尽首轮都按该模板的波次、推荐强度、金币等级和 HP 基准起步。
 - `endless_boss_immunity_grace_loops` 控制无尽前几轮 Boss 是否移除硬免疫，避免第一轮出现“打不掉血”的元素/破甲墙。
 - `endless_first_loop_armor_hits_cap` 是无尽开局破甲 Boss 的护甲命中上限兜底。
@@ -216,15 +233,18 @@
     "name_key":"boss_void_phantom", "appear_level":72,
     "hp_coef":45, "phases":2,
     "immune":["physical_is_only"],   // 全元素免疫→只吃物理（特殊标记）
-    "weakness":"physical",
+	    "weakness":"physical",
+	    "counter_hint":"使用物理破防主轴，并搭配控制或屏障。",
+	    "phase_cues":[{"threshold":0.67,"text":"终焉护阵","color":"ffb02e"}],
     "mechanic":"phase_intangible",
-    "mechanic_params":{"phase_interval":8,"phase_duration":2.5},
+    "mechanic_params":{"phase_interval":8,"phase_duration":2.5,"immune_damage_floor":0.08},
     "intro_video":"vid_boss_intro_void_phantom.mp4",
     "sprite_prefix":"boss_void_phantom",
     "anim":["idle","attack","hurt","death","special"]
   }
 }
 ```
+`immune_damage_floor` 仅用于 Boss 的错误元素保底伤害比例；必须大于 `0`，以免形成绝对软锁。未声明时使用运行时通用值 `0.18`，终局 Boss 可按毕业配装检查收紧。`phase_cues` 按血量阈值驱动阶段播报，`counter_hint` 同时用于失败战报，不在战斗脚本硬编码首领文案。
 
 ## environments.json （映射）
 ```jsonc
@@ -274,7 +294,8 @@
   "late_wave_hp_bonus": {"3":1.45,"4":1.85,"5":2.3},
   "late_wave_count_mult": {"4":2,"5":3},
   "late_wave_boss_hp_bonus": {"3":1.3,"4":1.5,"5":1.75},
-  "late_wave_level_ramp": {"start_level":45,"full_level":85,"max_mult":1.22},
+  "late_wave_level_ramp": {"start_level":50,"full_level":98,"max_mult":1.8,"curve_power":1.0,"final_level":99,"final_mult":1.2},
+  "late_wave_damage_ramp": {"start_level":50,"full_level":98,"start_wave":3,"max_mult":2.0,"curve_power":1.0,"final_level":99,"final_mult":1.15},
   "boss_hp_level_bonus": {"start_level":20,"multiplier":2.0},
   "endless_template_level": "level_025",
   "endless_boss_immunity_grace_loops": 1,
@@ -291,8 +312,12 @@
   "card_director": {
     "base_reroll_per_run": 1,
     "pity_after_missing_core_tag": 2,
-    "max_economy_cards_per_offer": 1,
-    "early_fun_card_boost_until_level": 5
+	    "max_economy_cards_per_offer": 1,
+	    "early_fun_card_boost_until_level": 5,
+	    "opening_identity_offer_count": 2,
+	    "opening_avoid_economy": true,
+	    "opening_damage_tags": ["anti_swarm","projectile","dps"],
+	    "opening_safety_tags": ["control","defense"]
   },
   "star_total_cap": 297
 }
@@ -302,25 +327,30 @@
 - `late_wave_hp_bonus` 是普通僵尸/支援怪的后半段波次血量旋钮；当前第 3/4/5 波分别为 `1.45/1.85/2.30`。
 - `late_wave_count_mult` 是普通僵尸/支援怪的后半段波次数量旋钮；当前第 4/5 波分别为 `2x/3x`，普通模式、挑战模式和无尽模式都由同一运行时队列函数应用。
 - `late_wave_boss_hp_bonus` 是 Boss 单独旋钮，避免 Boss 误吃普通怪后期加成；当前第 3/4/5 波分别为 `1.30/1.50/1.75`。
-- `late_wave_level_ramp` 是中后期后半段波次追加升压；当前从第 45 关线性提高，到第 85 关达到 `1.22x`。
+- `late_wave_level_ramp` 是后期第 3 波以后追加的 HP 升压；当前第 50–98 关线性从 `1.0x` 提高到 `1.80x`，第 99 关再乘 `1.20`，最终为 `2.16x`。
+- `late_wave_damage_ramp` 是同一阶段的压线伤害曲线；当前第 1/2 波不变，第 3 波以后在第 50–98 关线性从 `1.0x` 提高到 `2.0x`，第 99 关再乘 `1.15`，最终为 `2.30x`。
 - `boss_hp_level_bonus` 是关卡段 boss 血量旋钮；当前从第 20 关开始，所有 boss 额外乘 `2.0`，只影响 boss HP/压力估算，不提高 boss 伤害。
 - `endless_template_level` 固定无尽首轮的独立模板，当前 `level_025` 表示无尽开局约等价二三十关，不继承入口关卡的高阶波次或 HP 曲线。
 - `endless_boss_immunity_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 直接成为硬免疫墙；后续轮次恢复 Boss 原本免疫机制。
 - `endless_loop_hp_growth` 是无尽模式完成整轮后的复利 HP 成长；当前每轮至少比上一轮提高 50%，覆盖普通怪和 Boss，普通主线/挑战模式不受影响。
 
-## challenges.json （数组，M3/M4 后启用）
+## challenges.json （按章节固定变体映射）
 ```jsonc
-[
-  {
-    "id":"challenge_city_swarm",
-    "name_key":"challenge_city_swarm",
-    "base_level":"level_010",
-    "mutation_tags":["double_runners","bonus_elites"],
-    "reward":{"gold":500,"skin_shard":"skin_city_badge"},
-    "affects_main_progress":false
+{
+  "chapter_01": {
+    "id":"challenge_chapter_01",
+    "name":"疾行突袭",
+    "summary":"尸潮提速，留出控制窗口",
+    "counter_hint":"优先减速、冰霜与多重火力。",
+    "hp_mult":1.34,
+    "speed_mult":1.12,
+    "breach_damage_mult":1.0,
+    "mechanic_rate_mult":1.0,
+    "recommended_power_mult":1.5
   }
-]
+}
 ```
+每 10 关共用一个固定挑战规则；配装页必须在入场前显示名称、压力倍率与应对建议。倍率只由本表读取，结算战报保留同一规则快照。
 
 ## localization_zh.json （文案集中，预留英文 localization_en.json）
 ```jsonc

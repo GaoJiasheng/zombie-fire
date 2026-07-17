@@ -397,7 +397,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.clip_contents = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	button.modulate = Color.WHITE if unlocked else Color(0.72, 0.75, 0.78, 0.90)
+	button.modulate = Color.WHITE if unlocked else Color(0.84, 0.86, 0.88, 0.94)
 	if unlocked:
 		button.pressed.connect(_open_chapter.bind(chapter_id))
 
@@ -458,7 +458,7 @@ func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) ->
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.modulate = Color(0.72, 0.76, 0.76, 0.70) if unlocked else Color(0.40, 0.42, 0.44, 0.56)
+	art.modulate = Color(0.72, 0.76, 0.76, 0.70) if unlocked else Color(0.54, 0.56, 0.58, 0.70)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(art)
 
@@ -468,7 +468,7 @@ func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) ->
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	dim.stretch_mode = TextureRect.STRETCH_SCALE
-	dim.modulate = Color(0.0, 0.0, 0.0, 0.56 if unlocked else 0.50)
+	dim.modulate = Color(0.0, 0.0, 0.0, 0.56 if unlocked else 0.43)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(dim)
 
@@ -486,7 +486,7 @@ func _add_chapter_frame(parent: Control, accent: Color, unlocked: bool) -> void:
 	rail.size = Vector2(14, maxf(72.0, parent.custom_minimum_size.y - 56.0))
 	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rail.stretch_mode = TextureRect.STRETCH_SCALE
-	rail.modulate = Color(accent.r, accent.g, accent.b, 0.95 if unlocked else 0.35)
+	rail.modulate = Color(accent.r, accent.g, accent.b, 0.95 if unlocked else 0.52)
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(rail)
 
@@ -599,7 +599,7 @@ func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, te
 	action.custom_minimum_size = size
 	UiKit.apply_armored_texture_button(action, true, size, enabled)
 	action.mouse_filter = Control.MOUSE_FILTER_STOP
-	action.modulate = Color.WHITE if enabled else Color(0.40, 0.43, 0.46, 0.82)
+	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)
@@ -959,7 +959,7 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.focus_mode = Control.FOCUS_NONE
 	# PASS 而非默认 STOP：让触摸拖拽能穿到 ScrollContainer 去滚动(点按仍能进关，滚动时会自动取消误触)。
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.72, 0.75, 0.78, 0.92)
+	button.modulate = Color(0.96, 0.96, 0.92, 1.0) if unlocked else Color(0.84, 0.86, 0.88, 0.94)
 
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var accent := UiKit.element_color(weakness)
@@ -1109,7 +1109,7 @@ func _add_level_action_button(parent: Control, pos: Vector2, size: Vector2, text
 	action.custom_minimum_size = size
 	UiKit.apply_armored_texture_button(action, primary, size, enabled)
 	action.mouse_filter = Control.MOUSE_FILTER_STOP
-	action.modulate = Color.WHITE if enabled else Color(0.42, 0.45, 0.48, 0.82)
+	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)

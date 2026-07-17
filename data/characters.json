@@ -25,6 +25,11 @@
 			"level_damage_growth": 0.004,
 			"rank_damage_bonus": 0.03,
 			"rank_duration_bonus": 0.2,
+			"sig_level_damage_bonus": 0.1,
+			"sig_level_cooldown_reduction": 0.03,
+			"sig_level_duration_bonus": 0.35,
+			"sig_level_extra_volley_every": 2,
+			"sig_level_extra_target_every": 2,
 			"base_volleys": 5,
 			"rank_extra_volleys": 1,
 			"max_extra_volleys": 1,
@@ -74,6 +79,14 @@
 			"rank_damage_bonus": 0.12,
 			"level_radius_growth": 0.004,
 			"rank_radius_bonus": 24.0,
+			"sig_level_damage_bonus": 0.1,
+			"sig_level_cooldown_reduction": 0.03,
+			"sig_level_radius_bonus": 0.05,
+			"sig_level_status_bonus": 0.08,
+			"sig_level_extra_pulse_levels": [
+				3,
+				5
+			],
 			"base_pulses": 4,
 			"rank_extra_pulses": 1
 		},
@@ -122,6 +135,14 @@
 			"rank_damage_bonus": 0.1,
 			"rank_duration_bonus": 0.45,
 			"rank_field_y_extend": 26.0,
+			"sig_level_damage_bonus": 0.1,
+			"sig_level_cooldown_reduction": 0.03,
+			"sig_level_duration_bonus": 0.5,
+			"sig_level_slow_factor_bonus": 0.015,
+			"sig_level_extra_wave_levels": [
+				3,
+				5
+			],
 			"base_waves": 4,
 			"rank_extra_waves": 1,
 			"rank_slow_bonus": 0.025,
@@ -169,6 +190,10 @@
 			"max_targets": 6,
 			"level_damage_growth": 0.019,
 			"rank_damage_bonus": 0.11,
+			"sig_level_damage_bonus": 0.1,
+			"sig_level_cooldown_reduction": 0.03,
+			"sig_level_extra_target_every": 2,
+			"sig_level_extra_strike_every": 2,
 			"rank_target_bonus": 1,
 			"rank_extra_strikes": 1
 		},

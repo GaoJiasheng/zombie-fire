@@ -20,8 +20,16 @@ TALL_SCREEN_LABEL_PREFIXES = (
     "pause_tall",
     "card_offer_tall",
     "collection_detail_tall",
+    "menu_tall",
+    "map_tall",
+    "loadout_tall",
+    "collection_tall",
+    "settings_tall",
 )
 DEBUG_SAFE_INSETS = [44, 132, 44, 102]
+SPEED_BUTTON_SAVE_OVERRIDE = {
+    "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 51)]},
+}
 MIN_LUMA_STDEV = {
     "map": 20.0,
     "map_chapter": 20.0,
@@ -52,6 +60,14 @@ BASE_SCREENS: list[tuple[str, dict, str]] = [
         {"level_id": "level_003", "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""}},
         "loadout_empty_slots",
     ),
+    *[
+        (
+            "loadout",
+            {"level_id": "level_003", "equipment": {"selected_character": character_id}},
+            f"loadout_character_{character_id}",
+        )
+        for character_id in ["vanguard", "blaze", "frost", "volt"]
+    ],
     ("collection", {"mode": "characters"}, "collection_characters"),
     ("collection", {"mode": "weapons"}, "collection_weapons_locked"),
     ("collection", {"mode": "skills"}, "collection_skills_info"),
@@ -86,6 +102,68 @@ SCREENS: list[tuple[str, dict, str]] = (
         ),
         ("battle", {"level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]}, "pause_tall"),
         ("battle", {"level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]}, "card_offer_tall"),
+        (
+            "battle",
+            {
+                "level_id": "level_091",
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                "save_override": SPEED_BUTTON_SAVE_OVERRIDE,
+            },
+            "battle_tall_safe_area",
+        ),
+        (
+            "menu",
+            {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},
+            "menu_tall_safe_area",
+        ),
+        (
+            "map",
+            {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},
+            "map_tall_safe_area",
+        ),
+        (
+            "map",
+            {"chapter": 1, "viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},
+            "map_tall_chapter_safe_area",
+        ),
+        (
+            "loadout",
+            {
+                "level_id": "level_003",
+                "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""},
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "loadout_tall_safe_area",
+        ),
+        (
+            "collection",
+            {
+                "mode": "characters",
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_tall_characters_safe_area",
+        ),
+        *[
+            (
+                "collection",
+                {
+                    "mode": "characters",
+                    "detail_item": character_id,
+                    "viewport_size": [1080, 2340],
+                    "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                },
+                f"collection_detail_tall_character_{character_id}_safe_area",
+            )
+            for character_id in ["vanguard", "blaze", "frost", "volt"]
+        ],
+        (
+            "settings",
+            {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},
+            "settings_tall_safe_area",
+        ),
         ("menu", {"_visual_safe_insets": DEBUG_SAFE_INSETS}, "menu_safe_area"),
         ("map", {"_visual_safe_insets": DEBUG_SAFE_INSETS}, "map_safe_area"),
         (
