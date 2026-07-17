@@ -426,4 +426,4 @@
 - [x] P0：公开支持页和隐私政策加入 `gaojiasheng.him@foxmail.com` 联系邮箱；送审元数据草案登记审核联系人，明确无需登录或测试账号。
 - [x] P0：iOS 发布脚本移除未使用的相机、麦克风和相册权限说明；IPA 审计新增反向门禁，最终包若重新声明这些权限将直接失败。
 - [x] 发布候选：完整 RC、M1 smoke 与 46 路由视觉截图全部通过。
-- [ ] TestFlight：构建并验证包含上述改动的新候选。
+- [x] TestFlight：`1.0.0 (33)` 已完成发布门禁、签名导出、IPA 审计与上传；Delivery UUID `9ee4857c-f731-4243-9956-ccfd241c5d4c`，Apple 最终状态为 `VALID / APP_STORE_ELIGIBLE`，并已绑定 App Store 版本 `1.0.0`。

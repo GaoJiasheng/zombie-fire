@@ -2614,7 +2614,7 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Policy completeness**: `docs/public/privacy.html` is now a bilingual Chinese/English policy that explicitly documents zero collection, device-local saves, player-controlled deletion, absence of ads/analytics/accounts/purchases/tracking, children's privacy, and the update rule for any future networked feature.
 - **Public hosting**: the isolated `docs/public` subtree is published from the repository's `gh-pages` branch. GitHub Pages build `1099985827` and deployment run `29565073497` completed successfully.
 - **Transport and availability**: HTTPS enforcement is enabled for the approved `blog.gavingao.cn` certificate. The site root, privacy page, and support page each returned HTTP 200 after deployment.
-- **App Store URLs**: privacy policy `https://blog.gavingao.cn/zombie-fire/privacy.html`; support `https://blog.gavingao.cn/zombie-fire/support.html`. App Store Connect field entry remains an owner/account action.
+- **App Store URLs**: privacy policy `https://blog.gavingao.cn/zombie-fire/privacy.html`; support `https://blog.gavingao.cn/zombie-fire/support.html`. Both URLs are now entered in the App Store Connect record.
 
 ## App Store Review Readiness And In-App Privacy Links (2026-07-17)
 
@@ -2622,3 +2622,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Public contact**: the privacy and support pages now publish `gaojiasheng.him@foxmail.com`; the metadata draft records Gao Jiasheng / `+65 8218 5126`, with no login or demo account required.
 - **Permission minimization**: the release script deletes Godot's unused camera, microphone and photo-library usage descriptions from the generated Xcode Info.plist. The signed-IPA checker rejects any recurrence of those unused declarations.
 - **Visual and release verification**: standard `1080×1920` and safe-area `1080×2340` settings captures have zero runtime UI issues and preserve full copy/button bounds. `python3 tools/check_release_candidate.py` passed the full source gate, M1 smoke and all 46 routed screenshots.
+
+## App Store Connect Setup And TestFlight Build 33 (2026-07-17)
+
+- **Store record**: App Store version `1.0.0` now carries the final Chinese name/subtitle, description, keywords, promotional copy, category and action/strategy subcategories, support/marketing/privacy URLs, copyright, third-party-content declaration, and truthful age-rating answers. Review contact is Gao Jiasheng / `+65 8218 5126` / `gaojiasheng.him@foxmail.com`; no login or demo account is required.
+- **Privacy and media**: App Privacy is published as `Data Not Collected`. App Store Connect reports all five iPhone 6.7-inch and five iPhone 6.5-inch screenshots complete. The 18-second iPhone 6.7-inch App Preview asset upload is complete and remains in Apple's video-processing queue at this checkpoint.
+- **Signed artifact**: `tools/ship_testflight.sh` passed the complete release candidate and produced iPhone-only `1.0.0 (33)`. The audited IPA is `625,548,501` bytes (`596.6 MiB`), SHA-256 `3f25058bf29791ffa240e3078843f0a20aceb48f4338356d57eb28c10f733673`; the release package contains none of the unused camera, microphone, or photo-library permission declarations.
+- **Apple delivery**: upload succeeded with Delivery UUID `9ee4857c-f731-4243-9956-ccfd241c5d4c`. Build-upload processing completed without errors or warnings; the build is `VALID`, `APP_STORE_ELIGIBLE`, reports `usesNonExemptEncryption=false`, and is bound to App Store version `1.0.0`.
+- **Remaining owner gates**: price and sales territories are not configured; EU DSA trader status, agreements/tax/banking, physical-iPhone sign-off, and final App Review submission remain owner decisions. macOS denied replacing the Desktop IPA copy, while the validated artifact remains at `build/ios/ZombieFire.ipa`.
