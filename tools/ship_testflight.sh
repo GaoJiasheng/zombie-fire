@@ -163,6 +163,9 @@ log "Smoke-testing the exported PCK"
 run_godot_logged "$WORK_DIR/pck_battle_boot.log" \
     "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
     --script "$PROJ/tools/_battle_boot_probe.gd"
+run_godot_logged "$WORK_DIR/pck_save_integrity.log" \
+    "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
+    --script "$PROJ/tools/save_integrity_test.gd"
 run_godot_logged "$WORK_DIR/pck_m1_smoke.log" \
     "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
     --script "$PROJ/tools/m1_smoke_test.gd"

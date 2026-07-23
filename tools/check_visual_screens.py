@@ -19,6 +19,7 @@ TALL_SCREEN_LABEL_PREFIXES = (
     "result_tall",
     "pause_tall",
     "card_offer_tall",
+    "card_detail_tall",
     "collection_detail_tall",
     "menu_tall",
     "map_tall",
@@ -70,6 +71,21 @@ BASE_SCREENS: list[tuple[str, dict, str]] = [
     ],
     ("collection", {"mode": "characters"}, "collection_characters"),
     ("collection", {"mode": "weapons"}, "collection_weapons_locked"),
+    (
+        "collection",
+        {"mode": "armors", "equipment": {"selected_armor": "armor_kevlar"}},
+        "collection_armors",
+    ),
+    (
+        "collection",
+        {"mode": "chips", "equipment": {"selected_chip": "chip_attack"}},
+        "collection_chips",
+    ),
+    (
+        "collection",
+        {"mode": "pets", "equipment": {"selected_pet": "pet_turret_drone"}},
+        "collection_pets",
+    ),
     ("collection", {"mode": "skills"}, "collection_skills_info"),
     ("settings", {}, "settings"),
     ("battle", {"level_id": "level_001"}, "battle"),
@@ -104,6 +120,11 @@ SCREENS: list[tuple[str, dict, str]] = (
         ("battle", {"level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]}, "card_offer_tall"),
         (
             "battle",
+            {"level_id": "level_001", "card_detail": "skill_split_shot", "viewport_size": [1080, 2340]},
+            "card_detail_tall",
+        ),
+        (
+            "battle",
             {
                 "level_id": "level_091",
                 "viewport_size": [1080, 2340],
@@ -111,6 +132,16 @@ SCREENS: list[tuple[str, dict, str]] = (
                 "save_override": SPEED_BUTTON_SAVE_OVERRIDE,
             },
             "battle_tall_safe_area",
+        ),
+        (
+            "battle",
+            {
+                "level_id": "level_075",
+                "viewport_size": [1080, 2340],
+                "debug_dense_combat": True,
+                "warmup_frames": 12,
+            },
+            "battle_tall_dense_information",
         ),
         (
             "menu",
@@ -159,6 +190,49 @@ SCREENS: list[tuple[str, dict, str]] = (
             )
             for character_id in ["vanguard", "blaze", "frost", "volt"]
         ],
+        (
+            "collection",
+            {
+                "mode": "weapons",
+                "detail_item": "weapon_autocannon",
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_detail_tall_weapon_safe_area",
+        ),
+        (
+            "collection",
+            {
+                "mode": "armors",
+                "detail_item": "armor_kevlar",
+                "equipment": {"selected_armor": "armor_kevlar"},
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_detail_tall_armor_safe_area",
+        ),
+        (
+            "collection",
+            {
+                "mode": "chips",
+                "detail_item": "chip_attack",
+                "equipment": {"selected_chip": "chip_attack"},
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_detail_tall_chip_safe_area",
+        ),
+        (
+            "collection",
+            {
+                "mode": "pets",
+                "detail_item": "pet_turret_drone",
+                "equipment": {"selected_pet": "pet_turret_drone"},
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+            },
+            "collection_detail_tall_pet_safe_area",
+        ),
         (
             "settings",
             {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},

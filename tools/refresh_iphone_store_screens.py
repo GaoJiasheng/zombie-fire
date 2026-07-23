@@ -86,7 +86,12 @@ def main() -> int:
     base = {"viewport_size": [1080, 2340], "save_override": save}
     capture(
         "battle",
-        base | {"level_id": "level_045", "warmup_frames": 180},
+        base
+        | {
+            "level_id": "level_045",
+            "debug_store_combat": True,
+            "warmup_frames": 32,
+        },
         "battle.png",
     )
     capture("map", base, "map.png")
@@ -102,6 +107,7 @@ def main() -> int:
         | {
             "level_id": "level_050",
             "debug_spawn_boss": "boss_inferno_maw",
+            "debug_clean_boss_stage": True,
             "warmup_frames": 90,
         },
         "05_boss.png",

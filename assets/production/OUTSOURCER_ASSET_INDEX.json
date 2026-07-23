@@ -42,9 +42,12 @@
     },
     {
       "path": "sprites/weapons/weapon_autocannon_icon.png",
-      "source": "source_refs/handheld_weapon_sheet.png",
-      "derived": "source_refs/generated/weapon_autocannon_machinegun_cutout.png",
-      "reason": "Owner requested the starter weapon to display as 自动机枪 rather than a base-mounted cannon."
+      "source": [
+        "source_refs/generated/weapon_autocannon_icon_v2_raw_2026_07_21.png",
+        "source_refs/generated/weapon_autocannon_icon_v2_prompt_2026_07_21.json"
+      ],
+      "derived": "sprites/weapons/weapon_autocannon_icon.png",
+      "reason": "Owner requested the UI-facing 自动机枪 icon to match the premium framed 3D weapon set; battle animation and gameplay assets remain unchanged."
     },
     {
       "path": "sprites/weapons/weapon_autocannon_turret.png",
@@ -146,7 +149,7 @@
 		"path": "video/vid_app_preview.mp4",
 		"source": "video/vid_app_preview_provenance.json",
 		"derived": "video/vid_app_preview.mp4",
-		"reason": "Launch App Preview rebuilt as an 18-second live Godot runtime capture with real combat, card choice, boss phase, active skill, and game audio."
+		"reason": "Launch App Preview rebuilt as a curated 22-second live Godot runtime capture with clear auto-fire, manual lock, card choice, boss phase, active skill, adaptive combat-label density, and game audio."
     },
     {
       "path": "sprites/vfx/vfx_target_lock.png",

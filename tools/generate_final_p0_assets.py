@@ -623,8 +623,30 @@ def draw_store_art(screen: Image.Image, target_size: tuple[int, int], headline: 
     d.text((int(w * 0.08), top), headline, fill=(255, 238, 215), font=title_font, stroke_width=max(2, w // 380), stroke_fill=(0, 0, 0))
     d.text((int(w * 0.08), top + int(w * 0.086)), sub, fill=(174, 225, 232), font=sub_font, stroke_width=max(1, w // 720), stroke_fill=(0, 0, 0))
     bx, by = int(w * 0.08), top + int(w * 0.145)
-    d.rounded_rectangle((bx, by, bx + int(w * 0.38), by + int(w * 0.062)), radius=int(w * 0.02), fill=(11, 18, 25, 210), outline=(255, 139, 45, 180), width=max(2, w // 500))
-    d.text((bx + int(w * 0.028), by + int(w * 0.013)), badge, fill=(255, 198, 98), font=badge_font)
+    badge_box = d.textbbox((0, 0), badge, font=badge_font)
+    badge_text_w = badge_box[2] - badge_box[0]
+    badge_h = int(w * 0.057)
+    badge_pad_x = int(w * 0.026)
+    badge_w = badge_text_w + badge_pad_x * 2
+    d.rounded_rectangle(
+        (bx, by, bx + badge_w, by + badge_h),
+        radius=int(badge_h * 0.48),
+        fill=(10, 20, 28, 232),
+        outline=(255, 139, 45, 210),
+        width=max(2, w // 430),
+    )
+    d.rounded_rectangle(
+        (bx + 5, by + 5, bx + int(w * 0.011), by + badge_h - 5),
+        radius=max(2, w // 900),
+        fill=(255, 143, 47, 245),
+    )
+    d.text(
+        (bx + badge_pad_x + int(w * 0.006), by + badge_h // 2),
+        badge,
+        anchor="lm",
+        fill=(255, 205, 112),
+        font=badge_font,
+    )
 
     phone_w = int(w * (0.72 if w < 1600 else 0.58))
     source_aspect = screen.height / max(screen.width, 1)
@@ -767,7 +789,7 @@ def update_index() -> None:
 			"path": "video/vid_app_preview.mp4",
 			"source": "video/vid_app_preview_provenance.json",
 			"derived": "video/vid_app_preview.mp4",
-			"reason": "Launch App Preview rebuilt as an 18-second live Godot runtime capture with real combat, card choice, boss phase, active skill, and game audio.",
+			"reason": "Launch App Preview rebuilt as a curated 22-second live Godot runtime capture with clear auto-fire, manual lock, card choice, boss phase, active skill, adaptive combat-label density, and game audio.",
 		},
     ]
     existing = {entry.get("path") for entry in overrides}

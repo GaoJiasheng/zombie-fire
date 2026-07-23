@@ -1,6 +1,7 @@
 extends Node2D
 ## Floating damage numbers. Spawn numbers at hit positions, pop, float, fade.
 
+const UiKit := preload("res://ui/ui_kit.gd")
 const RISE := 60.0
 const LIFE := 0.85
 const CRIT_LIFE := 1.05
@@ -27,7 +28,7 @@ func spawn_damage(position: Vector2, amount: float, element: String, crit := fal
 	label.name = "DamageNumber"
 	label.set_meta("important_damage", important)
 	label.text = str(rounded)
-	label.add_theme_font_size_override("font_size", 26 if not crit else 44)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(26 if not crit else 44))
 	var color := _damage_color(element)
 	if crit:
 		color = Color(1.0, 0.94, 0.32) if not weak_hit else Color(1.0, 0.5, 0.18)

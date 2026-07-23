@@ -73,6 +73,8 @@ def main() -> int:
             video, audio = videos[0], audios[0]
             if (video.get("codec_name"), int(video.get("width", 0)), int(video.get("height", 0))) != ("h264", 886, 1920):
                 errors.append("App Preview must be H.264 at 886x1920")
+            if str(video.get("sample_aspect_ratio", "")) not in {"1:1", "N/A"}:
+                errors.append(f"App Preview must use square pixels, got SAR={video.get('sample_aspect_ratio')}")
             fps_num, fps_den = (int(value) for value in str(video.get("r_frame_rate", "0/1")).split("/"))
             fps = fps_num / max(fps_den, 1)
             if not 23.0 <= fps <= 30.0:
@@ -89,6 +91,8 @@ def main() -> int:
         provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
         if provenance.get("capture_type") != "godot_runtime_movie":
             errors.append("App Preview must come from a live Godot runtime capture")
+        if provenance.get("capture_resolution") != "1080x2340" or provenance.get("sample_aspect_ratio") != "1:1":
+            errors.append("App Preview provenance must record the tall square-pixel capture pipeline")
         capture_script = ROOT / str(provenance.get("capture_script", "")).removeprefix("res://")
         if not capture_script.is_file():
             errors.append("App Preview provenance points to a missing capture script")

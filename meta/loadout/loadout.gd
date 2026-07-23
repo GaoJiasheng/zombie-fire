@@ -97,7 +97,7 @@ func _apply_runtime_layout() -> void:
 		UiKit.apply_armored_texture_button(start, true, Vector2(760, 112), true)
 		var start_label := start.get_node_or_null("Label") as Label
 		if start_label != null:
-			start_label.add_theme_font_size_override("font_size", 38)
+			start_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(38))
 
 func _bind_open_hit(panel: Control, mode: String) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -190,7 +190,7 @@ func _refresh() -> void:
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
-	$Summary.text = "%s  |  %s  |  主弱点 %s\n战前 %d  |  预计成型 %d / 推荐 %d  |  %s  |  金币 %d\n英雄  %s 等级%d  |  武器  %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宝宝 %s%s" % [
+	$Summary.text = "%s · %s · 主弱点 %s\n战前 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s Lv%d · 芯片 %s Lv%d · 宠物 %s%s" % [
 		DataLoader.level_display_name(level_id),
 		mode_label,
 		_element_name(weakness),
@@ -208,7 +208,7 @@ func _refresh() -> void:
 		chip_name,
 		chip_level,
 		pet_name,
-		" 等级%d" % pet_level if pet_id != "" else ""
+		" Lv%d" % pet_level if pet_id != "" else ""
 	]
 	$Summary.visible = false
 	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
@@ -359,11 +359,11 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
 	grid.add_child(_summary_cell("战前", "%d" % power, UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
-	grid.add_child(_summary_cell("成型", "%d" % projected_power, UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("成型", "%d (+%d)" % [projected_power, maxi(projected_power - power, 0)], UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()
-	loadout.text = "英雄 %s 等级%d  |  武器 %s 等级%d\n护甲 %s 等级%d  |  芯片 %s 等级%d  |  宠物 %s%s" % [
+	loadout.text = "英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s Lv%d · 芯片 %s Lv%d · 宠物 %s%s" % [
 		character_name,
 		char_level,
 		weapon_name,
@@ -373,7 +373,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		chip_name,
 		chip_level,
 		pet_name,
-		" 等级%d" % pet_level if has_pet else ""
+		" Lv%d" % pet_level if has_pet else ""
 	]
 	loadout.custom_minimum_size = Vector2(0, 68)
 	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -452,7 +452,7 @@ func _refresh_gear_badges(items: Array) -> void:
 		var label := Label.new()
 		label.custom_minimum_size = Vector2(166, 48)
 		label.text = "%s 等级%d%s" % [str(item[0]), level, _tier_suffix(level)]
-		label.add_theme_font_size_override("font_size", 20)
+		label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 		label.add_theme_color_override("font_color", _level_tint(level))
 		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 		label.add_theme_constant_override("outline_size", 3)
@@ -548,14 +548,14 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	card.add_child(stack)
 	var kind_label := Label.new()
 	kind_label.text = kind
-	kind_label.add_theme_font_size_override("font_size", 16)
+	kind_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(16))
 	kind_label.add_theme_color_override("font_color", accent)
 	kind_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	kind_label.add_theme_constant_override("outline_size", 2)
 	stack.add_child(kind_label)
 	var title_label := Label.new()
 	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", 20)
+	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	title_label.add_theme_color_override("font_color", Color(0.94, 1.0, 1.0, 1.0))
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	title_label.add_theme_constant_override("outline_size", 3)
@@ -564,7 +564,7 @@ func _signature_card(kind: String, title: String, desc: String, accent: Color) -
 	var desc_label := Label.new()
 	desc_label.text = desc.replace("已生效：", "").replace("主动：", "").replace("自动：", "").replace("弹种：", "")
 	desc_label.custom_minimum_size = Vector2(0, 48)
-	desc_label.add_theme_font_size_override("font_size", 16)
+	desc_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(16))
 	desc_label.add_theme_color_override("font_color", Color(0.76, 0.9, 0.96, 0.96))
 	desc_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	desc_label.add_theme_constant_override("outline_size", 2)

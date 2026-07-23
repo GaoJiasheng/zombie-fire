@@ -15,6 +15,7 @@ enum PurchaseResult { OK, ALREADY_OWNED, NOT_ENOUGH_STAR, INVALID }
 var _save_path := SAVE_PATH
 var _backup_path := BACKUP_PATH
 var _last_persistence_error := ""
+var _suppress_expected_persistence_errors_for_tests := false
 
 var save_data := {
 	"version": CURRENT_SAVE_VERSION,
@@ -401,7 +402,10 @@ func _discard_temp_file(path: String) -> void:
 
 func _report_persistence_error(message: String) -> void:
 	_last_persistence_error = message
-	push_error("SaveManager: %s" % message)
+	if _suppress_expected_persistence_errors_for_tests:
+		print("SaveManager expected test failure: %s" % message)
+	else:
+		push_error("SaveManager: %s" % message)
 
 func apply_level_result(result: Dictionary, persist := true) -> void:
 	var level_id := str(result.get("level_id", ""))

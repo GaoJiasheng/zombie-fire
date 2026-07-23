@@ -10,8 +10,10 @@ const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_s
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const COLLECTION_CARD_WIDTH := 760.0
+const SKILL_CARD_TEXT_WIDTH := 486.0
 const CHARACTER_LIST_BUST_Y := -4.0
 const CHARACTER_DETAIL_BUST_Y := -12.0
+const ARMORED_BUTTON_LABEL_OPTICAL_Y := -4.0
 
 var router: Node
 var mode := "characters"
@@ -72,6 +74,7 @@ func _refresh_back_button() -> void:
 	if label == null:
 		return
 	label.text = "返回配置" if _return_to == "loadout" else "返回地图"
+	_apply_armored_button_label_alignment(label)
 
 func _sanitize_loadout_return_to(route: String) -> String:
 	match route:
@@ -235,7 +238,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var title := Label.new()
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
 	title.position = Vector2(170, 34 if spacious else 26)
-	title.size = Vector2(350, 46 if spacious else 40)
+	# The title occupies the otherwise-empty upper-right of the card.  Keep the
+	# full width available so long weapon names plus level/tier remain readable
+	# after the global mobile font increase instead of clipping or shrinking.
+	title.size = Vector2(540, 46 if spacious else 40)
 	UiKit.apply_label(title, 27 if spacious else 28, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -255,9 +261,12 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.text = _item_desc(item_id, row, unlocked)
 	desc.position = Vector2(170, 128 if spacious else 110)
-	desc.size = Vector2(350, 78 if spacious else 72)
+	# The mobile font pass makes a two-line description about 80px tall. Keep a
+	# little metric headroom so the second line never disappears on iOS fonts.
+	desc.size = Vector2(350, 96)
 	UiKit.apply_label(desc, 17 if spacious else 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(desc)
@@ -377,7 +386,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	title.name = "Title"
 	title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
 	title.position = Vector2(148, 18)
-	title.size = Vector2(470, 40)
+	title.size = Vector2(SKILL_CARD_TEXT_WIDTH, 40)
 	title.clip_text = true
 	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -386,7 +395,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
 	tag_row.position = Vector2(148, 58)
-	tag_row.size = Vector2(470, 34)
+	tag_row.size = Vector2(SKILL_CARD_TEXT_WIDTH, 34)
 	tag_row.add_theme_constant_override("separation", 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -398,7 +407,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	effect.name = "EffectSummary"
 	effect.text = _skill_effect_summary(row, item_level)
 	effect.position = Vector2(148, 94)
-	effect.size = Vector2(470, 36)
+	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 36)
 	effect.clip_text = true
 	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -413,7 +422,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	info_button.focus_mode = Control.FOCUS_NONE
 	info_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	info_button.tooltip_text = "查看技能详情与等级效果"
-	info_button.add_theme_font_size_override("font_size", 34)
+	info_button.add_theme_font_size_override("font_size", UiKit.bumped_font_size(34))
 	info_button.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 1.0))
 	info_button.add_theme_color_override("font_hover_color", Color.WHITE)
 	info_button.add_theme_color_override("font_pressed_color", UiKit.GOLD)
@@ -503,19 +512,20 @@ func _data_table_name() -> String:
 
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if not unlocked:
-		var cost := int(row.get("unlock_cost_star", row.get("unlock", {}).get("price", 0)))
-		return "%s  ·  售价 %d★" % [_item_stat_summary(row), cost]
+		# Price already lives in the action button; repeating it here squeezes the
+		# useful stats and can collide with the button on a phone-sized card.
+		return _item_stat_summary(row)
 	match mode:
 		"characters":
-			return "定位：%s  元素：%s  %s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-")), _next_upgrade_hint(item_id, row)]
+			return "定位：%s  元素：%s\n%s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-")), _next_upgrade_hint(item_id, row)]
 		"weapons":
-			return "元素：%s  射速：%s  等级%d  %s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), SaveManager.get_weapon_level(item_id), _weapon_special_text(row)]
+			return "元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), _weapon_special_text(row)]
 		"armors":
-			return "生命倍率：%.0f%%  抗性：%s  %s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			return "生命倍率：%.0f%%  抗性：%s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
-			return "%s +%s  %s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0)), _next_upgrade_hint(item_id, row)]
+			return "%s +%s\n%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0)), _next_upgrade_hint(item_id, row)]
 		"pets":
-			return "定位：%s  元素：%s  %s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), _next_upgrade_hint(item_id, row)]
+			return "定位：%s  元素：%s\n%s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), _next_upgrade_hint(item_id, row)]
 		"skills":
 			return "标签：%s" % _format_tags(row.get("card_tags", []))
 		_:
@@ -527,9 +537,9 @@ func _item_stat_summary(row: Dictionary) -> String:
 		"characters":
 			return "定位：%s  元素：%s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-"))]
 		"weapons":
-			return "元素：%s  射速：%s  %s" % [_element_name(row.get("element", "-")), str(row.get("fire_rate", "-")), _weapon_special_text(row)]
+			return "元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), str(row.get("fire_rate", "-")), _weapon_special_text(row)]
 		"armors":
-			return "生命倍率：%.0f%%  抗性：%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), "  防线屏障+1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			return "生命倍率：%.0f%%  抗性：%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), "\n屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
 			return "%s +%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0))]
 		"pets":
@@ -834,6 +844,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	if mode == "characters":
 		call_deferred("_show_character_detail", item_id, row)
 		return
+	_set_collection_content_visible(false)
 	if _detail_modal != null and is_instance_valid(_detail_modal):
 		_detail_modal.queue_free()
 	var slot := _slot()
@@ -852,10 +863,9 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	add_child(_detail_modal)
 
 	var dim := TextureRect.new()
-	dim.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
+	dim.texture = _modal_dim_texture()
 	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	dim.stretch_mode = TextureRect.STRETCH_SCALE
-	dim.modulate = Color(0, 0, 0, 0.78)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_detail_modal.add_child(dim)
@@ -1043,10 +1053,18 @@ func _armored_action_button(node_name: String, text: String, enabled: bool, prim
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_apply_armored_button_label_alignment(label)
 	UiKit.apply_label(label, font_size, Color.WHITE if enabled else Color(0.74, 0.78, 0.82, 1.0), 3)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(label)
 	return button
+
+func _apply_armored_button_label_alignment(label: Label) -> void:
+	# Glow Sans has generous upper metrics, so mathematical centering reads low
+	# inside the asymmetric armored bezel. Keep the control centered and apply
+	# one small, collection-wide optical correction to the glyph box only.
+	label.offset_top = ARMORED_BUTTON_LABEL_OPTICAL_Y
+	label.offset_bottom = ARMORED_BUTTON_LABEL_OPTICAL_Y
 
 func _compact_close_button(node_name: String) -> Button:
 	var button := Button.new()
@@ -1056,7 +1074,7 @@ func _compact_close_button(node_name: String) -> Button:
 	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
-	button.add_theme_font_size_override("font_size", 34)
+	button.add_theme_font_size_override("font_size", UiKit.bumped_font_size(34))
 	button.add_theme_color_override("font_color", Color(0.92, 0.96, 1.0, 0.95))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.45, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(0.78, 0.9, 1.0, 1.0))
@@ -1216,7 +1234,7 @@ func _make_skill_level_row(level: int, effect_text: String, accent: Color, curre
 	level_label.text = "等级%d" % level
 	level_label.custom_minimum_size = Vector2(88, 0)
 	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	level_label.add_theme_font_size_override("font_size", 20)
+	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	level_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.56, 1.0) if active else Color(0.72, 0.82, 0.86, 0.88))
 	level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
 	level_label.add_theme_constant_override("outline_size", 2)
@@ -1227,7 +1245,7 @@ func _make_skill_level_row(level: int, effect_text: String, accent: Color, curre
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value_label.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0, 1.0) if active else Color(0.72, 0.82, 0.86, 0.86))
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	value_label.add_theme_font_size_override("font_size", 19)
+	value_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
 	value_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
 	value_label.add_theme_constant_override("outline_size", 1)
 	row.add_child(value_label)
@@ -1264,7 +1282,25 @@ func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
 func _safe_area_canvas_insets() -> Vector4:
 	return UiKit.safe_area_canvas_insets(get_viewport())
 
+func _set_collection_content_visible(value: bool) -> void:
+	(%ItemScroll as ScrollContainer).visible = value
+	(%BackButton as TextureButton).visible = value
+
+func _modal_dim_texture() -> GradientTexture2D:
+	# A solid generated texture satisfies the production texture-backed UI
+	# contract while keeping the modal backdrop opaque enough to suppress list
+	# text beneath the intentionally translucent card artwork.
+	var gradient := Gradient.new()
+	var dim_color := Color(0.005, 0.008, 0.012, 0.90)
+	gradient.colors = PackedColorArray([dim_color, dim_color])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 2
+	texture.height = 2
+	return texture
+
 func _show_character_detail(item_id: String, row: Dictionary) -> void:
+	_set_collection_content_visible(false)
 	if _detail_modal != null and is_instance_valid(_detail_modal):
 		_detail_modal.queue_free()
 	_detail_modal = Control.new()
@@ -1278,10 +1314,9 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	add_child(_detail_modal)
 	# Dim background
 	var dim := TextureRect.new()
-	dim.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
+	dim.texture = _modal_dim_texture()
 	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	dim.stretch_mode = TextureRect.STRETCH_SCALE
-	dim.modulate = Color(0, 0, 0, 0.78)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_detail_modal.add_child(dim)
@@ -1335,7 +1370,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	name_col.add_child(name_row)
 	var name_label := Label.new()
 	name_label.text = DataLoader.tr_key(row.get("name_key", item_id))
-	name_label.add_theme_font_size_override("font_size", 44)
+	name_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(44))
 	name_label.add_theme_color_override("font_color", Color(0.98, 0.99, 1, 1))
 	name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	name_label.add_theme_constant_override("outline_size", 4)
@@ -1349,9 +1384,16 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	level_text.text = "等级%d" % item_level
 	level_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	level_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	level_text.add_theme_font_size_override("font_size", 24)
+	level_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 	level_text.add_theme_color_override("font_color", Color(1, 0.92, 0.5, 1))
 	level_badge.add_child(level_text)
+	# The textured modal has a fixed ornamental rule below the title. Reserve a
+	# narrow breathing strip here so that rule sits between title and tags rather
+	# than running through the enlarged mobile text.
+	var header_rule_clearance := Control.new()
+	header_rule_clearance.custom_minimum_size = Vector2(0, 12)
+	header_rule_clearance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_col.add_child(header_rule_clearance)
 	# Tag row: role + element
 	var tag_row := HBoxContainer.new()
 	tag_row.add_theme_constant_override("separation", 10)
@@ -1379,7 +1421,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			affinity_text += "  ".join(bonuses)
 			var affinity_label := Label.new()
 			affinity_label.text = affinity_text
-			affinity_label.add_theme_font_size_override("font_size", 21)
+			affinity_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(21))
 			affinity_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1, 0.95))
 			affinity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			name_col.add_child(affinity_label)
@@ -1449,7 +1491,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	if sig_ids.is_empty():
 		var empty := Label.new()
 		empty.text = "（暂无）"
-		empty.add_theme_font_size_override("font_size", 22)
+		empty.add_theme_font_size_override("font_size", UiKit.bumped_font_size(22))
 		empty.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		sig_section.get_child(0).add_child(empty)
 	else:
@@ -1545,7 +1587,7 @@ func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelCo
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
 	label.add_theme_color_override("font_color", Color(0.96, 0.98, 1, 1))
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	label.add_theme_constant_override("outline_size", 1)
@@ -1576,7 +1618,7 @@ func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 	title_row.add_child(bar)
 	var title_label := Label.new()
 	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", 24)
+	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 	title_label.add_theme_color_override("font_color", Color(0.96, 0.98, 1, 1))
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	title_label.add_theme_constant_override("outline_size", 1)
@@ -1597,13 +1639,13 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -
 	var label := Label.new()
 	label.text = label_text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
 	label.add_theme_color_override("font_color", Color(0.7, 0.88, 1, 0.9))
 	v.add_child(label)
 	var value := Label.new()
 	value.text = value_text
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	value.add_theme_font_size_override("font_size", 27)
+	value.add_theme_font_size_override("font_size", UiKit.bumped_font_size(27))
 	value.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	value.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
 	value.add_theme_constant_override("outline_size", 1)
@@ -1614,7 +1656,7 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		sub.add_theme_font_size_override("font_size", 16)
+		sub.add_theme_font_size_override("font_size", UiKit.bumped_font_size(16))
 		sub.add_theme_color_override("font_color", Color(0.55, 0.85, 1, 0.75))
 		v.add_child(sub)
 	return pill
@@ -1641,7 +1683,7 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 		placeholder.text = "◆"
 		placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		placeholder.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		placeholder.add_theme_font_size_override("font_size", 32)
+		placeholder.add_theme_font_size_override("font_size", UiKit.bumped_font_size(32))
 		placeholder.add_theme_color_override("font_color", accent)
 		icon_box.add_child(placeholder)
 	# Text column
@@ -1655,7 +1697,7 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	text_col.add_child(title_row)
 	var title_label := Label.new()
 	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", 24)
+	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 	title_label.add_theme_color_override("font_color", Color(0.98, 0.99, 1, 1))
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	title_label.add_theme_constant_override("outline_size", 1)
@@ -1668,13 +1710,13 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	kind_label_text.text = kind_label
 	kind_label_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind_label_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	kind_label_text.add_theme_font_size_override("font_size", 18)
+	kind_label_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
 	kind_label_text.add_theme_color_override("font_color", accent)
 	kind_pill.add_child(kind_label_text)
 	# Description
 	var desc_label := Label.new()
 	desc_label.text = desc
-	desc_label.add_theme_font_size_override("font_size", 19)
+	desc_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
 	desc_label.add_theme_color_override("font_color", Color(0.78, 0.88, 0.95, 1))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(desc_label)
@@ -1694,12 +1736,12 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	row.add_child(text_column)
 	var level_label := Label.new()
 	level_label.text = "专属技能等级 %d/%d" % [lvl, SaveManager.SIG_SKILL_MAX_LEVEL]
-	level_label.add_theme_font_size_override("font_size", 20)
+	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
 	text_column.add_child(level_label)
 	var growth_label := Label.new()
 	growth_label.text = CharacterSkillText.signature_level_growth(signature_id)
-	growth_label.add_theme_font_size_override("font_size", 15)
+	growth_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(15))
 	growth_label.add_theme_color_override("font_color", Color(0.66, 0.78, 0.84, 1))
 	growth_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_column.add_child(growth_label)
@@ -1735,6 +1777,7 @@ func _close_character_detail() -> void:
 	if _detail_modal != null and is_instance_valid(_detail_modal):
 		_detail_modal.queue_free()
 	_detail_modal = null
+	_set_collection_content_visible(true)
 
 func _select_character_and_close(item_id: String) -> void:
 	if SaveManager.select_item("character", item_id):

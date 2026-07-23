@@ -17,9 +17,9 @@
 - Menu privacy/support panels.
 - iPhone-only Godot/Xcode/TestFlight release pipeline.
 - Candidate app icon, launch image, current iPhone screenshot sets, metadata drafts.
-- Runtime-captured 18-second iPhone App Preview plus ordered, duplicate-checked 6.5/6.7-inch screenshots.
+- Runtime-captured 22-second iPhone App Preview plus ordered, duplicate-checked 6.5/6.7-inch screenshots.
 - Public GitHub Pages privacy policy and support pages on the HTTPS-enforced `blog.gavingao.cn/zombie-fire` site.
-- Global runtime UI font is the owner-selected Glow Sans SC / 未来荧黑 Normal Medium v0.93 official binary, with SIL OFL 1.1 notice, provenance, hash gate, and 46-route visual regression coverage.
+- Global runtime UI font is the owner-selected Glow Sans SC / 未来荧黑 Normal Medium v0.93 official binary, with SIL OFL 1.1 notice, provenance, hash gate, and 55-route visual regression coverage.
 - Repository-owned work is distributed under Apache License 2.0 via root `LICENSE` and `NOTICE`; third-party components and assets retain their own recorded licenses and provenance.
 
 ## Not Included In Current Build

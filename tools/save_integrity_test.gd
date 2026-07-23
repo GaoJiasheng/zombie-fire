@@ -12,6 +12,7 @@ func _initialize() -> void:
 	var original_backup_path: String = save_manager._backup_path
 	var original_save_data: Dictionary = save_manager.save_data.duplicate(true)
 	var original_error: String = save_manager._last_persistence_error
+	var original_suppression: bool = save_manager._suppress_expected_persistence_errors_for_tests
 
 	_remove_tree(TEST_DIR)
 	var mkdir_error := DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(TEST_DIR))
@@ -22,12 +23,16 @@ func _initialize() -> void:
 	_test_normal_save_and_rotation()
 	_test_corrupt_main_fallback()
 	_test_migration_and_recursive_defaults()
+	_test_manual_backup_restore()
+	_test_missing_main_fallback()
+	_test_application_pause_persistence()
 	_test_write_failure_preserves_good_files()
 
 	save_manager._save_path = original_save_path
 	save_manager._backup_path = original_backup_path
 	save_manager.save_data = original_save_data
 	save_manager._last_persistence_error = original_error
+	save_manager._suppress_expected_persistence_errors_for_tests = original_suppression
 	_remove_tree(TEST_DIR)
 
 	if failures.is_empty():
@@ -56,6 +61,7 @@ func _test_normal_save_and_rotation() -> void:
 
 func _test_corrupt_main_fallback() -> void:
 	const CORRUPT_CONTENT := "{broken-main-save"
+	save_manager._suppress_expected_persistence_errors_for_tests = true
 	_write_text(save_manager._save_path, CORRUPT_CONTENT)
 	save_manager.load_game()
 	_expect(int(save_manager.save_data.get("player", {}).get("gold", -1)) == 111, "corrupt main must recover the verified backup")
@@ -72,6 +78,7 @@ func _test_corrupt_main_fallback() -> void:
 	save_manager.load_game()
 	_expect(int(save_manager.save_data.get("player", {}).get("gold", -1)) == 111, "schema-invalid main must also recover the verified backup")
 	_expect(_gold_at(save_manager._save_path) == 111, "schema fallback must leave a valid rebuilt main file")
+	save_manager._suppress_expected_persistence_errors_for_tests = false
 
 func _test_migration_and_recursive_defaults() -> void:
 	var legacy_save := {
@@ -99,6 +106,47 @@ func _test_migration_and_recursive_defaults() -> void:
 	_expect(int(deep_merged.get("outer", {}).get("middle", {}).get("kept", -1)) == 8, "recursive merge must preserve a deep saved value")
 	_expect(int(deep_merged.get("outer", {}).get("middle", {}).get("added", -1)) == 9, "recursive merge must add a deep missing default")
 
+func _test_manual_backup_restore() -> void:
+	var committed_gold := int(save_manager.save_data.get("player", {}).get("gold", -1))
+	save_manager.backup_game()
+	_expect(save_manager.has_backup(), "manual backup must produce a verified backup record")
+
+	var unsaved_change: Dictionary = save_manager.save_data.duplicate(true)
+	unsaved_change["player"]["gold"] = committed_gold + 700
+	save_manager.save_data = unsaved_change
+	_expect(save_manager.restore_backup(), "manual backup must be restorable")
+	_expect(int(save_manager.save_data.get("player", {}).get("gold", -1)) == committed_gold, "restore must replace in-memory data with the backed-up value")
+	_expect(_gold_at(save_manager._save_path) == committed_gold, "restore must atomically replace the persisted main save")
+
+func _test_missing_main_fallback() -> void:
+	var expected_gold := int(save_manager.save_data.get("player", {}).get("gold", -1))
+	var remove_error := DirAccess.remove_absolute(ProjectSettings.globalize_path(save_manager._save_path))
+	_expect(remove_error == OK, "missing-main fixture must remove the current main save")
+	save_manager.save_data = save_manager._default_save()
+	save_manager.load_game()
+	_expect(int(save_manager.save_data.get("player", {}).get("gold", -1)) == expected_gold, "a missing main save must recover the verified backup")
+	_expect(_gold_at(save_manager._save_path) == expected_gold, "missing-main recovery must rebuild a valid main save")
+
+func _test_application_pause_persistence() -> void:
+	var lifecycle_save: Dictionary = save_manager.save_data.duplicate(true)
+	lifecycle_save["player"]["gold"] = 31415
+	save_manager.save_data = lifecycle_save
+
+	var input_manager := root.get_node("/root/InputManager")
+	var audio_manager := root.get_node("/root/AudioManager")
+	input_manager._begin_aim_press(Vector2(360, 720), 0)
+	audio_manager.resume_audio()
+
+	var main := (load("res://main.tscn") as PackedScene).instantiate()
+	main._notification(NOTIFICATION_APPLICATION_PAUSED)
+	_expect(not bool(input_manager._aim_press_active), "application pause must cancel an active touch/aim gesture")
+	_expect(bool(audio_manager._manual_paused), "application pause must suspend managed audio")
+	_expect(_gold_at(save_manager._save_path) == 31415, "application pause must persist the latest in-memory save")
+
+	main._notification(NOTIFICATION_APPLICATION_RESUMED)
+	_expect(not bool(audio_manager._manual_paused), "application resume must restore managed audio")
+	main.free()
+
 func _test_write_failure_preserves_good_files() -> void:
 	var main_before := _read_text(save_manager._save_path)
 	var backup_before := _read_text(save_manager._backup_path)
@@ -113,7 +161,9 @@ func _test_write_failure_preserves_good_files() -> void:
 	changed["player"]["gold"] = 9999
 	save_manager.save_data = changed
 	save_manager._last_persistence_error = ""
+	save_manager._suppress_expected_persistence_errors_for_tests = true
 	save_manager.save_game()
+	save_manager._suppress_expected_persistence_errors_for_tests = false
 
 	_expect(_read_text(save_manager._save_path) == main_before, "temporary-file open failure must not alter the good main file")
 	_expect(_read_text(save_manager._backup_path) == backup_before, "failed main write must not rotate or alter the backup")

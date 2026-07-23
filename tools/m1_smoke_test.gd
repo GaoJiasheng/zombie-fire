@@ -52,6 +52,8 @@ class FakeAimTarget:
 	var mechanic := ""
 	var hp := 100.0
 	var max_hp := 100.0
+	var threat_label_visible := true
+	var status_label_visible := true
 
 	func targeting_snapshot() -> Dictionary:
 		return {
@@ -63,6 +65,10 @@ class FakeAimTarget:
 			"boss": boss,
 			"threat_tags": threat_tags
 		}
+
+	func set_combat_label_visibility(show_threat: bool, show_status: bool) -> void:
+		threat_label_visible = show_threat
+		status_label_visible = show_status
 
 func _initialize() -> void:
 	await process_frame
@@ -106,7 +112,7 @@ func _initialize() -> void:
 	_verify_targeting_frontline_priority()
 	await _verify_turret_fire_gate(data_loader)
 	_verify_slow_field_range_contract(data_loader)
-	_verify_skill_runtime_mods()
+	_verify_skill_runtime_mods(save_manager)
 	_verify_ammo_element_rules(save_manager)
 	await _verify_feedback_budget_guards()
 	await _verify_late_wave_count_multipliers(data_loader, save_manager)
@@ -230,11 +236,19 @@ func _initialize() -> void:
 	_expect(character_bust.size.y > character_icon.size.y, "character collection portrait must be zoomed and cropped")
 	_expect(character_bust.position.y >= -4.0, "character collection portrait must preserve headroom, got y=%s" % str(character_bust.position.y))
 	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
+	var character_action := character_item.find_child("CardActionButton", true, false) as TextureButton
+	var character_action_label := character_action.get_node_or_null("ActionLabel") as Label if character_action != null else null
+	_expect(character_action_label != null and character_action_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "character collection action text must use vertical centering")
+	_expect(character_action_label != null and absf(character_action_label.offset_top + 4.0) <= 0.1 and absf(character_action_label.offset_bottom + 4.0) <= 0.1, "character collection action text must apply the Glow Sans optical centering correction")
 	character_item.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.has_node("CharacterDetail"), "character row click must open character detail")
 	var character_detail: Node = main.current_scene.get_node("CharacterDetail")
 	_expect((character_detail as Control).z_index >= 64, "character detail must render above positive-z collection row children")
+	var collection_scroll := main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
+	var hidden_collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
+	_expect(collection_scroll != null and not collection_scroll.visible, "character detail must hide the underlying collection list so row text cannot bleed through translucent artwork")
+	_expect(hidden_collection_back != null and not hidden_collection_back.visible, "character detail must hide the underlying back action")
 	var detail_portrait := character_detail.find_child("PortraitClip", true, false) as TextureRect
 	var detail_bust := detail_portrait.get_node_or_null("BustImage") as TextureRect if detail_portrait != null else null
 	_expect(detail_bust != null and detail_bust.position.y >= -12.0, "character detail portrait must preserve headroom")
@@ -246,7 +260,11 @@ func _initialize() -> void:
 	await process_frame
 	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
 	_expect(collection_back != null, "collection must expose a context-aware back button")
-	_expect((collection_back.get_node("Label") as Label).text == "返回地图", "collection opened from map must return to map")
+	_expect(collection_scroll.visible and collection_back.visible, "closing character detail must restore collection list and back action")
+	var collection_back_label := collection_back.get_node("Label") as Label
+	_expect(collection_back_label.text == "返回地图", "collection opened from map must return to map")
+	_expect(collection_back_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "collection back text must use vertical centering")
+	_expect(absf(collection_back_label.offset_top + 4.0) <= 0.1 and absf(collection_back_label.offset_bottom + 4.0) <= 0.1, "collection back text must share the Glow Sans optical centering correction")
 	collection_back.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "collection opened from map must route back to map")
@@ -283,6 +301,7 @@ func _initialize() -> void:
 	_expect(main.current_scene.has_node("ItemDetail"), "skill collection row click must open skill detail")
 	var skill_detail: Node = main.current_scene.get_node("ItemDetail")
 	_expect((skill_detail as Control).z_index >= 64, "item detail must render above positive-z collection row children")
+	_expect(not (main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer).visible, "item detail must hide the underlying collection list")
 	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
@@ -557,6 +576,7 @@ func _initialize() -> void:
 		if battle.level_id == "level_001":
 			_verify_manual_aim_battle_priority(battle)
 			_verify_multi_shot_targeting(battle)
+			_verify_combat_information_density(battle)
 			_verify_barrier_visual_runtime(battle)
 			await _verify_base_attack_runtime(battle)
 			_verify_pause_freezes_battle(battle)
@@ -829,11 +849,20 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 		_expect(absf(float(battle.CHARACTER_BASE_POSITION.y) - (float(battle.CHARACTER_BASE_Y_DESIGN) + expected_shift)) <= 0.1, "hero must follow the bottom dock" + context)
 		var top_bar := battle.get_node("Hud/TopBar") as Control
 		var bottom_bar := battle.get_node("Hud/BottomBar") as Control
+		var gold_icon := battle.get_node("Hud/BottomBar/GoldIcon") as Control
+		var gold_label := battle.get_node("Hud/BottomBar/GoldLabel") as Control
+		var xp_icon := battle.get_node("Hud/BottomBar/XpIcon") as Control
+		var xp_bar := battle.get_node("Hud/BottomBar/XpBar") as Control
+		var hp_bar := battle.get_node("Hud/BottomBar/BaseHpBar") as Control
 		var skill_slots := battle.get_node("Hud/SkillSlots") as Control
 		var active_skill := battle.get_node("Hud/CharacterSkillButton") as Control
 		var pause_button := battle.get_node("PauseLayer/PauseButton") as Control
 		var speed_button := battle.get_node("PauseLayer/SpeedButton") as Control
 		_expect(absf(bottom_bar.offset_top - (1792.0 + expected_shift)) <= 0.1, "bottom HUD must follow the bottom dock" + context)
+		_expect(absf(gold_icon.position.y - 42.0) <= 0.1 and absf(gold_label.position.y - 36.0) <= 0.1, "gold counter must use the lowered bottom resource row" + context)
+		_expect(absf(xp_icon.position.y - 47.0) <= 0.1 and absf(xp_bar.position.y - 41.0) <= 0.1, "XP counter must use the lowered bottom resource row" + context)
+		_expect(absf(hp_bar.position.y - 41.0) <= 0.1, "base HP must share the lowered bottom resource row" + context)
+		_expect(maxf(gold_label.position.y + gold_label.size.y, maxf(xp_bar.position.y + xp_bar.size.y, hp_bar.position.y + hp_bar.size.y)) <= bottom_bar.size.y + 0.1, "lowered bottom resources must remain inside the dock" + context)
 		_expect(absf(skill_slots.offset_top - (1654.0 + expected_shift)) <= 0.1, "skill slots must follow the bottom dock" + context)
 		_expect(absf(active_skill.offset_top - (1688.0 + expected_shift)) <= 0.1, "active skill must follow the bottom dock" + context)
 		_expect(bottom_bar.offset_bottom <= float(viewport_height) + 0.1, "bottom HUD must remain on-screen" + context)
@@ -954,6 +983,10 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 func _verify_ui_font() -> void:
 	var font_path := "res://assets/production/fonts/font_main.ttf"
 	_expect(str(ProjectSettings.get_setting("gui/theme/custom_font")) == font_path, "project must use the production CJK font as the global UI font")
+	_expect(int(ProjectSettings.get_setting("gui/theme/default_font_size")) == 34, "global inherited UI font must be two logical pixels larger for mobile readability")
+	_expect(UiKit.FONT_SIZE_STEP == 2, "all authored UI font paths must keep the global two-pixel readability step")
+	_expect(UiKit.scaled_font_size(20) == 30, "UiKit scaled labels must include the global two-pixel readability step")
+	_expect(UiKit.bumped_font_size(20) == 22, "direct runtime labels must include the same two-pixel readability step")
 	var font := FontFile.new()
 	var err := font.load_dynamic_font(font_path)
 	_expect(err == OK, "production UI font must load")
@@ -1058,6 +1091,15 @@ func _verify_manual_aim_battle_priority(battle: Node) -> void:
 	battle._on_manual_aim_point(dragged_point)
 	battle._update_auto_target()
 	_expect(battle.turret.target_point.distance_to(dragged_point) <= 1.0, "manual aim must keep following the held pointer")
+	var manual_origin: Vector2 = battle._weapon_fire_origin(false)
+	var manual_direction: Vector2 = (dragged_point - manual_origin).normalized()
+	var manual_fan: Array[Vector2] = battle._primary_shot_directions(manual_origin, manual_direction, 2, deg_to_rad(7.0))
+	var manual_lane_hits_aim := false
+	for direction in manual_fan:
+		if absf(direction.angle_to(manual_direction)) <= 0.001:
+			manual_lane_hits_aim = true
+			break
+	_expect(manual_lane_hits_aim, "multi-shot must keep one lane exactly on the active manual aim point")
 
 	battle._on_manual_aim_released(dragged_point)
 	battle.manual_aim_until = 0.0
@@ -1165,7 +1207,14 @@ func _verify_wave_toast_wrapping(battle: Node) -> void:
 	_expect(label.size.x <= banner.size.x - 32.0, "long wave toast label must stay inside the banner bounds")
 	_expect(label.text == long_tip, "long wave toast must preserve the full onboarding copy")
 
-func _verify_skill_runtime_mods() -> void:
+func _verify_skill_runtime_mods(save_manager: Node) -> void:
+	# SkillRuntime intentionally seeds a newly picked card from the player's
+	# permanent skill level. Keep this contract test independent from whatever
+	# real save happens to be present on the machine running the release check.
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var isolated_save: Dictionary = original_save.duplicate(true)
+	isolated_save["skill_base_levels"] = {}
+	save_manager.save_data = isolated_save
 	var runtime := SkillRuntime.new()
 	runtime.add_skill("skill_multishot")
 	runtime.add_skill("skill_salvo")
@@ -1183,6 +1232,7 @@ func _verify_skill_runtime_mods() -> void:
 	mods = ricochet_runtime.projectile_mods()
 	_expect(int(mods.get("split", 0)) == 0, "ricochet must not masquerade as split-shot")
 	_expect(int(mods.get("chain", 0)) == 1 and int(mods.get("ricochet", 0)) == 1, "ricochet must expose chain count only")
+	save_manager.save_data = original_save
 
 func _verify_slow_field_range_contract(data_loader: Node) -> void:
 	var row: Dictionary = data_loader.get_row("skills", "skill_slow_field")
@@ -1215,6 +1265,10 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 
 func _verify_ammo_element_rules(save_manager: Node) -> void:
 	var data_loader := root.get_node("DataLoader")
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = original_save.duplicate(true)
+	test_save["skill_base_levels"] = {}
+	save_manager.save_data = test_save
 	var runtime := SkillRuntime.new()
 	_expect(runtime.add_skill("skill_tesla"), "tesla ammo must be addable")
 	_expect(runtime.projectile_element("physical") == "lightning", "physical weapons can be converted to tesla ammo")
@@ -1225,8 +1279,6 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	_expect(runtime.projectile_element("physical") == "poison", "active ammo module must drive physical weapon projectile element")
 	_expect(runtime.projectile_element("fire") == "fire", "plasma/fire weapons must not be overwritten by venom or tesla ammo")
 
-	var original_save: Dictionary = save_manager.save_data.duplicate(true)
-	var test_save: Dictionary = original_save.duplicate(true)
 	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
 	equipment["selected_weapon"] = "weapon_plasmacannon"
 	test_save["equipment"] = equipment
@@ -1449,12 +1501,53 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 	var ang_b := absf(directions[1].angle_to(directions[2]))
 	_expect(ang_a > 0.02 and ang_b > 0.02, "multi-shot must spread into a fan (distinct lanes)")
 	_expect(absf(ang_a - ang_b) < 0.03, "multi-shot fan must use a FIXED equal angle between adjacent lanes")
+	var locked_target := fake_targets[0] as Node2D
+	battle.target_manager.lock_enemy(locked_target)
+	var locked_direction := (locked_target.global_position - origin).normalized()
+	var locked_fan: Array[Vector2] = battle._primary_shot_directions(origin, locked_direction, 2, deg_to_rad(7.0))
+	var locked_lane_hits_target := false
+	for direction in locked_fan:
+		if absf(direction.angle_to(locked_direction)) <= 0.001:
+			locked_lane_hits_target = true
+			break
+	_expect(locked_lane_hits_target, "two-lane multi-shot must keep one projectile exactly on the player-locked enemy")
+	_expect(absf(battle._multishot_center_direction(origin, Vector2.UP).angle_to(locked_direction)) <= 0.001, "player lock must override enemy-centroid multi-shot aiming")
+	battle.target_manager.clear_lock()
 	_expect(absf(float(battle._multishot_damage_multiplier(1)) - 1.0) <= 0.001, "single projectile must keep full damage")
 	_expect(absf(float(battle._multishot_damage_multiplier(2)) - 0.85) <= 0.001, "2 projectile lanes must use 15% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(3)) - 0.80) <= 0.001, "3 projectile lanes must use 20% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(4)) - 0.75) <= 0.001, "4 projectile lanes must use 25% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(5)) - 0.70) <= 0.001, "5 projectile lanes must use 30% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(6)) - 0.70) <= 0.001, "projectile lanes above 5 must clamp at 30% falloff")
+	for target in fake_targets:
+		battle.get_node("EnemyLayer").remove_child(target)
+		target.free()
+
+func _verify_combat_information_density(battle: Node) -> void:
+	var fake_targets: Array[Node] = []
+	for index in range(18):
+		var target := FakeAimTarget.new()
+		target.global_position = Vector2(120.0 + float(index % 6) * 160.0, 260.0 + float(index / 6) * 320.0)
+		target.breach_damage = 10 + index
+		target.elite = index == 2
+		target.boss = index == 3
+		if target.elite:
+			target.global_position.y = 1080.0
+			target.breach_damage = 200
+		battle.get_node("EnemyLayer").add_child(target)
+		fake_targets.append(target)
+	var locked := fake_targets[17] as Node2D
+	battle.target_manager.lock_enemy(locked)
+	battle._update_combat_information_density(0.0, true)
+	var visible_count := 0
+	for target in fake_targets:
+		if bool(target.threat_label_visible):
+			visible_count += 1
+	_expect(visible_count <= battle.COMBAT_LABEL_HIGH_CAP, "high-density waves must cap semantic enemy labels, got %d" % visible_count)
+	_expect(bool(locked.get("threat_label_visible")), "the player-locked enemy label must remain visible in a high-density wave")
+	_expect(bool(fake_targets[2].get("threat_label_visible")), "the highest-pressure elite label must remain visible in a high-density wave")
+	_expect(bool(fake_targets[3].get("threat_label_visible")), "boss labels must remain visible in a high-density wave")
+	battle.target_manager.clear_lock()
 	for target in fake_targets:
 		battle.get_node("EnemyLayer").remove_child(target)
 		target.free()
@@ -1782,7 +1875,15 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._vanguard_railvolley_count(active)) >= base_vanguard_volleys + 2, "vanguard signature levels must add volleys")
 				_expect(int(battle._vanguard_railvolley_target_count(active)) >= base_vanguard_targets + 2, "vanguard signature levels must add targets")
 			"blaze":
-				_expect(float(battle._blaze_meltdown_radius(active)) >= base_blaze_radius * 1.24, "blaze signature levels must expand blast radius")
+				# Signature growth is authored as +5% of the skill's base radius
+				# per level. Compare that absolute authored contribution instead
+				# of multiplying the already level/rank-boosted radius; the old
+				# assertion became save-dependent when Blaze was already Lv40.
+				var authored_blaze_radius := float(active.get("radius", 260.0))
+				_expect(
+					float(battle._blaze_meltdown_radius(active)) >= base_blaze_radius + authored_blaze_radius * 0.24,
+					"blaze signature levels must expand blast radius",
+				)
 				_expect(int(battle._blaze_meltdown_pulse_count(active)) >= base_blaze_pulses + 2, "blaze signature levels must add pulse stages")
 				_expect(float(battle._active_skill_status_scale(active)) >= 1.39, "blaze signature levels must strengthen burn status")
 			"frost":
@@ -1921,6 +2022,7 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	var router := FakeRouter.new()
 	root.add_child(router)
 	var test_save: Dictionary = original_save.duplicate(true)
+	test_save["skill_base_levels"] = {}
 	var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
 	var weapons: Array = unlocks.get("weapons", []).duplicate()
 	if not weapons.has("weapon_teslacoil"):

@@ -61,7 +61,7 @@ func _setup_visuals() -> void:
 	_label.offset_top = 12.0
 	_label.offset_right = 304.0
 	_label.offset_bottom = 76.0
-	_label.add_theme_font_size_override("font_size", 42)
+	_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(42))
 	_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.42, 1.0))
 	_label.add_theme_color_override("font_outline_color", Color(0.02, 0.012, 0.004, 1.0))
 	_label.add_theme_constant_override("outline_size", 5)
@@ -70,7 +70,7 @@ func _setup_visuals() -> void:
 	_milestone.offset_top = 76.0
 	_milestone.offset_right = 308.0
 	_milestone.offset_bottom = 136.0
-	_milestone.add_theme_font_size_override("font_size", 28)
+	_milestone.add_theme_font_size_override("font_size", UiKit.bumped_font_size(28))
 	_milestone.add_theme_color_override("font_color", Color(1.0, 0.58, 0.2, 1.0))
 	_milestone.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))
 	_milestone.add_theme_constant_override("outline_size", 5)

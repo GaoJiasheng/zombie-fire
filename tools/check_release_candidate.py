@@ -68,6 +68,10 @@ CHECKS = [
         (GODOT, "--headless", "--path", ".", "--script", "res://tools/_battle_boot_probe.gd"),
         required_output="BATTLE_BOOT_PROBE_OK",
     ),
+    Check(
+        (GODOT, "--headless", "--path", ".", "--script", "res://tools/save_integrity_test.gd"),
+        required_output="SAVE INTEGRITY TEST PASSED",
+    ),
     Check((GODOT, "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd")),
     Check(("python3", "tools/check_visual_screens.py")),
 ]

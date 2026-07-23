@@ -41,9 +41,29 @@ func _initialize() -> void:
 		await process_frame
 		await physics_frame
 	if payload.has("debug_spawn_boss") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy"):
+		if bool(payload.get("debug_clean_boss_stage", false)):
+			# Marketing/visual-regression capture only: suspend the authored wave
+			# and remove incidental mobs so the boss telegraph and health bar can
+			# be judged without changing live campaign behavior.
+			main.current_scene.pending_spawns.clear()
+			main.current_scene.active_spawning = false
+			for enemy in main.current_scene.get_node("EnemyLayer").get_children():
+				enemy.queue_free()
+			for marker in main.current_scene.get_node("ThreatMarkerLayer").get_children():
+				marker.queue_free()
+			await process_frame
+			await process_frame
 		var boss_id := str(payload.get("debug_spawn_boss", ""))
 		if boss_id != "":
 			main.current_scene.call("_spawn_enemy", boss_id, "center", true)
+			if bool(payload.get("debug_clean_boss_stage", false)):
+				var showcase_boss: Node = main.current_scene.get("active_boss")
+				if showcase_boss != null and is_instance_valid(showcase_boss):
+					showcase_boss.position.y = 360.0
+	if bool(payload.get("debug_dense_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_dense_combat(main.current_scene)
+	if bool(payload.get("debug_store_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_store_combat(main.current_scene)
 	if bool(payload.get("debug_barrier", false)) and main.current_scene != null and main.current_scene.has_method("_update_barrier_visual"):
 		var skill_runtime: Variant = main.current_scene.get("skills")
 		if skill_runtime != null and skill_runtime.has_method("add_skill"):
@@ -131,6 +151,103 @@ func _ensure_unlocked(unlocks: Dictionary, key: String, item_id: String) -> void
 	if not items.has(item_id):
 		items.append(item_id)
 	unlocks[key] = items
+
+func _prepare_dense_combat(battle: Node) -> void:
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	await process_frame
+	await process_frame
+	var ids := [
+		"zombie_runner", "zombie_shambler", "zombie_armored", "zombie_spitter",
+		"zombie_crawler", "zombie_bomber", "zombie_shielder", "zombie_mutant",
+		"zombie_runner", "zombie_brute", "zombie_charger", "zombie_screamer",
+		"zombie_shambler", "zombie_warden", "zombie_toxic", "zombie_hopper",
+	]
+	var frontline: Node = null
+	for index in range(ids.size()):
+		var column := index % 4
+		var row := int(index / 4)
+		var position := Vector2(145.0 + float(column) * 255.0, 250.0 + float(row) * 230.0)
+		var enemy: Node = battle.call("_spawn_enemy_instance", ids[index], position, false, 0.0)
+		if index == 13:
+			frontline = enemy
+	if frontline != null and battle.target_manager != null:
+		battle.target_manager.lock_enemy(frontline)
+	battle.call("_update_combat_information_density", 0.0, true)
+	var priority: Array[Node] = battle.call("_combat_information_priority", battle.get_node("EnemyLayer").get_children())
+	var visible_markers := 0
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		if marker is CanvasItem and marker.visible:
+			visible_markers += 1
+	print("dense combat label audit: enemies=%d priorities=%d visible_threat_markers=%d" % [
+		battle.get_node("EnemyLayer").get_child_count(),
+		priority.size(),
+		visible_markers,
+	])
+
+func _prepare_store_combat(battle: Node) -> void:
+	# Deterministic marketing capture made only from live battle systems. It
+	# stages a readable mid-density lane, an explicit frontline lock and a real
+	# active-skill cast so the first App Store screenshot proves the claim in
+	# its headline instead of showing a nearly empty battlefield.
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	await process_frame
+	await process_frame
+	battle.wave_index = 4
+	battle.wave_total = 5
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.last_wave_toast_at = -99.0
+	battle._hide_wave_toast()
+	for skill_id in ["skill_incendiary", "skill_split_shot", "skill_slow_field"]:
+		if battle.skills.level(skill_id) <= 0:
+			battle.skills.add_skill(skill_id)
+	battle._update_skill_slots()
+	battle._update_hud()
+	var formation := [
+		["zombie_armored", Vector2(190, 300)],
+		["zombie_spitter", Vector2(455, 350)],
+		["zombie_shielder", Vector2(760, 315)],
+		["zombie_runner", Vector2(875, 545)],
+		["zombie_bomber", Vector2(270, 620)],
+		["zombie_mutant", Vector2(650, 690)],
+		["zombie_charger", Vector2(810, 850)],
+		["zombie_runner", Vector2(520, 910)],
+	]
+	var frontline: Node = null
+	for index in range(formation.size()):
+		var item: Array = formation[index]
+		var position: Vector2 = item[1]
+		var enemy: Node = battle._spawn_enemy_instance(str(item[0]), position, false, 0.0)
+		if enemy == null:
+			continue
+		enemy.max_hp *= 4.0
+		enemy.hp = enemy.max_hp
+		enemy.speed *= 0.18
+		if enemy.has_method("_update_hp_bar"):
+			enemy.call("_update_hp_bar")
+		if index == formation.size() - 1:
+			frontline = enemy
+	if frontline != null and battle.target_manager != null:
+		battle.target_manager.lock_enemy(frontline)
+	battle._update_combat_information_density(0.0, true)
+	battle._update_lock_indicator()
+	battle._show_wave_toast("已锁定近线威胁 · 集火击破", Color(1.0, 0.76, 0.24))
+	print("store combat audit: enemies=%d locked=%s skills=%s" % [
+		battle.get_node("EnemyLayer").get_child_count(),
+		str(battle.target_manager.has_lock()),
+		str(battle.skills.owned),
+	])
 
 func _current_collection_table(mode: String) -> Dictionary:
 	match mode:

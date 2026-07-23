@@ -38,14 +38,14 @@ theme_override_constants/separation = 22
 [node name="Title" type="Label" parent="Root/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 50
+theme_override_font_sizes/font_size = 52
 text = "图鉴"
 horizontal_alignment = 1
 
 [node name="Progress" type="Label" parent="Root/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 30
 text = "星星 0  金币 0"
 horizontal_alignment = 1
 
@@ -75,7 +75,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 36
 text = "返回上一层"
 horizontal_alignment = 1
 vertical_alignment = 1

@@ -7,6 +7,7 @@ signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool,
 
 const BREACH_Y := 1500.0
 const BASE_ATTACK_Y := 1500.0
+const UiKit := preload("res://ui/ui_kit.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_base_hp_bar.png")
 const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
@@ -93,6 +94,8 @@ var _status_aura: Sprite2D
 var _glacier_aura: Sprite2D
 var _rank_aura: Sprite2D
 var _status_label: Label
+var _threat_marker_allowed := true
+var _status_label_allowed := true
 
 func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	add_to_group("enemies")
@@ -139,7 +142,7 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 func _build_threat_marker() -> void:
 	threat_marker = Label.new()
 	threat_marker.text = _threat_text()
-	threat_marker.add_theme_font_size_override("font_size", 22)
+	threat_marker.add_theme_font_size_override("font_size", UiKit.bumped_font_size(22))
 	threat_marker.add_theme_color_override("font_color", _threat_color())
 	threat_marker.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	threat_marker.add_theme_constant_override("outline_size", 4)
@@ -147,7 +150,21 @@ func _build_threat_marker() -> void:
 	threat_marker.size = Vector2(220, 32)
 	threat_marker.position = Vector2(-110, 0)
 	threat_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	threat_marker.visible = not threat_marker.text.is_empty()
+	_sync_threat_marker_visibility()
+
+func set_combat_label_visibility(show_threat: bool, show_status: bool) -> void:
+	# High-density waves keep the battlefield readable by showing semantic text
+	# only on the player's lock, the current priority target, elites and bosses.
+	# The sprites, lock ring, auras and damage model remain untouched.
+	_threat_marker_allowed = show_threat
+	_status_label_allowed = show_status
+	_sync_threat_marker_visibility()
+	_update_status_label()
+
+func _sync_threat_marker_visibility() -> void:
+	if threat_marker == null or not is_instance_valid(threat_marker):
+		return
+	threat_marker.visible = _threat_marker_allowed and not threat_marker.text.is_empty()
 
 func _exit_tree() -> void:
 	if threat_marker == null or not is_instance_valid(threat_marker):
@@ -312,6 +329,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 					if threat_marker and is_instance_valid(threat_marker):
 						threat_marker.text = "破甲"
 						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
+						_sync_threat_marker_visibility()
 			final_damage *= penetration
 			resolved_hit_kind = "armor_pierce"
 		elif boss and not armor_broken and armor_hits_left > 0:
@@ -328,6 +346,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 					if threat_marker and is_instance_valid(threat_marker):
 						threat_marker.text = "破甲"
 						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
+						_sync_threat_marker_visibility()
 				return
 			armor_broken = true
 		elif boss:
@@ -601,7 +620,7 @@ func _build_model_polish_layers() -> void:
 	_status_label.position = Vector2(-125, -154 if not boss else -254)
 	_status_label.size = Vector2(250, 34)
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status_label.add_theme_font_size_override("font_size", 20 if not boss else 26)
+	_status_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20 if not boss else 26))
 	_status_label.add_theme_color_override("font_color", Color(0.78, 0.94, 1.0, 1.0))
 	_status_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	_status_label.add_theme_constant_override("outline_size", 4)
@@ -959,7 +978,7 @@ func _update_status_label() -> void:
 		tags.append("电")
 		label_color = Color(1.0, 0.9, 0.2, 1.0)
 	_status_label.text = " ".join(tags)
-	_status_label.visible = not tags.is_empty()
+	_status_label.visible = _status_label_allowed and not tags.is_empty()
 	_status_label.add_theme_color_override("font_color", label_color)
 
 func _update_stride(delta: float) -> void:

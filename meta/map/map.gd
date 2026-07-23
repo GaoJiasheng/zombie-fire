@@ -563,7 +563,7 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	var panel := Control.new()
 	panel.name = "MajorBossNode" if major else "SmallBossNode"
 	panel.position = pos
-	panel.size = Vector2(136, 52)
+	panel.size = Vector2(144, 52)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(panel)
 	var skin := TextureRect.new()
@@ -580,13 +580,13 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	var accent := UiKit.DANGER if major else UiKit.WARNING
 	var text := UiKit.label("%s  %s" % [number, label_text], 15, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	text.position = Vector2(8, 2)
-	text.size = Vector2(120, 26)
+	text.size = Vector2(128, 26)
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	text.clip_text = true
 	panel.add_child(text)
 	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未展开"), 14, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
 	state.position = Vector2(8, 29)
-	state.size = Vector2(120, 20)
+	state.size = Vector2(128, 20)
 	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	state.clip_text = true
 	panel.add_child(state)
@@ -736,10 +736,14 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	var status_plate := PanelContainer.new()
 	status_plate.name = "StatusBadge"
 	status_plate.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	status_plate.offset_left = -76
+	status_plate.offset_left = -88
 	status_plate.offset_top = 7
 	status_plate.offset_right = -12
-	status_plate.offset_bottom = 35
+	# Keep enough inner width and vertical breathing room for the licensed
+	# display font at the largest equipped-level strings (for example Lv40).
+	# The previous compact plate could clip the glyph metrics after the global
+	# readability increase.
+	status_plate.offset_bottom = 40
 	status_plate.add_theme_stylebox_override("panel", _build_nav_status_style(accent))
 	status_plate.clip_contents = true
 	status_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE

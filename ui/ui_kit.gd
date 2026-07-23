@@ -71,7 +71,17 @@ const NATIVE_BUTTON_SIZES := [
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
 const FONT_SCALE := 1.4
+# 2026-07-22 mobile readability pass: every authored/effective font grows by
+# exactly two logical pixels. Keep this additive so the hierarchy ratios above
+# remain unchanged instead of making large display titles disproportionately huge.
+const FONT_SIZE_STEP := 2
 static var _TEXTURE_CACHE: Dictionary = {}
+
+static func scaled_font_size(size: float) -> int:
+	return maxi(1, int(round(size * FONT_SCALE)) + FONT_SIZE_STEP)
+
+static func bumped_font_size(size: float) -> int:
+	return maxi(1, int(round(size)) + FONT_SIZE_STEP)
 
 static func release_cached_resources_for_tests() -> void:
 	_TEXTURE_CACHE.clear()
@@ -401,7 +411,7 @@ static func apply_armored_button(button: Button, primary := true, button_size :=
 	button.add_theme_color_override("font_hover_color", TEXT_MAIN)
 	button.add_theme_color_override("font_pressed_color", GOLD if primary else CYAN)
 	button.add_theme_color_override("font_disabled_color", GREY_300)
-	button.add_theme_font_size_override("font_size", int(round(font_size * FONT_SCALE)))
+	button.add_theme_font_size_override("font_size", scaled_font_size(font_size))
 
 static func _native_button_size(button_size: Vector2) -> Vector2i:
 	var target_w := int(round(button_size.x))
@@ -521,7 +531,7 @@ static func pill_style(accent := CYAN, bg := Color(0.022, 0.026, 0.032, 0.82)) -
 	return texture_style(UI_TEXTURE_ROOT + "ui_pill_skin.png", 24.0, 10.0, accent)
 
 static func apply_label(label: Label, size := 22, color := TEXT_MAIN, outline := 3) -> void:
-	label.add_theme_font_size_override("font_size", int(round(size * FONT_SCALE)))
+	label.add_theme_font_size_override("font_size", scaled_font_size(size))
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
 	# outline 此前一直是字面量、不随 FONT_SCALE 放大：字号越调越大后描边相对越来越

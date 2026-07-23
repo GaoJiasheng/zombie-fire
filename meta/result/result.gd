@@ -148,15 +148,15 @@ func _apply_ui_style() -> void:
 	UiKit.apply_label($Content/ReportPanel/ReportBox/Output, 19, UiKit.CYAN, 2)
 	UiKit.apply_label($Content/ReportPanel/ReportBox/Defense, 19, UiKit.TEXT_MUTED, 2)
 	UiKit.apply_label($Content/ReportPanel/ReportBox/Coach, 18, UiKit.WARNING, 2)
-	for path in [
-		"Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel",
-		"Content/Actions/PrimaryRow/RetryButton/RetryLabel",
-		"Content/Actions/NextButton/NextLabel",
-		"Content/Actions/MapButton/MapLabel"
+	for spec in [
+		{"path": "Content/Actions/PrimaryRow/UpgradeButton/UpgradeLabel", "size": 30},
+		{"path": "Content/Actions/PrimaryRow/RetryButton/RetryLabel", "size": 30},
+		{"path": "Content/Actions/NextButton/NextLabel", "size": 30},
+		{"path": "Content/Actions/MapButton/MapLabel", "size": 22},
 	]:
-			var label := get_node_or_null(path) as Label
+			var label := get_node_or_null(str(spec["path"])) as Label
 			if label != null:
-				UiKit.apply_label(label, int(label.get_theme_font_size("font_size")), Color(1, 1, 1, 1), 5)
+				UiKit.apply_label(label, int(spec["size"]), Color(1, 1, 1, 1), 5)
 
 func _apply_title_label_style(size: int, color: Color) -> void:
 	var title := $Content/HeroCard/HeroBox/Title as Label

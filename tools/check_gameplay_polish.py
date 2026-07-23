@@ -121,6 +121,26 @@ def main() -> int:
 
     if "ui_button_armored" in ui_kit:
         errors.append("UiKit must not reference the rejected geometric ui_button_armored batch")
+    for runtime_contract in [
+        "var frame_enemies := $EnemyLayer.get_children()",
+        "_update_auto_target(frame_enemies)",
+        "_process_enemy_mechanics(delta * _challenge_mult(\"mechanic_rate_mult\"), frame_enemies)",
+        "_apply_slow_field(frame_enemies)",
+    ]:
+        if runtime_contract not in battle:
+            errors.append(f"battle physics loop must reuse one enemy snapshot: {runtime_contract}")
+    if "distance_squared_to(source.global_position) <= radius_squared" not in battle:
+        errors.append("enemy aura range checks must avoid repeated square-root distance work")
+    for loadout_contract in [
+        '"%d (+%d)" % [projected_power, maxi(projected_power - power, 0)]',
+        '"英雄 %s Lv%d · 武器 %s Lv%d',
+        '宠物 %s%s',
+        '" Lv%d" % pet_level',
+    ]:
+        if loadout_contract not in loadout:
+            errors.append(f"loadout summary must keep compact, traceable high-level copy: {loadout_contract}")
+    if 'loadout.text = "英雄 %s 等级%d' in loadout:
+        errors.append("visible loadout summary must not use the wrapping-prone full 等级 notation")
     if 'ui_button_%s_native_%dx%d.png' not in ui_kit or "func _native_button_size" not in ui_kit:
         errors.append("UiKit buttons must route through native rendered button textures, not stretch one master button")
     native_size_matches = re.findall(r"Vector2i\((\d+),\s*(\d+)\)", re.search(r"const NATIVE_BUTTON_SIZES := \[[\s\S]*?\]", ui_kit).group(0) if "const NATIVE_BUTTON_SIZES" in ui_kit else "")

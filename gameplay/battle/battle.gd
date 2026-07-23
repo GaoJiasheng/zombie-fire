@@ -202,6 +202,12 @@ const HUD_WAVE_FILL_LEFT := 40.0
 const HUD_WAVE_FILL_RIGHT := 680.0
 const HUD_WAVE_BAR_SIZE := Vector2(720, 46)
 const HUD_XP_FILL_RIGHT := 778.0
+const BOTTOM_RESOURCE_ROW_DROP := 20.0
+const COMBAT_LABEL_FULL_DENSITY_MAX := 8
+const COMBAT_LABEL_MEDIUM_DENSITY_MAX := 16
+const COMBAT_LABEL_MEDIUM_CAP := 7
+const COMBAT_LABEL_HIGH_CAP := 5
+const COMBAT_LABEL_REFRESH_SECONDS := 0.16
 const ENABLE_DEBUG_OVERLAY := false
 const MAX_PROJECTILE_TRANSIENT_FX := 150
 const MAX_PROJECTILE_PRIORITY_FX := 185
@@ -276,6 +282,7 @@ var wave_total := 0
 var active_spawning := false
 var turret: Node2D
 var target_manager: TargetingManager
+var combat_label_refresh_left := 0.0
 var card_director := CardDirector.new()
 var skills := SkillRuntime.new()
 var next_xp_offer := 12
@@ -661,43 +668,135 @@ func _physics_process(delta: float) -> void:
 		_set_turret_fire_enabled(false)
 		return
 	var real_delta := delta / maxf(battle_speed, 1.0)
+	# EnemyLayer is queried by targeting, reporting, information density, enemy
+	# mechanics and the slow field every physics tick. Capture one stable view
+	# for those systems instead of allocating the same child array repeatedly.
+	# Newly spawned enemies enter after this group and are intentionally picked
+	# up on the next physics tick, matching the existing processing order.
+	var frame_enemies := $EnemyLayer.get_children()
 	battle_elapsed_seconds += real_delta
-	_update_battle_report_control(real_delta)
+	_update_battle_report_control(real_delta, frame_enemies)
 	_sync_logic_turret_to_character()
-	_update_auto_target()
+	_update_auto_target(frame_enemies)
+	_update_combat_information_density(delta, false, frame_enemies)
 	_process_character_animation(delta)
 	_process_character_signatures(delta)
 	_process_pet(delta)
-	_process_enemy_mechanics(delta * _challenge_mult("mechanic_rate_mult"))
-	_apply_slow_field()
+	_process_enemy_mechanics(delta * _challenge_mult("mechanic_rate_mult"), frame_enemies)
+	_apply_slow_field(frame_enemies)
 	_process_spawns(delta)
 	_check_victory()
 	_update_lock_indicator()
 	_update_off_screen_indicators()
 	_update_hud()
 
-func _update_auto_target() -> void:
-	var has_fireable_target := _has_fireable_targets()
+func _update_auto_target(enemies: Array = []) -> void:
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	var has_fireable_target := _has_fireable_targets(candidates)
 	_set_turret_fire_enabled(has_fireable_target)
 	if not has_fireable_target:
 		return
 	if _manual_aim_has_priority():
 		_apply_manual_aim()
 		return
-	var enemies := $EnemyLayer.get_children()
-	var target := target_manager.choose_target(enemies, _weapon_fire_origin(false))
+	var target := target_manager.choose_target(candidates, _weapon_fire_origin(false))
 	if target:
 		turret.aim_at(target.global_position)
 	else:
 		_set_turret_fire_enabled(false)
+
+func _update_combat_information_density(delta: float, force := false, enemies: Array = []) -> void:
+	combat_label_refresh_left -= delta
+	if not force and combat_label_refresh_left > 0.0:
+		return
+	combat_label_refresh_left = COMBAT_LABEL_REFRESH_SECONDS
+	var source := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	var valid_enemies: Array[Node] = []
+	for child in source:
+		if child is Node and is_instance_valid(child) and not child.is_queued_for_deletion() and child.has_method("targeting_snapshot"):
+			valid_enemies.append(child)
+	var priority := _combat_information_priority(valid_enemies)
+	var condensed := valid_enemies.size() > COMBAT_LABEL_FULL_DENSITY_MAX
+	for enemy in valid_enemies:
+		if not enemy.has_method("set_combat_label_visibility"):
+			continue
+		var selected := not condensed or priority.has(enemy)
+		enemy.call("set_combat_label_visibility", selected, selected)
+
+func _combat_information_priority(enemies: Array[Node]) -> Array[Node]:
+	var valid: Array[Node] = []
+	for enemy in enemies:
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy.has_method("targeting_snapshot"):
+			continue
+		var hp_value = enemy.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		valid.append(enemy)
+	if valid.size() <= COMBAT_LABEL_FULL_DENSITY_MAX:
+		return valid
+
+	var selected: Array[Node] = []
+	var origin := _weapon_fire_origin(false)
+	var locked = target_manager.locked_enemy if target_manager != null else null
+	if is_instance_valid(locked) and valid.has(locked):
+		selected.append(locked)
+	for enemy in valid:
+		var snapshot: Dictionary = enemy.targeting_snapshot()
+		if bool(snapshot.get("boss", false)) and not selected.has(enemy):
+			selected.append(enemy)
+
+	# Preserve one elite callout even when a wave contains several elite-tagged
+	# units. Remaining elites still rank naturally by pressure, but do not make
+	# every label permanent and recreate the wall of text this policy removes.
+	var best_elite: Node = null
+	var best_elite_score := -INF
+	for enemy in valid:
+		var snapshot: Dictionary = enemy.targeting_snapshot()
+		if not bool(snapshot.get("elite", false)) or bool(snapshot.get("boss", false)):
+			continue
+		var score := target_manager.score_enemy(snapshot, origin) if target_manager != null else float(snapshot.get("y", 0.0))
+		if score > best_elite_score:
+			best_elite_score = score
+			best_elite = enemy
+	if best_elite != null and not selected.has(best_elite):
+		selected.append(best_elite)
+
+	var primary := target_manager.choose_target(valid, _weapon_fire_origin(false)) if target_manager != null else null
+	if is_instance_valid(primary) and not selected.has(primary):
+		selected.append(primary)
+
+	var ranked: Array[Dictionary] = []
+	for enemy in valid:
+		if selected.has(enemy):
+			continue
+		var snapshot: Dictionary = enemy.targeting_snapshot()
+		ranked.append({
+			"enemy": enemy,
+			"score": target_manager.score_enemy(snapshot, origin) if target_manager != null else float(snapshot.get("y", 0.0)),
+			"y": float(snapshot.get("y", 0.0)),
+		})
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var score_a := float(a.get("score", 0.0))
+		var score_b := float(b.get("score", 0.0))
+		if not is_equal_approx(score_a, score_b):
+			return score_a > score_b
+		return float(a.get("y", 0.0)) > float(b.get("y", 0.0))
+	)
+	var cap := COMBAT_LABEL_MEDIUM_CAP if valid.size() <= COMBAT_LABEL_MEDIUM_DENSITY_MAX else COMBAT_LABEL_HIGH_CAP
+	for item in ranked:
+		if selected.size() >= cap:
+			break
+		selected.append(item.get("enemy") as Node)
+	return selected
 
 func _set_turret_fire_enabled(enabled: bool) -> void:
 	if turret == null or not is_instance_valid(turret):
 		return
 	turret.set("fire_enabled", enabled)
 
-func _has_fireable_targets() -> bool:
-	for enemy in $EnemyLayer.get_children():
+func _has_fireable_targets(enemies: Array = []) -> bool:
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	for enemy in candidates:
 		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
 			continue
 		if not enemy.has_method("targeting_snapshot"):
@@ -881,7 +980,7 @@ func _ensure_character_skill_icon_nodes() -> void:
 		cd_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		cd_label.z_index = 7
 		cd_label.visible = false
-		cd_label.add_theme_font_size_override("font_size", 24)
+		cd_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 		cd_label.add_theme_color_override("font_color", Color(0.92, 0.96, 1.0, 1.0))
 		cd_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))
 		cd_label.add_theme_constant_override("outline_size", 4)
@@ -2539,7 +2638,7 @@ func _ensure_speed_button() -> void:
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.tooltip_text = "战斗加速"
-	button.add_theme_font_size_override("font_size", 26)
+	button.add_theme_font_size_override("font_size", UiKit.bumped_font_size(26))
 	button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
 	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	button.add_theme_constant_override("outline_size", 3)
@@ -2615,25 +2714,29 @@ func _layout_status_bar(path: String, pos: Vector2, bar_size: Vector2, fill_top:
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _layout_bottom_resource_bar() -> void:
+	# Keep the three bottom resources on one optical baseline. Physical-iPhone
+	# review showed the old row floating too close to the hero and defense line;
+	# drop only this row, preserving the skill shelf, actor anchors and safe-area
+	# dock as authored.
 	var gold_icon := get_node_or_null("Hud/BottomBar/GoldIcon") as TextureRect
 	if gold_icon != null:
-		gold_icon.position = Vector2(8.0, 22.0)
+		gold_icon.position = Vector2(8.0, 22.0 + BOTTOM_RESOURCE_ROW_DROP)
 		gold_icon.size = Vector2(54, 54)
 		gold_icon.custom_minimum_size = Vector2(54, 54)
 	var gold_label := get_node_or_null("Hud/BottomBar/GoldLabel") as Label
 	if gold_label != null:
-		gold_label.position = Vector2(64.0, 16.0)
+		gold_label.position = Vector2(64.0, 16.0 + BOTTOM_RESOURCE_ROW_DROP)
 		gold_label.size = Vector2(112, 62)
 		UiKit.apply_label(gold_label, 26, UiKit.GOLD, 3)
 		gold_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var xp_icon := get_node_or_null("Hud/BottomBar/XpIcon") as TextureRect
 	if xp_icon != null:
-		xp_icon.position = Vector2(184.0, 27.0)
+		xp_icon.position = Vector2(184.0, 27.0 + BOTTOM_RESOURCE_ROW_DROP)
 		xp_icon.size = Vector2(44, 44)
 		xp_icon.custom_minimum_size = Vector2(44, 44)
 	var xp_bar := get_node_or_null("Hud/BottomBar/XpBar") as Control
 	if xp_bar != null:
-		xp_bar.position = Vector2(232.0, 21.0)
+		xp_bar.position = Vector2(232.0, 21.0 + BOTTOM_RESOURCE_ROW_DROP)
 		xp_bar.size = Vector2(386.0, 54.0)
 		xp_bar.clip_contents = true
 		var track := xp_bar.get_node_or_null("Track") as Panel
@@ -2650,7 +2753,7 @@ func _layout_bottom_resource_bar() -> void:
 			label.size = Vector2(386.0, 54.0)
 	var hp_bar := get_node_or_null(HUD_HP_BAR_PATH) as Control
 	if hp_bar != null:
-		_layout_status_bar(HUD_HP_BAR_PATH, Vector2(632.0, 21.0), Vector2(384.0, 54.0), 18.0, 16.0, 22)
+		_layout_status_bar(HUD_HP_BAR_PATH, Vector2(632.0, 21.0 + BOTTOM_RESOURCE_ROW_DROP), Vector2(384.0, 54.0), 18.0, 16.0, 22)
 
 func _ensure_hud_fill_texture(bar_path: String, texture_path: String, top: float, height: float) -> void:
 	var bar := get_node_or_null(bar_path) as Control
@@ -3244,14 +3347,14 @@ func _apply_endless_boss_opening_grace(row: Dictionary, economy: Dictionary) -> 
 			params["armor_hits"] = mini(int(params.get("armor_hits", cap)), cap)
 		row["mechanic_params"] = params
 
-func _process_enemy_mechanics(delta: float) -> void:
-	var enemies := $EnemyLayer.get_children()
-	_process_threat_feedback(enemies)
-	for enemy in enemies:
+func _process_enemy_mechanics(delta: float, enemies: Array = []) -> void:
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	_process_threat_feedback(candidates)
+	for enemy in candidates:
 		if is_instance_valid(enemy):
 			enemy.speed_mult = 1.0
 			enemy.external_damage_mult = 1.0
-	for source in enemies:
+	for source in candidates:
 		if not is_instance_valid(source):
 			continue
 		_process_boss_phase_feedback(source)
@@ -3259,10 +3362,10 @@ func _process_enemy_mechanics(delta: float) -> void:
 			"basic", "tank":
 				_process_baseline_enemy_audio(source, delta)
 			"buff_aura":
-				_apply_speed_aura(source, enemies)
+				_apply_speed_aura(source, candidates)
 				_process_aura_feedback(source, "buff_aura", delta)
 			"shield_aura", "ward":
-				_apply_damage_reduction_aura(source, enemies)
+				_apply_damage_reduction_aura(source, candidates)
 				_process_aura_feedback(source, str(source.mechanic), delta)
 			"summon":
 				_process_summoner(source, delta)
@@ -3291,7 +3394,7 @@ func _process_enemy_mechanics(delta: float) -> void:
 			"phase_burn":
 				_process_boss_pressure(source, delta, 4.2, 0.42, "熔火压制", Color(1.0, 0.34, 0.12))
 			"freeze_field":
-				_process_freeze_field(source, enemies, delta)
+				_process_freeze_field(source, candidates, delta)
 			"storm_chain":
 				_process_boss_pressure(source, delta, 3.6, 0.36, "雷暴连锁", Color(1.0, 0.88, 0.2))
 			"spawn_minions":
@@ -3301,26 +3404,28 @@ func _process_enemy_mechanics(delta: float) -> void:
 			"regenerate":
 				_process_boss_pressure(source, delta, 5.8, 0.28, "腐化再生", Color(0.48, 1.0, 0.32))
 			"multi_phase":
-				_process_apex_pressure(source, enemies, delta)
+				_process_apex_pressure(source, candidates, delta)
 
 func _apply_speed_aura(source: Node, enemies: Array) -> void:
 	var radius := float(source.mechanic_params.get("radius", 260.0))
+	var radius_squared := radius * radius
 	var speed_boost := float(source.mechanic_params.get("speed_mult", 1.18))
 	for enemy in enemies:
 		if enemy == source or not is_instance_valid(enemy):
 			continue
-		if enemy.global_position.distance_to(source.global_position) <= radius:
+		if enemy.global_position.distance_squared_to(source.global_position) <= radius_squared:
 			# 取全场最强的单个光环效果，而不是按范围内光环源数量连乘——密集刷同类
 			# 光环怪(如成群守护者)聚在一起时，连乘会指数级失控。
 			enemy.speed_mult = maxf(enemy.speed_mult, speed_boost)
 
 func _apply_damage_reduction_aura(source: Node, enemies: Array) -> void:
 	var radius := float(source.mechanic_params.get("radius", 280.0))
+	var radius_squared := radius * radius
 	var damage_mult := float(source.mechanic_params.get("damage_taken_mult", 0.72))
 	for enemy in enemies:
 		if enemy == source or not is_instance_valid(enemy):
 			continue
-		if enemy.global_position.distance_to(source.global_position) <= radius:
+		if enemy.global_position.distance_squared_to(source.global_position) <= radius_squared:
 			# 同上：减伤取全场最强单个光环，不按范围内光环源数量连乘。此前连乘在
 			# 守护者刷成一整群、互相都在彼此 320 半径内时会把承伤压到 0.66^N，
 			# 群怪聚集(如第38关第3波)时几乎变成打不死，这是真实的"无敌"bug而非设计如此。
@@ -3846,21 +3951,23 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
 	# 多重射击 = “固定夹角”的对称扇形：每条弹道之间角度固定、不各自变道锁敌（避免 imba）。
-	# 扇形整体“中心方向”对准敌群质心，所以它会随敌群转向、不再卡在竖直中线上打空。
+	# 无点名时扇形整体“中心方向”对准敌群质心；锁定/手动瞄准时必须保留一条精确命中
+	# 优先目标的主弹道，其余弹道才按固定夹角扩散，不能让敌群质心覆盖玩家点名。
 	# 每条弹道的固定夹角取自 MULTISHOT_LANE_DEG（不再用武器随机 spread——那会在 spread=0 时把所有
 	# 弹道叠成一条线，稍微偏一点就整组打空）；散射类武器额外的 spread 只做“下限加宽”。
 	var directions: Array[Vector2] = []
 	if shots <= 1:
 		directions.append(base_direction.normalized())
 		return directions
-	var center_dir := _multishot_center_direction(origin, base_direction)
+	var priority_dir := _priority_aim_direction(origin)
+	var center_dir := priority_dir if priority_dir.length_squared() > 0.01 else _multishot_center_direction(origin, base_direction)
 	var lane_step: float = maxf(deg_to_rad(MULTISHOT_LANE_DEG), spread / float(shots - 1))
 	var total: float = lane_step * float(shots - 1)
 	# 质心是"平均位置"，敌人分两侧站时质心可能落在没人的空地——固定夹角的扇形整体套在质心上会全部打空。
 	# 保证至少一条弹道真的对着某个敌人：质心扇形覆盖不到任何敌人时，把整个扇形(角度仍固定)
 	# 重新对准"离质心方向最近的那个真实敌人"，而不是让每条弹道各自变道锁敌（那样才是 imba）。
 	var enemy_dirs := _battlefield_enemy_directions(origin)
-	if not enemy_dirs.is_empty():
+	if priority_dir.length_squared() <= 0.01 and not enemy_dirs.is_empty():
 		var half_span: float = total * 0.5 + lane_step * 0.5
 		var covered := false
 		for d in enemy_dirs:
@@ -3879,7 +3986,34 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 	for index in range(shots):
 		var offset: float = -total * 0.5 + lane_step * float(index)
 		directions.append(center_dir.rotated(offset).normalized())
+	if priority_dir.length_squared() > 0.01:
+		var priority_lane := 0
+		var priority_angle := INF
+		for index in range(directions.size()):
+			var angle := absf(directions[index].angle_to(priority_dir))
+			if angle < priority_angle:
+				priority_angle = angle
+				priority_lane = index
+		# Even lane counts have no mathematical center lane. Snap the nearest lane
+		# to the explicit aim so a two-shot fan cannot straddle and miss the lock.
+		directions[priority_lane] = priority_dir
 	return directions
+
+func _priority_aim_direction(origin: Vector2) -> Vector2:
+	var priority_point := Vector2.ZERO
+	var has_priority := false
+	if _manual_aim_has_priority():
+		priority_point = manual_aim_point
+		has_priority = true
+	elif target_manager != null and target_manager.has_lock():
+		var locked := target_manager.locked_enemy
+		if is_instance_valid(locked):
+			priority_point = locked.global_position
+			has_priority = true
+	if not has_priority:
+		return Vector2.ZERO
+	var direction := priority_point - origin
+	return direction.normalized() if direction.length_squared() > 4.0 else Vector2.ZERO
 
 func _battlefield_enemy_directions(origin: Vector2) -> Array[Vector2]:
 	# 场上所有尚未越线的敌人相对 origin 的单位方向（供多重射击"至少一条弹道命中"判定用）。
@@ -3898,6 +4032,9 @@ func _battlefield_enemy_directions(origin: Vector2) -> Array[Vector2]:
 
 func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
 	# 敌群质心方向（只算尚未越过基线的敌人）；无敌人时退回原瞄准方向。
+	var priority_dir := _priority_aim_direction(origin)
+	if priority_dir.length_squared() > 0.01:
+		return priority_dir
 	var sum := Vector2.ZERO
 	var n := 0
 	for e in $EnemyLayer.get_children():
@@ -5270,7 +5407,7 @@ func _spawn_loadout_badge(origin: Vector2, label_text: String, level: int, color
 	badge.size = Vector2(116, 68)
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	badge.add_theme_font_size_override("font_size", 22)
+	badge.add_theme_font_size_override("font_size", UiKit.bumped_font_size(22))
 	badge.add_theme_color_override("font_color", color)
 	badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	badge.add_theme_constant_override("outline_size", 4)
@@ -5305,7 +5442,7 @@ func _spawn_attack_telegraph(origin: Vector2, color: Color, label_text: String) 
 	label.position = origin + Vector2(-120, -92)
 	label.size = Vector2(240, 42)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 	label.add_theme_color_override("font_color", Color(color.r, color.g, color.b, 0.95))
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	label.add_theme_constant_override("outline_size", 4)
@@ -5356,7 +5493,7 @@ func _show_boss_banner(boss_name: String) -> void:
 	label.size = Vector2(1080, 74)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 42)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(42))
 	label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.28, 1.0))
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	label.add_theme_constant_override("outline_size", 6)
@@ -5417,7 +5554,7 @@ func _attach_growth_badge(parent: Node, level: int, offset: Vector2) -> void:
 	badge.text = _growth_badge_text(level)
 	badge.position = offset
 	badge.size = Vector2(180, 34)
-	badge.add_theme_font_size_override("font_size", 20)
+	badge.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	badge.add_theme_color_override("font_color", _level_tint(level))
 	badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	badge.add_theme_constant_override("outline_size", 4)
@@ -7056,9 +7193,10 @@ func _reset_battle_report() -> void:
 	battle_max_kill_streak = 0
 	battle_last_boss_id = ""
 
-func _update_battle_report_control(real_delta: float) -> void:
+func _update_battle_report_control(real_delta: float, enemies: Array = []) -> void:
 	var controlled := 0
-	for enemy in $EnemyLayer.get_children():
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	for enemy in candidates:
 		if is_instance_valid(enemy) and enemy.has_method("is_controlled") and enemy.is_controlled():
 			controlled += 1
 	battle_control_seconds += real_delta * float(controlled)
@@ -7248,7 +7386,7 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var lv_badge := Label.new()
 	lv_badge.name = "LevelBadge"
 	lv_badge.text = "等级%d" % lv
-	lv_badge.add_theme_font_size_override("font_size", 10)
+	lv_badge.add_theme_font_size_override("font_size", UiKit.bumped_font_size(10))
 	var badge_color := _skill_level_color(lv, max_lv)
 	lv_badge.add_theme_color_override("font_color", badge_color)
 	lv_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
@@ -7532,7 +7670,7 @@ func _build_debug_text() -> String:
 		lines.append("top target score=%.1f id=%s y=%.0f" % [top_score, top_enemy.name, top_enemy.global_position.y])
 	return "\n".join(lines)
 
-func _apply_slow_field() -> void:
+func _apply_slow_field(enemies: Array = []) -> void:
 	var slow_level := skills.level("skill_slow_field")
 	if slow_level <= 0:
 		slow_field_sfx_level = 0
@@ -7541,7 +7679,8 @@ func _apply_slow_field() -> void:
 	if slow_level != slow_field_sfx_level:
 		slow_field_sfx_level = slow_level
 		AudioManager.play_sfx("skill_slow_field", -8.0, 0.02)
-	for enemy in $EnemyLayer.get_children():
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	for enemy in candidates:
 		if enemy.has_method("targeting_snapshot"):
 			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())
 			if slow_mult < 1.0:
@@ -8967,7 +9106,7 @@ func _spawn_float_text(world_pos: Vector2, text: String, color: Color, priority_
 	label.position = world_pos
 	label.size = Vector2(width, 40)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(font_size))
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	label.add_theme_constant_override("outline_size", 4)
