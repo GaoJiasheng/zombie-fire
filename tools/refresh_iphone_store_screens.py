@@ -108,7 +108,8 @@ def main() -> int:
             "level_id": "level_050",
             "debug_spawn_boss": "boss_inferno_maw",
             "debug_clean_boss_stage": True,
-            "warmup_frames": 90,
+            "debug_boss_showcase": True,
+            "warmup_frames": 30,
         },
         "05_boss.png",
     )

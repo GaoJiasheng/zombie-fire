@@ -1,6 +1,6 @@
 {
   "id": "vfx_active_sig_volt_storm",
-  "fps": 20,
+  "fps": 24,
   "frames": [
     "sprites/vfx_sequences/vfx_active_sig_volt_storm/vfx_active_sig_volt_storm_01.png",
     "sprites/vfx_sequences/vfx_active_sig_volt_storm/vfx_active_sig_volt_storm_02.png",
@@ -17,6 +17,6 @@
     "sprites/vfx_sequences/vfx_active_sig_volt_storm/vfx_active_sig_volt_storm_13.png",
     "sprites/vfx_sequences/vfx_active_sig_volt_storm/vfx_active_sig_volt_storm_14.png"
   ],
-  "source": "assets/production/source_refs/generated/active_skill_vfx_review_2026_07_06/top_tier_active_skill_vfx_reference_2026_07_06.png",
-  "integration": "AI-rendered reference sheet extraction plus local alpha cleanup; PNG bitmap sequence, no SVG/vector primitives"
+  "source": "assets/production/source_refs/generated/premium_combat_vfx_2026_07_26/character_actives_padded_alpha.png",
+  "integration": "Owner-directed premium AI-rendered VFX; chroma-key alpha extraction, centered safe-zone normalization, and bounded PNG frame animation."
 }

@@ -246,6 +246,37 @@
 ```
 `immune_damage_floor` 仅用于 Boss 的错误元素保底伤害比例；必须大于 `0`，以免形成绝对软锁。未声明时使用运行时通用值 `0.18`，终局 Boss 可按毕业配装检查收紧。`phase_cues` 按血量阈值驱动阶段播报，`counter_hint` 同时用于失败战报，不在战斗脚本硬编码首领文案。
 
+Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不能再退回按 `mechanic` 共用一团通用命中特效：
+
+```jsonc
+{
+  "base_attack_kind": "boss_inferno_barrage",
+  "base_attack_profile": {
+    "id": "inferno_barrage",                // 8 个 Boss 间唯一
+    "mode": "ranged_volley",                // melee_heavy / ranged_volley / channel / dash_combo
+    "label": "熔核三连",
+    "element": "fire",
+    "hit_elements": [],                     // 可选；逐段覆盖 element，终局复合攻击使用
+    "hit_colors": [],                       // 可选；与 hits 等长的 RRGGBB 演出色，不改变伤害元素
+    "hits": 3,                              // 1..6，仅拆分动作/VFX 节拍
+    "windup": 0.58,
+    "hit_gap": 0.18,
+    "travel_time": 0.26,
+    "first_attack_delay": 1.15,
+    "line_offset": -205.0,                  // 相对运行时基地线；远程单位更早驻足
+    "cast_sequence": "vfx_enemy_skill_phase_burn",
+    "impact_sequence": "vfx_enemy_skill_blast",
+    "projectile_style": "orb",
+    "impact_scale": 1.18,
+    "camera_shake": 8.0
+  }
+}
+```
+
+`hits` 只决定一次攻城动作中可见的段数；一次完整动作仍只发出一次 `breached`，并以既有 `base_attack_damage` 结算总伤害。这样多段连击不会绕过单次伤害上限，也不会额外消耗多层屏障。`cast_sequence` / `impact_sequence` 必须引用 `assets/production/sprites/vfx_sequences/<id>/<id>_sequence.json`。
+
+`channel` 模式还必须提供 `beam_texture` 与 `impact_texture` 两个 `res://` 路径：前者沿施法者到基地的矢量实时缩放，后者只负责基地接触冠。两张资源必须是透明、无矩形底板的独立特效；`impact_sequence` 继续作为资源降级回退。
+
 ## environments.json （映射）
 ```jsonc
 {

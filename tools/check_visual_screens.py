@@ -51,6 +51,28 @@ TALL_BATTLE_LEVELS: list[tuple[str, str]] = [
     ("env_apex_core", "level_091"),
 ]
 
+ALL_BOSSES = [
+    "boss_tank_titan",
+    "boss_inferno_maw",
+    "boss_frost_warden",
+    "boss_storm_caller",
+    "boss_plague_mother",
+    "boss_void_phantom",
+    "boss_necrotitan",
+    "boss_apex_overlord",
+]
+
+BOSS_ATTACK_CAPTURE_FRAMES = {
+    "boss_tank_titan": 45,
+    "boss_inferno_maw": 58,
+    "boss_frost_warden": 65,
+    "boss_storm_caller": 50,
+    "boss_plague_mother": 55,
+    "boss_void_phantom": 30,
+    "boss_necrotitan": 60,
+    "boss_apex_overlord": 60,
+}
+
 BASE_SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {}, "menu"),
     ("map", {}, "map"),
@@ -143,6 +165,36 @@ SCREENS: list[tuple[str, dict, str]] = (
             },
             "battle_tall_dense_information",
         ),
+        *[
+            (
+                "battle",
+                {
+                    "level_id": "level_091",
+                    "viewport_size": [1080, 2340],
+                    "debug_spawn_boss": boss_id,
+                    "debug_clean_boss_stage": True,
+                    "debug_boss_showcase": True,
+                    "warmup_frames": 30,
+                },
+                f"battle_tall_boss_showcase_{boss_id}",
+            )
+            for boss_id in ALL_BOSSES
+        ],
+        *[
+            (
+                "battle",
+                {
+                    "level_id": "level_091",
+                    "viewport_size": [1080, 2340],
+                    "debug_spawn_boss": boss_id,
+                    "debug_clean_boss_stage": True,
+                    "debug_boss_base_attack": True,
+                    "warmup_frames": BOSS_ATTACK_CAPTURE_FRAMES[boss_id],
+                },
+                f"battle_tall_boss_base_attack_{boss_id}",
+            )
+            for boss_id in ALL_BOSSES
+        ],
         (
             "menu",
             {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},

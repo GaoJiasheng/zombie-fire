@@ -51,6 +51,8 @@ func _initialize() -> void:
 				enemy.queue_free()
 			for marker in main.current_scene.get_node("ThreatMarkerLayer").get_children():
 				marker.queue_free()
+			for projectile in main.current_scene.get_node("ProjectileLayer").get_children():
+				projectile.queue_free()
 			await process_frame
 			await process_frame
 		var boss_id := str(payload.get("debug_spawn_boss", ""))
@@ -59,11 +61,124 @@ func _initialize() -> void:
 			if bool(payload.get("debug_clean_boss_stage", false)):
 				var showcase_boss: Node = main.current_scene.get("active_boss")
 				if showcase_boss != null and is_instance_valid(showcase_boss):
-					showcase_boss.position.y = 360.0
+					var dramatic_showcase := bool(payload.get("debug_boss_showcase", false))
+					var base_attack_showcase := bool(payload.get("debug_boss_base_attack", false))
+					showcase_boss.position.y = 630.0 if dramatic_showcase else 360.0
+					if base_attack_showcase:
+						# Visual-regression-only deterministic staging: put the real
+						# Boss on its authored melee/ranged attack line and start one
+						# complete data-driven base-attack cycle.
+						main.current_scene.turret.set("fire_enabled", false)
+						main.current_scene.turret.set_physics_process(false)
+						showcase_boss.speed = 0.0
+						showcase_boss.max_hp *= 12.0
+						showcase_boss.hp = showcase_boss.max_hp
+						showcase_boss.position.y = float(showcase_boss.get("attack_line_y"))
+						showcase_boss.call("_enter_base_attack")
+						showcase_boss.set("base_attack_timer", 0.0)
+						main.current_scene.base_hp = main.current_scene.base_hp_max
+						if main.current_scene.target_manager != null:
+							main.current_scene.target_manager.lock_enemy(showcase_boss)
+						main.current_scene.call("_update_lock_indicator")
+						main.current_scene.onboarding_tip_shown = true
+						main.current_scene.pending_wave_toast = {}
+						main.current_scene.pending_wave_toast_timer_active = false
+						main.current_scene.call_deferred("_hide_wave_toast")
+					elif dramatic_showcase:
+						# Store-only deterministic staging: keep the actual boss
+						# model, HUD, targeting and weapon systems live, but hold
+						# the boss in a readable mid-lane composition long enough
+						# to capture projectiles and its special pose.
+						showcase_boss.position.y = 690.0
+						showcase_boss.speed = 0.0
+						showcase_boss.max_hp *= 8.0
+						showcase_boss.hp = showcase_boss.max_hp
+						var showcase_sprite := showcase_boss.get_node_or_null("Sprite") as Sprite2D
+						if showcase_sprite != null:
+							showcase_sprite.scale *= 1.14
+							showcase_boss.set("_base_sprite_scale", showcase_sprite.scale)
+						if showcase_boss.has_method("_update_hp_bar"):
+							showcase_boss.call("_update_hp_bar")
+						if showcase_boss.has_method("play_special"):
+							showcase_boss.call("play_special", 2.4)
+						if main.current_scene.target_manager != null:
+							main.current_scene.target_manager.lock_enemy(showcase_boss)
+						main.current_scene.call("_update_lock_indicator")
+						# Deferred onboarding/wave tips can be queued while the
+						# scene warms up. Clear them after the boss exists so
+						# marketing captures show the real boss HUD unobstructed.
+						main.current_scene.onboarding_tip_shown = true
+						main.current_scene.pending_wave_toast = {}
+						main.current_scene.pending_wave_toast_timer_active = false
+						main.current_scene.call_deferred("_hide_wave_toast")
 	if bool(payload.get("debug_dense_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_dense_combat(main.current_scene)
 	if bool(payload.get("debug_store_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_store_combat(main.current_scene)
+	if bool(payload.get("debug_cast_active", false)) and main.current_scene != null and main.current_scene.has_method("_on_character_skill_pressed"):
+		main.current_scene.character_active_cd = 0.0
+		main.current_scene.call("_on_character_skill_pressed")
+	if bool(payload.get("debug_boss_skill", false)) and main.current_scene != null and main.current_scene.has_method("_announce_boss_phase"):
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		var skill_boss: Node = main.current_scene.get("active_boss")
+		if skill_boss != null and is_instance_valid(skill_boss):
+			main.current_scene.call("_announce_boss_phase", skill_boss, "技能释放", Color(0.86, 0.96, 1.0, 1.0))
+	if bool(payload.get("debug_clean_hit_stage", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_isolated_vfx_stage(main.current_scene, true)
+	if bool(payload.get("debug_clean_death_stage", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_isolated_vfx_stage(main.current_scene, false)
+	if payload.has("debug_hit_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_hit_layer_vfx"):
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		var hit_spec: Variant = payload.get("debug_hit_showcase")
+		if hit_spec is Dictionary:
+			var hit_element := str((hit_spec as Dictionary).get("element", "physical"))
+			var hit_kind := str((hit_spec as Dictionary).get("kind", "normal"))
+			var hit_enemy: Node = main.current_scene.get_node("EnemyLayer").get_child(0) if main.current_scene.get_node("EnemyLayer").get_child_count() > 0 else null
+			if hit_enemy != null and is_instance_valid(hit_enemy):
+				if hit_kind == "crit":
+					main.current_scene.call(
+						"_spawn_vfx_sequence",
+						"vfx_crit",
+						hit_enemy.global_position + Vector2(0, -38),
+						0.5,
+						Color(1.0, 0.96, 0.74, 0.96),
+						1.32,
+						0.0,
+						1.16,
+						Vector2(0, -18),
+						0.0,
+						true
+					)
+				elif hit_kind == "normal" and hit_enemy.has_method("_play_hurt_feedback"):
+					hit_enemy.call("_play_hurt_feedback", hit_element)
+				else:
+					main.current_scene.call("_spawn_hit_layer_vfx", hit_enemy.global_position, hit_element, hit_kind == "weak", hit_kind)
+	if payload.has("debug_enemy_skill_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_attack_vfx"):
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		var skill_enemy: Node = main.current_scene.get_node("EnemyLayer").get_child(0) if main.current_scene.get_node("EnemyLayer").get_child_count() > 0 else null
+		if skill_enemy != null and is_instance_valid(skill_enemy):
+			main.current_scene.call(
+				"_spawn_enemy_attack_vfx",
+				skill_enemy,
+				str(payload.get("debug_enemy_skill_showcase", "charge")),
+				skill_enemy.global_position + Vector2(0, -42)
+			)
+	if payload.has("debug_death_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_death_element_vfx"):
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		main.current_scene.call(
+			"_spawn_death_element_vfx",
+			Vector2(540, 880),
+			str(payload.get("debug_death_showcase", "physical")),
+			false
+		)
+	if payload.has("debug_skill_pick_vfx") and main.current_scene != null and main.current_scene.has_method("_spawn_skill_pick_vfx"):
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		main.current_scene.call("_spawn_skill_pick_vfx", str(payload.get("debug_skill_pick_vfx", "skill_split_shot")))
 	if bool(payload.get("debug_barrier", false)) and main.current_scene != null and main.current_scene.has_method("_update_barrier_visual"):
 		var skill_runtime: Variant = main.current_scene.get("skills")
 		if skill_runtime != null and skill_runtime.has_method("add_skill"):
@@ -248,6 +363,33 @@ func _prepare_store_combat(battle: Node) -> void:
 		str(battle.target_manager.has_lock()),
 		str(battle.skills.owned),
 	])
+
+func _prepare_isolated_vfx_stage(battle: Node, spawn_target: bool) -> void:
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	if not spawn_target:
+		return
+	var target: Node = battle.call("_spawn_enemy_instance", "zombie_shambler", Vector2(540, 760), false, 0.0)
+	if target != null and is_instance_valid(target):
+		target.speed = 0.0
+		target.max_hp *= 20.0
+		target.hp = target.max_hp
+		if target.has_method("_update_hp_bar"):
+			target.call("_update_hp_bar")
 
 func _current_collection_table(mode: String) -> Dictionary:
 	match mode:

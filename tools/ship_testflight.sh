@@ -8,6 +8,8 @@ PRESET="iOS Release Candidate"
 TEAM="D33974QQTD"
 KEY="AMDBKB83K9"
 ISS="3659a31c-d035-4195-842f-d269268a59c3"
+APPLE_ID="${APPLE_ID:-6785918342}"
+BUNDLE_ID="${BUNDLE_ID:-com.gaojiasheng.zombiefire}"
 KEYP="$HOME/.appstoreconnect/private_keys/AuthKey_$KEY.p8"
 GODOT_BIN="${GODOT_BIN:-/opt/homebrew/bin/godot}"
 FINAL_IPA="$PROJ/build/ios/ZombieFire.ipa"
@@ -52,7 +54,7 @@ temporary.replace(path)
 PY
 }
 
-for command in python3 xcodebuild xcrun codesign; do
+for command in python3 xcodebuild xcrun codesign git; do
     command -v "$command" >/dev/null 2>&1 || die "missing required command: $command"
 done
 [[ -x "$GODOT_BIN" ]] || die "Godot executable not found: $GODOT_BIN"
@@ -68,6 +70,10 @@ BUILD_STARTED=0
 VERSION_CHANGED=0
 CUR=""
 NEW=""
+SOURCE_COMMIT=""
+SOURCE_DIRTY=0
+DELIVERY_UUID=""
+RELEASE_RECORD_DIR=""
 
 cleanup() {
     local status=$?
@@ -124,6 +130,13 @@ remove_unused_ios_permission_descriptions() {
 }
 
 cd "$PROJ"
+
+SOURCE_COMMIT=$(git rev-parse --verify HEAD)
+[[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || die "could not resolve the source commit"
+if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    SOURCE_DIRTY=1
+    log "Tracked working-tree changes detected; the release manifest will record source_dirty=true"
+fi
 
 log "Synchronizing release-only asset exclusions"
 python3 tools/sync_release_export_excludes.py --write
@@ -230,19 +243,59 @@ python3 tools/check_release_package.py \
     --expected-short-version "$SHORT_VERSION"
 
 log "Uploading the audited IPA to TestFlight"
-if ! xcrun altool --upload-app -f "$FINAL_IPA" -t ios --apiKey "$KEY" --apiIssuer "$ISS" \
+if ! xcrun altool --upload-app -f "$FINAL_IPA" -t ios --api-key "$KEY" --api-issuer "$ISS" \
     2>&1 | tee "$WORK_DIR/altool_upload.log"; then
     die "TestFlight upload failed"
 fi
 grep -q 'UPLOAD SUCCEEDED with no errors' "$WORK_DIR/altool_upload.log" \
     || die "upload command exited cleanly without the App Store success marker"
 
+# Apple has consumed this build number even if its later import validation fails.
 KEEP_VERSION=1
-mkdir -p "$HOME/Desktop"
-if cp "$FINAL_IPA" "$DESKTOP_IPA.tmp" && mv "$DESKTOP_IPA.tmp" "$DESKTOP_IPA"; then
-    log "Copied the uploaded IPA to $DESKTOP_IPA"
-else
-    rm -f "$DESKTOP_IPA.tmp"
-    printf '\n[release] WARNING: upload succeeded, but the Desktop IPA copy failed.\n' >&2
+DELIVERY_UUID=$(python3 tools/release_delivery_record.py extract-delivery-id \
+    --upload-log "$WORK_DIR/altool_upload.log") \
+    || die "upload succeeded, but the delivery UUID could not be read"
+RELEASE_RECORD_DIR="$PROJ/build/ios/release/build_$NEW"
+mkdir -p "$RELEASE_RECORD_DIR"
+cp "$WORK_DIR/altool_upload.log" "$RELEASE_RECORD_DIR/upload.log"
+
+log "Waiting for Apple to finish validating delivery $DELIVERY_UUID"
+if ! xcrun altool --build-status \
+    --delivery-id "$DELIVERY_UUID" \
+    --wait \
+    --api-key "$KEY" \
+    --api-issuer "$ISS" \
+    2>&1 | tee "$WORK_DIR/altool_build_status.log"; then
+    cp "$WORK_DIR/altool_build_status.log" "$RELEASE_RECORD_DIR/build_status.log"
+    die "upload was accepted, but Apple's final build-status lookup failed; build number and IPA were retained"
 fi
-printf '\n[release] Build %s uploaded to TestFlight successfully.\n' "$NEW"
+cp "$WORK_DIR/altool_build_status.log" "$RELEASE_RECORD_DIR/build_status.log"
+
+python3 tools/release_delivery_record.py write \
+    --upload-log "$WORK_DIR/altool_upload.log" \
+    --status-log "$WORK_DIR/altool_build_status.log" \
+    --expected-delivery-id "$DELIVERY_UUID" \
+    --project-root "$PROJ" \
+    --source-commit "$SOURCE_COMMIT" \
+    --source-dirty "$SOURCE_DIRTY" \
+    --apple-id "$APPLE_ID" \
+    --bundle-id "$BUNDLE_ID" \
+    --short-version "$SHORT_VERSION" \
+    --build "$NEW" \
+    --ipa "$FINAL_IPA" \
+    --pck "$PROJ/build/ios/ZombieFire.pck" \
+    --output "$RELEASE_RECORD_DIR/release_manifest.json" \
+    || die "Apple accepted the build, but its final release manifest could not be verified"
+log "Apple validation passed; release record saved to $RELEASE_RECORD_DIR"
+
+mkdir -p "$HOME/Desktop"
+DESKTOP_TMP="$DESKTOP_IPA.tmp.$$"
+if cp "$FINAL_IPA" "$DESKTOP_TMP" \
+    && command mv -f "$DESKTOP_TMP" "$DESKTOP_IPA" \
+    && cmp -s "$FINAL_IPA" "$DESKTOP_IPA"; then
+    log "Copied and verified the uploaded IPA at $DESKTOP_IPA"
+else
+    rm -f "$DESKTOP_TMP"
+    printf '\n[release] WARNING: upload and Apple validation succeeded, but the Desktop IPA copy was not replaced or could not be verified.\n' >&2
+fi
+printf '\n[release] Build %s uploaded and validated for TestFlight successfully.\n' "$NEW"

@@ -1369,12 +1369,12 @@ func _cast_volt_storm() -> bool:
 	var max_targets := _volt_storm_max_targets(active)
 	var damage := _character_active_damage("lightning", float(active.get("damage_mult", 2.1)))
 	var strike_count := _volt_storm_strike_count(active, max_targets)
-	_active_skill_cast_intro("雷暴领域", Color(1.0, 0.9, 0.2), "sig_volt_storm")
-	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(1.0, 0.92, 0.28, 0.86), 1.45, _weapon_fire_direction().angle(), 1.1, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_chain_lightning", _active_skill_fallback_point(0.38) + Vector2(0, -52), 1.2, Color(1.0, 0.94, 0.28, 0.62), 1.1, randf_range(-0.3, 0.3), 1.1, Vector2(0, -18), randf_range(-0.45, 0.45), true)
+	_active_skill_cast_intro("雷暴领域", Color(0.62, 0.94, 1.0), "sig_volt_storm")
+	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(0.72, 0.96, 1.0, 0.9), 1.45, _weapon_fire_direction().angle(), 1.1, Vector2.ZERO, 0.0, true)
+	_spawn_vfx_sequence("vfx_chain_lightning", _active_skill_fallback_point(0.38) + Vector2(0, -52), 1.2, Color(0.68, 0.94, 1.0, 0.72), 1.1, randf_range(-0.3, 0.3), 1.1, Vector2(0, -18), randf_range(-0.45, 0.45), true)
 	for i in range(strike_count):
 		_active_skill_after(0.08 + float(i) * 0.17, Callable(self, "_volt_storm_strike").bind(i, max_targets, damage))
-	_active_skill_after(0.12 + float(strike_count) * 0.17, Callable(self, "_active_skill_finish_flash").bind(Color(1.0, 0.9, 0.2, 0.12), 0.2))
+	_active_skill_after(0.12 + float(strike_count) * 0.17, Callable(self, "_active_skill_finish_flash").bind(Color(0.56, 0.92, 1.0, 0.12), 0.2))
 	return true
 
 func _best_active_target() -> Node2D:
@@ -1595,8 +1595,8 @@ func _volt_storm_strike(strike_index: int, max_targets: int, damage: float) -> v
 				start = previous.global_position
 	AudioManager.play_sfx("skill_tesla", -9.0, randf_range(-0.025, 0.035))
 	var strike_angle := (hit_position - start).angle()
-	_spawn_vfx_sequence("vfx_chain_lightning", hit_position + Vector2(0, -54), 0.86, Color(1.0, 0.92, 0.24, 0.92), 1.55, strike_angle + randf_range(-0.28, 0.28), 1.08, Vector2(0, -20), randf_range(-0.5, 0.5), true)
-	_spawn_vfx_sequence("vfx_hit_lightning", hit_position + Vector2(randf_range(-12.0, 12.0), -42.0), 0.7, Color(1.0, 0.94, 0.28, 0.82), 1.35, randf_range(-0.35, 0.35), 1.16, Vector2(0, -18), randf_range(-0.45, 0.45))
+	_spawn_vfx_sequence("vfx_chain_lightning", hit_position + Vector2(0, -54), 0.86, Color(0.72, 0.96, 1.0, 0.96), 1.55, strike_angle + randf_range(-0.28, 0.28), 1.08, Vector2(0, -20), randf_range(-0.5, 0.5), true)
+	_spawn_vfx_sequence("vfx_hit_lightning", hit_position + Vector2(randf_range(-12.0, 12.0), -42.0), 0.7, Color(0.78, 0.98, 1.0, 0.9), 1.35, randf_range(-0.35, 0.35), 1.16, Vector2(0, -18), randf_range(-0.45, 0.45))
 	if target != null and is_instance_valid(target):
 		_active_skill_apply_hit(target, damage * 0.62, "lightning")
 	_active_skill_screen_shake(4.2, 0.08)
@@ -2304,7 +2304,7 @@ func _ensure_boss_hp_bar() -> void:
 	boss_hp_bar.size = Vector2(760, 64)
 	boss_hp_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.visible = false
-	boss_hp_label = UiKit.label("", 24, UiKit.DANGER, 3)
+	boss_hp_label = UiKit.label("", 24, Color(1.0, 0.72, 0.46), 4)
 	boss_hp_label.position = Vector2(0, 0)
 	boss_hp_label.size = Vector2(760, 28)
 	boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -3013,6 +3013,10 @@ func _wave_toast_target_position() -> Vector2:
 	var top_bar := get_node_or_null("Hud/TopBar") as Control
 	if top_bar != null:
 		target_y = maxf(target_y, top_bar.offset_bottom + 22.0)
+	# The boss identity/HP rail owns the next HUD band. Long onboarding and
+	# wave tips must sit below it instead of obscuring the boss name and health.
+	if active_boss != null and is_instance_valid(active_boss) and boss_hp_bar != null and is_instance_valid(boss_hp_bar):
+		target_y = maxf(target_y, boss_hp_bar.position.y + boss_hp_bar.size.y + 18.0)
 	return Vector2((1080.0 - banner_size.x) * 0.5, target_y)
 
 func _wave_toast_band_texture() -> GradientTexture2D:
@@ -3323,6 +3327,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.damage_dealt.connect(_on_enemy_damage_dealt)
 	enemy.died.connect(_on_enemy_died)
 	enemy.breached.connect(_on_enemy_breached)
+	enemy.base_attack_started.connect(_on_enemy_base_attack_started)
+	enemy.base_attack_visual_hit.connect(_on_enemy_base_attack_visual_hit)
 	if is_boss and (active_boss == null or not is_instance_valid(active_boss)):
 		active_boss = enemy
 	if is_boss:
@@ -3396,7 +3402,7 @@ func _process_enemy_mechanics(delta: float, enemies: Array = []) -> void:
 			"freeze_field":
 				_process_freeze_field(source, candidates, delta)
 			"storm_chain":
-				_process_boss_pressure(source, delta, 3.6, 0.36, "雷暴连锁", Color(1.0, 0.88, 0.2))
+				_process_boss_pressure(source, delta, 3.6, 0.36, "雷暴连锁", Color(0.56, 0.92, 1.0))
 			"spawn_minions":
 				_process_boss_minions(source, delta)
 			"phase_shift":
@@ -3505,7 +3511,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 			skill_barriers_left -= 1
 		final_damage = 0
 		shield_absorbed = true
-	if is_instance_valid(source):
+	if is_instance_valid(source) and not _boss_has_profiled_base_attack(source):
 		_spawn_breach_attack_vfx(source, shield_absorbed)
 	if shield_absorbed:
 		battle_base_damage_prevented += preventable_damage
@@ -3817,6 +3823,18 @@ func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 	AudioManager.play_sfx("threat_warning", -3.0, 0.02)
 	_show_wave_toast("首领%s" % text, color)
 	_spawn_float_text(source.global_position + Vector2(0, -180), text, color)
+	_spawn_vfx_sequence(
+		"vfx_enemy_skill_%s" % str(source.mechanic),
+		source.global_position + Vector2(0, -78),
+		1.35,
+		Color(1.0, 1.0, 1.0, 0.96),
+		1.06,
+		randf_range(-0.1, 0.1),
+		1.1,
+		Vector2(0, -18),
+		randf_range(-0.14, 0.14),
+		true
+	)
 	_spawn_attack_ring(source.global_position + Vector2(0, -40), 230.0, Color(color.r, color.g, color.b, 0.28), 0.32)
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.14), 0.22)
 
@@ -5845,8 +5863,46 @@ func _spawn_b4_impact_stack(position: Vector2, element: String, power := 1.0, hi
 	_spawn_impact_shock_ring(position, ring, 48.0 * safe_power, 4.0 + safe_power * 2.0, life, priority)
 	match hit_kind:
 		"shield", "immune", "phase_evade", "suppressed":
+			_spawn_vfx_sequence(
+				"vfx_hit_immune",
+				position,
+				0.34 + safe_power * 0.1,
+				Color(0.86, 0.96, 1.0, 0.88),
+				1.34,
+				randf_range(-0.16, 0.16),
+				1.06,
+				Vector2(0, -6),
+				randf_range(-0.18, 0.18),
+				priority
+			)
 			_spawn_impact_fork_lines(position, ring, 5, 72.0 * safe_power, 0.15, 2.2 + safe_power, priority)
-		"armor", "weak":
+		"armor", "armor_pierce":
+			_spawn_vfx_sequence(
+				"vfx_hit_armor",
+				position,
+				0.34 + safe_power * 0.1,
+				Color(1.0, 0.9, 0.68, 0.92),
+				1.34,
+				randf_range(-0.2, 0.2),
+				1.08,
+				Vector2(0, -8),
+				randf_range(-0.22, 0.22),
+				priority
+			)
+			_spawn_impact_streaks(position, spark, 5, 66.0 * safe_power, 0.13, 3.2 + safe_power, priority)
+		"weak":
+			_spawn_vfx_sequence(
+				"vfx_hit_weak",
+				position,
+				0.38 + safe_power * 0.1,
+				Color(1.0, 0.98, 0.82, 0.96),
+				1.42,
+				randf_range(-0.18, 0.18),
+				1.1,
+				Vector2(0, -12),
+				randf_range(-0.24, 0.24),
+				true
+			)
 			_spawn_impact_streaks(position, spark, 5, 66.0 * safe_power, 0.13, 3.2 + safe_power, priority)
 		_:
 			match element:
@@ -6395,6 +6451,33 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 func _spawn_death_element_vfx(position: Vector2, element: String, is_boss: bool) -> void:
 	var scale := 1.0 if not is_boss else 2.05
 	_spawn_zombie_blood_pool(position, is_boss)
+	var authored_death_sequence := "vfx_death_physical"
+	var authored_tint := Color(1.0, 0.9, 0.72, 0.92)
+	match element:
+		"fire":
+			authored_death_sequence = "vfx_death_fire"
+			authored_tint = Color(1.0, 0.72, 0.38, 0.94)
+		"ice":
+			authored_death_sequence = "vfx_death_ice"
+			authored_tint = Color(0.78, 0.96, 1.0, 0.94)
+		"lightning":
+			authored_death_sequence = "vfx_death_energy"
+			authored_tint = Color(0.7, 0.94, 1.0, 0.94)
+		"poison":
+			authored_death_sequence = "vfx_death_energy"
+			authored_tint = Color(0.62, 1.0, 0.72, 0.92)
+	_spawn_vfx_sequence(
+		authored_death_sequence,
+		position + Vector2(0, -44 if not is_boss else -88),
+		0.52 if not is_boss else 1.05,
+		authored_tint,
+		1.14,
+		randf_range(-0.12, 0.12),
+		1.12,
+		Vector2(0, -18 if not is_boss else -30),
+		randf_range(-0.16, 0.16),
+		is_boss
+	)
 	if element == "fire" and not is_boss:
 		_spawn_centered_fire_death_vfx(position)
 		return
@@ -6592,6 +6675,18 @@ func _spawn_boss_attack_vfx(source: Node, label: String, color: Color, impact :=
 	var is_boss := bool(source.boss)
 	if impact == Vector2.ZERO:
 		impact = _base_damage_impact_position(source.global_position.x)
+	_spawn_vfx_sequence(
+		"vfx_enemy_skill_%s" % str(source.mechanic),
+		source.global_position + Vector2(0, -76),
+		1.22 if is_boss else 0.82,
+		Color(1.0, 1.0, 1.0, 0.94),
+		1.08,
+		randf_range(-0.12, 0.12),
+		1.08,
+		Vector2(0, -14),
+		randf_range(-0.16, 0.16),
+		true
+	)
 	# 起手炮口/聚能闪光（在施法者身上）
 	_spawn_attack_sprite(_vfx_path("muzzle", element), source.global_position + Vector2(0, -84), Color(color.r, color.g, color.b, 0.9), 1.5 if is_boss else 1.05, 0.34)
 	# 一颗能量弹从施法者飞向基地防线，落地炸开——让“掉血”有清晰的来龙去脉
@@ -6691,6 +6786,328 @@ func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector
 			"toxic_cloud":
 				_spawn_attack_ring(target_position, 225.0, color, 0.32)
 
+func _on_enemy_base_attack_started(enemy: Node, profile: Dictionary) -> void:
+	if not is_instance_valid(enemy) or not bool(enemy.get("boss")) or profile.is_empty():
+		return
+	var element := _boss_attack_element(profile, 0)
+	var color := _boss_attack_color(profile, element, 0)
+	var origin: Vector2 = (enemy as Node2D).global_position + Vector2(0, -86)
+	var target := _boss_attack_target(enemy, profile, 0)
+	var cast_sequence := str(profile.get("cast_sequence", "vfx_boss_phase"))
+	_spawn_vfx_sequence(
+		cast_sequence,
+		origin,
+		0.72,
+		Color(color.r, color.g, color.b, 0.86),
+		0.88,
+		randf_range(-0.16, 0.16),
+		1.12,
+		Vector2(0, -8),
+		randf_range(-0.16, 0.16),
+		true
+	)
+	var telegraph_duration := maxf(
+		0.18,
+		float(profile.get("windup", 0.48)) + float(profile.get("travel_time", 0.0))
+	)
+	_spawn_boss_attack_telegraph(target, color, telegraph_duration)
+	var last_label_at := float(enemy.get_meta("boss_base_attack_label_at", -99.0))
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - last_label_at >= 4.0:
+		enemy.set_meta("boss_base_attack_label_at", now)
+		_spawn_float_text(
+			enemy.global_position + Vector2(-180, -218),
+			str(profile.get("label", "攻城")),
+			Color(color.r, color.g, color.b, 1.0),
+			true,
+			23,
+			360.0
+		)
+	AudioManager.play_sfx("threat_warning", -8.0, 0.025)
+
+func _on_enemy_base_attack_visual_hit(enemy: Node, profile: Dictionary, hit_index: int, hit_count: int) -> void:
+	if not is_instance_valid(enemy) or profile.is_empty():
+		return
+	var element := _boss_attack_element(profile, hit_index)
+	var color := _boss_attack_color(profile, element, hit_index)
+	var target := _boss_attack_target(enemy, profile, hit_index)
+	var mode := str(profile.get("mode", "melee_heavy"))
+	match mode:
+		"ranged_volley":
+			_spawn_boss_siege_projectile(enemy, target, profile, element, color, hit_index, hit_count)
+		"channel":
+			_spawn_boss_channel_beam(enemy, target, profile, element, color, hit_index, hit_count)
+		"dash_combo":
+			_spawn_boss_dash_afterimage(enemy, target, color)
+			_spawn_boss_profile_impact(target, profile, element, color, hit_index, hit_count)
+		_:
+			_spawn_boss_profile_impact(target, profile, element, color, hit_index, hit_count)
+
+func _boss_attack_element(profile: Dictionary, hit_index: int) -> String:
+	var hit_elements_var: Variant = profile.get("hit_elements", [])
+	if hit_elements_var is Array and not (hit_elements_var as Array).is_empty():
+		var hit_elements: Array = hit_elements_var
+		return str(hit_elements[hit_index % hit_elements.size()])
+	return str(profile.get("element", "physical"))
+
+func _boss_attack_color(profile: Dictionary, element: String, hit_index: int) -> Color:
+	var hit_colors_var: Variant = profile.get("hit_colors", [])
+	if hit_colors_var is Array and not (hit_colors_var as Array).is_empty():
+		var hit_colors: Array = hit_colors_var
+		return Color.from_string(str(hit_colors[hit_index % hit_colors.size()]), Color.WHITE)
+	match element:
+		"fire":
+			return Color(1.0, 0.34, 0.08, 0.96)
+		"ice":
+			return Color(0.38, 0.86, 1.0, 0.96)
+		"lightning":
+			return Color(0.52, 0.9, 1.0, 0.98)
+		"poison":
+			return Color(0.42, 1.0, 0.22, 0.94)
+		_:
+			return Color(1.0, 0.68, 0.34, 0.96)
+
+func _boss_attack_target(enemy: Node, profile: Dictionary, hit_index: int) -> Vector2:
+	var hit_count := maxi(1, int(profile.get("hits", 1)))
+	var center_offset := float(hit_index) - float(hit_count - 1) * 0.5
+	var spread := 58.0
+	match str(profile.get("projectile_style", "none")):
+		"lob":
+			spread = 78.0
+		"beam":
+			spread = 42.0
+		"slash":
+			spread = 50.0
+		"prism":
+			spread = 42.0
+		_:
+			pass
+	return _base_damage_impact_position(float(enemy.global_position.x) + center_offset * spread)
+
+func _spawn_boss_attack_telegraph(target: Vector2, color: Color, duration: float) -> void:
+	if not _can_spawn_projectile_fx(true):
+		return
+	var telegraph := Sprite2D.new()
+	_track_transient_fx(telegraph, "projectile")
+	telegraph.texture = load("res://assets/production/sprites/vfx/vfx_target_lock.png") as Texture2D
+	telegraph.global_position = target
+	telegraph.scale = Vector2.ONE * 0.52
+	telegraph.modulate = Color(color.r, color.g, color.b, 0.42)
+	telegraph.z_index = 21
+	(telegraph as CanvasItem).material = VfxLib._new_additive_material()
+	$ProjectileLayer.add_child(telegraph)
+	var tween := telegraph.create_tween()
+	tween.parallel().tween_property(telegraph, "scale", Vector2.ONE * 0.76, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(telegraph, "rotation", TAU * 0.34, duration)
+	tween.parallel().tween_property(telegraph, "modulate:a", 0.08, duration)
+	tween.tween_callback(telegraph.queue_free)
+
+func _spawn_boss_siege_projectile(enemy: Node, target: Vector2, profile: Dictionary, element: String, color: Color, hit_index: int, hit_count: int) -> void:
+	if not is_instance_valid(enemy):
+		return
+	if not _can_spawn_projectile_fx(true):
+		_spawn_boss_profile_impact(target, profile, element, color, hit_index, hit_count)
+		return
+	var origin: Vector2 = (enemy as Node2D).global_position + Vector2(0, -84)
+	var projectile := Sprite2D.new()
+	_track_transient_fx(projectile, "projectile")
+	projectile.texture = load(_enemy_proj_path(element)) as Texture2D
+	projectile.global_position = origin
+	projectile.rotation = (target - origin).angle()
+	var style := str(profile.get("projectile_style", "orb"))
+	var projectile_scale := 0.88
+	if style == "shard":
+		projectile_scale = 1.02
+	elif style == "lob":
+		projectile_scale = 1.12
+	elif style == "prism":
+		projectile_scale = 1.18
+	projectile.scale = Vector2.ONE * projectile_scale
+	projectile.modulate = Color(color.r, color.g, color.b, 1.0)
+	projectile.z_index = 28
+	(projectile as CanvasItem).material = VfxLib._new_additive_material()
+	var trail := Sprite2D.new()
+	trail.texture = load("res://assets/production/sprites/vfx/vfx_input_streak.png") as Texture2D
+	trail.position = Vector2(-58, 0)
+	trail.scale = Vector2(1.72, 0.58)
+	trail.modulate = Color(color.r, color.g, color.b, 0.66)
+	(trail as CanvasItem).material = VfxLib._new_additive_material()
+	projectile.add_child(trail)
+	$ProjectileLayer.add_child(projectile)
+	var travel_time := maxf(0.12, float(profile.get("travel_time", 0.24)))
+	var control: Vector2 = origin.lerp(target, 0.5)
+	if style == "lob":
+		control.y -= 150.0
+	elif style == "shard":
+		control.x += (-1.0 if hit_index % 2 == 0 else 1.0) * 48.0
+	elif style == "prism":
+		control.y -= 74.0
+	var tween := projectile.create_tween()
+	tween.tween_method(
+		func(progress: float) -> void:
+			if not is_instance_valid(projectile):
+				return
+			var inv := 1.0 - progress
+			var next_position: Vector2 = origin * inv * inv + control * 2.0 * inv * progress + target * progress * progress
+			projectile.global_position = next_position
+			projectile.rotation = (target - next_position).angle(),
+		0.0,
+		1.0,
+		travel_time
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(
+		func() -> void:
+			_spawn_boss_profile_impact(target, profile, element, color, hit_index, hit_count)
+			if is_instance_valid(projectile):
+				projectile.queue_free()
+	)
+
+func _spawn_boss_channel_beam(enemy: Node, target: Vector2, profile: Dictionary, element: String, color: Color, hit_index: int, hit_count: int) -> void:
+	if not is_instance_valid(enemy):
+		return
+	var origin: Vector2 = (enemy as Node2D).global_position + Vector2(0, -90)
+	var beam_path := str(profile.get("beam_texture", ""))
+	var impact_path := str(profile.get("impact_texture", ""))
+	if beam_path.is_empty() or impact_path.is_empty():
+		_spawn_boss_profile_impact(target, profile, element, color, hit_index, hit_count)
+		return
+	if _can_spawn_projectile_fx(true):
+		var texture := load(beam_path) as Texture2D
+		if texture != null:
+			var direction := target - origin
+			var length := maxf(1.0, direction.length())
+			var length_scale := length / maxf(1.0, float(texture.get_height()))
+			var beam := Sprite2D.new()
+			_track_transient_fx(beam, "projectile")
+			beam.texture = texture
+			beam.global_position = origin.lerp(target, 0.5)
+			beam.rotation = direction.angle() - PI * 0.5 + randf_range(-0.018, 0.018)
+			beam.flip_h = hit_index % 2 == 1
+			beam.scale = Vector2(length_scale * 0.76, length_scale * 1.06)
+			beam.modulate = Color(1.0, 1.0, 1.0, 0.96)
+			beam.z_index = 27
+			(beam as CanvasItem).material = VfxLib._new_additive_material()
+			$ProjectileLayer.add_child(beam)
+			var glow := Sprite2D.new()
+			glow.texture = texture
+			glow.flip_h = beam.flip_h
+			glow.modulate = Color(color.r * 0.58, color.g * 0.72, 1.0, 0.28)
+			glow.scale = Vector2.ONE * 1.16
+			glow.z_index = -1
+			(glow as CanvasItem).material = VfxLib._new_additive_material()
+			beam.add_child(glow)
+			var life := clampf(float(profile.get("hit_gap", 0.12)) * 1.15, 0.11, 0.17)
+			var tween := beam.create_tween()
+			tween.parallel().tween_property(beam, "scale:x", beam.scale.x * 1.12, life).set_trans(Tween.TRANS_SINE)
+			tween.parallel().tween_property(beam, "modulate:a", 0.0, life).set_delay(life * 0.36)
+			tween.parallel().tween_property(glow, "modulate:a", 0.0, life)
+			tween.tween_callback(beam.queue_free)
+	_spawn_boss_storm_impact(target, profile, element, color, hit_index, hit_count)
+
+func _spawn_boss_storm_impact(target: Vector2, profile: Dictionary, element: String, color: Color, hit_index: int, hit_count: int) -> void:
+	var impact_path := str(profile.get("impact_texture", ""))
+	if _can_spawn_projectile_fx(true) and not impact_path.is_empty():
+		var texture := load(impact_path) as Texture2D
+		if texture != null:
+			var impact := Sprite2D.new()
+			_track_transient_fx(impact, "projectile")
+			impact.texture = texture
+			impact.global_position = target
+			# Source art includes a short incoming arc above the contact core. Align
+			# the authored core with BREACH_Y instead of centering the full square.
+			impact.offset = Vector2(0, -float(texture.get_height()) * 0.17)
+			var impact_scale := maxf(0.4, float(profile.get("impact_scale", 1.0)))
+			var final_scale := Vector2.ONE * (0.25 * impact_scale)
+			impact.scale = final_scale * 0.68
+			impact.rotation = randf_range(-0.035, 0.035)
+			impact.modulate = Color(1.0, 1.0, 1.0, 0.94)
+			impact.z_index = 9
+			(impact as CanvasItem).material = VfxLib._new_additive_material()
+			$ProjectileLayer.add_child(impact)
+			var tween := impact.create_tween()
+			tween.parallel().tween_property(impact, "scale", final_scale, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(impact, "modulate:a", 0.0, 0.24).set_delay(0.09)
+			tween.tween_callback(impact.queue_free)
+	var final_hit := hit_index >= hit_count - 1
+	_spawn_attack_ring(target, 132.0 if final_hit else 96.0, color, 0.2 if final_hit else 0.13)
+	var shake := float(profile.get("camera_shake", 6.0))
+	_shake_hud(shake if final_hit else shake * 0.35, 0.16 if final_hit else 0.08)
+	AudioManager.play_sfx(_element_hit_sfx(element), -6.5 if final_hit else -10.0, 0.025)
+
+func _spawn_boss_dash_afterimage(enemy: Node, target: Vector2, color: Color) -> void:
+	if not _can_spawn_projectile_fx(true):
+		return
+	var enemy_sprite := enemy.get_node_or_null("Sprite") as Sprite2D
+	if enemy_sprite == null or enemy_sprite.texture == null:
+		return
+	var afterimage := Sprite2D.new()
+	_track_transient_fx(afterimage, "projectile")
+	afterimage.texture = enemy_sprite.texture
+	afterimage.global_position = enemy.global_position
+	afterimage.scale = enemy_sprite.scale
+	afterimage.modulate = Color(color.r, color.g * 0.68, 1.0, 0.38)
+	afterimage.z_index = 23
+	(afterimage as CanvasItem).material = VfxLib._new_additive_material()
+	$ProjectileLayer.add_child(afterimage)
+	var dash_target: Vector2 = (enemy as Node2D).global_position.move_toward(target, 120.0)
+	var tween := afterimage.create_tween()
+	tween.parallel().tween_property(afterimage, "global_position", dash_target, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(afterimage, "modulate:a", 0.0, 0.16)
+	tween.parallel().tween_property(afterimage, "scale", afterimage.scale * 1.14, 0.16)
+	tween.tween_callback(afterimage.queue_free)
+
+func _spawn_boss_profile_impact(target: Vector2, profile: Dictionary, element: String, color: Color, hit_index: int, hit_count: int) -> void:
+	var impact_sequence := str(profile.get("impact_sequence", _enemy_impact_sequence(element)))
+	var impact_scale := maxf(0.4, float(profile.get("impact_scale", 1.0)))
+	_spawn_vfx_sequence(
+		impact_sequence,
+		target,
+		impact_scale,
+		Color(color.r, color.g, color.b, 0.94),
+		1.08,
+		randf_range(-0.24, 0.24),
+		1.14,
+		Vector2(0, -10),
+		randf_range(-0.22, 0.22),
+		true
+	)
+	var final_hit := hit_index >= hit_count - 1
+	var mode := str(profile.get("mode", "melee_heavy"))
+	if mode == "melee_heavy":
+		_spawn_boss_base_rupture(target, impact_scale, mode == "melee_heavy")
+	var ring_radius := (250.0 if mode == "melee_heavy" else 165.0) * impact_scale
+	_spawn_attack_ring(target, ring_radius, color, 0.28 if final_hit else 0.18)
+	var shake := float(profile.get("camera_shake", 8.0))
+	_shake_hud(shake if final_hit else shake * 0.42, 0.2 if final_hit else 0.1)
+	AudioManager.play_sfx(_element_hit_sfx(element), -6.0 if final_hit else -9.0, 0.025)
+	if final_hit and mode == "melee_heavy":
+		AudioManager.play_sfx("enemy_breach", -6.0, 0.015)
+
+func _spawn_boss_base_rupture(target: Vector2, impact_scale: float, heavy: bool) -> void:
+	if not _can_spawn_projectile_fx(true):
+		return
+	var rupture := Sprite2D.new()
+	_track_transient_fx(rupture, "projectile")
+	rupture.texture = load("res://assets/production/sprites/vfx/vfx_boss_base_rupture.png") as Texture2D
+	rupture.global_position = target
+	rupture.rotation = randf_range(-0.18, 0.18)
+	var start_scale := (0.08 if heavy else 0.06) * impact_scale
+	rupture.scale = Vector2.ONE * start_scale
+	rupture.modulate = Color(1.0, 1.0, 1.0, 0.9 if heavy else 0.72)
+	rupture.z_index = 8
+	$ProjectileLayer.add_child(rupture)
+	var tween := rupture.create_tween()
+	tween.parallel().tween_property(rupture, "scale", rupture.scale * (1.42 if heavy else 1.32), 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(rupture, "rotation", rupture.rotation + randf_range(-0.16, 0.16), 0.34)
+	tween.parallel().tween_property(rupture, "modulate:a", 0.0, 0.4).set_delay(0.1)
+	tween.tween_callback(rupture.queue_free)
+
+func _boss_has_profiled_base_attack(enemy: Node) -> bool:
+	if not is_instance_valid(enemy) or not bool(enemy.get("boss")):
+		return false
+	var profile_var: Variant = enemy.get("base_attack_profile")
+	return profile_var is Dictionary and not (profile_var as Dictionary).is_empty()
+
 func _spawn_breach_attack_vfx(enemy: Node, shielded: bool) -> void:
 	if not is_instance_valid(enemy):
 		return
@@ -6749,7 +7166,7 @@ func _attack_color_for_mechanic(kind: String) -> Color:
 		"freeze_field":
 			return Color(0.48, 0.9, 1.0, 0.76)
 		"storm_chain":
-			return Color(1.0, 0.9, 0.18, 0.78)
+			return Color(0.58, 0.92, 1.0, 0.82)
 		"summon", "phase", "phase_shift", "multi_phase":
 			return Color(0.68, 0.48, 1.0, 0.76)
 		_:
@@ -6986,9 +7403,14 @@ func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: 
 		_apply_enemy_skill_base_damage(enemy, base_damage, "爆裂", color, _base_damage_impact_position(enemy.global_position.x))
 
 func _on_enemy_breached(enemy: Node, damage: int) -> void:
-	AudioManager.play_sfx("enemy_breach", -4.0)
+	var profiled_boss_attack := _boss_has_profiled_base_attack(enemy)
+	if profiled_boss_attack:
+		AudioManager.play_sfx("enemy_breach", -8.0, 0.02)
+	else:
+		AudioManager.play_sfx("enemy_breach", -4.0)
 	_play_character_hurt()
-	_shake_hud(5.0, 0.1)
+	if not profiled_boss_attack:
+		_shake_hud(5.0, 0.1)
 	var final_damage := int(ceil(float(damage) * breach_damage_mult * _challenge_mult("breach_damage_mult")))
 	var max_hit_fraction := MAX_BASE_HIT_FRACTION
 	final_damage = mini(final_damage, maxi(1, int(round(float(base_hp_max) * max_hit_fraction))))  # 防秒杀
@@ -7002,9 +7424,13 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 		final_damage = 0
 		shield_absorbed = true
 	if is_instance_valid(enemy):
-		_spawn_breach_attack_vfx(enemy, final_damage <= 0)
+		if not profiled_boss_attack:
+			_spawn_breach_attack_vfx(enemy, final_damage <= 0)
 		var text := "格挡" if final_damage <= 0 else "-%d" % final_damage
-		_spawn_float_text(enemy.global_position + Vector2(randf_range(-16.0, 16.0), -104), text, Color(1.0, 0.18, 0.18))
+		var text_position: Vector2 = (enemy as Node2D).global_position + Vector2(randf_range(-16.0, 16.0), -104)
+		if profiled_boss_attack:
+			text_position = _base_damage_impact_position(enemy.global_position.x) + Vector2(-110, -76)
+		_spawn_float_text(text_position, text, Color(1.0, 0.18, 0.18), profiled_boss_attack, 23 if profiled_boss_attack else 21)
 		if shield_absorbed:
 			_spawn_barrier_break_vfx(_base_damage_impact_position(enemy.global_position.x))
 			_update_barrier_visual()

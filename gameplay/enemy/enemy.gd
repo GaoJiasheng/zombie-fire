@@ -2,6 +2,8 @@ extends Area2D
 
 signal died(enemy: Node, reward: Dictionary)
 signal breached(enemy: Node, damage: int)
+signal base_attack_started(enemy: Node, profile: Dictionary)
+signal base_attack_visual_hit(enemy: Node, profile: Dictionary, hit_index: int, hit_count: int)
 signal hit_feedback(enemy: Node, element: String, immune_hit: bool, weak_hit: bool, hit_kind: String)
 signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool)
 
@@ -15,6 +17,8 @@ const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill
 const SHIELD_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_wave.png")
 const ICE_SLOW_TINT := Color(0.56, 0.9, 1.28, 1.0)
 const BOSS_IMMUNE_DAMAGE_FLOOR := 0.18
+const NORMAL_SPRITE_SCALE := 0.32
+const BOSS_SPRITE_SCALE := 0.50
 
 var data := {}
 var max_hp := 100.0
@@ -24,6 +28,8 @@ var breach_damage := 10
 var base_attack_damage := 10
 var base_attack_interval := 1.35
 var base_attack_kind := "basic"
+var base_attack_profile: Dictionary = {}
+var base_attack_line_offset := 0.0
 var attack_line_y := BASE_ATTACK_Y
 var gold := 10
 var gold_coef := 1.0
@@ -38,6 +44,10 @@ var resist := "none"
 var mechanic := "basic"
 var mechanic_params: Dictionary = {}
 var base_attack_timer := 0.0
+var _base_attack_sequence_active := false
+var _base_attack_sequence_timer := 0.0
+var _base_attack_sequence_hit_index := 0
+var _base_attack_sequence_waiting_resolution := false
 var armor_hits_left := 0
 var armor_broken := false
 var shield_hp := 0.0
@@ -129,7 +139,10 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 		$Sprite.texture = _walk_frames[0]
 	$CollisionShape2D.shape = CircleShape2D.new()
 	$CollisionShape2D.shape.radius = 70.0 if not boss else 130.0
-	$Sprite.scale = Vector2(0.32, 0.32) if not boss else Vector2(0.44, 0.44)
+	# Bosses must read as a separate threat class on a phone, not as a
+	# recolored elite. The larger visual scale does not change collision,
+	# targeting, speed, attack-line placement, or balance.
+	$Sprite.scale = Vector2.ONE * (BOSS_SPRITE_SCALE if boss else NORMAL_SPRITE_SCALE)
 	_base_sprite_scale = $Sprite.scale
 	_base_sprite_x = $Sprite.position.x
 	modulate = Color.WHITE
@@ -178,7 +191,8 @@ func _threat_text() -> String:
 	var tags: Array = data.get("threat_tags", [])
 	var weak := _weakness_hint()
 	if boss:
-		return "首领%s" % weak
+		var boss_name := DataLoader.tr_key(str(data.get("name_key", "")))
+		return boss_name if not boss_name.is_empty() else "首领"
 	if tags.has("breach"):
 		return "近线%s" % weak
 	if tags.has("elite"):
@@ -278,18 +292,25 @@ func _configure_base_attack() -> void:
 	base_attack_damage = int(mechanic_params.get("base_attack_damage", base_attack_damage))
 	base_attack_interval = float(mechanic_params.get("base_attack_interval", base_attack_interval))
 	base_attack_kind = str(mechanic_params.get("base_attack_kind", base_attack_kind))
+	var profile_var: Variant = mechanic_params.get("base_attack_profile", {})
+	base_attack_profile = profile_var.duplicate(true) if profile_var is Dictionary else {}
+	base_attack_line_offset = float(base_attack_profile.get("line_offset", -80.0 if boss else 0.0))
+	attack_line_y = BASE_ATTACK_Y + base_attack_line_offset + _attack_line_jitter()
 
 func configure_attack_line(base_line_y: float) -> void:
+	attack_line_y = base_line_y + base_attack_line_offset + _attack_line_jitter()
+
+func _attack_line_jitter() -> float:
 	if boss:
-		attack_line_y = base_line_y - 80.0 + randf_range(-14.0, 18.0)
-	else:
-		attack_line_y = base_line_y + randf_range(-18.0, 26.0)
+		return randf_range(-14.0, 18.0)
+	return randf_range(-18.0, 26.0)
 
 func _enter_base_attack() -> void:
 	attacking_base = true
 	position.y = attack_line_y
 	speed_mult = 1.0
-	base_attack_timer = randf_range(0.08, 0.34)
+	var first_delay := float(base_attack_profile.get("first_attack_delay", -1.0))
+	base_attack_timer = first_delay if first_delay >= 0.0 else randf_range(0.08, 0.34)
 	_play_attack_animation(0.34)
 
 func _process_base_attack(delta: float) -> void:
@@ -299,10 +320,64 @@ func _process_base_attack(delta: float) -> void:
 	if _shock_time > 0.0:
 		charge_delta *= 0.55 if not boss else 0.75
 	base_attack_timer -= charge_delta
+	if _base_attack_sequence_active:
+		_process_base_attack_sequence(charge_delta)
+		return
 	if base_attack_timer > 0.0:
 		return
 	base_attack_timer = maxf(0.45, base_attack_interval + randf_range(-0.12, 0.18))
+	if boss and not base_attack_profile.is_empty():
+		_begin_base_attack_sequence()
+		return
 	_play_attack_animation(0.36 if not boss else 0.48)
+	breached.emit(self, base_attack_damage)
+
+func _begin_base_attack_sequence() -> void:
+	_base_attack_sequence_active = true
+	_base_attack_sequence_hit_index = 0
+	_base_attack_sequence_waiting_resolution = false
+	_base_attack_sequence_timer = maxf(0.0, float(base_attack_profile.get("windup", 0.48)))
+	var hits := maxi(1, int(base_attack_profile.get("hits", 1)))
+	var action_duration := _base_attack_sequence_timer
+	action_duration += maxf(0.0, float(base_attack_profile.get("hit_gap", 0.0))) * float(maxi(0, hits - 1))
+	action_duration += maxf(0.0, float(base_attack_profile.get("travel_time", 0.0)))
+	action_duration = maxf(0.48, action_duration + 0.08)
+	var mode := str(base_attack_profile.get("mode", "melee_heavy"))
+	if mode == "ranged_volley" or mode == "channel":
+		play_special(action_duration)
+	else:
+		_play_attack_animation(action_duration)
+	base_attack_started.emit(self, base_attack_profile)
+
+func _process_base_attack_sequence(delta: float) -> void:
+	_base_attack_sequence_timer -= delta
+	if _base_attack_sequence_timer > 0.0:
+		return
+	if _base_attack_sequence_waiting_resolution:
+		_resolve_base_attack_sequence()
+		return
+	var hit_count := maxi(1, int(base_attack_profile.get("hits", 1)))
+	base_attack_visual_hit.emit(
+		self,
+		base_attack_profile,
+		_base_attack_sequence_hit_index,
+		hit_count
+	)
+	_base_attack_sequence_hit_index += 1
+	if _base_attack_sequence_hit_index < hit_count:
+		_base_attack_sequence_timer = maxf(0.02, float(base_attack_profile.get("hit_gap", 0.12)))
+		return
+	var travel_time := maxf(0.0, float(base_attack_profile.get("travel_time", 0.0)))
+	if travel_time > 0.0:
+		_base_attack_sequence_waiting_resolution = true
+		_base_attack_sequence_timer = travel_time
+		return
+	_resolve_base_attack_sequence()
+
+func _resolve_base_attack_sequence() -> void:
+	_base_attack_sequence_active = false
+	_base_attack_sequence_waiting_resolution = false
+	_base_attack_sequence_timer = 0.0
 	breached.emit(self, base_attack_damage)
 
 func take_damage(amount: float, element := "physical", armor_penetration := 0.0, status_strength := -1.0) -> void:
@@ -326,10 +401,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 					_base_modulate = Color(1.0, 0.55, 0.55)
 					_sync_sprite_status_tint(true)
 					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
-					if threat_marker and is_instance_valid(threat_marker):
-						threat_marker.text = "破甲"
-						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
-						_sync_threat_marker_visibility()
+					_update_status_label()
 			final_damage *= penetration
 			resolved_hit_kind = "armor_pierce"
 		elif boss and not armor_broken and armor_hits_left > 0:
@@ -343,10 +415,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 					_sync_sprite_status_tint(true)
 					_flash(_base_modulate)
 					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
-					if threat_marker and is_instance_valid(threat_marker):
-						threat_marker.text = "破甲"
-						threat_marker.add_theme_color_override("font_color", Color(1, 0.4, 0.4))
-						_sync_threat_marker_visibility()
+					_update_status_label()
 				return
 			armor_broken = true
 		elif boss:
@@ -617,10 +686,10 @@ func _build_hp_bar() -> void:
 func _build_model_polish_layers() -> void:
 	_status_label = Label.new()
 	_status_label.name = "StatusLabel"
-	_status_label.position = Vector2(-125, -154 if not boss else -254)
-	_status_label.size = Vector2(250, 34)
+	_status_label.position = Vector2(-170, -154 if not boss else -254)
+	_status_label.size = Vector2(340, 34)
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20 if not boss else 26))
+	_status_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20 if not boss else 24))
 	_status_label.add_theme_color_override("font_color", Color(0.78, 0.94, 1.0, 1.0))
 	_status_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	_status_label.add_theme_constant_override("outline_size", 4)
@@ -957,25 +1026,25 @@ func _update_status_label() -> void:
 	var tags: Array[String] = []
 	var label_color := Color(0.78, 0.94, 1.0, 1.0)
 	if shield_hp > 0.0:
-		tags.append("盾")
+		tags.append("护盾")
 		label_color = Color(0.48, 0.84, 1.0, 1.0)
 	if armor_hits_left > 0 and not armor_broken:
-		tags.append("甲")
+		tags.append("装甲")
 		label_color = Color(0.96, 0.74, 0.42, 1.0)
 	elif armor_broken and boss:
 		tags.append("破甲")
 		label_color = Color(1.0, 0.42, 0.28, 1.0)
 	if _burn_time > 0.0:
-		tags.append("燃")
+		tags.append("燃烧")
 		label_color = Color(1.0, 0.48, 0.16, 1.0)
 	if _element_slow_time > 0.0:
-		tags.append("冻")
+		tags.append("冻结")
 		label_color = Color(0.55, 0.9, 1.0, 1.0)
 	if _poison_time > 0.0:
-		tags.append("毒")
+		tags.append("中毒")
 		label_color = Color(0.52, 1.0, 0.26, 1.0)
 	if _shock_time > 0.0:
-		tags.append("电")
+		tags.append("感电")
 		label_color = Color(1.0, 0.9, 0.2, 1.0)
 	_status_label.text = " ".join(tags)
 	_status_label.visible = _status_label_allowed and not tags.is_empty()

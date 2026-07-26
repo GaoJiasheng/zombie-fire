@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -157,6 +158,7 @@ def main() -> int:
                 errors.append(f"{enemy_id}.{key} unknown: {value}")
         check_asset(errors, enemy_id, row, ["sprite"])
 
+    boss_base_attack_profiles: set[str] = set()
     for boss_id, row in tables["bosses"].items():
         if row.get("weakness") not in elements:
             errors.append(f"{boss_id}.weakness unknown: {row.get('weakness')}")
@@ -164,6 +166,73 @@ def main() -> int:
             if immune not in elements:
                 errors.append(f"{boss_id}.immune unknown: {immune}")
         check_asset(errors, boss_id, row, ["sprite"])
+        mechanic_params = row.get("mechanic_params", {})
+        profile = mechanic_params.get("base_attack_profile", {}) if isinstance(mechanic_params, dict) else {}
+        if not isinstance(profile, dict) or not profile:
+            errors.append(f"{boss_id}.mechanic_params.base_attack_profile missing")
+            continue
+        profile_id = str(profile.get("id", "")).strip()
+        if not profile_id:
+            errors.append(f"{boss_id}.base_attack_profile.id missing")
+        elif profile_id in boss_base_attack_profiles:
+            errors.append(f"{boss_id}.base_attack_profile.id duplicated: {profile_id}")
+        else:
+            boss_base_attack_profiles.add(profile_id)
+        if profile.get("mode") not in {"melee_heavy", "ranged_volley", "channel", "dash_combo"}:
+            errors.append(f"{boss_id}.base_attack_profile.mode unknown: {profile.get('mode')}")
+        if profile.get("element") not in elements:
+            errors.append(f"{boss_id}.base_attack_profile.element unknown: {profile.get('element')}")
+        for element in profile.get("hit_elements", []):
+            if element not in elements:
+                errors.append(f"{boss_id}.base_attack_profile.hit_elements unknown: {element}")
+        hits = int(profile.get("hits", 0))
+        if not 1 <= hits <= 6:
+            errors.append(f"{boss_id}.base_attack_profile.hits must be in [1, 6], got {hits}")
+        hit_colors = profile.get("hit_colors", [])
+        if hit_colors and (
+            not isinstance(hit_colors, list)
+            or len(hit_colors) != hits
+            or any(not re.fullmatch(r"[0-9a-fA-F]{6}", str(color)) for color in hit_colors)
+        ):
+            errors.append(
+                f"{boss_id}.base_attack_profile.hit_colors must contain one RRGGBB value per hit"
+            )
+        if not 0.15 <= float(profile.get("windup", 0.0)) <= 1.2:
+            errors.append(f"{boss_id}.base_attack_profile.windup must be in [0.15, 1.2]")
+        if not 0.0 <= float(profile.get("travel_time", -1.0)) <= 0.5:
+            errors.append(f"{boss_id}.base_attack_profile.travel_time must be in [0, 0.5]")
+        if not -340.0 <= float(profile.get("line_offset", 0.0)) <= -40.0:
+            errors.append(f"{boss_id}.base_attack_profile.line_offset must be in [-340, -40]")
+        if not str(profile.get("label", "")).strip():
+            errors.append(f"{boss_id}.base_attack_profile.label missing")
+        for sequence_key in ("cast_sequence", "impact_sequence"):
+            sequence_id = str(profile.get(sequence_key, "")).strip()
+            sequence_path = (
+                ROOT
+                / "assets"
+                / "production"
+                / "sprites"
+                / "vfx_sequences"
+                / sequence_id
+                / f"{sequence_id}_sequence.json"
+            )
+            if not sequence_id or not sequence_path.exists():
+                errors.append(
+                    f"{boss_id}.base_attack_profile.{sequence_key} missing sequence: {sequence_id}"
+                )
+        if profile.get("mode") == "channel":
+            for texture_key in ("beam_texture", "impact_texture"):
+                texture_path = str(profile.get(texture_key, "")).strip()
+                if not texture_path.startswith("res://"):
+                    errors.append(
+                        f"{boss_id}.base_attack_profile.{texture_key} must be a res:// path"
+                    )
+                    continue
+                local_path = ROOT / texture_path.removeprefix("res://")
+                if not local_path.exists():
+                    errors.append(
+                        f"{boss_id}.base_attack_profile.{texture_key} missing: {texture_path}"
+                    )
 
     for skill_id, row in tables["skills"].items():
         check_asset(errors, skill_id, row, ["icon"])

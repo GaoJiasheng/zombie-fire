@@ -503,3 +503,59 @@
 - [x] 导出包验证：Build 35 PCK 为 `5,770` 文件、`2,772` 导入资源、`596,164,880` bytes（568.5 MiB），battle boot、存档/生命周期完整性和 M1 smoke 三重检查均通过；SHA-256 `ec36df1ed439875f5d9d8e5611fd5908b7576cdad1185fba6b8114315cee45f6`。
 - [x] 签名产物：Xcode Archive、App Store Distribution 导出及 IPA 审计通过；`1.0.0 (35)` IPA 为 `625,836,434` bytes（596.8 MiB），SHA-256 `3155029c75a308f44b79ad6501dd98194b02f54632b5c9e059173eb297189f48`。
 - [x] Apple 交付：Delivery UUID `a21524ab-a777-453c-af1d-a12d1a86bd68`；最终状态 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`、`IS-ON-APP-STORE-CONNECT: true`，非豁免加密为 `false`。
+
+## 阶段 39 · TestFlight Build 36（2026-07-23）
+
+- [x] 同源重打：以已提交的 Build 35 代码基线递增构建号，不引入新的玩法、数据或资源变更。
+- [x] 发布门禁：完整 32 项 Release Candidate、55 路视觉截图、Godot 导入和 iPhone-only PCK 审计再次全部通过。
+- [x] 导出包验证：Build 36 PCK 为 `5,770` 文件、`2,772` 导入资源、`596,164,880` bytes（568.5 MiB），battle boot、存档/生命周期完整性和 M1 smoke 均通过；SHA-256 `ec36df1ed439875f5d9d8e5611fd5908b7576cdad1185fba6b8114315cee45f6`。
+- [x] 签名产物：`1.0.0 (36)` IPA 为 `625,836,432` bytes（596.8 MiB），SHA-256 `7093bc951b72bdad26cbb80e4b950b42c6aa7c3b7435a974bb6cf73a6e246343`。
+- [x] Apple 交付：Delivery UUID `a90cad41-f8b8-4287-8d27-48b679e8d352`；最终状态 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`、`IS-ON-APP-STORE-CONNECT: true`，非豁免加密为 `false`。
+
+## 阶段 40 · TestFlight 发布链路加固（2026-07-25）
+
+- [x] Apple 最终状态门禁：上传成功后自动提取 Delivery UUID，并按 Apple 实际接口要求只用该 UUID 执行 `altool --build-status --wait`；强制验证 `BUILD-STATUS / IMPORT-STATUS / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，并交叉检查 Apple 回传的 UUID、Build 号和非豁免加密状态。
+- [x] 不可复用构建号保护：Apple 接受上传后立即保留已消费的构建号和本地 IPA；即使后续状态查询或导入失败，也不会回滚到一个无法再次上传的版本号。
+- [x] 可追溯发布记录：每次成功交付在 `build/ios/release/build_<N>/` 保存上传日志、Apple 状态日志和原子写入的 manifest，记录源码 commit/脏状态、版本、Delivery UUID、IPA/PCK 字节数和 SHA-256，不写入 API 私钥。
+- [x] Desktop IPA 诚实校验：改用强制原子替换并逐字节比较；覆盖失败只报 warning，不再出现“旧文件未替换却显示复制成功”。
+- [x] 回归门禁：发布候选新增 shell 语法检查和 release record 自测，总检查数由 32 增至 34。
+- [x] 最终验证：修改后的完整 34 项 Release Candidate 与 55 路真实界面截图全部通过；用 Build 36 的现有 Delivery UUID 只读验证 Apple 实际接口，修正冗余参数后无 warning，结果仍为 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT: true`。
+
+## 阶段 41 · Boss 独立轮廓重制与首领战视觉收口（2026-07-25）
+
+- [x] P0：审计 8 个 Boss 的实机轮廓；保留已有独特造型的风暴召唤者、瘟疫之母、虚空幽影，重制同模感明显的装甲巨像、炼狱巨口、冰霜典狱长、亡骸泰坦、终局霸主。
+- [x] P0：五个重制 Boss 分别改为猩猩式攻城体、四足熔炉兽、囚笼行刑机、尸骨教堂和多臂三足指挥体；原 Boss ID、JSON 路径、机制、属性、弱点、碰撞半径、生成规则和关卡配置均不变。
+- [x] P0：同步替换五组 prototype / portrait / icon、145 张动画帧和 5 段登场视频；生成脚本、提示词、主源图、manifest 和前后对比图保存在 `source_refs/generated/boss_model_redo_2026_07_25/`，并登记 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] P1：Boss 实战模型比例由 `0.44` 提至 `0.50`，只改变视觉辨识度，不改变碰撞、瞄准、移速、攻击线或平衡；营销镜头另有隔离的构图放大，不进入正式玩法。
+- [x] P1：修复长波次提示与 Boss 全局血条重叠；Boss 血条提高文字对比度，状态缩写扩为“护盾 / 装甲 / 破甲 / 燃烧 / 冻结 / 中毒 / 感电”。
+- [x] P1：模型头顶不再重复“首领·弱点”，统一只显示怪兽本名；弱点与生命百分比继续由顶部 Boss 血条单点承担，破甲状态不再覆盖本名。
+- [x] P1：重新捕获 iPhone 6.5/6.7 英寸五张商店图并刷新 22 秒真实运行 App Preview；Boss 卖点文案改为“异形 Boss 压境，锁定弱点反击”。
+- [x] 最终验证：资源包共 `7,847` 文件，数据 / `res://` 引用 / 压力 / 卡牌模拟、Godot boot、M1 smoke 全部通过；视觉门禁先以五个重制 Boss 的 60 路矩阵两次通过，再扩展到全部八个 Boss 的 63 路并通过；完整 Release Candidate 总门禁通过。
+
+## 阶段 42 · Boss 攻城攻击身份与动画重制（2026-07-25）
+
+- [x] P0：8 个 Boss 分别获得数据驱动的攻城攻击身份：装甲巨像近战裂地重击、炼狱巨口远程熔核三连、冰霜典狱长冰牢双重坠击、风暴召唤者持续雷链、瘟疫之母腐卵齐射、虚空幽影相位连斩、亡骸泰坦亡骸镇压、终局霸主四元素轮击。
+- [x] P0：重做 Boss 到达基地后的预警、蓄力、弹道 / 连击、命中和基地反馈；远程、近战、持续压制与突进连击不再复用同一套泛用破口表现。
+- [x] P0：连续攻击拆成多段视觉命中，但每轮只结算一次原始 `base_attack_damage`、一次屏障和一次基地受击，保持既有伤害、间隔与关卡平衡。
+- [x] P1：新增金属基地破裂特效及透明生产资源，生成源图、提示词与 provenance 保存在 `source_refs/generated/boss_base_attack_redesign_2026_07_25/`，并登记 `OUTSOURCER_ASSET_INDEX.json`。
+- [x] P1：数据校验新增攻击模式、元素、命中数、攻击线、颜色和 VFX 引用契约；M1 smoke 覆盖全部 8 个 Boss 的预警数、视觉命中数、单次伤害结算和攻击线差异。
+- [x] P1：视觉回归从 63 路扩展到 71 路，新增全部 Boss 的确定性攻城峰值截图；逐个复核模型间距、基地遮挡、特效层级、颜色身份和安全区。
+- [x] 最终验证：资源包共 `7,852` 文件，数据 / `res://` 引用 / 99 关压力 / 卡牌模拟、Godot boot、battle boot、存档完整性和 M1 smoke 全部通过；71 路视觉矩阵与完整 Release Candidate 总门禁通过。
+
+## 阶段 43 · 风暴召唤者攻城雷电渲染重制（2026-07-25）
+
+- [x] P0：移除风暴召唤者攻城攻击中的粗黄色 `Line2D` 和带可见矩形边界的旧 `vfx_enemy_skill_storm_chain` 命中贴图。
+- [x] P0：生成并接入独立透明的白蓝紫主雷柱与基地电弧冠；主雷柱按 Boss 到基地的实时矢量缩放，五段攻击通过镜像、微旋转、宽度脉冲和交替色温形成连续但不机械重复的雷链。
+- [x] P1：落点电弧冠固定对齐运行时 `BREACH_Y`，置于防御角色下层；保留预警圈、基地受击高光、逐段音效与终段震屏，不遮挡人物或底部 HUD。
+- [x] P1：两张生成源图、提示词、透明化流程和生产输出登记到 `source_refs/generated/boss_storm_lightning_redesign_2026_07_25/` 与 `OUTSOURCER_ASSET_INDEX.json`；仅替换该 Boss 的 profile 攻城攻击，不影响玩家雷系技能。
+- [x] 最终验证：首击 / 中段 / 终击三帧人工复核通过；资源包共 `7,861` 文件，数据 / 引用 / 压力 / 卡牌模拟、Godot boot、battle boot、存档完整性和 M1 smoke 全部通过；71 路视觉矩阵与完整 Release Candidate 总门禁通过。
+
+## 阶段 44 · 全战斗顶级特效重制与裁切收口（2026-07-26）
+
+- [x] P0：以已验收的风暴雷柱为品质基准，统一重制 8 个 Boss 基础攻击、8 个 Boss 机制技能、4 名角色主动技、8 种武器弹体及枪口反馈、元素受击 / 暴击 / 装甲 / 免疫 / 弱点反馈和 5 类死亡终结表现。
+- [x] P0：Boss 攻击继续保留近战、远程、连续攻击和重击身份；新表现只升级视觉层级、色彩语言和命中反馈，不改变伤害、射速、技能冷却、碰撞、瞄准或关卡平衡。
+- [x] P0：审计全部 `79` 组战斗 VFX 序列，对 `32` 组存在边缘风险的旧卡牌技能、普通僵尸技能和主动技序列做整组等比内缩；同一序列共用一个缩放值，避免逐帧跳动，并保留 ID、路径、帧数、FPS 和时序。
+- [x] P0：新增发布级安全边门禁，检查 `701` 张实际引用的非空帧，要求四边至少保留 `7.5%` 透明安全区；允许有意设计的空白起止帧，忽略不进入运行时 manifest 的尾帧缓存。
+- [x] P1：完成 `83` 张专项实机截图复核，覆盖 4 主动技、8 Boss 技能、8 Boss 攻击、8 武器、9 受击、5 死亡、16 卡牌技能、19 僵尸技能和 6 张 `1080×2340` 长屏代表场景；未发现残余裁切、矩形底、HUD 遮挡或安全区越界。
+- [x] P1：生成源图、完整提示词、整合 manifest、安全边修复报告与综合联系表已保存在 `source_refs/generated/premium_combat_vfx_2026_07_26/`，并登记 `OUTSOURCER_ASSET_INDEX.json`；iOS 导出排除规则同步到 `237` 条，`65.9 MiB` 创作源文件与 `216` 张无用尾帧不进入安装包。
+- [x] 最终验证：资源包共 `8,404` 文件；AGENTS 要求的资源 / 数据 / 引用 / 99 关压力 / 卡牌模拟 / Godot boot / M1 smoke 全部通过，安全边门禁、存档完整性、战斗启动、HUD 重叠、长屏、App Store 素材、`71` 路全界面视觉矩阵与完整 Release Candidate 总门禁全部通过。

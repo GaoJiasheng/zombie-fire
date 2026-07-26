@@ -15,7 +15,25 @@
 		"counter_hint": "连续命中击破装甲，破甲后立刻用火焰与主动技能集火。",
 		"mechanic": "armor_break",
 		"mechanic_params": {
-			"armor_hits": 30
+			"armor_hits": 30,
+			"base_attack_kind": "boss_titan_ram_slam",
+			"base_attack_profile": {
+				"id": "titan_ram_slam",
+				"mode": "melee_heavy",
+				"label": "裂地冲城",
+				"element": "physical",
+				"hits": 1,
+				"windup": 0.72,
+				"hit_gap": 0.12,
+				"travel_time": 0.0,
+				"first_attack_delay": 0.24,
+				"line_offset": -220.0,
+				"cast_sequence": "vfx_enemy_skill_armor_break",
+				"impact_sequence": "vfx_boss_attack_titan",
+				"projectile_style": "none",
+				"impact_scale": 0.92,
+				"camera_shake": 14.0
+			}
 		},
 		"sprite": "res://assets/production/sprites/bosses/boss_tank_titan_prototype.png"
 	},
@@ -37,7 +55,26 @@
 			{"threshold": 0.67, "text": "熔火过载", "color": "ff7a24"}
 		],
 		"mechanic": "phase_burn",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_inferno_barrage",
+			"base_attack_profile": {
+				"id": "inferno_barrage",
+				"mode": "ranged_volley",
+				"label": "熔核三连",
+				"element": "fire",
+				"hits": 3,
+				"windup": 0.58,
+				"hit_gap": 0.18,
+				"travel_time": 0.26,
+				"first_attack_delay": 1.55,
+				"line_offset": -280.0,
+				"cast_sequence": "vfx_enemy_skill_phase_burn",
+				"impact_sequence": "vfx_boss_attack_inferno",
+				"projectile_style": "orb",
+				"impact_scale": 1.05,
+				"camera_shake": 8.0
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_inferno_maw_prototype.png"
 	},
 	"boss_frost_warden": {
@@ -58,7 +95,26 @@
 			{"threshold": 0.67, "text": "寒潮扩张", "color": "67c9ff"}
 		],
 		"mechanic": "freeze_field",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_frost_prison",
+			"base_attack_profile": {
+				"id": "frost_prison",
+				"mode": "ranged_volley",
+				"label": "冰牢坠击",
+				"element": "ice",
+				"hits": 2,
+				"windup": 0.82,
+				"hit_gap": 0.28,
+				"travel_time": 0.24,
+				"first_attack_delay": 1.65,
+				"line_offset": -270.0,
+				"cast_sequence": "vfx_enemy_skill_freeze_field",
+				"impact_sequence": "vfx_boss_attack_frost",
+				"projectile_style": "shard",
+				"impact_scale": 1.05,
+				"camera_shake": 10.0
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_frost_warden_prototype.png"
 	},
 	"boss_storm_caller": {
@@ -79,7 +135,35 @@
 			{"threshold": 0.67, "text": "雷链增幅", "color": "ffe34d"}
 		],
 		"mechanic": "storm_chain",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_storm_channel",
+			"base_attack_profile": {
+				"id": "storm_channel",
+				"mode": "channel",
+				"label": "雷链压制",
+				"element": "lightning",
+				"hit_colors": [
+					"8eeeff",
+					"c7f7ff",
+					"aa8cff",
+					"d8fbff",
+					"72dfff"
+				],
+				"hits": 5,
+				"windup": 0.42,
+				"hit_gap": 0.12,
+				"travel_time": 0.08,
+				"first_attack_delay": 1.35,
+				"line_offset": -310.0,
+				"cast_sequence": "vfx_enemy_skill_storm_chain",
+				"impact_sequence": "vfx_boss_attack_storm",
+				"beam_texture": "res://assets/production/sprites/vfx/vfx_boss_storm_column.png",
+				"impact_texture": "res://assets/production/sprites/vfx/vfx_boss_storm_impact.png",
+				"projectile_style": "beam",
+				"impact_scale": 0.78,
+				"camera_shake": 6.0
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_storm_caller_prototype.png"
 	},
 	"boss_plague_mother": {
@@ -100,7 +184,26 @@
 			{"threshold": 0.67, "text": "孵化增殖", "color": "89ff62"}
 		],
 		"mechanic": "spawn_minions",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_plague_brood_volley",
+			"base_attack_profile": {
+				"id": "plague_brood_volley",
+				"mode": "ranged_volley",
+				"label": "腐卵齐射",
+				"element": "poison",
+				"hits": 4,
+				"windup": 0.54,
+				"hit_gap": 0.15,
+				"travel_time": 0.32,
+				"first_attack_delay": 1.55,
+				"line_offset": -260.0,
+				"cast_sequence": "vfx_enemy_skill_spawn_minions",
+				"impact_sequence": "vfx_boss_attack_plague",
+				"projectile_style": "lob",
+				"impact_scale": 0.82,
+				"camera_shake": 5.5
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_plague_mother_prototype.png"
 	},
 	"boss_void_phantom": {
@@ -121,7 +224,31 @@
 			{"threshold": 0.67, "text": "相位加速", "color": "91a8ff"}
 		],
 		"mechanic": "phase_shift",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_void_combo",
+			"base_attack_profile": {
+				"id": "void_combo",
+				"mode": "dash_combo",
+				"label": "相位连斩",
+				"element": "physical",
+				"hit_colors": [
+					"9b6cff",
+					"c08cff",
+					"7654ff"
+				],
+				"hits": 3,
+				"windup": 0.3,
+				"hit_gap": 0.11,
+				"travel_time": 0.0,
+				"first_attack_delay": 0.24,
+				"line_offset": -190.0,
+				"cast_sequence": "vfx_enemy_skill_phase_shift",
+				"impact_sequence": "vfx_boss_attack_void",
+				"projectile_style": "slash",
+				"impact_scale": 0.82,
+				"camera_shake": 6.5
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_void_phantom_prototype.png"
 	},
 	"boss_necrotitan": {
@@ -143,7 +270,26 @@
 			{"threshold": 0.34, "text": "亡者狂暴", "color": "ff3d28"}
 		],
 		"mechanic": "regenerate",
-		"mechanic_params": {},
+		"mechanic_params": {
+			"base_attack_kind": "boss_necro_crush",
+			"base_attack_profile": {
+				"id": "necro_crush",
+				"mode": "melee_heavy",
+				"label": "亡骸镇压",
+				"element": "poison",
+				"hits": 1,
+				"windup": 0.96,
+				"hit_gap": 0.12,
+				"travel_time": 0.0,
+				"first_attack_delay": 0.28,
+				"line_offset": -220.0,
+				"cast_sequence": "vfx_enemy_skill_regenerate",
+				"impact_sequence": "vfx_boss_attack_necro",
+				"projectile_style": "none",
+				"impact_scale": 0.95,
+				"camera_shake": 15.0
+			}
+		},
 		"sprite": "res://assets/production/sprites/bosses/boss_necrotitan_prototype.png"
 	},
 	"boss_apex_overlord": {
@@ -169,7 +315,37 @@
 		],
 		"mechanic": "multi_phase",
 		"mechanic_params": {
-			"immune_damage_floor": 0.08
+			"immune_damage_floor": 0.08,
+			"base_attack_kind": "boss_apex_cataclysm",
+			"base_attack_profile": {
+				"id": "apex_cataclysm",
+				"mode": "ranged_volley",
+				"label": "终焉轮击",
+				"element": "physical",
+				"hit_elements": [
+					"fire",
+					"ice",
+					"lightning",
+					"poison"
+				],
+				"hit_colors": [
+					"ff6438",
+					"5edcff",
+					"ffe25c",
+					"d88cff"
+				],
+				"hits": 4,
+				"windup": 0.66,
+				"hit_gap": 0.14,
+				"travel_time": 0.24,
+				"first_attack_delay": 1.55,
+				"line_offset": -290.0,
+				"cast_sequence": "vfx_enemy_skill_multi_phase",
+				"impact_sequence": "vfx_boss_attack_apex",
+				"projectile_style": "prism",
+				"impact_scale": 0.7,
+				"camera_shake": 9.0
+			}
 		},
 		"sprite": "res://assets/production/sprites/bosses/boss_apex_overlord_prototype.png"
 	}

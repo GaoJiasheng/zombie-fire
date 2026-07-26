@@ -1,12 +1,22 @@
 {
   "id": "vfx_enemy_skill_multi_phase",
-  "fps": 20,
+  "fps": 24,
   "frames": [
     "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_01.png",
     "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_02.png",
     "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_03.png",
-    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_04.png"
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_04.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_05.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_06.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_07.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_08.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_09.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_10.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_11.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_12.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_13.png",
+    "sprites/vfx_sequences/vfx_enemy_skill_multi_phase/vfx_enemy_skill_multi_phase_14.png"
   ],
-  "source": "assets/production/source_refs/generated/user_ui_vfx_reference_sheet_2026_07_02.png",
-  "integration": "cropped from owner-provided top-tier reference sheet; PNG bitmap sequence, no SVG/vector"
+  "source": "assets/production/source_refs/generated/premium_combat_vfx_2026_07_26/boss_skills_padded_alpha.png",
+  "integration": "Owner-directed premium AI-rendered VFX; chroma-key alpha extraction, centered safe-zone normalization, and bounded PNG frame animation."
 }

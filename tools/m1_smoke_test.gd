@@ -87,6 +87,7 @@ func _initialize() -> void:
 	_expect(data_loader.get_table("levels").size() >= 99, "levels table must contain a launch campaign")
 	_expect(data_loader.get_table("skills").size() >= 16, "skills table must contain a broad launch pool")
 	_verify_zombie_mechanic_profiles(data_loader)
+	_verify_boss_base_attack_profiles(data_loader)
 	_verify_ui_font()
 	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
@@ -1573,6 +1574,58 @@ func _verify_base_attack_runtime(battle: Node) -> void:
 	_expect(bool(enemy.get("attacking_base")), "enemy must enter persistent base attack state instead of disappearing")
 	_expect(int(battle.base_hp) < hp_before, "base attack state must tick damage over time")
 
+func _verify_boss_base_attack_profiles(data_loader: Node) -> void:
+	var expected := {
+		"boss_tank_titan": {"mode": "melee_heavy", "hits": 1},
+		"boss_inferno_maw": {"mode": "ranged_volley", "hits": 3},
+		"boss_frost_warden": {"mode": "ranged_volley", "hits": 2},
+		"boss_storm_caller": {"mode": "channel", "hits": 5},
+		"boss_plague_mother": {"mode": "ranged_volley", "hits": 4},
+		"boss_void_phantom": {"mode": "dash_combo", "hits": 3},
+		"boss_necrotitan": {"mode": "melee_heavy", "hits": 1},
+		"boss_apex_overlord": {"mode": "ranged_volley", "hits": 4},
+	}
+	var enemy_scene := load("res://gameplay/enemy/enemy.tscn") as PackedScene
+	for boss_id in expected.keys():
+		var row: Dictionary = data_loader.get_row("bosses", boss_id)
+		var enemy: Node = enemy_scene.instantiate()
+		root.add_child(enemy)
+		enemy.setup(row, 1.0, true)
+		enemy.configure_attack_line(1500.0)
+		var profile: Dictionary = enemy.get("base_attack_profile")
+		var contract: Dictionary = expected[boss_id]
+		_expect(not profile.is_empty(), "%s must expose a data-driven base attack profile" % boss_id)
+		_expect(str(profile.get("mode", "")) == str(contract["mode"]), "%s base attack mode must remain distinct" % boss_id)
+		_expect(int(profile.get("hits", 0)) == int(contract["hits"]), "%s base attack hit cadence must remain authored" % boss_id)
+		var ranged := str(profile.get("mode", "")) == "ranged_volley" or str(profile.get("mode", "")) == "channel"
+		if ranged:
+			_expect(float(enemy.get("attack_line_y")) <= 1280.0, "%s must stop at a readable ranged attack line" % boss_id)
+		else:
+			_expect(float(enemy.get("attack_line_y")) >= 1240.0, "%s must retain a near-base melee/dash line" % boss_id)
+		var events := {"started": 0, "visual_hits": 0, "breaches": 0, "damage": 0}
+		enemy.base_attack_started.connect(func(_source: Node, _profile: Dictionary) -> void:
+			events["started"] = int(events["started"]) + 1
+		)
+		enemy.base_attack_visual_hit.connect(func(_source: Node, _profile: Dictionary, _hit_index: int, _hit_count: int) -> void:
+			events["visual_hits"] = int(events["visual_hits"]) + 1
+		)
+		enemy.breached.connect(func(_source: Node, damage: int) -> void:
+			events["breaches"] = int(events["breaches"]) + 1
+			events["damage"] = int(events["damage"]) + damage
+		)
+		enemy.call("_enter_base_attack")
+		enemy.set("base_attack_timer", 0.0)
+		enemy.call("_process_base_attack", 0.01)
+		for _step in range(40):
+			if int(events["breaches"]) > 0:
+				break
+			enemy.call("_process_base_attack", 0.12)
+		_expect(int(events["started"]) == 1, "%s must telegraph one attack cycle" % boss_id)
+		_expect(int(events["visual_hits"]) == int(contract["hits"]), "%s must emit every authored visual hit" % boss_id)
+		_expect(int(events["breaches"]) == 1, "%s multi-hit presentation must settle base damage exactly once" % boss_id)
+		_expect(int(events["damage"]) == int(enemy.get("base_attack_damage")), "%s presentation must preserve authored total damage" % boss_id)
+		enemy.free()
+
 func _verify_barrier_visual_runtime(battle: Node) -> void:
 	var owned_before: Dictionary = battle.skills.owned.duplicate(true)
 	var breach_shields_before := int(battle.breach_shields)
@@ -2148,6 +2201,14 @@ func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 	boss_row["weakness"] = "none"
 	boss_row["resist"] = "none"
 	boss_enemy.call("setup", boss_row, 1.0, true)
+	var expected_boss_name: String = str(data_loader.tr_key(str(boss_row.get("name_key", ""))))
+	_expect(
+		boss_enemy.threat_marker != null and str(boss_enemy.threat_marker.text) == expected_boss_name,
+		"boss local marker must show the translated monster name only; got %s expected %s" % [
+			str(boss_enemy.threat_marker.text) if boss_enemy.threat_marker != null else "<missing>",
+			expected_boss_name,
+		]
+	)
 	boss_enemy.call("take_damage", 10.0, "fire")
 	await process_frame
 	var boss_canvas := boss_enemy as CanvasItem
