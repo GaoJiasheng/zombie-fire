@@ -559,3 +559,12 @@
 - [x] P1：完成 `83` 张专项实机截图复核，覆盖 4 主动技、8 Boss 技能、8 Boss 攻击、8 武器、9 受击、5 死亡、16 卡牌技能、19 僵尸技能和 6 张 `1080×2340` 长屏代表场景；未发现残余裁切、矩形底、HUD 遮挡或安全区越界。
 - [x] P1：生成源图、完整提示词、整合 manifest、安全边修复报告与综合联系表已保存在 `source_refs/generated/premium_combat_vfx_2026_07_26/`，并登记 `OUTSOURCER_ASSET_INDEX.json`；iOS 导出排除规则同步到 `237` 条，`65.9 MiB` 创作源文件与 `216` 张无用尾帧不进入安装包。
 - [x] 最终验证：资源包共 `8,404` 文件；AGENTS 要求的资源 / 数据 / 引用 / 99 关压力 / 卡牌模拟 / Godot boot / M1 smoke 全部通过，安全边门禁、存档完整性、战斗启动、HUD 重叠、长屏、App Store 素材、`71` 路全界面视觉矩阵与完整 Release Candidate 总门禁全部通过。
+
+## 阶段 45 · TestFlight Build 37（2026-07-26）
+
+- [x] 源码基线：顶级 Boss / 全战斗 VFX 候选以提交 `74231425` 入库并推送到 `origin/main`；发布 manifest 确认构建开始前工作树无已跟踪改动。
+- [x] 发布门禁：完整 Release Candidate、`71` 路界面截图、Godot 导入、iPhone-only PCK 审计全部通过。
+- [x] 导出包验证：Build 37 PCK 包含 `6,472` 个文件、`3,116` 个导入资源，大小 `581,256,680` bytes（554.3 MiB）；battle boot、存档完整性和 M1 smoke 均通过，SHA-256 `4e390d2400b3b6b99e879ade9825955209fcb5ce9fe5bd45bc172cc3a50bdb6c`。
+- [x] 签名产物：Xcode Archive、App Store Distribution 导出及 IPA 同源审计通过；`1.0.0 (37)` IPA 为 `610,745,333` bytes（582.5 MiB），SHA-256 `8359580d26c888996d0f689d8c87621b51d4b0771c3ffb18fc9c068684cd20dd`。
+- [x] Apple 交付：Delivery UUID `d1839f5a-882c-494e-8485-7419249d27ec`；最终状态为 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`、`IS-ON-APP-STORE-CONNECT: true`，非豁免加密为 `false`。
+- [x] 本地产物：已验证 IPA 与发布 manifest 保存在 `build/ios/`；macOS 阻止替换 Desktop 上的旧 IPA 副本，但不影响上传、Apple 处理或 App Store Connect 可用性。
