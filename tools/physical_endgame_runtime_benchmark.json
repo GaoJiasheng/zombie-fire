@@ -1,0 +1,41 @@
+{
+  "model_version": 1,
+  "level_id": "level_099",
+  "character": "vanguard",
+  "character_level": 40,
+  "weapon_level": 50,
+  "signature_level": 5,
+  "skills": [
+    "skill_split_shot",
+    "skill_pierce",
+    "skill_multishot",
+    "skill_homing",
+    "skill_critical",
+    "skill_ricochet",
+    "skill_salvo",
+    "skill_charge_shot"
+  ],
+  "skill_level": 5,
+  "formation": "45 enemies, 5 rows x 9 columns",
+  "notes": "Measured by res://tools/audit_physical_endgame_runtime.gd with real projectile collisions. DPS includes crit expectation, Vanguard active direct damage and barrage uptime, chip and pet.",
+  "best_same_loadout": {
+    "weapon_autocannon": {
+      "chip": "chip_attack",
+      "pet": "pet_turret_drone",
+      "boss_dps": 1037323.67944538,
+      "crowd_dps": 18629906.0702501
+    },
+    "weapon_railgun": {
+      "chip": "chip_attack",
+      "pet": "pet_turret_drone",
+      "boss_dps": 1199088.68677418,
+      "crowd_dps": 26484082.1747583
+    },
+    "weapon_scattergun": {
+      "chip": "chip_attack",
+      "pet": "pet_turret_drone",
+      "boss_dps": 2044839.7533254,
+      "crowd_dps": 36905172.5229931
+    }
+  }
+}

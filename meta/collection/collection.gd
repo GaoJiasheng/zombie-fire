@@ -525,7 +525,8 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 		"chips":
 			return "%s +%s\n%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0)), _next_upgrade_hint(item_id, row)]
 		"pets":
-			return "定位：%s  元素：%s\n%s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), _next_upgrade_hint(item_id, row)]
+			var pet_skill: Dictionary = row.get("pet_skill", {})
+			return "定位：%s  元素：%s\n%s · %s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), str(pet_skill.get("name", "专属协战")), _next_upgrade_hint(item_id, row)]
 		"skills":
 			return "标签：%s" % _format_tags(row.get("card_tags", []))
 		_:
@@ -730,10 +731,43 @@ func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Arra
 				var pg := float(row.get("level_damage_growth", 0.0))
 				var pbase := float(row.get("damage", 0))
 				rows.append({"label": "伤害", "cur": "%d" % int(round(pbase * (1.0 + pg * float(level - 1)))), "next": "%d" % int(round(pbase * (1.0 + pg * float(nxt - 1)))), "delta": "每级 +%d" % int(round(pbase * pg))})
+			var pet_skill: Dictionary = row.get("pet_skill", {})
+			if str(pet_skill.get("kind", "")) not in ["", "repair"]:
+				rows.append({
+					"label": str(pet_skill.get("name", "专属技能")),
+					"cur": _pet_skill_summary(row, level),
+					"next": _pet_skill_summary(row, nxt),
+					"delta": "专属效果随等级成长"
+				})
 			if row.has("heal_per_wave"):
 				var hg := float(row.get("level_heal_growth", 0.0))
 				var hbase := float(row.get("heal_per_wave", 0))
-				rows.append({"label": "每波修复", "cur": "%d" % int(round(hbase * (1.0 + hg * float(level - 1)))), "next": "%d" % int(round(hbase * (1.0 + hg * float(nxt - 1)))), "delta": "每级 +%d%%" % int(round(hg * 100.0))})
+				var wave_ratio := float(row.get("heal_per_wave_ratio", 0.0))
+				var wave_ratio_growth := float(row.get("level_wave_heal_ratio_growth", 0.0))
+				rows.append({
+					"label": "波次整备",
+					"cur": "%d + %.1f%%" % [int(round(hbase * (1.0 + hg * float(level - 1)))), (wave_ratio + wave_ratio_growth * float(level - 1)) * 100.0],
+					"next": "%d + %.1f%%" % [int(round(hbase * (1.0 + hg * float(nxt - 1)))), (wave_ratio + wave_ratio_growth * float(nxt - 1)) * 100.0],
+					"delta": "固定值 + 最大生命"
+				})
+			if row.has("repair_ratio"):
+				var repair_ratio := float(row.get("repair_ratio", 0.0))
+				var repair_growth := float(row.get("level_repair_ratio_growth", 0.0))
+				rows.append({
+					"label": "持续维修",
+					"cur": "%.2f%%" % ((repair_ratio + repair_growth * float(level - 1)) * 100.0),
+					"next": "%.2f%%" % ((repair_ratio + repair_growth * float(nxt - 1)) * 100.0),
+					"delta": "每 %.0f 秒" % float(row.get("repair_interval", 18.0))
+				})
+			if row.has("emergency_heal_ratio"):
+				var emergency_ratio := float(row.get("emergency_heal_ratio", 0.0))
+				var emergency_growth := float(row.get("level_emergency_heal_growth", 0.0))
+				rows.append({
+					"label": "应急救援",
+					"cur": "%.1f%%" % ((emergency_ratio + emergency_growth * float(level - 1)) * 100.0),
+					"next": "%.1f%%" % ((emergency_ratio + emergency_growth * float(nxt - 1)) * 100.0),
+					"delta": "低血量触发"
+				})
 	return rows
 
 func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
@@ -751,6 +785,14 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 		"chips":
 			return "下级 %s +%s" % [_stat_name(row.get("stat", "增幅")), _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))]
 		"pets":
+			if row.get("role", "") == "repair":
+				return "下级 波次+%.1f%% · 持续+%.2f%%" % [
+					float(row.get("level_wave_heal_ratio_growth", 0.0)) * 100.0,
+					float(row.get("level_repair_ratio_growth", 0.0)) * 100.0,
+				]
+			var pet_skill: Dictionary = row.get("pet_skill", {})
+			if not pet_skill.is_empty():
+				return "下级 协战与「%s」同步增强" % str(pet_skill.get("name", "专属技能"))
 			if row.has("damage"):
 				return "下级 伤害+%d" % int(round(float(row.get("damage", 0)) * float(row.get("level_damage_growth", 0.0))))
 			return "下级 效率提升"
@@ -1119,6 +1161,13 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			stats.append({"label": "增幅", "value": _value_text(chip_now), "sub": "等级%d · 满级 %s" % [item_level, _value_text(chip_max)]})
 		"pets":
 			stats.append({"label": "定位", "value": _role_name(row.get("role", "-")), "sub": _element_name(row.get("element", "none"))})
+			var pet_skill: Dictionary = row.get("pet_skill", {})
+			if not pet_skill.is_empty():
+				stats.append({
+					"label": str(pet_skill.get("name", "专属技能")),
+					"value": _pet_skill_summary(row, item_level),
+					"sub": _pet_skill_cooldown_text(pet_skill)
+				})
 			if row.has("damage"):
 				var pet_g := float(row.get("level_damage_growth", 0.0))
 				var pet_now := float(row.get("damage", 0)) * (1.0 + pet_g * float(max(item_level - 1, 0)))
@@ -1127,7 +1176,19 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			if row.has("fire_rate"):
 				stats.append({"label": "频率", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "自动协战"})
 			if row.has("heal_per_wave"):
-				stats.append({"label": "修复", "value": "%d / 波" % int(row.get("heal_per_wave", 0)), "sub": "每级 +%d%%" % int(round(float(row.get("level_heal_growth", 0.0)) * 100.0))})
+				var wave_flat_now := float(row.get("heal_per_wave", 0.0)) * (1.0 + float(row.get("level_heal_growth", 0.0)) * float(max(item_level - 1, 0)))
+				var wave_flat_max := float(row.get("heal_per_wave", 0.0)) * (1.0 + float(row.get("level_heal_growth", 0.0)) * float(max(max_level - 1, 0)))
+				var wave_ratio_now := float(row.get("heal_per_wave_ratio", 0.0)) + float(row.get("level_wave_heal_ratio_growth", 0.0)) * float(max(item_level - 1, 0))
+				var wave_ratio_max := float(row.get("heal_per_wave_ratio", 0.0)) + float(row.get("level_wave_heal_ratio_growth", 0.0)) * float(max(max_level - 1, 0))
+				stats.append({"label": "波次整备", "value": "%d + %.1f%%" % [int(round(wave_flat_now)), wave_ratio_now * 100.0], "sub": "满级 %d + %.1f%%" % [int(round(wave_flat_max)), wave_ratio_max * 100.0]})
+			if row.has("repair_ratio"):
+				var repair_now := float(row.get("repair_ratio", 0.0)) + float(row.get("level_repair_ratio_growth", 0.0)) * float(max(item_level - 1, 0))
+				var repair_max := float(row.get("repair_ratio", 0.0)) + float(row.get("level_repair_ratio_growth", 0.0)) * float(max(max_level - 1, 0))
+				stats.append({"label": "持续维修", "value": "%.2f%% / %.0f秒" % [repair_now * 100.0, float(row.get("repair_interval", 18.0))], "sub": "满级 %.2f%%" % (repair_max * 100.0)})
+			if row.has("emergency_heal_ratio"):
+				var emergency_now := float(row.get("emergency_heal_ratio", 0.0)) + float(row.get("level_emergency_heal_growth", 0.0)) * float(max(item_level - 1, 0))
+				var emergency_max := float(row.get("emergency_heal_ratio", 0.0)) + float(row.get("level_emergency_heal_growth", 0.0)) * float(max(max_level - 1, 0))
+				stats.append({"label": "应急救援", "value": "%.1f%% · ≤%.0f%%" % [emergency_now * 100.0, float(row.get("emergency_threshold", 0.35)) * 100.0], "sub": "%.0f秒冷却 · 满级 %.1f%%" % [float(row.get("emergency_cooldown", 45.0)), emergency_max * 100.0]})
 			if row.has("gold_mult"):
 				stats.append({"label": "收益", "value": _value_text(row.get("gold_mult", 0)), "sub": "每级 +%s" % _value_text(row.get("level_gold_growth", 0))})
 			for bonus in _pet_stat_bonus_stats(row, item_level, max_level):
@@ -1191,6 +1252,40 @@ func _pet_stat_value_text(stat: String, value: float) -> String:
 		_:
 			return _value_text(value)
 
+func _pet_skill_summary(row: Dictionary, level: int) -> String:
+	var skill: Dictionary = row.get("pet_skill", {})
+	var offset := float(max(level - 1, 0))
+	match str(skill.get("kind", "")):
+		"overclock":
+			var duration := float(skill.get("duration", 0.0)) + float(skill.get("level_duration_growth", 0.0)) * offset
+			var fire_rate := float(skill.get("fire_rate_mult", 1.0)) + float(skill.get("level_fire_rate_growth", 0.0)) * offset
+			var damage := float(skill.get("damage_mult", 1.0)) + float(skill.get("level_damage_mult_growth", 0.0)) * offset
+			return "%.1f秒 · 射速×%.2f · 伤害×%.2f" % [duration, fire_rate, damage]
+		"area_blast":
+			var radius := float(skill.get("radius", 0.0)) + float(skill.get("level_radius_growth", 0.0)) * offset
+			var area_damage := float(skill.get("damage_mult", 1.0)) + float(skill.get("level_damage_mult_growth", 0.0)) * offset
+			return "半径%d · 威力×%.2f" % [int(round(radius)), area_damage]
+		"multi_strike":
+			var every := maxi(1, int(skill.get("extra_target_every", 10)))
+			var count := int(skill.get("target_count", 1)) + int(max(level - 1, 0) / every)
+			var strike_damage := float(skill.get("damage_mult", 1.0)) + float(skill.get("level_damage_mult_growth", 0.0)) * offset
+			return "%d目标 · 威力×%.2f" % [count, strike_damage]
+		"repair":
+			return "整备 · 持续维修 · 应急救援"
+		"wave_salvage":
+			var equivalent := float(skill.get("kill_equivalent", 0.0)) + float(skill.get("level_salvage_growth", 0.0)) * offset
+			return "每波≈%.1f只击杀收益" % equivalent
+		_:
+			return "自动触发"
+
+func _pet_skill_cooldown_text(skill: Dictionary) -> String:
+	var kind := str(skill.get("kind", ""))
+	if kind == "wave_salvage":
+		return "每波触发"
+	if kind == "repair":
+		return "分层自动触发"
+	return "%.0f秒冷却" % float(skill.get("cooldown", 0.0))
+
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
 	match mode:
 		"weapons":
@@ -1200,7 +1295,20 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 		"chips":
 			return "芯片是核心加成位，偏向伤害、射速、暴击、生命、收益或元素流派。当前芯片会进入战力和关卡克制计算。"
 		"pets":
-			return "宠物提供自动协战、控制、修复或经济收益。它不替代主武器，但会补足阵容短板。"
+			match str(row.get("role", "")):
+				"damage":
+					return "炮塔无人机持续协战，并会周期启动「过热爆发」，短时间同步提升自身射速与伤害。等级越高，爆发持续越久、火力越强。"
+				"burn":
+					return "火焰小鬼持续点燃目标，并会对当前首要威胁释放「熔火爆发」，造成范围火焰伤害并强化灼烧。"
+				"slow":
+					return "冰霜精灵持续减速敌人，并会在当前首要威胁周围展开「寒霜领域」，大范围施加冰霜伤害与控制。"
+				"chain":
+					return "电弧球持续雷击敌人，并会释放「电弧过载」连续打击多个高威胁目标；目标数会随等级持续成长。"
+				"repair":
+					return "医疗无人机会直接修复基地：波次开始前整备、战斗中持续维修，并在基地生命低于阈值时启动有冷却的应急救援。修复按最大生命计算，可随关卡与装备成长。"
+				"economy":
+					return "拾荒机器人提高常规金币收益，并在每波开始执行「战场回收」，直接结算一批等效击杀收益；等级越高，回收效率越高。"
+			return "宠物会自动协战并用专属技能补足阵容短板。"
 		"skills":
 			return "技能图鉴只用于查看局内卡牌成长。下方会列出每一级的具体数值，便于判断加点性价比；战斗中同名技能按等级叠加，互斥弹种会以当前主弹种为准。"
 		_:

@@ -54,106 +54,106 @@ const CHARACTER_WEAPON_MUZZLE_DISTANCE := {
 	"weapon_venomlauncher": 70.0,
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE := {
-	"char_vanguard/weapon_autocannon": Vector2(40.3, -162.6),
-	"char_vanguard/weapon_flamethrower": Vector2(42.9, -162.2),
-	"char_vanguard/weapon_cryocannon": Vector2(36.5, -159.7),
-	"char_vanguard/weapon_teslacoil": Vector2(41.6, -162.3),
-	"char_vanguard/weapon_venomlauncher": Vector2(31.4, -160.3),
-	"char_vanguard/weapon_railgun": Vector2(37.1, -162.6),
-	"char_vanguard/weapon_scattergun": Vector2(32.3, -160.7),
-	"char_vanguard/weapon_plasmacannon": Vector2(33.0, -159.6),
-	"char_blaze/weapon_autocannon": Vector2(32.6, -161.9),
-	"char_blaze/weapon_flamethrower": Vector2(56.3, -162.6),
-	"char_blaze/weapon_cryocannon": Vector2(36.5, -162.6),
-	"char_blaze/weapon_teslacoil": Vector2(40.3, -162.3),
-	"char_blaze/weapon_venomlauncher": Vector2(37.8, -162.6),
-	"char_blaze/weapon_railgun": Vector2(31.0, -160.6),
-	"char_blaze/weapon_scattergun": Vector2(38.2, -160.9),
-	"char_blaze/weapon_plasmacannon": Vector2(26.1, -159.7),
-	"char_frost/weapon_autocannon": Vector2(22.4, -160.5),
-	"char_frost/weapon_flamethrower": Vector2(33.9, -156.6),
-	"char_frost/weapon_cryocannon": Vector2(23.6, -158.9),
-	"char_frost/weapon_teslacoil": Vector2(23.5, -160.9),
-	"char_frost/weapon_venomlauncher": Vector2(23.0, -160.3),
-	"char_frost/weapon_railgun": Vector2(29.9, -160.9),
-	"char_frost/weapon_scattergun": Vector2(22.1, -160.0),
-	"char_frost/weapon_plasmacannon": Vector2(25.0, -153.9),
-	"char_volt/weapon_autocannon": Vector2(32.6, -161.9),
-	"char_volt/weapon_flamethrower": Vector2(31.0, -161.9),
-	"char_volt/weapon_cryocannon": Vector2(36.5, -160.9),
-	"char_volt/weapon_teslacoil": Vector2(28.2, -160.6),
-	"char_volt/weapon_venomlauncher": Vector2(32.0, -160.6),
-	"char_volt/weapon_railgun": Vector2(30.7, -161.9),
-	"char_volt/weapon_scattergun": Vector2(34.1, -160.0),
-	"char_volt/weapon_plasmacannon": Vector2(31.4, -155.3),
+	"char_vanguard/weapon_autocannon": Vector2(32.2, -130.1),
+	"char_vanguard/weapon_flamethrower": Vector2(34.3, -129.8),
+	"char_vanguard/weapon_cryocannon": Vector2(29.2, -127.8),
+	"char_vanguard/weapon_teslacoil": Vector2(33.3, -129.8),
+	"char_vanguard/weapon_venomlauncher": Vector2(25.1, -128.2),
+	"char_vanguard/weapon_railgun": Vector2(29.7, -130.1),
+	"char_vanguard/weapon_scattergun": Vector2(25.8, -128.6),
+	"char_vanguard/weapon_plasmacannon": Vector2(26.4, -127.7),
+	"char_blaze/weapon_autocannon": Vector2(26.1, -129.5),
+	"char_blaze/weapon_flamethrower": Vector2(45.0, -130.1),
+	"char_blaze/weapon_cryocannon": Vector2(29.2, -130.1),
+	"char_blaze/weapon_teslacoil": Vector2(32.2, -129.8),
+	"char_blaze/weapon_venomlauncher": Vector2(30.2, -130.1),
+	"char_blaze/weapon_railgun": Vector2(24.8, -128.5),
+	"char_blaze/weapon_scattergun": Vector2(30.6, -128.7),
+	"char_blaze/weapon_plasmacannon": Vector2(20.9, -127.8),
+	"char_frost/weapon_autocannon": Vector2(17.9, -128.4),
+	"char_frost/weapon_flamethrower": Vector2(27.1, -125.3),
+	"char_frost/weapon_cryocannon": Vector2(18.9, -127.1),
+	"char_frost/weapon_teslacoil": Vector2(18.8, -128.7),
+	"char_frost/weapon_venomlauncher": Vector2(18.4, -128.2),
+	"char_frost/weapon_railgun": Vector2(23.9, -128.7),
+	"char_frost/weapon_scattergun": Vector2(17.7, -128.0),
+	"char_frost/weapon_plasmacannon": Vector2(20.0, -123.1),
+	"char_volt/weapon_autocannon": Vector2(26.1, -129.5),
+	"char_volt/weapon_flamethrower": Vector2(24.8, -129.5),
+	"char_volt/weapon_cryocannon": Vector2(29.2, -128.7),
+	"char_volt/weapon_teslacoil": Vector2(22.6, -128.5),
+	"char_volt/weapon_venomlauncher": Vector2(25.6, -128.5),
+	"char_volt/weapon_railgun": Vector2(24.6, -129.5),
+	"char_volt/weapon_scattergun": Vector2(27.3, -128.0),
+	"char_volt/weapon_plasmacannon": Vector2(25.1, -124.2),
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE_LEFT := {
-	"char_vanguard/weapon_autocannon": Vector2(-86.2, -151.9),
-	"char_vanguard/weapon_flamethrower": Vector2(-87.7, -147.8),
-	"char_vanguard/weapon_cryocannon": Vector2(-79.8, -146.0),
-	"char_vanguard/weapon_teslacoil": Vector2(-86.4, -149.1),
-	"char_vanguard/weapon_venomlauncher": Vector2(-75.8, -146.9),
-	"char_vanguard/weapon_railgun": Vector2(-81.9, -149.8),
-	"char_vanguard/weapon_scattergun": Vector2(-75.9, -147.6),
-	"char_vanguard/weapon_plasmacannon": Vector2(-75.5, -146.2),
-	"char_blaze/weapon_autocannon": Vector2(-77.1, -149.4),
-	"char_blaze/weapon_flamethrower": Vector2(-100.8, -150.2),
-	"char_blaze/weapon_cryocannon": Vector2(-81.3, -149.8),
-	"char_blaze/weapon_teslacoil": Vector2(-85.1, -149.8),
-	"char_blaze/weapon_venomlauncher": Vector2(-83.8, -149.8),
-	"char_blaze/weapon_railgun": Vector2(-74.9, -150.0),
-	"char_blaze/weapon_scattergun": Vector2(-82.0, -147.8),
-	"char_blaze/weapon_plasmacannon": Vector2(-69.8, -146.9),
-	"char_frost/weapon_autocannon": Vector2(-68.2, -149.4),
-	"char_frost/weapon_flamethrower": Vector2(-76.2, -141.2),
-	"char_frost/weapon_cryocannon": Vector2(-67.2, -146.3),
-	"char_frost/weapon_teslacoil": Vector2(-67.5, -148.8),
-	"char_frost/weapon_venomlauncher": Vector2(-67.8, -147.8),
-	"char_frost/weapon_railgun": Vector2(-74.2, -146.9),
-	"char_frost/weapon_scattergun": Vector2(-65.4, -147.8),
-	"char_frost/weapon_plasmacannon": Vector2(-65.1, -142.5),
-	"char_volt/weapon_autocannon": Vector2(-77.4, -149.8),
-	"char_volt/weapon_flamethrower": Vector2(-75.5, -149.1),
-	"char_volt/weapon_cryocannon": Vector2(-81.3, -148.1),
-	"char_volt/weapon_teslacoil": Vector2(-71.5, -148.7),
-	"char_volt/weapon_venomlauncher": Vector2(-76.2, -149.8),
-	"char_volt/weapon_railgun": Vector2(-75.5, -149.8),
-	"char_volt/weapon_scattergun": Vector2(-77.8, -147.6),
-	"char_volt/weapon_plasmacannon": Vector2(-67.2, -144.2),
+	"char_vanguard/weapon_autocannon": Vector2(-69.0, -121.5),
+	"char_vanguard/weapon_flamethrower": Vector2(-70.2, -118.2),
+	"char_vanguard/weapon_cryocannon": Vector2(-63.8, -116.8),
+	"char_vanguard/weapon_teslacoil": Vector2(-69.1, -119.3),
+	"char_vanguard/weapon_venomlauncher": Vector2(-60.6, -117.5),
+	"char_vanguard/weapon_railgun": Vector2(-65.5, -119.8),
+	"char_vanguard/weapon_scattergun": Vector2(-60.7, -118.1),
+	"char_vanguard/weapon_plasmacannon": Vector2(-60.4, -117.0),
+	"char_blaze/weapon_autocannon": Vector2(-61.7, -119.5),
+	"char_blaze/weapon_flamethrower": Vector2(-80.6, -120.2),
+	"char_blaze/weapon_cryocannon": Vector2(-65.0, -119.8),
+	"char_blaze/weapon_teslacoil": Vector2(-68.1, -119.8),
+	"char_blaze/weapon_venomlauncher": Vector2(-67.0, -119.8),
+	"char_blaze/weapon_railgun": Vector2(-59.9, -120.0),
+	"char_blaze/weapon_scattergun": Vector2(-65.6, -118.2),
+	"char_blaze/weapon_plasmacannon": Vector2(-55.8, -117.5),
+	"char_frost/weapon_autocannon": Vector2(-54.6, -119.5),
+	"char_frost/weapon_flamethrower": Vector2(-61.0, -113.0),
+	"char_frost/weapon_cryocannon": Vector2(-53.8, -117.0),
+	"char_frost/weapon_teslacoil": Vector2(-54.0, -119.0),
+	"char_frost/weapon_venomlauncher": Vector2(-54.2, -118.2),
+	"char_frost/weapon_railgun": Vector2(-59.4, -117.5),
+	"char_frost/weapon_scattergun": Vector2(-52.3, -118.2),
+	"char_frost/weapon_plasmacannon": Vector2(-52.1, -114.0),
+	"char_volt/weapon_autocannon": Vector2(-61.9, -119.8),
+	"char_volt/weapon_flamethrower": Vector2(-60.4, -119.3),
+	"char_volt/weapon_cryocannon": Vector2(-65.0, -118.5),
+	"char_volt/weapon_teslacoil": Vector2(-57.2, -119.0),
+	"char_volt/weapon_venomlauncher": Vector2(-61.0, -119.8),
+	"char_volt/weapon_railgun": Vector2(-60.4, -119.8),
+	"char_volt/weapon_scattergun": Vector2(-62.2, -118.1),
+	"char_volt/weapon_plasmacannon": Vector2(-53.8, -115.4),
 }
 const CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT := {
-	"char_vanguard/weapon_autocannon": Vector2(81.0, -154.4),
-	"char_vanguard/weapon_flamethrower": Vector2(82.6, -150.4),
-	"char_vanguard/weapon_cryocannon": Vector2(75.2, -148.2),
-	"char_vanguard/weapon_teslacoil": Vector2(81.3, -151.7),
-	"char_vanguard/weapon_venomlauncher": Vector2(69.8, -149.5),
-	"char_vanguard/weapon_railgun": Vector2(76.8, -151.7),
-	"char_vanguard/weapon_scattergun": Vector2(70.1, -150.7),
-	"char_vanguard/weapon_plasmacannon": Vector2(71.4, -148.2),
-	"char_blaze/weapon_autocannon": Vector2(72.6, -151.4),
-	"char_blaze/weapon_flamethrower": Vector2(96.0, -153.3),
-	"char_blaze/weapon_cryocannon": Vector2(76.2, -152.3),
-	"char_blaze/weapon_teslacoil": Vector2(80.0, -152.3),
-	"char_blaze/weapon_venomlauncher": Vector2(78.7, -152.3),
-	"char_blaze/weapon_railgun": Vector2(70.1, -152.0),
-	"char_blaze/weapon_scattergun": Vector2(77.8, -149.8),
-	"char_blaze/weapon_plasmacannon": Vector2(64.6, -148.8),
-	"char_frost/weapon_autocannon": Vector2(63.0, -151.4),
-	"char_frost/weapon_flamethrower": Vector2(71.5, -143.1),
-	"char_frost/weapon_cryocannon": Vector2(62.4, -148.2),
-	"char_frost/weapon_teslacoil": Vector2(62.4, -150.7),
-	"char_frost/weapon_venomlauncher": Vector2(62.1, -150.0),
-	"char_frost/weapon_railgun": Vector2(68.7, -149.8),
-	"char_frost/weapon_scattergun": Vector2(61.1, -149.4),
-	"char_frost/weapon_plasmacannon": Vector2(60.2, -144.3),
-	"char_volt/weapon_autocannon": Vector2(72.3, -152.3),
-	"char_volt/weapon_flamethrower": Vector2(70.4, -151.7),
-	"char_volt/weapon_cryocannon": Vector2(75.8, -150.4),
-	"char_volt/weapon_teslacoil": Vector2(67.2, -151.0),
-	"char_volt/weapon_venomlauncher": Vector2(71.0, -151.7),
-	"char_volt/weapon_railgun": Vector2(70.4, -152.3),
-	"char_volt/weapon_scattergun": Vector2(72.8, -149.8),
-	"char_volt/weapon_plasmacannon": Vector2(68.5, -142.5),
+	"char_vanguard/weapon_autocannon": Vector2(64.8, -123.5),
+	"char_vanguard/weapon_flamethrower": Vector2(66.1, -120.3),
+	"char_vanguard/weapon_cryocannon": Vector2(60.2, -118.6),
+	"char_vanguard/weapon_teslacoil": Vector2(65.0, -121.4),
+	"char_vanguard/weapon_venomlauncher": Vector2(55.8, -119.6),
+	"char_vanguard/weapon_railgun": Vector2(61.4, -121.4),
+	"char_vanguard/weapon_scattergun": Vector2(56.1, -120.6),
+	"char_vanguard/weapon_plasmacannon": Vector2(57.1, -118.6),
+	"char_blaze/weapon_autocannon": Vector2(58.1, -121.1),
+	"char_blaze/weapon_flamethrower": Vector2(76.8, -122.6),
+	"char_blaze/weapon_cryocannon": Vector2(61.0, -121.8),
+	"char_blaze/weapon_teslacoil": Vector2(64.0, -121.8),
+	"char_blaze/weapon_venomlauncher": Vector2(63.0, -121.8),
+	"char_blaze/weapon_railgun": Vector2(56.1, -121.6),
+	"char_blaze/weapon_scattergun": Vector2(62.2, -119.8),
+	"char_blaze/weapon_plasmacannon": Vector2(51.7, -119.0),
+	"char_frost/weapon_autocannon": Vector2(50.4, -121.1),
+	"char_frost/weapon_flamethrower": Vector2(57.2, -114.5),
+	"char_frost/weapon_cryocannon": Vector2(49.9, -118.6),
+	"char_frost/weapon_teslacoil": Vector2(49.9, -120.6),
+	"char_frost/weapon_venomlauncher": Vector2(49.7, -120.0),
+	"char_frost/weapon_railgun": Vector2(55.0, -119.8),
+	"char_frost/weapon_scattergun": Vector2(48.9, -119.5),
+	"char_frost/weapon_plasmacannon": Vector2(48.2, -115.4),
+	"char_volt/weapon_autocannon": Vector2(57.8, -121.8),
+	"char_volt/weapon_flamethrower": Vector2(56.3, -121.4),
+	"char_volt/weapon_cryocannon": Vector2(60.6, -120.3),
+	"char_volt/weapon_teslacoil": Vector2(53.8, -120.8),
+	"char_volt/weapon_venomlauncher": Vector2(56.8, -121.4),
+	"char_volt/weapon_railgun": Vector2(56.3, -121.8),
+	"char_volt/weapon_scattergun": Vector2(58.2, -119.8),
+	"char_volt/weapon_plasmacannon": Vector2(54.8, -114.0),
 }
 const WEAPON_VISUAL_PROFILES := {
 	"weapon_flamethrower": "flame",
@@ -171,17 +171,29 @@ const CHARACTER_WEAPON_SCALE := {
 	"weapon_teslacoil": 0.58,
 	"weapon_venomlauncher": 0.57,
 }
-const CHARACTER_WEAPON_ACTION_FRAME_COUNT := 7
+const CHARACTER_WEAPON_ACTION_FRAME_COUNT := 8
+const CHARACTER_WEAPON_FIRE_FRAME_INDEX := 1
 const CHARACTER_WEAPON_ATTACK_DURATION := {
-	"weapon_autocannon": 0.30,
+	"weapon_autocannon": 0.28,
 	"weapon_cryocannon": 0.34,
-	"weapon_flamethrower": 0.36,
-	"weapon_plasmacannon": 0.36,
-	"weapon_railgun": 0.38,
-	"weapon_scattergun": 0.40,
-	"weapon_teslacoil": 0.32,
+	"weapon_flamethrower": 0.32,
+	"weapon_plasmacannon": 0.38,
+	"weapon_railgun": 0.40,
+	"weapon_scattergun": 0.38,
+	"weapon_teslacoil": 0.28,
 	"weapon_venomlauncher": 0.36,
 }
+const CHARACTER_WEAPON_PREFIRE_LEAD := {
+	"weapon_autocannon": 0.060,
+	"weapon_cryocannon": 0.080,
+	"weapon_flamethrower": 0.075,
+	"weapon_plasmacannon": 0.100,
+	"weapon_railgun": 0.110,
+	"weapon_scattergun": 0.100,
+	"weapon_teslacoil": 0.060,
+	"weapon_venomlauncher": 0.090,
+}
+const CHARACTER_WEAPON_ACTION_RECOIL_CURVE := [-0.34, 0.0, 1.0, 0.58, -0.18, 0.20, -0.06, 0.0]
 const CHARACTER_WEAPON_RECOIL_POSE := {
 	"weapon_autocannon": 13.0,
 	"weapon_cryocannon": 15.0,
@@ -215,6 +227,17 @@ const MAX_HUD_TRANSIENT_FX := 52
 const MAX_HUD_PRIORITY_FX := 68
 const MAX_FLOAT_TEXTS := 8
 const MAX_PRIORITY_FLOAT_TEXTS := 12
+# Directional bitmap contract: every authored texture below has a visible
+# "forward" direction in its source pixels. Runtime must rotate that source
+# forward vector onto the actual gameplay travel vector; otherwise a pretty
+# static frame can contradict the movement it is meant to explain.
+const DIRECTIONAL_VFX_SOURCE_FORWARD := {
+	"vfx_enemy_skill_runner_dash": 0.0,
+	"vfx_enemy_skill_charge": 0.0,
+	"vfx_enemy_skill_leap_strike": 0.7853981633974483,
+	"vfx_enemy_skill_phase_shift": 0.0,
+	"vfx_enemy_skill_ranged_spit": 0.0,
+}
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
 const MAX_MULTISHOT_LANES := 5
@@ -224,10 +247,12 @@ const MAX_BASE_HIT_FRACTION := 0.4
 # 运行时优先读取 economy.json，同步给校验/模拟工具；这里是缺省兜底。
 const DEFAULT_LATE_WAVE_HP_BONUS := {3: 1.45, 4: 1.85, 5: 2.30}
 const DEFAULT_LATE_WAVE_COUNT_MULT := {4: 2.0, 5: 3.0}
+const DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP := {"start_level": 55, "full_level": 90, "start_wave": 3, "max_mult": 1.25, "curve_power": 1.0, "final_level": 99, "final_mult": 1.08}
 const DEFAULT_LATE_WAVE_BOSS_HP_BONUS := {3: 1.30, 4: 1.50, 5: 1.75}
-const DEFAULT_LATE_WAVE_LEVEL_RAMP := {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
-const DEFAULT_LATE_WAVE_DAMAGE_RAMP := {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 2.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.15}
+const DEFAULT_LATE_WAVE_LEVEL_RAMP := {"start_level": 50, "full_level": 98, "max_mult": 2.05, "curve_power": 1.0, "final_level": 99, "final_mult": 1.12}
+const DEFAULT_LATE_WAVE_DAMAGE_RAMP := {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 1.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.0}
 const DEFAULT_BOSS_HP_LEVEL_BONUS := {"start_level": 20, "multiplier": 2.0}
+const DEFAULT_BOSS_SURVIVAL_HP_RAMP := {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08}
 const WAVE_TOAST_BASE_POSITION := Vector2(290, 96)
 const WAVE_TOAST_SIZE := Vector2(500, 54)
 const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
@@ -355,6 +380,10 @@ var pet_anim_time := 0.0
 var pet_anim_frame := 0
 var pet_attack_time := 0.0
 var pet_cooldown := 0.0
+var pet_skill_cooldown := 0.0
+var pet_skill_timer := 0.0
+var pet_repair_cooldown := 0.0
+var pet_emergency_cooldown := 0.0
 var breach_shields := 0
 var skill_barriers_left := 0
 var barrier_visual: Node2D
@@ -717,11 +746,21 @@ func _update_combat_information_density(delta: float, force := false, enemies: A
 			valid_enemies.append(child)
 	var priority := _combat_information_priority(valid_enemies)
 	var condensed := valid_enemies.size() > COMBAT_LABEL_FULL_DENSITY_MAX
+	var status_vfx_table: Dictionary = DataLoader.get_table("status_vfx")
+	var status_vfx_global: Dictionary = status_vfx_table.get("global", {})
+	var full_effect_max := int(status_vfx_global.get("full_density_max", 24))
+	var condensed_effect_max := int(status_vfx_global.get("condensed_density_max", 48))
 	for enemy in valid_enemies:
-		if not enemy.has_method("set_combat_label_visibility"):
-			continue
 		var selected := not condensed or priority.has(enemy)
-		enemy.call("set_combat_label_visibility", selected, selected)
+		if enemy.has_method("set_combat_label_visibility"):
+			enemy.call("set_combat_label_visibility", selected, selected)
+		if enemy.has_method("set_combat_effect_density"):
+			var lod := "full"
+			if valid_enemies.size() > condensed_effect_max:
+				lod = "full" if priority.has(enemy) else "minimal"
+			elif valid_enemies.size() > full_effect_max:
+				lod = "full" if priority.has(enemy) else "condensed"
+			enemy.call("set_combat_effect_density", lod, priority.has(enemy))
 
 func _combat_information_priority(enemies: Array[Node]) -> Array[Node]:
 	var valid: Array[Node] = []
@@ -1719,9 +1758,17 @@ func _character_active_damage(element: String, mult: float) -> float:
 	return damage
 
 func _character_active_character_damage(element: String) -> float:
+	var active: Dictionary = character_data.get("active_skill", {})
 	var damage := 28.0 * _player_shot_damage_multiplier()
 	damage *= float(character_data.get("base_atk", 100)) / 100.0
 	damage *= 1.0 + float(character_data.get("atk_growth", 0.08)) * 0.52 * float(max(character_level - 1, 0))
+	# Character-basis skills stay independent of the equipped weapon's raw
+	# coefficient, cadence and turret modifier, but can opt into part of the
+	# permanent weapon-level axis. This keeps late-game signature skills from
+	# becoming negligible without double-dipping the weapon's identity.
+	var weapon_level_inherit := clampf(float(active.get("weapon_level_inherit", 0.0)), 0.0, 1.0)
+	if weapon_level_inherit > 0.0:
+		damage *= lerpf(1.0, SaveManager.get_weapon_damage_multiplier(weapon_id), weapon_level_inherit)
 	damage *= _chip_multiplier("damage_mult")
 	if element != "physical":
 		damage *= _chip_multiplier("element_damage_mult")
@@ -1898,6 +1945,29 @@ func _character_chain_bonus_for(element: String) -> int:
 	if _growth_rank(character_level) >= 2:
 		bonus += int(_bullet_affinity().get("rank_chain_bonus", 0))
 	return bonus
+
+func _resolved_chain_count(element: String, mods: Dictionary, special: Dictionary) -> int:
+	return maxi(
+		0,
+		int(mods.get("chain", 0))
+			+ int(special.get("chain", 0))
+			+ chain_bonus
+			+ _character_chain_bonus_for(element),
+	)
+
+func _character_chain_overflow_damage_multiplier(element: String, chain_count: int) -> float:
+	if not _is_character_affinity_element(element):
+		return 1.0
+	var per_chain := maxf(0.0, _affinity_float("chain_overflow_damage_bonus"))
+	if per_chain <= 0.0:
+		return 1.0
+	var reference := maxi(0, int(_bullet_affinity().get("chain_overflow_reference", 5)))
+	return 1.0 + float(maxi(chain_count - reference, 0)) * per_chain
+
+func _character_chain_target_falloff(element: String) -> float:
+	if not _is_character_affinity_element(element):
+		return 1.0
+	return clampf(_affinity_float("chain_target_falloff", 1.0), 0.72, 1.0)
 
 func _character_homing_bonus(element: String) -> float:
 	if not _is_character_affinity_element(element):
@@ -3184,15 +3254,16 @@ func _endless_boss_id(offset := 0) -> String:
 	return eligible[posmod(eligible.size() - 1 - offset, eligible.size())]
 
 func _apply_wave_start_support() -> void:
-	if pet_data.get("role", "") != "repair":
-		return
-	if base_hp >= base_hp_max:
-		return
-	var heal := int(round(_pet_scaled_value("heal_per_wave", "level_heal_growth")))
-	if heal <= 0:
-		return
-	base_hp = min(base_hp + heal, base_hp_max)
-	_spawn_float_text(_base_damage_impact_position(540.0) + Vector2(0, -60.0), "+%d 基地维修" % heal, Color(0.35, 1.0, 0.68))
+	var skill := _pet_skill_data()
+	match str(skill.get("kind", "")):
+		"repair":
+			if base_hp >= base_hp_max:
+				return
+			var flat_heal := _pet_scaled_value("heal_per_wave", "level_heal_growth")
+			var ratio_heal := float(base_hp_max) * _pet_linear_value("heal_per_wave_ratio", "level_wave_heal_ratio_growth")
+			_apply_pet_base_heal(int(round(flat_heal + ratio_heal)), "波次整备", true)
+		"wave_salvage":
+			_apply_pet_wave_salvage()
 
 func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
 	var count := int(group.get("count", 1))
@@ -3214,9 +3285,33 @@ func _scaled_wave_group_count(base_count: int, current_wave: int) -> int:
 func _late_wave_count_mult(current_wave: int, economy: Dictionary) -> float:
 	var table_var = economy.get("late_wave_count_mult", DEFAULT_LATE_WAVE_COUNT_MULT)
 	var table: Dictionary = table_var if table_var is Dictionary else DEFAULT_LATE_WAVE_COUNT_MULT
+	var base := 1.0
 	if table.has(str(current_wave)):
-		return maxf(1.0, float(table[str(current_wave)]))
-	return maxf(1.0, float(table.get(current_wave, DEFAULT_LATE_WAVE_COUNT_MULT.get(current_wave, 1.0))))
+		base = float(table[str(current_wave)])
+	else:
+		base = float(table.get(current_wave, DEFAULT_LATE_WAVE_COUNT_MULT.get(current_wave, 1.0)))
+	return maxf(1.0, base) * _late_wave_count_level_ramp_mult(current_wave, economy)
+
+func _late_wave_count_level_ramp_mult(current_wave: int, economy: Dictionary) -> float:
+	var rule_var = economy.get("late_wave_count_level_ramp", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP)
+	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP
+	var start_wave := int(rule.get("start_wave", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("start_wave", 3)))
+	if current_wave < start_wave:
+		return 1.0
+	var start_level := float(rule.get("start_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("start_level", 55)))
+	var full_level := float(rule.get("full_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("full_level", 90)))
+	var max_mult := maxf(1.0, float(rule.get("max_mult", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("max_mult", 1.25))))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("curve_power", 1.0))))
+	if float(level_ordinal) < start_level:
+		return 1.0
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(level_ordinal) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("final_level", 99)))
+	if level_ordinal >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP.get("final_mult", 1.08))))
+	return ramp_mult
 
 func _late_wave_hp_bonus(current_wave: int, is_boss_enemy: bool, economy: Dictionary) -> float:
 	var key := "late_wave_boss_hp_bonus" if is_boss_enemy else "late_wave_hp_bonus"
@@ -3283,6 +3378,26 @@ func _boss_level_hp_bonus(current_level: int, is_boss_enemy: bool, economy: Dict
 		return multiplier
 	return 1.0
 
+func _boss_survival_hp_mult(current_level: int, is_boss_enemy: bool, economy: Dictionary) -> float:
+	if not is_boss_enemy:
+		return 1.0
+	var rule_var = economy.get("boss_survival_hp_ramp", DEFAULT_BOSS_SURVIVAL_HP_RAMP)
+	var rule: Dictionary = rule_var if rule_var is Dictionary else DEFAULT_BOSS_SURVIVAL_HP_RAMP
+	var start_level := float(rule.get("start_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("start_level", 50)))
+	var full_level := float(rule.get("full_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("full_level", 98)))
+	var max_mult := maxf(1.0, float(rule.get("max_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("max_mult", 56.0))))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("curve_power", 1.15))))
+	if float(current_level) < start_level:
+		return 1.0
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(current_level) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("final_level", 99)))
+	if current_level >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("final_mult", 1.08))))
+	return ramp_mult
+
 func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
 	var x := 540.0
 	match lane:
@@ -3316,6 +3431,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
 	hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
 	hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
+	hp_level_coef *= _boss_survival_hp_mult(level_ordinal, is_boss, economy)
 	if is_endless_mode:
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
@@ -3587,10 +3703,12 @@ func _advance_enemy_with_skill(source: Node, kind: String, advance: float, label
 	if source.has_method("play_special"):
 		source.play_special(0.32)
 	_play_enemy_mechanic_sfx(source, -7.5, 0.025)
-	var old_y := float(source.global_position.y)
+	var old_position: Vector2 = source.global_position
+	var old_y := float(old_position.y)
 	var cap_y := float(source.attack_line_y) - 18.0
 	source.global_position.y = minf(cap_y, old_y + advance)
-	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -36.0))
+	var travel_direction: Vector2 = source.global_position - old_position
+	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -36.0), travel_direction)
 	_spawn_attack_telegraph(source.global_position + Vector2(0, 74.0), Color(color.r, color.g, color.b, 0.24), label)
 	AudioManager.play_sfx("threat_warning", -7.0, 0.02)
 	if old_y >= _base_line_inner_y(BASE_LINE_DEFAULT_SLOW_FIELD_INSET):
@@ -3638,6 +3756,8 @@ func _process_regen_feedback(source: Node, delta: float) -> void:
 	var interval := float(source.mechanic_params.get("pulse_interval", 3.0))
 	if not _enemy_mechanic_timer_ready(source, "regen_feedback", delta, interval, 0.4, 0.9):
 		return
+	if source.has_method("play_special"):
+		source.play_special(0.42)
 	var color := Color(0.48, 1.0, 0.32)
 	_spawn_enemy_attack_vfx(source, "regen", source.global_position + Vector2(0, -48.0))
 	_spawn_attack_ring(source.global_position, 150.0, Color(color.r, color.g, color.b, 0.24), 0.34)
@@ -3698,6 +3818,8 @@ func _process_summoner(source: Node, delta: float) -> void:
 	var spawn_position: Vector2 = source.global_position + Vector2(randf_range(-75, 75), randf_range(-35, 45))
 	spawn_position.x = clampf(spawn_position.x, 120.0, 960.0)
 	spawn_position.y = clampf(spawn_position.y, 190.0, 1220.0)
+	if source.has_method("play_special"):
+		source.play_special(0.54)
 	_spawn_enemy_attack_vfx(source, "summon", spawn_position)
 	_spawn_enemy_instance(str(source.mechanic_params.get("summon_id", "zombie_shambler")), spawn_position, false, 0.0)
 	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
@@ -3711,6 +3833,8 @@ func _process_ranged_pressure(source: Node, delta: float) -> void:
 		return
 	var interval := float(source.mechanic_params.get("skill_interval", 4.2))
 	source.mechanic_timer = randf_range(interval, interval + 0.9)
+	if source.has_method("play_special"):
+		source.play_special(0.46)
 	var spit_damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.35)), 2.0)
 	var target_position := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(target_position, Color(0.46, 1.0, 0.25, 0.34), "腐蚀")
@@ -3777,8 +3901,9 @@ func _process_phase_shift(source: Node, delta: float) -> void:
 		if source.has_method("play_special"):
 			source.play_special(0.34)
 		AudioManager.play_sfx("zombie_phantom", -6.5, 0.02)
-		_spawn_enemy_attack_vfx(source, "phase_shift", source.global_position + Vector2(0, 86.0))
+		var old_position: Vector2 = source.global_position
 		source.global_position.y = min(source.global_position.y + 86.0, _base_line_inner_y(60.0))
+		_spawn_enemy_attack_vfx(source, "phase_shift", source.global_position, source.global_position - old_position)
 		_spawn_float_text(source.global_position + Vector2(0, -130), "相位突进", Color(0.62, 0.82, 1.0))
 
 func _process_apex_pressure(source: Node, enemies: Array, delta: float) -> void:
@@ -3823,13 +3948,14 @@ func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 	AudioManager.play_sfx("threat_warning", -3.0, 0.02)
 	_show_wave_toast("首领%s" % text, color)
 	_spawn_float_text(source.global_position + Vector2(0, -180), text, color)
+	var phase_sequence := "vfx_enemy_skill_%s" % str(source.mechanic)
 	_spawn_vfx_sequence(
-		"vfx_enemy_skill_%s" % str(source.mechanic),
+		phase_sequence,
 		source.global_position + Vector2(0, -78),
 		1.35,
 		Color(1.0, 1.0, 1.0, 0.96),
 		1.06,
-		randf_range(-0.1, 0.1),
+		_directional_vfx_rotation(phase_sequence, Vector2.DOWN, randf_range(-0.1, 0.1)),
 		1.1,
 		Vector2(0, -18),
 		randf_range(-0.14, 0.14),
@@ -3842,6 +3968,10 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	_sync_logic_turret_to_character()
 	direction = _weapon_fire_direction(direction)
 	_set_character_combo_aim_from_direction(direction)
+	# Bind gameplay contact to the authored ignition pose before resolving the
+	# muzzle. The projectile remains instantaneous; only the preceding brace
+	# and following recoil are visual anticipation/follow-through.
+	_play_character_attack()
 	origin = _weapon_fire_origin()
 	direction = _weapon_fire_direction(direction)
 	var mods := skills.projectile_mods()
@@ -3858,6 +3988,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var pellet_spread := deg_to_rad(float(special.get("spread", 0.0)))
 	var homing: float = float(mods.get("homing", 0)) * 1.8
 	var element: String = skills.projectile_element(str(weapon.get("element", "physical")))
+	var chain_count := _resolved_chain_count(element, mods, special)
 	var visual_profile := _weapon_visual_profile(weapon_id)
 	homing += _character_homing_bonus(element)
 	AudioManager.play_sfx(_weapon_shot_sfx(weapon_id), -7.0)
@@ -3872,7 +4003,6 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if weapon_level >= 15 and randf() < 0.08:
 		_spawn_weapon_power_ring(origin, element)
 	_spawn_muzzle_flash(origin, direction, element, visual_profile)
-	_play_character_attack()
 	var base_damage: float = 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
 	var pierce: int = int(mods.get("pierce", 0)) + pierce_bonus + int(special.get("pierce", 0)) + _character_pierce_bonus(element)
 	if sig_vanguard_barrage_timer > 0.0:
@@ -3897,6 +4027,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 		var damage: float = base_damage * float(turret.damage_mult) * skills.damage_multiplier()
 		damage *= lane_damage_mult
 		damage *= _character_bullet_damage_multiplier(element)
+		damage *= _character_chain_overflow_damage_multiplier(element, chain_count)
 		if sig_vanguard_barrage_timer > 0.0:
 			damage *= 1.08
 		if element == primary_weakness:
@@ -4119,8 +4250,14 @@ func _spawn_pet() -> void:
 	_load_pet_animation_frames(str(pet_data.get("sprite", "")))
 	_attach_growth_badge(pet_sprite, pet_level, Vector2(-88, -152))
 	_spawn_pet_aura()
+	var skill := _pet_skill_data()
+	var skill_cooldown := float(skill.get("cooldown", 0.0))
+	pet_skill_cooldown = minf(3.0, skill_cooldown * 0.35) if skill_cooldown > 0.0 else 0.0
+	pet_skill_timer = 0.0
 	if pet_data.get("role", "") == "repair":
-		_spawn_float_text(pet_sprite.global_position + Vector2(0, -80), "维修宠物待命", Color(0.35, 1.0, 0.68))
+		pet_repair_cooldown = maxf(1.0, float(pet_data.get("repair_interval", 18.0)))
+		pet_emergency_cooldown = 0.0
+		_spawn_float_text(pet_sprite.global_position + Vector2(0, -80), "维修系统在线", Color(0.35, 1.0, 0.68))
 
 func _spawn_character() -> void:
 	character_rig = Node2D.new()
@@ -4237,6 +4374,8 @@ func _process_character_animation(delta: float) -> void:
 		return
 	var frames := character_idle_frames
 	var fps := 7.0
+	var forced_frame := -1
+	var attack_playback := false
 	if character_hurt_time > 0.0:
 		frames = character_hurt_frames
 		fps = 16.0
@@ -4247,14 +4386,23 @@ func _process_character_animation(delta: float) -> void:
 		character_skill_time -= delta
 	elif character_attack_time > 0.0:
 		frames = _character_combo_attack_frames()
-		fps = float(maxi(frames.size(), 1)) / maxf(character_attack_duration, 0.08)
+		fps = float(maxi(frames.size() - CHARACTER_WEAPON_FIRE_FRAME_INDEX, 1)) / maxf(character_attack_duration, 0.08)
+		attack_playback = true
 		character_attack_time -= delta
 		if character_attack_time <= 0.0:
 			character_weapon_combo_locked_aim = ""
+	elif _character_prefire_active():
+		frames = _character_combo_attack_frames()
+		forced_frame = 0
+		character_anim_time = 0.0
 	if not frames.is_empty():
-		character_anim_time += delta
-		var next_frame := int(character_anim_time * fps)
-		if character_hurt_time > 0.0 or character_attack_time > 0.0 or character_skill_time > 0.0:
+		var next_frame := forced_frame
+		if forced_frame < 0:
+			character_anim_time += delta
+			next_frame = int(character_anim_time * fps)
+			if attack_playback:
+				next_frame += CHARACTER_WEAPON_FIRE_FRAME_INDEX
+		if character_hurt_time > 0.0 or attack_playback or character_skill_time > 0.0:
 			next_frame = mini(next_frame, frames.size() - 1)
 		else:
 			next_frame = next_frame % frames.size()
@@ -4279,9 +4427,21 @@ func _play_character_attack() -> void:
 	character_attack_duration = float(CHARACTER_WEAPON_ATTACK_DURATION.get(weapon_id, 0.32))
 	character_attack_time = character_attack_duration
 	character_anim_time = 0.0
-	character_anim_frame = 0
 	character_weapon_combo_locked_aim = character_weapon_combo_aim
+	var frames := _character_combo_attack_frames()
+	character_anim_frame = mini(CHARACTER_WEAPON_FIRE_FRAME_INDEX, maxi(frames.size() - 1, 0))
+	if character_sprite != null and not frames.is_empty():
+		character_sprite.texture = frames[character_anim_frame]
 	_play_character_weapon_recoil(minf(character_attack_duration, 0.28))
+
+func _character_prefire_active() -> bool:
+	if not character_weapon_combo_active or turret == null:
+		return false
+	if not bool(turret.fire_enabled) or float(turret.cooldown) <= 0.0:
+		return false
+	var shot_interval := 1.0 / maxf(float(turret.fire_rate), 0.01)
+	var authored_lead := float(CHARACTER_WEAPON_PREFIRE_LEAD.get(weapon_id, 0.075))
+	return float(turret.cooldown) <= minf(authored_lead, shot_interval * 0.42)
 
 func _play_character_skill(duration := 0.56) -> void:
 	character_skill_time = duration
@@ -4314,12 +4474,13 @@ func _update_character_body_pose() -> void:
 		pose_offset += Vector2(0.0, -12.0 * pulse)
 		pose_scale *= 1.0 + 0.035 * pulse
 	elif character_attack_time > 0.0:
-		var attack_ratio := clampf(character_attack_time / maxf(character_attack_duration, 0.08), 0.0, 1.0)
-		var pulse := sin((1.0 - attack_ratio) * PI)
+		var recoil_curve := float(CHARACTER_WEAPON_ACTION_RECOIL_CURVE[clampi(character_anim_frame, 0, CHARACTER_WEAPON_ACTION_RECOIL_CURVE.size() - 1)])
 		var recoil_strength := float(CHARACTER_WEAPON_RECOIL_POSE.get(weapon_id, 14.0))
-		pose_offset += -character_weapon_direction * (recoil_strength * pulse)
-		pose_rotation = deg_to_rad(clampf(character_weapon_direction.x, -0.8, 0.8) * 2.2 * pulse)
-		pose_scale *= 1.0 + 0.012 * pulse
+		# The bitmap already carries the full-body recoil. This small rig-level
+		# accent supplies contact weight without double-moving the held weapon.
+		pose_offset += -character_weapon_direction * (recoil_strength * recoil_curve * 0.24)
+		pose_rotation = deg_to_rad(clampf(character_weapon_direction.x, -0.8, 0.8) * 0.9 * recoil_curve)
+		pose_scale *= 1.0 + 0.004 * maxf(recoil_curve, 0.0)
 	character_sprite.position = pose_offset
 	character_sprite.rotation = pose_rotation
 	character_sprite.scale = pose_scale
@@ -4536,12 +4697,19 @@ func _process_pet(delta: float) -> void:
 	if pet_sprite == null or pet_data.is_empty():
 		return
 	_update_pet_animation(delta)
+	_process_pet_skill(delta)
 	if pet_data.get("role", "") == "repair":
+		_process_repair_pet(delta)
 		return
 	pet_cooldown -= delta
 	if pet_cooldown > 0.0:
 		return
 	var fire_rate := float(pet_data.get("fire_rate", 0.0))
+	var shot_damage := _pet_scaled_value("damage", "level_damage_growth")
+	var skill := _pet_skill_data()
+	if str(skill.get("kind", "")) == "overclock" and pet_skill_timer > 0.0:
+		fire_rate *= _pet_skill_linear_value("fire_rate_mult", "level_fire_rate_growth")
+		shot_damage *= _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
 	if fire_rate <= 0.0:
 		return
 	var target := target_manager.choose_target($EnemyLayer.get_children(), pet_sprite.global_position)
@@ -4558,13 +4726,204 @@ func _process_pet(delta: float) -> void:
 		pet_sprite.global_position,
 		direction,
 		1120.0,
-		_pet_scaled_value("damage", "level_damage_growth"),
+		shot_damage,
 		str(pet_data.get("element", "physical")),
 		0,
 		0
 	)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
+
+func _process_pet_skill(delta: float) -> void:
+	if battle_finished:
+		return
+	pet_skill_timer = maxf(0.0, pet_skill_timer - delta)
+	var skill := _pet_skill_data()
+	var kind := str(skill.get("kind", ""))
+	if kind in ["", "repair", "wave_salvage"]:
+		return
+	pet_skill_cooldown = maxf(0.0, pet_skill_cooldown - delta)
+	if pet_skill_cooldown > 0.0:
+		return
+	var targets := _pet_skill_targets(1)
+	if targets.is_empty():
+		return
+	match kind:
+		"overclock":
+			_activate_pet_overclock(skill)
+		"area_blast":
+			_activate_pet_area_blast(skill, targets[0])
+		"multi_strike":
+			_activate_pet_multi_strike(skill)
+		_:
+			return
+	pet_skill_cooldown = maxf(1.0, float(skill.get("cooldown", 12.0)))
+
+func _activate_pet_overclock(skill: Dictionary) -> void:
+	pet_skill_timer = maxf(0.5, _pet_skill_linear_value("duration", "level_duration_growth"))
+	pet_cooldown = 0.0
+	var color := _element_color(str(pet_data.get("element", "physical")))
+	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -36), color, 132.0)
+
+func _activate_pet_area_blast(skill: Dictionary, target: Node2D) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var origin := target.global_position
+	var element := str(pet_data.get("element", "physical"))
+	var color := _element_color(element)
+	var radius := _pet_skill_linear_value("radius", "level_radius_growth")
+	var damage := _pet_scaled_value("damage", "level_damage_growth") * _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
+	var status_strength := _pet_skill_linear_value("status_strength", "level_status_growth")
+	for enemy in $EnemyLayer.get_children():
+		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("take_damage"):
+			continue
+		var distance := (enemy as Node2D).global_position.distance_to(origin)
+		if distance > radius:
+			continue
+		var falloff := 1.0 - clampf(distance / maxf(radius, 1.0), 0.0, 1.0)
+		enemy.take_damage(damage * (0.62 + falloff * 0.38), element, 0.0, status_strength)
+	if element == "fire":
+		_spawn_radial_vfx(origin, radius, Color(color.r, color.g, color.b, 0.62))
+	else:
+		_spawn_attack_ring(origin, radius, Color(color.r, color.g, color.b, 0.72), 0.34)
+		_spawn_vfx_sequence(str(skill.get("sequence", "")), origin + Vector2(0, -28), clampf(radius / 190.0, 0.78, 1.55), Color(color.r, color.g, color.b, 0.82), 1.06, 0.0, 1.08, Vector2(0, -10), 0.0, radius >= 250.0)
+	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), color, 116.0, false)
+
+func _activate_pet_multi_strike(skill: Dictionary) -> void:
+	var extra_every := maxi(1, int(skill.get("extra_target_every", 10)))
+	var target_count := int(skill.get("target_count", 1)) + int(max(pet_level - 1, 0) / extra_every)
+	var targets := _pet_skill_targets(maxi(target_count, 1))
+	if targets.is_empty():
+		return
+	var element := str(pet_data.get("element", "lightning"))
+	var color := _element_color(element)
+	var damage := _pet_scaled_value("damage", "level_damage_growth") * _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
+	var status_strength := _pet_skill_linear_value("status_strength", "level_status_growth")
+	var falloff := clampf(float(skill.get("target_falloff", 0.9)), 0.55, 1.0)
+	var arc_origin := pet_sprite.global_position + Vector2(0, -24)
+	for i in range(targets.size()):
+		var target := targets[i]
+		if target == null or not is_instance_valid(target):
+			continue
+		target.take_damage(damage * pow(falloff, float(i)), element, 0.0, status_strength)
+		var impact := target.global_position + Vector2(0, -28)
+		_spawn_weapon_trace(arc_origin, impact, Color(0.72, 0.96, 1.0, 0.84), 15.0, 0.17)
+		_spawn_chain_arc(arc_origin, impact, element)
+		arc_origin = impact
+	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), color, 124.0)
+
+func _pet_skill_targets(max_count: int) -> Array[Node2D]:
+	var valid: Array[Node] = []
+	for enemy in $EnemyLayer.get_children():
+		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("targeting_snapshot"):
+			continue
+		var hp_value = enemy.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		valid.append(enemy)
+	if valid.is_empty():
+		return []
+	var result: Array[Node2D] = []
+	var primary = target_manager.choose_target(valid, pet_sprite.global_position) if target_manager != null else valid[0]
+	if primary is Node2D and is_instance_valid(primary):
+		result.append(primary as Node2D)
+	var ranked: Array[Dictionary] = []
+	for enemy in valid:
+		if enemy == primary:
+			continue
+		var snapshot: Dictionary = enemy.targeting_snapshot()
+		var score := target_manager.score_enemy(snapshot, pet_sprite.global_position) if target_manager != null else float(snapshot.get("y", 0.0))
+		ranked.append({"enemy": enemy, "score": score})
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+	)
+	for item in ranked:
+		if result.size() >= max_count:
+			break
+		var enemy_node := item.get("enemy") as Node2D
+		if enemy_node != null and is_instance_valid(enemy_node):
+			result.append(enemy_node)
+	return result
+
+func _pet_skill_data() -> Dictionary:
+	var value = pet_data.get("pet_skill", {})
+	return value if value is Dictionary else {}
+
+func _pet_skill_linear_value(key: String, growth_key: String) -> float:
+	var skill := _pet_skill_data()
+	return float(skill.get(key, 0.0)) + float(skill.get(growth_key, 0.0)) * float(max(pet_level - 1, 0))
+
+func _play_pet_skill_feedback(skill: Dictionary, origin: Vector2, color: Color, radius: float, spawn_sequence := true) -> void:
+	pet_attack_time = 0.32
+	pet_anim_time = 0.0
+	pet_anim_frame = 0
+	if spawn_sequence:
+		_spawn_vfx_sequence(str(skill.get("sequence", "")), origin, clampf(radius / 128.0, 0.74, 1.36), Color(color.r, color.g, color.b, 0.84), 1.08, 0.0, 1.08, Vector2(0, -8), 0.0, radius >= 128.0)
+	_spawn_attack_ring(origin, radius, Color(color.r, color.g, color.b, 0.62), 0.3)
+	_spawn_float_text(origin + Vector2(-110, -76), str(skill.get("name", "宠物技能")), color, true, 22, 220.0)
+	var sfx_id := str(skill.get("sfx", ""))
+	if sfx_id != "":
+		AudioManager.play_sfx(sfx_id, -8.5, 0.025)
+
+func _apply_pet_wave_salvage() -> int:
+	var skill := _pet_skill_data()
+	if str(skill.get("kind", "")) != "wave_salvage":
+		return 0
+	var equivalent := _pet_skill_linear_value("kill_equivalent", "level_salvage_growth")
+	var gold_per_kill := econ_gold_base + econ_gold_per * float(level_ordinal)
+	var amount := maxi(1, int(round(gold_per_kill * equivalent * gold_mult * skills.gold_multiplier() * variant_gold_mult)))
+	gold += amount
+	if pet_sprite != null and is_instance_valid(pet_sprite):
+		var color := Color(1.0, 0.82, 0.26, 0.96)
+		_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), color, 126.0)
+		_spawn_float_text(pet_sprite.global_position + Vector2(-110, -118), "+%d 战场回收" % amount, color, true, 22, 220.0)
+	_pulse_reward_target("gold")
+	_update_hud()
+	return amount
+
+func _process_repair_pet(delta: float) -> void:
+	if battle_finished or base_hp_max <= 0:
+		return
+	pet_repair_cooldown = maxf(0.0, pet_repair_cooldown - delta)
+	pet_emergency_cooldown = maxf(0.0, pet_emergency_cooldown - delta)
+	if base_hp >= base_hp_max:
+		return
+	var hp_ratio := float(base_hp) / float(base_hp_max)
+	var emergency_threshold := clampf(float(pet_data.get("emergency_threshold", 0.0)), 0.0, 1.0)
+	if emergency_threshold > 0.0 and hp_ratio <= emergency_threshold and pet_emergency_cooldown <= 0.0:
+		var emergency_ratio := _pet_linear_value("emergency_heal_ratio", "level_emergency_heal_growth")
+		if _apply_pet_base_heal(int(round(float(base_hp_max) * emergency_ratio)), "应急救援", true) > 0:
+			pet_emergency_cooldown = maxf(1.0, float(pet_data.get("emergency_cooldown", 45.0)))
+			pet_repair_cooldown = maxf(1.0, float(pet_data.get("repair_interval", 18.0)))
+		return
+	if pet_repair_cooldown > 0.0:
+		return
+	var repair_ratio := _pet_linear_value("repair_ratio", "level_repair_ratio_growth")
+	_apply_pet_base_heal(int(round(float(base_hp_max) * repair_ratio)), "持续维修", false)
+	pet_repair_cooldown = maxf(1.0, float(pet_data.get("repair_interval", 18.0)))
+
+func _apply_pet_base_heal(amount: int, label_text: String, major: bool) -> int:
+	if amount <= 0 or base_hp >= base_hp_max:
+		return 0
+	var previous_hp := base_hp
+	base_hp = mini(base_hp_max, base_hp + amount)
+	var actual_heal := base_hp - previous_hp
+	if actual_heal <= 0:
+		return 0
+	var repair_color := Color(0.35, 1.0, 0.68, 0.92)
+	var impact := _base_damage_impact_position(540.0) + Vector2(0, -18.0)
+	if pet_sprite != null and is_instance_valid(pet_sprite):
+		pet_attack_time = 0.28 if major else 0.20
+		pet_anim_time = 0.0
+		pet_anim_frame = 0
+		_spawn_weapon_trace(pet_sprite.global_position + Vector2(0, -18.0), impact, repair_color, 14.0 if major else 8.0, 0.24 if major else 0.18)
+	_spawn_vfx_sequence("vfx_enemy_skill_regen", impact + Vector2(0, -32.0), 0.94 if major else 0.68, repair_color, 1.05, 0.0, 1.04, Vector2(0, -8.0), 0.0, major)
+	_spawn_attack_ring(impact, 176.0 if major else 116.0, repair_color, 0.34 if major else 0.24)
+	_spawn_float_text(impact + Vector2(0, -72.0), "+%d %s" % [actual_heal, label_text], repair_color)
+	AudioManager.play_sfx("level_up", -9.0 if major else -13.0, 0.025)
+	_pulse_reward_target("hp")
+	_update_hud()
+	return actual_heal
 
 func _track_transient_fx(node: Node, bucket: String) -> void:
 	node.set_meta("battle_transient_fx", bucket)
@@ -5480,6 +5839,8 @@ func _pulse_reward_target(kind: String) -> void:
 		"xp":
 			if has_node("Hud/BottomBar/XpBar"):
 				target = $Hud/BottomBar/XpBar
+		"hp":
+			target = get_node_or_null(HUD_HP_BAR_PATH) as Control
 	if target == null:
 		return
 	var tween := target.create_tween()
@@ -5609,6 +5970,11 @@ func _pet_scaled_value(value_key: String, growth_key: String) -> float:
 	var growth := float(pet_data.get(growth_key, 0.0))
 	return value * (1.0 + growth * float(max(pet_level - 1, 0)))
 
+func _pet_linear_value(value_key: String, growth_key: String) -> float:
+	var value := float(pet_data.get(value_key, 0.0))
+	var growth := float(pet_data.get(growth_key, 0.0))
+	return value + growth * float(max(pet_level - 1, 0))
+
 func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String, armor_penetration: float, status_strength: float) -> void:
 	AudioManager.play_sfx("skill_split_shot", -9.0, 0.025)
 	var fan := deg_to_rad(30.0 + float(count) * 10.0)
@@ -5714,21 +6080,26 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
 	var mods := skills.projectile_mods()
-	var chain_count := int(mods.get("chain", 0)) + int(special.get("chain", 0)) + _character_chain_bonus_for(element)
-	chain_count = mini(chain_count, 5)
+	# No arbitrary chain ceiling: the authored skill/weapon/character/pet
+	# bonuses resolve in full. Actual fan-out is naturally bounded by valid
+	# enemies in range, while per-target falloff keeps dense waves controlled.
+	var chain_count := _resolved_chain_count(element, mods, special)
 	if chain_count <= 0:
 		return
 	var targets: Array[Node2D] = _chain_targets(origin, primary, chain_count, 430.0)
+	var target_falloff := _character_chain_target_falloff(element)
 	if not targets.is_empty():
 		AudioManager.play_sfx("skill_tesla" if element == "lightning" and skills.level("skill_tesla") > 0 else "skill_ricochet", -9.5, 0.025)
-	for target in targets:
+	for target_index in range(targets.size()):
+		var target := targets[target_index]
 		if target == null or not is_instance_valid(target):
 			continue
 		var direction: Vector2 = (target.global_position - origin).normalized()
 		var projectile := PROJECTILE_SCENE.instantiate()
 		var chain_element := "lightning" if element == "physical" else element
+		var chain_damage := damage * 0.42 * pow(target_falloff, float(target_index))
 		_spawn_chain_arc(origin, target.global_position, chain_element)
-		projectile.setup(origin + direction * 18.0, direction, 1500.0, damage * 0.42, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.52, 1, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength, target)
+		projectile.setup(origin + direction * 18.0, direction, 1500.0, chain_damage, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.52, 1, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength, target)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		$ProjectileLayer.call_deferred("add_child", projectile)
 
@@ -6675,13 +7046,19 @@ func _spawn_boss_attack_vfx(source: Node, label: String, color: Color, impact :=
 	var is_boss := bool(source.boss)
 	if impact == Vector2.ZERO:
 		impact = _base_damage_impact_position(source.global_position.x)
+	var source_sequence := "vfx_enemy_skill_%s" % str(source.mechanic)
+	var source_rotation := _directional_vfx_rotation(
+		source_sequence,
+		impact - source.global_position,
+		randf_range(-0.12, 0.12)
+	)
 	_spawn_vfx_sequence(
-		"vfx_enemy_skill_%s" % str(source.mechanic),
+		source_sequence,
 		source.global_position + Vector2(0, -76),
 		1.22 if is_boss else 0.82,
 		Color(1.0, 1.0, 1.0, 0.94),
 		1.08,
-		randf_range(-0.12, 0.12),
+		source_rotation,
 		1.08,
 		Vector2(0, -14),
 		randf_range(-0.16, 0.16),
@@ -6763,12 +7140,19 @@ func _spawn_enemy_cast_impact(target: Vector2, color: Color, element: String, is
 	if is_boss:
 		_shake_hud(7.0, 0.2)
 
-func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector2) -> void:
+func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector2, travel_direction := Vector2.ZERO) -> void:
 	if not is_instance_valid(source):
 		return
 	var color := _attack_color_for_mechanic(kind)
 	var is_boss_source: bool = bool(source.boss)
-	var fx := _spawn_vfx_sequence("vfx_enemy_skill_%s" % kind, target_position, 1.3 if is_boss_source else 0.9, Color(color.r, color.g, color.b, 0.94), 1.0, randf_range(-0.15, 0.15), 1.12, Vector2(0, -10), randf_range(-0.2, 0.2), true)
+	var sequence_id := "vfx_enemy_skill_%s" % kind
+	var rotation := _directional_vfx_rotation(
+		sequence_id,
+		travel_direction,
+		randf_range(-0.15, 0.15)
+	)
+	var spin := 0.0 if DIRECTIONAL_VFX_SOURCE_FORWARD.has(sequence_id) else randf_range(-0.2, 0.2)
+	var fx := _spawn_vfx_sequence(sequence_id, target_position, 1.3 if is_boss_source else 0.9, Color(color.r, color.g, color.b, 0.94), 1.0, rotation, 1.12, Vector2(0, -10), spin, true)
 	if fx == null:
 		var path := _attack_vfx_path(kind)
 		_spawn_attack_sprite(path, target_position, color, 0.66 if not is_boss_source else 1.12, 0.32)
@@ -6786,6 +7170,16 @@ func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector
 			"toxic_cloud":
 				_spawn_attack_ring(target_position, 225.0, color, 0.32)
 
+func _directional_vfx_rotation(sequence_id: String, travel_direction: Vector2, fallback_rotation := 0.0) -> float:
+	if not DIRECTIONAL_VFX_SOURCE_FORWARD.has(sequence_id):
+		return fallback_rotation
+	var direction := travel_direction
+	if direction.length_squared() <= 0.0001:
+		# Deterministic preview/default for enemy movement skills: every enemy
+		# advances from the top of the field toward the bottom base line.
+		direction = Vector2.DOWN
+	return direction.angle() - float(DIRECTIONAL_VFX_SOURCE_FORWARD[sequence_id])
+
 func _on_enemy_base_attack_started(enemy: Node, profile: Dictionary) -> void:
 	if not is_instance_valid(enemy) or not bool(enemy.get("boss")) or profile.is_empty():
 		return
@@ -6794,13 +7188,18 @@ func _on_enemy_base_attack_started(enemy: Node, profile: Dictionary) -> void:
 	var origin: Vector2 = (enemy as Node2D).global_position + Vector2(0, -86)
 	var target := _boss_attack_target(enemy, profile, 0)
 	var cast_sequence := str(profile.get("cast_sequence", "vfx_boss_phase"))
+	var cast_rotation := _directional_vfx_rotation(
+		cast_sequence,
+		target - origin,
+		randf_range(-0.16, 0.16)
+	)
 	_spawn_vfx_sequence(
 		cast_sequence,
 		origin,
 		0.72,
 		Color(color.r, color.g, color.b, 0.86),
 		0.88,
-		randf_range(-0.16, 0.16),
+		cast_rotation,
 		1.12,
 		Vector2(0, -8),
 		randf_range(-0.16, 0.16),

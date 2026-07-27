@@ -137,7 +137,7 @@ func upgrade_skill_base(skill_id) -> bool                  # player.xp -= cost; 
 
 ## 5. 默认免费件(§见 19 决策5)
 `is_default_free` 仅对:`char_vanguard`、`weapon_autocannon` 返回 true(新档即 OWNED@Lv1、已装备)。
-**护甲/芯片/宝宝无任何免费件**;`armor_kevlar`、`chip_attack` 也要在 JSON 里带 `unlock_cost_star=5`(不再 0)。
+**护甲/芯片/宝宝无任何免费件**；`armor_kevlar`、`chip_attack` 当前均为 `unlock_cost_star=8`（不再为 0）。全部付费收藏遵循 8–16 星、同品类不超过 2 倍的现行价格门禁。
 - 玩家开局:仅 vanguard + autocannon;**前 5 关裸装可通**(由 `check_level_pressure` + 实测保证,见 19 §3)。
 
 ---

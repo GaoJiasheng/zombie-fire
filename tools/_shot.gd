@@ -4,6 +4,8 @@ extends SceneTree
 # viewport so container-layout refactors can be verified, not just smoke-compiled.
 # Usage: godot --path . --script tools/_shot.gd -- <route> [payload_json] [out_png]
 
+const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
+
 func _initialize() -> void:
 	await process_frame
 	var args := OS.get_cmdline_user_args()
@@ -115,6 +117,28 @@ func _initialize() -> void:
 		await _prepare_dense_combat(main.current_scene)
 	if bool(payload.get("debug_store_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_store_combat(main.current_scene)
+	if payload.has("debug_status_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_status_vfx_showcase(
+			main.current_scene,
+			str(payload.get("debug_status_vfx_showcase", "single"))
+		)
+	if payload.has("debug_zombie_model_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_zombie_model_showcase(
+			main.current_scene,
+			str(payload.get("debug_zombie_model_showcase", "redesigned"))
+		)
+	if payload.has("debug_zombie_attack_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_zombie_attack_showcase(
+			main.current_scene,
+			int(payload.get("debug_zombie_attack_showcase", 0))
+		)
+	if payload.has("debug_character_shooting_frame") and main.current_scene != null and main.current_scene.has_method("_character_combo_attack_frames"):
+		await _prepare_character_shooting_showcase(
+			main.current_scene,
+			int(payload.get("debug_character_shooting_frame", 3)),
+			str(payload.get("debug_character_shooting_aim", "center")),
+			bool(payload.get("debug_character_shooting_muzzle", false))
+		)
 	if bool(payload.get("debug_cast_active", false)) and main.current_scene != null and main.current_scene.has_method("_on_character_skill_pressed"):
 		main.current_scene.character_active_cd = 0.0
 		main.current_scene.call("_on_character_skill_pressed")
@@ -164,7 +188,31 @@ func _initialize() -> void:
 				"_spawn_enemy_attack_vfx",
 				skill_enemy,
 				str(payload.get("debug_enemy_skill_showcase", "charge")),
-				skill_enemy.global_position + Vector2(0, -42)
+				skill_enemy.global_position + Vector2(0, -42),
+				Vector2.DOWN
+			)
+	if payload.has("debug_projectile_showcase") and main.current_scene != null:
+		main.current_scene.turret.set("fire_enabled", false)
+		main.current_scene.turret.set_physics_process(false)
+		var projectile_kind := str(payload.get("debug_projectile_showcase", "acid_spit"))
+		if projectile_kind == "acid_spit" and main.current_scene.has_method("_spawn_spit_attack_vfx"):
+			var projectile_enemy: Node = main.current_scene.get_node("EnemyLayer").get_child(0) if main.current_scene.get_node("EnemyLayer").get_child_count() > 0 else null
+			if projectile_enemy != null and is_instance_valid(projectile_enemy):
+				main.current_scene.call(
+					"_spawn_spit_attack_vfx",
+					projectile_enemy,
+					projectile_enemy.global_position + Vector2(0, 620)
+				)
+		elif projectile_kind == "split_mini" and main.current_scene.has_method("_on_projectile_split_requested"):
+			main.current_scene.call(
+				"_on_projectile_split_requested",
+				Vector2(540, 1320),
+				Vector2.UP,
+				3,
+				10.0,
+				"physical",
+				0.0,
+				1.0
 			)
 	if payload.has("debug_death_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_death_element_vfx"):
 		main.current_scene.turret.set("fire_enabled", false)
@@ -184,6 +232,15 @@ func _initialize() -> void:
 		if skill_runtime != null and skill_runtime.has_method("add_skill"):
 			skill_runtime.call("add_skill", "skill_barrier")
 		main.current_scene.call("_update_barrier_visual")
+	if bool(payload.get("debug_pet_repair", false)) and main.current_scene != null and main.current_scene.has_method("_process_repair_pet"):
+		main.current_scene.base_hp = int(round(float(main.current_scene.base_hp_max) * float(payload.get("debug_pet_hp_ratio", 0.30))))
+		main.current_scene.pet_repair_cooldown = 999.0
+		main.current_scene.pet_emergency_cooldown = 0.0
+		main.current_scene.call("_process_repair_pet", 0.01)
+		for i in range(3):
+			await process_frame
+	if bool(payload.get("debug_pet_skill", false)) and main.current_scene != null and main.current_scene.has_method("_process_pet_skill"):
+		await _prepare_pet_skill_showcase(main.current_scene)
 	var warmup_frames := clampi(int(payload.get("warmup_frames", 0)), 0, 600)
 	for i in range(warmup_frames):
 		await process_frame
@@ -222,6 +279,61 @@ func _initialize() -> void:
 	await _cleanup_scene(main)
 	quit(0)
 
+func _prepare_pet_skill_showcase(battle: Node) -> void:
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	var positions := [
+		Vector2(540, 690),
+		Vector2(420, 620),
+		Vector2(660, 620),
+		Vector2(420, 760),
+		Vector2(660, 760),
+		Vector2(540, 840),
+	]
+	var spawned: Array[Node] = []
+	for i in range(positions.size()):
+		var enemy: Node = battle.call(
+			"_spawn_enemy_instance",
+			"zombie_brute" if i % 2 == 0 else "zombie_shambler",
+			positions[i],
+			false,
+			0.0
+		)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 80.0
+		enemy.hp = enemy.max_hp
+		enemy.call("set_combat_label_visibility", false, false)
+		enemy.call("_update_hp_bar")
+		spawned.append(enemy)
+	for _entry_frame in range(24):
+		await process_frame
+	if not spawned.is_empty() and battle.target_manager != null:
+		battle.target_manager.lock_enemy(spawned[0])
+	battle.pet_skill_cooldown = 0.0
+	if str(battle.pet_data.get("pet_skill", {}).get("kind", "")) == "wave_salvage":
+		battle.call("_apply_pet_wave_salvage")
+	else:
+		battle.call("_process_pet_skill", 0.01)
+	for _frame in range(1):
+		await process_frame
+
 func _cleanup_scene(main: Node) -> void:
 	paused = false
 	Engine.time_scale = 1.0
@@ -230,6 +342,7 @@ func _cleanup_scene(main: Node) -> void:
 	var audio := root.get_node_or_null("/root/AudioManager")
 	if audio != null and audio.has_method("release_for_tests"):
 		audio.release_for_tests()
+	StatusVfxControllerScript.release_cached_resources_for_tests()
 	for i in range(3):
 		await process_frame
 
@@ -363,6 +476,298 @@ func _prepare_store_combat(battle: Node) -> void:
 		str(battle.target_manager.has_lock()),
 		str(battle.skills.owned),
 	])
+
+func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, aim: String, show_muzzle: bool) -> void:
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	match aim:
+		"left":
+			battle.call("_set_character_combo_aim_from_direction", Vector2(-0.62, -0.78))
+		"right":
+			battle.call("_set_character_combo_aim_from_direction", Vector2(0.62, -0.78))
+		_:
+			battle.call("_set_character_combo_aim_from_direction", Vector2.UP)
+	battle.character_weapon_combo_locked_aim = battle.character_weapon_combo_aim
+	var frames: Array[Texture2D] = battle.call("_character_combo_attack_frames")
+	var frame_index := clampi(one_based_frame - 1, 0, maxi(frames.size() - 1, 0))
+	if not frames.is_empty():
+		battle.character_anim_frame = frame_index
+		battle.character_sprite.texture = frames[frame_index]
+	battle.character_attack_duration = float(battle.CHARACTER_WEAPON_ATTACK_DURATION.get(battle.weapon_id, 0.32))
+	battle.character_attack_time = battle.character_attack_duration * 0.58
+	battle.call("_update_character_body_pose")
+	if show_muzzle:
+		var origin: Vector2 = battle.call("_weapon_fire_origin")
+		var direction: Vector2 = battle.call("_weapon_fire_direction", Vector2.UP)
+		var data_loader := root.get_node("/root/DataLoader")
+		var element := str(data_loader.get_row("weapons", battle.weapon_id).get("element", "physical"))
+		battle.call("_spawn_muzzle_flash", origin, direction, element, battle.call("_weapon_visual_profile", battle.weapon_id))
+	battle.set_process(false)
+	battle.set_physics_process(false)
+	# Let the renderer consume the explicitly assigned frame. Without this,
+	# the property path is correct but the screenshot can still contain the
+	# previous draw command from the warm-up frame.
+	await process_frame
+	await process_frame
+	print("character shooting audit: character=%s weapon=%s aim=%s effective=%s frame=%d muzzle=%s flip_h=%s scale=%s rig_scale=%s battle_scale=%s global_x=%s global_y=%s texture=%s" % [
+		battle.character_id,
+		battle.weapon_id,
+		aim,
+		str(battle.call("_character_combo_effective_aim")),
+		frame_index + 1,
+		str(show_muzzle),
+		str(battle.character_sprite.flip_h),
+		str(battle.character_sprite.scale),
+		str(battle.character_rig.scale),
+		str(battle.scale),
+		str(battle.character_sprite.global_transform.x),
+		str(battle.character_sprite.global_transform.y),
+		str(battle.character_sprite.texture.resource_path),
+	])
+
+func _prepare_status_vfx_showcase(battle: Node, mode: String) -> void:
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var staged: Array[Dictionary] = []
+	match mode:
+		"stacked":
+			staged = [
+				{"id": "zombie_brute", "position": Vector2(270, 520), "statuses": ["fire", "poison"]},
+				{"id": "zombie_armored", "position": Vector2(805, 520), "statuses": ["ice", "lightning"]},
+				{"id": "zombie_mutant", "position": Vector2(270, 940), "statuses": ["fire", "ice", "poison"]},
+				{"id": "boss_tank_titan", "position": Vector2(775, 920), "statuses": ["fire", "ice", "poison", "lightning"], "boss": true},
+			]
+		"dense":
+			var ids := ["zombie_runner", "zombie_shambler", "zombie_brute", "zombie_toxic"]
+			var statuses := ["fire", "ice", "poison", "lightning"]
+			for index in range(36):
+				staged.append({
+					"id": ids[index % ids.size()],
+					"position": Vector2(115 + (index % 6) * 170, 265 + int(index / 6) * 188),
+					"statuses": [statuses[index % statuses.size()]],
+				})
+		_:
+			staged = [
+				{"id": "zombie_brute", "position": Vector2(275, 500), "statuses": ["fire"]},
+				{"id": "zombie_armored", "position": Vector2(805, 500), "statuses": ["ice"]},
+				{"id": "zombie_toxic", "position": Vector2(275, 960), "statuses": ["poison"]},
+				{"id": "zombie_shielder", "position": Vector2(805, 960), "statuses": ["lightning"]},
+			]
+
+	var spawned: Array[Node] = []
+	for spec in staged:
+		var is_boss := bool(spec.get("boss", false))
+		var enemy: Node = battle.call(
+			"_spawn_enemy_instance",
+			str(spec.get("id", "zombie_shambler")),
+			spec.get("position", Vector2(540, 720)),
+			is_boss,
+			0.0
+		)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 40.0
+		enemy.hp = enemy.max_hp
+		enemy.call("set_combat_label_visibility", false, mode != "dense")
+		for status_id_var in spec.get("statuses", []):
+			var status_id := str(status_id_var)
+			if status_id in ["fire", "ice", "lightning"]:
+				enemy.call("amplify_character_status", status_id, 80.0, 3, 0.12)
+			else:
+				enemy.call("_apply_element_status", 80.0, status_id, 0.35)
+		enemy.call("_update_hp_bar")
+		spawned.append(enemy)
+
+	battle.call("_update_combat_information_density", 0.0, true, battle.get_node("EnemyLayer").get_children())
+	if mode != "dense":
+		for enemy in spawned:
+			enemy.call("set_combat_label_visibility", false, true)
+	print("status VFX audit: mode=%s enemies=%d" % [mode, spawned.size()])
+
+func _prepare_zombie_model_showcase(battle: Node, mode: String) -> void:
+	# Deterministic runtime lineup for reviewing the actual imported animation
+	# frames at phone scale. It changes no campaign spawn or balance data.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var redesigned := [
+		"zombie_bomber",
+		"zombie_spitter",
+		"zombie_juggernaut",
+		"zombie_necromancer",
+		"zombie_charger",
+		"zombie_regenerator",
+		"zombie_splitter",
+		"zombie_warden",
+	]
+	var roster := [
+		"zombie_shambler", "zombie_runner", "zombie_brute", "zombie_bomber", "zombie_screamer",
+		"zombie_spitter", "zombie_crawler", "zombie_armored", "zombie_shielder", "zombie_hopper",
+		"zombie_juggernaut", "zombie_phantom", "zombie_necromancer", "zombie_toxic", "zombie_charger",
+		"zombie_regenerator", "zombie_splitter", "zombie_warden", "zombie_mutant", "zombie_berserker",
+	]
+	var ids: Array = redesigned
+	var columns := 4
+	var start_x := 175.0
+	var step_x := 243.0
+	var start_y := 420.0
+	var step_y := 480.0
+	if mode == "roster":
+		ids = roster
+		columns = 5
+		start_x = 120.0
+		step_x = 210.0
+		start_y = 300.0
+		step_y = 315.0
+	elif mode == "dense":
+		ids = []
+		for index in range(24):
+			ids.append(roster[index % roster.size()])
+		columns = 6
+		start_x = 120.0
+		step_x = 168.0
+		start_y = 270.0
+		step_y = 300.0
+
+	var spawned := 0
+	for index in range(ids.size()):
+		var column := index % columns
+		var row := int(index / columns)
+		var enemy: Node = battle.call(
+			"_spawn_enemy_instance",
+			str(ids[index]),
+			Vector2(start_x + float(column) * step_x, start_y + float(row) * step_y),
+			false,
+			0.0
+		)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 40.0
+		enemy.hp = enemy.max_hp
+		enemy.set_physics_process(false)
+		enemy.call("set_combat_label_visibility", false, false)
+		enemy.call("_update_hp_bar")
+		spawned += 1
+	print("zombie model audit: mode=%s enemies=%d" % [mode, spawned])
+
+func _prepare_zombie_attack_showcase(battle: Node, group_index: int) -> void:
+	# Three real runtime sprites per identity expose anticipation/contact/recovery
+	# together. This catches wrong imports, phone-scale readability and baseward
+	# direction without relying on a source-art contact sheet.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var roster := [
+		"zombie_shambler", "zombie_runner", "zombie_brute", "zombie_bomber", "zombie_screamer",
+		"zombie_spitter", "zombie_crawler", "zombie_armored", "zombie_shielder", "zombie_hopper",
+		"zombie_juggernaut", "zombie_phantom", "zombie_necromancer", "zombie_toxic", "zombie_charger",
+		"zombie_regenerator", "zombie_splitter", "zombie_warden", "zombie_mutant", "zombie_berserker",
+	]
+	var start := clampi(group_index, 0, 3) * 5
+	var stage_frames := [0, 3, 5]
+	var stage_x := [210.0, 540.0, 870.0]
+	var spawned := 0
+	for row_index in range(5):
+		var zombie_id := str(roster[start + row_index])
+		for stage_index in range(stage_frames.size()):
+			var enemy: Node = battle.call(
+				"_spawn_enemy_instance",
+				zombie_id,
+				Vector2(stage_x[stage_index], 330.0 + float(row_index) * 275.0),
+				false,
+				0.0
+			)
+			if enemy == null:
+				continue
+			enemy.speed = 0.0
+			enemy.max_hp *= 40.0
+			enemy.hp = enemy.max_hp
+			enemy.set_physics_process(false)
+			enemy.call("set_combat_label_visibility", false, false)
+			var frames: Array = enemy.get("_attack_frames")
+			var frame_index := int(stage_frames[stage_index])
+			var sprite := enemy.get_node("Sprite") as Sprite2D
+			if sprite != null and frame_index < frames.size():
+				sprite.texture = frames[frame_index]
+				if stage_index == 1:
+					var profile: Dictionary = enemy.get("attack_animation_profile")
+					sprite.position.y = float(profile.get("lunge", 18.0))
+			var hp_bg: TextureRect = enemy.get("_hp_bg")
+			var hp_fill: TextureRect = enemy.get("_hp_fill")
+			var rank_aura: Sprite2D = enemy.get("_rank_aura")
+			if hp_bg != null:
+				hp_bg.visible = false
+			if hp_fill != null:
+				hp_fill.visible = false
+			if rank_aura != null:
+				rank_aura.visible = false
+			spawned += 1
+	for effect in battle.get_node("ProjectileLayer").get_children():
+		effect.queue_free()
+	await process_frame
+	print("zombie attack audit: group=%d identities=5 sprites=%d" % [group_index, spawned])
 
 func _prepare_isolated_vfx_stage(battle: Node, spawn_target: bool) -> void:
 	battle.pending_spawns.clear()

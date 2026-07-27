@@ -63,6 +63,13 @@ Current validation result:
 - Placeholder skeletal body part PNGs and part manifests.
 - Production Glow Sans SC / 未来荧黑 Normal Medium font, official OFL notice, and source/hash provenance.
 
+### Ordinary Zombie Model Redesign (2026-07-26)
+
+- Eight mechanic-ambiguous ordinary zombie families were rebuilt at the owner's request: Bomber, Spitter, Juggernaut, Necromancer, Charger, Regenerator, Splitter and Warden.
+- Existing IDs and integration paths are preserved. Each family includes prototype, portrait, icon and complete idle / walk / attack / special / hurt / death runtime actions.
+- Generation sources, transparent masters, prompts, pre-change prototypes and review sheets are retained under `assets/production/source_refs/generated/zombie_model_redo_2026_07_26/`.
+- `assets/production/contact_sheets/contact_zombie_model_redo_2026_07_26.png` is the roster-scale acceptance sheet; after the roster-wide eight-frame attack polish, the permanent silhouette checker covers all 20 ordinary zombies and all 264 animation frames belonging to the eight redesigned families.
+
 ### Audio
 
 - 9 BGM placeholder WAVs.

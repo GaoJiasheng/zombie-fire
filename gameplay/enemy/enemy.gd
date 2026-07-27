@@ -11,6 +11,7 @@ const BREACH_Y := 1500.0
 const BASE_ATTACK_Y := 1500.0
 const UiKit := preload("res://ui/ui_kit.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
+const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
 const HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_base_hp_bar.png")
 const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
 const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
@@ -19,6 +20,8 @@ const ICE_SLOW_TINT := Color(0.56, 0.9, 1.28, 1.0)
 const BOSS_IMMUNE_DAMAGE_FLOOR := 0.18
 const NORMAL_SPRITE_SCALE := 0.32
 const BOSS_SPRITE_SCALE := 0.50
+const BURN_RISE_BLEND := 0.46
+const BURN_FALL_BLEND := 0.28
 
 var data := {}
 var max_hp := 100.0
@@ -29,6 +32,7 @@ var base_attack_damage := 10
 var base_attack_interval := 1.35
 var base_attack_kind := "basic"
 var base_attack_profile: Dictionary = {}
+var attack_animation_profile: Dictionary = {}
 var base_attack_line_offset := 0.0
 var attack_line_y := BASE_ATTACK_Y
 var gold := 10
@@ -48,6 +52,9 @@ var _base_attack_sequence_active := false
 var _base_attack_sequence_timer := 0.0
 var _base_attack_sequence_hit_index := 0
 var _base_attack_sequence_waiting_resolution := false
+var _normal_attack_sequence_active := false
+var _normal_attack_sequence_elapsed := 0.0
+var _normal_attack_contact_emitted := false
 var armor_hits_left := 0
 var armor_broken := false
 var shield_hp := 0.0
@@ -85,7 +92,6 @@ var _element_slow_mult := 1.0
 var _ice_slow_visual_time := 0.0
 var _ice_slow_tint_active := false
 var _glacier_field_time := 0.0
-var _glacier_field_base_scale := Vector2.ONE
 var _shock_time := 0.0
 var _last_hit_weak := false
 var _last_hit_element := "physical"
@@ -100,8 +106,7 @@ const DOT_TICK_MIN_DMG := 5.0
 var _dot_tick_acc: Dictionary = {}
 var _hp_bg: TextureRect
 var _hp_fill: TextureRect
-var _status_aura: Sprite2D
-var _glacier_aura: Sprite2D
+var _status_vfx: StatusVfxController
 var _rank_aura: Sprite2D
 var _status_label: Label
 var _threat_marker_allowed := true
@@ -124,6 +129,12 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	resist = row.get("resist", "none")
 	mechanic = row.get("mechanic", "basic")
 	mechanic_params = row.get("mechanic_params", {})
+	var attack_animation_var: Variant = row.get("attack_animation", {})
+	attack_animation_profile = (
+		attack_animation_var.duplicate(true)
+		if attack_animation_var is Dictionary
+		else {}
+	)
 	_configure_base_attack()
 	if mechanic == "armor_break":
 		armor_hits_left = int(mechanic_params.get("armor_hits", 0))
@@ -173,6 +184,10 @@ func set_combat_label_visibility(show_threat: bool, show_status: bool) -> void:
 	_status_label_allowed = show_status
 	_sync_threat_marker_visibility()
 	_update_status_label()
+
+func set_combat_effect_density(lod: String, priority := false) -> void:
+	if _status_vfx != null:
+		_status_vfx.set_density_lod(lod, priority)
 
 func _sync_threat_marker_visibility() -> void:
 	if threat_marker == null or not is_instance_valid(threat_marker):
@@ -311,7 +326,11 @@ func _enter_base_attack() -> void:
 	speed_mult = 1.0
 	var first_delay := float(base_attack_profile.get("first_attack_delay", -1.0))
 	base_attack_timer = first_delay if first_delay >= 0.0 else randf_range(0.08, 0.34)
-	_play_attack_animation(0.34)
+	_anim_state = "idle"
+	_anim_time = 0.0
+	_anim_frame = 0
+	if not _idle_frames.is_empty():
+		$Sprite.texture = _idle_frames[0]
 
 func _process_base_attack(delta: float) -> void:
 	var charge_delta := delta
@@ -323,14 +342,42 @@ func _process_base_attack(delta: float) -> void:
 	if _base_attack_sequence_active:
 		_process_base_attack_sequence(charge_delta)
 		return
+	if _normal_attack_sequence_active:
+		_process_normal_base_attack_sequence(charge_delta)
+		return
 	if base_attack_timer > 0.0:
 		return
 	base_attack_timer = maxf(0.45, base_attack_interval + randf_range(-0.12, 0.18))
 	if boss and not base_attack_profile.is_empty():
 		_begin_base_attack_sequence()
 		return
-	_play_attack_animation(0.36 if not boss else 0.48)
-	breached.emit(self, base_attack_damage)
+	_begin_normal_base_attack_sequence()
+
+func _begin_normal_base_attack_sequence() -> void:
+	_normal_attack_sequence_active = true
+	_normal_attack_sequence_elapsed = 0.0
+	_normal_attack_contact_emitted = false
+	var duration := maxf(0.24, float(attack_animation_profile.get("duration", 0.48)))
+	_play_attack_animation(duration)
+
+func _process_normal_base_attack_sequence(delta: float) -> void:
+	_normal_attack_sequence_elapsed += delta
+	var duration := maxf(0.24, float(attack_animation_profile.get("duration", 0.48)))
+	var contact_ratio := clampf(
+		float(attack_animation_profile.get("contact_ratio", 0.5)),
+		0.25,
+		0.8
+	)
+	var contact_time := duration * contact_ratio
+	if not _normal_attack_contact_emitted and _normal_attack_sequence_elapsed >= contact_time:
+		_normal_attack_contact_emitted = true
+		breached.emit(self, base_attack_damage)
+	if _normal_attack_sequence_elapsed < duration:
+		return
+	_normal_attack_sequence_active = false
+	_normal_attack_sequence_elapsed = 0.0
+	_normal_attack_contact_emitted = false
+	_reset_sprite_pose()
 
 func _begin_base_attack_sequence() -> void:
 	_base_attack_sequence_active = true
@@ -505,9 +552,8 @@ func _process_self_mechanic(delta: float) -> void:
 func _apply_element_status(applied_damage: float, element: String, status_strength := -1.0) -> void:
 	match element:
 		"fire":
-			_burn_time = max(_burn_time, 2.2)
 			var burn_ratio := status_strength if status_strength >= 0.0 else 0.22
-			_burn_dps = max(_burn_dps, applied_damage * clampf(burn_ratio, 0.0, 1.2))
+			_refresh_burn(applied_damage * clampf(burn_ratio, 0.0, 1.2), 2.2)
 			_flash(Color(1.0, 0.42, 0.18))
 		"poison":
 			_poison_time = max(_poison_time, 3.2)
@@ -531,8 +577,7 @@ func amplify_character_status(element: String, source_damage: float, rank: int, 
 		return
 	match element:
 		"fire":
-			_burn_time = max(_burn_time, 2.8 + 0.28 * float(rank))
-			_burn_dps = max(_burn_dps, source_damage * (0.3 + bonus + 0.04 * float(rank)))
+			_refresh_burn(source_damage * (0.3 + bonus + 0.04 * float(rank)), 2.8 + 0.28 * float(rank))
 			_flash(Color(1.0, 0.34, 0.12))
 		"ice":
 			_element_slow_time = max(_element_slow_time, 2.35 + 0.28 * float(rank))
@@ -546,6 +591,15 @@ func amplify_character_status(element: String, source_damage: float, rank: int, 
 			_shock_time = max(_shock_time, 0.52 + 0.08 * float(rank) + bonus)
 			_flash(Color(1.0, 0.9, 0.18))
 	_update_status_aura()
+
+func _refresh_burn(candidate_dps: float, duration: float) -> void:
+	_burn_time = maxf(_burn_time, maxf(duration, 0.0))
+	candidate_dps = maxf(candidate_dps, 0.0)
+	if _burn_dps <= 0.0:
+		_burn_dps = candidate_dps
+		return
+	var blend := BURN_RISE_BLEND if candidate_dps >= _burn_dps else BURN_FALL_BLEND
+	_burn_dps = lerpf(_burn_dps, candidate_dps, blend)
 
 func apply_glacier_field(_source_damage: float, rank: int, bonus: float = 0.0, duration: float = 0.86, speed_factor: float = 0.4) -> void:
 	if _dying:
@@ -592,6 +646,9 @@ func _process_element_status(delta: float) -> void:
 	if _burn_time > 0.0:
 		_burn_time -= delta
 		_accumulate_dot_damage("fire", _burn_dps * delta, delta)
+		if _burn_time <= 0.0:
+			_burn_time = 0.0
+			_burn_dps = 0.0
 	if _poison_time > 0.0:
 		_poison_time -= delta
 		_accumulate_dot_damage("poison", _poison_dps * delta, delta)
@@ -633,6 +690,8 @@ func _accumulate_dot_damage(element: String, amount: float, delta: float) -> voi
 func _apply_status_damage(amount: float, element: String) -> void:
 	if _dying or amount <= 0.0:
 		return
+	if _status_vfx != null:
+		_status_vfx.pulse(element, 0.8)
 	hp -= amount
 	_update_hp_bar()
 	damage_dealt.emit(self, amount, element, false, false)
@@ -705,24 +764,10 @@ func _build_model_polish_layers() -> void:
 		_rank_aura.z_index = -1
 		_rank_aura.modulate = Color(1.0, 0.68, 0.16, 0.26) if not boss else Color(1.0, 0.18, 0.08, 0.38)
 		add_child(_rank_aura)
-	_status_aura = Sprite2D.new()
-	_status_aura.name = "StatusAura"
-	_status_aura.texture = load("res://assets/production/sprites/vfx/vfx_levelup_glow.png")
-	_status_aura.position = Vector2(0, -34 if not boss else -72)
-	_status_aura.scale = Vector2(0.24, 0.24) if not boss else Vector2(0.48, 0.48)
-	_status_aura.z_index = -1
-	_status_aura.visible = false
-	add_child(_status_aura)
-	_glacier_aura = Sprite2D.new()
-	_glacier_aura.name = "GlacierAura"
-	_glacier_aura.texture = load("res://assets/production/sprites/vfx/vfx_freeze.png")
-	_glacier_aura.position = Vector2(0, -42 if not boss else -84)
-	_glacier_field_base_scale = Vector2(0.34, 0.34) if not boss else Vector2(0.62, 0.62)
-	_glacier_aura.scale = _glacier_field_base_scale
-	_glacier_aura.z_index = 2
-	_glacier_aura.modulate = Color(0.7, 0.98, 1.0, 0.68)
-	_glacier_aura.visible = false
-	add_child(_glacier_aura)
+	_status_vfx = StatusVfxControllerScript.new()
+	_status_vfx.name = "StatusVfxController"
+	add_child(_status_vfx)
+	_status_vfx.setup($Sprite, boss)
 
 func _update_hp_bar_position() -> void:
 	if _hp_bg == null:
@@ -844,7 +889,7 @@ func _load_animation_frames(row: Dictionary, is_boss: bool) -> void:
 	var base := "res://assets/production/sprites/animations/%s/%s/%s" % [family, entity_id, entity_id]
 	_idle_frames = _load_frame_set(base, "idle", 4)
 	_walk_frames = _load_frame_set(base, "walk", 6)
-	_attack_frames = _load_frame_set(base, "attack", 4)
+	_attack_frames = _load_frame_set(base, "attack", 8)
 	_special_frames = _load_frame_set(base, "special", 6)
 	_hurt_frames = _load_frame_set(base, "hurt", 3)
 	_death_frames = _load_frame_set(base, "death", 6)
@@ -870,7 +915,11 @@ func _update_animation(delta: float) -> void:
 		if _death_time >= max(0.12, float(_death_frames.size()) / 12.0):
 			queue_free()
 		return
-	if _hurt_time > 0.0:
+	var base_attack_pose_locked := (
+		attacking_base
+		and (_normal_attack_sequence_active or _base_attack_sequence_active)
+	)
+	if _hurt_time > 0.0 and not base_attack_pose_locked:
 		_hurt_time -= delta
 		_advance_frames(_hurt_frames, delta, 18.0, false)
 		_update_hurt_pose()
@@ -879,6 +928,10 @@ func _update_animation(delta: float) -> void:
 			_anim_time = 0.0
 			_anim_frame = 0
 		return
+	if _hurt_time > 0.0:
+		# A hit may tint/flash an attacker, but it must not hide the authored
+		# contact pose or let base damage land with the zombie still recoiling.
+		_hurt_time = maxf(0.0, _hurt_time - delta)
 	if _special_time > 0.0:
 		_special_time -= delta
 		var frames := _special_frames if not _special_frames.is_empty() else _attack_frames
@@ -892,15 +945,18 @@ func _update_animation(delta: float) -> void:
 	if _attack_time > 0.0:
 		_attack_time -= delta
 		var frames := _attack_frames if not _attack_frames.is_empty() else _walk_frames
-		_advance_frames(frames, delta, 15.0 if not boss else 12.0, false)
+		if not boss and not attack_animation_profile.is_empty():
+			_advance_profiled_attack_frames(frames)
+		else:
+			_advance_frames(frames, delta, 15.0 if not boss else 12.0, false)
 		_update_attack_pose()
 		if _attack_time <= 0.0:
-			_anim_state = "attack" if attacking_base else "walk"
+			_anim_state = "idle" if attacking_base else "walk"
 			_anim_time = 0.0
 			_anim_frame = 0
 		return
 	if attacking_base:
-		var frames := _attack_frames if not _attack_frames.is_empty() else _idle_frames
+		var frames := _idle_frames
 		if frames.is_empty():
 			frames = _walk_frames
 		_advance_frames(frames, delta, 4.5 if not boss else 3.8, true)
@@ -939,11 +995,69 @@ func _update_hurt_pose() -> void:
 
 func _update_attack_pose() -> void:
 	var progress := 1.0 - clampf(_attack_time / maxf(_attack_duration, 0.001), 0.0, 1.0)
-	var lunge := sin(progress * PI)
+	var contact_ratio := clampf(
+		float(attack_animation_profile.get("contact_ratio", 0.5)),
+		0.25,
+		0.8
+	)
+	var lunge_phase := 0.0
+	if progress <= contact_ratio:
+		lunge_phase = sin((progress / contact_ratio) * PI * 0.5)
+	else:
+		lunge_phase = cos(
+			((progress - contact_ratio) / maxf(0.001, 1.0 - contact_ratio))
+			* PI
+			* 0.5
+		)
 	var heavy := 1.3 if boss else 1.0
-	$Sprite.position = Vector2(_base_sprite_x + sin(progress * TAU) * 3.0 * heavy, lunge * 18.0 * heavy)
-	$Sprite.scale = _base_sprite_scale * (1.0 + 0.055 * lunge)
-	$Sprite.rotation = deg_to_rad(sin(progress * PI * 2.0) * 2.5)
+	var authored_lunge := float(attack_animation_profile.get("lunge", 18.0))
+	$Sprite.position = Vector2(
+		_base_sprite_x + sin(progress * TAU) * 2.0 * heavy,
+		lunge_phase * authored_lunge * heavy
+	)
+	$Sprite.scale = _base_sprite_scale * (1.0 + 0.018 * lunge_phase)
+	$Sprite.rotation = deg_to_rad(sin(progress * PI * 2.0) * 1.4)
+
+func _advance_profiled_attack_frames(frames: Array[Texture2D]) -> void:
+	if frames.is_empty():
+		return
+	var progress := 1.0 - clampf(
+		_attack_time / maxf(_attack_duration, 0.001),
+		0.0,
+		1.0
+	)
+	var contact_ratio := clampf(
+		float(attack_animation_profile.get("contact_ratio", 0.5)),
+		0.25,
+		0.8
+	)
+	var contact_index := clampi(
+		int(attack_animation_profile.get("contact_frame", 4)) - 1,
+		1,
+		frames.size() - 2
+	)
+	var next_frame := 0
+	if progress < contact_ratio:
+		next_frame = mini(
+			contact_index - 1,
+			int(floor((progress / contact_ratio) * float(contact_index)))
+		)
+	else:
+		var recovery_progress := (
+			(progress - contact_ratio) / maxf(0.001, 1.0 - contact_ratio)
+		)
+		next_frame = contact_index + int(
+			floor(recovery_progress * float(frames.size() - contact_index))
+		)
+		next_frame = mini(next_frame, frames.size() - 1)
+	if next_frame != _anim_frame:
+		_anim_frame = next_frame
+		$Sprite.texture = frames[_anim_frame]
+
+func _reset_sprite_pose() -> void:
+	$Sprite.position = Vector2(_base_sprite_x, 0.0)
+	$Sprite.scale = _base_sprite_scale
+	$Sprite.rotation = 0.0
 
 func _update_special_pose() -> void:
 	var pulse := absf(sin(Time.get_ticks_msec() / 80.0))
@@ -965,37 +1079,19 @@ func _update_model_polish(delta: float) -> void:
 		var pulse := 0.92 + absf(sin(Time.get_ticks_msec() / (420.0 if not boss else 540.0))) * 0.16
 		var base_scale := Vector2(0.34, 0.34) if not boss else Vector2(0.72, 0.72)
 		_rank_aura.scale = base_scale * pulse
-	if _status_aura and _status_aura.visible:
-		_status_aura.rotation -= delta * 1.4
-		var status_pulse := 0.86 + absf(sin(Time.get_ticks_msec() / 210.0)) * 0.22
-		var status_scale := Vector2(0.24, 0.24) if not boss else Vector2(0.48, 0.48)
-		_status_aura.scale = status_scale * status_pulse
-	if _glacier_aura and _glacier_aura.visible:
-		_glacier_aura.rotation += delta * (1.05 if not boss else 0.72)
-		var glacier_pulse := 0.9 + absf(sin(Time.get_ticks_msec() / 180.0)) * 0.16
-		_glacier_aura.scale = _glacier_field_base_scale * glacier_pulse
 
 func _update_status_aura() -> void:
-	if _status_aura == null:
+	if _status_vfx == null:
 		return
 	var glacier_active := _glacier_field_time > 0.0
-	if _glacier_aura:
-		_glacier_aura.visible = glacier_active
-	var active := _burn_time > 0.0 or _poison_time > 0.0 or _element_slow_time > 0.0 or _shock_time > 0.0 or glacier_active
-	_status_aura.visible = active
+	_status_vfx.sync_statuses({
+		"fire": _burn_time,
+		"ice": 0.0 if glacier_active else maxf(_element_slow_time, _ice_slow_visual_time),
+		"glacier": _glacier_field_time,
+		"poison": _poison_time,
+		"lightning": _shock_time,
+	})
 	_update_status_label()
-	if not active:
-		return
-	if glacier_active:
-		_status_aura.modulate = Color(0.56, 0.92, 1.0, 0.52)
-	elif _shock_time > 0.0:
-		_status_aura.modulate = Color(1.0, 0.92, 0.2, 0.42)
-	elif _element_slow_time > 0.0:
-		_status_aura.modulate = Color(0.48, 0.9, 1.0, 0.42)
-	elif _burn_time > 0.0:
-		_status_aura.modulate = Color(1.0, 0.36, 0.12, 0.42)
-	elif _poison_time > 0.0:
-		_status_aura.modulate = Color(0.42, 1.0, 0.25, 0.42)
 
 func _has_ice_slow_tint() -> bool:
 	return _element_slow_time > 0.0 or _glacier_field_time > 0.0 or _ice_slow_visual_time > 0.0

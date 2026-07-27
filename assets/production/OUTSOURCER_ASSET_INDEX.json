@@ -1,7 +1,7 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 7830,
+    "total_files": 8559,
     "parts_files": 414,
     "animation_files": 1510,
     "sfx_files": 88,
@@ -382,6 +382,28 @@
       "source": "source_refs/generated/wave_progress_native_2026_07_11/wave_progress_native_manifest.json",
       "derived": "contact_sheets/wave_progress_native_2026_07_11.png",
       "reason": "Owner clarified the remaining stretched bar issue was the top wave progress bar, not the bottom HP bar. Rebuilt the wave slot at its exact 720x46 HUD size and added a 640x18 native fill texture that is clipped at runtime instead of horizontally scaled; follow-up removed interior thin highlight lines from the yellow fill."
+    },
+    {
+      "path": "sprites/zombies/{bomber,spitter,juggernaut,necromancer,charger,regenerator,splitter,warden} + matching animations/zombies",
+      "source": "assets/production/source_refs/generated/zombie_model_redo_2026_07_26/zombie_model_redo_manifest.json",
+      "derived": "assets/production/contact_sheets/contact_zombie_model_redo_2026_07_26.png",
+      "reason": "Owner approved the full ordinary-zombie silhouette audit and requested a top-tier render pass. Eight high-priority enemies were rebuilt around their actual mechanics while preserving every gameplay ID, path and balance value.",
+      "count": 267,
+      "task": "ordinary zombie silhouette differentiation pass",
+      "created_at": "2026-07-26T15:07:21.909648+08:00"
+    },
+    {
+      "path": "sprites/animations/character_weapon_combos/{char}/{char}_{weapon}_attack{_left|_right}_01..08.png",
+      "source": [
+        "source_refs/generated/character_shooting_animation_redesign_2026_07_26/chroma",
+        "source_refs/generated/character_shooting_animation_redesign_2026_07_26/keyposes",
+        "source_refs/generated/character_shooting_animation_redesign_2026_07_26/character_shooting_animation_manifest.json"
+      ],
+      "derived": [
+        "source_refs/generated/character_shooting_animation_redesign_2026_07_26/character_shooting_animation_storyboard.png",
+        "contact_sheets/contact_character_shooting_actions_2026_07_26.png"
+      ],
+      "reason": "Owner requested top-tier polish for all four heroes' firing actions. Runtime keeps the accepted exact fused hero/weapon models while rebuilding anticipation, ignition, recoil peak, mechanism response, and damped recovery for all eight weapons and three aim directions."
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1345,6 +1367,36 @@
       "count": 2,
       "task": "Storm Caller boss siege-lightning rendering redesign",
       "created_at": "2026-07-25T23:55:00+08:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/{corrosion,ranged_spit,toxic_cloud,regen,death_dissolve,skill_cast_venom} + sprites/projectiles/{acid_spit,split_mini}",
+      "source": "assets/production/source_refs/generated/combat_vfx_semantic_repair_2026_07_26/manifest.json",
+      "derived": "assets/production/contact_sheets/contact_combat_vfx_semantic_repair_2026_07_26.png",
+      "reason": "Replace legacy reference-sheet crops and two primitive projectile silhouettes with contained derivatives of accepted premium production assets; preserve IDs, paths, frame counts, gameplay timings, and data references.",
+      "count": 8,
+      "task": "combat VFX semantic direction and crop acceptance repair",
+      "created_at": "2026-07-26T18:00:00+08:00"
+    },
+    {
+      "path": "sprites/animations/zombies/*/*_attack_01..08.png",
+      "source": "assets/production/source_refs/generated/zombie_attack_animation_redesign_2026_07_26/zombie_attack_animation_manifest.json",
+      "derived": [
+        "assets/production/source_refs/generated/zombie_attack_animation_redesign_2026_07_26/zombie_attack_animation_storyboard.png",
+        "assets/production/contact_sheets/contact_zombie_attack_runtime_2026_07_26.png"
+      ],
+      "reason": "Owner requested a top-tier zombie attack-animation pass. Replaced the shared four-frame idle-warp treatment with 20 identity-specific anticipation/contact/recovery renders, bound damage to authored contact frame 4, preserved IDs and balance, and added crop, fragment, pose-delta and runtime-timing gates.",
+      "count": 160,
+      "task": "ordinary zombie attack animation and contact timing redesign",
+      "created_at": "2026-07-26T20:30:00+08:00"
+    },
+    {
+      "path": "sprites/animations/character_weapon_combos",
+      "source": "source_refs/generated/character_shooting_animation_redesign_2026_07_26/character_shooting_animation_manifest.json",
+      "derived": "source_refs/generated/character_shooting_animation_redesign_2026_07_26/character_shooting_animation_storyboard.png",
+      "reason": "Four locked heroes x eight weapons x three aim directions rebuilt as semantic 8-frame firing strips; exact production identities remain unchanged.",
+      "count": 768,
+      "task": "character_shooting_animation_redesign_2026_07_26",
+      "created_at": "2026-07-26"
     }
   ]
 }

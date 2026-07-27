@@ -14,6 +14,15 @@
 		"4": 2,
 		"5": 3
 	},
+	"late_wave_count_level_ramp": {
+		"start_level": 55,
+		"full_level": 90,
+		"start_wave": 3,
+		"max_mult": 1.25,
+		"curve_power": 1.0,
+		"final_level": 99,
+		"final_mult": 1.08
+	},
 	"run_skill_pressure": {
 		"reference_card_picks": 4,
 		"hp_conversion": 0.65,
@@ -29,24 +38,32 @@
 	"late_wave_level_ramp": {
 		"start_level": 50,
 		"full_level": 98,
-		"max_mult": 1.8,
+		"max_mult": 2.05,
 		"curve_power": 1.0,
 		"final_level": 99,
-		"final_mult": 1.2
+		"final_mult": 1.12
 	},
 	"late_wave_damage_ramp": {
 		"start_level": 50,
 		"full_level": 98,
 		"start_wave": 3,
-		"max_mult": 2.0,
+		"max_mult": 1.0,
 		"curve_power": 1.0,
 		"final_level": 99,
-		"final_mult": 1.15
+		"final_mult": 1.0
 	},
 	"boss_hp_level_bonus": {
 		"start_level": 20,
 		"multiplier": 2.0
 	},
+  "boss_survival_hp_ramp": {
+    "start_level": 50,
+    "full_level": 98,
+    "max_mult": 56.0,
+    "curve_power": 1.15,
+    "final_level": 99,
+    "final_mult": 1.08
+  },
 	"endless_template_level": "level_025",
 	"endless_boss_immunity_grace_loops": 1,
 	"endless_first_loop_armor_hits_cap": 8,

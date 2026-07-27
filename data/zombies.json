@@ -14,6 +14,7 @@
 		],
 		"mechanic": "basic",
 		"mechanic_params": {},
+		"attack_animation": {"mode": "claw_drag", "duration": 0.56, "contact_ratio": 0.58, "contact_frame": 4, "lunge": 22},
 		"sprite": "res://assets/production/sprites/zombies/zombie_shambler_prototype.png"
 	},
 	"zombie_runner": {
@@ -38,6 +39,7 @@
 			"damage_coef": 0.08,
 			"pulse_interval": 2.6
 		},
+		"attack_animation": {"mode": "rapid_claw", "duration": 0.40, "contact_ratio": 0.45, "contact_frame": 4, "lunge": 28},
 		"sprite": "res://assets/production/sprites/zombies/zombie_runner_prototype.png"
 	},
 	"zombie_brute": {
@@ -55,6 +57,7 @@
 		],
 		"mechanic": "tank",
 		"mechanic_params": {},
+		"attack_animation": {"mode": "heavy_slam", "duration": 0.70, "contact_ratio": 0.62, "contact_frame": 4, "lunge": 20},
 		"sprite": "res://assets/production/sprites/zombies/zombie_brute_prototype.png"
 	},
 	"zombie_bomber": {
@@ -76,6 +79,7 @@
 			"radius": 160,
 			"damage_coef": 1.5
 		},
+		"attack_animation": {"mode": "core_blast", "duration": 0.64, "contact_ratio": 0.60, "contact_frame": 4, "lunge": 14},
 		"sprite": "res://assets/production/sprites/zombies/zombie_bomber_prototype.png"
 	},
 	"zombie_screamer": {
@@ -98,6 +102,7 @@
 			"speed_mult": 1.2,
 			"pulse_interval": 2.4
 		},
+		"attack_animation": {"mode": "sonic_burst", "duration": 0.62, "contact_ratio": 0.56, "contact_frame": 4, "lunge": 10},
 		"sprite": "res://assets/production/sprites/zombies/zombie_screamer_prototype.png"
 	},
 	"zombie_spitter": {
@@ -119,6 +124,7 @@
 			"skill_interval": 4.2,
 			"damage_coef": 0.35
 		},
+		"attack_animation": {"mode": "acid_spit", "duration": 0.58, "contact_ratio": 0.55, "contact_frame": 4, "lunge": 8},
 		"sprite": "res://assets/production/sprites/zombies/zombie_spitter_prototype.png"
 	},
 	"zombie_crawler": {
@@ -140,6 +146,7 @@
 			"damage_taken_mult": 0.92,
 			"pulse_interval": 3.6
 		},
+		"attack_animation": {"mode": "low_bite", "duration": 0.44, "contact_ratio": 0.46, "contact_frame": 4, "lunge": 26},
 		"sprite": "res://assets/production/sprites/zombies/zombie_crawler_prototype.png"
 	},
 	"zombie_armored": {
@@ -160,6 +167,7 @@
 			"shield_ratio": 0.35,
 			"pulse_interval": 3.8
 		},
+		"attack_animation": {"mode": "shoulder_ram", "duration": 0.60, "contact_ratio": 0.55, "contact_frame": 4, "lunge": 25},
 		"sprite": "res://assets/production/sprites/zombies/zombie_armored_prototype.png"
 	},
 	"zombie_shielder": {
@@ -182,6 +190,7 @@
 			"damage_taken_mult": 0.72,
 			"pulse_interval": 2.7
 		},
+		"attack_animation": {"mode": "shield_bash", "duration": 0.62, "contact_ratio": 0.57, "contact_frame": 4, "lunge": 24},
 		"sprite": "res://assets/production/sprites/zombies/zombie_shielder_prototype.png"
 	},
 	"zombie_hopper": {
@@ -205,6 +214,7 @@
 			"leap_advance": 82,
 			"damage_coef": 0.1
 		},
+		"attack_animation": {"mode": "leap_rake", "duration": 0.48, "contact_ratio": 0.48, "contact_frame": 4, "lunge": 30},
 		"sprite": "res://assets/production/sprites/zombies/zombie_hopper_prototype.png"
 	},
 	"zombie_juggernaut": {
@@ -228,6 +238,7 @@
 			"shock_interval": 5.6,
 			"damage_coef": 0.16
 		},
+		"attack_animation": {"mode": "piston_slam", "duration": 0.72, "contact_ratio": 0.63, "contact_frame": 4, "lunge": 18},
 		"sprite": "res://assets/production/sprites/zombies/zombie_juggernaut_prototype.png"
 	},
 	"zombie_phantom": {
@@ -250,6 +261,7 @@
 			"blink_advance": 74,
 			"damage_coef": 0.08
 		},
+		"attack_animation": {"mode": "phase_slash", "duration": 0.43, "contact_ratio": 0.43, "contact_frame": 4, "lunge": 28},
 		"sprite": "res://assets/production/sprites/zombies/zombie_phantom_prototype.png"
 	},
 	"zombie_necromancer": {
@@ -271,6 +283,7 @@
 			"skill_interval": 5.0,
 			"summon_id": "zombie_shambler"
 		},
+		"attack_animation": {"mode": "ritual_strike", "duration": 0.70, "contact_ratio": 0.62, "contact_frame": 4, "lunge": 10},
 		"sprite": "res://assets/production/sprites/zombies/zombie_necromancer_prototype.png"
 	},
 	"zombie_toxic": {
@@ -293,6 +306,7 @@
 			"damage_coef": 0.22,
 			"radius": 190
 		},
+		"attack_animation": {"mode": "corrosion_burst", "duration": 0.62, "contact_ratio": 0.58, "contact_frame": 4, "lunge": 12},
 		"sprite": "res://assets/production/sprites/zombies/zombie_toxic_prototype.png"
 	},
 	"zombie_charger": {
@@ -316,6 +330,7 @@
 			"charge_advance": 116,
 			"damage_coef": 0.18
 		},
+		"attack_animation": {"mode": "wedge_ram", "duration": 0.46, "contact_ratio": 0.47, "contact_frame": 4, "lunge": 34},
 		"sprite": "res://assets/production/sprites/zombies/zombie_charger_prototype.png"
 	},
 	"zombie_regenerator": {
@@ -337,6 +352,7 @@
 			"regen_pct_per_sec": 0.025,
 			"pulse_interval": 3.0
 		},
+		"attack_animation": {"mode": "regen_hook", "duration": 0.58, "contact_ratio": 0.52, "contact_frame": 4, "lunge": 22},
 		"sprite": "res://assets/production/sprites/zombies/zombie_regenerator_prototype.png"
 	},
 	"zombie_splitter": {
@@ -357,6 +373,7 @@
 			"split_count": 2,
 			"split_id": "zombie_crawler"
 		},
+		"attack_animation": {"mode": "triple_maul", "duration": 0.56, "contact_ratio": 0.50, "contact_frame": 4, "lunge": 20},
 		"sprite": "res://assets/production/sprites/zombies/zombie_splitter_prototype.png"
 	},
 	"zombie_warden": {
@@ -379,6 +396,7 @@
 			"damage_taken_mult": 0.66,
 			"pulse_interval": 2.8
 		},
+		"attack_animation": {"mode": "ward_pulse", "duration": 0.66, "contact_ratio": 0.60, "contact_frame": 4, "lunge": 8},
 		"sprite": "res://assets/production/sprites/zombies/zombie_warden_prototype.png"
 	},
 	"zombie_mutant": {
@@ -402,6 +420,7 @@
 			"damage_mult": 1.22,
 			"heal_ratio": 0.12
 		},
+		"attack_animation": {"mode": "mutant_hook", "duration": 0.62, "contact_ratio": 0.54, "contact_frame": 4, "lunge": 26},
 		"sprite": "res://assets/production/sprites/zombies/zombie_mutant_prototype.png"
 	},
 	"zombie_berserker": {
@@ -424,6 +443,7 @@
 			"speed_mult": 1.35,
 			"damage_mult": 1.25
 		},
+		"attack_animation": {"mode": "claw_combo", "duration": 0.42, "contact_ratio": 0.40, "contact_frame": 4, "lunge": 30},
 		"sprite": "res://assets/production/sprites/zombies/zombie_berserker_prototype.png"
 	}
 }

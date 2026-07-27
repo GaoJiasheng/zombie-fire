@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "coordinate_system": {
+    "screen_right_degrees": 0.0,
+    "screen_down_degrees": 90.0,
+    "enemy_advance": "screen_down",
+    "player_fire": "runtime_target_vector"
+  },
+  "directional_sequences": {
+    "vfx_enemy_skill_runner_dash": {
+      "source_forward_degrees": 0.0,
+      "runtime_direction": "enemy_advance",
+      "meaning": "The speed wedge and its tip must point from the zombie toward the base."
+    },
+    "vfx_enemy_skill_charge": {
+      "source_forward_degrees": 0.0,
+      "runtime_direction": "enemy_advance",
+      "meaning": "The charge cone must point from the charger toward the base."
+    },
+    "vfx_enemy_skill_leap_strike": {
+      "source_forward_degrees": 45.0,
+      "runtime_direction": "enemy_advance",
+      "meaning": "The authored arc runs upper-left to lower-right and must be rotated so its landing point is below the zombie."
+    },
+    "vfx_enemy_skill_phase_shift": {
+      "source_forward_degrees": 0.0,
+      "runtime_direction": "enemy_advance",
+      "meaning": "The phase trail must follow the boss movement toward the base."
+    },
+    "vfx_enemy_skill_ranged_spit": {
+      "source_forward_degrees": 0.0,
+      "runtime_direction": "enemy_advance_or_target_vector",
+      "meaning": "The venom launch wedge must point from the spitter toward its target."
+    }
+  },
+  "directional_projectiles": {
+    "source_forward_degrees": 0.0,
+    "runtime_direction": "velocity_or_target_vector",
+    "paths": [
+      "assets/production/sprites/projectiles/proj_acid_spit.png",
+      "assets/production/sprites/projectiles/proj_bullet_fire.png",
+      "assets/production/sprites/projectiles/proj_bullet_ice.png",
+      "assets/production/sprites/projectiles/proj_bullet_lightning.png",
+      "assets/production/sprites/projectiles/proj_bullet_physical.png",
+      "assets/production/sprites/projectiles/proj_bullet_poison.png",
+      "assets/production/sprites/projectiles/proj_heavy_charge.png",
+      "assets/production/sprites/projectiles/proj_plasma_orb.png",
+      "assets/production/sprites/projectiles/proj_rail_slug.png",
+      "assets/production/sprites/projectiles/proj_scatter_pellet.png",
+      "assets/production/sprites/projectiles/proj_split_mini.png"
+    ]
+  },
+  "directional_muzzles": {
+    "source_forward_degrees": 0.0,
+    "runtime_direction": "weapon_fire_direction",
+    "sequence_ids": [
+      "vfx_muzzle_physical",
+      "vfx_muzzle_fire",
+      "vfx_muzzle_ice",
+      "vfx_muzzle_lightning",
+      "vfx_muzzle_poison"
+    ]
+  },
+  "semantic_groups": {
+    "boss_attacks": {
+      "prefix": "vfx_boss_attack_",
+      "minimum_count": 8,
+      "contract": "cast origin, travel path when applicable, and base impact must form one continuous cause-and-effect chain"
+    },
+    "boss_skills": {
+      "prefix": "vfx_enemy_skill_",
+      "minimum_count": 27,
+      "contract": "the effect must stay attached to its source, destination, or declared area and must agree with mechanic movement"
+    },
+    "character_actives": {
+      "prefix": "vfx_active_",
+      "minimum_count": 5,
+      "contract": "cast origin and affected battlefield region must be visible without covering critical HUD information"
+    },
+    "card_skill_casts": {
+      "prefix": "vfx_skill_cast_",
+      "minimum_count": 16,
+      "contract": "pickup/cast feedback must be centered on the player and remain inside the viewport"
+    },
+    "hits": {
+      "prefix": "vfx_hit_",
+      "minimum_count": 8,
+      "contract": "impact core must overlap the damaged target"
+    },
+    "deaths": {
+      "prefix": "vfx_death_",
+      "minimum_count": 5,
+      "contract": "death effect must originate at the defeated enemy and may not expose a rectangular source crop"
+    }
+  },
+  "visual_distinctness_groups": {
+    "enemy_poison_actions": {
+      "sequence_ids": [
+        "vfx_enemy_skill_corrosion",
+        "vfx_enemy_skill_ranged_spit",
+        "vfx_enemy_skill_toxic_cloud",
+        "vfx_enemy_skill_regen"
+      ],
+      "minimum_unique_mid_frames": 4,
+      "contract": "impact, directional launch, persistent ground area, and healing column must not collapse to the same silhouette"
+    }
+  },
+  "hard_edge_exceptions": {
+    "vfx_boss_phase": "An authored horizontal phase band; its long left/right boundary is the graphic's intended silhouette, not an atlas crop.",
+    "vfx_levelup_glow": "An authored vertical rank beam; its bottom boundary is intentionally grounded under the unit.",
+    "vfx_target_lock": "A wide targeting bracket whose long lateral edges are intentional UI geometry.",
+    "vfx_threat_warning": "A wide warning bracket whose long lateral edges are intentional UI geometry."
+  },
+  "screen_acceptance": {
+    "required_viewports": [
+      [1080, 1920],
+      [1080, 2348]
+    ],
+    "rules": [
+      "No unexplained hard crop or rectangular alpha plate.",
+      "Directional tip, trail, actor movement, and destination agree.",
+      "Projectile launch point, flight path, and impact point are continuous.",
+      "Area effect center and visible radius agree with the gameplay target area.",
+      "Critical HUD bars and buttons remain readable during peak frames."
+    ]
+  }
+}

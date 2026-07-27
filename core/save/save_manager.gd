@@ -848,6 +848,40 @@ func _pet_stat_power(pet_id: String) -> float:
 				score += value * 1.4
 			_:
 				score += value * 4.0
+	if str(row.get("role", "")) == "repair":
+		var level_offset := float(max(level - 1, 0))
+		var wave_ratio := float(row.get("heal_per_wave_ratio", 0.0)) + float(row.get("level_wave_heal_ratio_growth", 0.0)) * level_offset
+		var repair_ratio := float(row.get("repair_ratio", 0.0)) + float(row.get("level_repair_ratio_growth", 0.0)) * level_offset
+		var emergency_ratio := float(row.get("emergency_heal_ratio", 0.0)) + float(row.get("level_emergency_heal_growth", 0.0)) * level_offset
+		var repair_interval := maxf(1.0, float(row.get("repair_interval", 18.0)))
+		score += wave_ratio * 18.0
+		score += repair_ratio * (60.0 / repair_interval) * 12.0
+		score += emergency_ratio * 8.0
+	var pet_skill: Dictionary = row.get("pet_skill", {})
+	var skill_level_offset := float(max(level - 1, 0))
+	match str(pet_skill.get("kind", "")):
+		"overclock":
+			var duration := float(pet_skill.get("duration", 0.0)) + float(pet_skill.get("level_duration_growth", 0.0)) * skill_level_offset
+			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
+			var fire_rate := float(pet_skill.get("fire_rate_mult", 1.0)) + float(pet_skill.get("level_fire_rate_growth", 0.0)) * skill_level_offset
+			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
+			score += maxf(fire_rate * damage - 1.0, 0.0) * clampf(duration / cooldown, 0.0, 1.0) * 4.0
+		"area_blast":
+			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
+			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
+			var radius := float(pet_skill.get("radius", 0.0)) + float(pet_skill.get("level_radius_growth", 0.0)) * skill_level_offset
+			score += damage * clampf(radius / 180.0, 0.5, 3.0) / cooldown * 8.0
+		"multi_strike":
+			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
+			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
+			var extra_every := maxi(1, int(pet_skill.get("extra_target_every", 10)))
+			var target_count := int(pet_skill.get("target_count", 1)) + int(max(level - 1, 0) / extra_every)
+			var falloff := clampf(float(pet_skill.get("target_falloff", 0.9)), 0.55, 1.0)
+			var effective_targets := (1.0 - pow(falloff, float(target_count))) / maxf(1.0 - falloff, 0.001)
+			score += damage * effective_targets / cooldown * 3.0
+		"wave_salvage":
+			var equivalent := float(pet_skill.get("kill_equivalent", 0.0)) + float(pet_skill.get("level_salvage_growth", 0.0)) * skill_level_offset
+			score += equivalent * 0.25
 	return score
 
 # 推荐战力和玩家战力使用同一套“战前核心 + 局内技能成型”量纲。
@@ -900,6 +934,8 @@ func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
 	var level_parts := str(level.get("id", "level_001")).split("_")
 	var level_no := int(level_parts[level_parts.size() - 1]) if level_parts.size() > 0 else 1
 	var ramp_mult := _recommended_power_late_wave_ramp_mult(economy, level_no)
+	var count_ramp_mult := _recommended_power_count_ramp_mult(economy, level_no)
+	var boss_survival_mult := _recommended_power_boss_survival_mult(economy, level_no)
 	var late_score := 0.0
 	var table_var = economy.get("late_wave_hp_bonus", {})
 	var boss_table_var = economy.get("late_wave_boss_hp_bonus", {})
@@ -913,11 +949,12 @@ func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
 			continue
 		var wave_mult := float(table.get(str(wave_no), table.get(wave_no, 1.0))) * ramp_mult
 		late_score += maxf(0.0, wave_mult - 1.0)
-		var count_mult := float(count_table.get(str(wave_no), count_table.get(wave_no, 1.0)))
+		var count_mult := float(count_table.get(str(wave_no), count_table.get(wave_no, 1.0))) * count_ramp_mult
 		late_score += maxf(0.0, count_mult - 1.0) * 0.9
 		if wave.has("boss"):
 			var boss_mult := float(boss_table.get(str(wave_no), boss_table.get(wave_no, 1.0))) * ramp_mult
 			late_score += maxf(0.0, boss_mult - 1.0) * 0.85
+			late_score += log(maxf(1.0, boss_survival_mult)) / log(2.0) * 1.2
 	return int(round(late_score * 4.0))
 
 func _recommended_power_late_wave_ramp_mult(economy: Dictionary, level_no: int) -> float:
@@ -926,6 +963,32 @@ func _recommended_power_late_wave_ramp_mult(economy: Dictionary, level_no: int) 
 	var start_level := float(rule.get("start_level", 9999))
 	var full_level := float(rule.get("full_level", start_level))
 	var max_mult := float(rule.get("max_mult", 1.0))
+	var curve_power := maxf(0.01, float(rule.get("curve_power", 1.0)))
+	if float(level_no) < start_level:
+		return 1.0
+	var ramp_mult := max_mult
+	if full_level > start_level:
+		var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
+		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
+	var final_level := int(rule.get("final_level", 0))
+	if final_level > 0 and level_no >= final_level:
+		ramp_mult *= maxf(1.0, float(rule.get("final_mult", 1.0)))
+	return ramp_mult
+
+func _recommended_power_count_ramp_mult(economy: Dictionary, level_no: int) -> float:
+	var rule_var = economy.get("late_wave_count_level_ramp", {})
+	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
+	return _recommended_power_progression_ramp_mult(rule, level_no)
+
+func _recommended_power_boss_survival_mult(economy: Dictionary, level_no: int) -> float:
+	var rule_var = economy.get("boss_survival_hp_ramp", {})
+	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
+	return _recommended_power_progression_ramp_mult(rule, level_no)
+
+func _recommended_power_progression_ramp_mult(rule: Dictionary, level_no: int) -> float:
+	var start_level := float(rule.get("start_level", 9999))
+	var full_level := float(rule.get("full_level", start_level))
+	var max_mult := maxf(1.0, float(rule.get("max_mult", 1.0)))
 	var curve_power := maxf(0.01, float(rule.get("curve_power", 1.0)))
 	if float(level_no) < start_level:
 		return 1.0

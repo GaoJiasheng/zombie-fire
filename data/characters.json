@@ -58,7 +58,7 @@
 		"role_tag": "burst",
 		"base_atk": 112,
 		"base_hp": 88,
-		"atk_growth": 0.1,
+		"atk_growth": 0.08,
 		"hp_growth": 0.045,
 		"max_level": 40,
 		"cost_base_gold": 165,
@@ -75,6 +75,7 @@
 			"cooldown": 16.0,
 			"damage_mult": 3.6,
 			"radius": 260.0,
+			"weapon_level_inherit": 0.65,
 			"level_damage_growth": 0.02,
 			"rank_damage_bonus": 0.12,
 			"level_radius_growth": 0.004,
@@ -92,8 +93,8 @@
 		},
 		"bullet_affinity": {
 			"element": "fire",
-			"damage_bonus": 0.14,
-			"rank_damage_bonus": 0.035,
+			"damage_bonus": 0.04,
+			"rank_damage_bonus": 0.015,
 			"splash_bonus": 70.0,
 			"rank_splash_bonus": 18.0,
 			"status_bonus": 0.35
@@ -103,7 +104,7 @@
 			"burn",
 			"anti_swarm"
 		],
-		"unlock_cost_star": 15,
+		"unlock_cost_star": 10,
 		"portrait": "res://assets/production/sprites/characters/char_blaze_icon.png",
 		"passive": "flame_overdrive"
 	},
@@ -129,13 +130,14 @@
 			"scaling_basis": "character",
 			"cooldown": 18.0,
 			"duration": 5.0,
-			"damage_mult": 0.34,
+			"damage_mult": 1.6,
 			"field_y": 860.0,
-			"level_damage_growth": 0.018,
-			"rank_damage_bonus": 0.1,
+			"weapon_level_inherit": 0.9,
+			"level_damage_growth": 0.028,
+			"rank_damage_bonus": 0.16,
 			"rank_duration_bonus": 0.45,
 			"rank_field_y_extend": 26.0,
-			"sig_level_damage_bonus": 0.1,
+			"sig_level_damage_bonus": 0.12,
 			"sig_level_cooldown_reduction": 0.03,
 			"sig_level_duration_bonus": 0.5,
 			"sig_level_slow_factor_bonus": 0.015,
@@ -161,7 +163,7 @@
 			"defense",
 			"ice"
 		],
-		"unlock_cost_star": 25,
+		"unlock_cost_star": 12,
 		"portrait": "res://assets/production/sprites/characters/char_frost_icon.png",
 		"passive": "frost_command"
 	},
@@ -186,16 +188,17 @@
 			"id": "sig_volt_storm",
 			"scaling_basis": "character",
 			"cooldown": 14.0,
-			"damage_mult": 2.1,
-			"max_targets": 6,
-			"level_damage_growth": 0.019,
-			"rank_damage_bonus": 0.11,
-			"sig_level_damage_bonus": 0.1,
+			"damage_mult": 2.45,
+			"max_targets": 8,
+			"weapon_level_inherit": 0.9,
+			"level_damage_growth": 0.028,
+			"rank_damage_bonus": 0.17,
+			"sig_level_damage_bonus": 0.12,
 			"sig_level_cooldown_reduction": 0.03,
 			"sig_level_extra_target_every": 2,
 			"sig_level_extra_strike_every": 2,
-			"rank_target_bonus": 1,
-			"rank_extra_strikes": 1
+			"rank_target_bonus": 2,
+			"rank_extra_strikes": 2
 		},
 		"bullet_affinity": {
 			"element": "lightning",
@@ -203,6 +206,9 @@
 			"rank_damage_bonus": 0.03,
 			"chain_bonus": 1,
 			"rank_chain_bonus": 1,
+			"chain_overflow_reference": 5,
+			"chain_overflow_damage_bonus": 0.02,
+			"chain_target_falloff": 0.92,
 			"status_bonus": 0.2
 		},
 		"card_affinity_tags": [
@@ -210,7 +216,7 @@
 			"projectile",
 			"lightning"
 		],
-		"unlock_cost_star": 40,
+		"unlock_cost_star": 16,
 		"portrait": "res://assets/production/sprites/characters/char_volt_icon.png",
 		"passive": "volt_chain"
 	}

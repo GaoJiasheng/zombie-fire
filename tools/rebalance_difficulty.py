@@ -52,9 +52,11 @@ CHIP_DAMAGE_MULT = 1.20
 
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
 DEFAULT_LATE_WAVE_COUNT_MULT = {"4": 2.0, "5": 3.0}
+DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP = {"start_level": 55, "full_level": 90, "start_wave": 3, "max_mult": 1.25, "curve_power": 1.0, "final_level": 99, "final_mult": 1.08}
 DEFAULT_LATE_WAVE_BOSS_HP_BONUS = {"3": 1.30, "4": 1.50, "5": 1.75}
-DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 1.80, "curve_power": 1.0, "final_level": 99, "final_mult": 1.20}
+DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 2.05, "curve_power": 1.0, "final_level": 99, "final_mult": 1.12}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
+DEFAULT_BOSS_SURVIVAL_HP_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08}
 
 
 def load_json(name: str):
@@ -105,11 +107,26 @@ def late_wave_hp_bonus(economy: dict, wave_no: int, boss: bool = False, level_no
     return base
 
 
-def late_wave_count_mult(economy: dict, wave_no: int) -> float:
+def late_wave_count_mult(economy: dict, wave_no: int, level_no: int = 0) -> float:
     table = economy.get("late_wave_count_mult", DEFAULT_LATE_WAVE_COUNT_MULT)
     if not isinstance(table, dict):
         table = DEFAULT_LATE_WAVE_COUNT_MULT
-    return max(1.0, float(table.get(str(wave_no), table.get(wave_no, DEFAULT_LATE_WAVE_COUNT_MULT.get(str(wave_no), 1.0)))))
+    base = max(1.0, float(table.get(str(wave_no), table.get(wave_no, DEFAULT_LATE_WAVE_COUNT_MULT.get(str(wave_no), 1.0)))))
+    rule = economy.get("late_wave_count_level_ramp", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP)
+    if not isinstance(rule, dict) or wave_no < int(rule.get("start_wave", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["start_wave"])):
+        return base
+    start_level = float(rule.get("start_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["start_level"]))
+    if float(level_no) < start_level:
+        return base
+    full_level = float(rule.get("full_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["full_level"]))
+    max_mult = max(1.0, float(rule.get("max_mult", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["max_mult"])))
+    ramp = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        ramp = 1.0 + (max_mult - 1.0) * (t ** max(0.01, float(rule.get("curve_power", 1.0))))
+    if level_no >= int(rule.get("final_level", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["final_level"])):
+        ramp *= max(1.0, float(rule.get("final_mult", DEFAULT_LATE_WAVE_COUNT_LEVEL_RAMP["final_mult"])))
+    return base * ramp
 
 
 def boss_hp_level_bonus(economy: dict, level_no: int) -> float:
@@ -119,6 +136,24 @@ def boss_hp_level_bonus(economy: dict, level_no: int) -> float:
     start_level = int(rule.get("start_level", DEFAULT_BOSS_HP_LEVEL_BONUS["start_level"]))
     multiplier = float(rule.get("multiplier", DEFAULT_BOSS_HP_LEVEL_BONUS["multiplier"]))
     return multiplier if level_no >= start_level else 1.0
+
+
+def boss_survival_hp_ramp(economy: dict, level_no: int) -> float:
+    rule = economy.get("boss_survival_hp_ramp", DEFAULT_BOSS_SURVIVAL_HP_RAMP)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_BOSS_SURVIVAL_HP_RAMP
+    start_level = float(rule.get("start_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP["start_level"]))
+    if float(level_no) < start_level:
+        return 1.0
+    full_level = float(rule.get("full_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP["full_level"]))
+    max_mult = max(1.0, float(rule.get("max_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP["max_mult"])))
+    ramp = max_mult
+    if full_level > start_level:
+        t = max(0.0, min(1.0, (float(level_no) - start_level) / (full_level - start_level)))
+        ramp = 1.0 + (max_mult - 1.0) * (t ** max(0.01, float(rule.get("curve_power", 1.15))))
+    if level_no >= int(rule.get("final_level", DEFAULT_BOSS_SURVIVAL_HP_RAMP["final_level"])):
+        ramp *= max(1.0, float(rule.get("final_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP["final_mult"])))
+    return ramp
 
 
 def base_hp_ref(n: int) -> int:
@@ -175,31 +210,31 @@ def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) 
     return damage * fr * estimate_skill_mult(n)
 
 
-def enemy_hp_weight(waves: list[dict], zombies: dict, bosses: dict, economy: dict) -> float:
+def enemy_hp_weight(waves: list[dict], zombies: dict, bosses: dict, economy: dict, level_no: int) -> float:
     total = 0.0
     for wave in waves:
-        count_mult = late_wave_count_mult(economy, wave_number(wave))
+        count_mult = late_wave_count_mult(economy, wave_number(wave), level_no)
         for spawn in wave.get("spawns", []):
             total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
-            total += float(bosses[wave["boss"]].get("hp_coef", 18.0))
+            total += float(bosses[wave["boss"]].get("hp_coef", 18.0)) * boss_survival_hp_ramp(economy, level_no)
         for spawn in wave.get("support", []):
             total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
     return max(total, 1.0)
 
 
-def total_spawn_seconds(waves: list[dict], economy: dict) -> float:
+def total_spawn_seconds(waves: list[dict], economy: dict, level_no: int) -> float:
     duration = 0.0
     for wave in waves:
-        count_mult = late_wave_count_mult(economy, wave_number(wave))
+        count_mult = late_wave_count_mult(economy, wave_number(wave), level_no)
         for spawn in wave.get("spawns", []) + wave.get("support", []):
             duration += int(round(int(spawn.get("count", 0)) * count_mult)) * float(spawn.get("interval", 0.8))
     return duration
 
 
 def difficulty_coef(n: int, boss_level: bool, waves: list[dict], zombies: dict, bosses: dict, characters: dict, weapons: dict, economy: dict) -> float:
-    target_hp = estimate_player_dps(characters, weapons, economy, n) * total_spawn_seconds(waves, economy) * target_pressure_ratio(n, boss_level)
-    raw = target_hp / (float(base_hp_ref(n)) * enemy_hp_weight(waves, zombies, bosses, economy))
+    target_hp = estimate_player_dps(characters, weapons, economy, n) * total_spawn_seconds(waves, economy, n) * target_pressure_ratio(n, boss_level)
+    raw = target_hp / (float(base_hp_ref(n)) * enemy_hp_weight(waves, zombies, bosses, economy, n))
     return round(max(0.08, raw), 3)
 
 
@@ -496,13 +531,13 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> f
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
         mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
-        count_mult = late_wave_count_mult(economy, wave_no)
+        count_mult = late_wave_count_mult(economy, wave_no, level_no)
         for grp in wave.get("spawns", []) + wave.get("support", []):
             row = zombies[grp["type"]]
             count = int(round(int(grp.get("count", 1)) * count_mult))
             raw += count * float(row.get("hp_coef", 1.0)) * mob_bonus * float(row.get("bd_coef", 1.0))
         if "boss" in wave:
-            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * 8.0
+            raw += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * boss_survival_hp_ramp(economy, level_no) * 8.0
     return raw * float(level.get("difficulty_coef", 1.0))
 
 

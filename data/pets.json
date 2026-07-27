@@ -6,6 +6,20 @@
 		"damage": 10,
 		"element": "physical",
 		"level_damage_growth": 0.06,
+		"pet_skill": {
+			"id": "overheat_burst",
+			"name": "过热爆发",
+			"kind": "overclock",
+			"cooldown": 13.0,
+			"duration": 3.5,
+			"level_duration_growth": 0.025,
+			"fire_rate_mult": 1.55,
+			"level_fire_rate_growth": 0.012,
+			"damage_mult": 1.10,
+			"level_damage_mult_growth": 0.004,
+			"sequence": "vfx_skill_cast_salvo",
+			"sfx": "skill_salvo"
+		},
 		"stat_bonus": {
 			"damage_mult": 0.03,
 			"fire_rate_mult": 0.015
@@ -16,7 +30,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 130,
-		"unlock_cost_star": 35,
+		"unlock_cost_star": 8,
 		"icon": "res://assets/production/sprites/pets/pet_turret_drone_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_turret_drone_prototype.png"
 	},
@@ -27,6 +41,20 @@
 		"damage": 12,
 		"element": "fire",
 		"level_damage_growth": 0.065,
+		"pet_skill": {
+			"id": "molten_burst",
+			"name": "熔火爆发",
+			"kind": "area_blast",
+			"cooldown": 14.0,
+			"damage_mult": 1.70,
+			"level_damage_mult_growth": 0.02,
+			"radius": 140.0,
+			"level_radius_growth": 1.2,
+			"status_strength": 1.25,
+			"level_status_growth": 0.006,
+			"sequence": "vfx_skill_cast_incendiary",
+			"sfx": "skill_incendiary"
+		},
 		"stat_bonus": {
 			"element_damage_mult": 0.05,
 			"crit_rate": 0.015
@@ -37,7 +65,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 145,
-		"unlock_cost_star": 38,
+		"unlock_cost_star": 9,
 		"icon": "res://assets/production/sprites/pets/pet_fire_imp_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_fire_imp_prototype.png"
 	},
@@ -48,6 +76,20 @@
 		"damage": 8,
 		"element": "ice",
 		"level_damage_growth": 0.055,
+		"pet_skill": {
+			"id": "frost_domain",
+			"name": "寒霜领域",
+			"kind": "area_blast",
+			"cooldown": 16.0,
+			"damage_mult": 0.85,
+			"level_damage_mult_growth": 0.012,
+			"radius": 270.0,
+			"level_radius_growth": 2.0,
+			"status_strength": 1.40,
+			"level_status_growth": 0.01,
+			"sequence": "vfx_skill_cast_cryo",
+			"sfx": "skill_cryo"
+		},
 		"stat_bonus": {
 			"slow_strength_mult": 0.08,
 			"base_hp_mult": 0.025
@@ -58,7 +100,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 135,
-		"unlock_cost_star": 40,
+		"unlock_cost_star": 10,
 		"icon": "res://assets/production/sprites/pets/pet_frost_wisp_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_frost_wisp_prototype.png"
 	},
@@ -69,6 +111,21 @@
 		"damage": 9,
 		"element": "lightning",
 		"level_damage_growth": 0.06,
+		"pet_skill": {
+			"id": "arc_overload",
+			"name": "电弧过载",
+			"kind": "multi_strike",
+			"cooldown": 13.0,
+			"damage_mult": 1.30,
+			"level_damage_mult_growth": 0.015,
+			"target_count": 3,
+			"extra_target_every": 10,
+			"status_strength": 1.25,
+			"level_status_growth": 0.008,
+			"target_falloff": 0.90,
+			"sequence": "vfx_skill_cast_tesla",
+			"sfx": "skill_tesla"
+		},
 		"stat_bonus": {
 			"chain_bonus": 1,
 			"fire_rate_mult": 0.02
@@ -79,7 +136,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 145,
-		"unlock_cost_star": 45,
+		"unlock_cost_star": 11,
 		"icon": "res://assets/production/sprites/pets/pet_volt_orb_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_volt_orb_prototype.png"
 	},
@@ -88,6 +145,20 @@
 		"role": "repair",
 		"heal_per_wave": 8,
 		"level_heal_growth": 0.04,
+		"heal_per_wave_ratio": 0.05,
+		"level_wave_heal_ratio_growth": 0.001,
+		"repair_interval": 18.0,
+		"repair_ratio": 0.01,
+		"level_repair_ratio_growth": 0.00025,
+		"emergency_threshold": 0.35,
+		"emergency_heal_ratio": 0.08,
+		"level_emergency_heal_growth": 0.0015,
+		"emergency_cooldown": 45.0,
+		"pet_skill": {
+			"id": "defense_life_support",
+			"name": "防线维生",
+			"kind": "repair"
+		},
 		"stat_bonus": {
 			"base_hp_mult": 0.07,
 			"breach_damage_reduction": 0.05
@@ -98,7 +169,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 125,
-		"unlock_cost_star": 120,
+		"unlock_cost_star": 13,
 		"icon": "res://assets/production/sprites/pets/pet_medic_drone_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_medic_drone_prototype.png"
 	},
@@ -107,6 +178,15 @@
 		"role": "economy",
 		"gold_mult": 0.08,
 		"level_gold_growth": 0.025,
+		"pet_skill": {
+			"id": "battlefield_salvage",
+			"name": "战场回收",
+			"kind": "wave_salvage",
+			"kill_equivalent": 3.0,
+			"level_salvage_growth": 0.075,
+			"sequence": "vfx_skill_cast_gold_rush",
+			"sfx": "skill_gold_rush"
+		},
 		"stat_bonus": {
 			"gold_mult": 0.04,
 			"damage_mult": 0.015
@@ -117,7 +197,7 @@
 		},
 		"max_level": 30,
 		"cost_base_gold": 155,
-		"unlock_cost_star": 230,
+		"unlock_cost_star": 14,
 		"icon": "res://assets/production/sprites/pets/pet_collector_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_collector_prototype.png"
 	}

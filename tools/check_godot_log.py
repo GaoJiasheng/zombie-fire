@@ -18,9 +18,20 @@ LEAK_RE = re.compile(
 
 def find_godot_log_issues(output: str) -> list[str]:
     issues: list[str] = []
-    for line in output.splitlines():
+    lines = output.splitlines()
+    for index, line in enumerate(lines):
         stripped = line.strip()
         if ERROR_RE.match(stripped) or LEAK_RE.match(stripped):
+            nearby = "\n".join(lines[index : index + 3])
+            if (
+                stripped == 'ERROR: Condition "ret != noErr" is true. Returning: ""'
+                and "get_system_ca_certificates (platform/macos/os_macos.mm:1035)"
+                in nearby
+            ):
+                # macOS denies Keychain certificate enumeration in some sandboxed
+                # headless runners. The game is fully offline and this does not
+                # represent a project/runtime resource failure.
+                continue
             if stripped not in issues:
                 issues.append(stripped)
     return issues

@@ -74,9 +74,28 @@ def main() -> int:
     if midline_cost < campaign_gold * 0.18:
         errors.append(f"core level-25 path too cheap; gold loses value: cost={midline_cost}, gold={campaign_gold}")
 
-    max_star_unlock = max(int(row.get("unlock_cost_star", 0)) for table in [characters, weapons, armors, chips, pets] for row in table.values())
-    if max_star_unlock < 220:
-        errors.append("late star unlock target is too low")
+    collection_tables = [characters, weapons, armors, chips, pets]
+    paid_star_unlocks = [
+        int(row.get("unlock_cost_star", 0))
+        for table in collection_tables
+        for row in table.values()
+        if int(row.get("unlock_cost_star", 0)) > 0
+    ]
+    max_star_unlock = max(paid_star_unlocks)
+    total_star_unlock = sum(paid_star_unlocks)
+    normal_campaign_stars = len(levels) * 3
+    if max_star_unlock > 16:
+        errors.append(f"single-item star price is too steep: max={max_star_unlock}")
+    if total_star_unlock > normal_campaign_stars + 30:
+        errors.append(
+            f"full collection needs too many challenge stars: "
+            f"total={total_star_unlock}, normal={normal_campaign_stars}"
+        )
+    if total_star_unlock < normal_campaign_stars:
+        errors.append(
+            f"full collection is too cheap to preserve challenge progression: "
+            f"total={total_star_unlock}, normal={normal_campaign_stars}"
+        )
 
     if errors:
         print("Economy loop check failed:")
@@ -86,6 +105,10 @@ def main() -> int:
     print("Economy loop OK")
     print(f"early_gold={early_gold} starter_cost={starter_cost}")
     print(f"campaign_gold={campaign_gold} core_level25_cost={midline_cost}")
+    print(
+        f"star_unlock_total={total_star_unlock} max_item={max_star_unlock} "
+        f"normal_campaign={normal_campaign_stars} challenge_needed={total_star_unlock - normal_campaign_stars}"
+    )
     return 0
 
 

@@ -73,6 +73,14 @@ BOSS_ATTACK_CAPTURE_FRAMES = {
     "boss_apex_overlord": 60,
 }
 
+PET_SKILL_PETS = [
+    "pet_turret_drone",
+    "pet_fire_imp",
+    "pet_frost_wisp",
+    "pet_volt_orb",
+    "pet_collector",
+]
+
 BASE_SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {}, "menu"),
     ("map", {}, "map"),
@@ -165,6 +173,67 @@ SCREENS: list[tuple[str, dict, str]] = (
             },
             "battle_tall_dense_information",
         ),
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "debug_zombie_model_showcase": "redesigned",
+                "warmup_frames": 6,
+            },
+            "battle_zombie_models_redesigned",
+        ),
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "debug_zombie_model_showcase": "roster",
+                "warmup_frames": 6,
+            },
+            "battle_zombie_models_roster",
+        ),
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "debug_zombie_model_showcase": "dense",
+                "warmup_frames": 6,
+            },
+            "battle_zombie_models_dense",
+        ),
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "viewport_size": [1080, 2340],
+                "debug_zombie_model_showcase": "redesigned",
+                "warmup_frames": 6,
+            },
+            "battle_tall_zombie_models_redesigned",
+        ),
+        *[
+            (
+                "battle",
+                {
+                    "level_id": "level_001",
+                    "debug_zombie_attack_showcase": group,
+                    "warmup_frames": 4,
+                },
+                f"battle_zombie_attack_group_{group + 1}",
+            )
+            for group in range(4)
+        ],
+        *[
+            (
+                "battle",
+                {
+                    "level_id": "level_050",
+                    "equipment": {"selected_pet": pet_id, pet_id: 30},
+                    "debug_pet_skill": True,
+                },
+                f"battle_pet_skill_{pet_id}",
+            )
+            for pet_id in PET_SKILL_PETS
+        ],
         *[
             (
                 "battle",
@@ -278,13 +347,27 @@ SCREENS: list[tuple[str, dict, str]] = (
             "collection",
             {
                 "mode": "pets",
-                "detail_item": "pet_turret_drone",
-                "equipment": {"selected_pet": "pet_turret_drone"},
+                "detail_item": "pet_medic_drone",
+                "equipment": {"selected_pet": "pet_medic_drone", "pet_medic_drone": 30},
                 "viewport_size": [1080, 2340],
                 "_visual_safe_insets": DEBUG_SAFE_INSETS,
             },
-            "collection_detail_tall_pet_safe_area",
+            "collection_detail_tall_medic_pet_safe_area",
         ),
+        *[
+            (
+                "collection",
+                {
+                    "mode": "pets",
+                    "detail_item": pet_id,
+                    "equipment": {"selected_pet": pet_id, pet_id: 30},
+                    "viewport_size": [1080, 2340],
+                    "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                },
+                f"collection_detail_tall_{pet_id}_safe_area",
+            )
+            for pet_id in PET_SKILL_PETS
+        ],
         (
             "settings",
             {"viewport_size": [1080, 2340], "_visual_safe_insets": DEBUG_SAFE_INSETS},

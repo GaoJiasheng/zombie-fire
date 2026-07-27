@@ -42,7 +42,7 @@
 		"icon": "res://assets/production/sprites/weapons/weapon_flamethrower_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_flamethrower_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_flamethrower_turret.png",
-		"unlock_cost_star": 12
+		"unlock_cost_star": 8
 	},
 	"weapon_cryocannon": {
 		"name_key": "weapon_cryocannon",
@@ -59,12 +59,12 @@
 		"cost_base_gold": 180,
 		"unlock": {
 			"type": "stars",
-			"price": 12
+			"price": 8
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_cryocannon_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_cryocannon_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_cryocannon_turret.png",
-		"unlock_cost_star": 12
+		"unlock_cost_star": 8
 	},
 	"weapon_teslacoil": {
 		"name_key": "weapon_teslacoil",
@@ -81,12 +81,12 @@
 		"cost_base_gold": 240,
 		"unlock": {
 			"type": "stars",
-			"price": 18
+			"price": 10
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_teslacoil_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_teslacoil_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_teslacoil_turret.png",
-		"unlock_cost_star": 14
+		"unlock_cost_star": 10
 	},
 	"weapon_venomlauncher": {
 		"name_key": "weapon_venomlauncher",
@@ -104,12 +104,12 @@
 		"cost_base_gold": 240,
 		"unlock": {
 			"type": "stars",
-			"price": 24
+			"price": 10
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_venomlauncher_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_venomlauncher_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_venomlauncher_turret.png",
-		"unlock_cost_star": 16
+		"unlock_cost_star": 10
 	},
 	"weapon_railgun": {
 		"name_key": "weapon_railgun",
@@ -126,12 +126,12 @@
 		"cost_base_gold": 320,
 		"unlock": {
 			"type": "stars",
-			"price": 30
+			"price": 14
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_railgun_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_railgun_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_railgun_turret.png",
-		"unlock_cost_star": 62
+		"unlock_cost_star": 14
 	},
 	"weapon_scattergun": {
 		"name_key": "weapon_scattergun",
@@ -149,12 +149,12 @@
 		"cost_base_gold": 180,
 		"unlock": {
 			"type": "stars",
-			"price": 15
+			"price": 9
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_scattergun_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_scattergun_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_scattergun_turret.png",
-		"unlock_cost_star": 14
+		"unlock_cost_star": 9
 	},
 	"weapon_plasmacannon": {
 		"name_key": "weapon_plasmacannon",
@@ -171,11 +171,11 @@
 		"cost_base_gold": 320,
 		"unlock": {
 			"type": "stars",
-			"price": 36
+			"price": 16
 		},
 		"icon": "res://assets/production/sprites/weapons/weapon_plasmacannon_icon.png",
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_plasmacannon_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_plasmacannon_turret.png",
-		"unlock_cost_star": 90
+		"unlock_cost_star": 16
 	}
 }

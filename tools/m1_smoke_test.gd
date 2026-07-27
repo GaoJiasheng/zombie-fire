@@ -1,6 +1,7 @@
 extends SceneTree
 
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
+const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
 
 class FakeRouter:
 	extends Node
@@ -52,6 +53,10 @@ class FakeAimTarget:
 	var mechanic := ""
 	var hp := 100.0
 	var max_hp := 100.0
+	var hits := 0
+	var total_damage := 0.0
+	var last_element := ""
+	var last_status_strength := 0.0
 	var threat_label_visible := true
 	var status_label_visible := true
 
@@ -70,6 +75,13 @@ class FakeAimTarget:
 		threat_label_visible = show_threat
 		status_label_visible = show_status
 
+	func take_damage(amount: float, element := "physical", _armor_penetration := 0.0, status_strength := -1.0) -> void:
+		hits += 1
+		total_damage += amount
+		last_element = element
+		last_status_strength = status_strength
+		hp = maxf(1.0, hp - amount)
+
 func _initialize() -> void:
 	await process_frame
 	root.size = Vector2i(1080, 1920)
@@ -87,6 +99,8 @@ func _initialize() -> void:
 	_expect(data_loader.get_table("levels").size() >= 99, "levels table must contain a launch campaign")
 	_expect(data_loader.get_table("skills").size() >= 16, "skills table must contain a broad launch pool")
 	_verify_zombie_mechanic_profiles(data_loader)
+	_verify_zombie_model_redesigns(data_loader)
+	_verify_zombie_attack_animation_contracts(data_loader)
 	_verify_boss_base_attack_profiles(data_loader)
 	_verify_ui_font()
 	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
@@ -129,6 +143,10 @@ func _initialize() -> void:
 	await _verify_endless_mode(save_manager)
 	await _verify_enemy_hit_flash_scope(data_loader)
 	_verify_ice_slow_visual_tint(data_loader)
+	await _verify_status_vfx_layers(data_loader)
+	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
+	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
+	_verify_collection_star_curve(data_loader)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
 
 	var main := _instance("res://main.tscn")
@@ -533,9 +551,9 @@ func _initialize() -> void:
 		if fused_texture_path != "":
 			_expect(fused_texture_path.contains("/character_weapon_combos/"), "battle character must load fused art from character_weapon_combos for %s" % battle.level_id)
 		_expect(battle.character_idle_frames.size() >= 4, "fused character/weapon art must provide idle frames for %s" % battle.level_id)
-		_expect(battle.character_attack_left_frames.size() >= 4, "fused character/weapon art must provide left-aim attack frames for %s" % battle.level_id)
-		_expect(battle.character_attack_frames.size() >= 4, "fused character/weapon art must provide attack frames for %s" % battle.level_id)
-		_expect(battle.character_attack_right_frames.size() >= 4, "fused character/weapon art must provide right-aim attack frames for %s" % battle.level_id)
+		_expect(battle.character_attack_left_frames.size() == 8, "fused character/weapon art must provide the full 8-frame left-aim firing strip for %s" % battle.level_id)
+		_expect(battle.character_attack_frames.size() == 8, "fused character/weapon art must provide the full 8-frame firing strip for %s" % battle.level_id)
+		_expect(battle.character_attack_right_frames.size() == 8, "fused character/weapon art must provide the full 8-frame right-aim firing strip for %s" % battle.level_id)
 		_expect(battle.character_hurt_frames.size() >= 3, "fused character/weapon art must provide hurt frames for %s" % battle.level_id)
 		var expected_fused_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
 		_expect(battle._weapon_fire_origin().distance_to(expected_fused_origin) <= 1.0, "projectiles must originate from the fused character/weapon muzzle")
@@ -547,6 +565,10 @@ func _initialize() -> void:
 		var right_origin: Vector2 = battle._weapon_fire_origin()
 		_expect(left_origin.x < expected_center_origin.x - 20.0, "left-aim fused muzzle must move left for %s" % battle.level_id)
 		_expect(right_origin.x > expected_center_origin.x + 20.0, "right-aim fused muzzle must move right for %s" % battle.level_id)
+		battle._set_character_combo_aim_from_direction(Vector2.UP)
+		battle._play_character_attack()
+		_expect(battle.character_anim_frame == 1, "real character fire must bind to authored F2 ignition for %s" % battle.level_id)
+		_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "ignition frame texture must be visible at real fire contact for %s" % battle.level_id)
 		_expect(float(battle.turret.damage_mult) > 1.0, "turret must receive character and chip damage multipliers")
 		_expect(battle.base_hp_max > int(battle.level.get("base_hp_ref", 100)), "battle must receive armor and character survivability")
 		_expect(not battle.has_node("Hud/StrategyButton"), "battle HUD must not expose the old target strategy button")
@@ -732,6 +754,7 @@ func _initialize() -> void:
 		tween.kill()
 	UiKit.release_cached_resources_for_tests()
 	SequenceVfx.release_cached_resources_for_tests()
+	StatusVfxControllerScript.release_cached_resources_for_tests()
 	for i in range(4):
 		await process_frame
 	print("M1 smoke test passed")
@@ -811,6 +834,58 @@ func _verify_ice_slow_visual_tint(data_loader: Node) -> void:
 	_expect(absf(restored_color.r - base_color.r) <= 0.01 and absf(restored_color.g - base_color.g) <= 0.01 and absf(restored_color.b - base_color.b) <= 0.01, "ice slow visual tint must restore after the slow visual timer expires")
 	enemy.queue_free()
 
+func _verify_status_vfx_layers(data_loader: Node) -> void:
+	var config: Dictionary = data_loader.get_table("status_vfx")
+	for status_id in ["fire", "ice", "glacier", "poison", "lightning"]:
+		_expect(config.has(status_id), "status VFX config must define %s" % status_id)
+	var row: Dictionary = data_loader.get_row("zombies", "zombie_shambler").duplicate(true)
+	var enemy := _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(enemy)
+	enemy.setup(row, 20.0, false)
+	enemy.call("_apply_element_status", 30.0, "fire", 0.35)
+	enemy.call("_apply_element_status", 30.0, "ice", 0.35)
+	enemy.call("_apply_element_status", 30.0, "poison", 0.35)
+	enemy.call("amplify_character_status", "lightning", 30.0, 3, 0.12)
+	enemy.call("_update_status_aura")
+	for _frame in range(10):
+		await process_frame
+	var controller: Node = enemy.get_node_or_null("StatusVfxController")
+	_expect(controller != null, "enemy must build the persistent status VFX controller")
+	if controller != null:
+		var active: Array = controller.call("debug_active_statuses")
+		for status_id in ["fire", "ice", "poison", "lightning"]:
+			_expect(active.has(status_id), "persistent status VFX must keep %s independently active" % status_id)
+			var snapshot: Dictionary = controller.call("debug_layer_snapshot", status_id)
+			_expect(not snapshot.is_empty() and float(snapshot.get("alpha", 0.0)) > 0.02, "%s status VFX must render after its entry transition" % status_id)
+		enemy.call("set_combat_effect_density", "minimal", false)
+		await process_frame
+		var minimal_fire: Dictionary = controller.call("debug_layer_snapshot", "fire")
+		_expect(bool(minimal_fire.get("ground_visible", false)), "minimal status VFX LOD must preserve the semantic ground contact")
+		_expect(not bool(minimal_fire.get("primary_allowed", true)), "minimal status VFX LOD must suppress the body sequence on non-priority enemies")
+		enemy.call("set_combat_effect_density", "full", true)
+		await process_frame
+		var priority_fire: Dictionary = controller.call("debug_layer_snapshot", "fire")
+		_expect(bool(priority_fire.get("primary_allowed", false)), "priority status VFX must restore the body sequence")
+		_expect(bool(priority_fire.get("secondary_allowed", false)), "priority status VFX must restore premium secondary detail")
+	enemy.set("_burn_dps", 0.0)
+	enemy.set("_burn_time", 0.0)
+	enemy.call("_refresh_burn", 20.0, 3.0)
+	var strong_burn := float(enemy.get("_burn_dps"))
+	for _refresh in range(4):
+		enemy.call("_refresh_burn", 4.0, 3.0)
+	var refreshed_burn := float(enemy.get("_burn_dps"))
+	_expect(refreshed_burn < strong_burn * 0.5 and refreshed_burn > 4.0, "weaker burn refreshes must decay the historical peak instead of preserving it forever")
+	enemy.call("_process_element_status", 5.0)
+	_expect(float(enemy.get("_burn_time")) == 0.0 and float(enemy.get("_burn_dps")) == 0.0, "expired burn must clear both duration and cached DPS")
+	if controller != null:
+		controller.call("debug_advance", 0.35)
+		_expect((controller.call("debug_active_statuses") as Array).is_empty(), "expired status VFX layers must leave no active semantic state")
+		for status_id in ["fire", "ice", "poison", "lightning"]:
+			var expired: Dictionary = controller.call("debug_layer_snapshot", status_id)
+			_expect(not bool(expired.get("visible", true)), "%s status VFX must finish its fade after expiration" % status_id)
+	enemy.queue_free()
+	await process_frame
+
 func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -> void:
 	var original_size := root.size
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
@@ -887,6 +962,201 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 	root.size = original_size
 	save_manager.save_data = original_save
 	await process_frame
+
+func _verify_medic_pet_repair_runtime(data_loader: Node, save_manager: Node, snapshot: Dictionary) -> void:
+	var medic: Dictionary = data_loader.get_row("pets", "pet_medic_drone")
+	_expect(not medic.is_empty() and str(medic.get("role", "")) == "repair", "medical pet must keep the repair role")
+	var max_level := int(medic.get("max_level", 30))
+	var level_offset := float(max_level - 1)
+	var wave_ratio := float(medic.get("heal_per_wave_ratio", 0.0)) + float(medic.get("level_wave_heal_ratio_growth", 0.0)) * level_offset
+	var repair_ratio := float(medic.get("repair_ratio", 0.0)) + float(medic.get("level_repair_ratio_growth", 0.0)) * level_offset
+	var emergency_ratio := float(medic.get("emergency_heal_ratio", 0.0)) + float(medic.get("level_emergency_heal_growth", 0.0)) * level_offset
+	_expect(wave_ratio >= 0.075, "max medical pet wave preparation must remain meaningful at late-game base HP")
+	_expect(repair_ratio >= 0.016, "max medical pet periodic repair must remain meaningful")
+	_expect(emergency_ratio >= 0.12, "max medical pet emergency rescue must restore a visible low-HP chunk")
+
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = _battle_smoke_loadout(snapshot)
+	var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
+	var pets: Array = unlocks.get("pets", []).duplicate()
+	if not pets.has("pet_medic_drone"):
+		pets.append("pet_medic_drone")
+	unlocks["pets"] = pets
+	test_save["unlocks"] = unlocks
+	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+	equipment["selected_pet"] = "pet_medic_drone"
+	equipment["pet_medic_drone"] = max_level
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	var max_medic_power := float(save_manager._pet_stat_power("pet_medic_drone"))
+	equipment["pet_medic_drone"] = 1
+	save_manager.save_data["equipment"] = equipment
+	var level_one_medic_power := float(save_manager._pet_stat_power("pet_medic_drone"))
+	_expect(max_medic_power > level_one_medic_power + 2.0, "medical pet combat power must account for repair growth, not only passive stats")
+	equipment["pet_medic_drone"] = max_level
+	save_manager.save_data["equipment"] = equipment
+
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_099"})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	_expect(battle.pet_sprite != null and battle.pet_data.get("role", "") == "repair", "battle must spawn the equipped medical pet")
+	var hp_max := int(battle.base_hp_max)
+	_expect(hp_max >= 1000, "late-game medical pet regression needs a scaled base HP pool")
+
+	battle.base_hp = int(round(float(hp_max) * 0.60))
+	battle.pet_repair_cooldown = 0.0
+	battle.pet_emergency_cooldown = 999.0
+	var periodic_before := int(battle.base_hp)
+	battle._process_repair_pet(0.01)
+	var expected_periodic := int(round(float(hp_max) * repair_ratio))
+	_expect(int(battle.base_hp) - periodic_before == expected_periodic, "periodic medical repair must scale from max base HP")
+	_expect(float(battle.pet_repair_cooldown) >= float(medic.get("repair_interval", 18.0)) - 0.1, "periodic repair must respect its authored cooldown")
+
+	battle.base_hp = int(round(float(hp_max) * 0.30))
+	battle.pet_repair_cooldown = 999.0
+	battle.pet_emergency_cooldown = 0.0
+	var emergency_before := int(battle.base_hp)
+	battle._process_repair_pet(0.01)
+	var expected_emergency := int(round(float(hp_max) * emergency_ratio))
+	_expect(int(battle.base_hp) - emergency_before == expected_emergency, "low-HP emergency rescue must scale from max base HP")
+	_expect(float(battle.pet_emergency_cooldown) >= float(medic.get("emergency_cooldown", 45.0)) - 0.1, "emergency rescue must enter its authored cooldown")
+
+	battle.base_hp = int(round(float(hp_max) * 0.50))
+	var wave_before := int(battle.base_hp)
+	battle._apply_wave_start_support()
+	var expected_wave := int(round(
+		float(medic.get("heal_per_wave", 0.0)) * (1.0 + float(medic.get("level_heal_growth", 0.0)) * level_offset)
+		+ float(hp_max) * wave_ratio
+	))
+	_expect(int(battle.base_hp) - wave_before == expected_wave, "wave preparation must combine flat and max-HP repair")
+	battle.base_hp = hp_max - 1
+	_expect(int(battle._apply_pet_base_heal(expected_emergency, "封顶验证", true)) == 1 and int(battle.base_hp) == hp_max, "all medical repairs must clamp to max base HP")
+
+	battle.queue_free()
+	router.queue_free()
+	save_manager.save_data = original_save
+	await process_frame
+
+func _verify_pet_skill_runtime(data_loader: Node, save_manager: Node, snapshot: Dictionary) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = _battle_smoke_loadout(snapshot)
+	var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
+	var pets: Array = unlocks.get("pets", []).duplicate()
+	if not pets.has("pet_turret_drone"):
+		pets.append("pet_turret_drone")
+	unlocks["pets"] = pets
+	test_save["unlocks"] = unlocks
+	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+	equipment["selected_pet"] = "pet_turret_drone"
+	equipment["pet_turret_drone"] = 30
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_050"})
+	root.add_child(battle)
+	await process_frame
+	battle.active_spawning = false
+	battle.pending_spawns.clear()
+	for child in battle.get_node("EnemyLayer").get_children():
+		child.queue_free()
+	await process_frame
+	var targets: Array[FakeAimTarget] = []
+	for i in range(6):
+		var target := FakeAimTarget.new()
+		target.position = Vector2(390.0 + float(i % 3) * 120.0, 640.0 + float(i / 3) * 90.0)
+		target.breach_damage = 15 + i
+		battle.get_node("EnemyLayer").add_child(target)
+		targets.append(target)
+
+	battle.pet_data = data_loader.get_row("pets", "pet_turret_drone")
+	battle.pet_level = int(battle.pet_data.get("max_level", 30))
+	battle.pet_skill_cooldown = 0.0
+	battle._process_pet_skill(0.01)
+	_expect(float(battle.pet_skill_timer) > 3.5, "turret pet overheat must gain duration with level")
+	_expect(float(battle.pet_skill_cooldown) >= 12.9, "turret pet overheat must enter authored cooldown")
+
+	for target in targets:
+		target.hits = 0
+		target.total_damage = 0.0
+	battle.pet_data = data_loader.get_row("pets", "pet_fire_imp")
+	battle.pet_level = int(battle.pet_data.get("max_level", 30))
+	battle.pet_skill_cooldown = 0.0
+	battle._process_pet_skill(0.01)
+	var fire_hits := 0
+	var fire_status_ok := false
+	for target in targets:
+		if target.hits > 0:
+			fire_hits += 1
+			fire_status_ok = fire_status_ok or (target.last_element == "fire" and target.last_status_strength > 1.0)
+	_expect(fire_hits >= 3, "fire pet molten burst must visibly damage a local group")
+	_expect(fire_status_ok, "fire pet skill must carry authored burn strength")
+
+	for target in targets:
+		target.hits = 0
+		target.total_damage = 0.0
+	battle.pet_data = data_loader.get_row("pets", "pet_frost_wisp")
+	battle.pet_level = int(battle.pet_data.get("max_level", 30))
+	battle.pet_skill_cooldown = 0.0
+	battle._process_pet_skill(0.01)
+	var frost_hits := 0
+	for target in targets:
+		if target.hits > 0:
+			frost_hits += 1
+	_expect(frost_hits == targets.size(), "frost pet domain must cover the staged control group at max level")
+	_expect(targets[0].last_element == "ice" and targets[0].last_status_strength > 1.4, "frost pet domain must scale its control strength")
+
+	for target in targets:
+		target.hits = 0
+		target.total_damage = 0.0
+	battle.pet_data = data_loader.get_row("pets", "pet_volt_orb")
+	battle.pet_level = int(battle.pet_data.get("max_level", 30))
+	battle.pet_skill_cooldown = 0.0
+	battle._process_pet_skill(0.01)
+	var volt_hits := 0
+	var volt_element_ok := false
+	for target in targets:
+		if target.hits > 0:
+			volt_hits += 1
+			volt_element_ok = volt_element_ok or target.last_element == "lightning"
+	_expect(volt_hits == 5, "volt pet overload must grow from 3 to 5 targets without a hard runtime cap")
+	_expect(volt_element_ok, "volt pet overload must retain lightning semantics")
+
+	battle.pet_data = data_loader.get_row("pets", "pet_collector")
+	battle.pet_level = int(battle.pet_data.get("max_level", 30))
+	var gold_before := int(battle.gold)
+	var salvage := int(battle._apply_pet_wave_salvage())
+	_expect(salvage > 0 and int(battle.gold) == gold_before + salvage, "collector pet must convert every wave into direct salvage gold")
+
+	battle.queue_free()
+	router.queue_free()
+	save_manager.save_data = original_save
+	await process_frame
+
+func _verify_collection_star_curve(data_loader: Node) -> void:
+	var table_names := ["characters", "weapons", "armors", "chips", "pets"]
+	var total := 0
+	var maximum := 0
+	for table_name in table_names:
+		var prices := []
+		for row in data_loader.get_table(table_name).values():
+			var price := int(row.get("unlock_cost_star", 0))
+			if price <= 0:
+				continue
+			prices.append(price)
+			total += price
+			maximum = maxi(maximum, price)
+		_expect(not prices.is_empty(), "%s must keep a paid collection progression" % table_name)
+		_expect(prices.min() >= 8 and prices.max() <= 16, "%s prices must stay in the 8-16 star band" % table_name)
+		_expect(prices.max() <= prices.min() * 2, "%s prices must not exceed a 2x category curve" % table_name)
+	_expect(total == 318, "launch collection star total must stay at the reviewed 318-star curve")
+	_expect(maximum == 16, "no single collection unlock may exceed 16 stars")
+	_expect(total - 99 * 3 == 21, "normal campaign must leave only 21 challenge stars for full collection")
 
 func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
@@ -1444,15 +1714,21 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var economy: Dictionary = data_loader.get_table("economy")
 	battle.level_ordinal = 98
 	var pre_final_hp_ramp := float(battle._late_wave_level_ramp_mult(economy))
-	_expect(absf(pre_final_hp_ramp - 1.8) <= 0.001, "level_098 late-wave HP ramp must already reach 1.8x, got %.3f" % pre_final_hp_ramp)
+	_expect(absf(pre_final_hp_ramp - 2.05) <= 0.001, "level_098 late-wave HP ramp must already reach 2.05x, got %.3f" % pre_final_hp_ramp)
 	battle.wave_index = 3
 	var pre_final_damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
-	_expect(absf(pre_final_damage_ramp - 2.0) <= 0.001, "level_098 late-wave base-damage ramp must already reach 2.0x, got %.3f" % pre_final_damage_ramp)
+	_expect(absf(pre_final_damage_ramp - 1.0) <= 0.001, "late-game base damage must remain at authored 1.0x, got %.3f" % pre_final_damage_ramp)
+	_expect(absf(float(battle._late_wave_count_level_ramp_mult(3, economy)) - 1.25) <= 0.001, "level_098 wave-3 count ramp must reach 1.25x")
+	_expect(absf(float(battle._boss_survival_hp_mult(98, true, economy)) - 56.0) <= 0.001, "level_098 boss survival ramp must reach 56.0x")
 	battle.level_ordinal = 99
 	var hp_ramp := float(battle._late_wave_level_ramp_mult(economy))
-	_expect(absf(hp_ramp - 2.16) <= 0.001, "level_099 late-wave HP ramp must reach 2.16x, got %.3f" % hp_ramp)
+	_expect(absf(hp_ramp - 2.296) <= 0.001, "level_099 late-wave HP ramp must reach 2.296x, got %.3f" % hp_ramp)
 	var damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
-	_expect(absf(damage_ramp - 2.30) <= 0.001, "level_099 late-wave base-damage ramp must reach 2.30x, got %.3f" % damage_ramp)
+	_expect(absf(damage_ramp - 1.0) <= 0.001, "level_099 base damage must remain at authored 1.0x, got %.3f" % damage_ramp)
+	_expect(absf(float(battle._late_wave_count_level_ramp_mult(3, economy)) - 1.35) <= 0.001, "level_099 wave-3 count ramp must reach 1.35x")
+	_expect(absf(float(battle._boss_survival_hp_mult(99, true, economy)) - 60.48) <= 0.001, "level_099 boss survival ramp must reach 60.48x")
+	_expect(battle._scaled_wave_group_count(100, 3) == 135, "level_099 wave-3 mob count must apply the 1.35x crowd ramp")
+	_expect(battle._scaled_wave_group_count(100, 5) == 405, "level_099 wave-5 mob count must combine the 3.0x wave and 1.35x crowd ramps")
 
 	var zombie_id := "zombie_berserker"
 	var zombie_row: Dictionary = data_loader.get_row("zombies", zombie_id)
@@ -1462,12 +1738,21 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var expected_hp := 50.0 * float(zombie_row.get("hp_coef", 1.0)) * level_coef * float(battle._late_wave_hp_bonus(3, false, economy))
 	var expected_breach := int(10.0 * float(zombie_row.get("bd_coef", 1.0)) * damage_ramp)
 	_expect(absf(float(enemy.max_hp) - expected_hp) <= maxf(1.0, expected_hp * 0.001), "level_099 wave-3 enemy must receive the full authored HP ramp")
-	_expect(int(enemy.breach_damage) == expected_breach, "level_099 wave-3 enemy must receive the full authored damage ramp; got %d expected %d" % [int(enemy.breach_damage), expected_breach])
+	_expect(int(enemy.breach_damage) == expected_breach, "level_099 wave-3 enemy must keep authored base damage; got %d expected %d" % [int(enemy.breach_damage), expected_breach])
 	enemy.queue_free()
 
 	battle.wave_index = 2
 	_expect(absf(float(battle._late_wave_damage_ramp_mult(economy)) - 1.0) <= 0.001, "waves 1-2 must stay outside the late-game damage ramp")
 	var apex: Dictionary = data_loader.get_row("bosses", "boss_apex_overlord")
+	battle.wave_index = 5
+	var apex_enemy: Node = battle._spawn_enemy_instance("boss_apex_overlord", Vector2(540, 190), true)
+	var expected_apex_hp := 50.0 * float(apex.get("hp_coef", 1.0)) * level_coef
+	expected_apex_hp *= float(battle._late_wave_hp_bonus(5, true, economy))
+	expected_apex_hp *= float(battle._boss_level_hp_bonus(99, true, economy))
+	expected_apex_hp *= float(battle._boss_survival_hp_mult(99, true, economy))
+	_expect(absf(float(apex_enemy.max_hp) - expected_apex_hp) <= maxf(1.0, expected_apex_hp * 0.001), "level_099 Apex must receive the 60.48x survival-only HP ramp")
+	_expect(int(apex_enemy.breach_damage) == int(10.0 * float(apex.get("bd_coef", 1.0))), "Apex attack must not inherit any late-game damage multiplier")
+	apex_enemy.queue_free()
 	var apex_params: Dictionary = apex.get("mechanic_params", {})
 	_expect(absf(float(apex_params.get("immune_damage_floor", 0.18)) - 0.08) <= 0.001, "final boss mismatched-element damage floor must be 8 percent")
 	_expect(int(save_manager.get_recommended_power_for_level("level_099")) >= 390, "level_099 recommended power must reflect graduation pressure")
@@ -1849,9 +2134,9 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 			if combo_texture_path != "":
 				_expect(combo_texture_path.contains("/character_weapon_combos/%s/" % character_asset_id), "fused combo texture must be loaded from %s; got %s" % [character_asset_id, combo_texture_path])
 			_expect(battle.character_idle_frames.size() >= 4, "%s + %s must provide idle fused frames" % [character_key, weapon_key])
-			_expect(battle.character_attack_left_frames.size() >= 4, "%s + %s must provide left-aim attack fused frames" % [character_key, weapon_key])
-			_expect(battle.character_attack_frames.size() >= 4, "%s + %s must provide attack fused frames" % [character_key, weapon_key])
-			_expect(battle.character_attack_right_frames.size() >= 4, "%s + %s must provide right-aim attack fused frames" % [character_key, weapon_key])
+			_expect(battle.character_attack_left_frames.size() == 8, "%s + %s must provide the full 8-frame left-aim firing strip" % [character_key, weapon_key])
+			_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
+			_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
 			_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
 			var expected_combo_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
 			_expect(battle._weapon_fire_origin().distance_to(expected_combo_origin) <= 1.0, "%s + %s projectile origin must use fused muzzle" % [character_key, weapon_key])
@@ -1863,6 +2148,10 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 			var combo_right_origin: Vector2 = battle._weapon_fire_origin()
 			_expect(combo_left_origin.x < expected_combo_center_origin.x - 20.0, "%s + %s left-aim muzzle must move left" % [character_key, weapon_key])
 			_expect(combo_right_origin.x > expected_combo_center_origin.x + 20.0, "%s + %s right-aim muzzle must move right" % [character_key, weapon_key])
+			battle._set_character_combo_aim_from_direction(Vector2.UP)
+			battle._play_character_attack()
+			_expect(battle.character_anim_frame == 1, "%s + %s real fire must bind to authored F2 ignition" % [character_key, weapon_key])
+			_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "%s + %s ignition texture must be visible at real fire contact" % [character_key, weapon_key])
 			battle.queue_free()
 			await process_frame
 	save_manager.save_data = original_save
@@ -1944,9 +2233,20 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._frost_glacier_wave_count(active)) >= base_frost_waves + 2, "frost signature levels must add cold waves")
 				_expect(float(battle._frost_glacier_speed_factor(active, false)) <= base_frost_speed - 0.07, "frost signature levels must strengthen slow")
 			"volt":
+				var original_volt_level := int(battle.character_level)
+				var original_pet_chain := int(battle.chain_bonus)
+				battle.character_level = 40
+				battle.chain_bonus = 0
 				var max_volt_targets := int(battle._volt_storm_max_targets(active))
-				_expect(max_volt_targets >= base_volt_targets + 2, "volt signature levels must add targets")
-				_expect(int(battle._volt_storm_strike_count(active, max_volt_targets)) >= base_volt_strikes + 4, "volt signature levels must add targets and extra strikes")
+				_expect(max_volt_targets >= 16, "max Volt storm must reach at least 16 authored targets without a code cap")
+				_expect(int(battle._volt_storm_strike_count(active, max_volt_targets)) >= 26, "max Volt storm must deliver at least 26 authored strikes")
+				var max_chain_count := int(battle._resolved_chain_count("lightning", {"chain": 9}, {"chain": 2}))
+				_expect(max_chain_count == 13, "Volt chain resolver must retain all skill, weapon and affinity chains beyond the old five-target cap")
+				_expect(float(battle._character_chain_overflow_damage_multiplier("lightning", max_chain_count)) >= 1.159, "excess Volt chains must convert into primary-target damage")
+				battle.chain_bonus = 3
+				_expect(int(battle._resolved_chain_count("lightning", {"chain": 9}, {"chain": 2})) == 16, "Volt pet chain bonuses must participate in the uncapped resolver")
+				battle.chain_bonus = original_pet_chain
+				battle.character_level = original_volt_level
 		var reset_sig_levels: Dictionary = save_manager.save_data.get("sig_skill_levels", {}).duplicate(true)
 		reset_sig_levels[character_key] = 0
 		save_manager.save_data["sig_skill_levels"] = reset_sig_levels
@@ -1967,6 +2267,20 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 			battle.turret.damage_mult = old_turret_mult
 		else:
 			_expect(level_twenty_five_scale >= level_one_scale * 1.5, "%s character active skill must gain meaningful level scaling" % character_key)
+			var weapon_level_inherit := float(active.get("weapon_level_inherit", 0.0))
+			_expect(weapon_level_inherit > 0.0, "%s character active skill must inherit part of permanent weapon-level growth" % character_key)
+			var selected_weapon := str(battle.weapon_id)
+			var equipment_levels: Dictionary = save_manager.save_data.get("equipment", {}).duplicate(true)
+			var original_weapon_level := int(equipment_levels.get(selected_weapon, 1))
+			equipment_levels[selected_weapon] = 1
+			save_manager.save_data["equipment"] = equipment_levels
+			var level_one_weapon_active := float(battle._character_active_damage(active_element, active_mult))
+			equipment_levels[selected_weapon] = 50
+			save_manager.save_data["equipment"] = equipment_levels
+			var max_weapon_active := float(battle._character_active_damage(active_element, active_mult))
+			_expect(max_weapon_active >= level_one_weapon_active * 3.5, "%s active skill must retain meaningful damage at max weapon investment" % character_key)
+			equipment_levels[selected_weapon] = original_weapon_level
+			save_manager.save_data["equipment"] = equipment_levels
 			var character_scaled_damage := float(battle._character_active_damage(active_element, active_mult))
 			var old_turret_mult_character := float(battle.turret.damage_mult)
 			battle.turret.damage_mult = old_turret_mult_character * 2.0
@@ -2274,12 +2588,162 @@ func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 		var path := str(battle._attack_vfx_path(kind))
 		_expect(path.ends_with(kind_to_vfx[kind]), "enemy mechanic %s must use a distinct vfx, got %s" % [kind, path])
 		_expect(battle._attack_color_for_mechanic(kind).a > 0.7, "enemy mechanic %s must define a visible vfx color" % kind)
+	# Directional texture semantics: all four authored source vectors must rotate
+	# onto the enemy's screen-down advance vector. This prevents a polished
+	# frame from visually firing sideways or landing behind the moving zombie.
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_enemy_skill_runner_dash", Vector2.DOWN), PI * 0.5),
+		"runner dash wedge must point toward the bottom base"
+	)
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_enemy_skill_charge", Vector2.DOWN), PI * 0.5),
+		"charge wedge must point toward the bottom base"
+	)
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_enemy_skill_leap_strike", Vector2.DOWN), PI * 0.25),
+		"leap landing arc must terminate below the zombie"
+	)
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_enemy_skill_phase_shift", Vector2.DOWN), PI * 0.5),
+		"phase trail must follow the boss toward the bottom base"
+	)
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_enemy_skill_ranged_spit", Vector2.DOWN), PI * 0.5),
+		"ranged venom launch must point from its source toward the bottom base"
+	)
+	_expect(
+		is_equal_approx(battle._directional_vfx_rotation("vfx_hit_physical", Vector2.DOWN, 0.37), 0.37),
+		"radial/non-directional VFX must preserve their authored fallback rotation"
+	)
 	var target := FakeAimTarget.new()
 	target.breach_damage = 20
 	battle.breach_damage_mult = 0.5
 	_expect(battle._enemy_skill_damage(target, 0.35, 2.0) == 4, "enemy skill damage must respect breach damage mitigation")
 	target.free()
 	battle.free()
+
+func _verify_zombie_model_redesigns(data_loader: Node) -> void:
+	# The Python silhouette audit proves transparent padding and cross-roster
+	# separation. This runtime probe closes the other half of the contract:
+	# Godot must import every authored action frame and Enemy must actually use
+	# those paths instead of silently falling back to a prototype.
+	var redesigned_ids := [
+		"zombie_bomber",
+		"zombie_spitter",
+		"zombie_juggernaut",
+		"zombie_necromancer",
+		"zombie_charger",
+		"zombie_regenerator",
+		"zombie_splitter",
+		"zombie_warden",
+	]
+	var expected_actions := {
+		"_idle_frames": 4,
+		"_walk_frames": 6,
+		"_attack_frames": 8,
+		"_special_frames": 6,
+		"_hurt_frames": 3,
+		"_death_frames": 6,
+	}
+	var enemy_scene := load("res://gameplay/enemy/enemy.tscn") as PackedScene
+	_expect(enemy_scene != null, "zombie model runtime check must load enemy.tscn")
+	for zombie_id_var in redesigned_ids:
+		var zombie_id := str(zombie_id_var)
+		var row: Dictionary = data_loader.get_row("zombies", zombie_id)
+		_expect(not row.is_empty(), "redesigned zombie data must remain present: %s" % zombie_id)
+		var enemy: Node = enemy_scene.instantiate()
+		root.add_child(enemy)
+		enemy.call("setup", row, 1.0, false)
+		for property_var in expected_actions.keys():
+			var property_name := str(property_var)
+			var frames: Array = enemy.get(property_name)
+			_expect(
+				frames.size() == int(expected_actions[property_name]),
+				"%s %s must import the complete frame family" % [zombie_id, property_name]
+			)
+			for frame_var in frames:
+				var frame := frame_var as Texture2D
+				_expect(frame != null, "%s %s contains a missing imported texture" % [zombie_id, property_name])
+				if frame == null:
+					continue
+				_expect(
+					frame.get_width() == 512 and frame.get_height() == 512,
+					"%s runtime animation frames must remain 512x512" % zombie_id
+				)
+				_expect(
+					str(frame.resource_path).contains("/%s/" % zombie_id),
+					"%s must not fall back to another zombie's frame" % zombie_id
+				)
+		var sprite := enemy.get_node("Sprite") as Sprite2D
+		_expect(sprite.texture != null, "%s must render a live animation texture" % zombie_id)
+		_expect(
+			is_equal_approx(sprite.scale.x, 0.32) and is_equal_approx(sprite.scale.y, 0.32),
+			"%s model redesign must not alter collision or gameplay scale" % zombie_id
+		)
+		enemy.free()
+
+func _verify_zombie_attack_animation_contracts(data_loader: Node) -> void:
+	var enemy_scene := load("res://gameplay/enemy/enemy.tscn") as PackedScene
+	_expect(enemy_scene != null, "zombie attack contract check must load enemy.tscn")
+	for zombie_id_var in data_loader.get_table("zombies").keys():
+		var zombie_id := str(zombie_id_var)
+		var row: Dictionary = data_loader.get_row("zombies", zombie_id)
+		var attack: Dictionary = row.get("attack_animation", {})
+		_expect(not attack.is_empty(), "%s must expose an authored attack profile" % zombie_id)
+		_expect(
+			int(attack.get("contact_frame", 0)) == 4,
+			"%s damage contact must bind to authored frame 4" % zombie_id
+		)
+		var enemy: Node = enemy_scene.instantiate()
+		root.add_child(enemy)
+		enemy.call("setup", row, 1.0, false)
+		var frames: Array = enemy.get("_attack_frames")
+		_expect(frames.size() == 8, "%s must import all 8 attack frames" % zombie_id)
+		var events := {"breaches": 0}
+		enemy.breached.connect(func(_source: Node, _damage: int) -> void:
+			events["breaches"] = int(events["breaches"]) + 1
+		)
+		enemy.call("_enter_base_attack")
+		enemy.set("base_attack_timer", 0.0)
+		enemy.call("_process_base_attack", 0.001)
+		_expect(
+			bool(enemy.get("_normal_attack_sequence_active")),
+			"%s must begin a contact-timed attack state" % zombie_id
+		)
+		_expect(
+			int(events["breaches"]) == 0,
+			"%s must not damage the base when anticipation starts" % zombie_id
+		)
+		var duration := float(attack.get("duration", 0.48))
+		var contact_time := duration * float(attack.get("contact_ratio", 0.5))
+		var pre_contact := maxf(0.01, contact_time - 0.02)
+		enemy.call("_update_animation", pre_contact)
+		enemy.call("_process_base_attack", pre_contact)
+		_expect(
+			int(events["breaches"]) == 0,
+			"%s must not damage the base before its visual contact pose" % zombie_id
+		)
+		enemy.call("_update_animation", 0.03)
+		enemy.call("_process_base_attack", 0.03)
+		_expect(
+			int(events["breaches"]) == 1,
+			"%s must damage the base exactly on its authored contact" % zombie_id
+		)
+		_expect(
+			int(enemy.get("_anim_frame")) == 3,
+			"%s contact event must display runtime frame 4" % zombie_id
+		)
+		enemy.call("_update_animation", duration)
+		enemy.call("_process_base_attack", duration)
+		_expect(
+			int(events["breaches"]) == 1,
+			"%s recovery must not duplicate base damage" % zombie_id
+		)
+		_expect(
+			not bool(enemy.get("_normal_attack_sequence_active")),
+			"%s must leave the attack state after recovery" % zombie_id
+		)
+		enemy.free()
 
 func _color_close(a: Color, b: Color, tolerance := 0.01) -> bool:
 	return absf(a.r - b.r) <= tolerance and absf(a.g - b.g) <= tolerance and absf(a.b - b.b) <= tolerance and absf(a.a - b.a) <= tolerance
