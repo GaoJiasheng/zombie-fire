@@ -668,3 +668,12 @@
 - [x] P1：重写数据、平衡和经济门禁，永久拒绝上百星单件价格、超过 2 倍的品类曲线、异常总价及武器双价格字段不一致；设计经济、进度、装备、平衡、商店和 schema 文档同步到现行口径。
 - [x] 回归覆盖：M1 smoke 逐项验证炮塔持续强化、火/冰范围受击、冰控强度、电弧 5 目标成长、拾荒金币结算和 `318 / 16 / 21` 星经济；截图工具新增 5 个宠物技能确定性场景和 5 个非医疗宠物满级详情。
 - [x] 视觉验收：火焰范围、寒霜领域、电弧连锁和全部满级宠物详情经过两轮真实 Godot 截图复核；电弧连线补入高亮能量主干，完整视觉矩阵由 `79` 路扩展到 `89` 路并通过。
+
+## 阶段 53 · TestFlight Build 38（2026-07-27）
+
+- [x] 源码基线：角色 / 僵尸动作、全战斗特效、后期对抗、宠物技能与收藏价格候选以提交 `ae47d333` 入库并推送到 `origin/main`；发布 manifest 确认构建开始前无已跟踪工作树改动。
+- [x] 发布门禁：完整 Release Candidate、`89` 路界面截图、Godot 导入、iPhone-only PCK 审计全部通过。
+- [x] 导出包验证：Build 38 PCK 包含 `6,923` 个文件、`3,340` 个导入资源，大小 `603,709,648` bytes（575.7 MiB）；battle boot、存档完整性和 M1 smoke 均通过，SHA-256 `37dfac7f33c9e7fd02185cb7fba66167a153ba20d60fc6a31a67487e59f9bed0`。
+- [x] 签名产物：Xcode Archive、App Store Distribution 导出及 IPA 同源审计通过；`1.0.0 (38)` IPA 为 `633,091,255` bytes（603.8 MiB），SHA-256 `4043afa9e93a96a8976c5ce3b76d8dbc1fb5b72626d8632aa05ba33326f1f96a`。
+- [x] Apple 交付：Delivery UUID `14646ccd-e6e3-456f-9bd2-7f27b233e7f6`；最终状态为 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`、`IS-ON-APP-STORE-CONNECT: true`，非豁免加密为 `false`。
+- [x] 本地产物：已验证 IPA 与发布 manifest 保存在 `build/ios/`；macOS 阻止替换 Desktop 上的旧 IPA 副本，但不影响上传、Apple 处理或 App Store Connect 可用性。
