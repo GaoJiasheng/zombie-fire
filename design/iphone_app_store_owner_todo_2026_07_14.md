@@ -10,7 +10,7 @@ Everything that can be completed and validated locally is owned by the repositor
 - [x] Publish App Privacy as `Data Not Collected`, consistent with the offline build and the public privacy policy.
 - [x] Upload five iPhone 6.7-inch screenshots and five iPhone 6.5-inch screenshots; App Store Connect reports all ten assets complete.
 - [ ] Confirm the uploaded iPhone 6.7-inch App Preview after Apple video processing reaches complete.
-- [x] Confirm Apple Developer team, distribution certificate, provisioning, and App Store Connect API-key access on the release Mac through the signed Build 33 upload.
+- [x] Confirm Apple Developer team, distribution certificate, provisioning, and App Store Connect API-key access on the release Mac through the signed Build 38 upload.
 
 ## Owner Legal And Commerce Decisions
 
@@ -28,6 +28,9 @@ Everything that can be completed and validated locally is owned by the repositor
 
 ## Final Release Action
 
-- [x] Run `tools/ship_testflight.sh` for `1.0.0 (33)` and receive a successful upload result from App Store Connect.
-- [x] Confirm Build 33 processing reaches `VALID / APP_STORE_ELIGIBLE` and associate it with App Store version `1.0.0`.
+- [x] Run `tools/ship_testflight.sh` for `1.0.0 (38)` and receive a successful upload result from App Store Connect.
+- [x] Confirm Build 38 processing reaches `VALID / APP_STORE_ELIGIBLE`.
+- [x] Upload TestFlight-only Neon Tempest acceptance Build 39 and confirm `VALID / APP_STORE_ELIGIBLE`; do not select it for App Review because it intentionally forces the preview theme without StoreKit entitlement.
+- [x] Upload the combined Neon Tempest + Simplified Chinese / English acceptance Build 40 and confirm `VALID / APP_STORE_ELIGIBLE`; it still forces the preview theme and must not be selected for App Review.
+- [ ] After the post-Build-38 source polish is committed and uploaded, associate the newest valid build with App Store version `1.0.0`.
 - [ ] After physical-device, legal, commerce, and processed-build checks are signed off, submit version `1.0.0` for App Review.

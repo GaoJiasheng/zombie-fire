@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "themes": [
+    {
+      "id": "default",
+      "name_zh": "末日防线",
+      "name_en": "Last Defense",
+      "premium": false,
+      "entitlement": "",
+      "ui": {
+        "button_root": "res://assets/production/sprites/ui"
+      },
+      "effects": {
+        "character_iridescence": false
+      }
+    },
+    {
+      "id": "neon_tempest",
+      "name_zh": "霓虹雷暴",
+      "name_en": "Neon Tempest",
+      "premium": true,
+      "entitlement": "ent_theme_neon_tempest",
+      "ui": {
+        "button_root": "res://assets/production/sprites/themes/neon_tempest/ui"
+      },
+      "effects": {
+        "character_iridescence": true
+      }
+    }
+  ]
+}

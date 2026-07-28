@@ -67,19 +67,24 @@ CHECKS = [
     Check(("python3", "tools/check_tall_battle_layout.py")),
     Check(("python3", "tools/check_battle_line_alignment.py")),
     Check(("python3", "tools/check_battle_hud_overlap.py")),
-    Check(("python3", "tools/check_app_store_assets.py")),
-    Check(("python3", "tools/check_release_strings.py")),
-    Check(("python3", "tools/simulate_card_director.py")),
+	Check(("python3", "tools/check_app_store_assets.py")),
+	Check(("python3", "tools/check_release_strings.py")),
+	Check(("python3", "tools/check_localization.py")),
+	Check(("python3", "tools/simulate_card_director.py")),
     Check((GODOT, "--headless", "--path", ".", "--quit")),
     Check(
         (GODOT, "--headless", "--path", ".", "--script", "res://tools/_battle_boot_probe.gd"),
         required_output="BATTLE_BOOT_PROBE_OK",
     ),
-    Check(
-        (GODOT, "--headless", "--path", ".", "--script", "res://tools/save_integrity_test.gd"),
-        required_output="SAVE INTEGRITY TEST PASSED",
-    ),
-    Check((GODOT, "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd")),
+	Check(
+		(GODOT, "--headless", "--path", ".", "--script", "res://tools/save_integrity_test.gd"),
+		required_output="SAVE INTEGRITY TEST PASSED",
+	),
+	Check(
+		(GODOT, "--headless", "--path", ".", "--script", "res://tools/localization_smoke_test.gd"),
+		required_output="LOCALIZATION SMOKE TEST PASSED",
+	),
+	Check((GODOT, "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd")),
     Check(("python3", "tools/check_visual_screens.py")),
 ]
 

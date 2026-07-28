@@ -71,7 +71,7 @@ AI 出**单张整图**做不出逐帧一致动画，所以采用「AI 出分件�
 全部用复数名词 `.json`：
 `characters.json`, `skills.json`, `zombies.json`, `bosses.json`, `weapons.json`,
 `armors.json`, `chips.json`, `pets.json`, `elements.json`, `environments.json`, `levels.json`, `economy.json`,
-`challenges.json`, `localization_zh.json`
+`challenges.json`, `themes.json`, `localization_zh.json`
 
 ID 即第 6~7 节登记的主名，数据用它做主键、互相引用。
 
@@ -128,6 +128,14 @@ Legacy compatibility env IDs remain accepted in `environments.json` as fallbacks
 
 ### 货币/资源 `currency`
 `gold` 金币 ｜ `xp` 经验 ｜ `star` 星 ｜ （派生）`talent_point` 天赋点
+
+### 全局视觉主题 `theme`
+
+`default` 默认末日防线 ｜ `neon_tempest` 霓虹雷暴
+
+主题运行时按钮命名为
+`assets/production/sprites/themes/<theme_id>/ui/ui_button_<primary|secondary>_native_<width>x<height>.png`。
+每个宽高族必须有独立结构源或等比完整模型；禁止把一张长按钮横向拉成短按钮，运行时统一使用 keep-aspect。
 
 ### 局内资源 / 目标策略
 `reroll_charge` 刷新点

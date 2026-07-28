@@ -6,8 +6,12 @@ Authoritative detail lives in `CODEX_MINIMAX_HANDOFF.md` and `MINIMAX_FINAL_INST
 ## What this is
 
 Vertical (1080×1920) Godot 4 + GDScript roguelite tower-defense / auto-shooter inspired by《向僵尸开炮》,
-improved around: clear targeting, controlled randomness, fair early fun, no monetization pressure.
-Single-player, no IAP, no ads, no stamina. Targets iOS + macOS first; Web/Windows/Android kept portable.
+improved around: clear targeting, controlled randomness, fair early fun, and transparent progression.
+The current Build 38 is single-player with no IAP, ads, or stamina. The owner has explicitly approved a future
+non-consumable premium-theme and strong-equipment initiative; its scope and safeguards are locked in
+`design/21_premium_themes_and_apocalypse_arsenal_plan.md`. Phase 1 is locked to Neon Tempest plus the complete
+Thunder Apocalypse set; its implementation inventory is `design/22_neon_tempest_thunder_phase1_inventory.md`.
+Targets iOS + macOS first; Web/Windows/Android kept portable.
 
 Fixed bottom turret. Enemies push down from the top toward the base line. Auto fire + manual aim + manual lock.
 
@@ -21,6 +25,7 @@ Fixed bottom turret. Enemies push down from the top toward the base line. Auto f
 6. Hero roster is locked: `char_vanguard` brawny strongman · `char_blaze` young fire guy · `char_frost` aloof mature cryo woman · `char_volt` electro girl. Do not drift back to four bulky armored men.
 7. Do NOT silently rewrite design docs to match a bad implementation. If implementation reveals a design problem, document the tradeoff first.
 8. After meaningful progress, update `design/m1_todo.md` and `design/m1_implementation_progress.md`.
+9. Premium work is an explicit owner-approved exception to the old no-IAP direction. Do not infer that it is already implemented, do not add ads/subscriptions/paid currencies, and do not expand beyond the current gate in `design/21_premium_themes_and_apocalypse_arsenal_plan.md` and `design/22_neon_tempest_thunder_phase1_inventory.md`.
 
 ## Read first (in order)
 
@@ -28,12 +33,14 @@ Fixed bottom turret. Enemies push down from the top toward the base line. Auto f
 2. `design/m1_todo.md`
 3. `design/m1_implementation_progress.md`
 4. `design/current_release_scope.md`
-5. `design/README.md`
-6. `design/13_tech_architecture.md`
-7. `design/01_core_gameplay.md`
-8. `design/data/naming_convention.md`
-9. `design/data/schema.md`
-10. `design/assets/full_asset_pack_status.md` · `assets/production/OUTSOURCER_ASSET_INDEX.json`
+5. `design/21_premium_themes_and_apocalypse_arsenal_plan.md` when working on monetization, themes, StoreKit, or premium equipment
+6. `design/22_neon_tempest_thunder_phase1_inventory.md` when working on the current premium Phase 1
+7. `design/README.md`
+8. `design/13_tech_architecture.md`
+9. `design/01_core_gameplay.md`
+10. `design/data/naming_convention.md`
+11. `design/data/schema.md`
+12. `design/assets/full_asset_pack_status.md` · `assets/production/OUTSOURCER_ASSET_INDEX.json`
 
 ## Validation — must pass before reporting done
 

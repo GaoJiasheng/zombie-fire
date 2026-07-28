@@ -677,3 +677,83 @@
 - [x] 签名产物：Xcode Archive、App Store Distribution 导出及 IPA 同源审计通过；`1.0.0 (38)` IPA 为 `633,091,255` bytes（603.8 MiB），SHA-256 `4043afa9e93a96a8976c5ce3b76d8dbc1fb5b72626d8632aa05ba33326f1f96a`。
 - [x] Apple 交付：Delivery UUID `14646ccd-e6e3-456f-9bd2-7f27b233e7f6`；最终状态为 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`、`IS-ON-APP-STORE-CONNECT: true`，非豁免加密为 `false`。
 - [x] 本地产物：已验证 IPA 与发布 manifest 保存在 `build/ios/`；macOS 阻止替换 Desktop 上的旧 IPA 副本，但不影响上传、Apple 处理或 App Store Connect 可用性。
+
+## 阶段 54 · 发布前素材 / 交互 / 体验收口（2026-07-27）
+
+- [x] P0：三选一卡片出现时立即清掉正在显示和排队中的波次 / 教学横幅，避免半透明弹窗后方继续出现高优先级文字。
+- [x] P0：战力低于推荐值 `65%` 时，在出战配置中同时显示“严重欠战力”状态和明确按钮警告；首次点击只进入 `2.6` 秒确认窗口，第二次点击才真正出战，不阻止熟练玩家自选高压打法。
+- [x] P0：收藏详情的满级状态统一显示“已满级 / 成长已完成”，底部升级按钮也不再显示无意义金币价格；新增 UI 与数据回归。
+- [x] P1：地图增加当前推进关卡标记、章节状态与“继续推进 / 回顾战区”动作层级；战力状态优先于克制提示，减少玩家在长列表和配置页里的判断成本。
+- [x] P1：结算页改为当前关卡环境背景，新增英雄战果卡、胜负关键数字、分段入场和小型得星粒子；截图回归发现首版粒子纹理尺寸失控后，已缩为 8 枚 `20–32 px` 小粒子并复拍通过。
+- [x] P1：Boss 登场、角色招牌技、越线警告和胜负结算加入运行时 BGM 动态让位；不替换未在监听环境下重新母带的音频文件，静态音频门禁同步覆盖。
+- [x] P1：完成发布包素材审计；确认约 `406 MiB` source refs、`38 MiB` 视频、`26 MiB` 联系表、`14 MiB` flow 和已登记尾帧不会进入 iPhone 包。最后关头不对 `446 MiB` 动画和 `192 MiB` VFX 运行序列做高风险有损重编码。
+- [x] 视觉验收：标准屏 / 长屏专项复核地图、严重欠战力配置、满级医疗无人机详情、三选一弹窗、胜利入场中间帧、胜负稳定结算；随后完整 `89` 路真实 Godot 截图矩阵通过。
+- [x] 最终验证：资源包 `9,223` 文件、字体授权、数据、`355` 个 `res://` 引用、99 关压力、终局平衡、经济、色板 / 对比度、全动作 / VFX / 音频、安全区、Godot boot、battle boot、存档完整性、M1 smoke 和完整 Release Candidate 全部通过。
+- [ ] Owner：至少一台真实 iPhone 完成最终耳机 / 外放混音、触感、热量、峰值内存和整局触控签字；这仍是仓库自动化无法替代的上架前最后一步。
+
+## 阶段 55 · 首次操作与长线导航连续性（2026-07-27）
+
+- [x] P0：首关教学不再把“双击锁定”误写成单击；战场提示与设置说明统一为“自动开火 / 按住拖动手动瞄准 / 双击僵尸锁定 / 双击空地解除”。
+- [x] P0：战区地图根据首个已解锁未通关关卡自动定位当前章节；进入当前章节后自动定位当前关卡，返回外层地图时恢复刚离开的章节卡。
+- [x] P0：收藏列表升级、购买、装备或刷新后恢复原滚动位置；刷新时旧行先移出节点命名空间再释放，避免新行被 Godot 改成临时节点名而破坏物品 ID。
+- [x] P1：App Store Owner 待办同步到最新已上传 Build 38，并明确当前源码仍领先 TestFlight；素材状态文档同步当前运行时动画、VFX、App Preview 与音频母带边界。
+- [x] 回归覆盖：M1 smoke 验证教学文案、后期章节/关卡可见性、返回定位、收藏滚动与稳定节点 ID；视觉矩阵新增第九战区和 089 当前关卡两条长屏路线，由 `89` 路扩展为 `91` 路并通过。
+- [x] 专项截图：`tmp/final_experience_round_2026_07_27/` 保存首关教学、第九战区定位和 089 当前关卡定位三张真实 Godot 截图，人工复核无裁切、遮挡或层级问题。
+- [x] 最终验证：低战力二次确认拆为确定性独立回归，避免本机存档强弱影响挑战入口测试；完整 Release Candidate 通过，包括资源包 `9,223` 文件、字体授权、数据、`356` 个 `res://` 引用、平衡 / 经济 / VFX / 音频 / 长屏 HUD、Godot / battle boot、存档完整性、M1 smoke 和 `91` 路真实界面截图。
+
+## 阶段 56 · 付费主题 / 终焉军械总方案与第一阶段冻结（2026-07-27）
+
+- [x] Owner 决策：App 继续免费；不增加广告、订阅、体力、随机付费或付费货币。
+- [x] Owner 决策：4 套全局主题分别为黑曜铸炉、炼狱赤焰、极地极光、霓虹雷暴，参考价均为 `US$1.99`。
+- [x] Owner 决策：4 套终焉军械分别对应物理、火、冰、雷；完整包参考价 `US$6.99` 并包含对应主题，主题已购用户显示约 `US$4.99` 军械升级商品。
+- [x] Owner 决策：终焉装备从 1 级开始，使用普通金币升级；满级整套实际总输出必须高于免费同属性最强满配 50%，实现目标冻结为 `1.52x~1.58x`、中心 `1.55x`。
+- [x] 详细方案：`design/21_premium_themes_and_apocalypse_arsenal_plan.md` 已记录商品 / entitlement、四主题、四军械、升级、数值、素材、StoreKit、UI、App Store、QA、风险和跨 session 接手规则。
+- [x] Owner 调整生产顺序：第一阶段由黑曜铸炉 + 终焉·动能改为霓虹雷暴 + 终焉·雷霆军械四件套；其余三套保留在总目录，不并行制作。
+- [x] 第一阶段盘点：`design/22_neon_tempest_thunder_phase1_inventory.md` 已记录现有雷电数据 / VFX / DPS 基线、模块化角色与武器动画方案、约 95 个主题硬编码触点、基地叠层方案、StoreKit 三商品、双语缺口、包体风险和 Phase 1A~1F 工作分解。
+- [ ] Phase 1A：制作霓虹综合色板、四角色服装、代表武器涂装、菜单 / 基地 / HUD / Logo、三版天罚电弧炮轮廓和雷霆攻击分镜；完成四个角色 × 代表武器的模块化合成、真实战场合成图和联系表验收，不覆盖运行时默认素材。
+- [x] Phase 1A-1 首批候选：四角色服装、三版天罚电弧炮、六段雷霆 VFX、菜单 / 收藏 / 战斗 / 结算视觉系统和修正后的综合战场图已保存到 `assets/production/source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/`；完整提示词和拒绝原因已登记。
+- [x] Phase 1A-1 自检：拒绝含 7 只僵尸且电弧过亮的首稿；最终战场图为 1 名角色 / 6 只僵尸，主目标最亮、次级连锁减细，攻击由基地向上，所有候选无文字乱码和头部裁切。
+- [x] Owner：确认四角色服装、UI / 基地和六段攻击特效的整体渲染方向满意。
+- [x] Owner：以继续执行确认中案三线圈重型旋转雷暴炮；Phase 1A-2 运行时版缩短枪身约 20%，保留三线圈识别点。
+- [x] Phase 1A-2：护甲 / 芯片 / 宠物、三把免费手持武器霓虹涂装、四个代表模块化握枪组合、四环境基地覆盖层和四窄屏手机尺度证明已完成；误画独立特斯拉装置和漏冰川基地的首稿均已拒绝并修正。文件与完整提示词保存在 `assets/production/source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/`。
+- [x] Phase 1B-1：新增 ThemeManager、`themes.json`、Save v2 主题 / 已验证权益字段和缺失权益安全回退；`UiKit` 语义路由覆盖五个代表页面。六个原生宽高族生成 72 张精确尺寸霓虹按钮，运行时禁止 `STRETCH_SCALE`；战斗角色 / 结算肖像接入避开头脸的动态虹彩，减弱特效时静止降亮。仍只用 Debug fixture，不伪造 StoreKit 购买。
+- [ ] Phase 1B-2：补齐菜单 / 地图 / 收藏 / 配装 / 设置 / 战斗 / 结算的面板、标题、HUD 和基地覆盖层，接入免费武器霓虹涂装及模块化角色挂载；仍仅使用 Debug fixture，不接真实购买。
+- [ ] Phase 1C：接入雷霆军械四件套、金币升级、五阶段表现、2 / 4 件套和双基线数值验收；免费构筑保持不变。
+- [ ] Phase 1D：接入本地 StoreKit Configuration、PurchaseManager、中英文商品页、购买 / 恢复 / 退款安全回退；完成标准 / 长屏、包体 / 内存 / 帧率、Sandbox / TestFlight 和 App Store IAP 验收。
+- [x] Owner：首批整体渲染方向通过；下一工作包限定为 Phase 1A-2 运行时尺寸和模块化证明。
+
+## 阶段 57 · TestFlight Build 39 霓虹主题验收包（2026-07-27）
+
+- [x] 验收包约束：Build 39 仅用于 TestFlight 视觉验收；iOS 导出时使用专用 `neon_tempest_preview` feature 直接启用霓虹主题，不授予或持久化购买权益。上传完成后本地发布预设已恢复为普通 `release`，禁止把 Build 39 直接选作 App Review 构建。
+- [x] 发布门禁：资源包 `9,417` 文件、字体授权、99 关数据、`360` 个 `res://` 引用、平衡 / 经济 / 动作 / VFX / 音频 / 长屏、Godot / battle boot、Save v2、M1 smoke 和 `91` 路真实界面截图全部通过。
+- [x] 导出包：Build 39 PCK 为 `607,877,860` bytes，包含 `7,071` 个文件和 `3,412` 个导入资源，SHA-256 `170cd123b0631cb08aad3140e92f70a8dad1fdadcf7525d28e5014df8d323b02`；导出包 battle boot、存档完整性与 M1 smoke 通过。
+- [x] 签名产物：`1.0.0 (39)` IPA 为 `637,222,351` bytes（607.7 MiB），SHA-256 `2c338669b6c3a092451365201d1511fbe2346246850a5ede4d73ca41c9b2ed4c`。
+- [x] Apple 交付：Delivery UUID `ec1400d1-68ec-43cc-9f64-42049f5156ac`；最终状态 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，非豁免加密为 `false`。
+- [x] 发布记录：`build/ios/release/build_39/release_manifest.json` 已记录源码 commit `49af255883abf1efcb4f566b0e8fe0f8f890cda8` 及工作树有改动；本地产物有效，Desktop 旧 IPA 因 macOS 权限未替换，不影响 TestFlight。
+
+## 阶段 58 · 简体中文 / English 完整运行时（2026-07-27）
+
+- [x] 新增 `LocalizationManager` 与动态 Translation，支持精确文案、运行时 `%` 格式模板和可复用术语；设置页可以即时切换并持久化语言。
+- [x] 全新安装按系统语言选择中文 / English；没有语言字段的旧设置安全迁移为中文。
+- [x] 补齐 88 个稳定内容 ID 的英文名称，以及 UI、战斗、技能、99 关目标、十战区剧情、挑战规则和 Boss 机制英文文案。
+- [x] 修复英文特有版式：章节按单词换行、地图剧情摘要、空装备摘要、收藏标签、强化卡标题 / 推荐徽章 / 说明、设置帮助和结算长标题。
+- [x] 新增静态覆盖 / 占位符 / 中文残留门禁、运行时双语 smoke、14 路英文截图矩阵，并纳入 Release Candidate。
+- [ ] Owner / App Store 工作：准备英文商店名称、副标题、关键词、描述、宣传文案与截图标题；未来 StoreKit 商品需在 App Store Connect 单独配置中英文元数据。
+
+## 阶段 59 · 英文首页品牌与 Skill Codex 排版收口（2026-07-27）
+
+- [x] P0：为英文模式制作独立的 `ZOMBIE FIRE` 首页标题资产，保持中文版标题的裂纹钢、橙蓝边光与厚重立体质感。
+- [x] P0：首页根据当前语言自动切换中英文标题资产，中文模式保持原标题不变。
+- [x] P1：Skill Codex 英文卡片改为技能名、等级固定双列，避免长标题推动等级并造成纵向错位。
+- [x] P1：缩短英文类型标签并补齐 `Projectile` 术语，消除重复标签与拥挤。
+- [x] P1：保存生成提示词、透明化源图与资产索引记录，确保素材可追溯、可复现。
+
+## 阶段 60 · TestFlight Build 40 双语联合验收包（2026-07-28）
+
+- [x] 验收包约束：Build 40 继续使用 TestFlight 专用 `neon_tempest_preview` feature，联合验收霓虹主题、完整中英文运行时、英文 `ZOMBIE FIRE` 标题和 Skill Codex 排版；不授予购买权益，禁止直接选作 App Review 构建。
+- [x] 发布门禁首次发现配装页宠物摘要的双语格式回归并在构建号递增前拦截；修复后玩法门禁、本地化、发布字符串与 Godot 启动专项复测通过。
+- [x] 完整发布门禁：资源包 `9,424` 文件、字体授权、99 关数据、`366` 个 `res://` 引用、平衡 / 经济 / 动作 / VFX / 音频 / 长屏、Godot / battle boot、Save v2、双语 smoke、M1 smoke 和 `105` 路真实界面截图全部通过。
+- [x] 导出包：Build 40 PCK 为 `609,183,408` bytes，包含 `7,081` 个文件和 `3,413` 个导入资源，SHA-256 `60193a5a36aaf0d412c3108804a020e6cea6c8db7e3b8131bfdc3c44ad1365cb`；导出包 battle boot、存档完整性与 M1 smoke 通过，独立探针确认 `neon_tempest_preview=true` 且活动主题为 `neon_tempest`。
+- [x] 签名产物：`1.0.0 (40)` IPA 为 `638,491,266` bytes（608.9 MiB），SHA-256 `fe8a1b3c715743bb64530ce4372717e6e4c15bdd8995a1cdf7f295e14f560981`。
+- [x] Apple 交付：Delivery UUID `f8f36abd-ed24-46db-a278-77b03a862167`；最终状态 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，非豁免加密为 `false`。
+- [x] 发布记录：`build/ios/release/build_40/release_manifest.json` 已记录源码 commit `49af255883abf1efcb4f566b0e8fe0f8f890cda8` 及工作树有改动；上传后本地预设已恢复为普通 `release`。Desktop 旧 IPA 因 macOS 权限未替换，不影响 TestFlight。

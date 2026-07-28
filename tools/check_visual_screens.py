@@ -31,6 +31,10 @@ DEBUG_SAFE_INSETS = [44, 132, 44, 102]
 SPEED_BUTTON_SAVE_OVERRIDE = {
     "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 51)]},
 }
+LATE_MAP_SAVE_OVERRIDE = {
+    "levels_progress": {f"level_{level_no:03d}": 1 for level_no in range(1, 89)},
+    "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 90)]},
+}
 MIN_LUMA_STDEV = {
     "map": 20.0,
     "map_chapter": 20.0,
@@ -123,6 +127,71 @@ BASE_SCREENS: list[tuple[str, dict, str]] = [
         "result",
         {"level_id": "level_003", "victory": True, "stars": 2, "gold": 120, "xp": 20, "next_level": "level_004"},
         "result",
+    ),
+]
+
+ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
+    ("menu", {"language": "en"}, "menu_en"),
+    ("map", {"language": "en"}, "map_en"),
+    ("map", {"language": "en", "chapter": 1}, "map_chapter_en"),
+    ("loadout", {"language": "en", "level_id": "level_003"}, "loadout_en"),
+    ("collection", {"language": "en", "mode": "characters"}, "collection_characters_en"),
+    ("collection", {"language": "en", "mode": "weapons"}, "collection_weapons_en"),
+    ("collection", {"language": "en", "mode": "skills"}, "collection_skills_en"),
+    (
+        "collection",
+        {
+            "language": "en",
+            "mode": "characters",
+            "detail_item": "vanguard",
+            "viewport_size": [1080, 2340],
+        },
+        "collection_tall_en_character_detail",
+    ),
+    (
+        "collection",
+        {
+            "language": "en",
+            "mode": "skills",
+            "detail_item": "skill_split_shot",
+            "viewport_size": [1080, 2340],
+        },
+        "collection_tall_en_skill_detail",
+    ),
+    ("settings", {"language": "en"}, "settings_en"),
+    (
+        "battle",
+        {"language": "en", "level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]},
+        "pause_tall_en",
+    ),
+    (
+        "battle",
+        {"language": "en", "level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]},
+        "card_offer_tall_en",
+    ),
+    (
+        "battle",
+        {
+            "language": "en",
+            "level_id": "level_001",
+            "card_detail": "skill_split_shot",
+            "viewport_size": [1080, 2340],
+        },
+        "card_detail_tall_en",
+    ),
+    (
+        "result",
+        {
+            "language": "en",
+            "level_id": "level_004",
+            "victory": True,
+            "challenge": True,
+            "stars": 3,
+            "gold": 686,
+            "xp": 458,
+            "viewport_size": [1080, 2340],
+        },
+        "result_tall_en",
     ),
 ]
 
@@ -280,6 +349,25 @@ SCREENS: list[tuple[str, dict, str]] = (
             "map_tall_chapter_safe_area",
         ),
         (
+            "map",
+            {
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                "save_override": LATE_MAP_SAVE_OVERRIDE,
+            },
+            "map_tall_current_chapter_focus",
+        ),
+        (
+            "map",
+            {
+                "chapter": 9,
+                "viewport_size": [1080, 2340],
+                "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                "save_override": LATE_MAP_SAVE_OVERRIDE,
+            },
+            "map_tall_current_level_focus",
+        ),
+        (
             "loadout",
             {
                 "level_id": "level_003",
@@ -411,12 +499,16 @@ SCREENS: list[tuple[str, dict, str]] = (
             "result_tall_safe_area",
         ),
     ]
+    + ENGLISH_SCREENS
     + BASE_SCREENS[-1:]
 )
 
 
 def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], str]:
     runtime_payload = dict(payload)
+    # Keep the baseline matrix deterministic on non-Chinese developer machines.
+    # English routes opt in explicitly; every other route is the Chinese proof.
+    runtime_payload.setdefault("language", "zh")
     safe_insets = runtime_payload.pop("_visual_safe_insets", None)
     command = [
         "godot",
@@ -530,9 +622,10 @@ def analyze(path: Path, label: str) -> list[str]:
 
 def main() -> int:
     errors: list[str] = check_layout_contracts()
+    active_screens = ENGLISH_SCREENS if "--english-only" in sys.argv[1:] else SCREENS
     with tempfile.TemporaryDirectory(prefix="zombie_fire_screens_") as tmp:
         tmp_dir = Path(tmp)
-        for route, payload, label in SCREENS:
+        for route, payload, label in active_screens:
             out_path = tmp_dir / f"{label}.png"
             code, audit_issues, output = capture(route, payload, out_path)
             if code != 0:
@@ -548,7 +641,7 @@ def main() -> int:
         for error in errors:
             print(f"- {error}")
         return 1
-    print(f"Visual screen check OK: {len(SCREENS)} routed screenshots")
+    print(f"Visual screen check OK: {len(active_screens)} routed screenshots")
     return 0
 
 

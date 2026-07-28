@@ -2,7 +2,7 @@ extends Node
 
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
-const CURRENT_SAVE_VERSION := 1
+const CURRENT_SAVE_VERSION := 2
 const POWER_REFERENCE_CARD_PICKS := 4
 const POWER_SKILL_THROUGHPUT_CAP := 13.5
 const POWER_SKILL_SCORE_EXPONENT := 0.5
@@ -25,6 +25,8 @@ var save_data := {
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
 	"endless_best_loops": 0,
+	"cosmetics": {"selected_theme": "default"},
+	"entitlements": {"verified": [], "last_sync_unix": 0},
 	"unlocks": {
 		"levels": ["level_001"],
 		"characters": ["vanguard"],
@@ -53,6 +55,8 @@ func _default_save() -> Dictionary:
 		"skill_base_levels": {},
 		"sig_skill_levels": {},
 		"endless_best_loops": 0,
+		"cosmetics": {"selected_theme": "default"},
+		"entitlements": {"verified": [], "last_sync_unix": 0},
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
@@ -74,7 +78,12 @@ func _default_save() -> Dictionary:
 
 func reset_game() -> void:
 	backup_game()
+	var verified_entitlements: Dictionary = save_data.get(
+		"entitlements",
+		{"verified": [], "last_sync_unix": 0}
+	).duplicate(true)
 	save_data = _default_save()
+	save_data["entitlements"] = verified_entitlements
 	save_game()
 
 func load_game() -> void:
@@ -217,6 +226,8 @@ func _migrate_save(candidate: Dictionary) -> Dictionary:
 		match version:
 			0:
 				migrated = _migrate_v0_to_v1(migrated)
+			1:
+				migrated = _migrate_v1_to_v2(migrated)
 			_:
 				return {}
 		var next_version := _save_version(migrated)
@@ -229,6 +240,13 @@ func _migrate_v0_to_v1(candidate: Dictionary) -> Dictionary:
 	var migrated: Dictionary = candidate.duplicate(true)
 	# Legacy unlocks remain owned; defaults add only fields absent from the old save.
 	migrated["version"] = 1
+	return migrated
+
+func _migrate_v1_to_v2(candidate: Dictionary) -> Dictionary:
+	var migrated: Dictionary = candidate.duplicate(true)
+	# Theme selection and verified permanent entitlements are additive. Existing
+	# progression remains byte-for-byte compatible after defaults are merged.
+	migrated["version"] = 2
 	return migrated
 
 func _save_version(candidate: Dictionary) -> int:
@@ -271,6 +289,15 @@ func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
 				return false
 		elif not _is_finite_number(equipment_value):
 			_report_persistence_error("%s equipment level '%s' must be numeric" % [label, equipment_key])
+			return false
+	var cosmetics: Dictionary = candidate.get("cosmetics", {})
+	if cosmetics.has("selected_theme") and typeof(cosmetics["selected_theme"]) != TYPE_STRING:
+		_report_persistence_error("%s selected theme must be a string" % label)
+		return false
+	var entitlements: Dictionary = candidate.get("entitlements", {})
+	for entitlement_id in entitlements.get("verified", []):
+		if typeof(entitlement_id) != TYPE_STRING:
+			_report_persistence_error("%s verified entitlements must contain strings" % label)
 			return false
 	return true
 
@@ -537,6 +564,42 @@ func get_item_level(item_id: String) -> int:
 func get_selected(slot: String) -> String:
 	var equipment: Dictionary = save_data.get("equipment", {})
 	return str(equipment.get("selected_%s" % slot, ""))
+
+func get_selected_theme() -> String:
+	var cosmetics: Dictionary = save_data.get("cosmetics", {})
+	return str(cosmetics.get("selected_theme", "default"))
+
+func select_theme(theme_id: String, persist := true) -> void:
+	var cosmetics: Dictionary = save_data.get("cosmetics", {})
+	cosmetics["selected_theme"] = theme_id
+	save_data["cosmetics"] = cosmetics
+	if persist:
+		save_game()
+
+func get_verified_entitlements() -> Array[String]:
+	var output: Array[String] = []
+	var entitlements: Dictionary = save_data.get("entitlements", {})
+	for entitlement_id in entitlements.get("verified", []):
+		var normalized := str(entitlement_id).strip_edges()
+		if normalized != "" and not output.has(normalized):
+			output.append(normalized)
+	return output
+
+func has_verified_entitlement(entitlement_id: String) -> bool:
+	return get_verified_entitlements().has(entitlement_id)
+
+func replace_verified_entitlements(entitlement_ids: Array[String], sync_unix: int, persist := true) -> void:
+	var normalized: Array[String] = []
+	for entitlement_id in entitlement_ids:
+		var clean := entitlement_id.strip_edges()
+		if clean != "" and not normalized.has(clean):
+			normalized.append(clean)
+	save_data["entitlements"] = {
+		"verified": normalized,
+		"last_sync_unix": maxi(sync_unix, 0),
+	}
+	if persist:
+		save_game()
 
 func select_item(slot: String, item_id: String) -> bool:
 	if item_id == "":

@@ -16,8 +16,20 @@ Before editing, read these files in order:
 7. `design/assets/m1_visual_asset_todo.md`
 8. `design/data/naming_convention.md`
 9. `design/data/schema.md`
+10. `design/21_premium_themes_and_apocalypse_arsenal_plan.md` when the task involves monetization, themes, StoreKit, or premium equipment
+11. `design/22_neon_tempest_thunder_phase1_inventory.md` when the task concerns the current Neon Tempest / Thunder Phase 1
 
 The current design is not a generic zombie shooter. It is a vertical 1080x1920 Godot 4 roguelite tower-defense/autoshooter inspired by `向僵尸开炮`, improved around clear targeting, controlled randomness, fair early fun, and no monetization pressure.
+
+### Owner-approved premium direction (2026-07-27)
+
+- Build 38 remains the current no-IAP production release baseline. Build 40 is the latest valid TestFlight-only Neon Tempest + bilingual visual acceptance build with a forced preview feature and must not be selected for App Review. Do not report StoreKit, player-facing theme selection, or premium purchase content as implemented.
+- The owner explicitly approved a future free-app model with four permanent US$1.99 visual themes and four permanent US$6.99 strong-equipment sets.
+- Each complete arsenal includes its matching theme. Theme owners must see a separate approximately US$4.99 arsenal-upgrade SKU instead of paying for the theme twice.
+- Premium gear begins at level 1, upgrades with normal gold, and the complete maximum-level build targets 1.52x–1.58x the real total output of the corresponding strongest free maximum-level build.
+- Phase 1 is strictly Neon Tempest plus the complete Thunder Apocalypse weapon/armor/chip/pet set. Do not begin the other three series before the first end-to-end set passes acceptance.
+- The authoritative product, art, balance, StoreKit, QA and cross-session plan is `design/21_premium_themes_and_apocalypse_arsenal_plan.md`.
+- The authoritative current-state inventory, file map, package-risk analysis and Phase 1 work breakdown is `design/22_neon_tempest_thunder_phase1_inventory.md`.
 
 ## 1. Current Truth
 

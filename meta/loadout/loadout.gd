@@ -16,12 +16,15 @@ const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 const DETAILS_PANEL_HEIGHT := 316.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
+const SEVERE_POWER_RATIO := 0.65
+const UNDERPOWER_CONFIRM_WINDOW_MSEC := 2600
 
 var router: Node
 var level_id := "level_001"
 var is_challenge_mode := false
 var _return_to := "map"
 var _return_payload := {}
+var _underpower_confirmation_armed_until_msec := 0
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -46,16 +49,10 @@ func _ready() -> void:
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(760, 112), true)
-	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 84), true)
+	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 88), true)
 	UiKit.attach_touch_target(%BackButton as TextureButton)
 	(%StartButton as TextureButton).set_meta("critical_touch", true)
-	(%StartButton as TextureButton).pressed.connect(func() -> void:
-		AudioManager.play_sfx("ui_confirm")
-		if is_challenge_mode:
-			router.start_challenge_level(level_id)
-		else:
-			router.start_level(level_id)
-	)
+	(%StartButton as TextureButton).pressed.connect(_on_start_pressed)
 	$UpgradeButton.pressed.connect(func() -> void:
 		var weapon_id := SaveManager.get_selected("weapon")
 		if weapon_id == "":
@@ -124,17 +121,62 @@ func _on_back_pressed() -> void:
 
 func _refresh_back_button() -> void:
 	var button := %BackButton as TextureButton
-	UiKit.apply_armored_texture_button(button, false, Vector2(170, 84), true)
+	UiKit.apply_armored_texture_button(button, false, Vector2(170, 88), true)
 	var label := button.get_node_or_null("Label") as Label
 	if label == null:
 		return
-	label.text = "返回结算" if _return_to == "result" else "返回关卡"
+	label.text = "返回结算" if _return_to == "result" else "返回"
 
 func _refresh_start_button() -> void:
 	var label := (%StartButton as TextureButton).get_node_or_null("Label") as Label
 	if label == null:
 		return
-	label.text = "开始挑战" if is_challenge_mode else "开始战斗"
+	if _is_severely_underpowered():
+		var armed := Time.get_ticks_msec() <= _underpower_confirmation_armed_until_msec
+		label.text = "再次点击 · 确认出战" if armed else "战力严重不足 · 谨慎出战"
+		label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.42, 1.0))
+	else:
+		label.text = "开始挑战" if is_challenge_mode else "开始战斗"
+		label.add_theme_color_override("font_color", Color.WHITE)
+
+func _on_start_pressed() -> void:
+	if _is_severely_underpowered():
+		var now := Time.get_ticks_msec()
+		if now > _underpower_confirmation_armed_until_msec:
+			_underpower_confirmation_armed_until_msec = now + UNDERPOWER_CONFIRM_WINDOW_MSEC
+			AudioManager.play_sfx("threat_warning", -6.0, 0.0)
+			_refresh_start_button()
+			_pulse_start_warning()
+			return
+	_underpower_confirmation_armed_until_msec = 0
+	AudioManager.play_sfx("ui_confirm")
+	if is_challenge_mode:
+		router.start_challenge_level(level_id)
+	else:
+		router.start_level(level_id)
+
+func _pulse_start_warning() -> void:
+	var button := %StartButton as TextureButton
+	button.pivot_offset = button.size * 0.5
+	var tween := button.create_tween()
+	tween.tween_property(button, "scale", Vector2(0.975, 0.975), 0.07)
+	tween.tween_property(button, "scale", Vector2(1.018, 1.018), 0.09)
+	tween.tween_property(button, "scale", Vector2.ONE, 0.10)
+
+func _is_severely_underpowered() -> bool:
+	var recommended := _recommended_power_for_current_mode()
+	if recommended <= 0:
+		return false
+	var projected := SaveManager.get_projected_combat_power_for_level(level_id)
+	return float(projected) / float(recommended) < SEVERE_POWER_RATIO
+
+func _power_state(projected_power: int, recommended_power: int) -> Dictionary:
+	var ratio := float(projected_power) / maxf(float(recommended_power), 1.0)
+	if ratio >= 1.0:
+		return {"text": "战力达标", "color": UiKit.GREEN}
+	if ratio >= SEVERE_POWER_RATIO:
+		return {"text": "战力偏低", "color": UiKit.GOLD}
+	return {"text": "严重欠战力", "color": UiKit.DANGER}
 
 func _refresh_resource_bar() -> void:
 	var main := $Root/Main as VBoxContainer
@@ -155,6 +197,7 @@ func _refresh_resource_bar() -> void:
 func _refresh() -> void:
 	if not is_inside_tree():
 		return
+	_underpower_confirmation_armed_until_msec = 0
 	_refresh_resource_bar()
 	var weapon_id := SaveManager.get_selected("weapon")
 	if weapon_id == "":
@@ -183,6 +226,9 @@ func _refresh() -> void:
 	var armor_name := _row_name("armors", armor_id) if armor_id != "" else "未装备"
 	var chip_name := _row_name("chips", chip_id) if chip_id != "" else "未装备"
 	var pet_name := _row_name("pets", pet_id) if pet_id != "" else "未携带"
+	var armor_display := "%s Lv%d" % [armor_name, armor_level] if armor_id != "" else armor_name
+	var chip_display := "%s Lv%d" % [chip_name, chip_level] if chip_id != "" else chip_name
+	var pet_display := "%s Lv%d" % [pet_name, pet_level] if pet_id != "" else pet_name
 	var growth_tier := _tier_suffix(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))).strip_edges()
 	if growth_tier == "":
 		growth_tier = "基础"
@@ -190,7 +236,7 @@ func _refresh() -> void:
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
-	$Summary.text = "%s · %s · 主弱点 %s\n战前 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s Lv%d · 芯片 %s Lv%d · 宠物 %s%s" % [
+	$Summary.text = "%s · %s · 主弱点 %s\n战前 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s" % [
 		DataLoader.level_display_name(level_id),
 		mode_label,
 		_element_name(weakness),
@@ -203,12 +249,9 @@ func _refresh() -> void:
 		char_level,
 		weapon_name,
 		weapon_level,
-		armor_name,
-		armor_level,
-		chip_name,
-		chip_level,
-		pet_name,
-		" Lv%d" % pet_level if pet_id != "" else ""
+		armor_display,
+		chip_display,
+		pet_display,
 	]
 	$Summary.visible = false
 	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
@@ -336,7 +379,13 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	var title := UiKit.label("挑战摘要" if challenge_mode else "战术摘要", 23, UiKit.TEXT_MAIN, 4)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
+	var power_state := _power_state(projected_power, recommended_power)
+	var power_pill := UiKit.pill(str(power_state.get("text", "战力偏低")), power_state.get("color", UiKit.GOLD), 18)
+	power_pill.name = "PowerStatePill"
+	power_pill.custom_minimum_size = Vector2(156, 38)
+	title_row.add_child(power_pill)
 	var state := UiKit.pill(counter_state, UiKit.GREEN if counter_state == "克制有效" else UiKit.GOLD, 18)
+	state.name = "CounterStatePill"
 	state.custom_minimum_size = Vector2(142, 38)
 	title_row.add_child(state)
 
@@ -363,17 +412,18 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()
-	loadout.text = "英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s Lv%d · 芯片 %s Lv%d · 宠物 %s%s" % [
+	var armor_display := "%s Lv%d" % [armor_name, armor_level] if armor_name not in ["", "未装备"] else armor_name
+	var chip_display := "%s Lv%d" % [chip_name, chip_level] if chip_name not in ["", "未装备"] else chip_name
+	var pet_level_suffix := (" Lv%d" % pet_level) if has_pet else ""
+	loadout.text = "英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s%s" % [
 		character_name,
 		char_level,
 		weapon_name,
 		weapon_level,
-		armor_name,
-		armor_level,
-		chip_name,
-		chip_level,
+		armor_display,
+		chip_display,
 		pet_name,
-		" Lv%d" % pet_level if has_pet else ""
+		pet_level_suffix,
 	]
 	loadout.custom_minimum_size = Vector2(0, 68)
 	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

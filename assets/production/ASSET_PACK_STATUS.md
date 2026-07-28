@@ -1,7 +1,7 @@
 # Production Asset Pack Status
 
-> This is the handoff-ready prototype production asset pack.
-> Visuals are copied/derived from accepted M1 visual prototypes. Audio is generated as procedural placeholder material for integration and timing.
+> This is the release-candidate production asset pack.
+> Runtime visuals and animations have completed the current automated and screenshot acceptance matrix. Audio is integrated and mechanically validated, but still requires final monitored speaker/headphone mastering approval.
 
 ## Complete For External Development
 
@@ -15,23 +15,23 @@
 - Single-frame VFX PNGs: complete.
 - Background PNGs: complete.
 - UI/icon PNGs: complete.
-- P0/P1 SFX placeholder WAVs: complete.
-- BGM placeholder WAV loops/stingers: complete.
-- Unit animation placeholder PNG frames: complete.
-- VFX sequence placeholder PNG frames: complete.
+- Runtime SFX WAVs and priority/overlap behavior: complete; final monitored mastering remains.
+- Runtime BGM loops/stingers and dynamic ducking: complete; final monitored mastering remains.
+- Unit animation PNG frames: complete for the current release roster.
+- VFX sequence PNG frames: complete for the current release combat contract.
 - Flow reference PNGs: complete.
 - Environment portrait/layout guide PNGs: complete.
-- Placeholder MP4 videos: complete.
+- Legacy/reference MP4 videos: retained outside the runtime package.
 - Machine-readable outsourcer index: `OUTSOURCER_ASSET_INDEX.json`.
 - Placeholder skeletal part PNGs and part manifests: complete.
-- Production fallback font: complete.
+- Licensed production Glow Sans SC / 未来荧黑 font: complete.
+- Runtime-captured 22-second App Store preview: complete.
 
 ## replace_later
 
 - Final hand-cut skeletal body parts for characters, zombies, bosses, pets, and turrets.
 - Final mastered BGM and SFX.
-- Final polished video/CG files.
-- Final App Store preview video.
+- Optional future narrative video/CG files; they are not part of the current release scope.
 
 ## Important
 

@@ -16,6 +16,7 @@ const TABLES := [
 	"environments",
 	"levels",
 	"localization_zh",
+	"localization_en",
 ]
 
 var tables := {}
@@ -50,7 +51,8 @@ func get_row(table: String, id: String) -> Dictionary:
 	return {}
 
 func tr_key(key: String) -> String:
-	return get_table("localization_zh").get(key, key)
+	var table_name := "localization_en" if LocalizationManager.is_english() else "localization_zh"
+	return get_table(table_name).get(key, key)
 
 func level_number(level_id: String) -> String:
 	var value := level_id
@@ -62,7 +64,7 @@ func level_number(level_id: String) -> String:
 
 func level_name(level_id: String) -> String:
 	var row := get_row("levels", level_id)
-	return str(row.get("name", ""))
+	return LocalizationManager.text(row.get("name", ""))
 
 func level_display_name(level_id: String) -> String:
 	var number := level_number(level_id)

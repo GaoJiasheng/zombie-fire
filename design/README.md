@@ -2,7 +2,7 @@
 
 > 一款竖版 Roguelike 塔防/自动射击游戏。对标《向僵尸开炮》，在数值清晰度、技能可控性、关卡公平性上做改进。
 > 引擎 **Godot 4 (GDScript)**，一套代码导出 iOS / macOS，预留 Web / Windows / Android。
-> 纯单机、无氪金、无内购、无体力。
+> Build 38 仍是纯单机、无内购、无广告、无体力的生产提交基线；最新 TestFlight Build 40 是强制启用霓虹主题并包含完整中英文运行时的联合视觉验收包，不可直接用于 App Review。Owner 已批准后续加入永久主题和终焉军械的非消耗型 IAP；免费本体、无广告、无订阅、无体力保持不变，未来商业化唯一主方案见 `21_premium_themes_and_apocalypse_arsenal_plan.md`。
 
 ## v1 设计刷新重点
 
@@ -12,7 +12,7 @@
 2. **前期喂爽**：前 20 关逐层开放系统，先让玩家感到弹幕、击杀、选卡、质变技能的快乐，再逐步要求配装和克制。
 3. **推荐解而非唯一解**：弱点/抗性用于鼓励更优策略，普通关不做"带错元素就没戏"；硬免疫只给 Boss，且必须有明确提示和替代准备路径。
 4. **目标锁定清楚可信**：默认目标选择要聪明，手动锁定要强反馈，让玩家相信炮塔在打该打的东西。
-5. **无氪也有长线**：用挑战关、变异尸潮、无限尸潮、外观收集替代付费压力，长期目标来自 build 深度与自我挑战。
+5. **免费本体仍有完整长线**：挑战关、变异尸潮、无限尸潮、外观收集和免费 build 深度不依赖付费；未来终焉军械是 Owner 批准的永久直购强力系列，不反向抬高免费通关门槛。
 
 ---
 
@@ -47,6 +47,9 @@
 | `16_outsourcing_brief.md` | 给 Godot 外包团队的执行说明、任务包与禁止事项 |
 | `17_asset_audio_generation_plan.md` | 图片、音乐、音效、视频/镜头素材的生成与交付计划 |
 | `18_full_app_backlog.md` | M1-M5 全量 backlog，便于拆任务给外包 |
+| `21_premium_themes_and_apocalypse_arsenal_plan.md` | 4 套付费主题、4 套终焉军械、StoreKit、数值、美术、验收和跨 session 交接总方案 |
+| `22_neon_tempest_thunder_phase1_inventory.md` | 第一阶段霓虹雷暴 + 终焉·雷霆的现状盘点、文件触点、模块化方案、工作分解与验收门槛 |
+| `23_bilingual_localization_framework.md` | 简体中文 / English 运行时框架、英文文案分层、维护流程与发布门禁 |
 | `assets/asset_manifest.md` | **全部素材清单**（文件名 ↔ 用途 ↔ 类型 ↔ 尺寸） |
 | `assets/full_asset_pack_status.md` | 外包可接入素材包状态与校验说明 |
 | `assets/prompts_visual.md` | 每个视觉素材的 GPT/DALL·E 生成 prompt |

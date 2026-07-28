@@ -23,6 +23,7 @@ var _return_challenge_mode := false
 var _loadout_return_to := "map"
 var _loadout_return_payload := {}
 var _detail_modal: Control = null
+var _refresh_generation := 0
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -91,11 +92,19 @@ func _sanitize_payload(payload: Variant) -> Dictionary:
 func _refresh() -> void:
 	if not is_inside_tree():
 		return
+	var item_scroll := %ItemScroll as ScrollContainer
+	var preserved_scroll := item_scroll.scroll_vertical
+	_refresh_generation += 1
+	var generation := _refresh_generation
 	(%Title as Label).text = _title()
 	_refresh_resource_bar()
 	var item_list := %ItemList as VBoxContainer
 	item_list.add_theme_constant_override("separation", 18 if _uses_spacious_collection_cards() else 14)
 	for child in item_list.get_children():
+		# Remove rows from the namespace immediately before queuing their memory
+		# release. Otherwise the replacement rows receive generated @Node names,
+		# breaking item-ID lookup during purchase, pulse and scroll restoration.
+		item_list.remove_child(child)
 		child.queue_free()
 	var table_data: Dictionary = _table()
 	for item_id: String in table_data.keys():
@@ -105,6 +114,16 @@ func _refresh() -> void:
 	scroll_end_padding.custom_minimum_size = Vector2(0, 44)
 	scroll_end_padding.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	item_list.add_child(scroll_end_padding)
+	call_deferred("_restore_item_scroll", preserved_scroll, generation)
+
+func _restore_item_scroll(scroll_position: int, generation: int) -> void:
+	# Refresh replaces every row. Wait for both the queued old rows to leave and
+	# the new VBox minimum size to settle before restoring the player's context.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if generation != _refresh_generation or not is_inside_tree():
+		return
+	(%ItemScroll as ScrollContainer).scroll_vertical = maxi(0, scroll_position)
 
 func _refresh_resource_bar() -> void:
 	var prog := %Progress as Label
@@ -263,8 +282,9 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.position = Vector2(170, 128 if spacious else 110)
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(350, 96)
-	UiKit.apply_label(desc, 17 if spacious else 18, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
+	desc.size = Vector2(350, 110 if LocalizationManager.is_english() else 96)
+	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
+	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	desc.clip_text = true
@@ -384,24 +404,43 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var title := Label.new()
 	title.name = "Title"
-	title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
+	var english_layout := LocalizationManager.is_english()
+	title.text = DataLoader.tr_key(row.get("name_key", item_id)) if english_layout else "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
 	title.position = Vector2(148, 18)
-	title.size = Vector2(SKILL_CARD_TEXT_WIDTH, 40)
+	title.size = Vector2(360 if english_layout else SKILL_CARD_TEXT_WIDTH, 40)
 	title.clip_text = true
-	UiKit.apply_label(title, 28, UiKit.TEXT_MAIN, 3)
+	UiKit.apply_label(title, 26 if english_layout else 28, UiKit.TEXT_MAIN, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
+	# English names are much wider than their Chinese counterparts. Keep the
+	# skill name and level in independent authored columns so every Lv. badge
+	# shares one baseline and long names never shove it sideways.
+	if english_layout:
+		var level := Label.new()
+		level.name = "Level"
+		level.text = "等级%d" % item_level
+		level.position = Vector2(516, 18)
+		level.size = Vector2(112, 40)
+		level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		level.clip_text = true
+		UiKit.apply_label(level, 22, UiKit.TEXT_MAIN, 3)
+		level.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(level)
+
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(148, 58)
+	tag_row.position = Vector2(148, 60 if english_layout else 58)
 	tag_row.size = Vector2(SKILL_CARD_TEXT_WIDTH, 34)
 	tag_row.add_theme_constant_override("separation", 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
-	tag_row.add_child(UiKit.pill(_kind_name(str(row.get("kind", "passive"))), Color(accent.r, accent.g, accent.b, 0.82), 15))
-	for tag_text in _item_tags(row, true).slice(0, 3):
-		tag_row.add_child(UiKit.pill(str(tag_text), accent, 15))
+	var tag_font_size := 13 if english_layout else 15
+	tag_row.add_child(UiKit.pill(_skill_kind_short_name(str(row.get("kind", "passive"))) if english_layout else _kind_name(str(row.get("kind", "passive"))), Color(accent.r, accent.g, accent.b, 0.82), tag_font_size))
+	var tag_limit := 2 if english_layout else 3
+	for tag_text in _item_tags(row, true).slice(0, tag_limit):
+		tag_row.add_child(UiKit.pill(str(tag_text), accent, tag_font_size))
 
 	var effect := Label.new()
 	effect.name = "EffectSummary"
@@ -675,6 +714,23 @@ func _kind_name(kind: String) -> String:
 		_:
 			return str(kind)
 
+func _skill_kind_short_name(kind: String) -> String:
+	match str(kind):
+		"passive":
+			return "被动"
+		"active":
+			return "主动"
+		"ammo":
+			return "弹种"
+		"projectile":
+			return "弹道类"
+		"economy":
+			return "经济"
+		"defense":
+			return "防线"
+		_:
+			return _kind_name(kind)
+
 func _format_tags(tags: Array) -> String:
 	var names: Array[String] = []
 	for tag in tags:
@@ -792,7 +848,9 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 				]
 			var pet_skill: Dictionary = row.get("pet_skill", {})
 			if not pet_skill.is_empty():
-				return "下级 协战与「%s」同步增强" % str(pet_skill.get("name", "专属技能"))
+				# The skill name is already printed immediately before this hint.
+				# Avoid repeating it in a narrow phone card.
+				return "下级 协战强化"
 			if row.has("damage"):
 				return "下级 伤害+%d" % int(round(float(row.get("damage", 0)) * float(row.get("level_damage_growth", 0.0))))
 			return "下级 效率提升"
@@ -1051,7 +1109,9 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 
 		var can_upgrade := table != "" and SaveManager.can_upgrade_item(table, item_id)
 		var cost := SaveManager.get_item_upgrade_cost(table, item_id) if table != "" else 0
-		var upgrade_btn := _detail_button("UpgradeButton", "升级  %d" % cost, false)
+		var max_level := int(row.get("max_level", item_level))
+		var upgrade_label := "已满级" if item_level >= max_level else "升级  %d" % cost
+		var upgrade_btn := _detail_button("UpgradeButton", upgrade_label, false)
 		upgrade_btn.disabled = not can_upgrade
 		upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if can_upgrade else ACTION_DISABLED_MODULATE
 		upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1138,7 +1198,10 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 	if mode != "skills":
 		stats.append({"label": "等级", "value": "%d / %d" % [item_level, max_level], "sub": _growth_badge_text(item_level)})
 	if mode != "skills" and table != "":
-		stats.append({"label": "升级", "value": "%d 金币" % SaveManager.get_item_upgrade_cost(table, item_id), "sub": _next_upgrade_hint(item_id, row)})
+		if item_level >= max_level:
+			stats.append({"label": "状态", "value": "已满级", "sub": "成长已完成"})
+		else:
+			stats.append({"label": "升级", "value": "%d 金币" % SaveManager.get_item_upgrade_cost(table, item_id), "sub": _next_upgrade_hint(item_id, row)})
 	match mode:
 		"weapons":
 			stats.append({"label": "元素", "value": _element_name(row.get("element", "-")), "sub": str(row.get("projectile_type", "弹道"))})

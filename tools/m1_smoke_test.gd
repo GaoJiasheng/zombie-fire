@@ -148,6 +148,7 @@ func _initialize() -> void:
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
+	await _verify_underpower_confirmation(save_manager, smoke_save_snapshot)
 
 	var main := _instance("res://main.tscn")
 	root.add_child(main)
@@ -173,6 +174,11 @@ func _initialize() -> void:
 	_expect((settings_vbox.get_node("InfoBody") as Label).text.contains("隐私"), "privacy info must render")
 	main.current_scene._show_info("support")
 	_expect((settings_vbox.get_node("InfoBody") as Label).text.contains("支持"), "support info must render")
+	main.current_scene._show_info("help")
+	var control_help := (settings_vbox.get_node("InfoBody") as Label).text
+	_expect(control_help.contains("按住战场拖动"), "control help must explain the hold-and-drag manual aim gesture")
+	_expect(control_help.contains("双击僵尸"), "control help must accurately explain touch target lock")
+	_expect(control_help.contains("双击空地解除"), "control help must explain how to clear a manual lock")
 	main.current_scene._on_reset()
 	_expect((settings_vbox.get_node("ResetButton") as Button).text.contains("确认"), "reset save must require confirmation")
 	var map_gate_save: Dictionary = save_manager._default_save()
@@ -236,6 +242,48 @@ func _initialize() -> void:
 	var third_challenge := third_level.find_child("ChallengeLevelButton", true, false) as TextureButton
 	_expect(third_enter != null and not third_enter.disabled, "3-star normal level must allow normal re-entry")
 	_expect(third_challenge != null and not third_challenge.disabled, "3-star normal clear must unlock challenge mode")
+	var late_map_save: Dictionary = save_manager._default_save()
+	var late_map_progress := {}
+	var late_map_levels: Array[String] = []
+	for level_number in range(1, 90):
+		var late_level_id := "level_%03d" % level_number
+		late_map_levels.append(late_level_id)
+		if level_number < 89:
+			late_map_progress[late_level_id] = 1
+	late_map_save["levels_progress"] = late_map_progress
+	var late_map_unlocks: Dictionary = late_map_save.get("unlocks", {}).duplicate(true)
+	late_map_unlocks["levels"] = late_map_levels
+	late_map_save["unlocks"] = late_map_unlocks
+	save_manager.save_data = late_map_save
+	main.change_scene("map")
+	for i in range(4):
+		await process_frame
+	var late_map_scroll := main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+	var current_chapter_card := main.current_scene.find_child("Chapter09Card", true, false) as Control
+	_expect(late_map_scroll.scroll_vertical > 0, "late campaign map must scroll to the current chapter instead of reopening at chapter one")
+	_expect(current_chapter_card != null, "late campaign map must keep the current chapter card")
+	var chapter_view := late_map_scroll.get_global_rect()
+	var chapter_rect := current_chapter_card.get_global_rect()
+	_expect(chapter_rect.position.y >= chapter_view.position.y - 1.0 and chapter_rect.end.y <= chapter_view.end.y + 1.0, "current chapter card must be fully visible after automatic map focus")
+	main.current_scene._open_chapter(9)
+	for i in range(4):
+		await process_frame
+	late_map_scroll = main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+	var current_level_card := main.current_scene.find_child("level_089", true, false) as Control
+	_expect(late_map_scroll.scroll_vertical > 0, "late chapter must scroll to the current level instead of reopening at its first mission")
+	_expect(current_level_card != null, "chapter detail must name level cards for deterministic focus restoration")
+	var level_view := late_map_scroll.get_global_rect()
+	var level_rect := current_level_card.get_global_rect()
+	_expect(level_rect.position.y >= level_view.position.y - 1.0 and level_rect.end.y <= level_view.end.y + 1.0, "current level card must be fully visible after automatic chapter focus")
+	main.current_scene._back_to_chapter_map()
+	for i in range(4):
+		await process_frame
+	late_map_scroll = main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+	current_chapter_card = main.current_scene.find_child("Chapter09Card", true, false) as Control
+	chapter_view = late_map_scroll.get_global_rect()
+	chapter_rect = current_chapter_card.get_global_rect()
+	_expect(chapter_rect.position.y >= chapter_view.position.y - 1.0 and chapter_rect.end.y <= chapter_view.end.y + 1.0, "returning from a chapter must restore the chapter card the player just left")
+	save_manager.save_data = map_gate_save
 	main.change_scene("collection", {"mode": "characters"})
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "main must route to character collection")
@@ -353,6 +401,17 @@ func _initialize() -> void:
 	_expect(main.current_scene.find_child("ItemList", true, false) != null, "collection item list must be scrollable")
 	var weapon_list: Node = main.current_scene.find_child("ItemList", true, false)
 	_expect(weapon_list.get_child_count() >= 8, "collection must render weapon pool")
+	var weapon_scroll := main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
+	weapon_scroll.scroll_vertical = 360
+	await process_frame
+	var preserved_weapon_scroll := weapon_scroll.scroll_vertical
+	_expect(preserved_weapon_scroll > 0, "collection regression setup must reach a non-zero browsing position")
+	main.current_scene._refresh()
+	for i in range(3):
+		await process_frame
+	weapon_scroll = main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
+	_expect(absi(weapon_scroll.scroll_vertical - preserved_weapon_scroll) <= 2, "collection refresh must preserve the player's browsing position")
+	weapon_list = main.current_scene.find_child("ItemList", true, false)
 	var first_weapon: TextureButton = null
 	var purchasable_weapon: TextureButton = null
 	for weapon_child in weapon_list.get_children():
@@ -407,6 +466,29 @@ func _initialize() -> void:
 	_expect(item_detail.find_child("UpgradeButton", true, false) != null, "item detail must expose upgrade action")
 	main.current_scene._close_character_detail()
 	await process_frame
+	var purchased_row: Dictionary = data_loader.get_row("weapons", purchased_weapon_id)
+	var purchased_max_level := int(purchased_row.get("max_level", 30))
+	var max_equipment: Dictionary = save_manager.save_data.get("equipment", {}).duplicate(true)
+	max_equipment[purchased_weapon_id] = purchased_max_level
+	save_manager.save_data["equipment"] = max_equipment
+	main.current_scene._refresh()
+	await process_frame
+	var max_weapon_row := main.current_scene.find_child(purchased_weapon_id, true, false) as TextureButton
+	_expect(max_weapon_row != null, "max-level regression must find the purchased weapon row")
+	max_weapon_row.emit_signal("pressed")
+	await process_frame
+	var max_detail: Node = main.current_scene.get_node("ItemDetail")
+	var max_upgrade_label := max_detail.find_child("UpgradeButton", true, false).get_node("ActionLabel") as Label
+	_expect(max_upgrade_label.text == "已满级", "max-level item detail must replace upgrade cost with a completed-state label")
+	var max_stats: Array = main.current_scene._detail_stats_for_item(purchased_weapon_id, purchased_row, purchased_max_level)
+	var has_completed_growth_state := false
+	for max_stat: Dictionary in max_stats:
+		if str(max_stat.get("value", "")) == "已满级" and str(max_stat.get("sub", "")) == "成长已完成":
+			has_completed_growth_state = true
+			break
+	_expect(has_completed_growth_state, "max-level stats must communicate completed growth without a stale coin cost")
+	main.current_scene._close_character_detail()
+	await process_frame
 	save_manager.save_data = smoke_save_snapshot.duplicate(true)
 	main.change_scene("loadout", {"level_id": "level_001"})
 	await process_frame
@@ -452,6 +534,8 @@ func _initialize() -> void:
 	var loadout_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
 	var loadout_action_gap := loadout_start.get_global_rect().position.y - (loadout_details.get_global_rect().position.y + loadout_details.get_global_rect().size.y)
 	_expect(loadout_action_gap >= 50.0, "loadout bottom action must keep a clear gap below the tactical summary")
+	_expect(loadout_details.find_child("PowerStatePill", true, false) != null, "loadout must expose a dedicated combat-power state pill")
+	_expect(loadout_details.find_child("CounterStatePill", true, false) != null, "loadout must keep counter guidance secondary to combat-power state")
 	_expect(main.current_scene.get_node("Summary").text.contains("001 城市缺口"), "loadout must show player-facing level name")
 	_expect(main.current_scene.get_node("Summary").text.contains("预计成型"), "loadout must distinguish standing and projected in-run combat power")
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
@@ -461,8 +545,17 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.name == "Loadout", "main must route to challenge loadout")
 	_expect(main.current_scene.is_challenge_mode, "challenge loadout must keep the challenge flag")
-	_expect((main.current_scene.find_child("StartButton", true, false).get_node("Label") as Label).text == "开始挑战", "challenge loadout start button must label challenge entry")
-	(main.current_scene.find_child("StartButton", true, false) as TextureButton).emit_signal("pressed")
+	var challenge_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
+	var challenge_start_label := challenge_start.get_node("Label") as Label
+	var challenge_was_severely_underpowered: bool = bool(main.current_scene._is_severely_underpowered())
+	_expect(
+		challenge_start_label.text.contains("战力严重不足") if challenge_was_severely_underpowered else challenge_start_label.text == "开始挑战",
+		"challenge loadout start button must accurately reflect its combat-power state"
+	)
+	challenge_start.emit_signal("pressed")
+	if challenge_was_severely_underpowered:
+		_expect(challenge_start_label.text.contains("再次点击"), "severely underpowered challenge entry must require a deliberate second confirmation")
+		challenge_start.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Battle", "challenge start must route to battle")
 	_expect(main.current_scene.is_challenge_mode, "battle must enter challenge mode when started from challenge loadout")
@@ -573,6 +666,12 @@ func _initialize() -> void:
 		_expect(battle.base_hp_max > int(battle.level.get("base_hp_ref", 100)), "battle must receive armor and character survivability")
 		_expect(not battle.has_node("Hud/StrategyButton"), "battle HUD must not expose the old target strategy button")
 		_expect(battle.has_node("Hud/SkillSlots"), "battle must expose skill slots")
+		if battle.level_id == "level_001":
+			battle.onboarding_tip_shown = false
+			battle._show_onboarding_tip()
+			_expect(battle.wave_toast_label.text.contains("按住战场拖动"), "first battle onboarding must explain hold-and-drag manual aim")
+			_expect(battle.wave_toast_label.text.contains("双击僵尸"), "first battle onboarding must accurately explain double-tap target lock")
+			_expect(not battle.wave_toast_label.text.contains("点僵尸可锁定"), "first battle onboarding must not describe a double-tap lock as a single tap")
 		_verify_xp_bar_single_track(battle)
 		_expect(battle.has_node("Hud/CharacterSkillButton"), "battle must expose character active skill button")
 		_expect(str(battle.character_active_id) != "", "battle must configure selected character active skill")
@@ -693,6 +792,9 @@ func _initialize() -> void:
 	_expect(result.get_node("Content/RewardRow/XpCard/XpBox/XpVBox/XpValue").text.contains("12"), "result xp card must show earned xp")
 	_expect(result.get_node("Content/HintCard/HintBox/Hint").text != "", "result must show next action hint")
 	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
+	_expect(result.has_node("Content/HeroCard/HeroBox/OutcomePanel"), "result must expose a compact hero outcome showcase")
+	_expect((result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName") as Label).text.contains("完成防守"), "victory outcome showcase must communicate the hero result")
+	_expect((result.get_node("Background") as TextureRect).texture != null, "result must inherit the current level environment background")
 	_expect(result.get_node("Content/ReportPanel/ReportBox/Overview").text.contains("1:35"), "battle report must format combat duration")
 	_expect(result.get_node("Content/ReportPanel/ReportBox/Output").text.contains("火焰"), "battle report must show dominant damage element")
 	result._on_report_pressed()
@@ -963,6 +1065,28 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 	save_manager.save_data = original_save
 	await process_frame
 
+func _verify_underpower_confirmation(save_manager: Node, snapshot: Dictionary) -> void:
+	save_manager.save_data = save_manager._default_save()
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var loadout := _instance("res://meta/loadout/loadout.tscn")
+	loadout.setup(router, {"level_id": "level_099", "challenge": true})
+	root.add_child(loadout)
+	await process_frame
+	_expect(loadout._is_severely_underpowered(), "fresh equipment against the final challenge must deterministically exercise the severe-power guard")
+	var start_button := loadout.find_child("StartButton", true, false) as TextureButton
+	var start_label := start_button.get_node("Label") as Label
+	_expect(start_label.text.contains("战力严重不足"), "severe-power challenge entry must warn before the first tap")
+	start_button.emit_signal("pressed")
+	_expect(router.last_started_challenge_level == "", "the first severe-power tap must not start combat")
+	_expect(start_label.text.contains("再次点击"), "the first severe-power tap must arm an explicit second confirmation")
+	start_button.emit_signal("pressed")
+	_expect(router.last_started_challenge_level == "level_099", "the second severe-power tap must honor the player's deliberate confirmation")
+	loadout.queue_free()
+	router.queue_free()
+	save_manager.save_data = snapshot.duplicate(true)
+	await process_frame
+
 func _verify_medic_pet_repair_runtime(data_loader: Node, save_manager: Node, snapshot: Dictionary) -> void:
 	var medic: Dictionary = data_loader.get_row("pets", "pet_medic_drone")
 	_expect(not medic.is_empty() and str(medic.get("role", "")) == "repair", "medical pet must keep the repair role")
@@ -1217,6 +1341,8 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 	_expect(battle.get_node("Hud").process_mode == Node.PROCESS_MODE_ALWAYS, "HUD must remain interactive during card offer pause")
 	var card_panel := battle.get_node("Hud/CardPanel") as Control
 	_expect(card_panel.process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
+	_expect(not battle.wave_toast_banner.visible, "card offer must clear any wave or onboarding toast behind the modal")
+	_expect(battle.pending_wave_toast.is_empty(), "card offer must clear queued wave toasts so they do not reappear under the modal")
 	_expect(card_panel.size.y >= 1240.0 and card_panel.size.y <= 1280.0, "card offer panel should use more of the tall-screen vertical space without becoming full-screen")
 	_expect(card_panel.position.y >= 330.0 and card_panel.position.y + card_panel.size.y <= 1630.0, "card offer panel must sit lower while leaving battle context visible above and below")
 	var cards := card_panel.get_node("Cards") as Control

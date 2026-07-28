@@ -249,6 +249,8 @@ static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 				critical.append({"node": button, "rect": hit_rect})
 		if control is Label:
 			_audit_label_clip(root, control as Label, viewport_rect, issues)
+		elif control is Button:
+			_audit_button_clip(root, control as Button, viewport_rect, issues)
 	for i in range(critical.size()):
 		for j in range(i + 1, critical.size()):
 			var left_node: Node = critical[i]["node"]
@@ -273,7 +275,7 @@ static func _is_critical_touch(button: BaseButton) -> bool:
 	return node_name.ends_with("button") or node_name.contains("hitarea")
 
 static func _audit_label_clip(root: Control, label_node: Label, viewport_rect: Rect2, issues: Array[String]) -> void:
-	if not label_node.clip_text or label_node.autowrap_mode != TextServer.AUTOWRAP_OFF or label_node.text.strip_edges() == "":
+	if label_node.text.strip_edges() == "":
 		return
 	var rect := label_node.get_global_rect()
 	var visible_rect := rect.intersection(viewport_rect)
@@ -281,11 +283,44 @@ static func _audit_label_clip(root: Control, label_node: Label, viewport_rect: R
 		return
 	var font := label_node.get_theme_font("font")
 	var font_size := label_node.get_theme_font_size("font_size")
+	var visible_text := str(TranslationServer.translate(label_node.text))
+	if label_node.autowrap_mode != TextServer.AUTOWRAP_OFF:
+		var required_size := font.get_multiline_string_size(
+			visible_text,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			maxf(rect.size.x, 1.0),
+			font_size
+		)
+		if required_size.y > rect.size.y + 2.0:
+			issues.append("wrapped text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(label_node)), required_size.y, rect.size.y, visible_text.replace("\n", " ")])
+		return
 	var required_width := 0.0
-	for line in label_node.text.split("\n"):
+	for line in visible_text.split("\n"):
 		required_width = maxf(required_width, font.get_string_size(str(line), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x)
 	if required_width > rect.size.x + 2.0:
-		issues.append("text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(label_node)), required_width, rect.size.x, label_node.text.replace("\n", " ")])
+		issues.append("text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(label_node)), required_width, rect.size.x, visible_text.replace("\n", " ")])
+	var required_height := font.get_multiline_string_size(
+		visible_text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1.0,
+		font_size
+	).y
+	if required_height > rect.size.y + 2.0:
+		issues.append("multiline text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(label_node)), required_height, rect.size.y, visible_text.replace("\n", " ")])
+
+static func _audit_button_clip(root: Control, button: Button, viewport_rect: Rect2, issues: Array[String]) -> void:
+	if button.text.strip_edges() == "" or not button.visible:
+		return
+	var rect := button.get_global_rect()
+	if rect.intersection(viewport_rect).size.x < rect.size.x * 0.8 or not _visible_in_clip_ancestors(button, rect):
+		return
+	var visible_text := str(TranslationServer.translate(button.text))
+	var font := button.get_theme_font("font")
+	var font_size := button.get_theme_font_size("font_size")
+	var required_width := font.get_string_size(visible_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var available_width := maxf(0.0, rect.size.x - 24.0)
+	if required_width > available_width + 2.0:
+		issues.append("button text clipped: %s required=%.1f available=%.1f text=%s" % [str(root.get_path_to(button)), required_width, available_width, visible_text])
 
 static func _rect_contains(outer: Rect2, inner: Rect2, tolerance: float) -> bool:
 	return inner.position.x >= outer.position.x - tolerance \
@@ -352,6 +387,9 @@ static func texture_style(path: String, margin := 24.0, content := 12.0, fallbac
 static func armored_button_path(primary := true, button_size := Vector2(512, 160), disabled := false) -> String:
 	var native_size := _native_button_size(button_size)
 	var kind := "primary" if primary and not disabled else "secondary"
+	var themed_path := _active_theme_button_path(kind, native_size, disabled)
+	if themed_path != "":
+		return themed_path
 	var native_path := "%sui_button_%s_native_%dx%d.png" % [UI_TEXTURE_ROOT, kind, native_size.x, native_size.y]
 	if _resource_or_file_exists(native_path):
 		return native_path
@@ -377,7 +415,9 @@ static func apply_armored_texture_button(button: TextureButton, primary := true,
 	button.texture_pressed = normal
 	button.texture_disabled = disabled_tex
 	button.ignore_texture_size = true
-	button.stretch_mode = TextureButton.STRETCH_SCALE
+	# Every supported control size owns a native raster. KEEP_ASPECT is a final
+	# safety rail: theme/model mistakes can letterbox, but can never distort.
+	button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	button.disabled = not enabled
 	button.custom_minimum_size = button_size
 	if button_size.x > 0.0 and button_size.y > 0.0:
@@ -439,6 +479,15 @@ static func _native_button_size(button_size: Vector2) -> Vector2i:
 			best_score = score
 			best = candidate
 	return best
+
+static func _active_theme_button_path(kind: String, native_size: Vector2i, disabled: bool) -> String:
+	var main_loop := Engine.get_main_loop()
+	if not main_loop is SceneTree:
+		return ""
+	var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+	if manager == null or not manager.has_method("resolve_button_path"):
+		return ""
+	return str(manager.call("resolve_button_path", kind, native_size, disabled))
 
 static func _resource_or_file_exists(path: String) -> bool:
 	if path == "":

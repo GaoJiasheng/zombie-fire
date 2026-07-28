@@ -54,7 +54,7 @@ theme_override_constants/separation = 12
 
 [node name="BackButton" type="TextureButton" parent="Root/Main/HeaderRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 84)
+custom_minimum_size = Vector2(170, 88)
 layout_mode = 2
 size_flags_vertical = 4
 texture_normal = ExtResource("2_btn")

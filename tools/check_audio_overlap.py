@@ -40,6 +40,13 @@ def main() -> int:
         'player.set_meta("music_like", MUSIC_LIKE_SFX.has(id))',
         '"sig_vanguard_railvolley", "sig_blaze_meltdown", "sig_frost_glacier", "sig_volt_storm"',
         '"victory", "defeat"',
+        "_request_bgm_duck_for_sfx(id)",
+        "func request_bgm_duck(",
+        "func _update_bgm_duck(",
+        "BGM_DUCK_ATTACK_DB_PER_SECOND",
+        "BGM_DUCK_RELEASE_DB_PER_SECOND",
+        'id.begins_with("boss_intro_")',
+        'id in ["enemy_breach", "threat_warning"]',
     ]:
         if required not in audio:
             errors.append(f"AudioManager overlap guard missing: {required}")
@@ -79,7 +86,7 @@ def main() -> int:
             print(f"audio overlap check failed: {error}", file=sys.stderr)
         return 1
 
-    print("Audio overlap OK: BGM is singleton, long stingers are mutexed, result cue is single-owned")
+    print("Audio overlap OK: BGM is singleton, long stingers are mutexed, priority cues duck music, result cue is single-owned")
     return 0
 
 

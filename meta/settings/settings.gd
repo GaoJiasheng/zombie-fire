@@ -23,6 +23,7 @@ func _ready() -> void:
 	_slider("EffectsRow/Slider").drag_ended.connect(_preview_effect_volume)
 	_slider("UiRow/Slider").drag_ended.connect(_preview_ui_volume)
 	_button("QualityButton").pressed.connect(_on_quality)
+	_button("LanguageButton").pressed.connect(_on_language)
 	_button("AccessibilityRow/ReduceEffectsButton").pressed.connect(_on_reduce_effects)
 	_button("AccessibilityRow/HapticsButton").pressed.connect(_on_haptics)
 	_button("DataRow/BackupButton").pressed.connect(_on_backup)
@@ -34,18 +35,28 @@ func _ready() -> void:
 	_button("BackButton").pressed.connect(_on_back)
 	_refresh_audio_controls()
 	_refresh_quality()
+	_refresh_language()
 	_refresh_accessibility()
 	_refresh_backup()
 	_show_info("help")
 
 func _apply_layout() -> void:
 	$Center/Panel.custom_minimum_size = Vector2(880, 0)
-	_vbox.add_theme_constant_override("separation", 14)
-	for path in ["SoundButton", "QualityButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
+	var compact_safe_layout := safe_height < 1840.0
+	# On shorter safe areas (large Dynamic Island + home indicator), the full
+	# settings stack needs a denser authored rhythm. This keeps the whole panel
+	# inside the safe rect without shrinking type or touch targets.
+	_vbox.add_theme_constant_override("separation", 8 if compact_safe_layout else 14)
+	var margin := $Center/Panel/Margin as MarginContainer
+	margin.add_theme_constant_override("margin_top", 36 if compact_safe_layout else 44)
+	margin.add_theme_constant_override("margin_bottom", 36 if compact_safe_layout else 44)
+	for path in ["SoundButton", "QualityButton", "LanguageButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 88)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 80)
-	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(0, 170)
+	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(0, 190 if LocalizationManager.is_english() else 170)
 	_button("BackButton").custom_minimum_size = Vector2(0, 96)
 
 func _button(path: String) -> Button:
@@ -64,8 +75,8 @@ func _apply_style() -> void:
 		UiKit.apply_label(row.get_node("Label") as Label, 20, UiKit.TEXT_MAIN, 2)
 		UiKit.apply_label(row.get_node("Value") as Label, 19, UiKit.CYAN, 2)
 		_style_slider(row.get_node("Slider") as HSlider)
-	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 20, UiKit.GREY_300, 2)
-	for path in ["SoundButton", "QualityButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 18 if LocalizationManager.is_english() else 20, UiKit.GREY_300, 2)
+	for path in ["SoundButton", "QualityButton", "LanguageButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 24)
 	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
@@ -147,6 +158,17 @@ func _on_quality() -> void:
 func _refresh_quality() -> void:
 	_button("QualityButton").text = "画质：%s" % SettingsManager.quality_label()
 
+func _on_language() -> void:
+	AudioManager.play_sfx("ui_click")
+	LocalizationManager.toggle_language()
+	# Recreate the route so script-built controls, cached copy and layout all
+	# start from one locale. Gameplay state is unaffected because language is a
+	# device setting, not campaign progress.
+	router.change_scene("settings")
+
+func _refresh_language() -> void:
+	_button("LanguageButton").text = "语言：%s" % LocalizationManager.language_label()
+
 func _on_reduce_effects() -> void:
 	SettingsManager.toggle_reduced_effects()
 	AudioManager.play_sfx("ui_click")
@@ -205,7 +227,7 @@ func _show_info(mode: String) -> void:
 		"support":
 			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击“联系支持”可查看联系方式。"
 		_:
-			body.text = "操作说明：\n拖动调整枪口；右键或双击目标，锁定优先攻击。\n经验满后选技能，长按查看详情；局外更换角色和装备并升级。"
+			body.text = "操作说明：\n自动开火；按住战场拖动可手动瞄准。\n双击僵尸锁定集火，双击空地解除；长按技能查看详情。"
 
 func _on_open_privacy() -> void:
 	_show_info("privacy")

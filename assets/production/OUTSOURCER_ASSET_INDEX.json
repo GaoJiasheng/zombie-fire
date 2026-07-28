@@ -35,6 +35,30 @@
   },
   "owner_directed_generated_overrides": [
     {
+      "path": "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27",
+      "source": "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/neon_tempest_phase1a_prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/neon_tempest_hero_outfit_contact_sheet_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/heavenfall_arc_cannon_silhouette_candidates_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/thunder_apocalypse_vfx_storyboard_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/neon_tempest_ui_world_style_board_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/neon_tempest_battle_composite_v1.png"
+      ],
+      "reason": "Owner started Phase 1A-1 for the first paid visual set, Neon Tempest plus Thunder Apocalypse. These are non-runtime direction candidates covering four hero outfits, three premium weapon silhouettes, the six-beat attack language, the cross-screen UI/base system and a corrected integrated battle composite. They do not replace accepted runtime assets until owner approval and modular-composition proof."
+    },
+    {
+      "path": "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27",
+      "source": "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/neon_tempest_phase1a2_prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/thunder_apocalypse_locked_equipment_set_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/neon_tempest_free_weapon_coatings_v2.png",
+        "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/neon_tempest_modular_mounting_proof_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/neon_tempest_base_overlay_four_environment_v1.png",
+        "source_refs/generated/premium_neon_tempest_phase1a2_2026_07_27/neon_tempest_phone_scale_proof_v2.png"
+      ],
+      "reason": "Owner approved the overall Phase 1A-1 rendering direction and continued into Phase 1A-2. This tracked proof pack locks the shortened center triple-coil cannon, defines the remaining Thunder equipment, proves three free-weapon theme finishes, checks four modular hero/weapon mounts, and validates one base overlay across lava, glacier, storm and apex environments at phone scale. It remains outside runtime exports."
+    },
+    {
       "path": "sprites/animations/characters_weaponless",
       "source": "source_refs/generated/hero_battle_weaponless_sheet_chroma.png",
       "derived": "source_refs/generated/hero_battle_weaponless_sheet.png",
@@ -404,6 +428,21 @@
         "contact_sheets/contact_character_shooting_actions_2026_07_26.png"
       ],
       "reason": "Owner requested top-tier polish for all four heroes' firing actions. Runtime keeps the accepted exact fused hero/weapon models while rebuilding anticipation, ignition, recoil peak, mechanism response, and damped recovery for all eight weapons and three aim directions."
+    },
+    {
+      "path": "sprites/themes/neon_tempest/ui/ui_button_{primary|secondary}_native_{size}.png",
+      "source": [
+        "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27",
+        "../../tools/build_neon_tempest_button_assets.py"
+      ],
+      "derived": [
+        "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_tempest_button_runtime_manifest_v1.json",
+        "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_tempest_button_runtime_contact_sheet_v1.png"
+      ],
+      "reason": "Owner required Neon Tempest controls to use purpose-built short and long models rather than stretching one texture. Six independent structural families cover compact through 17:1 HUD ribbon ratios; 72 exact-size runtime textures are uniformly contained and UiKit enforces keep-aspect rendering.",
+      "count": 72,
+      "task": "Neon Tempest Phase 1B-1 semantic button routing",
+      "created_at": "2026-07-27T18:40:00+08:00"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",
@@ -1397,6 +1436,15 @@
       "count": 768,
       "task": "character_shooting_animation_redesign_2026_07_26",
       "created_at": "2026-07-26"
+    },
+    {
+      "path": "sprites/ui/ui_menu_title_zombie_fire.png",
+      "source": "source_refs/generated/ui_menu_title_zombie_fire_prompt_2026_07_27.md",
+      "derived": "assets/production/sprites/ui/ui_menu_title_zombie_fire.png",
+      "reason": "Provide a fully localized English main-menu title with the same owner-approved cracked steel, orange underglow and cyan rim-light finish as the Chinese logo; the stacked lockup preserves title impact on a portrait phone.",
+      "count": 1,
+      "task": "English main-menu rendered title logo",
+      "created_at": "2026-07-27T23:30:00+08:00"
     }
   ]
 }

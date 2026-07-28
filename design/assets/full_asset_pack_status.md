@@ -16,8 +16,8 @@ python3 tools/validate_data.py
 
 Current validation result:
 
-- Asset pack: passed, 1917 files.
-- Data: passed, 5 levels, 5 zombies, 1 boss, 4 skills.
+- Asset pack: passed, 9,223 files.
+- Data: passed, 99 levels, 20 zombies, 8 bosses, 16 skills, 14 environment rows, 10 challenge rules.
 
 ## Delivered
 
@@ -46,19 +46,19 @@ Current validation result:
   - icon
 - 8 projectile assets.
 - 21 single-frame VFX assets.
-- 16 backgrounds: the original menu/map/legacy backgrounds plus 10 campaign battle backgrounds, one per ten-level segment. The new campaign set is integrated at iPhone 17 portrait full-screen ratio (`1206x2622`) and pending owner visual review.
+- 16 backgrounds: the original menu/map/legacy backgrounds plus 10 campaign battle backgrounds, one per ten-level segment. The campaign set is integrated for tall iPhone portrait layouts and covered by the routed screenshot matrix.
 - UI/icon suite.
 - 10 contact sheets copied to `assets/production/contact_sheets/`.
-- Unit animation placeholder frame sets:
+- Release-candidate unit animation frame sets:
   - characters
   - zombies
   - bosses
   - pets
   - weapon turret recoil
-- VFX sequence placeholder frames.
+- Release-candidate VFX sequence frames.
 - Flow reference screens.
 - Environment portrait crops and battle layout guides.
-- Placeholder MP4 videos.
+- Legacy/reference MP4 videos excluded from the current runtime package.
 - `OUTSOURCER_ASSET_INDEX.json`.
 - Placeholder skeletal body part PNGs and part manifests.
 - Production Glow Sans SC / 未来荧黑 Normal Medium font, official OFL notice, and source/hash provenance.
@@ -72,8 +72,9 @@ Current validation result:
 
 ### Audio
 
-- 9 BGM placeholder WAVs.
-- 43 SFX placeholder WAVs.
+- 9 integrated BGM WAVs with runtime crossfade/ducking; final monitored mastering remains an Owner sign-off item.
+- Integrated weapon, impact, zombie, Boss, skill, UI and result SFX with automated overlap and signal-quality gates.
+- The current ten chapters intentionally reuse four battle identities; chapter-specific late-campaign music remains a future audio-production batch rather than an unreviewed last-minute source replacement.
 
 ## Contact Sheets
 
@@ -119,8 +120,8 @@ These are intentionally not final-polish assets yet:
 
 - Final hand-cut skeletal body parts for dynamic units.
 - Final mastered BGM/SFX.
-- Final polished video/CG files.
-- Final App Store preview video.
+- Optional future narrative video/CG files outside the current release scope.
+- The current App Store preview is a completed 22-second capture of real runtime gameplay.
 - Runtime `font_main.ttf` now contains the owner-selected official Glow Sans SC / 未来荧黑 Normal Medium v0.93 binary. `fonts/OFL-GlowSans.txt` and `fonts/font_main.provenance.json` record the SIL OFL 1.1 grant, source release, exact byte size, and SHA-256; the release gate and exported-PCK audit require these files.
 
 The current pack is enough for Godot outsourcing to integrate the whole game without waiting for art/audio.

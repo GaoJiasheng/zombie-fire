@@ -134,6 +134,8 @@ const SFX_POOL_SIZE := 24
 const DEFAULT_BGM_FADE_SECONDS := 0.45
 const DEFAULT_BGM_STOP_FADE_SECONDS := 0.25
 const SILENT_DB := -80.0
+const BGM_DUCK_ATTACK_DB_PER_SECOND := 46.0
+const BGM_DUCK_RELEASE_DB_PER_SECOND := 14.0
 
 var enabled := true
 var _sfx_cache := {}
@@ -150,6 +152,9 @@ var _application_paused := false
 var _tree_paused := false
 var _pause_ui_too := false
 var _missing_audio_reported := {}
+var _bgm_duck_db := 0.0
+var _bgm_duck_target_db := 0.0
+var _bgm_duck_hold_until_msec := 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -159,6 +164,7 @@ func _ready() -> void:
 		bgm_player.name = "BGMPlayer%d" % i
 		bgm_player.bus = &"BGM"
 		bgm_player.volume_db = SILENT_DB
+		bgm_player.set_meta("base_gain", 0.0)
 		add_child(bgm_player)
 		_bgm_players.append(bgm_player)
 	for i in range(SFX_POOL_SIZE):
@@ -176,6 +182,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_bgm_transition(delta)
+	_update_bgm_duck(delta)
 	var tree_paused_now := get_tree() != null and get_tree().paused
 	if tree_paused_now != _tree_paused:
 		_tree_paused = tree_paused_now
@@ -200,6 +207,7 @@ func play_bgm(id: String, fade_duration := DEFAULT_BGM_FADE_SECONDS) -> void:
 		return
 	if _current_bgm == id and _active_bgm_index >= 0 and _bgm_players[_active_bgm_index].playing:
 		return
+	_clear_bgm_duck()
 	_stop_music_like_sfx()
 	var stream := _load_bgm(id)
 	if stream == null:
@@ -230,6 +238,9 @@ func release_for_tests() -> void:
 	_current_bgm = ""
 	_bgm_transition.clear()
 	_active_bgm_index = -1
+	_bgm_duck_db = 0.0
+	_bgm_duck_target_db = 0.0
+	_bgm_duck_hold_until_msec = 0
 	for player in _bgm_players:
 		_clear_bgm_player(player)
 		player.free()
@@ -272,6 +283,52 @@ func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	player.set_meta("started_msec", Time.get_ticks_msec())
 	player.play()
 	player.stream_paused = _should_pause_player(player)
+	_request_bgm_duck_for_sfx(id)
+
+func _request_bgm_duck_for_sfx(id: String) -> void:
+	if id.begins_with("boss_intro_"):
+		request_bgm_duck(-8.0, 1.45)
+	elif id.begins_with("sig_") or id.begins_with("char_"):
+		request_bgm_duck(-6.0, 1.05)
+	elif id in ["enemy_breach", "threat_warning"]:
+		request_bgm_duck(-4.5, 0.62)
+	elif id in ["victory", "defeat"]:
+		request_bgm_duck(-5.5, 0.90)
+
+func request_bgm_duck(target_db: float, hold_seconds: float) -> void:
+	var bounded_target := clampf(target_db, -12.0, 0.0)
+	_bgm_duck_target_db = minf(_bgm_duck_target_db, bounded_target)
+	_bgm_duck_hold_until_msec = maxi(
+		_bgm_duck_hold_until_msec,
+		Time.get_ticks_msec() + int(round(maxf(hold_seconds, 0.0) * 1000.0))
+	)
+
+func _clear_bgm_duck() -> void:
+	_bgm_duck_db = 0.0
+	_bgm_duck_target_db = 0.0
+	_bgm_duck_hold_until_msec = 0
+	_apply_bgm_player_volumes()
+
+func _update_bgm_duck(delta: float) -> void:
+	if Time.get_ticks_msec() > _bgm_duck_hold_until_msec:
+		_bgm_duck_target_db = 0.0
+	var rate := BGM_DUCK_ATTACK_DB_PER_SECOND if _bgm_duck_target_db < _bgm_duck_db else BGM_DUCK_RELEASE_DB_PER_SECOND
+	var next_db := move_toward(_bgm_duck_db, _bgm_duck_target_db, maxf(delta, 0.0) * rate)
+	if not is_equal_approx(next_db, _bgm_duck_db):
+		_bgm_duck_db = next_db
+		_apply_bgm_player_volumes()
+
+func _apply_bgm_player_volumes() -> void:
+	for player in _bgm_players:
+		var base_gain := float(player.get_meta("base_gain", 0.0))
+		player.volume_db = SILENT_DB if base_gain <= 0.0001 else _gain_to_db(base_gain) + _bgm_duck_db
+
+func _set_bgm_player_gain(player: AudioStreamPlayer, gain: float) -> void:
+	if player == null:
+		return
+	var bounded_gain := clampf(gain, 0.0, 1.0)
+	player.set_meta("base_gain", bounded_gain)
+	player.volume_db = SILENT_DB if bounded_gain <= 0.0001 else _gain_to_db(bounded_gain) + _bgm_duck_db
 
 func _is_rate_limited(id: String) -> bool:
 	var min_gap := 0.0
@@ -481,6 +538,8 @@ func get_audio_diagnostics(load_streams := false) -> Dictionary:
 		"sfx_player_count": _sfx_pool.size(),
 		"headless": _headless_audio,
 		"enabled": enabled,
+		"bgm_duck_db": _bgm_duck_db,
+		"bgm_duck_target_db": _bgm_duck_target_db,
 	}
 
 func _select_sfx_player(id: String, priority: int) -> AudioStreamPlayer:
@@ -532,7 +591,7 @@ func _begin_bgm_transition(from_index: int, to_index: int, duration: float) -> v
 		if from_index >= 0 and from_index != to_index:
 			_clear_bgm_player(_bgm_players[from_index])
 		if to_index >= 0:
-			_bgm_players[to_index].volume_db = 0.0
+			_set_bgm_player_gain(_bgm_players[to_index], 1.0)
 		_bgm_transition.clear()
 		return
 	_bgm_transition = {
@@ -553,9 +612,9 @@ func _update_bgm_transition(delta: float) -> void:
 	var from_index := int(_bgm_transition["from"])
 	var to_index := int(_bgm_transition["to"])
 	if from_index >= 0:
-		_bgm_players[from_index].volume_db = _gain_to_db(1.0 - weight)
+		_set_bgm_player_gain(_bgm_players[from_index], 1.0 - weight)
 	if to_index >= 0:
-		_bgm_players[to_index].volume_db = _gain_to_db(weight)
+		_set_bgm_player_gain(_bgm_players[to_index], weight)
 	if elapsed >= duration:
 		_complete_bgm_transition()
 
@@ -567,7 +626,7 @@ func _complete_bgm_transition() -> void:
 	if from_index >= 0 and from_index != to_index:
 		_clear_bgm_player(_bgm_players[from_index])
 	if to_index >= 0:
-		_bgm_players[to_index].volume_db = 0.0
+		_set_bgm_player_gain(_bgm_players[to_index], 1.0)
 	_bgm_transition.clear()
 
 func _gain_to_db(gain: float) -> float:
@@ -580,6 +639,7 @@ func _clear_bgm_player(player: AudioStreamPlayer) -> void:
 	player.stream_paused = false
 	player.stream = null
 	player.volume_db = SILENT_DB
+	player.set_meta("base_gain", 0.0)
 
 func _count_active_bgm_players() -> int:
 	var count := 0

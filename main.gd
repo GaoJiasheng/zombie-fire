@@ -25,6 +25,7 @@ func _ready() -> void:
 		get_tree().quit(2)
 		return
 	SaveManager.load_game()
+	ThemeManager.refresh_from_save()
 	get_tree().paused = false
 	Engine.time_scale = 1.0
 	get_viewport().size_changed.connect(_refresh_safe_area)

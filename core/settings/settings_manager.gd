@@ -6,6 +6,7 @@ const BATTLE_SPEED_VISIBLE_LEVEL := 30
 const BATTLE_SPEED_5X_LEVEL := 50
 
 var settings := {
+	"language": _system_default_language(),
 	"quality": "standard",
 	"battle_speed": 1.0,
 	"audio_enabled": true,
@@ -27,7 +28,12 @@ func load_settings() -> void:
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(SETTINGS_PATH))
 	if parsed is Dictionary:
+		var had_language: bool = parsed.has("language")
 		settings.merge(parsed, true)
+		# Existing Chinese-only installs stay Chinese until the player explicitly
+		# changes language. Fresh installs follow the device language.
+		if not had_language:
+			settings["language"] = "zh"
 
 func save_settings() -> void:
 	var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
@@ -41,6 +47,14 @@ func cycle_quality() -> String:
 
 func get_quality() -> String:
 	return str(settings.get("quality", "standard"))
+
+func get_language() -> String:
+	return _normalize_language(str(settings.get("language", _system_default_language())))
+
+func set_language(language: String) -> String:
+	settings["language"] = _normalize_language(language)
+	save_settings()
+	return get_language()
 
 func quality_label() -> String:
 	return "标准 60帧" if get_quality() == "standard" else "省电 30帧"
@@ -145,3 +159,9 @@ func _apply_audio_settings() -> void:
 	AudioManager.set_bgm_volume(get_bgm_volume())
 	AudioManager.set_sfx_volume(get_sfx_volume())
 	AudioManager.set_ui_volume(get_ui_volume())
+
+func _normalize_language(language: String) -> String:
+	return "zh" if language.strip_edges().to_lower().begins_with("zh") else "en"
+
+func _system_default_language() -> String:
+	return _normalize_language(OS.get_locale_language())

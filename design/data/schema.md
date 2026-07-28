@@ -6,7 +6,7 @@
 
 ## 通用约定
 - 所有表是 `{ "id": {...} }` 的对象映射或 `[{...}]` 数组（下注明）。
-- 文案不写死在表里，用 `name_key` 指向 `localization_zh.json`（见末节）。
+- 内容名称不写死在表里，用 `name_key` 同时指向 `localization_zh.json` / `localization_en.json`（见末节）；历史运行时句子由英文目录覆盖。
 - 数值留空旋钮（如 coef/base）便于平衡（见 `09`）。
 
 ---
@@ -463,7 +463,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ```
 每 10 关共用一个固定挑战规则；配装页必须在入场前显示名称、压力倍率与应对建议。倍率只由本表读取，结算战报保留同一规则快照。
 
-## localization_zh.json （文案集中，预留英文 localization_en.json）
+## localization_zh.json / localization_en.json（稳定 ID 文案）
 ```jsonc
 {
   "char_vanguard": "钢铁先锋",
@@ -477,6 +477,49 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   // 所有展示文案在此；代码/数据只引用 key
 }
 ```
+
+两张表的 key 必须完全一致；`tools/check_localization.py` 会阻止缺 key、英文目标残留中文或占位符不一致。
+
+历史界面仍以中文源字符串编写，英文分为三张运行时目录：
+
+- `localization_ui_en.json`：通用界面、动态模板和 `__terms`；
+- `localization_gameplay_en.json`：战斗、技能、配装与结算；
+- `localization_story_en.json`：章节、目标、挑战与 Boss 叙事。
+
+格式化源文案（如 `"等级%d"`）必须在英文目录中保留相同占位符类型与数量。完整维护规则见 `design/23_bilingual_localization_framework.md`。
+
+## themes.json（全局视觉主题）
+
+```jsonc
+{
+  "version": 1,
+  "themes": [
+    {
+      "id": "default",
+      "name_zh": "末日防线",
+      "name_en": "Last Defense",
+      "premium": false,
+      "entitlement": "",
+      "ui": {"button_root": "res://assets/production/sprites/ui"},
+      "effects": {"character_iridescence": false}
+    },
+    {
+      "id": "neon_tempest",
+      "name_zh": "霓虹雷暴",
+      "name_en": "Neon Tempest",
+      "premium": true,
+      "entitlement": "ent_theme_neon_tempest",
+      "ui": {"button_root": "res://assets/production/sprites/themes/neon_tempest/ui"},
+      "effects": {"character_iridescence": true}
+    }
+  ]
+}
+```
+
+- `id` 必须全局唯一，并与 `SaveManager.cosmetics.selected_theme` 一致。
+- `entitlement` 是永久权益 ID；默认主题为空。付费主题无已验证权益时必须自动回退 `default`。
+- `button_root` 下必须覆盖 `UiKit.NATIVE_BUTTON_SIZES` 的主 / 次两种精确尺寸。
+- `character_iridescence` 只控制运行时衣装动态材质，不允许改角色数值；减弱特效时必须静止并降亮。
 
 ---
 

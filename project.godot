@@ -25,6 +25,8 @@ config/icon="res://assets/app/app_icon_1024.png"
 DataLoader="*res://core/data/data_loader.gd"
 SaveManager="*res://core/save/save_manager.gd"
 SettingsManager="*res://core/settings/settings_manager.gd"
+LocalizationManager="*res://core/localization/localization_manager.gd"
+ThemeManager="*res://core/theme/theme_manager.gd"
 InputManager="*res://core/input/input_manager.gd"
 AudioManager="*res://core/audio/audio_manager.gd"
 

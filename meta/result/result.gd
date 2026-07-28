@@ -46,9 +46,11 @@ func setup(main: Node, payload := {}) -> void:
 	if is_endless_result:
 		result_stars = 0
 	_result_return_payload = _build_result_return_payload(payload, victory)
+	_populate_background(victory)
 	AudioManager.play_bgm("victory" if victory else "defeat")
 	AudioManager.play_sfx("victory" if victory else "defeat")
 	_populate_hero(victory)
+	_populate_outcome_showcase(victory)
 	_populate_rewards(payload, victory)
 	_populate_hint(victory)
 	_populate_battle_report(victory)
@@ -89,6 +91,8 @@ func _apply_layout_constraints() -> void:
 	$Content/HeroCard/HeroBox/Title.clip_text = false
 	$Content/HeroCard/HeroBox/LevelName.custom_minimum_size = Vector2(content_width - 120.0, 0)
 	$Content/HeroCard/HeroBox/LevelName.clip_text = false
+	$Content/HeroCard/HeroBox/OutcomePanel.custom_minimum_size = Vector2(content_width - 64.0, 124)
+	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy.custom_minimum_size = Vector2(content_width - 260.0, 0)
 	$Content/RewardRow.add_theme_constant_override("separation", 16)
 	_configure_reward_layout()
 	for path in ["Content/RewardRow/GoldCard/GoldBox/GoldIcon", "Content/RewardRow/XpCard/XpBox/XpIcon"]:
@@ -129,6 +133,7 @@ func _native_result_content_width(raw_width: float) -> float:
 
 func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
+	$Content/HeroCard/HeroBox/OutcomePanel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
 	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("gold"))
 	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("xp"))
 	$Content/ReportPanel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
@@ -137,6 +142,8 @@ func _apply_ui_style() -> void:
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	_apply_title_label_style(HERO_TITLE_NORMAL_SIZE, UiKit.TEXT_MAIN)
 	UiKit.apply_label($Content/HeroCard/HeroBox/LevelName, 26, Color(0.78, 0.84, 0.84, 1.0), 3)
+	UiKit.apply_label($Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName, 26, UiKit.TEXT_MAIN, 3)
+	UiKit.apply_label($Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/Moment, 19, UiKit.CYAN, 2)
 	UiKit.apply_label($Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldLabel, 18, UiKit.GOLD, 2)
 	UiKit.apply_label($Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue, 40, UiKit.GOLD, 4)
 	UiKit.apply_label($Content/RewardRow/XpCard/XpBox/XpVBox/XpLabel, 18, UiKit.CYAN, 2)
@@ -156,10 +163,21 @@ func _apply_ui_style() -> void:
 	]:
 			var label := get_node_or_null(str(spec["path"])) as Label
 			if label != null:
-				UiKit.apply_label(label, int(spec["size"]), Color(1, 1, 1, 1), 5)
+				var label_size := int(spec["size"])
+				if LocalizationManager.is_english() and str(spec["path"]).contains("PrimaryRow"):
+					label_size = mini(label_size, 24)
+				UiKit.apply_label(label, label_size, Color(1, 1, 1, 1), 5)
 
 func _apply_title_label_style(size: int, color: Color) -> void:
 	var title := $Content/HeroCard/HeroBox/Title as Label
+	if LocalizationManager.is_english():
+		var translated_title := LocalizationManager.text(title.text)
+		if translated_title.length() >= 14:
+			size = mini(size, 44)
+		elif translated_title.length() >= 10:
+			size = mini(size, 50)
+		else:
+			size = mini(size, 66)
 	UiKit.apply_label(title, size, color, 6)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -172,7 +190,7 @@ func _populate_hero(victory: bool) -> void:
 		_apply_title_label_style(HERO_TITLE_SHORT_SIZE, Color(1, 0.78, 0.4, 1))
 	elif is_challenge_result:
 		$Content/HeroCard/HeroBox/Title.text = "挑战完成" if victory else "挑战失败"
-		$Content/HeroCard/HeroBox/LevelName.text = "%s · %s" % [level_name, str(challenge_rule.get("name", "高压尸潮"))]
+		$Content/HeroCard/HeroBox/LevelName.text = "%s · %s" % [level_name, LocalizationManager.text(str(challenge_rule.get("name", "高压尸潮")))]
 		_apply_title_label_style(HERO_TITLE_LONG_SIZE, Color(1, 0.78, 0.4, 1) if victory else Color(1, 0.55, 0.45, 1))
 	else:
 		$Content/HeroCard/HeroBox/Title.text = DataLoader.tr_key("ui_victory") if victory else DataLoader.tr_key("ui_defeat")
@@ -182,6 +200,45 @@ func _populate_hero(victory: bool) -> void:
 			_apply_title_label_style(HERO_TITLE_SHORT_SIZE, Color(1, 0.55, 0.45, 1))
 		$Content/HeroCard/HeroBox/LevelName.text = level_name
 	_refresh_star_row(result_stars)
+
+func _populate_background(victory: bool) -> void:
+	var level: Dictionary = DataLoader.get_row("levels", level_id)
+	var env_id := str(level.get("env", ""))
+	var env: Dictionary = DataLoader.get_row("environments", env_id)
+	var background_path := str(env.get("battle_background", ""))
+	var background := $Background as TextureRect
+	if background_path != "" and ResourceLoader.exists(background_path):
+		background.texture = load(background_path)
+	background.modulate = Color(0.50, 0.47, 0.40, 1.0) if victory else Color(0.32, 0.36, 0.42, 1.0)
+
+func _populate_outcome_showcase(victory: bool) -> void:
+	var character_id := SaveManager.get_selected("character")
+	if character_id == "":
+		character_id = "vanguard"
+	var character: Dictionary = DataLoader.get_row("characters", character_id)
+	var portrait_path := str(character.get("portrait", character.get("icon", "")))
+	var portrait := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait as TextureRect
+	portrait.texture = load(portrait_path) if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
+	portrait.modulate = Color.WHITE if victory else Color(0.72, 0.76, 0.80, 0.82)
+	portrait.material = ThemeManager.create_character_iridescence_material()
+	var character_name := DataLoader.tr_key(str(character.get("name_key", character_id)))
+	var hero_name := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName as Label
+	hero_name.text = "%s · %s" % [character_name, "完成防守" if victory else "准备反击"]
+	hero_name.add_theme_color_override("font_color", UiKit.GOLD if victory else Color(1.0, 0.62, 0.52, 1.0))
+	var duration := int(round(float(battle_report.get("duration_seconds", 0.0))))
+	var minutes := int(duration / 60)
+	var seconds := duration % 60
+	var kills := int(battle_report.get("kills", 0))
+	var boss_kills := int(battle_report.get("boss_kills", 0))
+	var streak := int(battle_report.get("max_kill_streak", 0))
+	var moment := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/Moment as Label
+	if victory and boss_kills > 0:
+		moment.text = "首领击破 %d · 击杀 %d · 最高 %d 连斩" % [boss_kills, kills, streak]
+	elif victory:
+		moment.text = "防线守住 · 击杀 %d · 最高 %d 连斩" % [kills, streak]
+	else:
+		moment.text = "坚持 %d:%02d · 击杀 %d · 复盘后再战" % [minutes, seconds, kills]
+	moment.add_theme_color_override("font_color", UiKit.CYAN if victory else UiKit.WARNING)
 
 func _populate_rewards(payload: Dictionary, victory: bool) -> void:
 	var gold := int(payload.get("gold", 0))
@@ -320,16 +377,79 @@ func _refresh_star_row(stars: int) -> void:
 
 func _animate_result_entry(victory: bool) -> void:
 	$Content.modulate.a = 0.0
+	var showcase := $Content/HeroCard/HeroBox/OutcomePanel as Control
+	var rewards := $Content/RewardRow as Control
+	var actions := $Content/Actions as Control
+	showcase.pivot_offset = showcase.size * 0.5
+	showcase.scale = Vector2(0.90, 0.90)
+	showcase.modulate.a = 0.0
+	rewards.modulate.a = 0.0
+	actions.modulate.a = 0.0
+	if SettingsManager.reduced_effects_enabled():
+		$Content.modulate.a = 1.0
+		showcase.scale = Vector2.ONE
+		showcase.modulate.a = 1.0
+		rewards.modulate.a = 1.0
+		actions.modulate.a = 1.0
+		return
 	var tween := $Content.create_tween()
-	tween.tween_property($Content, "modulate:a", 1.0, 0.32)
+	tween.tween_property($Content, "modulate:a", 1.0, 0.24)
+	var showcase_tween := showcase.create_tween()
+	showcase_tween.tween_interval(0.06)
+	showcase_tween.tween_property(showcase, "modulate:a", 1.0, 0.18)
+	showcase_tween.parallel().tween_property(showcase, "scale", Vector2(1.035, 1.035), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	showcase_tween.tween_property(showcase, "scale", Vector2.ONE, 0.12)
+	var reward_tween := rewards.create_tween()
+	reward_tween.tween_interval(0.20)
+	reward_tween.tween_property(rewards, "modulate:a", 1.0, 0.20)
+	var action_tween := actions.create_tween()
+	action_tween.tween_interval(0.34)
+	action_tween.tween_property(actions, "modulate:a", 1.0, 0.20)
 	# Stars pop in
 	for i in range($Content/HeroCard/HeroBox/StarRow.get_child_count()):
 		var star := $Content/HeroCard/HeroBox/StarRow.get_child(i)
+		star.pivot_offset = star.size * 0.5
 		star.scale = Vector2(0.2, 0.2)
 		var star_tween := star.create_tween()
 		star_tween.tween_interval(0.15 + 0.08 * i)
 		star_tween.tween_property(star, "scale", Vector2(1.18, 1.18), 0.14)
 		star_tween.tween_property(star, "scale", Vector2.ONE, 0.14)
+	if victory:
+		_spawn_victory_sparks()
+
+func _spawn_victory_sparks() -> void:
+	var texture := load("res://assets/production/sprites/ui/icon_currency_star.png") as Texture2D
+	if texture == null:
+		return
+	var star_row := $Content/HeroCard/HeroBox/StarRow as Control
+	var star_rect := star_row.get_global_rect()
+	var origin := star_rect.position + star_rect.size * 0.5
+	var random := RandomNumberGenerator.new()
+	random.seed = 1701 + int(DataLoader.level_number(level_id))
+	for index in range(8):
+		var spark := TextureRect.new()
+		spark.name = "VictorySpark%02d" % index
+		spark.texture = texture
+		spark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		spark.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var side := 20.0 + random.randf_range(0.0, 12.0)
+		spark.size = Vector2(side, side)
+		spark.pivot_offset = spark.size * 0.5
+		spark.position = origin - spark.pivot_offset
+		spark.modulate = Color(1.0, 0.88, 0.35, 0.0)
+		spark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spark.z_index = 4
+		add_child(spark)
+		var angle := TAU * float(index) / 8.0 + random.randf_range(-0.14, 0.14)
+		var distance := random.randf_range(110.0, 210.0)
+		var target := spark.position + Vector2.RIGHT.rotated(angle) * distance
+		var spark_tween := spark.create_tween()
+		spark_tween.tween_interval(0.04 + float(index % 4) * 0.035)
+		spark_tween.tween_property(spark, "modulate:a", 0.90, 0.10)
+		spark_tween.parallel().tween_property(spark, "position", target, 0.72).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+		spark_tween.parallel().tween_property(spark, "rotation", random.randf_range(-1.2, 1.2), 0.72)
+		spark_tween.tween_property(spark, "modulate:a", 0.0, 0.22)
+		spark_tween.tween_callback(spark.queue_free)
 
 func _format_result_number(value: int) -> String:
 	var sign := "-" if value < 0 else ""

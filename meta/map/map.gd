@@ -20,6 +20,8 @@ const CHAPTER_RIGHT_W := 300.0
 var router: Node
 var resource_tip_tween: Tween = null
 var selected_chapter := 0
+var _scroll_focus_generation := 0
+var _overview_focus_chapter := 0
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -227,12 +229,22 @@ func _build_levels() -> void:
 		var current := _chapter_by_index(chapters, selected_chapter)
 		if not current.is_empty():
 			_build_chapter_levels(level_list, current)
+			var focus_level_id := _campaign_focus_level_id()
+			if _chapter_contains_level(current, focus_level_id):
+				_schedule_map_scroll_focus(focus_level_id, 34.0)
+			else:
+				_schedule_map_scroll_focus("", 0.0)
 			return
 	selected_chapter = 0
 	_apply_page_title_style(44)
 	(%Title as Label).text = "战区地图"
 	for chapter in chapters:
 		level_list.add_child(_build_chapter_card(chapter))
+	var focus_chapter := _overview_focus_chapter
+	if focus_chapter <= 0:
+		focus_chapter = _chapter_from_level_id(_campaign_focus_level_id())
+	_overview_focus_chapter = 0
+	_schedule_map_scroll_focus("Chapter%02dCard" % focus_chapter, 28.0)
 
 func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> void:
 	var env := _chapter_env(chapter)
@@ -327,7 +339,55 @@ func _chapter_status_text(chapter: Dictionary) -> String:
 		return "未展开"
 	if _chapter_completed(chapter):
 		return "已肃清"
-	return "作战中"
+	if _chapter_is_current(chapter):
+		return "当前推进"
+	return "已展开"
+
+func _campaign_focus_level_id() -> String:
+	var levels: Array = DataLoader.get_table("levels")
+	for level in levels:
+		var level_id := str((level as Dictionary).get("id", ""))
+		if level_id != "" and SaveManager.is_level_unlocked(level_id) and SaveManager.get_level_stars(level_id) <= 0:
+			return level_id
+	return str((levels[levels.size() - 1] as Dictionary).get("id", "")) if not levels.is_empty() else ""
+
+func _chapter_is_current(chapter: Dictionary) -> bool:
+	if not _chapter_unlocked(chapter) or _chapter_completed(chapter):
+		return false
+	var focus_level_id := _campaign_focus_level_id()
+	for level in chapter.get("levels", []):
+		if str((level as Dictionary).get("id", "")) == focus_level_id:
+			return true
+	return false
+
+func _chapter_contains_level(chapter: Dictionary, level_id: String) -> bool:
+	if level_id == "":
+		return false
+	for level in chapter.get("levels", []):
+		if str((level as Dictionary).get("id", "")) == level_id:
+			return true
+	return false
+
+func _schedule_map_scroll_focus(control_name: String, top_inset: float) -> void:
+	_scroll_focus_generation += 1
+	call_deferred("_restore_map_scroll_focus", control_name, top_inset, _scroll_focus_generation)
+
+func _restore_map_scroll_focus(control_name: String, top_inset: float, generation: int) -> void:
+	# VBox sizing and queued removals settle over two frames. Restoring earlier
+	# can measure the previous chapter list and land on the wrong card.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if generation != _scroll_focus_generation or not is_inside_tree():
+		return
+	var scroll := %LevelScroll as ScrollContainer
+	if control_name == "":
+		scroll.scroll_vertical = 0
+		return
+	var target := (%LevelList as VBoxContainer).get_node_or_null(control_name) as Control
+	if target == null:
+		scroll.scroll_vertical = 0
+		return
+	scroll.scroll_vertical = maxi(0, int(round(target.position.y - top_inset)))
 
 func _chapter_accent(chapter: Dictionary) -> Color:
 	var levels: Array = chapter.get("levels", [])
@@ -360,8 +420,21 @@ func _chapter_next_lock_text(chapter: Dictionary) -> String:
 	return "肃清第%02d战区后展开" % (chapter_id - 1)
 
 func _wrap_chapter_text(text: String, max_chars := 24) -> String:
-	var source := text.strip_edges()
+	var source := LocalizationManager.text(text).strip_edges()
 	var lines: Array[String] = []
+	if LocalizationManager.is_english():
+		for paragraph in source.split("\n"):
+			var line := ""
+			for word in str(paragraph).split(" ", false):
+				var candidate := str(word) if line == "" else "%s %s" % [line, word]
+				if line != "" and candidate.length() > max_chars:
+					lines.append(line)
+					line = str(word)
+				else:
+					line = candidate
+			if line != "":
+				lines.append(line)
+		return "\n".join(lines)
 	var line := ""
 	for i in range(source.length()):
 		var ch := source.substr(i, 1)
@@ -379,10 +452,15 @@ func _wrap_chapter_text(text: String, max_chars := 24) -> String:
 		lines.append(line.strip_edges())
 	return "\n".join(lines)
 
+func _chapter_wrap_limit(chinese_limit: int) -> int:
+	return chinese_limit * 2 + 6 if LocalizationManager.is_english() else chinese_limit
+
 func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	var chapter_id := int(chapter.get("chapter", 1))
 	var env := _chapter_env(chapter)
 	var unlocked := _chapter_unlocked(chapter)
+	var completed := _chapter_completed(chapter)
+	var current := _chapter_is_current(chapter)
 	var accent := _chapter_accent(chapter)
 	var button := TextureButton.new()
 	button.name = "Chapter%02dCard" % chapter_id
@@ -397,14 +475,14 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.clip_contents = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	button.modulate = Color.WHITE if unlocked else Color(0.84, 0.86, 0.88, 0.94)
+	button.modulate = Color.WHITE if current else Color(0.90, 0.92, 0.94, 0.96) if unlocked else Color(0.84, 0.86, 0.88, 0.94)
 	if unlocked:
 		button.pressed.connect(_open_chapter.bind(chapter_id))
 
 	_add_chapter_art(button, str(env.get("portrait", "")), unlocked)
 	_add_chapter_frame(button, accent, unlocked)
 
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 27, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
+	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23 if LocalizationManager.is_english() else 27, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
 	title.name = "ChapterTitle"
 	title.position = Vector2(CHAPTER_TEXT_X, 30)
 	title.size = Vector2(CHAPTER_TEXT_W, 54)
@@ -420,20 +498,21 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 
 	_add_chapter_status_pill(button, Vector2(CHAPTER_TEXT_X + 214, 92), _chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED)
 
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), 18), 18, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 2)
+	var story_color := UiKit.TEXT_MAIN if current else UiKit.TEXT_MUTED
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), _chapter_wrap_limit(18)), 16 if LocalizationManager.is_english() else 18, story_color if unlocked else UiKit.TEXT_MUTED, 2)
 	story.name = "ChapterStory"
 	story.position = Vector2(CHAPTER_TEXT_X, 134)
-	story.size = Vector2(CHAPTER_TEXT_W, 102)
+	story.size = Vector2(CHAPTER_TEXT_W, 112 if LocalizationManager.is_english() else 102)
 	story.autowrap_mode = TextServer.AUTOWRAP_OFF
 	story.clip_text = false
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 2)
 	button.add_child(story)
 
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), 20), 17, UiKit.TEXT_MUTED, 2)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), _chapter_wrap_limit(20)), 16 if LocalizationManager.is_english() else 17, UiKit.TEXT_MUTED, 2)
 	objective.name = "ChapterObjective"
-	objective.position = Vector2(CHAPTER_TEXT_X, 254)
-	objective.size = Vector2(CHAPTER_TEXT_W, 58)
+	objective.position = Vector2(CHAPTER_TEXT_X, 252)
+	objective.size = Vector2(CHAPTER_TEXT_W, 70 if LocalizationManager.is_english() else 58)
 	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
 	objective.clip_text = false
 	objective.add_theme_constant_override("line_spacing", 3)
@@ -445,7 +524,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 8, 190), small_boss, "小首领", false, unlocked)
 	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 156, 190), major_boss, "大首领", true, unlocked)
 
-	var action_label := "进入战区" if unlocked else _chapter_next_lock_text(chapter)
+	var action_label := "继续推进" if current else "回顾战区" if completed else "进入战区" if unlocked else _chapter_next_lock_text(chapter)
 	_add_chapter_action_button(button, Vector2(CHAPTER_RIGHT_X + 16, 266), Vector2(CHAPTER_RIGHT_W - 32, 54), action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
 	return button
 
@@ -631,14 +710,14 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	_add_chapter_art(header, str(env.get("portrait", "")), true)
 	_add_chapter_frame(header, accent, true)
 
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 26, UiKit.TEXT_MAIN, 4)
+	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23 if LocalizationManager.is_english() else 26, UiKit.TEXT_MAIN, 4)
 	title.name = "ChapterDetailTitle"
 	title.position = Vector2(CHAPTER_TEXT_X, 32)
 	title.size = Vector2(CHAPTER_TEXT_W, 50)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.clip_text = false
 	header.add_child(title)
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), 18), 18, UiKit.TEXT_MAIN, 2)
+	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), _chapter_wrap_limit(18)), 16 if LocalizationManager.is_english() else 18, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
 	story.position = Vector2(CHAPTER_TEXT_X, 94)
 	story.size = Vector2(CHAPTER_TEXT_W, 106)
@@ -647,7 +726,7 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 3)
 	header.add_child(story)
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), 20), 16, UiKit.TEXT_MUTED, 2)
+	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), _chapter_wrap_limit(20)), 16, UiKit.TEXT_MUTED, 2)
 	objective.position = Vector2(CHAPTER_TEXT_X, 214)
 	objective.size = Vector2(CHAPTER_TEXT_W, 52)
 	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
@@ -668,15 +747,12 @@ func _open_chapter(chapter_id: int) -> void:
 	AudioManager.play_sfx("ui_confirm")
 	selected_chapter = chapter_id
 	_build_levels()
-	var scroll := %LevelScroll as ScrollContainer
-	scroll.scroll_vertical = 0
 
 func _back_to_chapter_map() -> void:
 	AudioManager.play_sfx("ui_click")
+	_overview_focus_chapter = selected_chapter
 	selected_chapter = 0
 	_build_levels()
-	var scroll := %LevelScroll as ScrollContainer
-	scroll.scroll_vertical = 0
 
 func _build_nav() -> void:
 	var nav := %Nav as HBoxContainer
@@ -950,6 +1026,7 @@ func _open_collection(mode: String) -> void:
 
 func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, stars: int, challenge_stars: int) -> TextureButton:
 	var button := TextureButton.new()
+	button.name = level_id
 	button.custom_minimum_size = Vector2(0, LEVEL_CARD_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.texture_normal = null
@@ -1021,6 +1098,8 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 
 	_add_card_pill(button, Vector2(148, 84), Vector2(154, 34), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
 	_add_element_pill(button, Vector2(318, 84), Vector2(124, 34), weakness)
+	if level_id == _campaign_focus_level_id():
+		_add_card_pill(button, Vector2(448, 84), Vector2(76, 34), "当前", UiKit.GOLD)
 	_add_variant_marker(button, variant)
 
 	var challenge_unlocked := SaveManager.is_challenge_unlocked(level_id)

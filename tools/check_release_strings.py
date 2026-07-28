@@ -61,6 +61,12 @@ def main() -> int:
             if token in text:
                 errors.append(f"{path.relative_to(ROOT)} contains forbidden release string: {token}")
     for path in _collect_files(UI_SCAN):
+        # English is forbidden in the Chinese source UI, but is the intended
+        # payload of the explicit English localization catalogs.
+        if path.name == "localization_en.json" or (
+            path.name.startswith("localization_") and path.name.endswith("_en.json")
+        ):
+            continue
         text = path.read_text(errors="ignore")
         for literal in _string_literals(text):
             if literal in VISIBLE_UI_LITERAL_ALLOWLIST:

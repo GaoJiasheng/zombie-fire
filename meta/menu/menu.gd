@@ -2,6 +2,7 @@ extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
 const MENU_TITLE_LOGO_PATH := "res://assets/production/sprites/ui/ui_menu_title_shichao_fangxian.png"
+const MENU_TITLE_LOGO_EN_PATH := "res://assets/production/sprites/ui/ui_menu_title_zombie_fire.png"
 const MENU_SUBTITLE := "火力封锁，寸土不让"
 
 var router: Node
@@ -17,7 +18,7 @@ func _ready() -> void:
 
 func _apply_ui_style() -> void:
 	var title := %Title as TextureRect
-	title.texture = load(MENU_TITLE_LOGO_PATH)
+	title.texture = load(MENU_TITLE_LOGO_EN_PATH if LocalizationManager.is_english() else MENU_TITLE_LOGO_PATH)
 	title.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	title.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	title.custom_minimum_size = Vector2(1040, 340)

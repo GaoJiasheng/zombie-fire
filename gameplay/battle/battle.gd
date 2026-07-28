@@ -670,6 +670,10 @@ func _set_card_offer_pause_active(active: bool) -> void:
 	if active:
 		_set_turret_fire_enabled(false)
 		_hide_skill_hint()
+		# Card selection is the only decision surface while the run is paused.
+		# Clear queued onboarding/wave copy as well as the visible banner so it
+		# cannot read through the modal or compete with the offer title.
+		_hide_wave_toast()
 		card_press_skill_id = ""
 		card_long_press_opened = false
 		skill_hint_press_kind = ""
@@ -4279,6 +4283,7 @@ func _spawn_character() -> void:
 		character_sprite.texture = character_idle_frames[0]
 	else:
 		character_sprite.texture = load(character_data.get("portrait", ""))
+	character_sprite.material = ThemeManager.create_character_iridescence_material()
 	_attach_growth_badge(character_sprite, character_level, Vector2(-98, -190))
 	_spawn_character_weapon_visual()
 	_spawn_character_aura()
@@ -8402,7 +8407,7 @@ func _show_onboarding_tip() -> void:
 	var text := ""
 	match onboarding_stage:
 		"aim_and_first_card":
-			text = "自动开火会优先压制近线威胁，点僵尸可锁定优先击杀。"
+			text = "自动开火｜按住战场拖动：手动瞄准\n双击僵尸：锁定集火"
 		"split_swarm":
 			text = "经验满后选择技能卡：清群拿分裂/多重，漏怪拿减速/追踪。"
 		"runner_priority":
@@ -8798,6 +8803,7 @@ func _show_card_offer() -> void:
 	AudioManager.play_sfx("level_up", -2.0, 0.02)
 	_spawn_levelup_vfx(Vector2(540, 1580.0 + bottom_dock_shift), Color(0.7, 0.95, 1.0))
 	$Hud/CardPanel/CardTitle.text = _card_offer_title()
+	UiKit.apply_label($Hud/CardPanel/CardTitle, 29 if LocalizationManager.is_english() else 34, UiKit.TEXT_MAIN, 4)
 	$Hud/CardPanel.visible = true
 	_animate_card_panel_in()
 
@@ -8848,7 +8854,8 @@ func _skill_offer_level(skill_id: String) -> int:
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
 	var stats_extra_h := minf(28.0, 18.0 * float(stats_text.count("\n")))
-	var card_h := CARD_OFFER_CARD_BASE_HEIGHT + stats_extra_h
+	var locale_extra_h := 18.0 if LocalizationManager.is_english() else 0.0
+	var card_h := CARD_OFFER_CARD_BASE_HEIGHT + stats_extra_h + locale_extra_h
 	var card := Panel.new()
 	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, card_h)
 	card.clip_contents = true
@@ -8891,7 +8898,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	title.text = display_name
 	title.position = Vector2(176, 28)
 	title.size = Vector2(362, 48)
-	UiKit.apply_label(title, 28, Color(0.96, 0.99, 1.0, 1.0), 3)
+	UiKit.apply_label(title, 24 if LocalizationManager.is_english() else 28, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -8939,9 +8946,9 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(176, 150 + stats_extra_h)
-	desc.size = Vector2(622, 46)
-	UiKit.apply_label(desc, 17, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.position = Vector2(176, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
+	desc.size = Vector2(622, 76 if LocalizationManager.is_english() else 46)
+	UiKit.apply_label(desc, 16 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
 	desc.add_theme_constant_override("line_spacing", 5)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
@@ -8950,7 +8957,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(176, card_h - 78.0)
+	tags.position = Vector2(176, card_h - (60.0 if LocalizationManager.is_english() else 78.0))
 	tags.size = Vector2(622, 30)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE

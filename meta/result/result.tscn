@@ -79,6 +79,37 @@ theme_override_font_sizes/font_size = 32
 theme_override_colors/font_color = Color(0.78, 0.84, 0.84, 1)
 theme_override_constants/outline_size = 2
 
+[node name="OutcomePanel" type="PanelContainer" parent="Content/HeroCard/HeroBox"]
+custom_minimum_size = Vector2(0, 124)
+
+[node name="OutcomeRow" type="HBoxContainer" parent="Content/HeroCard/HeroBox/OutcomePanel"]
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="Portrait" type="TextureRect" parent="Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow"]
+custom_minimum_size = Vector2(108, 108)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="OutcomeCopy" type="VBoxContainer" parent="Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow"]
+custom_minimum_size = Vector2(480, 0)
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="HeroName" type="Label" parent="Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy"]
+text = "钢铁先锋 · 完成防守"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.96, 0.94, 0.86, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+
+[node name="Moment" type="Label" parent="Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy"]
+text = "本局高光 · 击杀 0 · 最高 0 连斩"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.56, 0.78, 0.84, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+
 [node name="StarRow" type="HBoxContainer" parent="Content/HeroCard/HeroBox"]
 theme_override_constants/separation = 26
 alignment = 1

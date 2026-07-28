@@ -26,6 +26,8 @@ func _initialize() -> void:
 	dl.load_all()
 	var sm := root.get_node("/root/SaveManager")
 	sm.load_game()
+	if payload.has("language"):
+		root.get_node("/root/LocalizationManager").apply_language(str(payload.get("language", "zh")), false)
 	if payload.has("save_override") and payload["save_override"] is Dictionary:
 		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:

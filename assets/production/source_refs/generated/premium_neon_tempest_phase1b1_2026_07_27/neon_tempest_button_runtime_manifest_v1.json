@@ -1,0 +1,573 @@
+{
+  "version": 1,
+  "method": "independent structural families, uniform contain scaling and transparent letterboxing; no anisotropic scaling, frame crop or repetition",
+  "sources": {
+    "short": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_short_primary_source_v3.png",
+        "sha256": "6bc1096f495769baa5d59194182d936a0e75b63d7fe1e42dd4fc4aea265ffb29"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_short_secondary_source_v3.png",
+        "sha256": "3d016832673c64fec03e1e347906aee1d8ca212068d7892e1172cb507d26d651"
+      }
+    ],
+    "compact": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_compact_source_v1.png",
+        "sha256": "6eb0f6f8eca782c39b650b9156345025121bf6b2a6d7b8d77f2786787f530384"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_compact_source_v1.png",
+        "sha256": "6eb0f6f8eca782c39b650b9156345025121bf6b2a6d7b8d77f2786787f530384"
+      }
+    ],
+    "standard": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_standard_source_v1.png",
+        "sha256": "34cb030cbce98f8e2992faa8fe1486ca98fdc64acea403fbfa7ad47d89e336ab"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_standard_source_v1.png",
+        "sha256": "34cb030cbce98f8e2992faa8fe1486ca98fdc64acea403fbfa7ad47d89e336ab"
+      }
+    ],
+    "long": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_long_source_v1.png",
+        "sha256": "edcbb5fb15fa3edcfe3eb1026e4c3c49aaa829fb0a7932bc53b07fae3d79093b"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_long_source_v1.png",
+        "sha256": "edcbb5fb15fa3edcfe3eb1026e4c3c49aaa829fb0a7932bc53b07fae3d79093b"
+      }
+    ],
+    "ultra": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_ultra_primary_source_v2.png",
+        "sha256": "462056122253a7180525637b9e648d0cdea588c663515f297d80a43b0a123d9d"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_ultra_secondary_source_v2.png",
+        "sha256": "b5cd86eb0b5ca73726efc6b552e69c6274242458f9774aaf23dae71ee2458f7c"
+      }
+    ],
+    "ribbon": [
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_ribbon_primary_source_v1.png",
+        "sha256": "384a9c01442ab11413157e7eafef9068fad9cdc0fb732e3a0ca3f0fbc6fc920e"
+      },
+      {
+        "path": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_button_ribbon_secondary_source_v1.png",
+        "sha256": "ec391141bf8116a3efa887ca5c2595fb42fe50f247b70457012c677b556c576e"
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "154x44",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_154x44.png",
+      "sha256": "b0261d196751101e873c6d800d9c594eb2120057e7737fe4c508f0d1fb10ac2f"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "154x44",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_154x44.png",
+      "sha256": "4769811c2740c58433368aa4216f4ff5ff73853e03182466d2c07ed1db5e7980"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "166x58",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_166x58.png",
+      "sha256": "66c725324b51b0b300824d0ebfad710e7d8786c2b44e7e734647e48de164d2ba"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "166x58",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_166x58.png",
+      "sha256": "25da172305ad9ef2ddd60f738f6b99fa167bc3ff0e1752a507a1e260a41e950b"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "170x84",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_170x84.png",
+      "sha256": "efcd346245d65c8bf26ac5f8711d814dd4f32d81d9db1b94a8acf8c27c5b7744"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "170x84",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_170x84.png",
+      "sha256": "147ae25472ef254714abc12d91cc3e22aadff885290fbeff4abee46cef5b4994"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "172x44",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_172x44.png",
+      "sha256": "0ca0c2b14a2fcb8a5c7d58ca70e82fa10f94a50bc31c405d11ef0d9e72c96d83"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "172x44",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_172x44.png",
+      "sha256": "3ac41eb4eda7445d7e3250db65d3bc40ece706e341c5be0f03231ebd83acf9c0"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "174x72",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_174x72.png",
+      "sha256": "c6ee9a8bcd036da13fd368efd5e2b7e6f0f93cecd5941f3f5e235453e3f94512"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "174x72",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_174x72.png",
+      "sha256": "84c2f7e928976fed7ade0f15be435b909d6068ab06ea52f9712c2105fb325c9c"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "176x76",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_176x76.png",
+      "sha256": "678c0739c9929cc0e6095ec4ad12b9733c61a3bdff6015a7a81ffd8519453bca"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "176x76",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_176x76.png",
+      "sha256": "986b92ef33367f10aeb6693a32de3d5986e5db7ef79f96c27ff6ce799b5058d5"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "236x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_236x96.png",
+      "sha256": "2417ab9812339a279aad74c2e0d016a9a16862d8c1ac62bf2a46607bd08e676f"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "236x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_236x96.png",
+      "sha256": "fc687288516e19b87f1883ceb6e5d281319c713633acf75a95e201d10c0b9907"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "260x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_260x112.png",
+      "sha256": "6c6cfc114ba700f4805360629b539b4f719588dfc547665b8a93a3c683c5138c"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "260x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_260x112.png",
+      "sha256": "b305733d48161ad09d355d8d63ebd3b5e8cf5d8a947ab44c0f26db3925d7b2c6"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "268x48",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_268x48.png",
+      "sha256": "7f39e10addda4d93fb54170c12a82ce942c014dcba942799409013d1dbbcffe2"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "268x48",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_268x48.png",
+      "sha256": "0903f10c6efa813c2b76d0c6266f936a97e303b767f89765013a8d11ca03b1fc"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "286x72",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_286x72.png",
+      "sha256": "951158cffb2c1f416958288829cb788b645aa73c8ae5beec863ed7ae856a18b8"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "286x72",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_286x72.png",
+      "sha256": "1d23e2e78f9ce570ed1146ad45dbe21e3d4ecf7f14df47f853188a54f09c10f8"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "286x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_286x80.png",
+      "sha256": "477d2c84c2c204abb81391d6a8d5cd7f0ffccbe2cd056c7a9c0c2a84168fe2cc"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "286x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_286x80.png",
+      "sha256": "e50453f14406d68b94d3989938837f7c5bfe31dec79bfc440740a5e161f6662e"
+    },
+    {
+      "kind": "primary",
+      "family": "short",
+      "size": "286x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_286x112.png",
+      "sha256": "73ac606ce5caec1c4ef08244a3c62881a2be39ba472e7e8e9ede74cd7d710bb4"
+    },
+    {
+      "kind": "secondary",
+      "family": "short",
+      "size": "286x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_286x112.png",
+      "sha256": "ee7d29d9bf99bdde415bd3ae69922fc2d995ee39e5ad910bc7be866dcb863878"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "320x74",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_320x74.png",
+      "sha256": "560b64960f18c7bddefdc9a702fbb2b53a456ae88ef2f3ed777bbfee57e2cab0"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "320x74",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_320x74.png",
+      "sha256": "844a3293ac060c1fa9074096f437d2af87576acd6e2115522cf20a10396fda0d"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "320x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_320x80.png",
+      "sha256": "5b08050c42866bdfc494ff5bb60cb0d9b17296d246d2cd17b26f5b67ccb2ea3d"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "320x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_320x80.png",
+      "sha256": "60474c9ec51170de3c032f9525c0a8dccc689a8ca9b37bcb149e8ffb047787e7"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "412x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_412x88.png",
+      "sha256": "adfa775da49c510d2240e10b4deb8e58c89ae4c8e57049ce50fb466c9d373e3c"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "412x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_412x88.png",
+      "sha256": "2f6350eaefc3c604b708e3ebe20e16b7fd95e5cc87c5579927dc9dd5f78cb568"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "432x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_432x88.png",
+      "sha256": "8c4dc8c26500fff1769e2e55e336bfe6fd7b30d0b53f186b5faa75b26e6adf49"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "432x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_432x88.png",
+      "sha256": "e2731df6643fc12693feba81bbcaf9cbd6433c94584b4437fdb8113fdac24c5f"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "440x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_440x80.png",
+      "sha256": "3867b751a76f40a30d61d9fbd00bcee1564ebec7be26e7b6815900fe9d2fb6e1"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "440x80",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_440x80.png",
+      "sha256": "2c332369f937a9b97d13e0359cc252110019cf259e3b93ab0f53cfe68ae411b6"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "440x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_440x88.png",
+      "sha256": "8937fc5f1b2bf037c8613d6cafde9fec735da9068910fc27642778b3ef3f33ff"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "440x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_440x88.png",
+      "sha256": "70c9a88fb9481d29722ce3e2cbce930731e7f7dceeac235185d0ceff4518ad80"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "444x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_444x88.png",
+      "sha256": "22c98d9e561d315faea262d80f1dcaea99a4b0aafa2de444c47e0917160b5636"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "444x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_444x88.png",
+      "sha256": "43a58f21b634c251a54784ac9ade9c8173853d5baafbe71e4c8e4b963393263e"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "452x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_452x88.png",
+      "sha256": "a529e3ca79b6c437e923b4909eb0d832f83ad88ed26f0cc9ada702fa56504dd7"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "452x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_452x88.png",
+      "sha256": "40b028d893c2d8ac95c4214dbe543e18b28db9dfcfb70dca1c29f0924559f7fa"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "484x102",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_484x102.png",
+      "sha256": "e224f52afab9811d0b49ac85e2783866d48840b80f10738f7e2534269474e642"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "484x102",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_484x102.png",
+      "sha256": "22d9f5cea740e857a9bc8570b7079beca8c764771bdb95e24b30694c16cd12e4"
+    },
+    {
+      "kind": "primary",
+      "family": "compact",
+      "size": "512x160",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_512x160.png",
+      "sha256": "a36c8b5838b41b8b200a4c259d9368d8ec8a1d3c92a4a317f31ae810161d17a4"
+    },
+    {
+      "kind": "secondary",
+      "family": "compact",
+      "size": "512x160",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_512x160.png",
+      "sha256": "8d793e4582ebdb087798f55119fba8149ee8abc753d85b5b5ad04c8c4453bac4"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "560x104",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_560x104.png",
+      "sha256": "09710a31481cc77248e4143a352ecb972f5be9272cc6e89277909a31e35dbb3c"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "560x104",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_560x104.png",
+      "sha256": "14577027099ff67155b53082f5a40d627c2694667bfb19d01f7c7b7c6c9b78fa"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "600x120",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_600x120.png",
+      "sha256": "7e4969b24799f24cdac2659fe86c86020a2a27643c80733a13fd4a68535d38a7"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "600x120",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_600x120.png",
+      "sha256": "34a2e49e72e0474d4ef4fdee11eab68b43afcc84e662329cfe295544a17f51e7"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "760x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_760x88.png",
+      "sha256": "d4a7ef0f3dda15f32ffad87c689b5c5c79abc6bc9bf15f6de0dfb19bcc50dfcc"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "760x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_760x88.png",
+      "sha256": "ae114b7d6f021783a12f429816b2aa7a8790ce859b3e9db65ca2d90350bd796c"
+    },
+    {
+      "kind": "primary",
+      "family": "long",
+      "size": "760x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_760x112.png",
+      "sha256": "9902e4d536cb561d05ac75a2f23b9a7ed333bada345f3e3fd3ed0e5319ca38e2"
+    },
+    {
+      "kind": "secondary",
+      "family": "long",
+      "size": "760x112",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_760x112.png",
+      "sha256": "88eb3aa6ab064e2b849791994c66793cf0790eea3ef252c18d3a45d5e462d53d"
+    },
+    {
+      "kind": "primary",
+      "family": "standard",
+      "size": "780x148",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_780x148.png",
+      "sha256": "44c795f506d843bd592dfb60f78009d9ad753d8ea632a1c2605965651aa37ab8"
+    },
+    {
+      "kind": "secondary",
+      "family": "standard",
+      "size": "780x148",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_780x148.png",
+      "sha256": "d4057d2418b8150f7d714c30d6be1bf00be4b235b32ef270e08f072dc9f44a82"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "784x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_784x96.png",
+      "sha256": "22c4a35d0ae29e663f5c2c4430bb56c0e7caedfd2e32174ef8f65b41893672ab"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "784x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_784x96.png",
+      "sha256": "0093b0a9ebfdc0f8e43f5e1fdda2d66cfb2c2e1c4710768a6c2fe7f362d3795e"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "840x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_840x88.png",
+      "sha256": "e596d29d18f42729ec19f6abb0a70505b251e3ba84ecc1a5bdaac6cc94ce7ee2"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "840x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_840x88.png",
+      "sha256": "ef633b39d4dc3f59e4f1fc0975acd4f44cd84a6bd8bc9184642800689121b7bd"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "880x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_880x88.png",
+      "sha256": "5406a43eb2cf2468a53cdf79aba1af0eeb5fd6042658b045b72285ae1d772576"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "880x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_880x88.png",
+      "sha256": "34ab7b94ff8faab383065f771f0fdd8f3ea5b9030c063cbe52ddc40d2a2ce69f"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "880x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_880x96.png",
+      "sha256": "0f7dc29552b595a291ddf42087641680f7e4225b47e01cab9ecf5faeecf5a689"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "880x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_880x96.png",
+      "sha256": "82685e086cededfcd4715113a259c55d6419840be6b9f61f18c4aeed10e9b828"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "904x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_904x88.png",
+      "sha256": "16a96ad16e82a407b5763bda9069c9dab1a9ec042ccc58ba1d4561573eaef329"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "904x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_904x88.png",
+      "sha256": "7a51a61238edfea983301031074306869101a564842a7770c2e20b514a2da661"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "920x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_920x88.png",
+      "sha256": "76d4da1b3ac35bd09f86fd48379728e759931e8808c39a17291aa484d9353dec"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "920x88",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_920x88.png",
+      "sha256": "9f1f77f8a80a11e437e9d9cde4a95d3e20224e4af885ce5564c6fbdfc346290c"
+    },
+    {
+      "kind": "primary",
+      "family": "ribbon",
+      "size": "980x58",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_980x58.png",
+      "sha256": "9c05ce9deef6ac57a83b1e38dcdfe8ea26df98148c923548341b92f8c4b67398"
+    },
+    {
+      "kind": "secondary",
+      "family": "ribbon",
+      "size": "980x58",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_980x58.png",
+      "sha256": "86c99c910512e1e0c910f4470bed291ec73ddd1e26c08eb263789a8044fdf0a6"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "980x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_980x96.png",
+      "sha256": "c909b2aede5d6d074f5800f7612b685a9975a61f6f60e18f0f44712b8bba32b2"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "980x96",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_980x96.png",
+      "sha256": "3202343caaa8f5671efecf9d274bce8a88736c7cfa6a307bb0e13e4ca41fdd03"
+    },
+    {
+      "kind": "primary",
+      "family": "ultra",
+      "size": "980x100",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_primary_native_980x100.png",
+      "sha256": "52191e72b4832eb36300d54b23c94671f71b41261f44964760acb7506659b751"
+    },
+    {
+      "kind": "secondary",
+      "family": "ultra",
+      "size": "980x100",
+      "path": "assets/production/sprites/themes/neon_tempest/ui/ui_button_secondary_native_980x100.png",
+      "sha256": "289353894ffec4eac22f7e2c9a0f39a4db479ca2b8050c1a8cc266ffb244f02b"
+    }
+  ],
+  "contact_sheet": "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_tempest_button_runtime_contact_sheet_v1.png"
+}
