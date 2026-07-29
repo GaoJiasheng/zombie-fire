@@ -364,6 +364,7 @@ func _refresh_star_row(stars: int) -> void:
 	for child in row.get_children():
 		child.queue_free()
 	row.visible = not is_endless_result
+	_refresh_star_rule_hint()
 	if is_endless_result:
 		return
 	for i in range(3):
@@ -374,6 +375,24 @@ func _refresh_star_row(stars: int) -> void:
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(icon)
+
+## design/24 Phase 1: the star rule used to be invisible to the player. Numbers
+## come from data/economy.json through StarRules - never spell them out here.
+func _refresh_star_rule_hint() -> void:
+	var box := $Content/HeroCard/HeroBox as VBoxContainer
+	var hint := box.get_node_or_null("StarRule") as Label
+	if hint == null:
+		hint = Label.new()
+		hint.name = "StarRule"
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(hint)
+	hint.visible = not is_endless_result
+	if is_endless_result:
+		return
+	hint.text = StarRules.hint_text(DataLoader.get_table("economy"))
+	UiKit.apply_label(hint, 20, UiKit.TEXT_MUTED, 3)
 
 func _animate_result_entry(victory: bool) -> void:
 	$Content.modulate.a = 0.0

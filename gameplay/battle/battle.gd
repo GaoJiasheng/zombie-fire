@@ -7979,7 +7979,9 @@ func _finish(victory: bool) -> void:
 	var hp_ratio := float(base_hp) / float(base_hp_max)
 	var stars := 0
 	if victory:
-		stars = 3 if hp_ratio >= 1.0 else 2 if hp_ratio >= 0.5 else 1
+		# design/24 Phase 1: thresholds live in data/economy.json.star_thresholds
+		# so the runtime and tools/simulate_balance.py rate a run the same way.
+		stars = StarRules.stars_for_hp_ratio(hp_ratio, DataLoader.get_table("economy"))
 	var first_clear_bonus := 0
 	if victory and SaveManager.get_level_stars(level_id) == 0:
 		first_clear_bonus = int(level.get("first_clear_reward", {}).get("gold", 0))

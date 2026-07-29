@@ -767,3 +767,12 @@
 - [x] 未动任何游戏数值旋钮：`boss_survival_hp_ramp` 的 `max_mult` / `curve_power` 保持 56.0 / 1.15，方案允许的 curve_power 微调本次不需要。
 - [x] 校验基线更新（引用 design/24 Phase 0）：`clear_time_cap(90+)` 由 330s 改为 350s——原 330s 是在 level_095 被低估为 188.6s 时定的，修正后为 334.4s，与既有 460s 毕业关容差一致。
 - [x] 验收：`Levels < 30s (with skill)` 只剩 level_001（28.1s）；全部 20 个 Boss 关 t_ws ≥ 51.6s，50 关之后单调递增；validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_release_candidate 全绿。
+
+### Phase 1 · 星级判定统一 + 单一事实来源
+
+- [x] 新增 `data/economy.json` `star_thresholds`（`three_star_hp_ratio 0.70` / `two_star_hp_ratio 0.35`），并新建 `core/data/star_rules.gd` 作为唯一读取入口（含同值兜底默认，防数据缺失）。
+- [x] `gameplay/battle/battle.gd` 结算不再硬编码"满血才 3 星"，改调 `StarRules.stars_for_hp_ratio()`；`tools/simulate_balance.py` 删除硬编码 40/70，改由 `star_leak_caps()` 从同一份 economy.json 换算成 leak 口径（3★ ≤30%、2★ ≤65%）。
+- [x] UI 同源动态提示：结算页星星行下方与配装页战术摘要底部都显示 `三星 防线 ≥70%  ·  两星 ≥35%`，数字全部由 economy.json 生成；英文目录补 `3★ base line ≥%d%%  ·  2★ ≥%d%%`。
+- [x] 配装摘要面板高度 316 → 388，容纳英文下会折成三行的护甲/芯片/宠物行 + 新增星级提示行；中英文实机截图确认不再裁切。
+- [x] 存档无需迁移：星级按 `max(new - old, 0)` 补差额，放宽后只会多拿星。
+- [x] 验收：headless 打 level_001 故意漏 20% 血 → 结算 3★（旧规则为 2★），0.50 → 2★、0.20 → 1★；grep 确认 `0.70/0.35` 只存在于 economy.json 与两处有注释的兜底默认；`check_release_candidate.py` 含 117 路截图全绿。

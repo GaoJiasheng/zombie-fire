@@ -46,6 +46,23 @@ DEFAULT_LATE_WAVE_LEVEL_RAMP = {"start_level": 50, "full_level": 98, "max_mult":
 DEFAULT_LATE_WAVE_DAMAGE_RAMP = {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 1.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.0}
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 DEFAULT_BOSS_SURVIVAL_HP_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08}
+DEFAULT_STAR_THRESHOLDS = {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35}
+
+
+def star_leak_caps(economy: dict) -> tuple[float, float]:
+    """Return the (3-star, 2-star) leak% caps implied by economy.json.
+
+    The runtime rates surviving base HP (core/data/star_rules.gd); this module
+    works in leak%, which is the same quantity inverted. Keeping the numbers in
+    one file is what design/24 Phase 1 is about - do not re-hardcode them.
+    """
+    rule = economy.get("star_thresholds", DEFAULT_STAR_THRESHOLDS)
+    if not isinstance(rule, dict):
+        rule = DEFAULT_STAR_THRESHOLDS
+    three = float(rule.get("three_star_hp_ratio", DEFAULT_STAR_THRESHOLDS["three_star_hp_ratio"]))
+    two = float(rule.get("two_star_hp_ratio", DEFAULT_STAR_THRESHOLDS["two_star_hp_ratio"]))
+    two = min(two, three)
+    return (1.0 - three) * 100.0, (1.0 - two) * 100.0
 
 
 def wave_number(wave: dict) -> int:
@@ -378,6 +395,7 @@ def main() -> int:
                      int(lv.get("target_card_picks", 0)), spawn_time, hp_total, dps_ns, dps_ws, time_ns, time_ws, leak_pct, boss_lvl))
 
     rows.sort(key=lambda r: r[0])
+    three_star_leak_pct, two_star_leak_pct = star_leak_caps(economy)
     for n, ch, recom, coef, cards, spawn_time, hp, dps_ns, dps_ws, t_ns, t_ws, leak_pct, boss_lvl in rows:
         notes = []
         if boss_lvl:
@@ -388,10 +406,12 @@ def main() -> int:
             notes.append("BUILD_CHECK")
         if t_ws > spawn_time * 0.85:
             notes.append("HARD")
-        # Predicted star rating based on leak%
-        if leak_pct > 70:
+        # Predicted star rating, converted from the single source of truth in
+        # data/economy.json.star_thresholds (design/24 Phase 1). The runtime
+        # rates surviving base HP; leak% is the same quantity inverted.
+        if leak_pct > two_star_leak_pct:
             notes.append("1★")
-        elif leak_pct > 40:
+        elif leak_pct > three_star_leak_pct:
             notes.append("2★")
         else:
             notes.append("3★")

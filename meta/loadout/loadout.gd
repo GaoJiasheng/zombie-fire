@@ -14,7 +14,9 @@ const GEAR_CARD_SIZE := Vector2(176, 176)
 const GEAR_ROW_SEPARATION := 34
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
-const DETAILS_PANEL_HEIGHT := 316.0
+# design/24 Phase 1 added the star-rule line. The height must clear the worst
+# case: English wraps the armor/chip/pet line to three rows.
+const DETAILS_PANEL_HEIGHT := 388.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 const SEVERE_POWER_RATIO := 0.65
 const UNDERPOWER_CONFIRM_WINDOW_MSEC := 2600
@@ -430,6 +432,17 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	loadout.clip_text = false
 	UiKit.apply_label(loadout, 21, UiKit.TEXT_MAIN, 4)
 	box.add_child(loadout)
+
+	# design/24 Phase 1: tell the player what earns two and three stars. The
+	# numbers come from data/economy.json through StarRules, never inlined.
+	var star_rule := Label.new()
+	star_rule.name = "StarRule"
+	star_rule.text = StarRules.hint_text(DataLoader.get_table("economy"))
+	star_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	star_rule.clip_text = false
+	star_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiKit.apply_label(star_rule, 19, UiKit.TEXT_MUTED, 3)
+	box.add_child(star_rule)
 
 func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:
 	var row := HBoxContainer.new()

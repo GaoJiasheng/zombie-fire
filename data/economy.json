@@ -72,6 +72,10 @@
 	"level_xp_pow": 1.0,
 	"weakness_mult": 1.5,
 	"resist_mult": 0.5,
+	"star_thresholds": {
+		"three_star_hp_ratio": 0.7,
+		"two_star_hp_ratio": 0.35
+	},
 	"gold_drop_base": 5,
 	"gold_drop_per_level": 0.6,
 	"first_clear_gold_base": 100,

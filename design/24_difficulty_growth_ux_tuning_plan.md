@@ -327,7 +327,19 @@ python3 tools/check_release_candidate.py   # 全绿才许提交
   `boss_survival_hp_ramp` 未动（`max_mult` 56.0 / `curve_power` 1.15）。
   唯一基线更新：`clear_time_cap(90+)` 330s → 350s（原值在 level_095 被低估为 188.6s 时定的）。
   验收：`Levels < 30s (with skill)` 仅剩 level_001（28.1s）；无 Boss 关 < 45s。
-- [ ] Phase 1/2 之后的 99 关星级分布表
+- [x] **Phase 1 之后的 99 关星级分布**（Phase 2 落地后再补一行对比）
+
+| 口径 | 3★ | 2★ | 1★ | 备注 |
+|-----|----|----|----|------|
+| 旧模拟器（leak ≤40 / ≤70） | 54 | 28 | 17 | 游戏侧实际用的是"满血才 3★"，与此表无关——这正是问题 A |
+| Phase 1（HP ≥70% / ≥35%，即 leak ≤30 / ≤65） | 12 | 66 | 21 | 其中 1★ 的 21 关 = 20 个 Boss 关 + level_030 |
+
+  普通关 79 关：12 个 3★、66 个 2★、1 个 1★。方案预估的"3★≈25、2★≈48"是按旧的 40% leak 桶算的，
+  实际按方案指定的 0.70 阈值（更严）落到 12/66。**全部 20 个 Boss 关仍是 1★**——正是 Phase 2 要解决的问题。
+  单一事实来源：`data/economy.json.star_thresholds` → `core/data/star_rules.gd`（运行时 + UI）
+  / `tools/simulate_balance.py:star_leak_caps()`（工具）。两处兜底默认与 economy.json 同值，
+  是 §3.2 明确要求的"防数据缺失"，除此之外全仓库无第三处 0.70/0.35。
+  UI 副作用：配装摘要面板 316 → 388，英文下护甲/芯片/宠物行会折成三行，不加高会裁掉新增提示。
 - [ ] Phase 3 星级供需表 + XP 经济抽查表
 - [ ] Phase 4 改动前后 61/89 关与 85+ 关金币对比
 - [ ] Phase 5 改弱点的 4 个关卡 ID 与前后对比
