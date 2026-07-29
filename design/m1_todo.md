@@ -776,3 +776,12 @@
 - [x] 配装摘要面板高度 316 → 388，容纳英文下会折成三行的护甲/芯片/宠物行 + 新增星级提示行；中英文实机截图确认不再裁切。
 - [x] 存档无需迁移：星级按 `max(new - old, 0)` 补差额，放宽后只会多拿星。
 - [x] 验收：headless 打 level_001 故意漏 20% 血 → 结算 3★（旧规则为 2★），0.50 → 2★、0.20 → 1★；grep 确认 `0.70/0.35` 只存在于 economy.json 与两处有注释的兜底默认；`check_release_candidate.py` 含 117 路截图全绿。
+
+### Phase 2 · Boss 关公平性包
+
+- [x] `data/economy.json` 新增 `boss_level_base_hp_mult: 1.25`；`battle.gd` 任一波含 `boss` 的关卡基地血量上限按 `base_hp_ref × 1.25` 起算（再乘人物/护甲/芯片/宠物），`simulate_balance.py` 的 leak 分母同步。推荐战力公式、Boss HP ramp、敌方压力一律不动。
+- [x] 发现并修掉模拟器第二个缺陷：`leak_damage()` 把整关（含 1–4 波纯杂兵波）都按 Boss 的 12% 漏怪率计，而这些无 Boss 在场的波次占 Boss 关突破伤害的 60–79%。改为按波取漏怪率（含 boss 的波 12%、其余 5%），普通关数字零变化。
+- [x] 结果：Boss 关 leak 由 66–100% 降到 33–57%，**20/20 全部达到 2★ 口径**；99 关分布 3★ 12 / 2★ 86 / 1★ 1。无关卡 leak >90%，无需动 waves count。
+- [x] 明确不做：未加保底维修事件，未动 `boss_survival_hp_ramp.max_mult`。
+- [ ] Owner 拍板：方案要求的"5/10/15 关达到 3★ 口径"在允许的旋钮内做不到（需 ~2.4× 垫子）。早期 Boss 关（5/10/15/20 为 46–57%）反而比后期（33–45%）更难，是真实的早期难度倒挂，建议单开议题。
+- [x] 验收：headless 确认 level_005/010 相对 level_004/009 的基地血量比恰为 1.25；validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_economy_loop / check_release_candidate（117 路截图）全绿。

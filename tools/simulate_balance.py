@@ -277,33 +277,42 @@ def estimate_skill_mult(level: dict) -> float:
     return estimate_skill_throughput(cards)
 
 
-def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, is_boss_level: bool) -> float:
-    """Expected breach damage given a leak rate."""
-    leak = BOSS_LEAK if is_boss_level else NORMAL_LEAK
+def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, _is_boss_level: bool) -> float:
+    """Expected breach damage given a leak rate.
+
+    The elevated boss leak rate applies per wave, not per level (design/24
+    Phase 2). Waves 1-4 of a boss level are ordinary mob waves with no boss on
+    the field, and nothing about wave 5 makes them leak 2.4x harder; charging
+    the whole level the boss rate is what pushed every boss level to 66-121%
+    leak - 60-79% of that damage came from waves that have no boss in them.
+    """
     total = 0.0
     level_no = level_number(level)
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
+        leak = BOSS_LEAK if "boss" in wave else NORMAL_LEAK
         damage_mult = late_wave_damage_ramp(economy, level_no, wave_no)
         count_mult = late_wave_count_mult(economy, wave_no, level_no)
+        wave_damage = 0.0
         for spawn in wave.get("spawns", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             # Breach damage is configured from bd_coef only at runtime; enemy
             # HP/difficulty/late-wave multipliers must not inflate it here.
             bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * damage_mult
-            total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
+            wave_damage += bd * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
             boss_id = wave["boss"]
             boss_row = bosses.get(boss_id, {})
             bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * damage_mult
-            total += bd
+            wave_damage += bd
         for spawn in wave.get("support", []):
             t = spawn.get("type", "")
             z = zombies.get(t, {})
             bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * damage_mult
-            total += bd * int(round(int(spawn.get("count", 0)) * count_mult))
-    return total * leak
+            wave_damage += bd * int(round(int(spawn.get("count", 0)) * count_mult))
+        total += wave_damage * leak
+    return total
 
 
 def is_boss_level(level: dict) -> bool:
@@ -389,8 +398,10 @@ def main() -> int:
             effective_crowd_dps = min(crowd_dps, dps_ws)
             time_ws = mob_hp / max(effective_crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
-        # base_hp_ref * armor_mult is the real starting HP
-        leak_pct = min(100.0, leak / max(float(lv.get("base_hp_ref", 100)) * ARMOR_HP_MULT, 1.0) * 100.0)
+        # base_hp_ref * armor_mult is the real starting HP. Boss levels add the
+        # design/24 Phase 2 base-line cushion, exactly as battle.gd does.
+        boss_base_hp_mult = max(1.0, float(economy.get("boss_level_base_hp_mult", 1.0))) if boss_lvl else 1.0
+        leak_pct = min(100.0, leak / max(float(lv.get("base_hp_ref", 100)) * ARMOR_HP_MULT * boss_base_hp_mult, 1.0) * 100.0)
         rows.append((n, lv.get("chapter", 0), char_level, float(lv["difficulty_coef"]),
                      int(lv.get("target_card_picks", 0)), spawn_time, hp_total, dps_ns, dps_ws, time_ns, time_ws, leak_pct, boss_lvl))
 

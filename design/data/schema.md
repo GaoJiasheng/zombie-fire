@@ -416,6 +416,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   "crit_dmg_base": 1.5,
   "weakness_mult": 1.5, "resist_mult": 0.5,
   "star_thresholds": {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35},
+  "boss_level_base_hp_mult": 1.25,
   "gold_drop_base": 10, "gold_drop_per_level": 2,
   "first_clear_gold_base": 100, "first_clear_gold_per_level": 20,
   "upgrade_cost_growth": 1.15,
@@ -445,6 +446,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `endless_template_level` 固定无尽首轮的独立模板，当前 `level_025` 表示无尽开局约等价二三十关，不继承入口关卡的高阶波次或 HP 曲线。
 - `endless_boss_immunity_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 直接成为硬免疫墙；后续轮次恢复 Boss 原本免疫机制。
 - `endless_loop_hp_growth` 是无尽模式完成整轮后的复利 HP 成长；当前每轮至少比上一轮提高 50%，覆盖普通怪和 Boss，普通主线/挑战模式不受影响。
+- `boss_level_base_hp_mult` 是 Boss 关的防线血量垫子（design/24 Phase 2）：任一波含 `boss` 的关卡，基地血量上限按 `base_hp_ref × 1.25` 起算，之后再乘人物/护甲/芯片/宠物加成。只抬防线，不动 Boss HP ramp、不动敌方压力、不动推荐战力公式；无尽模板 `level_025` 含 Boss，故无尽与挑战模式同样吃这个垫子。`tools/simulate_balance.py` 的 leak 分母同步。
 - `star_thresholds` 是胜利星级判定的唯一事实来源（design/24 Phase 1）：结算时剩余防线血量比 `>= three_star_hp_ratio` 给 3 星、`>= two_star_hp_ratio` 给 2 星，否则 1 星。运行时经 `core/data/star_rules.gd` 读取，结算页与配装页的提示文案同源动态生成，`tools/simulate_balance.py` 把它换算成 leak% 口径（3 星 leak ≤ 30%、2 星 ≤ 65%）。任何地方都不许再硬编码 `0.70 / 0.35`。`data/levels.json` 的 `star_rule: "base_hp_percent"` 是描述字段，运行时不读。
 
 ## challenges.json （按章节固定变体映射）

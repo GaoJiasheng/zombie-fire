@@ -520,7 +520,7 @@ func _ready() -> void:
 	run_skill_hp_pressure_mult = SaveManager.get_run_skill_hp_pressure_for_level(power_level_id)
 	run_skill_speed_pressure_mult = SaveManager.get_run_skill_speed_pressure_for_level(power_level_id)
 	wave_total = int(level.get("waves", []).size())
-	base_hp_max = int(level.get("base_hp_ref", 100))
+	base_hp_max = int(round(float(level.get("base_hp_ref", 100)) * _boss_level_base_hp_mult(_econ)))
 	base_hp = base_hp_max
 	xp = 0
 	gold = 0
@@ -7847,6 +7847,16 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	_check_low_hp_warning()
 	if base_hp <= 0:
 		_finish(false)
+
+## design/24 Phase 2: boss levels are survival sponges, so the same leak budget
+## costs the player far more base HP than on an ordinary level. Give the base
+## line a data-driven cushion instead of shaving the boss HP ramp. Enemy
+## pressure and the recommended-power formula are untouched.
+func _boss_level_base_hp_mult(economy: Dictionary) -> float:
+	for w in level.get("waves", []):
+		if w.has("boss"):
+			return maxf(1.0, float(economy.get("boss_level_base_hp_mult", 1.0)))
+	return 1.0
 
 func _compute_level_total_run_xp() -> int:
 	var total := 0
