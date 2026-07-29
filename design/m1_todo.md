@@ -783,7 +783,7 @@
 - [x] 发现并修掉模拟器第二个缺陷：`leak_damage()` 把整关（含 1–4 波纯杂兵波）都按 Boss 的 12% 漏怪率计，而这些无 Boss 在场的波次占 Boss 关突破伤害的 60–79%。改为按波取漏怪率（含 boss 的波 12%、其余 5%），普通关数字零变化。
 - [x] 结果：Boss 关 leak 由 66–100% 降到 33–57%，**20/20 全部达到 2★ 口径**；99 关分布 3★ 12 / 2★ 86 / 1★ 1。无关卡 leak >90%，无需动 waves count。
 - [x] 明确不做：未加保底维修事件，未动 `boss_survival_hp_ramp.max_mult`。
-- [ ] Owner 拍板：方案要求的"5/10/15 关达到 3★ 口径"在允许的旋钮内做不到（需 ~2.4× 垫子）。早期 Boss 关（5/10/15/20 为 46–57%）反而比后期（33–45%）更难，是真实的早期难度倒挂，建议单开议题。
+- [x] ~~Owner 拍板：早期 Boss 关难度倒挂~~ → **已在"阶段 65 · 早期 Boss 关垫子曲线化"落地**（commit `540b5471`）。同时更正了此处描述：压力其实是 U 型（5–20 与 65–99 都是 46–57%，25–60 才是 33–46%），不是单纯"早期最难"。垫子改为 ≤10 关 1.75 → ≥25 关 1.25 线性插值后，5/10/15/20 关 leak 降到 35/41/38/41%。方案原文要求的"3★ 口径"仍未达成（需 ~2.4× 垫子），但 §4 主目标"2★ 常态"已达成。
 - [x] 验收：headless 确认 level_005/010 相对 level_004/009 的基地血量比恰为 1.25；validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_economy_loop / check_release_candidate（117 路截图）全绿。
 
 ### Phase 3 · 星级经济复核
@@ -791,7 +791,8 @@
 - [x] 星级供给按 Phase 1+2 后的分布重算：战役 209 星；挑战按 challenges.json 实际系数（`hp_mult` 1.30–1.42 × `breach_damage_mult` 1.00–1.18）建模得 167 星，合计 **376 星**。方案原文的"普通关星级 −1 档"整档下调对卡在档位上沿的关卡过度惩罚（34% leak 的关卡挑战下是 46%、仍是 2★），只给出 319 星，故改用系数建模并记录两条口径。
 - [x] **判定 376 / 318 = 1.18 ≥ 1.10，供给充足 → 最贵一档解锁价维持不动**（volt/plasmacannon 16★、railgun/reactive/chip_element/collector 14★）。这是 Phase 1+2 的直接结果，本 Phase 无数据改动。
 - [x] XP 经济抽查：需求 137,400 XP（16 永久技能 + 4 专属技满级）；10/30/50/70/90 关单局 665/731/1,644/2,202/2,968 XP，全战役一遍即 138,055（100%），战役+全挑战 201%，远超方案设定的 60–80%。XP 不是瓶颈。
-- [ ] Owner 拍板（Phase 3 范围外，仅记录）：XP 供给过剩，打完一遍战役即可点满全部永久技能，长尾成长目标被抹平；`battle.gd` 读入的 `econ_xp_growth`（`xp_per_kill_growth`）在战斗里从未使用；`design/data/schema.md` 记录的 `star_total_cap: 297` 在 `data/economy.json` 中并不存在。
+- [x] ~~Owner 拍板（Phase 3 范围外，仅记录）：两个死旋钮~~ → **已在"阶段 65 · 死旋钮清理"落地**（commit `236a8742`）：`econ_xp_growth` / `xp_per_kill_growth` 与 schema 的 `star_total_cap` 全部删除。
+- [x] ~~XP 供给过剩~~ → **部分解决**：Owner 设计的重复通关经验递减已落地（commit `755faa24`），刷三遍战役由 301% 压到 176%。**首通一遍仍是 100%**，剩余部分见下方"XP 经济"小节的未决项。
 - [x] 验收：`check_economy_loop.py` 全绿（star_unlock_total=318 / max_item=16 / normal_campaign=297 / challenge_needed=21）；供需表与 XP 抽查表已写入 design/24 附录。
 
 ### Phase 4 · 低风险平滑项
@@ -807,7 +808,7 @@
 - [x] 偏离方案②：`weapon_venomlauncher.unlock_cost_star` 10 → **8**（非方案要求的 6）。`validate_data.py` / `check_balance_profile.py` / `m1_smoke_test.gd` 三处既有硬约束：付费解锁价必须在 8–16 星区间且同类目不得超过 2× 曲线；6★ 同时踩两条。取区间下限 8★（与 flamethrower/cryocannon 同价，对 plasmacannon 恰好 2.0×）。
 - [x] 校验基线更新（引用 design/24 Phase 5，非静默改动）：解锁总价 318 → 316，`m1_smoke_test.gd` 的 `total == 318` / `challenge_needed == 21` 改为 316 / 19。
 - [x] 7.2 配装页克制建议：已拥有同元素武器但未装备时，战术摘要底部追加绿色可点击行 `建议武器：{武器名}（克制本关，伤害×1.5）`，点击跳武器图鉴，不自动换装；倍率动态读 `weakness_mult`，英文目录同步。面板高度按是否出现建议行在 388 / 452 之间切换。
-- [ ] Owner 拍板：毒弱点仍全部集中在第 4 章，venomlauncher 即使 8★ 仍是"第 4 章专用武器"。要让它长线可用需把毒弱点铺到后期章节（沙暴炼油区、沉没地铁较合适），属内容/主题决策，超出调优范围。
+- [x] ~~Owner 拍板：毒弱点仍全部集中在第 4 章~~ → **已在"阶段 65 · 毒弱点铺到 6/7 章"落地**（commit `16b11088`）：level_053/059（沉没地铁）与 level_062/069（沙暴炼油区）改为 poison，毒弱点 6 → 10 关，与冰、雷同量级；venomlauncher 覆盖 4/6/7 三章。
 - [x] 验收：中英文实机截图确认建议行显示与点击区（`建议武器：冰霜炮…` / `Suggested: Cryo Cannon…`）；`check_release_strings.py`、`simulate_card_director.py`、`check_release_candidate.py`（117 路截图）全绿。
 
 ### Phase 6 · 技能生态再平衡
@@ -816,7 +817,7 @@
 - [x] 实测评分变化：barrier×4 `1.0317 → 1.0784`（+4.5%）、barrier×2+slow×2 `+3.7%`、slow×4 `+2.4%`、pierce×4 `1.4805 → 1.4405`（−2.7%）、纯进攻组合 −1.5%。
 - [x] **更正方案 §8 第 4/5 条**：这两条目标无法通过第 1/2 条达成——它们作用在两套互不相干的系统上。选取率来自发牌阶段（`gameplay/skill/card_director.gd` 与镜像 `tools/simulate_card_director.py`，权重公式 `4 + Σ_tag round(bias[tag] × 2)`，只读 `card_tags`/`card_bias`，完全不读 save_manager）；`simulate_balance.py` 的技能吞吐取自 `tools/combat_power_model.py`，同样不读 save_manager。实测：改权重前后 `simulate_card_director.py` 全量输出逐字节相同，星级分布仍为 3★ 12 / 2★ 86 / 1★ 1（漂移 0 关）。
 - [x] 真实根因已定位并记录：发牌权重与 `card_tags` 数量近似成正比。`skill_barrier` 只有 `['defense']` 1 个标签（12.7%），`skill_pierce` 有 4 个且起始武器为物理、tank 威胁再加成（31.7%）。
-- [ ] Owner 拍板：要真正改变选取率只能动 `card_tags` / `card_bias` / 发牌权重公式，而 §8 明写"只动数值、不动结构"。给 barrier 补标签属于内容语义决策，本 Phase 不擅自扩大改动。
+- [x] ~~Owner 拍板：给 barrier 补标签~~ → **已在"阶段 65 · barrier 补标签"落地**（commit `16b11088`）：`skill_barrier.card_tags` 加 `anti_swarm`，选取率 9.8% → 12.8%、高压关 11.7% → 13.9%。§8 的两个量化目标仍未达成，剩余部分见"技能生态 · `skill_barrier` 补标签"小节的未决项。
 - [x] 验收：`simulate_card_director.py`、`simulate_balance.py`、`check_release_candidate.py`（117 路截图）全绿。
 
 ### Phase 7 · 战力口径显示修正
