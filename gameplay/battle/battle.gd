@@ -7852,11 +7852,35 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 ## costs the player far more base HP than on an ordinary level. Give the base
 ## line a data-driven cushion instead of shaving the boss HP ramp. Enemy
 ## pressure and the recommended-power formula are untouched.
+##
+## Phase 8 turned the flat cushion into a curve. Boss-level pressure is U-shaped
+## - levels 5-20 and 65-99 both read 46-57% leak while the 25-60 middle sits at
+## 33-46% - so a flat multiplier left the first three boss levels a player ever
+## meets among the hardest in the campaign. The extra early cushion straightens
+## the left arm; the late arm stays hardest on purpose.
 func _boss_level_base_hp_mult(economy: Dictionary) -> float:
+	var is_boss_level := false
 	for w in level.get("waves", []):
 		if w.has("boss"):
-			return maxf(1.0, float(economy.get("boss_level_base_hp_mult", 1.0)))
-	return 1.0
+			is_boss_level = true
+			break
+	if not is_boss_level:
+		return 1.0
+	var rule: Variant = economy.get("boss_level_base_hp_mult", 1.0)
+	if not (rule is Dictionary):
+		return maxf(1.0, float(rule))
+	var row: Dictionary = rule
+	var base := maxf(1.0, float(row.get("base", 1.0)))
+	var early := maxf(base, float(row.get("early_mult", base)))
+	var full_level := float(row.get("early_full_level", 0))
+	var end_level := float(row.get("early_end_level", full_level))
+	var ordinal := float(level_ordinal)
+	if ordinal <= full_level:
+		return early
+	if ordinal >= end_level or end_level <= full_level:
+		return base
+	var t := (ordinal - full_level) / (end_level - full_level)
+	return early + (base - early) * t
 
 func _compute_level_total_run_xp() -> int:
 	var total := 0

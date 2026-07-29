@@ -49,6 +49,30 @@ DEFAULT_BOSS_SURVIVAL_HP_RAMP = {"start_level": 50, "full_level": 98, "max_mult"
 DEFAULT_STAR_THRESHOLDS = {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35}
 
 
+def boss_base_hp_cushion(economy: dict, level_no: int) -> float:
+    """Boss-level base-HP cushion, mirroring battle.gd._boss_level_base_hp_mult.
+
+    design/24 Phase 8: boss pressure is U-shaped - levels 5-20 and 65-99 both
+    read 46-57% leak while the 25-60 middle sits at 33-46% - so the flat 1.25
+    cushion left the first three boss levels a player meets among the hardest
+    in the campaign. The early arm now gets a larger cushion that decays to the
+    base value; the late arm stays hardest on purpose.
+    """
+    rule = economy.get("boss_level_base_hp_mult", 1.0)
+    if not isinstance(rule, dict):
+        return max(1.0, float(rule))
+    base = max(1.0, float(rule.get("base", 1.0)))
+    early = max(base, float(rule.get("early_mult", base)))
+    full_level = float(rule.get("early_full_level", 0))
+    end_level = float(rule.get("early_end_level", full_level))
+    if level_no <= full_level:
+        return early
+    if level_no >= end_level or end_level <= full_level:
+        return base
+    t = (float(level_no) - full_level) / (end_level - full_level)
+    return early + (base - early) * t
+
+
 def star_leak_caps(economy: dict) -> tuple[float, float]:
     """Return the (3-star, 2-star) leak% caps implied by economy.json.
 
@@ -400,7 +424,7 @@ def main() -> int:
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         # base_hp_ref * armor_mult is the real starting HP. Boss levels add the
         # design/24 Phase 2 base-line cushion, exactly as battle.gd does.
-        boss_base_hp_mult = max(1.0, float(economy.get("boss_level_base_hp_mult", 1.0))) if boss_lvl else 1.0
+        boss_base_hp_mult = boss_base_hp_cushion(economy, n) if boss_lvl else 1.0
         leak_pct = min(100.0, leak / max(float(lv.get("base_hp_ref", 100)) * ARMOR_HP_MULT * boss_base_hp_mult, 1.0) * 100.0)
         rows.append((n, lv.get("chapter", 0), char_level, float(lv["difficulty_coef"]),
                      int(lv.get("target_card_picks", 0)), spawn_time, hp_total, dps_ns, dps_ws, time_ns, time_ws, leak_pct, boss_lvl))

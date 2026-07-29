@@ -76,7 +76,12 @@
 		"three_star_hp_ratio": 0.7,
 		"two_star_hp_ratio": 0.35
 	},
-	"boss_level_base_hp_mult": 1.25,
+	"boss_level_base_hp_mult": {
+		"base": 1.25,
+		"early_mult": 1.75,
+		"early_full_level": 10,
+		"early_end_level": 25
+	},
 	"gold_drop_base": 5,
 	"gold_drop_per_level": 0.6,
 	"first_clear_gold_base": 100,
