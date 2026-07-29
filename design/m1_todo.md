@@ -858,3 +858,13 @@
 - [x] 删除 `battle.gd` 的 `econ_xp_growth` 变量与赋值——它从 economy 读入后在整个战斗流程里从未被使用；同时删掉 `data/economy.json` 里没有任何读者的 `xp_per_kill_growth: 0.06`。真正的单局经验来自每个僵尸/Boss 的 `run_xp` 累加。
 - [x] 删除 `design/data/schema.md` 里记录的 `star_total_cap: 297`——该字段在 `data/economy.json` 中并不存在，也没有任何代码读取，属于文档与数据脱节。
 - [x] 验收：全仓库 grep 确认三个标识符已无代码/数据引用；`check_release_candidate.py`（117 路截图）全绿。
+
+## 阶段 66 · TestFlight Build 42 难度调优验收包（2026-07-29）
+
+- [x] 验收目标：design/24 全量落地（Phase 0–7 + Owner 拍板的 5 项收尾）后的真人手感验证——星级判定放宽、Boss 关全部可拿 2★、早期 Boss 垫子、后期金币 +14%、毒弱点 10 关与配装页克制建议、重复通关经验递减。
+- [x] 构建为**普通 `release`**，未注入 `neon_tempest_preview` 临时 feature（与 Build 41 不同）；不授予任何购买权益。
+- [x] 源码 commit `236a8742`，`tracked_changes_present: true`——工作区仍有 Jul 28 的 Neon Tempest 并行改动（30 个已跟踪文件 + 5 个未跟踪路径），因此本构建**包含**那批未提交的霓虹运行时改动，与 Build 41 情况一致。
+- [x] 发布门禁：`check_release_candidate.py` 全绿（117 路中英文截图）；导出 PCK `7,187` 文件 / `3,465` 导入资源 / `587.5 MiB`，导出包 battle boot、存档完整性与 M1 smoke 全部通过。
+- [x] 产物：PCK `616,021,004` bytes，SHA-256 `0761f61de3b0c1c0993f8ced3e861067e2d1a60968ce8462cf965559ac32008b`；IPA `645,285,656` bytes，SHA-256 `d316c4a037b8ffbfe8f964cf431869733503c1560fb4e827f2ca9870e0f7c732`。
+- [x] Apple 交付：Delivery UUID `79598e5a-f6f6-443e-ad6a-a274adb17710`；`VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，非豁免加密 `false`。发布记录 `build/ios/release/build_42/release_manifest.json`。
+- [ ] Owner 真机验收重点：① 早期 5/10/15 关 Boss 是否仍显吃力；② 星级放宽后 2★/3★ 的达成感是否合理；③ 同一关第二次打时经验卡的 `×50%` 是否读得懂；④ 配装页"建议武器"行的可点击区与跳转。

@@ -3160,3 +3160,13 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **`econ_xp_growth` removed**: `battle.gd` read `xp_per_kill_growth` out of economy into a member variable that nothing in the battle loop ever consumed. Run XP is and always was the sum of each zombie's and boss's `run_xp`. The variable, its assignment and the now-readerless `xp_per_kill_growth: 0.06` entry in `data/economy.json` are gone.
 - **`star_total_cap` removed from the schema**: `design/data/schema.md` documented a field that `data/economy.json` never contained and no code ever read — documentation drift rather than a missing feature.
 - **Verification**: a repo-wide grep confirms no code or data references to any of the three identifiers remain, and the full release candidate with 117 routed screenshots passes.
+
+## TestFlight Build 42 · Difficulty Tuning Acceptance (2026-07-29)
+
+- **Purpose**: put the complete `design/24` work in front of real hands — the unified star rule, boss levels all reaching two stars, the early-boss cushion, +14% late-game gold, poison coverage at ten levels with the loadout counter suggestion, and repeat-clear XP decay.
+- **Build shape**: plain `release`, with no temporary `neon_tempest_preview` feature injected, unlike Build 41. No purchase entitlement is granted or persisted.
+- **Source state**: commit `236a8742` with `tracked_changes_present: true`. The Jul 28 Neon Tempest work is still uncommitted in the tree — 30 tracked files plus five untracked paths — so this build contains that themed runtime work, exactly as Build 41 did.
+- **Release gate**: the full candidate passed, including 117 routed Chinese and English screenshots. The exported PCK holds 7,187 files and 3,465 imported resources at 587.5 MiB, and exported-PCK battle boot, save integrity and M1 smoke all passed.
+- **Artifacts**: PCK 616,021,004 bytes, SHA-256 `0761f61de3b0c1c0993f8ced3e861067e2d1a60968ce8462cf965559ac32008b`; IPA 645,285,656 bytes, SHA-256 `d316c4a037b8ffbfe8f964cf431869733503c1560fb4e827f2ca9870e0f7c732`.
+- **Apple delivery**: Delivery UUID `79598e5a-f6f6-443e-ad6a-a274adb17710`, final status `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE`, `IS-ON-APP-STORE-CONNECT: true`, `usesNonExemptEncryption=false`. The record lives at `build/ios/release/build_42/release_manifest.json`.
+- **What the owner should watch for on device**: whether boss levels 5, 10 and 15 still feel punishing; whether the loosened two- and three-star thresholds feel earned; whether the `x50%` marker on the XP card reads clearly on a repeat clear; and whether the loadout's suggested-weapon row is comfortable to tap and routes correctly.
