@@ -793,3 +793,9 @@
 - [x] XP 经济抽查：需求 137,400 XP（16 永久技能 + 4 专属技满级）；10/30/50/70/90 关单局 665/731/1,644/2,202/2,968 XP，全战役一遍即 138,055（100%），战役+全挑战 201%，远超方案设定的 60–80%。XP 不是瓶颈。
 - [ ] Owner 拍板（Phase 3 范围外，仅记录）：XP 供给过剩，打完一遍战役即可点满全部永久技能，长尾成长目标被抹平；`battle.gd` 读入的 `econ_xp_growth`（`xp_per_kill_growth`）在战斗里从未使用；`design/data/schema.md` 记录的 `star_total_cap: 297` 在 `data/economy.json` 中并不存在。
 - [x] 验收：`check_economy_loop.py` 全绿（star_unlock_total=318 / max_item=16 / normal_campaign=297 / challenge_needed=21）；供需表与 XP 抽查表已写入 design/24 附录。
+
+### Phase 4 · 低风险平滑项
+
+- [x] **6.1 章节开局毛刺：撤销，问题 F 是误判。** `difficulty_coef` 不是难度指数，只是压在波次编成之上的倍率；61/89 coef 高恰恰是因为章节开局编成弱、需要高倍率接住上一关压力。真实压力：59 关 37,302 → 61 关 38,380（+2.9%），且 61 关紧跟 Boss 关 116,752 之后是**大幅下降**，不存在"闷棍"。按方案改成 3.10/4.40 后 `check_level_pressure.py` 直接报 `level_061 28803.8 < level_059 37302.7`、`level_089 191905.2 < level_088 198573.8`——改动会让战役难度真的倒退。按 §10 红线判定校验是对的，两关 coef 保持 4.1307 / 5.1302；97/98 的 6.62/8.24 本就保留。
+- [x] **6.2 后期金币收入平滑：已实施。** 85–99 关 `reward_gold_mult = max(mult, 0.26)`（原 0.25 逐级衰减到 0.20），`upgrade_cost_linear_k` 未动。单局金币 85 关 +4%、90 关 +8%、95 关 +18%、99 关 +30%，85–99 合计 +14.0%（方案预估 +20–30%，因 85–87 本就接近 0.26 地板）。
+- [x] 验收：validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_economy_loop 全绿，`check_economy_loop.py` 基线无需更新；`check_release_candidate.py`（117 路截图）全绿。
