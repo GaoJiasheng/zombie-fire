@@ -757,3 +757,13 @@
 - [x] 签名产物：`1.0.0 (40)` IPA 为 `638,491,266` bytes（608.9 MiB），SHA-256 `fe8a1b3c715743bb64530ce4372717e6e4c15bdd8995a1cdf7f295e14f560981`。
 - [x] Apple 交付：Delivery UUID `f8f36abd-ed24-46db-a278-77b03a862167`；最终状态 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，非豁免加密为 `false`。
 - [x] 发布记录：`build/ios/release/build_40/release_manifest.json` 已记录源码 commit `49af255883abf1efcb4f566b0e8fe0f8f890cda8` 及工作树有改动；上传后本地预设已恢复为普通 `release`。Desktop 旧 IPA 因 macOS 权限未替换，不影响 TestFlight。
+
+## 阶段 64 · 难度与成长曲线 UX 调优（design/24 主方案）（2026-07-29）
+
+### Phase 0 · 修模拟器（Boss 关通关时间下界保护）
+
+- [x] 定位缺陷真因：`simulate_balance.py` 对 `n>=50` 的 Boss 关整关改用实测 runtime benchmark，而 benchmark 的 `crowd_dps`（1,862 万）是 45 只敌人满编队形下的峰值吞吐，按进度线性缩放后杂兵段仍只要 0.1–1.3 秒清完百万级 HP；叠加 `boss_survival_hp_ramp` 在 50 关起点倍率为 1.0，50/55/60/65 关 t_ws 塌到 2.0 / 10.1 / 16.0 / 19.2 秒。
+- [x] 下界保护：杂兵段改用 `min(crowd_dps, dps_ws)`，即与其余 79 关同一套 crowd 模型对齐（`estimate_skill_mult` 本就注明是 effective crowd throughput）；Boss 单体段保持实测 `boss_dps`，因为 `dps_ws` 内含群伤倍率、不是合法的单体速率。
+- [x] 未动任何游戏数值旋钮：`boss_survival_hp_ramp` 的 `max_mult` / `curve_power` 保持 56.0 / 1.15，方案允许的 curve_power 微调本次不需要。
+- [x] 校验基线更新（引用 design/24 Phase 0）：`clear_time_cap(90+)` 由 330s 改为 350s——原 330s 是在 level_095 被低估为 188.6s 时定的，修正后为 334.4s，与既有 460s 毕业关容差一致。
+- [x] 验收：`Levels < 30s (with skill)` 只剩 level_001（28.1s）；全部 20 个 Boss 关 t_ws ≥ 51.6s，50 关之后单调递增；validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_release_candidate 全绿。

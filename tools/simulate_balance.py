@@ -356,7 +356,21 @@ def main() -> int:
             crowd_dps = float(autocannon_runtime["crowd_dps"]) * permanent_progress * card_progress
             boss_dps = float(autocannon_runtime["boss_dps"]) * permanent_progress * card_progress
             phase_weight = 1.11
-            time_ws = mob_hp / max(crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
+            # Lower-bound protection (design/24 Phase 0). The benchmark's
+            # crowd_dps is peak throughput measured against a saturated 45-enemy
+            # formation, so scaling it down by progression alone still makes mob
+            # HP effectively free (0.1-1.3s to clear millions of HP). Bound the
+            # mob phase by the same campaign-wide crowd model every non-boss
+            # level uses - estimate_skill_mult is documented as effective crowd
+            # throughput, so dps_ws is the comparable clear rate. Without this
+            # the 50/55/60/65 boss levels reported 2.0/10.1/16.0/19.2s and were
+            # tuned against those bogus numbers.
+            # The boss phase is deliberately NOT bounded the same way: dps_ws
+            # folds in crowd-throughput multipliers and is not a valid
+            # single-target rate, while boss_dps is the measured single-target
+            # authority the endgame matrix is calibrated on.
+            effective_crowd_dps = min(crowd_dps, dps_ws)
+            time_ws = mob_hp / max(effective_crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         # base_hp_ref * armor_mult is the real starting HP
         leak_pct = min(100.0, leak / max(float(lv.get("base_hp_ref", 100)) * ARMOR_HP_MULT, 1.0) * 100.0)
@@ -396,7 +410,11 @@ def main() -> int:
             # generic autocannon model deliberately represents the slow clear.
             return 460.0
         if level_no >= 90:
-            return 330.0
+            # Recalibrated by design/24 Phase 0: the 330s guard was set while the
+            # boss branch understated 50-95 clear times (level_095 read 188.6s).
+            # With the mob phase bounded by the campaign crowd model it reads
+            # 334.4s, which is consistent with the 460s finale allowance below.
+            return 350.0
         if level_no >= 80:
             return 310.0
         if level_no >= 70:
