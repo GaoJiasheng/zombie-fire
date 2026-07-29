@@ -799,3 +799,13 @@
 - [x] **6.1 章节开局毛刺：撤销，问题 F 是误判。** `difficulty_coef` 不是难度指数，只是压在波次编成之上的倍率；61/89 coef 高恰恰是因为章节开局编成弱、需要高倍率接住上一关压力。真实压力：59 关 37,302 → 61 关 38,380（+2.9%），且 61 关紧跟 Boss 关 116,752 之后是**大幅下降**，不存在"闷棍"。按方案改成 3.10/4.40 后 `check_level_pressure.py` 直接报 `level_061 28803.8 < level_059 37302.7`、`level_089 191905.2 < level_088 198573.8`——改动会让战役难度真的倒退。按 §10 红线判定校验是对的，两关 coef 保持 4.1307 / 5.1302；97/98 的 6.62/8.24 本就保留。
 - [x] **6.2 后期金币收入平滑：已实施。** 85–99 关 `reward_gold_mult = max(mult, 0.26)`（原 0.25 逐级衰减到 0.20），`upgrade_cost_linear_k` 未动。单局金币 85 关 +4%、90 关 +8%、95 关 +18%、99 关 +30%，85–99 合计 +14.0%（方案预估 +20–30%，因 85–87 本就接近 0.26 地板）。
 - [x] 验收：validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_economy_loop 全绿，`check_economy_loop.py` 基线无需更新；`check_release_candidate.py`（117 路截图）全绿。
+
+### Phase 5 · 元素与武器经济
+
+- [x] 毒弱点覆盖 2 关 → **6 关**：level_032/034 由 physical、level_037/039 由 fire 改为 `primary_weakness: "poison"`，`card_bias` 的元素键同步改为 `poison: 1.35`。分布变为 物理 37 / 火 32 / 冰 12 / 雷 12 / 毒 6；四关星级口径零变化（模型基线不含克制，符合方案预期）。
+- [x] 偏离方案①：`env_toxic_biolab` 只在第 4 章（31–40 关），方案写的"第 8/9 章"不存在（第 8/9 章是虚空圣堂/轨道遗址）；且第 4 章只有 2 关 fire 弱点，凑不满 4 关，故另取 2 关 physical（最富余的一档）。
+- [x] 偏离方案②：`weapon_venomlauncher.unlock_cost_star` 10 → **8**（非方案要求的 6）。`validate_data.py` / `check_balance_profile.py` / `m1_smoke_test.gd` 三处既有硬约束：付费解锁价必须在 8–16 星区间且同类目不得超过 2× 曲线；6★ 同时踩两条。取区间下限 8★（与 flamethrower/cryocannon 同价，对 plasmacannon 恰好 2.0×）。
+- [x] 校验基线更新（引用 design/24 Phase 5，非静默改动）：解锁总价 318 → 316，`m1_smoke_test.gd` 的 `total == 318` / `challenge_needed == 21` 改为 316 / 19。
+- [x] 7.2 配装页克制建议：已拥有同元素武器但未装备时，战术摘要底部追加绿色可点击行 `建议武器：{武器名}（克制本关，伤害×1.5）`，点击跳武器图鉴，不自动换装；倍率动态读 `weakness_mult`，英文目录同步。面板高度按是否出现建议行在 388 / 452 之间切换。
+- [ ] Owner 拍板：毒弱点仍全部集中在第 4 章，venomlauncher 即使 8★ 仍是"第 4 章专用武器"。要让它长线可用需把毒弱点铺到后期章节（沙暴炼油区、沉没地铁较合适），属内容/主题决策，超出调优范围。
+- [x] 验收：中英文实机截图确认建议行显示与点击区（`建议武器：冰霜炮…` / `Suggested: Cryo Cannon…`）；`check_release_strings.py`、`simulate_card_director.py`、`check_release_candidate.py`（117 路截图）全绿。

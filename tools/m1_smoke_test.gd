@@ -1278,9 +1278,13 @@ func _verify_collection_star_curve(data_loader: Node) -> void:
 		_expect(not prices.is_empty(), "%s must keep a paid collection progression" % table_name)
 		_expect(prices.min() >= 8 and prices.max() <= 16, "%s prices must stay in the 8-16 star band" % table_name)
 		_expect(prices.max() <= prices.min() * 2, "%s prices must not exceed a 2x category curve" % table_name)
-	_expect(total == 318, "launch collection star total must stay at the reviewed 318-star curve")
+	# design/24 Phase 5 moved weapon_venomlauncher from 10 to the 8-star band
+	# floor after poison weakness coverage grew from 2 levels to 6, so the
+	# reviewed curve total is 316 rather than 318. The band and 2x-curve
+	# invariants above are unchanged.
+	_expect(total == 316, "launch collection star total must stay at the reviewed 316-star curve")
 	_expect(maximum == 16, "no single collection unlock may exceed 16 stars")
-	_expect(total - 99 * 3 == 21, "normal campaign must leave only 21 challenge stars for full collection")
+	_expect(total - 99 * 3 == 19, "normal campaign must leave only 19 challenge stars for full collection")
 
 func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)

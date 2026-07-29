@@ -15,8 +15,10 @@ const GEAR_ROW_SEPARATION := 34
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 # design/24 Phase 1 added the star-rule line. The height must clear the worst
-# case: English wraps the armor/chip/pet line to three rows.
+# case: English wraps the armor/chip/pet line to three rows. design/24 Phase 5
+# adds a conditional counter-weapon suggestion row on top of that.
 const DETAILS_PANEL_HEIGHT := 388.0
+const DETAILS_PANEL_HEIGHT_WITH_SUGGESTION := 452.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 const SEVERE_POWER_RATIO := 0.65
 const UNDERPOWER_CONFIRM_WINDOW_MSEC := 2600
@@ -433,6 +435,24 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	UiKit.apply_label(loadout, 21, UiKit.TEXT_MAIN, 4)
 	box.add_child(loadout)
 
+	# design/24 Phase 5: elemental counter is a 3x difficulty swing that the
+	# player cannot see. If they already own a matching weapon and left it in
+	# the collection, say so and offer one tap to go look at it. Suggest only -
+	# never swap gear behind the player's back. The 1.5 comes from economy.json.
+	var suggestion := _counter_weapon_suggestion(weakness, str(SaveManager.get_selected("weapon")))
+	panel.custom_minimum_size = Vector2(0, DETAILS_PANEL_HEIGHT_WITH_SUGGESTION if suggestion != "" else DETAILS_PANEL_HEIGHT)
+	if suggestion != "":
+		var suggest := Button.new()
+		suggest.name = "CounterSuggestion"
+		suggest.text = suggestion
+		suggest.flat = true
+		suggest.custom_minimum_size = Vector2(0, 44)
+		suggest.mouse_filter = Control.MOUSE_FILTER_STOP
+		suggest.add_theme_color_override("font_color", UiKit.GREEN)
+		suggest.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
+		suggest.pressed.connect(_open_collection.bind("weapons"))
+		box.add_child(suggest)
+
 	# design/24 Phase 1: tell the player what earns two and three stars. The
 	# numbers come from data/economy.json through StarRules, never inlined.
 	var star_rule := Label.new()
@@ -824,6 +844,30 @@ func _recommended_power_for_current_mode() -> int:
 		var challenge_rule := ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
 		return int(ceil(float(base) * float(challenge_rule.get("recommended_power_mult", CHALLENGE_RECOMMENDED_POWER_MULT))))
 	return base
+
+## design/24 Phase 5: returns the "you already own a counter weapon" line, or ""
+## when there is nothing to suggest (already equipped, or none owned).
+func _counter_weapon_suggestion(weakness: String, equipped_weapon_id: String) -> String:
+	if weakness == "":
+		return ""
+	if str(DataLoader.get_row("weapons", equipped_weapon_id).get("element", "")) == weakness:
+		return ""
+	var weapons: Dictionary = DataLoader.get_table("weapons")
+	for key in weapons.keys():
+		var weapon_id := str(key)
+		var row: Dictionary = weapons[key]
+		if weapon_id == equipped_weapon_id:
+			continue
+		if str(row.get("element", "")) != weakness:
+			continue
+		if not SaveManager.is_item_unlocked("weapon", weapon_id):
+			continue
+		var mult := float(DataLoader.get_table("economy").get("weakness_mult", 1.5))
+		return "建议武器：%s（克制本关，伤害×%s）" % [
+			DataLoader.tr_key(str(row.get("name_key", weapon_id))),
+			String.num(mult, 1).trim_suffix(".0"),
+		]
+	return ""
 
 func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chip_id: String) -> bool:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
