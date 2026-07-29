@@ -574,17 +574,31 @@ func _router_level_id() -> String:
 		return str(context.get("level_id", ""))
 	return ""
 
+## design/24 Phase 7: "基准" already folds in the standard four-card projection,
+## so a run that picked fewer cards ends below it and the line used to read like
+## "you got weaker" (measured: 基准 12 → 终局 10). Say why instead of changing
+## the yardstick - the recommended-power calibration is built on this one.
+func _partial_draft_marked() -> bool:
+	return combat_power < standing_power
+
 func _result_hint(victory: bool) -> String:
+	var partial := _partial_draft_marked()
 	if is_endless_result:
-		return "无尽只结算金币。战前 %d → 终局 %d；记录最高轮数。" % [standing_power, combat_power]
+		if partial:
+			return "无尽只结算金币。基准 %d → 终局 %d（选卡未满）；记录最高轮数。" % [standing_power, combat_power]
+		return "无尽只结算金币。基准 %d → 终局 %d；记录最高轮数。" % [standing_power, combat_power]
 	if victory:
 		if is_challenge_result:
-			return "战前 %d → 终局 %d / 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
-		return "战前 %d → 终局 %d / 关卡 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
+			if partial:
+				return "基准 %d → 终局 %d（选卡未满）/ 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
+			return "基准 %d → 终局 %d / 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
+		if partial:
+			return "基准 %d → 终局 %d（选卡未满）/ 关卡 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
+		return "基准 %d → 终局 %d / 关卡 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
 	if is_challenge_result:
-		return "挑战压力 %d；本局成型 %d。优先补强克制配装和核心技能。" % [recommended_power, combat_power]
+		return "挑战压力 %d；终局战力 %d。优先补强克制配装和核心技能。" % [recommended_power, combat_power]
 	if combat_power < recommended_power:
-		return "本局成型 %d / 压力 %d。优先强化武器、角色或核心技能。" % [combat_power, recommended_power]
+		return "终局战力 %d / 压力 %d。优先强化武器、角色或核心技能。" % [combat_power, recommended_power]
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
 	match level_id:

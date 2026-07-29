@@ -818,3 +818,11 @@
 - [x] 真实根因已定位并记录：发牌权重与 `card_tags` 数量近似成正比。`skill_barrier` 只有 `['defense']` 1 个标签（12.7%），`skill_pierce` 有 4 个且起始武器为物理、tank 威胁再加成（31.7%）。
 - [ ] Owner 拍板：要真正改变选取率只能动 `card_tags` / `card_bias` / 发牌权重公式，而 §8 明写"只动数值、不动结构"。给 barrier 补标签属于内容语义决策，本 Phase 不擅自扩大改动。
 - [x] 验收：`simulate_card_director.py`、`simulate_balance.py`、`check_release_candidate.py`（117 路截图）全绿。
+
+### Phase 7 · 战力口径显示修正
+
+- [x] 三口径统一命名（全仓库 grep 替换，无混用残留）：`战前 → 基准`（内含 4 次标准选卡的预估加成）、`成型 → 预计成型`、`本局成型 → 终局战力`（与"终局"同一个量，改名消除混用）、`终局` 不变。
+- [x] 终局低于基准时，结算提示追加 `（选卡未满）`：`基准 12 → 终局 8（选卡未满）/ 关卡 34。已计入局内技能。`；英文 `Baseline 12 → Final 8 (partial draft) / Stage 34. In-run skills included.`。
+- [x] 量纲未动：`RECOMMENDED_POWER_COEF` 是按这把尺子标定的，动尺子要重标，不值得（方案原文同此判断）。§9 第 3 条的"长按战力数字说明"——配装页战力格本就没有 tooltip / 长按详情，按方案"没有就不加交互，只改文案"处理。
+- [x] 双语目录同步：3 条结算模板各加一条"（选卡未满）"变体（共 6 键），`__terms` 补 `基准 / 预计成型 / 终局战力 /（选卡未满）`。
+- [x] 验收：headless 打一局一张卡都不选 → `cards_picked=0  基准=12  终局=8`，结算文案含"（选卡未满）"；中英文实机截图核对；`check_release_strings.py`、`check_release_candidate.py`（117 路截图）全绿。

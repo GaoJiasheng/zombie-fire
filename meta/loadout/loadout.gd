@@ -240,7 +240,7 @@ func _refresh() -> void:
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
-	$Summary.text = "%s · %s · 主弱点 %s\n战前 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s" % [
+	$Summary.text = "%s · %s · 主弱点 %s\n基准 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s" % [
 		DataLoader.level_display_name(level_id),
 		mode_label,
 		_element_name(weakness),
@@ -410,9 +410,9 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	box.add_child(grid)
 	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
-	grid.add_child(_summary_cell("战前", "%d" % power, UiKit.CYAN, ""))
+	grid.add_child(_summary_cell("基准", "%d" % power, UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
-	grid.add_child(_summary_cell("成型", "%d (+%d)" % [projected_power, maxi(projected_power - power, 0)], UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("预计成型", "%d (+%d)" % [projected_power, maxi(projected_power - power, 0)], UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()

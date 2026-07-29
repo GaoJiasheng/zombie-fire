@@ -307,6 +307,27 @@ python3 tools/check_release_candidate.py   # 全绿才许提交
 
 ## 附录（实施时填写）
 
+- [x] **Phase 7 战力口径显示修正**
+
+三口径统一命名（全仓库 grep 替换，无混用残留）：
+
+| 旧名 | 新名 | 含义 |
+|-----|------|------|
+| 战前 | **基准** | `get_loadout_power()`，**内含 4 次标准选卡的预估加成** |
+| 成型 | **预计成型** | `get_projected_combat_power_for_level()` |
+| 本局成型 | **终局战力** | 与"终局"同一个量，改名消除混用 |
+| 终局 | 终局 | 不变 |
+
+  实测复现问题 K：headless 打一局**一张卡都不选**直接结算 →
+  `cards_picked=0  基准=12  终局=8`，`combat_power < standing_power` 成立。
+  结算提示现在读作 `基准 12 → 终局 8（选卡未满）/ 关卡 34。已计入局内技能。`，
+  英文 `Baseline 12 → Final 8 (partial draft) / Stage 34. In-run skills included.`。
+  **量纲未动**——`RECOMMENDED_POWER_COEF` 是按这把尺子标定的，动尺子要重标，不值得（方案原文同此判断）。
+  §9 第 3 条的"长按战力数字的说明"：配装页战力格（`_summary_cell`）本就没有 tooltip / 长按详情，
+  按方案"没有就不加交互，只改文案"处理。
+  中英文目录同步：3 条结算模板各加一条"（选卡未满）"变体（共 6 键），
+  `__terms` 补 `基准 / 预计成型 / 终局战力 /（选卡未满）`。
+
 - [x] **Phase 0 修复后的 Boss 关 t_ws 序列**（`min(crowd_dps, dps_ws)` 下界保护后）
 
 | 关卡 | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 | 50 |

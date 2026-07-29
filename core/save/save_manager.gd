@@ -954,7 +954,7 @@ func _pet_stat_power(pet_id: String) -> float:
 			score += equivalent * 0.25
 	return score
 
-# 推荐战力和玩家战力使用同一套“战前核心 + 局内技能成型”量纲。
+# 推荐战力和玩家战力使用同一套“基准核心 + 局内技能成型”量纲（design/24 Phase 7 统一口径命名：基准 / 预计成型 / 终局）。
 # 四次选卡是战力面板的基准；更多选卡带来的乘法协同会同时抬高关卡推荐值和晚波压力。
 const RECOMMENDED_POWER_COEF := 6.25
 func get_recommended_power_for_level(level_id: String) -> int:
