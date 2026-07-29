@@ -298,6 +298,8 @@ const ENDLESS_LOOP_HP_GROWTH := 0.50
 const ENDLESS_BOSS_COUNT_STEP := 3
 const ENDLESS_BOSS_COUNT_CAP := 6
 var level_ordinal := 1
+## 阶段 67：关卡的 `wave_pattern` 编队原型，决定敌人从哪条通道进攻。
+var wave_formation := "standard"
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
 var pending_spawns: Array = []
@@ -506,6 +508,8 @@ func _ready() -> void:
 	challenge_rule = ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
 	if is_endless_mode:
 		_apply_endless_template_level(_econ)
+	# 必须在无尽模板替换 `level` 之后再读，否则无尽会沿用入口关卡的编队而不是模板的。
+	wave_formation = str(level.get("wave_pattern", "standard"))
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
 	econ_gold_per = float(_econ.get("gold_drop_per_level", 0.6))
 	AudioManager.play_bgm(_battle_bgm_id())
@@ -3215,7 +3219,7 @@ func _start_next_wave() -> void:
 		if is_endless_mode and _is_endless_final_wave(waves):
 			_queue_endless_final_bosses(1)
 		for support in wave.get("support", []):
-			_queue_spawn_group(support, false)
+			_queue_spawn_group(support, false, true)
 	else:
 		if wave_index == 1 and variant == "treasure" and not is_endless_mode:
 			_show_wave_toast("宝箱关 · 金币 +50%", UiKit.GOLD)
@@ -3230,11 +3234,15 @@ func _start_next_wave() -> void:
 			else:
 				wave_text = "第 %d 波  尸潮来袭" % wave_index
 			_show_wave_toast(wave_text, Color(1.0, 0.82, 0.25))
-			for group in wave.get("spawns", []):
-				_queue_spawn_group(group, false)
-			if is_endless_mode and _is_endless_final_wave(waves):
-				_show_wave_toast("第 %d 轮最终波 · 首领压境" % (endless_loop + 1), Color(1.0, 0.36, 0.18))
-				_queue_endless_final_bosses(0)
+		# 阶段 67 修复：出怪循环此前缩在上面那个 else 里，于是 elite / treasure
+		# 变体关的第 1 波只弹一条提示、一只敌人都不刷——21 关共 442 只敌人从未
+		# 出现过，而平衡模型全程都把它们算在内。变体只决定提示文案，不应决定
+		# 是否出怪。
+		for group in wave.get("spawns", []):
+			_queue_spawn_group(group, false)
+		if is_endless_mode and _is_endless_final_wave(waves):
+			_show_wave_toast("第 %d 轮最终波 · 首领压境" % (endless_loop + 1), Color(1.0, 0.36, 0.18))
+			_queue_endless_final_bosses(0)
 	active_spawning = true
 	spawn_timer = 0.2
 
@@ -3284,17 +3292,51 @@ func _apply_wave_start_support() -> void:
 		"wave_salvage":
 			_apply_pet_wave_salvage()
 
-func _queue_spawn_group(group: Dictionary, is_boss: bool) -> void:
+func _queue_spawn_group(group: Dictionary, is_boss: bool, support := false) -> void:
 	var count := int(group.get("count", 1))
 	if not is_boss:
 		count = _scaled_wave_group_count(count, wave_index)
+	var authored_lane := str(group.get("lane", "spread"))
 	for i in range(count):
 		pending_spawns.append({
 			"type": group.get("type", "zombie_shambler"),
 			"interval": group.get("interval", 0.8),
-			"lane": group.get("lane", "spread"),
+			"lane": authored_lane if is_boss else _formation_lane(authored_lane, i, support),
 			"boss": is_boss
 		})
+
+## 阶段 67：所有 99 关都写了 `wave_pattern`，但运行时从来没读过——五种编队名
+## (standard / rush / pincer / escort / siege) 一直只是标签，玩家感受不到任何
+## 差别，正是 todo 里"避免只靠 HP/数量换皮"指的问题。
+##
+## 这里只改**队形几何**：把同一批敌人分配到不同的进攻通道。刻意不碰数量、
+## 出怪间隔、HP 和总出怪时长，因此 check_level_pressure / simulate_balance 的
+## 每一个数字都保持不变，差异纯粹体现在走位与火力分配上。
+func _formation_lane(authored_lane: String, index: int, support: bool) -> String:
+	match wave_formation:
+		"rush":
+			# 正面猛冲：全部压中路直扑防线。
+			return "center"
+		"pincer":
+			# 钳形：左右两爪交替合围，中路留空。
+			return "left" if index % 2 == 0 else "right"
+		"escort":
+			# 护送：被护送的支援目标走中路，其余敌人贴两翼掩护。
+			if support:
+				return "center"
+			return "left" if index % 2 == 0 else "right"
+		"siege":
+			# 围城：三路轮转铺满整条战线，逼玩家横向分配火力。
+			match index % 3:
+				0:
+					return "left"
+				1:
+					return "right"
+				_:
+					return "spread"
+		_:
+			# standard：完全沿用关卡作者写的通道。
+			return authored_lane
 
 func _scaled_wave_group_count(base_count: int, current_wave: int) -> int:
 	var economy: Dictionary = DataLoader.get_table("economy")

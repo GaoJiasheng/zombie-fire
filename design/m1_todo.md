@@ -905,3 +905,12 @@
 - [x] 产物：PCK `616,021,004` bytes，SHA-256 `0761f61de3b0c1c0993f8ced3e861067e2d1a60968ce8462cf965559ac32008b`；IPA `645,285,656` bytes，SHA-256 `d316c4a037b8ffbfe8f964cf431869733503c1560fb4e827f2ca9870e0f7c732`。
 - [x] Apple 交付：Delivery UUID `79598e5a-f6f6-443e-ad6a-a274adb17710`；`VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，非豁免加密 `false`。发布记录 `build/ios/release/build_42/release_manifest.json`。
 - [ ] Owner 真机验收重点：① 早期 5/10/15 关 Boss 是否仍显吃力；② 星级放宽后 2★/3★ 的达成感是否合理；③ 同一关第二次打时经验卡的 `×50%` 是否读得懂；④ 配装页"建议武器"行的可点击区与跳转。
+
+## 阶段 67 · 编队原型真正生效 + 变体关首波出怪修复（2026-07-29）
+
+- [x] **发现 `wave_pattern` 是死字段**：99 关全都写了 `standard / rush / pincer / escort / siege`（24/20/19/18/18），但运行时从来没读过——只有 `check_level_pressure.py` 数了数种类、`rebalance_difficulty.py` 写过它。五种编队一直只是标签，玩家感受不到任何差别，正是本条 todo 说的"只靠 HP/数量换皮"。
+- [x] 接入 `battle.gd._formation_lane()`：`standard` 沿用作者写的 `lane`；`rush` 全部压中路；`pincer` 左右交替、中路留空；`escort` 支援目标走中路、其余贴两翼；`siege` 左/右/散开三路轮转铺满战线。Boss 不受影响，始终按作者通道入场；无尽模式在模板替换之后再读，不会误用入口关卡的编队。
+- [x] **只改队形几何，不碰数量/间隔/HP/总出怪时长**——validate_data、check_level_pressure、check_balance_profile、simulate_balance、check_endgame_balance、check_economy_loop、simulate_card_director 全部数字不变，星级分布仍为 3★ 12 / 2★ 86 / 1★ 1。编成签名本就有 96 种（99 关），差异化的缺口在表现层而非数据层。
+- [x] **顺带发现并修复一个既有 P0 bug**：出怪循环被错误地缩进在波次提示分支的 `else` 里，于是 `elite` / `treasure` 变体关的第 1 波只弹一条提示、**一只敌人都不刷**——11 个精英关 + 10 个宝箱关共 **442 只敌人从未出现过**，而所有平衡模型全程都把它们算在内。变体只应决定提示文案，不应决定是否出怪。
+- [x] 永久回归：`m1_smoke_test.gd` 新增 `_verify_wave_formation_lanes`（五种编队各自的通道契约，实机排队验证）与 `_verify_variant_wave_one_spawns`（变体关第 1 波必须编排敌人）。
+- [x] 验收：五种编队实机排队分别为 `spread×7` / `center×10` / `left6+right4` / `left6+right6` / `left4+right4+spread4`；`check_release_candidate.py`（117 路截图）全绿。

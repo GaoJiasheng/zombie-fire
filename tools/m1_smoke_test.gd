@@ -149,6 +149,8 @@ func _initialize() -> void:
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
 	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
+	_verify_variant_wave_one_spawns(data_loader)
+	await _verify_wave_formation_lanes(data_loader)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
 	await _verify_underpower_confirmation(save_manager, smoke_save_snapshot)
 
@@ -1268,6 +1270,63 @@ func _verify_pet_skill_runtime(data_loader: Node, save_manager: Node, snapshot: 
 	router.queue_free()
 	save_manager.save_data = original_save
 	await process_frame
+
+func _verify_wave_formation_lanes(data_loader: Node) -> void:
+	# 阶段 67：`wave_pattern` 此前 99 关都写了却从来没被运行时读过。这里锁死
+	# 五种编队各自的通道契约，避免它再退回成纯标签。只验队形几何，不验数量、
+	# 间隔或 HP——那些刻意保持与编队无关。
+	var representative := {}
+	for level in data_loader.get_table("levels"):
+		var pattern := str(level.get("wave_pattern", "standard"))
+		if not representative.has(pattern):
+			representative[pattern] = str(level.get("id", ""))
+	_expect(representative.size() >= 5, "campaign must keep all five wave formations, got %d" % representative.size())
+	var router := FakeRouter.new()
+	root.add_child(router)
+	for pattern in representative.keys():
+		var battle := _instance("res://gameplay/battle/battle.tscn")
+		battle.setup(router, {"level_id": representative[pattern]})
+		root.add_child(battle)
+		await process_frame
+		var lanes := {}
+		for item in battle.pending_spawns:
+			var lane := str(item.get("lane", ""))
+			lanes[lane] = int(lanes.get(lane, 0)) + 1
+		_expect(not battle.pending_spawns.is_empty(), "%s (%s) must queue wave-1 enemies" % [representative[pattern], pattern])
+		match str(pattern):
+			"rush":
+				_expect(lanes.size() == 1 and lanes.has("center"), "rush formation must funnel every spawn down the centre, got %s" % str(lanes))
+			"pincer":
+				_expect(not lanes.has("center"), "pincer formation must leave the centre lane open, got %s" % str(lanes))
+				_expect(lanes.has("left") and lanes.has("right"), "pincer formation must use both flanks, got %s" % str(lanes))
+			"siege":
+				_expect(lanes.size() >= 3, "siege formation must fill the whole line, got %s" % str(lanes))
+			"escort":
+				_expect(lanes.has("left") and lanes.has("right"), "escort formation must flank, got %s" % str(lanes))
+		battle.queue_free()
+		await process_frame
+	router.queue_free()
+	await process_frame
+
+func _verify_variant_wave_one_spawns(data_loader: Node) -> void:
+	# 阶段 67：elite / treasure 变体关的第 1 波曾因出怪循环缩进错误而一只不刷
+	# （21 关共 442 只敌人从未出现），而所有平衡模型都把它们算在内。这里锁死
+	# 数据侧契约：变体关的第 1 波必须真的编排了敌人。运行时是否照单出怪由
+	# _verify_wave_formation_lanes 一起守。
+	var variant_levels := 0
+	for level in data_loader.get_table("levels"):
+		var variant := str(level.get("variant", ""))
+		if variant != "elite" and variant != "treasure":
+			continue
+		variant_levels += 1
+		var waves: Array = level.get("waves", [])
+		_expect(not waves.is_empty(), "%s must author waves" % str(level.get("id", "")))
+		var first_wave: Dictionary = waves[0]
+		var queued := 0
+		for group in first_wave.get("spawns", []):
+			queued += int(group.get("count", 0))
+		_expect(queued > 0, "%s wave 1 must spawn enemies despite its variant toast" % str(level.get("id", "")))
+	_expect(variant_levels >= 20, "elite/treasure variants must remain part of the campaign, got %d" % variant_levels)
 
 func _verify_repeat_clear_xp_decay(save_manager: Node, snapshot: Dictionary) -> void:
 	# design/24 收尾：重复通关经验递减 100% / 50% / 25%。倍率表只允许存在于
