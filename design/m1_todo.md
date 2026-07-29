@@ -914,3 +914,13 @@
 - [x] **顺带发现并修复一个既有 P0 bug**：出怪循环被错误地缩进在波次提示分支的 `else` 里，于是 `elite` / `treasure` 变体关的第 1 波只弹一条提示、**一只敌人都不刷**——11 个精英关 + 10 个宝箱关共 **442 只敌人从未出现过**，而所有平衡模型全程都把它们算在内。变体只应决定提示文案，不应决定是否出怪。
 - [x] 永久回归：`m1_smoke_test.gd` 新增 `_verify_wave_formation_lanes`（五种编队各自的通道契约，实机排队验证）与 `_verify_variant_wave_one_spawns`（变体关第 1 波必须编排敌人）。
 - [x] 验收：五种编队实机排队分别为 `spread×7` / `center×10` / `left6+right4` / `left6+right6` / `left4+right4+spread4`；`check_release_candidate.py`（117 路截图）全绿。
+
+### 阶段 67 · 按环境的动态音频混音
+
+- [x] 复核既有实现：todo 里的另外两条其实**早已满足**——`get_sfx_concurrency_limit()` 已对 `shot_ / muzzle_ / hit_` 做同类并发上限，`get_sfx_priority()` 已给 Boss 入场 / 防线告急 / 威胁预警 100、主动技与角色技 70、UI 65、普通命中 40、枪声 30，并由 `_request_bgm_duck_for_sfx()` 做 BGM 闪避。缺的只有"按环境"这一条。
+- [x] `data/environments.json` 全部 14 个环境新增 `audio_mix`：`sfx_db` / `bgm_db` / `reverb_wet` / `reverb_room` / `reverb_damping`，按各自空间声学给值——虚空圣堂最长混响（0.24）、沉没地铁次之（0.22）、冰川断桥明亮长尾（0.20）、沙暴炼油区几乎全干（0.05）、毒液生化舱短促阻尼（0.09）。
+- [x] `default_bus_layout.tres` 的 SFX 总线新增 `AudioEffectReverb`（默认 `wet=0`，不改变现状）；UI 音效走 UI 总线，永远保持干声。
+- [x] `AudioManager.apply_environment_mix()` / `clear_environment_mix()`：`sfx_db` / `bgm_db` 以**播放器音量偏移**施加，绝不写总线音量，避免与设置页音量滑杆互相覆盖。战斗 `setup()` 施加、`_exit_tree()` 归零，成对保证菜单/地图/结算不会挂着战场混响。
+- [x] 永久回归：`m1_smoke_test.gd` 新增 `_verify_environment_audio_mix`——每个环境必须声明 `audio_mix`、`reverb_wet` 在 0–0.35 内、各环境之间必须真有区分度、进入战斗套用对应环境、离开战斗必须归零。
+- [x] 验收：实机 5 关抽查 wet 分别为 0.14 / 0.20 / 0.22 / 0.24 / 0.12，`mix_id` 与关卡环境逐关吻合，退出后全部归零；`check_audio_overlap.py` 与 `check_release_candidate.py`（117 路截图）全绿。
+- [ ] Owner 验收（属 B 组既有条目）：扬声器与耳机两套实听复核。

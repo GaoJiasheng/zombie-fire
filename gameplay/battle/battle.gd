@@ -510,6 +510,8 @@ func _ready() -> void:
 		_apply_endless_template_level(_econ)
 	# 必须在无尽模板替换 `level` 之后再读，否则无尽会沿用入口关卡的编队而不是模板的。
 	wave_formation = str(level.get("wave_pattern", "standard"))
+	# 阶段 67：进入战斗时套用本关环境的空间混音，离开战斗时在 _exit_tree 归零。
+	AudioManager.apply_environment_mix(str(level.get("env", "")))
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
 	econ_gold_per = float(_econ.get("gold_drop_per_level", 0.6))
 	AudioManager.play_bgm(_battle_bgm_id())
@@ -9942,6 +9944,11 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	screen_flash.modulate = Color(color.r, color.g, color.b, alpha)
 	screen_flash_tween = screen_flash.create_tween()
 	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration * (0.62 if SettingsManager.reduced_effects_enabled() else 1.0))
+
+## 阶段 67：离开战斗必须归零环境混音，否则菜单/地图/结算会继续挂着战场的
+## 混响与增益。放在 _exit_tree 而不是各个出口，保证与 setup 里的施加成对。
+func _exit_tree() -> void:
+	AudioManager.clear_environment_mix()
 
 func _apply_level_background() -> void:
 	var background := get_node_or_null("Background") as Sprite2D

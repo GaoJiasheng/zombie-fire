@@ -151,6 +151,7 @@ func _initialize() -> void:
 	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
 	_verify_variant_wave_one_spawns(data_loader)
 	await _verify_wave_formation_lanes(data_loader)
+	await _verify_environment_audio_mix(data_loader)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
 	await _verify_underpower_confirmation(save_manager, smoke_save_snapshot)
 
@@ -1269,6 +1270,40 @@ func _verify_pet_skill_runtime(data_loader: Node, save_manager: Node, snapshot: 
 	battle.queue_free()
 	router.queue_free()
 	save_manager.save_data = original_save
+	await process_frame
+
+func _verify_environment_audio_mix(data_loader: Node) -> void:
+	# 阶段 67：按环境的动态混音。契约有三条——每个环境都必须声明 audio_mix；
+	# 进入战斗时套用对应环境；离开战斗必须归零，否则菜单/结算会挂着战场混响。
+	var audio_manager := root.get_node_or_null("/root/AudioManager")
+	_expect(audio_manager != null, "AudioManager must be autoloaded")
+	if audio_manager == null:
+		return
+	var environments: Dictionary = data_loader.get_table("environments")
+	var wets := {}
+	for environment_id in environments.keys():
+		var mix_value: Variant = (environments[environment_id] as Dictionary).get("audio_mix", {})
+		_expect(mix_value is Dictionary and not (mix_value as Dictionary).is_empty(), "%s must declare an audio_mix" % str(environment_id))
+		if mix_value is Dictionary:
+			var mix: Dictionary = mix_value
+			var wet := float(mix.get("reverb_wet", 0.0))
+			_expect(wet >= 0.0 and wet <= 0.35, "%s reverb_wet must stay inside 0-0.35, got %.2f" % [str(environment_id), wet])
+			wets[str(environment_id)] = wet
+	_expect(wets.values().min() < wets.values().max(), "environment reverb must actually differ between environments")
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_075"})
+	root.add_child(battle)
+	await process_frame
+	var applied := str(audio_manager.current_environment_mix_id())
+	_expect(applied == str(battle.level.get("env", "")), "entering a battle must apply that environment's audio mix, got '%s'" % applied)
+	_expect(audio_manager.sfx_reverb_wet() > 0.0, "the cathedral environment must apply reverb to the SFX bus")
+	battle.queue_free()
+	await process_frame
+	_expect(str(audio_manager.current_environment_mix_id()) == "", "leaving a battle must clear the environment audio mix")
+	_expect(absf(audio_manager.sfx_reverb_wet()) <= 0.001, "leaving a battle must reset the SFX reverb to dry")
+	router.queue_free()
 	await process_frame
 
 func _verify_wave_formation_lanes(data_loader: Node) -> void:

@@ -155,6 +155,11 @@ var _missing_audio_reported := {}
 var _bgm_duck_db := 0.0
 var _bgm_duck_target_db := 0.0
 var _bgm_duck_hold_until_msec := 0
+## 阶段 67：按环境的空间声学做混音。数值来自 data/environments.json.audio_mix，
+## 代码里不写死任何一条曲线。
+var _env_sfx_db := 0.0
+var _env_bgm_db := 0.0
+var _env_mix_id := ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -274,7 +279,7 @@ func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	_clear_sfx_player(player)
 	player.stream = stream
 	player.bus = get_sfx_bus(id)
-	player.volume_db = float(volume_db)
+	player.volume_db = float(volume_db) + (_env_sfx_db if player.bus == &"SFX" else 0.0)
 	var variation := absf(float(pitch_variation))
 	player.pitch_scale = randf_range(maxf(0.01, 1.0 - variation), 1.0 + variation)
 	player.set_meta("audio_id", id)
@@ -321,14 +326,14 @@ func _update_bgm_duck(delta: float) -> void:
 func _apply_bgm_player_volumes() -> void:
 	for player in _bgm_players:
 		var base_gain := float(player.get_meta("base_gain", 0.0))
-		player.volume_db = SILENT_DB if base_gain <= 0.0001 else _gain_to_db(base_gain) + _bgm_duck_db
+		player.volume_db = SILENT_DB if base_gain <= 0.0001 else _gain_to_db(base_gain) + _bgm_duck_db + _env_bgm_db
 
 func _set_bgm_player_gain(player: AudioStreamPlayer, gain: float) -> void:
 	if player == null:
 		return
 	var bounded_gain := clampf(gain, 0.0, 1.0)
 	player.set_meta("base_gain", bounded_gain)
-	player.volume_db = SILENT_DB if bounded_gain <= 0.0001 else _gain_to_db(bounded_gain) + _bgm_duck_db
+	player.volume_db = SILENT_DB if bounded_gain <= 0.0001 else _gain_to_db(bounded_gain) + _bgm_duck_db + _env_bgm_db
 
 func _is_rate_limited(id: String) -> bool:
 	var min_gap := 0.0
@@ -385,6 +390,65 @@ func set_bgm_volume(value: float) -> void:
 
 func set_sfx_volume(value: float) -> void:
 	set_bus_volume(&"SFX", value)
+
+## 阶段 67 · 按环境的动态混音。熔岩铸厂、冰川断桥、沉没地铁、虚空圣堂……
+## 各自的空间不同，同一把枪在里面不该是同一个声音。三条参数全部来自
+## data/environments.json 的 `audio_mix`，这里只负责把它们套到总线上：
+##   sfx_db / bgm_db  ——  以**播放器音量偏移**的形式施加，绝不写总线音量，
+##                        否则会和设置页的音量滑杆互相覆盖。
+##   reverb_*         ——  施加在 SFX 总线的混响上；UI 音效走 UI 总线，永远保持干声。
+## 战斗进入时调用，离开战斗时用 clear_environment_mix() 归零。
+func apply_environment_mix(environment_id: String) -> void:
+	var row: Dictionary = DataLoader.get_row("environments", environment_id)
+	var mix_var: Variant = row.get("audio_mix", {})
+	if not (mix_var is Dictionary) or (mix_var as Dictionary).is_empty():
+		clear_environment_mix()
+		return
+	var mix: Dictionary = mix_var
+	_env_mix_id = environment_id
+	_env_sfx_db = clampf(float(mix.get("sfx_db", 0.0)), -6.0, 6.0)
+	_env_bgm_db = clampf(float(mix.get("bgm_db", 0.0)), -6.0, 6.0)
+	_apply_sfx_reverb(
+		clampf(float(mix.get("reverb_wet", 0.0)), 0.0, 0.35),
+		clampf(float(mix.get("reverb_room", 0.5)), 0.0, 1.0),
+		clampf(float(mix.get("reverb_damping", 0.5)), 0.0, 1.0)
+	)
+	_apply_bgm_player_volumes()
+
+func clear_environment_mix() -> void:
+	_env_mix_id = ""
+	_env_sfx_db = 0.0
+	_env_bgm_db = 0.0
+	_apply_sfx_reverb(0.0, 0.5, 0.5)
+	_apply_bgm_player_volumes()
+
+func current_environment_mix_id() -> String:
+	return _env_mix_id
+
+func environment_sfx_trim_db() -> float:
+	return _env_sfx_db
+
+func environment_bgm_trim_db() -> float:
+	return _env_bgm_db
+
+func sfx_reverb_wet() -> float:
+	var reverb := _sfx_reverb_effect()
+	return 0.0 if reverb == null else reverb.wet
+
+func _sfx_reverb_effect() -> AudioEffectReverb:
+	var bus_index := AudioServer.get_bus_index(&"SFX")
+	if bus_index < 0 or AudioServer.get_bus_effect_count(bus_index) <= 0:
+		return null
+	return AudioServer.get_bus_effect(bus_index, 0) as AudioEffectReverb
+
+func _apply_sfx_reverb(wet: float, room_size: float, damping: float) -> void:
+	var reverb := _sfx_reverb_effect()
+	if reverb == null:
+		return
+	reverb.wet = wet
+	reverb.dry = 1.0
+	reverb.room_size = room_size
+	reverb.damping = damping
 
 func set_ui_volume(value: float) -> void:
 	set_bus_volume(&"UI", value)

@@ -8,7 +8,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
 		"portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
-		"bgm": "battle_city"
+		"bgm": "battle_city",
+		"audio_mix": {
+			"sfx_db": 0.5,
+			"bgm_db": -0.5,
+			"reverb_wet": 0.14,
+			"reverb_room": 0.62,
+			"reverb_damping": 0.55
+		}
 	},
 	"env_glacier_pass": {
 		"name": "冰川断桥",
@@ -19,7 +26,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_glacier_pass.png",
 		"portrait": "res://assets/production/environment/bg_glacier_pass_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_glacier_pass_battle_layout_guide.png",
-		"bgm": "battle_subway"
+		"bgm": "battle_subway",
+		"audio_mix": {
+			"sfx_db": 0.0,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.2,
+			"reverb_room": 0.78,
+			"reverb_damping": 0.2
+		}
 	},
 	"env_abandoned_factory": {
 		"name": "废弃工厂",
@@ -30,7 +44,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_abandoned_factory.png",
 		"portrait": "res://assets/production/environment/bg_abandoned_factory_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_abandoned_factory_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": 0.0,
+			"bgm_db": -0.5,
+			"reverb_wet": 0.18,
+			"reverb_room": 0.72,
+			"reverb_damping": 0.45
+		}
 	},
 	"env_toxic_biolab": {
 		"name": "毒液生化舱",
@@ -41,7 +62,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_toxic_biolab.png",
 		"portrait": "res://assets/production/environment/bg_toxic_biolab_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_toxic_biolab_battle_layout_guide.png",
-		"bgm": "battle_biolab"
+		"bgm": "battle_biolab",
+		"audio_mix": {
+			"sfx_db": -0.5,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.09,
+			"reverb_room": 0.42,
+			"reverb_damping": 0.7
+		}
 	},
 	"env_storm_substation": {
 		"name": "雷暴变电站",
@@ -52,7 +80,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_storm_substation.png",
 		"portrait": "res://assets/production/environment/bg_storm_substation_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_storm_substation_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": 0.5,
+			"bgm_db": -0.5,
+			"reverb_wet": 0.1,
+			"reverb_room": 0.55,
+			"reverb_damping": 0.4
+		}
 	},
 	"env_flooded_subway": {
 		"name": "沉没地铁",
@@ -63,7 +98,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_flooded_subway.png",
 		"portrait": "res://assets/production/environment/bg_flooded_subway_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_flooded_subway_battle_layout_guide.png",
-		"bgm": "battle_subway"
+		"bgm": "battle_subway",
+		"audio_mix": {
+			"sfx_db": -0.5,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.22,
+			"reverb_room": 0.8,
+			"reverb_damping": 0.62
+		}
 	},
 	"env_desert_refinery": {
 		"name": "沙暴炼油区",
@@ -74,7 +116,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_desert_refinery.png",
 		"portrait": "res://assets/production/environment/bg_desert_refinery_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_desert_refinery_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": 0.0,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.05,
+			"reverb_room": 0.35,
+			"reverb_damping": 0.75
+		}
 	},
 	"env_void_cathedral": {
 		"name": "虚空圣堂",
@@ -85,7 +134,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_void_cathedral.png",
 		"portrait": "res://assets/production/environment/bg_void_cathedral_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_void_cathedral_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": -0.5,
+			"bgm_db": 0.5,
+			"reverb_wet": 0.24,
+			"reverb_room": 0.88,
+			"reverb_damping": 0.3
+		}
 	},
 	"env_orbital_ruins": {
 		"name": "轨道升降遗址",
@@ -96,7 +152,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_orbital_ruins.png",
 		"portrait": "res://assets/production/environment/bg_orbital_ruins_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_orbital_ruins_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": -1.0,
+			"bgm_db": 0.5,
+			"reverb_wet": 0.16,
+			"reverb_room": 0.84,
+			"reverb_damping": 0.8
+		}
 	},
 	"env_apex_core": {
 		"name": "终局核心",
@@ -107,7 +170,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_apex_core.png",
 		"portrait": "res://assets/production/environment/bg_apex_core_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_apex_core_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": 0.5,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.12,
+			"reverb_room": 0.58,
+			"reverb_damping": 0.5
+		}
 	},
 	"env_city_ruins": {
 		"name": "旧城废墟",
@@ -115,7 +185,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_lava_foundry.png",
 		"portrait": "res://assets/production/environment/bg_lava_foundry_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_lava_foundry_battle_layout_guide.png",
-		"bgm": "battle_city"
+		"bgm": "battle_city",
+		"audio_mix": {
+			"sfx_db": 0.0,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.08,
+			"reverb_room": 0.5,
+			"reverb_damping": 0.55
+		}
 	},
 	"env_subway": {
 		"name": "旧地铁",
@@ -123,7 +200,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_flooded_subway.png",
 		"portrait": "res://assets/production/environment/bg_flooded_subway_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_flooded_subway_battle_layout_guide.png",
-		"bgm": "battle_subway"
+		"bgm": "battle_subway",
+		"audio_mix": {
+			"sfx_db": -0.5,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.2,
+			"reverb_room": 0.76,
+			"reverb_damping": 0.6
+		}
 	},
 	"env_military": {
 		"name": "旧军区",
@@ -131,7 +215,14 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_abandoned_factory.png",
 		"portrait": "res://assets/production/environment/bg_abandoned_factory_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_abandoned_factory_battle_layout_guide.png",
-		"bgm": "battle_military"
+		"bgm": "battle_military",
+		"audio_mix": {
+			"sfx_db": 0.0,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.1,
+			"reverb_room": 0.52,
+			"reverb_damping": 0.5
+		}
 	},
 	"env_biolab": {
 		"name": "旧生化区",
@@ -139,6 +230,13 @@
 		"battle_background": "res://assets/production/sprites/backgrounds/bg_toxic_biolab.png",
 		"portrait": "res://assets/production/environment/bg_toxic_biolab_portrait.png",
 		"layout_guide": "res://assets/production/environment/bg_toxic_biolab_battle_layout_guide.png",
-		"bgm": "battle_biolab"
+		"bgm": "battle_biolab",
+		"audio_mix": {
+			"sfx_db": -0.5,
+			"bgm_db": 0.0,
+			"reverb_wet": 0.09,
+			"reverb_room": 0.44,
+			"reverb_damping": 0.68
+		}
 	}
 }
