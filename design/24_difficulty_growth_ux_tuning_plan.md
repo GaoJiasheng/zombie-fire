@@ -7,6 +7,20 @@
 > 实施要求：每个 Phase 内的"游戏改动 + 模拟器同步 + 校验同步 + UI 同步"必须在**同一个提交**里完成，
 > 禁止只改游戏不改模拟器（本次分析发现的最大问题正是两者各自为政）。
 
+## 冷启动执行须知（新 session 从这里开始）
+
+1. 先读仓库根目录 `AGENTS.md`（黄金规则、数据驱动约定、文档更新义务都在那里，本文不重复）。
+2. 开工第一步：`python3 tools/check_release_candidate.py` 确认基线全绿，绿了才动手；不绿先停下报告。
+3. **本文所有行号以 commit `ba4164fc` 为锚点**，Codex 会并行提交、行号必然漂移——
+   永远用文中引用的代码片段/函数名重新定位（如搜 `hp_ratio >= 1.0`、`func get_loadout_power`、
+   `offense - 1.0) * 0.82`），行号只当导航提示。定位结果与文中描述对不上时，先停下来对照
+   `git log` 确认该处是否已被并行改动，不许凭猜施工。
+4. headless 验证脚本的写法模板：抄 `tools/m1_smoke_test.gd` 的 Router stub 模式
+   （自建 stub router 接住 `finish_level` 的 result payload），或抄其中直接 instantiate
+   `battle.tscn` + `setup()` 的段落。一次性验证脚本放 scratchpad，验完删除，不许提交进 tools/。
+5. 每完成一个 Phase：按 AGENTS.md 义务更新 `design/m1_todo.md` 和 `design/m1_implementation_progress.md`，
+   并在本文附录填上该 Phase 的实测数据。
+
 ---
 
 ## 0. 分析结论摘要（按 UX 影响排序）
@@ -132,6 +146,9 @@
 
 **验收**：
 - headless 打一局 level_001 故意漏 20% 血 → 结算 3★。
+  （做法：按"冷启动执行须知"第 4 条的 stub router 模式进 battle 后，直接
+  `battle.base_hp = int(battle.base_hp_max * 0.8)`，再调 `battle._finish(true)`，
+  断言 stub 收到的 result `stars == 3`；旧规则下同样输入应为 2。）
 - 星级分布重跑记录到附录（预期普通关 3★≈25、2★≈48）。
 - grep 确认 `0.70`/`0.35` 只存在于 economy.json。
 - 55 路由截图回归通过（重点看 result 不溢出）。
@@ -254,6 +271,8 @@
 
 **验收**：headless 打一局早退（选卡 1 张）→ 结算显示"（选卡未满）"；截图回归；
 `check_release_strings.py` 全绿。
+（做法：stub router 进 battle 后不选卡直接 `battle._finish(true)`，检查 result payload 里
+`combat_power < standing_power`，再用 `tools/_shot.gd` 的 result 路由带该 payload 截图核对文案。）
 
 ---
 
