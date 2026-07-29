@@ -785,3 +785,11 @@
 - [x] 明确不做：未加保底维修事件，未动 `boss_survival_hp_ramp.max_mult`。
 - [ ] Owner 拍板：方案要求的"5/10/15 关达到 3★ 口径"在允许的旋钮内做不到（需 ~2.4× 垫子）。早期 Boss 关（5/10/15/20 为 46–57%）反而比后期（33–45%）更难，是真实的早期难度倒挂，建议单开议题。
 - [x] 验收：headless 确认 level_005/010 相对 level_004/009 的基地血量比恰为 1.25；validate_data / check_level_pressure / check_balance_profile / simulate_balance / check_endgame_balance / check_economy_loop / check_release_candidate（117 路截图）全绿。
+
+### Phase 3 · 星级经济复核
+
+- [x] 星级供给按 Phase 1+2 后的分布重算：战役 209 星；挑战按 challenges.json 实际系数（`hp_mult` 1.30–1.42 × `breach_damage_mult` 1.00–1.18）建模得 167 星，合计 **376 星**。方案原文的"普通关星级 −1 档"整档下调对卡在档位上沿的关卡过度惩罚（34% leak 的关卡挑战下是 46%、仍是 2★），只给出 319 星，故改用系数建模并记录两条口径。
+- [x] **判定 376 / 318 = 1.18 ≥ 1.10，供给充足 → 最贵一档解锁价维持不动**（volt/plasmacannon 16★、railgun/reactive/chip_element/collector 14★）。这是 Phase 1+2 的直接结果，本 Phase 无数据改动。
+- [x] XP 经济抽查：需求 137,400 XP（16 永久技能 + 4 专属技满级）；10/30/50/70/90 关单局 665/731/1,644/2,202/2,968 XP，全战役一遍即 138,055（100%），战役+全挑战 201%，远超方案设定的 60–80%。XP 不是瓶颈。
+- [ ] Owner 拍板（Phase 3 范围外，仅记录）：XP 供给过剩，打完一遍战役即可点满全部永久技能，长尾成长目标被抹平；`battle.gd` 读入的 `econ_xp_growth`（`xp_per_kill_growth`）在战斗里从未使用；`design/data/schema.md` 记录的 `star_total_cap: 297` 在 `data/economy.json` 中并不存在。
+- [x] 验收：`check_economy_loop.py` 全绿（star_unlock_total=318 / max_item=16 / normal_campaign=297 / challenge_needed=21）；供需表与 XP 抽查表已写入 design/24 附录。
