@@ -299,7 +299,6 @@ const ENDLESS_BOSS_COUNT_CAP := 6
 var level_ordinal := 1
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
-var econ_xp_growth := 0.06
 var pending_spawns: Array = []
 var spawn_timer := 0.0
 var wave_index := 0
@@ -506,7 +505,6 @@ func _ready() -> void:
 		_apply_endless_template_level(_econ)
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
 	econ_gold_per = float(_econ.get("gold_drop_per_level", 0.6))
-	econ_xp_growth = float(_econ.get("xp_per_kill_growth", 0.06))
 	AudioManager.play_bgm(_battle_bgm_id())
 	primary_weakness = str(level.get("primary_weakness", "physical"))
 	onboarding_stage = str(level.get("onboarding_stage", ""))

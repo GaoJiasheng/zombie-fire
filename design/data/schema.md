@@ -430,8 +430,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 	    "opening_avoid_economy": true,
 	    "opening_damage_tags": ["anti_swarm","projectile","dps"],
 	    "opening_safety_tags": ["control","defense"]
-  },
-  "star_total_cap": 297
+  }
 }
 ```
 - `ENEMY_SPEED_MULT` 是普通僵尸与 Boss 共享的基础移动速度旋钮；`BOSS_SPEED_MULT` 是 Boss 专用追加倍率，当前 `1.5` 表示 Boss 在共享速度口径之上再快 50%，不影响普通僵尸、HP、伤害或奖励。

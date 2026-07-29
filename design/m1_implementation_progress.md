@@ -3154,3 +3154,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Permanent regression**: `m1_smoke_test.gd` gained `_verify_repeat_clear_xp_decay`, covering the 1.0 / 0.5 / 0.25 / 0.25 sequence, challenge counts staying separate from normal ones, defeats not consuming a count, and a legacy save without the fields still paying full XP.
 - **Measured supply against the 137,400 XP demand**: one campaign pass still pays 138,055 (100%). Farming is what changed — two full passes now pay 151% and three pay 176%, where the old rules paid 301% for three. Campaign plus challenges once is 201%.
 - **Still open for the owner**: the decay caps grinding but does not change the first pass, so "one campaign clear maxes every permanent skill" still holds. Fixing that means raising skill XP costs or lowering `run_xp` — a separate decision, not taken here.
+
+## Dead Knob Cleanup (2026-07-29)
+
+- **`econ_xp_growth` removed**: `battle.gd` read `xp_per_kill_growth` out of economy into a member variable that nothing in the battle loop ever consumed. Run XP is and always was the sum of each zombie's and boss's `run_xp`. The variable, its assignment and the now-readerless `xp_per_kill_growth: 0.06` entry in `data/economy.json` are gone.
+- **`star_total_cap` removed from the schema**: `design/data/schema.md` documented a field that `data/economy.json` never contained and no code ever read — documentation drift rather than a missing feature.
+- **Verification**: a repo-wide grep confirms no code or data references to any of the three identifiers remain, and the full release candidate with 117 routed screenshots passes.
