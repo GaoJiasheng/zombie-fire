@@ -449,4 +449,44 @@ XP 经济抽查（需求 = 16 永久技能 × 6,450 + 4 专属技 × 8,550 = **1
 `建议武器：{武器名}（克制本关，伤害×1.5）`，点击跳武器图鉴（复用 `_open_collection("weapons")`）。
 不自动换装。倍率 1.5 动态读 `economy.json.weakness_mult`；英文目录同步补模板。
 面板高度按是否出现建议行在 388 / 452 之间切换，中英文实机截图确认均不裁切。
-- [ ] Phase 6 调权重后的 pierce/barrier 选取率对比（各阶段抽样）
+- [x] **Phase 6 调权重后的对比 —— 附带一条重要更正**
+
+**已实施（save_manager.gd `_combat_skill_effect_multiplier`）：**
+survival 权重 `0.18 → 0.28`、barrier 系数 `0.22 → 0.35`、slow `0.30 → 0.40`、
+pierce secondary_gain `0.075 → 0.065`；gold_rush 未动（经济卡，选取率低是"每次至多 1 张经济卡"
+规则的预期结果）。`RECOMMENDED_POWER_COEF` 未动——同一把尺子两端同时变，实测推荐战力
+（level_050 = 245、level_099 = 757）分毫未动。
+
+| 构筑（局内技能等级） | 改前 skill_mult | 改后 | 变化 |
+|-------------------|---------------|------|------|
+| barrier ×4 | 1.0317 | 1.0784 | **+4.5%** |
+| barrier×2 + slow_field×2 | 1.0299 | 1.0683 | **+3.7%** |
+| slow_field ×4 | 1.0232 | 1.0482 | **+2.4%** |
+| pierce ×4 | 1.4805 | 1.4405 | **−2.7%** |
+| pierce×2 + critical×2 + salvo×1 | 1.5995 | 1.5748 | −1.5% |
+
+**更正：§8 第 4/5 条的目标无法通过第 1/2 条达成，因为它们作用在两套互不相干的系统上。**
+- `save_manager._combat_skill_effect_multiplier` 只决定**战力评分**（结算页/配装页的数字、
+  与推荐战力的比较）。
+- 选取率（"pierce 在 99 关都进前二"）来自**发牌阶段**：`gameplay/skill/card_director.gd` 与其
+  Python 镜像 `tools/simulate_card_director.py` 的权重公式是
+  `weight = 4 + Σ_tag round(bias[tag] × 2)`，**只看 `card_tags` 和 `card_bias`，完全不读
+  save_manager**。实测：改权重前后 `simulate_card_director.py` 全量输出**逐字节相同**。
+- 同理，§8 第 5 条要求"重跑 simulate_balance 确认星级分布漂移 ≤±3 关"——simulate_balance 是
+  纯 Python，技能吞吐取自 `tools/combat_power_model.py`，同样不读 save_manager。实测分布
+  仍为 3★ 12 / 2★ 86 / 1★ 1，与 Phase 2 完全一致（漂移 0 关）。
+
+**选取率失衡的真实根因（数据，不是权重）**：发牌权重与 `card_tags` 数量近似成正比。
+
+| card_tags 数 | 技能 | level_050 选取率 |
+|-------------|------|-----------------|
+| 4 | pierce / incendiary / tesla | pierce **31.7%** |
+| 3 | critical / charge_shot / homing / ricochet / salvo / cryo / venom | 12–26% |
+| 2 | split_shot / multishot / slow_field / recycle | 14–20% |
+| 1 | **barrier** / **gold_rush** | barrier **12.7%** / gold_rush 9.6% |
+
+  `skill_barrier` 只有 `['defense']` 一个标签，权重恒为 `4 + round(bias.defense × 2)`；
+  `skill_pierce` 有 `['projectile','anti_armor','pierce','physical']` 四个，且起始武器是物理
+  （`bias[physical] += 1.2`）、"tank" 威胁标签再加 `pierce +0.8`——四路叠加，结构性碾压。
+  **要真正改变选取率，只能动 `card_tags` / `card_bias` / 发牌权重公式，而 §8 明写"全部只动数值，
+  不动结构"。** 给 barrier 补标签属于内容语义决策，留给 Owner 拍板；本 Phase 不擅自扩大改动。

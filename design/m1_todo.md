@@ -809,3 +809,12 @@
 - [x] 7.2 配装页克制建议：已拥有同元素武器但未装备时，战术摘要底部追加绿色可点击行 `建议武器：{武器名}（克制本关，伤害×1.5）`，点击跳武器图鉴，不自动换装；倍率动态读 `weakness_mult`，英文目录同步。面板高度按是否出现建议行在 388 / 452 之间切换。
 - [ ] Owner 拍板：毒弱点仍全部集中在第 4 章，venomlauncher 即使 8★ 仍是"第 4 章专用武器"。要让它长线可用需把毒弱点铺到后期章节（沙暴炼油区、沉没地铁较合适），属内容/主题决策，超出调优范围。
 - [x] 验收：中英文实机截图确认建议行显示与点击区（`建议武器：冰霜炮…` / `Suggested: Cryo Cannon…`）；`check_release_strings.py`、`simulate_card_director.py`、`check_release_candidate.py`（117 路截图）全绿。
+
+### Phase 6 · 技能生态再平衡
+
+- [x] `save_manager.gd` `_combat_skill_effect_multiplier` 权重按方案调整：survival `0.18 → 0.28`、barrier `0.22 → 0.35`、slow `0.30 → 0.40`、pierce secondary_gain `0.075 → 0.065`；gold_rush 未动。`RECOMMENDED_POWER_COEF` 未动，实测推荐战力（level_050 = 245、level_099 = 757）分毫未变。
+- [x] 实测评分变化：barrier×4 `1.0317 → 1.0784`（+4.5%）、barrier×2+slow×2 `+3.7%`、slow×4 `+2.4%`、pierce×4 `1.4805 → 1.4405`（−2.7%）、纯进攻组合 −1.5%。
+- [x] **更正方案 §8 第 4/5 条**：这两条目标无法通过第 1/2 条达成——它们作用在两套互不相干的系统上。选取率来自发牌阶段（`gameplay/skill/card_director.gd` 与镜像 `tools/simulate_card_director.py`，权重公式 `4 + Σ_tag round(bias[tag] × 2)`，只读 `card_tags`/`card_bias`，完全不读 save_manager）；`simulate_balance.py` 的技能吞吐取自 `tools/combat_power_model.py`，同样不读 save_manager。实测：改权重前后 `simulate_card_director.py` 全量输出逐字节相同，星级分布仍为 3★ 12 / 2★ 86 / 1★ 1（漂移 0 关）。
+- [x] 真实根因已定位并记录：发牌权重与 `card_tags` 数量近似成正比。`skill_barrier` 只有 `['defense']` 1 个标签（12.7%），`skill_pierce` 有 4 个且起始武器为物理、tank 威胁再加成（31.7%）。
+- [ ] Owner 拍板：要真正改变选取率只能动 `card_tags` / `card_bias` / 发牌权重公式，而 §8 明写"只动数值、不动结构"。给 barrier 补标签属于内容语义决策，本 Phase 不擅自扩大改动。
+- [x] 验收：`simulate_card_director.py`、`simulate_balance.py`、`check_release_candidate.py`（117 路截图）全绿。

@@ -827,7 +827,10 @@ func _combat_skill_effect_multiplier(run_skill_levels: Dictionary) -> float:
 	var lane_count := clampi(1 + extra_projectiles, 1, 5)
 	var lane_total := float(lane_count) * _power_multishot_lane_damage(lane_count)
 	var lane_factor := 1.0 + maxf(0.0, lane_total - 1.0) * 0.55
-	var secondary_gain := float(pierce) * 0.075
+	# design/24 Phase 6: pierce is the campaign's evergreen king; trim its
+	# secondary-coverage credit a notch so a pierce stack no longer dominates
+	# the power score outright.
+	var secondary_gain := float(pierce) * 0.065
 	secondary_gain += float(split) * clampf(split_falloff, 0.0, 1.0) * 0.11
 	secondary_gain += float(chain) * 0.09
 	secondary_gain += homing * 0.03
@@ -835,8 +838,12 @@ func _combat_skill_effect_multiplier(run_skill_levels: Dictionary) -> float:
 	var status_factor := 1.0 + burn * 0.28 + poison * 0.32
 	var penetration_factor := 1.0 + clampf(armor_penetration, 0.0, 0.95) * 0.22
 	var offense := direct_factor * cadence_factor * crit_factor * lane_factor * coverage_factor * status_factor * penetration_factor
-	var survival := 1.0 + maxf(0.0, barrier_hp) * 0.22 + clampf(slow, 0.0, 0.75) * 0.30
-	var combined := 1.0 + maxf(0.0, offense - 1.0) * 0.82 + maxf(0.0, survival - 1.0) * 0.18
+	# design/24 Phase 6: after Phase 1 unified the star rule, surviving base HP
+	# is literally the star rating, so defensive picks are worth materially more
+	# than the pre-fix weights assumed. Both ends of the ruler move together, so
+	# RECOMMENDED_POWER_COEF stays as calibrated.
+	var survival := 1.0 + maxf(0.0, barrier_hp) * 0.35 + clampf(slow, 0.0, 0.75) * 0.40
+	var combined := 1.0 + maxf(0.0, offense - 1.0) * 0.82 + maxf(0.0, survival - 1.0) * 0.28
 	return clampf(combined, 1.0, POWER_SKILL_THROUGHPUT_CAP)
 
 func _power_multishot_lane_damage(lane_count: int) -> float:
