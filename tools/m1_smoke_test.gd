@@ -147,6 +147,7 @@ func _initialize() -> void:
 	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
+	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
 	await _verify_underpower_confirmation(save_manager, smoke_save_snapshot)
 
@@ -1261,6 +1262,28 @@ func _verify_pet_skill_runtime(data_loader: Node, save_manager: Node, snapshot: 
 	router.queue_free()
 	save_manager.save_data = original_save
 	await process_frame
+
+func _verify_repeat_clear_xp_decay(save_manager: Node, snapshot: Dictionary) -> void:
+	# design/24 收尾：重复通关经验递减 100% / 50% / 25%。倍率表只允许存在于
+	# data/economy.json.repeat_clear_xp_mult；普通关与挑战各自独立计数；失败不计数。
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	save_manager.save_data = snapshot.duplicate(true)
+	save_manager.save_data["level_clear_counts"] = {}
+	save_manager.save_data["challenge_clear_counts"] = {}
+	var expected := [1.0, 0.5, 0.25, 0.25]
+	for index in range(expected.size()):
+		var multiplier: float = save_manager.get_repeat_clear_xp_mult("level_003", false)
+		_expect(absf(multiplier - expected[index]) < 0.001, "repeat clear %d must award %.2fx xp, got %.2fx" % [index + 1, expected[index], multiplier])
+		save_manager.apply_level_result({"level_id": "level_003", "victory": true, "stars": 2, "gold": 0, "xp": 0}, false)
+	var challenge_multiplier: float = save_manager.get_repeat_clear_xp_mult("level_003", true)
+	_expect(absf(challenge_multiplier - 1.0) < 0.001, "challenge clears must count separately from normal clears")
+	var defeat_count: int = save_manager.get_clear_count("level_010", false)
+	save_manager.apply_level_result({"level_id": "level_010", "victory": false, "stars": 0, "gold": 0, "xp": 0}, false)
+	_expect(int(save_manager.get_clear_count("level_010", false)) == defeat_count, "a defeat must not consume a clear count")
+	save_manager.save_data.erase("level_clear_counts")
+	var legacy: float = save_manager.get_repeat_clear_xp_mult("level_050", false)
+	_expect(absf(legacy - 1.0) < 0.001, "a legacy save without clear counts must still award full xp")
+	save_manager.save_data = original
 
 func _verify_collection_star_curve(data_loader: Node) -> void:
 	var table_names := ["characters", "weapons", "armors", "chips", "pets"]

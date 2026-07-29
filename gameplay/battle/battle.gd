@@ -8019,12 +8019,19 @@ func _finish(victory: bool) -> void:
 	var first_clear_bonus := 0
 	if victory and SaveManager.get_level_stars(level_id) == 0:
 		first_clear_bonus = int(level.get("first_clear_reward", {}).get("gold", 0))
+	# design/24 收尾：重复通关经验递减（首通 100% / 二周目 50% / 三周目起 25%）。
+	# 在这里而不是在 SaveManager 里打折，是为了让结算页显示的数字就是实际入账的
+	# 数字。倍率取"本次通关之前"的通关次数，必须在 apply_*_result 递增计数之前读。
+	var repeat_xp_mult := SaveManager.get_repeat_clear_xp_mult(level_id, is_challenge_mode) if victory else 1.0
+	var awarded_xp := int(round(float(xp) * repeat_xp_mult))
 	var result := {
 		"level_id": level_id,
 		"victory": victory,
 		"stars": stars,
 		"gold": gold + first_clear_bonus,
-		"xp": xp,
+		"xp": awarded_xp,
+		"xp_full": xp,
+		"repeat_xp_mult": repeat_xp_mult,
 		"standing_power": SaveManager.get_loadout_power(),
 		"projected_power": projected_combat_power,
 		"combat_power": SaveManager.get_combat_power_for_skill_levels(skills.owned),

@@ -24,6 +24,7 @@ var projected_power := 1
 var combat_power := 1
 var recommended_power := 1
 var battle_report: Dictionary = {}
+var repeat_xp_mult := 1.0
 var challenge_rule: Dictionary = {}
 
 func setup(main: Node, payload := {}) -> void:
@@ -35,6 +36,7 @@ func setup(main: Node, payload := {}) -> void:
 	var victory := bool(payload.get("victory", false))
 	next_level = _resolve_next_level(payload, victory)
 	result_stars = int(payload.get("stars", 0))
+	repeat_xp_mult = clampf(float(payload.get("repeat_xp_mult", 1.0)), 0.0, 1.0)
 	standing_power = int(payload.get("standing_power", SaveManager.get_loadout_power()))
 	projected_power = int(payload.get("projected_power", SaveManager.get_projected_combat_power_for_level(level_id)))
 	combat_power = int(payload.get("combat_power", projected_power))
@@ -244,6 +246,7 @@ func _populate_rewards(payload: Dictionary, victory: bool) -> void:
 	var gold := int(payload.get("gold", 0))
 	var xp := int(payload.get("xp", 0))
 	_configure_reward_layout()
+	_refresh_xp_repeat_label()
 	if is_endless_result:
 		$Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue.text = "+%s" % _format_result_number(gold)
 		$Content/RewardRow/XpCard/XpBox/XpVBox/XpValue.text = "+0"
@@ -257,6 +260,18 @@ func _populate_rewards(payload: Dictionary, victory: bool) -> void:
 		$Content/RewardRow/XpCard/XpBox/XpVBox/XpValue.text = "+0"
 		$Content/RewardRow/GoldCard.modulate = Color(1, 1, 1, 0.45)
 		$Content/RewardRow/XpCard.modulate = Color(1, 1, 1, 0.45)
+
+## design/24 收尾：重复通关经验按 economy.json.repeat_clear_xp_mult 递减。
+## 结算页显示的就是实际入账的数字，所以必须把折扣原因说清楚，否则玩家只会看到
+## 同一关第二次打经验莫名变少。百分比由数据算出，不写死。
+func _refresh_xp_repeat_label() -> void:
+	var label := get_node_or_null("Content/RewardRow/XpCard/XpBox/XpVBox/XpLabel") as Label
+	if label == null:
+		return
+	if repeat_xp_mult >= 0.999:
+		label.text = "经 验"
+	else:
+		label.text = "经 验  ×%d%%" % int(round(repeat_xp_mult * 100.0))
 
 func _configure_reward_layout() -> void:
 	var gold_card := get_node_or_null("Content/RewardRow/GoldCard") as Control

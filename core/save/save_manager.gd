@@ -22,6 +22,8 @@ var save_data := {
 	"player": {"gold": 0, "xp": 0, "star": 0},
 	"levels_progress": {},
 	"challenge_progress": {},
+	"level_clear_counts": {},
+	"challenge_clear_counts": {},
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
 	"endless_best_loops": 0,
@@ -52,6 +54,8 @@ func _default_save() -> Dictionary:
 		"player": {"gold": 0, "xp": 0, "star": 0},
 		"levels_progress": {},
 		"challenge_progress": {},
+		"level_clear_counts": {},
+		"challenge_clear_counts": {},
 		"skill_base_levels": {},
 		"sig_skill_levels": {},
 		"endless_best_loops": 0,
@@ -268,7 +272,7 @@ func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
 	if not _matches_default_schema(candidate, _default_save()):
 		_report_persistence_error("%s contains a known field with an invalid type" % label)
 		return false
-	for progress_key in ["levels_progress", "challenge_progress", "skill_base_levels", "sig_skill_levels"]:
+	for progress_key in ["levels_progress", "challenge_progress", "level_clear_counts", "challenge_clear_counts", "skill_base_levels", "sig_skill_levels"]:
 		var progress: Dictionary = candidate.get(progress_key, {})
 		for value in progress.values():
 			if not _is_finite_number(value):
@@ -452,6 +456,8 @@ func apply_level_result(result: Dictionary, persist := true) -> void:
 	player["gold"] = int(player.get("gold", 0)) + int(result.get("gold", 0))
 	player["xp"] = int(player.get("xp", 0)) + int(result.get("xp", 0))
 	player["star"] = int(player.get("star", 0)) + star_delta
+	if victory:
+		_bump_clear_count("level_clear_counts", level_id)
 	var next_level: String = str(result.get("next_level", ""))
 	if next_level == "" and victory:
 		next_level = str(DataLoader.get_row("levels", level_id).get("next_level", ""))
@@ -464,6 +470,28 @@ func apply_level_result(result: Dictionary, persist := true) -> void:
 	_refresh_level_unlocks_from_progress()
 	if persist:
 		save_game()
+
+## 重复通关经验递减（design/24 收尾）。首通 100%、二周目 50%、三周目及以后 25%，
+## 倍率表来自 data/economy.json.repeat_clear_xp_mult，代码内不写死。
+## 取的是"本次通关之前"的通关次数，所以战斗结算必须在 apply_level_result /
+## apply_challenge_result 递增计数之前调用它。
+func get_repeat_clear_xp_mult(level_id: String, challenge := false) -> float:
+	var table_var: Variant = DataLoader.get_table("economy").get("repeat_clear_xp_mult", [1.0])
+	if not (table_var is Array) or (table_var as Array).is_empty():
+		return 1.0
+	var table: Array = table_var
+	var index := clampi(get_clear_count(level_id, challenge), 0, table.size() - 1)
+	return clampf(float(table[index]), 0.0, 1.0)
+
+func get_clear_count(level_id: String, challenge := false) -> int:
+	var key := "challenge_clear_counts" if challenge else "level_clear_counts"
+	var counts: Dictionary = save_data.get(key, {})
+	return maxi(0, int(counts.get(level_id, 0)))
+
+func _bump_clear_count(key: String, level_id: String) -> void:
+	var counts: Dictionary = save_data.get(key, {})
+	counts[level_id] = maxi(0, int(counts.get(level_id, 0))) + 1
+	save_data[key] = counts
 
 func apply_challenge_result(result: Dictionary, persist := true) -> void:
 	var level_id := str(result.get("level_id", ""))
@@ -480,6 +508,8 @@ func apply_challenge_result(result: Dictionary, persist := true) -> void:
 	player["gold"] = int(player.get("gold", 0)) + int(result.get("gold", 0))
 	player["xp"] = int(player.get("xp", 0)) + int(result.get("xp", 0))
 	player["star"] = int(player.get("star", 0)) + star_delta
+	if bool(result.get("victory", stars > 0)):
+		_bump_clear_count("challenge_clear_counts", level_id)
 	save_data["challenge_progress"] = challenge_progress
 	save_data["player"] = player
 	if persist:
