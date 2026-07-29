@@ -137,11 +137,12 @@ func _refresh_start_button() -> void:
 		return
 	if _is_severely_underpowered():
 		var armed := Time.get_ticks_msec() <= _underpower_confirmation_armed_until_msec
-		label.text = "再次点击 · 确认出战" if armed else "战力严重不足 · 谨慎出战"
+		label.text = LocalizationManager.text("再次点击 · 确认出战" if armed else "战力严重不足 · 谨慎出战")
 		label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.42, 1.0))
 	else:
-		label.text = "开始挑战" if is_challenge_mode else "开始战斗"
+		label.text = LocalizationManager.text("开始挑战" if is_challenge_mode else "开始战斗")
 		label.add_theme_color_override("font_color", Color.WHITE)
+	UiKit.fit_label_text(label, UiKit.bumped_font_size(38), 22, 42.0, 10.0)
 
 func _on_start_pressed() -> void:
 	if _is_severely_underpowered():
@@ -227,9 +228,9 @@ func _refresh() -> void:
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var character_name := DataLoader.tr_key(DataLoader.get_row("characters", char_id).get("name_key", char_id))
 	var weapon_name := DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id))
-	var armor_name := _row_name("armors", armor_id) if armor_id != "" else "未装备"
-	var chip_name := _row_name("chips", chip_id) if chip_id != "" else "未装备"
-	var pet_name := _row_name("pets", pet_id) if pet_id != "" else "未携带"
+	var armor_name := _row_name("armors", armor_id) if armor_id != "" else LocalizationManager.text("未装备")
+	var chip_name := _row_name("chips", chip_id) if chip_id != "" else LocalizationManager.text("未装备")
+	var pet_name := _row_name("pets", pet_id) if pet_id != "" else LocalizationManager.text("未携带")
 	var armor_display := "%s Lv%d" % [armor_name, armor_level] if armor_id != "" else armor_name
 	var chip_display := "%s Lv%d" % [chip_name, chip_level] if chip_id != "" else chip_name
 	var pet_display := "%s Lv%d" % [pet_name, pet_level] if pet_id != "" else pet_name
@@ -263,6 +264,7 @@ func _refresh() -> void:
 	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
 	weapon_icon.modulate = Color.WHITE
 	weapon_icon.scale = Vector2.ONE
+	UiKit.apply_neon_surface(weapon_icon)
 	_refresh_character_bust(DataLoader.get_row("characters", char_id))
 	var growth_badge := %GrowthBadge as Label
 	growth_badge.text = "护甲  /  芯片  /  宠物"
@@ -345,7 +347,10 @@ func _refresh_character_bust(row: Dictionary) -> void:
 	var bust_size := Vector2(HERO_BUST_IMAGE_WIDTH, HERO_BUST_IMAGE_WIDTH * aspect)
 	bust.size = bust_size
 	bust.custom_minimum_size = bust_size
-	bust.position = Vector2((HERO_BUST_WINDOW_SIZE.x - bust_size.x) * 0.5, HERO_BUST_Y_OFFSET)
+	bust.position = Vector2(
+		(HERO_BUST_WINDOW_SIZE.x - bust_size.x) * 0.5,
+		UiKit.character_bust_y_with_headroom(texture, HERO_BUST_IMAGE_WIDTH, HERO_BUST_Y_OFFSET, 10.0)
+	)
 
 func _row_name(table: String, item_id: String) -> String:
 	if item_id == "":
@@ -475,7 +480,7 @@ func _summary_cell(label_text: String, value_text: String, accent: Color, icon_p
 	title.custom_minimum_size = Vector2(52, 0)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(title)
-	var value := UiKit.label(value_text, 21, UiKit.TEXT_MAIN, 4)
+	var value := UiKit.label(value_text, 18 if LocalizationManager.is_english() else 21, UiKit.TEXT_MAIN, 4)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.clip_text = true

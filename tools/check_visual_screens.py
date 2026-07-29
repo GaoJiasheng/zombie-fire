@@ -31,6 +31,11 @@ DEBUG_SAFE_INSETS = [44, 132, 44, 102]
 SPEED_BUTTON_SAVE_OVERRIDE = {
     "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 51)]},
 }
+CARD_OFFER_REGRESSION_SKILLS = [
+    "skill_incendiary",
+    "skill_critical",
+    "skill_slow_field",
+]
 LATE_MAP_SAVE_OVERRIDE = {
     "levels_progress": {f"level_{level_no:03d}": 1 for level_no in range(1, 89)},
     "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 90)]},
@@ -135,9 +140,31 @@ ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
     ("map", {"language": "en"}, "map_en"),
     ("map", {"language": "en", "chapter": 1}, "map_chapter_en"),
     ("loadout", {"language": "en", "level_id": "level_003"}, "loadout_en"),
+    (
+        "loadout",
+        {
+            "language": "en",
+            "level_id": "level_099",
+            "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""},
+        },
+        "loadout_severe_empty_en",
+    ),
     ("collection", {"language": "en", "mode": "characters"}, "collection_characters_en"),
     ("collection", {"language": "en", "mode": "weapons"}, "collection_weapons_en"),
+    ("collection", {"language": "en", "mode": "armors"}, "collection_armors_en"),
+    ("collection", {"language": "en", "mode": "chips"}, "collection_chips_en"),
+    ("collection", {"language": "en", "mode": "pets"}, "collection_pets_en"),
     ("collection", {"language": "en", "mode": "skills"}, "collection_skills_en"),
+    (
+        "collection",
+        {
+            "language": "en",
+            "mode": "characters",
+            "purchase_item": "blaze",
+            "save_override": {"player": {"star": 99}},
+        },
+        "collection_character_purchase_en",
+    ),
     (
         "collection",
         {
@@ -159,6 +186,46 @@ ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
         "collection_tall_en_skill_detail",
     ),
     ("settings", {"language": "en"}, "settings_en"),
+    *[
+        (
+            "battle",
+            {
+                "language": "en",
+                "level_id": "level_001",
+                "equipment": {"selected_character": character_id, "selected_weapon": weapon_id},
+                "debug_character_skill_hint": True,
+            },
+            f"battle_character_skill_hint_{character_id}_en",
+        )
+        for character_id, weapon_id in [
+            ("vanguard", "weapon_autocannon"),
+            ("blaze", "weapon_flamethrower"),
+            ("frost", "weapon_cryocannon"),
+            ("volt", "weapon_teslacoil"),
+        ]
+    ],
+    (
+        "battle",
+        {
+            "language": "en",
+            "level_id": "level_005",
+            "debug_spawn_boss": "boss_tank_titan",
+            "debug_clean_boss_stage": True,
+            "debug_boss_phase": True,
+        },
+        "battle_boss_phase_en",
+    ),
+    ("battle", {"language": "en", "level_id": "level_075", "pause": True}, "pause_en"),
+    (
+        "battle",
+        {
+            "language": "en",
+            "level_id": "level_001",
+            "card_offer": True,
+            "debug_card_offer_skills": CARD_OFFER_REGRESSION_SKILLS,
+        },
+        "card_offer_en",
+    ),
     (
         "battle",
         {"language": "en", "level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]},
@@ -166,7 +233,13 @@ ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
     ),
     (
         "battle",
-        {"language": "en", "level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]},
+        {
+            "language": "en",
+            "level_id": "level_001",
+            "card_offer": True,
+            "debug_card_offer_skills": CARD_OFFER_REGRESSION_SKILLS,
+            "viewport_size": [1080, 2340],
+        },
         "card_offer_tall_en",
     ),
     (
@@ -195,6 +268,88 @@ ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
     ),
 ]
 
+NEON_PREVIEW_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "menu",
+        {"save_override": {"cosmetics": {"selected_theme": "neon_tempest"}}},
+        "menu_neon_preview",
+    ),
+    (
+        "settings",
+        {"save_override": {"cosmetics": {"selected_theme": "neon_tempest"}}},
+        "settings_neon_preview",
+    ),
+    (
+        "collection",
+        {
+            "mode": "characters",
+            "save_override": {"cosmetics": {"selected_theme": "neon_tempest"}},
+        },
+        "collection_characters_neon_preview",
+    ),
+    *[
+        (
+            "loadout",
+            {
+                "level_id": "level_003",
+                "save_override": {"cosmetics": {"selected_theme": "neon_tempest"}},
+                "equipment": {"selected_character": character_id, "selected_weapon": weapon_id},
+            },
+            f"loadout_neon_{character_id}",
+        )
+        for character_id, weapon_id in [
+            ("vanguard", "weapon_autocannon"),
+            ("blaze", "weapon_flamethrower"),
+            ("frost", "weapon_cryocannon"),
+            ("volt", "weapon_teslacoil"),
+        ]
+    ],
+    *[
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "save_override": {"cosmetics": {"selected_theme": "neon_tempest"}},
+                "equipment": {"selected_character": character_id, "selected_weapon": weapon_id},
+                "debug_character_shooting_frame": 4,
+                "debug_character_shooting_aim": "center",
+                "debug_character_shooting_muzzle": True,
+            },
+            f"battle_neon_shooting_{character_id}_{weapon_id.removeprefix('weapon_')}",
+        )
+        for character_id in ["vanguard", "blaze", "frost", "volt"]
+        for weapon_id in [
+            "weapon_autocannon",
+            "weapon_flamethrower",
+            "weapon_cryocannon",
+            "weapon_teslacoil",
+            "weapon_toxic_launcher",
+            "weapon_railgun",
+            "weapon_shotgun",
+            "weapon_plasma_cannon",
+        ]
+    ],
+    *[
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "save_override": {"cosmetics": {"selected_theme": "neon_tempest"}},
+                "equipment": {"selected_character": character_id, "selected_weapon": weapon_id},
+                "debug_cast_active": True,
+                "warmup_frames": 3,
+            },
+            f"battle_neon_active_{character_id}",
+        )
+        for character_id, weapon_id in [
+            ("vanguard", "weapon_autocannon"),
+            ("blaze", "weapon_flamethrower"),
+            ("frost", "weapon_cryocannon"),
+            ("volt", "weapon_teslacoil"),
+        ]
+    ],
+]
+
 SCREENS: list[tuple[str, dict, str]] = (
     BASE_SCREENS[:-1]
     + [
@@ -216,7 +371,16 @@ SCREENS: list[tuple[str, dict, str]] = (
             "result_tall_challenge",
         ),
         ("battle", {"level_id": "level_075", "pause": True, "viewport_size": [1080, 2340]}, "pause_tall"),
-        ("battle", {"level_id": "level_001", "card_offer": True, "viewport_size": [1080, 2340]}, "card_offer_tall"),
+        (
+            "battle",
+            {
+                "level_id": "level_001",
+                "card_offer": True,
+                "debug_card_offer_skills": CARD_OFFER_REGRESSION_SKILLS,
+                "viewport_size": [1080, 2340],
+            },
+            "card_offer_tall",
+        ),
         (
             "battle",
             {"level_id": "level_001", "card_detail": "skill_split_shot", "viewport_size": [1080, 2340]},
@@ -546,7 +710,16 @@ def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], 
     if result.returncode == 0 and not audit_seen:
         audit_issues.append(f"{route} did not emit a runtime UI audit")
     combined_output = "\n".join(part for part in [result.stdout.strip(), result.stderr.strip()] if part)
-    return result.returncode, audit_issues, combined_output
+    effective_code = result.returncode
+    fatal_markers = (
+        "SCRIPT ERROR:",
+        "Failed to load script",
+        "Compile Error:",
+        "Parse Error:",
+    )
+    if effective_code == 0 and any(marker in combined_output for marker in fatal_markers):
+        effective_code = 3
+    return effective_code, audit_issues, combined_output
 
 
 def check_layout_contracts() -> list[str]:
@@ -622,7 +795,12 @@ def analyze(path: Path, label: str) -> list[str]:
 
 def main() -> int:
     errors: list[str] = check_layout_contracts()
-    active_screens = ENGLISH_SCREENS if "--english-only" in sys.argv[1:] else SCREENS
+    if "--english-only" in sys.argv[1:]:
+        active_screens = ENGLISH_SCREENS
+    elif "--neon-only" in sys.argv[1:]:
+        active_screens = NEON_PREVIEW_SCREENS
+    else:
+        active_screens = SCREENS
     with tempfile.TemporaryDirectory(prefix="zombie_fire_screens_") as tmp:
         tmp_dir = Path(tmp)
         for route, payload, label in active_screens:

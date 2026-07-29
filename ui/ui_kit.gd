@@ -248,8 +248,14 @@ static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 					issues.append("touch target too small: %s size=%s" % [str(root.get_path_to(button)), str(hit_rect.size)])
 				critical.append({"node": button, "rect": hit_rect})
 		if control is Label:
+			var translated_label_text := str(TranslationServer.translate((control as Label).text))
+			if _english_locale_active() and _contains_cjk_text(translated_label_text):
+				issues.append("English UI contains CJK: %s text=%s" % [str(root.get_path_to(control)), translated_label_text.replace("\n", " ")])
 			_audit_label_clip(root, control as Label, viewport_rect, issues)
 		elif control is Button:
+			var translated_button_text := str(TranslationServer.translate((control as Button).text))
+			if _english_locale_active() and _contains_cjk_text(translated_button_text):
+				issues.append("English UI contains CJK: %s text=%s" % [str(root.get_path_to(control)), translated_button_text.replace("\n", " ")])
 			_audit_button_clip(root, control as Button, viewport_rect, issues)
 	for i in range(critical.size()):
 		for j in range(i + 1, critical.size()):
@@ -357,6 +363,16 @@ static func _minimum_width_chain(control: Control) -> String:
 		current = widest
 	return " > ".join(parts)
 
+static func _contains_cjk_text(value: String) -> bool:
+	for index in range(value.length()):
+		var code := value.unicode_at(index)
+		if (code >= 0x3400 and code <= 0x9FFF) or (code >= 0xF900 and code <= 0xFAFF):
+			return true
+	return false
+
+static func _english_locale_active() -> bool:
+	return TranslationServer.get_locale().to_lower().begins_with("en")
+
 static func panel_style(_accent := CYAN, _bg := PANEL_BG, _border_width := 2, _radius := 8) -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_panel_skin.png", 36.0, 14.0, CYAN)
 
@@ -452,6 +468,45 @@ static func apply_armored_button(button: Button, primary := true, button_size :=
 	button.add_theme_color_override("font_pressed_color", GOLD if primary else CYAN)
 	button.add_theme_color_override("font_disabled_color", GREY_300)
 	button.add_theme_font_size_override("font_size", scaled_font_size(font_size))
+	fit_button_text(button, scaled_font_size(font_size), 18, 42.0)
+
+static func fit_label_text(label: Label, preferred_size: int, minimum_size := 18, horizontal_padding := 16.0, vertical_padding := 8.0) -> int:
+	if label == null:
+		return preferred_size
+	var text_value := str(TranslationServer.translate(label.text))
+	var available_width := maxf(label.size.x - horizontal_padding * 2.0, label.custom_minimum_size.x - horizontal_padding * 2.0)
+	var available_height := maxf(label.size.y - vertical_padding * 2.0, label.custom_minimum_size.y - vertical_padding * 2.0)
+	if available_width <= 1.0:
+		return preferred_size
+	var font := label.get_theme_font("font")
+	var resolved := preferred_size
+	while resolved > minimum_size:
+		var required := font.get_multiline_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, resolved)
+		if required.x <= available_width + 0.5 and (available_height <= 1.0 or required.y <= available_height + 0.5):
+			break
+		resolved -= 1
+	label.add_theme_font_size_override("font_size", resolved)
+	label.clip_text = true
+	label.set_meta("adaptive_text_fit", true)
+	label.set_meta("adaptive_text_preferred_size", preferred_size)
+	return resolved
+
+static func fit_button_text(button: Button, preferred_size: int, minimum_size := 18, horizontal_padding := 32.0) -> int:
+	if button == null:
+		return preferred_size
+	var text_value := str(TranslationServer.translate(button.text))
+	var available_width := maxf(button.size.x, button.custom_minimum_size.x) - horizontal_padding * 2.0
+	if available_width <= 1.0:
+		return preferred_size
+	var font := button.get_theme_font("font")
+	var resolved := preferred_size
+	while resolved > minimum_size and font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, resolved).x > available_width:
+		resolved -= 1
+	button.add_theme_font_size_override("font_size", resolved)
+	button.clip_text = true
+	button.set_meta("adaptive_text_fit", true)
+	button.set_meta("adaptive_text_preferred_size", preferred_size)
+	return resolved
 
 static func _native_button_size(button_size: Vector2) -> Vector2i:
 	var target_w := int(round(button_size.x))
@@ -627,6 +682,12 @@ static func character_bust_path(row: Dictionary) -> String:
 	candidates.append(base_path)
 	for path in candidates:
 		if path != "" and ResourceLoader.exists(path):
+			var character_id := str(row.get("name_key", "")).trim_prefix("char_")
+			var main_loop := Engine.get_main_loop()
+			if main_loop is SceneTree:
+				var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+				if manager != null and manager.has_method("resolve_character_portrait"):
+					return str(manager.call("resolve_character_portrait", character_id, path))
 			return path
 	return ""
 
@@ -660,8 +721,24 @@ static func add_character_bust(parent: Control, row: Dictionary, viewport_size: 
 	var bust_size := Vector2(image_width, image_width * aspect)
 	bust.size = bust_size
 	bust.custom_minimum_size = bust_size
-	bust.position = Vector2((viewport_size.x - bust_size.x) * 0.5, y_offset)
+	bust.position = Vector2(
+		(viewport_size.x - bust_size.x) * 0.5,
+		character_bust_y_with_headroom(texture, image_width, y_offset)
+	)
 	return bust
+
+static func character_bust_y_with_headroom(texture: Texture2D, image_width: float, authored_y: float, desired_headroom := 8.0) -> float:
+	if texture == null:
+		return authored_y
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return authored_y
+	var opaque_bounds := image.get_used_rect()
+	if opaque_bounds.size == Vector2i.ZERO:
+		return authored_y
+	var scale_factor := image_width / maxf(float(image.get_width()), 1.0)
+	var minimum_y := desired_headroom - float(opaque_bounds.position.y) * scale_factor
+	return maxf(authored_y, minimum_y)
 
 static func element_icon_path(element: String) -> String:
 	match str(element):
@@ -796,7 +873,19 @@ static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chi
 
 # 共享武器图标(统一外观,尺寸可变)。
 static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect:
-	return icon(str(row.get("icon", row.get("portrait", ""))), size)
+	var result := icon(str(row.get("icon", row.get("portrait", ""))), size)
+	apply_neon_surface(result)
+	return result
+
+static func apply_neon_surface(item: CanvasItem) -> void:
+	if item == null:
+		return
+	var main_loop := Engine.get_main_loop()
+	if not main_loop is SceneTree:
+		return
+	var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+	if manager != null and manager.has_method("create_neon_surface_material"):
+		item.material = manager.call("create_neon_surface_material") as Material
 
 # ---- 统一购买/确认弹框(所有商店、所有货币共用同一个模型)。----
 # opts: title, message, cost_text, cost_icon, accent, confirm_text, cancel_text,

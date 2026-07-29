@@ -2,7 +2,7 @@
 
 > 一款竖版 Roguelike 塔防/自动射击游戏。对标《向僵尸开炮》，在数值清晰度、技能可控性、关卡公平性上做改进。
 > 引擎 **Godot 4 (GDScript)**，一套代码导出 iOS / macOS，预留 Web / Windows / Android。
-> Build 38 仍是纯单机、无内购、无广告、无体力的生产提交基线；最新 TestFlight Build 40 是强制启用霓虹主题并包含完整中英文运行时的联合视觉验收包，不可直接用于 App Review。Owner 已批准后续加入永久主题和终焉军械的非消耗型 IAP；免费本体、无广告、无订阅、无体力保持不变，未来商业化唯一主方案见 `21_premium_themes_and_apocalypse_arsenal_plan.md`。
+> Build 38 仍是纯单机、无内购、无广告、无体力的生产提交基线；最新 TestFlight Build 41 是强制启用霓虹主题、四角色完整运行时动画 / 特效并包含完整中英文运行时的联合视觉验收包，不可直接用于 App Review。Owner 已批准后续加入永久主题和终焉军械的非消耗型 IAP；免费本体、无广告、无订阅、无体力保持不变，未来商业化唯一主方案见 `21_premium_themes_and_apocalypse_arsenal_plan.md`。
 
 ## v1 设计刷新重点
 

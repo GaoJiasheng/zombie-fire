@@ -158,6 +158,11 @@ custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 text = "语言：简体中文"
 
+[node name="ThemeButton" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+text = "主题预览：末日防线"
+
 [node name="AccessibilitySection" type="Label" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 text = "舒适度"

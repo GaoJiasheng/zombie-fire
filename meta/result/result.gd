@@ -218,7 +218,7 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	if character_id == "":
 		character_id = "vanguard"
 	var character: Dictionary = DataLoader.get_row("characters", character_id)
-	var portrait_path := str(character.get("portrait", character.get("icon", "")))
+	var portrait_path := UiKit.character_bust_path(character)
 	var portrait := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait as TextureRect
 	portrait.texture = load(portrait_path) if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
 	portrait.modulate = Color.WHITE if victory else Color(0.72, 0.76, 0.80, 0.82)

@@ -12,6 +12,8 @@ APPLE_ID="${APPLE_ID:-6785918342}"
 BUNDLE_ID="${BUNDLE_ID:-com.gaojiasheng.zombiefire}"
 KEYP="$HOME/.appstoreconnect/private_keys/AuthKey_$KEY.p8"
 GODOT_BIN="${GODOT_BIN:-/opt/homebrew/bin/godot}"
+TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release}"
+TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-}"
 FINAL_IPA="$PROJ/build/ios/ZombieFire.ipa"
 DESKTOP_IPA="$HOME/Desktop/ZombieFire.ipa"
 
@@ -54,6 +56,44 @@ temporary.replace(path)
 PY
 }
 
+set_ios_custom_features() {
+    local new_features=$1
+    local expected_features=$2
+    local allow_already_set=${3:-0}
+    python3 - "$new_features" "$expected_features" "$allow_already_set" "$PROJ/export_presets.cfg" <<'PY'
+from pathlib import Path
+import os
+import re
+import sys
+import tempfile
+
+new_features, expected_features, allow_already_set, raw_path = sys.argv[1:]
+path = Path(raw_path)
+text = path.read_text(encoding="utf-8")
+start = text.find("[preset.0]")
+end = text.find("[preset.0.options]", start)
+if start < 0 or end < 0:
+    raise SystemExit("could not isolate preset.0")
+section = text[start:end]
+match = re.search(r'^custom_features="([^"]*)"$', section, re.MULTILINE)
+if match is None:
+    raise SystemExit("could not read iOS custom features")
+if allow_already_set == "1" and match.group(1) == new_features:
+    raise SystemExit(0)
+if match.group(1) != expected_features:
+    raise SystemExit(
+        f"iOS custom features changed concurrently: expected {expected_features!r}, got {match.group(1)!r}"
+    )
+updated = section[:match.start(1)] + new_features + section[match.end(1):]
+mode = path.stat().st_mode
+with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as handle:
+    temporary = Path(handle.name)
+    handle.write(text[:start] + updated + text[end:])
+os.chmod(temporary, mode)
+temporary.replace(path)
+PY
+}
+
 for command in python3 xcodebuild xcrun codesign git; do
     command -v "$command" >/dev/null 2>&1 || die "missing required command: $command"
 done
@@ -68,8 +108,10 @@ EXPORT_OPTIONS="$WORK_DIR/ExportOptions.plist"
 KEEP_VERSION=0
 BUILD_STARTED=0
 VERSION_CHANGED=0
+CUSTOM_FEATURES_CHANGED=0
 CUR=""
 NEW=""
+ORIGINAL_CUSTOM_FEATURES=""
 SOURCE_COMMIT=""
 SOURCE_DIRTY=0
 DELIVERY_UUID=""
@@ -89,6 +131,14 @@ cleanup() {
         fi
         if [[ "$BUILD_STARTED" -eq 1 ]]; then
             rm -f "$FINAL_IPA"
+        fi
+    fi
+    if [[ "$CUSTOM_FEATURES_CHANGED" -eq 1 ]]; then
+        if set_ios_custom_features "$ORIGINAL_CUSTOM_FEATURES" "$TESTFLIGHT_CUSTOM_FEATURES" 1; then
+            printf '\n[release] Restored the original iOS custom features.\n' >&2
+        else
+            printf '\n[release] ERROR: could not safely restore the iOS custom features.\n' >&2
+            status=1
         fi
     fi
     rm -rf "$WORK_DIR"
@@ -138,6 +188,14 @@ if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
     log "Tracked working-tree changes detected; the release manifest will record source_dirty=true"
 fi
 
+ORIGINAL_CUSTOM_FEATURES=$(awk -F'"' '/^\[preset.0\]/{f=1} f&&/^custom_features=/{print $2;exit}' export_presets.cfg)
+[[ -n "$ORIGINAL_CUSTOM_FEATURES" ]] || die "could not read the iOS custom features"
+if [[ "$TESTFLIGHT_CUSTOM_FEATURES" != "$ORIGINAL_CUSTOM_FEATURES" ]]; then
+    set_ios_custom_features "$TESTFLIGHT_CUSTOM_FEATURES" "$ORIGINAL_CUSTOM_FEATURES"
+    CUSTOM_FEATURES_CHANGED=1
+    log "iOS custom features: $ORIGINAL_CUSTOM_FEATURES -> $TESTFLIGHT_CUSTOM_FEATURES (temporary)"
+fi
+
 log "Synchronizing release-only asset exclusions"
 python3 tools/sync_release_export_excludes.py --write
 
@@ -182,6 +240,13 @@ run_godot_logged "$WORK_DIR/pck_save_integrity.log" \
 run_godot_logged "$WORK_DIR/pck_m1_smoke.log" \
     "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
     --script "$PROJ/tools/m1_smoke_test.gd"
+if [[ -n "$TESTFLIGHT_EXPECT_FEATURE" ]]; then
+    log "Verifying exported TestFlight feature: $TESTFLIGHT_EXPECT_FEATURE"
+    ZOMBIE_FIRE_EXPECT_EXPORT_FEATURE="$TESTFLIGHT_EXPECT_FEATURE" \
+        run_godot_logged "$WORK_DIR/pck_feature_probe.log" \
+        "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
+        --script "$PROJ/tools/export_feature_probe.gd"
+fi
 
 PBX="build/ios/ZombieFire.xcodeproj/project.pbxproj"
 [[ -f "$PBX" ]] || die "Xcode project file is missing"

@@ -101,6 +101,7 @@ def sequence_frame_paths(sequence_id: str) -> list[Path]:
 
 def main() -> int:
     skills = load_json("data/skills.json")
+    characters = load_json("data/characters.json")
     weapons = load_json("data/weapons.json")
     zombies = load_json("data/zombies.json")
     bosses = load_json("data/bosses.json")
@@ -399,6 +400,7 @@ def main() -> int:
             errors.append(f"character active skill level-scaling runtime missing: {runtime_key}")
     for runtime_key in [
         "WEAPON_VISUAL_PROFILES",
+        '"weapon_autocannon": "autocannon"',
         '"weapon_railgun": "rail"',
         '"weapon_scattergun": "scatter"',
         '"weapon_plasmacannon": "plasma"',
@@ -422,9 +424,18 @@ def main() -> int:
         '"rail"',
         '"scatter"',
         '"plasma"',
+        "_uses_compact_ballistic_impact",
     ]:
         if runtime_key not in projectile:
             errors.append(f"projectile-specific visual profile missing: {runtime_key}")
+    starter_special = weapons.get("weapon_autocannon", {}).get("special", {})
+    starter_affinity = characters.get("vanguard", {}).get("bullet_affinity", {})
+    if any(float(starter_special.get(key, 0.0)) > 0.0 for key in ("split", "chain", "splash")):
+        errors.append("level-one autocannon must not start with split, chain or splash behavior")
+    if int(starter_affinity.get("pierce_bonus", 0)) != 0:
+        errors.append("level-one Vanguard physical rounds must remain single-target before growth rank II")
+    if int(starter_affinity.get("rank_pierce_bonus", 0)) != 2:
+        errors.append("Vanguard growth rank II must restore the original two-pierce endgame ceiling")
     if "if element == \"fire\" and profile == \"\":\n\t\tprofile = \"fire_round\"" not in battle:
         errors.append("ordinary fire bullets must use compact fire_round visual profile instead of the flamethrower plume")
     if "if element == \"fire\" and visual_profile == \"\":\n\t\tvisual_profile = \"fire_round\"" not in projectile:

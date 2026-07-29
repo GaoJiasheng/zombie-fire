@@ -156,6 +156,7 @@ const CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT := {
 	"char_volt/weapon_plasmacannon": Vector2(54.8, -114.0),
 }
 const WEAPON_VISUAL_PROFILES := {
+	"weapon_autocannon": "autocannon",
 	"weapon_flamethrower": "flame",
 	"weapon_railgun": "rail",
 	"weapon_scattergun": "scatter",
@@ -255,7 +256,7 @@ const DEFAULT_BOSS_HP_LEVEL_BONUS := {"start_level": 20, "multiplier": 2.0}
 const DEFAULT_BOSS_SURVIVAL_HP_RAMP := {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08}
 const WAVE_TOAST_BASE_POSITION := Vector2(290, 96)
 const WAVE_TOAST_SIZE := Vector2(500, 54)
-const WAVE_TOAST_LONG_SIZE := Vector2(520, 128)
+const WAVE_TOAST_LONG_SIZE := Vector2(600, 164)
 const WAVE_TOAST_MIN_INTERVAL := 2.50
 const ACTIVE_SKILL_DOT_COUNT := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
@@ -265,7 +266,7 @@ const FROST_GLACIER_NORMAL_SPEED := 0.40
 const FROST_GLACIER_BOSS_SPEED := 0.62
 const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
 const CARD_OFFER_PANEL_POS := Vector2(54.0, 342.0)
-const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1256.0)
+const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1280.0)
 const CARD_OFFER_CARDS_POS := Vector2(54.0, 126.0)
 const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
@@ -372,6 +373,8 @@ var character_weapon_combo_active := false
 var character_weapon_combo_muzzle := CHARACTER_WEAPON_SOCKET
 var character_weapon_combo_aim := "center"
 var character_weapon_combo_locked_aim := ""
+var character_neon_fire_tween: Tween
+var character_neon_fire_aura: AnimatedSprite2D
 var character_attack_duration := 0.30
 var pet_idle_frames: Array[Texture2D] = []
 var pet_attack_frames: Array[Texture2D] = []
@@ -581,6 +584,7 @@ func _ready() -> void:
 	add_child(turret)
 	turret.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_spawn_character()
+	_spawn_neon_tempest_base_overlay()
 	_spawn_pet()
 	InputManager.manual_aim_started.connect(_on_manual_aim_started)
 	InputManager.aim_point.connect(_on_manual_aim_point)
@@ -1100,9 +1104,9 @@ func _ensure_skill_hint_overlay() -> void:
 	overlay.z_index = 620
 	overlay.anchor_left = 0.5
 	overlay.anchor_right = 0.5
-	overlay.offset_left = -335.0
-	overlay.offset_right = 335.0
-	overlay.offset_top = 1560.0 + bottom_dock_shift
+	overlay.offset_left = -360.0
+	overlay.offset_right = 360.0
+	overlay.offset_top = 1460.0 + bottom_dock_shift
 	overlay.offset_bottom = 1730.0 + bottom_dock_shift
 	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	$Hud.add_child(overlay)
@@ -1143,7 +1147,7 @@ func _ensure_skill_hint_overlay() -> void:
 
 	var text_box := VBoxContainer.new()
 	text_box.name = "TextBox"
-	text_box.custom_minimum_size = Vector2(500, 128)
+	text_box.custom_minimum_size = Vector2(550, 228)
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	text_box.add_theme_constant_override("separation", 8)
@@ -1154,14 +1158,14 @@ func _ensure_skill_hint_overlay() -> void:
 	title.name = "Title"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	title.clip_text = true
-	title.custom_minimum_size = Vector2(500, 34)
+	title.custom_minimum_size = Vector2(550, 34)
 	text_box.add_child(title)
 
 	var body := UiKit.label("", 19, Color(0.78, 0.9, 0.94, 1.0), 2)
 	body.name = "Body"
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.clip_text = true
-	body.custom_minimum_size = Vector2(500, 86)
+	body.custom_minimum_size = Vector2(550, 176)
 	text_box.add_child(body)
 
 func _show_skill_hint_for_skill(skill_id: String) -> void:
@@ -1177,17 +1181,17 @@ func _show_skill_hint_for_skill(skill_id: String) -> void:
 	if card_offer_active:
 		lv = _skill_offer_level(skill_id)
 	var effect := SkillEffectText.format_effect(SkillEffectText.effect_for_level(row, lv))
-	var title := "%s  等级%d" % [DataLoader.tr_key(str(row.get("name_key", skill_id))), lv]
-	var body := "效果：%s\n说明：%s" % [effect, _skill_short_desc(skill_id, lv)]
+	var title := LocalizationManager.text("%s  等级%d" % [DataLoader.tr_key(str(row.get("name_key", skill_id))), lv])
+	var body := LocalizationManager.text("效果：%s\n说明：%s" % [effect, _skill_short_desc(skill_id, lv)])
 	_show_skill_hint(title, body, str(row.get("icon", "")), _skill_card_accent(skill_id, row))
 
 func _show_character_skill_hint() -> void:
 	if character_active_id == "":
 		return
 	var info: Dictionary = CharacterSkillText.signature_info(character_active_id)
-	var cooldown := "冷却 %.0f 秒" % character_active_cd_max
-	var title := "%s  主动技能" % str(info.get("name", "角色技能"))
-	var body := "%s\n%s" % [cooldown, str(info.get("desc", ""))]
+	var cooldown := LocalizationManager.text("冷却 %.0f 秒" % character_active_cd_max)
+	var title := LocalizationManager.text("%s  主动技能" % LocalizationManager.text(str(info.get("name", "角色技能"))))
+	var body := "%s\n%s" % [cooldown, LocalizationManager.text(str(info.get("desc", "")))]
 	_show_skill_hint(title, body, _character_active_icon_path(), _character_skill_accent())
 
 func _show_skill_hint(title_text: String, body_text: String, icon_path: String, accent: Color) -> void:
@@ -1483,6 +1487,7 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16)
 	_active_skill_screen_shake(5.5, 0.12)
 	var cast_origin := _weapon_fire_origin()
+	_spawn_neon_tempest_cast_signature(cast_origin, color)
 	if sfx_id.begins_with("sig_"):
 		if character_active_id != "":
 			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true)
@@ -2244,7 +2249,7 @@ func _pause_loadout_card() -> PanelContainer:
 	grid.add_child(_pause_metric("武器", "%s  等级%d" % [_display_name(DataLoader.get_row("weapons", weapon_id), weapon_id), weapon_level], UiKit.GOLD))
 	grid.add_child(_pause_metric("护甲", _display_name(armor_data, armor_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("芯片", _display_name(chip_data, chip_id), UiKit.GREEN))
-	var pet_text := _display_name(pet_data, pet_id) if pet_id != "" else "未携带"
+	var pet_text := _display_name(pet_data, pet_id) if pet_id != "" else LocalizationManager.text("未携带")
 	grid.add_child(_pause_metric("宝宝", pet_text, UiKit.element_color(str(pet_data.get("element", "physical")))))
 	var active_text := "未配置"
 	if character_active_id != "":
@@ -2340,7 +2345,13 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 0)
 	hbox.add_child(col)
-	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), 13, UiKit.TEXT_MAIN, 2)
+	# Three chips share one phone-width row. English skill names need one logical
+	# point less than CJK here (19 px effective vs 20 px) to remain complete
+	# without ellipsis; the level line keeps the same hierarchy and touch layout.
+	var name_size := 12 if LocalizationManager.is_english() else 13
+	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), name_size, UiKit.TEXT_MAIN, 2)
+	name.custom_minimum_size = Vector2(0, 24)
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name.clip_text = true
 	col.add_child(name)
 	var level := UiKit.label("Lv%d" % skills.level(skill_id), 12, UiKit.GOLD, 2)
@@ -2417,7 +2428,10 @@ func _update_boss_hp_bar() -> void:
 	var boss_count := _living_boss_count()
 	var count_suffix := "  x%d" % boss_count if boss_count > 1 else ""
 	var weakness := _element_name(str(active_boss.data.get("weakness", "physical"))) if active_boss.data is Dictionary else ""
-	boss_hp_label.text = "%s%s · 弱%s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
+	if LocalizationManager.is_english():
+		boss_hp_label.text = "%s%s · Weak: %s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
+	else:
+		boss_hp_label.text = "%s%s · 弱%s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
 
 func _living_boss_count() -> int:
 	var count := 0
@@ -2663,15 +2677,16 @@ func _layout_card_detail_overlay() -> void:
 	UiKit.apply_label(tags, 14, UiKit.TEXT_MUTED, 2)
 	var close := panel.get_node_or_null("CloseButton") as TextureButton
 	if close != null:
-		close.position = Vector2(242, 740)
-		close.size = Vector2(320, 74)
-		close.custom_minimum_size = Vector2(320, 74)
+		close.position = Vector2(242, 730)
+		close.size = Vector2(320, 80)
+		close.custom_minimum_size = Vector2(320, 80)
 		close.ignore_texture_size = true
-		UiKit.apply_armored_texture_button(close, false, Vector2(320, 74), true)
+		UiKit.apply_armored_texture_button(close, false, Vector2(320, 80), true)
+		UiKit.attach_touch_target(close, Vector2(320, 88))
 		var close_label := close.get_node_or_null("Label") as Label
 		if close_label != null:
 			close_label.position = Vector2.ZERO
-			close_label.size = Vector2(320, 74)
+			close_label.size = Vector2(320, 80)
 			close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			close_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			UiKit.apply_label(close_label, 21, UiKit.TEXT_MAIN, 3)
@@ -3004,17 +3019,19 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 	var icon := UiKit.icon(icon_path, Vector2(44, 44))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(title_text, 24, Color.WHITE, 3)
+	var title := UiKit.label(LocalizationManager.text(title_text), 24, Color.WHITE, 3)
 	title.name = "ActionTitle"
 	title.position = Vector2(120, 10)
 	title.size = Vector2(button_size.x - 218.0, 48)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiKit.fit_label_text(title, UiKit.scaled_font_size(24), 21, 4.0, 2.0)
 	button.add_child(title)
-	var sub := UiKit.label(subtitle_text, 13, Color(0.74, 0.82, 0.82, 0.94), 2)
+	var sub := UiKit.label(LocalizationManager.text(subtitle_text), 13, Color(0.74, 0.82, 0.82, 0.94), 2)
 	sub.name = "ActionSub"
 	sub.position = Vector2(120, 62)
 	sub.size = Vector2(button_size.x - 218.0, 32)
 	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiKit.fit_label_text(sub, UiKit.scaled_font_size(13), 15, 2.0, 0.0)
 	button.add_child(sub)
 	var arrow := UiKit.label(">", 34, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
 	arrow.name = "ActionArrow"
@@ -3939,7 +3956,7 @@ func _process_boss_phase_feedback(source: Node) -> void:
 		var meta_key := "boss_phase_cue_%d_announced" % index
 		if hp_ratio <= float(cue.get("threshold", 0.0)) and not source.has_meta(meta_key):
 			source.set_meta(meta_key, true)
-			_announce_boss_phase(source, str(cue.get("text", "阶段转换")), Color.from_string(str(cue.get("color", "ffb83d")), Color(1.0, 0.72, 0.24, 1.0)))
+			_announce_boss_phase(source, LocalizationManager.text(str(cue.get("text", "阶段转换"))), Color.from_string(str(cue.get("color", "ffb83d")), Color(1.0, 0.72, 0.24, 1.0)))
 			break
 
 func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
@@ -3948,7 +3965,8 @@ func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.54)
 	AudioManager.play_sfx("threat_warning", -3.0, 0.02)
-	_show_wave_toast("首领%s" % text, color)
+	var phase_label := "Boss · %s" % text if LocalizationManager.is_english() else "首领 · %s" % text
+	_show_wave_toast(phase_label, color)
 	_spawn_float_text(source.global_position + Vector2(0, -180), text, color)
 	var phase_sequence := "vfx_enemy_skill_%s" % str(source.mechanic)
 	_spawn_vfx_sequence(
@@ -4005,6 +4023,8 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if weapon_level >= 15 and randf() < 0.08:
 		_spawn_weapon_power_ring(origin, element)
 	_spawn_muzzle_flash(origin, direction, element, visual_profile)
+	_pulse_neon_tempest_character()
+	_spawn_neon_tempest_fire_signature(origin, direction, element)
 	var base_damage: float = 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
 	var pierce: int = int(mods.get("pierce", 0)) + pierce_bonus + int(special.get("pierce", 0)) + _character_pierce_bonus(element)
 	if sig_vanguard_barrage_timer > 0.0:
@@ -4285,6 +4305,89 @@ func _spawn_character() -> void:
 	_attach_growth_badge(character_sprite, character_level, Vector2(-98, -190))
 	_spawn_character_weapon_visual()
 	_spawn_character_aura()
+	_spawn_neon_tempest_character_fire_aura()
+
+func _spawn_neon_tempest_base_overlay() -> void:
+	if not ThemeManager.is_active("neon_tempest"):
+		return
+	var root := Node2D.new()
+	root.name = "NeonTempestBaseOverlay"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.z_index = DEFENSE_ACTOR_Z - 1
+	add_child(root)
+	var base_y := 1532.0 + bottom_dock_shift
+	for index in range(2):
+		var rail := Line2D.new()
+		rail.name = "BaseEnergyRail%d" % (index + 1)
+		rail.width = 8.0 if index == 0 else 3.2
+		rail.default_color = Color(0.10, 0.92, 1.0, 0.40) if index == 0 else Color(0.96, 0.18, 1.0, 0.62)
+		rail.joint_mode = Line2D.LINE_JOINT_ROUND
+		rail.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.end_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.texture = VfxLib.STREAK_TEXTURE
+		rail.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		rail.material = _new_muzzle_additive_material()
+		var offset_y := 0.0 if index == 0 else 12.0
+		rail.points = PackedVector2Array([
+			Vector2(122, base_y + 18.0 + offset_y),
+			Vector2(286, base_y - 5.0 + offset_y),
+			Vector2(540, base_y - 14.0 + offset_y),
+			Vector2(794, base_y - 5.0 + offset_y),
+			Vector2(958, base_y + 18.0 + offset_y),
+		])
+		root.add_child(rail)
+		if not SettingsManager.reduced_effects_enabled():
+			var tween := rail.create_tween().set_loops()
+			tween.tween_property(rail, "modulate:a", 0.56, 0.72 + float(index) * 0.12)
+			tween.tween_property(rail, "modulate:a", 1.0, 0.72 + float(index) * 0.12)
+	for side_x in [132.0, 948.0]:
+		var glow := VfxLib.spawn_glow(root, Vector2(side_x, base_y + 8.0), Color(0.34, 0.9, 1.0, 0.36), 82.0, 0.72)
+		if glow != null:
+			glow.set_meta("persistent_theme_fx", true)
+
+
+func _spawn_neon_tempest_character_fire_aura() -> void:
+	if character_rig == null or not ThemeManager.is_active("neon_tempest"):
+		return
+	var textures := ThemeManager.resolve_effect_sequence("character_fire_aura")
+	if textures.is_empty():
+		return
+	var frames := SpriteFrames.new()
+	frames.add_animation("fire")
+	frames.set_animation_loop("fire", false)
+	frames.set_animation_speed("fire", 19.0)
+	for texture in textures:
+		frames.add_frame("fire", texture)
+	character_neon_fire_aura = AnimatedSprite2D.new()
+	character_neon_fire_aura.name = "NeonFireAura"
+	character_neon_fire_aura.sprite_frames = frames
+	character_neon_fire_aura.animation = "fire"
+	character_neon_fire_aura.position = Vector2(0, -82)
+	character_neon_fire_aura.scale = Vector2.ONE * (0.54 if SettingsManager.reduced_effects_enabled() else 0.66)
+	character_neon_fire_aura.modulate = Color(1.0, 1.0, 1.0, 0.48 if SettingsManager.reduced_effects_enabled() else 0.90)
+	character_neon_fire_aura.material = _new_muzzle_additive_material()
+	character_neon_fire_aura.z_index = 0
+	character_neon_fire_aura.visible = false
+	character_neon_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
+	character_neon_fire_aura.animation_finished.connect(
+		func() -> void:
+			if is_instance_valid(character_neon_fire_aura):
+				character_neon_fire_aura.visible = false
+	)
+	character_rig.add_child(character_neon_fire_aura)
+
+
+func _play_neon_tempest_character_fire_aura(direction: Vector2) -> void:
+	if character_neon_fire_aura == null or not is_instance_valid(character_neon_fire_aura):
+		return
+	var dir := _safe_vfx_direction(direction)
+	character_neon_fire_aura.rotation = dir.angle() + PI * 0.5
+	character_neon_fire_aura.flip_h = dir.x < 0.0
+	character_neon_fire_aura.visible = true
+	character_neon_fire_aura.stop()
+	character_neon_fire_aura.frame = 0
+	character_neon_fire_aura.play("fire")
+
 
 func _spawn_character_weapon_visual() -> void:
 	if character_rig == null:
@@ -4313,7 +4416,68 @@ func _spawn_character_weapon_visual() -> void:
 		else:
 			character_weapon_sprite.texture = load(weapon.get("turret", weapon.get("icon", "")))
 	character_weapon_sprite.modulate = Color.WHITE
+	character_weapon_sprite.material = ThemeManager.create_neon_surface_material()
 	_attach_growth_badge(character_weapon_sprite, weapon_level, Vector2(-82, -126))
+
+func _pulse_neon_tempest_character() -> void:
+	if character_sprite == null or not ThemeManager.is_active("neon_tempest"):
+		return
+	var material := character_sprite.material as ShaderMaterial
+	if material == null:
+		return
+	material.set_shader_parameter("fire_pulse", 1.0)
+	if character_neon_fire_tween != null and character_neon_fire_tween.is_valid():
+		character_neon_fire_tween.kill()
+	character_neon_fire_tween = create_tween()
+	character_neon_fire_tween.set_trans(Tween.TRANS_QUINT)
+	character_neon_fire_tween.set_ease(Tween.EASE_OUT)
+	character_neon_fire_tween.tween_method(
+		func(value: float) -> void:
+			if is_instance_valid(character_sprite) and character_sprite.material == material:
+				material.set_shader_parameter("fire_pulse", value),
+		1.0,
+		0.0,
+		0.22
+	)
+
+func _spawn_neon_tempest_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
+	if not ThemeManager.is_active("neon_tempest") or not _can_spawn_projectile_fx(true):
+		return
+	var dir := _safe_vfx_direction(direction)
+	var cyan := Color(0.18, 0.96, 1.0, 0.82)
+	var magenta := Color(0.96, 0.18, 1.0, 0.66)
+	var element_color := _element_color(element)
+	element_color.a = 0.72
+	_play_neon_tempest_character_fire_aura(dir)
+	var shoulder := character_rig.global_position + Vector2(-dir.x * 34.0, -92.0)
+	var weapon_bus := origin - dir * 44.0
+	var shoulder_glow := VfxLib.spawn_glow($ProjectileLayer, shoulder, magenta, 86.0, 0.16)
+	if shoulder_glow != null:
+		_track_transient_fx(shoulder_glow, "projectile")
+	_spawn_muzzle_light_cone(origin, dir, cyan, 148.0, 18.0, 0.11, 4.4)
+	_spawn_muzzle_light_cone(origin + dir * 4.0, dir, magenta, 112.0, 34.0, 0.13, 3.3)
+	_spawn_muzzle_fork_lines(origin + dir * 12.0, dir, Color(cyan.r, cyan.g, cyan.b, 0.72), 3, 92.0, 20.0, 0.13, 2.6)
+	if not SettingsManager.reduced_effects_enabled():
+		var motes := VfxLib.spawn_particles($ProjectileLayer, weapon_bus, element_color.lerp(magenta, 0.42), 9, 240.0, 54.0, 0.2)
+		if motes != null:
+			_track_transient_fx(motes, "projectile")
+			if motes is Node2D:
+				(motes as Node2D).rotation = dir.angle()
+
+
+func _spawn_neon_tempest_cast_signature(origin: Vector2, base_color: Color) -> void:
+	if not ThemeManager.is_active("neon_tempest") or not _can_spawn_projectile_fx(true):
+		return
+	_play_neon_tempest_character_fire_aura(Vector2.UP)
+	var cyan := Color(0.20, 0.98, 1.0, 0.76)
+	var magenta := Color(0.98, 0.20, 1.0, 0.62)
+	var mixed := base_color.lerp(cyan, 0.34)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -42), mixed, 238.0, 0.36)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_attack_ring(origin + Vector2(0, -18), 126.0, cyan, 0.28)
+	_spawn_attack_ring(origin + Vector2(0, -18), 178.0, magenta, 0.34)
+	_spawn_muzzle_fork_lines(origin + Vector2(0, -72), Vector2.UP, cyan, 5, 138.0, 58.0, 0.24, 3.2)
 
 func _load_character_animation_frames() -> void:
 	var asset_id := _character_asset_id()
@@ -4323,6 +4487,16 @@ func _load_character_animation_frames() -> void:
 	character_weapon_combo_locked_aim = ""
 	character_attack_left_frames = []
 	character_attack_right_frames = []
+	var themed_base := ThemeManager.resolve_character_animation_base(asset_id)
+	if themed_base != "":
+		character_idle_frames = _load_frame_set(themed_base, "idle", 4)
+		character_attack_frames = _load_frame_set(themed_base, "attack", 4)
+		character_hurt_frames = _load_frame_set(themed_base, "hurt", 3)
+		if character_attack_frames.is_empty():
+			character_attack_frames = character_idle_frames.duplicate()
+		if character_hurt_frames.is_empty():
+			character_hurt_frames = character_idle_frames.duplicate()
+		return
 	var combo_base := _character_weapon_combo_base(asset_id)
 	if _image_resource_exists("%s_idle_01.png" % combo_base):
 		character_idle_frames = _load_frame_set(combo_base, "idle", 4)
@@ -6658,6 +6832,11 @@ func _spawn_element_impact_vfx(primary: Node, origin: Vector2, element: String, 
 		primary.set_meta("_recent_impact_vfx_ms", Time.get_ticks_msec())
 	var target_position := _impact_anchor(primary, origin)
 	match visual_profile:
+		"autocannon":
+			# The projectile owns the compact directional contact spark. Do not
+			# stack the generic radial impact here: an expanding ring makes the
+			# level-one ballistic round read as splash damage.
+			return
 		"rail":
 			_spawn_rail_impact_vfx(target_position, origin)
 			return
@@ -8895,7 +9074,10 @@ func _skill_offer_level(skill_id: String) -> int:
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
 	var stats_extra_h := minf(28.0, 18.0 * float(stats_text.count("\n")))
-	var locale_extra_h := 18.0 if LocalizationManager.is_english() else 0.0
+	# Both locales need a stable two-line description lane plus the real ~50 px
+	# minimum height of the textured tag chips. The 1280 px modal fits three
+	# Chinese 308 px cards, two 22 px gaps, and keeps 28 px inside the frame.
+	var locale_extra_h := 28.0 if LocalizationManager.is_english() else 38.0
 	var card_h := CARD_OFFER_CARD_BASE_HEIGHT + stats_extra_h + locale_extra_h
 	var card := Panel.new()
 	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, card_h)
@@ -8961,8 +9143,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	if reason != "":
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
-		badge.position = Vector2(676, 36)
-		badge.size = Vector2(136, 34)
+		badge.position = Vector2(660, 36)
+		badge.size = Vector2(152, 34)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
@@ -8988,7 +9170,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
 	desc.position = Vector2(176, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
-	desc.size = Vector2(622, 76 if LocalizationManager.is_english() else 46)
+	# The longest Chinese ammo-module descriptions wrap to two mobile-readable
+	# lines at this width. Reserve the real two-line height instead of clipping
+	# the second line behind the tag row.
+	desc.size = Vector2(622, 76 if LocalizationManager.is_english() else 78)
 	UiKit.apply_label(desc, 16 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
 	desc.add_theme_constant_override("line_spacing", 5)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -8998,7 +9183,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(176, card_h - (60.0 if LocalizationManager.is_english() else 78.0))
+	tags.position = Vector2(176, card_h - 78.0)
 	tags.size = Vector2(622, 30)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE

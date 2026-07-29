@@ -24,6 +24,7 @@ func _ready() -> void:
 	_slider("UiRow/Slider").drag_ended.connect(_preview_ui_volume)
 	_button("QualityButton").pressed.connect(_on_quality)
 	_button("LanguageButton").pressed.connect(_on_language)
+	_button("ThemeButton").pressed.connect(_on_theme)
 	_button("AccessibilityRow/ReduceEffectsButton").pressed.connect(_on_reduce_effects)
 	_button("AccessibilityRow/HapticsButton").pressed.connect(_on_haptics)
 	_button("DataRow/BackupButton").pressed.connect(_on_backup)
@@ -36,6 +37,7 @@ func _ready() -> void:
 	_refresh_audio_controls()
 	_refresh_quality()
 	_refresh_language()
+	_refresh_theme()
 	_refresh_accessibility()
 	_refresh_backup()
 	_show_info("help")
@@ -50,13 +52,17 @@ func _apply_layout() -> void:
 	# inside the safe rect without shrinking type or touch targets.
 	_vbox.add_theme_constant_override("separation", 8 if compact_safe_layout else 14)
 	var margin := $Center/Panel/Margin as MarginContainer
-	margin.add_theme_constant_override("margin_top", 36 if compact_safe_layout else 44)
-	margin.add_theme_constant_override("margin_bottom", 36 if compact_safe_layout else 44)
-	for path in ["SoundButton", "QualityButton", "LanguageButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
+	margin.add_theme_constant_override("margin_top", 16 if compact_safe_layout else 44)
+	margin.add_theme_constant_override("margin_bottom", 16 if compact_safe_layout else 44)
+	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 88)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 80)
-	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(0, 190 if LocalizationManager.is_english() else 170)
+	var info_height := 132
+	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(
+		0,
+		info_height if compact_safe_layout else (180 if LocalizationManager.is_english() else 136)
+	)
 	_button("BackButton").custom_minimum_size = Vector2(0, 96)
 
 func _button(path: String) -> Button:
@@ -76,7 +82,7 @@ func _apply_style() -> void:
 		UiKit.apply_label(row.get_node("Value") as Label, 19, UiKit.CYAN, 2)
 		_style_slider(row.get_node("Slider") as HSlider)
 	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 18 if LocalizationManager.is_english() else 20, UiKit.GREY_300, 2)
-	for path in ["SoundButton", "QualityButton", "LanguageButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 24)
 	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
@@ -168,6 +174,32 @@ func _on_language() -> void:
 
 func _refresh_language() -> void:
 	_button("LanguageButton").text = "语言：%s" % LocalizationManager.language_label()
+
+func _on_theme() -> void:
+	var themes := ThemeManager.available_themes()
+	if themes.size() <= 1:
+		return
+	var active_id := ThemeManager.active_theme_id()
+	var current_index := 0
+	for index in range(themes.size()):
+		if str(themes[index].get("id", "")) == active_id:
+			current_index = index
+			break
+	var next_id := str(themes[(current_index + 1) % themes.size()].get("id", "default"))
+	if not ThemeManager.select_theme(next_id):
+		return
+	AudioManager.play_sfx("ui_confirm")
+	# Theme assets and native-size buttons are resolved while constructing each
+	# page. Recreate Settings so every visible control updates atomically.
+	router.change_scene("settings")
+
+func _refresh_theme() -> void:
+	var button := _button("ThemeButton")
+	var themes := ThemeManager.available_themes()
+	button.visible = themes.size() > 1
+	button.disabled = themes.size() <= 1
+	button.text = "主题预览：%s" % ThemeManager.theme_display_name(ThemeManager.active_theme_id())
+	button.tooltip_text = "仅供验收，不会授予购买权益"
 
 func _on_reduce_effects() -> void:
 	SettingsManager.toggle_reduced_effects()

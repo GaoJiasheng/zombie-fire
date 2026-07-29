@@ -23,7 +23,7 @@ The current design is not a generic zombie shooter. It is a vertical 1080x1920 G
 
 ### Owner-approved premium direction (2026-07-27)
 
-- Build 38 remains the current no-IAP production release baseline. Build 40 is the latest valid TestFlight-only Neon Tempest + bilingual visual acceptance build with a forced preview feature and must not be selected for App Review. Do not report StoreKit, player-facing theme selection, or premium purchase content as implemented.
+- Build 38 remains the current no-IAP production release baseline. Build 41 is the latest valid TestFlight-only Neon Tempest full-runtime + bilingual visual acceptance build with a forced preview feature and must not be selected for App Review. Do not report StoreKit, player-facing theme selection, or premium purchase content as implemented.
 - The owner explicitly approved a future free-app model with four permanent US$1.99 visual themes and four permanent US$6.99 strong-equipment sets.
 - Each complete arsenal includes its matching theme. Theme owners must see a separate approximately US$4.99 arsenal-upgrade SKU instead of paying for the theme twice.
 - Premium gear begins at level 1, upgrades with normal gold, and the complete maximum-level build targets 1.52x–1.58x the real total output of the corresponding strongest free maximum-level build.

@@ -35,6 +35,19 @@
   },
   "owner_directed_generated_overrides": [
     {
+      "path": "sprites/themes/neon_tempest/characters + sprites/themes/neon_tempest/vfx",
+      "source": "source_refs/generated/premium_neon_tempest_runtime_2026_07_28/neon_tempest_runtime_prompt_log.md",
+      "derived": [
+        "sprites/themes/neon_tempest/characters",
+        "sprites/themes/neon_tempest/characters/animations",
+        "sprites/themes/neon_tempest/vfx"
+      ],
+      "reason": "Owner rejected a shader-only Neon Tempest preview and the earlier procedural net-like firing treatment. Added four selectable meta portraits, 44 modular weaponless battle frames covering idle/fire-recoil/hurt for all locked heroes, and a four-frame rendered plasma-wing firing aura. Battle keeps weapons on the independent runtime layer, removes the net-like suit-discharge lines, and preserves the package-size guard against duplicating 992 fused hero/weapon frames.",
+      "count": 52,
+      "task": "Neon Tempest complete hero model, animation, and firing-VFX runtime pass",
+      "created_at": "2026-07-28T17:10:00+08:00"
+    },
+    {
       "path": "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27",
       "source": "source_refs/generated/premium_neon_tempest_phase1a_2026_07_27/neon_tempest_phase1a_prompt_log.md",
       "derived": [

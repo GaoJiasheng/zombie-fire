@@ -48,6 +48,7 @@ var hit_target_ids := {}
 var _flight_trail: Node
 var _projectile_vfx_ready := false
 var _preferred_target_ref: WeakRef
+var _neon_tempest_theme := false
 
 func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null) -> void:
 	global_position = origin
@@ -67,6 +68,7 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	status_strength = status_effect_strength
 	_preferred_target_ref = weakref(preferred_target) if preferred_target != null else null
 	visual_scale = clampf(scale_mult, 0.72, 1.75)
+	_neon_tempest_theme = ThemeManager.is_active("neon_tempest")
 	texture_override_path = texture_override
 	visual_profile = _resolved_visual_profile(profile, texture_override_path)
 	if element == "fire" and visual_profile == "":
@@ -77,7 +79,10 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	var texture_path := texture_override_path if texture_override_path != "" else _projectile_texture_path(element, visual_profile)
 	$Sprite.texture = load(texture_path)
 	$Sprite.scale = _projectile_sprite_scale(visual_profile) * visual_scale
-	$Sprite.modulate = _projectile_sprite_color(element, visual_profile)
+	var sprite_color := _projectile_sprite_color(element, visual_profile)
+	if _neon_tempest_theme:
+		sprite_color = _neon_primary_color(sprite_color)
+	$Sprite.modulate = sprite_color
 	$CollisionShape2D.shape = CircleShape2D.new()
 	$CollisionShape2D.shape.radius = 18.0 * maxf(visual_scale, 0.85) * _collision_radius_mult(visual_profile)
 	trail_interval = _trail_interval_for(visual_profile)
@@ -219,6 +224,7 @@ func _configure_projectile_vfx() -> void:
 	_build_energy_halo()
 	_build_energy_core()
 	_spawn_vfxlib_trail()
+	_spawn_neon_tempest_companion_trail()
 	_spawn_trail_particle_pulse(0.72)
 
 func _build_energy_halo() -> void:
@@ -277,6 +283,22 @@ func _spawn_vfxlib_trail() -> void:
 	_flight_trail.set("max_points", _trail_point_count_for(visual_profile))
 	_flight_trail.set("min_point_distance", _trail_point_distance_for(visual_profile))
 
+func _spawn_neon_tempest_companion_trail() -> void:
+	if not _neon_tempest_theme or get_parent() == null or not _can_spawn_projectile_fx():
+		return
+	var accent := _neon_accent_color()
+	accent.a = 0.62
+	var trail := VfxLib.spawn_trail(
+		self,
+		accent,
+		maxf(1.8, _trail_width_for(visual_profile) * maxf(visual_scale, 0.85) * 0.46)
+	)
+	if trail == null:
+		return
+	_track_transient_fx(trail)
+	trail.set("max_points", maxi(5, _trail_point_count_for(visual_profile) - 3))
+	trail.set("min_point_distance", _trail_point_distance_for(visual_profile) * 1.18)
+
 func _spawn_trail_particle_pulse(alpha: float) -> void:
 	var parent := get_parent()
 	if parent == null or velocity.length_squared() <= 1.0:
@@ -326,6 +348,26 @@ func _element_color(elem: String) -> Color:
 			return Color(0.44, 1.0, 0.24, 1.0)
 		_:
 			return Color(1.0, 0.86, 0.34, 1.0)
+
+func _neon_primary_color(base: Color) -> Color:
+	var cyan := Color(0.18, 0.96, 1.0, base.a)
+	var magenta := Color(0.96, 0.20, 1.0, base.a)
+	match element:
+		"fire", "poison":
+			return base.lerp(magenta, 0.22)
+		"ice", "lightning":
+			return base.lerp(cyan, 0.32)
+		_:
+			return base.lerp(cyan, 0.38)
+
+func _neon_accent_color() -> Color:
+	match element:
+		"ice", "lightning":
+			return Color(0.98, 0.20, 1.0, 1.0)
+		"fire", "poison":
+			return Color(0.18, 0.96, 1.0, 1.0)
+		_:
+			return Color(0.92, 0.24, 1.0, 1.0)
 
 func _projectile_color(elem: String, profile := "") -> Color:
 	match profile:
@@ -977,6 +1019,28 @@ func _spawn_impact_flash_at(at_position: Vector2) -> void:
 	var hot := color.lightened(0.34)
 	hot.a = 0.92
 	var life := _impact_lifetime_for(visual_profile)
+	if _uses_compact_ballistic_impact():
+		var direction := velocity.normalized()
+		if direction.length_squared() <= 0.01:
+			direction = Vector2.UP
+		var contact_glow := VfxLib.spawn_glow(parent, at_position, hot, 42.0 * maxf(visual_scale, 0.82), 0.1)
+		if contact_glow != null:
+			_track_transient_fx(contact_glow)
+		if _can_spawn_projectile_fx():
+			var contact_sparks := VfxLib.spawn_burst(
+				parent,
+				at_position,
+				color,
+				5,
+				360.0 * maxf(visual_scale, 0.82),
+				30.0,
+				0.12
+			)
+			if contact_sparks != null:
+				_track_transient_fx(contact_sparks)
+				if contact_sparks is Node2D:
+					(contact_sparks as Node2D).rotation = direction.angle() + PI
+		return
 	var glow := VfxLib.spawn_glow(parent, at_position, hot, _impact_glow_size_for(visual_profile) * visual_scale, life)
 	if glow != null:
 		_track_transient_fx(glow)
@@ -1002,6 +1066,9 @@ func _spawn_impact_flash_at(at_position: Vector2) -> void:
 		if sparks is Node2D:
 			(sparks as Node2D).rotation = direction.angle() + PI
 	_spawn_impact_ring_at(parent, at_position, color, _impact_ring_radius_for(visual_profile) * visual_scale, life)
+
+func _uses_compact_ballistic_impact() -> bool:
+	return visual_profile == "autocannon" and element == "physical"
 
 func _spawn_pierce_flash() -> void:
 	var parent := get_parent()

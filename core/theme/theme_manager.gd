@@ -13,12 +13,12 @@ const CHARACTER_IRIDESCENCE_SHADER := preload(
 
 var _themes: Dictionary = {}
 var _active_theme_id := DEFAULT_THEME_ID
-var _preview_theme_id := ""
+var _forced_preview_theme_id := ""
 
 
 func _ready() -> void:
 	_load_catalog()
-	_preview_theme_id = _validated_preview_theme()
+	_forced_preview_theme_id = _validated_forced_preview_theme()
 
 
 func _load_catalog() -> void:
@@ -42,11 +42,11 @@ func _load_catalog() -> void:
 
 
 func refresh_from_save() -> String:
-	_preview_theme_id = _validated_preview_theme()
+	_forced_preview_theme_id = _validated_forced_preview_theme()
 	var requested := SaveManager.get_selected_theme()
 	var resolved := _resolve_allowed_theme(requested)
-	if _preview_theme_id != "":
-		resolved = _preview_theme_id
+	if _forced_preview_theme_id != "":
+		resolved = _forced_preview_theme_id
 	_set_active_without_persist(resolved)
 	return _active_theme_id
 
@@ -68,7 +68,7 @@ func can_select(theme_id: String) -> bool:
 		return true
 	if not _themes.has(theme_id):
 		return false
-	if _preview_theme_id == theme_id:
+	if preview_access_enabled():
 		return true
 	var entitlement_id := str((_themes[theme_id] as Dictionary).get("entitlement", ""))
 	return entitlement_id != "" and SaveManager.has_verified_entitlement(entitlement_id)
@@ -77,10 +77,40 @@ func can_select(theme_id: String) -> bool:
 func select_theme(theme_id: String) -> bool:
 	if not can_select(theme_id):
 		return false
-	_preview_theme_id = ""
+	_forced_preview_theme_id = ""
 	_set_active_without_persist(theme_id)
 	SaveManager.select_theme(theme_id)
 	return true
+
+
+func preview_access_enabled() -> bool:
+	# TestFlight/dev preview access deliberately grants selection only. It never
+	# writes a commerce entitlement and it no longer forces Neon Tempest on every
+	# launch, so reviewers/testers can compare the default and premium treatments.
+	return OS.has_feature(TESTFLIGHT_PREVIEW_FEATURE) or OS.is_debug_build()
+
+
+func available_themes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for theme_id_var in _themes.keys():
+		var theme_id := str(theme_id_var)
+		if can_select(theme_id):
+			result.append((_themes[theme_id] as Dictionary).duplicate(true))
+	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if str(a.get("id", "")) == DEFAULT_THEME_ID:
+			return true
+		if str(b.get("id", "")) == DEFAULT_THEME_ID:
+			return false
+		return str(a.get("id", "")) < str(b.get("id", ""))
+	)
+	return result
+
+
+func theme_display_name(theme_id: String) -> String:
+	var theme: Dictionary = _themes.get(theme_id, {})
+	if theme.is_empty():
+		return theme_id
+	return str(theme.get("name_en" if LocalizationManager.is_english() else "name_zh", theme_id))
 
 
 func resolve_button_path(kind: String, native_size: Vector2i, disabled := false) -> String:
@@ -101,6 +131,32 @@ func resolve_button_path(kind: String, native_size: Vector2i, disabled := false)
 	return candidate if _resource_or_file_exists(candidate) else ""
 
 
+func resolve_character_portrait(character_id: String, fallback_path: String) -> String:
+	if _active_theme_id == DEFAULT_THEME_ID:
+		return fallback_path
+	var theme: Dictionary = _themes.get(_active_theme_id, {})
+	var characters: Dictionary = theme.get("characters", {})
+	var portrait_root := str(characters.get("portrait_root", "")).trim_suffix("/")
+	if portrait_root == "":
+		return fallback_path
+	var asset_id := character_id if character_id.begins_with("char_") else "char_%s" % character_id
+	var candidate := "%s/%s_portrait_frameless.png" % [portrait_root, asset_id]
+	return candidate if _resource_or_file_exists(candidate) else fallback_path
+
+
+func resolve_character_animation_base(character_id: String) -> String:
+	if _active_theme_id == DEFAULT_THEME_ID:
+		return ""
+	var theme: Dictionary = _themes.get(_active_theme_id, {})
+	var characters: Dictionary = theme.get("characters", {})
+	var animation_root := str(characters.get("battle_animation_root", "")).trim_suffix("/")
+	if animation_root == "":
+		return ""
+	var asset_id := character_id if character_id.begins_with("char_") else "char_%s" % character_id
+	var candidate := "%s/%s/%s" % [animation_root, asset_id, asset_id]
+	return candidate if _resource_or_file_exists("%s_idle_01.png" % candidate) else ""
+
+
 func character_iridescence_enabled() -> bool:
 	if _active_theme_id == DEFAULT_THEME_ID:
 		return false
@@ -115,12 +171,46 @@ func create_character_iridescence_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = CHARACTER_IRIDESCENCE_SHADER
 	if SettingsManager.reduced_effects_enabled():
-		material.set_shader_parameter("effect_intensity", 0.16)
+		material.set_shader_parameter("effect_intensity", 0.24)
 		material.set_shader_parameter("flow_speed", 0.0)
 	else:
-		material.set_shader_parameter("effect_intensity", 0.44)
-		material.set_shader_parameter("flow_speed", 0.72)
+		material.set_shader_parameter("effect_intensity", 0.58)
+		material.set_shader_parameter("flow_speed", 0.46)
+	material.set_shader_parameter("fire_pulse", 0.0)
 	return material
+
+
+func create_neon_surface_material() -> ShaderMaterial:
+	if not character_iridescence_enabled():
+		return null
+	var material := create_character_iridescence_material()
+	if material == null:
+		return null
+	material.set_shader_parameter("head_protection", 0.0)
+	material.set_shader_parameter("effect_intensity", 0.42 if SettingsManager.reduced_effects_enabled() else 0.64)
+	return material
+
+
+func resolve_effect_sequence(effect_id: String) -> Array[Texture2D]:
+	var result: Array[Texture2D] = []
+	if _active_theme_id == DEFAULT_THEME_ID:
+		return result
+	var theme: Dictionary = _themes.get(_active_theme_id, {})
+	var effects: Dictionary = theme.get("effects", {})
+	var spec: Dictionary = effects.get(effect_id, {})
+	var base := str(spec.get("base", "")).trim_suffix("_")
+	var frame_count := int(spec.get("frames", 0))
+	if base == "" or frame_count <= 0:
+		return result
+	for index in range(1, frame_count + 1):
+		var candidate := "%s_%02d.png" % [base, index]
+		if not _resource_or_file_exists(candidate):
+			return []
+		var texture := load(candidate) as Texture2D
+		if texture == null:
+			return []
+		result.append(texture)
+	return result
 
 
 func _resolve_allowed_theme(requested: String) -> String:
@@ -139,9 +229,9 @@ func _set_active_without_persist(theme_id: String) -> void:
 	theme_changed.emit(_active_theme_id)
 
 
-func _validated_preview_theme() -> String:
-	if OS.has_feature(TESTFLIGHT_PREVIEW_FEATURE) and _themes.has(TESTFLIGHT_PREVIEW_THEME_ID):
-		return TESTFLIGHT_PREVIEW_THEME_ID
+func _validated_forced_preview_theme() -> String:
+	# The environment route remains deterministic for screenshot fixtures. The
+	# TestFlight feature itself only unlocks the selector (see preview_access_enabled).
 	if not OS.is_debug_build():
 		return ""
 	var requested := OS.get_environment(PREVIEW_ENV).strip_edges()

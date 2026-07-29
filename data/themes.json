@@ -23,8 +23,16 @@
       "ui": {
         "button_root": "res://assets/production/sprites/themes/neon_tempest/ui"
       },
+      "characters": {
+        "portrait_root": "res://assets/production/sprites/themes/neon_tempest/characters",
+        "battle_animation_root": "res://assets/production/sprites/themes/neon_tempest/characters/animations"
+      },
       "effects": {
-        "character_iridescence": true
+        "character_iridescence": true,
+        "character_fire_aura": {
+          "base": "res://assets/production/sprites/themes/neon_tempest/vfx/vfx_neon_tempest_fire_aura",
+          "frames": 4
+        }
       }
     }
   ]

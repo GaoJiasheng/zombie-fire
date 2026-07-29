@@ -249,6 +249,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	else:
 		icon.texture = load(row.get("icon", row.get("portrait", "")))
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		if mode == "weapons":
+			UiKit.apply_neon_surface(icon)
 	button.add_child(icon)
 	icon.z_index = 2
 	icon.set_deferred("position", icon.position)
@@ -975,9 +977,12 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 150.0, 0.30)
-	panel.offset_left = 72.0 + safe.x
+	# The three-action row has a fixed 934 px native minimum. Keep the modal
+	# gutters inside the real safe width instead of letting Container minimums
+	# push the right edge under a tall-phone sensor inset.
+	panel.offset_left = 28.0 + safe.x
 	panel.offset_top = 150.0 + safe.y + modal_shift
-	panel.offset_right = -72.0 - safe.z
+	panel.offset_right = -28.0 - safe.z
 	panel.offset_bottom = -140.0 - safe.w + modal_shift
 	if mode == "skills":
 		panel.offset_top = 230.0 + safe.y + modal_shift
@@ -1151,12 +1156,14 @@ func _armored_action_button(node_name: String, text: String, enabled: bool, prim
 	button.modulate = (ACTION_ACTIVE_MODULATE if primary else ACTION_SECONDARY_MODULATE) if enabled else ACTION_DISABLED_MODULATE
 	var label := Label.new()
 	label.name = "ActionLabel"
-	label.text = text
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.text = LocalizationManager.text(text)
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_apply_armored_button_label_alignment(label)
+	var preferred_size := UiKit.scaled_font_size(font_size)
 	UiKit.apply_label(label, font_size, Color.WHITE if enabled else Color(0.74, 0.78, 0.82, 1.0), 3)
+	UiKit.fit_label_text(label, preferred_size, 16, 18.0, 10.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(label)
 	return button
@@ -1497,9 +1504,11 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var safe := _safe_area_canvas_insets()
 	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 150.0, 0.30)
-	panel.offset_left = 60.0 + safe.x
+	# Match the item's safe-width modal contract. Native action-button models
+	# stay untouched; only the outer authored gutter yields on narrow safe areas.
+	panel.offset_left = 28.0 + safe.x
 	panel.offset_top = 90.0 + safe.y + modal_shift
-	panel.offset_right = -60.0 - safe.z
+	panel.offset_right = -28.0 - safe.z
 	panel.offset_bottom = -90.0 - safe.w + modal_shift
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.set_meta("safe_area_content", true)

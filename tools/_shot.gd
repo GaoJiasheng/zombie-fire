@@ -5,6 +5,7 @@ extends SceneTree
 # Usage: godot --path . --script tools/_shot.gd -- <route> [payload_json] [out_png]
 
 const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
+const UiKit := preload("res://ui/ui_kit.gd")
 
 func _initialize() -> void:
 	await process_frame
@@ -39,6 +40,7 @@ func _initialize() -> void:
 		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
 		_apply_equipment_override(sm, payload["equipment"])
+	root.get_node("/root/ThemeManager").refresh_from_save()
 	if route != "menu":
 		main.change_scene(route, payload)
 	for i in range(12):
@@ -150,6 +152,10 @@ func _initialize() -> void:
 		var skill_boss: Node = main.current_scene.get("active_boss")
 		if skill_boss != null and is_instance_valid(skill_boss):
 			main.current_scene.call("_announce_boss_phase", skill_boss, "技能释放", Color(0.86, 0.96, 1.0, 1.0))
+	if bool(payload.get("debug_boss_phase", false)) and main.current_scene != null and main.current_scene.has_method("_announce_boss_phase"):
+		var phase_boss: Node = main.current_scene.get("active_boss")
+		if phase_boss != null and is_instance_valid(phase_boss):
+			main.current_scene.call("_announce_boss_phase", phase_boss, "进入二阶段", Color(1.0, 0.72, 0.24, 1.0))
 	if bool(payload.get("debug_clean_hit_stage", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_isolated_vfx_stage(main.current_scene, true)
 	if bool(payload.get("debug_clean_death_stage", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
@@ -163,7 +169,38 @@ func _initialize() -> void:
 			var hit_kind := str((hit_spec as Dictionary).get("kind", "normal"))
 			var hit_enemy: Node = main.current_scene.get_node("EnemyLayer").get_child(0) if main.current_scene.get_node("EnemyLayer").get_child_count() > 0 else null
 			if hit_enemy != null and is_instance_valid(hit_enemy):
-				if hit_kind == "crit":
+				if hit_kind == "starter_autocannon":
+					var shot_origin: Vector2 = main.current_scene.call("_weapon_fire_origin")
+					var hit_position := (hit_enemy as Node2D).global_position
+					var shot_direction: Vector2 = (hit_position - shot_origin).normalized()
+					main.current_scene.call(
+						"_spawn_projectile",
+						shot_origin,
+						shot_direction,
+						10.0,
+						0,
+						0,
+						0.55,
+						0.0,
+						0.0,
+						0.0,
+						1.0,
+						"autocannon",
+						0.0,
+						0.0,
+						hit_enemy
+					)
+					var projectile_layer: Node = main.current_scene.get_node("ProjectileLayer")
+					var projectile: Node = null
+					for child in projectile_layer.get_children():
+						if child.has_method("_hit") and str(child.get("visual_profile")) == "autocannon":
+							projectile = child
+							break
+					if projectile != null:
+						projectile.call("_hit", hit_enemy)
+					await process_frame
+					paused = true
+				elif hit_kind == "crit":
 					main.current_scene.call(
 						"_spawn_vfx_sequence",
 						"vfx_crit",
@@ -258,8 +295,35 @@ func _initialize() -> void:
 			main.current_scene.call("_show_item_detail", detail_item, table_data[detail_item])
 			for i in range(18):
 				await process_frame
+	if payload.has("purchase_item") and main.current_scene != null and main.current_scene.has_method("_purchase_item_flow"):
+		var purchase_item := str(payload.get("purchase_item", ""))
+		var purchase_table: Dictionary = _current_collection_table(str(payload.get("mode", "")))
+		if purchase_item != "" and purchase_table.has(purchase_item):
+			main.current_scene.call("_purchase_item_flow", purchase_item, purchase_table[purchase_item])
+			for i in range(12):
+				await process_frame
 	if bool(payload.get("card_offer", false)) and main.current_scene != null and main.current_scene.has_method("_show_card_offer"):
 		main.current_scene.call("_show_card_offer")
+		if payload.get("debug_card_offer_skills", []) is Array:
+			var cards := main.current_scene.get_node_or_null("Hud/CardPanel/Cards") as VBoxContainer
+			if cards != null:
+				for child in cards.get_children():
+					child.queue_free()
+				var data_loader := root.get_node("/root/DataLoader")
+				for raw_skill_id in payload.get("debug_card_offer_skills", []):
+					var skill_id := str(raw_skill_id)
+					var row: Dictionary = data_loader.get_row("skills", skill_id)
+					if row.is_empty():
+						continue
+					var level_value := int(main.current_scene.call("_skill_offer_level", skill_id))
+					var display_name: String = str(data_loader.tr_key(row.get("name_key", skill_id)))
+					cards.add_child(main.current_scene.call(
+						"_build_skill_card",
+						skill_id,
+						row,
+						display_name,
+						level_value
+					))
 		for i in range(18):
 			await process_frame
 	if payload.has("card_detail") and main.current_scene != null and main.current_scene.has_method("_show_card_detail"):
@@ -270,6 +334,11 @@ func _initialize() -> void:
 			main.current_scene.call("_show_card_detail", skill_id)
 			for i in range(18):
 				await process_frame
+	if bool(payload.get("debug_character_skill_hint", false)) and main.current_scene != null and main.current_scene.has_method("_show_character_skill_hint"):
+		main.current_scene.call("_show_character_skill_hint")
+		for i in range(3):
+			await process_frame
+	_emit_final_ui_audit(main, route)
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")
@@ -280,6 +349,28 @@ func _initialize() -> void:
 	print("shot saved: ", out_path, " size=", image.get_size())
 	await _cleanup_scene(main)
 	quit(0)
+
+func _emit_final_ui_audit(main: Node, route: String) -> void:
+	if OS.get_environment("ZOMBIE_FIRE_UI_AUDIT") != "1" or main == null or main.current_scene == null:
+		return
+	var roots: Array[Control] = []
+	if main.current_scene is Control:
+		roots.append(main.current_scene as Control)
+	else:
+		for child in main.current_scene.get_children():
+			if child is Control:
+				roots.append(child as Control)
+			elif child is CanvasLayer:
+				for grandchild in child.get_children():
+					if grandchild is Control:
+						roots.append(grandchild as Control)
+	var issues: Array[String] = []
+	var insets := UiKit.safe_area_canvas_insets(root.get_viewport())
+	for control_root in roots:
+		for issue in UiKit.audit_ui(control_root, insets):
+			if not issues.has(issue):
+				issues.append(issue)
+	print("UI_AUDIT_JSON:", JSON.stringify({"route": route, "issues": issues, "insets": [insets.x, insets.y, insets.z, insets.w], "final": true}))
 
 func _prepare_pet_skill_showcase(battle: Node) -> void:
 	battle.set_physics_process(false)
@@ -518,6 +609,13 @@ func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, ai
 		var data_loader := root.get_node("/root/DataLoader")
 		var element := str(data_loader.get_row("weapons", battle.weapon_id).get("element", "physical"))
 		battle.call("_spawn_muzzle_flash", origin, direction, element, battle.call("_weapon_visual_profile", battle.weapon_id))
+		battle.call("_pulse_neon_tempest_character")
+		battle.call("_spawn_neon_tempest_fire_signature", origin, direction, element)
+		if battle.get("character_neon_fire_aura") is AnimatedSprite2D:
+			var neon_aura := battle.get("character_neon_fire_aura") as AnimatedSprite2D
+			neon_aura.stop()
+			neon_aura.frame = mini(2, neon_aura.sprite_frames.get_frame_count("fire") - 1)
+			neon_aura.visible = true
 	battle.set_process(false)
 	battle.set_physics_process(false)
 	# Let the renderer consume the explicitly assigned frame. Without this,

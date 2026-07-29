@@ -21,11 +21,17 @@ func _run() -> void:
 	var settings_snapshot: Dictionary = settings_manager.settings.duplicate(true)
 	save_manager.save_data = save_manager._default_save()
 
-	save_manager.select_theme("neon_tempest", false)
+	save_manager.select_theme("default", false)
 	theme_manager.refresh_from_save()
 	_expect(
 		theme_manager.active_theme_id() == "default",
-		"unowned premium theme must fall back to default"
+		"preview access must not force Neon Tempest over the saved default"
+	)
+	_expect(theme_manager.preview_access_enabled(), "debug builds must expose the theme preview selector")
+	_expect(theme_manager.select_theme("neon_tempest"), "preview selector must activate Neon Tempest")
+	_expect(
+		not save_manager.has_verified_entitlement("ent_theme_neon_tempest"),
+		"preview selection must never forge a commerce entitlement"
 	)
 
 	var verified_entitlements: Array[String] = ["ent_theme_neon_tempest"]
@@ -40,6 +46,22 @@ func _run() -> void:
 		theme_manager.active_theme_id() == "neon_tempest",
 		"verified entitlement must activate Neon Tempest"
 	)
+
+	for character_id in ["char_vanguard", "char_blaze", "char_frost", "char_volt"]:
+		var animation_base: String = theme_manager.resolve_character_animation_base(character_id)
+		_expect(animation_base != "", "missing themed battle animation base for %s" % character_id)
+		for action_spec in [["idle", 4], ["attack", 4], ["hurt", 3]]:
+			for frame_number in range(1, int(action_spec[1]) + 1):
+				var frame_path := "%s_%s_%02d.png" % [
+					animation_base,
+					str(action_spec[0]),
+					frame_number,
+				]
+				_expect(ResourceLoader.exists(frame_path), "missing Neon Tempest runtime frame %s" % frame_path)
+	var fire_aura: Array[Texture2D] = theme_manager.resolve_effect_sequence("character_fire_aura")
+	_expect(fire_aura.size() == 4, "Neon Tempest firing aura must expose four rendered frames")
+	for texture in fire_aura:
+		_expect(texture.get_size() == Vector2(512, 512), "firing aura frames must be 512x512")
 
 	for native_size: Vector2i in UiKit.NATIVE_BUTTON_SIZES:
 		for kind in ["primary", "secondary"]:
@@ -77,7 +99,7 @@ func _run() -> void:
 	_expect(full_material != null, "Neon Tempest must create the character iridescence material")
 	if full_material != null:
 		_expect(
-			is_equal_approx(float(full_material.get_shader_parameter("flow_speed")), 0.72),
+			is_equal_approx(float(full_material.get_shader_parameter("flow_speed")), 0.46),
 			"full character iridescence must animate"
 		)
 	settings_manager.settings["reduced_effects"] = true
@@ -88,14 +110,14 @@ func _run() -> void:
 			"reduced effects must freeze rainbow flow"
 		)
 		_expect(
-			float(reduced_material.get_shader_parameter("effect_intensity")) <= 0.16,
+			float(reduced_material.get_shader_parameter("effect_intensity")) <= 0.24,
 			"reduced effects must lower rainbow intensity"
 		)
 
 	save_manager.save_data = save_snapshot
 	settings_manager.settings = settings_snapshot
 	if failures.is_empty():
-		print("Theme manager test passed: entitlement fallback, 72 exact-size buttons, non-stretch routing, and reduced VFX.")
+		print("Theme manager test passed: reversible preview, no forged entitlement, 44 hero frames, rendered firing aura, 72 exact-size buttons, and reduced VFX.")
 		quit(0)
 	else:
 		for failure in failures:

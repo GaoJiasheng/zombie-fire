@@ -84,6 +84,10 @@ CHECKS = [
 		(GODOT, "--headless", "--path", ".", "--script", "res://tools/localization_smoke_test.gd"),
 		required_output="LOCALIZATION SMOKE TEST PASSED",
 	),
+	Check(
+		(GODOT, "--headless", "--path", ".", "--script", "res://tools/theme_manager_test.gd"),
+		required_output="Theme manager test passed",
+	),
 	Check((GODOT, "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd")),
     Check(("python3", "tools/check_visual_screens.py")),
 ]

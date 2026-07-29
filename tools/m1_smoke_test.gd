@@ -106,6 +106,7 @@ func _initialize() -> void:
 	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
 	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
+	_verify_starter_projectile_hierarchy(data_loader)
 	_expect(data_loader.level_display_name("level_002") == "002 城市突围", "level display names must hide internal ids")
 	_expect(data_loader.level_display_name("level_011") == "011 废街突围", "all launch levels must have authored display names")
 	var economy: Dictionary = data_loader.get_table("economy")
@@ -153,6 +154,11 @@ func _initialize() -> void:
 
 	var main := _instance("res://main.tscn")
 	root.add_child(main)
+	# Main refreshes the persisted cosmetic choice during _ready(). Keep the
+	# baseline smoke contract deterministic even when a developer/tester last
+	# exited with a preview theme selected. Theme-specific rendering is verified
+	# independently by theme_manager_test.gd and the visual screenshot matrix.
+	root.get_node("/root/ThemeManager")._set_active_without_persist("default")
 	await process_frame
 	_expect(main.current_scene != null, "main must open initial menu")
 	_expect(main.current_scene.find_child("HelpButton", true, false) != null, "menu must expose settings entry")
@@ -2139,6 +2145,7 @@ func _verify_projectile_pierce_sweep_runtime() -> void:
 
 func _verify_projectile_visual_profiles() -> void:
 	var expected := {
+		"autocannon": {"element": "physical", "texture": "proj_bullet_physical.png"},
 		"rail": {"element": "physical", "texture": "proj_rail_slug.png"},
 		"scatter": {"element": "physical", "texture": "proj_scatter_pellet.png"},
 		"plasma": {"element": "fire", "texture": "proj_plasma_orb.png"},
@@ -2152,13 +2159,36 @@ func _verify_projectile_visual_profiles() -> void:
 		_expect(str(projectile.visual_profile) == profile, "projectile must retain visual profile %s" % profile)
 		_expect(sprite.texture != null and str(sprite.texture.resource_path).ends_with(str(row.get("texture", ""))), "profile %s must use distinct projectile texture, got %s" % [profile, str(sprite.texture.resource_path)])
 		_expect(sprite.modulate == Color.WHITE, "projectile model texture must keep original asset colors instead of flat tinting")
-		if profile == "rail":
+		if profile == "autocannon":
+			_expect(projectile._uses_compact_ballistic_impact(), "starter autocannon must use the compact non-radial impact tier")
+		elif profile == "rail":
 			_expect(sprite.scale.x > sprite.scale.y * 2.2, "rail projectile must read as a long lance")
 		elif profile == "scatter":
 			_expect(sprite.scale.x < 0.32 and sprite.scale.y < 0.32, "scatter pellets must stay small")
 		elif profile == "plasma":
 			_expect(sprite.scale.x >= 0.36 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
 		projectile.queue_free()
+
+func _verify_starter_projectile_hierarchy(data_loader: Node) -> void:
+	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
+	var starter_special: Dictionary = starter_weapon.get("special", {})
+	var vanguard: Dictionary = data_loader.get_row("characters", "vanguard")
+	var affinity: Dictionary = vanguard.get("bullet_affinity", {})
+	_expect(int(starter_special.get("split", 0)) == 0, "level-one autocannon must not start with split shot")
+	_expect(int(starter_special.get("chain", 0)) == 0, "level-one autocannon must not start with ricochet")
+	_expect(float(starter_special.get("splash", 0.0)) <= 0.0, "level-one autocannon must not start with splash damage")
+	_expect(int(affinity.get("pierce_bonus", 0)) == 0, "level-one Vanguard bullets must remain single-target before growth rank II")
+	_expect(int(affinity.get("rank_pierce_bonus", 0)) == 2, "Vanguard growth rank II must restore the original two-pierce endgame ceiling")
+	var battle = load("res://gameplay/battle/battle.gd").new()
+	battle.character_data = vanguard
+	battle.character_level = 1
+	_expect(int(battle._character_pierce_bonus("physical")) == 0, "runtime level-one Vanguard physical rounds must resolve zero pierce")
+	_expect(float(battle._character_splash_bonus("physical")) <= 0.0, "runtime level-one Vanguard physical rounds must resolve zero splash")
+	_expect(int(battle._resolved_chain_count("physical", {}, starter_special)) == 0, "runtime level-one Vanguard physical rounds must resolve zero chain")
+	_expect(str(battle._weapon_visual_profile("weapon_autocannon")) == "autocannon", "starter weapon must route through the compact autocannon impact profile")
+	battle.character_level = 15
+	_expect(int(battle._character_pierce_bonus("physical")) == 2, "Vanguard growth rank II must unlock two straight-through pierces")
+	battle.free()
 
 func _verify_projectile_ballistics_rules() -> void:
 	var projectile := _instance("res://gameplay/projectile/projectile.tscn")

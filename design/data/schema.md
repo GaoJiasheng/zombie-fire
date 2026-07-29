@@ -60,8 +60,8 @@
       "element": "physical",       // physical|fire|ice|lightning
       "damage_bonus": 0.10,        // 命中本角色亲和弹种时的固定增伤
       "rank_damage_bonus": 0.025,  // 角色成长档位带来的额外增伤
-      "pierce_bonus": 1,           // 可选：物理穿透
-      "rank_pierce_bonus": 1       // 可选：成长档位达到 II 后追加
+      "pierce_bonus": 0,           // 可选：初始物理穿透；入门角色建议保持 0
+      "rank_pierce_bonus": 2        // 可选：成长档位达到 II 后追加
     },
     "card_affinity_tags": ["projectile","execute","physical"],
     "unlock_cost_star": 0,     // 默认解锁
@@ -76,7 +76,7 @@
 - `character`：基于角色自身攻击和角色等级，不吃武器自身攻击系数、射速、炮塔倍率；可通过 `weapon_level_inherit`（`0~1`）继承部分永久武器等级伤害成长，避免满配后主动技掉出核心循环。
 - `sig_level_*`：角色专属主动技的独立 `0-5` 级成长。所有主动技必须至少声明伤害增幅与冷却缩减；各技能再通过持续时间、范围、状态强度、阈值数组或每 N 级机制增量形成可感知质变。
 
-`bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。闪电还可声明 `chain_overflow_reference`、`chain_overflow_damage_bonus` 与 `chain_target_falloff`：连锁数量不设代码硬上限，超过参考数量的成长转化为主目标增伤，同时后续连锁按递减系数控制密集尸潮收益。
+`bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。入门角色的 `pierce_bonus` 应保持 `0`，避免一级普通弹在获得技能前就表现成多目标弹药；需要保留的物理角色特色通过 `rank_pierce_bonus` 在成长档位 II 解锁。闪电还可声明 `chain_overflow_reference`、`chain_overflow_damage_bonus` 与 `chain_target_falloff`：连锁数量不设代码硬上限，超过参考数量的成长转化为主目标增伤，同时后续连锁按递减系数控制密集尸潮收益。
 
 ## economy.json 后半波压力旋钮
 
