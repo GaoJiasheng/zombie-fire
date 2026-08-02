@@ -3635,3 +3635,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Complete routed coverage**: the run produced `1,093 / 1,093` real Godot screenshots spanning every hero, theme, weapon, armor, chip, pet, skill, zombie, boss, environment, chapter, store state, major combat effect and Chinese / English text-heavy interface.
 - **Integrity**: the generated manifest contains exactly `1,093` unique entries and the output root contains exactly `1,093` PNG originals. Runtime layout assertions and image analysis report zero failures.
 - **Human-review delivery**: `62` paginated contact sheets group the originals by combat theme, interface, collection copy, skill copy, store, bosses, zombies and VFX. The complete untracked review pack is `/tmp/zombie_fire_app_store_full_review_20260803_r1/`.
+
+## Difficulty Regression Closeout · level_003 Early-Campaign Star Break (2026-08-03)
+
+- **Brief-matched correction**: the final `level_003` wave changes from `17` to `14` enemies, moving the full-stage count from `64` to `61` (`-4.69%`). Base HP, enemy offense, the global difficulty curve and the data-owned `0.70 / 0.35` star thresholds remain untouched.
+- **Measured outcome**: `simulate_balance.py` moves predicted leak from `65%` to `59%`, lifting the campaign's sole `1★` stage to `2★` without making it a `3★` stage.
+- **Rejected alternative**: the initially evaluated `base_hp_ref +5.97%` option fixed the rating but raised level pressure above `level_004`, correctly turning `check_level_pressure.py` red. It was reverted; the retained count change follows the requested approximately-five-percent wave reduction and satisfies both contracts.
+- **No collateral rating drift**: an exact before / after diff of all 99 predicted ratings contains only `level_003`; `level_001`, `level_002` and every later stage remain unchanged. The campaign distribution is now `12 × 3★ / 87 × 2★ / 0 × 1★`.
+- **Release gate**: the complete Release Candidate suite passes after the data-only correction.
