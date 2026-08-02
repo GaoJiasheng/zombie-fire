@@ -225,11 +225,14 @@ static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 		return issues
 	var controls: Array[Control] = []
 	_collect_controls(root, controls)
+	var modal_surface := _active_modal_surface(controls)
 	var viewport_rect := root.get_viewport().get_visible_rect()
 	var safe_rect := safe_content_rect(root.get_viewport(), insets)
 	var critical: Array[Dictionary] = []
 	for control in controls:
 		if not control.is_visible_in_tree():
+			continue
+		if modal_surface != null and control != modal_surface and not modal_surface.is_ancestor_of(control):
 			continue
 		var rect := control.get_global_rect()
 		if control.has_meta("safe_area_content") and not _rect_contains(safe_rect, rect, 1.5):
@@ -268,6 +271,14 @@ static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 				issues.append("touch targets overlap: %s and %s overlap=%s" % [str(root.get_path_to(left_node)), str(root.get_path_to(right_node)), str(overlap.size)])
 	return issues
 
+static func _active_modal_surface(controls: Array[Control]) -> Control:
+	var result: Control = null
+	for control in controls:
+		if not control.is_visible_in_tree() or not bool(control.get_meta("ui_modal_surface", false)):
+			continue
+		result = control
+	return result
+
 static func _collect_controls(node: Node, output: Array[Control]) -> void:
 	for child in node.get_children():
 		if child is Control:
@@ -284,12 +295,25 @@ static func _audit_label_clip(root: Control, label_node: Label, viewport_rect: R
 	if label_node.text.strip_edges() == "":
 		return
 	var rect := label_node.get_global_rect()
-	var visible_rect := rect.intersection(viewport_rect)
-	if visible_rect.size.x < rect.size.x * 0.8 or visible_rect.size.y < rect.size.y * 0.8 or not _visible_in_clip_ancestors(label_node, rect):
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
 		return
+	var visible_rect := rect.intersection(viewport_rect)
+	# Rows that are intentionally entering/leaving a ScrollContainer are not a
+	# typography failure. Text cropped by any other clip_contents ancestor is:
+	# the old audit returned early for both cases and therefore missed real modal
+	# and card truncation on device.
+	var clip_result := _clip_ancestor_result(label_node, rect)
+	var meaningfully_on_screen := visible_rect.size.x >= rect.size.x * 0.2 and visible_rect.size.y >= rect.size.y * 0.2
+	if meaningfully_on_screen and not bool(clip_result.get("scroll_cropped", false)) and str(clip_result.get("clipped_by", "")) != "":
+		issues.append("text control clipped by ancestor: %s ancestor=%s rect=%s" % [
+			str(root.get_path_to(label_node)),
+			str(clip_result.get("clipped_by", "")),
+			str(rect),
+		])
 	var font := label_node.get_theme_font("font")
 	var font_size := label_node.get_theme_font_size("font_size")
 	var visible_text := str(TranslationServer.translate(label_node.text))
+	_audit_adaptive_text_size(root, label_node, font_size, visible_text, issues)
 	if label_node.autowrap_mode != TextServer.AUTOWRAP_OFF:
 		var required_size := font.get_multiline_string_size(
 			visible_text,
@@ -318,11 +342,12 @@ static func _audit_button_clip(root: Control, button: Button, viewport_rect: Rec
 	if button.text.strip_edges() == "" or not button.visible:
 		return
 	var rect := button.get_global_rect()
-	if rect.intersection(viewport_rect).size.x < rect.size.x * 0.8 or not _visible_in_clip_ancestors(button, rect):
+	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
 		return
 	var visible_text := str(TranslationServer.translate(button.text))
 	var font := button.get_theme_font("font")
 	var font_size := button.get_theme_font_size("font_size")
+	_audit_adaptive_text_size(root, button, font_size, visible_text, issues)
 	var required_width := font.get_string_size(visible_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 	var available_width := maxf(0.0, rect.size.x - 24.0)
 	if required_width > available_width + 2.0:
@@ -344,6 +369,37 @@ static func _visible_in_clip_ancestors(control: Control, rect: Rect2) -> bool:
 				return false
 		ancestor = ancestor.get_parent()
 	return true
+
+static func _clip_ancestor_result(control: Control, rect: Rect2) -> Dictionary:
+	var ancestor := control.get_parent()
+	while ancestor is Control:
+		var ancestor_control := ancestor as Control
+		if ancestor_control is ScrollContainer or ancestor_control.clip_contents:
+			var clipped := rect.intersection(ancestor_control.get_global_rect())
+			if clipped.size.x < rect.size.x * 0.8 or clipped.size.y < rect.size.y * 0.8:
+				if ancestor_control is ScrollContainer:
+					return {"scroll_cropped": true, "clipped_by": ""}
+				return {"scroll_cropped": false, "clipped_by": str(ancestor_control.get_path())}
+		ancestor = ancestor.get_parent()
+	return {"scroll_cropped": false, "clipped_by": ""}
+
+static func _audit_adaptive_text_size(root: Control, control: Control, actual_size: int, visible_text: String, issues: Array[String]) -> void:
+	if not bool(control.get_meta("adaptive_text_fit", false)):
+		return
+	var preferred_size := int(control.get_meta("adaptive_text_preferred_size", actual_size))
+	if preferred_size <= 0 or actual_size >= preferred_size:
+		return
+	var shrink_ratio := float(actual_size) / float(preferred_size)
+	# A one-to-four pixel optical fit is expected. Anything beyond that is a
+	# layout warning: fitting a sentence by making it tiny is not an acceptable
+	# substitute for wrapping, widening, or using the correct button model.
+	if preferred_size - actual_size >= 5 and shrink_ratio < 0.84:
+		issues.append("adaptive text shrank too far: %s preferred=%d actual=%d text=%s" % [
+			str(root.get_path_to(control)),
+			preferred_size,
+			actual_size,
+			visible_text.replace("\n", " "),
+		])
 
 static func _minimum_width_chain(control: Control) -> String:
 	var parts: Array[String] = []
@@ -424,7 +480,8 @@ static func armored_button_texture(primary := true, button_size := Vector2(512, 
 static func apply_armored_texture_button(button: TextureButton, primary := true, button_size := Vector2(512, 160), enabled := true) -> void:
 	if button == null:
 		return
-	var normal := armored_button_texture(primary, button_size, false)
+	var normal_path := armored_button_path(primary, button_size, false)
+	var normal := _load_texture(normal_path)
 	var disabled_tex := armored_button_texture(false, button_size, true)
 	button.texture_normal = normal
 	button.texture_hover = normal
@@ -438,6 +495,10 @@ static func apply_armored_texture_button(button: TextureButton, primary := true,
 	button.custom_minimum_size = button_size
 	if button_size.x > 0.0 and button_size.y > 0.0:
 		button.size = button_size
+	# self_modulate dims the themed raster without dimming child labels. Using
+	# modulate here would lower both together and preserve the original contrast
+	# problem the owner reported.
+	button.self_modulate = _button_surface_modulate(normal_path, primary, enabled)
 	button.modulate = Color.WHITE if enabled else Color(0.72, 0.76, 0.80, 0.92)
 
 static func armored_button_style(primary := true, button_size := Vector2(512, 160), disabled := false) -> StyleBox:
@@ -445,7 +506,11 @@ static func armored_button_style(primary := true, button_size := Vector2(512, 16
 	var target_h := float(native_size.y)
 	var margin := clampf(target_h * 0.34, 16.0, 48.0)
 	var content := clampf(target_h * 0.14, 8.0, 18.0)
-	return texture_style(armored_button_path(primary, Vector2(native_size.x, native_size.y), disabled), margin, content, GOLD if primary else CYAN)
+	var path := armored_button_path(primary, Vector2(native_size.x, native_size.y), disabled)
+	var style := texture_style(path, margin, content, GOLD if primary else CYAN)
+	if style is StyleBoxTexture:
+		(style as StyleBoxTexture).modulate_color = _button_surface_modulate(path, primary, not disabled)
+	return style
 
 static func apply_armored_button(button: Button, primary := true, button_size := Vector2(512, 96), font_size := 24, enabled := true) -> void:
 	if button == null:
@@ -467,6 +532,8 @@ static func apply_armored_button(button: Button, primary := true, button_size :=
 	button.add_theme_color_override("font_hover_color", TEXT_MAIN)
 	button.add_theme_color_override("font_pressed_color", GOLD if primary else CYAN)
 	button.add_theme_color_override("font_disabled_color", GREY_300)
+	button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.94))
+	button.add_theme_constant_override("outline_size", 3)
 	button.add_theme_font_size_override("font_size", scaled_font_size(font_size))
 	fit_button_text(button, scaled_font_size(font_size), 18, 42.0)
 
@@ -476,12 +543,18 @@ static func fit_label_text(label: Label, preferred_size: int, minimum_size := 18
 	var text_value := str(TranslationServer.translate(label.text))
 	var available_width := maxf(label.size.x - horizontal_padding * 2.0, label.custom_minimum_size.x - horizontal_padding * 2.0)
 	var available_height := maxf(label.size.y - vertical_padding * 2.0, label.custom_minimum_size.y - vertical_padding * 2.0)
+	var parent_control := label.get_parent() as Control
+	if parent_control != null and label.anchor_left <= 0.01 and label.anchor_right >= 0.99:
+		available_width = maxf(available_width, parent_control.size.x - horizontal_padding * 2.0)
+	if parent_control != null and label.anchor_top <= 0.01 and label.anchor_bottom >= 0.99:
+		available_height = maxf(available_height, parent_control.size.y - vertical_padding * 2.0)
 	if available_width <= 1.0:
 		return preferred_size
 	var font := label.get_theme_font("font")
 	var resolved := preferred_size
 	while resolved > minimum_size:
-		var required := font.get_multiline_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, resolved)
+		var wrap_width := available_width if label.autowrap_mode != TextServer.AUTOWRAP_OFF else -1.0
+		var required := font.get_multiline_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, wrap_width, resolved)
 		if required.x <= available_width + 0.5 and (available_height <= 1.0 or required.y <= available_height + 0.5):
 			break
 		resolved -= 1
@@ -543,6 +616,15 @@ static func _active_theme_button_path(kind: String, native_size: Vector2i, disab
 	if manager == null or not manager.has_method("resolve_button_path"):
 		return ""
 	return str(manager.call("resolve_button_path", kind, native_size, disabled))
+
+static func _button_surface_modulate(_path: String, primary: bool, enabled: bool) -> Color:
+	var main_loop := Engine.get_main_loop()
+	if not main_loop is SceneTree:
+		return Color.WHITE
+	var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+	if manager == null or not manager.has_method("button_surface_modulate"):
+		return Color.WHITE
+	return manager.call("button_surface_modulate", primary, enabled) as Color
 
 static func _resource_or_file_exists(path: String) -> bool:
 	if path == "":
@@ -659,6 +741,52 @@ static func pill(text: String, accent := CYAN, font_size := 18) -> PanelContaine
 	panel.add_child(l)
 	return panel
 
+static func semantic_tag_style(border: Color, fill: Color) -> StyleBox:
+	var style := texture_style(UI_TEXTURE_ROOT + "ui_pill_skin.png", 24.0, 3.0, border)
+	if style is StyleBoxTexture:
+		# Keep the authored metal/pill edge readable while the data-owned theme
+		# palette supplies the semantic accent. A small fill contribution keeps
+		# kind and ability tags distinct without rebuilding flat geometry.
+		var tint := border.lerp(Color.WHITE, 0.12).lerp(Color(fill.r, fill.g, fill.b, 1.0), 0.12)
+		tint.a = 1.0
+		(style as StyleBoxTexture).modulate_color = tint
+	return style
+
+static func skill_tag_pill(text: String, kind := false, font_size := 15) -> PanelContainer:
+	var palette := _active_tag_palette()
+	var border: Color = palette.get("kind_border" if kind else "border", GOLD if kind else CYAN)
+	var fill: Color = palette.get("kind_fill" if kind else "fill", Color(0.02, 0.05, 0.07, 0.96))
+	var text_color: Color = palette.get("kind_text" if kind else "text", TEXT_MAIN)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", semantic_tag_style(border, fill))
+	panel.custom_minimum_size = Vector2(0, 40)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.set_meta("semantic_tag_role", "kind" if kind else "ability")
+	panel.set_meta("semantic_tag_border", border)
+	panel.set_meta("semantic_tag_fill", fill)
+	var l := label(text, font_size, text_color, 2)
+	l.name = "Text"
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.clip_text = false
+	panel.add_child(l)
+	return panel
+
+static func _active_tag_palette() -> Dictionary:
+	var main_loop := Engine.get_main_loop()
+	if main_loop is SceneTree:
+		var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+		if manager != null and manager.has_method("active_tag_palette"):
+			return manager.call("active_tag_palette") as Dictionary
+	return {
+		"border": Color(0.34, 0.76, 0.84, 1.0),
+		"kind_border": Color(0.94, 0.67, 0.32, 1.0),
+		"fill": Color(0.018, 0.060, 0.074, 0.96),
+		"kind_fill": Color(0.105, 0.064, 0.025, 0.97),
+		"text": Color(0.91, 0.98, 1.0, 1.0),
+		"kind_text": Color(1.0, 0.91, 0.71, 1.0),
+	}
+
 static func icon(path: String, size := Vector2(64, 64)) -> TextureRect:
 	var tex := TextureRect.new()
 	if path != "" and ResourceLoader.exists(path):
@@ -725,6 +853,56 @@ static func add_character_bust(parent: Control, row: Dictionary, viewport_size: 
 		(viewport_size.x - bust_size.x) * 0.5,
 		character_bust_y_with_headroom(texture, image_width, y_offset)
 	)
+	return bust
+
+static func add_character_fullbody_aligned(parent: Control, row: Dictionary, viewport_size: Vector2, visible_height: float, bottom_baseline: float, tint := Color.WHITE) -> TextureRect:
+	# Collection rows compare all four heroes side by side. Scaling their complete
+	# transparent canvases by width makes a slim hero look much smaller than a
+	# broad one, while cropping the canvas at a fixed Y loses their shared footing.
+	# Normalize the actual non-transparent silhouette instead: every hero receives
+	# the same visible height and the same foot baseline. The backing TextureRect is
+	# allowed to extend beyond this logical portrait lane; the collection card owns
+	# the final safe clip, so hair, coats and shoulder armour can breathe without
+	# colliding with copy or neighbouring cards.
+	parent.clip_contents = false
+	parent.custom_minimum_size = viewport_size
+	var bust := parent.get_node_or_null("BustImage") as TextureRect
+	if bust == null:
+		bust = TextureRect.new()
+		bust.name = "BustImage"
+		bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bust.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		parent.add_child(bust)
+	var texture := character_bust_texture(row)
+	bust.texture = texture
+	bust.modulate = tint
+	if texture == null:
+		bust.size = viewport_size
+		bust.custom_minimum_size = viewport_size
+		bust.position = Vector2.ZERO
+		return bust
+	var image := texture.get_image()
+	var opaque_bounds := image.get_used_rect() if image != null and not image.is_empty() else Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+	if opaque_bounds.size == Vector2i.ZERO:
+		opaque_bounds = Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+	var scale_factor := visible_height / maxf(float(opaque_bounds.size.y), 1.0)
+	var texture_size := texture.get_size()
+	var bust_size := texture_size * scale_factor
+	var visible_width := float(opaque_bounds.size.x) * scale_factor
+	var visible_left := (viewport_size.x - visible_width) * 0.5
+	var visible_top := bottom_baseline - visible_height
+	bust.size = bust_size
+	bust.custom_minimum_size = bust_size
+	bust.position = Vector2(
+		visible_left - float(opaque_bounds.position.x) * scale_factor,
+		bottom_baseline - float(opaque_bounds.end.y) * scale_factor
+	)
+	# Keep the authored alignment contract inspectable by smoke and screenshot
+	# tooling without re-decoding every portrait texture.
+	bust.set_meta("aligned_visible_rect", Rect2(Vector2(visible_left, visible_top), Vector2(visible_width, visible_height)))
+	bust.set_meta("aligned_visible_height", visible_height)
+	bust.set_meta("aligned_visible_bottom", bottom_baseline)
 	return bust
 
 static func character_bust_y_with_headroom(texture: Texture2D, image_width: float, authored_y: float, desired_headroom := 8.0) -> float:
@@ -873,19 +1051,33 @@ static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chi
 
 # 共享武器图标(统一外观,尺寸可变)。
 static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect:
-	var result := icon(str(row.get("icon", row.get("portrait", ""))), size)
-	apply_neon_surface(result)
+	var weapon_id := str(row.get("name_key", ""))
+	var result := icon(item_icon_path("weapons", weapon_id, row), size)
+	apply_theme_surface(result)
 	return result
 
-static func apply_neon_surface(item: CanvasItem) -> void:
+
+static func item_icon_path(table: String, item_id: String, row: Dictionary) -> String:
+	var fallback := str(row.get("icon", row.get("portrait", "")))
+	if table != "weapons" or item_id == "":
+		return fallback
+	var main_loop := Engine.get_main_loop()
+	if not main_loop is SceneTree:
+		return fallback
+	var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
+	if manager != null and manager.has_method("resolve_weapon_asset"):
+		return str(manager.call("resolve_weapon_asset", item_id, "icon", fallback))
+	return fallback
+
+static func apply_theme_surface(item: CanvasItem) -> void:
 	if item == null:
 		return
 	var main_loop := Engine.get_main_loop()
 	if not main_loop is SceneTree:
 		return
 	var manager := (main_loop as SceneTree).root.get_node_or_null("ThemeManager")
-	if manager != null and manager.has_method("create_neon_surface_material"):
-		item.material = manager.call("create_neon_surface_material") as Material
+	if manager != null and manager.has_method("create_surface_material"):
+		item.material = manager.call("create_surface_material") as Material
 
 # ---- 统一购买/确认弹框(所有商店、所有货币共用同一个模型)。----
 # opts: title, message, cost_text, cost_icon, accent, confirm_text, cancel_text,
@@ -917,16 +1109,31 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 		safe = safe_area_canvas_insets(host.get_viewport())
 	var modal_shift := tall_modal_shift(viewport_h, 150.0, 0.32)
 	center.offset_left = safe.x
-	center.offset_top = safe.y + modal_shift
+	# Preserve the visual center shift on tall phones without translating the
+	# full-screen container beyond the safe viewport. Doubling only the top
+	# inset moves the available center by the same amount and keeps its bottom in
+	# bounds.
+	center.offset_top = safe.y + modal_shift * 2.0
 	center.offset_right = -safe.z
-	center.offset_bottom = -safe.w + modal_shift
+	center.offset_bottom = -safe.w
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.set_meta("safe_area_content", true)
 	layer.add_child(center)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", panel_style(accent, PANEL_BG_DARK, 3, 20))
 	panel.custom_minimum_size = Vector2(660, 0)
+	panel.set_meta("safe_area_content", true)
+	panel.set_meta("ui_modal_surface", true)
 	center.add_child(panel)
+	# The armored panel texture deliberately has translucent material windows.
+	# A local dark backing keeps long English store copy readable without making
+	# the whole screen dimmer or flattening the metal edge art.
+	var backing := TextureRect.new()
+	backing.texture = load(UI_TEXTURE_ROOT + "ui_panel_skin.png")
+	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backing.stretch_mode = TextureRect.STRETCH_SCALE
+	backing.modulate = Color(0.10, 0.12, 0.15, 0.98)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(backing)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 52)
 	margin.add_theme_constant_override("margin_right", 52)

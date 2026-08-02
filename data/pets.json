@@ -52,8 +52,8 @@
 			"level_radius_growth": 1.2,
 			"status_strength": 1.25,
 			"level_status_growth": 0.006,
-			"sequence": "vfx_skill_cast_incendiary",
-			"sfx": "skill_incendiary"
+      "sequence": "vfx_apocalypse_inferno_phoenix",
+      "sfx": "apocalypse_inferno_phoenix"
 		},
 		"stat_bonus": {
 			"element_damage_mult": 0.05,
@@ -200,5 +200,172 @@
 		"unlock_cost_star": 14,
 		"icon": "res://assets/production/sprites/pets/pet_collector_icon.png",
 		"sprite": "res://assets/production/sprites/pets/pet_collector_prototype.png"
+	},
+	"pet_apocalypse_tempest": {
+		"name_key": "pet_apocalypse_tempest",
+		"role": "apocalypse_chain",
+		"fire_rate": 1.05,
+		"damage": 13,
+		"element": "lightning",
+		"level_damage_growth": 0.068,
+		"pet_skill": {
+			"id": "tempest_terminal",
+			"name": "终端雷柱",
+			"kind": "multi_strike",
+			"cooldown": 10.0,
+			"damage_mult": 1.65,
+			"level_damage_mult_growth": 0.022,
+			"target_count": 4,
+			"extra_target_every": 7,
+			"status_strength": 1.45,
+			"level_status_growth": 0.01,
+			"target_falloff": 0.93,
+			"sequence": "vfx_skill_cast_tesla",
+			"sfx": "skill_tesla"
+		},
+		"stat_bonus": {
+			"chain_bonus": 1,
+			"fire_rate_mult": 0.03,
+			"element_damage_mult": 0.06
+		},
+		"level_stat_growth": {
+			"chain_bonus": 0.10,
+			"fire_rate_mult": 0.002,
+			"element_damage_mult": 0.003
+		},
+		"premium_entitlement": "ent_arsenal_thunder",
+		"premium_set": "set_apocalypse_thunder",
+		"rarity": "apocalypse",
+		"max_level": 30,
+		"cost_base_gold": 165,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/neon_tempest/pet_apocalypse_tempest_icon.png",
+		"sprite": "res://assets/production/sprites/premium/neon_tempest/pet_apocalypse_tempest_prototype.png"
+	},
+	"pet_apocalypse_phoenix": {
+		"name_key": "pet_apocalypse_phoenix",
+		"role": "apocalypse_fire",
+		"fire_rate": 1.0,
+		"damage": 12,
+		"element": "fire",
+		"level_damage_growth": 0.068,
+		"pet_skill": {
+			"id": "phoenix_furnace_flyby",
+			"name": "熔炉俯冲",
+			"kind": "fire_flyby",
+			"cooldown": 11.0,
+			"damage_mult": 1.7,
+			"level_damage_mult_growth": 0.022,
+			"target_count": 4,
+			"extra_target_every": 7,
+			"status_strength": 0.55,
+			"level_status_growth": 0.006,
+			"target_falloff": 0.88,
+			"trail_duration": 2.6,
+			"trail_max_concurrent": 2,
+			"sequence": "vfx_skill_cast_incendiary",
+			"sfx": "skill_incendiary"
+		},
+		"stat_bonus": {
+			"fire_rate_mult": 0.03,
+			"element_damage_mult": 0.06,
+			"damage_mult": 0.02
+		},
+		"level_stat_growth": {
+			"fire_rate_mult": 0.002,
+			"element_damage_mult": 0.003,
+			"damage_mult": 0.0015
+		},
+		"premium_entitlement": "ent_arsenal_inferno",
+		"premium_set": "set_apocalypse_inferno",
+		"rarity": "apocalypse",
+		"max_level": 30,
+		"cost_base_gold": 165,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/infernal_dominion/pet_apocalypse_phoenix_icon.png",
+		"sprite": "res://assets/production/sprites/premium/infernal_dominion/pet_apocalypse_phoenix_prototype.png"
+	},
+	"pet_apocalypse_aurora": {
+		"name_key": "pet_apocalypse_aurora",
+		"role": "apocalypse_ice",
+		"fire_rate": 0.9,
+		"damage": 11,
+		"element": "ice",
+		"level_damage_growth": 0.066,
+		"pet_skill": {
+			"id": "aurora_permafrost_field",
+			"name": "极光冻原",
+			"kind": "area_blast",
+			"cooldown": 11.0,
+			"damage_mult": 1.35,
+			"level_damage_mult_growth": 0.020,
+			"radius": 270.0,
+			"level_radius_growth": 2.0,
+			"status_strength": 1.55,
+			"level_status_growth": 0.010,
+			"sequence": "vfx_apocalypse_absolute_zero_field",
+			"sfx": "apocalypse_absolute_zero_field"
+		},
+		"stat_bonus": {
+			"slow_strength_mult": 0.08,
+			"element_damage_mult": 0.06,
+			"damage_mult": 0.02
+		},
+		"level_stat_growth": {
+			"slow_strength_mult": 0.004,
+			"element_damage_mult": 0.003,
+			"damage_mult": 0.0015
+		},
+		"premium_entitlement": "ent_arsenal_absolute_zero",
+		"premium_set": "set_apocalypse_absolute_zero",
+		"rarity": "apocalypse",
+		"max_level": 30,
+		"cost_base_gold": 165,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/polar_aurora/pet_apocalypse_aurora_icon.png",
+		"sprite": "res://assets/production/sprites/premium/polar_aurora/pet_apocalypse_aurora_prototype.png"
+	},
+	"pet_apocalypse_skyfalcon": {
+		"name_key": "pet_apocalypse_skyfalcon",
+		"role": "apocalypse_golden_law",
+		"fire_rate": 1.0,
+		"damage": 13,
+		"element": "physical",
+		"level_damage_growth": 0.070,
+		"pet_skill": {
+			"id": "skyfalcon_golden_mark",
+			"name": "天隼敕印",
+			"kind": "golden_mark",
+			"cooldown": 10.5,
+			"damage_mult": 1.55,
+			"level_damage_mult_growth": 0.024,
+			"mark_duration": 5.0,
+			"level_mark_duration_growth": 0.05,
+			"mark_damage_amp": 0.12,
+			"level_mark_amp_growth": 0.002,
+			"repair_ratio": 0.018,
+			"level_repair_growth": 0.00025,
+			"sequence": "vfx_apocalypse_golden_law_falcon",
+			"sfx": "apocalypse_golden_law_falcon"
+		},
+		"stat_bonus": {
+			"damage_mult": 0.03,
+			"crit_rate": 0.035,
+			"pierce_bonus": 1
+		},
+		"level_stat_growth": {
+			"damage_mult": 0.002,
+			"crit_rate": 0.001,
+			"pierce_bonus": 0.06
+		},
+		"premium_entitlement": "ent_arsenal_golden_law",
+		"premium_set": "set_apocalypse_golden_law",
+		"rarity": "apocalypse",
+		"max_level": 30,
+		"cost_base_gold": 165,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_icon.png",
+		"store_preview_region": [55, 0, 329, 260],
+		"sprite": "res://assets/production/sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_prototype.png"
 	}
 }

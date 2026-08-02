@@ -1,9 +1,9 @@
 # 22 · 第一阶段盘点：霓虹雷暴主题 + 终焉·雷霆军械
 
-> 状态：盘点、Phase 1A-1 / 1A-2、Phase 1B-1 主题骨架和 Phase 1B-2 的四角色运行时切片均已完成。Owner 已确认整体渲染方向，并以继续执行确认中案三线圈电弧炮。ThemeManager、精确尺寸霓虹按钮、四套角色肖像、44 张模块化战斗帧和渲染式开火电弧翼已接入；StoreKit 与终焉数值修改仍未开始。
-> Owner 决策：第一套从原计划的黑曜 / 动能改为 **霓虹雷暴 / 雷霆**。
+> 状态：Phase 1A / 1B 的霓虹运行时、Phase 1C 的终焉雷霆四件套与本地商品验收闭环均已完成。Owner 锁定的三线圈电弧炮、护甲、芯片、宠物、金币升级、2/4 件套、双语商品页和本地购买 / 恢复 / 撤权已接入；Apple StoreKit、Sandbox、TestFlight 真实购买与 App Store IAP 记录仍未开始。
+> Owner 决策：第一套锁定为 **霓虹雷暴 / 雷霆**。
 > 总方案：`design/21_premium_themes_and_apocalypse_arsenal_plan.md`。
-> 当前生产提交基线：`1.0.0 (38)`，无 IAP、无主题系统、无终焉装备；最新 TestFlight `1.0.0 (41)` 是强制启用霓虹主题、四角色完整运行时动画 / 特效并包含完整中英文运行时的联合视觉验收包，不可直接用于 App Review。
+> 当前已上传基线仍不含真实 IAP；最新 TestFlight `1.0.0 (43)` 是普通 release 的 Owner 验收构建，已包含本文记录的本地演示购买、终焉装备和四角色真实握持运行时，但未经过 Apple 交易验证，不可直接用于 App Review。
 > 本文回答“第一套具体有什么要搞、现状缺什么、按什么顺序做、每一步怎么验收”。
 
 ---
@@ -30,7 +30,7 @@
 - **角色和武器必须模块化**，不能为每个主题重复全部合成开火帧。
 - **基地必须使用独立底部覆盖层**，不能为每个主题复制全部 14 张战场大背景。
 
-如果这两个门禁不先通过，四套主题会让包体、制作量和维护成本失控。
+如果这两个门禁不先通过，多套主题会让包体、制作量和维护成本失控。
 
 ---
 
@@ -155,7 +155,7 @@
 
 - 单主题约再增加 992 张运行时 PNG。
 - 按当前素材约增加 184 MiB。
-- 四主题可能增加约 736 MiB。
+- 最终三主题若都直接复制可能增加约 552 MiB。
 - 还没有计算终焉武器、VFX、UI、基地和营销素材。
 
 因此禁止为每个主题完整复制所有合成动画。
@@ -179,6 +179,8 @@
 - 少量前臂 / 遮挡覆盖层。
 
 目标是用约 110~130 张主体 PNG 完成第一主题战斗覆盖，而不是 1,100 张以上合成帧。
+
+> 2026-08-01 实机纠偏：上述“无武器人物 + 独立武器前景层”在静态边界检查中可以通过，但实际会出现枪身盖住双手、枪托不贴肩和整把枪悬在人物前方的问题。Owner 明确要求枪必须真正握在手里，因此战斗不再把独立手持图当作正式路径。八把免费武器统一复用已验收的 `character_weapon_combos` 融合动作，再由主题角色材质、背后开火特征和弹体 palette 完成霓虹 / 炼狱外观；两把终焉武器继续使用各自左 / 中 / 右 `true_grip` 融合模型。44 张主题无武器帧只保留为资源缺失时的末级 fallback，不得覆盖存在的融合组合。这样不复制每主题 992 张 PNG，同时恢复枪托贴肩、双手接触、前臂遮挡和三向枪口契约。
 
 ### 2.5 模块化方案必须验证的组合
 
@@ -253,14 +255,16 @@ Phase 1A 先验证四个代表组合：
 ### 4.1 Phase 1B-1 / 1B-2 运行时现状
 
 - `ThemeManager` 已通过 `data/themes.json` 解析 `default / neon_tempest`。
-- Save v2 保存主题选择和已验证永久 entitlement；无权益或资源缺失会回退默认主题。
-- Debug / TestFlight 验收构建可在设置页自由切换默认 / 霓虹主题；`ZOMBIE_FIRE_THEME_PREVIEW` 仅保留给确定性截图 fixture。两条路径都不写入或伪造生产购买权益。
+- Save v3 保存全局主题、四名角色各自的 `follow_theme / default / 已拥有主题 ID` 外观模式、已验证永久 entitlement 和隔离的本地演示收据；无权益或资源缺失会回退默认主题 / `follow_theme`。
+- 设置页“主题与外观”统一管理全局主题与四人战衣总览；角色详情新增独立外观按钮；配装页人物大图是当前角色快捷换装入口。战斗暂停页不提供热切换。
+- Debug / TestFlight 验收构建只有显式 preview feature / 环境 fixture 才会绕过选择门禁；普通 debug 不再默认解锁付费主题。本地演示购买不写入或伪造生产购买权益。
 - `UiKit` 已把所有标准装甲按钮语义路由至主题资源。
 - 短、紧凑、标准、长、超长和 `17:1` HUD 丝带六类模型生成 72 张精确尺寸 PNG，运行时使用 keep-aspect，禁止 `STRETCH_SCALE`。
-- 四角色均有独立霓虹肖像和每人 `4 idle + 4 attack/recoil + 3 hurt` 的透明模块化战斗帧，共 44 张；主题优先走“角色无武器帧 + 独立武器层”，不会复制 992 张角色 × 武器合成帧。
+- 四角色均有独立霓虹肖像和每人 `4 idle + 4 attack/recoil + 3 hurt` 的透明备用帧，共 44 张；正式战斗优先走已验收的角色 × 武器融合帧，并在融合轮廓上应用主题材质与背后特效，禁止回到“无武器人物 + 前景枪贴图”。
 - 战斗角色、武器、弹体和结算肖像使用克制的衣装虹彩材质；头脸保护带排除上部，减弱特效时停止流动并降亮。
 - 原程序网格式开火光效已删除。角色每次开火播放 4 帧渲染式青紫等离子电弧翼，中心留空、位于人物后方并按射击方向旋转；主动技能继续叠加四角色各自的重炮、熔火、冰晶和雷暴语义。
 - `tools/check_visual_screens.py --neon-only` 固定覆盖设置切换、角色列表、四角色配装、完整 `4 × 8` 角色 / 免费武器开枪矩阵和四角色主动技，共 43 个场景。
+- `tools/check_visual_screens.py --appearance-only` 固定覆盖中英文全局主题页、角色换装页和购买完成双路径，共 6 个场景；全局默认 + 单人霓虹的战斗路由另验证逐角色资源解析。
 
 ### 4.2 原始硬编码盘点（立项快照）
 
@@ -357,7 +361,7 @@ ThemeManager.get_palette(role)
 - 会重复环境主体。
 - 显著增加包体。
 - 可能改变关卡辨识和敌人对比度。
-- 后续四主题将变为 56 张大背景。
+- 最终三主题将变为 42 张重复大背景。
 
 ### 5.3 建议方案：底部基地覆盖层
 
@@ -610,11 +614,12 @@ App Store 主图标不随用户购买动态变化；霓虹图标只作为可选�
 ### 9.1 当前状态
 
 - 仓库不存在 StoreKit 实现。
-- 不存在 `PurchaseManager`。
+- 已存在 `PurchaseManager`，但当前只处理明确标记为 `local_mock` 的无扣款验收收据，以及为未来 Apple 桥预留的 verified entitlement。
 - 不存在 `.storekit` 本地配置。
 - 不存在 `res://ios/plugins` 下的 IAP 插件。
-- `project.godot` 当前只有 DataLoader、SaveManager、SettingsManager、InputManager、AudioManager 五个 autoload。
-- 当前收藏“购买”只消耗游戏内星星，与 Apple IAP 无关。
+- `project.godot` 已注册 PurchaseManager / ThemeManager；商品目录、主题与权益在 DataLoader / SaveManager 之后协调。
+- 免费收藏购买继续只消耗游戏内星星；premium 行永不显示 `999999★`，而是路由到霓虹军械库。
+- 本地演示商店已跑通 `1.99 / 6.99 / 4.99` 三状态、购买确认、恢复、清空、整套装备和金币升级，并在界面明确写出“不连接 Apple / 不会扣款”。
 
 ### 9.2 第一阶段需要三个商品
 
@@ -643,23 +648,23 @@ App Store 主图标不随用户购买动态变化；霓虹图标只作为可选�
 - Apple current entitlements：<https://developer.apple.com/documentation/storekit/transaction/currententitlements>
 - Apple IAP 完成与恢复：<https://developer.apple.com/documentation/storekit/offering-completing-and-restoring-in-app-purchases>
 
-### 9.4 当前存档缺口
+### 9.4 当前存档状态与 Apple 缺口
 
 `SaveManager` 当前：
 
-- `CURRENT_SAVE_VERSION = 1`。
-- `unlocks` 只表示游戏内拥有。
-- `purchase_item()` 只扣星星。
-- `equipment` 保存等级和已装备项。
+- `CURRENT_SAVE_VERSION = 3`。
+- `commerce.mock_receipts` 与 `entitlements.verified` 严格分离。
+- `purchase_item()` 仍只服务免费星星购买；premium 权益由 PurchaseManager 调和。
+- `equipment` 保存等级和已装备项；撤权后安全回退，premium 等级保留为休眠状态。
+- 完整包授予主题与军械，主题拥有者只出现补差升级商品。
 
-需要：
+Apple 接入仍需要：
 
-- 存档版本迁移。
-- premium entitlement 缓存。
-- 主题装备状态。
-- 终焉装备休眠等级。
-- 退款后的合法装备回退。
-- 存档重置与 Apple 权益分离。
+- StoreKit Configuration。
+- iOS StoreKit 2 bridge。
+- 已验证交易、pending / cancel / failure 状态。
+- Transaction.currentEntitlements 恢复与退款 / 撤销通知。
+- Sandbox、TestFlight 与换机验证。
 
 不能把 Apple 付费装备直接塞进星星 `purchase_item()`，否则购买真源和退款逻辑会混在一起。
 
@@ -796,7 +801,7 @@ assets/production/source_refs/generated/neon_tempest_thunder_phase1_<date>/
 
 1. ThemeManager。
 2. 主题数据和 fallback。
-3. 霓虹模块化角色 / 武器路径。
+3. 霓虹主题材质 + 已验收融合持枪 / premium true-grip 路径。
 4. 菜单、地图、配装、收藏和战斗五个代表场景。
 5. 默认 / 霓虹主题切换。
 6. 无权益 debug fixture。
@@ -810,6 +815,8 @@ assets/production/source_refs/generated/neon_tempest_thunder_phase1_<date>/
 - 包体增量符合预算。
 
 ### Phase 1C · 雷霆军械数据和战斗
+
+状态（2026-07-29）：基础四件套、升级、连锁 / 过载、护甲反击、宠物群体放电、2 / 4 件套和边缘安全终端雷柱已完成；满级单 Boss 综合输出审计为免费 Volt 最强构筑的 `1.550x`。
 
 1. 四件装备数据。
 2. 等级和金币曲线。
@@ -830,6 +837,8 @@ assets/production/source_refs/generated/neon_tempest_thunder_phase1_<date>/
 - 免费雷电基线不变。
 
 ### Phase 1D · 商店和 StoreKit
+
+状态（2026-07-29）：PurchaseManager、三 SKU 状态机、双语商品页、本地购买 / 恢复 / 清空、整套装备和收藏入口已完成；以下 Apple 项仍未连接。
 
 1. 三商品本地 StoreKit 配置。
 2. iOS plugin 技术验证。
@@ -967,8 +976,8 @@ assets/production/source_refs/generated/neon_tempest_thunder_phase1_<date>/
 
 1. Alternate App Icon 是否首发。
 2. 主题部件混搭是否后续开放。
-3. 是否提供四套合集。
-4. 其余三套具体生产顺序。
+3. 是否提供三套合集。
+4. 后续两套具体生产顺序。
 
 ---
 
@@ -1083,7 +1092,7 @@ Phase 1A 视觉和合成证明通过后仍保持：
 - 不创建 App Store Connect 正式商品。
 - 不修改现有免费装备数值。
 - 不覆盖默认角色、武器、UI 或 VFX。
-- 不开始其余三个系列。
+- 不并行启动后续系列。
 
 ---
 
@@ -1107,3 +1116,41 @@ Phase 1B-2 明确不做：
 - 不接 App Store Connect 正式商品。
 - 不实现真实 StoreKit 购买。
 - 不新增终焉数值或改变免费构筑。
+
+---
+
+## 20. Phase 1C-2 · 终焉雷霆真实握持与特效衣服分层（2026-07-29）
+
+Owner 在本地购买闭环实机预览后指出：独立终焉炮虽然商品模型正确，
+但作为单独 Sprite 挂到武器槽后，人物拿枪姿势突兀，双手、肩托和炮体重量
+没有形成一个可信动作。该版本已被替换，不再作为终焉炮战斗呈现。
+
+当前运行时规格：
+
+- 四角色 × 左 / 中 / 右 = `12` 张 `380×520` 透明战斗母版。
+- 后手握扳机 / 主握把，前手托护木 / 炮管护罩，炮尾抵肩。
+- 双脚大于肩宽，躯干前压，终焉炮使用比免费武器更重的 rig 后坐强调。
+- 左右朝向切换时使用对应整人整炮模型，不再旋转一把独立大炮去追枪口。
+- 中、左、右枪口锚点分别对齐真实炮口；弹道和枪口 VFX 从可见炮口出发。
+
+特效衣服采用两层：
+
+1. **模型内静态层**：角色身份轮廓、石墨护甲、青 / 紫导光缝、棱彩面板。
+2. **引擎动态层**：彩虹流动、电脉冲、枪口光翼、开火脉冲、后坐力。
+
+这样做的原因是：静态截图和暂停画面仍要像一套真正的付费服装，而动态光效
+不能烘死在图片里，否则会重复、错位，也无法响应减弱特效设置。
+
+源文件与构建：
+
+- `assets/production/source_refs/generated/premium_neon_tempest_thunder_true_grip_2026_07_29/`
+- `tools/build_apocalypse_true_grip_runtime.py`
+- `assets/production/sprites/premium/neon_tempest/true_grip/`
+
+验收：
+
+- [x] 四角色完整身体、头发、脚部和炮口均不裁切。
+- [x] 12 张 runtime 图全部为双手承重且炮体与肩部相连。
+- [x] 左 / 中 / 右实际战斗切换不再出现浮枪或第二把枪。
+- [x] 枪口光、霓虹衣服动态光和角色本体分层正确。
+- [x] 本次只改变付费终焉炮的视觉合成和动作节奏，没有改伤害、关卡或免费装备。

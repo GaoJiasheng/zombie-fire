@@ -9,11 +9,38 @@ const ACTION_DISABLED_MODULATE := Color(0.48, 0.52, 0.58, 0.86)
 const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_skin.png"
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
+const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const COLLECTION_CARD_WIDTH := 760.0
 const SKILL_CARD_TEXT_WIDTH := 486.0
-const CHARACTER_LIST_BUST_Y := -4.0
+const CHARACTER_LIST_PORTRAIT_SIZE := Vector2(220.0, 282.0)
+const CHARACTER_LIST_VISIBLE_HEIGHT := 250.0
+const CHARACTER_LIST_FOOT_BASELINE := 276.0
+const CHARACTER_LIST_TEXT_X := 260.0
+const CHARACTER_LIST_TEXT_WIDTH := 276.0
 const CHARACTER_DETAIL_BUST_Y := -12.0
 const ARMORED_BUTTON_LABEL_OPTICAL_Y := -4.0
+const SKILL_DETAIL_NAME_FONT_SIZE_ZH := 42
+const SKILL_DETAIL_NAME_FONT_SIZE_EN := 32
+const SKILL_DETAIL_SUMMARY_FONT_SIZE := 23
+const SKILL_DETAIL_SECTION_TITLE_FONT_SIZE := 26
+const SKILL_DETAIL_DESCRIPTION_FONT_SIZE := 22
+const SKILL_DETAIL_LEVEL_FONT_SIZE := 22
+const SKILL_DETAIL_EFFECT_FONT_SIZE := 21
+const SKILL_DETAIL_STAT_FONT_DELTA := 2
+const CHARACTER_DETAIL_NAME_FONT_SIZE := 48
+const CHARACTER_DETAIL_LEVEL_FONT_SIZE := 26
+const CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE := 27
+const CHARACTER_DETAIL_SECOND_PASS_DELTA := 2
+const CHARACTER_DETAIL_AFFINITY_FONT_SIZE := 25
+const CHARACTER_DETAIL_PILL_FONT_SIZE := 20
+const CHARACTER_DETAIL_STAT_LABEL_FONT_SIZE := 20
+const CHARACTER_DETAIL_STAT_VALUE_FONT_SIZE := 28
+const CHARACTER_DETAIL_STAT_SUB_FONT_SIZE := 18
+const CHARACTER_DETAIL_SKILL_TITLE_FONT_SIZE := 28
+const CHARACTER_DETAIL_SKILL_KIND_FONT_SIZE := 22
+const CHARACTER_DETAIL_SKILL_DESC_FONT_SIZE := 24
+const CHARACTER_DETAIL_SIG_LEVEL_FONT_SIZE := 24
+const CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE := 21
 
 var router: Node
 var mode := "characters"
@@ -23,7 +50,14 @@ var _return_challenge_mode := false
 var _loadout_return_to := "map"
 var _loadout_return_payload := {}
 var _detail_modal: Control = null
+var _appearance_selector: CanvasLayer = null
 var _refresh_generation := 0
+
+func _loc(zh: String, en: String) -> String:
+	return en if LocalizationManager.is_english() else zh
+
+func _is_premium_item(row: Dictionary) -> bool:
+	return str(row.get("premium_entitlement", "")).strip_edges() != ""
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -201,7 +235,11 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var selected := slot != "" and SaveManager.get_selected(slot) == item_id
 	var item_level := SaveManager.get_item_level(item_id)
 	var spacious := _uses_spacious_collection_cards()
-	var card_height := 238.0 if spacious else 224.0
+	var english_layout := LocalizationManager.is_english()
+	# Character cards use the same generous presentation height in both
+	# languages. This lets the portrait consume the full card instead of keeping
+	# the former tiny-avatar geometry inside an already tall English row.
+	var card_height := 310.0 if mode == "characters" or english_layout else (238.0 if spacious else 224.0)
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, card_height)
@@ -234,44 +272,52 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.position = Vector2(36, 22) if mode == "characters" else Vector2(48, 54)
-	icon.size = Vector2(118, 126) if mode == "characters" else Vector2(92, 92)
+	icon.position = Vector2(20, 14) if mode == "characters" else Vector2(48, 100 if english_layout else 54)
+	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else Vector2(92, 92)
 	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.modulate = Color.WHITE if unlocked else Color(0.46, 0.5, 0.54, 0.72)
 	if mode == "characters":
 		icon.texture = null
-		icon.clip_contents = true
-		# The frameless portraits have only ~11px of transparent headroom at this
-		# scale. Keep a visible safety margin instead of cropping the hairline.
-		UiKit.add_character_bust(icon, row, Vector2(118, 126), 156.0, CHARACTER_LIST_BUST_Y)
+		icon.clip_contents = false
+		UiKit.add_character_fullbody_aligned(
+			icon,
+			row,
+			CHARACTER_LIST_PORTRAIT_SIZE,
+			CHARACTER_LIST_VISIBLE_HEIGHT,
+			CHARACTER_LIST_FOOT_BASELINE
+		)
 	else:
-		icon.texture = load(row.get("icon", row.get("portrait", "")))
+		icon.texture = load(UiKit.item_icon_path(_data_table_name(), item_id, row))
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		if mode == "weapons":
-			UiKit.apply_neon_surface(icon)
+			UiKit.apply_theme_surface(icon)
 	button.add_child(icon)
 	icon.z_index = 2
 	icon.set_deferred("position", icon.position)
 	icon.set_deferred("size", icon.size)
 
 	var title := Label.new()
+	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
-	title.position = Vector2(170, 34 if spacious else 26)
+	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else 170.0
+	title.position = Vector2(text_x, 24 if mode == "characters" or english_layout else (34 if spacious else 26))
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
 	# full width available so long weapon names plus level/tier remain readable
 	# after the global mobile font increase instead of clipping or shrinking.
-	title.size = Vector2(540, 46 if spacious else 40)
-	UiKit.apply_label(title, 27 if spacious else 28, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
+	title.size = Vector2(450 if mode == "characters" else 540, 96 if mode == "characters" else (112 if english_layout else (46 if spacious else 40)))
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if english_layout else TextServer.AUTOWRAP_OFF
+	UiKit.apply_label(title, 24 if english_layout else (27 if spacious else 28), _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 	title.z_index = 2
 
 	var tag_row := HBoxContainer.new()
-	tag_row.position = Vector2(170, 84 if spacious else 70)
-	tag_row.size = Vector2(350, 36)
+	tag_row.name = "Tags"
+	tag_row.position = Vector2(text_x, 128 if mode == "characters" else (140 if english_layout else (84 if spacious else 70)))
+	tag_row.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else 350, 36)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -280,11 +326,12 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 		tag_row.add_child(UiKit.pill(str(tag_text), accent, 15))
 
 	var desc := Label.new()
+	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(170, 128 if spacious else 110)
+	desc.position = Vector2(text_x, 174 if mode == "characters" else (184 if english_layout else (128 if spacious else 110)))
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(350, 110 if LocalizationManager.is_english() else 96)
+	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else 350, 120 if mode == "characters" else (110 if LocalizationManager.is_english() else 96))
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -297,9 +344,13 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	if mode != "skills":
 		var buy_price := 0
 		var can_buy := false
+		var premium_locked := not unlocked and _is_premium_item(row)
 		if not unlocked:
-			buy_price = SaveManager.get_unlock_price_star(_data_table_name(), item_id)
-			can_buy = SaveManager.get_player_star() >= buy_price
+			if premium_locked:
+				can_buy = true
+			else:
+				buy_price = SaveManager.get_unlock_price_star(_data_table_name(), item_id)
+				can_buy = SaveManager.get_player_star() >= buy_price
 			_add_locked_card_veil(button, card_height, can_buy)
 
 		var action_text := "已装备" if selected else ("选  定" if mode == "characters" else "装  备")
@@ -308,13 +359,18 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 		var action_callback: Callable = _select_item.bind(slot, item_id)
 		if not unlocked:
 			action_primary = true
-			action_enabled = false
-			action_callback = Callable()
-			action_text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
-			action_enabled = can_buy
-			action_callback = _purchase_item_flow.bind(item_id, row)
+			if premium_locked:
+				action_text = _loc("军械库", "Arsenal")
+				action_enabled = true
+				action_callback = _open_premium_store
+			else:
+				action_enabled = false
+				action_callback = Callable()
+				action_text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
+				action_enabled = can_buy
+				action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
-		var action_pos := Vector2(548, 142 if spacious else 122)
+		var action_pos := Vector2(548, 212 if english_layout else (142 if spacious else 122))
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
 		action_btn.z_index = 3
 		if action_enabled and action_callback.is_valid():
@@ -348,7 +404,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var item_level := SaveManager.get_skill_base_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 158)
+	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 210)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
@@ -365,7 +421,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var card := PanelContainer.new()
 	card.name = "SkillCard"
 	card.position = Vector2(10, 6)
-	card.size = Vector2(740, 146)
+	card.size = Vector2(740, 198)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.visible = true
@@ -374,7 +430,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var accent_bar := TextureRect.new()
 	accent_bar.name = "AccentBar"
 	accent_bar.position = Vector2(10, 6)
-	accent_bar.size = Vector2(18, 132)
+	accent_bar.size = Vector2(18, 184)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -433,23 +489,30 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(148, 60 if english_layout else 58)
-	tag_row.size = Vector2(SKILL_CARD_TEXT_WIDTH, 34)
-	tag_row.add_theme_constant_override("separation", 8)
+	tag_row.position = Vector2(148, 76)
+	tag_row.size = Vector2(SKILL_CARD_TEXT_WIDTH, 40)
+	tag_row.add_theme_constant_override("separation", 10)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
 	var tag_font_size := 13 if english_layout else 15
-	tag_row.add_child(UiKit.pill(_skill_kind_short_name(str(row.get("kind", "passive"))) if english_layout else _kind_name(str(row.get("kind", "passive"))), Color(accent.r, accent.g, accent.b, 0.82), tag_font_size))
+	var kind_tag := UiKit.skill_tag_pill(_skill_kind_short_name(str(row.get("kind", "passive"))) if english_layout else _kind_name(str(row.get("kind", "passive"))), true, tag_font_size)
+	kind_tag.name = "KindTag"
+	tag_row.add_child(kind_tag)
 	var tag_limit := 2 if english_layout else 3
+	var tag_index := 0
 	for tag_text in _item_tags(row, true).slice(0, tag_limit):
-		tag_row.add_child(UiKit.pill(str(tag_text), accent, tag_font_size))
+		var semantic_tag := UiKit.skill_tag_pill(str(tag_text), false, tag_font_size)
+		semantic_tag.name = "AbilityTag%d" % tag_index
+		tag_row.add_child(semantic_tag)
+		tag_index += 1
 
 	var effect := Label.new()
 	effect.name = "EffectSummary"
 	effect.text = _skill_effect_summary(row, item_level)
-	effect.position = Vector2(148, 94)
-	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 36)
+	effect.position = Vector2(148, 122)
+	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 80)
 	effect.clip_text = true
+	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(effect)
@@ -552,24 +615,44 @@ func _data_table_name() -> String:
 			return ""
 
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
+	if mode == "characters":
+		var role := LocalizationManager.text(_role_name(row.get("role_tag", "-")))
+		var element := LocalizationManager.text(_element_name(row.get("element_focus", "-")))
+		if not unlocked:
+			# Give the enlarged portrait its own lane and make the adjacent copy read
+			# as two intentional facts.  Letting this wrap naturally used to orphan
+			# the final Chinese glyph (for example, 火 / 焰) on a third line.
+			return _loc("定位：%s\n元素：%s", "Role: %s\nElement: %s") % [role, element]
+		return _loc(
+			"定位：%s\n元素：%s\n%s" % [role, element, _next_upgrade_hint(item_id, row)],
+			"Role: %s\nElement: %s\n%s" % [role, element, LocalizationManager.text(_next_upgrade_hint(item_id, row))]
+		)
 	if not unlocked:
 		# Price already lives in the action button; repeating it here squeezes the
 		# useful stats and can collide with the button on a phone-sized card.
 		return _item_stat_summary(row)
 	match mode:
-		"characters":
-			return "定位：%s  元素：%s\n%s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-")), _next_upgrade_hint(item_id, row)]
 		"weapons":
-			return "元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), _weapon_special_text(row)]
+			return _loc(
+				"元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), _weapon_special_text(row)],
+				"%s · Rate %s\n%s" % [LocalizationManager.text(_element_name(row.get("element", "-"))), row.get("fire_rate", "-"), LocalizationManager.text(_weapon_special_text(row))]
+			)
 		"armors":
-			return "生命倍率：%.0f%%  抗性：%s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			var barrier := "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""
+			return _loc(
+				"生命倍率：%.0f%%  抗性：%s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), barrier],
+				"HP: %.0f%% · Resist: %s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_element_name(row.get("resist", "none"))), LocalizationManager.text(_next_upgrade_hint(item_id, row)), " · Barrier +1" if barrier != "" else ""]
+			)
 		"chips":
-			return "%s +%s\n%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0)), _next_upgrade_hint(item_id, row)]
+			return "%s +%s\n%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0)), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
-			return "定位：%s  元素：%s\n%s · %s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), str(pet_skill.get("name", "专属协战")), _next_upgrade_hint(item_id, row)]
+			return _loc(
+				"定位：%s  元素：%s\n%s · %s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), str(pet_skill.get("name", "专属协战")), _next_upgrade_hint(item_id, row)],
+				"Role: %s · Element: %s\n%s · %s" % [LocalizationManager.text(_role_name(row.get("role", "-"))), LocalizationManager.text(_element_name(row.get("element", "-"))), LocalizationManager.text(str(pet_skill.get("name", "专属协战"))), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
+			)
 		"skills":
-			return "标签：%s" % _format_tags(row.get("card_tags", []))
+			return _loc("标签：%s", "Tags: %s") % LocalizationManager.text(_format_tags(row.get("card_tags", [])))
 		_:
 			return item_id
 
@@ -577,29 +660,29 @@ func _item_stat_summary(row: Dictionary) -> String:
 	# 未拥有时也要看到的核心参数（不含升级提示），方便判断该不该买。
 	match mode:
 		"characters":
-			return "定位：%s  元素：%s" % [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-"))]
+			return _loc("定位：%s  元素：%s", "Role: %s · Element: %s") % [LocalizationManager.text(_role_name(row.get("role_tag", "-"))), LocalizationManager.text(_element_name(row.get("element_focus", "-")))]
 		"weapons":
-			return "元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), str(row.get("fire_rate", "-")), _weapon_special_text(row)]
+			return _loc("元素：%s  射速：%s\n%s", "Element: %s · Fire Rate: %s\n%s") % [LocalizationManager.text(_element_name(row.get("element", "-"))), str(row.get("fire_rate", "-")), LocalizationManager.text(_weapon_special_text(row))]
 		"armors":
-			return "生命倍率：%.0f%%  抗性：%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), "\n屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			return _loc("生命倍率：%.0f%%  抗性：%s%s", "HP: %.0f%% · Resist: %s%s") % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_element_name(row.get("resist", "none"))), "\nBarrier +1" if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
-			return "%s +%s" % [_stat_name(row.get("stat", "stat")), _value_text(row.get("value", 0))]
+			return "%s +%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0))]
 		"pets":
-			return "定位：%s  元素：%s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-"))]
+			return _loc("定位：%s  元素：%s", "Role: %s · Element: %s") % [LocalizationManager.text(_role_name(row.get("role", "-"))), LocalizationManager.text(_element_name(row.get("element", "-")))]
 		_:
 			return ""
 
 func _skill_effect_summary(row: Dictionary, current_level: int) -> String:
 	var levels: Array = row.get("levels", [])
 	if levels.is_empty():
-		return "效果：%s" % _format_tags(row.get("card_tags", []))
+		return _loc("效果：%s", "Effect: %s") % LocalizationManager.text(_format_tags(row.get("card_tags", [])))
 	var max_level := levels.size()
 	if current_level <= 0:
 		var first: Dictionary = levels[0]
-		return "当前：未升级 · 首级 %s" % SkillEffectText.format_effect(first.get("effect", {}))
+		return LocalizationManager.text("当前：未升级 · 首级 %s") % SkillEffectText.format_effect(first.get("effect", {}))
 	var clamped := clampi(current_level, 1, max_level)
 	var effect := SkillEffectText.effect_for_level(row, clamped)
-	return "当前：%s" % SkillEffectText.format_effect(effect)
+	return _loc("当前：%s", "Current: %s") % SkillEffectText.format_effect(effect)
 
 func _element_name(element: String) -> String:
 	match str(element):
@@ -640,6 +723,14 @@ func _role_name(role: String) -> String:
 			return "维修"
 		"economy":
 			return "经济"
+		"apocalypse_chain":
+			return _loc("终焉连锁", "Apocalypse Chain")
+		"apocalypse_fire":
+			return _loc("终焉火焰", "Apocalypse Fire")
+		"apocalypse_ice":
+			return _loc("终焉冰霜", "Apocalypse Frost")
+		"apocalypse_golden_law":
+			return _loc("黄金律令", "Golden Law")
 		_:
 			return str(role)
 
@@ -713,6 +804,8 @@ func _kind_name(kind: String) -> String:
 			return "收益强化"
 		"defense":
 			return "防线强化"
+		"element":
+			return "元素模块"
 		_:
 			return str(kind)
 
@@ -901,6 +994,9 @@ func _select_item(slot: String, item_id: String) -> void:
 		_pulse_selected_item(item_id)
 
 func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
+	if _is_premium_item(row):
+		_open_premium_store()
+		return
 	var table := _data_table_name()
 	var price := SaveManager.get_unlock_price_star(table, item_id)
 	if not SaveManager.can_purchase(table, item_id):
@@ -908,7 +1004,7 @@ func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
 		return
 	AudioManager.play_sfx("ui_click", -4.0)
 	var name_text: String = DataLoader.tr_key(row.get("name_key", item_id))
-	var preview_icon: String = UiKit.character_bust_path(row) if mode == "characters" else str(row.get("icon", row.get("portrait", "")))
+	var preview_icon: String = UiKit.character_bust_path(row) if mode == "characters" else UiKit.item_icon_path(table, item_id, row)
 	UiKit.confirm_modal(self, {
 		"title": "购买确认",
 		"message": "确认解锁 %s？" % name_text,
@@ -920,6 +1016,14 @@ func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
 		"cancel_text": "取消",
 		"on_confirm": func() -> void: _do_purchase(table, item_id),
 	})
+
+func _open_premium_store() -> void:
+	AudioManager.play_sfx("ui_confirm")
+	if _detail_modal != null and is_instance_valid(_detail_modal):
+		_detail_modal.queue_free()
+		_detail_modal = null
+	if router != null:
+		router.change_scene("store")
 
 func _do_purchase(table: String, item_id: String) -> void:
 	var res := SaveManager.purchase_item(table, item_id)
@@ -998,7 +1102,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	panel.add_child(vbox)
 
 	var header := HBoxContainer.new()
-	header.custom_minimum_size = Vector2(0, 210)
+	header.custom_minimum_size = Vector2(0, 244 if LocalizationManager.is_english() else 210)
 	header.add_theme_constant_override("separation", 18)
 	vbox.add_child(header)
 
@@ -1007,7 +1111,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	icon_frame.add_theme_stylebox_override("panel", _build_pill_style(accent, Color(0.06, 0.1, 0.16, 0.92)))
 	header.add_child(icon_frame)
 	var icon := TextureRect.new()
-	icon.texture = load(row.get("icon", row.get("portrait", "")))
+	icon.texture = load(UiKit.item_icon_path(_data_table_name(), item_id, row))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.custom_minimum_size = Vector2(180, 180)
@@ -1023,24 +1127,40 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	var name_label := Label.new()
 	name_label.text = DataLoader.tr_key(row.get("name_key", item_id))
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiKit.apply_label(name_label, 40, Color(0.98, 0.99, 1.0, 1.0), 4)
-	name_label.clip_text = true
+	# The English apocalypse name is intentionally descriptive. Reserve the
+	# level/close controls and use the same mobile-readable fit as other long
+	# English equipment names instead of clipping the last word.
+	var detail_name_font_size := 30 if LocalizationManager.is_english() else 40
+	if mode == "skills":
+		detail_name_font_size = SKILL_DETAIL_NAME_FONT_SIZE_EN if LocalizationManager.is_english() else SKILL_DETAIL_NAME_FONT_SIZE_ZH
+	UiKit.apply_label(name_label, detail_name_font_size, Color(0.98, 0.99, 1.0, 1.0), 4)
+	if LocalizationManager.is_english():
+		name_label.custom_minimum_size = Vector2(0, 112)
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.clip_text = false
 	name_row.add_child(name_label)
 	var level_badge := _make_pill("等级%d%s" % [item_level, _tier_suffix(item_level)], _level_tint(item_level), Color(0.08, 0.11, 0.16, 0.92))
 	level_badge.custom_minimum_size = Vector2(128, 44)
+	if mode == "skills":
+		(level_badge.get_child(0) as Label).add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	name_row.add_child(level_badge)
 
 	var tag_row := HBoxContainer.new()
 	tag_row.add_theme_constant_override("separation", 10)
 	name_col.add_child(tag_row)
 	for tag_text in _item_tags(row, true).slice(0, 4):
-		tag_row.add_child(_make_pill(str(tag_text), accent, Color(0.05, 0.09, 0.14, 0.82)))
+		var tag_pill := _make_pill(str(tag_text), accent, Color(0.05, 0.09, 0.14, 0.82))
+		if mode == "skills":
+			tag_pill.custom_minimum_size.y = 38.0
+			(tag_pill.get_child(0) as Label).add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
+		tag_row.add_child(tag_pill)
 
 	var summary := Label.new()
 	summary.text = _item_desc(item_id, row, true)
 	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiKit.apply_label(summary, 21, Color(0.78, 0.91, 1.0, 1.0), 3)
+	UiKit.apply_label(summary, SKILL_DETAIL_SUMMARY_FONT_SIZE if mode == "skills" else 21, Color(0.78, 0.91, 1.0, 1.0), 3)
 	name_col.add_child(summary)
 
 	var close_btn := _compact_close_button("CloseButton")
@@ -1048,6 +1168,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	header.add_child(close_btn)
 
 	var content_scroll := ScrollContainer.new()
+	content_scroll.name = "DetailScroll"
 	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1057,7 +1178,11 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	detail_content.add_theme_constant_override("separation", 12)
 	content_scroll.add_child(detail_content)
 
-	var stats_section := _make_section_panel("核心数据", accent)
+	var stats_section := _make_section_panel(
+		"核心数据",
+		accent,
+		SKILL_DETAIL_SECTION_TITLE_FONT_SIZE if mode == "skills" else 24
+	)
 	detail_content.add_child(stats_section)
 	var stats_grid := GridContainer.new()
 	stats_grid.columns = 2
@@ -1065,7 +1190,12 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	stats_grid.add_theme_constant_override("v_separation", 10)
 	stats_section.get_child(0).add_child(stats_grid)
 	for stat in _detail_stats_for_item(item_id, row, item_level):
-		stats_grid.add_child(_make_stat_pill(str(stat.get("label", "")), str(stat.get("value", "")), str(stat.get("sub", ""))))
+		stats_grid.add_child(_make_stat_pill(
+			str(stat.get("label", "")),
+			str(stat.get("value", "")),
+			str(stat.get("sub", "")),
+			SKILL_DETAIL_STAT_FONT_DELTA if mode == "skills" else 0
+		))
 	# 升级预览：本级 → 下级，直观看到"升级到底加了什么"
 	if mode != "skills" and SaveManager.is_item_unlocked(slot, item_id):
 		var preview := _upgrade_preview_rows(item_id, row, item_level)
@@ -1081,13 +1211,18 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	if mode == "skills":
 		detail_content.add_child(_make_skill_levels_section(row, accent, item_level))
 
-	var desc_section := _make_section_panel("战术说明", Color(0.68, 0.82, 1.0, 0.82))
+	var desc_section := _make_section_panel(
+		"战术说明",
+		Color(0.68, 0.82, 1.0, 0.82),
+		SKILL_DETAIL_SECTION_TITLE_FONT_SIZE if mode == "skills" else 24
+	)
 	detail_content.add_child(desc_section)
 	var desc_label := Label.new()
 	desc_label.text = _detail_body_text(item_id, row)
 	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiKit.apply_label(desc_label, 20, Color(0.9, 0.96, 1.0, 1.0), 3)
+	desc_label.name = "DescriptionBody"
+	UiKit.apply_label(desc_label, SKILL_DETAIL_DESCRIPTION_FONT_SIZE if mode == "skills" else 20, Color(0.9, 0.96, 1.0, 1.0), 3)
 	desc_section.get_child(0).add_child(desc_label)
 
 	var action_row := HBoxContainer.new()
@@ -1095,15 +1230,21 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	action_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(action_row)
 	if mode != "skills" and not SaveManager.is_item_unlocked(slot, item_id):
-		# 未拥有：详情页里直接给购买按钮（买得起=亮，买不起=灰禁用）。
-		var buy_price := SaveManager.get_unlock_price_star(table, item_id)
-		var can_buy := SaveManager.get_player_star() >= buy_price
-		var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
-		buy_btn.disabled = not can_buy
-		buy_btn.modulate = ACTION_ACTIVE_MODULATE if can_buy else ACTION_DISABLED_MODULATE
-		buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
-		action_row.add_child(buy_btn)
+		if _is_premium_item(row):
+			var store_btn := _armored_action_button("OpenArsenalButton", _loc("前往终焉军械库", "Open Apocalypse Arsenal"), true, true, Vector2(440, 112), 24)
+			store_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			store_btn.pressed.connect(_open_premium_store)
+			action_row.add_child(store_btn)
+		else:
+			# 未拥有：详情页里直接给购买按钮（买得起=亮，买不起=灰禁用）。
+			var buy_price := SaveManager.get_unlock_price_star(table, item_id)
+			var can_buy := SaveManager.get_player_star() >= buy_price
+			var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
+			buy_btn.disabled = not can_buy
+			buy_btn.modulate = ACTION_ACTIVE_MODULATE if can_buy else ACTION_DISABLED_MODULATE
+			buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			buy_btn.pressed.connect(_purchase_item_flow.bind(item_id, row))
+			action_row.add_child(buy_btn)
 	elif mode != "skills":
 		var equip_btn := _detail_button("EquipButton", "已装备" if selected else "装  备", true)
 		equip_btn.disabled = selected
@@ -1127,8 +1268,11 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		var skill_max := SaveManager.get_skill_base_max(item_id)
 		var skill_cost := SaveManager.get_skill_base_upgrade_cost(item_id)
 		var can_up := SaveManager.can_upgrade_skill_base(item_id)
-		var skill_label := "已精通" if skill_lvl >= skill_max else ("升级技能  %d经验" % skill_cost)
-		var skill_btn := _armored_action_button("SkillUpgradeButton", skill_label, true, true, Vector2(412, 112), 22)
+		# The action is already established by the detail page. Keep the button to a
+		# compact price treatment so the mobile-sized label never overruns the bezel.
+		var skill_label := "已精通" if skill_lvl >= skill_max else ("%d★" % skill_cost)
+		var skill_btn := _armored_action_button("SkillUpgradeButton", skill_label, true, true, Vector2(412, 112), 24)
+		skill_btn.tooltip_text = _loc("消耗 %d 经验，永久提升技能" % skill_cost, "Spend %d XP to permanently upgrade this skill" % skill_cost)
 		skill_btn.disabled = not can_up
 		skill_btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 		skill_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1157,6 +1301,7 @@ func _armored_action_button(node_name: String, text: String, enabled: bool, prim
 	var label := Label.new()
 	label.name = "ActionLabel"
 	label.text = LocalizationManager.text(text)
+	button.add_child(label)
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1165,7 +1310,6 @@ func _armored_action_button(node_name: String, text: String, enabled: bool, prim
 	UiKit.apply_label(label, font_size, Color.WHITE if enabled else Color(0.74, 0.78, 0.82, 1.0), 3)
 	UiKit.fit_label_text(label, preferred_size, 16, 18.0, 10.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(label)
 	return button
 
 func _apply_armored_button_label_alignment(label: Label) -> void:
@@ -1205,13 +1349,19 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 	if mode != "skills":
 		stats.append({"label": "等级", "value": "%d / %d" % [item_level, max_level], "sub": _growth_badge_text(item_level)})
 	if mode != "skills" and table != "":
-		if item_level >= max_level:
+		if _is_premium_item(row) and not SaveManager.is_item_unlocked(_slot(), item_id):
+			stats.append({
+				"label": _loc("获取方式", "Access"),
+				"value": _loc("终焉军械库", "Apocalypse Arsenal"),
+				"sub": _loc("购买整套后可升级", "Upgrade after unlock"),
+			})
+		elif item_level >= max_level:
 			stats.append({"label": "状态", "value": "已满级", "sub": "成长已完成"})
 		else:
 			stats.append({"label": "升级", "value": "%d 金币" % SaveManager.get_item_upgrade_cost(table, item_id), "sub": _next_upgrade_hint(item_id, row)})
 	match mode:
 		"weapons":
-			stats.append({"label": "元素", "value": _element_name(row.get("element", "-")), "sub": str(row.get("projectile_type", "弹道"))})
+			stats.append({"label": "元素", "value": _element_name(row.get("element", "-")), "sub": _projectile_type_name(str(row.get("projectile_type", "bullet")))})
 			stats.append({"label": "攻击", "value": "%.0f%%" % (float(row.get("base_atk_coef", 1.0)) * 100.0), "sub": "等级伤害 %.0f%%" % ((SaveManager.get_weapon_damage_multiplier(item_id) - 1.0) * 100.0)})
 			stats.append({"label": "射速", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "等级射速 %.0f%%" % ((SaveManager.get_weapon_fire_rate_multiplier(item_id) - 1.0) * 100.0)})
 			stats.append({"label": "弹速", "value": "%d" % int(row.get("projectile_speed", 0)), "sub": _weapon_special_text(row)})
@@ -1269,6 +1419,35 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			stats.append({"label": "当前", "value": "%d / %d" % [item_level, levels.size()], "sub": "永久技能等级"})
 			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": "逐级叠加"})
 	return stats
+
+func _projectile_type_name(projectile_type: String) -> String:
+	match projectile_type:
+		"bullet":
+			return _loc("常规弹", "Ballistic Rounds")
+		"flame":
+			return _loc("火焰喷流", "Flame Stream")
+		"ice_bolt":
+			return _loc("寒冰弹", "Frost Bolt")
+		"chain":
+			return _loc("连锁电弧", "Chain Arc")
+		"lob":
+			return _loc("抛射毒弹", "Toxic Lob")
+		"rail":
+			return _loc("磁轨弹", "Rail Shot")
+		"pellet":
+			return _loc("散射弹丸", "Pellets")
+		"plasma":
+			return _loc("等离子体", "Plasma Bolt")
+		"apocalypse_chain":
+			return _loc("终焉连锁", "Apocalypse Chain")
+		"apocalypse_inferno_stream":
+			return _loc("炼狱火流", "Inferno Stream")
+		"apocalypse_absolute_zero_bolt":
+			return _loc("绝对零度弹", "Absolute Zero Bolt")
+		"apocalypse_golden_law_verdict":
+			return _loc("黄金裁决弹", "Golden Verdict")
+		_:
+			return _loc("弹道", "Projectile")
 
 func _pet_stat_bonus_stats(row: Dictionary, item_level: int, max_level: int) -> Array:
 	var stats := []
@@ -1385,7 +1564,8 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 			return _item_desc(item_id, row, true)
 
 func _make_skill_levels_section(row: Dictionary, accent: Color, current_level: int) -> PanelContainer:
-	var section := _make_section_panel("各级加成", accent)
+	var section := _make_section_panel("各级加成", accent, SKILL_DETAIL_SECTION_TITLE_FONT_SIZE)
+	section.name = "SkillLevelsSection"
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 8)
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1398,8 +1578,9 @@ func _make_skill_levels_section(row: Dictionary, accent: Color, current_level: i
 
 func _make_skill_level_row(level: int, effect_text: String, accent: Color, current_level: int) -> PanelContainer:
 	var pill := PanelContainer.new()
+	pill.name = "SkillLevel%d" % level
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pill.custom_minimum_size = Vector2(0, 58)
+	pill.custom_minimum_size = Vector2(0, 64)
 	var active := current_level >= level
 	var border := Color(accent.r, accent.g, accent.b, 0.86 if active else 0.46)
 	var fill := Color(0.038, 0.058, 0.074, 0.88) if active else Color(0.026, 0.036, 0.048, 0.68)
@@ -1409,21 +1590,23 @@ func _make_skill_level_row(level: int, effect_text: String, accent: Color, curre
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pill.add_child(row)
 	var level_label := Label.new()
+	level_label.name = "Level"
 	level_label.text = "等级%d" % level
 	level_label.custom_minimum_size = Vector2(88, 0)
 	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
+	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(SKILL_DETAIL_LEVEL_FONT_SIZE))
 	level_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.56, 1.0) if active else Color(0.72, 0.82, 0.86, 0.88))
 	level_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
 	level_label.add_theme_constant_override("outline_size", 2)
 	row.add_child(level_label)
 	var value_label := Label.new()
+	value_label.name = "Effect"
 	value_label.text = effect_text
 	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value_label.add_theme_color_override("font_color", Color(0.92, 0.98, 1.0, 1.0) if active else Color(0.72, 0.82, 0.86, 0.86))
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	value_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
+	value_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(SKILL_DETAIL_EFFECT_FONT_SIZE))
 	value_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
 	value_label.add_theme_constant_override("outline_size", 1)
 	row.add_child(value_label)
@@ -1503,7 +1686,10 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var safe := _safe_area_canvas_insets()
-	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 150.0, 0.30)
+	# Keep the translated modal inside the bottom safe edge. The character
+	# dialog only owns a 90px authored bottom gutter, so a taller-device shift
+	# may never exceed that available gutter.
+	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 90.0, 0.30)
 	# Match the item's safe-width modal contract. Native action-button models
 	# stay untouched; only the outer authored gutter yields on narrow safe areas.
 	panel.offset_left = 28.0 + safe.x
@@ -1549,8 +1735,9 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	name_row.add_theme_constant_override("separation", 14)
 	name_col.add_child(name_row)
 	var name_label := Label.new()
+	name_label.name = "CharacterName"
 	name_label.text = DataLoader.tr_key(row.get("name_key", item_id))
-	name_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(44))
+	name_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_NAME_FONT_SIZE))
 	name_label.add_theme_color_override("font_color", Color(0.98, 0.99, 1, 1))
 	name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	name_label.add_theme_constant_override("outline_size", 4)
@@ -1558,13 +1745,14 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# Level badge
 	var level_badge := PanelContainer.new()
 	level_badge.add_theme_stylebox_override("panel", _build_level_badge_style())
-	level_badge.custom_minimum_size = Vector2(104, 44)
+	level_badge.custom_minimum_size = Vector2(112, 48)
 	name_row.add_child(level_badge)
 	var level_text := Label.new()
+	level_text.name = "CharacterLevel"
 	level_text.text = "等级%d" % item_level
 	level_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	level_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	level_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
+	level_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_LEVEL_FONT_SIZE))
 	level_text.add_theme_color_override("font_color", Color(1, 0.92, 0.5, 1))
 	level_badge.add_child(level_text)
 	# The textured modal has a fixed ornamental rule below the title. Reserve a
@@ -1578,30 +1766,31 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var tag_row := HBoxContainer.new()
 	tag_row.add_theme_constant_override("separation", 10)
 	name_col.add_child(tag_row)
-	tag_row.add_child(_make_pill(_role_name(row.get("role_tag", "-")), Color(0.32, 0.62, 0.85), Color(0.18, 0.42, 0.6, 0.7)))
-	tag_row.add_child(_make_pill(_element_name(row.get("element_focus", "-")), _element_color(row.get("element_focus", "physical")), _element_color_dark(row.get("element_focus", "physical"))))
+	tag_row.add_child(_make_pill(_role_name(row.get("role_tag", "-")), Color(0.32, 0.62, 0.85), Color(0.18, 0.42, 0.6, 0.7), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	tag_row.add_child(_make_pill(_element_name(row.get("element_focus", "-")), _element_color(row.get("element_focus", "physical")), _element_color_dark(row.get("element_focus", "physical")), CHARACTER_DETAIL_SECOND_PASS_DELTA))
 	# Bullet affinity summary
 	var affinity: Dictionary = row.get("bullet_affinity", {})
 	if not affinity.is_empty():
-		var affinity_text := "弹种亲和 · "
+		var affinity_text := _loc("弹种亲和 · ", "Ammo Affinity · ")
 		var bonuses: Array[String] = []
 		var elem := str(affinity.get("element", ""))
 		if elem != "":
-			bonuses.append(_element_name(elem) + "弹")
+			bonuses.append(_loc("%s弹" % _element_name(elem), "%s Rounds" % LocalizationManager.text(_element_name(elem))))
 		var dmg := float(affinity.get("damage_bonus", 0.0))
 		if dmg > 0.0:
-			bonuses.append("伤害 +%d%%" % int(dmg * 100))
+			bonuses.append(_loc("伤害 +%d%%", "Damage +%d%%") % int(dmg * 100))
 		var pierce := int(affinity.get("pierce_bonus", 0))
 		if pierce > 0:
-			bonuses.append("穿透 +%d" % pierce)
+			bonuses.append(_loc("穿透 +%d", "Piercing +%d") % pierce)
 		var splash := float(affinity.get("splash_bonus", 0.0))
 		if splash > 0.0:
-			bonuses.append("爆燃 +%d" % int(splash))
+			bonuses.append(_loc("爆燃 +%d", "Combustion +%d") % int(splash))
 		if bonuses.size() > 0:
 			affinity_text += "  ".join(bonuses)
 			var affinity_label := Label.new()
+			affinity_label.name = "AffinitySummary"
 			affinity_label.text = affinity_text
-			affinity_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(21))
+			affinity_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_AFFINITY_FONT_SIZE))
 			affinity_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1, 0.95))
 			affinity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			name_col.add_child(affinity_label)
@@ -1611,6 +1800,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	hero.add_child(close_btn)
 
 	var content_scroll := ScrollContainer.new()
+	content_scroll.name = "DetailScroll"
 	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1621,18 +1811,18 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	content_scroll.add_child(detail_content)
 
 	# === BASE STATS section (cyan accent) ===
-	var stats_section := _make_section_panel("基础属性", Color(0.58, 0.72, 0.82, 0.85))
+	var stats_section := _make_section_panel("基础属性", Color(0.58, 0.72, 0.82, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(stats_section)
 	var stats_grid := GridContainer.new()
 	stats_grid.columns = 3
 	stats_grid.add_theme_constant_override("h_separation", 14)
 	stats_grid.add_theme_constant_override("v_separation", 10)
 	stats_section.get_child(0).add_child(stats_grid)
-	stats_grid.add_child(_make_stat_pill("攻  击", str(int(row.get("base_atk", 0))), "+%.1f%% / 级" % (float(row.get("atk_growth", 0)) * 45.0)))
-	stats_grid.add_child(_make_stat_pill("血  量", str(int(row.get("base_hp", 0))), "+%.1f%% / 级" % (float(row.get("hp_growth", 0)) * 45.0)))
-	stats_grid.add_child(_make_stat_pill("暴  击", "%.0f%%" % (float(row.get("crit_rate_base", 0)) * 100.0), ""))
-	stats_grid.add_child(_make_stat_pill("射  速", "%.2f×" % float(row.get("fire_rate_mod", 1.0)), ""))
-	stats_grid.add_child(_make_stat_pill("瞄  准", "%.2f×" % float(row.get("aim_turn_speed", 1.0)), ""))
+	stats_grid.add_child(_make_stat_pill("攻  击", str(int(row.get("base_atk", 0))), "+%.1f%% / 级" % (float(row.get("atk_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("血  量", str(int(row.get("base_hp", 0))), "+%.1f%% / 级" % (float(row.get("hp_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("暴  击", "%.0f%%" % (float(row.get("crit_rate_base", 0)) * 100.0), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("射  速", "%.2f×" % float(row.get("fire_rate_mod", 1.0)), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("瞄  准", "%.2f×" % float(row.get("aim_turn_speed", 1.0)), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
 	# Empty 6th slot for grid alignment
 	var filler := Label.new()
 	filler.text = ""
@@ -1641,22 +1831,23 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# === 升级预览：本级 → 下级(角色此前一直缺失，只有武器/护甲/芯片/宠物有) ===
 	var char_preview := _upgrade_preview_rows(item_id, row, item_level)
 	if not char_preview.is_empty():
-		var up_section := _make_section_panel("升级预览  (等级%d → %d)" % [item_level, item_level + 1], UiKit.GREEN)
+		var up_section := _make_section_panel("升级预览  (等级%d → %d)" % [item_level, item_level + 1], UiKit.GREEN, CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 		detail_content.add_child(up_section)
 		var up_grid := GridContainer.new()
 		up_grid.columns = 1
 		up_grid.add_theme_constant_override("v_separation", 8)
 		up_section.get_child(0).add_child(up_grid)
 		for pr in char_preview:
-			up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", ""))))
+			up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", "")), CHARACTER_DETAIL_SECOND_PASS_DELTA))
 
 	# === PASSIVE section (green accent) ===
 	var passive_id := str(row.get("passive", ""))
 	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
-	var passive_section := _make_section_panel("被  动", Color(0.48, 0.74, 0.50, 0.85))
+	var passive_icon_path := "res://assets/production/sprites/ui/icon_element_%s.png" % str(row.get("element", "physical"))
+	var passive_section := _make_section_panel("被  动", Color(0.48, 0.74, 0.50, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(passive_section)
 	passive_section.get_child(0).add_child(_make_skill_row(
-		null,  # no icon asset, use bullet
+		passive_icon_path,
 		passive_info["name"],
 		"被动天赋",
 		passive_info["desc"],
@@ -1665,13 +1856,13 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	))
 
 	# === SIGNATURE SKILLS section (gold accent) ===
-	var sig_section := _make_section_panel("专属技能", Color(0.92, 0.68, 0.34, 0.85))
+	var sig_section := _make_section_panel("专属技能", Color(0.92, 0.68, 0.34, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(sig_section)
 	var sig_ids: Array = row.get("signature_skills", [])
 	if sig_ids.is_empty():
 		var empty := Label.new()
 		empty.text = "（暂无）"
-		empty.add_theme_font_size_override("font_size", UiKit.bumped_font_size(22))
+		empty.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
 		empty.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		sig_section.get_child(0).add_child(empty)
 	else:
@@ -1699,48 +1890,93 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# === AFFINITY TAGS section ===
 	var card_affinity: Array = row.get("card_affinity_tags", [])
 	if not card_affinity.is_empty():
-		var aff_section := _make_section_panel("流派倾向", Color(0.7, 0.7, 0.85, 0.7))
+		var aff_section := _make_section_panel("流派倾向", Color(0.7, 0.7, 0.85, 0.7), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 		detail_content.add_child(aff_section)
 		var aff_row := HBoxContainer.new()
 		aff_row.add_theme_constant_override("separation", 8)
 		aff_section.get_child(0).add_child(aff_row)
 		for tag in card_affinity:
-			aff_row.add_child(_make_pill(_tag_name(str(tag)), Color(0.45, 0.55, 0.85), Color(0.22, 0.32, 0.6, 0.8)))
+			aff_row.add_child(_make_pill(_tag_name(str(tag)), Color(0.45, 0.55, 0.85), Color(0.22, 0.32, 0.6, 0.8), CHARACTER_DETAIL_SECOND_PASS_DELTA))
 
 	# === Action buttons row ===
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer)
-	var action_row := HBoxContainer.new()
-	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	action_row.add_theme_constant_override("separation", 16)
+	# Four native 236px buttons plus ornamental panel margins cannot fit inside
+	# the 992px safe width of a tall iPhone. Preserve the approved button models
+	# at their native size and use a centered 2x2 grid instead of shrinking or
+	# stretching them.
+	var action_row := GridContainer.new()
+	action_row.columns = 2
+	action_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	action_row.add_theme_constant_override("h_separation", 12)
+	action_row.add_theme_constant_override("v_separation", 10)
 	vbox.add_child(action_row)
 	# 升级按钮(角色此前一直缺失，只有武器/护甲/芯片/宠物能升级)
 	var char_can_upgrade := SaveManager.can_upgrade_item("characters", item_id)
 	var char_upgrade_cost := SaveManager.get_item_upgrade_cost("characters", item_id)
 	var char_max_level := int(row.get("max_level", 30))
-	var upgrade_btn := _detail_button("UpgradeButton", ("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost), false)
-	upgrade_btn.custom_minimum_size = Vector2(286, 112)
+	var upgrade_btn := _armored_action_button(
+		"UpgradeButton",
+		("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost),
+		true,
+		false,
+		Vector2(236, 96),
+		20
+	)
 	upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	upgrade_btn.disabled = not char_can_upgrade
 	upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if char_can_upgrade else ACTION_DISABLED_MODULATE
 	upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 	action_row.add_child(upgrade_btn)
-	var select_btn := _detail_button("SelectButton", "已装备" if selected else "选  定", true)
-	select_btn.custom_minimum_size = Vector2(286, 112)
+	var select_btn := _armored_action_button("SelectButton", "已装备" if selected else "选  定", true, true, Vector2(236, 96), 20)
 	select_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	select_btn.disabled = selected
 	select_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
 	select_btn.pressed.connect(_select_character_and_close.bind(item_id))
 	action_row.add_child(select_btn)
-	var cancel_btn := _detail_button("CancelButton", "关  闭", false)
-	cancel_btn.custom_minimum_size = Vector2(286, 112)
+	var appearance_btn := _armored_action_button("AppearanceButton", "外  观", true, false, Vector2(236, 96), 20)
+	appearance_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	appearance_btn.pressed.connect(_open_character_appearance.bind(item_id))
+	action_row.add_child(appearance_btn)
+	var cancel_btn := _armored_action_button("CancelButton", "关  闭", true, false, Vector2(236, 96), 20)
 	cancel_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	cancel_btn.pressed.connect(_close_character_detail)
 	action_row.add_child(cancel_btn)
 
 	_detail_modal.modulate.a = 1.0
 	panel.scale = Vector2.ONE
+
+func _open_character_appearance(character_id: String) -> void:
+	if is_instance_valid(_appearance_selector):
+		return
+	AudioManager.play_sfx("ui_click")
+	_appearance_selector = AppearanceSelector.new()
+	add_child(_appearance_selector)
+	_appearance_selector.store_requested.connect(_on_character_appearance_store_requested)
+	_appearance_selector.closed.connect(_on_character_appearance_closed.bind(character_id))
+	_appearance_selector.open_character(character_id, router)
+
+func _on_character_appearance_closed(character_id: String) -> void:
+	_appearance_selector = null
+	if not is_inside_tree():
+		return
+	var row := DataLoader.get_row("characters", character_id)
+	if not row.is_empty():
+		call_deferred("_show_character_detail", character_id, row)
+
+func _on_character_appearance_store_requested() -> void:
+	router.change_scene("store", {
+		"return_to": "collection",
+		"return_payload": {
+			"mode": "characters",
+			"return_to": _return_to,
+			"return_level_id": _return_level_id,
+			"challenge": _return_challenge_mode,
+			"loadout_return_to": _loadout_return_to,
+			"loadout_return_payload": _loadout_return_payload.duplicate(true),
+		},
+	})
 
 # === Helper builders for the modal ===
 
@@ -1759,15 +1995,16 @@ func _build_skill_card_style(_accent: Color) -> StyleBox:
 func _build_skill_icon_frame_style(_accent: Color) -> StyleBox:
 	return UiKit.icon_frame_texture_style(false)
 
-func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelContainer:
+func _make_pill(text: String, border_color: Color, fill_color: Color, font_delta := 0) -> PanelContainer:
 	var pill := PanelContainer.new()
 	pill.add_theme_stylebox_override("panel", _build_pill_style(border_color, fill_color))
-	pill.custom_minimum_size = Vector2(0, 34)
+	pill.custom_minimum_size = Vector2(0, 38 + max(font_delta, 0) * 3)
 	var label := Label.new()
+	label.name = "PillLabel"
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_PILL_FONT_SIZE + font_delta))
 	label.add_theme_color_override("font_color", Color(0.96, 0.98, 1, 1))
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	label.add_theme_constant_override("outline_size", 1)
@@ -1777,7 +2014,7 @@ func _make_pill(text: String, border_color: Color, fill_color: Color) -> PanelCo
 func _build_pill_style(_border_color: Color, _fill_color: Color) -> StyleBox:
 	return UiKit.map_pill_texture_style()
 
-func _make_section_panel(title: String, accent: Color) -> PanelContainer:
+func _make_section_panel(title: String, accent: Color, title_font_size := 24) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", _build_section_style(accent))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1797,8 +2034,9 @@ func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 	bar.modulate = accent
 	title_row.add_child(bar)
 	var title_label := Label.new()
+	title_label.name = "SectionTitle"
 	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
+	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(title_font_size))
 	title_label.add_theme_color_override("font_color", Color(0.96, 0.98, 1, 1))
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	title_label.add_theme_constant_override("outline_size", 1)
@@ -1808,44 +2046,53 @@ func _make_section_panel(title: String, accent: Color) -> PanelContainer:
 func _build_section_style(_accent: Color) -> StyleBox:
 	return UiKit.panel_texture_style(14.0)
 
-func _make_stat_pill(label_text: String, value_text: String, sub_text: String) -> PanelContainer:
+func _make_stat_pill(label_text: String, value_text: String, sub_text: String, font_delta := 0) -> PanelContainer:
 	var pill := PanelContainer.new()
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pill.custom_minimum_size = Vector2(0, 72)
+	var authored_height := 112 if LocalizationManager.is_english() else 98
+	pill.custom_minimum_size = Vector2(0, authored_height + max(font_delta, 0) * 4)
 	pill.add_theme_stylebox_override("panel", _build_pill_style(Color(0.58, 0.68, 0.74, 0.50), Color(0.026, 0.036, 0.048, 0.72)))
 	var v := VBoxContainer.new()
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
 	pill.add_child(v)
 	var label := Label.new()
+	label.name = "StatLabel"
 	label.text = label_text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_STAT_LABEL_FONT_SIZE + font_delta))
 	label.add_theme_color_override("font_color", Color(0.7, 0.88, 1, 0.9))
 	v.add_child(label)
 	var value := Label.new()
+	value.name = "StatValue"
 	value.text = value_text
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	value.add_theme_font_size_override("font_size", UiKit.bumped_font_size(27))
+	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_STAT_VALUE_FONT_SIZE + font_delta))
 	value.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	value.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
 	value.add_theme_constant_override("outline_size", 1)
 	v.add_child(value)
 	if sub_text != "":
 		var sub := Label.new()
+		sub.name = "StatSub"
 		sub.text = sub_text
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		sub.add_theme_font_size_override("font_size", UiKit.bumped_font_size(16))
+		sub.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_STAT_SUB_FONT_SIZE + font_delta))
 		sub.add_theme_color_override("font_color", Color(0.55, 0.85, 1, 0.75))
 		v.add_child(sub)
 	return pill
 
 func _make_skill_row(icon_path, title: String, kind_label: String, desc: String, accent: Color, parent: Control) -> HBoxContainer:
 	var row := HBoxContainer.new()
+	row.name = "SkillRow"
 	row.add_theme_constant_override("separation", 14)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.custom_minimum_size = Vector2(0, 102)
+	row.custom_minimum_size = Vector2(0, 132)
 	# Icon
 	var icon_box := PanelContainer.new()
 	icon_box.custom_minimum_size = Vector2(78, 78)
@@ -1859,13 +2106,14 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 		icon.custom_minimum_size = Vector2(64, 64)
 		icon_box.add_child(icon)
 	else:
-		var placeholder := Label.new()
-		placeholder.text = "◆"
-		placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		placeholder.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		placeholder.add_theme_font_size_override("font_size", UiKit.bumped_font_size(32))
-		placeholder.add_theme_color_override("font_color", accent)
-		icon_box.add_child(placeholder)
+		# Invalid dynamic data must still resolve to finished raster art in a
+		# release build; never expose the old geometric diamond placeholder.
+		var fallback_icon := TextureRect.new()
+		fallback_icon.texture = load("res://assets/production/sprites/ui/icon_talent_point.png")
+		fallback_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		fallback_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		fallback_icon.custom_minimum_size = Vector2(64, 64)
+		icon_box.add_child(fallback_icon)
 	# Text column
 	var text_col := VBoxContainer.new()
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1876,8 +2124,9 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	title_row.add_theme_constant_override("separation", 10)
 	text_col.add_child(title_row)
 	var title_label := Label.new()
+	title_label.name = "SkillTitle"
 	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(24))
+	title_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SKILL_TITLE_FONT_SIZE))
 	title_label.add_theme_color_override("font_color", Color(0.98, 0.99, 1, 1))
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	title_label.add_theme_constant_override("outline_size", 1)
@@ -1887,52 +2136,63 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	kind_pill.add_theme_stylebox_override("panel", _build_pill_style(accent, Color(0.06, 0.1, 0.16, 0.85)))
 	title_row.add_child(kind_pill)
 	var kind_label_text := Label.new()
+	kind_label_text.name = "SkillKind"
 	kind_label_text.text = kind_label
 	kind_label_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind_label_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	kind_label_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
+	kind_label_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SKILL_KIND_FONT_SIZE))
 	kind_label_text.add_theme_color_override("font_color", accent)
 	kind_pill.add_child(kind_label_text)
 	# Description
 	var desc_label := Label.new()
+	desc_label.name = "SkillDescription"
 	desc_label.text = desc
-	desc_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
+	desc_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SKILL_DESC_FONT_SIZE))
 	desc_label.add_theme_color_override("font_color", Color(0.78, 0.88, 0.95, 1))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text_col.add_child(desc_label)
 	return row
 
 # 专属主动技独立升级行：等级 N/5 + 花经验升级按钮，紧跟在该技能的 _make_skill_row 下面。
-func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	row.custom_minimum_size = Vector2(0, 88)
+func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> VBoxContainer:
+	# Keep the upgrade control on its own top line and give the growth copy the
+	# full card width below. The old side-by-side layout compressed the most
+	# useful mobile reading text into a narrow column beside a wide button.
+	var row := VBoxContainer.new()
+	row.name = "SignatureUpgradeLayout"
+	row.add_theme_constant_override("separation", 7)
+	row.custom_minimum_size = Vector2(0, 158)
 	var lvl := SaveManager.get_sig_skill_level(character_id)
 	var maxed := lvl >= SaveManager.SIG_SKILL_MAX_LEVEL
-	var text_column := VBoxContainer.new()
-	text_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_column.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_column.add_theme_constant_override("separation", 3)
-	row.add_child(text_column)
+	var top_row := HBoxContainer.new()
+	top_row.name = "SignatureUpgradeTopRow"
+	top_row.custom_minimum_size = Vector2(0, 112)
+	top_row.add_theme_constant_override("separation", 12)
+	row.add_child(top_row)
 	var level_label := Label.new()
+	level_label.name = "SignatureLevel"
 	level_label.text = "专属技能等级 %d/%d" % [lvl, SaveManager.SIG_SKILL_MAX_LEVEL]
-	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
+	level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	level_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SIG_LEVEL_FONT_SIZE))
 	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
-	text_column.add_child(level_label)
-	var growth_label := Label.new()
-	growth_label.text = CharacterSkillText.signature_level_growth(signature_id)
-	growth_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(15))
-	growth_label.add_theme_color_override("font_color", Color(0.66, 0.78, 0.84, 1))
-	growth_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	text_column.add_child(growth_label)
+	top_row.add_child(level_label)
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
 	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
-	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 80), 18)
-	btn.custom_minimum_size = Vector2(286, 80)
+	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 112), 20)
+	btn.custom_minimum_size = Vector2(286, 112)
 	btn.disabled = not can_up
 	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
 	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))
-	row.add_child(btn)
+	top_row.add_child(btn)
+	var growth_label := Label.new()
+	growth_label.name = "SignatureGrowth"
+	growth_label.text = CharacterSkillText.signature_level_growth(signature_id)
+	growth_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	growth_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE))
+	growth_label.add_theme_color_override("font_color", Color(0.66, 0.82, 0.9, 1))
+	growth_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(growth_label)
 	return row
 
 func _upgrade_sig_skill_from_detail(character_id: String) -> void:

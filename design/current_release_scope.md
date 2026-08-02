@@ -36,17 +36,24 @@ These are intentionally deferred to future versions and should not be treated as
 
 ## Owner-Approved Next Release Initiative
 
-This is approved future work, not functionality present in Build 38:
+This is approved work. Build 38 remains the free, no-IAP production baseline.
+The latest uploaded TestFlight Build 43 is an ordinary-release owner acceptance
+binary containing the local-demo implementation below, but no real Apple
+transaction path:
 
 - Keep the app free and the existing free campaign/economy intact.
-- Add four permanent US$1.99 visual themes.
+- Add four permanent US$1.99 visual themes in the local demo catalog.
 - Add four permanent US$6.99 Apocalypse Arsenal sets; each includes its matching theme, while owners of that theme see a separate approximately US$4.99 arsenal-upgrade product.
 - Premium gear starts at level 1, upgrades with ordinary gold, never consumes stars, and targets 1.52x–1.58x the real maximum output of the matching strongest free build at full level.
-- Phase 1 is limited to Neon Tempest plus the complete Thunder Apocalypse weapon/armor/chip/pet set.
-- StoreKit, premium assets, premium data and App Store IAP records have not been implemented yet.
+- The current implemented local-demo premium catalog is exactly four series: Neon Tempest / Thunder, Infernal Dominion / Inferno, Polar Aurora / Absolute Zero, and post-campaign Gilded Eclipse / Golden Law.
+- Runtime assets, four-piece sets, bilingual product pages, local mock purchase/restore/reset, entitlement-safe equip/revoke and gold upgrades are implemented in source for all four series.
+- Gilded Eclipse appears only after clearing level 99 plus any hero reaching Lv.40, unless already owned. Its Level-1 weapon ratio is `1.205x`; max all-skills weighted output is `2.043x`, inside the frozen `1.90x–2.05x` band.
+- A bilingual Theme & Appearance page, independent per-hero Default / Neon Tempest outfit overrides, collection/loadout entry points, purchase-complete apply-all/customize paths, persistence and entitlement-revocation fallback are implemented in source; battle and pause intentionally do not hot-switch cosmetics.
+- Thunder, Inferno and Absolute Zero endgame audits measure `1.550x`, `1.571x` and `1.547x`; Golden Law uses the separately approved `2.043x` prestige contract. Frozen inventories / contracts are `design/22_neon_tempest_thunder_phase1_inventory.md`, `design/25_infernal_dominion_inferno_phase2_inventory.md`, `design/26_polar_aurora_absolute_zero_phase3_inventory.md` and `design/27_gilded_eclipse_golden_law_phase4_proposal.md`.
+- Apple StoreKit, verified transaction ingestion, Sandbox/TestFlight purchase validation and App Store Connect IAP records are still intentionally not connected.
 
 The authoritative product and acceptance plan is `design/21_premium_themes_and_apocalypse_arsenal_plan.md`.
-The authoritative current-state inventory and Phase 1 work breakdown is `design/22_neon_tempest_thunder_phase1_inventory.md`.
+The four authoritative series inventories / contracts are `design/22_neon_tempest_thunder_phase1_inventory.md`, `design/25_infernal_dominion_inferno_phase2_inventory.md`, `design/26_polar_aurora_absolute_zero_phase3_inventory.md` and `design/27_gilded_eclipse_golden_law_phase4_proposal.md`.
 
 ## External Release Dependencies
 

@@ -5,32 +5,277 @@
       "id": "default",
       "name_zh": "末日防线",
       "name_en": "Last Defense",
+      "description_zh": "原版末日军工界面、角色战衣与克制化战斗色彩",
+			"description_en": "Original post-apocalyptic military UI, hero outfits, and tactical combat palette",
       "premium": false,
       "entitlement": "",
       "ui": {
-        "button_root": "res://assets/production/sprites/ui"
+        "button_root": "res://assets/production/sprites/ui",
+        "accent_color": [0.88, 0.64, 0.32, 1.0],
+        "tag_palette": {
+          "border": [0.34, 0.76, 0.84, 1.0],
+          "kind_border": [0.94, 0.67, 0.32, 1.0],
+          "fill": [0.018, 0.060, 0.074, 0.96],
+          "kind_fill": [0.105, 0.064, 0.025, 0.97],
+          "text": [0.91, 0.98, 1.0, 1.0],
+          "kind_text": [1.0, 0.91, 0.71, 1.0]
+        },
+        "surface_modulate": {}
       },
+      "materials": {},
       "effects": {
-        "character_iridescence": false
+        "profile": "",
+        "projectile_palette_profile": ""
       }
     },
     {
       "id": "neon_tempest",
       "name_zh": "霓虹雷暴",
       "name_en": "Neon Tempest",
+      "description_zh": "青紫朋克界面、四人霓虹战衣、枪械配色与专属战斗光效",
+			"description_en": "Cyberpunk UI, four neon outfits, weapon colorways, and signature combat effects",
       "premium": true,
       "entitlement": "ent_theme_neon_tempest",
       "ui": {
-        "button_root": "res://assets/production/sprites/themes/neon_tempest/ui"
+        "button_root": "res://assets/production/sprites/themes/neon_tempest/ui",
+        "accent_color": [0.70, 0.62, 1.0, 1.0],
+        "tag_palette": {
+          "border": [0.20, 0.82, 1.0, 1.0],
+          "kind_border": [0.82, 0.44, 1.0, 1.0],
+          "fill": [0.018, 0.047, 0.086, 0.97],
+          "kind_fill": [0.080, 0.026, 0.110, 0.97],
+          "text": [0.91, 0.98, 1.0, 1.0],
+          "kind_text": [0.97, 0.87, 1.0, 1.0]
+        },
+        "surface_modulate": {
+          "primary": [0.50, 0.53, 0.60, 1.0],
+          "secondary": [0.60, 0.63, 0.70, 1.0],
+          "disabled": [0.44, 0.47, 0.52, 1.0]
+        }
       },
       "characters": {
         "portrait_root": "res://assets/production/sprites/themes/neon_tempest/characters",
         "battle_animation_root": "res://assets/production/sprites/themes/neon_tempest/characters/animations"
       },
+      "materials": {
+        "character": {
+          "shader": "res://gameplay/vfx/shaders/neon_tempest_character.gdshader",
+          "full": {
+            "effect_intensity": 0.58,
+            "flow_speed": 0.46,
+            "fire_pulse": 0.0
+          },
+          "reduced": {
+            "effect_intensity": 0.24,
+            "flow_speed": 0.0,
+            "fire_pulse": 0.0
+          },
+          "pulse_parameter": "fire_pulse"
+        },
+        "surface": {
+          "shader": "res://gameplay/vfx/shaders/neon_tempest_character.gdshader",
+          "full": {
+            "effect_intensity": 0.64,
+            "flow_speed": 0.46,
+            "fire_pulse": 0.0,
+            "head_protection": 0.0
+          },
+          "reduced": {
+            "effect_intensity": 0.42,
+            "flow_speed": 0.0,
+            "fire_pulse": 0.0,
+            "head_protection": 0.0
+          }
+        }
+      },
       "effects": {
-        "character_iridescence": true,
+        "profile": "neon_tempest",
+        "projectile_palette_profile": "neon_tempest",
         "character_fire_aura": {
           "base": "res://assets/production/sprites/themes/neon_tempest/vfx/vfx_neon_tempest_fire_aura",
+          "frames": 4
+        }
+      }
+    },
+    {
+      "id": "infernal_dominion",
+      "name_zh": "炼狱赤焰",
+      "name_en": "Infernal Dominion",
+      "description_zh": "黑曜熔铜界面、四人熔炉战衣、枪械赤焰涂装与机械火翼开火特效",
+			"description_en": "Obsidian-and-copper UI, four forge outfits, infernal weapon skins, and mechanical fire-wing firing effects",
+      "premium": true,
+      "entitlement": "ent_theme_infernal_dominion",
+      "ui": {
+        "button_root": "res://assets/production/sprites/themes/infernal_dominion/ui",
+        "accent_color": [1.0, 0.58, 0.24, 1.0],
+        "tag_palette": {
+          "border": [0.96, 0.36, 0.12, 1.0],
+          "kind_border": [1.0, 0.70, 0.25, 1.0],
+          "fill": [0.090, 0.025, 0.012, 0.97],
+          "kind_fill": [0.125, 0.068, 0.018, 0.97],
+          "text": [1.0, 0.93, 0.84, 1.0],
+          "kind_text": [1.0, 0.88, 0.63, 1.0]
+        },
+        "assets": {
+          "menu_title": "res://assets/production/sprites/themes/infernal_dominion/ui/ui_menu_title_zombie_fire.png"
+        },
+        "asset_presentations": {
+          "menu_title": {
+            "region": [210, 0, 620, 340],
+            "dark_key_threshold": 0.094,
+            "dark_key_softness": 0.075
+          }
+        },
+        "surface_modulate": {
+          "primary": [0.86, 0.78, 0.68, 1.0],
+          "secondary": [0.90, 0.86, 0.80, 1.0],
+          "disabled": [0.72, 0.68, 0.64, 1.0]
+        }
+      },
+      "characters": {
+        "portrait_root": "res://assets/production/sprites/themes/infernal_dominion/characters",
+        "battle_animation_root": "res://assets/production/sprites/themes/infernal_dominion/characters/animations"
+      },
+      "weapons": {
+        "asset_root": "res://assets/production/sprites/themes/infernal_dominion/weapons"
+      },
+      "materials": {
+        "character": {
+          "shader": "res://gameplay/vfx/shaders/infernal_dominion_character.gdshader",
+          "full": {"effect_intensity": 0.56, "flow_speed": 0.42, "fire_pulse": 0.0},
+          "reduced": {"effect_intensity": 0.24, "flow_speed": 0.0, "fire_pulse": 0.0},
+          "pulse_parameter": "fire_pulse"
+        },
+        "surface": {
+          "shader": "res://gameplay/vfx/shaders/infernal_dominion_character.gdshader",
+          "full": {"effect_intensity": 0.48, "flow_speed": 0.36, "fire_pulse": 0.0, "head_protection": 0.0},
+          "reduced": {"effect_intensity": 0.24, "flow_speed": 0.0, "fire_pulse": 0.0, "head_protection": 0.0}
+        }
+      },
+      "effects": {
+        "profile": "infernal_dominion",
+        "projectile_palette_profile": "infernal_dominion",
+        "character_fire_aura": {
+          "base": "res://assets/production/sprites/themes/infernal_dominion/vfx/vfx_infernal_dominion_fire_aura",
+          "frames": 4
+        }
+      }
+    },
+    {
+      "id": "polar_aurora",
+      "name_zh": "极地极光",
+      "name_en": "Polar Aurora",
+      "description_zh": "银白冰晶界面、四人极地战衣、枪械寒光涂装与背挂极光冰翼",
+			"description_en": "Crystal-silver UI, four polar outfits, frost weapon skins, and rear aurora ice wings",
+      "premium": true,
+      "entitlement": "ent_theme_polar_aurora",
+      "ui": {
+        "button_root": "res://assets/production/sprites/themes/polar_aurora/ui",
+        "accent_color": [0.56, 0.90, 1.0, 1.0],
+        "tag_palette": {
+          "border": [0.44, 0.89, 1.0, 1.0],
+          "kind_border": [0.65, 0.70, 1.0, 1.0],
+          "fill": [0.018, 0.055, 0.092, 0.97],
+          "kind_fill": [0.035, 0.042, 0.115, 0.97],
+          "text": [0.92, 0.99, 1.0, 1.0],
+          "kind_text": [0.90, 0.93, 1.0, 1.0]
+        },
+        "assets": {
+          "menu_title": "res://assets/production/sprites/themes/polar_aurora/ui/ui_menu_title_zombie_fire.png"
+        },
+        "surface_modulate": {
+          "primary": [0.80, 0.90, 0.98, 1.0],
+          "secondary": [0.90, 0.94, 0.98, 1.0],
+          "disabled": [0.70, 0.76, 0.82, 1.0]
+        }
+      },
+      "characters": {
+        "portrait_root": "res://assets/production/sprites/themes/polar_aurora/characters",
+        "battle_animation_root": "res://assets/production/sprites/themes/polar_aurora/characters/animations"
+      },
+      "weapons": {
+        "asset_root": "res://assets/production/sprites/themes/polar_aurora/weapons"
+      },
+      "materials": {
+        "character": {
+          "shader": "res://gameplay/vfx/shaders/polar_aurora_character.gdshader",
+          "full": {"effect_intensity": 0.54, "flow_speed": 0.36, "fire_pulse": 0.0},
+          "reduced": {"effect_intensity": 0.24, "flow_speed": 0.0, "fire_pulse": 0.0},
+          "pulse_parameter": "fire_pulse"
+        },
+        "surface": {
+          "shader": "res://gameplay/vfx/shaders/polar_aurora_character.gdshader",
+          "full": {"effect_intensity": 0.46, "flow_speed": 0.30, "fire_pulse": 0.0, "head_protection": 0.0},
+          "reduced": {"effect_intensity": 0.22, "flow_speed": 0.0, "fire_pulse": 0.0, "head_protection": 0.0}
+        }
+      },
+      "effects": {
+        "profile": "polar_aurora",
+        "projectile_palette_profile": "polar_aurora",
+        "character_fire_aura": {
+          "base": "res://assets/production/sprites/themes/polar_aurora/vfx/vfx_polar_aurora_fire_aura",
+          "frames": 4
+        }
+      }
+    },
+    {
+      "id": "gilded_eclipse",
+      "name_zh": "鎏金永夜",
+      "name_en": "Gilded Eclipse",
+      "description_zh": "镜黑王权界面、四人鎏金战衣、黄金律枪械涂装与背挂流金开火特效",
+			"description_en": "Mirror-black royal UI, four gilded outfits, Golden Law weapon skins, and rear flowing-gold firing effects",
+      "premium": true,
+      "entitlement": "ent_theme_gilded_eclipse",
+      "ui": {
+        "button_root": "res://assets/production/sprites/themes/gilded_eclipse/ui",
+        "accent_color": [1.0, 0.82, 0.40, 1.0],
+        "tag_palette": {
+          "border": [0.82, 0.63, 0.24, 1.0],
+          "kind_border": [1.0, 0.83, 0.43, 1.0],
+          "fill": [0.030, 0.028, 0.023, 0.98],
+          "kind_fill": [0.100, 0.073, 0.020, 0.98],
+          "text": [0.98, 0.95, 0.86, 1.0],
+          "kind_text": [1.0, 0.90, 0.62, 1.0]
+        },
+        "assets": {
+          "menu_title": "res://assets/production/sprites/themes/gilded_eclipse/ui/ui_menu_title_zombie_fire.png"
+        },
+        "asset_presentations": {
+          "menu_title": {
+            "region": [170, 0, 700, 340]
+          }
+        },
+        "surface_modulate": {
+          "primary": [0.92, 0.82, 0.62, 1.0],
+          "secondary": [0.96, 0.91, 0.80, 1.0],
+          "disabled": [0.68, 0.62, 0.52, 1.0]
+        }
+      },
+      "characters": {
+        "portrait_root": "res://assets/production/sprites/themes/gilded_eclipse/characters",
+        "battle_animation_root": "res://assets/production/sprites/themes/gilded_eclipse/characters/animations"
+      },
+      "weapons": {
+        "asset_root": "res://assets/production/sprites/themes/gilded_eclipse/weapons"
+      },
+      "materials": {
+        "character": {
+          "shader": "res://gameplay/vfx/shaders/gilded_eclipse_character.gdshader",
+          "full": {"effect_intensity": 0.58, "flow_speed": 0.34, "fire_pulse": 0.0},
+          "reduced": {"effect_intensity": 0.24, "flow_speed": 0.0, "fire_pulse": 0.0},
+          "pulse_parameter": "fire_pulse"
+        },
+        "surface": {
+          "shader": "res://gameplay/vfx/shaders/gilded_eclipse_character.gdshader",
+          "full": {"effect_intensity": 0.48, "flow_speed": 0.28, "fire_pulse": 0.0, "head_protection": 0.0},
+          "reduced": {"effect_intensity": 0.22, "flow_speed": 0.0, "fire_pulse": 0.0, "head_protection": 0.0}
+        }
+      },
+      "effects": {
+        "profile": "gilded_eclipse",
+        "projectile_palette_profile": "gilded_eclipse",
+        "character_fire_aura": {
+          "base": "res://assets/production/sprites/themes/gilded_eclipse/vfx/vfx_gilded_eclipse_fire_aura",
           "frames": 4
         }
       }

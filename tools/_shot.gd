@@ -8,6 +8,11 @@ const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_contro
 const UiKit := preload("res://ui/ui_kit.gd")
 
 func _initialize() -> void:
+	# Automated review captures must not pull the active macOS workspace away
+	# from the owner. The viewport still renders normally, but its utility window
+	# is never eligible to become the focused input window.
+	if DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_NO_FOCUS, true)
 	await process_frame
 	var args := OS.get_cmdline_user_args()
 	var route := args[0] if args.size() > 0 else "menu"
@@ -29,6 +34,12 @@ func _initialize() -> void:
 	sm.load_game()
 	if payload.has("language"):
 		root.get_node("/root/LocalizationManager").apply_language(str(payload.get("language", "zh")), false)
+	if payload.has("settings_override") and payload["settings_override"] is Dictionary:
+		var settings_manager := root.get_node("/root/SettingsManager")
+		var shot_settings: Dictionary = settings_manager.settings.duplicate(true)
+		shot_settings.merge(payload["settings_override"], true)
+		settings_manager.settings = shot_settings
+		settings_manager.apply_settings()
 	if payload.has("save_override") and payload["save_override"] is Dictionary:
 		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
@@ -40,12 +51,53 @@ func _initialize() -> void:
 		_apply_save_override(sm, payload["save_override"])
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
 		_apply_equipment_override(sm, payload["equipment"])
+	root.get_node("/root/PurchaseManager").refresh_catalog_and_access()
 	root.get_node("/root/ThemeManager").refresh_from_save()
-	if route != "menu":
-		main.change_scene(route, payload)
+	# Main._ready() reloads the persisted save and schedules its first menu before
+	# this capture-only override is applied. Rebuild every requested route,
+	# including menu, after the entitlement/theme refresh so a stale real save
+	# cannot make a Polar screenshot silently render the previous theme.
+	main.change_scene(route, payload)
 	for i in range(12):
 		await process_frame
 		await physics_frame
+	if bool(payload.get("debug_theme_appearance", false)) and main.current_scene != null and main.current_scene.has_method("_open_theme_appearance"):
+		main.current_scene.call("_open_theme_appearance")
+		for _appearance_frame in range(8):
+			await process_frame
+	if payload.has("debug_character_appearance") and main.current_scene != null and main.current_scene.has_method("_open_character_appearance"):
+		var appearance_character := str(payload.get("debug_character_appearance", ""))
+		if route == "collection":
+			main.current_scene.call("_open_character_appearance", appearance_character)
+		else:
+			main.current_scene.call("_open_character_appearance")
+		for _appearance_frame in range(8):
+			await process_frame
+	if payload.has("debug_settings_info") and route == "settings" and main.current_scene != null and main.current_scene.has_method("_show_info"):
+		# Exercise the complete on-device copy without opening Safari during the
+		# visual regression. The real buttons still use the same body copy before
+		# dispatching their external URL.
+		main.current_scene.call("_show_info", str(payload.get("debug_settings_info", "help")))
+		for _settings_info_frame in range(4):
+			await process_frame
+	if bool(payload.get("debug_settings_reset_armed", false)) and route == "settings" and main.current_scene != null and main.current_scene.has_method("_on_reset"):
+		main.current_scene.call("_on_reset")
+		for _settings_reset_frame in range(4):
+			await process_frame
+	if payload.has("debug_complete_store_purchase") and route == "store":
+		root.get_node("/root/PurchaseManager").call(
+			"mock_purchase",
+			str(payload.get("debug_complete_store_purchase", "")),
+			false
+		)
+		for _purchase_frame in range(8):
+			await process_frame
+	if payload.has("debug_store_confirm_product") and main.current_scene != null and main.current_scene.has_method("_confirm_purchase"):
+		main.current_scene.call("_confirm_purchase", str(payload.get("debug_store_confirm_product", "")))
+		# Let the shared 0.14s modal fade finish. Capturing at frame three made the
+		# product list show through and falsely looked like overlapping text.
+		for _dialog_frame in range(12):
+			await process_frame
 	if payload.has("debug_spawn_boss") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy"):
 		if bool(payload.get("debug_clean_boss_stage", false)):
 			# Marketing/visual-regression capture only: suspend the authored wave
@@ -119,12 +171,45 @@ func _initialize() -> void:
 						main.current_scene.call_deferred("_hide_wave_toast")
 	if bool(payload.get("debug_dense_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_dense_combat(main.current_scene)
+	if bool(payload.get("debug_spawn_distribution", false)) and main.current_scene != null and main.current_scene.has_method("_next_enemy_spawn_position"):
+		await _prepare_live_spawn_distribution(main.current_scene, str(payload.get("debug_spawn_lane", "spread")))
+	if bool(payload.get("debug_apocalypse_overload", false)) and main.current_scene != null and main.current_scene.has_method("_apply_apocalypse_thunder_on_hit"):
+		var overload_enemies: Array[Node] = main.current_scene.get_node("EnemyLayer").get_children()
+		if not overload_enemies.is_empty():
+			main.current_scene.turret.set("fire_enabled", false)
+			main.current_scene.turret.set_physics_process(false)
+			var overload_target: Node = overload_enemies[mini(5, overload_enemies.size() - 1)]
+			var overload_position: Vector2 = (overload_target as Node2D).global_position
+			main.current_scene.apocalypse_overload_hits = 99
+			main.current_scene.call("_apply_apocalypse_thunder_on_hit", overload_target, overload_position, 120.0)
+			await process_frame
+			paused = true
 	if bool(payload.get("debug_store_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_store_combat(main.current_scene)
 	if payload.has("debug_status_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_status_vfx_showcase(
 			main.current_scene,
 			str(payload.get("debug_status_vfx_showcase", "single"))
+		)
+	if payload.has("debug_inferno_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_inferno_vfx_showcase(
+			main.current_scene,
+			str(payload.get("debug_inferno_vfx_showcase", "combustion_center"))
+		)
+	if payload.has("debug_absolute_zero_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_absolute_zero_vfx_showcase(
+			main.current_scene,
+			str(payload.get("debug_absolute_zero_vfx_showcase", "shatter_center"))
+		)
+	if payload.has("debug_golden_law_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_golden_law_vfx_showcase(
+			main.current_scene,
+			str(payload.get("debug_golden_law_vfx_showcase", "verdict"))
+		)
+	if payload.has("debug_app_store_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
+		await _prepare_app_store_vfx_showcase(
+			main.current_scene,
+			str(payload.get("debug_app_store_vfx_showcase", "enrage"))
 		)
 	if payload.has("debug_zombie_model_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_zombie_model_showcase(
@@ -334,10 +419,54 @@ func _initialize() -> void:
 			main.current_scene.call("_show_card_detail", skill_id)
 			for i in range(18):
 				await process_frame
+	if payload.get("debug_hud_skills", []) is Array and main.current_scene != null and main.current_scene.has_method("_build_skill_slots"):
+		var skill_runtime: Variant = main.current_scene.get("skills")
+		if skill_runtime != null and skill_runtime.has_method("add_skill"):
+			for raw_skill_id in payload.get("debug_hud_skills", []):
+				var hud_skill_id := str(raw_skill_id)
+				if hud_skill_id != "" and int(skill_runtime.call("level", hud_skill_id)) <= 0:
+					skill_runtime.call("add_skill", hud_skill_id)
+		main.current_scene.call("_build_skill_slots")
+		for i in range(3):
+			await process_frame
+	if payload.has("debug_character_skill_cooldown") and main.current_scene != null and main.current_scene.has_method("_update_character_skill_button"):
+		main.current_scene.character_active_cd = maxf(0.0, float(payload.get("debug_character_skill_cooldown", 0.0)))
+		main.current_scene.call("_update_character_skill_button")
+		for i in range(2):
+			await process_frame
 	if bool(payload.get("debug_character_skill_hint", false)) and main.current_scene != null and main.current_scene.has_method("_show_character_skill_hint"):
 		main.current_scene.call("_show_character_skill_hint")
 		for i in range(3):
 			await process_frame
+	if payload.has("debug_skill_hint") and main.current_scene != null and main.current_scene.has_method("_show_skill_hint_for_skill"):
+		var hint_skill_id := str(payload.get("debug_skill_hint", "skill_split_shot"))
+		if hint_skill_id != "":
+			main.current_scene.call("_show_skill_hint_for_skill", hint_skill_id)
+			for i in range(3):
+				await process_frame
+	if bool(payload.get("debug_typography_hud", false)) and main.current_scene != null and main.current_scene.has_method("_update_hud"):
+		_prepare_typography_hud(main.current_scene)
+		for i in range(2):
+			await process_frame
+	if payload.has("debug_scroll_y") and main.current_scene != null:
+		var debug_scroll := main.current_scene.get_node_or_null("Root/VBox/ScrollWrap/Scroll") as ScrollContainer
+		# AppearanceSelector is a high-layer modal mounted beside Main's current
+		# scene, so search its own root before falling back to the underlying page.
+		# This keeps routed screenshot regression capable of auditing every outfit
+		# row instead of accidentally scrolling the obscured collection list.
+		var appearance_root := root.find_child("AppearanceSelectorRoot", true, false) as Control
+		if appearance_root != null:
+			debug_scroll = appearance_root.find_child("Scroll", true, false) as ScrollContainer
+		if main.current_scene.find_child("DetailScroll", true, false) is ScrollContainer:
+			debug_scroll = main.current_scene.find_child("DetailScroll", true, false) as ScrollContainer
+		if debug_scroll == null:
+			debug_scroll = main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
+		if debug_scroll == null:
+			debug_scroll = main.current_scene.find_child("Scroll", true, false) as ScrollContainer
+		if debug_scroll != null:
+			debug_scroll.scroll_vertical = maxi(0, int(payload.get("debug_scroll_y", 0)))
+			for _scroll_frame in range(4):
+				await process_frame
 	_emit_final_ui_audit(main, route)
 	var image := root.get_viewport().get_texture().get_image()
 	if image == null:
@@ -349,6 +478,29 @@ func _initialize() -> void:
 	print("shot saved: ", out_path, " size=", image.get_size())
 	await _cleanup_scene(main)
 	quit(0)
+
+func _prepare_typography_hud(battle: Node) -> void:
+	# Worst-case but realistic values make every persistent and transient combat
+	# label deterministic for bilingual screenshot review.
+	battle.gold = 987654
+	battle.xp = 98765
+	battle.next_xp_offer = 123456
+	battle.base_hp_max = 123456
+	battle.base_hp = 98765
+	battle.call("_update_hud")
+	var active_boss: Node = battle.get("active_boss")
+	if active_boss != null and is_instance_valid(active_boss):
+		active_boss.max_hp = 1234567.0
+		active_boss.hp = 987654.0
+		if active_boss.has_method("_update_hp_bar"):
+			active_boss.call("_update_hp_bar")
+		battle.call("_update_boss_hp_bar")
+	if battle.has_method("_spawn_float_text"):
+		battle.call("_spawn_float_text", Vector2(520, 740), "暴击 987654", Color(1.0, 0.84, 0.30))
+		battle.call("_spawn_float_text", Vector2(760, 830), "灼烧 12345", Color(1.0, 0.38, 0.18))
+	if battle.has_method("_show_wave_toast"):
+		var localization := battle.get_node("/root/LocalizationManager")
+		battle.call("_show_wave_toast", localization.text("进入二阶段"), Color(1.0, 0.72, 0.24))
 
 func _emit_final_ui_audit(main: Node, route: String) -> void:
 	if OS.get_environment("ZOMBIE_FIRE_UI_AUDIT") != "1" or main == null or main.current_scene == null:
@@ -476,6 +628,10 @@ func _ensure_unlocked(unlocks: Dictionary, key: String, item_id: String) -> void
 func _prepare_dense_combat(battle: Node) -> void:
 	battle.pending_spawns.clear()
 	battle.active_spawning = false
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
 	for enemy in battle.get_node("EnemyLayer").get_children():
 		enemy.queue_free()
 	for marker in battle.get_node("ThreatMarkerLayer").get_children():
@@ -571,6 +727,18 @@ func _prepare_store_combat(battle: Node) -> void:
 	])
 
 func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, aim: String, show_muzzle: bool) -> void:
+	if not bool(battle.character_weapon_combo_active) or battle.character_weapon_sprite != null:
+		push_error(
+			"Character shooting capture rejected a floating-weapon model: character=%s weapon=%s combo=%s standalone=%s"
+			% [
+				str(battle.character_id),
+				str(battle.weapon_id),
+				str(battle.character_weapon_combo_active),
+				str(battle.character_weapon_sprite != null),
+			]
+		)
+		quit(8)
+		return
 	battle.pending_spawns.clear()
 	battle.active_spawning = false
 	battle.onboarding_tip_shown = true
@@ -600,7 +768,11 @@ func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, ai
 	if not frames.is_empty():
 		battle.character_anim_frame = frame_index
 		battle.character_sprite.texture = frames[frame_index]
-	battle.character_attack_duration = float(battle.CHARACTER_WEAPON_ATTACK_DURATION.get(battle.weapon_id, 0.32))
+	battle.character_attack_duration = float(battle.call(
+		"_weapon_presentation_float",
+		"attack_duration",
+		float(battle.CHARACTER_WEAPON_ATTACK_DURATION.get(battle.weapon_id, 0.32))
+	))
 	battle.character_attack_time = battle.character_attack_duration * 0.58
 	battle.call("_update_character_body_pose")
 	if show_muzzle:
@@ -609,13 +781,13 @@ func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, ai
 		var data_loader := root.get_node("/root/DataLoader")
 		var element := str(data_loader.get_row("weapons", battle.weapon_id).get("element", "physical"))
 		battle.call("_spawn_muzzle_flash", origin, direction, element, battle.call("_weapon_visual_profile", battle.weapon_id))
-		battle.call("_pulse_neon_tempest_character")
-		battle.call("_spawn_neon_tempest_fire_signature", origin, direction, element)
-		if battle.get("character_neon_fire_aura") is AnimatedSprite2D:
-			var neon_aura := battle.get("character_neon_fire_aura") as AnimatedSprite2D
-			neon_aura.stop()
-			neon_aura.frame = mini(2, neon_aura.sprite_frames.get_frame_count("fire") - 1)
-			neon_aura.visible = true
+		battle.call("_pulse_character_theme_material")
+		battle.call("_spawn_character_theme_fire_signature", origin, direction, element)
+		if battle.get("character_theme_fire_aura") is AnimatedSprite2D:
+			var theme_aura := battle.get("character_theme_fire_aura") as AnimatedSprite2D
+			theme_aura.stop()
+			theme_aura.frame = mini(2, theme_aura.sprite_frames.get_frame_count("fire") - 1)
+			theme_aura.visible = true
 	battle.set_process(false)
 	battle.set_physics_process(false)
 	# Let the renderer consume the explicitly assigned frame. Without this,
@@ -714,6 +886,346 @@ func _prepare_status_vfx_showcase(battle: Node, mode: String) -> void:
 		for enemy in spawned:
 			enemy.call("set_combat_label_visibility", false, true)
 	print("status VFX audit: mode=%s enemies=%d" % [mode, spawned.size()])
+
+
+func _prepare_inferno_vfx_showcase(battle: Node, mode: String) -> void:
+	# Deterministic acceptance route for the real Inferno mechanics. Every mode
+	# invokes the same combat method used in a campaign run; it does not paste a
+	# source sheet over the battlefield. This makes direction, attachment and
+	# viewport-edge regressions visible in screenshots.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var center := Vector2(540, 700)
+	if mode == "combustion_left":
+		center = Vector2(105, 700)
+	elif mode == "combustion_right":
+		center = Vector2(975, 700)
+	elif mode == "counter":
+		center = Vector2(540, 1380)
+	var is_boss := mode == "combustion_boss"
+	var formation := [
+		center,
+		center + Vector2(-150, -105),
+		center + Vector2(150, -105),
+		center + Vector2(-185, 125),
+		center + Vector2(185, 125),
+	]
+	var spawned: Array[Node] = []
+	for index in range(formation.size()):
+		var position: Vector2 = formation[index]
+		if position.x < 54.0 or position.x > 1026.0:
+			continue
+		var enemy_id := "boss_inferno_maw" if is_boss and index == 0 else ("zombie_brute" if index % 2 == 0 else "zombie_armored")
+		var enemy: Node = battle.call("_spawn_enemy_instance", enemy_id, position, is_boss and index == 0, 0.0)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 100.0
+		enemy.hp = enemy.max_hp
+		enemy.set_physics_process(false)
+		enemy.call("set_combat_label_visibility", false, false)
+		enemy.call("_update_hp_bar")
+		spawned.append(enemy)
+	for _stage_frame in range(4):
+		await process_frame
+
+	var primary: Node = spawned[0] if not spawned.is_empty() else null
+	match mode:
+		"burn":
+			if primary != null:
+				primary.call("amplify_character_status", "fire", 90.0, 3, 0.14)
+		"spread":
+			if primary != null:
+				battle.call("_apply_inferno_death_spread", primary, {"death_source": "combustion"})
+		"phoenix":
+			battle.call("_activate_pet_fire_flyby", battle.pet_data.get("pet_skill", {}))
+		"counter":
+			battle.apocalypse_armor_charge = maxi(1, int(battle.armor_data.get("counter_charge_hits", 3)) - 1)
+			battle.apocalypse_armor_counter_cooldown = 0.0
+			battle.call("_apply_apocalypse_inferno_armor_counter", primary, 20, Vector2(540, 1510))
+		"awakening":
+			var weapon_row: Dictionary = root.get_node("/root/DataLoader").get_row("weapons", "weapon_apocalypse_inferno")
+			var special: Dictionary = weapon_row.get("special", {})
+			var heat_shots := maxi(1, int(special.get("high_heat_shots", 12)))
+			battle.weapon_level = int(weapon_row.get("max_level", 50))
+			battle.inferno_high_heat_shots = maxi(1, int(round(float(heat_shots) * 0.58)))
+			battle.inferno_awakening_cooldown = 0.0
+			var origin: Vector2 = battle.call("_weapon_fire_origin")
+			battle.call("_spawn_infernal_fire_signature", origin, Vector2.UP, "fire")
+		_:
+			if primary != null:
+				primary.set_meta("inferno_combustion_stacks", 99)
+				primary.set_meta("inferno_combustion_ready_at", 0.0)
+				battle.call("_apply_apocalypse_inferno_on_hit", primary, primary.global_position, 140.0)
+
+	# Capture the authored impact/wing peak, not the transparent first frame.
+	for _effect_frame in range(10):
+		await process_frame
+	print("inferno VFX audit: mode=%s enemies=%d" % [mode, spawned.size()])
+
+
+func _prepare_absolute_zero_vfx_showcase(battle: Node, mode: String) -> void:
+	# Deterministic real-runtime capture. The acceptance route invokes the same
+	# mechanics used by campaign combat, so edge clipping, attachment, ordering
+	# and direction cannot be hidden by a pasted source sheet.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var center := Vector2(540, 700)
+	if mode == "shatter_left":
+		center = Vector2(105, 700)
+	elif mode == "counter":
+		center = Vector2(540, 1380)
+	var is_boss := mode == "shatter_boss"
+	var formation := [
+		center,
+		center + Vector2(-150, -105),
+		center + Vector2(150, -105),
+		center + Vector2(-185, 125),
+		center + Vector2(185, 125),
+	]
+	var spawned: Array[Node] = []
+	for index in range(formation.size()):
+		var position: Vector2 = formation[index]
+		if position.x < 54.0 or position.x > 1026.0:
+			continue
+		var enemy_id := "boss_frost_warden" if is_boss and index == 0 else ("zombie_brute" if index % 2 == 0 else "zombie_armored")
+		var enemy: Node = battle.call("_spawn_enemy_instance", enemy_id, position, is_boss and index == 0, 0.0)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 100.0
+		enemy.hp = enemy.max_hp
+		enemy.set_physics_process(false)
+		enemy.call("set_combat_label_visibility", false, false)
+		enemy.call("_update_hp_bar")
+		spawned.append(enemy)
+	for _stage_frame in range(4):
+		await process_frame
+
+	var primary: Node = spawned[0] if not spawned.is_empty() else null
+	match mode:
+		"brittle":
+			if primary != null:
+				primary.set_meta("absolute_zero_brittle_stacks", 2)
+				battle.call("_apply_apocalypse_absolute_zero_on_hit", primary, primary.global_position, 140.0)
+		"wave":
+			if primary != null:
+				battle.absolute_zero_wave_cooldown = 0.0
+				var set_row: Dictionary = root.get_node("/root/DataLoader").get_row("premium_sets", "set_apocalypse_absolute_zero")
+				battle.call("_apply_absolute_zero_crystal_wave", primary, primary.global_position, 140.0, set_row)
+		"field":
+			if primary != null:
+				battle.call("_activate_pet_area_blast", battle.pet_data.get("pet_skill", {}), primary)
+		"counter":
+			battle.apocalypse_armor_charge = maxi(1, int(battle.armor_data.get("counter_charge_hits", 3)) - 1)
+			battle.apocalypse_armor_counter_cooldown = 0.0
+			battle.call("_apply_apocalypse_absolute_zero_armor_counter", primary, 20, Vector2(540, 1510))
+		"awakening":
+			battle.weapon_level = int(root.get_node("/root/DataLoader").get_row("weapons", "weapon_apocalypse_absolute_zero").get("max_level", 50))
+			battle.absolute_zero_awakening_cooldown = 0.0
+			var origin: Vector2 = battle.call("_weapon_fire_origin")
+			battle.call("_spawn_polar_aurora_fire_signature", origin, Vector2.UP, "ice")
+			battle.call("_spawn_vfx_sequence", "vfx_apocalypse_absolute_zero_awakening", origin + Vector2(0, -78), 0.92, Color(0.82, 0.98, 1.0, 0.94), 1.0, 0.0, 1.03, Vector2(0, -8), 0.0, true)
+		_:
+			if primary != null:
+				primary.set_meta("absolute_zero_brittle_stacks", 99)
+				primary.set_meta("absolute_zero_shatter_ready_at", 0.0)
+				battle.call("_apply_apocalypse_absolute_zero_on_hit", primary, primary.global_position, 140.0)
+
+	for _effect_frame in range(10):
+		await process_frame
+	print("absolute zero VFX audit: mode=%s enemies=%d" % [mode, spawned.size()])
+
+
+func _prepare_golden_law_vfx_showcase(battle: Node, mode: String) -> void:
+	# Fourth-series acceptance fixture. Every mode calls the campaign mechanic
+	# that owns the effect; no source-board layer is pasted over the screenshot.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+
+	var center := Vector2(540, 700)
+	if mode == "counter":
+		center = Vector2(540, 1380)
+	var formation := [
+		center,
+		center + Vector2(-165, -105),
+		center + Vector2(165, -105),
+		center + Vector2(-190, 125),
+		center + Vector2(190, 125),
+	]
+	var spawned: Array[Node] = []
+	for index in range(formation.size()):
+		var enemy_id := "zombie_brute" if index % 2 == 0 else "zombie_armored"
+		var enemy: Node = battle.call("_spawn_enemy_instance", enemy_id, formation[index], false, 0.0)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 100.0
+		enemy.hp = enemy.max_hp
+		enemy.set_physics_process(false)
+		enemy.call("set_combat_label_visibility", false, false)
+		enemy.call("_update_hp_bar")
+		spawned.append(enemy)
+	for _stage_frame in range(4):
+		await process_frame
+
+	var primary: Node = spawned[0] if not spawned.is_empty() else null
+	var weapon_row: Dictionary = root.get_node("/root/DataLoader").get_row("weapons", "weapon_apocalypse_golden_law")
+	var special: Dictionary = weapon_row.get("special", {})
+	match mode:
+		"judgment":
+			if primary != null:
+				primary.set_meta("golden_law_judgment_stacks", maxi(1, int(special.get("judgment_hits", 6)) - 2))
+				battle.call("_apply_apocalypse_golden_law_on_hit", primary, primary.global_position, 140.0)
+		"decree":
+			if primary != null:
+				battle.golden_law_decree_cooldown = 0.0
+				var set_row: Dictionary = root.get_node("/root/DataLoader").get_row("premium_sets", "set_apocalypse_golden_law")
+				battle.call("_apply_golden_law_decree", 140.0, set_row)
+		"falcon":
+			if primary != null:
+				battle.call("_activate_pet_golden_mark", battle.pet_data.get("pet_skill", {}), primary)
+		"counter":
+			battle.apocalypse_armor_charge = maxi(1, int(battle.armor_data.get("counter_charge_hits", 3)) - 1)
+			battle.apocalypse_armor_counter_cooldown = 0.0
+			battle.call("_apply_apocalypse_golden_law_armor_counter", primary, 20, Vector2(540, 1510))
+		"awakening":
+			battle.weapon_level = int(weapon_row.get("max_level", 50))
+			battle.golden_law_awakening_cooldown = 0.0
+			var origin: Vector2 = battle.call("_weapon_fire_origin")
+			battle.call("_spawn_gilded_eclipse_fire_signature", origin, Vector2.UP, "physical")
+		_:
+			if primary != null:
+				primary.set_meta("golden_law_judgment_stacks", 99)
+				primary.set_meta("golden_law_verdict_ready_at", 0.0)
+				battle.golden_law_decree_cooldown = 999.0
+				battle.call("_apply_apocalypse_golden_law_on_hit", primary, primary.global_position, 140.0)
+
+	await process_frame
+	var sequence_by_mode := {
+		"judgment": "vfx_status_golden_law_judgment",
+		"verdict": "vfx_apocalypse_golden_law_impact",
+		"decree": "vfx_apocalypse_golden_law_decree",
+		"falcon": "vfx_apocalypse_golden_law_falcon",
+		"counter": "vfx_apocalypse_golden_law_counter",
+		"awakening": "vfx_apocalypse_golden_law_awakening",
+	}
+	var peak_by_mode := {"judgment": 3, "verdict": 3, "decree": 5, "falcon": 4, "counter": 4, "awakening": 4}
+	var wanted_sequence := str(sequence_by_mode.get(mode, "vfx_apocalypse_golden_law_impact"))
+	for child in battle.get_node("ProjectileLayer").get_children():
+		var frames: Variant = child.get("frames")
+		if not (frames is Array) or frames.is_empty():
+			continue
+		var first_texture := frames[0] as Texture2D
+		if first_texture != null and first_texture.resource_path.contains("/%s/" % wanted_sequence):
+			_freeze_sequence_at_peak(child, int(peak_by_mode.get(mode, 3)))
+	for _effect_frame in range(3):
+		await process_frame
+	print("golden law VFX audit: mode=%s enemies=%d" % [mode, spawned.size()])
+
+func _prepare_app_store_vfx_showcase(battle: Node, mode: String) -> void:
+	# App Store release gate for the final generic placeholder replacements.
+	# Uses the real runtime sequence loader at phone scale, with an actor present
+	# so alpha holes, visual anchoring and z-order are visible in the capture.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	if mode == "levelup":
+		var actor_origin: Vector2 = battle.character_rig.global_position + Vector2(0, -72)
+		var levelup_fx: Node = battle.call("_spawn_vfx_sequence", "vfx_levelup_glow", actor_origin, 0.94, Color(1.0, 1.0, 1.0, 0.92), 1.0, 0.0, 1.02, Vector2(0, -8), 0.0, true)
+		_freeze_sequence_at_peak(levelup_fx, 6)
+	else:
+		var enemy: Node = battle.call("_spawn_enemy_instance", "zombie_brute", Vector2(540, 720), false, 0.0)
+		if enemy != null:
+			enemy.speed = 0.0
+			enemy.max_hp *= 100.0
+			enemy.hp = enemy.max_hp
+			enemy.set_physics_process(false)
+			enemy.call("set_combat_label_visibility", false, false)
+			enemy.call("_update_hp_bar")
+			var enrage_fx: Node = battle.call("_spawn_vfx_sequence", "vfx_enemy_skill_enrage", enemy.global_position + Vector2(0, -48), 0.86, Color(1.0, 1.0, 1.0, 0.90), 1.0, 0.0, 1.02, Vector2(0, -4), 0.0, false)
+			if enrage_fx is Node2D:
+				var enrage_position := (enrage_fx as Node2D).global_position
+				enrage_fx.reparent(enemy)
+				(enrage_fx as Node2D).global_position = enrage_position
+				(enemy as CanvasItem).z_index = 1
+				(enrage_fx as CanvasItem).z_as_relative = false
+				(enrage_fx as CanvasItem).z_index = 0
+			_freeze_sequence_at_peak(enrage_fx, 5)
+	for _effect_frame in range(6):
+		await process_frame
+	print("App Store VFX audit: mode=%s" % mode)
+
+func _freeze_sequence_at_peak(fx: Node, frame_index: int) -> void:
+	# Visual acceptance must inspect the authored peak, not whichever early frame
+	# happens to land on a fast headless capture. Live timing is untouched.
+	if fx == null:
+		return
+	fx.set_process(false)
+	var frames: Variant = fx.get("frames")
+	if frames is Array and not frames.is_empty():
+		fx.set("texture", frames[clampi(frame_index, 0, frames.size() - 1)])
 
 func _prepare_zombie_model_showcase(battle: Node, mode: String) -> void:
 	# Deterministic runtime lineup for reviewing the actual imported animation
@@ -895,6 +1407,46 @@ func _prepare_isolated_vfx_stage(battle: Node, spawn_target: bool) -> void:
 		target.hp = target.max_hp
 		if target.has_method("_update_hp_bar"):
 			target.call("_update_hp_bar")
+
+func _prepare_live_spawn_distribution(battle: Node, lane: String) -> void:
+	# Screenshot-only proof of the production picker. Enemies enter one by one at
+	# the campaign's representative 0.60s cadence and walk normally while subsequent samples
+	# are chosen; only after the complete wave is visible do we freeze the result.
+	battle.set_physics_process(false)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.recent_spawn_positions.clear()
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	var roster := ["zombie_shambler", "zombie_runner", "zombie_brute", "zombie_spitter"]
+	for index in range(12):
+		var position: Vector2 = battle.call("_next_enemy_spawn_position", lane, false)
+		var enemy: Node = battle.call("_spawn_enemy_instance", roster[index % roster.size()], position, false, 0.0)
+		if enemy != null:
+			enemy.max_hp *= 20.0
+			enemy.hp = enemy.max_hp
+		for _cadence_frame in range(36):
+			await physics_frame
+			await process_frame
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		if enemy != null and is_instance_valid(enemy):
+			enemy.speed = 0.0
+			enemy.set_physics_process(false)
+			if enemy.has_method("_update_hp_bar"):
+				enemy.call("_update_hp_bar")
+	print("live spawn distribution audit: lane=%s enemies=%d" % [lane, battle.get_node("EnemyLayer").get_child_count()])
 
 func _current_collection_table(mode: String) -> Dictionary:
 	match mode:

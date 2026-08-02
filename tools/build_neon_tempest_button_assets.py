@@ -213,7 +213,49 @@ def _assemble_exact(source_button: Image.Image, width: int, height: int) -> Imag
         scaled,
         ((width - scaled_width) // 2, (height - scaled_height) // 2),
     )
-    return assembled
+    return _restrain_neon_frame(assembled)
+
+
+def _restrain_neon_frame(image: Image.Image) -> Image.Image:
+    """Keep the punk color split while stopping the frame from overpowering copy."""
+    rgba = np.asarray(image.convert("RGBA"), dtype=np.float32).copy()
+    alpha = rgba[:, :, 3]
+    visible_y, visible_x = np.nonzero(alpha > 10.0)
+    if visible_x.size == 0:
+        return image.convert("RGBA")
+    left, right = int(visible_x.min()), int(visible_x.max())
+    top, bottom = int(visible_y.min()), int(visible_y.max())
+    yy, xx = np.indices(alpha.shape)
+    edge_distance = np.minimum.reduce((xx - left, right - xx, yy - top, bottom - yy))
+    frame_depth = max(3.0, (bottom - top + 1) * 0.24)
+    border = (alpha > 10.0) & (edge_distance <= frame_depth)
+
+    rgb = rgba[:, :, :3]
+    maximum = rgb.max(axis=2)
+    minimum = rgb.min(axis=2)
+    luminous = (alpha > 10.0) & (maximum > 78.0)
+    chromatic = luminous & ((maximum - minimum) > 24.0)
+
+    # Lower border luminance more than the calm text bed. Saturation remains
+    # recognisably cyan/magenta, but no longer blooms into the label strokes.
+    border_light = border & luminous
+    rgb[border_light] *= 0.74
+    center_light = (~border) & luminous
+    rgb[center_light] *= 0.90
+    gray = (
+        rgb[:, :, 0] * 0.2126
+        + rgb[:, :, 1] * 0.7152
+        + rgb[:, :, 2] * 0.0722
+    )[:, :, None]
+    soften = border & chromatic
+    rgb[soften] = gray[soften] + (rgb[soften] - gray[soften]) * 0.82
+
+    # Partial-alpha pixels are the optical bloom, not the metal edge itself.
+    bloom = border & (alpha > 0.0) & (alpha < 220.0)
+    alpha[bloom] *= 0.78
+    rgba[:, :, :3] = np.clip(rgb, 0.0, 255.0)
+    rgba[:, :, 3] = np.clip(alpha, 0.0, 255.0)
+    return Image.fromarray(rgba.astype(np.uint8)).convert("RGBA")
 
 
 def _build_contact_sheet(entries: list[dict[str, object]]) -> None:
@@ -269,10 +311,14 @@ def main() -> None:
 
     _build_contact_sheet(entries)
     manifest = {
-        "version": 1,
+        "version": 2,
         "method": (
             "independent structural families, uniform contain scaling and "
             "transparent letterboxing; no anisotropic scaling, frame crop or repetition"
+        ),
+        "visual_treatment": (
+            "runtime-only luminance restraint: border 0.74, center highlights 0.90, "
+            "border chroma 0.82 and partial-alpha bloom 0.78; geometry and copy unchanged"
         ),
         "sources": {
             family: [

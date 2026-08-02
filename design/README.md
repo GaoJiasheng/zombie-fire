@@ -2,7 +2,7 @@
 
 > 一款竖版 Roguelike 塔防/自动射击游戏。对标《向僵尸开炮》，在数值清晰度、技能可控性、关卡公平性上做改进。
 > 引擎 **Godot 4 (GDScript)**，一套代码导出 iOS / macOS，预留 Web / Windows / Android。
-> Build 38 仍是纯单机、无内购、无广告、无体力的生产提交基线；最新 TestFlight Build 41 是强制启用霓虹主题、四角色完整运行时动画 / 特效并包含完整中英文运行时的联合视觉验收包，不可直接用于 App Review。Owner 已批准后续加入永久主题和终焉军械的非消耗型 IAP；免费本体、无广告、无订阅、无体力保持不变，未来商业化唯一主方案见 `21_premium_themes_and_apocalypse_arsenal_plan.md`。
+> Build 38 仍是纯单机、无内购、无广告、无体力的生产提交基线；最新 TestFlight Build 43 是普通 release 的 Owner 验收包，包含霓虹军械库本地演示购买 / 恢复 / 清空 / 装备闭环、终焉雷霆四件套和四角色真实握持运行时，但尚未连接 StoreKit 或 Apple 已验证交易，不可直接用于 App Review。Owner 已批准后续加入永久主题和终焉军械的非消耗型 IAP；免费本体、无广告、无订阅、无体力保持不变，未来商业化唯一主方案见 `21_premium_themes_and_apocalypse_arsenal_plan.md`。
 
 ## v1 设计刷新重点
 
@@ -47,9 +47,12 @@
 | `16_outsourcing_brief.md` | 给 Godot 外包团队的执行说明、任务包与禁止事项 |
 | `17_asset_audio_generation_plan.md` | 图片、音乐、音效、视频/镜头素材的生成与交付计划 |
 | `18_full_app_backlog.md` | M1-M5 全量 backlog，便于拆任务给外包 |
-| `21_premium_themes_and_apocalypse_arsenal_plan.md` | 4 套付费主题、4 套终焉军械、StoreKit、数值、美术、验收和跨 session 交接总方案 |
+| `21_premium_themes_and_apocalypse_arsenal_plan.md` | 3 套已实现系列 + 第四套候选的主题 / 终焉军械、StoreKit、数值、美术、验收和跨 session 交接总方案 |
 | `22_neon_tempest_thunder_phase1_inventory.md` | 第一阶段霓虹雷暴 + 终焉·雷霆的现状盘点、文件触点、模块化方案、工作分解与验收门槛 |
 | `23_bilingual_localization_framework.md` | 简体中文 / English 运行时框架、英文文案分层、维护流程与发布门禁 |
+| `25_infernal_dominion_inferno_phase2_inventory.md` | 第二套炼狱赤焰 + 终焉·炼狱军械的范围冻结、架构解耦、素材矩阵、分步执行与验收门禁 |
+| `26_polar_aurora_absolute_zero_phase3_inventory.md` | 第三套极地极光 + 终焉·绝对零度的视觉、运行时、机制、平衡、本地购买和三主题交叉回归 |
+| `27_gilded_eclipse_golden_law_phase4_proposal.md` | 第四套鎏金永夜 + 终焉·黄金律的 Owner 评审文案、解锁节奏、高成长两倍属性口径、十一张详细非运行时母版和分步生产门禁；当前不代表已实现 |
 | `assets/asset_manifest.md` | **全部素材清单**（文件名 ↔ 用途 ↔ 类型 ↔ 尺寸） |
 | `assets/full_asset_pack_status.md` | 外包可接入素材包状态与校验说明 |
 | `assets/prompts_visual.md` | 每个视觉素材的 GPT/DALL·E 生成 prompt |

@@ -268,10 +268,19 @@ def check_weapon_dps(weapons: dict, errors: list[str]) -> list[tuple[str, str, f
     return ranking
 
 
+def is_premium_collection_row(row: dict) -> bool:
+    return bool(str(row.get("premium_entitlement", "")).strip())
+
+
 def unlock_costs(*tables: dict) -> list[int]:
     costs: list[int] = []
     for table in tables:
         for row in table.values():
+            # Permanent IAP equipment is not bought with campaign stars. Its
+            # sentinel keeps legacy UI from exposing a star purchase path and
+            # must never distort the free collection economy.
+            if is_premium_collection_row(row):
+                continue
             costs.append(int(row.get("unlock_cost_star", 0)))
     return sorted(costs)
 
@@ -341,9 +350,19 @@ def main() -> int:
     if not paid_costs or min(paid_costs) < 8 or max(paid_costs) > 16:
         errors.append("paid collection unlocks must stay in the 8-16 star comfort band")
     for table_name, table in collection_tables.items():
-        category_costs = [int(row.get("unlock_cost_star", 0)) for row in table.values() if int(row.get("unlock_cost_star", 0)) > 0]
+        category_costs = [
+            int(row.get("unlock_cost_star", 0))
+            for row in table.values()
+            if not is_premium_collection_row(row)
+            and int(row.get("unlock_cost_star", 0)) > 0
+        ]
         if category_costs and max(category_costs) > min(category_costs) * 2:
             errors.append(f"{table_name} unlock curve exceeds the 2x same-category limit")
+        for item_id, row in table.items():
+            if is_premium_collection_row(row) and int(row.get("unlock_cost_star", 0)) < 999999:
+                errors.append(
+                    f"{table_name}.{item_id} premium item must keep the disabled star-price sentinel"
+                )
     normal_campaign_stars = len(levels) * 3
     if not 300 <= collection_total <= normal_campaign_stars + 30:
         errors.append(
@@ -356,7 +375,12 @@ def main() -> int:
     if len(characters) < 4:
         errors.append("character roster should contain 4 archetypes")
 
-    weapon_ranking = check_weapon_dps(weapons, errors)
+    free_weapons = {
+        weapon_id: row
+        for weapon_id, row in weapons.items()
+        if not is_premium_collection_row(row)
+    }
+    weapon_ranking = check_weapon_dps(free_weapons, errors)
 
     if errors:
         print("Balance profile check failed:")

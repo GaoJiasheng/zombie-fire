@@ -9,6 +9,16 @@ const HERO_TITLE_LONG_SIZE := 58
 const HERO_TITLE_SHORT_SIZE := 78
 const RESULT_VISUAL_NUDGE_Y := -24.0
 const RESULT_FALLBACK_HEIGHT := 900.0
+const RESULT_PORTRAIT_WINDOW_SIZE := Vector2(170, 144)
+const RESULT_PORTRAIT_VISIBLE_HEIGHT := 280.0
+const RESULT_PORTRAIT_HEADROOM := 8.0
+const RESULT_OUTCOME_PANEL_HEIGHT := 164.0
+const RESULT_REWARD_SIDE_PADDING := 30.0
+const RESULT_REWARD_ICON_SIZE := Vector2(54, 54)
+const RESULT_REWARD_COPY_GAP := 16
+const RESULT_HINT_SIDE_PADDING := 28.0
+const RESULT_HINT_ICON_SIZE := Vector2(50, 50)
+const RESULT_HINT_COPY_GAP := 16
 
 var router: Node
 var level_id := "level_001"
@@ -93,18 +103,34 @@ func _apply_layout_constraints() -> void:
 	$Content/HeroCard/HeroBox/Title.clip_text = false
 	$Content/HeroCard/HeroBox/LevelName.custom_minimum_size = Vector2(content_width - 120.0, 0)
 	$Content/HeroCard/HeroBox/LevelName.clip_text = false
-	$Content/HeroCard/HeroBox/OutcomePanel.custom_minimum_size = Vector2(content_width - 64.0, 124)
-	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy.custom_minimum_size = Vector2(content_width - 260.0, 0)
+	$Content/HeroCard/HeroBox/OutcomePanel.custom_minimum_size = Vector2(content_width - 64.0, RESULT_OUTCOME_PANEL_HEIGHT)
+	var outcome_portrait := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait as TextureRect
+	outcome_portrait.custom_minimum_size = RESULT_PORTRAIT_WINDOW_SIZE
+	outcome_portrait.clip_contents = true
+	outcome_portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy.custom_minimum_size = Vector2(content_width - 300.0, 0)
 	$Content/RewardRow.add_theme_constant_override("separation", 16)
 	_configure_reward_layout()
+	for path in ["Content/RewardRow/GoldCard/GoldBox", "Content/RewardRow/XpCard/XpBox"]:
+		var reward_box := get_node_or_null(path) as HBoxContainer
+		if reward_box != null:
+			reward_box.add_theme_constant_override("separation", RESULT_REWARD_COPY_GAP)
 	for path in ["Content/RewardRow/GoldCard/GoldBox/GoldIcon", "Content/RewardRow/XpCard/XpBox/XpIcon"]:
 		var icon := get_node_or_null(path) as Control
 		if icon != null:
-			icon.custom_minimum_size = Vector2(58, 58)
+			icon.custom_minimum_size = RESULT_REWARD_ICON_SIZE
+			icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for path in ["Content/RewardRow/GoldCard/GoldBox/GoldVBox", "Content/RewardRow/XpCard/XpBox/XpVBox"]:
+		var reward_copy := get_node_or_null(path) as Control
+		if reward_copy != null:
+			reward_copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	$Content/HintCard.custom_minimum_size = Vector2(content_width, 96)
-	$Content/HintCard/HintBox.add_theme_constant_override("separation", 12)
-	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = Vector2(52, 52)
-	$Content/HintCard/HintBox/Hint.custom_minimum_size = Vector2(content_width - 120.0, 72)
+	$Content/HintCard/HintBox.add_theme_constant_override("separation", RESULT_HINT_COPY_GAP)
+	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = RESULT_HINT_ICON_SIZE
+	$Content/HintCard/HintBox/Hint.custom_minimum_size = Vector2(
+		content_width - RESULT_HINT_SIDE_PADDING * 2.0 - RESULT_HINT_ICON_SIZE.x - RESULT_HINT_COPY_GAP,
+		72
+	)
 	$Content/ReportButton.custom_minimum_size = Vector2(content_width, UiKit.MIN_TOUCH_TARGET.y)
 	$Content/ReportPanel.custom_minimum_size.x = content_width
 	call_deferred("_center_result_content")
@@ -136,8 +162,8 @@ func _native_result_content_width(raw_width: float) -> float:
 func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	$Content/HeroCard/HeroBox/OutcomePanel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("gold"))
-	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", UiKit.reward_texture_style("xp"))
+	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.reward_texture_style("gold"), RESULT_REWARD_SIDE_PADDING))
+	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.reward_texture_style("xp"), RESULT_REWARD_SIDE_PADDING))
 	$Content/ReportPanel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	UiKit.apply_armored_texture_button($Content/ReportButton, false, Vector2(_content_width, UiKit.MIN_TOUCH_TARGET.y), true)
 	_reset_action_button_tints()
@@ -220,9 +246,8 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	var character: Dictionary = DataLoader.get_row("characters", character_id)
 	var portrait_path := UiKit.character_bust_path(character)
 	var portrait := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait as TextureRect
-	portrait.texture = load(portrait_path) if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
-	portrait.modulate = Color.WHITE if victory else Color(0.72, 0.76, 0.80, 0.82)
-	portrait.material = ThemeManager.create_character_iridescence_material()
+	var portrait_texture := load(portrait_path) as Texture2D if portrait_path != "" and ResourceLoader.exists(portrait_path) else null
+	_refresh_result_portrait(portrait, portrait_texture, character_id, victory)
 	var character_name := DataLoader.tr_key(str(character.get("name_key", character_id)))
 	var hero_name := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName as Label
 	hero_name.text = "%s · %s" % [character_name, "完成防守" if victory else "准备反击"]
@@ -241,6 +266,80 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	else:
 		moment.text = "坚持 %d:%02d · 击杀 %d · 复盘后再战" % [minutes, seconds, kills]
 	moment.add_theme_color_override("font_color", UiKit.CYAN if victory else UiKit.WARNING)
+
+
+func _refresh_result_portrait(portrait: TextureRect, texture: Texture2D, character_id: String, victory: bool) -> void:
+	portrait.texture = null
+	portrait.clip_contents = true
+	portrait.custom_minimum_size = RESULT_PORTRAIT_WINDOW_SIZE
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait.modulate = Color.WHITE
+	portrait.material = null
+	var bust := portrait.get_node_or_null("BustImage") as TextureRect
+	if bust == null:
+		bust = TextureRect.new()
+		bust.name = "BustImage"
+		bust.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		bust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.add_child(bust)
+	bust.texture = texture
+	bust.modulate = Color.WHITE if victory else Color(0.72, 0.76, 0.80, 0.82)
+	bust.material = ThemeManager.create_character_material(character_id)
+	bust.scale = Vector2.ONE
+	if texture == null:
+		bust.size = RESULT_PORTRAIT_WINDOW_SIZE
+		bust.custom_minimum_size = RESULT_PORTRAIT_WINDOW_SIZE
+		bust.position = Vector2.ZERO
+		return
+	var layout := _result_portrait_layout(texture)
+	bust.size = layout.get("size", RESULT_PORTRAIT_WINDOW_SIZE)
+	bust.custom_minimum_size = bust.size
+	bust.position = layout.get("position", Vector2.ZERO)
+	bust.set_meta("result_portrait_scale", float(layout.get("scale", 1.0)))
+	bust.set_meta("result_portrait_used_rect", layout.get("used_rect", Rect2()))
+	bust.set_meta("result_portrait_visible_rect", layout.get("visible_rect", Rect2()))
+	bust.set_meta("result_portrait_framing", "aligned_half_body")
+
+
+func _result_portrait_layout(texture: Texture2D) -> Dictionary:
+	if texture == null:
+		return {
+			"size": RESULT_PORTRAIT_WINDOW_SIZE,
+			"position": Vector2.ZERO,
+			"scale": 1.0,
+			"used_rect": Rect2(),
+			"visible_rect": Rect2(Vector2.ZERO, RESULT_PORTRAIT_WINDOW_SIZE),
+		}
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return {
+			"size": RESULT_PORTRAIT_WINDOW_SIZE,
+			"position": Vector2.ZERO,
+			"scale": 1.0,
+			"used_rect": Rect2(Vector2.ZERO, texture.get_size()),
+			"visible_rect": Rect2(Vector2.ZERO, RESULT_PORTRAIT_WINDOW_SIZE),
+		}
+	var used := image.get_used_rect()
+	if used.size == Vector2i.ZERO:
+		used = Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+	# Use one human-height ruler for every hero and outfit, then let this compact
+	# viewport reveal the same head-to-torso slice. Transparent canvas, weapons,
+	# coat tails and theme effects cannot make a portrait appear smaller.
+	var source_scale := RESULT_PORTRAIT_VISIBLE_HEIGHT / maxf(float(used.size.y), 1.0)
+	var bust_size := texture.get_size() * source_scale
+	var visible_size := Vector2(float(used.size.x), float(used.size.y)) * source_scale
+	var visible_position := Vector2(
+		(RESULT_PORTRAIT_WINDOW_SIZE.x - visible_size.x) * 0.5,
+		RESULT_PORTRAIT_HEADROOM
+	)
+	return {
+		"size": bust_size,
+		"position": visible_position - Vector2(used.position) * source_scale,
+		"scale": source_scale,
+		"used_rect": Rect2(used),
+		"visible_rect": Rect2(visible_position, visible_size),
+	}
 
 func _populate_rewards(payload: Dictionary, victory: bool) -> void:
 	var gold := int(payload.get("gold", 0))
@@ -303,7 +402,15 @@ func _populate_hint(victory: bool) -> void:
 		$Content/HintCard/HintBox/HintIcon.texture = load("res://assets/production/sprites/ui/icon_warning.png")
 
 func _set_hint_style(card: PanelContainer, kind: String) -> void:
-	card.add_theme_stylebox_override("panel", UiKit.hint_texture_style(kind == "warning"))
+	card.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.hint_texture_style(kind == "warning"), RESULT_HINT_SIDE_PADDING))
+
+func _with_result_side_padding(style: StyleBox, side_padding: float) -> StyleBox:
+	# Result cards use decorated textures with luminous inner borders. Their generic
+	# 16px content margin placed the icon on top of that border, so reserve an
+	# explicit safe lane for the complete icon/copy group on both sides.
+	style.content_margin_left = side_padding
+	style.content_margin_right = side_padding
+	return style
 
 func _populate_battle_report(victory: bool) -> void:
 	var duration := int(round(float(battle_report.get("duration_seconds", 0.0))))
@@ -317,9 +424,36 @@ func _populate_battle_report(victory: bool) -> void:
 	var top_damage := float(battle_report.get("damage_by_element", {}).get(top_element, 0.0))
 	var top_share := int(round(top_damage / maxf(float(damage), 1.0) * 100.0))
 	$Content/ReportPanel/ReportBox/Overview.text = "用时 %d:%02d  ·  总伤害 %s  ·  击杀 %d%s  ·  最高 %d 连斩" % [minutes, seconds, _format_result_number(damage), kills, "（首领 %d）" % boss_kills if boss_kills > 0 else "", streak]
-	$Content/ReportPanel/ReportBox/Output.text = "主力 %s %d%%  ·  暴击伤害 %s  ·  弱点伤害 %s" % [_element_name(top_element), top_share, _format_result_number(int(round(float(battle_report.get("crit_damage", 0.0))))), _format_result_number(int(round(float(battle_report.get("weak_damage", 0.0)))))]
+	var output_line := "主力 %s %d%%  ·  暴击伤害 %s  ·  弱点伤害 %s" % [_element_name(top_element), top_share, _format_result_number(int(round(float(battle_report.get("crit_damage", 0.0))))), _format_result_number(int(round(float(battle_report.get("weak_damage", 0.0)))))]
+	var premium_sources := _premium_damage_source_summary()
+	$Content/ReportPanel/ReportBox/Output.text = "%s\n%s" % [premium_sources, output_line] if premium_sources != "" else output_line
 	$Content/ReportPanel/ReportBox/Defense.text = "防线承伤 %d  ·  格挡 %d  ·  控制 %.1f秒  ·  主动技能 %d次" % [int(battle_report.get("base_damage_taken", 0)), int(battle_report.get("base_damage_prevented", 0)), float(battle_report.get("control_seconds", 0.0)), int(battle_report.get("active_skill_casts", 0))]
 	$Content/ReportPanel/ReportBox/Coach.text = _battle_report_coach(victory)
+
+
+func _premium_damage_source_summary() -> String:
+	var sources: Dictionary = battle_report.get("damage_by_source", {})
+	var labels_zh := {
+		"weapon": "武器", "burn": "灼烧", "combustion": "爆燃",
+		"armor_counter": "熔甲", "phoenix": "机凰", "set_spread": "扩散",
+		"overload": "过载", "terminal": "雷柱",
+	}
+	var labels_en := {
+		"weapon": "Weapon", "burn": "Burn", "combustion": "Combustion",
+		"armor_counter": "Armor", "phoenix": "Phoenix", "set_spread": "Spread",
+		"overload": "Overload", "terminal": "Pillar",
+	}
+	var priority := ["weapon", "burn", "combustion", "armor_counter", "phoenix", "set_spread", "overload", "terminal"]
+	var parts: Array[String] = []
+	var labels: Dictionary = labels_en if LocalizationManager.is_english() else labels_zh
+	for source in priority:
+		var value := int(round(float(sources.get(source, 0.0))))
+		if value <= 0:
+			continue
+		parts.append("%s %s" % [str(labels.get(source, source)), _format_result_number(value)])
+	if parts.size() <= 1:
+		return ""
+	return "  ·  ".join(parts.slice(0, mini(parts.size(), 6)))
 
 func _battle_report_coach(victory: bool) -> String:
 	if is_challenge_result:

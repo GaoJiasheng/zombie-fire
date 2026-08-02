@@ -5,13 +5,13 @@ const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.pn
 const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
-const LEVEL_CARD_HEIGHT := 168.0
-const LEVEL_RIGHT_X := 532.0
-const LEVEL_RIGHT_W := 338.0
-const LEVEL_BUTTON_Y := 116.0
-const LEVEL_BUTTON_H := 44.0
+const LEVEL_CARD_HEIGHT := 192.0
+const LEVEL_MODE_X := 550.0
+const LEVEL_MODE_W := 412.0
+const LEVEL_MODE_H := 88.0
+const LEVEL_MODE_GAP := 8.0
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 292.0
+const CHAPTER_HERO_HEIGHT := 324.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -1064,8 +1064,8 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.add_child(card_frame)
 
 	var accent_bar := TextureRect.new()
-	accent_bar.position = Vector2(22, 20)
-	accent_bar.size = Vector2(14, 110)
+	accent_bar.position = Vector2(22, 22)
+	accent_bar.size = Vector2(14, 148)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -1075,7 +1075,7 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 
 	var level_num := level_id.replace("level_", "")
 	var index_plate := PanelContainer.new()
-	index_plate.position = Vector2(44, 46)
+	index_plate.position = Vector2(44, 57)
 	index_plate.size = Vector2(82, 58)
 	index_plate.add_theme_stylebox_override("panel", _level_index_style(accent, unlocked))
 	index_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1087,25 +1087,51 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 
 	var title := Label.new()
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
-	title.position = Vector2(148, 18)
+	title.position = Vector2(148, 24)
 	var title_width := 264.0 if variant in ["elite", "treasure", "boss", "boss_rush"] else 360.0
 	title.size = Vector2(title_width, 44)
 	var title_font_size := 24 if title.text.length() > 10 else 28
 	UiKit.apply_label(title, title_font_size, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
-	title.clip_text = false
+	# English level names are much wider than their Chinese counterparts. Keep
+	# the complete name inside its reserved lane and out of the variant badge.
+	UiKit.fit_label_text(title, title_font_size, 18, 2.0, 2.0)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	_add_card_pill(button, Vector2(148, 84), Vector2(154, 34), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_element_pill(button, Vector2(318, 84), Vector2(124, 34), weakness)
+	_add_card_pill(button, Vector2(148, 108), Vector2(154, 34), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_element_pill(button, Vector2(318, 108), Vector2(210, 34), weakness)
 	if level_id == _campaign_focus_level_id():
-		_add_card_pill(button, Vector2(448, 84), Vector2(76, 34), "当前", UiKit.GOLD)
+		# Keep the translated Current badge in the index lane. The information
+		# lane then has enough width for every localized weakness name without
+		# collisions or tiny adaptive type.
+		_add_card_pill(button, Vector2(44, 130), Vector2(82, 32), "当前", UiKit.GOLD)
 	_add_variant_marker(button, variant)
 
 	var challenge_unlocked := SaveManager.is_challenge_unlocked(level_id)
-	_add_level_star_block(button, Vector2(LEVEL_RIGHT_X, 18), stars, challenge_stars, unlocked, challenge_unlocked)
-	_add_level_action_button(button, Vector2(LEVEL_RIGHT_X, LEVEL_BUTTON_Y), Vector2(154, LEVEL_BUTTON_H), "进入", unlocked, true, _open_level.bind(level_id), "EnterLevelButton")
-	_add_level_action_button(button, Vector2(LEVEL_RIGHT_X + 166, LEVEL_BUTTON_Y), Vector2(172, LEVEL_BUTTON_H), "挑战模式", challenge_unlocked, false, _open_challenge_level.bind(level_id), "ChallengeLevelButton")
+	_add_level_mode_button(
+		button,
+		Vector2(LEVEL_MODE_X, 4),
+		"普通",
+		stars,
+		unlocked,
+		true,
+		UiKit.GOLD,
+		_open_level.bind(level_id),
+		"NormalModeButton",
+		"normal"
+	)
+	_add_level_mode_button(
+		button,
+		Vector2(LEVEL_MODE_X, 4 + LEVEL_MODE_H + LEVEL_MODE_GAP),
+		"挑战",
+		challenge_stars,
+		challenge_unlocked,
+		false,
+		UiKit.PURPLE,
+		_open_challenge_level.bind(level_id),
+		"ChallengeModeButton",
+		"challenge"
+	)
 	return button
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
@@ -1158,50 +1184,56 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(text)
 
-func _add_level_star_block(parent: Control, pos: Vector2, stars: int, challenge_stars: int, unlocked: bool, challenge_unlocked: bool) -> void:
-	var block := Control.new()
-	block.name = "StarProgressBlock"
-	block.position = pos
-	block.size = Vector2(LEVEL_RIGHT_W, 72)
-	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(block)
-	_add_star_progress_row(block, Vector2(0, 0), "普通", stars, unlocked, UiKit.GOLD)
-	_add_star_progress_row(block, Vector2(0, 36), "挑战", challenge_stars, challenge_unlocked, UiKit.PURPLE)
-
-func _add_star_progress_row(parent: Control, pos: Vector2, label_text: String, stars: int, unlocked: bool, accent: Color) -> void:
-	var row := HBoxContainer.new()
-	row.position = pos
-	row.size = Vector2(LEVEL_RIGHT_W, 32)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 5)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(row)
-	var label := UiKit.label(label_text, 15, accent if unlocked else UiKit.TEXT_MUTED, 2)
-	label.custom_minimum_size = Vector2(48, 32)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(label)
-	for i in range(3):
-		row.add_child(UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(30, 30)))
-
-func _add_level_action_button(parent: Control, pos: Vector2, size: Vector2, text: String, enabled: bool, primary: bool, callback: Callable, node_name: String) -> void:
+func _add_level_mode_button(parent: Control, pos: Vector2, text: String, stars: int, enabled: bool, primary: bool, accent: Color, callback: Callable, node_name: String, mode_id: String) -> void:
 	var action := TextureButton.new()
 	action.name = node_name
 	action.position = pos
-	action.size = size
-	action.custom_minimum_size = size
-	UiKit.apply_armored_texture_button(action, primary, size, enabled)
+	action.size = Vector2(LEVEL_MODE_W, LEVEL_MODE_H)
+	action.custom_minimum_size = action.size
+	UiKit.apply_armored_texture_button(action, primary, action.size, enabled)
 	action.mouse_filter = Control.MOUSE_FILTER_STOP
-	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
+	action.set_meta("level_mode", mode_id)
+	action.set_meta("star_count", stars)
+	action.tooltip_text = TranslationServer.translate(text) if enabled else "%s · %s" % [TranslationServer.translate(text), TranslationServer.translate("普通三星解锁")]
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)
-	var label := UiKit.label(text, 16, Color(1.0, 0.88, 0.58, 1.0) if enabled else Color(0.72, 0.76, 0.78, 0.9), 3)
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+	var content := HBoxContainer.new()
+	content.name = "ModeContent"
+	content.position = Vector2(26, 12)
+	content.size = Vector2(360, 64)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.add_theme_constant_override("separation", 8)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	action.add_child(content)
+
+	var label := UiKit.label(text, 21, accent if enabled else UiKit.TEXT_MUTED, 3)
+	label.name = "ModeLabel"
+	label.custom_minimum_size = Vector2(160, 56)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	action.add_child(label)
+	content.add_child(label)
+
+	if not enabled and mode_id == "challenge":
+		var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(26, 26))
+		lock_icon.name = "UnlockRequirement"
+		lock_icon.modulate = Color(0.72, 0.76, 0.80, 0.86)
+		content.add_child(lock_icon)
+
+	var star_row := HBoxContainer.new()
+	star_row.name = "ModeStars"
+	star_row.custom_minimum_size = Vector2(108, 40)
+	star_row.alignment = BoxContainer.ALIGNMENT_END
+	star_row.add_theme_constant_override("separation", 3)
+	star_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(star_row)
+	for i in range(3):
+		var star := UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(32, 32))
+		star.name = "Star%d" % (i + 1)
+		star.modulate = Color.WHITE if enabled else Color(0.66, 0.69, 0.72, 0.82)
+		star_row.add_child(star)
 	UiKit.attach_touch_target(action)
 
 func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, accent: Color) -> void:

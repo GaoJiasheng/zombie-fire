@@ -35,7 +35,7 @@ class Check:
     required_output: str | None = None
 
 
-CHECKS = [
+NON_VISUAL_CHECKS = [
     Check(("python3", "tools/validate_asset_pack.py")),
     Check(("python3", "tools/check_font_license.py")),
     Check(("python3", "tools/validate_data.py")),
@@ -48,11 +48,14 @@ CHECKS = [
     Check(("python3", "tools/check_balance_profile.py")),
     Check(("python3", "tools/simulate_balance.py")),
     Check(("python3", "tools/check_endgame_balance.py")),
+    Check(("python3", "tools/audit_inferno_premium_dps.py")),
+    Check(("python3", "tools/audit_absolute_zero_premium_dps.py")),
     Check(("python3", "tools/check_economy_loop.py")),
     Check(("python3", "tools/check_hardcoded_colors.py")),
     Check(("python3", "tools/check_contrast.py")),
     Check(("python3", "tools/check_runtime_ui_primitives.py")),
     Check(("python3", "tools/check_visual_assets.py")),
+    Check(("python3", "tools/check_app_store_ui_polish.py")),
     Check(("python3", "tools/check_zombie_model_silhouettes.py")),
     Check(("python3", "tools/check_combat_vfx_safe_margins.py")),
     Check(("python3", "tools/check_combat_vfx_semantics.py")),
@@ -89,17 +92,41 @@ CHECKS = [
 		required_output="Theme manager test passed",
 	),
 	Check((GODOT, "--headless", "--path", ".", "--script", "res://tools/m1_smoke_test.gd")),
-    Check(("python3", "tools/check_visual_screens.py")),
 ]
+
+WINDOWED_VISUAL_CHECKS = [
+    Check(("python3", "tools/check_visual_screens.py")),
+    Check(("python3", "tools/check_visual_screens.py", "--neon-only")),
+    Check(("python3", "tools/check_visual_screens.py", "--infernal-theme-only")),
+    Check(("python3", "tools/check_visual_screens.py", "--polar-theme-only")),
+    Check(("python3", "tools/check_visual_screens.py", "--premium-cross-only")),
+    Check(("python3", "tools/check_visual_screens.py", "--absolute-zero-only")),
+]
+
+
+def checks_for_run() -> list[Check]:
+    if os.environ.get("ZOMBIE_FIRE_SKIP_WINDOWED_VISUALS", "0") == "1":
+        print(
+            "Skipping windowed screenshot matrices by explicit no-focus release policy; "
+            "all static and headless gates remain enabled.",
+            flush=True,
+        )
+        return NON_VISUAL_CHECKS
+    return NON_VISUAL_CHECKS + WINDOWED_VISUAL_CHECKS
 
 
 def run_check(check: Check) -> int:
     command = check.command
     print(f"$ {' '.join(command)}", flush=True)
+    env = os.environ.copy()
+    test_home = os.environ.get("ZOMBIE_FIRE_TEST_HOME", "")
+    if test_home and Path(command[0]).name == "godot":
+        env["HOME"] = test_home
     try:
         process = subprocess.Popen(
             command,
             cwd=ROOT,
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -140,7 +167,7 @@ def run_check(check: Check) -> int:
 
 
 def main() -> int:
-    for check in CHECKS:
+    for check in checks_for_run():
         return_code = run_check(check)
         if return_code != 0:
             return return_code

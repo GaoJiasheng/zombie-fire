@@ -1,10 +1,10 @@
 {
   "root": "assets/production",
   "counts": {
-    "total_files": 8559,
+    "total_files": 11291,
     "parts_files": 414,
-    "animation_files": 1510,
-    "sfx_files": 88,
+    "animation_files": 2022,
+    "sfx_files": 104,
     "bgm_files": 9,
     "video_files": 15,
     "background_files": 16,
@@ -34,6 +34,45 @@
     "fonts": "fonts"
   },
   "owner_directed_generated_overrides": [
+    {
+      "path": "sprites/premium/neon_tempest/true_grip",
+      "source": "source_refs/generated/premium_neon_tempest_thunder_true_grip_2026_07_29/prompt_log.md",
+      "derived": [
+        "sprites/premium/neon_tempest/true_grip/char_vanguard_apocalypse_attack_left.png",
+        "sprites/premium/neon_tempest/true_grip/char_vanguard_apocalypse_attack.png",
+        "sprites/premium/neon_tempest/true_grip/char_vanguard_apocalypse_attack_right.png",
+        "sprites/premium/neon_tempest/true_grip/char_blaze_apocalypse_attack_left.png",
+        "sprites/premium/neon_tempest/true_grip/char_blaze_apocalypse_attack.png",
+        "sprites/premium/neon_tempest/true_grip/char_blaze_apocalypse_attack_right.png",
+        "sprites/premium/neon_tempest/true_grip/char_frost_apocalypse_attack_left.png",
+        "sprites/premium/neon_tempest/true_grip/char_frost_apocalypse_attack.png",
+        "sprites/premium/neon_tempest/true_grip/char_frost_apocalypse_attack_right.png",
+        "sprites/premium/neon_tempest/true_grip/char_volt_apocalypse_attack_left.png",
+        "sprites/premium/neon_tempest/true_grip/char_volt_apocalypse_attack.png",
+        "sprites/premium/neon_tempest/true_grip/char_volt_apocalypse_attack_right.png"
+      ],
+      "reason": "Owner requested the premium cannon to match the accepted firing-pose standard instead of floating in front of a weaponless hero. Four hero-specific Neon Tempest models bake the garment structure and exact triple-coil cannon into anatomically connected two-hand grips, with left/center/right aim masters; Blaze's paired side poses use a reviewed raised diagonal so the muzzle remains useful on the portrait battlefield while its centre pose stays unchanged. Animated suit flow, electricity, muzzle light and recoil remain runtime effects.",
+      "count": 12,
+      "task": "Thunder Apocalypse four-hero true-grip battle integration",
+      "created_at": "2026-07-29T21:40:00+08:00"
+    },
+    {
+      "path": "sprites/premium/neon_tempest",
+      "source": "source_refs/generated/premium_neon_tempest_phase1_commerce_2026_07_29/prompt_log.md",
+      "derived": [
+        "sprites/premium/neon_tempest/weapon_apocalypse_thunder_icon.png",
+        "sprites/premium/neon_tempest/weapon_apocalypse_thunder_handheld.png",
+        "sprites/premium/neon_tempest/weapon_apocalypse_thunder_turret.png",
+        "sprites/premium/neon_tempest/armor_apocalypse_conductor_icon.png",
+        "sprites/premium/neon_tempest/chip_apocalypse_superconductive_icon.png",
+        "sprites/premium/neon_tempest/pet_apocalypse_tempest_icon.png",
+        "sprites/premium/neon_tempest/pet_apocalypse_tempest_prototype.png"
+      ],
+      "reason": "Complete the first owner-approved purchasable Thunder Apocalypse product with four distinct equipment masters and seven independent catalog/runtime exports. The handheld cannon master remains the exact visual reference used by the compact hero-specific true-grip battle integration.",
+      "count": 7,
+      "task": "Neon Tempest Thunder Apocalypse commerce-ready equipment set",
+      "created_at": "2026-07-29T18:30:00+08:00"
+    },
     {
       "path": "sprites/themes/neon_tempest/characters + sprites/themes/neon_tempest/vfx",
       "source": "source_refs/generated/premium_neon_tempest_runtime_2026_07_28/neon_tempest_runtime_prompt_log.md",
@@ -452,7 +491,7 @@
         "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_tempest_button_runtime_manifest_v1.json",
         "assets/production/source_refs/generated/premium_neon_tempest_phase1b1_2026_07_27/neon_tempest_button_runtime_contact_sheet_v1.png"
       ],
-      "reason": "Owner required Neon Tempest controls to use purpose-built short and long models rather than stretching one texture. Six independent structural families cover compact through 17:1 HUD ribbon ratios; 72 exact-size runtime textures are uniformly contained and UiKit enforces keep-aspect rendering.",
+      "reason": "Owner required Neon Tempest controls to use purpose-built short and long models rather than stretching one texture. Six independent structural families cover compact through 17:1 HUD ribbon ratios; 72 exact-size runtime textures are uniformly contained and UiKit enforces keep-aspect rendering. The final App Store pass retains every model while applying a deterministic border-only restraint so cyan/magenta edge light and bloom no longer compete with button copy.",
       "count": 72,
       "task": "Neon Tempest Phase 1B-1 semantic button routing",
       "created_at": "2026-07-27T18:40:00+08:00"
@@ -1458,6 +1497,202 @@
       "count": 1,
       "task": "English main-menu rendered title logo",
       "created_at": "2026-07-27T23:30:00+08:00"
+    },
+    {
+      "path": "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31",
+      "source": "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_hero_outfit_contact_sheet_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_free_weapon_coatings_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_apocalypse_equipment_selection_board_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_ui_world_style_board_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_battle_composite_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_apocalypse_vfx_storyboard_v1.png"
+      ],
+      "reason": "Owner selected Infernal Dominion as the second premium series and explicitly requested Step 1 visual prototypes before runtime production. The six boards freeze hero identity, weapon functional colors, three non-recolor projector silhouettes, independently modeled UI controls, world/base language, exact portrait battle framing and the complete ten-event Inferno VFX grammar.",
+      "count": 6,
+      "task": "Infernal Dominion / Inferno Apocalypse Step 1 visual prototype pack",
+      "created_at": "2026-07-31T21:30:00+08:00"
+    },
+    {
+      "path": "sprites/themes/infernal_dominion + sprites/premium/infernal_dominion",
+      "source": "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_runtime_manifest_v1.json",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_runtime_contact_sheet_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_true_grip_contact_sheet_v1.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_battle_rear_fire_center_isolated.png"
+      ],
+      "reason": "Build the accepted Infernal Dominion runtime into 168 deterministic files: four portraits, 44 battle frames, 72 independently sized buttons, eight three-form free-weapon skins, seven premium equipment assets, twelve hero-specific true-grip poses, four fire-signature frames and one title. Owner review established a strict rear-view battle rule, so front masters are presentation-only and four corrected rear sheets supply all left / center / right firing poses.",
+      "count": 168,
+      "task": "Infernal Dominion Step 2 runtime, Inferno Step 3 equipment identity, and rear-view firing correction",
+      "created_at": "2026-08-01T00:30:00+08:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/vfx_{status_inferno_burn,apocalypse_inferno_combustion,apocalypse_inferno_spread,apocalypse_inferno_phoenix,apocalypse_inferno_counter,apocalypse_inferno_awakening} + audio/sfx/sfx_apocalypse_inferno_*",
+      "source": "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_apocalypse_step4_vfx_master_chroma.png",
+      "derived": [
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_apocalypse_step4_runtime_manifest.json",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_apocalypse_step4_runtime_contact_sheet.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_step4_phoenix.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/inferno_step4_awakening.png"
+      ],
+      "reason": "Complete the owner-approved Inferno Step 4 presentation with six independently readable animated effects and five restrained feedback sounds. Persistent burn follows the zombie body, combustion stays on the true impact, death spread is single-generation, the mechanical phoenix rotates from its explicit -45 degree source heading onto the live pet-target vector, the base counter faces upward, and max-level awakening renders behind the rear-view hero. Central, edge, Boss, horde and reduced-effects routes are screenshot-audited.",
+      "count": 57,
+      "task": "Inferno Apocalypse Step 4 authored VFX, audio, haptic and direction-semantic pass",
+      "created_at": "2026-08-01T08:30:00+08:00"
+    },
+    {
+      "path": "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01",
+      "source": "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_hero_outfit_contact_sheet_v1.png",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_equipment_selection_board_v1.png",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_ui_world_style_board_v1.png",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_vfx_master_chroma.png",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_character_fire_signature_master_chroma.png"
+      ],
+      "reason": "Owner selected Polar Aurora as the third and final premium series. The production pack freezes four identity-preserving silver polar outfits, a long cryogenic accelerator, Permafrost armor, Entropy chip, Aurora Wisp, independently sized crystalline UI, six semantic Absolute Zero effects and a symmetric rear-mounted aurora-ice firing signature.",
+      "count": 9,
+      "task": "Polar Aurora / Absolute Zero Phase 3 production master pack",
+      "created_at": "2026-08-01T10:00:00+08:00"
+    },
+    {
+      "path": "sprites/themes/polar_aurora + sprites/premium/polar_aurora",
+      "source": "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_runtime_manifest_v1.json",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_runtime_contact_sheet_v1.png",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_true_grip_contact_sheet_v1.png"
+      ],
+      "reason": "Build the third theme into 168 deterministic runtime files: four portraits, 44 battle frames, 72 native buttons, eight three-form free-weapon coatings, seven premium equipment assets, twelve rear-view true-grip directions, four rear firing-signature frames and one title. Heads, feet and barrels are complete and the gun is fused into both hands.",
+      "count": 168,
+      "task": "Polar Aurora theme runtime and Absolute Zero rear true-grip models",
+      "created_at": "2026-08-01T10:45:00+08:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/vfx_{status_absolute_zero_brittle,apocalypse_absolute_zero_shatter,apocalypse_absolute_zero_wave,apocalypse_absolute_zero_field,apocalypse_absolute_zero_counter,apocalypse_absolute_zero_awakening} + audio/sfx/sfx_apocalypse_absolute_zero_*",
+      "source": "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_vfx_master_chroma.png",
+      "derived": [
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_vfx_runtime_manifest.json",
+        "source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/absolute_zero_vfx_runtime_contact_sheet.png"
+      ],
+      "reason": "Six bounded Absolute Zero sequences and five feedback sounds cover body-attached Brittle, real-impact Shatter, a direction-rotated one-generation crystal wave, Aurora pet field, upward base counter and rear-layer max-level awakening. Edge, Boss, horde and reduced-effects routes are included in screenshot regression.",
+      "count": 57,
+      "task": "Absolute Zero authored VFX, SFX and direction-semantic pass",
+      "created_at": "2026-08-01T11:00:00+08:00"
+    },
+    {
+      "path": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01",
+      "source": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/black_gold_theme_visual_direction_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_arsenal_vfx_direction_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_hero_outfits_master_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/char_vanguard_gilded_alpha_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/char_blaze_gilded_alpha_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/char_frost_gilded_alpha_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/char_volt_gilded_alpha_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_free_weapon_coatings_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_equipment_master_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_ui_world_style_board_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_true_grip_and_fire_signature_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_true_grip_three_direction_master_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/char_frost_gilded_true_grip_three_direction_chroma_v3.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_vfx_storyboard_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_phone_battle_composite_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_product_flow_v1.png"
+      ],
+      "reason": "Owner reopened a fourth premium direction as an entirely new flowing black-gold endgame series rather than reviving the canceled Obsidian Forge concept. The eleven-board Step 0 / Step 1A non-runtime prototype pack defines four identity-preserving outfits, all eight free-weapon coatings, four independent Golden Law equipment silhouettes, enlarged logo and native UI / HUD / base grammar, rear true-grip and five-beat recoil, a complete four-hero by up-left / center / up-right grip matrix, ten direction-validated combat events, a 9:16 phone battle scale proof and the endgame reveal / preview / equip product flow. Four reviewed full-width alpha cutouts supersede the concept-sheet column crops for runtime portrait use; Frost also owns a reviewed three-direction chroma source that preserves both complete legs and boots during runtime extraction.",
+      "count": 16,
+      "task": "Gilded Eclipse / Golden Law Phase 4 Step 0 and Step 1A detailed prototype pack",
+      "created_at": "2026-08-01T14:00:00+08:00"
+    },
+    {
+      "path": "sprites/themes/gilded_eclipse + sprites/premium/gilded_eclipse",
+      "source": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_runtime_manifest_v1.json",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_runtime_contact_sheet_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_true_grip_contact_sheet_v1.png"
+      ],
+      "reason": "Fourth-series runtime build: four portraits, 44 battle frames, 72 native buttons, eight three-form free-weapon coatings, seven premium equipment assets, twelve rear-view true-grip directions, four rear firing-signature frames and one clean title. The title crop excludes concept-board controls and the second logo variant. Frost's three directional true-grip exports use the dedicated full-body keyed source and a lower-body geometry gate, preventing the dark greaves / boots from being deleted as runway background.",
+      "count": 168,
+      "task": "Gilded Eclipse runtime theme and Golden Law four-hero three-direction grip",
+      "created_at": "2026-08-01T17:00:00+08:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/vfx_{status_golden_law_judgment,apocalypse_golden_law_impact,apocalypse_golden_law_decree,apocalypse_golden_law_falcon,apocalypse_golden_law_counter,apocalypse_golden_law_awakening} + audio/sfx/sfx_apocalypse_golden_law_*",
+      "source": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_decree_gather_chroma_v3.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_decree_gather_transparent_v3.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_decree_impact_chroma_v3.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_decree_impact_transparent_v3.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_judgment_status_transparent_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_skyfalcon_dive_transparent_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_eternal_counter_transparent_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_sovereign_awakening_transparent_v1.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_vfx_runtime_manifest.json",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_vfx_runtime_contact_sheet.png"
+      ],
+      "reason": "Six bounded Golden Law sequences and six feedback sounds cover body-attached Judgment, real-impact Verdict, multi-target Decree, selected-target Skyfalcon, upward base counter and rear-layer awakening. All six now resolve from dedicated deeply rendered black-gold masters instead of procedural circles, line geometry, triangles or cylinders; runtime animation preserves real targets, explicit top/down direction contracts, safe alpha margins, rear layering and named-event feedback without recursive damage.",
+      "count": 58,
+      "task": "Golden Law authored VFX, SFX and semantic runtime pass",
+      "created_at": "2026-08-01T17:05:00+08:00"
+    },
+    {
+      "path": "sprites/vfx_sequences/vfx_{enemy_skill_enrage,levelup_glow} + sprites/vfx/vfx_{enemy_skill_enrage,levelup_glow}.png",
+      "source": "source_refs/generated/app_store_placeholder_audit_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/app_store_placeholder_audit_2026_08_01/enemy_enrage_transparent_v1.png",
+        "source_refs/generated/app_store_placeholder_audit_2026_08_01/levelup_ascension_transparent_v1.png",
+        "source_refs/generated/app_store_placeholder_audit_2026_08_01/app_store_vfx_replacements_manifest.json",
+        "source_refs/generated/app_store_placeholder_audit_2026_08_01/app_store_vfx_replacements_contact_sheet.png",
+        "contact_sheets/vfx_placeholder_audit_2026_08_01"
+      ],
+      "reason": "The App Store audit reviewed peak frames for all 101 runtime VFX sequences and found two remaining generic effects that still read as simple procedural bursts. Enemy Enrage is now a centered molten claw corona around the actual zombie, and Level Up is one coherent gold-cyan ascension column around the hero. Both retain their IDs and timing, use dedicated rendered masters and pass normal alpha-margin validation without an exception.",
+      "count": 29,
+      "task": "App Store full-runtime placeholder audit and final generic VFX replacements",
+      "created_at": "2026-08-01T20:30:00+08:00"
+    },
+    {
+      "path": "sprites/ui/{icon_currency_*,icon_element_*,icon_lock,icon_pause,icon_reroll_charge,icon_settings,icon_talent_point,icon_warning,ui_card_*,ui_target_strategy_*,ui_star_*,ui_level_card_skin,ui_combo_panel,ui_pill_skin,ui_plate_skin,ui_damage_number_badge}.png",
+      "source": "source_refs/generated/app_store_ui_placeholder_replacements_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/app_store_ui_placeholder_replacements_2026_08_01/runtime_manifest.json",
+        "contact_sheets/ui_placeholder_audit_2026_08_01/ui_replacements_final_contact_sheet.png",
+        "contact_sheets/ui_placeholder_audit_2026_08_01"
+      ],
+      "reason": "The final App Store UI audit exposed a coherent legacy placeholder family: flat symbols inside identical gray square tiles plus five runtime skins that were unrelated fragments cropped from a concept sheet. Fourteen core HUD icons, thirteen tactical/card/priority icons and five native HUD surfaces are now independent deeply rendered gunmetal/gold/cyan assets. Runtime names and exact dimensions are preserved; icons use transparent guard bands, while native surfaces retain rendered corners and extend only their calm center spans.",
+      "count": 32,
+      "task": "App Store runtime UI icon and cropped-surface placeholder closure",
+      "created_at": "2026-08-01T21:05:00+08:00"
+    },
+    {
+      "path": "sprites/premium/gilded_eclipse/weapon_apocalypse_golden_law_icon_v2.png",
+      "source": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_weapon_icon_v2_prompt.txt",
+      "derived": [
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_law_weapon_icon_v2_chroma.png"
+      ],
+      "reason": "The first Golden Law inventory icon still contained a lower-right concept-board detail inset, a presentation reflection and edge-contacting weapon geometry. The release V2 is one complete mirror-black / flowing-gold cannon with reconstructed muzzle, rear housing and grips, clean alpha, no duplicate panel and a guarded 384×384 runtime canvas. Loadout display additionally fits the real alpha bounds with a twelve-pixel safety gutter so the cannon is large without clipping.",
+      "count": 1,
+      "task": "Golden Law clean single-weapon inventory icon and loadout framing",
+      "created_at": "2026-08-02T12:00:00+08:00"
+    },
+    {
+      "path": "sprites/premium/{neon_tempest,infernal_dominion,polar_aurora,gilded_eclipse}/armor_apocalypse_*_icon.png",
+      "source": "source_refs/generated/armor_release_prototypes_2026_08_03/prompt_log.md",
+      "derived": [
+        "source_refs/generated/armor_release_prototypes_2026_08_03/armor_apocalypse_conductor_chroma.png",
+        "source_refs/generated/armor_release_prototypes_2026_08_03/armor_apocalypse_molten_chroma.png",
+        "source_refs/generated/armor_release_prototypes_2026_08_03/armor_apocalypse_permafrost_chroma.png",
+        "source_refs/generated/armor_release_prototypes_2026_08_03/armor_apocalypse_eternal_night_chroma.png"
+      ],
+      "reason": "The final armor-page audit found four incompatible and visibly incomplete Apocalypse prototypes: a torso-only conductor, two headless full suits, and a black-gold concept-board crop with a duplicate inset. All four now use the same complete helmet-to-boots product-render contract, transparent 384×384 canvas, safe margins, no frame, no duplicate, and preserved theme materials. The obsolete Gilded store crop is removed because the clean single-object source now serves collection and store consistently.",
+      "count": 4,
+      "task": "App Store Apocalypse armor prototype completeness and cross-theme normalization",
+      "created_at": "2026-08-03T15:30:00+08:00"
     }
   ]
 }

@@ -1,17 +1,21 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const PRIVACY_POLICY_URL := "https://blog.gavingao.cn/zombie-fire/privacy.html"
 const SUPPORT_URL := "https://blog.gavingao.cn/zombie-fire/support.html"
 
 var router: Node
 var reset_armed := false
 var _transparent_slider_grabber: Texture2D
+var _appearance_selector: CanvasLayer
+var _open_theme_on_ready := false
 
 @onready var _vbox: VBoxContainer = $Center/Panel/Margin/VBox
 
-func setup(main: Node, _payload := {}) -> void:
+func setup(main: Node, payload := {}) -> void:
 	router = main
+	_open_theme_on_ready = payload is Dictionary and bool(payload.get("open_theme_appearance", false))
 
 func _ready() -> void:
 	_apply_layout()
@@ -41,6 +45,8 @@ func _ready() -> void:
 	_refresh_accessibility()
 	_refresh_backup()
 	_show_info("help")
+	if _open_theme_on_ready:
+		call_deferred("_open_theme_appearance")
 
 func _apply_layout() -> void:
 	$Center/Panel.custom_minimum_size = Vector2(880, 0)
@@ -52,8 +58,12 @@ func _apply_layout() -> void:
 	# inside the safe rect without shrinking type or touch targets.
 	_vbox.add_theme_constant_override("separation", 8 if compact_safe_layout else 14)
 	var margin := $Center/Panel/Margin as MarginContainer
-	margin.add_theme_constant_override("margin_top", 16 if compact_safe_layout else 44)
-	margin.add_theme_constant_override("margin_bottom", 16 if compact_safe_layout else 44)
+	# Twelve pixels keeps the complete settings stack four pixels below the
+	# compact safe-area ceiling. At 16px the VBox minimum height was 1690px,
+	# forcing CenterContainer to spill two pixels above and below a 1686px safe
+	# rect even though its anchors were correct.
+	margin.add_theme_constant_override("margin_top", 12 if compact_safe_layout else 44)
+	margin.add_theme_constant_override("margin_bottom", 12 if compact_safe_layout else 44)
 	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 88)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
@@ -84,6 +94,8 @@ func _apply_style() -> void:
 	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 18 if LocalizationManager.is_english() else 20, UiKit.GREY_300, 2)
 	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 24)
+	for path in ["AccessibilityRow/ReduceEffectsButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+		_style_button(_button(path), UiKit.CYAN, 22)
 	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
 func _style_slider(slider: HSlider) -> void:
@@ -176,30 +188,36 @@ func _refresh_language() -> void:
 	_button("LanguageButton").text = "语言：%s" % LocalizationManager.language_label()
 
 func _on_theme() -> void:
-	var themes := ThemeManager.available_themes()
-	if themes.size() <= 1:
+	_open_theme_appearance()
+
+func _open_theme_appearance() -> void:
+	if is_instance_valid(_appearance_selector):
 		return
-	var active_id := ThemeManager.active_theme_id()
-	var current_index := 0
-	for index in range(themes.size()):
-		if str(themes[index].get("id", "")) == active_id:
-			current_index = index
-			break
-	var next_id := str(themes[(current_index + 1) % themes.size()].get("id", "default"))
-	if not ThemeManager.select_theme(next_id):
-		return
-	AudioManager.play_sfx("ui_confirm")
-	# Theme assets and native-size buttons are resolved while constructing each
-	# page. Recreate Settings so every visible control updates atomically.
-	router.change_scene("settings")
+	AudioManager.play_sfx("ui_click")
+	_appearance_selector = AppearanceSelector.new()
+	add_child(_appearance_selector)
+	_appearance_selector.global_theme_changed.connect(_on_global_theme_changed)
+	_appearance_selector.store_requested.connect(_on_appearance_store_requested)
+	_appearance_selector.closed.connect(func() -> void: _appearance_selector = null)
+	_appearance_selector.open_global(router)
+
+func _on_global_theme_changed(_theme_id: String) -> void:
+	# Recreate Settings so every native-size button resolves against the newly
+	# selected global theme atomically, then reopen the appearance page.
+	router.change_scene("settings", {"open_theme_appearance": true})
+
+func _on_appearance_store_requested() -> void:
+	router.change_scene("store", {
+		"return_to": "settings",
+		"return_payload": {"open_theme_appearance": true},
+	})
 
 func _refresh_theme() -> void:
 	var button := _button("ThemeButton")
-	var themes := ThemeManager.available_themes()
-	button.visible = themes.size() > 1
-	button.disabled = themes.size() <= 1
-	button.text = "主题预览：%s" % ThemeManager.theme_display_name(ThemeManager.active_theme_id())
-	button.tooltip_text = "仅供验收，不会授予购买权益"
+	button.visible = true
+	button.disabled = false
+	button.text = LocalizationManager.text("主题与外观：%s") % ThemeManager.theme_display_name(ThemeManager.active_theme_id())
+	button.tooltip_text = LocalizationManager.text("管理全局主题与每名角色的独立战衣")
 
 func _on_reduce_effects() -> void:
 	SettingsManager.toggle_reduced_effects()
@@ -253,11 +271,25 @@ func _on_reset() -> void:
 func _show_info(mode: String) -> void:
 	AudioManager.play_sfx("ui_click")
 	var body := _vbox.get_node("InfoBody") as Label
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
+	var regular_separation := 8 if safe_height < 1840.0 else 14
+	_vbox.add_theme_constant_override("separation", mini(regular_separation, 12) if mode == "privacy" else regular_separation)
+	# The privacy copy is intentionally more explicit than the controls/support
+	# summaries. Give each state its authored height instead of forcing all three
+	# through the short default box (which clipped both locales on device).
 	match mode:
 		"privacy":
-			body.text = "隐私：当前版本不采集个人数据，不包含广告、账号、内购、推送或第三方追踪。\n游戏进度只保存在本机；点击“隐私政策”可在浏览器查看完整政策。"
+			body.custom_minimum_size.y = 204.0 if LocalizationManager.is_english() else 180.0
 		"support":
-			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击“联系支持”可查看联系方式。"
+			body.custom_minimum_size.y = 180.0 if LocalizationManager.is_english() else 136.0
+		_:
+			body.custom_minimum_size.y = 180.0 if LocalizationManager.is_english() else 136.0
+	match mode:
+		"privacy":
+			body.text = "隐私：本版本不采集个人数据，也没有广告、账号、内购、推送或第三方追踪。\n进度仅保存在本机；点击“隐私政策”查看完整政策。"
+		"support":
+			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击上方“支持”查看联系方式。"
 		_:
 			body.text = "操作说明：\n自动开火；按住战场拖动可手动瞄准。\n双击僵尸锁定集火，双击空地解除；长按技能查看详情。"
 

@@ -177,5 +177,222 @@
 		"handheld": "res://assets/production/sprites/weapons/handheld/weapon_plasmacannon_rifle.png",
 		"turret": "res://assets/production/sprites/weapons/weapon_plasmacannon_turret.png",
 		"unlock_cost_star": 16
+	},
+	"weapon_apocalypse_thunder": {
+		"name_key": "weapon_apocalypse_thunder",
+		"element": "lightning",
+		"base_atk_coef": 0.584,
+		"fire_rate": 5.0,
+		"projectile_type": "apocalypse_chain",
+		"projectile_speed": 1680,
+		"special": {
+			"chain": 3,
+			"chain_falloff": 0.88,
+			"overload_hits": 7,
+			"overload_damage_mult": 2.2
+		},
+		"premium_entitlement": "ent_arsenal_thunder",
+		"premium_set": "set_apocalypse_thunder",
+		"rarity": "apocalypse",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "premium",
+			"entitlement": "ent_arsenal_thunder"
+		},
+		"icon": "res://assets/production/sprites/premium/neon_tempest/weapon_apocalypse_thunder_icon.png",
+		"handheld": "res://assets/production/sprites/premium/neon_tempest/weapon_apocalypse_thunder_handheld.png",
+		"turret": "res://assets/production/sprites/premium/neon_tempest/weapon_apocalypse_thunder_turret.png",
+		"visual_profile": "apocalypse_thunder",
+		"presentation": {
+			"weapon_scale": 0.21,
+			"muzzle_distance": 86.0,
+			"attack_duration": 0.36,
+			"prefire_lead": 0.085,
+			"recoil_pose": 19.0,
+			"recoil_accent": 0.42,
+			"recoil_twist": 1.35,
+			"true_grip": {
+				"root": "res://assets/production/sprites/premium/neon_tempest/true_grip",
+				"size": [380, 520],
+				"center_pattern": "{character_id}_apocalypse_attack.png",
+				"left_pattern": "{character_id}_apocalypse_attack_left.png",
+				"right_pattern": "{character_id}_apocalypse_attack_right.png",
+				"muzzle_by_character": {
+					"char_vanguard": {"center": [0, -124], "left": [-77, -97], "right": [77, -97]},
+					"char_blaze": {"center": [0, -124], "left": [-82, -101], "right": [82, -101]},
+					"char_frost": {"center": [0, -124], "left": [-68, -100], "right": [68, -100]},
+					"char_volt": {"center": [0, -124], "left": [-77, -100], "right": [77, -100]}
+				}
+			}
+		},
+		"unlock_cost_star": 999999
+	},
+	"weapon_apocalypse_inferno": {
+		"name_key": "weapon_apocalypse_inferno",
+		"element": "fire",
+		"base_atk_coef": 1.145,
+		"fire_rate": 6.2,
+		"projectile_type": "apocalypse_inferno_stream",
+		"projectile_speed": 1540,
+		"special": {
+			"burn_ratio": 0.38,
+			"combustion_max_stacks": 5,
+			"combustion_stack_gain": 1,
+			"combustion_trigger_cooldown": 1.4,
+			"combustion_damage_mult": 2.3,
+			"combustion_radius": 230,
+			"combustion_max_targets": 5,
+			"combustion_spread_falloff": 0.62,
+			"high_heat_shots": 12,
+			"vent_shots": 3
+		},
+		"premium_entitlement": "ent_arsenal_inferno",
+		"premium_set": "set_apocalypse_inferno",
+		"rarity": "apocalypse",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "premium",
+			"entitlement": "ent_arsenal_inferno"
+		},
+		"icon": "res://assets/production/sprites/premium/infernal_dominion/weapon_apocalypse_inferno_icon.png",
+		"handheld": "res://assets/production/sprites/premium/infernal_dominion/weapon_apocalypse_inferno_handheld.png",
+		"turret": "res://assets/production/sprites/premium/infernal_dominion/weapon_apocalypse_inferno_turret.png",
+		"visual_profile": "apocalypse_inferno",
+		"presentation": {
+			"weapon_scale": 0.225,
+			"muzzle_distance": 94.0,
+			"attack_duration": 0.31,
+			"prefire_lead": 0.070,
+			"recoil_pose": 17.0,
+      "recoil_accent": 0.4,
+			"recoil_twist": 1.15,
+			"true_grip": {
+				"root": "res://assets/production/sprites/premium/infernal_dominion/true_grip",
+				"viewpoint": "rear",
+				"size": [380, 520],
+				"center_pattern": "{character_id}_apocalypse_attack.png",
+				"left_pattern": "{character_id}_apocalypse_attack_left.png",
+				"right_pattern": "{character_id}_apocalypse_attack_right.png",
+				"muzzle_by_character": {
+					"char_vanguard": {"center": [0, -123], "left": [-83, -102], "right": [83, -102]},
+					"char_blaze": {"center": [0, -123], "left": [-84, -104], "right": [84, -104]},
+					"char_frost": {"center": [0, -123], "left": [-85, -105], "right": [85, -105]},
+					"char_volt": {"center": [0, -123], "left": [-84, -104], "right": [84, -104]}
+				}
+			}
+		},
+		"unlock_cost_star": 999999
+	},
+	"weapon_apocalypse_absolute_zero": {
+		"name_key": "weapon_apocalypse_absolute_zero",
+		"element": "ice",
+		"base_atk_coef": 1.245,
+		"fire_rate": 4.3,
+		"projectile_type": "apocalypse_absolute_zero_bolt",
+		"projectile_speed": 1460,
+		"special": {
+			"slow": 0.30,
+			"brittle_hits": 5,
+      "shatter_damage_mult": 0.25,
+			"shatter_radius": 205,
+			"shatter_max_targets": 5,
+			"shatter_falloff": 0.66,
+			"shatter_cooldown": 0.85,
+			"boss_threshold_bonus": 1
+		},
+		"premium_entitlement": "ent_arsenal_absolute_zero",
+		"premium_set": "set_apocalypse_absolute_zero",
+		"rarity": "apocalypse",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "premium",
+			"entitlement": "ent_arsenal_absolute_zero"
+		},
+		"icon": "res://assets/production/sprites/premium/polar_aurora/weapon_apocalypse_absolute_zero_icon.png",
+		"handheld": "res://assets/production/sprites/premium/polar_aurora/weapon_apocalypse_absolute_zero_handheld.png",
+		"turret": "res://assets/production/sprites/premium/polar_aurora/weapon_apocalypse_absolute_zero_turret.png",
+		"visual_profile": "apocalypse_absolute_zero",
+		"presentation": {
+			"weapon_scale": 0.218,
+			"muzzle_distance": 92.0,
+			"attack_duration": 0.33,
+			"prefire_lead": 0.075,
+			"recoil_pose": 16.0,
+      "recoil_accent": 0.4,
+			"recoil_twist": 1.05,
+			"true_grip": {
+				"root": "res://assets/production/sprites/premium/polar_aurora/true_grip",
+				"viewpoint": "rear",
+				"size": [380, 520],
+				"center_pattern": "{character_id}_apocalypse_attack.png",
+				"left_pattern": "{character_id}_apocalypse_attack_left.png",
+				"right_pattern": "{character_id}_apocalypse_attack_right.png",
+				"muzzle_by_character": {
+					"char_vanguard": {"center": [0, -132], "left": [-84, -105], "right": [84, -105]},
+					"char_blaze": {"center": [0, -134], "left": [-86, -107], "right": [86, -107]},
+					"char_frost": {"center": [0, -136], "left": [-86, -109], "right": [86, -109]},
+					"char_volt": {"center": [0, -134], "left": [-84, -107], "right": [84, -107]}
+				}
+			}
+		},
+		"unlock_cost_star": 999999
+	},
+	"weapon_apocalypse_golden_law": {
+		"name_key": "weapon_apocalypse_golden_law",
+		"element": "physical",
+		"base_atk_coef": 2.22,
+		"fire_rate": 2.4,
+		"projectile_type": "apocalypse_golden_law_verdict",
+		"projectile_speed": 2380,
+		"endgame_damage_growth_bonus": 0.07,
+		"endgame_growth_curve": 1.65,
+		"special": {
+			"pierce": 3,
+			"judgment_hits": 6,
+			"judgment_damage_mult": 1.18,
+			"judgment_armor_penetration": 0.32,
+			"judgment_cooldown": 0.62
+		},
+		"premium_entitlement": "ent_arsenal_golden_law",
+		"premium_set": "set_apocalypse_golden_law",
+		"rarity": "apocalypse",
+		"max_level": 50,
+		"cost_base_gold": 320,
+		"unlock": {
+			"type": "premium",
+			"entitlement": "ent_arsenal_golden_law"
+		},
+		"icon": "res://assets/production/sprites/premium/gilded_eclipse/weapon_apocalypse_golden_law_icon_v2.png",
+		"loadout_art": "res://assets/production/sprites/premium/gilded_eclipse/weapon_apocalypse_golden_law_icon_v2.png",
+		"handheld": "res://assets/production/sprites/premium/gilded_eclipse/weapon_apocalypse_golden_law_handheld.png",
+		"turret": "res://assets/production/sprites/premium/gilded_eclipse/weapon_apocalypse_golden_law_turret.png",
+		"visual_profile": "apocalypse_golden_law",
+		"presentation": {
+			"weapon_scale": 0.225,
+			"muzzle_distance": 98.0,
+			"attack_duration": 0.34,
+			"prefire_lead": 0.075,
+			"recoil_pose": 18.0,
+			"recoil_accent": 0.46,
+			"recoil_twist": 1.1,
+			"true_grip": {
+				"root": "res://assets/production/sprites/premium/gilded_eclipse/true_grip",
+				"viewpoint": "rear",
+				"size": [380, 520],
+				"center_pattern": "{character_id}_apocalypse_attack.png",
+				"left_pattern": "{character_id}_apocalypse_attack_left.png",
+				"right_pattern": "{character_id}_apocalypse_attack_right.png",
+				"muzzle_by_character": {
+					"char_vanguard": {"center": [0, -136], "left": [-86, -109], "right": [86, -109]},
+					"char_blaze": {"center": [0, -136], "left": [-88, -110], "right": [88, -110]},
+					"char_frost": {"center": [0, -138], "left": [-88, -112], "right": [88, -112]},
+					"char_volt": {"center": [0, -136], "left": [-86, -110], "right": [86, -110]}
+				}
+			}
+		},
+		"unlock_cost_star": 999999
 	}
 }

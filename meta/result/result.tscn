@@ -80,14 +80,14 @@ theme_override_colors/font_color = Color(0.78, 0.84, 0.84, 1)
 theme_override_constants/outline_size = 2
 
 [node name="OutcomePanel" type="PanelContainer" parent="Content/HeroCard/HeroBox"]
-custom_minimum_size = Vector2(0, 124)
+custom_minimum_size = Vector2(0, 164)
 
 [node name="OutcomeRow" type="HBoxContainer" parent="Content/HeroCard/HeroBox/OutcomePanel"]
 theme_override_constants/separation = 18
 alignment = 1
 
 [node name="Portrait" type="TextureRect" parent="Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow"]
-custom_minimum_size = Vector2(108, 108)
+custom_minimum_size = Vector2(170, 144)
 expand_mode = 1
 stretch_mode = 5
 
@@ -123,16 +123,18 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
 
 [node name="GoldBox" type="HBoxContainer" parent="Content/RewardRow/GoldCard"]
-theme_override_constants/separation = 18
+theme_override_constants/separation = 16
 
 [node name="GoldIcon" type="TextureRect" parent="Content/RewardRow/GoldCard/GoldBox"]
-custom_minimum_size = Vector2(72, 72)
+custom_minimum_size = Vector2(54, 54)
 texture = ExtResource("7_gold")
 expand_mode = 1
 stretch_mode = 5
+size_flags_vertical = 4
 
 [node name="GoldVBox" type="VBoxContainer" parent="Content/RewardRow/GoldCard/GoldBox"]
 size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_constants/separation = 2
 
 [node name="GoldLabel" type="Label" parent="Content/RewardRow/GoldCard/GoldBox/GoldVBox"]
@@ -152,16 +154,18 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
 
 [node name="XpBox" type="HBoxContainer" parent="Content/RewardRow/XpCard"]
-theme_override_constants/separation = 18
+theme_override_constants/separation = 16
 
 [node name="XpIcon" type="TextureRect" parent="Content/RewardRow/XpCard/XpBox"]
-custom_minimum_size = Vector2(72, 72)
+custom_minimum_size = Vector2(54, 54)
 texture = ExtResource("8_xp")
 expand_mode = 1
 stretch_mode = 5
+size_flags_vertical = 4
 
 [node name="XpVBox" type="VBoxContainer" parent="Content/RewardRow/XpCard/XpBox"]
 size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_constants/separation = 2
 
 [node name="XpLabel" type="Label" parent="Content/RewardRow/XpCard/XpBox/XpVBox"]
@@ -180,10 +184,10 @@ theme_override_constants/outline_size = 3
 custom_minimum_size = Vector2(980, 0)
 
 [node name="HintBox" type="HBoxContainer" parent="Content/HintCard"]
-theme_override_constants/separation = 18
+theme_override_constants/separation = 16
 
 [node name="HintIcon" type="TextureRect" parent="Content/HintCard/HintBox"]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(50, 50)
 texture = ExtResource("9_warn")
 expand_mode = 1
 stretch_mode = 5

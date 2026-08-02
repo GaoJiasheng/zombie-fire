@@ -3,13 +3,15 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const ChallengeRules := preload("res://core/data/challenge_rules.gd")
+const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const MAIN_ICON_SIZE := Vector2(296, 296)
 const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
-const HERO_BUST_IMAGE_WIDTH := 378.0
-# All four frameless portraits share the same 642x962 source canvas. At the
-# authored zoom their first opaque pixels begin about 39px below the image top;
-# -30 keeps roughly 10px of visible headroom without shrinking the character.
-const HERO_BUST_Y_OFFSET := -30.0
+const HERO_BUST_REFERENCE_CANVAS_WIDTH := 642.0
+const HERO_BUST_REFERENCE_IMAGE_WIDTH := 378.0
+const HERO_BUST_REFERENCE_VISIBLE_HEIGHT := 845.0 * HERO_BUST_REFERENCE_IMAGE_WIDTH / HERO_BUST_REFERENCE_CANVAS_WIDTH
+const HERO_BUST_HEADROOM := 10.0
+const WEAPON_DISPLAY_GUTTER_RATIO := 0.055
+const WEAPON_DISPLAY_MIN_GUTTER := 8
 const GEAR_CARD_SIZE := Vector2(176, 176)
 const GEAR_ROW_SEPARATION := 34
 const SMALL_PORTRAIT_SIZE := Vector2(104, 104)
@@ -29,6 +31,7 @@ var is_challenge_mode := false
 var _return_to := "map"
 var _return_payload := {}
 var _underpower_confirmation_armed_until_msec := 0
+var _appearance_selector: CanvasLayer
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -51,6 +54,7 @@ func _ready() -> void:
 		($Root/Main/TopNeonLine as CanvasItem).visible = false
 	_apply_runtime_layout()
 	_bind_open_hit(%CharacterPanel as Control, "characters")
+	_bind_character_appearance_hit(%CharacterPanel as Control)
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(760, 112), true)
 	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 88), true)
@@ -106,13 +110,83 @@ func _bind_open_hit(panel: Control, mode: String) -> void:
 	if hit == null:
 		hit = Button.new()
 		hit.name = "OpenHitArea"
-		hit.set_anchors_preset(Control.PRESET_FULL_RECT)
+		if mode == "characters":
+			# The portrait itself is the outfit shortcut. Keep hero selection on
+			# the non-overlapping name strip (and the four-hero bar below).
+			hit.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+			hit.offset_top = -88.0
+		else:
+			hit.set_anchors_preset(Control.PRESET_FULL_RECT)
 		hit.text = ""
 		hit.mouse_filter = Control.MOUSE_FILTER_STOP
 		for key in ["normal", "hover", "pressed", "disabled", "focus"]:
 			hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 		panel.add_child(hit)
 	hit.pressed.connect(_open_collection.bind(mode))
+
+func _bind_character_appearance_hit(panel: Control) -> void:
+	var hit := panel.get_node_or_null("AppearanceHitArea") as Button
+	if hit == null:
+		hit = Button.new()
+		hit.name = "AppearanceHitArea"
+		hit.set_anchors_preset(Control.PRESET_CENTER)
+		hit.offset_left = -168.0
+		hit.offset_top = -156.0
+		hit.offset_right = 168.0
+		hit.offset_bottom = 126.0
+		hit.text = ""
+		hit.tooltip_text = "点击人物换装"
+		hit.mouse_filter = Control.MOUSE_FILTER_STOP
+		hit.set_meta("critical_touch", true)
+		for key in ["normal", "hover", "pressed", "disabled", "focus"]:
+			hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
+		panel.add_child(hit)
+		var badge_panel := PanelContainer.new()
+		badge_panel.name = "AppearanceBadge"
+		badge_panel.position = Vector2(226, 220)
+		badge_panel.size = Vector2(98, 46)
+		badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		badge_panel.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
+		hit.add_child(badge_panel)
+		var badge := Label.new()
+		badge.text = "外观"
+		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiKit.apply_label(badge, 17, UiKit.CYAN, 3)
+		badge_panel.add_child(badge)
+	hit.pressed.connect(_open_character_appearance)
+
+func _open_character_appearance() -> void:
+	if is_instance_valid(_appearance_selector):
+		return
+	var character_id := SaveManager.get_selected("character")
+	if character_id == "":
+		character_id = "vanguard"
+	AudioManager.play_sfx("ui_click")
+	_appearance_selector = AppearanceSelector.new()
+	add_child(_appearance_selector)
+	_appearance_selector.character_outfit_changed.connect(
+		func(_changed_character: String, _outfit_mode: String) -> void: _refresh()
+	)
+	_appearance_selector.store_requested.connect(_on_character_appearance_store_requested)
+	_appearance_selector.closed.connect(func() -> void:
+		_appearance_selector = null
+		if is_inside_tree():
+			_refresh()
+	)
+	_appearance_selector.open_character(character_id, router)
+
+func _on_character_appearance_store_requested() -> void:
+	router.change_scene("store", {
+		"return_to": "loadout",
+		"return_payload": {
+			"level_id": level_id,
+			"challenge": is_challenge_mode,
+			"return_to": _return_to,
+			"return_payload": _return_payload.duplicate(true),
+		},
+	})
 
 func _on_back_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
@@ -259,12 +333,15 @@ func _refresh() -> void:
 		pet_display,
 	]
 	$Summary.visible = false
-	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, chip_name, chip_level, pet_name, pet_level, pet_id != "", is_challenge_mode)
+	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, armor_id != "", chip_name, chip_level, chip_id != "", pet_name, pet_level, pet_id != "", is_challenge_mode)
 	var weapon_icon := %WeaponIcon as TextureRect
-	weapon_icon.texture = load(DataLoader.get_row("weapons", weapon_id).get("icon", ""))
+	var weapon_row := DataLoader.get_row("weapons", weapon_id)
+	var weapon_source_path := _loadout_weapon_source_path(weapon_id, weapon_row)
+	var weapon_source := load(weapon_source_path) as Texture2D if weapon_source_path != "" else null
+	weapon_icon.texture = _loadout_weapon_texture(weapon_source, weapon_icon)
 	weapon_icon.modulate = Color.WHITE
 	weapon_icon.scale = Vector2.ONE
-	UiKit.apply_neon_surface(weapon_icon)
+	UiKit.apply_theme_surface(weapon_icon)
 	_refresh_character_bust(DataLoader.get_row("characters", char_id))
 	var growth_badge := %GrowthBadge as Label
 	growth_badge.text = "护甲  /  芯片  /  宠物"
@@ -342,15 +419,99 @@ func _refresh_character_bust(row: Dictionary) -> void:
 		bust.size = HERO_BUST_WINDOW_SIZE
 		bust.position = Vector2.ZERO
 		return
-	var texture_size := texture.get_size()
-	var aspect := texture_size.y / maxf(texture_size.x, 1.0)
-	var bust_size := Vector2(HERO_BUST_IMAGE_WIDTH, HERO_BUST_IMAGE_WIDTH * aspect)
+	var layout := _loadout_bust_layout(texture)
+	var bust_size: Vector2 = layout.get("size", HERO_BUST_WINDOW_SIZE)
 	bust.size = bust_size
 	bust.custom_minimum_size = bust_size
-	bust.position = Vector2(
-		(HERO_BUST_WINDOW_SIZE.x - bust_size.x) * 0.5,
-		UiKit.character_bust_y_with_headroom(texture, HERO_BUST_IMAGE_WIDTH, HERO_BUST_Y_OFFSET, 10.0)
+	bust.position = layout.get("position", Vector2.ZERO)
+	bust.set_meta("loadout_portrait_scale", float(layout.get("scale", 1.0)))
+	bust.set_meta("loadout_portrait_used_rect", layout.get("used_rect", Rect2()))
+	bust.set_meta("loadout_portrait_visible_rect", layout.get("visible_rect", Rect2()))
+	bust.set_meta("loadout_portrait_target_visible_height", HERO_BUST_REFERENCE_VISIBLE_HEIGHT)
+	bust.set_meta("loadout_portrait_normalized", true)
+
+
+func _loadout_bust_layout(texture: Texture2D) -> Dictionary:
+	if texture == null:
+		return {
+			"size": HERO_BUST_WINDOW_SIZE,
+			"position": Vector2.ZERO,
+			"scale": 1.0,
+			"used_rect": Rect2(),
+			"visible_rect": Rect2(Vector2.ZERO, HERO_BUST_WINDOW_SIZE),
+		}
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return {
+			"size": HERO_BUST_WINDOW_SIZE,
+			"position": Vector2.ZERO,
+			"scale": 1.0,
+			"used_rect": Rect2(Vector2.ZERO, texture.get_size()),
+			"visible_rect": Rect2(Vector2.ZERO, HERO_BUST_WINDOW_SIZE),
+		}
+	var used := image.get_used_rect()
+	if used.size == Vector2i.ZERO:
+		used = Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+	# The accepted default Steel Vanguard composition is the ruler. Measure the
+	# actual alpha silhouette instead of the authoring canvas so transparent
+	# padding, slim outfits and wide weapon/effect layers cannot make one hero
+	# read smaller than another. Natural body width is never stretched.
+	var source_scale := HERO_BUST_REFERENCE_VISIBLE_HEIGHT / maxf(float(used.size.y), 1.0)
+	var texture_size := texture.get_size()
+	var bust_size := texture_size * source_scale
+	var visible_size := Vector2(float(used.size.x), float(used.size.y)) * source_scale
+	var visible_position := Vector2(
+		(HERO_BUST_WINDOW_SIZE.x - visible_size.x) * 0.5,
+		HERO_BUST_HEADROOM
 	)
+	return {
+		"size": bust_size,
+		"position": visible_position - Vector2(used.position) * source_scale,
+		"scale": source_scale,
+		"used_rect": Rect2(used),
+		"visible_rect": Rect2(visible_position, visible_size),
+	}
+
+
+func _loadout_weapon_source_path(weapon_id: String, row: Dictionary) -> String:
+	# Loadout cards are product showcases, not inventory icons. Prefer a clean,
+	# unframed weapon render and let the active cosmetic theme resolve its matching
+	# skin. A per-item loadout_art override handles authored exceptions without
+	# leaking UI presentation rules into combat assets.
+	var fallback := str(row.get("loadout_art", row.get("handheld", row.get("icon", ""))))
+	return ThemeManager.resolve_weapon_asset(weapon_id, "handheld", fallback)
+
+
+func _loadout_weapon_texture(source: Texture2D, icon: TextureRect) -> Texture2D:
+	if icon != null:
+		icon.remove_meta("loadout_weapon_source_path")
+		icon.remove_meta("loadout_weapon_source_used_rect")
+		icon.remove_meta("loadout_weapon_display_region")
+		icon.remove_meta("loadout_weapon_visible_long_axis")
+	if source == null:
+		return source
+	var image := source.get_image()
+	if image == null or image.is_empty():
+		return source
+	var used := image.get_used_rect()
+	if used.size == Vector2i.ZERO:
+		return source
+	var gutter := maxi(WEAPON_DISPLAY_MIN_GUTTER, int(ceil(float(maxi(used.size.x, used.size.y)) * WEAPON_DISPLAY_GUTTER_RATIO)))
+	var left := maxi(0, used.position.x - gutter)
+	var top := maxi(0, used.position.y - gutter)
+	var right := mini(image.get_width(), used.end.x + gutter)
+	var bottom := mini(image.get_height(), used.end.y + gutter)
+	var region := Rect2i(left, top, right - left, bottom - top)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = source
+	atlas.region = Rect2(region)
+	if icon != null:
+		icon.set_meta("loadout_weapon_source_path", source.resource_path)
+		icon.set_meta("loadout_weapon_source_used_rect", Rect2(used))
+		icon.set_meta("loadout_weapon_display_region", Rect2(region))
+		var fit_scale := minf(icon.size.x / maxf(float(region.size.x), 1.0), icon.size.y / maxf(float(region.size.y), 1.0))
+		icon.set_meta("loadout_weapon_visible_long_axis", float(maxi(used.size.x, used.size.y)) * fit_scale)
+	return atlas
 
 func _row_name(table: String, item_id: String) -> String:
 	if item_id == "":
@@ -360,7 +521,7 @@ func _row_name(table: String, item_id: String) -> String:
 		return item_id
 	return DataLoader.tr_key(row.get("name_key", item_id))
 
-func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, projected_power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, chip_name: String, chip_level: int, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
+func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, projected_power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, has_armor: bool, chip_name: String, chip_level: int, has_chip: bool, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
 	var panel: Control = %DetailsPanel
 	var old := panel.get_node_or_null("SummaryGrid")
 	if old != null:
@@ -421,8 +582,11 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()
-	var armor_display := "%s Lv%d" % [armor_name, armor_level] if armor_name not in ["", "未装备"] else armor_name
-	var chip_display := "%s Lv%d" % [chip_name, chip_level] if chip_name not in ["", "未装备"] else chip_name
+	# Never decide level suffixes from translated display text. English used to
+	# render the impossible "Not Equipped Lv0" because this branch compared the
+	# localized name against the Chinese sentinel.
+	var armor_display := "%s Lv%d" % [armor_name, armor_level] if has_armor else armor_name
+	var chip_display := "%s Lv%d" % [chip_name, chip_level] if has_chip else chip_name
 	var pet_level_suffix := (" Lv%d" % pet_level) if has_pet else ""
 	loadout.text = "英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s%s" % [
 		character_name,
@@ -468,6 +632,17 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	star_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiKit.apply_label(star_rule, 19, UiKit.TEXT_MUTED, 3)
 	box.add_child(star_rule)
+	# English equipment names and the star rule can wrap to an extra line. Size
+	# the summary from its rendered minimum instead of letting the fixed floor
+	# clip into the battle button on tall iPhones.
+	call_deferred("_fit_summary_panel_to_content", panel, box)
+
+func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
+	if not is_instance_valid(panel) or not is_instance_valid(content):
+		return
+	var authored_floor := DETAILS_PANEL_HEIGHT_WITH_SUGGESTION if content.get_node_or_null("CounterSuggestion") != null else DETAILS_PANEL_HEIGHT
+	var rendered_height := ceilf(content.get_combined_minimum_size().y + 36.0)
+	panel.custom_minimum_size = Vector2(0, maxf(authored_floor, rendered_height))
 
 func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
@@ -671,7 +846,7 @@ func _gear_icon_button(table: String, slot: String, selected_id: String, _fallba
 	var item_name := DataLoader.tr_key(row.get("name_key", selected_id)) if has_item else "未装备 · 点击获取"
 	var card := _icon_card(
 		"%sIcon" % slot.capitalize(),
-		str(row.get("icon", "")) if has_item else "",
+		UiKit.item_icon_path(table, selected_id, row) if has_item else "",
 		GEAR_CARD_SIZE,
 		16.0,
 		has_item,

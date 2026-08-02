@@ -18,16 +18,21 @@ Before editing, read these files in order:
 9. `design/data/schema.md`
 10. `design/21_premium_themes_and_apocalypse_arsenal_plan.md` when the task involves monetization, themes, StoreKit, or premium equipment
 11. `design/22_neon_tempest_thunder_phase1_inventory.md` when the task concerns the current Neon Tempest / Thunder Phase 1
+12. `design/25_infernal_dominion_inferno_phase2_inventory.md` for the second premium series
+13. `design/26_polar_aurora_absolute_zero_phase3_inventory.md` for the third implemented premium series
+14. `design/27_gilded_eclipse_golden_law_phase4_proposal.md` for the implemented fourth black-gold local-demo contract and remaining Apple boundary
 
 The current design is not a generic zombie shooter. It is a vertical 1080x1920 Godot 4 roguelite tower-defense/autoshooter inspired by `向僵尸开炮`, improved around clear targeting, controlled randomness, fair early fun, and no monetization pressure.
 
 ### Owner-approved premium direction (2026-07-27)
 
-- Build 38 remains the current no-IAP production release baseline. Build 41 is the latest valid TestFlight-only Neon Tempest full-runtime + bilingual visual acceptance build with a forced preview feature and must not be selected for App Review. Do not report StoreKit, player-facing theme selection, or premium purchase content as implemented.
-- The owner explicitly approved a future free-app model with four permanent US$1.99 visual themes and four permanent US$6.99 strong-equipment sets.
+- Build 38 remains the current no-IAP production release baseline. TestFlight Build 43 is the latest ordinary-release owner acceptance build: it includes the complete player-facing Neon Arsenal local-demo purchase / restore / reset / equip loop, Thunder Apocalypse equipment and four-hero true-grip runtime, but it has no StoreKit or Apple-verified transaction path and must not be selected for App Review. Report local-demo commerce as implemented; do not report real Apple purchase, refund or entitlement verification as implemented.
+- The owner explicitly approved a free-app model. Four permanent theme / strong-equipment series are implemented in the local demo catalog; Apple commerce is still separate.
 - Each complete arsenal includes its matching theme. Theme owners must see a separate approximately US$4.99 arsenal-upgrade SKU instead of paying for the theme twice.
-- Premium gear begins at level 1, upgrades with normal gold, and the complete maximum-level build targets 1.52x–1.58x the real total output of the corresponding strongest free maximum-level build.
-- Phase 1 is strictly Neon Tempest plus the complete Thunder Apocalypse weapon/armor/chip/pet set. Do not begin the other three series before the first end-to-end set passes acceptance.
+- Premium gear begins at level 1 and upgrades with normal gold. The three implemented sets target 1.52x–1.58x real endgame output. The proposed fourth set uses a separate high-growth contract: about 1.20x–1.30x at Level 1, 2.00x matching free slot attributes at maximum level, and a proposed 1.90x–2.05x real full-build attack / defense acceptance band.
+- The implemented local catalog is Neon Tempest + Thunder Apocalypse, Infernal Dominion + Inferno Apocalypse, Polar Aurora + Absolute Zero Apocalypse, and Gilded Eclipse + Golden Law Apocalypse. The fourth series is gated by level 99 clear + any hero Lv.40 and measures 2.043x weighted max output under its separate Owner-approved prestige contract.
+- Read `design/27_gilded_eclipse_golden_law_phase4_proposal.md` for the latest implemented asset, mechanic, balance and regression contract.
+- The source includes a bilingual Theme & Appearance page plus independent per-hero outfit routing (`follow_theme / default / neon_tempest / infernal_dominion / polar_aurora / gilded_eclipse`). Settings manages the global theme, Collection and Loadout expose per-hero appearance, purchase completion offers apply-all or individual dressing, and entitlement revocation safely removes paid overrides. Do not add a live battle/pause switch.
 - The authoritative product, art, balance, StoreKit, QA and cross-session plan is `design/21_premium_themes_and_apocalypse_arsenal_plan.md`.
 - The authoritative current-state inventory, file map, package-risk analysis and Phase 1 work breakdown is `design/22_neon_tempest_thunder_phase1_inventory.md`.
 

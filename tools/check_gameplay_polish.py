@@ -363,6 +363,8 @@ def main() -> int:
         "barrier_visual.z_index = BARRIER_VISUAL_Z",
         "character_rig.z_index = DEFENSE_ACTOR_Z",
         "pet_sprite.z_index = DEFENSE_ACTOR_Z",
+        "character_theme_fire_aura.z_index = CHARACTER_BACK_EFFECT_Z",
+        "character_theme_fire_aura.show_behind_parent = true",
     ]
     for required in layer_contract:
         if required not in battle:
@@ -371,6 +373,14 @@ def main() -> int:
     actor_z_match = re.search(r"const DEFENSE_ACTOR_Z := (\d+)", battle)
     if barrier_z_match and actor_z_match and int(actor_z_match.group(1)) <= int(barrier_z_match.group(1)):
         errors.append("defense actor layer must be greater than the barrier glass layer")
+    back_effect_z_match = re.search(r"const CHARACTER_BACK_EFFECT_Z := (-?\d+)", battle)
+    if not back_effect_z_match or int(back_effect_z_match.group(1)) >= 1:
+        errors.append("theme firing signatures must render behind the fused character/weapon sprite")
+    premium_index = battle.find("if _load_premium_true_grip_frames(asset_id):")
+    combo_index = battle.find("var combo_base := _character_weapon_combo_base(asset_id)", premium_index)
+    themed_index = battle.find("var themed_base := ThemeManager.resolve_character_animation_base(asset_id)", premium_index)
+    if premium_index < 0 or combo_index < 0 or themed_index < 0 or not (premium_index < combo_index < themed_index):
+        errors.append("battle must resolve premium true-grip, then fused free-weapon art, before any weaponless theme fallback")
     barrier_path = ROOT / "assets/production/sprites/vfx/vfx_barrier_glass.png"
     if not barrier_path.exists():
         errors.append("missing rendered defense barrier texture: assets/production/sprites/vfx/vfx_barrier_glass.png")

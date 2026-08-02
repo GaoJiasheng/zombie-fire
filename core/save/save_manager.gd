@@ -2,7 +2,7 @@ extends Node
 
 const SAVE_PATH := "user://save_main.json"
 const BACKUP_PATH := "user://save_backup.json"
-const CURRENT_SAVE_VERSION := 2
+const CURRENT_SAVE_VERSION := 3
 const POWER_REFERENCE_CARD_PICKS := 4
 const POWER_SKILL_THROUGHPUT_CAP := 13.5
 const POWER_SKILL_SCORE_EXPONENT := 0.5
@@ -27,8 +27,20 @@ var save_data := {
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
 	"endless_best_loops": 0,
-	"cosmetics": {"selected_theme": "default"},
+	"cosmetics": {
+		"selected_theme": "default",
+		"character_outfits": {
+			"vanguard": "follow_theme",
+			"blaze": "follow_theme",
+			"frost": "follow_theme",
+			"volt": "follow_theme",
+		},
+	},
 	"entitlements": {"verified": [], "last_sync_unix": 0},
+	"commerce": {
+		"mock_receipts": [],
+		"mock_last_transaction_unix": 0,
+	},
 	"unlocks": {
 		"levels": ["level_001"],
 		"characters": ["vanguard"],
@@ -59,8 +71,20 @@ func _default_save() -> Dictionary:
 		"skill_base_levels": {},
 		"sig_skill_levels": {},
 		"endless_best_loops": 0,
-		"cosmetics": {"selected_theme": "default"},
+		"cosmetics": {
+			"selected_theme": "default",
+			"character_outfits": {
+				"vanguard": "follow_theme",
+				"blaze": "follow_theme",
+				"frost": "follow_theme",
+				"volt": "follow_theme",
+			},
+		},
 		"entitlements": {"verified": [], "last_sync_unix": 0},
+		"commerce": {
+			"mock_receipts": [],
+			"mock_last_transaction_unix": 0,
+		},
 		"unlocks": {
 			"levels": ["level_001"],
 			"characters": ["vanguard"],
@@ -232,6 +256,8 @@ func _migrate_save(candidate: Dictionary) -> Dictionary:
 				migrated = _migrate_v0_to_v1(migrated)
 			1:
 				migrated = _migrate_v1_to_v2(migrated)
+			2:
+				migrated = _migrate_v2_to_v3(migrated)
 			_:
 				return {}
 		var next_version := _save_version(migrated)
@@ -251,6 +277,14 @@ func _migrate_v1_to_v2(candidate: Dictionary) -> Dictionary:
 	# Theme selection and verified permanent entitlements are additive. Existing
 	# progression remains byte-for-byte compatible after defaults are merged.
 	migrated["version"] = 2
+	return migrated
+
+func _migrate_v2_to_v3(candidate: Dictionary) -> Dictionary:
+	var migrated: Dictionary = candidate.duplicate(true)
+	# Local purchase receipts are deliberately separate from StoreKit-verified
+	# entitlements. This lets the complete storefront flow be exercised without
+	# ever making a mock transaction look like Apple commerce truth.
+	migrated["version"] = 3
 	return migrated
 
 func _save_version(candidate: Dictionary) -> int:
@@ -298,10 +332,20 @@ func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
 	if cosmetics.has("selected_theme") and typeof(cosmetics["selected_theme"]) != TYPE_STRING:
 		_report_persistence_error("%s selected theme must be a string" % label)
 		return false
+	var character_outfits: Dictionary = cosmetics.get("character_outfits", {})
+	for character_id in character_outfits.keys():
+		if typeof(character_id) != TYPE_STRING or typeof(character_outfits[character_id]) != TYPE_STRING:
+			_report_persistence_error("%s character outfits must map string ids to string modes" % label)
+			return false
 	var entitlements: Dictionary = candidate.get("entitlements", {})
 	for entitlement_id in entitlements.get("verified", []):
 		if typeof(entitlement_id) != TYPE_STRING:
 			_report_persistence_error("%s verified entitlements must contain strings" % label)
+			return false
+	var commerce: Dictionary = candidate.get("commerce", {})
+	for product_id in commerce.get("mock_receipts", []):
+		if typeof(product_id) != TYPE_STRING:
+			_report_persistence_error("%s mock receipts must contain product ids" % label)
 			return false
 	return true
 
@@ -606,6 +650,21 @@ func select_theme(theme_id: String, persist := true) -> void:
 	if persist:
 		save_game()
 
+func get_character_outfit(character_id: String) -> String:
+	var cosmetics: Dictionary = save_data.get("cosmetics", {})
+	var outfits: Dictionary = cosmetics.get("character_outfits", {})
+	return str(outfits.get(character_id.trim_prefix("char_"), "follow_theme"))
+
+func select_character_outfit(character_id: String, outfit_mode: String, persist := true) -> void:
+	var normalized_character_id := character_id.trim_prefix("char_")
+	var cosmetics: Dictionary = save_data.get("cosmetics", {})
+	var outfits: Dictionary = cosmetics.get("character_outfits", {})
+	outfits[normalized_character_id] = outfit_mode
+	cosmetics["character_outfits"] = outfits
+	save_data["cosmetics"] = cosmetics
+	if persist:
+		save_game()
+
 func get_verified_entitlements() -> Array[String]:
 	var output: Array[String] = []
 	var entitlements: Dictionary = save_data.get("entitlements", {})
@@ -662,7 +721,14 @@ func is_item_unlocked(slot: String, item_id: String) -> bool:
 	return items.has(item_id)
 
 func get_weapon_damage_multiplier(weapon_id: String) -> float:
-	return 1.0 + 0.08 * float(max(get_weapon_level(weapon_id) - 1, 0))
+	var row := DataLoader.get_row("weapons", weapon_id)
+	var level := get_weapon_level(weapon_id)
+	var multiplier := 1.0 + 0.08 * float(max(level - 1, 0))
+	var max_level := maxi(2, int(row.get("max_level", 50)))
+	var progress := clampf(float(level - 1) / float(max_level - 1), 0.0, 1.0)
+	var growth_bonus := float(row.get("endgame_damage_growth_bonus", 0.0))
+	var growth_curve := maxf(1.0, float(row.get("endgame_growth_curve", 1.0)))
+	return multiplier * (1.0 + growth_bonus * pow(progress, growth_curve))
 
 func get_weapon_fire_rate_multiplier(weapon_id: String) -> float:
 	return 1.0 + 0.025 * float(max(get_weapon_level(weapon_id) - 1, 0))
@@ -979,6 +1045,15 @@ func _pet_stat_power(pet_id: String) -> float:
 			var falloff := clampf(float(pet_skill.get("target_falloff", 0.9)), 0.55, 1.0)
 			var effective_targets := (1.0 - pow(falloff, float(target_count))) / maxf(1.0 - falloff, 0.001)
 			score += damage * effective_targets / cooldown * 3.0
+		"golden_mark":
+			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
+			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
+			var duration := float(pet_skill.get("mark_duration", 0.0)) + float(pet_skill.get("level_mark_duration_growth", 0.0)) * skill_level_offset
+			var damage_amp := float(pet_skill.get("mark_damage_amp", 0.0)) + float(pet_skill.get("level_mark_amp_growth", 0.0)) * skill_level_offset
+			var repair_ratio := float(pet_skill.get("repair_ratio", 0.0)) + float(pet_skill.get("level_repair_growth", 0.0)) * skill_level_offset
+			score += damage / cooldown * 3.0
+			score += damage_amp * clampf(duration / cooldown, 0.0, 1.0) * 14.0
+			score += repair_ratio * (60.0 / cooldown) * 8.0
 		"wave_salvage":
 			var equivalent := float(pet_skill.get("kill_equivalent", 0.0)) + float(pet_skill.get("level_salvage_growth", 0.0)) * skill_level_offset
 			score += equivalent * 0.25

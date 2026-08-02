@@ -201,15 +201,14 @@ clip_text = true
 
 [node name="SkillSlots" type="GridContainer" parent="Hud"]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 10.0
-offset_top = 1654.0
-offset_right = 420.0
-offset_bottom = 1784.0
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
-columns = 8
+anchors_preset = 0
+offset_left = 18.0
+offset_top = 1688.0
+offset_right = 530.0
+offset_bottom = 1808.0
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
 clip_contents = true
 z_index = 20
 

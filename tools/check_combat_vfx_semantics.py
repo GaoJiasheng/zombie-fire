@@ -103,6 +103,7 @@ def parse_directional_runtime_contract(source: str) -> dict[str, float]:
 
 def check_sequence_integrity(contract: dict, failures: list[str]) -> tuple[int, int]:
 	exceptions = contract.get("hard_edge_exceptions", {})
+	rendered_source_contracts = contract.get("rendered_source_contracts", {})
 	checked_sequences = 0
 	checked_frames = 0
 	for sequence_dir in sorted(path for path in SEQUENCE_ROOT.iterdir() if path.is_dir()):
@@ -119,6 +120,22 @@ def check_sequence_integrity(contract: dict, failures: list[str]) -> tuple[int, 
 			)
 		if not 1 <= float(metadata.get("fps", 0.0)) <= 60:
 			failures.append(f"{metadata_path.relative_to(ROOT)}: fps must be in 1..60")
+		if sequence_id in rendered_source_contracts:
+			source_value = metadata.get("source", "")
+			actual_sources = (
+				[str(value) for value in source_value]
+				if isinstance(source_value, list)
+				else [str(source_value)]
+			)
+			expected_sources = [str(value) for value in rendered_source_contracts[sequence_id]]
+			if actual_sources != expected_sources:
+				failures.append(
+					f"{metadata_path.relative_to(ROOT)}: rendered source drift "
+					f"{actual_sources} != {expected_sources}"
+				)
+			for source in expected_sources:
+				if not (ROOT / source).is_file():
+					failures.append(f"{source}: contracted rendered master is missing")
 		if len(frames) < 2:
 			failures.append(f"{metadata_path.relative_to(ROOT)}: needs at least two frames")
 			continue

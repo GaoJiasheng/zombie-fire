@@ -1,7 +1,7 @@
 extends Area2D
 
 signal split_requested(origin: Vector2, direction: Vector2, count: int, damage: float, element: String, armor_penetration: float, status_strength: float)
-signal hit_confirmed(target: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float)
+signal hit_confirmed(target: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float, damage_source: String)
 
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 
@@ -48,7 +48,8 @@ var hit_target_ids := {}
 var _flight_trail: Node
 var _projectile_vfx_ready := false
 var _preferred_target_ref: WeakRef
-var _neon_tempest_theme := false
+var _theme_projectile_palette_profile := ""
+var damage_source := "weapon"
 
 func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null) -> void:
 	global_position = origin
@@ -68,7 +69,7 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	status_strength = status_effect_strength
 	_preferred_target_ref = weakref(preferred_target) if preferred_target != null else null
 	visual_scale = clampf(scale_mult, 0.72, 1.75)
-	_neon_tempest_theme = ThemeManager.is_active("neon_tempest")
+	_theme_projectile_palette_profile = ThemeManager.active_projectile_palette_profile()
 	texture_override_path = texture_override
 	visual_profile = _resolved_visual_profile(profile, texture_override_path)
 	if element == "fire" and visual_profile == "":
@@ -80,8 +81,7 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	$Sprite.texture = load(texture_path)
 	$Sprite.scale = _projectile_sprite_scale(visual_profile) * visual_scale
 	var sprite_color := _projectile_sprite_color(element, visual_profile)
-	if _neon_tempest_theme:
-		sprite_color = _neon_primary_color(sprite_color)
+	sprite_color = _theme_projectile_primary_color(sprite_color)
 	$Sprite.modulate = sprite_color
 	$CollisionShape2D.shape = CircleShape2D.new()
 	$CollisionShape2D.shape.radius = 18.0 * maxf(visual_scale, 0.85) * _collision_radius_mult(visual_profile)
@@ -224,7 +224,7 @@ func _configure_projectile_vfx() -> void:
 	_build_energy_halo()
 	_build_energy_core()
 	_spawn_vfxlib_trail()
-	_spawn_neon_tempest_companion_trail()
+	_spawn_theme_companion_trail()
 	_spawn_trail_particle_pulse(0.72)
 
 func _build_energy_halo() -> void:
@@ -283,8 +283,19 @@ func _spawn_vfxlib_trail() -> void:
 	_flight_trail.set("max_points", _trail_point_count_for(visual_profile))
 	_flight_trail.set("min_point_distance", _trail_point_distance_for(visual_profile))
 
+func _spawn_theme_companion_trail() -> void:
+	match _theme_projectile_palette_profile:
+		"neon_tempest":
+			_spawn_neon_tempest_companion_trail()
+		"infernal_dominion":
+			_spawn_infernal_companion_trail()
+		"polar_aurora":
+			_spawn_polar_aurora_companion_trail()
+		"gilded_eclipse":
+			_spawn_gilded_eclipse_companion_trail()
+
 func _spawn_neon_tempest_companion_trail() -> void:
-	if not _neon_tempest_theme or get_parent() == null or not _can_spawn_projectile_fx():
+	if get_parent() == null or not _can_spawn_projectile_fx():
 		return
 	var accent := _neon_accent_color()
 	accent.a = 0.62
@@ -293,6 +304,46 @@ func _spawn_neon_tempest_companion_trail() -> void:
 		accent,
 		maxf(1.8, _trail_width_for(visual_profile) * maxf(visual_scale, 0.85) * 0.46)
 	)
+	if trail == null:
+		return
+	_track_transient_fx(trail)
+	trail.set("max_points", maxi(5, _trail_point_count_for(visual_profile) - 3))
+	trail.set("min_point_distance", _trail_point_distance_for(visual_profile) * 1.18)
+
+func _spawn_infernal_companion_trail() -> void:
+	if get_parent() == null or not _can_spawn_projectile_fx():
+		return
+	var accent := Color(1.0, 0.48, 0.09, 0.52)
+	var trail := VfxLib.spawn_trail(
+		self,
+		accent,
+		maxf(1.8, _trail_width_for(visual_profile) * maxf(visual_scale, 0.85) * 0.42)
+	)
+	if trail == null:
+		return
+	_track_transient_fx(trail)
+	trail.set("max_points", maxi(5, _trail_point_count_for(visual_profile) - 3))
+	trail.set("min_point_distance", _trail_point_distance_for(visual_profile) * 1.22)
+
+func _spawn_polar_aurora_companion_trail() -> void:
+	if get_parent() == null or not _can_spawn_projectile_fx():
+		return
+	var accent := Color(0.52, 0.90, 1.0, 0.50)
+	var trail := VfxLib.spawn_trail(
+		self,
+		accent,
+		maxf(1.8, _trail_width_for(visual_profile) * maxf(visual_scale, 0.85) * 0.44)
+	)
+	if trail == null:
+		return
+	_track_transient_fx(trail)
+	trail.set("max_points", maxi(5, _trail_point_count_for(visual_profile) - 3))
+	trail.set("min_point_distance", _trail_point_distance_for(visual_profile) * 1.20)
+
+func _spawn_gilded_eclipse_companion_trail() -> void:
+	if get_parent() == null or not _can_spawn_projectile_fx():
+		return
+	var trail := VfxLib.spawn_trail(self, Color(1.0, 0.76, 0.24, 0.56), maxf(1.8, _trail_width_for(visual_profile) * maxf(visual_scale, 0.85) * 0.44))
 	if trail == null:
 		return
 	_track_transient_fx(trail)
@@ -360,6 +411,20 @@ func _neon_primary_color(base: Color) -> Color:
 		_:
 			return base.lerp(cyan, 0.38)
 
+func _theme_projectile_primary_color(base: Color) -> Color:
+	match _theme_projectile_palette_profile:
+		"neon_tempest":
+			return _neon_primary_color(base)
+		"infernal_dominion":
+			# Preserve element readability; the infernal skin adds a compact copper
+			# jacket rather than turning every projectile into the same orange orb.
+			return base.lerp(Color(1.0, 0.42, 0.08, base.a), 0.24 if element != "fire" else 0.38)
+		"polar_aurora":
+			return base.lerp(Color(0.46, 0.90, 1.0, base.a), 0.32 if element != "ice" else 0.46)
+		"gilded_eclipse":
+			return base.lerp(Color(1.0, 0.76, 0.24, base.a), 0.42)
+	return base
+
 func _neon_accent_color() -> Color:
 	match element:
 		"ice", "lightning":
@@ -371,6 +436,14 @@ func _neon_accent_color() -> Color:
 
 func _projectile_color(elem: String, profile := "") -> Color:
 	match profile:
+		"apocalypse_thunder":
+			return Color(0.28, 0.94, 1.0, 1.0)
+		"apocalypse_inferno":
+			return Color(1.0, 0.48, 0.055, 1.0)
+		"apocalypse_absolute_zero":
+			return Color(0.42, 0.90, 1.0, 1.0)
+		"apocalypse_golden_law":
+			return Color(1.0, 0.78, 0.26, 1.0)
 		"fire_round":
 			return Color(1.0, 0.54, 0.16, 1.0)
 		"flame":
@@ -390,12 +463,28 @@ func _projectile_color(elem: String, profile := "") -> Color:
 	return _element_color(elem)
 
 func _projectile_sprite_color(_elem: String, _profile := "") -> Color:
+	if _profile == "apocalypse_thunder":
+		return Color(0.92, 0.70, 1.0, 1.0)
+	if _profile == "apocalypse_inferno":
+		return Color(1.0, 0.84, 0.52, 1.0)
+	if _profile == "apocalypse_absolute_zero":
+		return Color(0.86, 0.98, 1.0, 1.0)
+	if _profile == "apocalypse_golden_law":
+		return Color(1.0, 0.94, 0.72, 1.0)
 	if _profile == "fire_round":
 		return Color(1.0, 0.58, 0.22, 1.0)
 	return Color.WHITE
 
 func _projectile_texture_path(elem: String, profile := "") -> String:
 	match profile:
+		"apocalypse_thunder":
+			return "res://assets/production/sprites/projectiles/proj_bullet_lightning.png"
+		"apocalypse_inferno":
+			return "res://assets/production/sprites/projectiles/proj_bullet_fire.png"
+		"apocalypse_absolute_zero":
+			return "res://assets/production/sprites/projectiles/proj_bullet_ice.png"
+		"apocalypse_golden_law":
+			return "res://assets/production/sprites/projectiles/proj_rail_slug.png"
 		"fire_round":
 			return "res://assets/production/sprites/projectiles/proj_bullet_physical.png"
 		"flame":
@@ -427,6 +516,14 @@ func _projectile_texture_path(elem: String, profile := "") -> String:
 func _projectile_sprite_scale(profile := "") -> Vector2:
 	# 子弹视觉整体缩小约 28%（仅视觉，碰撞箱不变）。
 	match profile:
+		"apocalypse_thunder":
+			return Vector2(0.48, 0.34)
+		"apocalypse_inferno":
+			return Vector2(0.54, 0.30)
+		"apocalypse_absolute_zero":
+			return Vector2(0.50, 0.32)
+		"apocalypse_golden_law":
+			return Vector2(0.58, 0.18)
 		"fire_round":
 			return Vector2(0.20, 0.16)
 		"flame":
@@ -448,6 +545,14 @@ func _projectile_sprite_scale(profile := "") -> Vector2:
 
 func _collision_radius_mult(profile := "") -> float:
 	match profile:
+		"apocalypse_thunder":
+			return 1.2
+		"apocalypse_inferno":
+			return 1.18
+		"apocalypse_absolute_zero":
+			return 1.18
+		"apocalypse_golden_law":
+			return 1.22
 		"scatter":
 			return 0.7
 		"plasma":
@@ -457,6 +562,14 @@ func _collision_radius_mult(profile := "") -> float:
 
 func _trail_interval_for(profile := "") -> float:
 	match profile:
+		"apocalypse_thunder":
+			return 0.014
+		"apocalypse_inferno":
+			return 0.016
+		"apocalypse_absolute_zero":
+			return 0.016
+		"apocalypse_golden_law":
+			return 0.014
 		"fire_round":
 			return 0.044
 		"flame":
@@ -478,6 +591,14 @@ func _trail_interval_for(profile := "") -> float:
 
 func _trail_length_for(profile := "") -> float:
 	match profile:
+		"apocalypse_thunder":
+			return 142.0
+		"apocalypse_inferno":
+			return 154.0
+		"apocalypse_absolute_zero":
+			return 148.0
+		"apocalypse_golden_law":
+			return 176.0
 		"rail":
 			return 132.0
 		"scatter":
@@ -495,6 +616,14 @@ func _trail_length_for(profile := "") -> float:
 
 func _trail_width_for(profile := "") -> float:
 	match profile:
+		"apocalypse_thunder":
+			return 14.0
+		"apocalypse_inferno":
+			return 16.0
+		"apocalypse_absolute_zero":
+			return 15.0
+		"apocalypse_golden_law":
+			return 15.5
 		"fire_round":
 			return 4.8
 		"flame":
@@ -517,6 +646,14 @@ func _trail_width_for(profile := "") -> float:
 func _trail_color_for(elem: String, profile := "") -> Color:
 	var color := _projectile_color(elem, profile)
 	match profile:
+		"apocalypse_thunder":
+			return Color(0.38, 0.96, 1.0, 1.0)
+		"apocalypse_inferno":
+			return Color(1.0, 0.40, 0.055, 1.0)
+		"apocalypse_absolute_zero":
+			return Color(0.46, 0.92, 1.0, 1.0)
+		"apocalypse_golden_law":
+			return Color(1.0, 0.78, 0.24, 1.0)
 		"rail":
 			return Color(0.72, 1.0, 1.0, 1.0)
 		"plasma":
@@ -528,6 +665,14 @@ func _trail_color_for(elem: String, profile := "") -> Color:
 
 func _particle_color_for(elem: String, profile := "") -> Color:
 	match profile:
+		"apocalypse_thunder":
+			return Color(0.38, 0.96, 1.0, 1.0)
+		"apocalypse_inferno":
+			return Color(1.0, 0.62, 0.10, 1.0)
+		"apocalypse_absolute_zero":
+			return Color(0.72, 0.96, 1.0, 1.0)
+		"apocalypse_golden_law":
+			return Color(1.0, 0.90, 0.56, 1.0)
 		"plasma":
 			return Color(1.0, 0.56, 0.20, 1.0)
 		"rail":
@@ -847,9 +992,9 @@ func _hit(target: Node) -> void:
 	hit_target_ids[target_id] = true
 	var hit_origin := global_position
 	var flight_direction := velocity.normalized()
-	target.take_damage(damage, element, armor_penetration, status_strength)
+	_apply_damage_with_source(target, damage)
 	_spawn_impact_flash()
-	hit_confirmed.emit(target, hit_origin, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength)
+	hit_confirmed.emit(target, hit_origin, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength, damage_source)
 	if split_count > 0:
 		split_requested.emit(hit_origin, flight_direction, split_count, damage * split_falloff, element, armor_penetration, status_strength)
 	if pierce_left <= 0:
@@ -904,12 +1049,22 @@ func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max
 		hit_target_ids[enemy_id] = true
 		var hit_pos := enemy_node.global_position
 		_spawn_pierce_trace(trace_start, hit_pos)
-		enemy_node.take_damage(damage, element, armor_penetration, status_strength)
+		_apply_damage_with_source(enemy_node, damage)
 		_spawn_impact_flash_at(hit_pos)
-		hit_confirmed.emit(enemy_node, hit_pos, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength)
+		hit_confirmed.emit(enemy_node, hit_pos, damage, element, splash_radius, cloud_radius, chain_depth, visual_profile, armor_penetration, status_strength, damage_source)
 		trace_start = hit_pos
 		hits += 1
 	return hits
+
+
+func _apply_damage_with_source(target: Node, amount: float) -> void:
+	if target == null or not is_instance_valid(target) or not target.has_method("take_damage"):
+		return
+	target.set_meta("incoming_damage_source", damage_source)
+	target.take_damage(amount, element, armor_penetration, status_strength)
+	# Test doubles and non-Enemy receivers may not consume the metadata.
+	if is_instance_valid(target) and target.has_meta("incoming_damage_source"):
+		target.remove_meta("incoming_damage_source")
 
 func _retarget_after_pierce(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> void:
 	if current_direction.length_squared() <= 0.0 or velocity.length_squared() <= 1.0:

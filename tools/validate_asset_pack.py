@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import json
 import re
+from collections import deque
 from pathlib import Path
+
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 PROD = ROOT / "assets" / "production"
@@ -346,6 +349,120 @@ def validate_animation_sequences(errors: list[str]) -> list[str]:
     return exceptions
 
 
+def _alpha_row_span(alpha: Image.Image, y_start: int, y_end: int, threshold: int = 48) -> int:
+    pixels = alpha.load()
+    occupied = [
+        x
+        for y in range(max(0, y_start), min(alpha.height, y_end))
+        for x in range(alpha.width)
+        if pixels[x, y] > threshold
+    ]
+    return max(occupied) - min(occupied) + 1 if occupied else 0
+
+
+def _alpha_component_sizes(alpha: Image.Image, threshold: int = 40) -> list[int]:
+    pixels = alpha.load()
+    seen: set[tuple[int, int]] = set()
+    sizes: list[int] = []
+    for y in range(alpha.height):
+        for x in range(alpha.width):
+            if pixels[x, y] <= threshold or (x, y) in seen:
+                continue
+            queue: deque[tuple[int, int]] = deque([(x, y)])
+            seen.add((x, y))
+            size = 0
+            while queue:
+                current_x, current_y = queue.popleft()
+                size += 1
+                for next_x, next_y in (
+                    (current_x + 1, current_y),
+                    (current_x - 1, current_y),
+                    (current_x, current_y + 1),
+                    (current_x, current_y - 1),
+                ):
+                    if (
+                        0 <= next_x < alpha.width
+                        and 0 <= next_y < alpha.height
+                        and pixels[next_x, next_y] > threshold
+                        and (next_x, next_y) not in seen
+                    ):
+                        seen.add((next_x, next_y))
+                        queue.append((next_x, next_y))
+            sizes.append(size)
+    return sorted(sizes, reverse=True)
+
+
+def validate_apocalypse_armor_prototypes(errors: list[str]) -> None:
+    armors = load_json(ROOT / "data/armors.json", errors)
+    if not isinstance(armors, dict):
+        return
+    premium_rows = {
+        armor_id: row
+        for armor_id, row in armors.items()
+        if isinstance(row, dict) and str(row.get("premium_set", ""))
+    }
+    expected_ids = {
+        "armor_apocalypse_conductor",
+        "armor_apocalypse_molten",
+        "armor_apocalypse_permafrost",
+        "armor_apocalypse_eternal_night",
+    }
+    if set(premium_rows) != expected_ids:
+        errors.append(
+            "Apocalypse armor prototype gate must cover exactly "
+            + ", ".join(sorted(expected_ids))
+        )
+        return
+    for armor_id, row in sorted(premium_rows.items()):
+        icon_path = ROOT / str(row.get("icon", "")).removeprefix("res://")
+        if not icon_path.exists():
+            errors.append(f"{armor_id}: missing release armor prototype {icon_path.relative_to(ROOT)}")
+            continue
+        with Image.open(icon_path) as source:
+            image = source.convert("RGBA")
+        if image.size != (384, 384):
+            errors.append(f"{armor_id}: release armor prototype must be 384x384, got {image.size}")
+            continue
+        alpha = image.getchannel("A")
+        bbox = alpha.getbbox()
+        if bbox is None:
+            errors.append(f"{armor_id}: release armor prototype is fully transparent")
+            continue
+        left, top, right, bottom = bbox
+        margins = (left, top, image.width - right, image.height - bottom)
+        if min(margins) < 4:
+            errors.append(f"{armor_id}: release armor prototype touches its canvas; margins={margins}")
+        visible_height = bottom - top
+        if visible_height < 320:
+            errors.append(
+                f"{armor_id}: release armor prototype is not a complete helmet-to-boots figure; "
+                f"visible_height={visible_height}"
+            )
+        helmet_span = _alpha_row_span(alpha, top, top + max(1, round(visible_height * 0.10)))
+        shoulder_span = _alpha_row_span(
+            alpha,
+            top + round(visible_height * 0.14),
+            top + round(visible_height * 0.34),
+        )
+        torso_span = _alpha_row_span(
+            alpha,
+            top + round(visible_height * 0.25),
+            top + round(visible_height * 0.55),
+        )
+        body_span = max(shoulder_span, torso_span)
+        if helmet_span <= 0 or body_span <= 0 or helmet_span / body_span > 0.60:
+            errors.append(
+                f"{armor_id}: upper silhouette does not read as a complete helmet above the shoulders; "
+                f"helmet_span={helmet_span} body_span={body_span}"
+            )
+        components = _alpha_component_sizes(alpha)
+        if len(components) > 1 and components[1] > components[0] * 0.04:
+            errors.append(
+                f"{armor_id}: release armor prototype contains a detached duplicate/inset; "
+                f"components={components[:3]}"
+            )
+
+
 def main() -> int:
     missing: list[Path] = []
     for item in CHARACTERS:
@@ -428,6 +545,7 @@ def main() -> int:
     if index is not None:
         index_errors, cache_exceptions = validate_index_references(index)
         errors.extend(index_errors)
+    validate_apocalypse_armor_prototypes(errors)
     vfx_sequence_exceptions = validate_vfx_sequences(errors)
     sequence_exceptions = validate_animation_sequences(errors)
     if errors:

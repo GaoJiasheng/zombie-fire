@@ -1,0 +1,49 @@
+{
+  "task": "App Store runtime UI placeholder replacement",
+  "sources": [
+    "assets/production/source_refs/generated/app_store_ui_placeholder_replacements_2026_08_01/core_hud_icons_chroma.png",
+    "assets/production/source_refs/generated/app_store_ui_placeholder_replacements_2026_08_01/tactical_icons_chroma.png",
+    "assets/production/source_refs/generated/app_store_ui_placeholder_replacements_2026_08_01/hud_surfaces_chroma.png"
+  ],
+  "outputs": [
+    "assets/production/sprites/ui/icon_currency_gold.png",
+    "assets/production/sprites/ui/icon_currency_star.png",
+    "assets/production/sprites/ui/icon_currency_xp.png",
+    "assets/production/sprites/ui/icon_element_fire.png",
+    "assets/production/sprites/ui/icon_element_ice.png",
+    "assets/production/sprites/ui/icon_element_lightning.png",
+    "assets/production/sprites/ui/icon_element_physical.png",
+    "assets/production/sprites/ui/icon_element_poison.png",
+    "assets/production/sprites/ui/icon_lock.png",
+    "assets/production/sprites/ui/icon_pause.png",
+    "assets/production/sprites/ui/icon_reroll_charge.png",
+    "assets/production/sprites/ui/icon_settings.png",
+    "assets/production/sprites/ui/icon_talent_point.png",
+    "assets/production/sprites/ui/icon_warning.png",
+    "assets/production/sprites/ui/ui_card_pin.png",
+    "assets/production/sprites/ui/ui_card_reroll.png",
+    "assets/production/sprites/ui/ui_card_skip.png",
+    "assets/production/sprites/ui/ui_card_tag_projectile.png",
+    "assets/production/sprites/ui/ui_card_tag_control.png",
+    "assets/production/sprites/ui/ui_card_tag_element.png",
+    "assets/production/sprites/ui/ui_card_tag_economy.png",
+    "assets/production/sprites/ui/ui_target_strategy_breach.png",
+    "assets/production/sprites/ui/ui_target_strategy_elite.png",
+    "assets/production/sprites/ui/ui_target_strategy_low_hp.png",
+    "assets/production/sprites/ui/ui_target_strategy_nearest.png",
+    "assets/production/sprites/ui/ui_star_filled.png",
+    "assets/production/sprites/ui/ui_star_empty.png",
+    "assets/production/sprites/ui/ui_level_card_skin.png",
+    "assets/production/sprites/ui/ui_combo_panel.png",
+    "assets/production/sprites/ui/ui_pill_skin.png",
+    "assets/production/sprites/ui/ui_plate_skin.png",
+    "assets/production/sprites/ui/ui_damage_number_badge.png"
+  ],
+  "contact_sheet": "assets/production/contact_sheets/ui_placeholder_audit_2026_08_01/ui_replacements_final_contact_sheet.png",
+  "rules": [
+    "deep-rendered raster objects instead of flat procedural symbols",
+    "transparent background and 18px minimum icon guard band",
+    "native surface corners retained; only calm center spans are extended",
+    "semantic masks and targeting geometry are not decorative placeholders"
+  ]
+}

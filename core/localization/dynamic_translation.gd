@@ -39,6 +39,22 @@ func configure(messages: Dictionary) -> void:
 			"regex": pattern,
 			"literal_weight": source.length() - _placeholder_count(source) * 3,
 		})
+	# Reusable terms also contain formatted runtime copy (for example pet
+	# summaries with %.1f). They must participate in template matching; treating
+	# them as exact-only strings leaves Chinese fragments inside English UI.
+	for source_var in _terms.keys():
+		var source := str(source_var)
+		if "%" not in source:
+			continue
+		var pattern := _compile_template(source)
+		if pattern == null:
+			continue
+		_patterns.append({
+			"source": source,
+			"target": str(_terms[source_var]),
+			"regex": pattern,
+			"literal_weight": source.length() - _placeholder_count(source) * 3,
+		})
 	_patterns.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.get("literal_weight", 0)) > int(b.get("literal_weight", 0))
 	)

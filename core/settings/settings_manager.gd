@@ -4,6 +4,7 @@ const SETTINGS_PATH := "user://settings_main.json"
 const BATTLE_SPEEDS := [1.0, 2.0, 5.0]
 const BATTLE_SPEED_VISIBLE_LEVEL := 30
 const BATTLE_SPEED_5X_LEVEL := 50
+const TESTFLIGHT_SPEED_FEATURE := "testflight_speed_unlocked"
 
 var settings := {
 	"language": _system_default_language(),
@@ -138,15 +139,22 @@ func get_battle_speed(progression_level := BATTLE_SPEED_5X_LEVEL) -> float:
 	return normalized
 
 func is_battle_speed_unlocked(progression_level: int) -> bool:
-	return progression_level >= BATTLE_SPEED_VISIBLE_LEVEL
+	return is_testflight_speed_unlocked() or progression_level >= BATTLE_SPEED_VISIBLE_LEVEL
 
 func available_battle_speeds(progression_level: int) -> Array[float]:
 	var available: Array[float] = [1.0]
+	if is_testflight_speed_unlocked():
+		available.append(2.0)
+		available.append(5.0)
+		return available
 	if progression_level >= BATTLE_SPEED_VISIBLE_LEVEL:
 		available.append(2.0)
 	if progression_level >= BATTLE_SPEED_5X_LEVEL:
 		available.append(5.0)
 	return available
+
+func is_testflight_speed_unlocked() -> bool:
+	return OS.has_feature(TESTFLIGHT_SPEED_FEATURE)
 
 func apply_settings() -> void:
 	Engine.max_fps = 30 if get_quality() == "battery" else 60

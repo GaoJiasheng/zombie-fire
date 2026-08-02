@@ -110,7 +110,7 @@ static func effect_for_level(row: Dictionary, lv: int) -> Dictionary:
 
 static func format_effect(effect: Dictionary) -> String:
 	if effect.is_empty():
-		return "无额外数值"
+		return str(TranslationServer.translate("无额外数值"))
 	var parts: Array[String] = []
 	var seen := {}
 	for key in KEY_ORDER:
@@ -122,10 +122,10 @@ static func format_effect(effect: Dictionary) -> String:
 		if seen.has(key):
 			continue
 		parts.append("%s %s" % [key_name(str(key)), _value_text_for_key(str(key), effect.get(key))])
-	return " · ".join(parts)
+	return str(TranslationServer.translate(" · ".join(parts)))
 
 static func format_level_line(lv: int, effect: Dictionary) -> String:
-	return "等级%d  %s" % [lv, format_effect(effect)]
+	return "%s  %s" % [str(TranslationServer.translate("等级%d")) % lv, format_effect(effect)]
 
 static func format_all_levels(row: Dictionary, highlight_lv: int = -1) -> String:
 	var lines: Array[String] = []
@@ -168,9 +168,9 @@ static func format_delta(prev: Dictionary, next: Dictionary) -> String:
 
 static func format_offer_block(row: Dictionary, target_lv: int, current_lv: int = 0) -> String:
 	var target := effect_for_level(row, target_lv)
-	var lines: Array[String] = ["本级数值：%s" % format_effect(target)]
+	var lines: Array[String] = [str(TranslationServer.translate("本级数值：%s")) % format_effect(target)]
 	if current_lv > 0 and current_lv < target_lv:
 		var delta := format_delta(effect_for_level(row, current_lv), target)
 		if delta != "":
-			lines.append("较当前：%s" % delta)
+			lines.append(str(TranslationServer.translate("较当前：%s")) % str(TranslationServer.translate(delta)))
 	return "\n".join(lines)

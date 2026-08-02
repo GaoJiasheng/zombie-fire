@@ -148,9 +148,13 @@ func _initialize() -> void:
 	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
+	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
+	await _verify_store_product_preview_contract(data_loader, save_manager)
+	await _verify_appearance_selector_states(save_manager)
 	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
 	_verify_variant_wave_one_spawns(data_loader)
 	await _verify_wave_formation_lanes(data_loader)
+	await _verify_wave_spawn_distribution()
 	await _verify_environment_audio_mix(data_loader)
 	await _verify_pet_defense_line_anchor(save_manager, smoke_save_snapshot)
 	await _verify_underpower_confirmation(save_manager, smoke_save_snapshot)
@@ -165,6 +169,35 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene != null, "main must open initial menu")
 	_expect(main.current_scene.find_child("HelpButton", true, false) != null, "menu must expose settings entry")
+	_expect(main.current_scene.find_child("StoreButton", true, false) != null, "menu must expose the Apocalypse Arsenal entry")
+	var menu_title := main.current_scene.find_child("Title", true, false) as TextureRect
+	_expect(menu_title != null and menu_title.texture is AtlasTexture, "menu title must crop transparent staging space before aspect fitting")
+	_expect(menu_title != null and menu_title.custom_minimum_size.y >= 480.0, "menu title must retain the enlarged all-theme presentation height after safe-area fitting")
+	var infernal_theme: Dictionary = {}
+	for catalog_theme in root.get_node("/root/ThemeManager").catalog_themes():
+		if str(catalog_theme.get("id", "")) == "infernal_dominion":
+			infernal_theme = catalog_theme
+			break
+	_expect(not infernal_theme.is_empty(), "Infernal theme must exist in the runtime theme catalog")
+	var infernal_ui: Dictionary = infernal_theme.get("ui", {})
+	var infernal_assets: Dictionary = infernal_ui.get("assets", {})
+	var infernal_presentations: Dictionary = infernal_ui.get("asset_presentations", {})
+	var infernal_logo_presentation: Dictionary = infernal_presentations.get("menu_title", {})
+	var infernal_logo_region: Array = infernal_logo_presentation.get("region", [])
+	_expect(infernal_logo_region.size() >= 4, "Infernal menu title must define an authored presentation window")
+	var infernal_authored_region := Rect2i(
+		int(infernal_logo_region[0]),
+		int(infernal_logo_region[1]),
+		int(infernal_logo_region[2]),
+		int(infernal_logo_region[3])
+	) if infernal_logo_region.size() >= 4 else Rect2i()
+	_expect(infernal_authored_region == Rect2i(210, 0, 620, 340), "Infernal menu title must discard concept-board side staging and keep the reviewed enlarged logo window")
+	var infernal_logo_source := load(str(infernal_assets.get("menu_title", ""))) as Texture2D
+	var infernal_logo_display: Texture2D = main.current_scene._visible_logo_texture(infernal_logo_source, infernal_logo_presentation)
+	_expect(infernal_logo_display is AtlasTexture, "Infernal menu title must use its authored presentation crop")
+	if infernal_logo_display is AtlasTexture:
+		var infernal_display_region := Rect2i((infernal_logo_display as AtlasTexture).region)
+		_expect(infernal_display_region == Rect2i(210, 0, 620, 340), "Infernal menu title crop must preserve symmetric glow-safe staging")
 	main.current_scene._on_help_pressed()
 	await process_frame
 	_expect(main.current_scene.name == "Settings", "settings entry must open the dedicated settings page")
@@ -176,8 +209,10 @@ func _initialize() -> void:
 	_expect(settings_vbox.has_node("ResetButton"), "settings must expose reset save entry")
 	_expect(settings_vbox.has_node("AboutRow/PrivacyButton"), "settings must expose privacy entry")
 	_expect(settings_vbox.has_node("AboutRow/SupportButton"), "settings must expose support entry")
-	_expect((settings_vbox.get_node("AboutRow/PrivacyButton") as Button).text.contains("隐私政策"), "privacy entry must identify the public policy link")
-	_expect((settings_vbox.get_node("AboutRow/SupportButton") as Button).text.contains("联系支持"), "support entry must identify the public support link")
+	var privacy_button_text := (settings_vbox.get_node("AboutRow/PrivacyButton") as Button).text
+	var support_button_text := (settings_vbox.get_node("AboutRow/SupportButton") as Button).text
+	_expect(privacy_button_text.contains("隐私") and privacy_button_text.contains("↗"), "privacy entry must identify the public policy link")
+	_expect(support_button_text.contains("支持") and support_button_text.contains("↗"), "support entry must identify the public support link")
 	_expect(main.current_scene.PRIVACY_POLICY_URL.begins_with("https://"), "privacy policy link must use HTTPS")
 	_expect(main.current_scene.SUPPORT_URL.begins_with("https://"), "support link must use HTTPS")
 	main.current_scene._show_info("privacy")
@@ -230,12 +265,20 @@ func _initialize() -> void:
 	var first_level: Node = level_list.get_child(1)
 	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
 	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
-	var first_enter := first_level.find_child("EnterLevelButton", true, false) as TextureButton
-	var first_challenge := first_level.find_child("ChallengeLevelButton", true, false) as TextureButton
-	_expect(first_enter != null, "chapter level cards must expose an explicit normal entry button")
-	_expect(first_challenge != null, "chapter level cards must expose an explicit challenge mode button")
-	_expect(not first_enter.disabled, "unplayed but unlocked normal level must allow entering normal mode")
+	var first_normal := first_level.find_child("NormalModeButton", true, false) as TextureButton
+	var first_challenge := first_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	_expect(first_normal != null, "chapter level cards must expose Normal itself as the direct entry button")
+	_expect(first_challenge != null, "chapter level cards must expose Challenge itself as the direct entry button")
+	_expect(first_level.find_child("EnterLevelButton", true, false) == null, "chapter level cards must not retain a redundant Enter button")
+	_expect(first_level.find_child("ChallengeLevelButton", true, false) == null, "chapter level cards must not retain a redundant Challenge Mode button")
+	_expect(str(first_normal.get_meta("level_mode", "")) == "normal", "normal entry button must carry an explicit mode identity")
+	_expect(str(first_challenge.get_meta("level_mode", "")) == "challenge", "challenge entry button must carry an explicit mode identity")
+	_expect(first_normal.find_child("ModeStars", true, false) != null and first_challenge.find_child("ModeStars", true, false) != null, "both direct mode buttons must carry their own three-star progress")
+	_expect(first_normal.size.y >= UiKit.MIN_TOUCH_TARGET.y and first_challenge.size.y >= UiKit.MIN_TOUCH_TARGET.y, "direct mode buttons must meet the shared mobile touch-target height without invisible overlap")
+	_expect(first_normal.position.y + first_normal.size.y <= first_challenge.position.y, "normal and challenge hit regions must never overlap")
+	_expect(not first_normal.disabled, "unplayed but unlocked normal level must allow entering normal mode")
 	_expect(first_challenge.disabled, "challenge mode must stay locked until normal mode has 3 stars")
+	_expect(first_challenge.find_child("UnlockRequirement", true, false) != null, "locked challenge mode must show an in-button unlock marker")
 	first_challenge.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "disabled challenge button must not route to loadout when pressed")
@@ -243,15 +286,16 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.name == "Map", "challenge route guard must block levels without normal 3-star clear")
 	var second_level: Node = level_list.get_child(2)
-	var second_enter := second_level.find_child("EnterLevelButton", true, false) as TextureButton
-	var second_challenge := second_level.find_child("ChallengeLevelButton", true, false) as TextureButton
-	_expect(second_enter != null and not second_enter.disabled, "cleared 2-star normal level must still allow normal re-entry")
+	var second_normal := second_level.find_child("NormalModeButton", true, false) as TextureButton
+	var second_challenge := second_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	_expect(second_normal != null and not second_normal.disabled, "cleared 2-star normal level must still allow normal re-entry")
 	_expect(second_challenge != null and second_challenge.disabled, "2-star normal clear must not unlock challenge mode")
 	var third_level: Node = level_list.get_child(3)
-	var third_enter := third_level.find_child("EnterLevelButton", true, false) as TextureButton
-	var third_challenge := third_level.find_child("ChallengeLevelButton", true, false) as TextureButton
-	_expect(third_enter != null and not third_enter.disabled, "3-star normal level must allow normal re-entry")
+	var third_normal := third_level.find_child("NormalModeButton", true, false) as TextureButton
+	var third_challenge := third_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	_expect(third_normal != null and not third_normal.disabled, "3-star normal level must allow normal re-entry")
 	_expect(third_challenge != null and not third_challenge.disabled, "3-star normal clear must unlock challenge mode")
+	_expect(third_challenge.find_child("UnlockRequirement", true, false) == null, "unlocked challenge mode must remove the lock marker")
 	var late_map_save: Dictionary = save_manager._default_save()
 	var late_map_progress := {}
 	var late_map_levels: Array[String] = []
@@ -300,19 +344,36 @@ func _initialize() -> void:
 	var character_item: Node = main.current_scene.find_child("ItemList", true, false).get_child(0)
 	_expect(character_item is TextureButton, "character collection rows must use styled texture buttons")
 	_expect((character_item as Control).size_flags_horizontal == Control.SIZE_SHRINK_CENTER, "character collection rows must center their fixed-width artwork inside the safe-area list")
-	_expect((character_item as Control).clip_contents, "character collection rows must clip portrait content")
-	_expect((character_item as Control).custom_minimum_size.y >= 128.0, "character collection rows must be tall enough for portraits")
+	_expect((character_item as Control).clip_contents, "character collection rows must own the final portrait safety clip")
+	_expect((character_item as Control).custom_minimum_size.y >= 310.0, "character collection rows must dedicate the full authored height to hero presentation")
 	_expect(character_item.has_node("Icon"), "character collection rows must render a bounded portrait")
 	var character_icon := character_item.get_node("Icon") as TextureRect
 	_expect(character_icon != null, "character collection portrait must be a TextureRect")
-	_expect(character_icon.size.x <= 120.0 and character_icon.size.y <= 128.0, "character collection portrait must stay inside its row, got %s" % str(character_icon.size))
-	_expect(character_icon.clip_contents, "character collection portrait must crop upper-body art")
+	_expect(character_icon.size == Vector2(220.0, 282.0), "character collection portrait lane must use the enlarged full-body envelope, got %s" % str(character_icon.size))
+	_expect(not character_icon.clip_contents, "character collection portrait lane must allow hair, coats and armour to breathe")
 	var character_bust := character_icon.get_node_or_null("BustImage") as TextureRect
 	_expect(character_bust != null and character_bust.texture != null, "character collection portrait must render a bust image")
 	_expect(str(character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "character collection portrait must use frameless 正脸立绘")
-	_expect(character_bust.size.y > character_icon.size.y, "character collection portrait must be zoomed and cropped")
-	_expect(character_bust.position.y >= -4.0, "character collection portrait must preserve headroom, got y=%s" % str(character_bust.position.y))
+	_expect(character_bust.has_meta("aligned_visible_rect"), "character collection portrait must expose its normalized visible silhouette")
+	var character_visible_rect: Rect2 = character_bust.get_meta("aligned_visible_rect", Rect2())
+	_expect(absf(character_visible_rect.size.y - 250.0) <= 0.1, "character collection portrait must normalize the enlarged visible height, got %s" % str(character_visible_rect))
+	_expect(absf(character_visible_rect.end.y - 276.0) <= 0.1, "character collection portrait must share the enlarged authored foot baseline, got %s" % str(character_visible_rect.end.y))
 	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
+	for text_node_name in ["Title", "Tags", "Description"]:
+		var character_text_node := character_item.get_node_or_null(text_node_name) as Control
+		_expect(character_text_node != null and character_text_node.position.x >= character_icon.position.x + character_icon.size.x + 12.0, "character collection %s must start to the right of the enlarged portrait lane" % text_node_name)
+	var character_rows: Array[Node] = main.current_scene.find_child("ItemList", true, false).get_children()
+	var aligned_character_count := 0
+	for character_row in character_rows:
+		var row_icon := character_row.get_node_or_null("Icon") as TextureRect
+		var row_bust := row_icon.get_node_or_null("BustImage") as TextureRect if row_icon != null else null
+		if row_bust == null or not row_bust.has_meta("aligned_visible_rect"):
+			continue
+		var row_visible_rect: Rect2 = row_bust.get_meta("aligned_visible_rect")
+		_expect(absf(row_visible_rect.size.y - character_visible_rect.size.y) <= 0.1, "all character collection portraits must share one visible height")
+		_expect(absf(row_visible_rect.end.y - character_visible_rect.end.y) <= 0.1, "all character collection portraits must share one foot baseline")
+		aligned_character_count += 1
+	_expect(aligned_character_count == 4, "character collection must align all four hero portraits, got %d" % aligned_character_count)
 	var character_action := character_item.find_child("CardActionButton", true, false) as TextureButton
 	var character_action_label := character_action.get_node_or_null("ActionLabel") as Label if character_action != null else null
 	_expect(character_action_label != null and character_action_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "character collection action text must use vertical centering")
@@ -333,6 +394,56 @@ func _initialize() -> void:
 	_expect(character_close != null, "character detail top close must be a compact button")
 	_expect(character_close.text == "×", "character detail top close must use an icon-only x")
 	_expect(character_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and character_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "character detail top close must keep an accessible mobile touch target")
+	var affinity_summary := character_detail.find_child("AffinitySummary", true, false) as Label
+	_expect(affinity_summary != null and affinity_summary.get_theme_font_size("font_size") >= 27, "character detail affinity summary must use the second-pass mobile-readable type")
+	var character_name := character_detail.find_child("CharacterName", true, false) as Label
+	var character_level := character_detail.find_child("CharacterLevel", true, false) as Label
+	_expect(character_name != null and character_name.get_theme_font_size("font_size") >= 50, "character detail hero name must use at least 50px effective type")
+	_expect(character_level != null and character_level.get_theme_font_size("font_size") >= 28, "character detail level badge must use at least 28px effective type")
+	var detail_section_titles := character_detail.find_children("SectionTitle", "Label", true, false)
+	_expect(detail_section_titles.size() >= 5, "character detail must expose every section title to the readability audit")
+	for section_title_node in detail_section_titles:
+		var section_title := section_title_node as Label
+		_expect(section_title != null and section_title.get_theme_font_size("font_size") >= 29, "character detail section titles must use at least 29px effective type")
+	var detail_pill_labels := character_detail.find_children("PillLabel", "Label", true, false)
+	_expect(detail_pill_labels.size() >= 2, "character detail must expose role and element pill labels")
+	for pill_label_node in detail_pill_labels:
+		var pill_label := pill_label_node as Label
+		_expect(pill_label != null and pill_label.get_theme_font_size("font_size") >= 24, "character detail pills must use at least 24px effective type")
+	var stat_labels := character_detail.find_children("StatLabel", "Label", true, false)
+	var stat_values := character_detail.find_children("StatValue", "Label", true, false)
+	_expect(not stat_labels.is_empty() and not stat_values.is_empty(), "character detail stat cards must expose primary labels and values")
+	for stat_label_node in stat_labels:
+		var stat_label := stat_label_node as Label
+		_expect(stat_label != null and stat_label.get_theme_font_size("font_size") >= 24, "character detail stat labels must use at least 24px effective type")
+	for stat_value_node in stat_values:
+		var stat_value := stat_value_node as Label
+		_expect(stat_value != null and stat_value.get_theme_font_size("font_size") >= 32, "character detail stat values must use at least 32px effective type")
+	var stat_sub_labels := character_detail.find_children("StatSub", "Label", true, false)
+	_expect(not stat_sub_labels.is_empty(), "character detail stat cards must expose readable secondary values")
+	for stat_sub_node in stat_sub_labels:
+		var stat_sub := stat_sub_node as Label
+		_expect(stat_sub != null and stat_sub.get_theme_font_size("font_size") >= 22, "character detail stat secondary values must use at least 22px effective type")
+	var skill_titles := character_detail.find_children("SkillTitle", "Label", true, false)
+	var skill_kinds := character_detail.find_children("SkillKind", "Label", true, false)
+	_expect(skill_titles.size() >= 2 and skill_kinds.size() >= 2, "character detail must expose mobile-readable skill names and kinds")
+	for skill_title_node in skill_titles:
+		var skill_title := skill_title_node as Label
+		_expect(skill_title != null and skill_title.get_theme_font_size("font_size") >= 30, "character detail skill names must use at least 30px effective type")
+	for skill_kind_node in skill_kinds:
+		var skill_kind := skill_kind_node as Label
+		_expect(skill_kind != null and skill_kind.get_theme_font_size("font_size") >= 24, "character detail skill kinds must use at least 24px effective type")
+	var skill_descriptions := character_detail.find_children("SkillDescription", "Label", true, false)
+	_expect(skill_descriptions.size() >= 2, "character detail must expose passive and signature descriptions")
+	for description_node in skill_descriptions:
+		var skill_description := description_node as Label
+		_expect(skill_description != null and skill_description.get_theme_font_size("font_size") >= 26, "character detail skill descriptions must use at least 26px effective type")
+	var signature_layout := character_detail.find_child("SignatureUpgradeLayout", true, false) as VBoxContainer
+	var signature_growth := character_detail.find_child("SignatureGrowth", true, false) as Label
+	var signature_button := character_detail.find_child("SigSkillUpgradeButton", true, false) as TextureButton
+	_expect(signature_layout != null and signature_growth != null and signature_button != null, "character detail signature upgrade must use the dedicated full-width readability layout")
+	_expect(signature_growth.get_theme_font_size("font_size") >= 23, "signature growth copy must use at least 23px effective type")
+	_expect(signature_growth.size.x > signature_button.size.x * 2.0, "signature growth copy must own the full card width below the upgrade button")
 	main.current_scene._close_character_detail()
 	await process_frame
 	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
@@ -367,6 +478,65 @@ func _initialize() -> void:
 	_expect(skill_item.has_node("InfoButton"), "skill collection card must expose a dedicated accessible detail control")
 	var skill_title := skill_item.get_node("Title") as Label
 	_expect(skill_title.text.find("等级4") >= 0, "upgraded skill collection row must show its actual permanent level, got %s" % skill_title.text)
+	var skill_tags := skill_item.get_node("Tags") as HBoxContainer
+	_expect(skill_tags != null and skill_tags.get_child_count() >= 3, "skill collection rows must render a kind tag plus semantic ability tags")
+	# Labels report a font-driven minimum control height that is larger than the
+	# visible glyph bounds. Lock the authored baseline here; the routed screenshot
+	# audit is the source of truth for visual overlap.
+	_expect(skill_tags.position.y >= 76.0, "skill tags must keep the authored baseline below the title")
+	var tag_width_total := 0.0
+	for tag_index in range(skill_tags.get_child_count()):
+		var tag_panel := skill_tags.get_child(tag_index) as PanelContainer
+		_expect(tag_panel != null, "skill tags must use the dedicated bordered panel component")
+		if tag_panel == null:
+			continue
+		var tag_style := tag_panel.get_theme_stylebox("panel") as StyleBoxTexture
+		_expect(
+			tag_style != null
+			and tag_style.texture != null
+			and tag_style.texture_margin_left >= 2.0,
+			"skill tags must keep a crisp texture-authored semantic border"
+		)
+		_expect(tag_panel.custom_minimum_size.y >= 40.0, "skill tags must share a stable mobile-height baseline")
+		_expect(tag_panel.has_meta("semantic_tag_role"), "skill tags must declare their semantic color role")
+		var tag_text := tag_panel.get_node("Text") as Label
+		_expect(tag_text != null and tag_text.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "skill tag copy must be vertically centered")
+		tag_width_total += tag_panel.size.x
+	if skill_tags.get_child_count() > 1:
+		tag_width_total += float(skill_tags.get_theme_constant("separation")) * float(skill_tags.get_child_count() - 1)
+	_expect(tag_width_total <= skill_tags.size.x + 0.5, "skill tags must fit inside the authored card width without clipping")
+	var skill_effect_summary := skill_item.get_node("EffectSummary") as Label
+	_expect(skill_effect_summary.position.y >= skill_tags.position.y + skill_tags.size.y + 6.0, "skill effect summary must keep a clean gap below the tag row")
+	var theme_manager := root.get_node("/root/ThemeManager")
+	var tag_border_signatures: Dictionary = {}
+	for theme_id in ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
+		var tag_palette: Dictionary = theme_manager.tag_palette_for_theme(theme_id)
+		for color_key in ["border", "kind_border", "fill", "kind_fill", "text", "kind_text"]:
+			_expect(tag_palette.get(color_key) is Color and (tag_palette[color_key] as Color).a >= 0.95, "%s tag palette must provide an opaque %s color" % [theme_id, color_key])
+		var border_color: Color = tag_palette.get("border", Color.TRANSPARENT)
+		tag_border_signatures[border_color.to_html()] = true
+	_expect(tag_border_signatures.size() == 5, "all five themes must provide visibly distinct semantic tag borders")
+	var checked_skill_tag_rows := 0
+	for skill_row_index in range(skill_list.get_child_count()):
+		var skill_row := skill_list.get_child(skill_row_index)
+		if not skill_row is TextureButton or not skill_row.has_node("Tags"):
+			continue
+		checked_skill_tag_rows += 1
+		var row_tags := skill_row.get_node_or_null("Tags") as HBoxContainer
+		_expect(row_tags != null and row_tags.get_child_count() >= 2, "every skill row must keep its bilingual semantic tags")
+		if row_tags == null:
+			continue
+		var row_tag_width := 0.0
+		for row_tag_index in range(row_tags.get_child_count()):
+			var row_tag := row_tags.get_child(row_tag_index) as PanelContainer
+			if row_tag != null:
+				row_tag_width += row_tag.size.x
+				var row_tag_text := row_tag.get_node_or_null("Text") as Label
+				_expect(row_tag_text != null and row_tag_text.get_minimum_size().x <= row_tag.size.x, "skill row %d tag copy must fit its border" % skill_row_index)
+		if row_tags.get_child_count() > 1:
+			row_tag_width += float(row_tags.get_theme_constant("separation")) * float(row_tags.get_child_count() - 1)
+		_expect(row_tag_width <= row_tags.size.x + 0.5, "skill row %d bilingual tags must fit the authored card width" % skill_row_index)
+	_expect(checked_skill_tag_rows == 16, "semantic tag regression must inspect all 16 authored skill rows")
 	var second_skill_item := skill_list.get_child(1)
 	var second_skill_title := second_skill_item.get_node("Title") as Label
 	_expect(second_skill_title.text.find("等级2") >= 0, "second upgraded skill row must show level 2, got %s" % second_skill_title.text)
@@ -383,6 +553,23 @@ func _initialize() -> void:
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
 	_expect(skill_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and skill_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "skill detail top close must keep an accessible mobile touch target")
+	var skill_level_one := skill_detail.find_child("SkillLevel1", true, false) as PanelContainer
+	_expect(skill_level_one != null, "skill detail must render a named first-level readability row")
+	var skill_level_label := skill_level_one.find_child("Level", true, false) as Label
+	var skill_effect_label := skill_level_one.find_child("Effect", true, false) as Label
+	_expect(skill_level_label.get_theme_font_size("font_size") == UiKit.bumped_font_size(22), "skill detail level labels must use the larger mobile size")
+	_expect(skill_effect_label.get_theme_font_size("font_size") == UiKit.bumped_font_size(21), "skill detail effect values must use the larger mobile size")
+	_expect(skill_level_one.custom_minimum_size.y >= 64.0, "larger skill detail copy must retain comfortable row height")
+	var skill_description := skill_detail.find_child("DescriptionBody", true, false) as Label
+	_expect(skill_description != null and skill_description.get_theme_font_size("font_size") == UiKit.scaled_font_size(22), "skill tactical notes must use the larger mobile body size")
+	var skill_upgrade_button := skill_detail.find_child("SkillUpgradeButton", true, false) as TextureButton
+	var skill_upgrade_label := skill_upgrade_button.get_node("ActionLabel") as Label
+	var expected_skill_cost: int = int(save_manager.get_skill_base_upgrade_cost("skill_split_shot"))
+	_expect(skill_upgrade_label.text == "%d★" % expected_skill_cost, "skill upgrade action must use the compact price label")
+	_expect(not skill_upgrade_label.text.contains("升级技能") and not skill_upgrade_label.text.contains("经验"), "skill upgrade action must not repeat verbose copy inside the button")
+	var upgrade_font_size := skill_upgrade_label.get_theme_font_size("font_size")
+	var upgrade_text_width := skill_upgrade_label.get_theme_font("font").get_string_size(skill_upgrade_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, upgrade_font_size).x
+	_expect(upgrade_text_width <= skill_upgrade_button.size.x - 36.0, "compact skill upgrade copy must fit inside the armored bezel")
 	skill_close.emit_signal("pressed")
 	await process_frame
 	_expect(not main.current_scene.has_node("ItemDetail"), "skill detail compact close must dismiss the modal")
@@ -514,16 +701,65 @@ func _initialize() -> void:
 	_expect(loadout_bust != null and loadout_bust.texture != null, "loadout hero frame must render a bust image")
 	_expect(str(loadout_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "loadout hero bust must use frameless 正脸立绘")
 	_expect(loadout_bust.size.y > loadout_character_icon.size.y, "loadout hero bust must be zoomed and cropped")
-	for character_id in ["vanguard", "blaze", "frost", "volt"]:
-		var character_row: Dictionary = data_loader.get_row("characters", character_id)
-		main.current_scene._refresh_character_bust(character_row)
-		var loadout_variant_bust := loadout_character_icon.get_node("BustImage") as TextureRect
-		var portrait_image := loadout_variant_bust.texture.get_image()
-		var opaque_bounds := portrait_image.get_used_rect()
-		var portrait_scale := loadout_variant_bust.size.x / maxf(float(portrait_image.get_width()), 1.0)
-		var visible_headroom := loadout_variant_bust.position.y + float(opaque_bounds.position.y) * portrait_scale
-		_expect(visible_headroom >= 6.0, "%s loadout portrait head must not be clipped; headroom=%.1f" % [character_id, visible_headroom])
-		_expect(visible_headroom <= 20.0, "%s loadout portrait must stay visually large; headroom=%.1f" % [character_id, visible_headroom])
+	var loadout_theme_manager := root.get_node("/root/ThemeManager")
+	var loadout_theme_ids := ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]
+	for theme_id in loadout_theme_ids:
+		for character_id in ["vanguard", "blaze", "frost", "volt"]:
+			var character_row: Dictionary = data_loader.get_row("characters", character_id)
+			var fallback_path := str(character_row.get("portrait", character_row.get("icon", "")))
+			var frameless_fallback := fallback_path.replace("_icon.png", "_portrait_frameless.png")
+			if frameless_fallback != "" and ResourceLoader.exists(frameless_fallback):
+				fallback_path = frameless_fallback
+			var portrait_path := str(loadout_theme_manager.resolve_character_portrait_for_theme(character_id, theme_id, fallback_path))
+			var portrait := load(portrait_path) as Texture2D
+			_expect(portrait != null, "%s/%s loadout portrait must resolve" % [theme_id, character_id])
+			if portrait == null:
+				continue
+			var layout: Dictionary = main.current_scene._loadout_bust_layout(portrait)
+			var visible_rect: Rect2 = layout.get("visible_rect", Rect2())
+			_expect(absf(visible_rect.position.y - 10.0) <= 0.1, "%s/%s loadout portrait must keep exact head safety" % [theme_id, character_id])
+			_expect(absf(visible_rect.size.y - main.current_scene.HERO_BUST_REFERENCE_VISIBLE_HEIGHT) <= 0.1, "%s/%s loadout portrait must share the Steel Vanguard human ruler" % [theme_id, character_id])
+			_expect(absf(visible_rect.get_center().x - main.current_scene.HERO_BUST_WINDOW_SIZE.x * 0.5) <= 0.1, "%s/%s loadout silhouette must be centered by visible bounds" % [theme_id, character_id])
+			_expect((layout.get("size", Vector2.ZERO) as Vector2).y > main.current_scene.HERO_BUST_WINDOW_SIZE.y, "%s/%s loadout portrait must remain an impactful half-body crop" % [theme_id, character_id])
+	# The accepted default Steel Vanguard screenshot is the immutable reference:
+	# the new alpha-aware contract must reproduce its old 378 px authored width.
+	var default_vanguard := load("res://assets/production/sprites/characters/char_vanguard_portrait_frameless.png") as Texture2D
+	var default_vanguard_layout: Dictionary = main.current_scene._loadout_bust_layout(default_vanguard)
+	_expect(absf((default_vanguard_layout.get("size", Vector2.ZERO) as Vector2).x - 378.0) <= 0.5, "default Steel Vanguard must retain the owner-approved loadout scale")
+	var golden_law_row: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
+	var golden_law_loadout_path := str(golden_law_row.get("loadout_art", ""))
+	_expect(golden_law_loadout_path.ends_with("weapon_apocalypse_golden_law_icon_v2.png"), "Golden Law loadout must explicitly bypass the staged duplicate-inset handheld art")
+	var loadout_weapon_paths: Array[String] = []
+	for weapon_key_var in data_loader.get_table("weapons").keys():
+		var weapon_key := str(weapon_key_var)
+		var weapon_row: Dictionary = data_loader.get_row("weapons", weapon_key)
+		var clean_path := str(weapon_row.get("loadout_art", weapon_row.get("handheld", "")))
+		if clean_path != "" and not loadout_weapon_paths.has(clean_path):
+			loadout_weapon_paths.append(clean_path)
+		if weapon_key.begins_with("weapon_apocalypse_"):
+			continue
+		for root in [
+			"res://assets/production/sprites/themes/infernal_dominion/weapons",
+			"res://assets/production/sprites/themes/polar_aurora/weapons",
+			"res://assets/production/sprites/themes/gilded_eclipse/weapons",
+		]:
+			var themed_path := "%s/%s_handheld.png" % [root, weapon_key]
+			if ResourceLoader.exists(themed_path) and not loadout_weapon_paths.has(themed_path):
+				loadout_weapon_paths.append(themed_path)
+	var loadout_weapon_icon := main.current_scene.find_child("WeaponIcon", true, false) as TextureRect
+	for clean_path in loadout_weapon_paths:
+		var clean_weapon := load(clean_path) as Texture2D
+		_expect(clean_weapon != null, "loadout clean weapon art must resolve: %s" % clean_path)
+		if clean_weapon == null:
+			continue
+		var clean_display: Texture2D = main.current_scene._loadout_weapon_texture(clean_weapon, loadout_weapon_icon)
+		_expect(clean_display is AtlasTexture, "every loadout weapon must be alpha-fitted without its authoring canvas: %s" % clean_path)
+		if clean_display is AtlasTexture:
+			var clean_used := clean_weapon.get_image().get_used_rect()
+			var clean_region := Rect2i((clean_display as AtlasTexture).region)
+			_expect(clean_region.encloses(clean_used), "loadout weapon display must preserve the complete gun silhouette: %s" % clean_path)
+			var visible_long_axis := float(loadout_weapon_icon.get_meta("loadout_weapon_visible_long_axis", 0.0))
+			_expect(visible_long_axis >= 246.0 and visible_long_axis <= 276.0, "loadout weapon must occupy one consistent clean-gun ruler; got %.1f: %s" % [visible_long_axis, clean_path])
 	main.current_scene._refresh_character_bust(data_loader.get_row("characters", save_manager.get_selected("character")))
 	_expect(main.current_scene.find_child("GrowthBadge", true, false) != null, "loadout must show visible growth tier")
 	_expect(main.current_scene.has_node("GearBadges"), "loadout must summarize gear levels")
@@ -645,6 +881,8 @@ func _initialize() -> void:
 		_expect(battle.wave_total == 5, "battle must load five waves for %s" % battle.level_id)
 		_expect(battle.turret != null, "battle must spawn turret for %s" % battle.level_id)
 		_expect(battle.character_sprite != null, "battle must spawn selected character avatar for %s" % battle.level_id)
+		_expect((battle.character_rig as Node2D).scale.is_equal_approx(Vector2.ONE * float(battle.CHARACTER_PRESENTATION_SCALE)), "battle hero rig must use the 1.50x presentation scale")
+		_expect(float(battle.character_rig_foot_lift) > 0.0 and absf((battle.character_rig as Node2D).position.y + float(battle.character_rig_foot_lift) - float(battle.CHARACTER_BASE_POSITION.y)) <= 0.5, "enlarged battle hero must remain foot-anchored above the bottom HUD")
 		_expect(bool(battle.character_weapon_combo_active), "battle must use fused selected character/weapon art for %s" % battle.level_id)
 		_expect(battle.character_weapon_sprite == null, "fused battle art must not also mount a floating weapon sprite for %s" % battle.level_id)
 		_expect(not bool(battle.turret.visible), "legacy turret sprite must stay hidden while logic is reused")
@@ -658,10 +896,10 @@ func _initialize() -> void:
 		_expect(battle.character_attack_frames.size() == 8, "fused character/weapon art must provide the full 8-frame firing strip for %s" % battle.level_id)
 		_expect(battle.character_attack_right_frames.size() == 8, "fused character/weapon art must provide the full 8-frame right-aim firing strip for %s" % battle.level_id)
 		_expect(battle.character_hurt_frames.size() >= 3, "fused character/weapon art must provide hurt frames for %s" % battle.level_id)
-		var expected_fused_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
+		var expected_fused_origin: Vector2 = battle.character_rig.to_global(battle._character_combo_muzzle_for_aim())
 		_expect(battle._weapon_fire_origin().distance_to(expected_fused_origin) <= 1.0, "projectiles must originate from the fused character/weapon muzzle")
 		battle._set_character_combo_aim_from_direction(Vector2.UP)
-		var expected_center_origin: Vector2 = battle.character_rig.global_position + battle.character_weapon_combo_muzzle
+		var expected_center_origin: Vector2 = battle.character_rig.to_global(battle.character_weapon_combo_muzzle)
 		battle._set_character_combo_aim_from_direction(Vector2(-0.75, -0.66).normalized())
 		var left_origin: Vector2 = battle._weapon_fire_origin()
 		battle._set_character_combo_aim_from_direction(Vector2(0.75, -0.66).normalized())
@@ -677,6 +915,7 @@ func _initialize() -> void:
 		_expect(not battle.has_node("Hud/StrategyButton"), "battle HUD must not expose the old target strategy button")
 		_expect(battle.has_node("Hud/SkillSlots"), "battle must expose skill slots")
 		if battle.level_id == "level_001":
+			_verify_boss_hp_hud_layout(battle)
 			battle.onboarding_tip_shown = false
 			battle._show_onboarding_tip()
 			_expect(battle.wave_toast_label.text.contains("按住战场拖动"), "first battle onboarding must explain hold-and-drag manual aim")
@@ -706,6 +945,7 @@ func _initialize() -> void:
 		_expect(battle.get_node("Hud/ObjectivePanel/Body").text != "", "battle objective panel must explain the current goal")
 		_expect(battle.pending_spawns.size() > 0 or battle.get_node("EnemyLayer").get_child_count() > 0, "battle must queue or spawn enemies for %s" % battle.level_id)
 		if battle.level_id == "level_001":
+			_verify_manual_target_lock_battle(battle)
 			_verify_manual_aim_battle_priority(battle)
 			_verify_multi_shot_targeting(battle)
 			_verify_combat_information_density(battle)
@@ -757,10 +997,34 @@ func _initialize() -> void:
 				var detail_tags := detail_panel.get_node("TagsBody") as Label
 				_expect(detail_panel.clip_contents, "card detail panel must clip content inside the designed modal")
 				_expect(detail_body.text != "" and not detail_body.text.contains("全部等级"), "card detail current-value block must not contain the whole old combined body")
-				_expect(detail_levels.text.contains("等级1") and detail_levels.position.y + detail_levels.size.y <= detail_desc.position.y - 8.0, "card detail all-levels block must be separated from description")
+				_expect((detail_levels.text.contains("等级1") or detail_levels.text.contains("Lv.1")) and detail_levels.position.y + detail_levels.size.y <= detail_desc.position.y - 8.0, "card detail all-levels block must be separated from description")
 				_expect(detail_desc.position.y + detail_desc.size.y <= detail_tags.position.y - 8.0, "card detail description must not overlap tag line")
 				_expect(detail_tags.position.y + detail_tags.size.y <= detail_close.position.y - 8.0, "card detail tags must not overlap close button")
 				_expect(detail_close.position.y + detail_close.size.y <= detail_panel.size.y - 8.0, "card detail close button must stay inside modal bounds")
+				var localization_manager := root.get_node("/root/LocalizationManager")
+				var original_detail_language := str(localization_manager.current_language)
+				for detail_language in ["zh", "en"]:
+					localization_manager.apply_language(detail_language, false)
+					battle._show_card_detail("skill_split_shot")
+					await process_frame
+					_expect(detail_levels.get_theme_font_size("font_size") == UiKit.scaled_font_size(battle.CARD_DETAIL_LEVELS_BODY_FONT_SIZE), "%s all-level rows must retain the larger mobile type size" % detail_language)
+					_expect(detail_desc.get_theme_font_size("font_size") == UiKit.scaled_font_size(battle.CARD_DETAIL_DESCRIPTION_FONT_SIZE), "%s skill description must retain the larger mobile type size" % detail_language)
+					_expect(detail_tags.get_theme_font_size("font_size") == UiKit.scaled_font_size(battle.CARD_DETAIL_TAGS_FONT_SIZE), "%s skill tags must retain the larger mobile type size" % detail_language)
+					for text_contract in [
+						[detail_levels, "all-level rows"],
+						[detail_desc, "description"],
+						[detail_tags, "tags"],
+					]:
+						var detail_label := text_contract[0] as Label
+						var detail_font_size := detail_label.get_theme_font_size("font_size")
+						var required_text_size := detail_label.get_theme_font("font").get_multiline_string_size(
+							detail_label.text,
+							HORIZONTAL_ALIGNMENT_LEFT,
+							detail_label.size.x - 8.0,
+							detail_font_size
+						)
+						_expect(required_text_size.y <= detail_label.size.y - 8.0, "%s %s must fit without vertical clipping" % [detail_language, str(text_contract[1])])
+				localization_manager.apply_language(original_detail_language, false)
 				battle._hide_card_detail()
 				_dismiss_card_offer_for_smoke(battle)
 				for enemy in battle.get_node("EnemyLayer").get_children():
@@ -800,10 +1064,45 @@ func _initialize() -> void:
 	_expect(not result.get_node("Content/HeroCard/HeroBox/LevelName").text.contains("level_001"), "result must not expose internal level id")
 	_expect(result.get_node("Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue").text.contains("120"), "result gold card must show earned gold")
 	_expect(result.get_node("Content/RewardRow/XpCard/XpBox/XpVBox/XpValue").text.contains("12"), "result xp card must show earned xp")
+	var result_gold_card := result.get_node("Content/RewardRow/GoldCard") as Control
+	var result_xp_card := result.get_node("Content/RewardRow/XpCard") as Control
+	var result_gold_icon := result.get_node("Content/RewardRow/GoldCard/GoldBox/GoldIcon") as Control
+	var result_xp_icon := result.get_node("Content/RewardRow/XpCard/XpBox/XpIcon") as Control
+	var result_hint_card := result.get_node("Content/HintCard") as Control
+	var result_hint_icon := result.get_node("Content/HintCard/HintBox/HintIcon") as Control
+	_expect(result_gold_icon.get_global_rect().position.x - result_gold_card.get_global_rect().position.x >= result.RESULT_REWARD_SIDE_PADDING - 0.1, "result gold icon must clear the decorated card border")
+	_expect(result_xp_icon.get_global_rect().position.x - result_xp_card.get_global_rect().position.x >= result.RESULT_REWARD_SIDE_PADDING - 0.1, "result xp icon must clear the decorated card border")
+	_expect(result_hint_icon.get_global_rect().position.x - result_hint_card.get_global_rect().position.x >= result.RESULT_HINT_SIDE_PADDING - 0.1, "result standing-power star must clear the hint-strip border")
+	_expect(result_gold_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE and result_xp_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE, "result reward icons must share one visual size")
+	_expect(absf(result_gold_icon.get_global_rect().get_center().y - result_xp_icon.get_global_rect().get_center().y) <= 0.1, "result reward icons must share one vertical baseline")
 	_expect(result.get_node("Content/HintCard/HintBox/Hint").text != "", "result must show next action hint")
 	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
 	_expect(result.has_node("Content/HeroCard/HeroBox/OutcomePanel"), "result must expose a compact hero outcome showcase")
 	_expect((result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName") as Label).text.contains("完成防守"), "victory outcome showcase must communicate the hero result")
+	var result_portrait_clip := result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait") as TextureRect
+	var result_portrait_bust := result_portrait_clip.get_node_or_null("BustImage") as TextureRect
+	_expect(result_portrait_clip.clip_contents, "result hero showcase must use a deliberate half-body viewport")
+	_expect(result_portrait_bust != null and result_portrait_bust.texture != null, "result hero showcase must render a themed half-body portrait")
+	_expect(str(result_portrait_bust.get_meta("result_portrait_framing", "")) == "aligned_half_body", "result hero showcase must declare the aligned half-body contract")
+	var result_theme_manager := root.get_node("/root/ThemeManager")
+	for theme_id in ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
+		for character_id in ["vanguard", "blaze", "frost", "volt"]:
+			var character_row: Dictionary = data_loader.get_row("characters", character_id)
+			var fallback_path := str(character_row.get("portrait", character_row.get("icon", "")))
+			var frameless_fallback := fallback_path.replace("_icon.png", "_portrait_frameless.png")
+			if frameless_fallback != "" and ResourceLoader.exists(frameless_fallback):
+				fallback_path = frameless_fallback
+			var portrait_path := str(result_theme_manager.resolve_character_portrait_for_theme(character_id, theme_id, fallback_path))
+			var portrait_texture := load(portrait_path) as Texture2D
+			_expect(portrait_texture != null, "%s/%s result portrait must resolve" % [theme_id, character_id])
+			if portrait_texture == null:
+				continue
+			var portrait_layout: Dictionary = result._result_portrait_layout(portrait_texture)
+			var visible_rect: Rect2 = portrait_layout.get("visible_rect", Rect2())
+			_expect(absf(visible_rect.position.y - result.RESULT_PORTRAIT_HEADROOM) <= 0.1, "%s/%s result portrait must preserve exact headroom" % [theme_id, character_id])
+			_expect(absf(visible_rect.size.y - result.RESULT_PORTRAIT_VISIBLE_HEIGHT) <= 0.1, "%s/%s result portrait must share one human-height ruler" % [theme_id, character_id])
+			_expect(absf(visible_rect.get_center().x - result.RESULT_PORTRAIT_WINDOW_SIZE.x * 0.5) <= 0.1, "%s/%s result portrait must center its visible silhouette" % [theme_id, character_id])
+			_expect((portrait_layout.get("size", Vector2.ZERO) as Vector2).y > result.RESULT_PORTRAIT_WINDOW_SIZE.y, "%s/%s result portrait must be a genuine half-body crop" % [theme_id, character_id])
 	_expect((result.get_node("Background") as TextureRect).texture != null, "result must inherit the current level environment background")
 	_expect(result.get_node("Content/ReportPanel/ReportBox/Overview").text.contains("1:35"), "battle report must format combat duration")
 	_expect(result.get_node("Content/ReportPanel/ReportBox/Output").text.contains("火焰"), "battle report must show dominant damage element")
@@ -978,7 +1277,8 @@ func _verify_status_vfx_layers(data_loader: Node) -> void:
 		await process_frame
 		var priority_fire: Dictionary = controller.call("debug_layer_snapshot", "fire")
 		_expect(bool(priority_fire.get("primary_allowed", false)), "priority status VFX must restore the body sequence")
-		_expect(bool(priority_fire.get("secondary_allowed", false)), "priority status VFX must restore premium secondary detail")
+		_expect(not bool(config.get("fire", {}).get("secondary", true)), "body-attached Inferno burn must use one coherent silhouette instead of a duplicated offset flame")
+		_expect(not bool(priority_fire.get("secondary_allowed", false)), "priority burn VFX must not reintroduce a detached secondary flame")
 	enemy.set("_burn_dps", 0.0)
 	enemy.set("_burn_time", 0.0)
 	enemy.call("_refresh_burn", 20.0, 3.0)
@@ -1051,7 +1351,9 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 		_expect(absf(xp_icon.position.y - 47.0) <= 0.1 and absf(xp_bar.position.y - 41.0) <= 0.1, "XP counter must use the lowered bottom resource row" + context)
 		_expect(absf(hp_bar.position.y - 41.0) <= 0.1, "base HP must share the lowered bottom resource row" + context)
 		_expect(maxf(gold_label.position.y + gold_label.size.y, maxf(xp_bar.position.y + xp_bar.size.y, hp_bar.position.y + hp_bar.size.y)) <= bottom_bar.size.y + 0.1, "lowered bottom resources must remain inside the dock" + context)
-		_expect(absf(skill_slots.offset_top - (1654.0 + expected_shift)) <= 0.1, "skill slots must follow the bottom dock" + context)
+		_expect(absf(skill_slots.offset_top - (1688.0 + expected_shift)) <= 0.1, "empty skill dock must align one slot row with the active-skill bottom edge" + context)
+		_expect(absf(skill_slots.offset_left - 18.0) <= 0.1 and absf(skill_slots.offset_right - 530.0) <= 0.1, "skill slots must stay inside the left half-screen dock" + context)
+		_expect(is_equal_approx(skill_slots.anchor_left, 0.0) and is_equal_approx(skill_slots.anchor_right, 0.0), "skill dock must not inherit a full-width anchor" + context)
 		_expect(absf(active_skill.offset_top - (1688.0 + expected_shift)) <= 0.1, "active skill must follow the bottom dock" + context)
 		_expect(bottom_bar.offset_bottom <= float(viewport_height) + 0.1, "bottom HUD must remain on-screen" + context)
 		_expect(skill_slots.offset_bottom <= float(viewport_height) + 0.1, "skill slots must remain on-screen" + context)
@@ -1065,6 +1367,7 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 		_expect(toast_position.y >= top_bar.offset_bottom + 21.9, "battle hints must clear the wave bar" + context)
 		_expect(battle.pet_sprite != null, "battle must spawn equipped pet for line-anchor regression" + context)
 		var expected_anchor: Vector2 = battle._pet_anchor_position()
+		_expect(absf(expected_anchor.x - 800.0) <= 0.1, "pet must keep the enlarged hero's right-side breathing room" + context)
 		_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet must stay on the defense-line anchor hover band%s, got %.1f expected %.1f" % [context, battle.pet_sprite.position.y, expected_anchor.y])
 		battle._update_pet_animation(0.016)
 		_expect(battle.pet_sprite.position.y <= expected_anchor.y + 0.1 and battle.pet_sprite.position.y >= expected_anchor.y - 10.0, "pet idle float must stay attached to the defense-line anchor" + context)
@@ -1343,6 +1646,54 @@ func _verify_wave_formation_lanes(data_loader: Node) -> void:
 	router.queue_free()
 	await process_frame
 
+func _verify_wave_spawn_distribution() -> void:
+	# Random must not mean four independent samples landing in one pile. Exercise
+	# the live picker with a fixed seed so the release gate proves corridor bounds,
+	# broad coverage, recent-history limits and low consecutive clustering.
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_001"})
+	root.add_child(battle)
+	await process_frame
+	battle.active_spawning = false
+	battle.pending_spawns.clear()
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	await process_frame
+	seed(8802)
+	var expected_bounds := {
+		"left": Vector2(150.0, 430.0),
+		"center": Vector2(300.0, 780.0),
+		"right": Vector2(650.0, 930.0),
+		"spread": Vector2(150.0, 930.0),
+	}
+	for lane in expected_bounds.keys():
+		battle.recent_spawn_positions.clear()
+		var xs: Array[float] = []
+		var close_consecutive := 0
+		var previous_x := -9999.0
+		for _sample_index in range(24):
+			var position: Vector2 = battle._next_enemy_spawn_position(str(lane), false)
+			var bounds: Vector2 = expected_bounds[lane]
+			_expect(position.x >= bounds.x and position.x <= bounds.y, "%s spawn x must stay in its authored corridor, got %.1f" % [str(lane), position.x])
+			_expect(position.y >= 158.0 and position.y <= 222.0, "%s spawn y jitter must stay inside the safe entry band, got %.1f" % [str(lane), position.y])
+			if previous_x > -9000.0 and absf(position.x - previous_x) < 64.0:
+				close_consecutive += 1
+			previous_x = position.x
+			xs.append(position.x)
+		var span: float = (expected_bounds[lane] as Vector2).y - (expected_bounds[lane] as Vector2).x
+		var coverage: float = (float(xs.max()) - float(xs.min())) / span
+		_expect(coverage >= 0.85, "%s spawns must cover most of their corridor, got %.1f%%" % [str(lane), coverage * 100.0])
+		_expect(close_consecutive <= 3, "%s spawns must avoid repeated horizontal piles, got %d close pairs" % [str(lane), close_consecutive])
+		_expect(battle.recent_spawn_positions.size() == battle.SPAWN_RECENT_HISTORY, "spawn anti-cluster history must stay bounded")
+	var boss_bounds: Vector2 = battle._spawn_lane_x_bounds("center", true)
+	var boss_position: Vector2 = battle._next_enemy_spawn_position("center", true)
+	_expect(boss_position.x >= boss_bounds.x and boss_position.x <= boss_bounds.y and absf(boss_position.y - 190.0) <= 0.1, "boss entrance must keep its tighter authored focal corridor")
+	battle.queue_free()
+	router.queue_free()
+	await process_frame
+
 func _verify_variant_wave_one_spawns(data_loader: Node) -> void:
 	# 阶段 67：elite / treasure 变体关的第 1 波曾因出怪循环缩进错误而一只不刷
 	# （21 关共 442 只敌人从未出现），而所有平衡模型都把它们算在内。这里锁死
@@ -1392,6 +1743,8 @@ func _verify_collection_star_curve(data_loader: Node) -> void:
 	for table_name in table_names:
 		var prices := []
 		for row in data_loader.get_table(table_name).values():
+			if str(row.get("premium_entitlement", "")) != "":
+				continue
 			var price := int(row.get("unlock_cost_star", 0))
 			if price <= 0:
 				continue
@@ -1408,6 +1761,383 @@ func _verify_collection_star_curve(data_loader: Node) -> void:
 	_expect(total == 316, "launch collection star total must stay at the reviewed 316-star curve")
 	_expect(maximum == 16, "no single collection unlock may exceed 16 stars")
 	_expect(total - 99 * 3 == 19, "normal campaign must leave only 19 challenge stars for full collection")
+
+func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var theme_manager := root.get_node("/root/ThemeManager")
+	var test_save: Dictionary = original.duplicate(true)
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["cosmetics"] = {
+		"selected_theme": "default",
+		"character_outfits": {
+			"vanguard": "follow_theme",
+			"blaze": "follow_theme",
+			"frost": "follow_theme",
+			"volt": "follow_theme",
+		},
+	}
+	# The smoke suite may run after an interactive or screenshot session that has
+	# already cleared the campaign and maxed a hero. Build the store-gate fixture
+	# from an explicitly fresh progression state so host-local save data cannot
+	# make premium series visible before the assertions below reveal them.
+	test_save["levels_progress"] = {}
+	var fresh_equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+	for character_id in ["vanguard", "blaze", "frost", "volt"]:
+		fresh_equipment[character_id] = 1
+	test_save["equipment"] = fresh_equipment
+	save_manager.save_data = test_save
+	purchase_manager._catalog = data_loader.get_table("store_products")
+	purchase_manager.reconcile_access(false)
+	_expect(purchase_manager.catalog_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "premium catalog must contain all four authored series")
+	_expect(purchase_manager.store_series_ids().is_empty(), "premium series must stay hidden before their campaign reveal")
+	test_save["levels_progress"] = {"level_030": 1}
+	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must reveal after clearing level 30")
+	test_save["levels_progress"]["level_050"] = 1
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must join the store after clearing level 50")
+	test_save["levels_progress"]["level_080"] = 1
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must reveal after clearing level 80")
+	test_save["levels_progress"]["level_099"] = 1
+	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 99 until a hero reaches level 40")
+	test_save["equipment"]["vanguard"] = 40
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must reveal only after level 99 clear plus any hero at level 40")
+	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
+	_expect(purchase_manager.set_id_for_series("inferno") == "set_apocalypse_inferno", "series routing must resolve the Inferno set from data")
+	_expect(purchase_manager.set_id_for_series("absolute_zero") == "set_apocalypse_absolute_zero", "series routing must resolve the Absolute Zero set from data")
+	_expect(purchase_manager.set_id_for_series("golden_law") == "set_apocalypse_golden_law", "series routing must resolve the Golden Law set from data")
+	_expect(purchase_manager.theme_id_for_product("com.gaojiasheng.zombiefire.theme.neon_tempest") == "neon_tempest", "product routing must resolve its theme from data")
+	_expect(purchase_manager.theme_id_for_product("com.gaojiasheng.zombiefire.theme.infernal_dominion") == "infernal_dominion", "Inferno product routing must resolve its own theme")
+	_expect(purchase_manager.theme_id_for_product("com.gaojiasheng.zombiefire.theme.polar_aurora") == "polar_aurora", "Absolute Zero product routing must resolve its own theme")
+	_expect(purchase_manager.theme_id_for_product("com.gaojiasheng.zombiefire.theme.gilded_eclipse") == "gilded_eclipse", "Golden Law product routing must resolve Gilded Eclipse")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.thunder_complete"), "fresh store must offer the complete 6.99 arsenal package")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.inferno_complete"), "fresh store must offer the Inferno 6.99 complete package")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete"), "fresh store must offer the Absolute Zero 6.99 complete package")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.golden_law_complete"), "eligible endgame store must offer the Golden Law 6.99 complete package")
+	_expect(purchase_manager.visible_offer_ids("thunder").size() == 2, "fresh Thunder series must expose theme plus complete offers")
+	_expect(purchase_manager.visible_offer_ids("inferno").size() == 2, "fresh Inferno series must expose theme plus complete offers")
+	_expect(purchase_manager.visible_offer_ids("absolute_zero").size() == 2, "fresh Absolute Zero series must expose theme plus complete offers")
+	_expect(purchase_manager.visible_offer_ids("golden_law").size() == 2, "fresh Golden Law series must expose theme plus complete offers")
+	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.theme.neon_tempest", false), "local theme purchase must complete")
+	_expect(purchase_manager.has_entitlement("ent_theme_neon_tempest"), "theme purchase must grant the theme entitlement")
+	_expect(theme_manager.select_character_outfit("vanguard", "neon_tempest", false), "owned themes must be selectable per hero")
+	_expect(theme_manager.effective_character_theme_id("vanguard") == "neon_tempest", "an explicit hero outfit must override the default global theme")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.thunder_upgrade"), "theme owner must see the 4.99 upgrade package")
+	_expect(not purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.thunder_complete"), "theme owner must not be double-charged through the complete package")
+	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.arsenal.thunder_upgrade", false), "local arsenal upgrade must complete")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_thunder"), "arsenal purchase must grant its entitlement")
+	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_thunder"), "arsenal purchase must unlock its weapon")
+	_expect(purchase_manager.equip_complete_set("set_apocalypse_thunder"), "owned arsenal must equip all four pieces through an explicit set id")
+	_expect(save_manager.get_selected("pet") == "pet_apocalypse_tempest", "full-set equip must include the premium pet")
+	_expect(theme_manager.apply_theme_to_all_characters("neon_tempest"), "apply-full-look must select the theme and reset every hero to Follow Global")
+	for character_id in ["vanguard", "blaze", "frost", "volt"]:
+		_expect(save_manager.get_character_outfit(character_id) == "follow_theme", "apply-full-look must include %s" % character_id)
+	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.arsenal.inferno_complete", false), "Inferno complete purchase must complete without requiring the theme first")
+	_expect(purchase_manager.has_entitlement("ent_theme_infernal_dominion"), "Inferno complete package must grant the theme entitlement in the same receipt")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_inferno"), "Inferno complete package must grant the arsenal entitlement in the same receipt")
+	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_inferno"), "Inferno complete package must unlock its weapon")
+	_expect(purchase_manager.equip_complete_set("set_apocalypse_inferno"), "Inferno complete package must equip its explicit four-piece set")
+	_expect(save_manager.get_selected("pet") == "pet_apocalypse_phoenix", "Inferno full-set equip must include the Ember Phoenix")
+	_expect(theme_manager.active_theme_id() == "infernal_dominion", "Inferno full-set equip must apply its matching global theme")
+	_expect(theme_manager.select_character_outfit("vanguard", "neon_tempest", false), "owned Neon and Infernal themes must remain mixable per hero")
+	_expect(theme_manager.select_character_outfit("volt", "infernal_dominion", false), "owned Infernal theme must be selectable per hero")
+	_expect(theme_manager.effective_character_theme_id("vanguard") == "neon_tempest", "mixed Neon outfit must override the Infernal global theme")
+	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete", false), "Absolute Zero complete purchase must complete without requiring the theme first")
+	_expect(purchase_manager.has_entitlement("ent_theme_polar_aurora"), "Absolute Zero complete package must grant the Polar Aurora theme entitlement")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_absolute_zero"), "Absolute Zero complete package must grant its arsenal entitlement")
+	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_absolute_zero"), "Absolute Zero package must unlock its weapon")
+	_expect(purchase_manager.equip_complete_set("set_apocalypse_absolute_zero"), "Absolute Zero package must equip its explicit four-piece set")
+	_expect(save_manager.get_selected("pet") == "pet_apocalypse_aurora", "Absolute Zero full-set equip must include the Aurora Wisp")
+	_expect(theme_manager.active_theme_id() == "polar_aurora", "Absolute Zero full-set equip must apply Polar Aurora")
+	_expect(theme_manager.select_character_outfit("blaze", "infernal_dominion", false), "all three owned themes must remain independently selectable per hero")
+	_expect(theme_manager.select_character_outfit("frost", "polar_aurora", false), "Polar Aurora must be selectable per hero")
+	_expect(theme_manager.effective_character_theme_id("frost") == "polar_aurora", "explicit Polar Aurora outfit must override the global theme")
+	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.arsenal.golden_law_complete", false), "Golden Law complete purchase must complete at the endgame gate")
+	_expect(purchase_manager.has_entitlement("ent_theme_gilded_eclipse"), "Golden Law complete package must grant Gilded Eclipse")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_golden_law"), "Golden Law complete package must grant its arsenal entitlement")
+	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_golden_law"), "Golden Law package must unlock Sovereign Verdict")
+	_expect(purchase_manager.equip_complete_set("set_apocalypse_golden_law"), "Golden Law package must equip its explicit four-piece set")
+	_expect(save_manager.get_selected("pet") == "pet_apocalypse_skyfalcon", "Golden Law full-set equip must include the Aureate Skyfalcon")
+	_expect(theme_manager.active_theme_id() == "gilded_eclipse", "Golden Law full-set equip must apply Gilded Eclipse")
+	_expect(theme_manager.select_character_outfit("volt", "gilded_eclipse", false), "Gilded Eclipse must be independently selectable per hero")
+	_expect(purchase_manager.restore_mock_purchases() == 5, "restore must reconcile all five independent local receipts across four product series")
+	_expect(purchase_manager.reset_mock_purchases_for_series("golden_law", false) == 1, "series reset must remove only the Golden Law complete receipt")
+	_expect(not purchase_manager.has_entitlement("ent_arsenal_golden_law"), "Golden Law reset must revoke its arsenal")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_absolute_zero"), "Golden Law reset must preserve Absolute Zero access")
+	_expect(purchase_manager.reset_mock_purchases_for_series("absolute_zero", false) == 1, "series reset must remove only the Absolute Zero complete receipt")
+	_expect(not purchase_manager.has_entitlement("ent_arsenal_absolute_zero"), "Absolute Zero reset must revoke its arsenal access")
+	_expect(not purchase_manager.has_entitlement("ent_theme_polar_aurora"), "Absolute Zero reset must revoke its bundled theme")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_inferno"), "Absolute Zero reset must preserve Inferno arsenal access")
+	_expect(save_manager.get_character_outfit("frost") == "follow_theme", "revoking Polar Aurora must reset only its explicit outfit")
+	_expect(save_manager.get_character_outfit("blaze") == "infernal_dominion", "revoking Polar Aurora must preserve an owned Infernal outfit")
+	_expect(purchase_manager.reset_mock_purchases_for_series("inferno", false) == 1, "series reset must remove only the Inferno complete receipt")
+	_expect(not purchase_manager.has_entitlement("ent_arsenal_inferno"), "Inferno series reset must revoke Inferno arsenal access")
+	_expect(not purchase_manager.has_entitlement("ent_theme_infernal_dominion"), "Inferno series reset must revoke its bundled theme")
+	_expect(purchase_manager.has_entitlement("ent_arsenal_thunder"), "Inferno series reset must preserve Thunder arsenal access")
+	_expect(purchase_manager.has_entitlement("ent_theme_neon_tempest"), "Inferno series reset must preserve Neon theme access")
+	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_thunder"), "Inferno series reset must not remove Thunder equipment")
+	_expect(not save_manager.is_item_unlocked("weapon", "weapon_apocalypse_inferno"), "Inferno series reset must remove only Inferno equipment")
+	_expect(save_manager.get_character_outfit("volt") == "follow_theme", "revoking Infernal must reset only an explicit Infernal outfit")
+	_expect(save_manager.get_character_outfit("vanguard") == "neon_tempest", "revoking Infernal must preserve an owned Neon outfit")
+	purchase_manager.reset_mock_purchases(false)
+	_expect(not purchase_manager.has_entitlement("ent_arsenal_thunder"), "reset must revoke only local mock arsenal access")
+	_expect(save_manager.get_selected("weapon") == "weapon_autocannon", "revocation must fall back to the starter weapon")
+	_expect(save_manager.get_character_outfit("vanguard") == "follow_theme", "global reset must reset remaining explicit paid hero outfits")
+	save_manager.save_data = original
+	purchase_manager.reconcile_access(false)
+	_verify_multi_series_purchase_routing(data_loader, save_manager, purchase_manager)
+
+func _verify_multi_series_purchase_routing(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var original_catalog: Dictionary = purchase_manager._catalog.duplicate(true)
+	var original_sets: Dictionary = data_loader.tables.get("premium_sets", {}).duplicate(true)
+	var fixture_sets := original_sets.duplicate(true)
+	fixture_sets["set_fixture_second"] = {
+		"series_id": "fixture_second",
+		"entitlement": "ent_fixture_arsenal",
+		"theme": "default",
+		"theme_entitlement": "ent_fixture_theme",
+		"weapon": "fixture_weapon",
+		"armor": "fixture_armor",
+		"chip": "fixture_chip",
+		"pet": "fixture_pet",
+	}
+	data_loader.tables["premium_sets"] = fixture_sets
+	var fixture_catalog := original_catalog.duplicate(true)
+	for offer in [
+		["fixture.theme", "theme", ["ent_fixture_theme"], 210],
+		["fixture.complete", "arsenal_complete", ["ent_fixture_theme", "ent_fixture_arsenal"], 220],
+		["fixture.upgrade", "arsenal_upgrade", ["ent_fixture_arsenal"], 230],
+	]:
+		fixture_catalog[str(offer[0])] = {
+			"series_id": "fixture_second",
+			"theme_id": "default",
+			"arsenal_set_id": "set_fixture_second",
+			"kind": str(offer[1]),
+			"offer_role": str(offer[1]),
+			"grants": offer[2],
+			"sort": int(offer[3]),
+			"visible_in_mock_store": true,
+		}
+	purchase_manager._catalog = fixture_catalog
+	save_manager.save_data = save_manager._default_save()
+	save_manager.save_data["levels_progress"] = {"level_030": 1, "level_050": 1, "level_080": 1, "level_099": 1}
+	save_manager.save_data["equipment"]["vanguard"] = 40
+	purchase_manager.reconcile_access(false)
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "fixture_second", "golden_law"], "aggregate catalog must expose every eligible independent series in authored offer order")
+	_expect(purchase_manager.visible_offer_ids("fixture_second").has("fixture.complete"), "an unowned second series must offer its own complete package")
+	_expect(purchase_manager.mock_purchase("fixture.theme", false), "second-series theme purchase must complete independently")
+	_expect(purchase_manager.visible_offer_ids("fixture_second").has("fixture.upgrade"), "second-series theme ownership must route only that series to its upgrade")
+	_expect(purchase_manager.visible_offer_ids("thunder").has("com.gaojiasheng.zombiefire.arsenal.thunder_complete"), "second-series ownership must not alter Thunder offers")
+	_expect(purchase_manager.visible_offer_ids("inferno").has("com.gaojiasheng.zombiefire.arsenal.inferno_complete"), "fixture ownership must not alter Inferno offers")
+	_expect(purchase_manager.visible_offer_ids("absolute_zero").has("com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete"), "fixture ownership must not alter Absolute Zero offers")
+	_expect(purchase_manager.mock_purchase("fixture.upgrade", false), "second-series arsenal upgrade must complete independently")
+	_expect(save_manager.save_data.get("unlocks", {}).get("weapons", []).has("fixture_weapon"), "second-series reconciliation must unlock its own equipment")
+	_expect(not purchase_manager.has_entitlement("ent_arsenal_thunder"), "second-series purchase must not grant Thunder")
+	purchase_manager.reset_mock_purchases(false)
+	_expect(not save_manager.save_data.get("unlocks", {}).get("weapons", []).has("fixture_weapon"), "second-series revocation must remove its own equipment")
+	data_loader.tables["premium_sets"] = original_sets
+	purchase_manager._catalog = original_catalog
+	save_manager.save_data = original_save
+	purchase_manager.reconcile_access(false)
+
+func _verify_store_product_preview_contract(data_loader: Node, save_manager: Node) -> void:
+	# Launch merchandising must not expose mismatched design boards or battle
+	# screenshots. Every theme is a four-outfit roster and every arsenal is the
+	# same semantic weapon / armor / chip / pet grid, with alpha-fitted subjects.
+	var purchase_manager := root.get_node("/root/PurchaseManager")
+	var theme_manager := root.get_node("/root/ThemeManager")
+	var localization_manager := root.get_node("/root/LocalizationManager")
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var original_language := str(localization_manager.current_language)
+	var test_save: Dictionary = original_save.duplicate(true)
+	test_save["levels_progress"] = {
+		"level_030": 3,
+		"level_050": 3,
+		"level_080": 3,
+		"level_099": 3,
+	}
+	test_save["equipment"]["vanguard"] = 40
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["cosmetics"] = {
+		"selected_theme": "default",
+		"character_outfits": {
+			"vanguard": "follow_theme",
+			"blaze": "follow_theme",
+			"frost": "follow_theme",
+			"volt": "follow_theme",
+		},
+	}
+	save_manager.save_data = test_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+	localization_manager.apply_language("en", false)
+
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var store := _instance("res://meta/store/store.tscn")
+	store.setup(router, {})
+	root.add_child(store)
+	await process_frame
+	await process_frame
+	var content := store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	_expect(content != null, "premium store must expose its product content container")
+	var cards: Array[Control] = []
+	if content != null:
+		for child in content.get_children():
+			if child is Control and child.has_meta("store_product_id"):
+				cards.append(child as Control)
+	_expect(cards.size() == 8, "fresh fully revealed store must render four theme and four complete-arsenal cards")
+	for card in cards:
+		var product_id := str(card.get_meta("store_product_id", ""))
+		var product: Dictionary = data_loader.get_row("store_products", product_id)
+		var role := str(product.get("offer_role", ""))
+		var expected_layout := "theme_roster" if role == "theme" else "arsenal_grid"
+		var preview := card.find_child("Preview", true, false) as Control
+		_expect(preview != null, "%s must expose a semantic preview" % product_id)
+		if preview == null:
+			continue
+		_expect(preview.custom_minimum_size == Vector2(330, 330), "%s preview must use the shared 330x330 footprint" % product_id)
+		_expect(str(preview.get_meta("store_preview_layout", "")) == expected_layout, "%s must use %s" % [product_id, expected_layout])
+		_expect(int(preview.get_meta("store_preview_slots", 0)) == 4, "%s preview must declare four semantic slots" % product_id)
+		var grid := preview.find_child("Grid", true, false) as GridContainer
+		_expect(grid != null and grid.get_child_count() == 4, "%s preview must render a 2x2 four-slot grid" % product_id)
+		if grid == null:
+			continue
+		for cell_var in grid.get_children():
+			var cell := cell_var as Control
+			_expect(cell != null and cell.custom_minimum_size == Vector2(152, 152), "%s preview cells must share the same footprint" % product_id)
+			if cell == null:
+				continue
+			var visual_name := "Bust" if expected_layout == "theme_roster" else "Item"
+			var visual := cell.find_child(visual_name, true, false) as TextureRect
+			_expect(visual != null and visual.texture != null, "%s %s slot must resolve a production texture" % [product_id, cell.name])
+			if visual == null:
+				continue
+			var source := str(visual.get_meta("store_preview_source", ""))
+			_expect(source.begins_with("res://assets/production/sprites/"), "%s must use a runtime production asset" % product_id)
+			_expect(not source.contains("/source_refs/"), "%s must not expose a design/source board in the player store" % product_id)
+			var visible_rect: Rect2 = visual.get_meta("store_preview_visible_rect", Rect2())
+			if expected_layout == "theme_roster":
+				_expect(source.contains("/sprites/themes/"), "%s theme roster must use its authored outfit portraits" % product_id)
+				_expect(is_equal_approx(float(visual.get_meta("store_preview_visible_height", 0.0)), 212.0), "%s outfit subjects must share the same human-height ruler" % product_id)
+				_expect(is_equal_approx(visible_rect.position.y, 8.0), "%s outfit subjects must share the same headroom" % product_id)
+				_expect(visible_rect.position.x >= -0.01 and visible_rect.end.x <= 146.01, "%s outfit bust must remain horizontally complete" % product_id)
+			else:
+				_expect(source.contains("/sprites/premium/"), "%s arsenal grid must use the clean premium item assets" % product_id)
+				_expect(is_equal_approx(float(visual.get_meta("store_preview_visible_extent", 0.0)), 124.0), "%s arsenal subjects must share the same long-axis ruler" % product_id)
+				_expect(visible_rect.position.x >= -0.01 and visible_rect.position.y >= -0.01, "%s arsenal subject must start inside its cell" % product_id)
+				_expect(visible_rect.end.x <= 146.01 and visible_rect.end.y <= 146.01, "%s arsenal subject must not be cropped by its cell" % product_id)
+
+	store.queue_free()
+	router.queue_free()
+	await process_frame
+	localization_manager.apply_language(original_language, false)
+	save_manager.save_data = original_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+
+func _verify_appearance_selector_states(save_manager: Node) -> void:
+	var purchase_manager := root.get_node("/root/PurchaseManager")
+	var theme_manager := root.get_node("/root/ThemeManager")
+	var localization_manager := root.get_node("/root/LocalizationManager")
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var original_language := str(localization_manager.current_language)
+	var test_save: Dictionary = original_save.duplicate(true)
+	test_save["levels_progress"] = {"level_099": 3}
+	test_save["equipment"]["vanguard"] = 40
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["cosmetics"] = {
+		"selected_theme": "default",
+		"character_outfits": {
+			"vanguard": "follow_theme",
+			"blaze": "follow_theme",
+			"frost": "follow_theme",
+			"volt": "follow_theme",
+		},
+	}
+	save_manager.save_data = test_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+
+	for language in ["zh", "en"]:
+		localization_manager.apply_language(language, false)
+		var selector_script := load("res://ui/appearance_selector.gd") as GDScript
+		_expect(selector_script != null, "appearance selector script must compile")
+		if selector_script == null:
+			continue
+		var selector := selector_script.new() as CanvasLayer
+		root.add_child(selector)
+		selector.open_character("vanguard")
+		await process_frame
+		var worn := selector.find_child("OutfitSelect_follow_theme", true, false) as Button
+		var wear := selector.find_child("OutfitSelect_default", true, false) as Button
+		var buy := selector.find_child("OutfitSelect_gilded_eclipse", true, false) as Button
+		var gilded_card := selector.find_child("Outfit_gilded_eclipse", true, false) as Control
+		var ownership: Label = gilded_card.find_child("OwnershipStatus", true, false) as Label if gilded_card != null else null
+		_expect(worn != null and wear != null and buy != null, "appearance selector must expose current, wearable and store-bound actions")
+		if worn != null and wear != null and buy != null:
+			_expect(worn.disabled and str(worn.get_meta("appearance_action_state", "")) == "current", "worn outfit action must be disabled and marked current")
+			_expect(not wear.disabled and str(wear.get_meta("appearance_action_state", "")) == "available", "owned outfit action must remain bright and wearable")
+			_expect(not buy.disabled and str(buy.get_meta("appearance_action_state", "")) == "purchase", "unowned outfit action must remain clickable but use purchase styling")
+			_expect(worn.text == ("已穿戴" if language == "zh" else "WORN"), "worn action must keep a clear bilingual state label")
+			_expect(wear.text == ("穿  戴" if language == "zh" else "Wear"), "wear action must keep a clear bilingual verb")
+			_expect(buy.text == ("购  买" if language == "zh" else "BUY"), "store-bound outfit action must use an explicit bilingual purchase verb")
+			_expect(ownership != null and ownership.text == ("尚未拥有" if language == "zh" else "Not Owned"), "unowned outfit card must disclose ownership state outside the action label")
+			var worn_style := worn.get_theme_stylebox("disabled") as StyleBoxTexture
+			var wear_style := wear.get_theme_stylebox("normal") as StyleBoxTexture
+			var buy_style := buy.get_theme_stylebox("normal") as StyleBoxTexture
+			_expect(worn_style != null and wear_style != null and buy_style != null, "appearance actions must use armored raster styles in every state")
+			if worn_style != null and wear_style != null and buy_style != null:
+				_expect(worn_style.modulate_color.get_luminance() < wear_style.modulate_color.get_luminance(), "worn surface must be visibly quieter than the wearable surface")
+				_expect(buy_style.modulate_color.get_luminance() < wear_style.modulate_color.get_luminance(), "purchase surface must be lower-gloss than the wearable surface")
+		var portrait_cards: Array[Control] = []
+		var hero_portrait := selector.find_child("HeroPortrait", true, false) as TextureRect
+		_expect(hero_portrait != null and hero_portrait.texture is AtlasTexture, "appearance hero showcase must use the shared hero-bust viewport")
+		if hero_portrait != null:
+			_expect(str(hero_portrait.get_meta("portrait_framing_mode", "")) == "hero_bust", "appearance hero showcase must declare the hero-bust framing contract")
+			_expect(is_equal_approx(float(hero_portrait.get_meta("portrait_visible_fraction", 0.0)), 0.70), "appearance hero showcase must use the roomier 70% body crop")
+		for outfit_mode in ["follow_theme", "default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
+			var outfit_card := selector.find_child("Outfit_" + outfit_mode, true, false) as Control
+			_expect(outfit_card != null, "appearance selector must expose %s portrait card" % outfit_mode)
+			if outfit_card != null:
+				portrait_cards.append(outfit_card)
+		for card in portrait_cards:
+			var portrait: TextureRect = null
+			for child in card.find_children("*", "TextureRect", true, false):
+				if child.has_meta("portrait_display_region"):
+					portrait = child as TextureRect
+					break
+			_expect(portrait != null, "appearance outfit card must expose an alpha-fitted portrait")
+			if portrait != null:
+				_expect(portrait.texture is AtlasTexture, "appearance portrait must use an authored hero-bust viewport")
+				_expect(str(portrait.get_meta("portrait_framing_mode", "")) == "hero_bust", "appearance portrait must advertise the shared bust framing contract")
+				var source_used: Rect2 = portrait.get_meta("portrait_source_used_rect", Rect2())
+				var display_region: Rect2 = portrait.get_meta("portrait_display_region", Rect2())
+				var visible_fraction := float(portrait.get_meta("portrait_visible_fraction", 0.0))
+				_expect(visible_fraction >= 0.58 and visible_fraction <= 0.74, "appearance portrait bust fraction must stay in the mobile impact range")
+				_expect(display_region.position.y <= source_used.position.y, "appearance portrait must retain complete hair and headroom")
+				_expect(display_region.end.y >= source_used.position.y + source_used.size.y * 0.58, "appearance portrait must include torso and upper legs")
+				_expect(display_region.end.y <= source_used.position.y + source_used.size.y * 0.76, "appearance portrait must not regress to a tiny full-body thumbnail")
+				_expect(display_region.position.x <= source_used.get_center().x and display_region.end.x >= source_used.get_center().x, "appearance portrait must stay centered on the source body")
+				var viewport_aspect := portrait.custom_minimum_size.x / maxf(portrait.custom_minimum_size.y, 1.0)
+				_expect(absf(display_region.size.x / maxf(display_region.size.y, 1.0) - viewport_aspect) <= 0.01, "appearance portrait crop must match its viewport aspect without a second accidental crop")
+		selector.queue_free()
+		await process_frame
+
+	for character_id in ["vanguard", "blaze", "frost", "volt"]:
+		var portrait_path: String = str(theme_manager.resolve_character_portrait_for_theme(character_id, "gilded_eclipse", ""))
+		var portrait_texture := load(portrait_path) as Texture2D
+		_expect(portrait_texture != null, "Gilded Eclipse portrait must resolve for %s" % character_id)
+		if portrait_texture != null:
+			var used_rect := portrait_texture.get_image().get_used_rect()
+			_expect(used_rect.size.x >= 290, "Gilded Eclipse %s portrait must not regress to the clipped prototype strip" % character_id)
+
+	localization_manager.apply_language(original_language, false)
+	save_manager.save_data = original_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
 
 func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
@@ -1520,6 +2250,7 @@ func _verify_manual_aim_input(input_manager: Node) -> void:
 	var started := {"count": 0, "pos": Vector2.ZERO}
 	var aimed := {"count": 0, "pos": Vector2.ZERO}
 	var released := {"count": 0, "pos": Vector2.ZERO}
+	var lock_requested := {"count": 0, "pos": Vector2.ZERO}
 	var on_started := func(pos: Vector2) -> void:
 		started["count"] = int(started.get("count", 0)) + 1
 		started["pos"] = pos
@@ -1529,9 +2260,13 @@ func _verify_manual_aim_input(input_manager: Node) -> void:
 	var on_released := func(pos: Vector2) -> void:
 		released["count"] = int(released.get("count", 0)) + 1
 		released["pos"] = pos
+	var on_lock_requested := func(pos: Vector2) -> void:
+		lock_requested["count"] = int(lock_requested.get("count", 0)) + 1
+		lock_requested["pos"] = pos
 	input_manager.manual_aim_started.connect(on_started)
 	input_manager.aim_point.connect(on_aimed)
 	input_manager.manual_aim_released.connect(on_released)
+	input_manager.target_locked.connect(on_lock_requested)
 
 	input_manager._cancel_aim_press()
 	input_manager._begin_aim_press(Vector2(240, 760), -1)
@@ -1555,10 +2290,19 @@ func _verify_manual_aim_input(input_manager: Node) -> void:
 	input_manager._end_aim_press(Vector2(180, 500), -1)
 	_expect(int(started.get("count", 0)) == starts_after_long_press, "short click/tap must not steal auto aim priority")
 
+	input_manager._last_tap_time = 0.0
+	input_manager._last_tap_pos = Vector2.ZERO
+	input_manager._handle_touch_lock(Vector2(420, 680))
+	_expect(int(lock_requested.get("count", 0)) == 0, "one touch tap must wait for the deliberate double-tap lock gesture")
+	input_manager._handle_touch_lock(Vector2(426, 684))
+	_expect(int(lock_requested.get("count", 0)) == 1, "a second nearby touch tap must request target lock")
+	_expect((lock_requested.get("pos", Vector2.ZERO) as Vector2).distance_to(Vector2(426, 684)) <= 1.0, "touch lock must use the tapped enemy position")
+
 	input_manager._cancel_aim_press()
 	input_manager.manual_aim_started.disconnect(on_started)
 	input_manager.aim_point.disconnect(on_aimed)
 	input_manager.manual_aim_released.disconnect(on_released)
+	input_manager.target_locked.disconnect(on_lock_requested)
 
 func _verify_targeting_frontline_priority() -> void:
 	var manager := TargetingManager.new()
@@ -1632,6 +2376,21 @@ func _verify_manual_aim_battle_priority(battle: Node) -> void:
 	battle.get_node("EnemyLayer").remove_child(auto_target)
 	auto_target.free()
 
+func _verify_manual_target_lock_battle(battle: Node) -> void:
+	var locked_target := FakeAimTarget.new()
+	locked_target.global_position = Vector2(330, 820)
+	battle.get_node("EnemyLayer").add_child(locked_target)
+	battle.target_manager.clear_lock()
+	battle._on_target_lock_requested(locked_target.global_position + Vector2(8, -6))
+	_expect(battle.target_manager.has_lock(), "touching a zombie with the lock gesture must create a persistent manual target")
+	_expect(battle.target_manager.locked_enemy == locked_target, "manual lock must select the zombie nearest the touched point")
+	battle._update_auto_target()
+	_expect(battle.turret.target_point.distance_to(locked_target.global_position) <= 1.0, "automatic fire must continue aiming at the manually locked zombie")
+	battle._on_target_lock_requested(Vector2(1040, 1840))
+	_expect(not battle.target_manager.has_lock(), "the lock gesture on empty battlefield space must clear manual target lock")
+	battle.get_node("EnemyLayer").remove_child(locked_target)
+	locked_target.free()
+
 func _verify_xp_bar_single_track(battle: Node) -> void:
 	var wave_bar := battle.get_node("Hud/TopBar/WaveProgress") as Control
 	_expect(wave_bar.size.x <= 720.1 and wave_bar.size.x >= 640.0, "top wave progress must be compact, centered, and not span the whole screen")
@@ -1700,10 +2459,19 @@ func _verify_runtime_skill_hints(battle: Node) -> void:
 	var button := battle.get_node("Hud/CharacterSkillButton") as BaseButton
 	button.emit_signal("mouse_entered")
 	await process_frame
-	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill hover must show a readable skill explanation")
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "active skill hover must not cover combat with an unsolicited explanation")
 	button.emit_signal("mouse_exited")
 	await process_frame
-	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "active skill hover exit must hide the explanation")
+	battle._begin_skill_hint_press("character", "")
+	battle.skill_hint_press_started_at -= 0.5
+	battle._process(0.0)
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill long press must show a readable skill explanation")
+	battle._end_skill_hint_press()
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill explanation must stay visible after the long press ends")
+	# Mirror the BaseButton release signal so the one-shot suppression is
+	# consumed before the next independent active-skill regression.
+	battle._on_character_skill_pressed()
+	battle._hide_skill_hint()
 
 	if battle.skills.level("skill_split_shot") <= 0:
 		_expect(battle.skills.add_skill("skill_split_shot"), "skill hint regression must seed a bottom skill slot")
@@ -1714,10 +2482,11 @@ func _verify_runtime_skill_hints(battle: Node) -> void:
 	var slot := slots.get_node("skill_split_shot")
 	slot.emit_signal("mouse_entered")
 	await process_frame
-	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "bottom skill hover must show a readable skill explanation")
-	slot.emit_signal("mouse_exited")
-	await process_frame
-	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "bottom skill hover exit must hide the explanation")
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "owned skill hover must not cover combat before an explicit tap")
+	battle._begin_skill_hint_press("skill", "skill_split_shot")
+	battle._end_skill_hint_press()
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned skill must show a readable skill explanation")
+	battle._hide_skill_hint()
 
 func _verify_wave_toast_wrapping(battle: Node) -> void:
 	var long_tip := "自动开火会优先压制近线威胁，点僵尸可锁定优先击杀。"
@@ -1730,6 +2499,21 @@ func _verify_wave_toast_wrapping(battle: Node) -> void:
 	_expect(label.clip_text, "long wave toast must clip text inside the card bounds")
 	_expect(label.size.x <= banner.size.x - 32.0, "long wave toast label must stay inside the banner bounds")
 	_expect(label.text == long_tip, "long wave toast must preserve the full onboarding copy")
+
+func _verify_boss_hp_hud_layout(battle: Node) -> void:
+	var hud := battle.get_node("Hud/BossHpBar") as Control
+	var label := hud.get_node("Label") as Label
+	var track := hud.get_node("Track") as Control
+	var fill := hud.get_node("Fill") as Control
+	var effective_font := label.get_theme_font_size("font_size")
+	var effective_outline := label.get_theme_constant("outline_size")
+	var required_height := float(effective_font + effective_outline * 2)
+	_expect(label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Boss identity must be vertically centered in its dedicated text band")
+	_expect(label.size.y >= required_height, "Boss identity band must contain the scaled font and outline without clipping")
+	_expect(track.position.y - (label.position.y + label.size.y) >= float(battle.BOSS_HP_LABEL_TRACK_GAP) - 0.1, "Boss identity must keep a 10px clear gap above the HP rail")
+	_expect(not label.get_rect().intersects(track.get_rect()), "Boss identity text box must never overlap the HP rail")
+	_expect(fill.position.y >= track.position.y and fill.position.y + fill.size.y <= track.position.y + track.size.y, "Boss HP fill must remain inside its track")
+	_expect(track.position.y + track.size.y <= hud.size.y, "Boss HP rail must remain inside the shared HUD container")
 
 func _verify_skill_runtime_mods(save_manager: Node) -> void:
 	# SkillRuntime intentionally seeds a newly picked card from the player's
@@ -2031,6 +2815,21 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 		target.elite = true
 		battle.get_node("EnemyLayer").add_child(target)
 		fake_targets.append(target)
+	battle.target_manager.clear_lock()
+	var automatic_target: Node2D = battle.target_manager.choose_target(fake_targets, origin)
+	_expect(automatic_target != null, "automatic targeting must select a live zombie before multi-shot fires")
+	var automatic_direction: Vector2 = (automatic_target.global_position - origin).normalized()
+	for lane_count in range(2, battle.MAX_MULTISHOT_LANES + 1):
+		var automatic_fan: Array[Vector2] = battle._primary_shot_directions(origin, automatic_direction, lane_count, deg_to_rad(18.0))
+		var automatic_lane_hits_target := false
+		for lane_direction in automatic_fan:
+			if absf(lane_direction.angle_to(automatic_direction)) <= 0.001:
+				automatic_lane_hits_target = true
+				break
+		_expect(automatic_lane_hits_target, "automatic %d-lane fire must put at least one real trajectory through the selected zombie" % lane_count)
+		for lane_index in range(1, automatic_fan.size()):
+			var previous_gap := absf(automatic_fan[lane_index - 1].angle_to(automatic_fan[lane_index]))
+			_expect(previous_gap >= deg_to_rad(battle.MULTISHOT_LANE_DEG) - 0.001, "automatic target correction must preserve fixed multi-shot lane spacing")
 	var directions: Array[Vector2] = battle._primary_shot_directions(origin, Vector2.UP, 3, deg_to_rad(18.0))
 	_expect(directions.size() == 3, "multi-shot must return one direction per projectile")
 	for direction in directions:
@@ -2403,32 +3202,79 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 			root.add_child(battle)
 			await process_frame
 			await physics_frame
-			_expect(bool(battle.character_weapon_combo_active), "%s + %s must use fused character/weapon battle art" % [character_key, weapon_key])
-			_expect(battle.character_weapon_sprite == null, "%s + %s must not also mount a floating gun sprite" % [character_key, weapon_key])
-			var combo_texture := (battle.character_sprite as Sprite2D).texture
-			_expect(combo_texture != null, "fused combo texture must exist for %s + %s" % [character_key, weapon_key])
-			var combo_texture_path := str(combo_texture.resource_path)
-			if combo_texture_path != "":
-				_expect(combo_texture_path.contains("/character_weapon_combos/%s/" % character_asset_id), "fused combo texture must be loaded from %s; got %s" % [character_asset_id, combo_texture_path])
-			_expect(battle.character_idle_frames.size() >= 4, "%s + %s must provide idle fused frames" % [character_key, weapon_key])
-			_expect(battle.character_attack_left_frames.size() == 8, "%s + %s must provide the full 8-frame left-aim firing strip" % [character_key, weapon_key])
-			_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
-			_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
-			_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
-			var expected_combo_origin: Vector2 = battle.character_rig.global_position + battle._character_combo_muzzle_for_aim()
-			_expect(battle._weapon_fire_origin().distance_to(expected_combo_origin) <= 1.0, "%s + %s projectile origin must use fused muzzle" % [character_key, weapon_key])
-			battle._set_character_combo_aim_from_direction(Vector2.UP)
-			var expected_combo_center_origin: Vector2 = battle.character_rig.global_position + battle.character_weapon_combo_muzzle
-			battle._set_character_combo_aim_from_direction(Vector2(-0.75, -0.66).normalized())
-			var combo_left_origin: Vector2 = battle._weapon_fire_origin()
-			battle._set_character_combo_aim_from_direction(Vector2(0.75, -0.66).normalized())
-			var combo_right_origin: Vector2 = battle._weapon_fire_origin()
-			_expect(combo_left_origin.x < expected_combo_center_origin.x - 20.0, "%s + %s left-aim muzzle must move left" % [character_key, weapon_key])
-			_expect(combo_right_origin.x > expected_combo_center_origin.x + 20.0, "%s + %s right-aim muzzle must move right" % [character_key, weapon_key])
-			battle._set_character_combo_aim_from_direction(Vector2.UP)
-			battle._play_character_attack()
-			_expect(battle.character_anim_frame == 1, "%s + %s real fire must bind to authored F2 ignition" % [character_key, weapon_key])
-			_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "%s + %s ignition texture must be visible at real fire contact" % [character_key, weapon_key])
+			if weapon_key.begins_with("weapon_apocalypse_"):
+				_expect(bool(battle.character_weapon_combo_active), "%s + %s must use the approved true-grip fused battle model" % [character_key, weapon_key])
+				_expect(battle.character_weapon_sprite == null, "%s + %s must not mount a second floating cannon layer" % [character_key, weapon_key])
+				var apocalypse_texture := (battle.character_sprite as Sprite2D).texture
+				_expect(apocalypse_texture != null, "%s + %s true-grip battle texture must exist" % [character_key, weapon_key])
+				var apocalypse_path := str(apocalypse_texture.resource_path)
+				var true_grip: Dictionary = row.get("presentation", {}).get("true_grip", {})
+				var true_grip_root := str(true_grip.get("root", ""))
+				_expect(true_grip_root != "", "%s must declare its true-grip runtime root" % weapon_key)
+				_expect(apocalypse_path.begins_with(true_grip_root + "/%s_apocalypse_" % character_asset_id), "%s + %s must load the premium true-grip runtime model; got %s" % [character_key, weapon_key, apocalypse_path])
+				if weapon_key in ["weapon_apocalypse_inferno", "weapon_apocalypse_absolute_zero"]:
+					_expect(str(true_grip.get("viewpoint", "")) == "rear", "%s battle models must explicitly preserve the rear-view battlefield camera" % weapon_key)
+				_expect(battle.character_idle_frames.size() == 4, "%s + %s must provide four rig-driven idle beats" % [character_key, weapon_key])
+				_expect(battle.character_attack_left_frames.size() == 8, "%s + %s must provide eight left-aim firing beats" % [character_key, weapon_key])
+				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide eight center firing beats" % [character_key, weapon_key])
+				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide eight right-aim firing beats" % [character_key, weapon_key])
+				_expect(battle.character_hurt_frames.size() == 3, "%s + %s must provide three rig-driven hurt beats" % [character_key, weapon_key])
+				for apocalypse_frame in [battle.character_attack_left_frames[0], battle.character_attack_frames[0], battle.character_attack_right_frames[0]]:
+					_expect((apocalypse_frame as Texture2D).get_size() == Vector2(380, 520), "%s + %s true-grip direction masters must preserve the 380x520 battle contract" % [character_key, weapon_key])
+				for body_pose in ["left", "center", "right"]:
+					var body_metric: Dictionary = battle._character_body_metric(body_pose)
+					var body_scale: float = battle._character_body_sprite_scale(body_pose)
+					var effective_body_height: float = float(body_metric.get("body_height_px", 0.0)) * body_scale * float(battle.CHARACTER_PRESENTATION_SCALE)
+					var expected_body_height: float = float(battle._character_body_target_height()) * float(battle.CHARACTER_VISUAL_BASE_SCALE) * float(battle.CHARACTER_PRESENTATION_SCALE)
+					_expect(absf(effective_body_height - expected_body_height) <= 0.01, "%s + %s %s body height must normalize independently of gun/effects" % [character_key, weapon_key, body_pose])
+					var body_anchor: Vector2 = battle._character_body_anchor_offset(body_pose, body_scale)
+					var body_foot_local := body_anchor.y + (float(body_metric.get("foot_y_px", 260.0)) - 260.0) * body_scale
+					_expect(absf(body_foot_local - battle._character_body_target_foot_offset()) <= 0.01, "%s + %s %s boots must share the global foot line" % [character_key, weapon_key, body_pose])
+				battle._set_character_combo_aim_from_direction(Vector2.UP)
+				var apocalypse_center_origin: Vector2 = battle.character_rig.to_global(battle._character_combo_muzzle_for_aim())
+				battle._set_character_combo_aim_from_direction(Vector2(-0.62, -0.78))
+				var apocalypse_left_origin: Vector2 = battle._weapon_fire_origin()
+				battle._set_character_combo_aim_from_direction(Vector2(0.62, -0.78))
+				var apocalypse_right_origin: Vector2 = battle._weapon_fire_origin()
+				_expect(apocalypse_left_origin.x < apocalypse_center_origin.x - 45.0, "%s + %s left muzzle must follow the rendered cannon" % [character_key, weapon_key])
+				_expect(apocalypse_right_origin.x > apocalypse_center_origin.x + 45.0, "%s + %s right muzzle must follow the rendered cannon" % [character_key, weapon_key])
+				battle._set_character_combo_aim_from_direction(Vector2.UP)
+				battle._play_character_attack()
+				_expect(battle.character_anim_frame == 1, "%s + %s real fire must start on the authored ignition beat" % [character_key, weapon_key])
+				_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "%s + %s ignition beat must keep the true-grip model visible" % [character_key, weapon_key])
+			else:
+				_expect(bool(battle.character_weapon_combo_active), "%s + %s must use fused character/weapon battle art" % [character_key, weapon_key])
+				_expect(battle.character_weapon_sprite == null, "%s + %s must not also mount a floating gun sprite" % [character_key, weapon_key])
+				var combo_texture := (battle.character_sprite as Sprite2D).texture
+				_expect(combo_texture != null, "fused combo texture must exist for %s + %s" % [character_key, weapon_key])
+				var combo_texture_path := str(combo_texture.resource_path)
+				if combo_texture_path != "":
+					_expect(combo_texture_path.contains("/character_weapon_combos/%s/" % character_asset_id), "fused combo texture must be loaded from %s; got %s" % [character_asset_id, combo_texture_path])
+				_expect(battle.character_idle_frames.size() >= 4, "%s + %s must provide idle fused frames" % [character_key, weapon_key])
+				_expect(battle.character_attack_left_frames.size() == 8, "%s + %s must provide the full 8-frame left-aim firing strip" % [character_key, weapon_key])
+				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
+				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
+				_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
+				for body_pose in ["idle", "hurt", "left", "center", "right"]:
+					var body_metric: Dictionary = battle._character_body_metric(body_pose)
+					var body_scale: float = battle._character_body_sprite_scale(body_pose)
+					var effective_body_height: float = float(body_metric.get("body_height_px", 0.0)) * body_scale * float(battle.CHARACTER_PRESENTATION_SCALE)
+					var expected_body_height: float = float(battle._character_body_target_height()) * float(battle.CHARACTER_VISUAL_BASE_SCALE) * float(battle.CHARACTER_PRESENTATION_SCALE)
+					_expect(absf(effective_body_height - expected_body_height) <= 0.01, "%s + %s %s standard body height must stay global" % [character_key, weapon_key, body_pose])
+				var expected_combo_origin: Vector2 = battle.character_rig.to_global(battle._character_combo_muzzle_for_aim())
+				_expect(battle._weapon_fire_origin().distance_to(expected_combo_origin) <= 1.0, "%s + %s projectile origin must use fused muzzle" % [character_key, weapon_key])
+				battle._set_character_combo_aim_from_direction(Vector2.UP)
+				var expected_combo_center_origin: Vector2 = battle.character_rig.to_global(battle._character_combo_muzzle_for_aim())
+				battle._set_character_combo_aim_from_direction(Vector2(-0.75, -0.66).normalized())
+				var combo_left_origin: Vector2 = battle._weapon_fire_origin()
+				battle._set_character_combo_aim_from_direction(Vector2(0.75, -0.66).normalized())
+				var combo_right_origin: Vector2 = battle._weapon_fire_origin()
+				_expect(combo_left_origin.x < expected_combo_center_origin.x - 20.0, "%s + %s left-aim muzzle must move left" % [character_key, weapon_key])
+				_expect(combo_right_origin.x > expected_combo_center_origin.x + 20.0, "%s + %s right-aim muzzle must move right" % [character_key, weapon_key])
+				battle._set_character_combo_aim_from_direction(Vector2.UP)
+				battle._play_character_attack()
+				_expect(battle.character_anim_frame == 1, "%s + %s real fire must bind to authored F2 ignition" % [character_key, weapon_key])
+				_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "%s + %s ignition texture must be visible at real fire contact" % [character_key, weapon_key])
 			battle.queue_free()
 			await process_frame
 	save_manager.save_data = original_save
@@ -2616,6 +3462,27 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		await process_frame
 		_expect(root.gui_get_hovered_control() == button, "%s active skill button must be the hovered control at its visual center" % character_key)
 		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from real mouse/touch click" % character_key)
+		_expect(not button.disabled, "%s cooling active skill must remain tappable for its description" % character_key)
+		var cast_count_after_ready_tap := int(battle.battle_active_skill_casts)
+		var cooldown_after_ready_tap := float(battle.character_active_cd)
+		battle._on_character_skill_pressed()
+		await process_frame
+		_expect(battle.has_node("Hud/SkillHintOverlay") and battle.get_node("Hud/SkillHintOverlay").visible, "%s second tap during cooldown must show the active-skill description" % character_key)
+		_expect(int(battle.battle_active_skill_casts) == cast_count_after_ready_tap, "%s cooldown inspect tap must not cast again" % character_key)
+		_expect(float(battle.character_active_cd) <= cooldown_after_ready_tap and float(battle.character_active_cd) > 0.0, "%s cooldown inspect tap must not reset the cooldown" % character_key)
+		battle.character_active_cd = 0.0
+		battle._update_character_skill_button()
+		battle._hide_skill_hint()
+		battle._begin_skill_hint_press("character", "")
+		battle.skill_hint_press_started_at -= 0.5
+		battle._process(0.0)
+		_expect(battle.skill_hint_long_press_opened, "%s active-skill long press must cross the inspect threshold" % character_key)
+		_expect(battle.get_node("Hud/SkillHintOverlay").visible, "%s active-skill long press must show its description" % character_key)
+		battle._end_skill_hint_press()
+		battle._on_character_skill_pressed()
+		_expect(int(battle.battle_active_skill_casts) == cast_count_after_ready_tap, "%s active-skill long press release must never cast" % character_key)
+		_expect(is_zero_approx(float(battle.character_active_cd)), "%s active-skill long press release must leave a ready skill ready" % character_key)
+		_expect(battle.get_node("Hud/SkillHintOverlay").visible, "%s active-skill long-press description must remain readable after release" % character_key)
 		battle.queue_free()
 		await process_frame
 	save_manager.save_data = original_save
@@ -2684,17 +3551,39 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	await process_frame
 	await physics_frame
 	var slots := battle.get_node("Hud/SkillSlots")
-	_expect(slots is GridContainer, "battle skill slots must use the compact lower-left grid")
+	_expect(slots is GridContainer, "battle skill slots must use the lower-left wrapping dock")
 	_expect(slots.get_child_count() == 1, "tesla weapon seed must create exactly one skill slot")
 	_expect(slots.has_node("skill_tesla"), "tesla weapon seed must use the tesla skill slot")
+	_expect(is_equal_approx(slots.anchor_left, 0.0) and is_equal_approx(slots.anchor_right, 0.0), "skill dock must be bounded to the left half instead of anchored across the viewport")
+	_expect(slots.offset_right <= 540.0 and slots.size.x <= 522.0, "skill dock must occupy no more than the left half of the 1080px canvas")
+	_expect(absf(slots.offset_bottom - 1808.0) <= 0.1, "single-row skill dock must bottom-align with the active skill")
+	_expect(slots.size.y >= 120.0 and slots.size.y <= 132.0, "single-row skill dock must use the enlarged mobile-readable row; got %.1f" % slots.size.y)
 	var slot := slots.get_node("skill_tesla")
 	_expect(slot.has_node("HBox/LevelBadge"), "tesla slot must expose a level badge")
 	_expect((slot.get_node("HBox/LevelBadge") as Label).text == "等级1", "tesla seed must start at level 1")
+	_expect((slot as Control).custom_minimum_size == Vector2(96, 120), "HUD skill card must match the enlarged touch/readability target")
+	_expect((slot.get_node("HBox/IconBox/Icon") as TextureRect).custom_minimum_size == Vector2(66, 66), "HUD skill icon must be large enough to identify on a phone")
+	_expect((slot.get_node("HBox/LevelBadge") as Label).get_theme_font_size("font_size") >= 23, "HUD skill level must use the new mobile-readable size")
+	battle._begin_skill_hint_press("skill", "skill_tesla")
+	battle._end_skill_hint_press()
+	_expect(battle.has_node("Hud/SkillHintOverlay") and battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned HUD skill must open its detail hint")
+	battle._hide_skill_hint()
 	_expect(battle.skills.add_skill("skill_tesla"), "adding tesla once must upgrade the existing slot")
 	battle._update_skill_slots()
 	await process_frame
 	_expect(slots.get_child_count() == 1, "upgrading tesla must not add a duplicate slot")
 	_expect((slot.get_node("HBox/LevelBadge") as Label).text == "等级2", "upgrading tesla must display level 2 on the existing slot")
+	for skill_id in ["skill_split_shot", "skill_pierce", "skill_multishot", "skill_slow_field", "skill_homing"]:
+		_expect(battle.skills.add_skill(skill_id), "%s must be addable for HUD wrap regression" % skill_id)
+	battle._update_skill_slots()
+	await process_frame
+	await process_frame
+	_expect(slots.get_child_count() == 6, "six owned skills must produce six distinct HUD cards")
+	_expect((slots as GridContainer).columns == 5, "skill dock must wrap after five cards")
+	_expect(slots.size.y >= 248.0 and slots.size.y <= 264.0, "six skills must wrap to two enlarged rows; got %.1f" % slots.size.y)
+	var first_card := slots.get_child(0) as Control
+	var sixth_card := slots.get_child(5) as Control
+	_expect(sixth_card.position.y >= first_card.position.y + 120.0, "sixth skill must wrap below the first row without overlap")
 	battle.queue_free()
 	save_manager.save_data = original_save
 	router.queue_free()
@@ -3061,16 +3950,25 @@ func _verify_progression_unlock_repair(save_manager: Node) -> void:
 
 func _verify_battle_speed_progression_gate(save_manager: Node) -> void:
 	var settings_manager := root.get_node("/root/SettingsManager")
+	var internal_test_override := bool(settings_manager.is_testflight_speed_unlocked())
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var original_settings: Dictionary = settings_manager.settings.duplicate(true)
 	var router := FakeRouter.new()
 	root.add_child(router)
 
-	var tiers := [
-		{"level": 29, "expected_speed": 1.0, "visible": false},
-		{"level": 30, "expected_speed": 2.0, "visible": true},
-		{"level": 50, "expected_speed": 5.0, "visible": true},
-	]
+	var tiers := (
+		[
+			{"level": 1, "expected_speed": 5.0, "visible": true},
+			{"level": 29, "expected_speed": 5.0, "visible": true},
+			{"level": 50, "expected_speed": 5.0, "visible": true},
+		]
+		if internal_test_override
+		else [
+			{"level": 29, "expected_speed": 1.0, "visible": false},
+			{"level": 30, "expected_speed": 2.0, "visible": true},
+			{"level": 50, "expected_speed": 5.0, "visible": true},
+		]
+	)
 	for tier in tiers:
 		var highest_level := int(tier["level"])
 		var test_save: Dictionary = _battle_smoke_loadout(original_save)
@@ -3090,6 +3988,13 @@ func _verify_battle_speed_progression_gate(save_manager: Node) -> void:
 		_expect(battle.battle_speed_progress_level == highest_level, "battle speed gate must use highest unlocked campaign level %d" % highest_level)
 		_expect(is_equal_approx(float(battle.battle_speed), float(tier["expected_speed"])), "level %d speed gate must clamp stale 5X to %.0fX" % [highest_level, float(tier["expected_speed"])])
 		_expect(speed_button.visible == bool(tier["visible"]), "speed button visibility must match level %d unlock tier" % highest_level)
+		if internal_test_override and highest_level == 1:
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 1.0), "internal TestFlight speed button must wrap from 5X to 1X at level 1")
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 2.0), "internal TestFlight speed button must expose 2X at level 1")
+			battle._cycle_battle_speed()
+			_expect(is_equal_approx(float(battle.battle_speed), 5.0), "internal TestFlight speed button must expose 5X at level 1")
 		if highest_level == 30:
 			battle._cycle_battle_speed()
 			_expect(is_equal_approx(float(battle.battle_speed), 1.0), "level 30 speed button must wrap from 2X to 1X without exposing 5X")

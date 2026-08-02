@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,7 @@ from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
 COMBO_ROOT = ROOT / "assets" / "production" / "sprites" / "animations" / "character_weapon_combos"
+BATTLE_SCRIPT = ROOT / "gameplay" / "battle" / "battle.gd"
 MANIFEST_PATH = (
     ROOT
     / "assets"
@@ -35,6 +37,11 @@ AIM_VECTORS = {
     "attack": (0.30, -0.954),
     "attack_right": (0.56, -0.83),
 }
+TRUE_GRIP_PATTERN_KEY = {
+    "attack_left": "left_pattern",
+    "attack": "center_pattern",
+    "attack_right": "right_pattern",
+}
 
 
 def changed_pixels(left: Image.Image, right: Image.Image) -> int:
@@ -48,6 +55,41 @@ def alpha_metrics(image: Image.Image) -> tuple[float, float, int, tuple[int, int
     if len(xs) == 0:
         return 0.0, 0.0, 0, None
     return float(xs.mean()), float(ys.mean()), int(len(xs)), image.getchannel("A").getbbox()
+
+
+def check_premium_runtime_motion(errors: list[str], weapons: dict) -> None:
+    """Guard the rig-driven temporal motion used by the three true-grip masters."""
+    text = BATTLE_SCRIPT.read_text(encoding="utf-8")
+    curve_match = re.search(
+        r"CHARACTER_WEAPON_ACTION_RECOIL_CURVE\s*:=\s*\[([^\]]+)\]", text
+    )
+    if curve_match is None:
+        errors.append("premium runtime recoil curve is missing")
+    else:
+        try:
+            curve = [
+                float(value.strip())
+                for value in curve_match.group(1).split(",")
+                if value.strip()
+            ]
+        except ValueError:
+            curve = []
+        if len(curve) != FRAME_COUNT:
+            errors.append(f"premium runtime recoil curve must have {FRAME_COUNT} beats")
+        elif min(curve) > -0.30 or max(curve) < 0.95:
+            errors.append(
+                f"premium runtime recoil curve lacks anticipation/peak motion: {curve}"
+            )
+    for weapon_id, weapon in weapons.items():
+        presentation = weapon.get("presentation", {})
+        if not presentation.get("true_grip"):
+            continue
+        for key, minimum in (("recoil_accent", 0.40), ("recoil_twist", 1.0)):
+            value = float(presentation.get(key, 0.0))
+            if value < minimum:
+                errors.append(
+                    f"{weapon_id}.presentation.{key} must remain >= {minimum:.2f}"
+                )
 
 
 def main() -> int:
@@ -66,11 +108,71 @@ def main() -> int:
     action_aim = {"attack_left": "left", "attack": "center", "attack_right": "right"}
     checked = 0
     weakest_motion: tuple[int, str] | None = None
+    check_premium_runtime_motion(errors, weapons)
 
     for character_id in sorted(characters):
         asset_id = f"char_{character_id}"
         directory = COMBO_ROOT / asset_id
         for weapon_id in sorted(weapons):
+            grip = weapons[weapon_id].get("presentation", {}).get("true_grip", {})
+            if grip:
+                direction_frames: dict[str, Image.Image] = {}
+                root = ROOT / str(grip.get("root", "")).removeprefix("res://")
+                for action in ACTIONS:
+                    filename = str(grip.get(TRUE_GRIP_PATTERN_KEY[action], "")).replace(
+                        "{character_id}", asset_id
+                    )
+                    path = root / filename
+                    sequence_name = f"{asset_id}/{weapon_id}/{action}"
+                    if not path.exists():
+                        errors.append(
+                            "missing premium true-grip master: "
+                            f"{path.relative_to(ROOT)}"
+                        )
+                        continue
+                    with Image.open(path) as source:
+                        frame = source.convert("RGBA")
+                    metric = alpha_metrics(frame)
+                    bbox = metric[3]
+                    if bbox is None:
+                        errors.append(f"{sequence_name} true-grip master is empty")
+                    else:
+                        left, top, right, bottom = bbox
+                        margin = min(
+                            left,
+                            top,
+                            frame.width - right,
+                            frame.height - bottom,
+                        )
+                        if margin < SAFE_MARGIN:
+                            errors.append(
+                                f"{sequence_name} violates {SAFE_MARGIN}px alpha "
+                                f"safe margin: bbox={bbox}"
+                            )
+                    direction_frames[action] = frame
+                    checked += 1
+                if len(direction_frames) == len(ACTIONS):
+                    for first, second in (
+                        ("attack_left", "attack"),
+                        ("attack", "attack_right"),
+                    ):
+                        changed = changed_pixels(
+                            direction_frames[first], direction_frames[second]
+                        )
+                        sequence_name = (
+                            f"{asset_id}/{weapon_id}/{first}->{second}"
+                        )
+                        if weakest_motion is None or changed < weakest_motion[0]:
+                            weakest_motion = (changed, sequence_name)
+                        if changed < MIN_ADJACENT_CHANGED_PIXELS:
+                            errors.append(
+                                f"{sequence_name} directional masters are too "
+                                f"similar: {changed} changed pixels"
+                            )
+                # One approved raster master per direction preserves exact
+                # two-hand contact. Temporal anticipation/recoil/recovery is
+                # applied by the guarded eight-beat runtime rig above.
+                continue
             for action in ACTIONS:
                 paths = [
                     directory / f"{asset_id}_{weapon_id}_{action}_{index:02d}.png"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from PIL import Image, ImageChops
@@ -9,7 +10,7 @@ from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SPRITE_DIRS = [
+BASE_SPRITE_DIRS = [
     ROOT / "assets/production/sprites/animations/characters",
     ROOT / "assets/production/sprites/animations/character_weapon_combos",
     ROOT / "assets/production/sprites/weapons/handheld",
@@ -30,6 +31,10 @@ CHARACTER_ASSET_IDS = {
     "frost": "char_frost",
     "volt": "char_volt",
 }
+
+
+def res_path(value: str) -> Path:
+    return ROOT / value.removeprefix("res://")
 
 
 def is_green_key_pixel(r: int, g: int, b: int, a: int) -> bool:
@@ -97,6 +102,54 @@ def analyze_image(path: Path) -> list[str]:
     return errors
 
 
+def lower_body_ground_span(image: Image.Image) -> int:
+    """Return the visible X span in the lowest 8% of an alpha silhouette."""
+    alpha = image.convert("RGBA").getchannel("A")
+    bbox = alpha.getbbox()
+    if bbox is None:
+        return 0
+    left, top, right, bottom = bbox
+    lower_top = top + round((bottom - top) * 0.92)
+    pixels = alpha.load()
+    occupied_x = [
+        x
+        for x in range(left, right)
+        if any(pixels[x, y] > 24 for y in range(lower_top, bottom))
+    ]
+    return occupied_x[-1] - occupied_x[0] + 1 if occupied_x else 0
+
+
+def neon_cannon_rise(image: Image.Image) -> tuple[float, float]:
+    """Return the signed neon barrel slope and its absolute angle in degrees."""
+    frame = image.convert("RGBA")
+    bbox = frame.getchannel("A").getbbox()
+    if bbox is None:
+        return 0.0, 0.0
+    left, top, right, bottom = bbox
+    pixels = frame.load()
+    points: list[tuple[int, int]] = []
+    upper_bottom = top + round((bottom - top) * 0.45)
+    for y in range(top, upper_bottom):
+        for x in range(left, right):
+            red, green, blue, alpha = pixels[x, y]
+            if (
+                alpha > 100
+                and blue > 125
+                and blue > red * 1.18
+                and green > red * 1.02
+            ):
+                points.append((x, y))
+    if len(points) < 100:
+        return 0.0, 0.0
+    mean_x = sum(x for x, _ in points) / len(points)
+    mean_y = sum(y for _, y in points) / len(points)
+    denominator = sum((x - mean_x) ** 2 for x, _ in points)
+    if denominator <= 0:
+        return 0.0, 0.0
+    slope = sum((x - mean_x) * (y - mean_y) for x, y in points) / denominator
+    return slope, abs(math.degrees(math.atan(slope)))
+
+
 def check_combo_coverage() -> list[str]:
     errors: list[str] = []
     characters = json.loads((ROOT / "data/characters.json").read_text(encoding="utf-8"))
@@ -105,6 +158,71 @@ def check_combo_coverage() -> list[str]:
     for character_id in sorted(characters.keys()):
         asset_id = CHARACTER_ASSET_IDS.get(character_id, f"char_{character_id}")
         for weapon_id in sorted(weapons.keys()):
+            weapon = weapons[weapon_id]
+            grip = weapon.get("presentation", {}).get("true_grip", {})
+            if grip:
+                true_grip_frames: dict[str, Image.Image] = {}
+                root = res_path(str(grip.get("root", "")))
+                expected_size = tuple(grip.get("size", []))
+                for direction, pattern_key in (
+                    ("left", "left_pattern"),
+                    ("center", "center_pattern"),
+                    ("right", "right_pattern"),
+                ):
+                    filename = str(grip.get(pattern_key, "")).replace(
+                        "{character_id}", asset_id
+                    )
+                    path = root / filename
+                    if not path.exists():
+                        errors.append(
+                            "missing premium true-grip master: "
+                            f"{path.relative_to(ROOT)}"
+                        )
+                        continue
+                    with Image.open(path) as source:
+                        frame = source.convert("RGBA")
+                    if len(expected_size) == 2 and frame.size != expected_size:
+                        errors.append(
+                            "premium true-grip master has wrong size: "
+                            f"{path.relative_to(ROOT)}={frame.size}, "
+                            f"expected={expected_size}"
+                        )
+                    true_grip_frames[direction] = frame
+                if len(true_grip_frames) == 3:
+                    for first, second in (("left", "center"), ("center", "right")):
+                        diff = ImageChops.difference(
+                            true_grip_frames[first], true_grip_frames[second]
+                        )
+                        changed = sum(
+                            1 for pixel in diff.getdata() if max(pixel) > 24
+                        )
+                        if changed < MIN_ATTACK_POSE_CHANGED_PIXELS:
+                            errors.append(
+                                "premium directional true-grip poses are too "
+                                f"similar for {asset_id}/{weapon_id}: "
+                                f"{first}/{second} changed_pixels={changed}"
+                            )
+                    if asset_id == "char_frost" and weapon_id == "weapon_apocalypse_golden_law":
+                        for direction, frame in true_grip_frames.items():
+                            ground_span = lower_body_ground_span(frame)
+                            if ground_span < 150:
+                                errors.append(
+                                    "Gilded Frost true-grip lost one or both complete legs/boots: "
+                                    f"{direction} lower_body_span={ground_span}px"
+                                )
+                    if asset_id == "char_blaze" and weapon_id == "weapon_apocalypse_thunder":
+                        for direction, expected_sign in (("left", 1.0), ("right", -1.0)):
+                            slope, rise = neon_cannon_rise(true_grip_frames[direction])
+                            if rise < 35.0 or slope * expected_sign <= 0.0:
+                                errors.append(
+                                    "Neon Blaze side cannon must aim into the upper portrait corridor: "
+                                    f"{direction} slope={slope:.3f} rise={rise:.1f}deg"
+                                )
+                # This signature weapon intentionally uses one approved,
+                # two-hand-contact master per direction. Runtime rig breathing,
+                # recoil and hurt impulses provide the animation beats while
+                # preserving the exact grip; see battle._load_premium_true_grip_frames.
+                continue
             for action, count in COMBO_FRAME_COUNTS.items():
                 for index in range(1, count + 1):
                     path = combo_root / asset_id / f"{asset_id}_{weapon_id}_{action}_{index:02d}.png"
@@ -135,7 +253,15 @@ def check_combo_coverage() -> list[str]:
 def main() -> int:
     errors: list[str] = []
     checked = 0
-    for directory in SPRITE_DIRS:
+    weapons = json.loads((ROOT / "data/weapons.json").read_text(encoding="utf-8"))
+    sprite_dirs = list(BASE_SPRITE_DIRS)
+    for weapon in weapons.values():
+        root = str(weapon.get("presentation", {}).get("true_grip", {}).get("root", ""))
+        if root:
+            directory = res_path(root)
+            if directory not in sprite_dirs:
+                sprite_dirs.append(directory)
+    for directory in sprite_dirs:
         if not directory.exists():
             errors.append(f"missing visual asset directory: {directory.relative_to(ROOT)}")
             continue

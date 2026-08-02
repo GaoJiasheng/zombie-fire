@@ -131,11 +131,23 @@ Legacy compatibility env IDs remain accepted in `environments.json` as fallbacks
 
 ### 全局视觉主题 `theme`
 
-`default` 默认末日防线 ｜ `neon_tempest` 霓虹雷暴
+`default` 默认末日防线 ｜ `neon_tempest` 霓虹雷暴 ｜ `infernal_dominion` 炼狱赤焰 ｜ `polar_aurora` 极地极光。新增主题沿用 `<visual_identity>` 小写 snake_case，并在 `themes.json` 独立声明表现 profile。
+
+### 永久权益 / 商品 / 终焉套装
+
+- entitlement：`ent_<scope>_<series>`，例如 `ent_theme_neon_tempest`、`ent_arsenal_thunder`、`ent_theme_infernal_dominion`、`ent_arsenal_inferno`。
+- 商品 ID：反向域名 + 类别 + 系列 / 状态，例如 `com.gaojiasheng.zombiefire.arsenal.thunder_complete`。
+- 终焉装备：`<slot>_apocalypse_<series>`，例如 `weapon_apocalypse_thunder`、`weapon_apocalypse_inferno`、`chip_apocalypse_superconductive`。
+- 套装：`set_apocalypse_<series>`，例如 `set_apocalypse_thunder`、`set_apocalypse_inferno`。
+- 系列路由：稳定的 `series_id` 使用元素/系列短名（如 `thunder`）；商品、主题、套装可拥有不同完整 ID，但必须通过该字段关联，禁止靠字符串截取推断。
+- 表现分发：`effects.profile / visual_profile / effect_profile` 使用 `<series>[_<role>]`，只描述运行时表现实现，不兼任商品或权益 ID。
+- 本地验收收据必须使用 `local_mock` 来源，不得命名成 `verified`、`storekit` 或 Apple receipt。
 
 主题运行时按钮命名为
 `assets/production/sprites/themes/<theme_id>/ui/ui_button_<primary|secondary>_native_<width>x<height>.png`。
 每个宽高族必须有独立结构源或等比完整模型；禁止把一张长按钮横向拉成短按钮，运行时统一使用 keep-aspect。
+
+付费战斗握持图使用 `.../premium/<theme_id>/true_grip/char_<hero>_apocalypse_attack[_left|_right].png`。竖屏底部防线中的角色必须是背面 / 后三分之四视角；正面母版只允许用于商店、收藏和配装展示，不得混入战斗序列。
 
 ### 局内资源 / 目标策略
 `reroll_charge` 刷新点

@@ -13,10 +13,13 @@ TABLES = [
     "economy",
     "challenges",
     "characters",
+    "character_body_metrics",
     "weapons",
     "armors",
     "chips",
     "pets",
+    "store_products",
+    "premium_sets",
     "zombies",
     "bosses",
     "skills",
@@ -199,6 +202,64 @@ def main() -> int:
                 errors.append(f"{char_id}.bullet_affinity.chain_overflow_reference must be >= 0")
         check_asset(errors, char_id, row, ["portrait"])
 
+    body_metrics = tables["character_body_metrics"]
+    if not isinstance(body_metrics, dict):
+        errors.append("character_body_metrics.json must be an object")
+    else:
+        if body_metrics.get("canvas_size") != [380, 520]:
+            errors.append("character_body_metrics.canvas_size must stay [380, 520]")
+        target_height = float(body_metrics.get("target_body_height_px", 0.0))
+        target_foot = float(body_metrics.get("target_foot_offset_px", 0.0))
+        if not 360.0 <= target_height <= 460.0:
+            errors.append("character_body_metrics.target_body_height_px must stay in [360, 460]")
+        if not 90.0 <= target_foot <= 140.0:
+            errors.append("character_body_metrics.target_foot_offset_px must stay in [90, 140]")
+        profiles = body_metrics.get("profiles", {})
+        if not isinstance(profiles, dict):
+            errors.append("character_body_metrics.profiles must be an object")
+            profiles = {}
+        expected_characters = {f"char_{character_id}" for character_id in tables["characters"]}
+        expected_profiles = {"standard"}
+        expected_profiles.update(
+            weapon_id
+            for weapon_id, weapon in tables["weapons"].items()
+            if weapon.get("presentation", {}).get("true_grip")
+        )
+        if set(profiles) != expected_profiles:
+            errors.append(
+                "character_body_metrics.profiles must match standard + every true-grip weapon: "
+                f"got={sorted(profiles)} expected={sorted(expected_profiles)}"
+            )
+        for profile_id, profile in profiles.items():
+            if not isinstance(profile, dict):
+                errors.append(f"character_body_metrics.{profile_id} must be an object")
+                continue
+            if set(profile) != expected_characters:
+                errors.append(
+                    f"character_body_metrics.{profile_id} must cover all characters exactly"
+                )
+            required_poses = {"idle", "hurt", "left", "center", "right"} if profile_id == "standard" else {"left", "center", "right"}
+            for character_asset_id, poses in profile.items():
+                if not isinstance(poses, dict) or not required_poses.issubset(poses):
+                    errors.append(
+                        f"character_body_metrics.{profile_id}.{character_asset_id} missing poses: "
+                        f"{sorted(required_poses - set(poses if isinstance(poses, dict) else {}))}"
+                    )
+                    continue
+                for pose, metric in poses.items():
+                    if not isinstance(metric, dict):
+                        errors.append(f"character_body_metrics.{profile_id}.{character_asset_id}.{pose} must be an object")
+                        continue
+                    height = float(metric.get("body_height_px", 0.0))
+                    foot_y = float(metric.get("foot_y_px", -1.0))
+                    center_x = float(metric.get("body_center_x_px", -1.0))
+                    if not 280.0 <= height <= 480.0:
+                        errors.append(f"character body height out of range: {profile_id}/{character_asset_id}/{pose}={height}")
+                    if not 400.0 <= foot_y <= 515.0:
+                        errors.append(f"character foot anchor out of range: {profile_id}/{character_asset_id}/{pose}={foot_y}")
+                    if not 130.0 <= center_x <= 250.0:
+                        errors.append(f"character center anchor out of range: {profile_id}/{character_asset_id}/{pose}={center_x}")
+
     for weapon_id, row in tables["weapons"].items():
         if row.get("element") not in elements:
             errors.append(f"{weapon_id}.element unknown: {row.get('element')}")
@@ -222,12 +283,12 @@ def main() -> int:
             errors.append(f"{pet_id}.pet_skill missing")
             pet_skill = {}
         skill_kind = str(pet_skill.get("kind", ""))
-        allowed_skill_kinds = {"overclock", "area_blast", "multi_strike", "repair", "wave_salvage"}
+        allowed_skill_kinds = {"overclock", "area_blast", "multi_strike", "fire_flyby", "golden_mark", "repair", "wave_salvage"}
         if skill_kind not in allowed_skill_kinds:
             errors.append(f"{pet_id}.pet_skill.kind unknown: {skill_kind}")
         if not str(pet_skill.get("id", "")).strip() or not str(pet_skill.get("name", "")).strip():
             errors.append(f"{pet_id}.pet_skill requires non-empty id and name")
-        if skill_kind in {"overclock", "area_blast", "multi_strike"}:
+        if skill_kind in {"overclock", "area_blast", "multi_strike", "fire_flyby", "golden_mark"}:
             cooldown = float(pet_skill.get("cooldown", 0.0))
             if not 8.0 <= cooldown <= 30.0:
                 errors.append(f"{pet_id}.pet_skill.cooldown must be in [8, 30]")
@@ -250,6 +311,15 @@ def main() -> int:
                 errors.append(f"{pet_id}.pet_skill.extra_target_every must be >= 1")
             if not 0.55 <= float(pet_skill.get("target_falloff", 0.0)) <= 1.0:
                 errors.append(f"{pet_id}.pet_skill.target_falloff must be in [0.55, 1]")
+        elif skill_kind == "golden_mark":
+            if float(pet_skill.get("damage_mult", 0.0)) <= 0.0:
+                errors.append(f"{pet_id}.pet_skill.damage_mult must be positive")
+            if float(pet_skill.get("mark_duration", 0.0)) <= 0.0:
+                errors.append(f"{pet_id}.pet_skill.mark_duration must be positive")
+            if not 0.0 < float(pet_skill.get("mark_damage_amp", 0.0)) <= 0.5:
+                errors.append(f"{pet_id}.pet_skill.mark_damage_amp must be in (0, 0.5]")
+            if not 0.0 < float(pet_skill.get("repair_ratio", 0.0)) <= 0.1:
+                errors.append(f"{pet_id}.pet_skill.repair_ratio must be in (0, 0.1]")
         elif skill_kind == "wave_salvage":
             if float(pet_skill.get("kill_equivalent", 0.0)) <= 0.0:
                 errors.append(f"{pet_id}.pet_skill.kill_equivalent must be positive")
@@ -296,6 +366,24 @@ def main() -> int:
     for table_name, table in collection_tables.items():
         paid_prices = []
         for item_id, row in table.items():
+            store_region = row.get("store_preview_region")
+            if store_region is not None:
+                if (
+                    not isinstance(store_region, list)
+                    or len(store_region) != 4
+                    or any(not isinstance(value, (int, float)) for value in store_region)
+                    or store_region[0] < 0
+                    or store_region[1] < 0
+                    or store_region[2] <= 0
+                    or store_region[3] <= 0
+                ):
+                    errors.append(
+                        f"{item_id}.store_preview_region must be [x,y,w,h] with a non-negative origin and positive size"
+                    )
+            if str(row.get("premium_entitlement", "")).strip():
+                if int(row.get("unlock_cost_star", -1)) < 999999:
+                    errors.append(f"{item_id} premium item must not be star-purchasable")
+                continue
             price = int(row.get("unlock_cost_star", -1))
             if price < 0:
                 errors.append(f"{item_id}.unlock_cost_star missing")
@@ -314,6 +402,151 @@ def main() -> int:
                 errors.append(f"{table_name} star price curve exceeds 2x")
     if not 300 <= paid_collection_total <= 330:
         errors.append(f"paid collection total must stay in [300, 330], got {paid_collection_total}")
+
+    premium_sets = tables["premium_sets"]
+    store_products = tables["store_products"]
+    themes = load("themes").get("themes", [])
+    theme_by_id = {
+        str(row.get("id", "")): row for row in themes if isinstance(row, dict)
+    }
+    theme_ids = set(theme_by_id)
+    for theme_id, theme in theme_by_id.items():
+        for key in ("name_zh", "name_en", "description_zh", "description_en", "ui", "effects"):
+            if not theme.get(key):
+                errors.append(f"theme {theme_id}.{key} missing")
+        ui = theme.get("ui", {})
+        button_root = str(ui.get("button_root", ""))
+        if not button_root.startswith("res://") or not res_exists(button_root):
+            errors.append(f"theme {theme_id}.ui.button_root missing: {button_root}")
+        tag_palette = ui.get("tag_palette", {})
+        required_tag_colors = (
+            "border", "kind_border", "fill", "kind_fill", "text", "kind_text"
+        )
+        for color_key in required_tag_colors:
+            color = tag_palette.get(color_key, []) if isinstance(tag_palette, dict) else []
+            if (
+                not isinstance(color, list)
+                or len(color) != 4
+                or any(not isinstance(channel, (int, float)) or channel < 0 or channel > 1 for channel in color)
+            ):
+                errors.append(
+                    f"theme {theme_id}.ui.tag_palette.{color_key} must be four normalized RGBA channels"
+                )
+        for material_kind, material in theme.get("materials", {}).items():
+            shader = str(material.get("shader", ""))
+            if not res_exists(shader):
+                errors.append(f"theme {theme_id}.materials.{material_kind}.shader missing: {shader}")
+            if not isinstance(material.get("full"), dict) or not isinstance(material.get("reduced"), dict):
+                errors.append(f"theme {theme_id}.materials.{material_kind} needs full/reduced parameter maps")
+    premium_series: dict[str, tuple[str, dict]] = {}
+    for set_id, set_row in premium_sets.items():
+        series_id = str(set_row.get("series_id", "")).strip()
+        entitlement = str(set_row.get("entitlement", "")).strip()
+        theme_id = str(set_row.get("theme", "")).strip()
+        theme_entitlement = str(set_row.get("theme_entitlement", "")).strip()
+        if not series_id:
+            errors.append(f"{set_id}.series_id missing")
+        elif series_id in premium_series:
+            errors.append(f"premium series_id duplicated: {series_id}")
+        else:
+            premium_series[series_id] = (set_id, set_row)
+        if not entitlement:
+            errors.append(f"{set_id}.entitlement missing")
+        if theme_id not in theme_ids:
+            errors.append(f"{set_id}.theme unknown: {theme_id}")
+        if not theme_entitlement:
+            errors.append(f"{set_id}.theme_entitlement missing")
+        elif theme_id in theme_by_id and theme_by_id[theme_id].get("entitlement") != theme_entitlement:
+            errors.append(f"{set_id}.theme_entitlement must match theme {theme_id}")
+        for key in (
+            "store_title_zh", "store_title_en", "owned_status_zh", "owned_status_en",
+            "theme_status_zh", "theme_status_en", "theme_owned_description_zh",
+            "theme_owned_description_en", "owned_title_zh", "owned_title_en",
+            "two_piece_description_zh", "two_piece_description_en",
+        ):
+            if not str(set_row.get(key, "")).strip():
+                errors.append(f"{set_id}.{key} missing")
+        for slot, table_name in (
+            ("weapon", "weapons"),
+            ("armor", "armors"),
+            ("chip", "chips"),
+            ("pet", "pets"),
+        ):
+            item_id = str(set_row.get(slot, ""))
+            if item_id not in tables[table_name]:
+                errors.append(f"{set_id}.{slot} unknown: {item_id}")
+                continue
+            item_row = tables[table_name][item_id]
+            if item_row.get("premium_entitlement") != entitlement:
+                errors.append(f"{item_id} must require {entitlement}")
+            if item_row.get("premium_set") != set_id:
+                errors.append(f"{item_id}.premium_set must be {set_id}")
+
+    for weapon_id, weapon in tables["weapons"].items():
+        grip = weapon.get("presentation", {}).get("true_grip", {})
+        if not grip:
+            continue
+        root = str(grip.get("root", "")).rstrip("/")
+        size = grip.get("size", [])
+        if not isinstance(size, list) or len(size) != 2 or min(map(int, size)) <= 0:
+            errors.append(f"{weapon_id}.presentation.true_grip.size invalid")
+        muzzle_by_character = grip.get("muzzle_by_character", {})
+        for character_id in tables["characters"]:
+            asset_id = f"char_{character_id}"
+            for aim, pattern_key in (("center", "center_pattern"), ("left", "left_pattern"), ("right", "right_pattern")):
+                pattern = str(grip.get(pattern_key, ""))
+                candidate = f"{root}/{pattern.replace('{character_id}', asset_id)}"
+                if not res_exists(candidate):
+                    errors.append(f"{weapon_id} true-grip asset missing: {candidate}")
+                muzzle = muzzle_by_character.get(asset_id, {}).get(aim, [])
+                if not isinstance(muzzle, list) or len(muzzle) != 2:
+                    errors.append(f"{weapon_id} true-grip muzzle missing: {asset_id}.{aim}")
+
+    product_roles: dict[str, set[str]] = {series_id: set() for series_id in premium_series}
+    for product_id, row in store_products.items():
+        for key in (
+            "series_id", "theme_id", "arsenal_set_id", "kind", "offer_role", "name_zh", "name_en",
+            "mock_price_zh", "mock_price_en", "grants", "art", "preview_layout",
+        ):
+            if not row.get(key):
+                errors.append(f"{product_id}.{key} missing")
+        check_asset(errors, product_id, row, ["art"])
+        series_id = str(row.get("series_id", ""))
+        role = str(row.get("offer_role", ""))
+        if series_id not in premium_series:
+            errors.append(f"{product_id}.series_id unknown: {series_id}")
+            continue
+        if role not in {"theme", "arsenal_complete", "arsenal_upgrade"}:
+            errors.append(f"{product_id}.offer_role invalid: {role}")
+            continue
+        if row.get("kind") != role:
+            errors.append(f"{product_id}.kind must match offer_role")
+        expected_preview_layout = "theme_roster" if role == "theme" else "arsenal_grid"
+        if row.get("preview_layout") != expected_preview_layout:
+            errors.append(
+                f"{product_id}.preview_layout must be {expected_preview_layout} for {role}"
+            )
+        if role in product_roles[series_id]:
+            errors.append(f"{series_id} has duplicate {role} offer")
+        product_roles[series_id].add(role)
+        set_id, set_row = premium_series[series_id]
+        if row.get("theme_id") != set_row.get("theme"):
+            errors.append(f"{product_id}.theme_id must be {set_row.get('theme')}")
+        if row.get("arsenal_set_id") != set_id:
+            errors.append(f"{product_id}.arsenal_set_id must be {set_id}")
+        theme_entitlement = str(set_row.get("theme_entitlement", ""))
+        arsenal_entitlement = str(set_row.get("entitlement", ""))
+        expected_grants = {
+            "theme": {theme_entitlement},
+            "arsenal_complete": {theme_entitlement, arsenal_entitlement},
+            "arsenal_upgrade": {arsenal_entitlement},
+        }[role]
+        if set(map(str, row.get("grants", []))) != expected_grants:
+            errors.append(f"{product_id}.grants must be {sorted(expected_grants)}")
+    for series_id, roles in product_roles.items():
+        expected_roles = {"theme", "arsenal_complete", "arsenal_upgrade"}
+        if roles != expected_roles:
+            errors.append(f"{series_id} offers must define {sorted(expected_roles)}, got {sorted(roles)}")
 
     for enemy_id, row in tables["zombies"].items():
         for key in ["weakness", "resist"]:

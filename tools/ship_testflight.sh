@@ -12,8 +12,15 @@ APPLE_ID="${APPLE_ID:-6785918342}"
 BUNDLE_ID="${BUNDLE_ID:-com.gaojiasheng.zombiefire}"
 KEYP="$HOME/.appstoreconnect/private_keys/AuthKey_$KEY.p8"
 GODOT_BIN="${GODOT_BIN:-/opt/homebrew/bin/godot}"
-TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release}"
-TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-}"
+# Owner-approved internal-test convenience: every TestFlight build exposes the
+# 1X / 2X / 5X control from stage 1. Keep the ordinary export preset clean and
+# remove this temporary feature here before selecting an App Review build.
+TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release,testflight_speed_unlocked}"
+TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-testflight_speed_unlocked}"
+# Godot's macOS viewport windows can activate even when launched hidden. A
+# TestFlight build therefore runs only static + true --headless gates unless
+# the owner separately schedules an interactive visual-capture window.
+TESTFLIGHT_SKIP_WINDOWED_VISUALS="${TESTFLIGHT_SKIP_WINDOWED_VISUALS:-1}"
 FINAL_IPA="$PROJ/build/ios/ZombieFire.ipa"
 DESKTOP_IPA="$HOME/Desktop/ZombieFire.ipa"
 
@@ -200,7 +207,8 @@ log "Synchronizing release-only asset exclusions"
 python3 tools/sync_release_export_excludes.py --write
 
 log "Running the complete release-candidate gate before changing the build number"
-python3 tools/check_release_candidate.py
+ZOMBIE_FIRE_SKIP_WINDOWED_VISUALS="$TESTFLIGHT_SKIP_WINDOWED_VISUALS" \
+    python3 tools/check_release_candidate.py
 
 CUR=$(awk '/^\[preset.0.options\]/{f=1} f&&/^application\/version=/{gsub(/[^0-9]/,"");print;exit}' export_presets.cfg)
 SHORT_VERSION=$(awk -F'"' '/^\[preset.0.options\]/{f=1} f&&/^application\/short_version=/{print $2;exit}' export_presets.cfg)

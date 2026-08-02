@@ -74,13 +74,19 @@ class DpsResult:
 
 
 def chip_value(chip: dict, stat: str) -> float:
-    if chip.get("stat") != stat:
-        return 0.0
-    value = float(chip.get("value", 0.0))
-    if stat == "pierce_bonus":
-        return value + GROWTH_RANK
-    growth = float(chip.get("level_value_growth", 0.035))
-    return value * (1.0 + growth * (CHIP_LEVEL - 1))
+    if chip.get("stat") == stat:
+        value = float(chip.get("value", 0.0))
+        if stat == "pierce_bonus":
+            return value + GROWTH_RANK
+        growth = float(chip.get("level_value_growth", 0.035))
+        return value * (1.0 + growth * (CHIP_LEVEL - 1))
+    secondary = chip.get("secondary_stats", {})
+    if stat in secondary:
+        growth = chip.get("secondary_level_growth", {})
+        return float(secondary.get(stat, 0.0)) + float(growth.get(stat, 0.0)) * (
+            CHIP_LEVEL - 1
+        )
+    return 0.0
 
 
 def pet_stat(pet: dict, stat: str) -> float:
@@ -174,9 +180,14 @@ def frost_active_hit_factor(active: dict) -> float:
     return wave_factor + math.ceil(duration / FROST_TICK_INTERVAL)
 
 
-def evaluate(character_id: str, chip_id: str, pet_id: str) -> DpsResult:
+def evaluate(
+    character_id: str,
+    chip_id: str,
+    pet_id: str,
+    weapon_override: str = "",
+) -> DpsResult:
     character = CHARACTERS[character_id]
-    weapon_id = MATCHING_WEAPON[character_id]
+    weapon_id = weapon_override or MATCHING_WEAPON[character_id]
     weapon = WEAPONS[weapon_id]
     chip = CHIPS[chip_id]
     pet = PETS[pet_id]
@@ -185,6 +196,16 @@ def evaluate(character_id: str, chip_id: str, pet_id: str) -> DpsResult:
     element = str(weapon["element"])
 
     weapon_damage_mult = 1.0 + 0.08 * (WEAPON_LEVEL - 1)
+    weapon_max_level = max(2, int(weapon.get("max_level", WEAPON_LEVEL)))
+    weapon_growth_progress = min(
+        max(float(WEAPON_LEVEL - 1) / float(weapon_max_level - 1), 0.0),
+        1.0,
+    )
+    weapon_damage_mult *= 1.0 + float(
+        weapon.get("endgame_damage_growth_bonus", 0.0)
+    ) * weapon_growth_progress ** max(
+        1.0, float(weapon.get("endgame_growth_curve", 1.0))
+    )
     weapon_fire_rate_mult = 1.0 + 0.025 * (WEAPON_LEVEL - 1)
     attack_mult = (
         float(character["base_atk"])
@@ -352,10 +373,88 @@ def evaluate(character_id: str, chip_id: str, pet_id: str) -> DpsResult:
 def best_result(character_id: str) -> DpsResult:
     candidates = [
         evaluate(character_id, chip_id, pet_id)
-        for chip_id in CHIPS
-        for pet_id in PETS
+        for chip_id, chip in CHIPS.items()
+        if not chip.get("premium_entitlement")
+        for pet_id, pet in PETS.items()
+        if not pet.get("premium_entitlement")
     ]
     return max(candidates, key=lambda result: result.total_dps)
+
+def apocalypse_audit(baseline: DpsResult) -> dict:
+    """Audit the complete paid set against the strongest free Volt ceiling.
+
+    Overload is a per-confirmed-hit meter, so its long-run expectation is the
+    connected primary weapon DPS times overload multiplier / hit threshold.
+    The four-piece terminal pillar is a real-time eight-second proc and never
+    recursively feeds the hit meter.
+    """
+
+    weapon = WEAPONS["weapon_apocalypse_thunder"]
+    chip = CHIPS["chip_apocalypse_superconductive"]
+    pet = PETS["pet_apocalypse_tempest"]
+    premium = evaluate(
+        "volt",
+        "chip_apocalypse_superconductive",
+        "pet_apocalypse_tempest",
+        "weapon_apocalypse_thunder",
+    )
+    special = weapon["special"]
+    set_row = load("premium_sets.json")["set_apocalypse_thunder"]
+    efficiency = (
+        chip_value(chip, "overload_efficiency")
+        + float(set_row["two_piece"]["overload_efficiency"])
+    )
+    hit_threshold = max(
+        3,
+        round(float(special["overload_hits"]) * (1.0 - min(efficiency, 0.45))),
+    )
+    overload_dps = premium.weapon_dps * float(
+        special["overload_damage_mult"]
+    ) / hit_threshold
+
+    # One lane-weighted crit-expected shell supplies the non-recursive terminal
+    # hit every real-time cooldown. Derive it from connected weapon DPS.
+    fire_rate = (
+        float(weapon["fire_rate"])
+        * (1.0 + 0.025 * (WEAPON_LEVEL - 1))
+        * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
+        * float(CHARACTERS["volt"].get("fire_rate_mod", 1.0))
+        * (1.0 + chip_value(chip, "fire_rate_mult"))
+        * (1.0 + 0.01 * (CHIP_LEVEL - 1))
+        * (1.0 + pet_stat(pet, "fire_rate_mult"))
+        * FULL_SKILL_FIRE_RATE_MULT
+    )
+    lane_hit_damage = premium.weapon_dps / max(
+        fire_rate * CONNECTED_LANES,
+        0.001,
+    )
+    terminal_dps = (
+        lane_hit_damage
+        * float(set_row["four_piece"]["terminal_pillar_damage_mult"])
+        / float(set_row["four_piece"]["terminal_pillar_cooldown"])
+    )
+    pet_skill = pet["pet_skill"]
+    pet_skill_dps = (
+        float(pet["damage"])
+        * (1.0 + float(pet["level_damage_growth"]) * (PET_LEVEL - 1))
+        * (
+            float(pet_skill["damage_mult"])
+            + float(pet_skill["level_damage_mult_growth"]) * (PET_LEVEL - 1)
+        )
+        / float(pet_skill["cooldown"])
+    )
+    total = premium.total_dps + overload_dps + terminal_dps + pet_skill_dps
+    return {
+        "base": premium,
+        "overload_dps": overload_dps,
+        "terminal_dps": terminal_dps,
+        "pet_skill_dps": pet_skill_dps,
+        "total_dps": total,
+        "ratio": total / baseline.total_dps,
+        "hit_threshold": hit_threshold,
+        "target_min": float(set_row["target_full_set_ratio_min"]),
+        "target_max": float(set_row["target_full_set_ratio_max"]),
+    }
 
 
 def main() -> int:
@@ -379,6 +478,22 @@ def main() -> int:
     totals = [result.total_dps for result in results]
     spread = max(totals) / min(totals)
     print(f"single-Boss max/min spread: {spread:.3f}x ({(spread - 1.0) * 100.0:.1f}%)")
+    free_volt = next(result for result in results if result.character_id == "volt")
+    premium = apocalypse_audit(free_volt)
+    base = premium["base"]
+    print(
+        "Thunder Apocalypse complete set: "
+        f"base {base.total_dps:.0f} + overload {premium['overload_dps']:.0f} "
+        f"+ terminal {premium['terminal_dps']:.0f} + pet skill {premium['pet_skill_dps']:.0f} "
+        f"= {premium['total_dps']:.0f}; {premium['ratio']:.3f}x free Volt "
+        f"(overload every {premium['hit_threshold']} confirmed hits)"
+    )
+    if not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
+        print(
+            "ERROR: premium ratio outside locked "
+            f"{premium['target_min']:.2f}-{premium['target_max']:.2f} band"
+        )
+        return 1
     return 0
 
 

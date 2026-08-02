@@ -38,6 +38,22 @@ const SFX := {
 	"skill_charge_shot_charge": "res://assets/production/audio/sfx/sfx_skill_charge_shot_charge.wav",
 	"skill_charge_shot_release": "res://assets/production/audio/sfx/sfx_skill_charge_shot_release.wav",
 	"skill_recycle": "res://assets/production/audio/sfx/sfx_skill_recycle.wav",
+	"apocalypse_inferno_ignition": "res://assets/production/audio/sfx/sfx_apocalypse_inferno_ignition.wav",
+	"apocalypse_inferno_combustion": "res://assets/production/audio/sfx/sfx_apocalypse_inferno_combustion.wav",
+	"apocalypse_inferno_phoenix": "res://assets/production/audio/sfx/sfx_apocalypse_inferno_phoenix.wav",
+	"apocalypse_inferno_counter": "res://assets/production/audio/sfx/sfx_apocalypse_inferno_counter.wav",
+	"apocalypse_inferno_awakening": "res://assets/production/audio/sfx/sfx_apocalypse_inferno_awakening.wav",
+	"apocalypse_absolute_zero_fire": "res://assets/production/audio/sfx/sfx_apocalypse_absolute_zero_fire.wav",
+	"apocalypse_absolute_zero_shatter": "res://assets/production/audio/sfx/sfx_apocalypse_absolute_zero_shatter.wav",
+	"apocalypse_absolute_zero_field": "res://assets/production/audio/sfx/sfx_apocalypse_absolute_zero_field.wav",
+	"apocalypse_absolute_zero_counter": "res://assets/production/audio/sfx/sfx_apocalypse_absolute_zero_counter.wav",
+	"apocalypse_absolute_zero_awakening": "res://assets/production/audio/sfx/sfx_apocalypse_absolute_zero_awakening.wav",
+	"apocalypse_golden_law_fire": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_fire.wav",
+	"apocalypse_golden_law_impact": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_impact.wav",
+	"apocalypse_golden_law_decree": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_decree.wav",
+	"apocalypse_golden_law_falcon": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_falcon.wav",
+	"apocalypse_golden_law_counter": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_counter.wav",
+	"apocalypse_golden_law_awakening": "res://assets/production/audio/sfx/sfx_apocalypse_golden_law_awakening.wav",
 	"char_vanguard_intro": "res://assets/production/audio/sfx/sfx_char_vanguard_intro.wav",
 	"sig_vanguard_railvolley": "res://assets/production/audio/sfx/sfx_sig_vanguard_railvolley.wav",
 	"char_blaze_intro": "res://assets/production/audio/sfx/sfx_char_blaze_intro.wav",
@@ -348,6 +364,24 @@ func _is_rate_limited(id: String) -> bool:
 			min_gap = 0.09
 		"skill_salvo", "skill_charge_shot_release":
 			min_gap = 0.16
+		"apocalypse_inferno_ignition":
+			min_gap = 0.065
+		"apocalypse_inferno_combustion":
+			min_gap = 0.34
+		"apocalypse_inferno_phoenix", "apocalypse_inferno_counter", "apocalypse_inferno_awakening":
+			min_gap = 0.8
+		"apocalypse_absolute_zero_fire":
+			min_gap = 0.065
+		"apocalypse_absolute_zero_shatter":
+			min_gap = 0.34
+		"apocalypse_absolute_zero_field", "apocalypse_absolute_zero_counter", "apocalypse_absolute_zero_awakening":
+			min_gap = 0.8
+		"apocalypse_golden_law_fire":
+			min_gap = 0.065
+		"apocalypse_golden_law_impact":
+			min_gap = 0.34
+		"apocalypse_golden_law_decree", "apocalypse_golden_law_falcon", "apocalypse_golden_law_counter", "apocalypse_golden_law_awakening":
+			min_gap = 0.8
 		"sig_vanguard_railvolley", "sig_blaze_meltdown", "sig_frost_glacier", "sig_volt_storm":
 			min_gap = 1.2
 		"skill_gold_rush", "skill_slow_field", "skill_barrier", "skill_charge_shot_charge", "skill_recycle":

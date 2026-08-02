@@ -31,6 +31,11 @@
       "source_forward_degrees": 0.0,
       "runtime_direction": "enemy_advance_or_target_vector",
       "meaning": "The venom launch wedge must point from the spitter toward its target."
+    },
+    "vfx_apocalypse_inferno_phoenix": {
+      "source_forward_degrees": -45.0,
+      "runtime_direction": "pet_origin_to_target_vector",
+      "meaning": "The phoenix head and molten wing trail must fly from the pet toward the selected target, never backward."
     }
   },
   "directional_projectiles": {
@@ -82,6 +87,11 @@
       "minimum_count": 16,
       "contract": "pickup/cast feedback must be centered on the player and remain inside the viewport"
     },
+    "golden_law": {
+      "prefix": "vfx_apocalypse_golden_law_",
+      "minimum_count": 5,
+      "contract": "Verdict and Decree stay on real damaged targets; Skyfalcon stays on its selected target; counter rises from the base; awakening remains behind the rear-view hero"
+    },
     "hits": {
       "prefix": "vfx_hit_",
       "minimum_count": 8,
@@ -105,9 +115,28 @@
       "contract": "impact, directional launch, persistent ground area, and healing column must not collapse to the same silhouette"
     }
   },
+  "rendered_source_contracts": {
+    "vfx_status_golden_law_judgment": [
+      "assets/production/source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_judgment_status_transparent_v1.png"
+    ],
+    "vfx_apocalypse_golden_law_falcon": [
+      "assets/production/source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_skyfalcon_dive_transparent_v1.png"
+    ],
+    "vfx_apocalypse_golden_law_counter": [
+      "assets/production/source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_eternal_counter_transparent_v1.png"
+    ],
+    "vfx_apocalypse_golden_law_awakening": [
+      "assets/production/source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/golden_sovereign_awakening_transparent_v1.png"
+    ],
+    "vfx_enemy_skill_enrage": [
+      "assets/production/source_refs/generated/app_store_placeholder_audit_2026_08_01/enemy_enrage_transparent_v1.png"
+    ],
+    "vfx_levelup_glow": [
+      "assets/production/source_refs/generated/app_store_placeholder_audit_2026_08_01/levelup_ascension_transparent_v1.png"
+    ]
+  },
   "hard_edge_exceptions": {
     "vfx_boss_phase": "An authored horizontal phase band; its long left/right boundary is the graphic's intended silhouette, not an atlas crop.",
-    "vfx_levelup_glow": "An authored vertical rank beam; its bottom boundary is intentionally grounded under the unit.",
     "vfx_target_lock": "A wide targeting bracket whose long lateral edges are intentional UI geometry.",
     "vfx_threat_warning": "A wide warning bracket whose long lateral edges are intentional UI geometry."
   },

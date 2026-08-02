@@ -5,7 +5,7 @@ signal breached(enemy: Node, damage: int)
 signal base_attack_started(enemy: Node, profile: Dictionary)
 signal base_attack_visual_hit(enemy: Node, profile: Dictionary, hit_index: int, hit_count: int)
 signal hit_feedback(enemy: Node, element: String, immune_hit: bool, weak_hit: bool, hit_kind: String)
-signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool)
+signal damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool, damage_source: String)
 
 const BREACH_Y := 1500.0
 const BASE_ATTACK_Y := 1500.0
@@ -430,6 +430,9 @@ func _resolve_base_attack_sequence() -> void:
 func take_damage(amount: float, element := "physical", armor_penetration := 0.0, status_strength := -1.0) -> void:
 	if _dying:
 		return
+	var damage_source := str(get_meta("incoming_damage_source", "weapon"))
+	if has_meta("incoming_damage_source"):
+		remove_meta("incoming_damage_source")
 	_last_hit_weak = false
 	_last_hit_element = element
 	if (mechanic == "phase" or mechanic == "phase_shift") and element != "lightning" and randf() < (0.32 if not boss else 0.22):
@@ -502,7 +505,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 	_apply_element_status(final_damage, element, status_strength)
 	_update_hp_bar()
 	var crit_hit := _last_hit_weak or final_damage >= max_hp * (0.22 if not boss else 0.12)
-	damage_dealt.emit(self, final_damage, element, crit_hit, _last_hit_weak)
+	damage_dealt.emit(self, final_damage, element, crit_hit, _last_hit_weak, damage_source)
 	_emit_hit_feedback(element, false, _last_hit_weak, "weak" if _last_hit_weak else resolved_hit_kind)
 	_play_hurt_feedback(element)
 	if crit_hit:
@@ -513,7 +516,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 		_anim_time = 0.0
 		_anim_frame = 0
 		$CollisionShape2D.set_deferred("disabled", true)
-		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": _last_hit_weak, "boss": boss, "death_element": _last_hit_element})
+		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": _last_hit_weak, "boss": boss, "death_element": _last_hit_element, "death_source": damage_source})
 		if _death_frames.is_empty():
 			call_deferred("queue_free")
 
@@ -694,14 +697,14 @@ func _apply_status_damage(amount: float, element: String) -> void:
 		_status_vfx.pulse(element, 0.8)
 	hp -= amount
 	_update_hp_bar()
-	damage_dealt.emit(self, amount, element, false, false)
+	damage_dealt.emit(self, amount, element, false, false, "burn" if element == "fire" else "status")
 	if hp <= 0.0:
 		_dying = true
 		_anim_state = "death"
 		_anim_time = 0.0
 		_anim_frame = 0
 		$CollisionShape2D.set_deferred("disabled", true)
-		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": false, "boss": boss})
+		died.emit(self, {"gold": gold, "gold_coef": gold_coef, "xp": run_xp, "weak_kill": false, "boss": boss, "death_element": element, "death_source": "burn" if element == "fire" else "status"})
 		if _death_frames.is_empty():
 			call_deferred("queue_free")
 

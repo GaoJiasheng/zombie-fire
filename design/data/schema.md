@@ -78,6 +78,40 @@
 
 `bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。入门角色的 `pierce_bonus` 应保持 `0`，避免一级普通弹在获得技能前就表现成多目标弹药；需要保留的物理角色特色通过 `rank_pierce_bonus` 在成长档位 II 解锁。闪电还可声明 `chain_overflow_reference`、`chain_overflow_damage_bonus` 与 `chain_target_falloff`：连锁数量不设代码硬上限，超过参考数量的成长转化为主目标增伤，同时后续连锁按递减系数控制密集尸潮收益。
 
+## character_body_metrics.json（战斗人体标尺）
+
+```jsonc
+{
+  "version": 1,
+  "canvas_size": [380, 520],
+  "target_body_height_px": 420.0,
+  "target_foot_offset_px": 100.0,
+  "profiles": {
+    "standard": {
+      "char_vanguard": {
+        "idle": {"body_height_px": 435, "foot_y_px": 480, "body_center_x_px": 170},
+        "hurt": {"body_height_px": 435, "foot_y_px": 480, "body_center_x_px": 170},
+        "left": {"body_height_px": 420, "foot_y_px": 490, "body_center_x_px": 200},
+        "center": {"body_height_px": 405, "foot_y_px": 480, "body_center_x_px": 205},
+        "right": {"body_height_px": 410, "foot_y_px": 480, "body_center_x_px": 180}
+      }
+    },
+    "weapon_apocalypse_thunder": {
+      "char_vanguard": {
+        "left": {"body_height_px": 445, "foot_y_px": 490, "body_center_x_px": 210},
+        "center": {"body_height_px": 390, "foot_y_px": 495, "body_center_x_px": 190},
+        "right": {"body_height_px": 445, "foot_y_px": 490, "body_center_x_px": 170}
+      }
+    }
+  }
+}
+```
+
+- 这里只记录人物解剖标尺，不记录整张 PNG 的透明外框。`body_height_px` 是头顶到脚底，`foot_y_px` 是落脚线，`body_center_x_px` 是人体中轴；枪械、披风、翅膀和枪口光都不得进入测量。
+- `standard` 覆盖普通融合枪模的 `idle / hurt / left / center / right`；每个带 `presentation.true_grip` 的终焉武器必须有同名 profile，并覆盖四角色与三个射击方向。
+- 运行时把人体统一到 `target_body_height_px × CHARACTER_VISUAL_BASE_SCALE × CHARACTER_PRESENTATION_SCALE`，角色等级不再改变人体尺寸；等级差异继续通过属性、徽记与颜色表达。
+- 方向切换同时应用身体缩放、人体中轴与脚底锚点，枪口坐标跟随同一变换；主题背挂特效保持独立图层，不得参与人物尺寸计算。
+
 ## economy.json 后半波压力旋钮
 
 ```jsonc
@@ -211,7 +245,9 @@
     "rarity":"rare", "max_level":50,
     "cost_base_gold":300,               // 强化基数，见 09 公式
     "unlock":{"type":"gold_shop","price":2000},
-    "icon":"weapon_railgun_icon.png"
+    "icon":"weapon_railgun_icon.png",
+    "handheld":"weapon_railgun_rifle.png",       // 出战页优先使用的无边框枪体；主题可覆盖
+    "loadout_art":"optional_clean_showcase.png"  // 可选：仅覆盖出战页展示，不改变战斗持枪/炮台素材
   }
 }
 ```
@@ -449,7 +485,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `boss_level_base_hp_mult` 是 Boss 关的防线血量垫子（design/24 Phase 2，Phase 8 曲线化）：任一波含 `boss` 的关卡，基地血量上限按 `base_hp_ref × 垫子` 起算，之后再乘人物/护甲/芯片/宠物加成。垫子按关卡号取：`≤ early_full_level`（10）为 `early_mult`（1.75），`≥ early_end_level`（25）为 `base`（1.25），中间线性插值；也兼容直接写一个浮点数的旧写法。曲线化的原因是 Boss 关压力呈 U 型（5–20 关与 65–99 关都是 46–57% leak，25–60 关只有 33–46%），平垫子会让玩家最先遇到的三个 Boss 关成为全场最难的一档。只抬防线，不动 Boss HP ramp、不动敌方压力、不动推荐战力公式；无尽模板 `level_025` 含 Boss，故无尽与挑战模式同样吃这个垫子。`tools/simulate_balance.py` 的 `boss_base_hp_cushion()` 与 `battle.gd._boss_level_base_hp_mult()` 是同一条公式的两份实现，改一处必须同步另一处。
 - `repeat_clear_xp_mult` 是重复通关经验递减表（design/24 收尾）：按**本关此前的通关次数**取下标，首通 `1.0`、二周目 `0.5`、三周目及以后取末位 `0.25`（超出表长时钳到末位）。普通关与挑战模式各自独立计数，分别记在存档的 `level_clear_counts` / `challenge_clear_counts`；失败不计数。倍率在 `battle.gd._finish()` 结算时就已乘进 `result.xp`，因此**结算页显示的就是实际入账的数字**；`SaveManager` 不再二次打折。旧存档缺这两个字段时按首通处理（`_merge_defaults_recursive` 补空字典，无需迁移版本号）。结算页在倍率 < 1 时把经验卡标题显示为 `经 验  ×50%`，百分比由数据算出。
 - `environments.json` 的 `audio_mix` 是**按环境的动态混音**（阶段 67）：`sfx_db` / `bgm_db` 是播放器音量偏移（**绝不写总线音量**，否则会和设置页音量滑杆互相覆盖），`reverb_wet`（上限 0.35）/ `reverb_room` / `reverb_damping` 施加在 SFX 总线的混响上。UI 音效走 UI 总线，永远保持干声。进入战斗时由 `battle.gd` 调 `AudioManager.apply_environment_mix()`，离开战斗在 `_exit_tree()` 调 `clear_environment_mix()` 归零。同类枪声/受击声并发上限与 Boss / 主动技 / 防线告急的优先级由 `get_sfx_concurrency_limit()` / `get_sfx_priority()` 负责，与本字段无关。
-- `levels.json` 的 `wave_pattern` 是**编队原型**（阶段 67 起真正生效）：`standard` 沿用关卡作者写的 `lane`；`rush` 全部压中路；`pincer` 左右交替、中路留空；`escort` 支援目标走中路、其余贴两翼；`siege` 左/右/散开三路轮转铺满战线。运行时入口是 `battle.gd._formation_lane()`，Boss 不受影响（始终按作者写的通道入场）。**只改队形几何，不改数量、出怪间隔、HP 或总出怪时长**，因此所有平衡口径与该字段无关。`m1_smoke_test.gd:_verify_wave_formation_lanes` 锁死五种编队各自的通道契约。
+- `levels.json` 的 `wave_pattern` 是**编队原型**（阶段 67 起真正生效）：`standard` 沿用关卡作者写的 `lane`；`rush` 全部压中路；`pincer` 左右交替、中路留空；`escort` 支援目标走中路、其余贴两翼；`siege` 左/右/散开三路轮转铺满战线。运行时入口是 `battle.gd._formation_lane()`，Boss 不受影响（始终按作者写的通道入场）。阶段 89 起，普通怪在每条通道内使用更宽的安全出生带、`158–222` 的轻微 Y 抖动和 9 选 1 最疏候选采样；最近 6 个出生点及仍在入口带的怪物都会参与防聚簇。Boss 保留较窄作者通道与固定 `y=190` 的聚焦入场。**只改队形几何，不改数量、出怪间隔、HP 或总出怪时长**，因此所有平衡口径与该字段无关。`m1_smoke_test.gd:_verify_wave_formation_lanes` / `_verify_wave_spawn_distribution` 分别锁死编队语义与分散度。
 - `levels.json` 的 `variant`（`normal / elite / treasure / boss / boss_rush`）**只决定波次提示文案，不决定是否出怪**。阶段 67 之前出怪循环被错误地缩进在提示分支的 `else` 里，导致 21 个 elite / treasure 关的第 1 波共 442 只敌人从未出现，而平衡模型全程都算了它们；`m1_smoke_test.gd:_verify_variant_wave_one_spawns` 已把这条契约固化。
 - `star_thresholds` 是胜利星级判定的唯一事实来源（design/24 Phase 1）：结算时剩余防线血量比 `>= three_star_hp_ratio` 给 3 星、`>= two_star_hp_ratio` 给 2 星，否则 1 星。运行时经 `core/data/star_rules.gd` 读取，结算页与配装页的提示文案同源动态生成，`tools/simulate_balance.py` 把它换算成 leak% 口径（3 星 leak ≤ 30%、2 星 ≤ 65%）。任何地方都不许再硬编码 `0.70 / 0.35`。`data/levels.json` 的 `star_rule: "base_hp_percent"` 是描述字段，运行时不读。
 
@@ -506,10 +542,13 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
       "id": "default",
       "name_zh": "末日防线",
       "name_en": "Last Defense",
+	  "description_zh": "原版末日军工界面……",
+	  "description_en": "Original industrial-apocalypse UI…",
       "premium": false,
       "entitlement": "",
-      "ui": {"button_root": "res://assets/production/sprites/ui"},
-      "effects": {"character_iridescence": false}
+	  "ui": {"button_root": "res://assets/production/sprites/ui", "accent_color": [0.88,0.64,0.32,1], "tag_palette": {"border": [0.34,0.76,0.84,1], "kind_border": [0.94,0.67,0.32,1], "fill": [0.018,0.06,0.074,0.96], "kind_fill": [0.105,0.064,0.025,0.97], "text": [0.91,0.98,1,1], "kind_text": [1,0.91,0.71,1]}, "surface_modulate": {}},
+	  "materials": {},
+	  "effects": {"profile": "", "projectile_palette_profile": ""}
     },
     {
       "id": "neon_tempest",
@@ -517,8 +556,19 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
       "name_en": "Neon Tempest",
       "premium": true,
       "entitlement": "ent_theme_neon_tempest",
-      "ui": {"button_root": "res://assets/production/sprites/themes/neon_tempest/ui"},
-      "effects": {"character_iridescence": true}
+	  "ui": {
+		"button_root": "res://assets/production/sprites/themes/neon_tempest/ui",
+		"accent_color": [0.7,0.62,1,1],
+		"tag_palette": {"border": [0.2,0.82,1,1], "kind_border": [0.82,0.44,1,1], "fill": [0.018,0.047,0.086,0.97], "kind_fill": [0.08,0.026,0.11,0.97], "text": [0.91,0.98,1,1], "kind_text": [0.97,0.87,1,1]},
+		"assets": {},
+		"asset_presentations": {},
+		"surface_modulate": {"primary": [0.8,0.82,0.86,1], "secondary": [0.92,0.93,0.96,1], "disabled": [0.78,0.8,0.84,1]}
+	  },
+	  "materials": {
+		"character": {"shader": "res://…gdshader", "full": {"effect_intensity": 0.58}, "reduced": {"effect_intensity": 0.24}, "pulse_parameter": "fire_pulse"},
+		"surface": {"shader": "res://…gdshader", "full": {"effect_intensity": 0.64}, "reduced": {"effect_intensity": 0.42}}
+	  },
+	  "effects": {"profile": "neon_tempest", "projectile_palette_profile": "neon_tempest"}
     }
   ]
 }
@@ -527,7 +577,63 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `id` 必须全局唯一，并与 `SaveManager.cosmetics.selected_theme` 一致。
 - `entitlement` 是永久权益 ID；默认主题为空。付费主题无已验证权益时必须自动回退 `default`。
 - `button_root` 下必须覆盖 `UiKit.NATIVE_BUTTON_SIZES` 的主 / 次两种精确尺寸。
-- `character_iridescence` 只控制运行时衣装动态材质，不允许改角色数值；减弱特效时必须静止并降亮。
+- `description_zh/en` 是主题选择器文案，禁止在 UI 代码里按主题 ID 分支写死。
+- `surface_modulate` 只压制主题按钮底图亮度，不得降低子文字亮度。
+- `accent_color` 是主题的高层语义强调色；首页副标题与入口强调文案必须跟随它，避免极地主题仍残留炼狱橙等跨主题串色。
+- `tag_palette` 是技能图鉴等语义小标签的独立高对比色板：`border/fill/text` 用于能力标签，`kind_border/kind_fill/kind_text` 用于被动/主动等类型标签。每项必须是四通道归一化 RGBA；不可复用低对比背景贴图冒充边框。
+- `ui.assets` 可按语义覆盖主题图片；`asset_presentations.<asset_id>.region` 是源图像素坐标裁切 `[x,y,w,h]`，用于剔除设计板留白 / 分隔线而不拉伸素材。`dark_key_threshold / dark_key_softness` 仅用于带暗色设计板底的展示图，运行时将暗底柔和透明化；省略时保留原 alpha。
+- `materials.character/surface` 通过 `shader + full/reduced` 通用参数创建材质；`pulse_parameter` 可选。减弱特效必须静止并降亮。
+- `effects.profile` 和 `projectile_palette_profile` 是主题表现分发键；战斗调用点只认 profile，不得直接判断主题商品或 entitlement ID。
+
+Save v3 的外观状态结构为：
+
+```jsonc
+{
+  "cosmetics": {
+    "selected_theme": "default",
+    "character_outfits": {
+      "vanguard": "follow_theme",
+      "blaze": "follow_theme",
+      "frost": "follow_theme",
+      "volt": "follow_theme"
+    }
+  }
+}
+```
+
+- `selected_theme` 只控制全局菜单、基地、按钮、枪械配色与环境氛围。
+- `character_outfits.<character_id>` 允许 `follow_theme`、`default` 或一项已拥有的主题 ID。`follow_theme` 是旧存档与新角色的安全默认，解析时跟随 `selected_theme`。
+- 逐角色覆盖只影响该角色的立绘、战斗动画、动态衣装材质与角色专属开火 / 施法光效，不得改变数值，也不得在战斗中热切换。
+- 若付费权益被退款、恢复失败或本地演示被清空，所有指向该主题的逐角色覆盖必须回退 `follow_theme`，全局主题同时回退 `default`。
+
+---
+
+## store_products.json（永久商品目录）
+
+以 Apple product ID 为 key。每行必须声明：
+
+- `kind / offer_role`: 当前都使用 `theme / arsenal_complete / arsenal_upgrade`；`kind` 保留商品类别兼容，购买路由只读取明确的 `offer_role`（缺省才回退 `kind`）。
+- `series_id / theme_id / arsenal_set_id`: 商品所属系列及其主题/套装路由；同系列必须恰好各有一条三种 `kind`。
+- `grants`: 逻辑 entitlement 数组；完整军械必须同时授予主题与军械权益。
+- `name_zh/name_en`、`subtitle_zh/subtitle_en`、商品图和排序。
+- `preview_layout`: 玩家商店只允许 `theme_roster / arsenal_grid`。主题固定用四名角色的等尺度半身装束四宫格；完整包与升级包固定用武器 / 护甲 / 芯片 / 宠物实装图标四宫格。旧 `art` 仅作设计来源和兼容回退，不得直接以不同比例的战斗截图、风格板或概念母图混入正式商品列表。
+- 装备表可选 `store_preview_region: [x,y,w,h]`，只裁出玩家商店所需的单一主体；用于剔除旧母图里的缩略变体、角标或说明字，不改图鉴、战斗与配装页的原始 `icon`。
+- `mock_price_zh/mock_price_en` 只允许用于明确标注“不连接 Apple / 不会扣款”的本地验收商店；生产显示价格必须由 StoreKit 返回。
+
+本表不是真实购买凭证。生产权益真源只能进入 `SaveManager.entitlements.verified`；本地演示记录只进入 `commerce.mock_receipts`，二者禁止合并或互相伪装。
+
+## premium_sets.json（终焉套装）
+
+每个 `set_apocalypse_<series>` 必须映射唯一 `series_id / weapon / armor / chip / pet / theme / theme_entitlement / entitlement`，并数据化声明 `two_piece`、`four_piece`、双语商店状态文案和满级输出验收带宽。
+
+- premium 装备行声明同一 `premium_entitlement` / `premium_set`。
+- 购买后装备从 1 级开始，用普通金币升级，不参与星星解锁价格曲线。
+- `target_full_set_ratio_min/center/max` 必须由可复现 DPS 审计验证；第一套雷霆为 `1.52 / 1.55 / 1.58`。
+- 撤权只收回使用权并回退非法已装备项，不删除已投入的装备等级。
+- 商店、权益恢复和一键装备必须遍历 `series_id`，不得再依赖某一套装的代码常量。
+- 高级武器可在 `weapons.presentation` 声明 `weapon_scale / muzzle_distance / attack_duration / prefire_lead / recoil_pose / recoil_accent / recoil_twist`。`true_grip` 进一步声明根目录、`viewpoint`（竖屏底部防线战斗固定为 `rear`）、三向文件 pattern、画布尺寸及逐角色三向枪口坐标；运行时与视觉校验器都读取同一份数据。
+- premium 宠物主动 `kind: fire_flyby` 表示按当前手动锁定 / 自动优先目标执行一次有目标上限的火焰掠场；必须声明冷却、伤害倍率、目标数、衰减、轨迹持续时间与最大并发，不得生成无限地面路径。
+- 战报中的 premium 来源必须拆分记录主武器直伤、灼烧、爆燃、护甲反击、宠物与四件套传播；现有 `take_damage` 四参数调用兼容不变，新增来源通过可选上下文传递。
 
 ---
 

@@ -79,6 +79,9 @@ def main() -> int:
         int(row.get("unlock_cost_star", 0))
         for table in collection_tables
         for row in table.values()
+        # Premium permanent entitlements use a disabled star-price sentinel.
+        # They belong to the commerce audit, not the free campaign-star loop.
+        if not str(row.get("premium_entitlement", "")).strip()
         if int(row.get("unlock_cost_star", 0)) > 0
     ]
     max_star_unlock = max(paid_star_unlocks)

@@ -7,6 +7,7 @@ const ROUTES := {
 	"map": "res://meta/map/map.tscn",
 	"loadout": "res://meta/loadout/loadout.tscn",
 	"collection": "res://meta/collection/collection.tscn",
+	"store": "res://meta/store/store.tscn",
 	"settings": "res://meta/settings/settings.tscn",
 	"battle": "res://gameplay/battle/battle.tscn",
 	"result": "res://meta/result/result.tscn",
@@ -25,6 +26,7 @@ func _ready() -> void:
 		get_tree().quit(2)
 		return
 	SaveManager.load_game()
+	PurchaseManager.refresh_catalog_and_access()
 	ThemeManager.refresh_from_save()
 	get_tree().paused = false
 	Engine.time_scale = 1.0
@@ -75,7 +77,15 @@ func _apply_scene_change() -> void:
 			call_deferred("_emit_ui_audit", route, current_scene)
 
 func _apply_safe_area(root: Control) -> void:
-	UiKit.apply_safe_area_to_root(root, UiKit.safe_area_canvas_insets(get_viewport()))
+	var insets := UiKit.safe_area_canvas_insets(get_viewport())
+	# The settings stack nearly fills the compact 16:9 safe rect. Keep a tiny
+	# authored guard inside its vertical bounds so canvas-items rounding cannot
+	# place the centered container one or two pixels beneath a Dynamic Island or
+	# the home indicator. Other routes retain the exact device insets.
+	if _current_route == "settings" and (insets.y > 0.0 or insets.w > 0.0):
+		insets.y += 2.0
+		insets.w += 2.0
+	UiKit.apply_safe_area_to_root(root, insets)
 
 func _refresh_safe_area() -> void:
 	if _current_route == "battle" or not (current_scene is Control):

@@ -15,11 +15,12 @@ const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vf
 const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
 const BARRIER_VISUAL_Z := 7
 const DEFENSE_ACTOR_Z := 10
+const CHARACTER_BACK_EFFECT_Z := -2
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
-const PET_BASE_X_DESIGN := 725.0
+const PET_BASE_X_DESIGN := 800.0
 const PET_BASE_LINE_OFFSET := 125.0
 const PET_IDLE_FLOAT_AMPLITUDE := 8.0
 const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
@@ -36,11 +37,17 @@ const BASE_LINE_BOSS_WARNING_INSET := 240.0
 var bottom_dock_shift := 0.0
 var BREACH_Y := 1500.0
 var CHARACTER_BASE_POSITION := Vector2(540, 1652)
-## 战斗加速按最高已解锁关卡开放：30关显示并开放2X，50关开放5X。
+## 正式版战斗加速按最高已解锁关卡开放：30关显示并开放2X，50关开放5X。
+## TestFlight 内测 feature 会从第1关常显按钮并开放 1X / 2X / 5X；
+## 正式提审前只需停止注入该 feature，不改存档，也不改正式成长规则。
 ## 只在战斗场景生效，离开战斗时 main.gd 会把 Engine.time_scale 复位成 1.0。
 var battle_speed := 1.0
 var battle_speed_progress_level := 1
 const CHARACTER_VISUAL_BASE_SCALE := 0.512
+const CHARACTER_PRESENTATION_SCALE := 1.50
+const CHARACTER_VFX_PRESENTATION_SCALE := 1.25
+const CHARACTER_BODY_TARGET_HEIGHT_FALLBACK := 420.0
+const CHARACTER_BODY_TARGET_FOOT_OFFSET_FALLBACK := 100.0
 const CHARACTER_WEAPON_SOCKET := Vector2(58, -28)
 const CHARACTER_WEAPON_DEFAULT_DIRECTION := Vector2(0, -1)
 const CHARACTER_WEAPON_MUZZLE_DISTANCE := {
@@ -215,6 +222,15 @@ const HUD_WAVE_FILL_LEFT := 40.0
 const HUD_WAVE_FILL_RIGHT := 680.0
 const HUD_WAVE_BAR_SIZE := Vector2(720, 46)
 const HUD_XP_FILL_RIGHT := 778.0
+const BOSS_HP_HUD_POSITION := Vector2(160, 130)
+const BOSS_HP_HUD_SIZE := Vector2(760, 96)
+const BOSS_HP_LABEL_SIZE := Vector2(760, 56)
+const BOSS_HP_LABEL_FONT_SIZE := 24
+const BOSS_HP_TRACK_POSITION := Vector2(0, 66)
+const BOSS_HP_TRACK_SIZE := Vector2(760, 22)
+const BOSS_HP_FILL_POSITION := Vector2(2, 68)
+const BOSS_HP_FILL_SIZE := Vector2(756, 18)
+const BOSS_HP_LABEL_TRACK_GAP := 10.0
 const BOTTOM_RESOURCE_ROW_DROP := 20.0
 const COMBAT_LABEL_FULL_DENSITY_MAX := 8
 const COMBAT_LABEL_MEDIUM_DENSITY_MAX := 16
@@ -238,6 +254,10 @@ const DIRECTIONAL_VFX_SOURCE_FORWARD := {
 	"vfx_enemy_skill_leap_strike": 0.7853981633974483,
 	"vfx_enemy_skill_phase_shift": 0.0,
 	"vfx_enemy_skill_ranged_spit": 0.0,
+	# The source phoenix flies upper-right (-45 degrees). Keep this explicit so
+	# its head, wing sweep and molten trail always agree with the live path.
+	"vfx_apocalypse_inferno_phoenix": -0.7853981633974483,
+	"vfx_apocalypse_absolute_zero_wave": -0.7853981633974483,
 }
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
@@ -259,6 +279,12 @@ const WAVE_TOAST_SIZE := Vector2(500, 54)
 const WAVE_TOAST_LONG_SIZE := Vector2(600, 164)
 const WAVE_TOAST_MIN_INTERVAL := 2.50
 const ACTIVE_SKILL_DOT_COUNT := 8
+const HUD_SKILL_DOCK_LEFT := 18.0
+const HUD_SKILL_DOCK_RIGHT := 530.0
+const HUD_SKILL_DOCK_BOTTOM := 1808.0
+const HUD_SKILL_SLOT_SIZE := Vector2(96.0, 120.0)
+const HUD_SKILL_DOCK_COLUMNS := 5
+const HUD_SKILL_DOCK_GAP := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
 const FROST_GLACIER_TICK_INTERVAL := 0.52
 const FROST_GLACIER_STATUS_REFRESH := 0.86
@@ -272,9 +298,32 @@ const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
 const CARD_OFFER_CARD_WIDTH := 864.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
+const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
+const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
+const CARD_DETAIL_TAGS_FONT_SIZE := 15
 const MANUAL_AIM_RELEASE_GRACE := 0.18
 const CHALLENGE_HP_MULT := 1.5
 const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
+# Normal enemies use wider authored corridors than the old 160–210px bands.
+# The lane identity remains readable, but a group no longer enters as one stack.
+const SPAWN_LANE_X_BOUNDS := {
+	"left": Vector2(150.0, 430.0),
+	"center": Vector2(300.0, 780.0),
+	"right": Vector2(650.0, 930.0),
+	"spread": Vector2(150.0, 930.0),
+}
+# Boss staging stays deliberately tighter so its entrance, banner and support
+# composition keep the authored focal point.
+const BOSS_SPAWN_LANE_X_BOUNDS := {
+	"left": Vector2(180.0, 390.0),
+	"center": Vector2(460.0, 620.0),
+	"right": Vector2(690.0, 900.0),
+	"spread": Vector2(150.0, 930.0),
+}
+const NORMAL_SPAWN_Y_BOUNDS := Vector2(158.0, 222.0)
+const SPAWN_CANDIDATE_COUNT := 9
+const SPAWN_RECENT_HISTORY := 6
+const SPAWN_ENTRY_BLOCKER_MAX_Y := 330.0
 
 var router: Node
 var level := {}
@@ -303,6 +352,7 @@ var wave_formation := "standard"
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
 var pending_spawns: Array = []
+var recent_spawn_positions: Array[Vector2] = []
 var spawn_timer := 0.0
 var wave_index := 0
 var wave_total := 0
@@ -375,8 +425,9 @@ var character_weapon_combo_active := false
 var character_weapon_combo_muzzle := CHARACTER_WEAPON_SOCKET
 var character_weapon_combo_aim := "center"
 var character_weapon_combo_locked_aim := ""
-var character_neon_fire_tween: Tween
-var character_neon_fire_aura: AnimatedSprite2D
+var character_rig_foot_lift := 0.0
+var character_theme_pulse_tween: Tween
+var character_theme_fire_aura: AnimatedSprite2D
 var character_attack_duration := 0.30
 var pet_idle_frames: Array[Texture2D] = []
 var pet_attack_frames: Array[Texture2D] = []
@@ -399,6 +450,18 @@ var pierce_bonus := 0
 var element_damage_bonus := 1.0
 var slow_strength_bonus := 1.0
 var chain_bonus := 0
+var apocalypse_overload_hits := 0
+var apocalypse_terminal_cooldown := 0.0
+var apocalypse_armor_charge := 0
+var apocalypse_armor_counter_cooldown := 0.0
+var inferno_high_heat_shots := 0
+var inferno_awakening_cooldown := 0.0
+var inferno_feedback_cooldown := 0.0
+var absolute_zero_wave_cooldown := 0.0
+var absolute_zero_awakening_cooldown := 0.0
+var golden_law_awakening_cooldown := 0.0
+var golden_law_decree_cooldown := 0.0
+var absolute_zero_feedback_cooldown := 0.0
 var skill_fire_rate_mult := 1.0
 var skill_slot_ids: Array[String] = []
 var character_active_id := ""
@@ -453,6 +516,7 @@ var weak_kill_feedback_pending := false
 var last_weak_kill_feedback_at := -99.0
 var battle_elapsed_seconds := 0.0
 var battle_damage_total := 0.0
+var battle_damage_by_source := {}
 var battle_damage_by_element: Dictionary = {}
 var battle_crit_damage := 0.0
 var battle_weak_damage := 0.0
@@ -476,6 +540,9 @@ var last_impact_feedback_at := -99.0
 var _lock_indicator_base_scale := 0.3
 var _lock_pulse_tween: Tween
 var _last_kill_at_for_combo := -99.0
+
+func _loc(zh: String, en: String) -> String:
+	return en if LocalizationManager.is_english() else zh
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -583,14 +650,14 @@ func _ready() -> void:
 	_apply_base_survivability()
 	turret = TURRET_SCENE.instantiate()
 	turret.position = Vector2(540, 1660.0 + bottom_dock_shift)
-	turret.setup(DataLoader.get_row("weapons", weapon_id), weapon_level)
+	turret.setup(_themed_weapon_row(DataLoader.get_row("weapons", weapon_id)), weapon_level)
 	_apply_turret_modifiers()
 	turret.visible = false
 	turret.fired.connect(_on_turret_fired)
 	add_child(turret)
 	turret.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_spawn_character()
-	_spawn_neon_tempest_base_overlay()
+	_spawn_theme_base_overlay()
 	_spawn_pet()
 	InputManager.manual_aim_started.connect(_on_manual_aim_started)
 	InputManager.aim_point.connect(_on_manual_aim_point)
@@ -716,6 +783,14 @@ func _physics_process(delta: float) -> void:
 	# up on the next physics tick, matching the existing processing order.
 	var frame_enemies := $EnemyLayer.get_children()
 	battle_elapsed_seconds += real_delta
+	apocalypse_terminal_cooldown = maxf(0.0, apocalypse_terminal_cooldown - real_delta)
+	inferno_awakening_cooldown = maxf(0.0, inferno_awakening_cooldown - real_delta)
+	inferno_feedback_cooldown = maxf(0.0, inferno_feedback_cooldown - real_delta)
+	absolute_zero_wave_cooldown = maxf(0.0, absolute_zero_wave_cooldown - real_delta)
+	absolute_zero_awakening_cooldown = maxf(0.0, absolute_zero_awakening_cooldown - real_delta)
+	golden_law_awakening_cooldown = maxf(0.0, golden_law_awakening_cooldown - real_delta)
+	golden_law_decree_cooldown = maxf(0.0, golden_law_decree_cooldown - real_delta)
+	absolute_zero_feedback_cooldown = maxf(0.0, absolute_zero_feedback_cooldown - real_delta)
 	_update_battle_report_control(real_delta, frame_enemies)
 	_sync_logic_turret_to_character()
 	_update_auto_target(frame_enemies)
@@ -1074,10 +1149,6 @@ func _on_character_skill_button_hover(inside: bool) -> void:
 	if not has_node("Hud/CharacterSkillButton"):
 		return
 	var button := $Hud/CharacterSkillButton as BaseButton
-	if inside:
-		_show_character_skill_hint()
-	else:
-		_hide_skill_hint()
 	if button.disabled:
 		button.scale = Vector2.ONE
 		return
@@ -1187,8 +1258,13 @@ func _show_skill_hint_for_skill(skill_id: String) -> void:
 	if card_offer_active:
 		lv = _skill_offer_level(skill_id)
 	var effect := SkillEffectText.format_effect(SkillEffectText.effect_for_level(row, lv))
-	var title := LocalizationManager.text("%s  等级%d" % [DataLoader.tr_key(str(row.get("name_key", skill_id))), lv])
-	var body := LocalizationManager.text("效果：%s\n说明：%s" % [effect, _skill_short_desc(skill_id, lv)])
+	var title := "%s  %s" % [DataLoader.tr_key(str(row.get("name_key", skill_id))), LocalizationManager.text("等级%d") % lv]
+	var body := "%s: %s\n%s: %s" % [
+		_loc("效果", "Effect"),
+		effect,
+		_loc("说明", "Description"),
+		LocalizationManager.text(_skill_short_desc(skill_id, lv)),
+	]
 	_show_skill_hint(title, body, str(row.get("icon", "")), _skill_card_accent(skill_id, row))
 
 func _show_character_skill_hint() -> void:
@@ -1217,13 +1293,18 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 	if title != null:
 		title.text = title_text
 		title.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86, 1.0))
+		UiKit.fit_label_text(title, UiKit.scaled_font_size(26), 20, 2.0, 2.0)
 	var body := overlay.get_node_or_null("Margin/Row/TextBox/Body") as Label
 	if body != null:
 		body.text = body_text
+		UiKit.fit_label_text(body, UiKit.scaled_font_size(19), 17, 2.0, 4.0)
 
 func _hide_skill_hint() -> void:
 	if has_node("Hud/SkillHintOverlay"):
 		$Hud/SkillHintOverlay.visible = false
+	_clear_skill_hint_press_state()
+
+func _clear_skill_hint_press_state() -> void:
 	skill_hint_press_kind = ""
 	skill_hint_press_skill_id = ""
 	skill_hint_long_press_opened = false
@@ -1235,13 +1316,16 @@ func _begin_skill_hint_press(kind: String, skill_id: String) -> void:
 	skill_hint_long_press_opened = false
 
 func _end_skill_hint_press() -> void:
-	if skill_hint_long_press_opened:
-		if skill_hint_press_kind == "character":
-			suppress_next_character_skill_press = true
-		_hide_skill_hint()
-	else:
-		skill_hint_press_kind = ""
-		skill_hint_press_skill_id = ""
+	var press_kind := skill_hint_press_kind
+	var pressed_skill_id := skill_hint_press_skill_id
+	var was_long_press := skill_hint_long_press_opened
+	_clear_skill_hint_press_state()
+	if press_kind == "skill" and not was_long_press:
+		_show_skill_hint_for_skill(pressed_skill_id)
+	elif press_kind == "character" and was_long_press:
+		# BaseButton emits `pressed` after the release gui_input. Swallow exactly
+		# that release so a hold-to-inspect gesture can never also cast.
+		suppress_next_character_skill_press = true
 
 # Seed the equipped weapon's intrinsic element skill at level 1 so the
 # build is visible from the first frame. Anchored on the weapon (not
@@ -1288,8 +1372,15 @@ func _on_character_skill_pressed() -> void:
 	if suppress_next_character_skill_press:
 		suppress_next_character_skill_press = false
 		return
-	if card_offer_active or paused or character_active_id == "" or character_active_cd > 0.0:
+	if card_offer_active or paused or character_active_id == "":
 		return
+	if character_active_cd > 0.0:
+		# The first ready tap casts. Once the skill is cooling down, the next
+		# tap becomes an explicit inspect action instead of a dead button.
+		_show_character_skill_hint()
+		AudioManager.play_sfx("ui_click", -7.0)
+		return
+	_hide_skill_hint()
 	var cast_success := false
 	match character_active_id:
 		"sig_vanguard_railvolley":
@@ -1493,7 +1584,7 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16)
 	_active_skill_screen_shake(5.5, 0.12)
 	var cast_origin := _weapon_fire_origin()
-	_spawn_neon_tempest_cast_signature(cast_origin, color)
+	_spawn_character_theme_cast_signature(cast_origin, color)
 	if sfx_id.begins_with("sig_"):
 		if character_active_id != "":
 			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true)
@@ -1678,10 +1769,16 @@ func _update_character_skill_button() -> void:
 	var info: Dictionary = CharacterSkillText.signature_info(character_active_id)
 	var label: Label = $Hud/CharacterSkillButton/Label
 	var fill_texture := button.get_node_or_null("CooldownTexture") as TextureRect
-	var ready := character_active_cd <= 0.0 and not card_offer_active and not paused
-	button.disabled = not ready
-	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if ready else Control.CURSOR_ARROW
-	button.tooltip_text = "%s\n%s" % [str(info.get("name", "角色技能")), str(info.get("desc", ""))]
+	var interaction_blocked := card_offer_active or paused
+	var ready := character_active_cd <= 0.0 and not interaction_blocked
+	# Keep the cooling-down button interactive: a tap during cooldown opens
+	# the description. Only modal/paused combat blocks interaction entirely.
+	button.disabled = interaction_blocked
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not interaction_blocked else Control.CURSOR_ARROW
+	button.tooltip_text = "%s\n%s" % [
+		LocalizationManager.text(str(info.get("name", "角色技能"))),
+		LocalizationManager.text(str(info.get("desc", ""))),
+	]
 	var accent := _character_skill_accent()
 	button.add_theme_stylebox_override("normal", _character_skill_style(ready, accent, false))
 	button.add_theme_stylebox_override("hover", _character_skill_style(ready, accent, true))
@@ -1968,6 +2065,25 @@ func _resolved_chain_count(element: String, mods: Dictionary, special: Dictionar
 			+ _character_chain_bonus_for(element),
 	)
 
+func _active_premium_set_id() -> String:
+	for table_and_id in [["weapons", weapon_id], ["armors", armor_id], ["chips", chip_id], ["pets", pet_id]]:
+		var row := DataLoader.get_row(str(table_and_id[0]), str(table_and_id[1]))
+		var set_id := str(row.get("premium_set", ""))
+		if set_id != "":
+			return set_id
+	return ""
+
+func _premium_set_piece_count(set_id := "") -> int:
+	var resolved_set_id := set_id if set_id != "" else _active_premium_set_id()
+	var set_row := DataLoader.get_row("premium_sets", resolved_set_id)
+	if set_row.is_empty():
+		return 0
+	var count := 0
+	for slot in ["weapon", "armor", "chip", "pet"]:
+		if SaveManager.get_selected(slot) == str(set_row.get(slot, "")):
+			count += 1
+	return count
+
 func _character_chain_overflow_damage_multiplier(element: String, chain_count: int) -> float:
 	if not _is_character_affinity_element(element):
 		return 1.0
@@ -2025,6 +2141,9 @@ func _apply_base_survivability() -> void:
 	hp_mult *= 1.0 + float(character_data.get("hp_growth", 0.06)) * 0.45 * float(max(character_level - 1, 0))
 	hp_mult *= float(armor_data.get("hp_mult", 1.0))
 	hp_mult *= 1.0 + float(armor_data.get("level_hp_growth", 0.018)) * float(max(armor_level - 1, 0))
+	var armor_max_level := maxi(2, int(armor_data.get("max_level", 35)))
+	var armor_growth_progress := clampf(float(armor_level - 1) / float(armor_max_level - 1), 0.0, 1.0)
+	hp_mult *= 1.0 + float(armor_data.get("endgame_hp_growth_bonus", 0.0)) * pow(armor_growth_progress, maxf(1.0, float(armor_data.get("endgame_growth_curve", 1.0))))
 	hp_mult *= _chip_multiplier("base_hp_mult")
 	hp_mult *= 1.0 + _pet_stat_value("base_hp_mult")
 	# Early/mid campaign keeps a small accessibility cushion. Endgame is a real
@@ -2077,13 +2196,20 @@ func _chip_multiplier(stat: String) -> float:
 	return 1.0 + _chip_value(stat)
 
 func _chip_value(stat: String) -> float:
-	if chip_data.get("stat", "") != stat:
-		return 0.0
-	var value := float(chip_data.get("value", 0.0))
-	if stat == "pierce_bonus":
-		return value + float(_growth_rank(chip_level))
-	var growth := float(chip_data.get("level_value_growth", 0.035))
-	return value * (1.0 + growth * float(max(chip_level - 1, 0)))
+	if chip_data.get("stat", "") == stat:
+		var value := float(chip_data.get("value", 0.0))
+		if stat == "pierce_bonus":
+			return value + float(_growth_rank(chip_level))
+		var growth := float(chip_data.get("level_value_growth", 0.035))
+		return value * (1.0 + growth * float(max(chip_level - 1, 0)))
+	var secondary: Dictionary = chip_data.get("secondary_stats", {})
+	if secondary.has(stat):
+		var secondary_growth: Dictionary = chip_data.get("secondary_level_growth", {})
+		return (
+			float(secondary.get(stat, 0.0))
+			+ float(secondary_growth.get(stat, 0.0)) * float(max(chip_level - 1, 0))
+		)
+	return 0.0
 
 func _pet_stat_value(stat: String) -> float:
 	if pet_data.is_empty():
@@ -2389,29 +2515,37 @@ func _ensure_boss_hp_bar() -> void:
 		return
 	boss_hp_bar = Control.new()
 	boss_hp_bar.name = "BossHpBar"
-	boss_hp_bar.position = Vector2(160, 162)
-	boss_hp_bar.size = Vector2(760, 64)
+	# The global font scale turns the authored 24 px label into a 36 px face
+	# with a 6 px outline. The old 28 px box clipped its lower strokes and let
+	# the rail cover CJK / Latin descenders. Keep the rail at the same absolute
+	# Y, but give the identity line its own full-height band plus a clean gap.
+	boss_hp_bar.position = BOSS_HP_HUD_POSITION
+	boss_hp_bar.size = BOSS_HP_HUD_SIZE
 	boss_hp_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.visible = false
-	boss_hp_label = UiKit.label("", 24, Color(1.0, 0.72, 0.46), 4)
+	boss_hp_label = UiKit.label("", BOSS_HP_LABEL_FONT_SIZE, Color(1.0, 0.72, 0.46), 4)
+	boss_hp_label.name = "Label"
 	boss_hp_label.position = Vector2(0, 0)
-	boss_hp_label.size = Vector2(760, 28)
+	boss_hp_label.size = BOSS_HP_LABEL_SIZE
 	boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	boss_hp_bar.add_child(boss_hp_label)
 	var track := TextureRect.new()
+	track.name = "Track"
 	track.texture = load("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
 	track.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	track.stretch_mode = TextureRect.STRETCH_SCALE
-	track.position = Vector2(0, 34)
-	track.size = Vector2(760, 22)
+	track.position = BOSS_HP_TRACK_POSITION
+	track.size = BOSS_HP_TRACK_SIZE
 	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.add_child(track)
 	boss_hp_fill = TextureRect.new()
+	boss_hp_fill.name = "Fill"
 	boss_hp_fill.texture = load("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
 	boss_hp_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	boss_hp_fill.stretch_mode = TextureRect.STRETCH_SCALE
-	boss_hp_fill.position = Vector2(2, 36)
-	boss_hp_fill.size = Vector2(756, 18)
+	boss_hp_fill.position = BOSS_HP_FILL_POSITION
+	boss_hp_fill.size = BOSS_HP_FILL_SIZE
 	boss_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.add_child(boss_hp_fill)
 	$Hud.add_child(boss_hp_bar)
@@ -2429,7 +2563,7 @@ func _update_boss_hp_bar() -> void:
 		boss_hp_bar.visible = false
 		return
 	boss_hp_bar.visible = true
-	boss_hp_fill.size.x = 756.0 * ratio
+	boss_hp_fill.size.x = BOSS_HP_FILL_SIZE.x * ratio
 	var boss_name := DataLoader.tr_key(active_boss.data.get("name_key", "")) if active_boss.data is Dictionary else ""
 	var boss_count := _living_boss_count()
 	var count_suffix := "  x%d" % boss_count if boss_count > 1 else ""
@@ -2438,6 +2572,15 @@ func _update_boss_hp_bar() -> void:
 		boss_hp_label.text = "%s%s · Weak: %s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
 	else:
 		boss_hp_label.text = "%s%s · 弱%s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
+	# Long English names may shrink within the dedicated identity band, but
+	# never wrap, crop, or descend into the HP rail.
+	UiKit.fit_label_text(
+		boss_hp_label,
+		UiKit.scaled_font_size(BOSS_HP_LABEL_FONT_SIZE),
+		28,
+		12.0,
+		4.0
+	)
 
 func _living_boss_count() -> int:
 	var count := 0
@@ -2536,15 +2679,17 @@ func _layout_runtime_hud() -> void:
 		# 设计高度内的 HUD 元素脱节，比如漂进黑色空白区域)。真正要"用满全屏"是靠
 		# 下面这个 +bottom_dock_shift——同一个偏移量同时加到人物、护栏、这整个底部
 		# HUD 群组上，大家一起挪到真实屏幕底部，彼此之间的相对位置完全不变。
+		skill_slots.anchor_left = 0.0
 		skill_slots.anchor_top = 0.0
+		skill_slots.anchor_right = 0.0
 		skill_slots.anchor_bottom = 0.0
-		skill_slots.offset_left = 10.0
-		skill_slots.offset_top = 1654.0 + bottom_dock_shift
-		skill_slots.offset_right = 420.0
-		skill_slots.offset_bottom = 1784.0 + bottom_dock_shift
-		skill_slots.columns = 8
-		skill_slots.add_theme_constant_override("h_separation", 6)
-		skill_slots.add_theme_constant_override("v_separation", 6)
+		skill_slots.offset_left = HUD_SKILL_DOCK_LEFT
+		skill_slots.offset_top = HUD_SKILL_DOCK_BOTTOM - HUD_SKILL_SLOT_SIZE.y + bottom_dock_shift
+		skill_slots.offset_right = HUD_SKILL_DOCK_RIGHT
+		skill_slots.offset_bottom = HUD_SKILL_DOCK_BOTTOM + bottom_dock_shift
+		skill_slots.columns = HUD_SKILL_DOCK_COLUMNS
+		skill_slots.add_theme_constant_override("h_separation", HUD_SKILL_DOCK_GAP)
+		skill_slots.add_theme_constant_override("v_separation", HUD_SKILL_DOCK_GAP)
 	var active_button := get_node_or_null("Hud/CharacterSkillButton") as Control
 	if active_button != null:
 		active_button.offset_left = -154.0
@@ -2662,28 +2807,28 @@ func _layout_card_detail_overlay() -> void:
 	UiKit.apply_label(levels_title, 17, UiKit.GOLD, 2)
 	var levels := _ensure_card_detail_label(panel, "AllLevelsBody")
 	levels.position = Vector2(44, 278)
-	levels.size = Vector2(716, 222)
+	levels.size = Vector2(716, 226)
 	levels.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	levels.clip_text = true
-	levels.add_theme_constant_override("line_spacing", 4)
-	UiKit.apply_label(levels, 13, Color(0.86, 0.92, 0.92, 1.0), 2)
+	levels.add_theme_constant_override("line_spacing", 7)
+	UiKit.apply_label(levels, CARD_DETAIL_LEVELS_BODY_FONT_SIZE, Color(0.86, 0.92, 0.92, 1.0), 2)
 	var desc := _ensure_card_detail_label(panel, "DescBody")
-	desc.position = Vector2(44, 526)
-	desc.size = Vector2(716, 104)
+	desc.position = Vector2(44, 514)
+	desc.size = Vector2(716, 164)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
-	desc.add_theme_constant_override("line_spacing", 4)
-	UiKit.apply_label(desc, 15, Color(0.84, 0.92, 0.94, 1.0), 2)
+	desc.add_theme_constant_override("line_spacing", 6)
+	UiKit.apply_label(desc, CARD_DETAIL_DESCRIPTION_FONT_SIZE, Color(0.84, 0.92, 0.94, 1.0), 2)
 	var tags := _ensure_card_detail_label(panel, "TagsBody")
-	tags.position = Vector2(44, 654)
-	tags.size = Vector2(716, 36)
+	tags.position = Vector2(44, 690)
+	tags.size = Vector2(716, 52)
 	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tags.clip_text = true
 	tags.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.apply_label(tags, 14, UiKit.TEXT_MUTED, 2)
+	UiKit.apply_label(tags, CARD_DETAIL_TAGS_FONT_SIZE, UiKit.TEXT_MUTED, 2)
 	var close := panel.get_node_or_null("CloseButton") as TextureButton
 	if close != null:
-		close.position = Vector2(242, 730)
+		close.position = Vector2(242, 750)
 		close.size = Vector2(320, 80)
 		close.custom_minimum_size = Vector2(320, 80)
 		close.ignore_texture_size = true
@@ -2746,9 +2891,10 @@ func _update_speed_button_visual() -> void:
 	var unlocked := _is_speed_button_unlocked()
 	button.visible = unlocked and not paused
 	button.disabled = not unlocked
+	var available_speeds := SettingsManager.available_battle_speeds(battle_speed_progress_level)
 	button.tooltip_text = (
 		"战斗加速：1X / 2X / 5X"
-		if battle_speed_progress_level >= SettingsManager.BATTLE_SPEED_5X_LEVEL
+		if available_speeds.has(5.0)
 		else "战斗加速：最高 2X（第50关解锁 5X）"
 	)
 	var boosted := battle_speed > 1.0
@@ -3027,8 +3173,8 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 	icon_plate.add_child(icon)
 	var title := UiKit.label(LocalizationManager.text(title_text), 24, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = Vector2(120, 10)
-	title.size = Vector2(button_size.x - 218.0, 48)
+	title.position = Vector2(120, 4)
+	title.size = Vector2(button_size.x - 218.0, 58)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.fit_label_text(title, UiKit.scaled_font_size(24), 21, 4.0, 2.0)
 	button.add_child(title)
@@ -3204,6 +3350,7 @@ func _start_next_wave() -> void:
 	var wave: Dictionary = waves[wave_index]
 	wave_index += 1
 	pending_spawns.clear()
+	recent_spawn_positions.clear()
 	_update_objective_panel()
 	_show_wave_tip(wave)
 	if wave.has("boss"):
@@ -3462,17 +3609,76 @@ func _boss_survival_hp_mult(current_level: int, is_boss_enemy: bool, economy: Di
 	return ramp_mult
 
 func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
-	var x := 540.0
-	match lane:
-		"left":
-			x = randf_range(180, 390)
-		"right":
-			x = randf_range(690, 900)
-		"center":
-			x = randf_range(460, 620)
-		_:
-			x = randf_range(150, 930)
-	_spawn_enemy_instance(enemy_id, Vector2(x, 190), is_boss)
+	_spawn_enemy_instance(enemy_id, _next_enemy_spawn_position(lane, is_boss), is_boss)
+
+func _next_enemy_spawn_position(lane: String, is_boss := false) -> Vector2:
+	var bounds := _spawn_lane_x_bounds(lane, is_boss)
+	if is_boss:
+		var boss_position := Vector2(randf_range(bounds.x, bounds.y), 190.0)
+		_remember_spawn_position(boss_position)
+		return boss_position
+
+	# Best-candidate (blue-noise style) sampling: take several genuinely random
+	# positions, then keep the one farthest from recent births and enemies still
+	# inside the entry band. It stays unpredictable across runs while preventing
+	# the visually obvious piles produced by independent random samples.
+	var best_position := Vector2(randf_range(bounds.x, bounds.y), randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y))
+	var has_blockers := not recent_spawn_positions.is_empty() or _has_live_entry_blockers()
+	if has_blockers:
+		var best_score := -INF
+		for _candidate_index in range(SPAWN_CANDIDATE_COUNT):
+			var candidate := Vector2(
+				randf_range(bounds.x, bounds.y),
+				randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y)
+			)
+			var edge_clearance := minf(candidate.x - bounds.x, bounds.y - candidate.x)
+			var previous_gap_bonus := 0.0
+			if not recent_spawn_positions.is_empty():
+				previous_gap_bonus = absf(candidate.x - recent_spawn_positions.back().x) * 0.72
+			var score := _spawn_candidate_clearance(candidate) + previous_gap_bonus + edge_clearance * 0.08 + randf_range(-18.0, 18.0)
+			if score > best_score:
+				best_score = score
+				best_position = candidate
+	_remember_spawn_position(best_position)
+	return best_position
+
+func _spawn_lane_x_bounds(lane: String, is_boss: bool) -> Vector2:
+	var table: Dictionary = BOSS_SPAWN_LANE_X_BOUNDS if is_boss else SPAWN_LANE_X_BOUNDS
+	var normalized := lane if table.has(lane) else "spread"
+	return table[normalized]
+
+func _has_live_entry_blockers() -> bool:
+	if not is_inside_tree() or not has_node("EnemyLayer"):
+		return false
+	for enemy in $EnemyLayer.get_children():
+		if enemy is Node2D and (enemy as Node2D).global_position.y <= SPAWN_ENTRY_BLOCKER_MAX_Y:
+			return true
+	return false
+
+func _spawn_candidate_clearance(candidate: Vector2) -> float:
+	var clearance := INF
+	for recent in recent_spawn_positions:
+		clearance = minf(clearance, _spawn_visual_distance(candidate, recent))
+	if is_inside_tree() and has_node("EnemyLayer"):
+		for enemy in $EnemyLayer.get_children():
+			if not (enemy is Node2D):
+				continue
+			var enemy_position := (enemy as Node2D).global_position
+			if enemy_position.y > SPAWN_ENTRY_BLOCKER_MAX_Y:
+				continue
+			clearance = minf(clearance, _spawn_visual_distance(candidate, enemy_position))
+	return clearance if clearance < INF else 0.0
+
+func _spawn_visual_distance(left: Vector2, right: Vector2) -> float:
+	var delta := left - right
+	# Y jitter adds organic entry depth, but it must never disguise two enemies
+	# that are still visually stacked along X on a portrait battlefield.
+	return Vector2(delta.x, delta.y * 0.45).length()
+
+func _remember_spawn_position(spawn_position: Vector2) -> void:
+	recent_spawn_positions.append(spawn_position)
+	while recent_spawn_positions.size() > SPAWN_RECENT_HISTORY:
+		recent_spawn_positions.pop_front()
 
 func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0) -> Node:
 	var row := DataLoader.get_row("bosses" if is_boss else "zombies", enemy_id).duplicate(true)
@@ -3702,6 +3908,7 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 		return
 	base_hp = max(base_hp - final_damage, 0)
 	battle_base_damage_taken += final_damage
+	_apply_apocalypse_armor_counter(source, final_damage, impact_position)
 	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.12)
 	_spawn_float_text(impact_position, "-%d %s" % [final_damage, label], color)
 	_check_low_hp_warning()
@@ -4067,8 +4274,8 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if weapon_level >= 15 and randf() < 0.08:
 		_spawn_weapon_power_ring(origin, element)
 	_spawn_muzzle_flash(origin, direction, element, visual_profile)
-	_pulse_neon_tempest_character()
-	_spawn_neon_tempest_fire_signature(origin, direction, element)
+	_pulse_character_theme_material()
+	_spawn_character_theme_fire_signature(origin, direction, element)
 	var base_damage: float = 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
 	var pierce: int = int(mods.get("pierce", 0)) + pierce_bonus + int(special.get("pierce", 0)) + _character_pierce_bonus(element)
 	if sig_vanguard_barrage_timer > 0.0:
@@ -4083,6 +4290,15 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var lane_damage_mult := _multishot_damage_multiplier(multishot_lanes)
 	var armor_penetration := skills.armor_penetration()
 	var status_strength := skills.projectile_status_strength(element)
+	if visual_profile == "apocalypse_inferno":
+		var burn_ratio := float(special.get("burn_ratio", 0.38)) * (1.0 + _chip_value("burn_efficiency"))
+		var inferno_set := DataLoader.get_row("premium_sets", str(weapon.get("premium_set", "")))
+		if _premium_set_piece_count(str(weapon.get("premium_set", ""))) >= 2:
+			burn_ratio *= 1.0 + float(inferno_set.get("two_piece", {}).get("burn_efficiency", 0.0))
+		status_strength = maxf(status_strength, burn_ratio)
+		inferno_high_heat_shots += 1
+	elif visual_profile == "apocalypse_absolute_zero":
+		status_strength = maxf(status_strength, float(special.get("slow", 0.30)) * (1.0 + _chip_value("slow_strength_mult") + _pet_stat_value("slow_strength_mult")))
 	var preferred_target: Node2D = target_manager.locked_enemy if target_manager.has_lock() else null
 	var penetration_feedback_triggered := armor_penetration > 0.0 and randf() < 0.14
 	if penetration_feedback_triggered:
@@ -4166,8 +4382,9 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
 	# 多重射击 = “固定夹角”的对称扇形：每条弹道之间角度固定、不各自变道锁敌（避免 imba）。
-	# 无点名时扇形整体“中心方向”对准敌群质心；锁定/手动瞄准时必须保留一条精确命中
-	# 优先目标的主弹道，其余弹道才按固定夹角扩散，不能让敌群质心覆盖玩家点名。
+	# 无点名时扇形整体仍参考敌群质心，但会整体旋转到至少一条真实弹道精确穿过当前自动目标；
+	# 锁定/手动瞄准时同样让一条主弹道精确命中优先方向。整个扇形只做刚体旋转，
+	# 因此偶数弹道不会从目标两侧跨过，所有相邻弹道也继续保持固定夹角。
 	# 每条弹道的固定夹角取自 MULTISHOT_LANE_DEG（不再用武器随机 spread——那会在 spread=0 时把所有
 	# 弹道叠成一条线，稍微偏一点就整组打空）；散射类武器额外的 spread 只做“下限加宽”。
 	var directions: Array[Vector2] = []
@@ -4178,40 +4395,25 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 	var center_dir := priority_dir if priority_dir.length_squared() > 0.01 else _multishot_center_direction(origin, base_direction)
 	var lane_step: float = maxf(deg_to_rad(MULTISHOT_LANE_DEG), spread / float(shots - 1))
 	var total: float = lane_step * float(shots - 1)
-	# 质心是"平均位置"，敌人分两侧站时质心可能落在没人的空地——固定夹角的扇形整体套在质心上会全部打空。
-	# 保证至少一条弹道真的对着某个敌人：质心扇形覆盖不到任何敌人时，把整个扇形(角度仍固定)
-	# 重新对准"离质心方向最近的那个真实敌人"，而不是让每条弹道各自变道锁敌（那样才是 imba）。
-	var enemy_dirs := _battlefield_enemy_directions(origin)
-	if priority_dir.length_squared() <= 0.01 and not enemy_dirs.is_empty():
-		var half_span: float = total * 0.5 + lane_step * 0.5
-		var covered := false
-		for d in enemy_dirs:
-			if absf(center_dir.angle_to(d)) <= half_span:
-				covered = true
-				break
-		if not covered:
-			var best_dir: Vector2 = enemy_dirs[0]
-			var best_diff := INF
-			for d in enemy_dirs:
-				var diff := absf(center_dir.angle_to(d))
-				if diff < best_diff:
-					best_diff = diff
-					best_dir = d
-			center_dir = best_dir
 	for index in range(shots):
 		var offset: float = -total * 0.5 + lane_step * float(index)
 		directions.append(center_dir.rotated(offset).normalized())
-	if priority_dir.length_squared() > 0.01:
-		var priority_lane := 0
-		var priority_angle := INF
+	var hit_direction := priority_dir
+	if hit_direction.length_squared() <= 0.01:
+		hit_direction = _automatic_multishot_hit_direction(origin, base_direction)
+	if hit_direction.length_squared() > 0.01:
+		var hit_lane := 0
+		var hit_angle := INF
 		for index in range(directions.size()):
-			var angle := absf(directions[index].angle_to(priority_dir))
-			if angle < priority_angle:
-				priority_angle = angle
-				priority_lane = index
-		# Even lane counts have no mathematical center lane. Snap the nearest lane
-		# to the explicit aim so a two-shot fan cannot straddle and miss the lock.
-		directions[priority_lane] = priority_dir
+			var angle := absf(directions[index].angle_to(hit_direction))
+			if angle < hit_angle:
+				hit_angle = angle
+				hit_lane = index
+		# Rotate the complete fan instead of bending one projectile independently.
+		# This puts one lane through the target centre and preserves every authored gap.
+		var correction := directions[hit_lane].angle_to(hit_direction)
+		for index in range(directions.size()):
+			directions[index] = directions[index].rotated(correction).normalized()
 	return directions
 
 func _priority_aim_direction(origin: Vector2) -> Vector2:
@@ -4230,20 +4432,31 @@ func _priority_aim_direction(origin: Vector2) -> Vector2:
 	var direction := priority_point - origin
 	return direction.normalized() if direction.length_squared() > 4.0 else Vector2.ZERO
 
-func _battlefield_enemy_directions(origin: Vector2) -> Array[Vector2]:
-	# 场上所有尚未越线的敌人相对 origin 的单位方向（供多重射击"至少一条弹道命中"判定用）。
-	var dirs: Array[Vector2] = []
-	for e in $EnemyLayer.get_children():
-		if not is_instance_valid(e) or not (e is Node2D):
+func _automatic_multishot_hit_direction(origin: Vector2, requested_direction: Vector2) -> Vector2:
+	# `requested_direction` comes from the automatic target selected for the turret.
+	# Resolve it back to the nearest still-live enemy direction so a stale/centroid
+	# direction can never be mistaken for an actual hittable lane.
+	var requested := requested_direction.normalized() if requested_direction.length_squared() > 0.01 else Vector2.UP
+	var best_direction := Vector2.ZERO
+	var best_angle := INF
+	for child in $EnemyLayer.get_children():
+		if not is_instance_valid(child) or child.is_queued_for_deletion() or not (child is Node2D):
 			continue
-		var en := e as Node2D
-		if en.global_position.y > 1540.0 + bottom_dock_shift:
+		var hp_value = child.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
 			continue
-		var to_enemy: Vector2 = en.global_position - origin
+		var enemy := child as Node2D
+		if enemy.global_position.y > BREACH_Y + 40.0:
+			continue
+		var to_enemy := enemy.global_position - origin
 		if to_enemy.length_squared() <= 4.0:
 			continue
-		dirs.append(to_enemy.normalized())
-	return dirs
+		var enemy_direction := to_enemy.normalized()
+		var angle := absf(requested.angle_to(enemy_direction))
+		if angle < best_angle:
+			best_angle = angle
+			best_direction = enemy_direction
+	return best_direction
 
 func _multishot_center_direction(origin: Vector2, fallback: Vector2) -> Vector2:
 	# 敌群质心方向（只算尚未越过基线的敌人）；无敌人时退回原瞄准方向。
@@ -4336,7 +4549,7 @@ func _spawn_character() -> void:
 	character_sprite = Sprite2D.new()
 	character_sprite.name = "Character"
 	character_sprite.position = Vector2.ZERO
-	character_sprite.scale = Vector2.ONE * CHARACTER_VISUAL_BASE_SCALE * _visual_level_scale(character_level)
+	character_sprite.scale = Vector2.ONE * CHARACTER_VISUAL_BASE_SCALE
 	character_sprite.modulate = Color.WHITE
 	character_sprite.z_index = 1
 	character_rig.add_child(character_sprite)
@@ -4345,11 +4558,156 @@ func _spawn_character() -> void:
 		character_sprite.texture = character_idle_frames[0]
 	else:
 		character_sprite.texture = load(character_data.get("portrait", ""))
-	character_sprite.material = ThemeManager.create_character_iridescence_material()
+	_apply_character_body_normalization("center" if _character_uses_true_grip() else "idle")
+	_apply_character_presentation_scale()
+	character_sprite.material = ThemeManager.create_character_material(_character_asset_id())
 	_attach_growth_badge(character_sprite, character_level, Vector2(-98, -190))
 	_spawn_character_weapon_visual()
 	_spawn_character_aura()
-	_spawn_neon_tempest_character_fire_aura()
+	_spawn_character_theme_fire_aura()
+
+func _apply_character_presentation_scale() -> void:
+	if character_rig == null or character_sprite == null:
+		return
+	# The rig still owns the previously approved +50% battlefield presentation,
+	# but its lift now follows the anatomical foot contract rather than the full
+	# alpha bounds. A tall cannon, coat, wing or muzzle glow can therefore extend
+	# freely without moving the hero's boots or making the human body smaller.
+	var foot_offset := _character_body_target_foot_offset()
+	character_rig_foot_lift = maxf(0.0, foot_offset * (CHARACTER_PRESENTATION_SCALE - 1.0))
+	character_rig.position = CHARACTER_BASE_POSITION - Vector2(0.0, character_rig_foot_lift)
+	character_rig.scale = Vector2.ONE * CHARACTER_PRESENTATION_SCALE
+
+func _character_body_metrics_table() -> Dictionary:
+	var table: Variant = DataLoader.get_table("character_body_metrics")
+	return table if table is Dictionary else {}
+
+func _character_uses_true_grip() -> bool:
+	var true_grip: Variant = _weapon_presentation().get("true_grip", {})
+	return true_grip is Dictionary and not (true_grip as Dictionary).is_empty()
+
+func _character_body_profile_id() -> String:
+	var profiles: Dictionary = _character_body_metrics_table().get("profiles", {})
+	return weapon_id if profiles.has(weapon_id) else "standard"
+
+func _character_body_metric(pose_key := "") -> Dictionary:
+	var resolved_pose := pose_key
+	if resolved_pose == "":
+		resolved_pose = _character_current_body_pose_key()
+	var profiles: Dictionary = _character_body_metrics_table().get("profiles", {})
+	var profile: Dictionary = profiles.get(_character_body_profile_id(), {})
+	var character_profile: Dictionary = profile.get(_character_asset_id(), {})
+	if character_profile.has(resolved_pose):
+		return (character_profile.get(resolved_pose, {}) as Dictionary).duplicate(true)
+	var fallback_pose := "center" if _character_uses_true_grip() else "idle"
+	if character_profile.has(fallback_pose):
+		return (character_profile.get(fallback_pose, {}) as Dictionary).duplicate(true)
+	return {
+		"body_height_px": CHARACTER_BODY_TARGET_HEIGHT_FALLBACK,
+		"foot_y_px": 486.0,
+		"body_center_x_px": 190.0,
+	}
+
+func _character_body_target_height() -> float:
+	return maxf(1.0, float(_character_body_metrics_table().get(
+		"target_body_height_px", CHARACTER_BODY_TARGET_HEIGHT_FALLBACK
+	)))
+
+func _character_body_target_foot_offset() -> float:
+	return float(_character_body_metrics_table().get(
+		"target_foot_offset_px", CHARACTER_BODY_TARGET_FOOT_OFFSET_FALLBACK
+	))
+
+func _character_body_sprite_scale(pose_key := "") -> float:
+	var metric := _character_body_metric(pose_key)
+	var source_height := maxf(1.0, float(metric.get("body_height_px", _character_body_target_height())))
+	return CHARACTER_VISUAL_BASE_SCALE * _character_body_target_height() / source_height
+
+func _character_body_anchor_offset(pose_key: String, sprite_scale: float) -> Vector2:
+	var metric := _character_body_metric(pose_key)
+	var texture_size := Vector2(380.0, 520.0)
+	if character_sprite != null and character_sprite.texture != null:
+		texture_size = character_sprite.texture.get_size()
+	var body_center_x := float(metric.get("body_center_x_px", texture_size.x * 0.5))
+	var foot_y := float(metric.get("foot_y_px", texture_size.y * 0.5))
+	return Vector2(
+		(texture_size.x * 0.5 - body_center_x) * sprite_scale,
+		_character_body_target_foot_offset() - (foot_y - texture_size.y * 0.5) * sprite_scale
+	)
+
+func _apply_character_body_normalization(pose_key := "") -> void:
+	if character_sprite == null:
+		return
+	var resolved_pose := pose_key if pose_key != "" else _character_current_body_pose_key()
+	var sprite_scale := _character_body_sprite_scale(resolved_pose)
+	character_sprite.scale = Vector2.ONE * sprite_scale
+	character_sprite.position = _character_body_anchor_offset(resolved_pose, sprite_scale)
+
+func _character_current_body_pose_key() -> String:
+	if _character_uses_true_grip():
+		if character_attack_time > 0.0 or character_skill_time > 0.0 or _character_prefire_active():
+			return _character_combo_effective_aim()
+		return "center"
+	if character_hurt_time > 0.0:
+		return "hurt"
+	if character_attack_time > 0.0 or character_skill_time > 0.0 or _character_prefire_active():
+		return _character_combo_effective_aim()
+	return "idle"
+
+func _character_visible_bottom_offset() -> float:
+	if character_sprite == null or character_sprite.texture == null:
+		return 0.0
+	var image := character_sprite.texture.get_image()
+	if image == null or image.is_empty():
+		return float(character_sprite.texture.get_height()) * absf(character_sprite.scale.y) * 0.5
+	var used := image.get_used_rect()
+	if used.size.x <= 0 or used.size.y <= 0:
+		return float(image.get_height()) * absf(character_sprite.scale.y) * 0.5
+	return maxf(0.0, float(used.end.y) - float(image.get_height()) * 0.5) * absf(character_sprite.scale.y)
+
+func _spawn_theme_base_overlay() -> void:
+	match ThemeManager.active_effect_profile():
+		"neon_tempest":
+			_spawn_neon_tempest_base_overlay()
+		"infernal_dominion":
+			_spawn_infernal_dominion_base_overlay()
+		"polar_aurora":
+			_spawn_polar_aurora_base_overlay()
+		"gilded_eclipse":
+			_spawn_gilded_eclipse_base_overlay()
+
+func _spawn_character_theme_fire_aura() -> void:
+	match ThemeManager.character_effect_profile(_character_asset_id()):
+		"neon_tempest":
+			_spawn_neon_tempest_character_fire_aura()
+		"infernal_dominion":
+			_spawn_infernal_character_fire_aura()
+		"polar_aurora":
+			_spawn_polar_aurora_character_fire_aura()
+		"gilded_eclipse":
+			_spawn_gilded_eclipse_character_fire_aura()
+
+func _spawn_character_theme_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
+	match ThemeManager.character_effect_profile(_character_asset_id()):
+		"neon_tempest":
+			_spawn_neon_tempest_fire_signature(origin, direction, element)
+		"infernal_dominion":
+			_spawn_infernal_fire_signature(origin, direction, element)
+		"polar_aurora":
+			_spawn_polar_aurora_fire_signature(origin, direction, element)
+		"gilded_eclipse":
+			_spawn_gilded_eclipse_fire_signature(origin, direction, element)
+
+func _spawn_character_theme_cast_signature(origin: Vector2, base_color: Color) -> void:
+	match ThemeManager.character_effect_profile(_character_asset_id()):
+		"neon_tempest":
+			_spawn_neon_tempest_cast_signature(origin, base_color)
+		"infernal_dominion":
+			_spawn_infernal_cast_signature(origin, base_color)
+		"polar_aurora":
+			_spawn_polar_aurora_cast_signature(origin, base_color)
+		"gilded_eclipse":
+			_spawn_gilded_eclipse_cast_signature(origin, base_color)
 
 func _spawn_neon_tempest_base_overlay() -> void:
 	if not ThemeManager.is_active("neon_tempest"):
@@ -4390,10 +4748,128 @@ func _spawn_neon_tempest_base_overlay() -> void:
 			glow.set_meta("persistent_theme_fx", true)
 
 
-func _spawn_neon_tempest_character_fire_aura() -> void:
-	if character_rig == null or not ThemeManager.is_active("neon_tempest"):
+func _spawn_infernal_dominion_base_overlay() -> void:
+	if not ThemeManager.is_active("infernal_dominion"):
 		return
-	var textures := ThemeManager.resolve_effect_sequence("character_fire_aura")
+	var root := Node2D.new()
+	root.name = "InfernalDominionBaseOverlay"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.z_index = DEFENSE_ACTOR_Z - 1
+	add_child(root)
+	var base_y := 1532.0 + bottom_dock_shift
+	for index in range(2):
+		var rail := Line2D.new()
+		rail.name = "FurnaceRail%d" % (index + 1)
+		rail.width = 9.0 if index == 0 else 3.5
+		rail.default_color = Color(0.96, 0.24, 0.055, 0.34) if index == 0 else Color(1.0, 0.72, 0.18, 0.58)
+		rail.joint_mode = Line2D.LINE_JOINT_ROUND
+		rail.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.end_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.texture = VfxLib.STREAK_TEXTURE
+		rail.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		rail.material = _new_muzzle_additive_material()
+		var inset := float(index) * 20.0
+		rail.points = PackedVector2Array([
+			Vector2(112 + inset, base_y + 20.0),
+			Vector2(286, base_y - 4.0 - inset * 0.12),
+			Vector2(540, base_y - 18.0 - inset * 0.18),
+			Vector2(794, base_y - 4.0 - inset * 0.12),
+			Vector2(968 - inset, base_y + 20.0),
+		])
+		root.add_child(rail)
+		if not SettingsManager.reduced_effects_enabled():
+			var tween := rail.create_tween().set_loops()
+			tween.tween_property(rail, "modulate:a", 0.52, 0.66 + float(index) * 0.10)
+			tween.tween_property(rail, "modulate:a", 1.0, 0.66 + float(index) * 0.10)
+	for side_x in [130.0, 950.0]:
+		var glow := VfxLib.spawn_glow(root, Vector2(side_x, base_y + 8.0), Color(1.0, 0.30, 0.05, 0.30), 88.0, 0.72)
+		if glow != null:
+			glow.set_meta("persistent_theme_fx", true)
+
+
+func _spawn_polar_aurora_base_overlay() -> void:
+	if not ThemeManager.is_active("polar_aurora"):
+		return
+	var root := Node2D.new()
+	root.name = "PolarAuroraBaseOverlay"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.z_index = DEFENSE_ACTOR_Z - 1
+	add_child(root)
+	var base_y := 1532.0 + bottom_dock_shift
+	for index in range(3):
+		var rail := Line2D.new()
+		rail.name = "CryoRail%d" % (index + 1)
+		rail.width = 8.0 if index == 0 else 3.0
+		rail.default_color = Color(0.34, 0.90, 1.0, 0.34) if index != 2 else Color(0.60, 0.40, 0.94, 0.42)
+		rail.joint_mode = Line2D.LINE_JOINT_ROUND
+		rail.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.end_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.texture = VfxLib.STREAK_TEXTURE
+		rail.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		rail.material = _new_muzzle_additive_material()
+		var inset := float(index) * 20.0
+		rail.points = PackedVector2Array([
+			Vector2(118 + inset, base_y + 18.0),
+			Vector2(302, base_y - 7.0 - inset * 0.10),
+			Vector2(540, base_y - 20.0 - inset * 0.15),
+			Vector2(778, base_y - 7.0 - inset * 0.10),
+			Vector2(962 - inset, base_y + 18.0),
+		])
+		root.add_child(rail)
+		if not SettingsManager.reduced_effects_enabled():
+			var tween := rail.create_tween().set_loops()
+			tween.tween_property(rail, "modulate:a", 0.50, 0.80 + float(index) * 0.10)
+			tween.tween_property(rail, "modulate:a", 1.0, 0.80 + float(index) * 0.10)
+	for side_x in [132.0, 948.0]:
+		var glow := VfxLib.spawn_glow(root, Vector2(side_x, base_y + 6.0), Color(0.40, 0.88, 1.0, 0.30), 86.0, 0.76)
+		if glow != null:
+			glow.set_meta("persistent_theme_fx", true)
+
+
+func _spawn_gilded_eclipse_base_overlay() -> void:
+	if not ThemeManager.is_active("gilded_eclipse"):
+		return
+	var root := Node2D.new()
+	root.name = "GildedEclipseBaseOverlay"
+	root.process_mode = Node.PROCESS_MODE_PAUSABLE
+	root.z_index = DEFENSE_ACTOR_Z - 1
+	add_child(root)
+	var base_y := 1532.0 + bottom_dock_shift
+	for index in range(3):
+		var rail := Line2D.new()
+		rail.name = "GoldenLawRail%d" % (index + 1)
+		rail.width = 7.5 if index == 0 else 2.8
+		rail.default_color = Color(1.0, 0.72, 0.20, 0.36) if index != 2 else Color(1.0, 0.94, 0.70, 0.46)
+		rail.joint_mode = Line2D.LINE_JOINT_ROUND
+		rail.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.end_cap_mode = Line2D.LINE_CAP_ROUND
+		rail.texture = VfxLib.STREAK_TEXTURE
+		rail.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		rail.material = _new_muzzle_additive_material()
+		var inset := float(index) * 22.0
+		rail.points = PackedVector2Array([
+			Vector2(118 + inset, base_y + 18.0),
+			Vector2(300, base_y - 8.0 - inset * 0.08),
+			Vector2(540, base_y - 22.0 - inset * 0.14),
+			Vector2(780, base_y - 8.0 - inset * 0.08),
+			Vector2(962 - inset, base_y + 18.0),
+		])
+		root.add_child(rail)
+		if not SettingsManager.reduced_effects_enabled():
+			var tween := rail.create_tween().set_loops()
+			tween.tween_property(rail, "modulate:a", 0.48, 0.88 + float(index) * 0.12)
+			tween.tween_property(rail, "modulate:a", 1.0, 0.88 + float(index) * 0.12)
+	for side_x in [132.0, 948.0]:
+		var glow := VfxLib.spawn_glow(root, Vector2(side_x, base_y + 6.0), Color(1.0, 0.72, 0.22, 0.30), 88.0, 0.78)
+		if glow != null:
+			glow.set_meta("persistent_theme_fx", true)
+
+
+func _spawn_neon_tempest_character_fire_aura() -> void:
+	var character_id := _character_asset_id()
+	if character_rig == null or not ThemeManager.character_uses_theme(character_id, "neon_tempest"):
+		return
+	var textures := ThemeManager.resolve_character_effect_sequence(character_id, "character_fire_aura")
 	if textures.is_empty():
 		return
 	var frames := SpriteFrames.new()
@@ -4402,35 +4878,182 @@ func _spawn_neon_tempest_character_fire_aura() -> void:
 	frames.set_animation_speed("fire", 19.0)
 	for texture in textures:
 		frames.add_frame("fire", texture)
-	character_neon_fire_aura = AnimatedSprite2D.new()
-	character_neon_fire_aura.name = "NeonFireAura"
-	character_neon_fire_aura.sprite_frames = frames
-	character_neon_fire_aura.animation = "fire"
-	character_neon_fire_aura.position = Vector2(0, -82)
-	character_neon_fire_aura.scale = Vector2.ONE * (0.54 if SettingsManager.reduced_effects_enabled() else 0.66)
-	character_neon_fire_aura.modulate = Color(1.0, 1.0, 1.0, 0.48 if SettingsManager.reduced_effects_enabled() else 0.90)
-	character_neon_fire_aura.material = _new_muzzle_additive_material()
-	character_neon_fire_aura.z_index = 0
-	character_neon_fire_aura.visible = false
-	character_neon_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
-	character_neon_fire_aura.animation_finished.connect(
+	character_theme_fire_aura = AnimatedSprite2D.new()
+	character_theme_fire_aura.name = "ThemeFireAura"
+	character_theme_fire_aura.sprite_frames = frames
+	character_theme_fire_aura.animation = "fire"
+	character_theme_fire_aura.position = Vector2(0, -82)
+	character_theme_fire_aura.scale = Vector2.ONE * (0.54 if SettingsManager.reduced_effects_enabled() else 0.66)
+	character_theme_fire_aura.modulate = Color(1.0, 1.0, 1.0, 0.48 if SettingsManager.reduced_effects_enabled() else 0.90)
+	character_theme_fire_aura.material = _new_muzzle_additive_material()
+	# The theme signature is a back-mounted discharge, not a foreground decal.
+	# Keep it below the fused hero/weapon sprite regardless of child insertion
+	# order; muzzle flash and projectile effects remain on their combat layers.
+	character_theme_fire_aura.z_index = CHARACTER_BACK_EFFECT_Z
+	character_theme_fire_aura.show_behind_parent = true
+	character_theme_fire_aura.visible = false
+	character_theme_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
+	character_theme_fire_aura.animation_finished.connect(
 		func() -> void:
-			if is_instance_valid(character_neon_fire_aura):
-				character_neon_fire_aura.visible = false
+			if is_instance_valid(character_theme_fire_aura):
+				character_theme_fire_aura.visible = false
 	)
-	character_rig.add_child(character_neon_fire_aura)
+	character_rig.add_child(character_theme_fire_aura)
+
+
+func _spawn_infernal_character_fire_aura() -> void:
+	var character_id := _character_asset_id()
+	if character_rig == null or not ThemeManager.character_uses_theme(character_id, "infernal_dominion"):
+		return
+	var textures := ThemeManager.resolve_character_effect_sequence(character_id, "character_fire_aura")
+	if textures.is_empty():
+		return
+	var frames := SpriteFrames.new()
+	frames.add_animation("fire")
+	frames.set_animation_loop("fire", false)
+	frames.set_animation_speed("fire", 17.0)
+	for texture in textures:
+		frames.add_frame("fire", texture)
+	character_theme_fire_aura = AnimatedSprite2D.new()
+	character_theme_fire_aura.name = "InfernalMechanicalFireWings"
+	character_theme_fire_aura.sprite_frames = frames
+	character_theme_fire_aura.animation = "fire"
+	# Rear-view socket: the hinge sits between the shoulder blades. Keep the
+	# silhouette showy but narrower than the hero so it never replaces the actor.
+	character_theme_fire_aura.position = Vector2(0, -62)
+	character_theme_fire_aura.scale = Vector2.ONE * (0.39 if SettingsManager.reduced_effects_enabled() else 0.48)
+	character_theme_fire_aura.modulate = Color(1.0, 0.90, 0.76, 0.44 if SettingsManager.reduced_effects_enabled() else 0.78)
+	character_theme_fire_aura.material = _new_muzzle_additive_material()
+	character_theme_fire_aura.z_index = CHARACTER_BACK_EFFECT_Z
+	character_theme_fire_aura.show_behind_parent = true
+	character_theme_fire_aura.visible = false
+	character_theme_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
+	character_theme_fire_aura.animation_finished.connect(
+		func() -> void:
+			if is_instance_valid(character_theme_fire_aura):
+				character_theme_fire_aura.visible = false
+	)
+	character_rig.add_child(character_theme_fire_aura)
+
+
+func _spawn_polar_aurora_character_fire_aura() -> void:
+	var character_id := _character_asset_id()
+	if character_rig == null or not ThemeManager.character_uses_theme(character_id, "polar_aurora"):
+		return
+	var textures := ThemeManager.resolve_character_effect_sequence(character_id, "character_fire_aura")
+	if textures.is_empty():
+		return
+	var frames := SpriteFrames.new()
+	frames.add_animation("fire")
+	frames.set_animation_loop("fire", false)
+	frames.set_animation_speed("fire", 17.0)
+	for texture in textures:
+		frames.add_frame("fire", texture)
+	character_theme_fire_aura = AnimatedSprite2D.new()
+	character_theme_fire_aura.name = "PolarAuroraIceWings"
+	character_theme_fire_aura.sprite_frames = frames
+	character_theme_fire_aura.animation = "fire"
+	# The zero-point hinge is mounted between the shoulder blades. The generated
+	# center is deliberately clear so the fused hero/weapon silhouette stays in
+	# front and the wing tips never become a muzzle decal.
+	character_theme_fire_aura.position = Vector2(0, -66)
+	character_theme_fire_aura.scale = Vector2.ONE * (0.38 if SettingsManager.reduced_effects_enabled() else 0.47)
+	character_theme_fire_aura.modulate = Color(0.90, 0.98, 1.0, 0.42 if SettingsManager.reduced_effects_enabled() else 0.76)
+	character_theme_fire_aura.material = _new_muzzle_additive_material()
+	character_theme_fire_aura.z_index = CHARACTER_BACK_EFFECT_Z
+	character_theme_fire_aura.show_behind_parent = true
+	character_theme_fire_aura.visible = false
+	character_theme_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
+	character_theme_fire_aura.animation_finished.connect(
+		func() -> void:
+			if is_instance_valid(character_theme_fire_aura):
+				character_theme_fire_aura.visible = false
+	)
+	character_rig.add_child(character_theme_fire_aura)
+
+
+func _spawn_gilded_eclipse_character_fire_aura() -> void:
+	var character_id := _character_asset_id()
+	if character_rig == null or not ThemeManager.character_uses_theme(character_id, "gilded_eclipse"):
+		return
+	var textures := ThemeManager.resolve_character_effect_sequence(character_id, "character_fire_aura")
+	if textures.is_empty():
+		return
+	var frames := SpriteFrames.new()
+	frames.add_animation("fire")
+	frames.set_animation_loop("fire", false)
+	frames.set_animation_speed("fire", 18.0)
+	for texture in textures:
+		frames.add_frame("fire", texture)
+	character_theme_fire_aura = AnimatedSprite2D.new()
+	character_theme_fire_aura.name = "GildedEclipseFlowingMantle"
+	character_theme_fire_aura.sprite_frames = frames
+	character_theme_fire_aura.animation = "fire"
+	character_theme_fire_aura.position = Vector2(0, -60)
+	character_theme_fire_aura.scale = Vector2.ONE * (0.39 if SettingsManager.reduced_effects_enabled() else 0.49)
+	character_theme_fire_aura.modulate = Color(1.0, 0.91, 0.68, 0.44 if SettingsManager.reduced_effects_enabled() else 0.80)
+	character_theme_fire_aura.material = _new_muzzle_additive_material()
+	character_theme_fire_aura.z_index = CHARACTER_BACK_EFFECT_Z
+	character_theme_fire_aura.show_behind_parent = true
+	character_theme_fire_aura.visible = false
+	character_theme_fire_aura.process_mode = Node.PROCESS_MODE_PAUSABLE
+	character_theme_fire_aura.animation_finished.connect(
+		func() -> void:
+			if is_instance_valid(character_theme_fire_aura):
+				character_theme_fire_aura.visible = false
+	)
+	character_rig.add_child(character_theme_fire_aura)
 
 
 func _play_neon_tempest_character_fire_aura(direction: Vector2) -> void:
-	if character_neon_fire_aura == null or not is_instance_valid(character_neon_fire_aura):
+	if character_theme_fire_aura == null or not is_instance_valid(character_theme_fire_aura):
 		return
 	var dir := _safe_vfx_direction(direction)
-	character_neon_fire_aura.rotation = dir.angle() + PI * 0.5
-	character_neon_fire_aura.flip_h = dir.x < 0.0
-	character_neon_fire_aura.visible = true
-	character_neon_fire_aura.stop()
-	character_neon_fire_aura.frame = 0
-	character_neon_fire_aura.play("fire")
+	character_theme_fire_aura.rotation = dir.angle() + PI * 0.5
+	character_theme_fire_aura.flip_h = dir.x < 0.0
+	character_theme_fire_aura.visible = true
+	character_theme_fire_aura.stop()
+	character_theme_fire_aura.frame = 0
+	character_theme_fire_aura.play("fire")
+
+
+func _play_infernal_character_fire_aura(direction: Vector2) -> void:
+	if character_theme_fire_aura == null or not is_instance_valid(character_theme_fire_aura):
+		return
+	var dir := _safe_vfx_direction(direction)
+	# This is a physical furnace-wing assembly mounted on the character's back,
+	# not a muzzle billboard. Keep it upright in the rear-view battle camera and
+	# only let it bank subtly toward the current aim direction.
+	character_theme_fire_aura.rotation = clampf(dir.x * 0.16, -0.16, 0.16)
+	character_theme_fire_aura.flip_h = dir.x < 0.0
+	character_theme_fire_aura.visible = true
+	character_theme_fire_aura.stop()
+	character_theme_fire_aura.frame = 0
+	character_theme_fire_aura.play("fire")
+
+
+func _play_polar_aurora_character_fire_aura(direction: Vector2) -> void:
+	if character_theme_fire_aura == null or not is_instance_valid(character_theme_fire_aura):
+		return
+	var dir := _safe_vfx_direction(direction)
+	character_theme_fire_aura.rotation = clampf(dir.x * 0.12, -0.12, 0.12)
+	character_theme_fire_aura.flip_h = dir.x < 0.0
+	character_theme_fire_aura.visible = true
+	character_theme_fire_aura.stop()
+	character_theme_fire_aura.frame = 0
+	character_theme_fire_aura.play("fire")
+
+
+func _play_gilded_eclipse_character_fire_aura(direction: Vector2) -> void:
+	if character_theme_fire_aura == null or not is_instance_valid(character_theme_fire_aura):
+		return
+	var dir := _safe_vfx_direction(direction)
+	character_theme_fire_aura.rotation = clampf(dir.x * 0.10, -0.10, 0.10)
+	character_theme_fire_aura.flip_h = dir.x < 0.0
+	character_theme_fire_aura.visible = true
+	character_theme_fire_aura.stop()
+	character_theme_fire_aura.frame = 0
+	character_theme_fire_aura.play("fire")
 
 
 func _spawn_character_weapon_visual() -> void:
@@ -4448,7 +5071,7 @@ func _spawn_character_weapon_visual() -> void:
 	character_weapon_sprite.scale = Vector2.ONE * _weapon_visual_scale()
 	character_weapon_sprite.z_index = 3
 	character_rig.add_child(character_weapon_sprite)
-	var handheld_path := str(weapon.get("handheld", ""))
+	var handheld_path := ThemeManager.resolve_weapon_asset(weapon_id, "handheld", str(weapon.get("handheld", "")))
 	if handheld_path != "" and ResourceLoader.exists(handheld_path):
 		character_weapon_idle_frames = []
 		character_weapon_recoil_frames = []
@@ -4458,34 +5081,45 @@ func _spawn_character_weapon_visual() -> void:
 		if not character_weapon_idle_frames.is_empty():
 			character_weapon_sprite.texture = character_weapon_idle_frames[0]
 		else:
-			character_weapon_sprite.texture = load(weapon.get("turret", weapon.get("icon", "")))
+			var fallback := str(weapon.get("turret", weapon.get("icon", "")))
+			character_weapon_sprite.texture = load(ThemeManager.resolve_weapon_asset(weapon_id, "turret", fallback))
 	character_weapon_sprite.modulate = Color.WHITE
-	character_weapon_sprite.material = ThemeManager.create_neon_surface_material()
+	character_weapon_sprite.material = ThemeManager.create_surface_material()
 	_attach_growth_badge(character_weapon_sprite, weapon_level, Vector2(-82, -126))
 
-func _pulse_neon_tempest_character() -> void:
-	if character_sprite == null or not ThemeManager.is_active("neon_tempest"):
+
+func _themed_weapon_row(row: Dictionary) -> Dictionary:
+	var resolved := row.duplicate(true)
+	for kind in ["icon", "handheld", "turret"]:
+		resolved[kind] = ThemeManager.resolve_weapon_asset(weapon_id, kind, str(row.get(kind, "")))
+	return resolved
+
+func _pulse_character_theme_material() -> void:
+	if character_sprite == null:
 		return
 	var material := character_sprite.material as ShaderMaterial
 	if material == null:
 		return
-	material.set_shader_parameter("fire_pulse", 1.0)
-	if character_neon_fire_tween != null and character_neon_fire_tween.is_valid():
-		character_neon_fire_tween.kill()
-	character_neon_fire_tween = create_tween()
-	character_neon_fire_tween.set_trans(Tween.TRANS_QUINT)
-	character_neon_fire_tween.set_ease(Tween.EASE_OUT)
-	character_neon_fire_tween.tween_method(
+	var pulse_parameter := ThemeManager.character_material_pulse_parameter(_character_asset_id())
+	if pulse_parameter == "":
+		return
+	material.set_shader_parameter(pulse_parameter, 1.0)
+	if character_theme_pulse_tween != null and character_theme_pulse_tween.is_valid():
+		character_theme_pulse_tween.kill()
+	character_theme_pulse_tween = create_tween()
+	character_theme_pulse_tween.set_trans(Tween.TRANS_QUINT)
+	character_theme_pulse_tween.set_ease(Tween.EASE_OUT)
+	character_theme_pulse_tween.tween_method(
 		func(value: float) -> void:
 			if is_instance_valid(character_sprite) and character_sprite.material == material:
-				material.set_shader_parameter("fire_pulse", value),
+				material.set_shader_parameter(pulse_parameter, value),
 		1.0,
 		0.0,
 		0.22
 	)
 
 func _spawn_neon_tempest_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
-	if not ThemeManager.is_active("neon_tempest") or not _can_spawn_projectile_fx(true):
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "neon_tempest") or not _can_spawn_projectile_fx(true):
 		return
 	var dir := _safe_vfx_direction(direction)
 	var cyan := Color(0.18, 0.96, 1.0, 0.82)
@@ -4493,9 +5127,9 @@ func _spawn_neon_tempest_fire_signature(origin: Vector2, direction: Vector2, ele
 	var element_color := _element_color(element)
 	element_color.a = 0.72
 	_play_neon_tempest_character_fire_aura(dir)
-	var shoulder := character_rig.global_position + Vector2(-dir.x * 34.0, -92.0)
-	var weapon_bus := origin - dir * 44.0
-	var shoulder_glow := VfxLib.spawn_glow($ProjectileLayer, shoulder, magenta, 86.0, 0.16)
+	var shoulder := character_rig.to_global(Vector2(-dir.x * 34.0, -92.0))
+	var weapon_bus := origin - dir * 44.0 * CHARACTER_VFX_PRESENTATION_SCALE
+	var shoulder_glow := VfxLib.spawn_glow($ProjectileLayer, shoulder, magenta, 86.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.16)
 	if shoulder_glow != null:
 		_track_transient_fx(shoulder_glow, "projectile")
 	_spawn_muzzle_light_cone(origin, dir, cyan, 148.0, 18.0, 0.11, 4.4)
@@ -4510,18 +5144,206 @@ func _spawn_neon_tempest_fire_signature(origin: Vector2, direction: Vector2, ele
 
 
 func _spawn_neon_tempest_cast_signature(origin: Vector2, base_color: Color) -> void:
-	if not ThemeManager.is_active("neon_tempest") or not _can_spawn_projectile_fx(true):
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "neon_tempest") or not _can_spawn_projectile_fx(true):
 		return
 	_play_neon_tempest_character_fire_aura(Vector2.UP)
 	var cyan := Color(0.20, 0.98, 1.0, 0.76)
 	var magenta := Color(0.98, 0.20, 1.0, 0.62)
 	var mixed := base_color.lerp(cyan, 0.34)
-	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -42), mixed, 238.0, 0.36)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -42) * CHARACTER_VFX_PRESENTATION_SCALE, mixed, 238.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.36)
 	if glow != null:
 		_track_transient_fx(glow, "projectile")
-	_spawn_attack_ring(origin + Vector2(0, -18), 126.0, cyan, 0.28)
-	_spawn_attack_ring(origin + Vector2(0, -18), 178.0, magenta, 0.34)
-	_spawn_muzzle_fork_lines(origin + Vector2(0, -72), Vector2.UP, cyan, 5, 138.0, 58.0, 0.24, 3.2)
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 126.0 * CHARACTER_VFX_PRESENTATION_SCALE, cyan, 0.28)
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 178.0 * CHARACTER_VFX_PRESENTATION_SCALE, magenta, 0.34)
+	_spawn_muzzle_fork_lines(origin + Vector2(0, -72) * CHARACTER_VFX_PRESENTATION_SCALE, Vector2.UP, cyan, 5, 138.0, 58.0, 0.24, 3.2)
+
+
+func _spawn_infernal_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "infernal_dominion") or not _can_spawn_projectile_fx(true):
+		return
+	var dir := _safe_vfx_direction(direction)
+	var ember := Color(1.0, 0.26, 0.045, 0.78)
+	var white_hot := Color(1.0, 0.86, 0.48, 0.80)
+	var copper := Color(0.78, 0.20, 0.055, 0.58)
+	var element_color := _element_color(element)
+	element_color.a = 0.62
+	_play_infernal_character_fire_aura(dir)
+	var shoulder := character_rig.to_global(Vector2(-dir.x * 30.0, -90.0))
+	var furnace_bus := origin - dir * 48.0 * CHARACTER_VFX_PRESENTATION_SCALE
+	var shoulder_glow := VfxLib.spawn_glow($ProjectileLayer, shoulder, copper, 84.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.16)
+	if shoulder_glow != null:
+		_track_transient_fx(shoulder_glow, "projectile")
+	# Two compact, low-glare cones read as heat being compressed toward the
+	# muzzle. The authored mechanical wing sprite supplies the broad silhouette.
+	_spawn_muzzle_light_cone(origin, dir, white_hot, 152.0, 15.0, 0.10, 4.2)
+	_spawn_muzzle_light_cone(origin + dir * 5.0, dir, ember, 118.0, 30.0, 0.13, 3.3)
+	_spawn_muzzle_fork_lines(origin + dir * 10.0, dir, Color(1.0, 0.50, 0.10, 0.66), 3, 88.0, 18.0, 0.12, 2.5)
+	if _weapon_visual_profile() == "apocalypse_inferno":
+		var weapon_row := DataLoader.get_row("weapons", weapon_id)
+		var special: Dictionary = weapon_row.get("special", {})
+		var heat_shots := maxi(1, int(special.get("high_heat_shots", 12)))
+		var vent_shots := maxi(1, int(special.get("vent_shots", 3)))
+		var phase := inferno_high_heat_shots % (heat_shots + vent_shots)
+		var awakening_phase := maxi(1, int(round(float(heat_shots) * 0.58)))
+		if weapon_level >= int(weapon_row.get("max_level", 50)) and phase == awakening_phase and inferno_awakening_cooldown <= 0.0:
+			var reduced := SettingsManager.reduced_effects_enabled()
+			var awakening := _spawn_vfx_sequence(
+				"vfx_apocalypse_inferno_awakening",
+				character_rig.to_global(Vector2(0, -72)),
+				0.82 if reduced else 1.08,
+				Color(1.0, 0.91, 0.72, 0.56 if reduced else 0.90),
+				1.0,
+				0.0,
+				1.02,
+				Vector2(0, -5),
+				0.0,
+				true
+			)
+			if awakening != null:
+				awakening.set("z_index", DEFENSE_ACTOR_Z - 2)
+				AudioManager.play_sfx("apocalypse_inferno_awakening", -4.0, 0.01)
+				SettingsManager.pulse_haptic("medium")
+			inferno_awakening_cooldown = 7.0
+		if phase >= heat_shots:
+			# Vent reset stays dimmer than the white-hot stream, so it reads as
+			# recovery rather than a second screen-filling shot.
+			_spawn_muzzle_light_cone(origin - dir * 34.0, -dir, Color(0.88, 0.20, 0.035, 0.42), 92.0, 42.0, 0.18, 3.0)
+			_spawn_attack_ring(origin - dir * 22.0, 78.0, Color(1.0, 0.38, 0.06, 0.30), 0.20)
+		elif phase >= int(round(float(heat_shots) * 0.58)):
+			# High heat: compact fin arcs plus a stable white-hot plasma core.
+			_spawn_muzzle_light_cone(origin + dir * 8.0, dir, Color(1.0, 0.92, 0.68, 0.74), 178.0, 10.0, 0.12, 5.4)
+			_spawn_muzzle_fork_lines(origin - dir * 6.0, dir, Color(1.0, 0.64, 0.14, 0.52), 4, 108.0, 28.0, 0.15, 2.2)
+	if not SettingsManager.reduced_effects_enabled():
+		var motes := VfxLib.spawn_particles($ProjectileLayer, furnace_bus, element_color.lerp(ember, 0.60), 8, 218.0, 48.0, 0.19)
+		if motes != null:
+			_track_transient_fx(motes, "projectile")
+			if motes is Node2D:
+				(motes as Node2D).rotation = dir.angle()
+
+
+func _spawn_infernal_cast_signature(origin: Vector2, base_color: Color) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "infernal_dominion") or not _can_spawn_projectile_fx(true):
+		return
+	_play_infernal_character_fire_aura(Vector2.UP)
+	var ember := Color(1.0, 0.26, 0.04, 0.72)
+	var gold_heat := Color(1.0, 0.70, 0.18, 0.64)
+	var mixed := base_color.lerp(ember, 0.48)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -38) * CHARACTER_VFX_PRESENTATION_SCALE, mixed, 222.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.34)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_attack_ring(origin + Vector2(0, -16) * CHARACTER_VFX_PRESENTATION_SCALE, 122.0 * CHARACTER_VFX_PRESENTATION_SCALE, ember, 0.26)
+	_spawn_attack_ring(origin + Vector2(0, -16) * CHARACTER_VFX_PRESENTATION_SCALE, 172.0 * CHARACTER_VFX_PRESENTATION_SCALE, gold_heat, 0.33)
+	_spawn_muzzle_fork_lines(origin + Vector2(0, -70) * CHARACTER_VFX_PRESENTATION_SCALE, Vector2.UP, gold_heat, 5, 132.0, 54.0, 0.22, 3.0)
+
+
+func _spawn_polar_aurora_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "polar_aurora") or not _can_spawn_projectile_fx(true):
+		return
+	var dir := _safe_vfx_direction(direction)
+	var ice := Color(0.44, 0.92, 1.0, 0.78)
+	var white_core := Color(0.88, 0.98, 1.0, 0.82)
+	var violet := Color(0.62, 0.40, 0.94, 0.56)
+	var element_color := _element_color(element)
+	element_color.a = 0.58
+	_play_polar_aurora_character_fire_aura(dir)
+	var shoulder := character_rig.to_global(Vector2(-dir.x * 28.0, -92.0))
+	var halo := VfxLib.spawn_glow($ProjectileLayer, shoulder, violet, 86.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.16)
+	if halo != null:
+		_track_transient_fx(halo, "projectile")
+	_spawn_muzzle_light_cone(origin, dir, white_core, 158.0, 12.0, 0.11, 4.8)
+	_spawn_muzzle_light_cone(origin + dir * 6.0, dir, ice, 126.0, 27.0, 0.14, 3.2)
+	_spawn_muzzle_fork_lines(origin + dir * 12.0, dir, Color(0.72, 0.96, 1.0, 0.66), 3, 94.0, 20.0, 0.13, 2.5)
+	if _weapon_visual_profile() == "apocalypse_absolute_zero" and weapon_level >= int(DataLoader.get_row("weapons", weapon_id).get("max_level", 50)) and absolute_zero_awakening_cooldown <= 0.0:
+		var reduced := SettingsManager.reduced_effects_enabled()
+		var awakening := _spawn_vfx_sequence(
+			"vfx_apocalypse_absolute_zero_awakening",
+			character_rig.to_global(Vector2(0, -82)),
+			0.78 if reduced else 1.02,
+			Color(0.86, 0.98, 1.0, 0.54 if reduced else 0.88),
+			1.0,
+			0.0,
+			1.02,
+			Vector2(0, -5),
+			0.0,
+			true
+		)
+		if awakening != null:
+			awakening.set("z_index", DEFENSE_ACTOR_Z - 2)
+			AudioManager.play_sfx("apocalypse_absolute_zero_awakening", -4.5, 0.015)
+		absolute_zero_awakening_cooldown = 7.5
+	if not SettingsManager.reduced_effects_enabled():
+		var motes := VfxLib.spawn_particles($ProjectileLayer, origin - dir * 42.0, element_color.lerp(ice, 0.58), 7, 196.0, 42.0, 0.20)
+		if motes != null:
+			_track_transient_fx(motes, "projectile")
+			if motes is Node2D:
+				(motes as Node2D).rotation = dir.angle()
+
+
+func _spawn_polar_aurora_cast_signature(origin: Vector2, base_color: Color) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "polar_aurora") or not _can_spawn_projectile_fx(true):
+		return
+	_play_polar_aurora_character_fire_aura(Vector2.UP)
+	var ice := Color(0.42, 0.92, 1.0, 0.72)
+	var violet := Color(0.62, 0.42, 0.94, 0.58)
+	var mixed := base_color.lerp(ice, 0.44)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -42) * CHARACTER_VFX_PRESENTATION_SCALE, mixed, 226.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.34)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 122.0 * CHARACTER_VFX_PRESENTATION_SCALE, ice, 0.27)
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 174.0 * CHARACTER_VFX_PRESENTATION_SCALE, violet, 0.34)
+	_spawn_muzzle_fork_lines(origin + Vector2(0, -72) * CHARACTER_VFX_PRESENTATION_SCALE, Vector2.UP, Color(0.82, 0.98, 1.0, 0.70), 5, 134.0, 54.0, 0.23, 3.0)
+
+
+func _spawn_gilded_eclipse_fire_signature(origin: Vector2, direction: Vector2, element: String) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "gilded_eclipse") or not _can_spawn_projectile_fx(true):
+		return
+	var dir := _safe_vfx_direction(direction)
+	var gold := Color(1.0, 0.72, 0.18, 0.78)
+	var white_gold := Color(1.0, 0.95, 0.72, 0.84)
+	var element_color := _element_color(element)
+	element_color.a = 0.46
+	_play_gilded_eclipse_character_fire_aura(dir)
+	var shoulder := character_rig.to_global(Vector2(-dir.x * 26.0, -90.0))
+	var halo := VfxLib.spawn_glow($ProjectileLayer, shoulder, gold, 92.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.17)
+	if halo != null:
+		_track_transient_fx(halo, "projectile")
+	_spawn_muzzle_light_cone(origin, dir, white_gold, 164.0, 11.0, 0.11, 5.0)
+	_spawn_muzzle_light_cone(origin + dir * 7.0, dir, gold, 134.0, 25.0, 0.14, 3.4)
+	_spawn_muzzle_fork_lines(origin + dir * 14.0, dir, Color(1.0, 0.84, 0.38, 0.70), 4, 104.0, 22.0, 0.14, 2.8)
+	if _weapon_visual_profile() == "apocalypse_golden_law" and weapon_level >= int(DataLoader.get_row("weapons", weapon_id).get("max_level", 50)) and golden_law_awakening_cooldown <= 0.0:
+		var reduced := SettingsManager.reduced_effects_enabled()
+		var awakening := _spawn_vfx_sequence(
+			"vfx_apocalypse_golden_law_awakening",
+			character_rig.to_global(Vector2(0, -78)),
+			0.80 if reduced else 1.04,
+			Color(1.0, 0.90, 0.58, 0.54 if reduced else 0.90),
+			1.0, 0.0, 1.02, Vector2(0, -5), 0.0, true
+		)
+		if awakening != null:
+			awakening.set("z_index", DEFENSE_ACTOR_Z - 2)
+			AudioManager.play_sfx("apocalypse_golden_law_awakening", -4.0, 0.015)
+		golden_law_awakening_cooldown = 7.5
+	if not SettingsManager.reduced_effects_enabled():
+		var motes := VfxLib.spawn_particles($ProjectileLayer, origin - dir * 44.0, element_color.lerp(gold, 0.72), 8, 205.0, 46.0, 0.20)
+		if motes != null:
+			_track_transient_fx(motes, "projectile")
+			if motes is Node2D:
+				(motes as Node2D).rotation = dir.angle()
+
+
+func _spawn_gilded_eclipse_cast_signature(origin: Vector2, base_color: Color) -> void:
+	if not ThemeManager.character_uses_theme(_character_asset_id(), "gilded_eclipse") or not _can_spawn_projectile_fx(true):
+		return
+	_play_gilded_eclipse_character_fire_aura(Vector2.UP)
+	var gold := Color(1.0, 0.72, 0.18, 0.74)
+	var white_gold := Color(1.0, 0.94, 0.72, 0.70)
+	var mixed := base_color.lerp(gold, 0.52)
+	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + Vector2(0, -40) * CHARACTER_VFX_PRESENTATION_SCALE, mixed, 232.0 * CHARACTER_VFX_PRESENTATION_SCALE, 0.34)
+	if glow != null:
+		_track_transient_fx(glow, "projectile")
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 126.0 * CHARACTER_VFX_PRESENTATION_SCALE, gold, 0.28)
+	_spawn_attack_ring(origin + Vector2(0, -18) * CHARACTER_VFX_PRESENTATION_SCALE, 178.0 * CHARACTER_VFX_PRESENTATION_SCALE, white_gold, 0.35)
+	_spawn_muzzle_fork_lines(origin + Vector2(0, -72) * CHARACTER_VFX_PRESENTATION_SCALE, Vector2.UP, white_gold, 5, 140.0, 56.0, 0.24, 3.1)
 
 func _load_character_animation_frames() -> void:
 	var asset_id := _character_asset_id()
@@ -4531,16 +5353,14 @@ func _load_character_animation_frames() -> void:
 	character_weapon_combo_locked_aim = ""
 	character_attack_left_frames = []
 	character_attack_right_frames = []
-	var themed_base := ThemeManager.resolve_character_animation_base(asset_id)
-	if themed_base != "":
-		character_idle_frames = _load_frame_set(themed_base, "idle", 4)
-		character_attack_frames = _load_frame_set(themed_base, "attack", 4)
-		character_hurt_frames = _load_frame_set(themed_base, "hurt", 3)
-		if character_attack_frames.is_empty():
-			character_attack_frames = character_idle_frames.duplicate()
-		if character_hurt_frames.is_empty():
-			character_hurt_frames = character_idle_frames.duplicate()
+	if _load_premium_true_grip_frames(asset_id):
 		return
+	# A battlefield hero is never rendered as a weaponless theme sprite with a
+	# separate gun decal on top. The authored combo frames are the grip contract:
+	# stock against the shoulder, both hands contacting the weapon, forearms in
+	# front of the receiver, and a direction-specific muzzle. Theme character
+	# materials and firing signatures are applied to this fused silhouette, so
+	# cosmetic outfits keep their palette/effects without breaking the anatomy.
 	var combo_base := _character_weapon_combo_base(asset_id)
 	if _image_resource_exists("%s_idle_01.png" % combo_base):
 		character_idle_frames = _load_frame_set(combo_base, "idle", 4)
@@ -4560,6 +5380,19 @@ func _load_character_animation_frames() -> void:
 		var combo_key := "%s/%s" % [asset_id, weapon_id]
 		character_weapon_combo_muzzle = CHARACTER_WEAPON_COMBO_MUZZLE.get(combo_key, Vector2(104, -82))
 		return
+	# Theme-only weaponless animation is a last-resort fallback for incomplete
+	# content. Production validation requires every selectable weapon to resolve
+	# through a fused combo or premium true-grip path before reaching this branch.
+	var themed_base := ThemeManager.resolve_character_animation_base(asset_id)
+	if themed_base != "":
+		character_idle_frames = _load_frame_set(themed_base, "idle", 4)
+		character_attack_frames = _load_frame_set(themed_base, "attack", 4)
+		character_hurt_frames = _load_frame_set(themed_base, "hurt", 3)
+		if character_attack_frames.is_empty():
+			character_attack_frames = character_idle_frames.duplicate()
+		if character_hurt_frames.is_empty():
+			character_hurt_frames = character_idle_frames.duplicate()
+		return
 	var base := "res://assets/production/sprites/animations/characters_weaponless/%s/%s" % [asset_id, asset_id]
 	if not _image_resource_exists("%s_idle_01.png" % base):
 		base = "res://assets/production/sprites/animations/characters/%s/%s" % [asset_id, asset_id]
@@ -4568,6 +5401,41 @@ func _load_character_animation_frames() -> void:
 	character_attack_frames = _load_frame_set(base, "attack", 4)
 	character_attack_right_frames = []
 	character_hurt_frames = _load_frame_set(base, "hurt", 3)
+
+func _load_premium_true_grip_frames(asset_id: String) -> bool:
+	var grip: Dictionary = _weapon_presentation().get("true_grip", {})
+	var root := str(grip.get("root", "")).trim_suffix("/")
+	if root == "":
+		return false
+	var center_path := "%s/%s" % [root, str(grip.get("center_pattern", "")).replace("{character_id}", asset_id)]
+	var left_path := "%s/%s" % [root, str(grip.get("left_pattern", "")).replace("{character_id}", asset_id)]
+	var right_path := "%s/%s" % [root, str(grip.get("right_pattern", "")).replace("{character_id}", asset_id)]
+	if not _image_resource_exists(center_path) or not _image_resource_exists(left_path) or not _image_resource_exists(right_path):
+		push_error("Premium true-grip sprites missing for %s/%s" % [weapon_id, asset_id])
+		return false
+	var center_texture := load(center_path) as Texture2D
+	var left_texture := load(left_path) as Texture2D
+	var right_texture := load(right_path) as Texture2D
+	if center_texture == null or left_texture == null or right_texture == null:
+		push_error("Premium true-grip textures failed to load for %s/%s" % [weapon_id, asset_id])
+		return false
+	# One approved master per direction keeps the signature weapon compact. The
+	# rig supplies breathing and recoil while every frame preserves exact
+	# two-hand contact and shoulder bracing.
+	character_idle_frames = _repeat_character_texture(center_texture, 4)
+	character_attack_left_frames = _repeat_character_texture(left_texture, CHARACTER_WEAPON_ACTION_FRAME_COUNT)
+	character_attack_frames = _repeat_character_texture(center_texture, CHARACTER_WEAPON_ACTION_FRAME_COUNT)
+	character_attack_right_frames = _repeat_character_texture(right_texture, CHARACTER_WEAPON_ACTION_FRAME_COUNT)
+	character_hurt_frames = _repeat_character_texture(center_texture, 3)
+	character_weapon_combo_active = true
+	character_weapon_combo_muzzle = _premium_true_grip_muzzle(asset_id, "center", Vector2(0.0, -124.0))
+	return true
+
+func _repeat_character_texture(texture: Texture2D, count: int) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for _index in range(count):
+		frames.append(texture)
+	return frames
 
 func _character_weapon_combo_base(asset_id: String) -> String:
 	return "res://assets/production/sprites/animations/character_weapon_combos/%s/%s_%s" % [asset_id, asset_id, weapon_id]
@@ -4597,24 +5465,29 @@ func _process_character_animation(delta: float) -> void:
 	var fps := 7.0
 	var forced_frame := -1
 	var attack_playback := false
+	var body_pose_key := "center" if _character_uses_true_grip() else "idle"
 	if character_hurt_time > 0.0:
 		frames = character_hurt_frames
 		fps = 16.0
+		body_pose_key = "center" if _character_uses_true_grip() else "hurt"
 		character_hurt_time -= delta
 	elif character_skill_time > 0.0:
 		frames = _character_combo_attack_frames()
 		fps = 12.0
+		body_pose_key = _character_combo_effective_aim()
 		character_skill_time -= delta
 	elif character_attack_time > 0.0:
 		frames = _character_combo_attack_frames()
 		fps = float(maxi(frames.size() - CHARACTER_WEAPON_FIRE_FRAME_INDEX, 1)) / maxf(character_attack_duration, 0.08)
 		attack_playback = true
+		body_pose_key = _character_combo_effective_aim()
 		character_attack_time -= delta
 		if character_attack_time <= 0.0:
 			character_weapon_combo_locked_aim = ""
 	elif _character_prefire_active():
 		frames = _character_combo_attack_frames()
 		forced_frame = 0
+		body_pose_key = _character_combo_effective_aim()
 		character_anim_time = 0.0
 	if not frames.is_empty():
 		var next_frame := forced_frame
@@ -4630,7 +5503,7 @@ func _process_character_animation(delta: float) -> void:
 		if next_frame != character_anim_frame:
 			character_anim_frame = next_frame
 		character_sprite.texture = frames[character_anim_frame]
-	_update_character_body_pose()
+	_update_character_body_pose(body_pose_key)
 	_update_character_weapon_pose(delta)
 	_update_character_aura(delta)
 
@@ -4645,7 +5518,7 @@ func _character_combo_attack_frames() -> Array[Texture2D]:
 	return character_attack_frames
 
 func _play_character_attack() -> void:
-	character_attack_duration = float(CHARACTER_WEAPON_ATTACK_DURATION.get(weapon_id, 0.32))
+	character_attack_duration = _weapon_presentation_float("attack_duration", float(CHARACTER_WEAPON_ATTACK_DURATION.get(weapon_id, 0.32)))
 	character_attack_time = character_attack_duration
 	character_anim_time = 0.0
 	character_weapon_combo_locked_aim = character_weapon_combo_aim
@@ -4661,7 +5534,7 @@ func _character_prefire_active() -> bool:
 	if not bool(turret.fire_enabled) or float(turret.cooldown) <= 0.0:
 		return false
 	var shot_interval := 1.0 / maxf(float(turret.fire_rate), 0.01)
-	var authored_lead := float(CHARACTER_WEAPON_PREFIRE_LEAD.get(weapon_id, 0.075))
+	var authored_lead := _weapon_presentation_float("prefire_lead", float(CHARACTER_WEAPON_PREFIRE_LEAD.get(weapon_id, 0.075)))
 	return float(turret.cooldown) <= minf(authored_lead, shot_interval * 0.42)
 
 func _play_character_skill(duration := 0.56) -> void:
@@ -4680,11 +5553,17 @@ func _play_character_hurt() -> void:
 	if character_sprite:
 		_spawn_levelup_vfx(character_sprite.global_position, Color(1.0, 0.25, 0.2), 0.36)
 
-func _update_character_body_pose() -> void:
+func _update_character_body_pose(pose_key := "") -> void:
+	var resolved_pose := pose_key if pose_key != "" else _character_current_body_pose_key()
+	var normalized_scale := _character_body_sprite_scale(resolved_pose)
 	var breathe := sin(Time.get_ticks_msec() / 420.0)
-	var pose_offset := Vector2(0.0, -absf(breathe) * 3.0)
+	var pose_offset := _character_body_anchor_offset(resolved_pose, normalized_scale)
+	pose_offset += Vector2(0.0, -absf(breathe) * 3.0)
 	var pose_rotation := 0.0
-	var pose_scale := Vector2.ONE * CHARACTER_VISUAL_BASE_SCALE * _visual_level_scale(character_level)
+	# Character level is deliberately excluded from body size. Growth still has
+	# badges, color and gameplay stats, while every hero/outfit keeps the same
+	# anatomical height on the battlefield.
+	var pose_scale := Vector2.ONE * normalized_scale
 	if character_hurt_time > 0.0:
 		var hurt_ratio := clampf(character_hurt_time / 0.28, 0.0, 1.0)
 		pose_offset += Vector2(randf_range(-2.5, 2.5), 10.0 * hurt_ratio)
@@ -4696,11 +5575,13 @@ func _update_character_body_pose() -> void:
 		pose_scale *= 1.0 + 0.035 * pulse
 	elif character_attack_time > 0.0:
 		var recoil_curve := float(CHARACTER_WEAPON_ACTION_RECOIL_CURVE[clampi(character_anim_frame, 0, CHARACTER_WEAPON_ACTION_RECOIL_CURVE.size() - 1)])
-		var recoil_strength := float(CHARACTER_WEAPON_RECOIL_POSE.get(weapon_id, 14.0))
+		var recoil_strength := _weapon_presentation_float("recoil_pose", float(CHARACTER_WEAPON_RECOIL_POSE.get(weapon_id, 14.0)))
 		# The bitmap already carries the full-body recoil. This small rig-level
 		# accent supplies contact weight without double-moving the held weapon.
-		pose_offset += -character_weapon_direction * (recoil_strength * recoil_curve * 0.24)
-		pose_rotation = deg_to_rad(clampf(character_weapon_direction.x, -0.8, 0.8) * 0.9 * recoil_curve)
+		var recoil_accent := _weapon_presentation_float("recoil_accent", 0.24)
+		var recoil_twist := _weapon_presentation_float("recoil_twist", 0.9)
+		pose_offset += -character_weapon_direction * (recoil_strength * recoil_curve * recoil_accent)
+		pose_rotation = deg_to_rad(clampf(character_weapon_direction.x, -0.8, 0.8) * recoil_twist * recoil_curve)
 		pose_scale *= 1.0 + 0.004 * maxf(recoil_curve, 0.0)
 	character_sprite.position = pose_offset
 	character_sprite.rotation = pose_rotation
@@ -4770,12 +5651,29 @@ func _play_character_weapon_recoil(duration := 0.16) -> void:
 	character_weapon_anim_frame = 0
 
 func _weapon_visual_scale() -> float:
-	var base_scale := float(CHARACTER_WEAPON_SCALE.get(weapon_id, 0.52))
+	var base_scale := _weapon_presentation_float("weapon_scale", float(CHARACTER_WEAPON_SCALE.get(weapon_id, 0.52)))
 	return base_scale * (1.0 + clampf(float(weapon_level - 1) * 0.0025, 0.0, 0.1))
+
+func _weapon_presentation(id := "") -> Dictionary:
+	var resolved_id := id if id != "" else weapon_id
+	return (DataLoader.get_row("weapons", resolved_id).get("presentation", {}) as Dictionary).duplicate(true)
+
+func _weapon_presentation_float(key: String, fallback: float) -> float:
+	return float(_weapon_presentation().get(key, fallback))
+
+func _premium_true_grip_muzzle(asset_id: String, aim: String, fallback: Vector2) -> Vector2:
+	var grip: Dictionary = _weapon_presentation().get("true_grip", {})
+	var by_character: Dictionary = grip.get("muzzle_by_character", {})
+	var per_character: Dictionary = by_character.get(asset_id, {})
+	var raw: Variant = per_character.get(aim, [])
+	if raw is Array and raw.size() >= 2:
+		return Vector2(float(raw[0]), float(raw[1]))
+	return fallback
 
 func _weapon_visual_profile(id := "") -> String:
 	var resolved_id := id if id != "" else weapon_id
-	return str(WEAPON_VISUAL_PROFILES.get(resolved_id, ""))
+	var row := DataLoader.get_row("weapons", resolved_id)
+	return str(row.get("visual_profile", WEAPON_VISUAL_PROFILES.get(resolved_id, "")))
 
 func _sync_logic_turret_to_character() -> void:
 	if turret == null:
@@ -4785,8 +5683,8 @@ func _sync_logic_turret_to_character() -> void:
 func _weapon_socket_global() -> Vector2:
 	if character_rig != null:
 		if character_weapon_combo_active:
-			return character_rig.global_position + _character_combo_muzzle_for_aim()
-		return character_rig.global_position + CHARACTER_WEAPON_SOCKET
+			return character_rig.to_global(_character_combo_muzzle_for_aim())
+		return character_rig.to_global(CHARACTER_WEAPON_SOCKET)
 	if turret != null:
 		return turret.global_position
 	return Vector2(540, 1660.0 + bottom_dock_shift)
@@ -4802,11 +5700,15 @@ func _character_combo_effective_aim() -> String:
 func _character_combo_muzzle_for_aim() -> Vector2:
 	var combo_key := _character_combo_key()
 	var aim := _character_combo_effective_aim()
+	var fallback := character_weapon_combo_muzzle
 	if aim == "left":
-		return CHARACTER_WEAPON_COMBO_MUZZLE_LEFT.get(combo_key, character_weapon_combo_muzzle)
-	if aim == "right":
-		return CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT.get(combo_key, character_weapon_combo_muzzle)
-	return character_weapon_combo_muzzle
+		fallback = CHARACTER_WEAPON_COMBO_MUZZLE_LEFT.get(combo_key, character_weapon_combo_muzzle)
+	elif aim == "right":
+		fallback = CHARACTER_WEAPON_COMBO_MUZZLE_RIGHT.get(combo_key, character_weapon_combo_muzzle)
+	var authored_muzzle := _premium_true_grip_muzzle(_character_asset_id(), aim, fallback)
+	var sprite_scale := _character_body_sprite_scale(aim)
+	var body_anchor := _character_body_anchor_offset(aim, sprite_scale)
+	return body_anchor + authored_muzzle * (sprite_scale / CHARACTER_VISUAL_BASE_SCALE)
 
 func _set_character_combo_aim_from_direction(direction: Vector2) -> void:
 	if not character_weapon_combo_active:
@@ -4831,8 +5733,8 @@ func _weapon_fire_origin(include_muzzle := true) -> Vector2:
 	if not include_muzzle:
 		return socket
 	var direction := _weapon_aim_direction_from(socket)
-	var muzzle_distance := float(CHARACTER_WEAPON_MUZZLE_DISTANCE.get(weapon_id, 70.0))
-	return socket + direction * muzzle_distance
+	var muzzle_distance := _weapon_presentation_float("muzzle_distance", float(CHARACTER_WEAPON_MUZZLE_DISTANCE.get(weapon_id, 70.0)))
+	return socket + direction * muzzle_distance * CHARACTER_PRESENTATION_SCALE
 
 func _weapon_fire_direction(fallback := Vector2.UP) -> Vector2:
 	var origin := _weapon_fire_origin(false)
@@ -4952,6 +5854,7 @@ func _process_pet(delta: float) -> void:
 		0,
 		0
 	)
+	projectile.damage_source = "phoenix" if str(pet_data.get("role", "")) == "apocalypse_fire" else "pet"
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
 
@@ -4976,6 +5879,10 @@ func _process_pet_skill(delta: float) -> void:
 			_activate_pet_area_blast(skill, targets[0])
 		"multi_strike":
 			_activate_pet_multi_strike(skill)
+		"fire_flyby":
+			_activate_pet_fire_flyby(skill)
+		"golden_mark":
+			_activate_pet_golden_mark(skill, targets[0])
 		_:
 			return
 	pet_skill_cooldown = maxf(1.0, float(skill.get("cooldown", 12.0)))
@@ -5032,6 +5939,70 @@ func _activate_pet_multi_strike(skill: Dictionary) -> void:
 		_spawn_chain_arc(arc_origin, impact, element)
 		arc_origin = impact
 	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), color, 124.0)
+
+
+func _activate_pet_fire_flyby(skill: Dictionary) -> void:
+	var extra_every := maxi(1, int(skill.get("extra_target_every", 10)))
+	var target_count := int(skill.get("target_count", 1)) + int(max(pet_level - 1, 0) / extra_every)
+	var targets := _pet_skill_targets(maxi(target_count, 1))
+	if targets.is_empty():
+		return
+	var damage := _pet_scaled_value("damage", "level_damage_growth") * _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
+	var status_strength := _pet_skill_linear_value("status_strength", "level_status_growth")
+	var falloff := clampf(float(skill.get("target_falloff", 0.88)), 0.55, 1.0)
+	var flyby_origin := pet_sprite.global_position + Vector2(0, -30)
+	var reduced := SettingsManager.reduced_effects_enabled()
+	var trail_budget := mini(int(skill.get("trail_max_concurrent", 2)), 1 if reduced else 2)
+	_spawn_attack_ring(flyby_origin, 112.0, Color(1.0, 0.38, 0.06, 0.44), 0.24)
+	for index in range(targets.size()):
+		var target := targets[index]
+		if target == null or not is_instance_valid(target):
+			continue
+		var impact := target.global_position + Vector2(0, -30)
+		var travel := impact - flyby_origin
+		_deal_damage_with_source(target, damage * pow(falloff, float(index)), "fire", 0.0, status_strength, "phoenix")
+		_spawn_muzzle_light_cone(flyby_origin, travel.normalized(), Color(1.0, 0.36, 0.06, 0.68), travel.length(), 30.0, 0.18, 5.0)
+		if index < trail_budget:
+			_spawn_weapon_trace(flyby_origin, impact, Color(1.0, 0.56, 0.10, 0.78), 18.0, 0.24)
+		# One authored phoenix crosses the first real path. Later targets keep the
+		# readable molten trail without duplicating four birds over the horde.
+		if index == 0 and travel.length_squared() > 1.0:
+			var midpoint := flyby_origin.lerp(impact, 0.52)
+			var desired_scale := 0.72 if reduced else 0.96
+			_spawn_vfx_sequence(
+				"vfx_apocalypse_inferno_phoenix",
+				midpoint,
+				_inferno_edge_safe_vfx_scale(midpoint, desired_scale),
+				Color(1.0, 0.92, 0.72, 0.64 if reduced else 0.94),
+				1.0,
+				_directional_vfx_rotation("vfx_apocalypse_inferno_phoenix", travel),
+				1.02,
+				travel.normalized() * 34.0,
+				0.0,
+				true
+			)
+		flyby_origin = impact
+	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), Color(1.0, 0.40, 0.06, 1.0), 136.0, false)
+	SettingsManager.pulse_haptic("medium")
+
+
+func _activate_pet_golden_mark(skill: Dictionary, target: Node2D) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var damage := _pet_scaled_value("damage", "level_damage_growth") * _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
+	_deal_damage_with_source(target, damage, "physical", 0.18, 0.0, "skyfalcon_mark")
+	var duration := _pet_skill_linear_value("mark_duration", "level_mark_duration_growth")
+	var amp := _pet_skill_linear_value("mark_damage_amp", "level_mark_amp_growth")
+	target.set_meta("golden_law_mark_until", Time.get_ticks_msec() / 1000.0 + duration)
+	target.set_meta("golden_law_mark_amp", amp)
+	var repair_ratio := _pet_skill_linear_value("repair_ratio", "level_repair_growth")
+	var restored := maxi(1, int(round(float(base_hp_max) * repair_ratio)))
+	base_hp = mini(base_hp_max, base_hp + restored)
+	var origin := target.global_position + Vector2(0, -44 if not _is_boss_node(target) else -82)
+	_spawn_vfx_sequence("vfx_apocalypse_golden_law_falcon", origin, 0.74 if SettingsManager.reduced_effects_enabled() else 0.98, Color(1.0, 0.88, 0.52, 0.90), 1.0, 0.0, 1.02, Vector2(0, -5), 0.0, true)
+	_spawn_float_text(target.global_position + Vector2(-78, -114), LocalizationManager.text("天隼敕印"), Color(1.0, 0.84, 0.36, 1.0), true, 22, 220.0)
+	_play_pet_skill_feedback(skill, pet_sprite.global_position + Vector2(0, -34), Color(1.0, 0.76, 0.24, 1.0), 132.0, false)
+	AudioManager.play_sfx("apocalypse_golden_law_falcon", -4.5, 0.02)
 
 func _pet_skill_targets(max_count: int) -> Array[Node2D]:
 	var valid: Array[Node] = []
@@ -5201,7 +6172,13 @@ func _spawn_muzzle_flash(origin: Vector2, direction: Vector2, element := "physic
 	hot_color.a = 0.94
 	var cone_color: Color = spec.get("cone", hot_color)
 	cone_color.a = minf(cone_color.a, 0.72)
-	var glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 10.0, hot_color, float(spec.get("glow_size", 104.0)), float(spec.get("glow_life", 0.13)))
+	var glow := VfxLib.spawn_glow(
+		$ProjectileLayer,
+		origin + dir * 10.0 * CHARACTER_VFX_PRESENTATION_SCALE,
+		hot_color,
+		float(spec.get("glow_size", 104.0)) * CHARACTER_VFX_PRESENTATION_SCALE,
+		float(spec.get("glow_life", 0.13))
+	)
 	if glow != null:
 		_track_transient_fx(glow, "projectile")
 	_spawn_muzzle_light_cone(origin, dir, cone_color, float(spec.get("cone_length", 104.0)), float(spec.get("cone_width", 34.0)), float(spec.get("cone_life", 0.11)), float(spec.get("intensity", 3.2)))
@@ -5373,7 +6350,7 @@ func _spawn_short_muzzle_spark(origin: Vector2, direction: Vector2, element: Str
 	spark.texture = tex
 	spark.global_position = origin + dir * 30.0
 	spark.rotation = dir.angle()
-	spark.scale = Vector2(scale_mult, scale_mult)
+	spark.scale = Vector2(scale_mult, scale_mult) * CHARACTER_VFX_PRESENTATION_SCALE
 	spark.modulate = color
 	spark.material = _new_muzzle_additive_material()
 	spark.z_index = 75
@@ -5542,8 +6519,8 @@ func _spawn_muzzle_light_cone(origin: Vector2, direction: Vector2, color: Color,
 	if not _can_spawn_projectile_fx():
 		return
 	var dir := _safe_vfx_direction(direction)
-	var safe_length := clampf(length, 24.0, 190.0)
-	var safe_width := clampf(width, 8.0, 76.0)
+	var safe_length := clampf(length * CHARACTER_VFX_PRESENTATION_SCALE, 24.0, 238.0)
+	var safe_width := clampf(width * CHARACTER_VFX_PRESENTATION_SCALE, 8.0, 95.0)
 	var life := clampf(duration, 0.04, 0.24)
 	var root := Node2D.new()
 	root.name = "MuzzleLightCone"
@@ -5676,7 +6653,8 @@ func _spawn_muzzle_heat_haze(origin: Vector2, direction: Vector2, color: Color, 
 	haze.process_mode = Node.PROCESS_MODE_PAUSABLE
 	haze.texture = VfxLib.RADIAL_GLOW_TEXTURE
 	haze.centered = true
-	haze.global_position = origin + dir * 18.0
+	scale_mult *= CHARACTER_VFX_PRESENTATION_SCALE
+	haze.global_position = origin + dir * 18.0 * CHARACTER_VFX_PRESENTATION_SCALE
 	haze.rotation = dir.angle()
 	haze.scale = Vector2(0.7, 0.34) * scale_mult
 	haze.modulate = color
@@ -5705,12 +6683,14 @@ func _spawn_muzzle_fork_lines(origin: Vector2, direction: Vector2, color: Color,
 	_track_transient_fx(root, "projectile")
 	$ProjectileLayer.add_child(root)
 	var safe_count := clampi(count, 1, 7)
+	var presentation_length := length * CHARACTER_VFX_PRESENTATION_SCALE
+	var presentation_width := width * CHARACTER_VFX_PRESENTATION_SCALE
 	for i in range(safe_count):
 		var t := 0.5 if safe_count == 1 else float(i) / float(safe_count - 1)
-		var lateral := tan(deg_to_rad(lerpf(-spread_deg, spread_deg, t))) * length * 0.26
-		var jitter := randf_range(-8.0, 8.0)
+		var lateral := tan(deg_to_rad(lerpf(-spread_deg, spread_deg, t))) * presentation_length * 0.26
+		var jitter := randf_range(-8.0, 8.0) * CHARACTER_VFX_PRESENTATION_SCALE
 		var line := Line2D.new()
-		line.width = width * randf_range(0.72, 1.18)
+		line.width = presentation_width * randf_range(0.72, 1.18)
 		line.default_color = color.lightened(randf_range(0.0, 0.25))
 		line.joint_mode = Line2D.LINE_JOINT_ROUND
 		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
@@ -5720,13 +6700,13 @@ func _spawn_muzzle_fork_lines(origin: Vector2, direction: Vector2, color: Color,
 		line.material = _new_muzzle_additive_material()
 		line.points = PackedVector2Array([
 			Vector2(8.0, 0.0),
-			Vector2(length * randf_range(0.38, 0.58), lateral * 0.45 + jitter),
-			Vector2(length * randf_range(0.74, 1.05), lateral + randf_range(-10.0, 10.0)),
+			Vector2(presentation_length * randf_range(0.38, 0.58), lateral * 0.45 + jitter),
+			Vector2(presentation_length * randf_range(0.74, 1.05), lateral + randf_range(-10.0, 10.0) * CHARACTER_VFX_PRESENTATION_SCALE),
 		])
 		root.add_child(line)
 		if i % 2 == 0:
 			var branch := Line2D.new()
-			branch.width = maxf(width * 0.55, 1.2)
+			branch.width = maxf(presentation_width * 0.55, 1.2)
 			branch.default_color = Color(color.r, color.g, color.b, color.a * 0.72)
 			branch.joint_mode = Line2D.LINE_JOINT_ROUND
 			branch.begin_cap_mode = Line2D.LINE_CAP_ROUND
@@ -5734,10 +6714,10 @@ func _spawn_muzzle_fork_lines(origin: Vector2, direction: Vector2, color: Color,
 			branch.texture = VfxLib.STREAK_TEXTURE
 			branch.texture_mode = Line2D.LINE_TEXTURE_STRETCH
 			branch.material = _new_muzzle_additive_material()
-			var branch_start := Vector2(length * 0.48, lateral * 0.42)
+			var branch_start := Vector2(presentation_length * 0.48, lateral * 0.42)
 			branch.points = PackedVector2Array([
 				branch_start,
-				branch_start + Vector2(length * 0.22, randf_range(-22.0, 22.0)),
+				branch_start + Vector2(presentation_length * 0.22, randf_range(-22.0, 22.0) * CHARACTER_VFX_PRESENTATION_SCALE),
 			])
 			root.add_child(branch)
 	var tween := root.create_tween()
@@ -5756,6 +6736,7 @@ func _spawn_muzzle_bubbles(origin: Vector2, direction: Vector2, color: Color, co
 	root.process_mode = Node.PROCESS_MODE_PAUSABLE
 	root.global_position = origin
 	root.rotation = dir.angle()
+	root.scale = Vector2.ONE * CHARACTER_VFX_PRESENTATION_SCALE
 	root.z_index = 74
 	_track_transient_fx(root, "projectile")
 	$ProjectileLayer.add_child(root)
@@ -6209,13 +7190,16 @@ func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: 
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		$ProjectileLayer.call_deferred("add_child", projectile)
 
-func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float) -> void:
+func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float, damage_source := "weapon") -> void:
 	_spawn_element_impact_vfx(primary, origin, element, visual_profile)
 	_play_skill_impact_sfx(element)
 	_trigger_impact_feedback(primary, damage, visual_profile)
-	if chain_depth <= 0:
+	if chain_depth <= 0 and damage_source == "weapon":
 		_spawn_chain_projectiles(primary, origin, damage, element, armor_penetration, status_strength)
-	_apply_character_bullet_on_hit(primary, origin, damage, element)
+	if damage_source == "weapon":
+		_apply_character_bullet_on_hit(primary, origin, damage, element)
+	if chain_depth <= 0 and damage_source == "weapon":
+		_apply_premium_weapon_on_hit(primary, origin, damage)
 	var radius: float = maxf(splash_radius, cloud_radius)
 	if radius <= 0.0:
 		if element == "lightning" and skills.level("skill_tesla") > 0:
@@ -6230,7 +7214,467 @@ func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float,
 			continue
 		var falloff := 1.0 - clampf(target.global_position.distance_to(origin) / radius, 0.0, 1.0)
 		var scale := 0.45 if splash_radius >= cloud_radius else 0.32
-		target.take_damage(damage * scale * (0.55 + falloff * 0.45), element, armor_penetration, status_strength)
+		_deal_damage_with_source(target, damage * scale * (0.55 + falloff * 0.45), element, armor_penetration, status_strength, damage_source)
+
+func _apply_premium_weapon_on_hit(primary: Node, origin: Vector2, damage: float) -> void:
+	match _weapon_visual_profile():
+		"apocalypse_thunder":
+			_apply_apocalypse_thunder_on_hit(primary, origin, damage)
+		"apocalypse_inferno":
+			_apply_apocalypse_inferno_on_hit(primary, origin, damage)
+		"apocalypse_absolute_zero":
+			_apply_apocalypse_absolute_zero_on_hit(primary, origin, damage)
+		"apocalypse_golden_law":
+			_apply_apocalypse_golden_law_on_hit(primary, origin, damage)
+
+
+func _deal_damage_with_source(target: Node, amount: float, element: String, armor_penetration: float, status_strength: float, source: String) -> void:
+	if target == null or not is_instance_valid(target) or not target.has_method("take_damage"):
+		return
+	target.set_meta("incoming_damage_source", source)
+	target.set_meta("_damage_source_for_feedback", source)
+	target.take_damage(amount, element, armor_penetration, status_strength)
+	# Non-Enemy test doubles keep their four-argument interface and may not
+	# consume the context marker; remove it here to avoid a stale attribution.
+	if is_instance_valid(target) and target.has_meta("incoming_damage_source"):
+		target.remove_meta("incoming_damage_source")
+	if is_instance_valid(target) and target.has_meta("_damage_source_for_feedback"):
+		target.remove_meta("_damage_source_for_feedback")
+
+func _apply_apocalypse_thunder_on_hit(primary: Node, origin: Vector2, damage: float) -> void:
+	if primary == null or not is_instance_valid(primary):
+		return
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var set_id := str(weapon.get("premium_set", ""))
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var special: Dictionary = weapon.get("special", {})
+	var efficiency := _chip_value("overload_efficiency")
+	if _premium_set_piece_count(set_id) >= 2:
+		efficiency += float(set_row.get("two_piece", {}).get("overload_efficiency", 0.0))
+	var hits_needed := maxi(3, int(round(float(special.get("overload_hits", 7)) * (1.0 - clampf(efficiency, 0.0, 0.45)))))
+	apocalypse_overload_hits += 1
+	if apocalypse_overload_hits < hits_needed:
+		if apocalypse_overload_hits == hits_needed - 1:
+			_spawn_attack_ring(origin, 104.0, Color(0.38, 0.9, 1.0, 0.42), 0.18)
+		return
+	apocalypse_overload_hits = 0
+	var target := _densest_apocalypse_target(primary) if _premium_set_piece_count(set_id) >= 4 else primary
+	if target == null or not is_instance_valid(target):
+		return
+	var impact := (target as Node2D).global_position
+	var overload_damage := damage * float(special.get("overload_damage_mult", 2.2))
+	if target.has_method("take_damage"):
+		_deal_damage_with_source(target, overload_damage, "lightning", 0.12, 1.45, "overload")
+	var visual_impact := _apocalypse_edge_safe_vfx_point(impact)
+	if visual_impact.distance_to(impact) > 2.0:
+		# Keep the accepted full-size pillar inside the portrait viewport. The short
+		# grounding arc preserves the hit location when the victim hugs an edge.
+		_spawn_chain_arc(visual_impact, impact, "lightning")
+	_spawn_attack_sprite(
+		"res://assets/production/sprites/vfx/vfx_boss_storm_column.png",
+		visual_impact + Vector2(0, -150),
+		Color(0.80, 0.94, 1.0, 0.94),
+		0.78,
+		0.34
+	)
+	_spawn_attack_sprite(
+		"res://assets/production/sprites/vfx/vfx_boss_storm_impact.png",
+		visual_impact + Vector2(0, -34),
+		Color(0.92, 0.50, 1.0, 0.90),
+		0.66,
+		0.28
+	)
+	_spawn_attack_ring(impact, 172.0, Color(0.32, 0.92, 1.0, 0.48), 0.26)
+	AudioManager.play_sfx("skill_tesla", -3.0, 0.02)
+	if _premium_set_piece_count(set_id) >= 4 and apocalypse_terminal_cooldown <= 0.0:
+		var four_piece: Dictionary = set_row.get("four_piece", {})
+		var terminal_damage := damage * float(four_piece.get("terminal_pillar_damage_mult", 2.6))
+		if target.has_method("take_damage"):
+			_deal_damage_with_source(target, terminal_damage, "lightning", 0.16, 1.65, "terminal")
+		if pet_sprite != null and is_instance_valid(pet_sprite):
+			_spawn_chain_arc(pet_sprite.global_position + Vector2(0, -26), visual_impact, "lightning")
+			_play_pet_skill_feedback(
+				DataLoader.get_row("pets", str(set_row.get("pet", ""))).get("pet_skill", {}),
+				pet_sprite.global_position + Vector2(0, -34),
+				Color(0.62, 0.42, 1.0, 1.0),
+				138.0
+			)
+		_spawn_float_text(impact + Vector2(-118, -112), "终端雷柱", Color(0.48, 0.94, 1.0, 1.0), true, 24, 250.0)
+		apocalypse_terminal_cooldown = float(set_row.get("four_piece", {}).get("terminal_pillar_cooldown", 8.0))
+
+
+func _apply_apocalypse_inferno_on_hit(primary: Node, origin: Vector2, damage: float) -> void:
+	if primary == null or not is_instance_valid(primary) or not primary is Node2D:
+		return
+	var hp_value: Variant = primary.get("hp")
+	if hp_value != null and float(hp_value) <= 0.0:
+		return
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var set_id := str(weapon.get("premium_set", ""))
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var special: Dictionary = weapon.get("special", {})
+	var efficiency := _chip_value("combustion_stack_efficiency")
+	if _premium_set_piece_count(set_id) >= 2:
+		efficiency += float(set_row.get("two_piece", {}).get("combustion_stack_efficiency", 0.0))
+	var stack_cap := maxi(3, int(special.get("combustion_max_stacks", 5)))
+	var trigger_stacks := maxi(3, int(round(float(stack_cap) * (1.0 - clampf(efficiency, 0.0, 0.42)))))
+	var stacks := int(primary.get_meta("inferno_combustion_stacks", 0)) + maxi(1, int(special.get("combustion_stack_gain", 1)))
+	primary.set_meta("inferno_combustion_stacks", mini(stacks, stack_cap))
+	if stacks < trigger_stacks:
+		if stacks == trigger_stacks - 1:
+			var ready_impact := (primary as Node2D).global_position + Vector2(0, -34 if not _is_boss_node(primary) else -70)
+			var ready_scale := 0.40 if not _is_boss_node(primary) else 0.66
+			_spawn_vfx_sequence(
+				"vfx_status_inferno_burn",
+				ready_impact,
+				_inferno_edge_safe_vfx_scale(ready_impact, ready_scale),
+				Color(1.0, 0.82, 0.54, 0.58),
+				1.18,
+				0.0,
+				1.02,
+				Vector2.ZERO,
+				0.0,
+				false
+			)
+			_spawn_attack_ring((primary as Node2D).global_position, 92.0, Color(1.0, 0.34, 0.05, 0.26), 0.17)
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	var ready_at := float(primary.get_meta("inferno_combustion_ready_at", 0.0))
+	if now < ready_at:
+		return
+	primary.set_meta("inferno_combustion_stacks", 0)
+	primary.set_meta("inferno_combustion_ready_at", now + float(special.get("combustion_trigger_cooldown", 1.4)))
+	var impact := (primary as Node2D).global_position
+	var radius := float(special.get("combustion_radius", 230.0))
+	var max_targets := maxi(1, int(special.get("combustion_max_targets", 5)))
+	var burst_damage := damage * float(special.get("combustion_damage_mult", 2.3)) * (1.0 + _chip_value("combustion_damage_mult"))
+	var candidates: Array[Dictionary] = []
+	for target in $EnemyLayer.get_children():
+		if not is_instance_valid(target) or not target is Node2D or not target.has_method("take_damage"):
+			continue
+		var distance := (target as Node2D).global_position.distance_to(impact)
+		if distance <= radius:
+			candidates.append({"target": target, "distance": distance})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+	)
+	for index in range(mini(candidates.size(), max_targets)):
+		var candidate: Dictionary = candidates[index]
+		var target := candidate.get("target") as Node
+		if target == null or not is_instance_valid(target):
+			continue
+		var distance := float(candidate.get("distance", 0.0))
+		var falloff := lerpf(1.0, float(special.get("combustion_spread_falloff", 0.62)), clampf(distance / maxf(radius, 1.0), 0.0, 1.0))
+		_deal_damage_with_source(target, burst_damage * falloff, "fire", 0.10, float(special.get("burn_ratio", 0.38)), "combustion")
+	var reduced := SettingsManager.reduced_effects_enabled()
+	var visual_impact := impact + Vector2(0, -34 if not _is_boss_node(primary) else -68)
+	var desired_scale := (1.08 if _is_boss_node(primary) else 0.84) * (0.76 if reduced else 1.0)
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_inferno_combustion",
+		visual_impact,
+		_inferno_edge_safe_vfx_scale(visual_impact, desired_scale),
+		Color(1.0, 0.90, 0.66, 0.62 if reduced else 0.96),
+		1.0,
+		0.0,
+		1.03,
+		Vector2(0, -6),
+		0.0,
+		true
+	)
+	_spawn_attack_ring(impact, radius, Color(1.0, 0.68, 0.14, 0.28 if reduced else 0.40), 0.28)
+	_spawn_float_text(impact + Vector2(-78, -112), LocalizationManager.text("爆燃"), Color(1.0, 0.62, 0.14, 1.0), true, 24, 220.0)
+	AudioManager.play_sfx("apocalypse_inferno_combustion", -3.5, 0.018)
+	if inferno_feedback_cooldown <= 0.0:
+		SettingsManager.pulse_haptic("medium")
+		inferno_feedback_cooldown = 0.68
+
+
+func _apply_apocalypse_absolute_zero_on_hit(primary: Node, _origin: Vector2, damage: float) -> void:
+	if primary == null or not is_instance_valid(primary) or not primary is Node2D:
+		return
+	var hp_value: Variant = primary.get("hp")
+	if hp_value != null and float(hp_value) <= 0.0:
+		return
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var set_id := str(weapon.get("premium_set", ""))
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var special: Dictionary = weapon.get("special", {})
+	var efficiency := _chip_value("brittle_efficiency")
+	if _premium_set_piece_count(set_id) >= 2:
+		efficiency += float(set_row.get("two_piece", {}).get("brittle_efficiency", 0.0))
+	var base_hits := maxi(3, int(special.get("brittle_hits", 5)))
+	var threshold := maxi(3, int(round(float(base_hits) * (1.0 - clampf(efficiency, 0.0, 0.44)))))
+	if _is_boss_node(primary):
+		threshold += maxi(0, int(special.get("boss_threshold_bonus", 1)))
+	var stacks := int(primary.get_meta("absolute_zero_brittle_stacks", 0)) + 1
+	primary.set_meta("absolute_zero_brittle_stacks", mini(stacks, threshold))
+	if primary.has_method("mark_ice_slow_visual"):
+		primary.mark_ice_slow_visual(2.2)
+	if stacks < threshold:
+		if stacks == threshold - 1:
+			var ready_center := (primary as Node2D).global_position + Vector2(0, -36 if not _is_boss_node(primary) else -72)
+			_spawn_vfx_sequence(
+				"vfx_status_absolute_zero_brittle",
+				ready_center,
+				0.42 if not _is_boss_node(primary) else 0.70,
+				Color(0.72, 0.96, 1.0, 0.58),
+				1.1,
+				0.0,
+				1.02,
+				Vector2.ZERO,
+				0.0,
+				false
+			)
+			_spawn_float_text((primary as Node2D).global_position + Vector2(-64, -104), LocalizationManager.text("脆化"), Color(0.62, 0.92, 1.0, 1.0), false, 21, 180.0)
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if now < float(primary.get_meta("absolute_zero_shatter_ready_at", 0.0)):
+		return
+	primary.set_meta("absolute_zero_brittle_stacks", 0)
+	primary.set_meta("absolute_zero_shatter_ready_at", now + float(special.get("shatter_cooldown", 0.85)))
+	var impact := (primary as Node2D).global_position
+	var radius := float(special.get("shatter_radius", 205.0))
+	var max_targets := maxi(1, int(special.get("shatter_max_targets", 5)))
+	var set_bonus := float(set_row.get("two_piece", {}).get("shatter_damage_mult", 0.0)) if _premium_set_piece_count(set_id) >= 2 else 0.0
+	var shatter_damage := damage * float(special.get("shatter_damage_mult", 1.85)) * (1.0 + _chip_value("shatter_damage_mult") + set_bonus)
+	var candidates: Array[Dictionary] = []
+	for target in $EnemyLayer.get_children():
+		if not is_instance_valid(target) or not target is Node2D or not target.has_method("take_damage"):
+			continue
+		var distance := (target as Node2D).global_position.distance_to(impact)
+		if distance <= radius:
+			candidates.append({"target": target, "distance": distance})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+	)
+	for index in range(mini(candidates.size(), max_targets)):
+		var candidate: Dictionary = candidates[index]
+		var target := candidate.get("target") as Node
+		if target == null or not is_instance_valid(target):
+			continue
+		var distance := float(candidate.get("distance", 0.0))
+		var falloff := lerpf(1.0, float(special.get("shatter_falloff", 0.66)), clampf(distance / maxf(radius, 1.0), 0.0, 1.0))
+		_deal_damage_with_source(target, shatter_damage * falloff, "ice", 0.08, float(special.get("slow", 0.30)), "shatter")
+	var reduced := SettingsManager.reduced_effects_enabled()
+	var center := impact + Vector2(0, -36 if not _is_boss_node(primary) else -72)
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_absolute_zero_shatter",
+		center,
+		_inferno_edge_safe_vfx_scale(center, (0.78 if reduced else 1.02) * (1.18 if _is_boss_node(primary) else 1.0)),
+		Color(0.84, 0.98, 1.0, 0.60 if reduced else 0.94),
+		1.0,
+		0.0,
+		1.02,
+		Vector2(0, -5),
+		0.0,
+		true
+	)
+	_spawn_attack_ring(impact, radius, Color(0.44, 0.90, 1.0, 0.24 if reduced else 0.38), 0.28)
+	_spawn_float_text(impact + Vector2(-70, -112), LocalizationManager.text("碎冰"), Color(0.66, 0.94, 1.0, 1.0), true, 24, 220.0)
+	AudioManager.play_sfx("apocalypse_absolute_zero_shatter", -3.5, 0.018)
+	if absolute_zero_feedback_cooldown <= 0.0:
+		SettingsManager.pulse_haptic("medium")
+		absolute_zero_feedback_cooldown = 0.70
+	if _premium_set_piece_count(set_id) >= 4 and absolute_zero_wave_cooldown <= 0.0:
+		_apply_absolute_zero_crystal_wave(primary, impact, damage, set_row)
+
+
+func _apply_absolute_zero_crystal_wave(primary: Node, impact: Vector2, damage: float, set_row: Dictionary) -> void:
+	var four_piece: Dictionary = set_row.get("four_piece", {})
+	if int(four_piece.get("generation_limit", 1)) < 1:
+		return
+	var dense_target := _densest_apocalypse_target(primary)
+	if dense_target == null or not is_instance_valid(dense_target) or not dense_target is Node2D:
+		return
+	var wave_center := (dense_target as Node2D).global_position
+	var travel := wave_center - impact
+	if travel.length_squared() < 4.0:
+		travel = Vector2.UP
+	var radius := float(four_piece.get("crystal_wave_radius", 310.0))
+	var max_targets := maxi(1, int(four_piece.get("crystal_wave_max_targets", 5)))
+	var targets: Array[Dictionary] = []
+	for candidate in $EnemyLayer.get_children():
+		if not is_instance_valid(candidate) or not candidate is Node2D or not candidate.has_method("take_damage"):
+			continue
+		var distance := (candidate as Node2D).global_position.distance_to(wave_center)
+		if distance <= radius:
+			targets.append({"target": candidate, "distance": distance})
+	targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+	)
+	for index in range(mini(targets.size(), max_targets)):
+		var target := targets[index].get("target") as Node
+		if target == null or not is_instance_valid(target):
+			continue
+		var wave_damage := damage * float(four_piece.get("crystal_wave_damage_mult", 0.68)) * pow(float(four_piece.get("crystal_wave_falloff", 0.72)), float(index))
+		_deal_damage_with_source(target, wave_damage, "ice", 0.04, 0.34, "crystal_wave")
+	var midpoint := impact.lerp(wave_center, 0.55) + Vector2(0, -34)
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_absolute_zero_wave",
+		midpoint,
+		_inferno_edge_safe_vfx_scale(midpoint, 0.70 if SettingsManager.reduced_effects_enabled() else 0.94),
+		Color(0.76, 0.96, 1.0, 0.58 if SettingsManager.reduced_effects_enabled() else 0.90),
+		1.0,
+		_directional_vfx_rotation("vfx_apocalypse_absolute_zero_wave", travel),
+		1.02,
+		travel.normalized() * 28.0,
+		0.0,
+		true
+	)
+	_spawn_float_text(wave_center + Vector2(-82, -108), LocalizationManager.text("冰晶波"), Color(0.70, 0.94, 1.0, 1.0), true, 22, 220.0)
+	absolute_zero_wave_cooldown = float(four_piece.get("crystal_wave_cooldown", 5.5))
+
+
+func _apply_apocalypse_golden_law_on_hit(primary: Node, _origin: Vector2, damage: float) -> void:
+	if primary == null or not is_instance_valid(primary) or not primary is Node2D:
+		return
+	var hp_value: Variant = primary.get("hp")
+	if hp_value != null and float(hp_value) <= 0.0:
+		return
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var set_id := str(weapon.get("premium_set", ""))
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var special: Dictionary = weapon.get("special", {})
+	var now := Time.get_ticks_msec() / 1000.0
+	var mark_until := float(primary.get_meta("golden_law_mark_until", 0.0))
+	if now < mark_until:
+		var mark_amp := float(primary.get_meta("golden_law_mark_amp", 0.0))
+		if mark_amp > 0.0:
+			_deal_damage_with_source(primary, damage * mark_amp, "physical", 0.16, 0.0, "golden_mark")
+	var efficiency := _chip_value("judgment_efficiency")
+	if _premium_set_piece_count(set_id) >= 2:
+		efficiency += float(set_row.get("two_piece", {}).get("judgment_efficiency", 0.0))
+	var threshold := maxi(3, int(round(float(special.get("judgment_hits", 6)) * (1.0 - clampf(efficiency, 0.0, 0.48)))))
+	var stacks := int(primary.get_meta("golden_law_judgment_stacks", 0)) + 1
+	primary.set_meta("golden_law_judgment_stacks", mini(stacks, threshold))
+	if stacks < threshold:
+		if stacks == threshold - 1:
+			var ready_center := (primary as Node2D).global_position + Vector2(0, -38 if not _is_boss_node(primary) else -76)
+			_spawn_vfx_sequence("vfx_status_golden_law_judgment", ready_center, 0.44 if not _is_boss_node(primary) else 0.72, Color(1.0, 0.84, 0.42, 0.64), 1.0, 0.0, 1.02, Vector2.ZERO, 0.0, false)
+		return
+	if now < float(primary.get_meta("golden_law_verdict_ready_at", 0.0)):
+		return
+	primary.set_meta("golden_law_judgment_stacks", 0)
+	primary.set_meta("golden_law_verdict_ready_at", now + float(special.get("judgment_cooldown", 0.62)))
+	var set_bonus := float(set_row.get("two_piece", {}).get("verdict_damage_mult", 0.0)) if _premium_set_piece_count(set_id) >= 2 else 0.0
+	var verdict_damage := damage * float(special.get("judgment_damage_mult", 1.18)) * (1.0 + _chip_value("verdict_damage_mult") + set_bonus)
+	var penetration := clampf(float(special.get("judgment_armor_penetration", 0.32)) + _chip_value("armor_penetration"), 0.0, 0.72)
+	_deal_damage_with_source(primary, verdict_damage, "physical", penetration, 0.0, "golden_verdict")
+	var impact := (primary as Node2D).global_position
+	var center := impact + Vector2(0, -38 if not _is_boss_node(primary) else -76)
+	_spawn_vfx_sequence("vfx_apocalypse_golden_law_impact", center, _inferno_edge_safe_vfx_scale(center, 0.76 if SettingsManager.reduced_effects_enabled() else 1.0), Color(1.0, 0.90, 0.58, 0.92), 1.0, 0.0, 1.02, Vector2(0, -4), 0.0, true)
+	_spawn_float_text(impact + Vector2(-80, -116), LocalizationManager.text("黄金裁决"), Color(1.0, 0.82, 0.34, 1.0), true, 24, 220.0)
+	AudioManager.play_sfx("apocalypse_golden_law_impact", -3.5, 0.018)
+	if _premium_set_piece_count(set_id) >= 4 and golden_law_decree_cooldown <= 0.0:
+		_apply_golden_law_decree(damage, set_row)
+
+
+func _apply_golden_law_decree(damage: float, set_row: Dictionary) -> void:
+	var four_piece: Dictionary = set_row.get("four_piece", {})
+	if int(four_piece.get("generation_limit", 1)) < 1:
+		return
+	var max_targets := maxi(1, int(four_piece.get("decree_max_targets", 4)))
+	var targets: Array[Node2D] = []
+	for candidate in $EnemyLayer.get_children():
+		if is_instance_valid(candidate) and candidate is Node2D and candidate.has_method("take_damage"):
+			targets.append(candidate as Node2D)
+	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		return a.global_position.y > b.global_position.y
+	)
+	if targets.size() > max_targets:
+		targets.resize(max_targets)
+	for index in range(targets.size()):
+		var target := targets[index]
+		if target == null or not is_instance_valid(target):
+			continue
+		var decree_damage := damage * float(four_piece.get("decree_damage_mult", 0.78)) * pow(float(four_piece.get("decree_falloff", 0.82)), float(index))
+		_deal_damage_with_source(target, decree_damage, "physical", 0.24, 0.0, "golden_decree")
+		var center := target.global_position + Vector2(0, -46 if not _is_boss_node(target) else -82)
+		_spawn_vfx_sequence("vfx_apocalypse_golden_law_decree", center, 0.46 if SettingsManager.reduced_effects_enabled() else 0.62, Color(1.0, 0.91, 0.62, 0.86), 1.0, 0.0, 1.02, Vector2.ZERO, float(index) * 0.035, false)
+	if not targets.is_empty():
+		_spawn_float_text((targets[0] as Node2D).global_position + Vector2(-72, -112), LocalizationManager.text("黄金敕令"), Color(1.0, 0.86, 0.42, 1.0), true, 22, 220.0)
+	AudioManager.play_sfx("apocalypse_golden_law_decree", -4.0, 0.02)
+	golden_law_decree_cooldown = float(four_piece.get("decree_cooldown", 5.8))
+
+
+func _apply_inferno_death_spread(enemy: Node, reward: Dictionary) -> void:
+	if str(reward.get("death_source", "")) != "combustion" or not is_instance_valid(enemy) or not enemy is Node2D:
+		return
+	var set_id := "set_apocalypse_inferno"
+	if _premium_set_piece_count(set_id) < 4:
+		return
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var four_piece: Dictionary = set_row.get("four_piece", {})
+	var generation_limit := maxi(0, int(four_piece.get("generation_limit", 1)))
+	if generation_limit < 1:
+		return
+	var origin := (enemy as Node2D).global_position
+	var radius := float(four_piece.get("death_spread_radius", 260.0))
+	var max_targets := maxi(1, int(four_piece.get("death_spread_max_targets", 4)))
+	var falloff := clampf(float(four_piece.get("death_spread_falloff", 0.62)), 0.25, 0.95)
+	var source_damage := _current_primary_shot_damage("fire", false)
+	var targets: Array[Node2D] = []
+	for candidate in $EnemyLayer.get_children():
+		if candidate == enemy or not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		if (candidate as Node2D).global_position.distance_to(origin) <= radius:
+			targets.append(candidate as Node2D)
+	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		return a.global_position.distance_squared_to(origin) < b.global_position.distance_squared_to(origin)
+	)
+	for index in range(mini(targets.size(), max_targets)):
+		var target := targets[index]
+		var scaled := source_damage * 0.12 * pow(falloff, float(index))
+		_deal_damage_with_source(target, scaled, "fire", 0.0, float(four_piece.get("death_spread_burn_ratio", 0.38)), "set_spread")
+		_spawn_weapon_trace(origin, target.global_position, Color(1.0, 0.32, 0.04, 0.64), 10.0, 0.18)
+	var spread_center := origin + Vector2(0, -34 if not _is_boss_node(enemy) else -68)
+	var reduced := SettingsManager.reduced_effects_enabled()
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_inferno_spread",
+		spread_center,
+		_inferno_edge_safe_vfx_scale(spread_center, 0.64 if reduced else 0.86),
+		Color(1.0, 0.80, 0.48, 0.56 if reduced else 0.88),
+		1.0,
+		0.0,
+		1.02,
+		Vector2(0, -4),
+		0.0,
+		false
+	)
+	_spawn_attack_ring(origin, radius * 0.72, Color(1.0, 0.26, 0.04, 0.20 if reduced else 0.30), 0.24)
+	AudioManager.play_sfx("apocalypse_inferno_combustion", -9.0, 0.02)
+
+func _inferno_edge_safe_vfx_scale(point: Vector2, desired: float) -> float:
+	# Keep the effect centered on the gameplay event instead of clamping it away
+	# from a left/right enemy. Scale down only when the real event is near an
+	# edge; the authored 512px source retains a 7.5% internal safety margin.
+	var viewport_size := get_viewport().get_visible_rect().size
+	var width := maxf(1080.0, viewport_size.x)
+	var height := maxf(1920.0, viewport_size.y)
+	var room := minf(minf(point.x, width - point.x), minf(point.y, height - point.y))
+	var safe_scale := maxf(0.16, maxf(room, 24.0) / 226.0 * 0.92)
+	return minf(maxf(desired, 0.16), safe_scale)
+
+func _apocalypse_edge_safe_vfx_point(impact: Vector2) -> Vector2:
+	# The authored column/impact textures are deliberately large (864/1254 px).
+	# Keep their center within a safe visual band so no premium VFX is cropped on
+	# either 1080-wide or safe-area portrait devices.
+	return Vector2(clampf(impact.x, 420.0, 660.0), impact.y)
+
+func _densest_apocalypse_target(fallback: Node) -> Node:
+	var best: Node = fallback
+	var best_count := -1
+	for candidate in $EnemyLayer.get_children():
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		var count := 0
+		for peer in $EnemyLayer.get_children():
+			if is_instance_valid(peer) and peer is Node2D and (peer as Node2D).global_position.distance_to((candidate as Node2D).global_position) <= 240.0:
+				count += 1
+		if count > best_count:
+			best_count = count
+			best = candidate
+	return best
 
 func _play_skill_impact_sfx(element: String) -> void:
 	if skills.level("skill_pierce") > 0 and randf() < 0.16:
@@ -6300,6 +7744,9 @@ func _split_target_directions(origin: Vector2, base_direction: Vector2, count: i
 func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, element: String, armor_penetration: float, status_strength: float) -> void:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
+	var weapon_profile := _weapon_visual_profile()
+	var premium_set_id := str(weapon.get("premium_set", ""))
+	var premium_set := DataLoader.get_row("premium_sets", premium_set_id)
 	var mods := skills.projectile_mods()
 	# No arbitrary chain ceiling: the authored skill/weapon/character/pet
 	# bonuses resolve in full. Actual fan-out is naturally bounded by valid
@@ -6309,6 +7756,11 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 		return
 	var targets: Array[Node2D] = _chain_targets(origin, primary, chain_count, 430.0)
 	var target_falloff := _character_chain_target_falloff(element)
+	if weapon_profile == "apocalypse_thunder":
+		target_falloff = maxf(target_falloff, float(special.get("chain_falloff", 0.88)) + _chip_value("chain_retention"))
+		if _premium_set_piece_count(premium_set_id) >= 2:
+			target_falloff += float(premium_set.get("two_piece", {}).get("chain_retention", 0.0))
+		target_falloff = clampf(target_falloff, 0.72, 0.97)
 	if not targets.is_empty():
 		AudioManager.play_sfx("skill_tesla" if element == "lightning" and skills.level("skill_tesla") > 0 else "skill_ricochet", -9.5, 0.025)
 	for target_index in range(targets.size()):
@@ -6318,9 +7770,12 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 		var direction: Vector2 = (target.global_position - origin).normalized()
 		var projectile := PROJECTILE_SCENE.instantiate()
 		var chain_element := "lightning" if element == "physical" else element
-		var chain_damage := damage * 0.42 * pow(target_falloff, float(target_index))
+		var chain_base := 0.52 if weapon_profile == "apocalypse_thunder" else 0.42
+		var chain_damage := damage * chain_base * pow(target_falloff, float(target_index))
 		_spawn_chain_arc(origin, target.global_position, chain_element)
-		projectile.setup(origin + direction * 18.0, direction, 1500.0, chain_damage, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.52, 1, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength, target)
+		var chain_profile := "apocalypse_thunder" if weapon_profile == "apocalypse_thunder" else "split"
+		var chain_texture := "" if weapon_profile == "apocalypse_thunder" else "res://assets/production/sprites/projectiles/proj_split_mini.png"
+		projectile.setup(origin + direction * 18.0, direction, 1500.0, chain_damage, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.62 if weapon_profile == "apocalypse_thunder" else 0.52, 1, chain_texture, chain_profile, armor_penetration, status_strength, target)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		$ProjectileLayer.call_deferred("add_child", projectile)
 
@@ -7379,6 +8834,16 @@ func _spawn_enemy_attack_vfx(source: Node, kind: String, target_position: Vector
 	)
 	var spin := 0.0 if DIRECTIONAL_VFX_SOURCE_FORWARD.has(sequence_id) else randf_range(-0.2, 0.2)
 	var fx := _spawn_vfx_sequence(sequence_id, target_position, 1.3 if is_boss_source else 0.9, Color(color.r, color.g, color.b, 0.94), 1.0, rotation, 1.12, Vector2(0, -10), spin, true)
+	if kind == "enrage" and fx is Node2D:
+		# The rendered molten claw corona is a body state, not a foreground
+		# explosion. Parent it behind its owner so neither the battlefield nor
+		# sibling ordering can hide the aura or the zombie silhouette.
+		var fx_position := (fx as Node2D).global_position
+		fx.reparent(source)
+		(fx as Node2D).global_position = fx_position
+		(source as CanvasItem).z_index = maxi((source as CanvasItem).z_index, 1)
+		(fx as CanvasItem).z_as_relative = false
+		(fx as CanvasItem).z_index = 0
 	if fx == null:
 		var path := _attack_vfx_path(kind)
 		_spawn_attack_sprite(path, target_position, color, 0.66 if not is_boss_source else 1.12, 0.32)
@@ -7876,6 +9341,7 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 		_refresh_active_boss()
 	if is_instance_valid(enemy):
 		enemy.set_meta("death_element", str(reward.get("death_element", "physical")))
+	_apply_inferno_death_spread(enemy, reward)
 	_resolve_death_mechanic(enemy)
 	_process_kill_feedback(enemy, reward)
 	# Stage 1 P0 — combat feel
@@ -7904,10 +9370,11 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 		target_manager.clear_lock()
 	_try_show_xp_card_offer(enemy)
 
-func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool) -> void:
+func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool, damage_source := "weapon") -> void:
 	var applied := maxf(amount, 0.0)
 	battle_damage_total += applied
 	battle_damage_by_element[element] = float(battle_damage_by_element.get(element, 0.0)) + applied
+	battle_damage_by_source[damage_source] = float(battle_damage_by_source.get(damage_source, 0.0)) + applied
 	if crit_hit:
 		battle_crit_damage += applied
 	if weak_hit:
@@ -8063,11 +9530,184 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 		battle_base_damage_prevented += preventable_damage
 	base_hp = max(base_hp - final_damage, 0)
 	battle_base_damage_taken += final_damage
+	_apply_premium_armor_counter(enemy, final_damage, _base_damage_impact_position(enemy.global_position.x))
 	if final_damage > 0:
 		_show_screen_flash(Color(1.0, 0.05, 0.03, 0.06), 0.1)
 	_check_low_hp_warning()
 	if base_hp <= 0:
 		_finish(false)
+
+func _apply_premium_armor_counter(source: Node, final_damage: int, impact_position: Vector2) -> void:
+	match str(armor_data.get("effect_profile", "")):
+		"apocalypse_thunder_conductor":
+			_apply_apocalypse_armor_counter(source, final_damage, impact_position)
+		"apocalypse_inferno_molten":
+			_apply_apocalypse_inferno_armor_counter(source, final_damage, impact_position)
+		"apocalypse_absolute_zero_permafrost":
+			_apply_apocalypse_absolute_zero_armor_counter(source, final_damage, impact_position)
+		"apocalypse_golden_law_eternal_night":
+			_apply_apocalypse_golden_law_armor_counter(source, final_damage, impact_position)
+
+func _apply_apocalypse_armor_counter(source: Node, final_damage: int, impact_position: Vector2) -> void:
+	if final_damage <= 0:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	apocalypse_armor_counter_cooldown = maxf(apocalypse_armor_counter_cooldown, 0.0)
+	apocalypse_armor_charge += 1
+	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
+	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
+		_spawn_attack_ring(impact_position, 96.0, Color(0.36, 0.86, 1.0, 0.32), 0.18)
+		return
+	apocalypse_armor_charge = 0
+	apocalypse_armor_counter_cooldown = now + float(armor_data.get("counter_cooldown", 8.0))
+	if source != null and is_instance_valid(source) and source.has_method("take_damage"):
+		var counter_damage := _current_primary_shot_damage("lightning", false) * float(armor_data.get("counter_damage_mult", 4.0))
+		source.take_damage(counter_damage, "lightning", 0.18, 1.35)
+		var target := (source as Node2D).global_position
+		var visual_target := _apocalypse_edge_safe_vfx_point(target)
+		if visual_target.distance_to(target) > 2.0:
+			_spawn_chain_arc(visual_target, target, "lightning")
+		_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_boss_storm_column.png", visual_target + Vector2(0, -140), Color(0.72, 0.96, 1.0, 0.94), 0.64, 0.30)
+		_spawn_attack_ring(target, 150.0, Color(0.86, 0.42, 1.0, 0.48), 0.26)
+		_spawn_float_text(target + Vector2(0, -128), LocalizationManager.text("导体反击"), UiKit.CYAN)
+
+
+func _apply_apocalypse_inferno_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
+	if final_damage <= 0:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	apocalypse_armor_charge += 1
+	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
+	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
+		_spawn_attack_ring(impact_position, 98.0, Color(1.0, 0.32, 0.05, 0.30), 0.18)
+		return
+	apocalypse_armor_charge = 0
+	apocalypse_armor_counter_cooldown = now + float(armor_data.get("counter_cooldown", 9.0))
+	var radius := float(armor_data.get("counter_radius", 270.0))
+	var max_targets := maxi(1, int(armor_data.get("counter_max_targets", 8)))
+	var counter_damage := _current_primary_shot_damage("fire", false) * float(armor_data.get("counter_damage_mult", 2.4))
+	var targets: Array[Node2D] = []
+	for candidate in $EnemyLayer.get_children():
+		if not is_instance_valid(candidate) or not candidate is Node2D or not candidate.has_method("take_damage"):
+			continue
+		if (candidate as Node2D).global_position.distance_to(impact_position) <= radius:
+			targets.append(candidate as Node2D)
+	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		return a.global_position.distance_squared_to(impact_position) < b.global_position.distance_squared_to(impact_position)
+	)
+	for index in range(mini(targets.size(), max_targets)):
+		var target := targets[index]
+		var scale := lerpf(1.0, 0.54, float(index) / float(maxi(max_targets - 1, 1)))
+		_deal_damage_with_source(target, counter_damage * scale, "fire", 0.10, 0.42, "armor_counter")
+	var restored := int(round(float(base_hp_max) * float(armor_data.get("counter_restore_ratio", 0.025))))
+	base_hp = mini(base_hp_max, base_hp + maxi(restored, 1))
+	var reduced := SettingsManager.reduced_effects_enabled()
+	var counter_center := impact_position + Vector2(0, -102)
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_inferno_counter",
+		counter_center,
+		_inferno_edge_safe_vfx_scale(counter_center, 0.82 if reduced else 1.12),
+		Color(1.0, 0.88, 0.62, 0.58 if reduced else 0.92),
+		1.0,
+		0.0,
+		1.02,
+		Vector2(0, -5),
+		0.0,
+		true
+	)
+	_spawn_attack_ring(impact_position, radius, Color(1.0, 0.54, 0.08, 0.24 if reduced else 0.38), 0.30)
+	_spawn_float_text(impact_position + Vector2(-94, -116), LocalizationManager.text("熔炉反击 +%d" % restored), Color(1.0, 0.66, 0.18, 1.0), true, 24, 250.0)
+	AudioManager.play_sfx("apocalypse_inferno_counter", -3.5, 0.015)
+	SettingsManager.pulse_haptic("heavy")
+
+
+func _apply_apocalypse_absolute_zero_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
+	if final_damage <= 0:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	apocalypse_armor_charge += 1
+	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
+	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
+		_spawn_attack_ring(impact_position, 98.0, Color(0.44, 0.90, 1.0, 0.30), 0.18)
+		return
+	apocalypse_armor_charge = 0
+	apocalypse_armor_counter_cooldown = now + float(armor_data.get("counter_cooldown", 9.0))
+	var radius := float(armor_data.get("counter_radius", 280.0))
+	var max_targets := maxi(1, int(armor_data.get("counter_max_targets", 8)))
+	var counter_damage := _current_primary_shot_damage("ice", false) * float(armor_data.get("counter_damage_mult", 1.9))
+	var targets: Array[Node2D] = []
+	for candidate in $EnemyLayer.get_children():
+		if not is_instance_valid(candidate) or not candidate is Node2D or not candidate.has_method("take_damage"):
+			continue
+		if (candidate as Node2D).global_position.distance_to(impact_position) <= radius:
+			targets.append(candidate as Node2D)
+	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		return a.global_position.distance_squared_to(impact_position) < b.global_position.distance_squared_to(impact_position)
+	)
+	for index in range(mini(targets.size(), max_targets)):
+		var target := targets[index]
+		var scale := lerpf(1.0, 0.56, float(index) / float(maxi(max_targets - 1, 1)))
+		_deal_damage_with_source(target, counter_damage * scale, "ice", 0.06, float(armor_data.get("counter_slow", 0.38)), "armor_counter")
+		if target.has_method("mark_ice_slow_visual"):
+			target.mark_ice_slow_visual(2.0)
+	var restored := int(round(float(base_hp_max) * float(armor_data.get("counter_restore_ratio", 0.018))))
+	base_hp = mini(base_hp_max, base_hp + maxi(restored, 1))
+	var reduced := SettingsManager.reduced_effects_enabled()
+	var counter_center := impact_position + Vector2(0, -102)
+	_spawn_vfx_sequence(
+		"vfx_apocalypse_absolute_zero_counter",
+		counter_center,
+		_inferno_edge_safe_vfx_scale(counter_center, 0.80 if reduced else 1.08),
+		Color(0.82, 0.98, 1.0, 0.56 if reduced else 0.90),
+		1.0,
+		0.0,
+		1.02,
+		Vector2(0, -5),
+		0.0,
+		true
+	)
+	_spawn_attack_ring(impact_position, radius, Color(0.42, 0.88, 1.0, 0.24 if reduced else 0.36), 0.30)
+	_spawn_float_text(impact_position + Vector2(-94, -116), LocalizationManager.text("永冻反击 +%d") % restored, Color(0.66, 0.94, 1.0, 1.0), true, 24, 250.0)
+	AudioManager.play_sfx("apocalypse_absolute_zero_counter", -3.5, 0.015)
+	SettingsManager.pulse_haptic("heavy")
+
+
+func _apply_apocalypse_golden_law_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
+	if final_damage <= 0:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	apocalypse_armor_charge += 1
+	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
+	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
+		_spawn_attack_ring(impact_position, 100.0, Color(1.0, 0.76, 0.22, 0.30), 0.18)
+		return
+	apocalypse_armor_charge = 0
+	apocalypse_armor_counter_cooldown = now + float(armor_data.get("counter_cooldown", 8.5))
+	var radius := float(armor_data.get("counter_radius", 290.0))
+	var max_targets := maxi(1, int(armor_data.get("counter_max_targets", 6)))
+	var counter_damage := _current_primary_shot_damage("physical", false) * float(armor_data.get("counter_damage_mult", 2.1))
+	var targets: Array[Node2D] = []
+	for candidate in $EnemyLayer.get_children():
+		if is_instance_valid(candidate) and candidate is Node2D and candidate.has_method("take_damage"):
+			targets.append(candidate as Node2D)
+	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		return a.global_position.y > b.global_position.y
+	)
+	if targets.size() > max_targets:
+		targets.resize(max_targets)
+	for index in range(targets.size()):
+		var target := targets[index]
+		var scale := lerpf(1.0, 0.62, float(index) / float(maxi(max_targets - 1, 1)))
+		_deal_damage_with_source(target, counter_damage * scale, "physical", 0.20, 0.0, "armor_counter")
+		_spawn_weapon_trace(impact_position, target.global_position + Vector2(0, -28), Color(1.0, 0.80, 0.30, 0.78), 11.0, 0.18)
+	var restored := int(round(float(base_hp_max) * float(armor_data.get("counter_restore_ratio", 0.022))))
+	base_hp = mini(base_hp_max, base_hp + maxi(restored, 1))
+	var center := impact_position + Vector2(0, -102)
+	_spawn_vfx_sequence("vfx_apocalypse_golden_law_counter", center, _inferno_edge_safe_vfx_scale(center, 0.82 if SettingsManager.reduced_effects_enabled() else 1.10), Color(1.0, 0.90, 0.58, 0.92), 1.0, 0.0, 1.02, Vector2(0, -5), 0.0, true)
+	_spawn_attack_ring(impact_position, radius, Color(1.0, 0.72, 0.18, 0.36), 0.30)
+	_spawn_float_text(impact_position + Vector2(-94, -116), LocalizationManager.text("永夜反击") + " +%d" % restored, Color(1.0, 0.84, 0.38, 1.0), true, 24, 250.0)
+	AudioManager.play_sfx("apocalypse_golden_law_counter", -3.5, 0.015)
+	SettingsManager.pulse_haptic("heavy")
 
 ## design/24 Phase 2: boss levels are survival sponges, so the same leak budget
 ## costs the player far more base HP than on an ordinary level. Give the base
@@ -8276,6 +9916,7 @@ func _reset_battle_report() -> void:
 	battle_elapsed_seconds = 0.0
 	battle_damage_total = 0.0
 	battle_damage_by_element = {}
+	battle_damage_by_source = {}
 	battle_crit_damage = 0.0
 	battle_weak_damage = 0.0
 	battle_kills = 0
@@ -8307,6 +9948,7 @@ func _build_battle_report() -> Dictionary:
 		"duration_seconds": battle_elapsed_seconds,
 		"damage_total": battle_damage_total,
 		"damage_by_element": battle_damage_by_element.duplicate(true),
+		"damage_by_source": battle_damage_by_source.duplicate(true),
 		"top_element": top_element,
 		"crit_damage": battle_crit_damage,
 		"weak_damage": battle_weak_damage,
@@ -8429,7 +10071,21 @@ func _build_skill_slots() -> void:
 		$Hud/SkillPanelTitle.visible = false
 	for skill_id in skill_slot_ids:
 		$Hud/SkillSlots.add_child(_build_hud_skill_card(skill_id))
+	_layout_skill_slots()
 	_update_skill_slots()
+
+func _layout_skill_slots() -> void:
+	var slots := get_node_or_null("Hud/SkillSlots") as GridContainer
+	if slots == null:
+		return
+	var item_count := skill_slot_ids.size()
+	var columns := mini(HUD_SKILL_DOCK_COLUMNS, maxi(item_count, 1))
+	var rows := maxi(1, ceili(float(item_count) / float(HUD_SKILL_DOCK_COLUMNS)))
+	var content_height := float(rows) * HUD_SKILL_SLOT_SIZE.y + float(rows - 1) * float(HUD_SKILL_DOCK_GAP)
+	slots.columns = columns
+	# Preserve the safe-area-adjusted bottom that may already have been applied
+	# after the base runtime layout, then grow upward as skills wrap.
+	slots.offset_top = slots.offset_bottom - content_height
 
 func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var row := DataLoader.get_row("skills", skill_id)
@@ -8437,18 +10093,16 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	var max_lv := skills.max_level(skill_id)
 	var card := PanelContainer.new()
 	card.name = skill_id
-	card.custom_minimum_size = Vector2(46, 58)
+	card.custom_minimum_size = HUD_SKILL_SLOT_SIZE
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	card.clip_contents = true
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.mouse_entered.connect(_show_skill_hint_for_skill.bind(skill_id))
-	card.mouse_exited.connect(_hide_skill_hint)
 	card.gui_input.connect(_on_hud_skill_slot_input.bind(skill_id))
 	card.add_theme_stylebox_override("panel", _skill_card_style(lv, max_lv))
-	card.tooltip_text = "%s 等级%d\n%s" % [
+	card.tooltip_text = "%s %s\n%s" % [
 		DataLoader.tr_key(str(row.get("name_key", skill_id))),
-		lv,
+		LocalizationManager.text("等级%d") % lv,
 		_skill_brief(skill_id, row, lv)
 	]
 	var stack := VBoxContainer.new()
@@ -8459,7 +10113,7 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 	card.add_child(stack)
 	var icon_box := PanelContainer.new()
 	icon_box.name = "IconBox"
-	icon_box.custom_minimum_size = Vector2(38, 38)
+	icon_box.custom_minimum_size = Vector2(72, 72)
 	icon_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.add_theme_stylebox_override("panel", _skill_card_icon_style(lv, max_lv))
@@ -8471,23 +10125,24 @@ func _build_hud_skill_card(skill_id: String) -> PanelContainer:
 		icon.texture = load(str(row.get("icon", "")))
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(34, 34)
-		icon.size = Vector2(34, 34)
+		icon.custom_minimum_size = Vector2(66, 66)
+		icon.size = Vector2(66, 66)
 		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_box.add_child(icon)
 	var lv_badge := Label.new()
 	lv_badge.name = "LevelBadge"
-	lv_badge.text = "等级%d" % lv
-	lv_badge.add_theme_font_size_override("font_size", UiKit.bumped_font_size(10))
+	lv_badge.text = LocalizationManager.text("等级%d") % lv
+	lv_badge.add_theme_font_size_override("font_size", UiKit.scaled_font_size(15))
 	var badge_color := _skill_level_color(lv, max_lv)
 	lv_badge.add_theme_color_override("font_color", badge_color)
 	lv_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	lv_badge.add_theme_constant_override("outline_size", 3)
 	lv_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lv_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lv_badge.custom_minimum_size = Vector2(44, 15)
+	lv_badge.custom_minimum_size = Vector2(92, 30)
+	lv_badge.clip_text = true
 	lv_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(lv_badge)
 	return card
@@ -8542,6 +10197,7 @@ func _update_skill_slots() -> void:
 	$Hud/SkillSlots.visible = has_skills
 	if has_node("Hud/SkillPanelTitle"):
 		$Hud/SkillPanelTitle.visible = false
+	_layout_skill_slots()
 	for skill_id in skill_slot_ids:
 		var slot := $Hud/SkillSlots.get_node_or_null(skill_id)
 		if slot == null:
@@ -8550,13 +10206,13 @@ func _update_skill_slots() -> void:
 		var max_lv := skills.max_level(skill_id)
 		var badge := slot.get_node_or_null("HBox/LevelBadge")
 		if badge != null and badge is Label:
-			(badge as Label).text = "等级%d" % lv
+			(badge as Label).text = LocalizationManager.text("等级%d") % lv
 			(badge as Label).add_theme_color_override("font_color", _skill_level_color(lv, max_lv))
 		var row := DataLoader.get_row("skills", skill_id)
 		if slot is Control:
-			(slot as Control).tooltip_text = "%s 等级%d\n%s" % [
+			(slot as Control).tooltip_text = "%s %s\n%s" % [
 				DataLoader.tr_key(str(row.get("name_key", skill_id))),
-				lv,
+				LocalizationManager.text("等级%d") % lv,
 				_skill_brief(skill_id, row, lv)
 			]
 		# Re-apply card border + icon border to reflect new level color
@@ -9334,12 +10990,36 @@ func _show_card_detail(skill_id: String) -> void:
 	_set_card_offer_base_content_visible(false)
 	$Hud/CardPanel/DetailOverlay.visible = true
 	$Hud/CardPanel/DetailOverlay/Panel/Icon.texture = load(row.get("icon", ""))
-	$Hud/CardPanel/DetailOverlay/Panel/Title.text = "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", skill_id)), lv]
+	$Hud/CardPanel/DetailOverlay/Panel/Title.text = "%s  %s" % [DataLoader.tr_key(row.get("name_key", skill_id)), LocalizationManager.text("等级%d") % lv]
 	$Hud/CardPanel/DetailOverlay/Panel/Body.text = SkillEffectText.format_offer_block(row, lv, current_lv)
-	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsTitle.text = "全部等级"
+	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsTitle.text = LocalizationManager.text("全部等级")
 	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsBody.text = SkillEffectText.format_all_levels(row, lv)
-	$Hud/CardPanel/DetailOverlay/Panel/DescBody.text = _skill_long_desc(skill_id, lv)
-	$Hud/CardPanel/DetailOverlay/Panel/TagsBody.text = "标签：%s" % _format_card_tags(row.get("card_tags", []))
+	$Hud/CardPanel/DetailOverlay/Panel/DescBody.text = LocalizationManager.text(_skill_long_desc(skill_id, lv))
+	$Hud/CardPanel/DetailOverlay/Panel/TagsBody.text = "%s: %s" % [_loc("标签", "Tags"), LocalizationManager.text(_format_card_tags(row.get("card_tags", [])))]
+	# Use the larger mobile-first sizes whenever the copy fits. Long English
+	# variants may step down only within a floor that is never smaller than the
+	# previous released detail typography.
+	UiKit.fit_label_text(
+		$Hud/CardPanel/DetailOverlay/Panel/AllLevelsBody,
+		UiKit.scaled_font_size(CARD_DETAIL_LEVELS_BODY_FONT_SIZE),
+		UiKit.scaled_font_size(14),
+		4.0,
+		4.0
+	)
+	UiKit.fit_label_text(
+		$Hud/CardPanel/DetailOverlay/Panel/DescBody,
+		UiKit.scaled_font_size(CARD_DETAIL_DESCRIPTION_FONT_SIZE),
+		UiKit.scaled_font_size(15),
+		4.0,
+		4.0
+	)
+	UiKit.fit_label_text(
+		$Hud/CardPanel/DetailOverlay/Panel/TagsBody,
+		UiKit.scaled_font_size(CARD_DETAIL_TAGS_FONT_SIZE),
+		UiKit.scaled_font_size(14),
+		4.0,
+		4.0
+	)
 
 func _hide_card_detail() -> void:
 	AudioManager.play_sfx("ui_click", -5.0)
@@ -9802,9 +11482,21 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 	AudioManager.play_sfx("hit_immune" if immune_hit else _element_hit_sfx(element), -8.0)
 	if not is_instance_valid(enemy):
 		return
+	var incoming_source := str(enemy.get_meta("_damage_source_for_feedback", "weapon"))
 	if str(enemy.get("mechanic")) == "armor" and not immune_hit:
 		AudioManager.play_sfx("zombie_armored", -10.0, 0.02)
-	if immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade" or hit_kind == "armor_pierce" or hit_kind == "suppressed":
+	# Golden Law already emits one authored, localized name for Verdict, Decree,
+	# Skyfalcon and Eternal Counter. Repeating the generic armor-pierce sentence
+	# above every target makes a four-target decree read as overlapping garbage.
+	# Keep hit particles/audio, but suppress only the redundant rule sentence.
+	var named_golden_law_hit := incoming_source in [
+		"golden_verdict",
+		"golden_decree",
+		"golden_mark",
+		"skyfalcon_mark",
+		"armor_counter",
+	]
+	if not named_golden_law_hit and (immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade" or hit_kind == "armor_pierce" or hit_kind == "suppressed"):
 		_show_enemy_hit_rule_feedback(enemy, element, hit_kind)
 	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
 	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
@@ -10054,6 +11746,12 @@ func _environment_row(env_id: String) -> Dictionary:
 
 func _weapon_shot_sfx(id: String) -> String:
 	match id:
+		"weapon_apocalypse_inferno":
+			return "apocalypse_inferno_ignition"
+		"weapon_apocalypse_absolute_zero":
+			return "apocalypse_absolute_zero_fire"
+		"weapon_apocalypse_golden_law":
+			return "apocalypse_golden_law_fire"
 		"weapon_flamethrower":
 			return "shot_flamethrower"
 		"weapon_cryocannon":

@@ -78,5 +78,100 @@
 		"cost_base_gold": 150,
 		"unlock_cost_star": 14,
 		"icon": "res://assets/production/sprites/equipment/chip_element_icon.png"
+	},
+	"chip_apocalypse_superconductive": {
+		"name_key": "chip_apocalypse_superconductive",
+		"stat": "element_damage_mult",
+		"value": 0.12,
+		"level_value_growth": 0.032,
+		"secondary_stats": {
+			"fire_rate_mult": 0.05,
+			"chain_retention": 0.08,
+			"overload_efficiency": 0.10
+		},
+		"secondary_level_growth": {
+			"fire_rate_mult": 0.0015,
+			"chain_retention": 0.001,
+			"overload_efficiency": 0.002
+		},
+		"premium_entitlement": "ent_arsenal_thunder",
+		"premium_set": "set_apocalypse_thunder",
+		"rarity": "apocalypse",
+		"max_level": 35,
+		"cost_base_gold": 170,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/neon_tempest/chip_apocalypse_superconductive_icon.png"
+	},
+	"chip_apocalypse_stellar": {
+		"name_key": "chip_apocalypse_stellar",
+		"stat": "element_damage_mult",
+		"value": 0.12,
+		"level_value_growth": 0.032,
+		"secondary_stats": {
+			"burn_efficiency": 0.16,
+			"combustion_stack_efficiency": 0.10,
+			"combustion_damage_mult": 0.12
+		},
+		"secondary_level_growth": {
+			"burn_efficiency": 0.003,
+			"combustion_stack_efficiency": 0.002,
+			"combustion_damage_mult": 0.003
+		},
+		"premium_entitlement": "ent_arsenal_inferno",
+		"premium_set": "set_apocalypse_inferno",
+		"rarity": "apocalypse",
+		"max_level": 35,
+		"cost_base_gold": 170,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/infernal_dominion/chip_apocalypse_stellar_icon.png"
+	},
+	"chip_apocalypse_entropy": {
+		"name_key": "chip_apocalypse_entropy",
+		"stat": "element_damage_mult",
+		"value": 0.12,
+		"level_value_growth": 0.032,
+		"secondary_stats": {
+			"slow_strength_mult": 0.12,
+			"brittle_efficiency": 0.10,
+			"shatter_damage_mult": 0.10
+		},
+		"secondary_level_growth": {
+			"slow_strength_mult": 0.003,
+			"brittle_efficiency": 0.002,
+			"shatter_damage_mult": 0.003
+		},
+		"premium_entitlement": "ent_arsenal_absolute_zero",
+		"premium_set": "set_apocalypse_absolute_zero",
+		"rarity": "apocalypse",
+		"max_level": 35,
+		"cost_base_gold": 170,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/polar_aurora/chip_apocalypse_entropy_icon.png"
+	},
+	"chip_apocalypse_golden_law": {
+		"name_key": "chip_apocalypse_golden_law",
+		"stat": "damage_mult",
+		"value": 0.10,
+		"level_value_growth": 0.040,
+		"secondary_stats": {
+			"crit_rate": 0.05,
+			"judgment_efficiency": 0.12,
+			"armor_penetration": 0.10,
+			"verdict_damage_mult": 0.10
+		},
+		"secondary_level_growth": {
+			"crit_rate": 0.0012,
+			"judgment_efficiency": 0.003,
+			"armor_penetration": 0.0015,
+			"verdict_damage_mult": 0.003
+		},
+		"premium_entitlement": "ent_arsenal_golden_law",
+		"premium_set": "set_apocalypse_golden_law",
+		"rarity": "apocalypse",
+		"max_level": 35,
+		"cost_base_gold": 170,
+		"unlock_cost_star": 999999,
+		"icon": "res://assets/production/sprites/premium/gilded_eclipse/chip_apocalypse_golden_law_icon.png",
+		"store_preview_region": [60, 22, 290, 228]
 	}
 }
