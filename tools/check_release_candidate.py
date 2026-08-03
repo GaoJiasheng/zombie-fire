@@ -47,6 +47,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/check_level_pressure.py")),
     Check(("python3", "tools/check_balance_profile.py")),
     Check(("python3", "tools/simulate_balance.py")),
+    Check(("python3", "tools/simulate_balance.py", "--challenge")),
     Check(("python3", "tools/check_endgame_balance.py")),
     Check(
         ("python3", "tools/audit_character_endgame_dps.py"),

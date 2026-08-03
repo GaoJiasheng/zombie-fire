@@ -14,6 +14,7 @@ Outputs a table sorted by level so we can spot trivially-easy and
 impossibly-hard levels at a glance.
 """
 from __future__ import annotations
+import argparse
 import json
 import math
 from pathlib import Path
@@ -28,6 +29,7 @@ BOSSES_PATH = ROOT / "data" / "bosses.json"
 CHARS_PATH = ROOT / "data" / "characters.json"
 WEAPONS_PATH = ROOT / "data" / "weapons.json"
 ECONOMY_PATH = ROOT / "data" / "economy.json"
+CHALLENGES_PATH = ROOT / "data" / "challenges.json"
 PHYSICAL_RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
 
 GLOBAL_DMG_BASE = 10.0
@@ -47,6 +49,30 @@ DEFAULT_LATE_WAVE_DAMAGE_RAMP = {"start_level": 50, "full_level": 98, "start_wav
 DEFAULT_BOSS_HP_LEVEL_BONUS = {"start_level": 20, "multiplier": 2.0}
 DEFAULT_BOSS_SURVIVAL_HP_RAMP = {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08}
 DEFAULT_STAR_THRESHOLDS = {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Simulate campaign balance pressure.")
+    parser.add_argument(
+        "--challenge",
+        action="store_true",
+        help="apply the chapter challenge variants from data/challenges.json",
+    )
+    return parser.parse_args()
+
+
+def challenge_rule_for_level(level: dict, challenges: dict) -> dict:
+    """Mirror ChallengeRules.for_level without duplicating authored values."""
+    chapter = max(1, min(10, int(level.get("chapter", 1))))
+    row = challenges.get(f"chapter_{chapter:02d}", {})
+    if not isinstance(row, dict):
+        row = {}
+    return {
+        "hp_mult": max(0.1, float(row.get("hp_mult", 1.0))),
+        "speed_mult": max(0.1, float(row.get("speed_mult", 1.0))),
+        "breach_damage_mult": max(0.1, float(row.get("breach_damage_mult", 1.0))),
+        "mechanic_rate_mult": max(0.1, float(row.get("mechanic_rate_mult", 1.0))),
+    }
 
 
 def boss_base_hp_cushion(economy: dict, level_no: int) -> float:
@@ -344,12 +370,14 @@ def is_boss_level(level: dict) -> bool:
 
 
 def main() -> int:
+    args = parse_args()
     levels: list[dict] = json.loads(LEVELS_PATH.read_text(encoding="utf-8"))
     zombies: dict[str, dict] = json.loads(ZOMBIES_PATH.read_text(encoding="utf-8"))
     bosses: dict[str, dict] = json.loads(BOSSES_PATH.read_text(encoding="utf-8"))
     characters: dict[str, dict] = json.loads(CHARS_PATH.read_text(encoding="utf-8"))
     weapons: dict[str, dict] = json.loads(WEAPONS_PATH.read_text(encoding="utf-8"))
     economy: dict = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
+    challenges: dict = json.loads(CHALLENGES_PATH.read_text(encoding="utf-8"))
     runtime_benchmark: dict = json.loads(PHYSICAL_RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
     autocannon_runtime: dict = runtime_benchmark["best_same_loadout"]["weapon_autocannon"]
     max_reference_dps = character_dps.best_result("vanguard").total_dps
@@ -370,6 +398,8 @@ def main() -> int:
     )
     max_card_throughput = estimate_skill_mult(levels[-1])
 
+    mode_name = "challenge" if args.challenge else "normal"
+    print(f"Simulation mode: {mode_name}")
     print(f"{'level':<11} {'ch':<3} {'recom':<5} {'coef':<6} {'cards':>5} {'spawn':>6} {'hp_total':>9} {'dps_ns':>6} {'dps_ws':>6} {'t_ns':>6} {'t_ws':>6} {'leak%':>6}  notes")
     print("-" * 110)
 
@@ -377,6 +407,10 @@ def main() -> int:
     for lv in levels:
         n = int(lv["id"].split("_")[1])
         mob_hp, boss_hp, count = level_enemy_hp_split(lv, zombies, bosses, economy)
+        challenge_rule = challenge_rule_for_level(lv, challenges) if args.challenge else challenge_rule_for_level(lv, {})
+        challenge_hp_mult = challenge_rule["hp_mult"]
+        mob_hp *= challenge_hp_mult
+        boss_hp *= challenge_hp_mult
         hp_total = mob_hp + boss_hp
         recommended_level = int(lv.get("recommend_level", n))
         char_level = min(recommended_level, int(characters["vanguard"].get("max_level", 40)))
@@ -422,6 +456,15 @@ def main() -> int:
             effective_crowd_dps = min(crowd_dps, dps_ws)
             time_ws = mob_hp / max(effective_crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
+        if args.challenge:
+            # HP pressure is represented exactly in clear time above. Faster
+            # enemies and more frequent mechanics reduce the control window,
+            # while breach_damage_mult is the exact runtime damage multiplier.
+            # Together they scale the normal model's expected breach pressure
+            # without inventing an additional global challenge constant.
+            leak *= challenge_rule["speed_mult"]
+            leak *= challenge_rule["breach_damage_mult"]
+            leak *= challenge_rule["mechanic_rate_mult"]
         # base_hp_ref * armor_mult is the real starting HP. Boss levels add the
         # design/24 Phase 2 base-line cushion, exactly as battle.gd does.
         boss_base_hp_mult = boss_base_hp_cushion(economy, n) if boss_lvl else 1.0
@@ -431,6 +474,8 @@ def main() -> int:
 
     rows.sort(key=lambda r: r[0])
     three_star_leak_pct, two_star_leak_pct = star_leak_caps(economy)
+    chapter_star_totals = {chapter: 0 for chapter in range(1, 11)}
+    chapter_min_stars = {chapter: 3 for chapter in range(1, 11)}
     for n, ch, recom, coef, cards, spawn_time, hp, dps_ns, dps_ws, t_ns, t_ws, leak_pct, boss_lvl in rows:
         notes = []
         if boss_lvl:
@@ -446,10 +491,15 @@ def main() -> int:
         # rates surviving base HP; leak% is the same quantity inverted.
         if leak_pct > two_star_leak_pct:
             notes.append("1★")
+            stars = 1
         elif leak_pct > three_star_leak_pct:
             notes.append("2★")
+            stars = 2
         else:
             notes.append("3★")
+            stars = 3
+        chapter_star_totals[int(ch)] += stars
+        chapter_min_stars[int(ch)] = min(chapter_min_stars[int(ch)], stars)
         line = f"level_{n:03d}  ch{ch:<2} {recom:<5} {coef:<6.2f} {cards:>5} {spawn_time:>6.1f} {hp:>9.0f} {dps_ns:>6.0f} {dps_ws:>6.0f} {t_ns:>6.1f} {t_ws:>6.1f} {leak_pct:>5.0f}%  {' '.join(notes)}"
         print(line)
 
@@ -489,6 +539,23 @@ def main() -> int:
     prior_peak = max(row[6] for row in rows[:-1])
     if finale_hp < prior_peak * 1.02:
         errors.append(f"final boss HP {finale_hp:.0f} must exceed prior peak {prior_peak:.0f}")
+    if args.challenge:
+        fully_breached = [row for row in rows if row[11] >= 100.0]
+        if fully_breached:
+            details = ", ".join(f"level_{row[0]:03d}" for row in fully_breached)
+            errors.append(f"challenge contains a 100% breach failure: {details}")
+        total_challenge_stars = sum(chapter_star_totals.values())
+        print("Challenge chapter summary:")
+        for chapter in range(1, 11):
+            print(
+                f"- chapter_{chapter:02d}: stars={chapter_star_totals[chapter]} "
+                f"min_level_stars={chapter_min_stars[chapter]}★"
+            )
+            if chapter_min_stars[chapter] < 1:
+                errors.append(f"chapter_{chapter:02d} has no winnable challenge star")
+        print(f"Challenge obtainable stars: {total_challenge_stars}")
+        if total_challenge_stars < 19:
+            errors.append(f"challenge obtainable stars {total_challenge_stars} must be at least 19")
     if errors:
         print("Balance simulation failed:")
         for error in errors:
