@@ -994,6 +994,37 @@ SKILL_TAG_THEME_SCREENS: list[tuple[str, dict, str]] = [
     for language in ["zh", "en"]
 ]
 
+# The Skill Codex defines the release-quality micro-label grammar, but the same
+# categorical data also appears throughout every equipment catalog. Capture the
+# complete five-theme, bilingual family so Role / Element / Access / Category
+# labels cannot silently fall back to bare text outside the skill screen.
+COLLECTION_TAG_THEME_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "collection",
+        {
+            "language": language,
+            "mode": mode,
+            "save_override": save_override,
+        },
+        f"collection_metadata_tags_{theme_id}_{language}_{mode}",
+    )
+    for theme_id, save_override in [
+        (
+            "default",
+            {
+                "commerce": {"mock_receipts": []},
+                "cosmetics": {"selected_theme": "default"},
+            },
+        ),
+        ("neon", NEON_THEME_ACTIVE_OVERRIDE),
+        ("infernal", INFERNAL_THEME_ACTIVE_OVERRIDE),
+        ("polar", POLAR_THEME_ACTIVE_OVERRIDE),
+        ("gilded", GILDED_THEME_ACTIVE_OVERRIDE),
+    ]
+    for language in ["zh", "en"]
+    for mode in ["characters", "weapons", "armors", "chips", "pets"]
+]
+
 APP_STORE_VFX_SCREENS: list[tuple[str, dict, str]] = [
     (
         "battle",
@@ -2154,6 +2185,7 @@ FINAL_REGRESSION_SCREENS = _dedupe_screens(
     + FINAL_VFX_SCREENS
     + THEME_MENU_SCREENS
     + SKILL_TAG_THEME_SCREENS
+    + COLLECTION_TAG_THEME_SCREENS
     + APP_STORE_VFX_SCREENS
 )
 
@@ -2398,6 +2430,8 @@ def main() -> int:
         active_screens = THEME_MENU_SCREENS
     elif "--skill-tags-only" in sys.argv[1:]:
         active_screens = SKILL_TAG_THEME_SCREENS
+    elif "--collection-tags-only" in sys.argv[1:]:
+        active_screens = COLLECTION_TAG_THEME_SCREENS
     elif "--app-store-vfx-only" in sys.argv[1:]:
         active_screens = APP_STORE_VFX_SCREENS
     elif "--premium-cross-only" in sys.argv[1:]:

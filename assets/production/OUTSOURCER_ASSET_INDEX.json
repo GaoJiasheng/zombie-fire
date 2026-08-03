@@ -495,6 +495,29 @@
       "count": 72,
       "task": "Neon Tempest Phase 1B-1 semantic button routing",
       "created_at": "2026-07-27T18:40:00+08:00"
+    },
+    {
+      "path": "sprites/vfx/{vfx_slow_field_surface_v2,vfx_slow_field_front_v2}.png",
+      "source": "source_refs/generated/slow_field_v2_2026_08_03/prompt_log.md",
+      "derived": [
+        "source_refs/generated/slow_field_v2_2026_08_03/vfx_slow_field_boundary_master_black.png",
+        "source_refs/generated/slow_field_v2_2026_08_03/vfx_slow_field_surface_master_black.png"
+      ],
+      "reason": "The previous persistent slow field was a stretched band plus crossed procedural sine lines, which read as a debug grid. V2 uses a rendered cryogenic/aurora interior at fixed tile density and a separate fixed-size rendered leading edge; level growth changes coverage and boundary position without deforming either source asset.",
+      "count": 2,
+      "task": "Rendered slow-field V2 with non-stretched data-driven range architecture",
+      "created_at": "2026-08-03T09:19:49+08:00"
+    },
+    {
+      "path": "sprites/ui/ui_semantic_tag_microframe_v2.png",
+      "source": [
+        "source_refs/generated/semantic_tag_microframe_v2_2026_08_03/spec.md",
+        "../../tools/build_semantic_tag_microframe.py"
+      ],
+      "reason": "The first small-tag ornamental frame compressed into disconnected highlights. This deterministic neutral master preserves one continuous edge, quiet inner keyline and contained shadow under nine-slice scaling; runtime theme tint remains data-owned.",
+      "count": 1,
+      "task": "Texture-backed restrained semantic tag micro-frame",
+      "created_at": "2026-08-03T14:36:11+08:00"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",

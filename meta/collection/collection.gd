@@ -317,13 +317,24 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
 	tag_row.position = Vector2(text_x, 128 if mode == "characters" else (140 if english_layout else (84 if spacious else 70)))
-	tag_row.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else 350, 36)
+	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
+	# prose. They live above the action button, so using the full card width here
+	# does not steal any description space.
+	tag_row.size = Vector2(452 if mode == "characters" else 350, 40)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
 	tag_row.z_index = 2
-	for tag_text in _item_tags(row, unlocked).slice(0, 3):
-		tag_row.add_child(UiKit.pill(str(tag_text), accent, 15))
+	var tag_index := 0
+	for tag_spec in _item_tag_specs(row, unlocked).slice(0, 3):
+		var tag := UiKit.semantic_tag_pill(
+			LocalizationManager.text(str(tag_spec.get("text", ""))),
+			str(tag_spec.get("role", "ability")),
+			13 if english_layout else 15
+		)
+		tag.name = "MetadataTag%d" % tag_index
+		tag_row.add_child(tag)
+		tag_index += 1
 
 	var desc := Label.new()
 	desc.name = "Description"
@@ -404,7 +415,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var item_level := SaveManager.get_skill_base_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 210)
+	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 222)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
@@ -421,7 +432,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var card := PanelContainer.new()
 	card.name = "SkillCard"
 	card.position = Vector2(10, 6)
-	card.size = Vector2(740, 198)
+	card.size = Vector2(740, 210)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.visible = true
@@ -430,7 +441,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var accent_bar := TextureRect.new()
 	accent_bar.name = "AccentBar"
 	accent_bar.position = Vector2(10, 6)
-	accent_bar.size = Vector2(18, 184)
+	accent_bar.size = Vector2(18, 196)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -509,7 +520,9 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var effect := Label.new()
 	effect.name = "EffectSummary"
 	effect.text = _skill_effect_summary(row, item_level)
-	effect.position = Vector2(148, 122)
+	# The semantic tag style owns real mobile padding, so leave an authored gap
+	# below its measured height instead of relying on the former hairline badge.
+	effect.position = Vector2(148, 130)
 	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 80)
 	effect.clip_text = true
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -554,27 +567,42 @@ func _mode_accent(row: Dictionary) -> Color:
 		_:
 			return UiKit.CYAN
 
-func _item_tags(row: Dictionary, unlocked: bool) -> Array[String]:
+func _item_tag_specs(row: Dictionary, unlocked: bool) -> Array[Dictionary]:
+	var specs: Array[Dictionary] = []
 	if not unlocked:
-		return ["星级解锁"]
+		specs.append({"text": "星级解锁", "role": "access"})
 	match mode:
 		"characters":
-			return [_role_name(row.get("role_tag", "-")), _element_name(row.get("element_focus", "-"))]
+			specs.append({"text": _role_name(row.get("role_tag", "-")), "role": "kind"})
+			specs.append({"text": _element_name(row.get("element_focus", "-")), "role": "element"})
 		"weapons":
-			return [_element_name(row.get("element", "-")), _weapon_special_text(row)]
+			specs.append({"text": _element_name(row.get("element", "-")), "role": "element"})
+			specs.append({"text": _weapon_special_text(row), "role": "ability"})
 		"armors":
-			return ["护甲", _element_name(row.get("resist", "none"))]
+			specs.append({"text": "护甲", "role": "kind"})
+			specs.append({"text": _element_name(row.get("resist", "none")), "role": "element"})
 		"chips":
-			return ["芯片", _stat_name(row.get("stat", "stat"))]
+			specs.append({"text": "芯片", "role": "kind"})
+			specs.append({"text": _stat_name(row.get("stat", "stat")), "role": "ability"})
 		"pets":
-			return [_role_name(row.get("role", "-")), _element_name(row.get("element", "-"))]
+			specs.append({"text": _role_name(row.get("role", "-")), "role": "kind"})
+			# Medic/collector support pets deliberately have no elemental affinity.
+			# A bordered "-"/"None" chip reads like missing content, so only expose
+			# the element when the data actually declares one.
+			var pet_element := str(row.get("element", "")).strip_edges()
+			if pet_element not in ["", "-", "none", "null", "<null>"]:
+				specs.append({"text": _element_name(pet_element), "role": "element"})
 		"skills":
-			var tags: Array[String] = []
 			for tag in row.get("card_tags", []):
-				tags.append(_tag_name(str(tag)))
-			return tags
-		_:
-			return []
+				specs.append({"text": _tag_name(str(tag)), "role": "ability"})
+	return specs
+
+func _item_tags(row: Dictionary, unlocked: bool) -> Array[String]:
+	# Text-only compatibility helper for copy that still needs a joined list.
+	var tags: Array[String] = []
+	for spec in _item_tag_specs(row, unlocked):
+		tags.append(str(spec.get("text", "")))
+	return tags
 
 func _style_upgrade_button(button: Button, item_level: int) -> void:
 	var rank := _growth_rank(item_level)
@@ -616,17 +644,9 @@ func _data_table_name() -> String:
 
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if mode == "characters":
-		var role := LocalizationManager.text(_role_name(row.get("role_tag", "-")))
-		var element := LocalizationManager.text(_element_name(row.get("element_focus", "-")))
 		if not unlocked:
-			# Give the enlarged portrait its own lane and make the adjacent copy read
-			# as two intentional facts.  Letting this wrap naturally used to orphan
-			# the final Chinese glyph (for example, 火 / 焰) on a third line.
-			return _loc("定位：%s\n元素：%s", "Role: %s\nElement: %s") % [role, element]
-		return _loc(
-			"定位：%s\n元素：%s\n%s" % [role, element, _next_upgrade_hint(item_id, row)],
-			"Role: %s\nElement: %s\n%s" % [role, element, LocalizationManager.text(_next_upgrade_hint(item_id, row))]
-		)
+			return _loc("解锁后可配置、升级并查看专属技能", "Unlock to equip, upgrade, and inspect signature skills.")
+		return LocalizationManager.text(_next_upgrade_hint(item_id, row))
 	if not unlocked:
 		# Price already lives in the action button; repeating it here squeezes the
 		# useful stats and can collide with the button on a phone-sized card.
@@ -647,10 +667,7 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 			return "%s +%s\n%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0)), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
-			return _loc(
-				"定位：%s  元素：%s\n%s · %s" % [_role_name(row.get("role", "-")), _element_name(row.get("element", "-")), str(pet_skill.get("name", "专属协战")), _next_upgrade_hint(item_id, row)],
-				"Role: %s · Element: %s\n%s · %s" % [LocalizationManager.text(_role_name(row.get("role", "-"))), LocalizationManager.text(_element_name(row.get("element", "-"))), LocalizationManager.text(str(pet_skill.get("name", "专属协战"))), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
-			)
+			return "%s · %s" % [LocalizationManager.text(str(pet_skill.get("name", "专属协战"))), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
 		"skills":
 			return _loc("标签：%s", "Tags: %s") % LocalizationManager.text(_format_tags(row.get("card_tags", [])))
 		_:
@@ -668,7 +685,8 @@ func _item_stat_summary(row: Dictionary) -> String:
 		"chips":
 			return "%s +%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0))]
 		"pets":
-			return _loc("定位：%s  元素：%s", "Role: %s · Element: %s") % [LocalizationManager.text(_role_name(row.get("role", "-"))), LocalizationManager.text(_element_name(row.get("element", "-")))]
+			var pet_skill: Dictionary = row.get("pet_skill", {})
+			return _loc("协战：%s", "Support: %s") % LocalizationManager.text(str(pet_skill.get("name", "专属协战")))
 		_:
 			return ""
 
@@ -1147,14 +1165,21 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	name_row.add_child(level_badge)
 
 	var tag_row := HBoxContainer.new()
+	tag_row.name = "DetailMetadataTags"
 	tag_row.add_theme_constant_override("separation", 10)
 	name_col.add_child(tag_row)
-	for tag_text in _item_tags(row, true).slice(0, 4):
-		var tag_pill := _make_pill(str(tag_text), accent, Color(0.05, 0.09, 0.14, 0.82))
+	var detail_tag_index := 0
+	for tag_spec in _item_tag_specs(row, true).slice(0, 4):
+		var tag_pill := UiKit.semantic_tag_pill(
+			LocalizationManager.text(str(tag_spec.get("text", ""))),
+			str(tag_spec.get("role", "ability")),
+			15 if mode == "skills" else 16
+		)
+		tag_pill.name = "DetailMetadataTag%d" % detail_tag_index
 		if mode == "skills":
 			tag_pill.custom_minimum_size.y = 38.0
-			(tag_pill.get_child(0) as Label).add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 		tag_row.add_child(tag_pill)
+		detail_tag_index += 1
 
 	var summary := Label.new()
 	summary.text = _item_desc(item_id, row, true)
@@ -1764,10 +1789,15 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	name_col.add_child(header_rule_clearance)
 	# Tag row: role + element
 	var tag_row := HBoxContainer.new()
+	tag_row.name = "CharacterMetadataTags"
 	tag_row.add_theme_constant_override("separation", 10)
 	name_col.add_child(tag_row)
-	tag_row.add_child(_make_pill(_role_name(row.get("role_tag", "-")), Color(0.32, 0.62, 0.85), Color(0.18, 0.42, 0.6, 0.7), CHARACTER_DETAIL_SECOND_PASS_DELTA))
-	tag_row.add_child(_make_pill(_element_name(row.get("element_focus", "-")), _element_color(row.get("element_focus", "physical")), _element_color_dark(row.get("element_focus", "physical")), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	var role_tag := UiKit.semantic_tag_pill(LocalizationManager.text(_role_name(row.get("role_tag", "-"))), "kind", 16)
+	role_tag.name = "CharacterRoleTag"
+	tag_row.add_child(role_tag)
+	var element_tag := UiKit.semantic_tag_pill(LocalizationManager.text(_element_name(row.get("element_focus", "-"))), "element", 16)
+	element_tag.name = "CharacterElementTag"
+	tag_row.add_child(element_tag)
 	# Bullet affinity summary
 	var affinity: Dictionary = row.get("bullet_affinity", {})
 	if not affinity.is_empty():
@@ -1893,10 +1923,15 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 		var aff_section := _make_section_panel("流派倾向", Color(0.7, 0.7, 0.85, 0.7), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 		detail_content.add_child(aff_section)
 		var aff_row := HBoxContainer.new()
+		aff_row.name = "AffinityTags"
 		aff_row.add_theme_constant_override("separation", 8)
 		aff_section.get_child(0).add_child(aff_row)
-		for tag in card_affinity:
-			aff_row.add_child(_make_pill(_tag_name(str(tag)), Color(0.45, 0.55, 0.85), Color(0.22, 0.32, 0.6, 0.8), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+		var affinity_index := 0
+		for affinity_tag in card_affinity:
+			var affinity_pill := UiKit.semantic_tag_pill(LocalizationManager.text(_tag_name(str(affinity_tag))), "ability", 16)
+			affinity_pill.name = "AffinityTag%d" % affinity_index
+			aff_row.add_child(affinity_pill)
+			affinity_index += 1
 
 	# === Action buttons row ===
 	var spacer := Control.new()
@@ -2131,18 +2166,12 @@ func _make_skill_row(icon_path, title: String, kind_label: String, desc: String,
 	title_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	title_label.add_theme_constant_override("outline_size", 1)
 	title_row.add_child(title_label)
-	# Kind pill
-	var kind_pill := PanelContainer.new()
-	kind_pill.add_theme_stylebox_override("panel", _build_pill_style(accent, Color(0.06, 0.1, 0.16, 0.85)))
+	# Kind pill — same semantic component as the Skill Codex list.
+	var kind_pill := UiKit.semantic_tag_pill(LocalizationManager.text(kind_label), "kind", 16)
+	kind_pill.name = "SkillKindTag"
 	title_row.add_child(kind_pill)
-	var kind_label_text := Label.new()
+	var kind_label_text := kind_pill.get_node("Text") as Label
 	kind_label_text.name = "SkillKind"
-	kind_label_text.text = kind_label
-	kind_label_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	kind_label_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	kind_label_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SKILL_KIND_FONT_SIZE))
-	kind_label_text.add_theme_color_override("font_color", accent)
-	kind_pill.add_child(kind_label_text)
 	# Description
 	var desc_label := Label.new()
 	desc_label.name = "SkillDescription"

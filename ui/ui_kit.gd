@@ -742,26 +742,43 @@ static func pill(text: String, accent := CYAN, font_size := 18) -> PanelContaine
 	return panel
 
 static func semantic_tag_style(border: Color, fill: Color) -> StyleBox:
-	var style := texture_style(UI_TEXTURE_ROOT + "ui_pill_skin.png", 24.0, 3.0, border)
+	# The first ornamental micro-frame collapsed into disconnected highlights at
+	# this height. V2 is a neutral, texture-backed continuous edge: nine-slicing
+	# preserves its corners and the active data palette supplies the only tint.
+	var style := texture_style(
+		UI_TEXTURE_ROOT + "ui_semantic_tag_microframe_v2.png",
+		16.0,
+		4.0,
+		border
+	)
 	if style is StyleBoxTexture:
-		# Keep the authored metal/pill edge readable while the data-owned theme
-		# palette supplies the semantic accent. A small fill contribution keeps
-		# kind and ability tags distinct without rebuilding flat geometry.
-		var tint := border.lerp(Color.WHITE, 0.12).lerp(Color(fill.r, fill.g, fill.b, 1.0), 0.12)
-		tint.a = 1.0
-		(style as StyleBoxTexture).modulate_color = tint
+		var textured := style as StyleBoxTexture
+		textured.modulate_color = Color(border.r, border.g, border.b, 0.96)
+		textured.content_margin_left = 11.0
+		textured.content_margin_top = 4.0
+		textured.content_margin_right = 11.0
+		textured.content_margin_bottom = 4.0
+	# Preserve the fill as semantic metadata even though the neutral raster owns
+	# the final low-luminance surface; this keeps palette audits data-driven.
+	style.set_meta("semantic_fill", fill)
 	return style
 
-static func skill_tag_pill(text: String, kind := false, font_size := 15) -> PanelContainer:
+static func semantic_tag_pill(text: String, semantic_role := "ability", font_size := 15) -> PanelContainer:
+	# One shared micro-label component for every categorical datum in the app.
+	# Skills established the visual contract; collection rows, equipment details,
+	# pet roles and unlock-state chips must use the same authored border, padding,
+	# theme palette and bilingual height instead of inventing local badges.
+	var kind := semantic_role in ["kind", "access", "category", "status"]
 	var palette := _active_tag_palette()
 	var border: Color = palette.get("kind_border" if kind else "border", GOLD if kind else CYAN)
 	var fill: Color = palette.get("kind_fill" if kind else "fill", Color(0.02, 0.05, 0.07, 0.96))
 	var text_color: Color = palette.get("kind_text" if kind else "text", TEXT_MAIN)
 	var panel := PanelContainer.new()
+	panel.name = "SemanticTag"
 	panel.add_theme_stylebox_override("panel", semantic_tag_style(border, fill))
 	panel.custom_minimum_size = Vector2(0, 40)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.set_meta("semantic_tag_role", "kind" if kind else "ability")
+	panel.set_meta("semantic_tag_role", semantic_role)
 	panel.set_meta("semantic_tag_border", border)
 	panel.set_meta("semantic_tag_fill", fill)
 	var l := label(text, font_size, text_color, 2)
@@ -771,6 +788,11 @@ static func skill_tag_pill(text: String, kind := false, font_size := 15) -> Pane
 	l.clip_text = false
 	panel.add_child(l)
 	return panel
+
+static func skill_tag_pill(text: String, kind := false, font_size := 15) -> PanelContainer:
+	# Backwards-compatible skill-specific entry point. New categorical UI should
+	# call semantic_tag_pill directly and declare its actual data role.
+	return semantic_tag_pill(text, "kind" if kind else "ability", font_size)
 
 static func _active_tag_palette() -> Dictionary:
 	var main_loop := Engine.get_main_loop()

@@ -550,11 +550,11 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var power_state := _power_state(projected_power, recommended_power)
-	var power_pill := UiKit.pill(str(power_state.get("text", "战力偏低")), power_state.get("color", UiKit.GOLD), 18)
+	var power_pill := UiKit.semantic_tag_pill(str(power_state.get("text", "战力偏低")), "status", 14)
 	power_pill.name = "PowerStatePill"
 	power_pill.custom_minimum_size = Vector2(156, 38)
 	title_row.add_child(power_pill)
-	var state := UiKit.pill(counter_state, UiKit.GREEN if counter_state == "克制有效" else UiKit.GOLD, 18)
+	var state := UiKit.semantic_tag_pill(counter_state, "ability", 14)
 	state.name = "CounterStatePill"
 	state.custom_minimum_size = Vector2(142, 38)
 	title_row.add_child(state)

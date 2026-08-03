@@ -72,9 +72,8 @@ def main() -> int:
         "_update_slow_field_visual": [
             "var y_min := _slow_field_min_y_for_level(slow_level)",
             "var field_height := maxf(_base_line_y() - y_min, 60.0)",
-        ],
-        "_update_slow_field_edges": [
-            "var bottom_y := _base_line_y()",
+            "slow_field_front.position = Vector2(0.0, y_min + SLOW_FIELD_FRONT_Y_OFFSET)",
+            "slow_field_front.size = SLOW_FIELD_FRONT_SIZE",
         ],
         "_spawn_barrier_visual": [
             "barrier_visual.position = Vector2(540, _base_line_y())",

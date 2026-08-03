@@ -11,7 +11,8 @@ const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
 const UiKit := preload("res://ui/ui_kit.gd")
 const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
-const SLOW_FIELD_BAND_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_band.png")
+const SLOW_FIELD_SURFACE_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_surface_v2.png")
+const SLOW_FIELD_FRONT_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_front_v2.png")
 const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
 const BARRIER_VISUAL_Z := 7
 const DEFENSE_ACTOR_Z := 10
@@ -24,6 +25,8 @@ const PET_BASE_X_DESIGN := 800.0
 const PET_BASE_LINE_OFFSET := 125.0
 const PET_IDLE_FLOAT_AMPLITUDE := 8.0
 const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
+const SLOW_FIELD_FRONT_SIZE := Vector2(1080.0, 320.0)
+const SLOW_FIELD_FRONT_Y_OFFSET := -112.0
 const BASE_LINE_NEAR_WARNING_INSET := 300.0
 const BASE_LINE_BOSS_NEAR_WARNING_INSET := 360.0
 const BASE_LINE_WARNING_INSET := 190.0
@@ -376,9 +379,8 @@ var battle_finished := false
 var pre_final_offer_used := false
 var debug_overlay_on := false
 var slow_field_rect: TextureRect
+var slow_field_front: TextureRect
 var slow_field_particles: GPUParticles2D
-var slow_field_edge_lines: Array[Line2D] = []
-var slow_field_rune_layer: Node2D
 var slow_field_sfx_level := 0
 var card_press_skill_id := ""
 var card_press_started_at := 0.0
@@ -10442,44 +10444,36 @@ func _apply_slow_field(enemies: Array = []) -> void:
 
 func _spawn_slow_field_visual() -> void:
 	slow_field_rect = TextureRect.new()
-	slow_field_rect.name = "SlowFieldShaderTint"
-	slow_field_rect.texture = SLOW_FIELD_BAND_TEXTURE
+	slow_field_rect.name = "SlowFieldSurfaceTiles"
+	slow_field_rect.texture = SLOW_FIELD_SURFACE_TEXTURE
 	slow_field_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	slow_field_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	slow_field_rect.stretch_mode = TextureRect.STRETCH_TILE
+	slow_field_rect.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	slow_field_rect.position = Vector2(0, 0)
-	slow_field_rect.size = Vector2(1080, 80)
+	slow_field_rect.size = Vector2(1080, 512)
 	slow_field_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slow_field_rect.visible = false
 	slow_field_rect.z_index = 2
 	var field_material := ShaderMaterial.new()
 	field_material.shader = SLOW_FIELD_SHADER
-	field_material.set_shader_parameter("field_color", Color(0.32, 0.82, 1.0, 0.0))
-	field_material.set_shader_parameter("edge_color", Color(0.76, 0.96, 1.0, 0.0))
+	field_material.set_shader_parameter("field_color", Color(0.3, 0.8, 1.0, 0.0))
 	field_material.set_shader_parameter("intensity", 0.0)
-	field_material.set_shader_parameter("scan_strength", 0.32)
+	field_material.set_shader_parameter("secondary_opacity", 0.28)
 	slow_field_rect.material = field_material
 	$SlowFieldLayer.add_child(slow_field_rect)
 
-	slow_field_rune_layer = Node2D.new()
-	slow_field_rune_layer.name = "SlowFieldAdditiveEdges"
-	slow_field_rune_layer.process_mode = Node.PROCESS_MODE_PAUSABLE
-	slow_field_rune_layer.visible = false
-	slow_field_rune_layer.z_index = 5
-	$SlowFieldLayer.add_child(slow_field_rune_layer)
-	slow_field_edge_lines.clear()
-	for edge_name in ["TopEdge", "BottomEdge", "ColdCurrent"]:
-		var edge := Line2D.new()
-		edge.name = edge_name
-		edge.width = 3.0
-		edge.default_color = Color(0.72, 0.96, 1.0, 0.0)
-		edge.joint_mode = Line2D.LINE_JOINT_ROUND
-		edge.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		edge.end_cap_mode = Line2D.LINE_CAP_ROUND
-		edge.texture = VfxLib.STREAK_TEXTURE
-		edge.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-		edge.material = _new_muzzle_additive_material()
-		slow_field_rune_layer.add_child(edge)
-		slow_field_edge_lines.append(edge)
+	slow_field_front = TextureRect.new()
+	slow_field_front.name = "SlowFieldRenderedFront"
+	slow_field_front.texture = SLOW_FIELD_FRONT_TEXTURE
+	slow_field_front.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	slow_field_front.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	slow_field_front.position = Vector2(0.0, 0.0)
+	slow_field_front.size = SLOW_FIELD_FRONT_SIZE
+	slow_field_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slow_field_front.visible = false
+	slow_field_front.z_index = 5
+	slow_field_front.material = _new_muzzle_additive_material()
+	$SlowFieldLayer.add_child(slow_field_front)
 
 	slow_field_particles = GPUParticles2D.new()
 	slow_field_particles.name = "SlowFieldColdMotes"
@@ -10520,8 +10514,8 @@ func _update_slow_field_visual(slow_level: int) -> void:
 		return
 	if slow_level <= 0:
 		slow_field_rect.visible = false
-		if slow_field_rune_layer != null:
-			slow_field_rune_layer.visible = false
+		if slow_field_front != null:
+			slow_field_front.visible = false
 		if slow_field_particles != null:
 			slow_field_particles.emitting = false
 			slow_field_particles.visible = false
@@ -10532,48 +10526,18 @@ func _update_slow_field_visual(slow_level: int) -> void:
 	var field_height := maxf(_base_line_y() - y_min, 60.0)
 	slow_field_rect.size = Vector2(1080, field_height)
 	slow_field_rect.visible = true
-	var field_color := Color(0.28, 0.76, 1.0, 0.14 + slow_pct * 0.23)
-	var edge_color := Color(0.78, 0.98, 1.0, 0.28 + slow_pct * 0.32)
+	var field_color := Color(0.3, 0.8, 1.0, 0.1 + slow_pct * 0.18)
 	var shader_material := slow_field_rect.material as ShaderMaterial
 	if shader_material != null:
 		shader_material.set_shader_parameter("field_color", field_color)
-		shader_material.set_shader_parameter("edge_color", edge_color)
-		shader_material.set_shader_parameter("intensity", 0.72 + slow_pct * 1.1)
-		shader_material.set_shader_parameter("scan_strength", 0.25 + slow_pct * 0.58)
-	_update_slow_field_edges(y_min, field_height, slow_pct)
+		shader_material.set_shader_parameter("intensity", 0.64 + slow_pct * 0.92)
+		shader_material.set_shader_parameter("secondary_opacity", 0.24 + slow_pct * 0.26)
+	if slow_field_front != null:
+		slow_field_front.position = Vector2(0.0, y_min + SLOW_FIELD_FRONT_Y_OFFSET)
+		slow_field_front.size = SLOW_FIELD_FRONT_SIZE
+		slow_field_front.modulate = Color(0.82, 0.93, 1.0, clampf(0.56 + slow_pct * 0.62, 0.0, 0.92))
+		slow_field_front.visible = true
 	_update_slow_field_particles(y_min, field_height, slow_pct, slow_level)
-
-func _update_slow_field_edges(y_min: float, field_height: float, slow_pct: float) -> void:
-	if slow_field_rune_layer == null:
-		return
-	slow_field_rune_layer.visible = true
-	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 340.0)
-	var top_y := y_min + 6.0
-	var bottom_y := _base_line_y()
-	var current_y := y_min + field_height * (0.44 + sin(Time.get_ticks_msec() / 980.0) * 0.08)
-	for i in range(slow_field_edge_lines.size()):
-		var edge := slow_field_edge_lines[i]
-		if edge == null:
-			continue
-		var alpha := 0.24 + slow_pct * 0.4 + pulse * 0.1
-		var y := top_y
-		var width := 4.8
-		if i == 1:
-			y = bottom_y
-			alpha *= 0.72
-			width = 3.2
-		elif i == 2:
-			y = current_y
-			alpha *= 0.42
-			width = 2.4
-		edge.width = width
-		edge.default_color = Color(0.74, 0.98, 1.0, clampf(alpha, 0.08, 0.72))
-		edge.points = PackedVector2Array([
-			Vector2(46.0, y + sin(Time.get_ticks_msec() / 410.0) * 2.0),
-			Vector2(330.0, y + sin(Time.get_ticks_msec() / 530.0 + float(i)) * 5.0),
-			Vector2(720.0, y + sin(Time.get_ticks_msec() / 610.0 + float(i) * 1.7) * 5.0),
-			Vector2(1034.0, y + sin(Time.get_ticks_msec() / 450.0 + float(i) * 0.8) * 2.0),
-		])
 
 func _update_slow_field_particles(y_min: float, field_height: float, slow_pct: float, slow_level: int) -> void:
 	if slow_field_particles == null:

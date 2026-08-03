@@ -9,6 +9,16 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Slow Field V2 Render + Movement Contract (2026-08-03)
+
+- Replaced the stretched legacy band and procedural crossed-sine grid with two authored cryogenic renders: a sparse seamless aurora/frost interior and an independent crystalline leading edge.
+- Range growth is non-destructive. `SlowFieldSurfaceTiles` expands its clipped Control while repeating a 512×512 texture at native density; `SlowFieldRenderedFront` stays exactly 1080×320 and only moves to the data-driven boundary.
+- The shader now blends two drifting authored bitmap samples. It no longer draws scan lines, grids, concentric circles or other geometric placeholder language.
+- Gameplay and visuals continue to share the same `skills.json` `y_min` values for 30/40/50/60/70 percent coverage.
+- The smoke gate now exercises the real `enemy.tscn` movement function at every skill level. A 100 px/s enemy moves 82/74/65/57/48 px in one second inside Lv1–5 respectively, while an enemy one pixel outside the Lv1 boundary remains at 100 px/s.
+- Phone-size Lv1 and Lv5 captures pass the runtime UI audit with no issues; the rendered front remains fixed-size in both captures instead of scaling with field height.
+- Reproducible source prompts and black-background masters live under `assets/production/source_refs/generated/slow_field_v2_2026_08_03/`; runtime derivatives are built by `tools/build_slow_field_v2_assets.py`.
+
 ### Infernal Dominion / Inferno Apocalypse Step 0–1 (2026-07-31)
 
 - Completed the second-series architecture gate without exposing unfinished Infernal products: commerce routing, entitlement reconciliation, complete-set equip, theme materials, button modulation, character fire signatures, premium grip/presentation profiles and validators now resolve from data instead of Neon/Thunder constants.
@@ -3658,3 +3668,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Data-owned thresholds**: every audit compares its measured weighted result against `target_full_set_ratio_min / max` from `data/premium_sets.json`. `validate_data.py` also requires positive numeric `min / center / max` values in order; Golden Law's separate level-one contract receives the same structural guard.
 - **Proven failure path**: a local-only experiment temporarily changed Thunder's `base_atk_coef` from `0.584` to `0.700`. The Release Candidate stopped at the Thunder audit with `1.794x` and `ERROR: premium ratio outside locked 1.52-1.58 band`; the coefficient was then restored. Evidence is retained outside Git at `/tmp/zombie_fire_premium_contract_negative_20260803.log`.
 - **Scope held**: no production balance coefficient, endgame corridor, Apex immunity floor, hero growth coefficient or star threshold changed. The optional loadout-page Lightning recommendation remains intentionally unimplemented because Owner did not opt in.
+
+## Cross-Surface Semantic Tag Contract (2026-08-03)
+
+- **One information grammar**: the Skill Codex tag treatment now covers character, weapon, armor, chip and pet list rows / details plus loadout power and counter states. Category, access, role, element and ability metadata are visually distinct from prose without duplicating the same Role / Element sentence below.
+- **Border correction after visual review**: the rejected ornamental frame compressed its corner accents into disconnected highlights at a 36–40 px tag height. The shipping component uses the dedicated `ui_semantic_tag_microframe_v2.png` nine-slice texture: a continuous quiet edge, low-luminance surface and stable padding without falling back to runtime flat geometry. Theme palettes remain data-owned in `data/themes.json`.
+- **Content cleanup**: pets without an element omit the meaningless dash chip; support copy remains a normal readable line, while unlock, role and element retain semantic treatment.
+- **Bilingual theme proof**: five themes × two languages × five collection modes produced 50 list captures, supplemented by 10 Skill Codex captures, six representative detail screens and one loadout screen. All 67 real 1080×1920 originals pass routed layout / image analysis and manual review. The untracked delivery directory is `/Users/gavin/Desktop/ZombieFire_Tag_Regression_2026-08-03/`.
+- **Permanent gate**: M1 smoke verifies the dedicated texture path, continuous four-edge nine-slice margins, mobile height, non-empty centred copy and semantic role across all collection families, skill tags, character details and loadout status guidance.

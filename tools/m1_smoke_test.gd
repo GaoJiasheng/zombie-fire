@@ -405,11 +405,13 @@ func _initialize() -> void:
 	for section_title_node in detail_section_titles:
 		var section_title := section_title_node as Label
 		_expect(section_title != null and section_title.get_theme_font_size("font_size") >= 29, "character detail section titles must use at least 29px effective type")
-	var detail_pill_labels := character_detail.find_children("PillLabel", "Label", true, false)
-	_expect(detail_pill_labels.size() >= 2, "character detail must expose role and element pill labels")
-	for pill_label_node in detail_pill_labels:
-		var pill_label := pill_label_node as Label
-		_expect(pill_label != null and pill_label.get_theme_font_size("font_size") >= 24, "character detail pills must use at least 24px effective type")
+	for character_tag_name in ["CharacterRoleTag", "CharacterElementTag"]:
+		var character_tag := character_detail.find_child(character_tag_name, true, false) as PanelContainer
+		_expect(character_tag != null, "character detail must expose the %s semantic tag" % character_tag_name)
+		if character_tag != null:
+			_assert_semantic_tag_panel(character_tag, "character detail %s" % character_tag_name)
+			var character_tag_text := character_tag.get_node_or_null("Text") as Label
+			_expect(character_tag_text != null and character_tag_text.get_theme_font_size("font_size") >= 24, "character detail semantic tags must use at least 24px effective type")
 	var stat_labels := character_detail.find_children("StatLabel", "Label", true, false)
 	var stat_values := character_detail.find_children("StatValue", "Label", true, false)
 	_expect(not stat_labels.is_empty() and not stat_values.is_empty(), "character detail stat cards must expose primary labels and values")
@@ -494,8 +496,10 @@ func _initialize() -> void:
 		_expect(
 			tag_style != null
 			and tag_style.texture != null
-			and tag_style.texture_margin_left >= 2.0,
-			"skill tags must keep a crisp texture-authored semantic border"
+			and tag_style.texture.resource_path.ends_with("ui_semantic_tag_microframe_v2.png")
+			and tag_style.texture_margin_left >= 16.0
+			and tag_style.texture_margin_top >= 16.0,
+			"skill tags must keep the dedicated continuous texture-backed border"
 		)
 		_expect(tag_panel.custom_minimum_size.y >= 40.0, "skill tags must share a stable mobile-height baseline")
 		_expect(tag_panel.has_meta("semantic_tag_role"), "skill tags must declare their semantic color role")
@@ -577,6 +581,31 @@ func _initialize() -> void:
 	collection_back.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "skill collection opened from map must route back to map")
+	# Every categorical collection uses the Skill Codex semantic-tag contract.
+	# Inspect both owned and locked rows across every equipment family so pets or
+	# a later catalog cannot silently regress to unframed Role / Element prose.
+	var semantic_catalog_save: Dictionary = save_manager._default_save()
+	save_manager.save_data = semantic_catalog_save
+	for semantic_mode in ["characters", "weapons", "armors", "chips", "pets"]:
+		main.change_scene("collection", {"mode": semantic_mode})
+		await process_frame
+		var semantic_list: Node = main.current_scene.find_child("ItemList", true, false)
+		_expect(semantic_list != null, "%s collection must expose a semantic-tag list" % semantic_mode)
+		var semantic_rows_checked := 0
+		for semantic_row_node in semantic_list.get_children():
+			if not semantic_row_node is TextureButton:
+				continue
+			var semantic_tags := semantic_row_node.get_node_or_null("Tags") as HBoxContainer
+			_expect(semantic_tags != null and semantic_tags.get_child_count() >= 2, "%s row must expose at least two categorical tags" % semantic_mode)
+			if semantic_tags == null:
+				continue
+			for semantic_tag_node in semantic_tags.get_children():
+				var semantic_tag := semantic_tag_node as PanelContainer
+				_expect(semantic_tag != null, "%s row tags must use semantic PanelContainers" % semantic_mode)
+				if semantic_tag != null:
+					_assert_semantic_tag_panel(semantic_tag, "%s collection row" % semantic_mode)
+			semantic_rows_checked += 1
+		_expect(semantic_rows_checked > 0, "%s collection tag audit must inspect real rows" % semantic_mode)
 	var collection_test_save: Dictionary = save_manager._default_save()
 	var collection_player: Dictionary = collection_test_save.get("player", {}).duplicate(true)
 	collection_player["gold"] = 184321
@@ -780,8 +809,14 @@ func _initialize() -> void:
 	var loadout_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
 	var loadout_action_gap := loadout_start.get_global_rect().position.y - (loadout_details.get_global_rect().position.y + loadout_details.get_global_rect().size.y)
 	_expect(loadout_action_gap >= 50.0, "loadout bottom action must keep a clear gap below the tactical summary")
-	_expect(loadout_details.find_child("PowerStatePill", true, false) != null, "loadout must expose a dedicated combat-power state pill")
-	_expect(loadout_details.find_child("CounterStatePill", true, false) != null, "loadout must keep counter guidance secondary to combat-power state")
+	var loadout_power_pill := loadout_details.find_child("PowerStatePill", true, false) as PanelContainer
+	var loadout_counter_pill := loadout_details.find_child("CounterStatePill", true, false) as PanelContainer
+	_expect(loadout_power_pill != null, "loadout must expose a dedicated combat-power state pill")
+	_expect(loadout_counter_pill != null, "loadout must keep counter guidance secondary to combat-power state")
+	if loadout_power_pill != null:
+		_assert_semantic_tag_panel(loadout_power_pill, "loadout combat-power state")
+	if loadout_counter_pill != null:
+		_assert_semantic_tag_panel(loadout_counter_pill, "loadout counter guidance")
 	_expect(main.current_scene.get_node("Summary").text.contains("001 城市缺口"), "loadout must show player-facing level name")
 	_expect(main.current_scene.get_node("Summary").text.contains("预计成型"), "loadout must distinguish standing and projected in-run combat power")
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
@@ -2563,6 +2598,12 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		5: 450.0,
 	}
 	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle._spawn_slow_field_visual()
+	_expect(battle.slow_field_rect.name == "SlowFieldSurfaceTiles", "slow field must use the rendered tiled interior surface")
+	_expect(battle.slow_field_rect.stretch_mode == TextureRect.STRETCH_TILE, "slow field interior must tile at fixed density instead of stretching with range")
+	_expect(battle.slow_field_rect.texture_repeat == CanvasItem.TEXTURE_REPEAT_ENABLED, "slow field interior texture repeat must be enabled")
+	_expect(battle.slow_field_front != null and battle.slow_field_front.name == "SlowFieldRenderedFront", "slow field must have an independent rendered leading edge")
+	var fixed_front_size: Vector2 = battle.slow_field_front.size
 	for entry_var in row.get("levels", []):
 		var entry: Dictionary = entry_var if entry_var is Dictionary else {}
 		var lv := int(entry.get("lv", 0))
@@ -2579,6 +2620,49 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		var slow_pct := float(effect.get("slow", 0.0))
 		_expect(is_equal_approx(runtime.slow_mult_for_y(expected - 1.0), 1.0), "slow field Lv%d runtime must not slow before y_min %.0f" % [lv, expected])
 		_expect(absf(runtime.slow_mult_for_y(expected + 1.0) - maxf(0.4, 1.0 - slow_pct)) <= 0.001, "slow field Lv%d runtime must slow after y_min %.0f" % [lv, expected])
+		battle._update_slow_field_visual(lv)
+		_expect(battle.slow_field_front.size.is_equal_approx(fixed_front_size), "slow field Lv%d must move its rendered boundary without stretching it" % lv)
+		_expect(absf(battle.slow_field_front.position.y - (expected + battle.SLOW_FIELD_FRONT_Y_OFFSET)) <= 0.001, "slow field Lv%d rendered boundary must follow the same data-driven y_min" % lv)
+
+	# Exercise the actual enemy movement path, not only the multiplier helper:
+	# battle applies every level's data multiplier, then enemy.gd consumes
+	# speed_mult in its per-tick position update. This catches any future
+	# disconnect between data and motion.
+	var enemy := _instance("res://gameplay/enemy/enemy.tscn")
+	enemy.speed = 100.0
+	enemy.attack_line_y = 1900.0
+	enemy.position = Vector2(540.0, 1100.0)
+	enemy.speed_mult = 1.0
+	var baseline_y: float = enemy.position.y
+	enemy._physics_process(1.0)
+	var baseline_distance: float = enemy.position.y - baseline_y
+	_expect(absf(baseline_distance - 100.0) <= 0.001, "enemy baseline movement must consume speed at 1.0x")
+	for entry_var in row.get("levels", []):
+		var entry: Dictionary = entry_var if entry_var is Dictionary else {}
+		var lv := int(entry.get("lv", 0))
+		if not expected_y_min.has(lv):
+			continue
+		var effect: Dictionary = entry.get("effect", {})
+		var slow_pct := float(effect.get("slow", 0.0))
+		var expected_mult := maxf(0.45, 1.0 - slow_pct)
+		enemy.position = Vector2(540.0, float(expected_y_min[lv]) + 1.0)
+		enemy.speed_mult = 1.0
+		battle.skills.owned["skill_slow_field"] = lv
+		battle.slow_field_sfx_level = lv
+		battle._apply_slow_field([enemy])
+		var applied_mult: float = enemy.speed_mult
+		var slowed_y: float = enemy.position.y
+		enemy._physics_process(1.0)
+		var slowed_distance: float = enemy.position.y - slowed_y
+		_expect(absf(applied_mult - expected_mult) <= 0.001, "slow field Lv%d must apply its data-driven %.2f movement multiplier to an in-range enemy" % [lv, expected_mult])
+		_expect(absf(slowed_distance - baseline_distance * applied_mult) <= 0.001, "enemy.gd must consume the Lv%d slow multiplier in its real movement update" % lv)
+	enemy.position = Vector2(540.0, 1049.0)
+	enemy.speed_mult = 1.0
+	battle.skills.owned["skill_slow_field"] = 1
+	battle.slow_field_sfx_level = 1
+	battle._apply_slow_field([enemy])
+	_expect(is_equal_approx(enemy.speed_mult, 1.0), "slow field must not slow a zombie one pixel before its data-driven boundary")
+	enemy.free()
 	battle.free()
 
 func _verify_ammo_element_rules(save_manager: Node) -> void:
@@ -4069,6 +4153,24 @@ func _verify_battle_speed_stress(save_manager: Node) -> void:
 	save_manager.save_data = original_save
 	router.queue_free()
 	await process_frame
+
+func _assert_semantic_tag_panel(tag: PanelContainer, context: String) -> void:
+	_expect(tag.has_meta("semantic_tag_role"), "%s must declare a semantic tag role" % context)
+	_expect(tag.custom_minimum_size.y >= 38.0, "%s must preserve the mobile tag height" % context)
+	var style := tag.get_theme_stylebox("panel") as StyleBoxTexture
+	_expect(
+		style != null
+		and style.texture != null
+		and style.texture.resource_path.ends_with("ui_semantic_tag_microframe_v2.png")
+		and style.texture_margin_left >= 16.0
+		and style.texture_margin_top >= 16.0
+		and style.modulate_color.a >= 0.90,
+		"%s must use the dedicated continuous texture-backed semantic tag style" % context
+	)
+	var copy := tag.get_node_or_null("Text") as Label
+	_expect(copy != null and copy.text.strip_edges() != "", "%s must expose non-empty tag copy" % context)
+	if copy != null:
+		_expect(copy.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "%s tag copy must be vertically centered" % context)
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:
