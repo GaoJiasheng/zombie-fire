@@ -486,7 +486,8 @@ def main() -> int:
         f"base {base.total_dps:.0f} + overload {premium['overload_dps']:.0f} "
         f"+ terminal {premium['terminal_dps']:.0f} + pet skill {premium['pet_skill_dps']:.0f} "
         f"= {premium['total_dps']:.0f}; {premium['ratio']:.3f}x free Volt "
-        f"(overload every {premium['hit_threshold']} confirmed hits)"
+        f"(locked {premium['target_min']:.2f}-{premium['target_max']:.2f}x; "
+        f"overload every {premium['hit_threshold']} confirmed hits)"
     )
     if not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
         print(

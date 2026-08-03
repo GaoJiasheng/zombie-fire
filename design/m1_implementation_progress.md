@@ -3651,3 +3651,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Shown before commitment**: the dominance line appears in both the catalog card and purchase confirmation, above the purchase action. Arsenal cards reserve a dedicated readable copy lane without shrinking the existing semantic preview grid.
 - **Permanent regression**: data validation requires both languages, the release-string gate rejects missing prefixes and any endgame claim on the three elemental sets, and M1 smoke verifies fresh English catalog cards source the line from set data.
 - **Visual and release proof**: real Chinese and English store captures confirm wrapping, spacing and button safety; release strings, localization and the complete Release Candidate suite pass.
+
+## Premium Arsenal Contract-Band Release Gate (2026-08-03)
+
+- **All finalized sets are gated**: `audit_character_endgame_dps.py` now exposes Thunder's locked band in normal output, and Release Candidate runs Thunder (`1.550x`), Inferno (`1.571x`), Absolute Zero (`1.547x`) and Golden Law (`2.043x`) audits before UI / screenshot work.
+- **Data-owned thresholds**: every audit compares its measured weighted result against `target_full_set_ratio_min / max` from `data/premium_sets.json`. `validate_data.py` also requires positive numeric `min / center / max` values in order; Golden Law's separate level-one contract receives the same structural guard.
+- **Proven failure path**: a local-only experiment temporarily changed Thunder's `base_atk_coef` from `0.584` to `0.700`. The Release Candidate stopped at the Thunder audit with `1.794x` and `ERROR: premium ratio outside locked 1.52-1.58 band`; the coefficient was then restored. Evidence is retained outside Git at `/tmp/zombie_fire_premium_contract_negative_20260803.log`.
+- **Scope held**: no production balance coefficient, endgame corridor, Apex immunity floor, hero growth coefficient or star threshold changed. The optional loadout-page Lightning recommendation remains intentionally unimplemented because Owner did not opt in.

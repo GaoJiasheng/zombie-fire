@@ -467,6 +467,37 @@ def main() -> int:
         ):
             if not str(set_row.get(key, "")).strip():
                 errors.append(f"{set_id}.{key} missing")
+        contract_keys = (
+            "target_full_set_ratio_min",
+            "target_full_set_ratio_center",
+            "target_full_set_ratio_max",
+        )
+        contract_values: list[float] = []
+        for key in contract_keys:
+            value = set_row.get(key)
+            if not isinstance(value, (int, float)) or isinstance(value, bool) or float(value) <= 0.0:
+                errors.append(f"{set_id}.{key} must be a positive number")
+                contract_values = []
+                break
+            contract_values.append(float(value))
+        if contract_values and not contract_values[0] <= contract_values[1] <= contract_values[2]:
+            errors.append(f"{set_id} full-set contract must satisfy min <= center <= max")
+        if series_id == "golden_law":
+            opening_keys = (
+                "target_level_one_ratio_min",
+                "target_level_one_ratio_center",
+                "target_level_one_ratio_max",
+            )
+            opening_values: list[float] = []
+            for key in opening_keys:
+                value = set_row.get(key)
+                if not isinstance(value, (int, float)) or isinstance(value, bool) or float(value) <= 0.0:
+                    errors.append(f"{set_id}.{key} must be a positive number")
+                    opening_values = []
+                    break
+                opening_values.append(float(value))
+            if opening_values and not opening_values[0] <= opening_values[1] <= opening_values[2]:
+                errors.append(f"{set_id} opening contract must satisfy min <= center <= max")
         for slot, table_name in (
             ("weapon", "weapons"),
             ("armor", "armors"),

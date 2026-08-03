@@ -48,8 +48,13 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/check_balance_profile.py")),
     Check(("python3", "tools/simulate_balance.py")),
     Check(("python3", "tools/check_endgame_balance.py")),
+    Check(
+        ("python3", "tools/audit_character_endgame_dps.py"),
+        required_output="Thunder Apocalypse complete set:",
+    ),
     Check(("python3", "tools/audit_inferno_premium_dps.py")),
     Check(("python3", "tools/audit_absolute_zero_premium_dps.py")),
+    Check(("python3", "tools/audit_golden_law_premium_dps.py")),
     Check(("python3", "tools/check_economy_loop.py")),
     Check(("python3", "tools/check_hardcoded_colors.py")),
     Check(("python3", "tools/check_contrast.py")),
