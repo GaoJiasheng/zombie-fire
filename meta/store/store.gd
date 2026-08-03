@@ -133,10 +133,11 @@ func _ownership_status() -> String:
 func _product_card(row: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
+	var offer_role := str(row.get("offer_role", ""))
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
-	panel.custom_minimum_size = Vector2(0, 390)
+	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
 	var margin := MarginContainer.new()
 	for side in ["left", "top", "right", "bottom"]:
 		margin.add_theme_constant_override("margin_%s" % side, 22)
@@ -158,6 +159,16 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	subtitle.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	copy.add_child(subtitle)
+	if offer_role != "theme":
+		var set_row := DataLoader.get_row("premium_sets", str(row.get("arsenal_set_id", "")))
+		var dominance := UiKit.label(str(set_row.get(
+			"dominance_en" if LocalizationManager.is_english() else "dominance_zh",
+			""
+		)), 16, UiKit.GOLD, 2)
+		dominance.name = "DominanceRange"
+		dominance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		dominance.custom_minimum_size = Vector2(0, 58)
+		copy.add_child(dominance)
 	var contents := UiKit.label(
 		_loc("永久解锁 · 可恢复 · 不含消耗品", "Permanent · Restorable · No consumables"),
 		16,
@@ -493,11 +504,15 @@ func _owned_item_row(table: String, slot: String, item_id: String) -> PanelConta
 
 func _confirm_purchase(product_id: String) -> void:
 	var row := PurchaseManager.product(product_id)
+	var dominance := ""
+	if str(row.get("offer_role", "")) != "theme":
+		var set_row := DataLoader.get_row("premium_sets", str(row.get("arsenal_set_id", "")))
+		dominance = str(set_row.get("dominance_en" if LocalizationManager.is_english() else "dominance_zh", ""))
 	_show_dialog(
 		_loc("确认演示购买", "Confirm Demo Purchase"),
 		_loc(
-			"%s\n%s\n\n这是本地流程验证，不连接 Apple，也不会扣款。" % [row.get("name_zh", ""), row.get("mock_price_zh", "")],
-			"%s\n%s\n\nThis is a local flow test. Apple is not connected and no charge occurs." % [row.get("name_en", ""), row.get("mock_price_en", "")]
+			"%s\n%s%s\n\n这是本地流程验证，不连接 Apple，也不会扣款。" % [row.get("name_zh", ""), row.get("mock_price_zh", ""), "\n" + dominance if dominance != "" else ""],
+			"%s\n%s%s\n\nThis is a local flow test. Apple is not connected and no charge occurs." % [row.get("name_en", ""), row.get("mock_price_en", ""), "\n" + dominance if dominance != "" else ""]
 		),
 		_loc("确认购买", "Confirm"),
 		func() -> void: PurchaseManager.mock_purchase(product_id)

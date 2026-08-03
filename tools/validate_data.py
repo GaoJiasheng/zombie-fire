@@ -462,6 +462,7 @@ def main() -> int:
             "store_title_zh", "store_title_en", "owned_status_zh", "owned_status_en",
             "theme_status_zh", "theme_status_en", "theme_owned_description_zh",
             "theme_owned_description_en", "owned_title_zh", "owned_title_en",
+            "dominance_zh", "dominance_en",
             "two_piece_description_zh", "two_piece_description_en",
         ):
             if not str(set_row.get(key, "")).strip():

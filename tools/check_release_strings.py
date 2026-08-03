@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -74,6 +75,22 @@ def main() -> int:
             for token in VISIBLE_UI_FORBIDDEN:
                 if token in literal:
                     errors.append(f"{path.relative_to(ROOT)} contains visible English UI string: {literal}")
+    premium_sets = json.loads((ROOT / "data" / "premium_sets.json").read_text(encoding="utf-8"))
+    for set_id, row in premium_sets.items():
+        dominance_zh = str(row.get("dominance_zh", "")).strip()
+        dominance_en = str(row.get("dominance_en", "")).strip()
+        if not dominance_zh.startswith("主宰区间："):
+            errors.append(f"{set_id}.dominance_zh must start with 主宰区间：")
+        if not dominance_en.startswith("Dominance Range:"):
+            errors.append(f"{set_id}.dominance_en must start with Dominance Range:")
+        is_endgame_set = str(row.get("series_id", "")) == "golden_law"
+        if is_endgame_set:
+            if "终局" not in dominance_zh or "物理" not in dominance_zh:
+                errors.append(f"{set_id}.dominance_zh must disclose endgame Physical positioning")
+            if "Endgame" not in dominance_en or "Physical" not in dominance_en:
+                errors.append(f"{set_id}.dominance_en must disclose endgame Physical positioning")
+        elif "终局" in dominance_zh or "endgame" in dominance_en.lower():
+            errors.append(f"{set_id} must not imply elemental arsenal endgame dominance")
     if errors:
         print("Release string check failed:")
         for error in errors:

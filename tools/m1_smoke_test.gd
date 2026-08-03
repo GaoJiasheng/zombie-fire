@@ -1994,6 +1994,16 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 		var role := str(product.get("offer_role", ""))
 		var expected_layout := "theme_roster" if role == "theme" else "arsenal_grid"
 		var preview := card.find_child("Preview", true, false) as Control
+		var dominance := card.find_child("DominanceRange", true, false) as Label
+		if role == "theme":
+			_expect(dominance == null, "%s theme card must not claim an arsenal dominance range" % product_id)
+		else:
+			var set_row: Dictionary = data_loader.get_row("premium_sets", str(product.get("arsenal_set_id", "")))
+			_expect(card.custom_minimum_size.y >= 430.0, "%s arsenal card must reserve height for its dominance disclosure" % product_id)
+			_expect(dominance != null, "%s arsenal card must disclose its dominance range before purchase" % product_id)
+			if dominance != null:
+				_expect(dominance.text == str(set_row.get("dominance_en", "")), "%s dominance copy must come from the bilingual set data" % product_id)
+				_expect(dominance.custom_minimum_size.y >= 58.0, "%s dominance disclosure must retain a readable two-line lane" % product_id)
 		_expect(preview != null, "%s must expose a semantic preview" % product_id)
 		if preview == null:
 			continue

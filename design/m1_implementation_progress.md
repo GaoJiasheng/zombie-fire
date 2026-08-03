@@ -3643,3 +3643,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Rejected alternative**: the initially evaluated `base_hp_ref +5.97%` option fixed the rating but raised level pressure above `level_004`, correctly turning `check_level_pressure.py` red. It was reverted; the retained count change follows the requested approximately-five-percent wave reduction and satisfies both contracts.
 - **No collateral rating drift**: an exact before / after diff of all 99 predicted ratings contains only `level_003`; `level_001`, `level_002` and every later stage remain unchanged. The campaign distribution is now `12 × 3★ / 87 × 2★ / 0 × 1★`.
 - **Release gate**: the complete Release Candidate suite passes after the data-only correction.
+
+## Premium Arsenal Pre-Purchase Dominance Disclosure (2026-08-03)
+
+- **One bilingual source**: every Apocalypse set now owns `dominance_zh / dominance_en` in `data/premium_sets.json`. Complete and theme-owner upgrade SKUs resolve the same set row, preventing copy drift; theme-only products make no combat-power claim.
+- **Expectation guardrails**: Thunder explicitly owns the mid-campaign Lightning-weak / Void Phantom trilogy / neutral-stage interval; Inferno and Absolute Zero own Fire-weak and Frost-weak stages; Golden Law alone is positioned as the Physical endgame graduation set.
+- **Shown before commitment**: the dominance line appears in both the catalog card and purchase confirmation, above the purchase action. Arsenal cards reserve a dedicated readable copy lane without shrinking the existing semantic preview grid.
+- **Permanent regression**: data validation requires both languages, the release-string gate rejects missing prefixes and any endgame claim on the three elemental sets, and M1 smoke verifies fresh English catalog cards source the line from set data.
+- **Visual and release proof**: real Chinese and English store captures confirm wrapping, spacing and button safety; release strings, localization and the complete Release Candidate suite pass.
