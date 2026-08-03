@@ -3719,3 +3719,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Stale conclusion corrected**: the current campaign yields `138,063 XP` on first clears and `241,645 XP` after two repeats per stage. Against the old `137,400 XP` full-investment cost, coverage was `175.87%`, not the intended six-to-eight-tenths progression window.
 - **Allowed tables only**: permanent skill costs are now `[350, 900, 2000, 4000, 7000]`; signature costs are `[450, 1200, 2700, 5400, 9000]`. Total full investment becomes `303,000 XP`, giving `79.75%` coverage. Reward supply, repeat decay, gold, stars, combat and premium balance are untouched.
 - **Release assertion**: the economy gate fails outside `[55%, 85%]` and prints first-clear supply, three-clear supply, total cost and measured coverage for auditability. The existing Release Candidate already invokes this checker.
+
+## Chapter-One First 3-Star Constraint Audit (2026-08-03)
+
+- **Status: blocked, not skipped and not complete**: the requested `<=8%` adjustment envelope has no data solution under the existing simulator and the separate `<=28%` safety target.
+- **Exhaustive evidence**: `level_001 / 002 / 006` currently model at `37.4306% / 39.5669% / 36.2981%` leak. Even applying both the maximum legal base-HP increase and final-wave count reduction at once yields only `34.0439% / 35.8577% / 33.0357%`.
+- **Required magnitudes**: a base-HP-only solution would require approximately `+34.17% / +41.73% / +30.13%`; a final-wave-only solution would require `-85.71% / -93.33% / -57.14%`. All exceed the brief by a wide margin.
+- **No silent contract break**: no level data, star threshold, global economy knob or simulator rule changed. Appendix C of `design/25_difficulty_growth_regression_2026_08_02.md` holds the complete audit pending an explicit Owner choice.
