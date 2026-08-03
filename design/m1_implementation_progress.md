@@ -3683,3 +3683,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Four walls found before release**: the first model run placed `level_085=385.1s`, `level_090=399.1s`, `level_095=468.1s` and `level_099=625.3s` beyond their existing phase caps. Only their owning chapter rows changed: chapter 9 HP `1.42 → 1.12`, chapter 10 HP `1.40 → 1.01`; speed, breach, mechanic rates, normal levels and global economy knobs remain untouched.
 - **Measured result**: the four corrected times are `303.7s / 314.8s / 337.7s / 451.1s`, all below their `310s / 350s / 350s / 460s` caps. No challenge level reaches 100% leak; every chapter contains a winnable 1★ or better result, and the full challenge catalog offers `175` modeled stars versus the required `19`-star collection gap.
 - **Release contract**: Release Candidate now runs both `simulate_balance.py` and `simulate_balance.py --challenge`. `validate_data.py` and `check_level_pressure.py` remain green after the two chapter-local edits.
+
+## Star-Boundary Audit Probe (2026-08-03)
+
+- **No threshold duplicate**: `simulate_balance.py --star-boundary-audit` receives both leak caps from the existing `star_leak_caps(economy)` path. The audit helper owns only the requested inspection radius, never a second 30% / 65% rating table.
+- **Exact, repeatable output**: each hit reports the level, exact modeled leak percentage, owning boundary and signed percentage-point distance. `--star-boundary-window` keeps future inspection width explicit while defaulting to the requested `±2.00pp`.
+- **Current watch list**: fourteen normal stages fall inside the window. `level_008` is `1.0294pp` below the 1★ boundary; thirteen later stages sit around the 3★ / 2★ boundary. The full frozen snapshot and rerun command live in `design/25_difficulty_growth_regression_2026_08_02.md` Appendix A.
+- **Scope held**: this diagnostic pass changes no campaign data, star threshold, economy knob, endgame corridor, Apex immunity or premium contract.

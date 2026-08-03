@@ -58,6 +58,18 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="apply the chapter challenge variants from data/challenges.json",
     )
+    parser.add_argument(
+        "--star-boundary-audit",
+        action="store_true",
+        help="list levels within the audit window of either data-owned star boundary",
+    )
+    parser.add_argument(
+        "--star-boundary-window",
+        type=float,
+        default=2.0,
+        metavar="PERCENT",
+        help="absolute leak-percentage window used by --star-boundary-audit (default: 2.0)",
+    )
     return parser.parse_args()
 
 
@@ -113,6 +125,49 @@ def star_leak_caps(economy: dict) -> tuple[float, float]:
     two = float(rule.get("two_star_hp_ratio", DEFAULT_STAR_THRESHOLDS["two_star_hp_ratio"]))
     two = min(two, three)
     return (1.0 - three) * 100.0, (1.0 - two) * 100.0
+
+
+def print_star_boundary_audit(
+    rows: list[tuple],
+    three_star_leak_pct: float,
+    two_star_leak_pct: float,
+    window_pct: float,
+) -> None:
+    """Print exact near-boundary levels without owning either threshold.
+
+    The two boundary values are already derived from economy.json by
+    star_leak_caps().  This helper owns only the requested inspection window,
+    so future rating changes cannot leave a stale 30/65 duplicate here.
+    """
+    window_pct = max(0.0, float(window_pct))
+    boundaries = (
+        ("3-star", three_star_leak_pct),
+        ("2-star", two_star_leak_pct),
+    )
+    hits: list[tuple[int, str, float, float, float]] = []
+    for row in rows:
+        level_no = int(row[0])
+        leak_pct = float(row[11])
+        for label, threshold in boundaries:
+            distance = leak_pct - threshold
+            if abs(distance) <= window_pct + 1e-9:
+                hits.append((level_no, label, threshold, leak_pct, distance))
+
+    print()
+    print(
+        "Star-boundary audit "
+        f"(window=±{window_pct:.2f} leak points; thresholds from economy.json):"
+    )
+    if not hits:
+        print("- none")
+        return
+    for level_no, label, threshold, leak_pct, distance in hits:
+        sign = "+" if distance >= 0.0 else ""
+        print(
+            f"- level_{level_no:03d}: leak={leak_pct:.4f}% "
+            f"near {label} boundary={threshold:.4f}% "
+            f"(distance={sign}{distance:.4f}pp)"
+        )
 
 
 def wave_number(wave: dict) -> int:
@@ -531,6 +586,13 @@ def main() -> int:
     too_hard_rows = [r for r in rows if r[10] > clear_time_cap(r[0])]
     print(f"Levels < 30s (with skill): {too_easy}")
     print(f"Levels above phase-specific clear-time cap: {len(too_hard_rows)}")
+    if args.star_boundary_audit:
+        print_star_boundary_audit(
+            rows,
+            three_star_leak_pct,
+            two_star_leak_pct,
+            args.star_boundary_window,
+        )
     errors: list[str] = []
     if too_hard_rows:
         details = ", ".join(f"level_{row[0]:03d}={row[10]:.1f}s>{clear_time_cap(row[0]):.0f}s" for row in too_hard_rows)
