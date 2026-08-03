@@ -3712,3 +3712,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Scoped correction**: only English pet rows use the compact metadata rhythm. Their tags move from `y=140` to `y=108`, and support copy follows at `y=154`; other collection families retain their two-line safety.
 - **Hierarchy preserved**: type size, card height, icon lane and purchase action remain unchanged. The change removes dead air without making the row denser at the expense of readability.
 - **Permanent proof**: M1 smoke switches to English, opens a real pet row and enforces the title / tag grouping plus a `4–10 px` tag-to-support gap. The focused routed capture passes layout and image analysis at `/tmp/zombie_fire_pet_title_spacing_20260803/collection_pets_en.png`.
+
+## Repeat-Clear XP Economy Contract (2026-08-03)
+
+- **Runtime-equivalent income model**: `check_economy_loop.py` now uses the authored wave groups, late-wave count multiplier, per-enemy `run_xp` and Godot-compatible positive rounding. Each stage is settled three times with the first three data-owned repeat multipliers, so the check measures the same 100% / 50% / 25% sequence the player receives.
+- **Stale conclusion corrected**: the current campaign yields `138,063 XP` on first clears and `241,645 XP` after two repeats per stage. Against the old `137,400 XP` full-investment cost, coverage was `175.87%`, not the intended six-to-eight-tenths progression window.
+- **Allowed tables only**: permanent skill costs are now `[350, 900, 2000, 4000, 7000]`; signature costs are `[450, 1200, 2700, 5400, 9000]`. Total full investment becomes `303,000 XP`, giving `79.75%` coverage. Reward supply, repeat decay, gold, stars, combat and premium balance are untouched.
+- **Release assertion**: the economy gate fails outside `[55%, 85%]` and prints first-clear supply, three-clear supply, total cost and measured coverage for auditability. The existing Release Candidate already invokes this checker.

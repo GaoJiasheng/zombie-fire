@@ -5,7 +5,12 @@ import json
 import math
 from pathlib import Path
 
+from check_level_pressure import late_wave_count_mult, level_number
+
 ROOT = Path(__file__).resolve().parents[1]
+
+XP_COVERAGE_MIN = 0.55
+XP_COVERAGE_MAX = 0.85
 
 
 def load(name: str):
@@ -31,12 +36,32 @@ def level_gold(level: dict, zombies: dict, bosses: dict) -> int:
 	return gold
 
 
+def godot_round_positive(value: float) -> int:
+    """Match Godot's round() for the non-negative reward values used here."""
+    return math.floor(value + 0.5)
+
+
+def level_xp(level: dict, zombies: dict, bosses: dict, economy: dict) -> int:
+    total = 0
+    level_no = level_number(level)
+    for wave in level.get("waves", []):
+        wave_no = int(wave.get("wave", 0))
+        count_mult = late_wave_count_mult(economy, wave_no, level_no)
+        for group in wave.get("spawns", []) + wave.get("support", []):
+            count = godot_round_positive(int(group.get("count", 0)) * count_mult)
+            total += count * int(zombies[group["type"]].get("run_xp", 0))
+        if "boss" in wave:
+            total += int(bosses[wave["boss"]].get("run_xp", 0))
+    return total
+
+
 def main() -> int:
     economy = load("economy")
     levels = load("levels")
     zombies = load("zombies")
     bosses = load("bosses")
     weapons = load("weapons")
+    skills = load("skills")
     characters = load("characters")
     armors = load("armors")
     chips = load("chips")
@@ -100,6 +125,37 @@ def main() -> int:
             f"total={total_star_unlock}, normal={normal_campaign_stars}"
         )
 
+    repeat_xp_mult = economy.get("repeat_clear_xp_mult", [])
+    skill_xp_costs = economy.get("skill_base_xp_costs", [])
+    sig_xp_costs = economy.get("sig_skill_xp_costs", [])
+    if not isinstance(repeat_xp_mult, list) or len(repeat_xp_mult) < 3:
+        errors.append("repeat_clear_xp_mult must define first clear and two repeat-clear bands")
+        repeat_xp_mult = [1.0, 0.5, 0.25]
+    if not isinstance(skill_xp_costs, list) or len(skill_xp_costs) < 5:
+        errors.append("skill_base_xp_costs must define all five permanent-skill ranks")
+        skill_xp_costs = []
+    if not isinstance(sig_xp_costs, list) or len(sig_xp_costs) < 5:
+        errors.append("sig_skill_xp_costs must define all five signature-skill ranks")
+        sig_xp_costs = []
+
+    campaign_xp_by_level = [level_xp(level, zombies, bosses, economy) for level in levels]
+    three_clear_xp = sum(
+        godot_round_positive(stage_xp * float(multiplier))
+        for stage_xp in campaign_xp_by_level
+        for multiplier in repeat_xp_mult[:3]
+    )
+    permanent_skill_cost = len(skills) * sum(int(cost) for cost in skill_xp_costs)
+    signature_skill_count = sum(1 for row in characters.values() if row.get("active_skill"))
+    signature_skill_cost = signature_skill_count * sum(int(cost) for cost in sig_xp_costs)
+    total_xp_cost = permanent_skill_cost + signature_skill_cost
+    xp_coverage = three_clear_xp / max(total_xp_cost, 1)
+    if not XP_COVERAGE_MIN <= xp_coverage <= XP_COVERAGE_MAX:
+        errors.append(
+            "permanent + signature skill XP coverage outside contract: "
+            f"income={three_clear_xp}, cost={total_xp_cost}, coverage={xp_coverage:.2%}, "
+            f"expected={XP_COVERAGE_MIN:.0%}-{XP_COVERAGE_MAX:.0%}"
+        )
+
     if errors:
         print("Economy loop check failed:")
         for error in errors:
@@ -111,6 +167,10 @@ def main() -> int:
     print(
         f"star_unlock_total={total_star_unlock} max_item={max_star_unlock} "
         f"normal_campaign={normal_campaign_stars} challenge_needed={total_star_unlock - normal_campaign_stars}"
+    )
+    print(
+        f"xp_first_clear={sum(campaign_xp_by_level)} xp_three_clear={three_clear_xp} "
+        f"xp_full_cost={total_xp_cost} xp_coverage={xp_coverage:.2%}"
     )
     return 0
 
