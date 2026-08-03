@@ -3690,3 +3690,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Exact, repeatable output**: each hit reports the level, exact modeled leak percentage, owning boundary and signed percentage-point distance. `--star-boundary-window` keeps future inspection width explicit while defaulting to the requested `±2.00pp`.
 - **Current watch list**: fourteen normal stages fall inside the window. `level_008` is `1.0294pp` below the 1★ boundary; thirteen later stages sit around the 3★ / 2★ boundary. The full frozen snapshot and rerun command live in `design/25_difficulty_growth_regression_2026_08_02.md` Appendix A.
 - **Scope held**: this diagnostic pass changes no campaign data, star threshold, economy knob, endgame corridor, Apex immunity or premium contract.
+
+## Release Screenshot Authorization Gate (2026-08-03)
+
+- **Two explicit operating modes**: the App Store QA checklist now separates safe unattended numerical / data regression (`ZOMBIE_FIRE_SKIP_WINDOWED_VISUALS=1`) from the final human screenshot sign-off (`ZOMBIE_FIRE_ALLOW_WINDOW_CAPTURE=1`).
+- **Focus is an authorization boundary**: the full screenshot command may open Godot windows and take foreground focus, so it must run once per release candidate only after explicit Owner authorization. Agents must not infer permission from a numerical RC request.
+- **Exit 125 is not a visual defect**: a screenshot tool refusing to start without the allow flag is the intended focus guard. Reports must record that screenshots were skipped under focus protection rather than call the release regressed.
+- **Release meaning remains strict**: a green nonvisual run is valid evidence for balance, data and code gates, but it does not replace the authorized full screenshot matrix required before App Store submission.
