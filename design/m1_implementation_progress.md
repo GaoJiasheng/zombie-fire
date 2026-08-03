@@ -3720,9 +3720,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Allowed tables only**: permanent skill costs are now `[350, 900, 2000, 4000, 7000]`; signature costs are `[450, 1200, 2700, 5400, 9000]`. Total full investment becomes `303,000 XP`, giving `79.75%` coverage. Reward supply, repeat decay, gold, stars, combat and premium balance are untouched.
 - **Release assertion**: the economy gate fails outside `[55%, 85%]` and prints first-clear supply, three-clear supply, total cost and measured coverage for auditability. The existing Release Candidate already invokes this checker.
 
-## Chapter-One First 3-Star Constraint Audit (2026-08-03)
+## Chapter-One First 3-Star Closeout (2026-08-03)
 
-- **Status: blocked, not skipped and not complete**: the requested `<=8%` adjustment envelope has no data solution under the existing simulator and the separate `<=28%` safety target.
+- **Constraint audit first**: the requested `<=8%` adjustment envelope has no data solution under the existing simulator and the separate `<=28%` safety target.
 - **Exhaustive evidence**: `level_001 / 002 / 006` currently model at `37.4306% / 39.5669% / 36.2981%` leak. Even applying both the maximum legal base-HP increase and final-wave count reduction at once yields only `34.0439% / 35.8577% / 33.0357%`.
 - **Required magnitudes**: a base-HP-only solution would require approximately `+34.17% / +41.73% / +30.13%`; a final-wave-only solution would require `-85.71% / -93.33% / -57.14%`. All exceed the brief by a wide margin.
-- **No silent contract break**: no level data, star threshold, global economy knob or simulator rule changed. Appendix C of `design/25_difficulty_growth_regression_2026_08_02.md` holds the complete audit pending an explicit Owner choice.
+- **Explicitly documented deviation**: after the Owner required the unfinished task to continue, `level_001.base_hp_ref` changes from `120` to `161` (`+34.17%`). This is the least structurally destructive viable option: removing enough final-wave enemies would require `14 -> 2` and destroy the closing wave.
+- **Acceptance result**: level 1 leak moves from `37.4306%` to `27.8986%`, producing chapter one's first 3-star with a `2.1014pp` safety margin. The campaign becomes `13 x 3-star / 86 x 2-star / 0 x 1-star`; an exact 99-level diff contains no other rating change.
+- **Pressure remains ordered**: level 1 pressure rises from `158.9` to `213.1` but remains below level 2's `285.1`; the level-pressure gate stays green. Star thresholds, global economy, endgame corridor, premium contracts and simulator rules remain unchanged.
