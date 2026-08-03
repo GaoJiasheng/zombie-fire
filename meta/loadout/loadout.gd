@@ -857,11 +857,15 @@ func _gear_icon_button(table: String, slot: String, selected_id: String, _fallba
 	card.modulate = Color(1, 1, 1, 1) if has_item else Color(0.74, 0.80, 0.86, 0.90)
 	var slot_label := Label.new()
 	slot_label.name = "SlotLabel"
-	slot_label.text = _slot_label(slot) if has_item else "%s · 选择" % _slot_label(slot)
-	slot_label.position = Vector2(10, GEAR_CARD_SIZE.y - 42.0)
-	slot_label.size = Vector2(GEAR_CARD_SIZE.x - 20.0, 28.0)
+	# The whole card is already the action target. Repeating “Select” here made
+	# the empty English state read “Tap to Select / Armor · Select” and forced
+	# both labels against a 176 px frame. Keep this line as the slot identity.
+	slot_label.text = _slot_label(slot)
+	slot_label.position = Vector2(8, GEAR_CARD_SIZE.y - 42.0)
+	slot_label.size = Vector2(GEAR_CARD_SIZE.x - 16.0, 28.0)
 	slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	slot_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	slot_label.clip_text = true
 	UiKit.apply_label(slot_label, 15, UiKit.TEXT_MAIN if has_item else UiKit.TEXT_MUTED, 2)
 	slot_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(slot_label)
@@ -900,8 +904,8 @@ func _icon_card(card_name: String, texture_path: String, card_size: Vector2, mar
 		var plus := Label.new()
 		plus.name = "EmptyPlus"
 		plus.text = "+"
-		plus.position = Vector2(20, 20)
-		plus.size = Vector2(card_size.x - 40.0, 74)
+		plus.position = Vector2(20, 14)
+		plus.size = Vector2(card_size.x - 40.0, 66)
 		plus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		plus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		UiKit.apply_label(plus, 38, UiKit.CYAN, 3)
@@ -909,11 +913,14 @@ func _icon_card(card_name: String, texture_path: String, card_size: Vector2, mar
 		card.add_child(plus)
 		var choose := Label.new()
 		choose.name = "EmptyChooseLabel"
-		choose.text = "点击选择"
-		choose.position = Vector2(16, 88)
-		choose.size = Vector2(card_size.x - 32.0, 34)
+		# “选择 / Select” keeps the accepted mobile size without wrapping or
+		# leaking beyond the narrow three-column equipment card.
+		choose.text = "选择"
+		choose.position = Vector2(12, 76)
+		choose.size = Vector2(card_size.x - 24.0, 48)
 		choose.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		choose.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		choose.clip_text = true
 		UiKit.apply_label(choose, 17, UiKit.TEXT_MAIN, 2)
 		choose.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(choose)

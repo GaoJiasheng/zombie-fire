@@ -3697,3 +3697,18 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Focus is an authorization boundary**: the full screenshot command may open Godot windows and take foreground focus, so it must run once per release candidate only after explicit Owner authorization. Agents must not infer permission from a numerical RC request.
 - **Exit 125 is not a visual defect**: a screenshot tool refusing to start without the allow flag is the intended focus guard. Reports must record that screenshots were skipped under focus protection rather than call the release regressed.
 - **Release meaning remains strict**: a green nonvisual run is valid evidence for balance, data and code gates, but it does not replace the authorized full screenshot matrix required before App Store submission.
+
+## Loadout Empty-Slot Copy Containment (2026-08-03)
+
+- **Root cause**: the 176px equipment cards repeated the same action as English `Tap to Select` and `Armor · Select`. With the approved global phone type scale, the first phrase could paint beyond its narrow card even though the Chinese version remained shorter.
+- **One compact hierarchy**: every empty armor, chip and pet card now reads as a large plus, a localized `选择 / Select` action, then the slot identity alone. The whole card remains the touch target, so no interaction or discoverability is lost.
+- **No readability retreat**: the accepted font size is unchanged. Both text lanes reserve explicit horizontal insets and enable final clipping so future localization cannot paint across the neighboring card.
+- **Permanent proof**: M1 smoke deliberately clears all three selected equipment IDs, rebuilds the row and checks all three action / identity pairs, rather than depending on the developer save already containing an empty slot.
+- **Bilingual visual proof**: focused Chinese and English 1080×1920 captures pass routed layout and image analysis; manual review confirms the three cards share one baseline and neither language touches a frame. Output remains under `/tmp/zombie_fire_loadout_empty_slots_20260803_v2/` and is not tracked.
+
+## English Pet-Card Information Group Rhythm (2026-08-03)
+
+- **Root cause**: every English equipment card reserved enough title height for a wrapped weapon or armor product name. Pet names are all short single-line labels, so that shared reserve left the semantic tags visibly detached from the title.
+- **Scoped correction**: only English pet rows use the compact metadata rhythm. Their tags move from `y=140` to `y=108`, and support copy follows at `y=154`; other collection families retain their two-line safety.
+- **Hierarchy preserved**: type size, card height, icon lane and purchase action remain unchanged. The change removes dead air without making the row denser at the expense of readability.
+- **Permanent proof**: M1 smoke switches to English, opens a real pet row and enforces the title / tag grouping plus a `4–10 px` tag-to-support gap. The focused routed capture passes layout and image analysis at `/tmp/zombie_fire_pet_title_spacing_20260803/collection_pets_en.png`.

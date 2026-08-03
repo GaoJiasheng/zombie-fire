@@ -236,6 +236,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var spacious := _uses_spacious_collection_cards()
 	var english_layout := LocalizationManager.is_english()
+	# Pet names are short in both catalogs, so their English cards do not need
+	# the two-line title reserve used by long weapon / armor product names.
+	# Tighten the metadata group without changing the shared card or action.
+	var compact_pet_metadata := mode == "pets" and english_layout
 	# Character cards use the same generous presentation height in both
 	# languages. This lets the portrait consume the full card instead of keeping
 	# the former tiny-avatar geometry inside an already tall English row.
@@ -316,7 +320,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(text_x, 128 if mode == "characters" else (140 if english_layout else (84 if spacious else 70)))
+	tag_row.position = Vector2(text_x, 128 if mode == "characters" else (108 if compact_pet_metadata else (140 if english_layout else (84 if spacious else 70))))
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
@@ -339,7 +343,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(text_x, 174 if mode == "characters" else (184 if english_layout else (128 if spacious else 110)))
+	desc.position = Vector2(text_x, 174 if mode == "characters" else (154 if compact_pet_metadata else (184 if english_layout else (128 if spacious else 110))))
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
 	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else 350, 120 if mode == "characters" else (110 if LocalizationManager.is_english() else 96))

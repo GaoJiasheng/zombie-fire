@@ -606,6 +606,19 @@ func _initialize() -> void:
 					_assert_semantic_tag_panel(semantic_tag, "%s collection row" % semantic_mode)
 			semantic_rows_checked += 1
 		_expect(semantic_rows_checked > 0, "%s collection tag audit must inspect real rows" % semantic_mode)
+	var semantic_localization_manager := root.get_node("/root/LocalizationManager")
+	var semantic_language_before := str(semantic_localization_manager.current_language)
+	semantic_localization_manager.apply_language("en", false)
+	main.change_scene("collection", {"mode": "pets"})
+	await process_frame
+	var compact_pet_row := main.current_scene.find_child("ItemList", true, false).get_child(0) as TextureButton
+	var compact_pet_title := compact_pet_row.get_node("Title") as Label
+	var compact_pet_tags := compact_pet_row.get_node("Tags") as HBoxContainer
+	var compact_pet_description := compact_pet_row.get_node("Description") as Label
+	_expect(compact_pet_tags.position.y - compact_pet_title.position.y <= 88.0, "English pet metadata tags must stay visually grouped with the title")
+	_expect(compact_pet_description.position.y - (compact_pet_tags.position.y + compact_pet_tags.size.y) >= 4.0, "English pet support copy must not overlap its metadata tags")
+	_expect(compact_pet_description.position.y - (compact_pet_tags.position.y + compact_pet_tags.size.y) <= 10.0, "English pet support copy must stay grouped with its metadata tags")
+	semantic_localization_manager.apply_language(semantic_language_before, false)
 	var collection_test_save: Dictionary = save_manager._default_save()
 	var collection_player: Dictionary = collection_test_save.get("player", {}).duplicate(true)
 	collection_player["gold"] = 184321
@@ -804,6 +817,31 @@ func _initialize() -> void:
 	_expect(not main.current_scene.get_node("EquipNav").visible, "loadout must hide old text equipment nav")
 	_expect(main.current_scene.get_node("CharacterSelectBar").get_child_count() >= 4, "loadout character bar must render direct portrait buttons")
 	_expect(main.current_scene.find_child("GearIconRow", true, false).get_child_count() == 3, "loadout gear row must render armor/chip/pet icons")
+	var loadout_equipment_before_empty_test: Dictionary = save_manager.save_data.get("equipment", {}).duplicate(true)
+	var empty_loadout_equipment: Dictionary = loadout_equipment_before_empty_test.duplicate(true)
+	for empty_slot_key in ["selected_armor", "selected_chip", "selected_pet"]:
+		empty_loadout_equipment[empty_slot_key] = ""
+	save_manager.save_data["equipment"] = empty_loadout_equipment
+	main.current_scene._refresh()
+	await process_frame
+	var empty_gear_row := main.current_scene.find_child("GearIconRow", true, false) as HBoxContainer
+	var verified_empty_slot_count := 0
+	for gear_card_node in empty_gear_row.get_children():
+		var gear_card := gear_card_node as Control
+		var empty_choose := gear_card.find_child("EmptyChooseLabel", true, false) as Label
+		var slot_identity := gear_card.find_child("SlotLabel", true, false) as Label
+		if empty_choose == null:
+			continue
+		verified_empty_slot_count += 1
+		_expect(empty_choose.text == "选择", "empty loadout slot must use the compact localized Select action")
+		_expect(empty_choose.clip_text, "empty loadout slot action must never paint outside its card")
+		_expect(empty_choose.position.x >= 8.0 and empty_choose.position.x + empty_choose.size.x <= gear_card.size.x - 8.0, "empty loadout slot action must keep horizontal frame safety")
+		_expect(slot_identity != null and not slot_identity.text.contains("选择"), "empty loadout slot identity must not repeat the Select action")
+		_expect(slot_identity != null and slot_identity.clip_text, "empty loadout slot identity must never paint outside its card")
+	_expect(verified_empty_slot_count == 3, "loadout must verify compact empty-state copy for armor, chip and pet")
+	save_manager.save_data["equipment"] = loadout_equipment_before_empty_test
+	main.current_scene._refresh()
+	await process_frame
 	_expect(main.current_scene.get_node("SignatureCards").get_child_count() >= 3, "loadout must show passive and two signature previews")
 	var loadout_details := main.current_scene.find_child("DetailsPanel", true, false) as Control
 	var loadout_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
