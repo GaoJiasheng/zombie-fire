@@ -980,7 +980,37 @@ func _weapon_effective_dps(weapon: Dictionary) -> float:
 	effective *= 1.0 + 0.36 * float(special.get("chain", 0))
 	if float(special.get("splash", 0.0)) > 0.0 or float(special.get("cloud", 0.0)) > 0.0:
 		effective *= 1.28
-	effective *= 1.0 + 0.65 * (float(special.get("burn", 0.0)) + float(special.get("poison", 0.0)))
+	# design/26: 终焉军械四套（雷霆/炼狱/绝对零度/黄金法则）用的是各自专属的字段名，
+	# 此前完全没被下面识别，导致四把武器的真实战力被系统性低估——雷霆/黄金法则只是
+	# 巧合命中了 chain/pierce 才蹭到部分加成，炼狱的 burn_ratio 和 burn 字段名不一致
+	# 直接漏判，绝对零度/黄金法则各自的爆发机制则完全没有对应字段。
+	# burn_ratio 是 burn 的专属命名，直接并入既有的 burn/poison 加成路径。
+	effective *= 1.0 + 0.65 * (float(special.get("burn", 0.0)) + float(special.get("burn_ratio", 0.0)) + float(special.get("poison", 0.0)))
+	# 过载/焚烧连爆/破裂霜爆/审判连击都是"每 N 次确认命中触发一次 M 倍爆发"的同一种
+	# 形态，用周期爆发的期望值折算成等效持续倍率：1 + (M-1)/N。这不是逐机制精确复刻
+	# 战斗代码，是和现有 chain/pierce 系数同一档的估算，量级已经用
+	# audit_*_premium_dps.py 的满配实测倍率（1.52x-2.05x）校对过不会离谱，
+	# 但不追求逐位对齐——那些审计含护甲/芯片/宠物整套，这里只估武器自身。
+	var overload_hits := float(special.get("overload_hits", 0.0))
+	var overload_mult := float(special.get("overload_damage_mult", 1.0))
+	if overload_hits > 0.0 and overload_mult > 1.0:
+		effective *= 1.0 + (overload_mult - 1.0) / overload_hits
+	var combustion_stacks := float(special.get("combustion_max_stacks", 0.0))
+	var combustion_mult := float(special.get("combustion_damage_mult", 1.0))
+	if combustion_stacks > 0.0 and combustion_mult > 1.0:
+		effective *= 1.0 + (combustion_mult - 1.0) / combustion_stacks
+		effective *= 1.28
+	var brittle_hits := float(special.get("brittle_hits", 0.0))
+	var shatter_mult := float(special.get("shatter_damage_mult", 0.0))
+	if brittle_hits > 0.0 and shatter_mult > 0.0:
+		effective *= 1.0 + shatter_mult / brittle_hits
+		effective *= 1.28
+	var judgment_hits := float(special.get("judgment_hits", 0.0))
+	var judgment_mult := float(special.get("judgment_damage_mult", 1.0))
+	if judgment_hits > 0.0 and judgment_mult > 1.0:
+		effective *= 1.0 + (judgment_mult - 1.0) / judgment_hits
+	effective *= 1.0 + 0.22 * float(special.get("judgment_armor_penetration", 0.0))
+	effective *= 1.0 + 0.30 * float(special.get("slow", 0.0))
 	return effective
 
 func _chip_power_quality(chip_id: String) -> float:
