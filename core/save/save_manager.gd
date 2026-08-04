@@ -936,8 +936,10 @@ func _combat_skill_effect_multiplier(run_skill_levels: Dictionary) -> float:
 	var offense := direct_factor * cadence_factor * crit_factor * lane_factor * coverage_factor * status_factor * penetration_factor
 	# design/24 Phase 6: after Phase 1 unified the star rule, surviving base HP
 	# is literally the star rating, so defensive picks are worth materially more
-	# than the pre-fix weights assumed. Both ends of the ruler move together, so
-	# RECOMMENDED_POWER_COEF stays as calibrated.
+	# than the pre-fix weights assumed. Both ends of the ruler move together
+	# (design/26 made this literally true: get_recommended_power_for_level now
+	# runs a synthetic on-pace build through this same function), so no separate
+	# recalibration constant is needed here.
 	var survival := 1.0 + maxf(0.0, barrier_hp) * 0.35 + clampf(slow, 0.0, 0.75) * 0.40
 	var combined := 1.0 + maxf(0.0, offense - 1.0) * 0.82 + maxf(0.0, survival - 1.0) * 0.28
 	return clampf(combined, 1.0, POWER_SKILL_THROUGHPUT_CAP)
@@ -1060,19 +1062,56 @@ func _pet_stat_power(pet_id: String) -> float:
 	return score
 
 # 推荐战力和玩家战力使用同一套“基准核心 + 局内技能成型”量纲（design/24 Phase 7 统一口径命名：基准 / 预计成型 / 终局）。
-# 四次选卡是战力面板的基准；更多选卡带来的乘法协同会同时抬高关卡推荐值和晚波压力。
-const RECOMMENDED_POWER_COEF := 6.25
+# design/26：推荐战力过去是独立线性公式（recommend_level × 系数 + Boss/晚波固定加成），和
+# 玩家自己的“基准”战力不共享计算管线，实测 99 关系统性偏高（对完全按节奏培养的玩家仍高
+# 21%~188%，从未低于 1.0），且这个比值被 battle.gd 的救济机制（0.82/0.86 阈值）读取，
+# 导致早中期救济对任何正常节奏玩家常年生效。现在改为对一个“角色=武器=
+# min(recommend_level, 等级上限)、零永久技能投入”的虚拟在线节奏存档，跑玩家自己那条
+# _loadout_core_power()/_skill_power_scale() 管线得到参考基准战力，再乘目标倍率——Owner
+# 标准：个人基准战力需再涨约 50% 才“将将过关”，技能临场加成可在此之上再叠加。
+# 旧公式的 Boss/晚波固定加成、card_budget 系数都不再叠加：Boss 关在 levels.json 里的
+# recommend_level 本就比同章非 Boss 关高一档（实测确认，如 level_044 rec=22 →
+# level_045(Boss) rec=23），差异已经通过参考基准的等级差自然体现；旧的晚波加成项是给
+# “recommend_level×固定系数”这个粗糙线性基线打的补丁，换成同源管线后継续叠加会把早期
+# 关卡的加成占比拉到主导地位（实测 level_001 曾占推荐值的 65%+），反而背离目标倍率。
+# 晚波/Boss 的真实敌方 HP 压力仍然由 battle.gd 自己的 _late_wave_hp_bonus() 等函数按
+# economy.json 同一批曲线独立计算，不受此处改动影响。
+const RECOMMENDED_POWER_TARGET_MULT := 1.5
 func get_recommended_power_for_level(level_id: String) -> int:
+	var reference := _reference_on_pace_standing_power(level_id)
+	return int(round(float(reference) * RECOMMENDED_POWER_TARGET_MULT))
+
+# 合成一个“完全按 recommend_level 节奏培养、零永久技能投入”的虚拟存档，借用玩家自己的战力
+# 管线算出参考基准战力。角色/武器锁定 vanguard/weapon_autocannon，不含护甲/芯片/宠物——
+# 这些解锁时间点不固定，不适合作为跨全战役的统一节奏假设。计算完立即还原真实存档，
+# 绝不能让这个引用泄漏进玩家自己的存档状态。
+func _reference_on_pace_standing_power(level_id: String) -> int:
 	var level := DataLoader.get_row("levels", level_id)
-	var recommended := int(level.get("recommend_level", 1))
-	var boss_bonus := 0
-	for wave in level.get("waves", []):
-		if wave.has("boss"):
-			boss_bonus = 6
-			break
-	var late_wave_bonus := _recommended_power_late_wave_bonus(level)
-	var base_power := float(recommended) * RECOMMENDED_POWER_COEF + float(boss_bonus + late_wave_bonus)
-	return int(round(base_power * get_card_budget_power_factor_for_level(level_id)))
+	var recommend_level: int = int(level.get("recommend_level", 1))
+	var char_max: int = int(DataLoader.get_row("characters", "vanguard").get("max_level", 40))
+	var weapon_max: int = int(DataLoader.get_row("weapons", "weapon_autocannon").get("max_level", 50))
+	var char_level: int = clampi(recommend_level, 1, char_max)
+	var weapon_level: int = clampi(recommend_level, 1, weapon_max)
+	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
+	var weakness := str(level.get("primary_weakness", "physical"))
+	var original_save: Dictionary = save_data
+	var reference_save: Dictionary = original_save.duplicate(true)
+	var equipment: Dictionary = reference_save.get("equipment", {}).duplicate(true)
+	equipment["selected_character"] = "vanguard"
+	equipment["selected_weapon"] = "weapon_autocannon"
+	equipment["selected_armor"] = ""
+	equipment["selected_chip"] = ""
+	equipment["selected_pet"] = ""
+	equipment["vanguard"] = char_level
+	equipment["weapon_autocannon"] = weapon_level
+	reference_save["equipment"] = equipment
+	reference_save["skill_base_levels"] = {}
+	reference_save["sig_skill_levels"] = {}
+	save_data = reference_save
+	var projected_levels := _projected_run_skill_levels(card_picks, weakness)
+	var power := int(round(_loadout_core_power() * _skill_power_scale(projected_levels)))
+	save_data = original_save
+	return power
 
 func get_card_budget_power_factor_for_level(level_id: String) -> float:
 	var level := DataLoader.get_row("levels", level_id)
@@ -1103,78 +1142,6 @@ func _run_skill_pressure_for_level(level_id: String, conversion_key: String, cap
 func _generic_card_skill_throughput(card_picks: int) -> float:
 	var picks := float(maxi(card_picks, 0))
 	return minf(POWER_SKILL_THROUGHPUT_CAP, 1.0 + 0.42 * picks + 0.08 * picks * picks)
-
-func _recommended_power_late_wave_bonus(level: Dictionary) -> int:
-	var economy: Dictionary = DataLoader.get_table("economy")
-	var level_parts := str(level.get("id", "level_001")).split("_")
-	var level_no := int(level_parts[level_parts.size() - 1]) if level_parts.size() > 0 else 1
-	var ramp_mult := _recommended_power_late_wave_ramp_mult(economy, level_no)
-	var count_ramp_mult := _recommended_power_count_ramp_mult(economy, level_no)
-	var boss_survival_mult := _recommended_power_boss_survival_mult(economy, level_no)
-	var late_score := 0.0
-	var table_var = economy.get("late_wave_hp_bonus", {})
-	var boss_table_var = economy.get("late_wave_boss_hp_bonus", {})
-	var count_table_var = economy.get("late_wave_count_mult", {})
-	var table: Dictionary = table_var if table_var is Dictionary else {}
-	var boss_table: Dictionary = boss_table_var if boss_table_var is Dictionary else {}
-	var count_table: Dictionary = count_table_var if count_table_var is Dictionary else {}
-	for wave in level.get("waves", []):
-		var wave_no := int(wave.get("wave", 0))
-		if wave_no < 3:
-			continue
-		var wave_mult := float(table.get(str(wave_no), table.get(wave_no, 1.0))) * ramp_mult
-		late_score += maxf(0.0, wave_mult - 1.0)
-		var count_mult := float(count_table.get(str(wave_no), count_table.get(wave_no, 1.0))) * count_ramp_mult
-		late_score += maxf(0.0, count_mult - 1.0) * 0.9
-		if wave.has("boss"):
-			var boss_mult := float(boss_table.get(str(wave_no), boss_table.get(wave_no, 1.0))) * ramp_mult
-			late_score += maxf(0.0, boss_mult - 1.0) * 0.85
-			late_score += log(maxf(1.0, boss_survival_mult)) / log(2.0) * 1.2
-	return int(round(late_score * 4.0))
-
-func _recommended_power_late_wave_ramp_mult(economy: Dictionary, level_no: int) -> float:
-	var rule_var = economy.get("late_wave_level_ramp", {})
-	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
-	var start_level := float(rule.get("start_level", 9999))
-	var full_level := float(rule.get("full_level", start_level))
-	var max_mult := float(rule.get("max_mult", 1.0))
-	var curve_power := maxf(0.01, float(rule.get("curve_power", 1.0)))
-	if float(level_no) < start_level:
-		return 1.0
-	var ramp_mult := max_mult
-	if full_level > start_level:
-		var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
-		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
-	var final_level := int(rule.get("final_level", 0))
-	if final_level > 0 and level_no >= final_level:
-		ramp_mult *= maxf(1.0, float(rule.get("final_mult", 1.0)))
-	return ramp_mult
-
-func _recommended_power_count_ramp_mult(economy: Dictionary, level_no: int) -> float:
-	var rule_var = economy.get("late_wave_count_level_ramp", {})
-	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
-	return _recommended_power_progression_ramp_mult(rule, level_no)
-
-func _recommended_power_boss_survival_mult(economy: Dictionary, level_no: int) -> float:
-	var rule_var = economy.get("boss_survival_hp_ramp", {})
-	var rule: Dictionary = rule_var if rule_var is Dictionary else {}
-	return _recommended_power_progression_ramp_mult(rule, level_no)
-
-func _recommended_power_progression_ramp_mult(rule: Dictionary, level_no: int) -> float:
-	var start_level := float(rule.get("start_level", 9999))
-	var full_level := float(rule.get("full_level", start_level))
-	var max_mult := maxf(1.0, float(rule.get("max_mult", 1.0)))
-	var curve_power := maxf(0.01, float(rule.get("curve_power", 1.0)))
-	if float(level_no) < start_level:
-		return 1.0
-	var ramp_mult := max_mult
-	if full_level > start_level:
-		var t := clampf((float(level_no) - start_level) / (full_level - start_level), 0.0, 1.0)
-		ramp_mult = lerpf(1.0, max_mult, pow(t, curve_power))
-	var final_level := int(rule.get("final_level", 0))
-	if final_level > 0 and level_no >= final_level:
-		ramp_mult *= maxf(1.0, float(rule.get("final_mult", 1.0)))
-	return ramp_mult
 
 func get_player_gold() -> int:
 	var player: Dictionary = save_data.get("player", {})

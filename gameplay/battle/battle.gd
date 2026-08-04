@@ -487,6 +487,13 @@ var boss_hp_fill: TextureRect = null
 var boss_hp_label: Label = null
 var last_threat_warning_at := -99.0
 var last_gold_sfx_at := -99.0
+# design/26: 推荐战力改为同源管线后，一个完全按节奏培养、零配件零技能投入的
+# "裸装在线"存档实测 loadout_power_ratio 恒为 0.652~0.667（99 关全量探针数据），
+# 一个等级落后 20% 的存档则多数落在 0.50~0.60。两个阈值都卡在裸装在线基线之下留出
+# 安全边际，对正常节奏玩家零误伤，对真正落后的玩家仍然生效。旧阈值 0.82/0.86 是在
+# 推荐战力独立线性公式（系统性偏高）下标定的，公式换掉后必须联动重标，否则等于没变。
+const UNDERPOWERED_HP_CUSHION_RATIO := 0.60
+const UNDERPOWERED_WARNING_RATIO := 0.65
 var primary_weakness := "physical"
 var loadout_power_ratio := 1.0
 var power_level_id := "level_001"
@@ -2150,7 +2157,7 @@ func _apply_base_survivability() -> void:
 	hp_mult *= 1.0 + _pet_stat_value("base_hp_mult")
 	# Early/mid campaign keeps a small accessibility cushion. Endgame is a real
 	# build check: an underpowered loadout must not gain hidden survivability.
-	if loadout_power_ratio < 0.82 and level_ordinal < 50:
+	if loadout_power_ratio < UNDERPOWERED_HP_CUSHION_RATIO and level_ordinal < 50:
 		hp_mult *= 1.08
 	base_hp_max = int(round(float(base_hp_max) * hp_mult))
 	base_hp = base_hp_max
@@ -10353,7 +10360,7 @@ func _update_objective_panel() -> void:
 	var body: Label = $Hud/ObjectivePanel/Body
 	title.text = "目标 · %s · 弱%s" % [DataLoader.level_display_name(level_id), _element_name(primary_weakness)]
 	body.text = _battle_objective_text()
-	if loadout_power_ratio < 0.86:
+	if loadout_power_ratio < UNDERPOWERED_WARNING_RATIO:
 		body.text += "  战力偏低，优先保防线。"
 	elif _current_loadout_hits_weakness():
 		body.text += "  当前配装命中弱点。"

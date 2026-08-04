@@ -124,6 +124,7 @@ func _initialize() -> void:
 	await _verify_battle_speed_progression_gate(save_manager)
 	await _verify_battle_speed_stress(save_manager)
 	_verify_power_skill_level_accounting(save_manager)
+	_verify_recommended_power_calibration(save_manager, data_loader)
 	_verify_manual_aim_input(input_manager)
 	_verify_targeting_frontline_priority()
 	await _verify_turret_fire_gate(data_loader)
@@ -2255,13 +2256,87 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	}))
 	_expect(projected_power > skilled_power, "ten-card late levels must expose projected combat growth beyond standing power; standing=%d projected=%d" % [skilled_power, projected_power])
 	_expect(final_power > skilled_power, "actual run skill levels must produce a distinct final combat power; standing=%d final=%d" % [skilled_power, final_power])
+	# design/26: recommended power is now `1.5 x on-pace reference standing power`,
+	# where the reference build's skill projection uses the level's own
+	# target_card_picks (level_068=7, level_097=10). These floors were
+	# recalibrated against the new formula (actual: 381 / 590 at the time of
+	# writing) and just confirm recommend_level/card-budget growth still reaches
+	# late-campaign levels, not any specific bonus mechanic.
 	var level68_power := int(save_manager.get_recommended_power_for_level("level_068"))
-	_expect(level68_power >= 230, "level_068 recommended power must include late-wave skill-DPS pressure, got %d" % level68_power)
+	_expect(level68_power >= 320, "level_068 recommended power must scale with its recommend_level/card budget, got %d" % level68_power)
 	var level97_power := int(save_manager.get_recommended_power_for_level("level_097"))
-	_expect(level97_power >= 600, "level_097 recommended power must include its ten-card build budget, got %d" % level97_power)
+	_expect(level97_power >= 540, "level_097 recommended power must scale with its higher recommend_level/card budget, got %d" % level97_power)
+	_expect(level97_power > level68_power, "a later, higher-recommend_level/more-card-budget level must recommend more power than an earlier one; level_068=%d level_097=%d" % [level68_power, level97_power])
 	_expect(float(save_manager.get_run_skill_hp_pressure_for_level("level_097")) >= 1.45, "level_097 late waves must absorb ten-card DPS growth through authored HP pressure")
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
+
+# design/26: closes the calibration blind spot found in the Owner's difficulty
+# review — before this, loadout_power_ratio sat below both battle.gd
+# underpowered-assist thresholds for every single campaign level regardless of
+# whether the player was actually on pace, because get_recommended_power_for_level()
+# was an independent linear formula that never tracked the player's own power
+# pipeline (recommended power vs. an exactly-on-pace player's own standing power
+# was 1.21x-2.88x, never below 1.0, across all 99 levels). Sample a spread of
+# levels across the campaign (not all 99, to keep smoke test runtime bounded)
+# and assert: a bare-bones on-pace build (no armor/chip/pet/skill investment,
+# character/weapon level == recommend_level) clears both battle.gd assist gates
+# with margin, while a build 20% behind recommend_level reliably trips them -
+# restoring the "assist only fires for players who are actually behind" contract.
+func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
+	# Read the two assist-gate thresholds off a real battle instance (the same
+	# _instance() pattern every other test in this file already relies on)
+	# instead of preloading battle.gd as a bare script constant - a bare
+	# top-level preload of battle.gd compiles it before this project's
+	# autoloads (e.g. LocalizationManager) are resolvable as global
+	# identifiers in this headless --script entrypoint, which breaks every
+	# other test that instantiates battle.tscn afterward.
+	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
+	var cushion_gate := float(gate_probe.UNDERPOWERED_HP_CUSHION_RATIO)
+	var warning_gate := float(gate_probe.UNDERPOWERED_WARNING_RATIO)
+	gate_probe.queue_free()
+	_expect(warning_gate > cushion_gate, "the warning gate must stay looser than the HP-cushion gate")
+
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var sample_levels := ["level_002", "level_013", "level_025", "level_040", "level_055", "level_070", "level_085", "level_099"]
+	var char_max: int = int(data_loader.get_row("characters", "vanguard").get("max_level", 40))
+	var weapon_max: int = int(data_loader.get_row("weapons", "weapon_autocannon").get("max_level", 50))
+	for level_id in sample_levels:
+		var level: Dictionary = data_loader.get_row("levels", level_id)
+		var recommend_level: int = int(level.get("recommend_level", 1))
+		var recommended := int(save_manager.get_recommended_power_for_level(level_id))
+		var on_pace_char := clampi(recommend_level, 1, char_max)
+		var on_pace_weapon := clampi(recommend_level, 1, weapon_max)
+		var on_pace_power := _calibration_projected_power(save_manager, original_save, level_id, on_pace_char, on_pace_weapon)
+		var on_pace_ratio := float(on_pace_power) / maxf(float(recommended), 1.0)
+		_expect(on_pace_ratio >= 0.60 and on_pace_ratio <= 0.70, "%s bare on-pace loadout_power_ratio must stay near the design target (~0.667), got %.3f" % [level_id, on_pace_ratio])
+		_expect(on_pace_ratio >= warning_gate, "%s bare on-pace build must clear the underpowered-warning gate (>=%.2f), got %.3f" % [level_id, warning_gate, on_pace_ratio])
+		# -20% relative can round back to the same integer level as on-pace at
+		# very low recommend_level (e.g. round(2*0.8)=2) - force at least a
+		# 1-level gap so the "behind" case is never accidentally degenerate.
+		var behind_level := mini(maxi(recommend_level - 1, 1), int(round(float(recommend_level) * 0.8)))
+		var behind_char := clampi(behind_level, 1, char_max)
+		var behind_weapon := clampi(behind_level, 1, weapon_max)
+		var behind_power := _calibration_projected_power(save_manager, original_save, level_id, behind_char, behind_weapon)
+		var behind_ratio := float(behind_power) / maxf(float(recommended), 1.0)
+		_expect(behind_ratio < warning_gate, "%s a build at least 1 level behind recommend_level must still trip the underpowered-warning gate (<%.2f), got %.3f" % [level_id, warning_gate, behind_ratio])
+	save_manager.save_data = original_save
+
+func _calibration_projected_power(save_manager: Node, original_save: Dictionary, level_id: String, char_level: int, weapon_level: int) -> int:
+	var save: Dictionary = original_save.duplicate(true)
+	var equipment: Dictionary = save.get("equipment", {}).duplicate(true)
+	equipment["selected_character"] = "vanguard"
+	equipment["selected_weapon"] = "weapon_autocannon"
+	equipment["selected_armor"] = ""
+	equipment["selected_chip"] = ""
+	equipment["selected_pet"] = ""
+	equipment["vanguard"] = char_level
+	equipment["weapon_autocannon"] = weapon_level
+	save["equipment"] = equipment
+	save["skill_base_levels"] = {}
+	save["sig_skill_levels"] = {}
+	save_manager.save_data = save
+	return int(save_manager.get_projected_combat_power_for_level(level_id))
 
 func _dismiss_card_offer_for_smoke(battle: Node) -> void:
 	if battle.has_method("_close_card_offer"):
