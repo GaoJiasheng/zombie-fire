@@ -49,6 +49,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/simulate_balance.py")),
     Check(("python3", "tools/simulate_balance.py", "--challenge")),
     Check(("python3", "tools/check_endgame_balance.py")),
+    Check(("python3", "tools/check_clear_requirements.py")),
     Check(
         ("python3", "tools/audit_character_endgame_dps.py"),
         required_output="Thunder Apocalypse complete set:",

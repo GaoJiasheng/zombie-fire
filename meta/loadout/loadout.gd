@@ -22,7 +22,8 @@ const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 const DETAILS_PANEL_HEIGHT := 388.0
 const DETAILS_PANEL_HEIGHT_WITH_SUGGESTION := 452.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
-const SEVERE_POWER_RATIO := 0.65
+# design/28:通关线口径下,0.85 以下 = 早期兜底也救不回来的"远低于通关线"档。
+const SEVERE_POWER_RATIO := 0.85
 const UNDERPOWER_CONFIRM_WINDOW_MSEC := 2600
 
 var router: Node
@@ -249,13 +250,14 @@ func _is_severely_underpowered() -> bool:
 	var projected := SaveManager.get_projected_combat_power_for_level(level_id)
 	return float(projected) / float(recommended) < SEVERE_POWER_RATIO
 
+# design/28:推荐战力=通关线,三档文案按"能过/压线/过不了"的模型语义命名。
 func _power_state(projected_power: int, recommended_power: int) -> Dictionary:
 	var ratio := float(projected_power) / maxf(float(recommended_power), 1.0)
 	if ratio >= 1.0:
-		return {"text": "战力达标", "color": UiKit.GREEN}
+		return {"text": "可通关", "color": UiKit.GREEN}
 	if ratio >= SEVERE_POWER_RATIO:
-		return {"text": "战力偏低", "color": UiKit.GOLD}
-	return {"text": "严重欠战力", "color": UiKit.DANGER}
+		return {"text": "低于通关线", "color": UiKit.GOLD}
+	return {"text": "远低于通关线", "color": UiKit.DANGER}
 
 func _refresh_resource_bar() -> void:
 	var main := $Root/Main as VBoxContainer
@@ -550,7 +552,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var power_state := _power_state(projected_power, recommended_power)
-	var power_pill := UiKit.semantic_tag_pill(str(power_state.get("text", "战力偏低")), "status", 14)
+	var power_pill := UiKit.semantic_tag_pill(str(power_state.get("text", "低于通关线")), "status", 14)
 	power_pill.name = "PowerStatePill"
 	power_pill.custom_minimum_size = Vector2(156, 38)
 	title_row.add_child(power_pill)

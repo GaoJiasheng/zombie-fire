@@ -56,14 +56,14 @@
 		"start_level": 20,
 		"multiplier": 2.0
 	},
-  "boss_survival_hp_ramp": {
-    "start_level": 50,
-    "full_level": 98,
-    "max_mult": 56.0,
-    "curve_power": 1.15,
-    "final_level": 99,
-    "final_mult": 1.08
-  },
+	"boss_survival_hp_ramp": {
+		"start_level": 50,
+		"full_level": 98,
+		"max_mult": 56.0,
+		"curve_power": 1.15,
+		"final_level": 99,
+		"final_mult": 1.08
+	},
 	"endless_template_level": "level_025",
 	"endless_boss_immunity_grace_loops": 1,
 	"endless_first_loop_armor_hits_cap": 8,
@@ -76,7 +76,11 @@
 		"three_star_hp_ratio": 0.7,
 		"two_star_hp_ratio": 0.35
 	},
-	"repeat_clear_xp_mult": [1.0, 0.5, 0.25],
+	"repeat_clear_xp_mult": [
+		1.0,
+		0.5,
+		0.25
+	],
 	"boss_level_base_hp_mult": {
 		"base": 1.25,
 		"early_mult": 1.75,
@@ -89,8 +93,20 @@
 	"first_clear_gold_per_level": 20,
 	"upgrade_cost_growth": 1.15,
 	"upgrade_cost_linear_k": 0.7,
-	"skill_base_xp_costs": [350, 900, 2000, 4000, 7000],
-	"sig_skill_xp_costs": [450, 1200, 2700, 5400, 9000],
+	"skill_base_xp_costs": [
+		350,
+		900,
+		2000,
+		4000,
+		7000
+	],
+	"sig_skill_xp_costs": [
+		450,
+		1200,
+		2700,
+		5400,
+		9000
+	],
 	"card_director": {
 		"base_reroll_per_run": 1,
 		"pity_after_missing_core_tag": 2,
@@ -98,7 +114,18 @@
 		"early_fun_card_boost_until_level": 5,
 		"opening_identity_offer_count": 2,
 		"opening_avoid_economy": true,
-		"opening_damage_tags": ["anti_swarm", "projectile", "dps"],
-		"opening_safety_tags": ["control", "defense"]
+		"opening_damage_tags": [
+			"anti_swarm",
+			"projectile",
+			"dps"
+		],
+		"opening_safety_tags": [
+			"control",
+			"defense"
+		]
+	},
+	"power_ruler": {
+		"survival_reference": 1.2,
+		"element_weight": 0.82
 	}
 }

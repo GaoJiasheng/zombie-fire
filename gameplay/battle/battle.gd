@@ -487,13 +487,12 @@ var boss_hp_fill: TextureRect = null
 var boss_hp_label: Label = null
 var last_threat_warning_at := -99.0
 var last_gold_sfx_at := -99.0
-# design/26: 推荐战力改为同源管线后，一个完全按节奏培养、零配件零技能投入的
-# "裸装在线"存档实测 loadout_power_ratio 恒为 0.652~0.667（99 关全量探针数据），
-# 一个等级落后 20% 的存档则多数落在 0.50~0.60。两个阈值都卡在裸装在线基线之下留出
-# 安全边际，对正常节奏玩家零误伤，对真正落后的玩家仍然生效。旧阈值 0.82/0.86 是在
-# 推荐战力独立线性公式（系统性偏高）下标定的，公式换掉后必须联动重标，否则等于没变。
-const UNDERPOWERED_HP_CUSHION_RATIO := 0.60
-const UNDERPOWERED_WARNING_RATIO := 0.65
+# design/28: 推荐战力 = 本关"恰好能通关"线(1★能过口径),loadout_power_ratio 因此
+# 语义变为"相对通关线的余量":< 1.0 → 模型判"预计打不过",目标面板提示;
+# ∈ [0.85, 1.0) 且前 50 关 → 早期兜底 +8% 基地血量,帮压线玩家挤过去(更低则模型
+# 判定救不回来,不再假装能救)。带宽初值来自 design/28,验收探针复核后定稿。
+const CLEAR_LINE_WARNING_RATIO := 1.0
+const CLEAR_LINE_CUSHION_MIN_RATIO := 0.85
 var primary_weakness := "physical"
 var loadout_power_ratio := 1.0
 var power_level_id := "level_001"
@@ -2157,7 +2156,7 @@ func _apply_base_survivability() -> void:
 	hp_mult *= 1.0 + _pet_stat_value("base_hp_mult")
 	# Early/mid campaign keeps a small accessibility cushion. Endgame is a real
 	# build check: an underpowered loadout must not gain hidden survivability.
-	if loadout_power_ratio < UNDERPOWERED_HP_CUSHION_RATIO and level_ordinal < 50:
+	if loadout_power_ratio >= CLEAR_LINE_CUSHION_MIN_RATIO and loadout_power_ratio < CLEAR_LINE_WARNING_RATIO and level_ordinal < 50:
 		hp_mult *= 1.08
 	base_hp_max = int(round(float(base_hp_max) * hp_mult))
 	base_hp = base_hp_max
@@ -9873,7 +9872,7 @@ func _finish(victory: bool) -> void:
 			"xp": 0,
 			"standing_power": SaveManager.get_loadout_power(),
 			"projected_power": projected_combat_power,
-			"combat_power": SaveManager.get_combat_power_for_skill_levels(skills.owned),
+			"combat_power": int(round(float(SaveManager.get_combat_power_for_skill_levels(skills.owned)) * SaveManager.get_element_power_factor_for_level(power_level_id))),
 			"recommended_power": recommended_combat_power,
 			"run_skill_levels": skills.owned.duplicate(true),
 			"battle_report": _build_battle_report(),
@@ -9904,7 +9903,7 @@ func _finish(victory: bool) -> void:
 		"repeat_xp_mult": repeat_xp_mult,
 		"standing_power": SaveManager.get_loadout_power(),
 		"projected_power": projected_combat_power,
-		"combat_power": SaveManager.get_combat_power_for_skill_levels(skills.owned),
+		"combat_power": int(round(float(SaveManager.get_combat_power_for_skill_levels(skills.owned)) * SaveManager.get_element_power_factor_for_level(power_level_id))),
 		"recommended_power": recommended_combat_power,
 		"run_skill_levels": skills.owned.duplicate(true),
 		"battle_report": _build_battle_report(),
@@ -10360,8 +10359,8 @@ func _update_objective_panel() -> void:
 	var body: Label = $Hud/ObjectivePanel/Body
 	title.text = "目标 · %s · 弱%s" % [DataLoader.level_display_name(level_id), _element_name(primary_weakness)]
 	body.text = _battle_objective_text()
-	if loadout_power_ratio < UNDERPOWERED_WARNING_RATIO:
-		body.text += "  战力偏低，优先保防线。"
+	if loadout_power_ratio < CLEAR_LINE_WARNING_RATIO:
+		body.text += "  低于本关通关线，可能守不住防线。"
 	elif _current_loadout_hits_weakness():
 		body.text += "  当前配装命中弱点。"
 

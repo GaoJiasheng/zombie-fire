@@ -1499,11 +1499,10 @@ func _verify_medic_pet_repair_runtime(data_loader: Node, save_manager: Node, sna
 	equipment["pet_medic_drone"] = max_level
 	test_save["equipment"] = equipment
 	save_manager.save_data = test_save
-	var max_medic_power := float(save_manager._pet_stat_power("pet_medic_drone"))
-	equipment["pet_medic_drone"] = 1
-	save_manager.save_data["equipment"] = equipment
-	var level_one_medic_power := float(save_manager._pet_stat_power("pet_medic_drone"))
-	_expect(max_medic_power > level_one_medic_power + 2.0, "medical pet combat power must account for repair growth, not only passive stats")
+	# design/28 乘法口径:维修宠物的治疗成长通过生存乘区进战力,直接断言乘区随等级增长。
+	var max_medic_survival := float(save_manager._pet_repair_survival_multiplier(medic, max_level))
+	var level_one_medic_survival := float(save_manager._pet_repair_survival_multiplier(medic, 1))
+	_expect(max_medic_survival > level_one_medic_survival + 0.03, "medical pet survival multiplier must account for repair growth, not only passive stats; L1=%.3f max=%.3f" % [level_one_medic_survival, max_medic_survival])
 	equipment["pet_medic_drone"] = max_level
 	save_manager.save_data["equipment"] = equipment
 
@@ -2245,7 +2244,8 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	skilled_save["sig_skill_levels"] = {"vanguard": 4}
 	save_manager.save_data = skilled_save
 	var skilled_power := int(save_manager.get_loadout_power())
-	_expect(skilled_power >= base_power + 20, "loadout power must visibly account for passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
+	# design/28 乘法口径下低端绝对差被压缩(L1 裸装约 21),改按相对涨幅断言。
+	_expect(float(skilled_power) >= float(base_power) * 1.35, "loadout power must visibly account for passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
 	var projected_power := int(save_manager.get_projected_combat_power_for_level("level_097"))
 	var final_power := int(save_manager.get_combat_power_for_skill_levels({
 		"skill_split_shot": 5,
@@ -2256,87 +2256,98 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	}))
 	_expect(projected_power > skilled_power, "ten-card late levels must expose projected combat growth beyond standing power; standing=%d projected=%d" % [skilled_power, projected_power])
 	_expect(final_power > skilled_power, "actual run skill levels must produce a distinct final combat power; standing=%d final=%d" % [skilled_power, final_power])
-	# design/26: recommended power is now `1.5 x on-pace reference standing power`,
-	# where the reference build's skill projection uses the level's own
-	# target_card_picks (level_068=7, level_097=10). These floors were
-	# recalibrated against the new formula (actual: 381 / 590 at the time of
-	# writing) and just confirm recommend_level/card-budget growth still reaches
-	# late-campaign levels, not any specific bonus mechanic.
+	# design/28: recommended power is the per-level minimum-clear line mapped
+	# through the player's own power pipeline. These floors only confirm the
+	# clear line keeps growing into the late campaign under the new scale
+	# (measured at the time of writing: level_068 ~700+, level_097 ~1900+).
 	var level68_power := int(save_manager.get_recommended_power_for_level("level_068"))
-	_expect(level68_power >= 320, "level_068 recommended power must scale with its recommend_level/card budget, got %d" % level68_power)
+	_expect(level68_power >= 450, "level_068 clear-line power must scale into the late campaign, got %d" % level68_power)
 	var level97_power := int(save_manager.get_recommended_power_for_level("level_097"))
-	_expect(level97_power >= 540, "level_097 recommended power must scale with its higher recommend_level/card budget, got %d" % level97_power)
-	_expect(level97_power > level68_power, "a later, higher-recommend_level/more-card-budget level must recommend more power than an earlier one; level_068=%d level_097=%d" % [level68_power, level97_power])
+	_expect(level97_power >= 1100, "level_097 clear-line power must scale with its ten-card budget, got %d" % level97_power)
+	_expect(level97_power > level68_power, "a later level must have a higher clear line; level_068=%d level_097=%d" % [level68_power, level97_power])
 	_expect(float(save_manager.get_run_skill_hp_pressure_for_level("level_097")) >= 1.45, "level_097 late waves must absorb ten-card DPS growth through authored HP pressure")
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
-# design/26: closes the calibration blind spot found in the Owner's difficulty
-# review — before this, loadout_power_ratio sat below both battle.gd
-# underpowered-assist thresholds for every single campaign level regardless of
-# whether the player was actually on pace, because get_recommended_power_for_level()
-# was an independent linear formula that never tracked the player's own power
-# pipeline (recommended power vs. an exactly-on-pace player's own standing power
-# was 1.21x-2.88x, never below 1.0, across all 99 levels). Sample a spread of
-# levels across the campaign (not all 99, to keep smoke test runtime bounded)
-# and assert: a bare-bones on-pace build (no armor/chip/pet/skill investment,
-# character/weapon level == recommend_level) clears both battle.gd assist gates
-# with margin, while a build 20% behind recommend_level reliably trips them -
-# restoring the "assist only fires for players who are actually behind" contract.
+# design/28 验收电池:推荐战力 = 每关"恰好能通关"线(1★能过口径,数据来自
+# generate_clear_requirements.py 落表),预计成型/推荐 的比值是"相对通关线的余量"。
+# 采样断言(带宽按 2026-08-04 实测标定,探针记录见 design/28):
+# 1. 按节奏构筑族(角色/武器/芯片=recommend_level+专属技同族):比值 ∈ [1.05, 1.85]
+#    ——按节奏玩家在通关线上方留有真实的 2★ 余量,且永不触发"打不过"警告
+# 2. Owner 实测惨胜构筑(角色1级+雷霆四件套1级):level_013 比值 ∈ [1.05, 1.45]
+#    (已知模型边界:静态折算对低等级付费套偏乐观,实战为 1★ 贴线)
+# 3. 元素错配:按节奏物理构筑打 level_055(虚空幻影免疫物理)比值 < 0.95,
+#    警告必须触发——错配不再隐身
+# 4. 远落后构筑(等级=recommend_level 一半)在后期关比值 < 1.0,警告仍然生效
+# 5. 满配付费四件套 ÷ 满配同元素免费:战力比 ∈ [1.45, 1.65](design/25 合同带)
 func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
-	# Read the two assist-gate thresholds off a real battle instance (the same
-	# _instance() pattern every other test in this file already relies on)
-	# instead of preloading battle.gd as a bare script constant - a bare
-	# top-level preload of battle.gd compiles it before this project's
-	# autoloads (e.g. LocalizationManager) are resolvable as global
-	# identifiers in this headless --script entrypoint, which breaks every
-	# other test that instantiates battle.tscn afterward.
 	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
-	var cushion_gate := float(gate_probe.UNDERPOWERED_HP_CUSHION_RATIO)
-	var warning_gate := float(gate_probe.UNDERPOWERED_WARNING_RATIO)
+	var cushion_min := float(gate_probe.CLEAR_LINE_CUSHION_MIN_RATIO)
+	var warning_gate := float(gate_probe.CLEAR_LINE_WARNING_RATIO)
 	gate_probe.queue_free()
-	_expect(warning_gate > cushion_gate, "the warning gate must stay looser than the HP-cushion gate")
+	_expect(warning_gate > cushion_min, "the warning gate must sit above the cushion floor")
+	_expect(absf(warning_gate - 1.0) <= 0.001, "design/28: the warning gate IS the clear line (ratio 1.0)")
 
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
-	var sample_levels := ["level_002", "level_013", "level_025", "level_040", "level_055", "level_070", "level_085", "level_099"]
-	var char_max: int = int(data_loader.get_row("characters", "vanguard").get("max_level", 40))
-	var weapon_max: int = int(data_loader.get_row("weapons", "weapon_autocannon").get("max_level", 50))
+	var sample_levels := ["level_002", "level_013", "level_025", "level_040", "level_050", "level_070", "level_085", "level_099"]
 	for level_id in sample_levels:
 		var level: Dictionary = data_loader.get_row("levels", level_id)
 		var recommend_level: int = int(level.get("recommend_level", 1))
+		_apply_calibration_family(save_manager, original_save, recommend_level)
 		var recommended := int(save_manager.get_recommended_power_for_level(level_id))
-		var on_pace_char := clampi(recommend_level, 1, char_max)
-		var on_pace_weapon := clampi(recommend_level, 1, weapon_max)
-		var on_pace_power := _calibration_projected_power(save_manager, original_save, level_id, on_pace_char, on_pace_weapon)
+		var on_pace_power := int(save_manager.get_projected_combat_power_for_level(level_id))
 		var on_pace_ratio := float(on_pace_power) / maxf(float(recommended), 1.0)
-		_expect(on_pace_ratio >= 0.60 and on_pace_ratio <= 0.70, "%s bare on-pace loadout_power_ratio must stay near the design target (~0.667), got %.3f" % [level_id, on_pace_ratio])
-		_expect(on_pace_ratio >= warning_gate, "%s bare on-pace build must clear the underpowered-warning gate (>=%.2f), got %.3f" % [level_id, warning_gate, on_pace_ratio])
-		# -20% relative can round back to the same integer level as on-pace at
-		# very low recommend_level (e.g. round(2*0.8)=2) - force at least a
-		# 1-level gap so the "behind" case is never accidentally degenerate.
-		var behind_level := mini(maxi(recommend_level - 1, 1), int(round(float(recommend_level) * 0.8)))
-		var behind_char := clampi(behind_level, 1, char_max)
-		var behind_weapon := clampi(behind_level, 1, weapon_max)
-		var behind_power := _calibration_projected_power(save_manager, original_save, level_id, behind_char, behind_weapon)
-		var behind_ratio := float(behind_power) / maxf(float(recommended), 1.0)
-		_expect(behind_ratio < warning_gate, "%s a build at least 1 level behind recommend_level must still trip the underpowered-warning gate (<%.2f), got %.3f" % [level_id, warning_gate, behind_ratio])
+		_expect(on_pace_ratio >= 1.05 and on_pace_ratio <= 1.85, "%s on-pace family margin over the clear line must stay in the measured band [1.05,1.85], got %.3f" % [level_id, on_pace_ratio])
+		_expect(on_pace_ratio >= warning_gate, "%s on-pace family must never trip the below-clear-line warning, got %.3f" % [level_id, on_pace_ratio])
+
+	# Owner 实测惨胜构筑
+	_apply_calibration_build(save_manager, original_save, "vanguard", 1, "weapon_apocalypse_thunder", 1, "armor_apocalypse_conductor", 1, "chip_apocalypse_superconductive", 1, "pet_apocalypse_tempest", 1, 0)
+	var owner_ratio := float(save_manager.get_projected_combat_power_for_level("level_013")) / maxf(float(save_manager.get_recommended_power_for_level("level_013")), 1.0)
+	_expect(owner_ratio >= 1.05 and owner_ratio <= 1.45, "owner 1-star scenario (L1 thunder set at level_013) must read just-above-the-line, got %.3f" % owner_ratio)
+
+	# 元素错配:物理按节奏族打免疫物理的虚空幻影关
+	var rec55: int = int(data_loader.get_row("levels", "level_055").get("recommend_level", 1))
+	_apply_calibration_family(save_manager, original_save, rec55)
+	var mismatch_ratio := float(save_manager.get_projected_combat_power_for_level("level_055")) / maxf(float(save_manager.get_recommended_power_for_level("level_055")), 1.0)
+	_expect(mismatch_ratio < 0.95, "physical on-pace family vs the physical-immune boss level must fall below the clear line, got %.3f" % mismatch_ratio)
+
+	# 远落后构筑在后期关必须触发警告
+	_apply_calibration_family(save_manager, original_save, int(float(data_loader.get_row("levels", "level_085").get("recommend_level", 43)) * 0.5))
+	var behind_ratio := float(save_manager.get_projected_combat_power_for_level("level_085")) / maxf(float(save_manager.get_recommended_power_for_level("level_085")), 1.0)
+	_expect(behind_ratio < warning_gate, "a half-pace build at level_085 must trip the below-clear-line warning, got %.3f" % behind_ratio)
+
+	# 付费合同带:满配雷霆四件套 vs 满配同元素免费(volt)
+	_apply_calibration_build(save_manager, original_save, "volt", 40, "weapon_teslacoil", 50, "armor_reactive", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
+	var free_power := float(save_manager.get_loadout_power())
+	_apply_calibration_build(save_manager, original_save, "volt", 40, "weapon_apocalypse_thunder", 50, "armor_apocalypse_conductor", 35, "chip_apocalypse_superconductive", 35, "pet_apocalypse_tempest", 30, 5)
+	var paid_power := float(save_manager.get_loadout_power())
+	var paid_ratio := paid_power / maxf(free_power, 1.0)
+	_expect(paid_ratio >= 1.45 and paid_ratio <= 1.65, "maxed thunder set over maxed free lightning build must land in the design/25 contract band [1.45,1.65], got %.3f" % paid_ratio)
 	save_manager.save_data = original_save
 
-func _calibration_projected_power(save_manager: Node, original_save: Dictionary, level_id: String, char_level: int, weapon_level: int) -> int:
+func _apply_calibration_family(save_manager: Node, original_save: Dictionary, index: int) -> void:
+	_apply_calibration_build(save_manager, original_save, "vanguard", mini(index, 40), "weapon_autocannon", mini(index, 50), "", 1, "chip_attack", mini(index, 35), "", 1, mini(index / 8, 5))
+
+func _apply_calibration_build(save_manager: Node, original_save: Dictionary, character: String, char_level: int, weapon: String, weapon_level: int, armor: String, armor_level: int, chip: String, chip_level: int, pet: String, pet_level: int, sig_level: int) -> void:
 	var save: Dictionary = original_save.duplicate(true)
 	var equipment: Dictionary = save.get("equipment", {}).duplicate(true)
-	equipment["selected_character"] = "vanguard"
-	equipment["selected_weapon"] = "weapon_autocannon"
-	equipment["selected_armor"] = ""
-	equipment["selected_chip"] = ""
-	equipment["selected_pet"] = ""
-	equipment["vanguard"] = char_level
-	equipment["weapon_autocannon"] = weapon_level
+	equipment["selected_character"] = character
+	equipment["selected_weapon"] = weapon
+	equipment["selected_armor"] = armor
+	equipment["selected_chip"] = chip
+	equipment["selected_pet"] = pet
+	equipment[character] = maxi(char_level, 1)
+	equipment[weapon] = maxi(weapon_level, 1)
+	if armor != "":
+		equipment[armor] = maxi(armor_level, 1)
+	if chip != "":
+		equipment[chip] = maxi(chip_level, 1)
+	if pet != "":
+		equipment[pet] = maxi(pet_level, 1)
 	save["equipment"] = equipment
 	save["skill_base_levels"] = {}
-	save["sig_skill_levels"] = {}
+	save["sig_skill_levels"] = {} if sig_level <= 0 else {character: sig_level}
 	save_manager.save_data = save
-	return int(save_manager.get_projected_combat_power_for_level(level_id))
 
 func _dismiss_card_offer_for_smoke(battle: Node) -> void:
 	if battle.has_method("_close_card_offer"):

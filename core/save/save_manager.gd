@@ -6,9 +6,6 @@ const CURRENT_SAVE_VERSION := 3
 const POWER_REFERENCE_CARD_PICKS := 4
 const POWER_SKILL_THROUGHPUT_CAP := 13.5
 const POWER_SKILL_SCORE_EXPONENT := 0.5
-const POWER_PER_SIG_SKILL_LEVEL := 3.00
-const POWER_SIG_SKILL_BASE := 1.80
-const POWER_SIG_SKILL_LEVEL_SCALE := 0.65
 
 enum PurchaseResult { OK, ALREADY_OWNED, NOT_ENOUGH_STAR, INVALID }
 
@@ -742,10 +739,47 @@ func get_projected_combat_power_for_level(level_id: String) -> int:
 	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var projected_levels := _projected_run_skill_levels(card_picks, weakness)
-	return get_combat_power_for_skill_levels(projected_levels)
+	return int(round(float(get_combat_power_for_skill_levels(projected_levels)) * get_element_power_factor_for_level(level_id)))
 
 func get_combat_power_for_skill_levels(run_skill_levels: Dictionary) -> int:
 	return int(round(_loadout_core_power() * _skill_power_scale(run_skill_levels)))
+
+# design/28 决策③:本关元素乘区——错配构筑的"预计成型"必须现形。
+# 小怪按本关 primary_weakness、Boss 按 bosses.json 弱点/免疫表,伤害倍率全部从
+# economy.json / mechanic_params 动态读取,按敌方 HP 占比(clear_requirement 落表)
+# 加权后以 0.82 攻击权重压缩进战力空间。
+func get_element_power_factor_for_level(level_id: String) -> float:
+	var level := DataLoader.get_row("levels", level_id)
+	var requirement_var: Variant = level.get("clear_requirement", {})
+	var requirement: Dictionary = requirement_var if requirement_var is Dictionary else {}
+	if requirement.is_empty():
+		return 1.0
+	var weapon_id := get_selected("weapon")
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var weakness_mult := maxf(float(economy.get("weakness_mult", 1.5)), 1.0)
+	var ruler_var: Variant = economy.get("power_ruler", {})
+	var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
+	var weight := clampf(float(ruler.get("element_weight", 0.82)), 0.1, 1.0)
+	var mob_factor := weakness_mult if element == str(level.get("primary_weakness", "physical")) else 1.0
+	var boss_factor := 1.0
+	var boss_id := str(requirement.get("boss_id", ""))
+	if boss_id != "" and boss_id != "<null>":
+		var boss := DataLoader.get_row("bosses", boss_id)
+		if not boss.is_empty():
+			var immune: Array = boss.get("immune", [])
+			if immune.has(element):
+				var params_var: Variant = boss.get("mechanic_params", {})
+				var params: Dictionary = params_var if params_var is Dictionary else {}
+				boss_factor = clampf(float(params.get("immune_damage_floor", 0.0)), 0.02, 1.0)
+			elif str(boss.get("weakness", "")) == element:
+				boss_factor = weakness_mult
+	var mob_share := clampf(float(requirement.get("mob_hp_share", 1.0)), 0.0, 1.0)
+	var boss_share := clampf(float(requirement.get("boss_hp_share", 0.0)), 0.0, 1.0)
+	var weighted := mob_share * mob_factor + boss_share * boss_factor
+	return pow(maxf(weighted, 0.02), weight)
 
 func get_power_breakdown_for_level(level_id: String, challenge := false) -> Dictionary:
 	var recommended := get_recommended_power_for_level(level_id)
@@ -757,37 +791,227 @@ func get_power_breakdown_for_level(level_id: String, challenge := false) -> Dict
 		"recommended": recommended,
 	}
 
+# design/28 战力口径 2.0:核心战力改为与 battle.gd 伤害管线同构的乘法结构。
+# 旧公式是"等级 × 固定分"的加法,和真实战斗的乘法关系不同构,Owner 实测(24 战力
+# 配置 1★通过 65 推荐关)判定两条曲线偏离过大。新结构:
+#   战力 = K × (输出倍率^0.82 × 生存倍率^0.28)^γ
+# 0.82/0.28 攻防权重沿用 design/24 Phase 6 已标定值;等级只通过它对真实伤害/生存
+# 的影响进入战力,武器固有强度(含付费爆发机制折算)乘在等级成长上——付费武器每
+# 升一级涨幅自动大于免费武器。
+const POWER_SCALE_K := 11.0
+const POWER_SCALE_GAMMA := 1.0
+
 func _loadout_core_power() -> float:
+	var offense := _loadout_offense_multiplier()
+	var survival := _loadout_survival_multiplier()
+	var combined := pow(offense, 0.82) * pow(survival, 0.28)
+	return maxf(POWER_SCALE_K * pow(combined, POWER_SCALE_GAMMA), 1.0)
+
+# 输出倍率 O:免费裸装 L1(vanguard + autocannon)= 1.0 基准。
+func _loadout_offense_multiplier() -> float:
 	var character_id := get_selected("character")
 	var weapon_id := get_selected("weapon")
 	if character_id == "":
 		character_id = "vanguard"
 	if weapon_id == "":
 		weapon_id = "weapon_autocannon"
-	var armor_id := get_selected("armor")
-	var chip_id := get_selected("chip")
-	var pet_id := get_selected("pet")
-	var power := 0.0
-	var char_level := get_item_level(character_id)
 	var character := DataLoader.get_row("characters", character_id)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
-	var armor := DataLoader.get_row("armors", armor_id)
-	var character_offense := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
-	var weapon_quality := sqrt(maxf(_weapon_effective_dps(weapon) / 4.0, 0.35))
-	power += float(char_level) * 1.15 * character_offense
-	power += float(get_item_level(weapon_id)) * 1.45 * weapon_quality
-	if armor_id != "":
-		power += float(get_item_level(armor_id)) * 0.85 * sqrt(maxf(float(armor.get("hp_mult", 1.0)), 0.5))
+	var char_level := get_item_level(character_id)
+	var weapon_level := get_item_level(weapon_id)
+	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
+	char_atk *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.45 * float(maxi(char_level - 1, 0))
+	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
+	weapon_dps *= 1.0 + 0.08 * float(maxi(weapon_level - 1, 0))
+	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	# 角色-武器元素亲和(bullet_affinity):真实战斗与模拟器都算这 10% 上下的加成,
+	# 战力不算的话跨元素配装(如先锋+雷霆)会被系统性高估。
+	var affinity := _bullet_affinity_multiplier(character, weapon)
+	var gear := _offense_gear_multiplier()
+	var active := _active_skill_offense_multiplier(character, char_level, get_sig_skill_level(character_id))
+	return maxf(char_atk * weapon_dps * affinity * gear * active, 0.05)
+
+func _bullet_affinity_multiplier(character: Dictionary, weapon: Dictionary) -> float:
+	var affinity_var: Variant = character.get("bullet_affinity", {})
+	var affinity: Dictionary = affinity_var if affinity_var is Dictionary else {}
+	if affinity.is_empty():
+		return 1.0
+	if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
+		return 1.0
+	return 1.0 + maxf(float(affinity.get("damage_bonus", 0.0)), 0.0)
+
+# 芯片/宠物的进攻类实值加成(damage/fire_rate/element/crit/pierce/chain),
+# 全部按 value + level_value_growth 实际读数折算,不再用档位常量。
+func _offense_gear_multiplier() -> float:
+	var mult := 1.0
+	var chip_id := get_selected("chip")
 	if chip_id != "":
-		power += float(get_item_level(chip_id)) * 0.75 * _chip_power_quality(chip_id)
+		var chip := DataLoader.get_row("chips", chip_id)
+		var chip_offset := float(maxi(get_item_level(chip_id) - 1, 0))
+		var value := float(chip.get("value", 0.0)) + float(chip.get("level_value_growth", 0.0)) * chip_offset
+		mult *= _offense_stat_factor(str(chip.get("stat", "")), value)
+		# 终焉军械芯片把机制加成放在 secondary_stats 字典里(f0463f63 同类坑:
+		# 专属字段不折算 = 付费芯片被系统性低估),按同一 stat 口径逐项折入。
+		var secondary_var: Variant = chip.get("secondary_stats", {})
+		var secondary: Dictionary = secondary_var if secondary_var is Dictionary else {}
+		var secondary_growth_var: Variant = chip.get("secondary_level_growth", {})
+		var secondary_growth: Dictionary = secondary_growth_var if secondary_growth_var is Dictionary else {}
+		for stat in secondary.keys():
+			var sec_value := float(secondary.get(stat, 0.0)) + float(secondary_growth.get(stat, 0.0)) * chip_offset
+			mult *= _offense_stat_factor(str(stat), sec_value)
+	var pet_id := get_selected("pet")
 	if pet_id != "":
-		power += float(get_item_level(pet_id)) * 0.55
-		power += _pet_stat_power(pet_id)
-	if character_id != "":
-		var sig_count := int(DataLoader.get_row("characters", character_id).get("signature_skills", []).size())
-		power += float(sig_count) * (POWER_SIG_SKILL_BASE + POWER_SIG_SKILL_LEVEL_SCALE * float(char_level))
-		power += float(get_sig_skill_level(character_id)) * POWER_PER_SIG_SKILL_LEVEL
-	return maxf(power, 1.0)
+		var pet := DataLoader.get_row("pets", pet_id)
+		var pet_level := get_item_level(pet_id)
+		var base_map: Dictionary = pet.get("stat_bonus", {})
+		var growth_map: Dictionary = pet.get("level_stat_growth", {})
+		for stat in base_map.keys():
+			var value := float(base_map.get(stat, 0.0)) + float(growth_map.get(stat, 0.0)) * float(maxi(pet_level - 1, 0))
+			mult *= _offense_stat_factor(str(stat), value)
+		# 输出型宠物自身炮台的直伤贡献:除以玩家当前主炮输出而非固定基准——
+		# 终局审计实测宠物直伤占比可忽略(212630 里只占 9),固定基准会在满级时
+		# 虚增、在低级时相对正确,除以主炮输出才是真实占比。按 damage 字段而非
+		# role 白名单判定——终焉宠物的 role 是 apocalypse_* 专属值,按 role 判会漏。
+		var pet_damage := float(pet.get("damage", 0.0))
+		if pet_damage > 0.0:
+			var pet_dps := pet_damage * (1.0 + float(pet.get("level_damage_growth", 0.0)) * float(maxi(pet_level - 1, 0))) * float(pet.get("fire_rate", 1.0))
+			mult *= 1.0 + pet_dps / maxf(40.0 * _main_output_multiplier(), 1.0)
+		mult *= _pet_skill_offense_multiplier(pet, pet_level)
+	return mult
+
+# 玩家当前"角色×武器"主炮输出倍率(相对 L1 裸装基准),供宠物直伤占比折算。
+func _main_output_multiplier() -> float:
+	var character_id := get_selected("character")
+	var weapon_id := get_selected("weapon")
+	if character_id == "":
+		character_id = "vanguard"
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var character := DataLoader.get_row("characters", character_id)
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
+	char_atk *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.45 * float(maxi(get_item_level(character_id) - 1, 0))
+	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
+	var weapon_level := get_item_level(weapon_id)
+	weapon_dps *= 1.0 + 0.08 * float(maxi(weapon_level - 1, 0))
+	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	return maxf(char_atk * weapon_dps, 0.05)
+
+# 宠物技能的进攻侧期望折算(uptime/冷却期望,同旧公式的分类口径,但输出乘数而非加分)。
+func _pet_skill_offense_multiplier(pet: Dictionary, pet_level: int) -> float:
+	var skill: Dictionary = pet.get("pet_skill", {})
+	var offset := float(maxi(pet_level - 1, 0))
+	match str(skill.get("kind", "")):
+		"overclock":
+			var duration := float(skill.get("duration", 0.0)) + float(skill.get("level_duration_growth", 0.0)) * offset
+			var cooldown := maxf(1.0, float(skill.get("cooldown", 12.0)))
+			var fire_rate := float(skill.get("fire_rate_mult", 1.0)) + float(skill.get("level_fire_rate_growth", 0.0)) * offset
+			var damage := float(skill.get("damage_mult", 1.0)) + float(skill.get("level_damage_mult_growth", 0.0)) * offset
+			return 1.0 + maxf(fire_rate * damage - 1.0, 0.0) * clampf(duration / cooldown, 0.0, 1.0)
+		"golden_mark":
+			var duration := float(skill.get("mark_duration", 0.0)) + float(skill.get("level_mark_duration_growth", 0.0)) * offset
+			var cooldown := maxf(1.0, float(skill.get("cooldown", 12.0)))
+			var amp := float(skill.get("mark_damage_amp", 0.0)) + float(skill.get("level_mark_amp_growth", 0.0)) * offset
+			return 1.0 + maxf(amp, 0.0) * clampf(duration / cooldown, 0.0, 1.0)
+		"area_blast", "multi_strike":
+			var cooldown := maxf(1.0, float(skill.get("cooldown", 12.0)))
+			var damage := float(skill.get("damage_mult", 1.0)) + float(skill.get("level_damage_mult_growth", 0.0)) * offset
+			# 独立于主炮的周期直伤,按"相当于主炮多少秒输出/冷却"折小头
+			return 1.0 + clampf(damage / cooldown, 0.0, 0.5) * 0.5
+		_:
+			return 1.0
+
+func _offense_stat_factor(stat: String, value: float) -> float:
+	match stat:
+		"damage_mult", "fire_rate_mult", "element_damage_mult":
+			return 1.0 + maxf(value, 0.0)
+		"crit_rate":
+			# 基线暴击 8%/85% 加成,与 _combat_skill_effect_multiplier 同一折算
+			return 1.0 + maxf(value, 0.0) * 0.85
+		"pierce_bonus":
+			return 1.0 + maxf(value, 0.0) * 0.065
+		"chain_bonus":
+			return 1.0 + maxf(value, 0.0) * 0.09
+		"chain_retention":
+			# 连锁衰减降低 → 每跳保留更多伤害,按连锁覆盖同档折算
+			return 1.0 + maxf(value, 0.0) * 0.2
+		"overload_efficiency":
+			# 过载充能更快 → 过载爆发期望上移,保守折半计入
+			return 1.0 + maxf(value, 0.0) * 0.3
+		_:
+			return 1.0
+
+# 个人主动技乘区:uptime × (爆发倍率 − 1) 的期望折算,全部从 active_skill 实值
+# 读取。含专属技等级成长(sig_level_*)与角色等级 0.52 主动轨(对齐 battle.gd:1883)。
+func _active_skill_offense_multiplier(character: Dictionary, char_level: int, sig_level: int) -> float:
+	var active: Dictionary = character.get("active_skill", {})
+	if active.is_empty():
+		return 1.0
+	var cooldown := maxf(float(active.get("cooldown", 18.0)) * (1.0 - clampf(float(active.get("sig_level_cooldown_reduction", 0.0)) * float(sig_level), 0.0, 0.35)), 1.0)
+	var duration := float(active.get("duration", 6.0)) + float(active.get("sig_level_duration_bonus", 0.0)) * float(sig_level)
+	var uptime := clampf(duration / cooldown, 0.0, 1.0)
+	var damage_mult := float(active.get("damage_mult", 1.0)) + float(active.get("sig_level_damage_bonus", 0.0)) * float(sig_level)
+	damage_mult *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.52 * float(maxi(char_level - 1, 0))
+	var burst := damage_mult * float(active.get("barrage_fire_rate_mult", 1.0))
+	return 1.0 + uptime * maxf(burst - 1.0, 0.0)
+
+# 生存倍率 S:无护甲/芯片/宠物 = 1.0 基准。护盾/反击按期望折算。
+func _loadout_survival_multiplier() -> float:
+	var mult := 1.0
+	var armor_id := get_selected("armor")
+	if armor_id != "":
+		var armor := DataLoader.get_row("armors", armor_id)
+		var armor_level := get_item_level(armor_id)
+		mult *= maxf(float(armor.get("hp_mult", 1.0)), 0.5)
+		mult *= 1.0 + float(armor.get("level_hp_growth", 0.0)) * float(maxi(armor_level - 1, 0))
+		mult *= 1.0 + 0.10 * float(armor.get("breach_shield", 0))
+		if float(armor.get("counter_damage_mult", 0.0)) > 0.0:
+			mult *= 1.10
+	var chip_id := get_selected("chip")
+	if chip_id != "":
+		var chip := DataLoader.get_row("chips", chip_id)
+		var value := float(chip.get("value", 0.0)) + float(chip.get("level_value_growth", 0.0)) * float(maxi(get_item_level(chip_id) - 1, 0))
+		mult *= _survival_stat_factor(str(chip.get("stat", "")), value)
+	var pet_id := get_selected("pet")
+	if pet_id != "":
+		var pet := DataLoader.get_row("pets", pet_id)
+		var pet_level := get_item_level(pet_id)
+		var base_map: Dictionary = pet.get("stat_bonus", {})
+		var growth_map: Dictionary = pet.get("level_stat_growth", {})
+		for stat in base_map.keys():
+			var value := float(base_map.get(stat, 0.0)) + float(growth_map.get(stat, 0.0)) * float(maxi(pet_level - 1, 0))
+			mult *= _survival_stat_factor(str(stat), value)
+		mult *= _pet_repair_survival_multiplier(pet, pet_level)
+	return maxf(mult, 0.5)
+
+# 维修型宠物:治疗量按"等效额外基地HP占比"折算(旧公式同一分类口径,输出乘数)。
+func _pet_repair_survival_multiplier(pet: Dictionary, pet_level: int) -> float:
+	var offset := float(maxi(pet_level - 1, 0))
+	var mult := 1.0
+	if str(pet.get("role", "")) == "repair":
+		var wave_ratio := float(pet.get("heal_per_wave_ratio", 0.0)) + float(pet.get("level_wave_heal_ratio_growth", 0.0)) * offset
+		var repair_ratio := float(pet.get("repair_ratio", 0.0)) + float(pet.get("level_repair_ratio_growth", 0.0)) * offset
+		var emergency := float(pet.get("emergency_heal_ratio", 0.0)) + float(pet.get("level_emergency_heal_growth", 0.0)) * offset
+		var interval := maxf(1.0, float(pet.get("repair_interval", 18.0)))
+		# 一关约5波/2-3分钟:波次治疗×4 + 周期维修每分钟量 + 应急一次
+		mult *= 1.0 + clampf(wave_ratio * 4.0 + repair_ratio * (60.0 / interval) + emergency, 0.0, 1.5)
+	var skill: Dictionary = pet.get("pet_skill", {})
+	if str(skill.get("kind", "")) == "golden_mark":
+		var repair := float(skill.get("repair_ratio", 0.0)) + float(skill.get("level_repair_growth", 0.0)) * offset
+		var cooldown := maxf(1.0, float(skill.get("cooldown", 12.0)))
+		mult *= 1.0 + clampf(repair * (60.0 / cooldown), 0.0, 0.75)
+	return mult
+
+func _survival_stat_factor(stat: String, value: float) -> float:
+	match stat:
+		"base_hp_mult":
+			return 1.0 + maxf(value, 0.0)
+		"breach_damage_reduction":
+			return 1.0 / maxf(1.0 - clampf(value, 0.0, 0.65), 0.35)
+		"slow_strength_mult":
+			return 1.0 + maxf(value, 0.0) * 0.20
+		_:
+			return 1.0
 
 func _projected_run_skill_levels(card_picks: int, weakness: String) -> Dictionary:
 	var projected: Dictionary = {}
@@ -1013,135 +1237,41 @@ func _weapon_effective_dps(weapon: Dictionary) -> float:
 	effective *= 1.0 + 0.30 * float(special.get("slow", 0.0))
 	return effective
 
-func _chip_power_quality(chip_id: String) -> float:
-	var chip := DataLoader.get_row("chips", chip_id)
-	match str(chip.get("stat", "")):
-		"damage_mult", "fire_rate_mult", "element_damage_mult":
-			return 1.12
-		"crit_rate", "pierce_bonus":
-			return 1.08
-		"base_hp_mult", "breach_damage_reduction":
-			return 1.04
-		_:
-			return 1.0
-
-func _pet_stat_power(pet_id: String) -> float:
-	if pet_id == "":
-		return 0.0
-	var row := DataLoader.get_row("pets", pet_id)
-	if row.is_empty():
-		return 0.0
-	var level := get_item_level(pet_id)
-	var base_map: Dictionary = row.get("stat_bonus", {})
-	var growth_map: Dictionary = row.get("level_stat_growth", {})
-	var score := 0.0
-	for stat in base_map.keys():
-		var value := float(base_map.get(stat, 0.0)) + float(growth_map.get(stat, 0.0)) * float(max(level - 1, 0))
-		match str(stat):
-			"damage_mult", "fire_rate_mult", "element_damage_mult", "base_hp_mult":
-				score += value * 16.0
-			"crit_rate", "breach_damage_reduction", "slow_strength_mult", "gold_mult":
-				score += value * 10.0
-			"chain_bonus", "pierce_bonus":
-				score += value * 1.4
-			_:
-				score += value * 4.0
-	if str(row.get("role", "")) == "repair":
-		var level_offset := float(max(level - 1, 0))
-		var wave_ratio := float(row.get("heal_per_wave_ratio", 0.0)) + float(row.get("level_wave_heal_ratio_growth", 0.0)) * level_offset
-		var repair_ratio := float(row.get("repair_ratio", 0.0)) + float(row.get("level_repair_ratio_growth", 0.0)) * level_offset
-		var emergency_ratio := float(row.get("emergency_heal_ratio", 0.0)) + float(row.get("level_emergency_heal_growth", 0.0)) * level_offset
-		var repair_interval := maxf(1.0, float(row.get("repair_interval", 18.0)))
-		score += wave_ratio * 18.0
-		score += repair_ratio * (60.0 / repair_interval) * 12.0
-		score += emergency_ratio * 8.0
-	var pet_skill: Dictionary = row.get("pet_skill", {})
-	var skill_level_offset := float(max(level - 1, 0))
-	match str(pet_skill.get("kind", "")):
-		"overclock":
-			var duration := float(pet_skill.get("duration", 0.0)) + float(pet_skill.get("level_duration_growth", 0.0)) * skill_level_offset
-			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
-			var fire_rate := float(pet_skill.get("fire_rate_mult", 1.0)) + float(pet_skill.get("level_fire_rate_growth", 0.0)) * skill_level_offset
-			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
-			score += maxf(fire_rate * damage - 1.0, 0.0) * clampf(duration / cooldown, 0.0, 1.0) * 4.0
-		"area_blast":
-			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
-			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
-			var radius := float(pet_skill.get("radius", 0.0)) + float(pet_skill.get("level_radius_growth", 0.0)) * skill_level_offset
-			score += damage * clampf(radius / 180.0, 0.5, 3.0) / cooldown * 8.0
-		"multi_strike":
-			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
-			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
-			var extra_every := maxi(1, int(pet_skill.get("extra_target_every", 10)))
-			var target_count := int(pet_skill.get("target_count", 1)) + int(max(level - 1, 0) / extra_every)
-			var falloff := clampf(float(pet_skill.get("target_falloff", 0.9)), 0.55, 1.0)
-			var effective_targets := (1.0 - pow(falloff, float(target_count))) / maxf(1.0 - falloff, 0.001)
-			score += damage * effective_targets / cooldown * 3.0
-		"golden_mark":
-			var cooldown := maxf(1.0, float(pet_skill.get("cooldown", 12.0)))
-			var damage := float(pet_skill.get("damage_mult", 1.0)) + float(pet_skill.get("level_damage_mult_growth", 0.0)) * skill_level_offset
-			var duration := float(pet_skill.get("mark_duration", 0.0)) + float(pet_skill.get("level_mark_duration_growth", 0.0)) * skill_level_offset
-			var damage_amp := float(pet_skill.get("mark_damage_amp", 0.0)) + float(pet_skill.get("level_mark_amp_growth", 0.0)) * skill_level_offset
-			var repair_ratio := float(pet_skill.get("repair_ratio", 0.0)) + float(pet_skill.get("level_repair_growth", 0.0)) * skill_level_offset
-			score += damage / cooldown * 3.0
-			score += damage_amp * clampf(duration / cooldown, 0.0, 1.0) * 14.0
-			score += repair_ratio * (60.0 / cooldown) * 8.0
-		"wave_salvage":
-			var equivalent := float(pet_skill.get("kill_equivalent", 0.0)) + float(pet_skill.get("level_salvage_growth", 0.0)) * skill_level_offset
-			score += equivalent * 0.25
-	return score
-
-# 推荐战力和玩家战力使用同一套“基准核心 + 局内技能成型”量纲（design/24 Phase 7 统一口径命名：基准 / 预计成型 / 终局）。
-# design/26：推荐战力过去是独立线性公式（recommend_level × 系数 + Boss/晚波固定加成），和
-# 玩家自己的“基准”战力不共享计算管线，实测 99 关系统性偏高（对完全按节奏培养的玩家仍高
-# 21%~188%，从未低于 1.0），且这个比值被 battle.gd 的救济机制（0.82/0.86 阈值）读取，
-# 导致早中期救济对任何正常节奏玩家常年生效。现在改为对一个“角色=武器=
-# min(recommend_level, 等级上限)、零永久技能投入”的虚拟在线节奏存档，跑玩家自己那条
-# _loadout_core_power()/_skill_power_scale() 管线得到参考基准战力，再乘目标倍率——Owner
-# 标准：个人基准战力需再涨约 50% 才“将将过关”，技能临场加成可在此之上再叠加。
-# 旧公式的 Boss/晚波固定加成、card_budget 系数都不再叠加：Boss 关在 levels.json 里的
-# recommend_level 本就比同章非 Boss 关高一档（实测确认，如 level_044 rec=22 →
-# level_045(Boss) rec=23），差异已经通过参考基准的等级差自然体现；旧的晚波加成项是给
-# “recommend_level×固定系数”这个粗糙线性基线打的补丁，换成同源管线后継续叠加会把早期
-# 关卡的加成占比拉到主导地位（实测 level_001 曾占推荐值的 65%+），反而背离目标倍率。
-# 晚波/Boss 的真实敌方 HP 压力仍然由 battle.gd 自己的 _late_wave_hp_bonus() 等函数按
-# economy.json 同一批曲线独立计算，不受此处改动影响。
-const RECOMMENDED_POWER_TARGET_MULT := 1.5
+# design/28 战力口径 2.0:推荐战力 = 本关"恰好能通关"所需战力(1★能过线)。
+# required_t(min_output)由 tools/generate_clear_requirements.py 基于难度模型离线解出、
+# 落表在 levels.json 的 clear_requirement 字段(check_clear_requirements.py 在 RC 中防
+# 不同步);这里只做查表 + 与玩家同一把尺的映射:
+#   推荐战力 = K × ((required_t × O_L1裸装)^0.82 × S_ref^0.28)^γ × 标准选卡缩放
+# S_ref = economy.power_ruler.survival_reference(与模型求解假设的典型护甲一致)。
+# 由此"预计成型 ≥ 推荐"⇔"模型判你能通关"成为真命题——余量大小由星级去表达。
 func get_recommended_power_for_level(level_id: String) -> int:
-	var reference := _reference_on_pace_standing_power(level_id)
-	return int(round(float(reference) * RECOMMENDED_POWER_TARGET_MULT))
-
-# 合成一个“完全按 recommend_level 节奏培养、零永久技能投入”的虚拟存档，借用玩家自己的战力
-# 管线算出参考基准战力。角色/武器锁定 vanguard/weapon_autocannon，不含护甲/芯片/宠物——
-# 这些解锁时间点不固定，不适合作为跨全战役的统一节奏假设。计算完立即还原真实存档，
-# 绝不能让这个引用泄漏进玩家自己的存档状态。
-func _reference_on_pace_standing_power(level_id: String) -> int:
 	var level := DataLoader.get_row("levels", level_id)
-	var recommend_level: int = int(level.get("recommend_level", 1))
-	var char_max: int = int(DataLoader.get_row("characters", "vanguard").get("max_level", 40))
-	var weapon_max: int = int(DataLoader.get_row("weapons", "weapon_autocannon").get("max_level", 50))
-	var char_level: int = clampi(recommend_level, 1, char_max)
-	var weapon_level: int = clampi(recommend_level, 1, weapon_max)
+	var requirement_var: Variant = level.get("clear_requirement", {})
+	var requirement: Dictionary = requirement_var if requirement_var is Dictionary else {}
+	var required_t := maxf(float(requirement.get("min_output", 1.0)), 0.05)
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var ruler_var: Variant = economy.get("power_ruler", {})
+	var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
+	var survival_ref := maxf(float(ruler.get("survival_reference", 1.2)), 0.5)
+	var o_ref := required_t * _offense_baseline_l1()
+	var combined := pow(o_ref, 0.82) * pow(survival_ref, 0.28)
 	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
 	var weakness := str(level.get("primary_weakness", "physical"))
-	var original_save: Dictionary = save_data
-	var reference_save: Dictionary = original_save.duplicate(true)
-	var equipment: Dictionary = reference_save.get("equipment", {}).duplicate(true)
-	equipment["selected_character"] = "vanguard"
-	equipment["selected_weapon"] = "weapon_autocannon"
-	equipment["selected_armor"] = ""
-	equipment["selected_chip"] = ""
-	equipment["selected_pet"] = ""
-	equipment["vanguard"] = char_level
-	equipment["weapon_autocannon"] = weapon_level
-	reference_save["equipment"] = equipment
-	reference_save["skill_base_levels"] = {}
-	reference_save["sig_skill_levels"] = {}
-	save_data = reference_save
-	var projected_levels := _projected_run_skill_levels(card_picks, weakness)
-	var power := int(round(_loadout_core_power() * _skill_power_scale(projected_levels)))
-	save_data = original_save
-	return power
+	# 选卡缩放用与玩家"预计成型"完全相同的投影管线——两边同一估计器,比值里
+	# 选卡项互相抵消,"预计成型 ≥ 推荐 ⇔ 能过"的谓词才不被两套卡牌估计的
+	# 偏差(实测 ±15%)污染。
+	var card_scale := _skill_power_scale(_projected_run_skill_levels(card_picks, weakness))
+	return maxi(int(round(POWER_SCALE_K * pow(combined, POWER_SCALE_GAMMA) * card_scale)), 1)
+
+# 免费裸装 L1(vanguard + autocannon,零专属技)的输出倍率——required_t 的归一基准,
+# 全部从数据实值算出,与 tools/power_ruler_model.py 的 offense_baseline_l1 镜像一致。
+func _offense_baseline_l1() -> float:
+	var character := DataLoader.get_row("characters", "vanguard")
+	var weapon := DataLoader.get_row("weapons", "weapon_autocannon")
+	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
+	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
+	var affinity := _bullet_affinity_multiplier(character, weapon)
+	return maxf(char_atk * weapon_dps * affinity * _active_skill_offense_multiplier(character, 1, 0), 0.05)
 
 func get_card_budget_power_factor_for_level(level_id: String) -> float:
 	var level := DataLoader.get_row("levels", level_id)
