@@ -800,6 +800,15 @@ func get_power_breakdown_for_level(level_id: String, challenge := false) -> Dict
 # 升一级涨幅自动大于免费武器。
 const POWER_SCALE_K := 11.0
 const POWER_SCALE_GAMMA := 1.0
+# design/29 Phase A:角色弹种亲和的战力折算。pierce/chain/status/slow 复用技能
+# 侧已经标定的同名系数；像素半径与碎冰循环没有可直接复用的无量纲口径，使用
+# audit_character_endgame_dps.best_result() 四角色终局 fixture 拟合（附录 B）。
+const POWER_AFFINITY_PIERCE_COVERAGE := 0.065
+const POWER_AFFINITY_CHAIN_COVERAGE := 0.09
+const POWER_AFFINITY_STATUS_THROUGHPUT := 0.28
+const POWER_AFFINITY_SLOW_SURVIVAL := 0.40
+const POWER_AFFINITY_SPLASH_RADIUS := 0.0001
+const POWER_AFFINITY_SHATTER_CYCLE := 6.0
 
 func _loadout_core_power() -> float:
 	var offense := _loadout_offense_multiplier()
@@ -826,12 +835,52 @@ func _loadout_offense_multiplier() -> float:
 	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
 	# 角色-武器元素亲和(bullet_affinity):真实战斗与模拟器都算这 10% 上下的加成,
 	# 战力不算的话跨元素配装(如先锋+雷霆)会被系统性高估。
-	var affinity := _bullet_affinity_multiplier(character, weapon)
+	var affinity := _bullet_affinity_multiplier(character, weapon, char_level)
 	var gear := _offense_gear_multiplier()
 	var active := _active_skill_offense_multiplier(character, char_level, get_sig_skill_level(character_id))
 	return maxf(char_atk * weapon_dps * affinity * gear * active, 0.05)
 
-func _bullet_affinity_multiplier(character: Dictionary, weapon: Dictionary) -> float:
+func _bullet_affinity_multiplier(character: Dictionary, weapon: Dictionary, char_level: int) -> float:
+	var affinity_var: Variant = character.get("bullet_affinity", {})
+	var affinity: Dictionary = affinity_var if affinity_var is Dictionary else {}
+	if affinity.is_empty():
+		return 1.0
+	if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
+		return 1.0
+	var rank := _power_growth_rank(char_level)
+	var direct := 1.0 + maxf(
+		float(affinity.get("damage_bonus", 0.0))
+			+ float(affinity.get("rank_damage_bonus", 0.0)) * float(rank),
+		0.0,
+	)
+	var pierce := int(affinity.get("pierce_bonus", 0))
+	var chain := int(affinity.get("chain_bonus", 0))
+	if rank >= 2:
+		pierce += int(affinity.get("rank_pierce_bonus", 0))
+		chain += int(affinity.get("rank_chain_bonus", 0))
+	var chain_retention := clampf(float(affinity.get("chain_target_falloff", 1.0)), 0.72, 1.0)
+	var coverage := 1.0
+	coverage += float(maxi(pierce, 0)) * POWER_AFFINITY_PIERCE_COVERAGE
+	coverage += float(maxi(chain, 0)) * POWER_AFFINITY_CHAIN_COVERAGE * chain_retention
+	var status := 1.0 + maxf(float(affinity.get("status_bonus", 0.0)), 0.0) * POWER_AFFINITY_STATUS_THROUGHPUT
+	var splash_radius := maxf(
+		float(affinity.get("splash_bonus", 0.0))
+			+ float(affinity.get("rank_splash_bonus", 0.0)) * float(rank),
+		0.0,
+	)
+	var splash := 1.0 + splash_radius * POWER_AFFINITY_SPLASH_RADIUS
+	# battle.gd 的冰霜碎冰在每次受控命中循环触发；0.04×成长档是运行时同式。
+	var shatter_strength := 0.0
+	if affinity.has("shatter_bonus"):
+		shatter_strength = maxf(float(affinity.get("shatter_bonus", 0.0)) + 0.04 * float(rank), 0.0)
+	var shatter := 1.0 + shatter_strength * POWER_AFFINITY_SHATTER_CYCLE
+	# 连锁溢出依赖局内连锁卡。静态战力用数据内 reference 窗口 + 角色自带连锁数
+	# 估算进入溢出区的期望次数，避免把任意固定链数硬编码进角色公式。
+	var overflow_window := maxi(int(affinity.get("chain_overflow_reference", 0)) + maxi(chain, 0), 0)
+	var overflow := 1.0 + maxf(float(affinity.get("chain_overflow_damage_bonus", 0.0)), 0.0) * float(overflow_window)
+	return maxf(direct * coverage * status * splash * shatter * overflow, 1.0)
+
+func _legacy_bullet_affinity_multiplier(character: Dictionary, weapon: Dictionary) -> float:
 	var affinity_var: Variant = character.get("bullet_affinity", {})
 	var affinity: Dictionary = affinity_var if affinity_var is Dictionary else {}
 	if affinity.is_empty():
@@ -839,6 +888,30 @@ func _bullet_affinity_multiplier(character: Dictionary, weapon: Dictionary) -> f
 	if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
 		return 1.0
 	return 1.0 + maxf(float(affinity.get("damage_bonus", 0.0)), 0.0)
+
+func _bullet_affinity_survival_multiplier(character: Dictionary, weapon: Dictionary, char_level: int) -> float:
+	var affinity_var: Variant = character.get("bullet_affinity", {})
+	var affinity: Dictionary = affinity_var if affinity_var is Dictionary else {}
+	if affinity.is_empty():
+		return 1.0
+	if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
+		return 1.0
+	var rank := _power_growth_rank(char_level)
+	var slow := maxf(
+		float(affinity.get("slow_bonus", 0.0))
+			+ float(affinity.get("rank_slow_bonus", 0.0)) * float(rank),
+		0.0,
+	)
+	return 1.0 + slow * POWER_AFFINITY_SLOW_SURVIVAL
+
+func _power_growth_rank(level: int) -> int:
+	if level >= 25:
+		return 3
+	if level >= 15:
+		return 2
+	if level >= 8:
+		return 1
+	return 0
 
 # 芯片/宠物的进攻类实值加成(damage/fire_rate/element/crit/pierce/chain),
 # 全部按 value + level_value_growth 实际读数折算,不再用档位常量。
@@ -957,7 +1030,19 @@ func _active_skill_offense_multiplier(character: Dictionary, char_level: int, si
 
 # 生存倍率 S:无护甲/芯片/宠物 = 1.0 基准。护盾/反击按期望折算。
 func _loadout_survival_multiplier() -> float:
-	var mult := 1.0
+	var character_id := get_selected("character")
+	var weapon_id := get_selected("weapon")
+	if character_id == "":
+		character_id = "vanguard"
+	if weapon_id == "":
+		weapon_id = "weapon_autocannon"
+	var character := DataLoader.get_row("characters", character_id)
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var char_level := get_item_level(character_id)
+	# 与 battle.gd _apply_base_survivability 同式：角色 HP 成长也使用 0.45 阻尼。
+	var mult := maxf(float(character.get("base_hp", 100.0)) / 100.0, 0.5)
+	mult *= 1.0 + float(character.get("hp_growth", 0.06)) * 0.45 * float(maxi(char_level - 1, 0))
+	mult *= _bullet_affinity_survival_multiplier(character, weapon, char_level)
 	var armor_id := get_selected("armor")
 	if armor_id != "":
 		var armor := DataLoader.get_row("armors", armor_id)
@@ -1253,7 +1338,29 @@ func get_recommended_power_for_level(level_id: String) -> int:
 	var ruler_var: Variant = economy.get("power_ruler", {})
 	var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
 	var survival_ref := maxf(float(ruler.get("survival_reference", 1.2)), 0.5)
-	var o_ref := required_t * _offense_baseline_l1()
+	var selected_character_id := get_selected("character")
+	if selected_character_id == "":
+		selected_character_id = "vanguard"
+	# 低于节奏时仍以 recommend_level 为下限，不能靠低等级参考线掩盖落后；已经
+	# 超前时则用当前角色等级，保证同一 fixture 中新增身份成长两侧精确抵消。
+	var reference_level := clampi(
+		maxi(int(level.get("recommend_level", 1)), get_item_level(selected_character_id)),
+		1,
+		40,
+	)
+	var reference_character := DataLoader.get_row("characters", "vanguard")
+	var reference_weapon := DataLoader.get_row("weapons", "weapon_autocannon")
+	# design/29 同源抵消：新增角色身份项在玩家侧与按节奏参考侧使用同一估计器。
+	# required_t 仍是独立难度模拟器的旧归一语义；这里只把 vanguard + autocannon
+	# @ max(recommend_level,当前角色等级) 相对 L1 已有 damage_bonus 的新增亲和/HP
+	# 乘子接到推荐侧；按节奏构筑时它就等于该关 recommend_level。
+	var reference_affinity_delta := _bullet_affinity_multiplier(reference_character, reference_weapon, reference_level)
+	reference_affinity_delta /= maxf(_legacy_bullet_affinity_multiplier(reference_character, reference_weapon), 0.01)
+	var reference_character_survival := maxf(float(reference_character.get("base_hp", 100.0)) / 100.0, 0.5)
+	reference_character_survival *= 1.0 + float(reference_character.get("hp_growth", 0.06)) * 0.45 * float(maxi(reference_level - 1, 0))
+	reference_character_survival *= _bullet_affinity_survival_multiplier(reference_character, reference_weapon, reference_level)
+	survival_ref *= reference_character_survival
+	var o_ref := required_t * _offense_baseline_l1() * reference_affinity_delta
 	var combined := pow(o_ref, 0.82) * pow(survival_ref, 0.28)
 	var card_picks := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
 	var weakness := str(level.get("primary_weakness", "physical"))
@@ -1270,7 +1377,7 @@ func _offense_baseline_l1() -> float:
 	var weapon := DataLoader.get_row("weapons", "weapon_autocannon")
 	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
 	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
-	var affinity := _bullet_affinity_multiplier(character, weapon)
+	var affinity := _bullet_affinity_multiplier(character, weapon, 1)
 	return maxf(char_atk * weapon_dps * affinity * _active_skill_offense_multiplier(character, 1, 0), 0.05)
 
 func get_card_budget_power_factor_for_level(level_id: String) -> float:

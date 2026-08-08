@@ -125,6 +125,7 @@ func _initialize() -> void:
 	await _verify_battle_speed_stress(save_manager)
 	_verify_power_skill_level_accounting(save_manager)
 	_verify_recommended_power_calibration(save_manager, data_loader)
+	_verify_character_power_identity_model(save_manager, data_loader)
 	_verify_manual_aim_input(input_manager)
 	_verify_targeting_frontline_priority()
 	await _verify_turret_fire_gate(data_loader)
@@ -2382,6 +2383,80 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	var paid_ratio := paid_power / maxf(free_power, 1.0)
 	_expect(paid_ratio >= 1.45 and paid_ratio <= 1.65, "maxed thunder set over maxed free lightning build must land in the design/25 contract band [1.45,1.65], got %.3f" % paid_ratio)
 	save_manager.save_data = original_save
+
+# design/29 Phase A regression battery. These checks deliberately use the authored
+# affinity fields instead of a second fixture table: changing character data remains
+# legal, while silently dropping rank/status/splash/shatter/chain/slow from the power
+# ruler turns the release gate red immediately.
+func _verify_character_power_identity_model(save_manager: Node, data_loader: Node) -> void:
+	var vanguard: Dictionary = data_loader.get_row("characters", "vanguard")
+	var blaze: Dictionary = data_loader.get_row("characters", "blaze")
+	var frost: Dictionary = data_loader.get_row("characters", "frost")
+	var volt: Dictionary = data_loader.get_row("characters", "volt")
+	var autocannon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
+	var flamethrower: Dictionary = data_loader.get_row("weapons", "weapon_flamethrower")
+	var cryocannon: Dictionary = data_loader.get_row("weapons", "weapon_cryocannon")
+	var teslacoil: Dictionary = data_loader.get_row("weapons", "weapon_teslacoil")
+
+	var vanguard_affinity: Dictionary = vanguard.get("bullet_affinity", {})
+	var expected_vanguard := (
+		1.0
+		+ float(vanguard_affinity.get("damage_bonus", 0.0))
+		+ float(vanguard_affinity.get("rank_damage_bonus", 0.0)) * 3.0
+	) * (
+		1.0
+		+ float(int(vanguard_affinity.get("pierce_bonus", 0)) + int(vanguard_affinity.get("rank_pierce_bonus", 0))) * 0.065
+	)
+	var measured_vanguard := float(save_manager._bullet_affinity_multiplier(vanguard, autocannon, 40))
+	_expect(absf(measured_vanguard - expected_vanguard) <= 0.0001, "design/29: vanguard affinity must include rank damage and rank pierce; expected %.5f got %.5f" % [expected_vanguard, measured_vanguard])
+	_expect(absf(float(save_manager._bullet_affinity_multiplier(vanguard, flamethrower, 40)) - 1.0) <= 0.0001, "design/29: character affinity must remain gated by matching weapon element")
+
+	var blaze_affinity: Dictionary = blaze.get("bullet_affinity", {})
+	var blaze_radius := float(blaze_affinity.get("splash_bonus", 0.0)) + float(blaze_affinity.get("rank_splash_bonus", 0.0)) * 3.0
+	var expected_blaze := (
+		1.0
+		+ float(blaze_affinity.get("damage_bonus", 0.0))
+		+ float(blaze_affinity.get("rank_damage_bonus", 0.0)) * 3.0
+	) * (1.0 + float(blaze_affinity.get("status_bonus", 0.0)) * 0.28) * (1.0 + blaze_radius * 0.0001)
+	var measured_blaze := float(save_manager._bullet_affinity_multiplier(blaze, flamethrower, 40))
+	_expect(absf(measured_blaze - expected_blaze) <= 0.0001, "design/29: blaze affinity must include rank damage, status, and splash radius; expected %.5f got %.5f" % [expected_blaze, measured_blaze])
+
+	var frost_affinity: Dictionary = frost.get("bullet_affinity", {})
+	var frost_shatter := float(frost_affinity.get("shatter_bonus", 0.0)) + 0.04 * 3.0
+	var expected_frost := (
+		1.0
+		+ float(frost_affinity.get("damage_bonus", 0.0))
+		+ float(frost_affinity.get("rank_damage_bonus", 0.0)) * 3.0
+	) * (1.0 + frost_shatter * 6.0)
+	var measured_frost := float(save_manager._bullet_affinity_multiplier(frost, cryocannon, 40))
+	_expect(absf(measured_frost - expected_frost) <= 0.0001, "design/29: frost affinity must include rank damage and runtime-equivalent shatter; expected %.5f got %.5f" % [expected_frost, measured_frost])
+	var expected_frost_slow := 1.0 + (
+		float(frost_affinity.get("slow_bonus", 0.0))
+		+ float(frost_affinity.get("rank_slow_bonus", 0.0)) * 3.0
+	) * 0.40
+	var measured_frost_slow := float(save_manager._bullet_affinity_survival_multiplier(frost, cryocannon, 40))
+	_expect(absf(measured_frost_slow - expected_frost_slow) <= 0.0001, "design/29: frost slow must enter survival power; expected %.5f got %.5f" % [expected_frost_slow, measured_frost_slow])
+
+	var volt_affinity: Dictionary = volt.get("bullet_affinity", {})
+	var volt_chain := int(volt_affinity.get("chain_bonus", 0)) + int(volt_affinity.get("rank_chain_bonus", 0))
+	var expected_volt := (
+		1.0
+		+ float(volt_affinity.get("damage_bonus", 0.0))
+		+ float(volt_affinity.get("rank_damage_bonus", 0.0)) * 3.0
+	) * (
+		1.0
+		+ float(volt_chain) * 0.09 * clampf(float(volt_affinity.get("chain_target_falloff", 1.0)), 0.72, 1.0)
+	) * (1.0 + float(volt_affinity.get("status_bonus", 0.0)) * 0.28) * (
+		1.0
+		+ float(int(volt_affinity.get("chain_overflow_reference", 0)) + volt_chain) * float(volt_affinity.get("chain_overflow_damage_bonus", 0.0))
+	)
+	var measured_volt := float(save_manager._bullet_affinity_multiplier(volt, teslacoil, 40))
+	_expect(absf(measured_volt - expected_volt) <= 0.0001, "design/29: volt affinity must include chain retention, status, and overflow; expected %.5f got %.5f" % [expected_volt, measured_volt])
+
+	var frost_hp := float(frost.get("base_hp", 100.0)) * (1.0 + float(frost.get("hp_growth", 0.0)) * 0.45 * 39.0)
+	var blaze_hp := float(blaze.get("base_hp", 100.0)) * (1.0 + float(blaze.get("hp_growth", 0.0)) * 0.45 * 39.0)
+	var hp_ratio := frost_hp / maxf(blaze_hp, 0.01)
+	_expect(hp_ratio >= 1.68 and hp_ratio <= 1.74, "design/29: frost/blaze effective HP ratio must expose the authored ~1.7x identity, got %.4f" % hp_ratio)
 
 func _apply_calibration_family(save_manager: Node, original_save: Dictionary, index: int) -> void:
 	_apply_calibration_build(save_manager, original_save, "vanguard", mini(index, 40), "weapon_autocannon", mini(index, 50), "", 1, "chip_attack", mini(index, 35), "", 1, mini(index / 8, 5))

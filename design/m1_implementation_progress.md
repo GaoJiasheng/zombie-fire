@@ -3750,3 +3750,12 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Gesture ownership**: every button inside the chapter and mission scroll now uses `MOUSE_FILTER_PASS`. The existing `ScrollContainer` receives the complete press / drag sequence and cancels button activation after its deadzone, while a stationary short tap still activates the explicit button.
 - **Click scope**: chapter cards no longer duplicate the entry callback across their whole surface. Only the visible entry action opens a chapter, leaving the artwork and copy as predictable drag surfaces.
 - **Mobile response and regression**: the list deadzone changes from `24` to `16`; M1 smoke requires chapter cards, chapter actions, expanded touch targets and both level-mode actions to preserve the scroll-drag passthrough contract.
+
+## Character Power Identity Model · Phase A (2026-08-08)
+
+- **Existing runtime identity is now visible**: the display power ruler consumes every authored bullet-affinity family already active in battle—rank damage, pierce, chain retention / overflow, status, splash radius, shatter and slow—while preserving the element-match gate.
+- **Survival is runtime-equivalent**: character base HP and the locked `hp_growth × 0.45` damping now enter survival power before armor / chip / pet. Under the fixed fixture Frost Maiden measures `5.771816` versus Blaze Striker `3.376253`, exposing the intended `1.7095x` durability difference.
+- **One mirrored ruler**: the GDScript runtime and Python analysis model share the same six named constants. Fitting against the four-character endgame DPS audit yields relative errors `0.000% / -0.132% / +0.914% / -3.096%`, well inside the design/29 `±12%` contract.
+- **Same-source cancellation**: the recommendation side evaluates the added identity terms with the same vanguard + autocannon estimator at the pace reference level. The independent all-free level-99 challenge anchor remains `8323 / 7499 = 1.1099x`; the required star fixture remains `56★`.
+- **No difficulty rewrite**: regeneration touches no level requirement row. The exact fixture, six-stage before / after matrix and integer-rounding interpretation are frozen in `design/29_character_power_element_retune_plan.md` Appendices A/B.
+- **Permanent gate**: M1 smoke derives expected affinity values from current character data and independently locks rank, status, splash, shatter, chain, slow, mismatch and effective-HP behavior. A future one-sided model edit fails release validation.

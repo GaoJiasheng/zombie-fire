@@ -202,9 +202,82 @@ python3 tools/check_release_candidate.py       # 全绿才许提交
 
 ---
 
-## 附录（实施时填写）
+## 附录 A · 固定 fixture 探针（2026-08-08 实施）
 
-- [ ] A. 探针模板（实施首日把 2026-08-08 会话用的 challenge-table 探针整理进来，含 fixture 构建段）
-- [ ] B. Phase A 拟合结果：折算常量表 + 四角色 模型/实测 DPS 对照（±12% 判定）
-- [ ] C. Phase B 前后对照：六关 × 四角色挑战比值矩阵 + I1/I2/I3 判定
-- [ ] D. design/21 军械基准重冻结记录（新的免费最强满配数值 + commit）
+- [x] 探针只存在于 `/tmp/design29_probe.gd`，未进入仓库；由 Godot headless 直接调用真实
+  `SaveManager.get_power_breakdown_for_level(level_id, true)`，不是另写一套 Python 战力公式。
+- [x] 存档从 `_default_save()` 新建；全部普通星购角色 / 武器 / 护甲 / 芯片 / 宠物解锁并升至各自
+  上限，明确排除 `unlock_cost_star >= 999999` 的 Apocalypse 商品；16 项永久技能和四角色专属技均为 Lv.5。
+- [x] 四角色矩阵固定使用 `weapon_railgun + armor_reactive + chip_element + pet_collector`，等级固定
+  `角色40 / 武器50 / 护甲35 / 芯片35 / 宠物30`；另以 `vanguard + weapon_autocannon` 同等级、同技能、
+  同三件装备测 I1，以四件星购装备价格和测 I2。
+- [x] 固定采样 `level_001 / 025 / 050 / 075 / 090 / 099`。每个格均输出
+  `projected / recommended`，每次角色和关卡切换前恢复同一份 fixture 深拷贝，避免顺序污染。
+
+最小探针结构如下（字段名是协议，完整临时脚本不提交）：
+
+```gdscript
+var fixture := _build_fixture(save_manager, data_loader)
+for character_id in ["vanguard", "blaze", "frost", "volt"]:
+    for level_id in ["level_001", "level_025", "level_050", "level_075", "level_090", "level_099"]:
+        save_manager.save_data = fixture.duplicate(true)
+        _select(character_id, "weapon_railgun", "armor_reactive", "chip_element", "pet_collector")
+        var p := save_manager.get_power_breakdown_for_level(level_id, true)
+        print(float(p.projected) / maxf(float(p.recommended), 1.0))
+```
+
+Phase A 开工前的同 fixture 基线（并行 UI / 商店收尾合入后的实际 `main`，不沿用 `e11a31e9` 旧存档数）：
+
+| 角色 | L001 | L025 | L050 | L075 | L090 | L099 |
+|---|---:|---:|---:|---:|---:|---:|
+| vanguard | 128.3103 | 25.1790 | 6.6166 | 2.7201 | 2.2252 | 1.7170 |
+| blaze | 181.3448 | 35.5837 | 9.3507 | 3.8441 | 3.1448 | 2.4266 |
+| frost | 89.7241 | 17.6031 | 4.6258 | 1.9016 | 1.5556 | 1.2004 |
+| volt | 174.8621 | 34.3113 | 9.0164 | 3.7066 | 3.0323 | 2.3399 |
+
+## 附录 B · Phase A 拟合与同源抵消实测
+
+- [x] 可直接复用的权重保持与既有技能模型一致；像素半径和碎冰循环只在两套模型的常量区各保留一份镜像。
+
+| 折算项 | 常量 | 来源 / 解释 |
+|---|---:|---|
+| 穿透 coverage | `0.065 / 目标` | 复用永久技能穿透折算 |
+| 连锁 coverage | `0.09 / 目标` | 复用永久技能连锁折算，并乘数据内 `chain_target_falloff` |
+| 异常 throughput | `0.28` | 复用异常强度折算 |
+| 减速 survival | `0.40` | 复用控制转生存折算 |
+| 溅射像素半径 | `0.0001 / px` | 对四角色真实终局 DPS 拟合 |
+| 碎冰循环 | `6.0` | 对真实受控命中 / 碎冰循环拟合 |
+
+`audit_character_endgame_dps.best_result()` 的各角色最优同元素满配为真实基准；模型列是只比较新增角色身份项后的
+相对进攻倍率，均以 vanguard=`1.0` 归一：
+
+| 角色 | 模型原值 | 模型比 | 实测 DPS | 实测比 | 相对误差 | 判定 |
+|---|---:|---:|---:|---:|---:|---|
+| vanguard | 798.611 | 1.000000 | 119,776.1 | 1.000000 | +0.000% | 通过 |
+| blaze | 895.459 | 1.121271 | 134,478.8 | 1.122751 | -0.132% | 通过 |
+| frost | 861.264 | 1.078452 | 128,002.4 | 1.068681 | +0.914% | 通过 |
+| volt | 886.592 | 1.110167 | 137,219.4 | 1.145633 | -3.096% | 通过 |
+
+最大误差 `3.096%`，满足 `±12%`。Phase A 后矩阵为：
+
+| 角色 | L001 | L025 | L050 | L075 | L090 | L099 |
+|---|---:|---:|---:|---:|---:|---:|
+| vanguard | 126.4524 | 25.0951 | 6.6201 | 2.7202 | 2.2253 | 1.7173 |
+| blaze | 142.1905 | 28.2201 | 7.4444 | 3.0589 | 2.5023 | 1.9311 |
+| frost | 81.7381 | 16.2228 | 4.2796 | 1.7585 | 1.4386 | 1.1101 |
+| volt | 140.7143 | 27.9266 | 7.3670 | 3.0271 | 2.4762 | 1.9109 |
+
+vanguard 的终局硬锚从 `1.7170 → 1.7173`；低关推荐值只有整数精度，L001 的一个整数跳变会放大成绝对
+`1.86`，但相对漂移仅 `-1.45%`，其余采样相对漂移均小于 `0.34%`。因此同源抵消按“终局硬锚近零漂移、
+全程相对漂移 ≤2%”验收，而不把高倍率低关的整数舍入误写成模型漂移。独立 I1 构筑
+`vanguard + autocannon @ level_099 challenge = 8323 / 7499 = 1.1099x`，在 `[1.05,1.20]`；
+I2 仍为 `56★`。同装备生存倍率为 blaze=`3.376253`、frost=`5.771816`，比值 `1.7095x`。
+`generate_clear_requirements.py` 重生成 99 关后 Git diff 为零。
+
+## 附录 C · Phase B 前后矩阵与 I1/I2/I3
+
+- [ ] Phase B 完成后填写。
+
+## 附录 D · 军械基准重冻结
+
+- [ ] Phase B 完成后与 `design/21` 同步填写。

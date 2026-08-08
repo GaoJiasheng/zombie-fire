@@ -22,6 +22,12 @@ POWER_SCALE_GAMMA = 1.0
 OFFENSE_WEIGHT = 0.82
 SURVIVAL_WEIGHT = 0.28
 SKILL_THROUGHPUT_CAP = 13.5
+AFFINITY_PIERCE_COVERAGE = 0.065
+AFFINITY_CHAIN_COVERAGE = 0.09
+AFFINITY_STATUS_THROUGHPUT = 0.28
+AFFINITY_SLOW_SURVIVAL = 0.40
+AFFINITY_SPLASH_RADIUS = 0.0001
+AFFINITY_SHATTER_CYCLE = 6.0
 
 # --- simulate_balance 模型常量镜像 ---
 ARMOR_HP_MULT = 1.20      # 通关线求解与 S_ref 使用同一生存基线(典型护甲)
@@ -102,13 +108,75 @@ def active_skill_multiplier(character: dict, char_level: int, sig_level: int) ->
 
 
 
-def bullet_affinity_multiplier(character: dict, weapon: dict) -> float:
+def growth_rank(level: float) -> int:
+    if level >= 25:
+        return 3
+    if level >= 15:
+        return 2
+    if level >= 8:
+        return 1
+    return 0
+
+
+def bullet_affinity_multiplier(character: dict, weapon: dict, char_level: float) -> float:
+    affinity = character.get("bullet_affinity", {}) or {}
+    if not affinity:
+        return 1.0
+    if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
+        return 1.0
+    rank = growth_rank(char_level)
+    direct = 1.0 + max(
+        float(affinity.get("damage_bonus", 0.0))
+        + float(affinity.get("rank_damage_bonus", 0.0)) * rank,
+        0.0,
+    )
+    pierce = int(affinity.get("pierce_bonus", 0))
+    chain = int(affinity.get("chain_bonus", 0))
+    if rank >= 2:
+        pierce += int(affinity.get("rank_pierce_bonus", 0))
+        chain += int(affinity.get("rank_chain_bonus", 0))
+    chain_retention = min(max(float(affinity.get("chain_target_falloff", 1.0)), 0.72), 1.0)
+    coverage = 1.0
+    coverage += max(pierce, 0) * AFFINITY_PIERCE_COVERAGE
+    coverage += max(chain, 0) * AFFINITY_CHAIN_COVERAGE * chain_retention
+    status = 1.0 + max(float(affinity.get("status_bonus", 0.0)), 0.0) * AFFINITY_STATUS_THROUGHPUT
+    splash_radius = max(
+        float(affinity.get("splash_bonus", 0.0))
+        + float(affinity.get("rank_splash_bonus", 0.0)) * rank,
+        0.0,
+    )
+    splash = 1.0 + splash_radius * AFFINITY_SPLASH_RADIUS
+    shatter_strength = 0.0
+    if "shatter_bonus" in affinity:
+        shatter_strength = max(float(affinity.get("shatter_bonus", 0.0)) + 0.04 * rank, 0.0)
+    shatter = 1.0 + shatter_strength * AFFINITY_SHATTER_CYCLE
+    overflow_window = max(int(affinity.get("chain_overflow_reference", 0)) + max(chain, 0), 0)
+    overflow = 1.0 + max(float(affinity.get("chain_overflow_damage_bonus", 0.0)), 0.0) * overflow_window
+    return max(direct * coverage * status * splash * shatter * overflow, 1.0)
+
+
+def legacy_bullet_affinity_multiplier(character: dict, weapon: dict) -> float:
     affinity = character.get("bullet_affinity", {}) or {}
     if not affinity:
         return 1.0
     if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
         return 1.0
     return 1.0 + max(float(affinity.get("damage_bonus", 0.0)), 0.0)
+
+
+def bullet_affinity_survival_multiplier(character: dict, weapon: dict, char_level: float) -> float:
+    affinity = character.get("bullet_affinity", {}) or {}
+    if not affinity:
+        return 1.0
+    if str(weapon.get("element", "physical")) != str(affinity.get("element", character.get("element_focus", "physical"))):
+        return 1.0
+    rank = growth_rank(char_level)
+    slow = max(
+        float(affinity.get("slow_bonus", 0.0))
+        + float(affinity.get("rank_slow_bonus", 0.0)) * rank,
+        0.0,
+    )
+    return 1.0 + slow * AFFINITY_SLOW_SURVIVAL
 
 
 def offense_stat_factor(stat: str, value: float) -> float:
@@ -131,7 +199,7 @@ def offense_multiplier(character: dict, weapon: dict, char_level: int, weapon_le
                        sig_level: int = 0, chip: dict | None = None, chip_level: int = 1,
                        pet: dict | None = None, pet_level: int = 1) -> float:
     mult = char_atk_multiplier(character, char_level) * weapon_dps_multiplier(weapon, weapon_level)
-    mult *= bullet_affinity_multiplier(character, weapon)
+    mult *= bullet_affinity_multiplier(character, weapon, char_level)
     if chip:
         offset = max(chip_level - 1, 0)
         value = float(chip.get("value", 0.0)) + float(chip.get("level_value_growth", 0.0)) * offset
@@ -189,10 +257,17 @@ def survival_stat_factor(stat: str, value: float) -> float:
     return 1.0
 
 
-def survival_multiplier(armor: dict | None = None, armor_level: int = 1,
+def survival_multiplier(character: dict | None = None, char_level: int = 1,
+                        weapon: dict | None = None,
+                        armor: dict | None = None, armor_level: int = 1,
                         chip: dict | None = None, chip_level: int = 1,
                         pet: dict | None = None, pet_level: int = 1) -> float:
     mult = 1.0
+    if character:
+        mult *= max(float(character.get("base_hp", 100.0)) / 100.0, 0.5)
+        mult *= 1.0 + float(character.get("hp_growth", 0.06)) * 0.45 * max(char_level - 1, 0)
+        if weapon:
+            mult *= bullet_affinity_survival_multiplier(character, weapon, char_level)
     if armor:
         mult *= max(float(armor.get("hp_mult", 1.0)), 0.5)
         mult *= 1.0 + float(armor.get("level_hp_growth", 0.0)) * max(armor_level - 1, 0)
@@ -249,9 +324,18 @@ def offense_baseline_l1(characters: dict, weapons: dict) -> float:
     return offense_multiplier(characters["vanguard"], weapons["weapon_autocannon"], 1, 1, 0)
 
 
-def recommended_power(required_t: float, card_picks: int, characters: dict, weapons: dict) -> int:
-    o_ref = required_t * offense_baseline_l1(characters, weapons)
-    return int(round(core_power(o_ref, ARMOR_HP_MULT) * card_scale(card_picks)))
+def recommended_power(required_t: float, card_picks: int, recommend_level: int,
+                      characters: dict, weapons: dict,
+                      loadout_char_level: int | None = None) -> int:
+    current_level = int(recommend_level) if loadout_char_level is None else int(loadout_char_level)
+    reference_level = min(max(int(recommend_level), current_level, 1), 40)
+    character = characters["vanguard"]
+    weapon = weapons["weapon_autocannon"]
+    affinity_delta = bullet_affinity_multiplier(character, weapon, reference_level)
+    affinity_delta /= max(legacy_bullet_affinity_multiplier(character, weapon), 0.01)
+    character_survival = survival_multiplier(character, reference_level, weapon)
+    o_ref = required_t * offense_baseline_l1(characters, weapons) * affinity_delta
+    return int(round(core_power(o_ref, ARMOR_HP_MULT * character_survival) * card_scale(card_picks)))
 
 
 # ---------------------------------------------------------------- 通关线求解
@@ -344,6 +428,11 @@ class FamilyContext:
         o = offense_multiplier_cont(
             characters["vanguard"], weapons["weapon_autocannon"], char_level, weapon_level,
             sig_level, chip=chip, chip_level=chip_level)
+        # clear_requirement 是难度模拟器的归一输出，不应随显示战力新增的角色身份
+        # 折算漂移；剥离 design/29 新增项，保留 design/28 原有 damage_bonus 语义。
+        full_affinity = bullet_affinity_multiplier(characters["vanguard"], weapons["weapon_autocannon"], char_level)
+        legacy_affinity = legacy_bullet_affinity_multiplier(characters["vanguard"], weapons["weapon_autocannon"])
+        o *= legacy_affinity / max(full_affinity, 0.01)
         return o / offense_baseline_l1(characters, weapons)
 
 
@@ -414,7 +503,7 @@ def offense_multiplier_cont(character: dict, weapon: dict, char_level: float, we
     wq *= 1.0 + 0.08 * max(weapon_level - 1.0, 0.0)
     wq *= 1.0 + 0.025 * max(weapon_level - 1.0, 0.0)
     mult *= wq
-    mult *= bullet_affinity_multiplier(character, weapon)
+    mult *= bullet_affinity_multiplier(character, weapon, char_level)
     if chip:
         value = float(chip.get("value", 0.0)) + float(chip.get("level_value_growth", 0.0)) * max(chip_level - 1.0, 0.0)
         mult *= offense_stat_factor(str(chip.get("stat", "")), value)
