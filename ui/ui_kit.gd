@@ -701,20 +701,10 @@ static func deploy_pill_texture_style() -> StyleBox:
 static func resource_chip_texture_style() -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, GOLD)
 
-static func resource_chip_flat_style(accent := GOLD) -> StyleBox:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.015, 0.019, 0.022, 0.82)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.72)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(10)
-	style.content_margin_left = 14.0
-	style.content_margin_right = 14.0
-	style.content_margin_top = 5.0
-	style.content_margin_bottom = 5.0
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
-	style.shadow_size = 4
-	style.shadow_offset = Vector2(0, 2)
-	return style
+static func resource_chip_compact_style() -> StyleBox:
+	# The compact combat panel has one continuous mechanical silhouette, unlike
+	# the legacy resource plate whose nested outlines read as a double border.
+	return texture_style(UI_TEXTURE_ROOT + "ui_combo_panel.png", 34.0, 6.0, GOLD)
 
 static func collection_card_texture_style(skill := false) -> StyleBox:
 	if skill:
@@ -1011,7 +1001,17 @@ const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 
 # ---- 共享资源条(金币/星星/经验/战力)。各页面统一外观,只在此维护。----
 static func _resource_chip_style(accent: Color) -> StyleBox:
-	return resource_chip_flat_style(accent)
+	var style := resource_chip_compact_style()
+	if style is StyleBoxTexture:
+		var textured := (style as StyleBoxTexture).duplicate(true) as StyleBoxTexture
+		textured.modulate_color = Color(
+			lerpf(1.0, accent.r, 0.18),
+			lerpf(1.0, accent.g, 0.18),
+			lerpf(1.0, accent.b, 0.18),
+			0.94
+		)
+		return textured
+	return style
 
 static func _resource_chip_width(value: String, chip_size: Vector2, font_size: int) -> float:
 	var length_bonus: float = float(maxi(0, value.length() - 3)) * (float(font_size) * 0.42)
