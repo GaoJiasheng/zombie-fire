@@ -171,6 +171,8 @@ func _initialize() -> void:
 						main.current_scene.call_deferred("_hide_wave_toast")
 	if bool(payload.get("debug_dense_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_dense_combat(main.current_scene)
+	if bool(payload.get("debug_combo_hud", false)) and main.current_scene != null:
+		await _prepare_combo_hud_showcase(main.current_scene)
 	if bool(payload.get("debug_spawn_distribution", false)) and main.current_scene != null and main.current_scene.has_method("_next_enemy_spawn_position"):
 		await _prepare_live_spawn_distribution(main.current_scene, str(payload.get("debug_spawn_lane", "spread")))
 	if bool(payload.get("debug_apocalypse_overload", false)) and main.current_scene != null and main.current_scene.has_method("_apply_apocalypse_thunder_on_hit"):
@@ -665,6 +667,25 @@ func _prepare_dense_combat(battle: Node) -> void:
 		priority.size(),
 		visible_markers,
 	])
+
+func _prepare_combo_hud_showcase(battle: Node) -> void:
+	if battle.has_method("_hide_wave_toast"):
+		battle.onboarding_tip_shown = true
+		battle.pending_wave_toast = {}
+		battle.pending_wave_toast_timer_active = false
+		battle.call("_hide_wave_toast")
+	if battle.has_node("Hud/ComboHud"):
+		var combo_hud := battle.get_node("Hud/ComboHud") as Control
+		if combo_hud != null:
+			combo_hud.visible = true
+			if combo_hud.has_method("reset"):
+				combo_hud.call("reset")
+			if combo_hud.has_method("register_kill"):
+				combo_hud.call("register_kill")
+				combo_hud.call("register_kill")
+			combo_hud.visible = true
+	for i in range(4):
+		await process_frame
 
 func _prepare_store_combat(battle: Node) -> void:
 	# Deterministic marketing capture made only from live battle systems. It

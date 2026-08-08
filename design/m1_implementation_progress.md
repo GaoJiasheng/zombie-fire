@@ -3728,3 +3728,25 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Explicitly documented deviation**: after the Owner required the unfinished task to continue, `level_001.base_hp_ref` changes from `120` to `161` (`+34.17%`). This is the least structurally destructive viable option: removing enough final-wave enemies would require `14 -> 2` and destroy the closing wave.
 - **Acceptance result**: level 1 leak moves from `37.4306%` to `27.8986%`, producing chapter one's first 3-star with a `2.1014pp` safety margin. The campaign becomes `13 x 3-star / 86 x 2-star / 0 x 1-star`; an exact 99-level diff contains no other rating change.
 - **Pressure remains ordered**: level 1 pressure rises from `158.9` to `213.1` but remains below level 2's `285.1`; the level-pressure gate stays green. Star thresholds, global economy, endgame corridor, premium contracts and simulator rules remain unchanged.
+
+## Loadout Resource Chips and Combo HUD Final Polish (2026-08-05)
+
+- **Resource chip root cause**: the production resource skin had a double ornamental frame that became noisy at the compact top-bar size, and large values could visually sit on the frame instead of inside the control.
+- **Shared UI fix**: `UiKit.resource_chip()` now uses a single-layer themed pill with stable inner padding and value-aware width expansion. The same shared component covers gold, stars, XP and power wherever the standard resource bar is used.
+- **Combat combo fix**: the kill-streak HUD panel now gives the main combo text a wider centered lane, lower outline weight and clipping guard, so `2 连击` / larger streak labels stay inside the authored panel.
+- **Regression hook**: the screenshot helper gained a capture-only `debug_combo_hud` flag that forces a deterministic two-kill combo state for future visual review without changing live battle behavior.
+- **Visual proof**: focused screenshots were regenerated under `/tmp/zombie_fire_resource_combo_review/`; manual crop review confirms the top resource chips and combo HUD no longer show out-of-frame text or double-border clutter.
+
+## Complete Four-Series Arsenal Catalog (2026-08-08)
+
+- **Root cause**: the Store screen iterated the purchase-authorized series list, so progression gating accidentally removed whole product families from the catalog. On an early save this could leave only the one series whose campaign gate had been reached.
+- **Catalog / authorization split**: Store presentation now iterates all four authored series and uses a display-only offer resolver. Existing progression-aware offer resolution remains the sole purchase authorization path, so locked previews cannot be bought or equipped early.
+- **Clear locked state**: every locked series keeps its four-hero theme preview and four-item arsenal preview, adds the full localized requirement under the series header, and replaces the buy action with a compact disabled requirement label. The 30 / 50 / 80 / 99+Lv.40 progression contract is unchanged.
+- **Permanent regression**: premium-set data validation and release-string checks require both languages of the full and compact unlock copy. M1 smoke instantiates a fresh Store and requires four headers, eight locked cards, disabled purchase actions and exact data-owned copy before separately exercising the fully unlocked purchase / upgrade / restore flow.
+
+## Map Anywhere-to-Scroll Gesture Contract (2026-08-08)
+
+- **Root cause**: the new Normal / Challenge controls used `MOUSE_FILTER_STOP`; compact chapter actions also gained a larger transparent touch target with the same blocking mode. As those controls occupied more of each card, less of the list could begin a drag.
+- **Gesture ownership**: every button inside the chapter and mission scroll now uses `MOUSE_FILTER_PASS`. The existing `ScrollContainer` receives the complete press / drag sequence and cancels button activation after its deadzone, while a stationary short tap still activates the explicit button.
+- **Click scope**: chapter cards no longer duplicate the entry callback across their whole surface. Only the visible entry action opens a chapter, leaving the artwork and copy as predictable drag surfaces.
+- **Mobile response and regression**: the list deadzone changes from `24` to `16`; M1 smoke requires chapter cards, chapter actions, expanded touch targets and both level-mode actions to preserve the scroll-drag passthrough contract.

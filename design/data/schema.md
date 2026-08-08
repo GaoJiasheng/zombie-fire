@@ -631,6 +631,7 @@ Save v3 的外观状态结构为：
 - `target_full_set_ratio_min/center/max` 必须由可复现 DPS 审计验证；第一套雷霆为 `1.52 / 1.55 / 1.58`。
 - 撤权只收回使用权并回退非法已装备项，不删除已投入的装备等级。
 - 商店、权益恢复和一键装备必须遍历 `series_id`，不得再依赖某一套装的代码常量。
+- 四系列商品目录始终可预览；`store_unlock` 只控制购买 / 装备授权。锁定态从同一套装行读取 `unlock_hint_zh/en`（标题下完整条件）和 `unlock_cta_zh/en`（禁用按钮短文案），不得把未达进度误处理为整套不显示。
 - 高级武器可在 `weapons.presentation` 声明 `weapon_scale / muzzle_distance / attack_duration / prefire_lead / recoil_pose / recoil_accent / recoil_twist`。`true_grip` 进一步声明根目录、`viewpoint`（竖屏底部防线战斗固定为 `rear`）、三向文件 pattern、画布尺寸及逐角色三向枪口坐标；运行时与视觉校验器都读取同一份数据。
 - premium 宠物主动 `kind: fire_flyby` 表示按当前手动锁定 / 自动优先目标执行一次有目标上限的火焰掠场；必须声明冷却、伤害倍率、目标数、衰减、轨迹持续时间与最大并发，不得生成无限地面路径。
 - 战报中的 premium 来源必须拆分记录主武器直伤、灼烧、爆燃、护甲反击、宠物与四件套传播；现有 `take_damage` 四参数调用兼容不变，新增来源通过可选上下文传递。

@@ -701,6 +701,21 @@ static func deploy_pill_texture_style() -> StyleBox:
 static func resource_chip_texture_style() -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, GOLD)
 
+static func resource_chip_flat_style(accent := GOLD) -> StyleBox:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.015, 0.019, 0.022, 0.82)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.72)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 14.0
+	style.content_margin_right = 14.0
+	style.content_margin_top = 5.0
+	style.content_margin_bottom = 5.0
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 2)
+	return style
+
 static func collection_card_texture_style(skill := false) -> StyleBox:
 	if skill:
 		return texture_style(UI_TEXTURE_ROOT + "ui_collection_skill_card_skin.png", 34.0, 0.0, CYAN)
@@ -996,13 +1011,16 @@ const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 
 # ---- 共享资源条(金币/星星/经验/战力)。各页面统一外观,只在此维护。----
 static func _resource_chip_style(accent: Color) -> StyleBox:
-	if ResourceLoader.exists(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png"):
-		return resource_chip_texture_style()
-	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, accent)
+	return resource_chip_flat_style(accent)
+
+static func _resource_chip_width(value: String, chip_size: Vector2, font_size: int) -> float:
+	var length_bonus: float = float(maxi(0, value.length() - 3)) * (float(font_size) * 0.42)
+	return maxf(chip_size.x, chip_size.x + length_bonus)
 
 static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> Button:
 	var btn := Button.new()
-	btn.custom_minimum_size = chip_size
+	var fitted_size := Vector2(_resource_chip_width(value, chip_size, font_size), chip_size.y)
+	btn.custom_minimum_size = fitted_size
 	btn.focus_mode = Control.FOCUS_NONE
 	btn.tooltip_text = tip
 	var style := _resource_chip_style(accent)
@@ -1012,15 +1030,24 @@ static func resource_chip(icon_path: String, accent: Color, value: String, tip :
 		btn.pressed.connect(func() -> void: toast(btn, tip, accent))
 	var content := HBoxContainer.new()
 	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 14.0
+	content.offset_top = 5.0
+	content.offset_right = -14.0
+	content.offset_bottom = -5.0
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_theme_constant_override("separation", 9)
+	content.add_theme_constant_override("separation", 7)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(content)
-	var ic := icon(icon_path, Vector2(36, 36))
+	var icon_size := minf(34.0, maxf(28.0, chip_size.y - 24.0))
+	var ic := icon(icon_path, Vector2(icon_size, icon_size))
 	ic.modulate = Color(1.06, 1.02, 0.92, 1.0)
 	content.add_child(ic)
-	var lbl := label(value, font_size, TEXT_MAIN, 3)
+	var lbl := label(value, font_size, TEXT_MAIN, 2)
+	lbl.add_theme_font_size_override("font_size", bumped_font_size(font_size))
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.clip_text = true
 	content.add_child(lbl)
 	return btn
 

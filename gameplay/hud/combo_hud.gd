@@ -33,10 +33,10 @@ func _setup_visuals() -> void:
 		_frame.name = "Frame"
 		add_child(_frame)
 		move_child(_frame, 0)
-	_frame.offset_left = 18.0
-	_frame.offset_top = 12.0
-	_frame.offset_right = 312.0
-	_frame.offset_bottom = 76.0
+	_frame.offset_left = 4.0
+	_frame.offset_top = 10.0
+	_frame.offset_right = 316.0
+	_frame.offset_bottom = 86.0
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_frame.z_index = -1
 	_frame.add_theme_stylebox_override("panel", _combo_frame_style())
@@ -47,29 +47,35 @@ func _setup_visuals() -> void:
 		_accent_bar.name = "AccentBar"
 		add_child(_accent_bar)
 		move_child(_accent_bar, 1)
-	_accent_bar.offset_left = 30.0
-	_accent_bar.offset_top = 22.0
-	_accent_bar.offset_right = 38.0
-	_accent_bar.offset_bottom = 66.0
+	_accent_bar.offset_left = 24.0
+	_accent_bar.offset_top = 24.0
+	_accent_bar.offset_right = 32.0
+	_accent_bar.offset_bottom = 72.0
 	_accent_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	_accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
 	_accent_bar.modulate = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.86)
 
-	_label.offset_left = 46.0
-	_label.offset_top = 12.0
-	_label.offset_right = 304.0
-	_label.offset_bottom = 76.0
-	_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(42))
+	_label.offset_left = 34.0
+	_label.offset_top = 14.0
+	_label.offset_right = 302.0
+	_label.offset_bottom = 84.0
+	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label.clip_text = true
+	_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(40))
 	_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.42, 1.0))
 	_label.add_theme_color_override("font_outline_color", Color(0.02, 0.012, 0.004, 1.0))
-	_label.add_theme_constant_override("outline_size", 5)
+	_label.add_theme_constant_override("outline_size", 4)
 
-	_milestone.offset_left = 34.0
-	_milestone.offset_top = 76.0
-	_milestone.offset_right = 308.0
+	_milestone.offset_left = 18.0
+	_milestone.offset_top = 82.0
+	_milestone.offset_right = 318.0
 	_milestone.offset_bottom = 136.0
+	_milestone.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_milestone.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_milestone.clip_text = true
 	_milestone.add_theme_font_size_override("font_size", UiKit.bumped_font_size(28))
 	_milestone.add_theme_color_override("font_color", Color(1.0, 0.58, 0.2, 1.0))
 	_milestone.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))

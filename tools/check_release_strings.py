@@ -77,6 +77,9 @@ def main() -> int:
                     errors.append(f"{path.relative_to(ROOT)} contains visible English UI string: {literal}")
     premium_sets = json.loads((ROOT / "data" / "premium_sets.json").read_text(encoding="utf-8"))
     for set_id, row in premium_sets.items():
+        for key in ("unlock_hint_zh", "unlock_hint_en", "unlock_cta_zh", "unlock_cta_en"):
+            if not str(row.get(key, "")).strip():
+                errors.append(f"{set_id}.{key} must provide the locked-catalog copy")
         dominance_zh = str(row.get("dominance_zh", "")).strip()
         dominance_en = str(row.get("dominance_en", "")).strip()
         if not dominance_zh.startswith("主宰区间："):

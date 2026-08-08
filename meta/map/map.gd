@@ -476,8 +476,9 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	button.modulate = Color.WHITE if current else Color(0.90, 0.92, 0.94, 0.96) if unlocked else Color(0.84, 0.86, 0.88, 0.94)
-	if unlocked:
-		button.pressed.connect(_open_chapter.bind(chapter_id))
+	# The chapter card is presentation only. Entry is deliberately bound to the
+	# explicit button below so every other point on the card remains a reliable
+	# scroll-drag surface.
 
 	_add_chapter_art(button, str(env.get("portrait", "")), unlocked)
 	_add_chapter_frame(button, accent, unlocked)
@@ -677,7 +678,7 @@ func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, te
 	action.size = size
 	action.custom_minimum_size = size
 	UiKit.apply_armored_texture_button(action, true, size, enabled)
-	action.mouse_filter = Control.MOUSE_FILTER_STOP
+	_make_scroll_friendly_button(action)
 	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:
 		action.pressed.connect(callback)
@@ -689,7 +690,16 @@ func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, te
 	label.clip_text = true
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action.add_child(label)
-	UiKit.attach_touch_target(action)
+	var touch_target := UiKit.attach_touch_target(action)
+	if touch_target != null:
+		_make_scroll_friendly_button(touch_target)
+
+func _make_scroll_friendly_button(button: BaseButton) -> void:
+	# PASS lets ScrollContainer receive the same press/drag sequence. Godot then
+	# cancels the button activation once the scroll deadzone is crossed, while a
+	# stationary short tap still emits pressed on the explicit button only.
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
+	button.set_meta("scroll_drag_passthrough", true)
 
 func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	var chapter_id := int(chapter.get("chapter", 1))
@@ -1191,7 +1201,7 @@ func _add_level_mode_button(parent: Control, pos: Vector2, text: String, stars: 
 	action.size = Vector2(LEVEL_MODE_W, LEVEL_MODE_H)
 	action.custom_minimum_size = action.size
 	UiKit.apply_armored_texture_button(action, primary, action.size, enabled)
-	action.mouse_filter = Control.MOUSE_FILTER_STOP
+	_make_scroll_friendly_button(action)
 	action.set_meta("level_mode", mode_id)
 	action.set_meta("star_count", stars)
 	action.tooltip_text = TranslationServer.translate(text) if enabled else "%s · %s" % [TranslationServer.translate(text), TranslationServer.translate("普通三星解锁")]
@@ -1234,7 +1244,9 @@ func _add_level_mode_button(parent: Control, pos: Vector2, text: String, stars: 
 		star.name = "Star%d" % (i + 1)
 		star.modulate = Color.WHITE if enabled else Color(0.66, 0.69, 0.72, 0.82)
 		star_row.add_child(star)
-	UiKit.attach_touch_target(action)
+	var touch_target := UiKit.attach_touch_target(action)
+	if touch_target != null:
+		_make_scroll_friendly_button(touch_target)
 
 func _add_card_pill(parent: Control, pos: Vector2, size: Vector2, text: String, accent: Color) -> void:
 	var pill := PanelContainer.new()

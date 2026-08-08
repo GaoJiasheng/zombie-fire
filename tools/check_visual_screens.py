@@ -111,6 +111,18 @@ FULL_STORE_SAVE_OVERRIDE = {
         "volt": 40,
     },
 }
+LOCKED_STORE_SAVE_OVERRIDE = {
+    "levels_progress": {},
+    "commerce": {"mock_receipts": [], "mock_last_transaction_unix": 0},
+    "entitlements": {"verified": [], "last_sync_unix": 0},
+    "cosmetics": {"selected_theme": "default"},
+    "equipment": {
+        "vanguard": 1,
+        "blaze": 1,
+        "frost": 1,
+        "volt": 1,
+    },
+}
 NEON_THEME_OWNED_OVERRIDE = {
     "commerce": {
         "mock_receipts": ["com.gaojiasheng.zombiefire.theme.neon_tempest"],
@@ -1965,6 +1977,19 @@ STORE_PREVIEW_SCREENS: list[tuple[str, dict, str]] = [
             "save_override": FULL_STORE_SAVE_OVERRIDE,
         },
         f"store_tall_preview_{language}_{scroll_index + 1}",
+    )
+    for language in ("zh", "en")
+    for scroll_index, scroll_y in enumerate((0, 880, 1760, 2640))
+] + [
+    (
+        "store",
+        {
+            "language": language,
+            "viewport_size": [1080, 2340],
+            "debug_scroll_y": scroll_y,
+            "save_override": LOCKED_STORE_SAVE_OVERRIDE,
+        },
+        f"store_tall_locked_{language}_{scroll_index + 1}",
     )
     for language in ("zh", "en")
     for scroll_index, scroll_y in enumerate((0, 880, 1760, 2640))

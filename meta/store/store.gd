@@ -82,33 +82,48 @@ func _rebuild() -> void:
 	_status_label.custom_minimum_size = Vector2(0, 54)
 	content.add_child(_status_label)
 
-	for series_id in PurchaseManager.store_series_ids():
-		content.add_child(_series_header(series_id))
-		for product_id in PurchaseManager.visible_offer_ids(series_id):
-			content.add_child(_product_card(PurchaseManager.product(product_id)))
+	for series_id in PurchaseManager.catalog_series_ids():
+		var series_unlocked := PurchaseManager.is_series_unlocked(series_id)
+		content.add_child(_series_header(series_id, not series_unlocked))
+		for product_id in PurchaseManager.display_offer_ids(series_id):
+			content.add_child(_product_card(PurchaseManager.product(product_id), not series_unlocked))
 		if PurchaseManager.is_arsenal_owned(series_id):
 			content.add_child(_owned_set_panel(PurchaseManager.set_id_for_series(series_id)))
 		elif PurchaseManager.is_theme_owned(series_id):
 			content.add_child(_owned_theme_panel(series_id))
 
 
-func _series_header(series_id: String) -> PanelContainer:
+func _series_header(series_id: String, locked: bool) -> PanelContainer:
 	var set_row := PurchaseManager.set_for_series(series_id)
 	var panel := PanelContainer.new()
+	panel.name = "Series_%s" % series_id
+	panel.set_meta("store_series_id", series_id)
+	panel.set_meta("store_series_locked", locked)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 72)
+	panel.custom_minimum_size = Vector2(0, 104 if locked else 72)
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 2)
+	panel.add_child(box)
 	var label := UiKit.label(str(set_row.get(
 		"store_title_en" if LocalizationManager.is_english() else "store_title_zh",
 		series_id
 	)), 24, UiKit.GOLD, 3)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	panel.add_child(label)
+	box.add_child(label)
+	if locked:
+		var hint := UiKit.label(_series_unlock_hint(series_id), 16, UiKit.GREY_300, 2)
+		hint.name = "UnlockHint"
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(hint)
 	return panel
 
 
 func _store_title() -> String:
-	var series_ids := PurchaseManager.store_series_ids()
+	var series_ids := PurchaseManager.catalog_series_ids()
 	if series_ids.size() == 1:
 		var set_row := PurchaseManager.set_for_series(series_ids[0])
 		return str(set_row.get("store_title_en" if LocalizationManager.is_english() else "store_title_zh", _loc("精品军械库", "Premium Arsenal")))
@@ -119,7 +134,7 @@ func _ownership_status() -> String:
 	var lines: Array[String] = []
 	var key := "owned_status_en" if LocalizationManager.is_english() else "owned_status_zh"
 	var theme_key := "theme_status_en" if LocalizationManager.is_english() else "theme_status_zh"
-	for series_id in PurchaseManager.store_series_ids():
+	for series_id in PurchaseManager.catalog_series_ids():
 		var set_row := PurchaseManager.set_for_series(series_id)
 		if PurchaseManager.is_arsenal_owned(series_id):
 			lines.append(str(set_row.get(key, series_id)))
@@ -127,15 +142,19 @@ func _ownership_status() -> String:
 			lines.append(str(set_row.get(theme_key, series_id)))
 	if not lines.is_empty():
 		return "\n".join(lines)
-	return _loc("先预览完整购买闭环；正式版价格将由 App Store 返回", "Preview the complete flow; App Store will supply production prices")
+	return _loc(
+		"四套系列均已收录 · 达成对应战役条件后开放购买",
+		"All four series are listed · Purchases unlock with campaign progress"
+	)
 
 
-func _product_card(row: Dictionary) -> PanelContainer:
+func _product_card(row: Dictionary, locked := false) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
 	var offer_role := str(row.get("offer_role", ""))
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
+	panel.set_meta("store_product_locked", locked)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
 	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
 	var margin := MarginContainer.new()
@@ -146,7 +165,9 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	hbox.add_theme_constant_override("separation", 20)
 	margin.add_child(hbox)
 
-	hbox.add_child(_product_preview(row))
+	var preview := _product_preview(row)
+	preview.modulate = Color(0.72, 0.76, 0.80, 0.86) if locked else Color.WHITE
+	hbox.add_child(preview)
 
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -180,11 +201,32 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var buy := Button.new()
 	buy.name = "Buy_" + str(row.get("id", "")).replace(".", "_")
 	buy.focus_mode = Control.FOCUS_NONE
-	buy.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
-	UiKit.apply_armored_button(buy, true, Vector2(484, 102), 20, true)
-	buy.pressed.connect(_confirm_purchase.bind(str(row.get("id", ""))))
+	if locked:
+		buy.text = _series_unlock_cta(str(row.get("series_id", "")))
+		buy.disabled = true
+		UiKit.apply_armored_button(buy, false, Vector2(484, 102), 18, false)
+	else:
+		buy.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
+		UiKit.apply_armored_button(buy, true, Vector2(484, 102), 20, true)
+		buy.pressed.connect(_confirm_purchase.bind(str(row.get("id", ""))))
 	copy.add_child(buy)
 	return panel
+
+
+func _series_unlock_hint(series_id: String) -> String:
+	var set_row := PurchaseManager.set_for_series(series_id)
+	return str(set_row.get(
+		"unlock_hint_en" if LocalizationManager.is_english() else "unlock_hint_zh",
+		_loc("尚未达到解锁条件", "Unlock requirement not met")
+	))
+
+
+func _series_unlock_cta(series_id: String) -> String:
+	var set_row := PurchaseManager.set_for_series(series_id)
+	return str(set_row.get(
+		"unlock_cta_en" if LocalizationManager.is_english() else "unlock_cta_zh",
+		_loc("尚未解锁", "Not Yet Unlocked")
+	))
 
 
 func _product_preview(row: Dictionary) -> Control:

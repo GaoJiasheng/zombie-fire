@@ -251,18 +251,30 @@ func _initialize() -> void:
 	_expect(str(map_character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "map character feature card must use frameless 正脸立绘")
 	var level_list: Node = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null, "map level list must be scrollable")
+	var map_level_scroll := main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+	_expect(map_level_scroll != null and map_level_scroll.scroll_deadzone <= 16, "map drag recognition must stay responsive on mobile")
 	_expect(level_list.get_child_count() >= 10, "map must render ten chapter cards before sub-level cards")
 	var first_chapter: Node = level_list.get_child(0)
 	_expect(first_chapter is TextureButton, "map chapters must use styled texture buttons")
+	_expect((first_chapter as TextureButton).mouse_filter == Control.MOUSE_FILTER_PASS, "chapter card surfaces must pass drag gestures to the map scroll container")
+	_expect((first_chapter as TextureButton).get_signal_connection_list("pressed").is_empty(), "chapter entry must only be bound to its explicit button, not the full card surface")
 	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
 	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
-	_expect(first_chapter.find_child("EnterChapterButton", true, false) != null, "map chapter cards must expose an explicit chapter entry button")
+	var enter_chapter_button := first_chapter.find_child("EnterChapterButton", true, false) as TextureButton
+	_expect(enter_chapter_button != null, "map chapter cards must expose an explicit chapter entry button")
+	_expect(enter_chapter_button.mouse_filter == Control.MOUSE_FILTER_PASS and bool(enter_chapter_button.get_meta("scroll_drag_passthrough", false)), "chapter entry button must preserve drag-to-scroll gestures")
+	var enter_chapter_touch_target := enter_chapter_button.find_child("TouchTarget", false, false) as Button
+	_expect(enter_chapter_touch_target == null or enter_chapter_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded chapter touch target must not swallow drag-to-scroll gestures")
 	main.current_scene._open_chapter(1)
 	await process_frame
 	level_list = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null and level_list.get_child_count() >= 11, "chapter detail must render a header plus its ten sub-level cards")
-	_expect(level_list.get_child(0).find_child("BackToChapterMapButton", true, false) != null, "chapter detail must expose a back-to-chapter-map button")
+	var back_to_chapter_map := level_list.get_child(0).find_child("BackToChapterMapButton", true, false) as TextureButton
+	_expect(back_to_chapter_map != null, "chapter detail must expose a back-to-chapter-map button")
+	_expect(back_to_chapter_map.mouse_filter == Control.MOUSE_FILTER_PASS and bool(back_to_chapter_map.get_meta("scroll_drag_passthrough", false)), "back-to-chapter-map button must preserve drag-to-scroll gestures")
+	var back_touch_target := back_to_chapter_map.find_child("TouchTarget", false, false) as Button
+	_expect(back_touch_target == null or back_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded back-button touch target must not swallow drag-to-scroll gestures")
 	var first_level: Node = level_list.get_child(1)
 	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
 	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
@@ -274,6 +286,8 @@ func _initialize() -> void:
 	_expect(first_level.find_child("ChallengeLevelButton", true, false) == null, "chapter level cards must not retain a redundant Challenge Mode button")
 	_expect(str(first_normal.get_meta("level_mode", "")) == "normal", "normal entry button must carry an explicit mode identity")
 	_expect(str(first_challenge.get_meta("level_mode", "")) == "challenge", "challenge entry button must carry an explicit mode identity")
+	_expect(first_normal.mouse_filter == Control.MOUSE_FILTER_PASS and first_challenge.mouse_filter == Control.MOUSE_FILTER_PASS, "normal and challenge buttons must pass drag gestures to the map scroll container")
+	_expect(bool(first_normal.get_meta("scroll_drag_passthrough", false)) and bool(first_challenge.get_meta("scroll_drag_passthrough", false)), "both level mode buttons must declare the scroll-drag passthrough contract")
 	_expect(first_normal.find_child("ModeStars", true, false) != null and first_challenge.find_child("ModeStars", true, false) != null, "both direct mode buttons must carry their own three-star progress")
 	_expect(first_normal.size.y >= UiKit.MIN_TOUCH_TARGET.y and first_challenge.size.y >= UiKit.MIN_TOUCH_TARGET.y, "direct mode buttons must meet the shared mobile touch-target height without invisible overlap")
 	_expect(first_normal.position.y + first_normal.size.y <= first_challenge.position.y, "normal and challenge hit regions must never overlap")
@@ -1863,17 +1877,20 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	purchase_manager._catalog = data_loader.get_table("store_products")
 	purchase_manager.reconcile_access(false)
 	_expect(purchase_manager.catalog_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "premium catalog must contain all four authored series")
-	_expect(purchase_manager.store_series_ids().is_empty(), "premium series must stay hidden before their campaign reveal")
+	_expect(purchase_manager.store_series_ids().is_empty(), "no premium series may be purchase-authorized before its campaign gate")
+	for locked_series_id in purchase_manager.catalog_series_ids():
+		_expect(purchase_manager.display_offer_ids(locked_series_id).size() == 2, "%s must remain previewable as theme plus complete arsenal before purchase unlock" % locked_series_id)
+		_expect(purchase_manager.visible_offer_ids(locked_series_id).is_empty(), "%s preview must not bypass its campaign purchase gate" % locked_series_id)
 	test_save["levels_progress"] = {"level_030": 1}
-	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must reveal after clearing level 30")
+	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must become purchase-authorized after clearing level 30")
 	test_save["levels_progress"]["level_050"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must join the store after clearing level 50")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must become purchase-authorized after clearing level 50")
 	test_save["levels_progress"]["level_080"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must reveal after clearing level 80")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must become purchase-authorized after clearing level 80")
 	test_save["levels_progress"]["level_099"] = 1
-	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 99 until a hero reaches level 40")
+	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain purchase-locked after level 99 until a hero reaches level 40")
 	test_save["equipment"]["vanguard"] = 40
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must reveal only after level 99 clear plus any hero at level 40")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 99 clear plus any hero at level 40")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
 	_expect(purchase_manager.set_id_for_series("inferno") == "set_apocalypse_inferno", "series routing must resolve the Inferno set from data")
 	_expect(purchase_manager.set_id_for_series("absolute_zero") == "set_apocalypse_absolute_zero", "series routing must resolve the Absolute Zero set from data")
@@ -2023,13 +2040,9 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var original_language := str(localization_manager.current_language)
 	var test_save: Dictionary = original_save.duplicate(true)
-	test_save["levels_progress"] = {
-		"level_030": 3,
-		"level_050": 3,
-		"level_080": 3,
-		"level_099": 3,
-	}
-	test_save["equipment"]["vanguard"] = 40
+	test_save["levels_progress"] = {}
+	for character_id in ["vanguard", "blaze", "frost", "volt"]:
+		test_save["equipment"][character_id] = 1
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
 	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
 	test_save["cosmetics"] = {
@@ -2048,6 +2061,51 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 
 	var router := FakeRouter.new()
 	root.add_child(router)
+	var locked_store := _instance("res://meta/store/store.tscn")
+	locked_store.setup(router, {})
+	root.add_child(locked_store)
+	await process_frame
+	await process_frame
+	var locked_content := locked_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	var locked_headers: Array[Control] = []
+	var locked_cards: Array[Control] = []
+	if locked_content != null:
+		for child in locked_content.get_children():
+			if not child is Control:
+				continue
+			if child.has_meta("store_series_id"):
+				locked_headers.append(child as Control)
+			elif child.has_meta("store_product_id"):
+				locked_cards.append(child as Control)
+	_expect(locked_headers.size() == 4, "fresh premium store must list all four authored series before their purchase gates")
+	_expect(locked_cards.size() == 8, "fresh premium store must preview four themes and four complete arsenals before purchase unlock")
+	for header in locked_headers:
+		var series_id := str(header.get_meta("store_series_id", ""))
+		var set_row: Dictionary = purchase_manager.set_for_series(series_id)
+		var unlock_hint := header.find_child("UnlockHint", true, false) as Label
+		_expect(bool(header.get_meta("store_series_locked", false)), "%s must declare the locked catalog state" % series_id)
+		_expect(unlock_hint != null and unlock_hint.text == str(set_row.get("unlock_hint_en", "")), "%s must show its full bilingual progression condition" % series_id)
+	for card in locked_cards:
+		var product_id := str(card.get_meta("store_product_id", ""))
+		var product: Dictionary = data_loader.get_row("store_products", product_id)
+		var set_row: Dictionary = purchase_manager.set_for_series(str(product.get("series_id", "")))
+		var buy := card.find_child("Buy_" + product_id.replace(".", "_"), true, false) as Button
+		_expect(bool(card.get_meta("store_product_locked", false)), "%s must declare the locked product state" % product_id)
+		_expect(buy != null and buy.disabled, "%s locked preview must not expose a purchase action" % product_id)
+		_expect(buy != null and buy.text == str(set_row.get("unlock_cta_en", "")), "%s locked action must use the compact data-owned unlock copy" % product_id)
+	locked_store.queue_free()
+	await process_frame
+
+	test_save["levels_progress"] = {
+		"level_030": 3,
+		"level_050": 3,
+		"level_080": 3,
+		"level_099": 3,
+	}
+	test_save["equipment"]["vanguard"] = 40
+	save_manager.save_data = test_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
 	var store := _instance("res://meta/store/store.tscn")
 	store.setup(router, {})
 	root.add_child(store)

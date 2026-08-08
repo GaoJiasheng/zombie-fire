@@ -158,6 +158,33 @@ func visible_offer_ids(series_id := "") -> Array[String]:
 	return ids
 
 
+func display_offer_ids(series_id: String) -> Array[String]:
+	# The arsenal is a complete catalog: unrevealed series remain previewable,
+	# while visible_offer_ids() continues to be the purchase authorization gate.
+	# This keeps merchandising visibility separate from entitlement/progression.
+	var ids: Array[String] = []
+	if series_id == "" or not catalog_series_ids().has(series_id):
+		return ids
+	var theme_owned := is_theme_owned(series_id)
+	var arsenal_owned := is_arsenal_owned(series_id)
+	if not theme_owned:
+		_append_offer_for_kind(ids, series_id, "theme")
+	if not arsenal_owned:
+		_append_offer_for_kind(
+			ids,
+			series_id,
+			"arsenal_upgrade" if theme_owned else "arsenal_complete"
+		)
+	ids.sort_custom(func(a: String, b: String) -> bool:
+		return int(product(a).get("sort", 0)) < int(product(b).get("sort", 0))
+	)
+	return ids
+
+
+func is_series_unlocked(series_id: String) -> bool:
+	return _series_is_visible(series_id)
+
+
 func mock_purchase(product_id: String, persist := true) -> bool:
 	var row := product(product_id)
 	if row.is_empty() or not visible_offer_ids().has(product_id):
