@@ -1,7 +1,7 @@
 # 29 · 角色战力口径与元素身份调优（星星装备锚点版）
 
 > 状态：方案定稿，待实施。本文是"角色间战力离散 / 元素身份不可见 / frost 定价倒挂"专项的唯一主方案。
-> 实测基线：`main @ ee00cb33`（2026-08-08 全部探针数据在此基线上测得），`check_release_candidate.py` 全绿。
+> 实测基线：`main @ e11a31e9`（战力口径2.0 / design/28 之后；2026-08-08 全部探针数据在此基线上测得），`check_release_candidate.py` 全绿。
 > 本文取代 2026-08-08 会话中的 v1（压主动技倍率）与 v2（元素加成+survival_reference 手调）两版口头方案；
 > §2 记录了对 v2 的复审结论与修正，实施者不需要再翻会话记录。
 > 实施要求：每个 Phase 内"模型改动 + power_ruler_model.py 镜像 + generate_clear_requirements 重生成 + 校验基线"
@@ -15,7 +15,7 @@
 2. 开工第一步：`git status` 必须干净。当前仓库有商店原型线（Codex）在并行施工
    （`meta/store/`、`core/commerce/`、`data/premium_sets.json` 等）；若工作树不干净，先停下与 Owner 确认，
    **禁止**在别人的未提交改动之上施工。然后 `python3 tools/check_release_candidate.py` 确认全绿。
-3. 本文行号与数值以 commit `ee00cb33` 为锚点，并行提交会导致漂移——定位一律用函数名/字段名
+3. 本文行号与数值以 commit `e11a31e9` 为锚点，并行提交会导致漂移——定位一律用函数名/字段名
    （如搜 `_bullet_affinity_multiplier`、`_active_skill_offense_multiplier`、`survival_reference`），
    数值对不上时先重跑 §7 的探针重新测量，不许沿用本文数字凭猜施工。
 4. **fixture 纪律**：推荐战力是存档相关的（选卡投影读永久技能等级，见 design/28），
@@ -39,7 +39,7 @@
 - **I3 带宽**：付费角色的 99 关挑战比值全部落在 **[1.05, 1.65]**，任何付费角色 ≥ 免费锚点，
   最强/最弱付费角色 ≤ **1.45×**。现状：blaze 1.99 / volt 1.81 / frost 0.77，带宽 2.58×，**不成立**。
 
-## 1. 实测现状（全部数字在 `ee00cb33` + §7 fixture 下测得）
+## 1. 实测现状（全部数字在 `e11a31e9` + §7 fixture 下测得）
 
 ### 1.1 角色离散是全程恒定的，且与关卡免疫无关
 
@@ -123,7 +123,7 @@
   `check_release_candidate.py` 全绿；`m1_smoke_test.gd` 的战力相关断言若需更新基线，提交信息引用本文。
 
 **预估落点**（估算值，实施后以实测为准）：frost 0.77→~0.86、blaze 1.99→~1.85、volt 1.81→~1.72、
-vanguard 1.13 不动。带宽 2.58×→~2.15×——**Phase A 只解决一半，Phase B 才是主刀。**
+vanguard 1.13 不动。带宽 2.58×→~2.2×——**Phase A 只解决一半，Phase B 才是主刀。**
 
 ## 4. Phase B —— 主动技带宽压缩 + 亲和微调（依赖 Phase A）
 
@@ -184,7 +184,7 @@ apocalypse（999999★）系全部排除。对比表全部基于此 fixture。
 python3 tools/validate_data.py
 python3 tools/generate_clear_requirements.py   # Phase A 必跑；diff 进提交或说明为零
 python3 tools/check_clear_requirements.py
-python3 tools/simulate_balance.py              # 星级分布必须与 ee00cb33 一致（12/86/1）
+python3 tools/simulate_balance.py              # 星级分布必须与 e11a31e9 一致（3★13 / 2★86 / 1★0）
 python3 tools/check_endgame_balance.py         # vanguard 基准，Phase A/B 均应零变化
 python3 tools/check_release_candidate.py       # 全绿才许提交
 ```
