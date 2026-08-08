@@ -3759,3 +3759,12 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Same-source cancellation**: the recommendation side evaluates the added identity terms with the same vanguard + autocannon estimator at the pace reference level. The independent all-free level-99 challenge anchor remains `8323 / 7499 = 1.1099x`; the required star fixture remains `56★`.
 - **No difficulty rewrite**: regeneration touches no level requirement row. The exact fixture, six-stage before / after matrix and integer-rounding interpretation are frozen in `design/29_character_power_element_retune_plan.md` Appendices A/B.
 - **Permanent gate**: M1 smoke derives expected affinity values from current character data and independently locks rank, status, splash, shatter, chain, slow, mismatch and effective-HP behavior. A future one-sided model edit fails release validation.
+
+## Paid Character Power Band · Phase B (2026-08-08)
+
+- **Data-only retune**: only Blaze Striker, Frost Maiden and Arc Maiden active-skill coefficients plus Blaze's Fire affinity changed. Steel Vanguard, Autocannon, level data and Apex immunity remain byte-identical to the Phase A baseline.
+- **I3 closed**: the fixed maxed free fixture measures `1.5057x / 1.1783x / 1.6496x` at level 99 challenge for Blaze / Frost / Volt. Every paid hero clears the `1.1099x` free anchor; paid max/min is `1.4000x`, below the `1.45x` ceiling.
+- **No hidden midgame hole**: the weakest paid result is still `4.5427x` at level 50, `1.8666x` at level 75 and `1.5269x` at level 90. Frost keeps its measured `1.7095x` effective-HP advantage over Blaze instead of being forced into an offense-only ordering.
+- **Reality stayed aligned**: deterministic matching-element DPS is now `119,776 / 136,920 / 131,777 / 130,646`; the four-character spread moves from `1.146x` to `1.143x` rather than widening behind a prettier power number.
+- **Premium contracts re-frozen, not retuned**: Thunder `1.575180x`, Inferno `1.575x`, Absolute Zero `1.539x` and Golden Law `2.043x` all remain inside their data-owned bands without changing a premium coefficient.
+- **Reproducibility**: `design/29` Appendices C/D contain the six-stage matrix, I1/I2/I3 table, final knobs and baseline record; `design/21` Appendix A records the linked arsenal baselines.

@@ -1007,3 +1007,21 @@ godot --headless --path . --script res://tools/m1_smoke_test.gd
 3. 完成 Sandbox 的购买、恢复、取消、pending、退款 / 撤权和主题抵扣升级验证。
 4. 复核中英文商品元数据、隐私披露、支持页面与审核说明。
 5. 通过 TestFlight 实购回归后，才允许将当前本地商品闭环纳入 App Review 构建。
+
+---
+
+## 附录 A · Phase B 后军械免费基准重冻结（2026-08-08）
+
+重冻结来源：独立提交 `feat(balance): retune paid character power band`（直接父基线 Phase A
+`f76a4c71`）。本次只调免费角色数据，没有修改任何终焉武器、护甲、芯片、宠物或套装系数。
+
+| 军械合同 | 重冻结后的免费同属性基准 | 合同实测 | 锁定带 | 判定 |
+|---|---:|---:|---:|---|
+| 雷霆 / volt | `130,646` 单 Boss DPS | `1.575180x` | `1.52–1.58x` | 通过 |
+| 炼狱 / blaze | `136,920` 单 Boss DPS | `1.575x` 加权 | `1.52–1.58x` | 通过 |
+| 绝对零度 / frost | `131,777` 单 Boss DPS | `1.539x` 加权 | `1.52–1.58x` | 通过 |
+| 黄金律 / vanguard | `119,776` 单 Boss DPS | `2.043x` 加权 | `1.90–2.05x` | 通过 |
+
+雷霆结果距离上界约 `0.004820x`，因此继续由现有 Release Candidate 合同断言作为硬门禁；未来任何角色、
+免费同属性构筑或雷霆组件改动，都必须先重跑四套审计，不得只沿用本文数字。完整角色 fixture 与前后矩阵见
+`design/29_character_power_element_retune_plan.md` 附录 C/D。
