@@ -3768,3 +3768,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Reality stayed aligned**: deterministic matching-element DPS is now `119,776 / 136,920 / 131,777 / 130,646`; the four-character spread moves from `1.146x` to `1.143x` rather than widening behind a prettier power number.
 - **Premium contracts re-frozen, not retuned**: Thunder `1.575180x`, Inferno `1.575x`, Absolute Zero `1.539x` and Golden Law `2.043x` all remain inside their data-owned bands without changing a premium coefficient.
 - **Reproducibility**: `design/29` Appendices C/D contain the six-stage matrix, I1/I2/I3 table, final knobs and baseline record; `design/21` Appendix A records the linked arsenal baselines.
+
+## TestFlight Four-Series Acceptance Access (2026-08-09)
+
+- **All authored premium content is testable**: the TestFlight-only `testflight_premium_preview` export feature exposes Default, Neon Tempest, Infernal Dominion, Polar Aurora and Gilded Eclipse plus all four complete Apocalypse arsenals.
+- **No-charge acceptance flow**: testers use the existing local demo-purchase path; it never creates a verified StoreKit entitlement and does not charge an Apple account.
+- **Production gates stay intact**: the ordinary iOS Release preset remains `release` only. Without the TestFlight feature, the 30 / 50 / 80 / Stage 99 + hero Lv.40 gates continue to control purchase authorization.
+- **Independent internal conveniences**: TestFlight still carries `testflight_speed_unlocked`; premium preview and speed unlock are both absent from an App Review build unless explicitly requested.

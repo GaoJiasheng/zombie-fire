@@ -1877,19 +1877,32 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	save_manager.save_data = test_save
 	purchase_manager._catalog = data_loader.get_table("store_products")
 	purchase_manager.reconcile_access(false)
+	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
 	_expect(purchase_manager.catalog_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "premium catalog must contain all four authored series")
-	_expect(purchase_manager.store_series_ids().is_empty(), "no premium series may be purchase-authorized before its campaign gate")
+	_expect(
+		purchase_manager.store_series_ids() == (
+			["thunder", "inferno", "absolute_zero", "golden_law"] if testflight_preview else []
+		),
+		"fresh premium authorization must follow the production gate or TestFlight preview contract"
+	)
 	for locked_series_id in purchase_manager.catalog_series_ids():
 		_expect(purchase_manager.display_offer_ids(locked_series_id).size() == 2, "%s must remain previewable as theme plus complete arsenal before purchase unlock" % locked_series_id)
-		_expect(purchase_manager.visible_offer_ids(locked_series_id).is_empty(), "%s preview must not bypass its campaign purchase gate" % locked_series_id)
+		_expect(
+			purchase_manager.visible_offer_ids(locked_series_id).size() == (2 if testflight_preview else 0),
+			"%s authorization must follow the production gate or TestFlight preview contract" % locked_series_id
+		)
 	test_save["levels_progress"] = {"level_030": 1}
-	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must become purchase-authorized after clearing level 30")
+	if not testflight_preview:
+		_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must become purchase-authorized after clearing level 30")
 	test_save["levels_progress"]["level_050"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must become purchase-authorized after clearing level 50")
+	if not testflight_preview:
+		_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must become purchase-authorized after clearing level 50")
 	test_save["levels_progress"]["level_080"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must become purchase-authorized after clearing level 80")
+	if not testflight_preview:
+		_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must become purchase-authorized after clearing level 80")
 	test_save["levels_progress"]["level_099"] = 1
-	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain purchase-locked after level 99 until a hero reaches level 40")
+	if not testflight_preview:
+		_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain purchase-locked after level 99 until a hero reaches level 40")
 	test_save["equipment"]["vanguard"] = 40
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 99 clear plus any hero at level 40")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
@@ -1958,7 +1971,10 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(not purchase_manager.has_entitlement("ent_arsenal_absolute_zero"), "Absolute Zero reset must revoke its arsenal access")
 	_expect(not purchase_manager.has_entitlement("ent_theme_polar_aurora"), "Absolute Zero reset must revoke its bundled theme")
 	_expect(purchase_manager.has_entitlement("ent_arsenal_inferno"), "Absolute Zero reset must preserve Inferno arsenal access")
-	_expect(save_manager.get_character_outfit("frost") == "follow_theme", "revoking Polar Aurora must reset only its explicit outfit")
+	_expect(
+		save_manager.get_character_outfit("frost") == ("polar_aurora" if testflight_preview else "follow_theme"),
+		"revoking Polar Aurora must preserve a TestFlight-preview outfit or reset the production outfit"
+	)
 	_expect(save_manager.get_character_outfit("blaze") == "infernal_dominion", "revoking Polar Aurora must preserve an owned Infernal outfit")
 	_expect(purchase_manager.reset_mock_purchases_for_series("inferno", false) == 1, "series reset must remove only the Inferno complete receipt")
 	_expect(not purchase_manager.has_entitlement("ent_arsenal_inferno"), "Inferno series reset must revoke Inferno arsenal access")
@@ -1967,12 +1983,18 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(purchase_manager.has_entitlement("ent_theme_neon_tempest"), "Inferno series reset must preserve Neon theme access")
 	_expect(save_manager.is_item_unlocked("weapon", "weapon_apocalypse_thunder"), "Inferno series reset must not remove Thunder equipment")
 	_expect(not save_manager.is_item_unlocked("weapon", "weapon_apocalypse_inferno"), "Inferno series reset must remove only Inferno equipment")
-	_expect(save_manager.get_character_outfit("volt") == "follow_theme", "revoking Infernal must reset only an explicit Infernal outfit")
+	_expect(
+		save_manager.get_character_outfit("volt") == ("gilded_eclipse" if testflight_preview else "follow_theme"),
+		"revoking Infernal must preserve Volt's selected TestFlight-preview Gilded outfit or reset the production outfit"
+	)
 	_expect(save_manager.get_character_outfit("vanguard") == "neon_tempest", "revoking Infernal must preserve an owned Neon outfit")
 	purchase_manager.reset_mock_purchases(false)
 	_expect(not purchase_manager.has_entitlement("ent_arsenal_thunder"), "reset must revoke only local mock arsenal access")
 	_expect(save_manager.get_selected("weapon") == "weapon_autocannon", "revocation must fall back to the starter weapon")
-	_expect(save_manager.get_character_outfit("vanguard") == "follow_theme", "global reset must reset remaining explicit paid hero outfits")
+	_expect(
+		save_manager.get_character_outfit("vanguard") == ("neon_tempest" if testflight_preview else "follow_theme"),
+		"global reset must preserve TestFlight-preview outfits or reset production paid outfits"
+	)
 	save_manager.save_data = original
 	purchase_manager.reconcile_access(false)
 	_verify_multi_series_purchase_routing(data_loader, save_manager, purchase_manager)
@@ -2059,6 +2081,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	purchase_manager.refresh_catalog_and_access()
 	theme_manager.refresh_from_save()
 	localization_manager.apply_language("en", false)
+	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
 
 	var router := FakeRouter.new()
 	root.add_child(router)
@@ -2084,16 +2107,20 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 		var series_id := str(header.get_meta("store_series_id", ""))
 		var set_row: Dictionary = purchase_manager.set_for_series(series_id)
 		var unlock_hint := header.find_child("UnlockHint", true, false) as Label
-		_expect(bool(header.get_meta("store_series_locked", false)), "%s must declare the locked catalog state" % series_id)
-		_expect(unlock_hint != null and unlock_hint.text == str(set_row.get("unlock_hint_en", "")), "%s must show its full bilingual progression condition" % series_id)
+		_expect(bool(header.get_meta("store_series_locked", false)) == (not testflight_preview), "%s must declare the correct production/TestFlight catalog state" % series_id)
+		if not testflight_preview:
+			_expect(unlock_hint != null and unlock_hint.text == str(set_row.get("unlock_hint_en", "")), "%s must show its full bilingual progression condition" % series_id)
 	for card in locked_cards:
 		var product_id := str(card.get_meta("store_product_id", ""))
 		var product: Dictionary = data_loader.get_row("store_products", product_id)
 		var set_row: Dictionary = purchase_manager.set_for_series(str(product.get("series_id", "")))
 		var buy := card.find_child("Buy_" + product_id.replace(".", "_"), true, false) as Button
-		_expect(bool(card.get_meta("store_product_locked", false)), "%s must declare the locked product state" % product_id)
-		_expect(buy != null and buy.disabled, "%s locked preview must not expose a purchase action" % product_id)
-		_expect(buy != null and buy.text == str(set_row.get("unlock_cta_en", "")), "%s locked action must use the compact data-owned unlock copy" % product_id)
+		_expect(bool(card.get_meta("store_product_locked", false)) == (not testflight_preview), "%s must declare the correct production/TestFlight product state" % product_id)
+		if testflight_preview:
+			_expect(buy != null and not buy.disabled, "%s TestFlight preview must expose the no-charge demo action" % product_id)
+		else:
+			_expect(buy != null and buy.disabled, "%s locked preview must not expose a purchase action" % product_id)
+			_expect(buy != null and buy.text == str(set_row.get("unlock_cta_en", "")), "%s locked action must use the compact data-owned unlock copy" % product_id)
 	locked_store.queue_free()
 	await process_frame
 
@@ -2183,6 +2210,7 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 	var purchase_manager := root.get_node("/root/PurchaseManager")
 	var theme_manager := root.get_node("/root/ThemeManager")
 	var localization_manager := root.get_node("/root/LocalizationManager")
+	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var original_language := str(localization_manager.current_language)
 	var test_save: Dictionary = original_save.duplicate(true)
@@ -2222,18 +2250,30 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 		if worn != null and wear != null and buy != null:
 			_expect(worn.disabled and str(worn.get_meta("appearance_action_state", "")) == "current", "worn outfit action must be disabled and marked current")
 			_expect(not wear.disabled and str(wear.get_meta("appearance_action_state", "")) == "available", "owned outfit action must remain bright and wearable")
-			_expect(not buy.disabled and str(buy.get_meta("appearance_action_state", "")) == "purchase", "unowned outfit action must remain clickable but use purchase styling")
+			_expect(
+				not buy.disabled and str(buy.get_meta("appearance_action_state", "")) == ("available" if testflight_preview else "purchase"),
+				"premium outfit action must follow the TestFlight-preview or production-purchase state contract"
+			)
 			_expect(worn.text == ("已穿戴" if language == "zh" else "WORN"), "worn action must keep a clear bilingual state label")
 			_expect(wear.text == ("穿  戴" if language == "zh" else "Wear"), "wear action must keep a clear bilingual verb")
-			_expect(buy.text == ("购  买" if language == "zh" else "BUY"), "store-bound outfit action must use an explicit bilingual purchase verb")
-			_expect(ownership != null and ownership.text == ("尚未拥有" if language == "zh" else "Not Owned"), "unowned outfit card must disclose ownership state outside the action label")
+			_expect(
+				buy.text == (("穿  戴" if language == "zh" else "Wear") if testflight_preview else ("购  买" if language == "zh" else "BUY")),
+				"premium outfit action must use the correct bilingual TestFlight-preview or purchase verb"
+			)
+			_expect(
+				ownership == null if testflight_preview else (ownership != null and ownership.text == ("尚未拥有" if language == "zh" else "Not Owned")),
+				"premium outfit ownership disclosure must follow the TestFlight-preview or production contract"
+			)
 			var worn_style := worn.get_theme_stylebox("disabled") as StyleBoxTexture
 			var wear_style := wear.get_theme_stylebox("normal") as StyleBoxTexture
 			var buy_style := buy.get_theme_stylebox("normal") as StyleBoxTexture
 			_expect(worn_style != null and wear_style != null and buy_style != null, "appearance actions must use armored raster styles in every state")
 			if worn_style != null and wear_style != null and buy_style != null:
 				_expect(worn_style.modulate_color.get_luminance() < wear_style.modulate_color.get_luminance(), "worn surface must be visibly quieter than the wearable surface")
-				_expect(buy_style.modulate_color.get_luminance() < wear_style.modulate_color.get_luminance(), "purchase surface must be lower-gloss than the wearable surface")
+				if testflight_preview:
+					_expect(is_equal_approx(buy_style.modulate_color.get_luminance(), wear_style.modulate_color.get_luminance()), "TestFlight-preview outfits must share the wearable surface")
+				else:
+					_expect(buy_style.modulate_color.get_luminance() < wear_style.modulate_color.get_luminance(), "purchase surface must be lower-gloss than the wearable surface")
 		var portrait_cards: Array[Control] = []
 		var hero_portrait := selector.find_child("HeroPortrait", true, false) as TextureRect
 		_expect(hero_portrait != null and hero_portrait.texture is AtlasTexture, "appearance hero showcase must use the shared hero-bust viewport")

@@ -6,7 +6,7 @@ signal character_outfit_changed(character_id: String, outfit_mode: String)
 const CATALOG_PATH := "res://data/themes.json"
 const DEFAULT_THEME_ID := "default"
 const PREVIEW_ENV := "ZOMBIE_FIRE_THEME_PREVIEW"
-const TESTFLIGHT_PREVIEW_FEATURE := "neon_tempest_preview"
+const TESTFLIGHT_PREVIEW_FEATURE := "testflight_premium_preview"
 const OUTFIT_FOLLOW_THEME := "follow_theme"
 
 var _themes: Dictionary = {}
@@ -83,9 +83,9 @@ func select_theme(theme_id: String) -> bool:
 
 
 func preview_access_enabled() -> bool:
-	# TestFlight/dev preview access deliberately grants selection only. It never
-	# writes a commerce entitlement and it no longer forces Neon Tempest on every
-	# launch, so reviewers/testers can compare the default and premium treatments.
+	# TestFlight/dev preview access deliberately grants catalog selection only. It
+	# never writes a verified commerce entitlement and it does not force a theme
+	# on launch, so testers can compare Default plus all four premium treatments.
 	return (
 		OS.has_feature(TESTFLIGHT_PREVIEW_FEATURE)
 		or (OS.is_debug_build() and OS.get_environment(PREVIEW_ENV).strip_edges() != "")

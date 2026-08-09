@@ -301,6 +301,11 @@ func _append_offer_for_kind(ids: Array[String], series_id: String, kind: String)
 func _series_is_visible(series_id: String) -> bool:
 	if series_id == "" or not catalog_series_ids().has(series_id):
 		return false
+	# Acceptance builds expose every authored series through the existing local
+	# demo-purchase flow. This feature is absent from the ordinary Release preset,
+	# so production keeps the 30 / 50 / 80 / endgame progression gates below.
+	if ThemeManager.preview_access_enabled():
+		return true
 	# An owned non-consumable must remain restorable/selectable even if a test
 	# fixture later rolls campaign progress backward.
 	if is_theme_owned(series_id) or is_arsenal_owned(series_id):
