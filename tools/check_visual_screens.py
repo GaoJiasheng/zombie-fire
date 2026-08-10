@@ -837,6 +837,16 @@ INFERNAL_BUTTON_SCREENS: list[tuple[str, dict, str]] = [
     for language in ("zh", "en")
 ] + [
     (
+        "settings",
+        {
+            "language": language,
+            "save_override": INFERNAL_THEME_ACTIVE_OVERRIDE,
+        },
+        f"settings_infernal_buttons_{language}",
+    )
+    for language in ("zh", "en")
+] + [
+    (
         "menu",
         {
             "language": language,

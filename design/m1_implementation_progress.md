@@ -3804,6 +3804,7 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Native aspect ratios stay honest**: all `36` registered sizes per tier preserve their existing paths. End armor is scaled independently and only a blended straight center strip extends, so `170×84` purchase actions and `980×58` rails retain the same authored material without stretching their end modules.
 - **Import cache caught and closed**: the first routed capture correctly exposed stale Godot imports even though source PNGs had changed. A headless editor import refreshed all 72 textures; the repeated screenshots then showed the new rendered assets in runtime rather than only on disk.
 - **Permanent proof**: `check_visual_assets.py` now validates both Gilded and Infernal V2 button manifests, exact 72-asset coverage, hashes, native dimensions, transparent corners, material variation and visibly distinct action tiers. Chinese / English chip collection and menu captures pass at `/tmp/zombie_fire_infernal_button_review_20260810_v3/`.
+- **Settings regression extension**: Chinese / English Infernal settings captures now belong to the same dedicated gate, explicitly covering full-width, two-column, three-column and bottom-primary controls so a stale geometric fallback cannot pass unnoticed.
 
 ## Slow Field V3 Non-Radial Battlefield Zone (2026-08-10)
 
