@@ -900,6 +900,18 @@ GILDED_ECLIPSE_SCREENS: list[tuple[str, dict, str]] = [
     ("settings", {"save_override": GILDED_THEME_ACTIVE_OVERRIDE}, "settings_gilded_preview"),
     (
         "collection",
+        {
+            "mode": "weapons",
+            "detail_item": "weapon_autocannon",
+            "save_override": GILDED_THEME_ACTIVE_OVERRIDE,
+            # Keep another weapon equipped so the focused detail presents the
+            # enabled gold primary action beside the quieter secondary actions.
+            "equipment": {"selected_weapon": "weapon_flamethrower"},
+        },
+        "collection_detail_gilded_buttons",
+    ),
+    (
+        "collection",
         {"mode": "characters", "save_override": GILDED_THEME_ACTIVE_OVERRIDE},
         "collection_characters_gilded_preview",
     ),

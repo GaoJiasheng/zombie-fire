@@ -1716,6 +1716,20 @@
       "count": 4,
       "task": "App Store Apocalypse armor prototype completeness and cross-theme normalization",
       "created_at": "2026-08-03T15:30:00+08:00"
+    },
+    {
+      "path": "sprites/themes/gilded_eclipse/ui/ui_button_{primary,secondary}_native_*x*.png",
+      "source": "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_button_primary_transparent_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_button_secondary_transparent_v2.png",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_button_runtime_manifest_v2.json",
+        "source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01/gilded_eclipse_button_runtime_contact_sheet_v2.png"
+      ],
+      "reason": "The owner identified the shipped Gilded Eclipse buttons as visible procedural geometry. Two new deeply rendered physical-material masters replace the polygon / line / diamond construction. All registered native sizes preserve rendered end armor and resize only a blended calm centre lane; primary flowing-gold and quieter secondary gunmetal tiers remain distinct, text-safe and unstretched.",
+      "count": 72,
+      "task": "Gilded Eclipse App Store button material replacement and native-size regression",
+      "created_at": "2026-08-10T18:00:00+08:00"
     }
   ]
 }

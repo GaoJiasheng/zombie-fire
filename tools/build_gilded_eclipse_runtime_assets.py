@@ -9,6 +9,7 @@ release review.  It does not alter gameplay values or purchase state.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -24,6 +25,10 @@ THEME = ROOT / "assets/production/sprites/themes/gilded_eclipse"
 PREMIUM = ROOT / "assets/production/sprites/premium/gilded_eclipse"
 MANIFEST = SOURCE / "gilded_eclipse_runtime_manifest_v1.json"
 CONTACT = SOURCE / "gilded_eclipse_runtime_contact_sheet_v1.png"
+BUTTON_MANIFEST = SOURCE / "gilded_eclipse_button_runtime_manifest_v2.json"
+BUTTON_CONTACT = SOURCE / "gilded_eclipse_button_runtime_contact_sheet_v2.png"
+BUTTON_PRIMARY_MASTER = SOURCE / "gilded_eclipse_button_primary_transparent_v2.png"
+BUTTON_SECONDARY_MASTER = SOURCE / "gilded_eclipse_button_secondary_transparent_v2.png"
 TRUE_GRIP_CONTACT = SOURCE / "golden_law_true_grip_contact_sheet_v1.png"
 FROST_TRUE_GRIP_CHROMA = SOURCE / "char_frost_gilded_true_grip_three_direction_chroma_v3.png"
 
@@ -221,46 +226,150 @@ def build_heroes(entries: list[dict]) -> None:
                 entries.append(record(path, f"hero_{state}"))
 
 
-def beveled(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], cut: int, fill, outline, width: int) -> None:
-    x0, y0, x1, y1 = box
-    pts = [(x0 + cut, y0), (x1 - cut, y0), (x1, y0 + cut), (x1, y1 - cut), (x1 - cut, y1), (x0 + cut, y1), (x0, y1 - cut), (x0, y0 + cut)]
-    draw.polygon(pts, fill=fill)
-    draw.line(pts + [pts[0]], fill=outline, width=width, joint="curve")
+def button_master(path: Path) -> Image.Image:
+    if not path.exists():
+        raise FileNotFoundError(f"missing reviewed Gilded Eclipse button master: {path}")
+    master = Image.open(path).convert("RGBA")
+    alpha = np.asarray(master.getchannel("A"), dtype=np.uint8).copy()
+    # The soft chroma matte deliberately leaves sub-visible fringe pixels.
+    # Clear only that near-zero residue before calculating the production crop.
+    alpha[alpha <= 12] = 0
+    master.putalpha(Image.fromarray(alpha))
+    bbox = master.getbbox()
+    if bbox is None:
+        raise RuntimeError(f"empty reviewed Gilded Eclipse button master: {path}")
+    master = master.crop(bbox)
+    if master.width / master.height < 2.8:
+        raise RuntimeError(f"button master is not a wide bezel: {path}")
+    return master
 
 
-def button_asset(width: int, height: int, primary: bool) -> Image.Image:
-    image = Image.new("RGBA", (width, height))
-    draw = ImageDraw.Draw(image)
-    ratio = width / height
-    family = "short" if ratio < 3.2 else "standard" if ratio < 6.0 else "long"
-    cut = max(7, min(height // 3, 28 if family == "short" else 20 if family == "standard" else 14))
-    margin = max(2, height // 18)
-    rim = (248, 205, 107, 218 if primary else 150)
-    warm = (178, 118, 36, 132 if primary else 76)
-    beveled(draw, (0, 0, width - 1, height - 1), cut, (18, 17, 17, 244), rim, max(2, height // 20))
-    beveled(draw, (margin, margin, width - 1 - margin, height - 1 - margin), max(5, cut - margin), (8, 9, 11, 248), warm, max(1, height // 36))
-    inner = max(4, height // 9)
-    beveled(draw, (inner, inner, width - inner - 1, height - inner - 1), max(4, cut - inner // 2), (3, 4, 6, 250), (255, 224, 150, 112), 1)
-    nodes = 2 if family == "short" else 3 if family == "standard" else 5
-    for i in range(nodes):
-        x = round(width * (i + 1) / (nodes + 1))
-        r = max(2, height // 18)
-        draw.polygon([(x, margin), (x + r, margin + r), (x, margin + r * 2), (x - r, margin + r)], fill=(255, 225, 154, 158 if primary else 92))
-        draw.polygon([(x, height - margin), (x + r, height - margin - r), (x, height - margin - r * 2), (x - r, height - margin - r)], fill=(182, 121, 42, 112))
-    rail_pad = cut + max(8, height // 7)
-    draw.rounded_rectangle((rail_pad, height * 0.27, width - rail_pad, height * 0.73), radius=max(2, height // 10), fill=(1, 8, 17, 96))
-    return image
+def button_asset(master: Image.Image, width: int, height: int) -> Image.Image:
+    """Compose a native-size button while preserving its rendered end armor.
+
+    Only a calm, straight section of the central text lane is resized.  The
+    corner armor, bevel profile and material highlights are independently
+    scaled from the reviewed render, so long and short controls do not stretch
+    one bitmap or fall back to procedural polygon outlines.
+    """
+    canvas = Image.new("RGBA", (width, height))
+    padding = max(1, round(min(width, height) * 0.025))
+    target_width = width - padding * 2
+    target_height = height - padding * 2
+
+    # The cap boundary sits beyond the corner armor on both reviewed masters.
+    source_cap = round(master.width * 0.255)
+    center_x0 = round(master.width * 0.30)
+    center_x1 = round(master.width * 0.38)
+    left = master.crop((0, 0, source_cap, master.height))
+    center = master.crop((center_x0, 0, center_x1, master.height))
+    right = master.crop((master.width - source_cap, 0, master.width, master.height))
+
+    # Preserve a meaningful text lane even in the shortest 1.8:1 control.
+    min_center = max(12, round(target_height * 0.38))
+    cap_width = min(round(target_height * 1.05), (target_width - min_center) // 2)
+    cap_width = max(1, cap_width)
+    center_width = target_width - cap_width * 2
+    if center_width < 1:
+        raise RuntimeError(f"button target is too narrow: {width}x{height}")
+
+    left = left.resize((cap_width, target_height), Image.Resampling.LANCZOS)
+    right = right.resize((cap_width, target_height), Image.Resampling.LANCZOS)
+    strip = Image.new("RGBA", (target_width, target_height))
+    strip.alpha_composite(left, (0, 0))
+    strip.alpha_composite(right, (cap_width + center_width, 0))
+
+    # Cross-fade over the straight rail section.  This removes visible slice
+    # seams while keeping the end modules pixel-stable and undistorted.
+    overlap = min(max(3, round(target_height * 0.18)), cap_width // 2)
+    center = center.resize((center_width + overlap * 2, target_height), Image.Resampling.LANCZOS)
+    center_alpha = np.asarray(center.getchannel("A"), dtype=np.float32)
+    blend = np.ones(center.width, dtype=np.float32)
+    blend[:overlap] = np.linspace(0.0, 1.0, overlap, endpoint=False)
+    blend[-overlap:] = np.linspace(1.0, 0.0, overlap, endpoint=False)
+    blended_alpha = np.clip(center_alpha * blend[None, :], 0, 255).astype(np.uint8)
+    center.putalpha(Image.fromarray(blended_alpha))
+    strip.alpha_composite(center, (cap_width - overlap, 0))
+    canvas.alpha_composite(strip, (padding, padding))
+    return canvas
+
+
+def validate_button_asset(image: Image.Image, width: int, height: int, kind: str) -> None:
+    if image.size != (width, height):
+        raise RuntimeError(f"{kind} button size drift: {image.size} != {(width, height)}")
+    alpha = np.asarray(image.getchannel("A"), dtype=np.uint8)
+    if alpha.max() < 220:
+        raise RuntimeError(f"{kind} button lost its opaque material body")
+    if any(alpha[y, x] > 12 for x, y in ((0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1))):
+        raise RuntimeError(f"{kind} button touches a transparent canvas corner")
+    visible = np.asarray(image.convert("RGB"), dtype=np.uint8)[alpha > 96]
+    if visible.size == 0 or np.std(visible.astype(np.float32)) < 18.0:
+        raise RuntimeError(f"{kind} button lost rendered material variation")
 
 
 def build_buttons(entries: list[dict]) -> None:
     out = THEME / "ui"
     out.mkdir(parents=True, exist_ok=True)
+    masters = {
+        "primary": button_master(BUTTON_PRIMARY_MASTER),
+        "secondary": button_master(BUTTON_SECONDARY_MASTER),
+    }
     for width, height in BUTTON_SIZES:
-        for primary in (True, False):
-            kind = "primary" if primary else "secondary"
+        for kind, master in masters.items():
             path = out / f"ui_button_{kind}_native_{width}x{height}.png"
-            button_asset(width, height, primary).save(path, optimize=True)
+            rendered = button_asset(master, width, height)
+            validate_button_asset(rendered, width, height, kind)
+            rendered.save(path, optimize=True)
             entries.append(record(path, f"button_{kind}"))
+
+
+def build_button_contact() -> None:
+    samples = ((170, 84), (286, 112), (440, 88), (760, 112), (980, 58))
+    sheet = Image.new("RGB", (1200, 780), (14, 16, 19))
+    draw = ImageDraw.Draw(sheet)
+    y = 24
+    for width, height in samples:
+        draw.text((24, y), f"{width} x {height}", fill=(232, 211, 158))
+        for x, kind in ((180, "primary"), (690, "secondary")):
+            path = THEME / "ui" / f"ui_button_{kind}_native_{width}x{height}.png"
+            image = Image.open(path).convert("RGBA")
+            preview_scale = min(0.82, 460 / width, 104 / height)
+            preview = image.resize(
+                (round(width * preview_scale), round(height * preview_scale)),
+                Image.Resampling.LANCZOS,
+            )
+            sheet.paste(preview, (x, y + 20), preview)
+            draw.text((x + 8, y + 24 + preview.height), kind, fill=(180, 196, 207))
+        y += 140
+    sheet.save(BUTTON_CONTACT, quality=95)
+
+
+def refresh_button_manifest(entries: list[dict]) -> None:
+    payload = {
+        "version": 2,
+        "count": len(entries),
+        "source_masters": [
+            str(BUTTON_PRIMARY_MASTER.relative_to(ROOT)),
+            str(BUTTON_SECONDARY_MASTER.relative_to(ROOT)),
+        ],
+        "composition": "native three-slice; rendered end armor preserved; quiet center lane resized",
+        "assets": entries,
+    }
+    BUTTON_MANIFEST.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+
+    if not MANIFEST.exists():
+        return
+    runtime = json.loads(MANIFEST.read_text())
+    replacements = {entry["path"]: entry for entry in entries}
+    replaced = 0
+    for index, entry in enumerate(runtime.get("assets", [])):
+        if entry.get("path") in replacements:
+            runtime["assets"][index] = replacements[entry["path"]]
+            replaced += 1
+    if replaced != len(entries):
+        raise RuntimeError(f"runtime manifest button coverage drift: {replaced} != {len(entries)}")
+    runtime["count"] = len(runtime.get("assets", []))
+    MANIFEST.write_text(json.dumps(runtime, ensure_ascii=False, indent=2) + "\n")
 
 
 def gilded_grade(image: Image.Image, functional: tuple[int, int, int]) -> Image.Image:
@@ -460,9 +569,24 @@ def build_contact(entries: list[dict]) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--buttons-only",
+        action="store_true",
+        help="rebuild reviewed Gilded Eclipse button natives without touching other accepted runtime art",
+    )
+    args = parser.parse_args()
     entries: list[dict] = []
+    if args.buttons_only:
+        build_buttons(entries)
+        build_button_contact()
+        refresh_button_manifest(entries)
+        print(f"Gilded Eclipse rendered button assets built: {len(entries)} files")
+        return
     build_heroes(entries)
+    button_start = len(entries)
     build_buttons(entries)
+    button_entries = entries[button_start:]
     build_weapon_coatings(entries)
     build_premium(entries)
     build_true_grip(entries)
@@ -470,6 +594,8 @@ def main() -> None:
     build_logo(entries)
     build_contact(entries)
     MANIFEST.write_text(json.dumps({"version": 1, "count": len(entries), "assets": entries}, ensure_ascii=False, indent=2) + "\n")
+    build_button_contact()
+    refresh_button_manifest(button_entries)
     print(f"Gilded Eclipse runtime assets built: {len(entries)} files")
 
 
