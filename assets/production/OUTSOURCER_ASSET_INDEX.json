@@ -1730,6 +1730,22 @@
       "count": 72,
       "task": "Gilded Eclipse App Store button material replacement and native-size regression",
       "created_at": "2026-08-10T18:00:00+08:00"
+    },
+    {
+      "path": "sprites/themes/infernal_dominion/ui/ui_button_{primary,secondary}_native_*x*.png",
+      "source": "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/prompt_log.md",
+      "derived": [
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_primary_chroma_v2.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_secondary_chroma_v2.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_primary_transparent_v2.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_secondary_transparent_v2.png",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_runtime_manifest_v2.json",
+        "source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31/infernal_dominion_button_runtime_contact_sheet_v2.png"
+      ],
+      "reason": "The owner identified the Infernal Dominion chip-page controls as visible procedural geometry. Separate deeply rendered forged-metal masters replace the polygon / line / dot construction. All 36 registered native sizes preserve authored end armor and resize only a blended quiet center lane; molten primary and subdued secondary tiers remain distinct, text-safe and unstretched.",
+      "count": 72,
+      "task": "Infernal Dominion App Store button material replacement and native-size regression",
+      "created_at": "2026-08-10T20:10:00+08:00"
     }
   ]
 }

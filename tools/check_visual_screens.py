@@ -824,6 +824,29 @@ INFERNAL_PREVIEW_SCREENS: list[tuple[str, dict, str]] = [
     ],
 ]
 
+INFERNAL_BUTTON_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "collection",
+        {
+            "language": language,
+            "mode": "chips",
+            "save_override": INFERNAL_THEME_ACTIVE_OVERRIDE,
+        },
+        f"collection_chips_infernal_buttons_{language}",
+    )
+    for language in ("zh", "en")
+] + [
+    (
+        "menu",
+        {
+            "language": language,
+            "save_override": INFERNAL_THEME_ACTIVE_OVERRIDE,
+        },
+        f"menu_infernal_buttons_{language}",
+    )
+    for language in ("zh", "en")
+]
+
 POLAR_PREVIEW_SCREENS: list[tuple[str, dict, str]] = [
     ("menu", {"save_override": POLAR_THEME_ACTIVE_OVERRIDE}, "menu_polar_preview"),
     ("settings", {"save_override": POLAR_THEME_ACTIVE_OVERRIDE}, "settings_polar_preview"),
@@ -2453,6 +2476,8 @@ def main() -> int:
         active_screens = NEON_PREVIEW_SCREENS
     elif "--infernal-theme-only" in sys.argv[1:]:
         active_screens = INFERNAL_PREVIEW_SCREENS
+    elif "--infernal-buttons-only" in sys.argv[1:]:
+        active_screens = INFERNAL_BUTTON_SCREENS
     elif "--polar-theme-only" in sys.argv[1:]:
         active_screens = POLAR_PREVIEW_SCREENS
     elif "--gilded-only" in sys.argv[1:]:

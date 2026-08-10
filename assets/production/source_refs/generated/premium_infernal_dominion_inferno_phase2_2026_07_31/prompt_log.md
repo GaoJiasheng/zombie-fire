@@ -117,3 +117,25 @@ Deterministic runtime outputs:
 - Runtime acceptance screenshots: `inferno_step4_{burn,combustion_center,combustion_left,combustion_right,combustion_boss,combustion_reduced,spread,phoenix,counter,awakening}.png`.
 
 Acceptance contract: central, left edge, right edge, Boss, horde and reduced-effects routes invoke the real combat functions. Effects remain centered on their gameplay event; edge cases reduce scale rather than moving the event. Phoenix head and tail direction are data-audited against live travel. Reduced effects retain direction, hit center, burn state and counter danger information while removing secondary density.
+
+## 10. App Store button material replacement V2
+
+- Date: 2026-08-10
+- Mode: OpenAI built-in `imagegen`, separate primary and secondary chroma-key masters; transparent cleanup with the ImageGen chroma-key helper; deterministic native-size three-slice composition through `tools/build_infernal_runtime_assets.py --buttons-only`.
+- Replaces: the former procedural polygon / outline / dot / center-rail button family.
+- Runtime contract: rendered end armor remains intact, only a quiet central text lane extends; primary and secondary are independent physical-material renders; no full-bitmap stretching and no geometry fallback.
+
+Primary prompt:
+
+> Create one production-ready transparent-source master for a premium vertical mobile game UI button. Use case: stylized-concept, final shipped UI asset. Theme: Infernal Dominion — blackened forged steel, heat-tempered dark copper, restrained molten-orange furnace energy. Object: one ultra-finished, wide horizontal PRIMARY action-button bezel, front orthographic view, perfectly centered and symmetrical, approximately 5:1 aspect ratio. Design heavy dimensional forged end caps, subtle layered metal bevels, realistic charred steel and copper material wear, tiny recessed ember channels, and a calm nearly-black central text-safe well with excellent white/gold text readability. The entire button must be visible with generous empty padding. No text, letters, numbers, icons, watermark, dot nodes, decorative rail lines, wireframe, flat polygon outlines, geometric-diagram look, loose parts, perspective, cast shadow or neon cyberpunk. Use a perfectly flat solid #00FF00 chroma-key background and do not use green on the button.
+
+Secondary prompt:
+
+> Create one production-ready transparent-source master for a premium vertical mobile game UI button. Use case: stylized-concept, final shipped UI asset. Theme: Infernal Dominion — blackened forged steel, subdued heat-tempered copper and extremely restrained dying ember light. Object: one ultra-finished, wide horizontal SECONDARY navigation/action-button bezel, front orthographic view, perfectly centered and symmetrical, approximately 5:1 aspect ratio. Use dimensional forged end caps with a quieter silhouette, realistic dark gunmetal and antique copper, subtle layered bevels and soot wear, and a calm nearly-black central text-safe well. Keep it visibly dimmer and less saturated than the primary. The entire button must be visible with generous padding. No text, letters, numbers, icons, watermark, dot nodes, decorative rail lines, wireframe, flat polygon outlines, geometric-diagram look, loose parts, perspective, cast shadow or neon cyberpunk. Use a perfectly flat solid #00FF00 chroma-key background and do not use green on the button.
+
+Sources and derivatives:
+
+- `infernal_dominion_button_{primary,secondary}_chroma_v2.png`
+- `infernal_dominion_button_{primary,secondary}_transparent_v2.png`
+- `infernal_dominion_button_runtime_manifest_v2.json` — 72 native-size assets, 36 sizes × 2 semantic tiers.
+- `infernal_dominion_button_runtime_contact_sheet_v2.png`

@@ -37,6 +37,11 @@ GILDED_BUTTON_MANIFEST = (
     / "assets/production/source_refs/generated/premium_black_gold_golden_law_phase4_2026_08_01"
     / "gilded_eclipse_button_runtime_manifest_v2.json"
 )
+INFERNAL_BUTTON_MANIFEST = (
+    ROOT
+    / "assets/production/source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31"
+    / "infernal_dominion_button_runtime_manifest_v2.json"
+)
 
 
 def res_path(value: str) -> Path:
@@ -256,15 +261,15 @@ def check_combo_coverage() -> list[str]:
     return errors
 
 
-def check_gilded_button_materials() -> list[str]:
+def check_rendered_button_materials(label: str, manifest: Path) -> list[str]:
     errors: list[str] = []
-    if not GILDED_BUTTON_MANIFEST.exists():
-        return [f"missing Gilded rendered-button manifest: {GILDED_BUTTON_MANIFEST.relative_to(ROOT)}"]
-    payload = json.loads(GILDED_BUTTON_MANIFEST.read_text(encoding="utf-8"))
+    if not manifest.exists():
+        return [f"missing {label} rendered-button manifest: {manifest.relative_to(ROOT)}"]
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
     assets = payload.get("assets", [])
     if payload.get("version") != 2 or payload.get("count") != 72 or len(assets) != 72:
         errors.append(
-            "Gilded rendered-button manifest must lock 72 V2 native assets; "
+            f"{label} rendered-button manifest must lock 72 V2 native assets; "
             f"version={payload.get('version')} count={payload.get('count')} assets={len(assets)}"
         )
         return errors
@@ -274,32 +279,32 @@ def check_gilded_button_materials() -> list[str]:
     for entry in assets:
         kind = str(entry.get("kind", "")).removeprefix("button_")
         if kind not in kinds:
-            errors.append(f"unknown Gilded button kind in manifest: {entry.get('kind')}")
+            errors.append(f"unknown {label} button kind in manifest: {entry.get('kind')}")
             continue
         path = ROOT / str(entry.get("path", ""))
         if not path.exists():
-            errors.append(f"missing Gilded rendered button: {path.relative_to(ROOT)}")
+            errors.append(f"missing {label} rendered button: {path.relative_to(ROOT)}")
             continue
         actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
         if actual_hash != entry.get("sha256"):
-            errors.append(f"stale Gilded button hash: {path.relative_to(ROOT)}")
+            errors.append(f"stale {label} button hash: {path.relative_to(ROOT)}")
         with Image.open(path) as source:
             image = source.convert("RGBA")
         expected_size = tuple(entry.get("size", []))
         if len(expected_size) != 2 or image.size != expected_size:
             errors.append(
-                f"Gilded button native-size drift: {path.relative_to(ROOT)}={image.size}, "
+                f"{label} button native-size drift: {path.relative_to(ROOT)}={image.size}, "
                 f"manifest={expected_size}"
             )
             continue
         width, height = image.size
         alpha = image.getchannel("A")
         if any(alpha.getpixel(point) > 12 for point in ((0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1))):
-            errors.append(f"Gilded button lost transparent corners: {path.relative_to(ROOT)}")
+            errors.append(f"{label} button lost transparent corners: {path.relative_to(ROOT)}")
         colors = image.convert("RGB").getcolors(maxcolors=256)
         if colors is not None and len(colors) < 64:
             errors.append(
-                f"Gilded button looks procedurally flat instead of rendered: "
+                f"{label} button looks procedurally flat instead of rendered: "
                 f"{path.relative_to(ROOT)} colors={len(colors)}"
             )
         kinds[kind] += 1
@@ -307,17 +312,25 @@ def check_gilded_button_materials() -> list[str]:
 
     for kind, count in kinds.items():
         if count != 36:
-            errors.append(f"Gilded button {kind} native coverage drift: {count} != 36")
+            errors.append(f"{label} button {kind} native coverage drift: {count} != 36")
     if len(by_size) != 36:
-        errors.append(f"Gilded button size-family coverage drift: {len(by_size)} != 36")
+        errors.append(f"{label} button size-family coverage drift: {len(by_size)} != 36")
     for size, pair in by_size.items():
         if set(pair) != {"primary", "secondary"}:
-            errors.append(f"Gilded button action tiers incomplete at {size}: {sorted(pair)}")
+            errors.append(f"{label} button action tiers incomplete at {size}: {sorted(pair)}")
             continue
         difference = ImageChops.difference(pair["primary"], pair["secondary"])
         if max(ImageStat.Stat(difference).rms) < 12.0:
-            errors.append(f"Gilded primary / secondary material tiers are indistinguishable at {size}")
+            errors.append(f"{label} primary / secondary material tiers are indistinguishable at {size}")
     return errors
+
+
+def check_gilded_button_materials() -> list[str]:
+    return check_rendered_button_materials("Gilded", GILDED_BUTTON_MANIFEST)
+
+
+def check_infernal_button_materials() -> list[str]:
+    return check_rendered_button_materials("Infernal", INFERNAL_BUTTON_MANIFEST)
 
 
 def main() -> int:
@@ -345,6 +358,7 @@ def main() -> int:
             errors.append(f"missing battle visual source reference: {path.relative_to(ROOT)}")
     errors.extend(check_combo_coverage())
     errors.extend(check_gilded_button_materials())
+    errors.extend(check_infernal_button_materials())
 
     if errors:
         print("Visual asset check failed:")
