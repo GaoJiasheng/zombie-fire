@@ -739,8 +739,8 @@ func _result_hint(victory: bool) -> String:
 	if victory:
 		if is_challenge_result:
 			if partial:
-				return "基准 %d → 终局 %d（选卡未满）/ 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
-			return "基准 %d → 终局 %d / 挑战 %d。星级只补最高差额。" % [standing_power, combat_power, recommended_power]
+				return "出战预估战力 %d · 本局最终 %d（本局技能未选满）\n挑战建议战力 %d · 星星奖励仅补发超过历史最高星数的部分" % [standing_power, combat_power, recommended_power]
+			return "出战预估战力 %d · 本局最终 %d\n挑战建议战力 %d · 星星奖励仅补发超过历史最高星数的部分" % [standing_power, combat_power, recommended_power]
 		if partial:
 			return "基准 %d → 终局 %d（选卡未满）/ 通关线 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
 		return "基准 %d → 终局 %d / 通关线 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]

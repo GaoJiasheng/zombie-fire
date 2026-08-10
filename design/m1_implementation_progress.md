@@ -3813,3 +3813,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Logic and art share one boundary**: the surface top, threshold anchor, particles, enemy frost overlay and actual movement multiplier all derive from the same Slow Field level data. M1 smoke measures real enemy displacement inside and outside all five levels instead of accepting a visual-only result.
 - **New release gate**: `check_slow_field_assets.py` validates dimensions, near-full-width activity, non-radial edge profile and tile seams; battle-line alignment and five-level runtime geometry remain separately asserted. Both checks are part of the release candidate.
 - **Visual proof**: clean 1080×1920 captures for level 1 / 30% and level 5 / 70% passed at `/tmp/zombie_fire_slow_field_v3_review_20260810_d/` (local QA only, not committed).
+
+## Challenge Result Power Copy Clarification (2026-08-10)
+
+- **Three numbers now name their jobs**: the challenge victory strip spells out pre-battle estimated power, this run's final power and the recommended challenge power instead of compressing them into `Baseline → Final / Challenge`.
+- **The apparent power drop is explained**: when the run finishes before the standard skill-card projection is complete, the Chinese copy says `本局技能未选满` and English says `skill choices incomplete` beside the actual final value.
+- **Reward language is player-facing**: `星级只补最高差额` is replaced by a direct historical-best rule—stars are awarded only above the player's best star rating.
+- **Bilingual visual proof**: the Chinese and English copy both wrap cleanly without clipping or border collision. Both routed result captures passed at `/tmp/zf-result-copy-review-20260810-final-v2/` (local QA only, not committed).

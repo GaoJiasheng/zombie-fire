@@ -1183,6 +1183,20 @@ func _initialize() -> void:
 	_expect(result_gold_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE and result_xp_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE, "result reward icons must share one visual size")
 	_expect(absf(result_gold_icon.get_global_rect().get_center().y - result_xp_icon.get_global_rect().get_center().y) <= 0.1, "result reward icons must share one vertical baseline")
 	_expect(result.get_node("Content/HintCard/HintBox/Hint").text != "", "result must show next action hint")
+	var challenge_result := _instance("res://meta/result/result.tscn")
+	root.add_child(challenge_result)
+	challenge_result.setup(router, {
+		"level_id": "level_004", "victory": true, "challenge": true, "stars": 3,
+		"gold": 120, "xp": 12, "standing_power": 23, "combat_power": 19,
+		"recommended_power": 27,
+	})
+	await process_frame
+	var challenge_result_hint := (challenge_result.get_node("Content/HintCard/HintBox/Hint") as Label).text
+	_expect(challenge_result_hint.contains("出战预估战力 23"), "challenge result must name the pre-battle estimate instead of exposing the internal baseline term")
+	_expect(challenge_result_hint.contains("本局最终 19（本局技能未选满）"), "challenge result must explain why final power can be below its estimate")
+	_expect(challenge_result_hint.contains("挑战建议战力 27"), "challenge result must name the challenge recommendation explicitly")
+	_expect(challenge_result_hint.contains("超过历史最高"), "challenge result must explain incremental star rewards in player-facing language")
+	challenge_result.queue_free()
 	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
 	_expect(result.has_node("Content/HeroCard/HeroBox/OutcomePanel"), "result must expose a compact hero outcome showcase")
 	_expect((result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName") as Label).text.contains("完成防守"), "victory outcome showcase must communicate the hero result")

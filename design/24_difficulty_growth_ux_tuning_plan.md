@@ -511,3 +511,15 @@ pierce secondary_gain `0.075 → 0.065`；gold_rush 未动（经济卡，选取�
   （`bias[physical] += 1.2`）、"tank" 威胁标签再加 `pierce +0.8`——四路叠加，结构性碾压。
   **要真正改变选取率，只能动 `card_tags` / `card_bias` / 发牌权重公式，而 §8 明写"全部只动数值，
   不动结构"。** 给 barrier 补标签属于内容语义决策，留给 Owner 拍板；本 Phase 不擅自扩大改动。
+
+## 结算文案可读性收尾（2026-08-10）
+
+Owner 实机复核确认 `基准 23 → 终局 19（选卡未满）/ 挑战 27` 仍暴露内部术语，且箭头容易被理解为
+“玩家战力从 23 下降到 19”。挑战胜利提示最终改为两行、四个明示概念：
+
+`出战预估战力 23 · 本局最终 19（本局技能未选满）`
+
+`挑战建议战力 27 · 星星奖励仅补发超过历史最高星数的部分`
+
+英文按相同顺序使用 `Pre-battle estimate / Final power / Challenge recommendation / best rating`。
+只改显示文案，不改变 `standing_power / combat_power / recommended_power` 的计算口径和星级结算逻辑。
