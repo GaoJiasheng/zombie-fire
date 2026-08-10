@@ -3775,3 +3775,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **No-charge acceptance flow**: testers use the existing local demo-purchase path; it never creates a verified StoreKit entitlement and does not charge an Apple account.
 - **Production gates stay intact**: the ordinary iOS Release preset remains `release` only. Without the TestFlight feature, the 30 / 50 / 80 / Stage 99 + hero Lv.40 gates continue to control purchase authorization.
 - **Independent internal conveniences**: TestFlight still carries `testflight_speed_unlocked`; premium preview and speed unlock are both absent from an App Review build unless explicitly requested.
+
+## Bilingual Collection Information Rhythm (2026-08-10)
+
+- **Root cause removed**: equipment rows previously assigned every English catalog item a 310px card and 112px title reserve, while Chinese rows used a 238px card and a much tighter title lane. The same content hierarchy therefore looked detached in English and cramped in Chinese.
+- **One authored geometry**: weapon, armor, chip and pet rows now use the same 256px bilingual card with fixed title / tag / description anchors. The two visible content gaps are both 6px; character rows retain their portrait-specific geometry but are now explicitly audited to the same bilingual-height contract.
+- **Long names stay honest**: localized equipment titles remain single-line. `fit_label_text` only reduces type when the measured string exceeds the 576px title lane, so Apocalypse Inferno / Absolute Zero names no longer clip and short names do not lose readability.
+- **Permanent proof**: M1 smoke traverses every real row in both languages across all five collection families, verifies title-to-tag and tag-to-description gaps, semantic tag construction, consistent row height and action containment. Ten focused 1080×1920 captures pass routed runtime and image analysis at `/tmp/zombie_fire_collection_spacing_review_20260810_v3/`.

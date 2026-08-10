@@ -597,43 +597,60 @@ func _initialize() -> void:
 	collection_back.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "skill collection opened from map must route back to map")
-	# Every categorical collection uses the Skill Codex semantic-tag contract.
-	# Inspect both owned and locked rows across every equipment family so pets or
-	# a later catalog cannot silently regress to unframed Role / Element prose.
+	# Every categorical collection uses the Skill Codex semantic-tag contract and
+	# one bilingual vertical rhythm. Inspect both owned and locked rows across
+	# every equipment family so changing language cannot reopen the former large
+	# English title gap / cramped Chinese title gap.
 	var semantic_catalog_save: Dictionary = save_manager._default_save()
 	save_manager.save_data = semantic_catalog_save
-	for semantic_mode in ["characters", "weapons", "armors", "chips", "pets"]:
-		main.change_scene("collection", {"mode": semantic_mode})
-		await process_frame
-		var semantic_list: Node = main.current_scene.find_child("ItemList", true, false)
-		_expect(semantic_list != null, "%s collection must expose a semantic-tag list" % semantic_mode)
-		var semantic_rows_checked := 0
-		for semantic_row_node in semantic_list.get_children():
-			if not semantic_row_node is TextureButton:
-				continue
-			var semantic_tags := semantic_row_node.get_node_or_null("Tags") as HBoxContainer
-			_expect(semantic_tags != null and semantic_tags.get_child_count() >= 2, "%s row must expose at least two categorical tags" % semantic_mode)
-			if semantic_tags == null:
-				continue
-			for semantic_tag_node in semantic_tags.get_children():
-				var semantic_tag := semantic_tag_node as PanelContainer
-				_expect(semantic_tag != null, "%s row tags must use semantic PanelContainers" % semantic_mode)
-				if semantic_tag != null:
-					_assert_semantic_tag_panel(semantic_tag, "%s collection row" % semantic_mode)
-			semantic_rows_checked += 1
-		_expect(semantic_rows_checked > 0, "%s collection tag audit must inspect real rows" % semantic_mode)
 	var semantic_localization_manager := root.get_node("/root/LocalizationManager")
 	var semantic_language_before := str(semantic_localization_manager.current_language)
-	semantic_localization_manager.apply_language("en", false)
-	main.change_scene("collection", {"mode": "pets"})
-	await process_frame
-	var compact_pet_row := main.current_scene.find_child("ItemList", true, false).get_child(0) as TextureButton
-	var compact_pet_title := compact_pet_row.get_node("Title") as Label
-	var compact_pet_tags := compact_pet_row.get_node("Tags") as HBoxContainer
-	var compact_pet_description := compact_pet_row.get_node("Description") as Label
-	_expect(compact_pet_tags.position.y - compact_pet_title.position.y <= 88.0, "English pet metadata tags must stay visually grouped with the title")
-	_expect(compact_pet_description.position.y - (compact_pet_tags.position.y + compact_pet_tags.size.y) >= 4.0, "English pet support copy must not overlap its metadata tags")
-	_expect(compact_pet_description.position.y - (compact_pet_tags.position.y + compact_pet_tags.size.y) <= 10.0, "English pet support copy must stay grouped with its metadata tags")
+	var semantic_card_heights := {}
+	for semantic_language in ["zh", "en"]:
+		semantic_localization_manager.apply_language(semantic_language, false)
+		var language_card_heights := {}
+		for semantic_mode in ["characters", "weapons", "armors", "chips", "pets"]:
+			main.change_scene("collection", {"mode": semantic_mode})
+			await process_frame
+			var semantic_list: Node = main.current_scene.find_child("ItemList", true, false)
+			_expect(semantic_list != null, "%s %s collection must expose a semantic-tag list" % [semantic_language, semantic_mode])
+			var semantic_rows_checked := 0
+			var mode_card_height := 0.0
+			for semantic_row_node in semantic_list.get_children():
+				if not semantic_row_node is TextureButton:
+					continue
+				var semantic_row := semantic_row_node as TextureButton
+				var semantic_title := semantic_row.get_node_or_null("Title") as Label
+				var semantic_tags := semantic_row.get_node_or_null("Tags") as HBoxContainer
+				var semantic_description := semantic_row.get_node_or_null("Description") as Label
+				var semantic_action := semantic_row.get_node_or_null("CardActionButton") as TextureButton
+				_expect(semantic_title != null and semantic_tags != null and semantic_description != null, "%s %s row must expose title/tag/description anchors" % [semantic_language, semantic_mode])
+				_expect(semantic_tags != null and semantic_tags.get_child_count() >= 2, "%s %s row must expose at least two categorical tags" % [semantic_language, semantic_mode])
+				if semantic_title == null or semantic_tags == null or semantic_description == null:
+					continue
+				var title_tag_gap := semantic_tags.position.y - (semantic_title.position.y + semantic_title.size.y)
+				var tag_description_gap := semantic_description.position.y - (semantic_tags.position.y + semantic_tags.size.y)
+				_expect(title_tag_gap >= 4.0 and title_tag_gap <= 12.0, "%s %s title-to-tag gap must stay within the shared 4-12px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
+				_expect(tag_description_gap >= 4.0 and tag_description_gap <= 12.0, "%s %s tag-to-description gap must stay within the shared 4-12px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
+				for semantic_tag_node in semantic_tags.get_children():
+					var semantic_tag := semantic_tag_node as PanelContainer
+					_expect(semantic_tag != null, "%s %s row tags must use semantic PanelContainers" % [semantic_language, semantic_mode])
+					if semantic_tag != null:
+						_assert_semantic_tag_panel(semantic_tag, "%s %s collection row" % [semantic_language, semantic_mode])
+				if semantic_action != null:
+					_expect(semantic_action.position.y + semantic_action.size.y <= semantic_row.size.y - 12.0, "%s %s action must stay inside its card" % [semantic_language, semantic_mode])
+				if mode_card_height <= 0.0:
+					mode_card_height = semantic_row.size.y
+				else:
+					_expect(is_equal_approx(semantic_row.size.y, mode_card_height), "%s %s rows must share one card height" % [semantic_language, semantic_mode])
+				semantic_rows_checked += 1
+			_expect(semantic_rows_checked > 0, "%s %s collection spacing audit must inspect real rows" % [semantic_language, semantic_mode])
+			language_card_heights[semantic_mode] = mode_card_height
+		semantic_card_heights[semantic_language] = language_card_heights
+	for semantic_mode in ["characters", "weapons", "armors", "chips", "pets"]:
+		var zh_height := float((semantic_card_heights.get("zh", {}) as Dictionary).get(semantic_mode, 0.0))
+		var en_height := float((semantic_card_heights.get("en", {}) as Dictionary).get(semantic_mode, 0.0))
+		_expect(zh_height > 0.0 and is_equal_approx(zh_height, en_height), "%s collection card height must remain identical in Chinese and English" % semantic_mode)
 	semantic_localization_manager.apply_language(semantic_language_before, false)
 	var collection_test_save: Dictionary = save_manager._default_save()
 	var collection_player: Dictionary = collection_test_save.get("player", {}).duplicate(true)

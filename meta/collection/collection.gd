@@ -17,6 +17,16 @@ const CHARACTER_LIST_VISIBLE_HEIGHT := 250.0
 const CHARACTER_LIST_FOOT_BASELINE := 276.0
 const CHARACTER_LIST_TEXT_X := 260.0
 const CHARACTER_LIST_TEXT_WIDTH := 276.0
+const EQUIPMENT_LIST_CARD_HEIGHT := 256.0
+const EQUIPMENT_LIST_ICON_Y := 82.0
+const EQUIPMENT_LIST_TITLE_Y := 24.0
+const EQUIPMENT_LIST_TITLE_HEIGHT := 60.0
+const EQUIPMENT_LIST_TAG_Y := 90.0
+const EQUIPMENT_LIST_DESCRIPTION_Y := 136.0
+const EQUIPMENT_LIST_ACTION_Y := 162.0
+const EQUIPMENT_LIST_TEXT_X := 150.0
+const EQUIPMENT_LIST_TEXT_WIDTH := 380.0
+const EQUIPMENT_LIST_TITLE_WIDTH := 576.0
 const CHARACTER_DETAIL_BUST_Y := -12.0
 const ARMORED_BUTTON_LABEL_OPTICAL_Y := -4.0
 const SKILL_DETAIL_NAME_FONT_SIZE_ZH := 42
@@ -236,14 +246,13 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var spacious := _uses_spacious_collection_cards()
 	var english_layout := LocalizationManager.is_english()
-	# Pet names are short in both catalogs, so their English cards do not need
-	# the two-line title reserve used by long weapon / armor product names.
-	# Tighten the metadata group without changing the shared card or action.
-	var compact_pet_metadata := mode == "pets" and english_layout
 	# Character cards use the same generous presentation height in both
 	# languages. This lets the portrait consume the full card instead of keeping
 	# the former tiny-avatar geometry inside an already tall English row.
-	var card_height := 310.0 if mode == "characters" or english_layout else (238.0 if spacious else 224.0)
+	# Equipment cards now also share one bilingual geometry. Previously English
+	# reserved a mostly-empty two-line title block while Chinese compressed its
+	# tags against the title, so changing language visibly reflowed the catalog.
+	var card_height := 310.0 if mode == "characters" else EQUIPMENT_LIST_CARD_HEIGHT
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, card_height)
@@ -276,7 +285,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.position = Vector2(20, 14) if mode == "characters" else Vector2(48, 100 if english_layout else 54)
+	icon.position = Vector2(20, 14) if mode == "characters" else Vector2(48, EQUIPMENT_LIST_ICON_Y)
 	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else Vector2(92, 92)
 	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -305,14 +314,21 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var title := Label.new()
 	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
-	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else 170.0
-	title.position = Vector2(text_x, 24 if mode == "characters" or english_layout else (34 if spacious else 26))
+	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else EQUIPMENT_LIST_TEXT_X
+	title.position = Vector2(text_x, 24.0 if mode == "characters" else EQUIPMENT_LIST_TITLE_Y)
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
 	# full width available so long weapon names plus level/tier remain readable
 	# after the global mobile font increase instead of clipping or shrinking.
-	title.size = Vector2(450 if mode == "characters" else 540, 96 if mode == "characters" else (112 if english_layout else (46 if spacious else 40)))
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if english_layout else TextServer.AUTOWRAP_OFF
-	UiKit.apply_label(title, 24 if english_layout else (27 if spacious else 28), _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
+	title.size = Vector2(450 if mode == "characters" else EQUIPMENT_LIST_TITLE_WIDTH, 96 if mode == "characters" else EQUIPMENT_LIST_TITLE_HEIGHT)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if mode == "characters" and english_layout else TextServer.AUTOWRAP_OFF
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var title_font_size := 23 if english_layout and mode != "characters" else (24 if english_layout else (27 if spacious else 28))
+	UiKit.apply_label(title, title_font_size, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
+	if mode != "characters":
+		# Keep every equipment title on the same one-line baseline. Only genuinely
+		# long localized product names shrink to fit; short English and Chinese
+		# names retain the full mobile-readable size and identical spacing below.
+		UiKit.fit_label_text(title, UiKit.scaled_font_size(title_font_size), UiKit.scaled_font_size(18), 2.0, 2.0)
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
@@ -320,11 +336,11 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(text_x, 128 if mode == "characters" else (108 if compact_pet_metadata else (140 if english_layout else (84 if spacious else 70))))
+	tag_row.position = Vector2(text_x, 128.0 if mode == "characters" else EQUIPMENT_LIST_TAG_Y)
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
-	tag_row.size = Vector2(452 if mode == "characters" else 350, 40)
+	tag_row.size = Vector2(452 if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, 40)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -343,10 +359,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(text_x, 174 if mode == "characters" else (154 if compact_pet_metadata else (184 if english_layout else (128 if spacious else 110))))
+	desc.position = Vector2(text_x, 174.0 if mode == "characters" else EQUIPMENT_LIST_DESCRIPTION_Y)
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else 350, 120 if mode == "characters" else (110 if LocalizationManager.is_english() else 96))
+	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, 120 if mode == "characters" else 104)
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -385,7 +401,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 				action_enabled = can_buy
 				action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
-		var action_pos := Vector2(548, 212 if english_layout else (142 if spacious else 122))
+		var action_pos := Vector2(548, 212.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
 		action_btn.z_index = 3
 		if action_enabled and action_callback.is_valid():
