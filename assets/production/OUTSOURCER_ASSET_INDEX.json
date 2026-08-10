@@ -518,6 +518,18 @@
       "count": 1,
       "task": "Texture-backed restrained semantic tag micro-frame",
       "created_at": "2026-08-03T14:36:11+08:00"
+    },
+    {
+      "path": "sprites/vfx/{vfx_slow_field_surface_v3,vfx_slow_field_boundary_v3}.png",
+      "source": "source_refs/generated/slow_field_v3_2026_08_10/prompt_log.md",
+      "derived": [
+        "source_refs/generated/slow_field_v3_2026_08_10/vfx_slow_field_boundary_master_black.png",
+        "source_refs/generated/slow_field_v3_2026_08_10/vfx_slow_field_surface_master_black.png"
+      ],
+      "reason": "V2 used an elliptical upper arc, which read as an ice dome rather than an affected ground area once coverage exceeded 60%. V3 replaces it with a full-width non-radial threshold plus a quiet fixed-density interior; range changes move the threshold and reveal more area without scaling art.",
+      "count": 2,
+      "task": "Non-radial slow-zone V3 with full-width threshold and fixed-density area fill",
+      "created_at": "2026-08-10T14:38:01+08:00"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",

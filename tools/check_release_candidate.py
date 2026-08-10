@@ -67,6 +67,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/check_combat_vfx_safe_margins.py")),
     Check(("python3", "tools/check_combat_vfx_semantics.py")),
     Check(("python3", "tools/check_status_vfx.py")),
+    Check(("python3", "tools/check_slow_field_assets.py")),
     Check(("python3", "tools/check_attack_animation_motion.py")),
     Check(("python3", "tools/check_zombie_attack_animations.py")),
     Check(("python3", "tools/check_gameplay_polish.py")),

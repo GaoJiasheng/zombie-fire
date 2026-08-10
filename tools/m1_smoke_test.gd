@@ -2917,8 +2917,11 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 	_expect(battle.slow_field_rect.name == "SlowFieldSurfaceTiles", "slow field must use the rendered tiled interior surface")
 	_expect(battle.slow_field_rect.stretch_mode == TextureRect.STRETCH_TILE, "slow field interior must tile at fixed density instead of stretching with range")
 	_expect(battle.slow_field_rect.texture_repeat == CanvasItem.TEXTURE_REPEAT_ENABLED, "slow field interior texture repeat must be enabled")
-	_expect(battle.slow_field_front != null and battle.slow_field_front.name == "SlowFieldRenderedFront", "slow field must have an independent rendered leading edge")
-	var fixed_front_size: Vector2 = battle.slow_field_front.size
+	_expect(battle.slow_field_boundary != null and battle.slow_field_boundary.name == "SlowFieldZoneBoundary", "slow field must have an independent full-width non-radial threshold")
+	_expect(battle.slow_field_boundary.texture.resource_path.ends_with("vfx_slow_field_boundary_v3.png"), "slow field threshold must use the rendered V3 non-radial asset")
+	_expect(battle.slow_field_rect.texture.resource_path.ends_with("vfx_slow_field_surface_v3.png"), "slow field interior must use the rendered V3 quiet area tile")
+	var fixed_boundary_size: Vector2 = battle.slow_field_boundary.size
+	_expect(is_equal_approx(fixed_boundary_size.x, 1080.0), "slow field threshold must span the full battlefield width")
 	for entry_var in row.get("levels", []):
 		var entry: Dictionary = entry_var if entry_var is Dictionary else {}
 		var lv := int(entry.get("lv", 0))
@@ -2936,8 +2939,10 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		_expect(is_equal_approx(runtime.slow_mult_for_y(expected - 1.0), 1.0), "slow field Lv%d runtime must not slow before y_min %.0f" % [lv, expected])
 		_expect(absf(runtime.slow_mult_for_y(expected + 1.0) - maxf(0.4, 1.0 - slow_pct)) <= 0.001, "slow field Lv%d runtime must slow after y_min %.0f" % [lv, expected])
 		battle._update_slow_field_visual(lv)
-		_expect(battle.slow_field_front.size.is_equal_approx(fixed_front_size), "slow field Lv%d must move its rendered boundary without stretching it" % lv)
-		_expect(absf(battle.slow_field_front.position.y - (expected + battle.SLOW_FIELD_FRONT_Y_OFFSET)) <= 0.001, "slow field Lv%d rendered boundary must follow the same data-driven y_min" % lv)
+		_expect(battle.slow_field_boundary.size.is_equal_approx(fixed_boundary_size), "slow field Lv%d must move its full-width rendered threshold without stretching it" % lv)
+		_expect(absf(battle.slow_field_boundary.position.y - (expected - battle.SLOW_FIELD_BOUNDARY_ANCHOR_Y)) <= 0.001, "slow field Lv%d rendered threshold must follow the same data-driven y_min" % lv)
+		_expect(absf(battle.slow_field_rect.position.y - expected) <= 0.001, "slow field Lv%d area fill must begin at the real slowdown boundary" % lv)
+		_expect(absf(battle.slow_field_rect.size.y - (1500.0 - expected)) <= 0.001, "slow field Lv%d area fill must cover the complete affected region" % lv)
 
 	# Exercise the actual enemy movement path, not only the multiplier helper:
 	# battle applies every level's data multiplier, then enemy.gd consumes

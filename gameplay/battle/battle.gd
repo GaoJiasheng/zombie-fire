@@ -11,8 +11,8 @@ const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
 const UiKit := preload("res://ui/ui_kit.gd")
 const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
-const SLOW_FIELD_SURFACE_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_surface_v2.png")
-const SLOW_FIELD_FRONT_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_front_v2.png")
+const SLOW_FIELD_SURFACE_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_surface_v3.png")
+const SLOW_FIELD_BOUNDARY_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_boundary_v3.png")
 const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
 const BARRIER_VISUAL_Z := 7
 const DEFENSE_ACTOR_Z := 10
@@ -25,8 +25,8 @@ const PET_BASE_X_DESIGN := 800.0
 const PET_BASE_LINE_OFFSET := 125.0
 const PET_IDLE_FLOAT_AMPLITUDE := 8.0
 const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
-const SLOW_FIELD_FRONT_SIZE := Vector2(1080.0, 320.0)
-const SLOW_FIELD_FRONT_Y_OFFSET := -112.0
+const SLOW_FIELD_BOUNDARY_SIZE := Vector2(1080.0, 240.0)
+const SLOW_FIELD_BOUNDARY_ANCHOR_Y := 96.0
 const BASE_LINE_NEAR_WARNING_INSET := 300.0
 const BASE_LINE_BOSS_NEAR_WARNING_INSET := 360.0
 const BASE_LINE_WARNING_INSET := 190.0
@@ -379,7 +379,7 @@ var battle_finished := false
 var pre_final_offer_used := false
 var debug_overlay_on := false
 var slow_field_rect: TextureRect
-var slow_field_front: TextureRect
+var slow_field_boundary: TextureRect
 var slow_field_particles: GPUParticles2D
 var slow_field_sfx_level := 0
 var card_press_skill_id := ""
@@ -10465,21 +10465,22 @@ func _spawn_slow_field_visual() -> void:
 	field_material.set_shader_parameter("field_color", Color(0.3, 0.8, 1.0, 0.0))
 	field_material.set_shader_parameter("intensity", 0.0)
 	field_material.set_shader_parameter("secondary_opacity", 0.28)
+	field_material.set_shader_parameter("zone_fill_opacity", 0.0)
 	slow_field_rect.material = field_material
 	$SlowFieldLayer.add_child(slow_field_rect)
 
-	slow_field_front = TextureRect.new()
-	slow_field_front.name = "SlowFieldRenderedFront"
-	slow_field_front.texture = SLOW_FIELD_FRONT_TEXTURE
-	slow_field_front.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	slow_field_front.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	slow_field_front.position = Vector2(0.0, 0.0)
-	slow_field_front.size = SLOW_FIELD_FRONT_SIZE
-	slow_field_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slow_field_front.visible = false
-	slow_field_front.z_index = 5
-	slow_field_front.material = _new_muzzle_additive_material()
-	$SlowFieldLayer.add_child(slow_field_front)
+	slow_field_boundary = TextureRect.new()
+	slow_field_boundary.name = "SlowFieldZoneBoundary"
+	slow_field_boundary.texture = SLOW_FIELD_BOUNDARY_TEXTURE
+	slow_field_boundary.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	slow_field_boundary.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	slow_field_boundary.position = Vector2(0.0, 0.0)
+	slow_field_boundary.size = SLOW_FIELD_BOUNDARY_SIZE
+	slow_field_boundary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slow_field_boundary.visible = false
+	slow_field_boundary.z_index = 5
+	slow_field_boundary.material = _new_muzzle_additive_material()
+	$SlowFieldLayer.add_child(slow_field_boundary)
 
 	slow_field_particles = GPUParticles2D.new()
 	slow_field_particles.name = "SlowFieldColdMotes"
@@ -10520,8 +10521,8 @@ func _update_slow_field_visual(slow_level: int) -> void:
 		return
 	if slow_level <= 0:
 		slow_field_rect.visible = false
-		if slow_field_front != null:
-			slow_field_front.visible = false
+		if slow_field_boundary != null:
+			slow_field_boundary.visible = false
 		if slow_field_particles != null:
 			slow_field_particles.emitting = false
 			slow_field_particles.visible = false
@@ -10538,11 +10539,12 @@ func _update_slow_field_visual(slow_level: int) -> void:
 		shader_material.set_shader_parameter("field_color", field_color)
 		shader_material.set_shader_parameter("intensity", 0.64 + slow_pct * 0.92)
 		shader_material.set_shader_parameter("secondary_opacity", 0.24 + slow_pct * 0.26)
-	if slow_field_front != null:
-		slow_field_front.position = Vector2(0.0, y_min + SLOW_FIELD_FRONT_Y_OFFSET)
-		slow_field_front.size = SLOW_FIELD_FRONT_SIZE
-		slow_field_front.modulate = Color(0.82, 0.93, 1.0, clampf(0.56 + slow_pct * 0.62, 0.0, 0.92))
-		slow_field_front.visible = true
+		shader_material.set_shader_parameter("zone_fill_opacity", 0.26 + slow_pct * 0.16)
+	if slow_field_boundary != null:
+		slow_field_boundary.position = Vector2(0.0, y_min - SLOW_FIELD_BOUNDARY_ANCHOR_Y)
+		slow_field_boundary.size = SLOW_FIELD_BOUNDARY_SIZE
+		slow_field_boundary.modulate = Color(0.82, 0.93, 1.0, clampf(0.48 + slow_pct * 0.54, 0.0, 0.82))
+		slow_field_boundary.visible = true
 	_update_slow_field_particles(y_min, field_height, slow_pct, slow_level)
 
 func _update_slow_field_particles(y_min: float, field_height: float, slow_pct: float, slow_level: int) -> void:

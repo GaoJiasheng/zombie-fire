@@ -188,6 +188,11 @@ func _initialize() -> void:
 			paused = true
 	if bool(payload.get("debug_store_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_store_combat(main.current_scene)
+	if payload.has("debug_slow_field_level") and main.current_scene != null and main.current_scene.has_method("_update_slow_field_visual"):
+		await _prepare_slow_field_showcase(
+			main.current_scene,
+			int(payload.get("debug_slow_field_level", 1))
+		)
 	if payload.has("debug_status_vfx_showcase") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_status_vfx_showcase(
 			main.current_scene,
@@ -1428,6 +1433,58 @@ func _prepare_isolated_vfx_stage(battle: Node, spawn_target: bool) -> void:
 		target.hp = target.max_hp
 		if target.has_method("_update_hp_bar"):
 			target.call("_update_hp_bar")
+
+func _prepare_slow_field_showcase(battle: Node, requested_level: int) -> void:
+	var slow_level := clampi(requested_level, 1, 5)
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.last_threat_warning_at = Time.get_ticks_msec() / 1000.0 + 9999.0
+	battle.call("_hide_wave_toast")
+	battle.skills.owned["skill_slow_field"] = slow_level
+	battle.slow_field_sfx_level = slow_level
+	battle.call("_update_slow_field_visual", slow_level)
+	battle.call("_update_skill_slots")
+	battle.call("_update_hud")
+
+	var y_min: float = battle.call("_slow_field_min_y_for_level", slow_level)
+	var base_line_y: float = float(battle.call("_base_line_y"))
+	var formation := [
+		["zombie_runner", Vector2(260.0, maxf(210.0, y_min - 150.0)), false],
+		["zombie_shambler", Vector2(530.0, y_min + 110.0), true],
+		["zombie_armored", Vector2(820.0, minf(base_line_y - 360.0, y_min + 260.0)), true],
+	]
+	for item in formation:
+		var enemy: Node = battle.call("_spawn_enemy_instance", str(item[0]), item[1], false, 0.0)
+		if enemy == null:
+			continue
+		enemy.speed = 0.0
+		enemy.max_hp *= 20.0
+		enemy.hp = enemy.max_hp
+		enemy.set_physics_process(false)
+		enemy.call("set_combat_label_visibility", true, false)
+		if bool(item[2]) and enemy.has_method("mark_ice_slow_visual"):
+			enemy.call("mark_ice_slow_visual", 8.0)
+		if enemy.has_method("_update_hp_bar"):
+			enemy.call("_update_hp_bar")
+	await process_frame
+	print("slow field audit: level=%d y_min=%.0f coverage=%.0f%%" % [
+		slow_level,
+		y_min,
+		(base_line_y - y_min) / base_line_y * 100.0,
+	])
 
 func _prepare_live_spawn_distribution(battle: Node, lane: String) -> void:
 	# Screenshot-only proof of the production picker. Enemies enter one by one at

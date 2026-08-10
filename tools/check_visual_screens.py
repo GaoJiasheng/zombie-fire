@@ -2221,6 +2221,16 @@ FINAL_VFX_SCREENS.extend(
             },
             "final_vfx_thunder_overload",
         ),
+        (
+            "battle",
+            {"level_id": "level_001", "debug_slow_field_level": 1, "warmup_frames": 3},
+            "final_vfx_slow_field_level_1_30pct",
+        ),
+        (
+            "battle",
+            {"level_id": "level_001", "debug_slow_field_level": 5, "warmup_frames": 3},
+            "final_vfx_slow_field_level_5_70pct",
+        ),
     ]
 )
 
