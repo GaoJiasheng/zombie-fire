@@ -19,10 +19,15 @@ const CHARACTER_LIST_TEXT_X := 260.0
 const CHARACTER_LIST_TEXT_WIDTH := 276.0
 const EQUIPMENT_LIST_CARD_HEIGHT := 256.0
 const EQUIPMENT_LIST_ICON_Y := 82.0
-const EQUIPMENT_LIST_TITLE_Y := 24.0
-const EQUIPMENT_LIST_TITLE_HEIGHT := 60.0
-const EQUIPMENT_LIST_TAG_Y := 90.0
-const EQUIPMENT_LIST_DESCRIPTION_Y := 136.0
+const COLLECTION_LIST_TITLE_Y := 24.0
+const COLLECTION_LIST_TITLE_HEIGHT := 60.0
+const COLLECTION_LIST_TITLE_TAG_GAP := 8.0
+const COLLECTION_LIST_TAG_Y := COLLECTION_LIST_TITLE_Y + COLLECTION_LIST_TITLE_HEIGHT + COLLECTION_LIST_TITLE_TAG_GAP
+# Semantic tag pills resolve to a 42px mobile minimum after font scaling.
+# Author the row at its real minimum so the following 6px interval is exact.
+const COLLECTION_LIST_TAG_HEIGHT := 42.0
+const COLLECTION_LIST_TAG_DESCRIPTION_GAP := 6.0
+const COLLECTION_LIST_DESCRIPTION_Y := COLLECTION_LIST_TAG_Y + COLLECTION_LIST_TAG_HEIGHT + COLLECTION_LIST_TAG_DESCRIPTION_GAP
 const EQUIPMENT_LIST_ACTION_Y := 162.0
 const EQUIPMENT_LIST_TEXT_X := 150.0
 const EQUIPMENT_LIST_TEXT_WIDTH := 380.0
@@ -315,20 +320,22 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
 	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else EQUIPMENT_LIST_TEXT_X
-	title.position = Vector2(text_x, 24.0 if mode == "characters" else EQUIPMENT_LIST_TITLE_Y)
+	title.position = Vector2(text_x, COLLECTION_LIST_TITLE_Y)
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
 	# full width available so long weapon names plus level/tier remain readable
 	# after the global mobile font increase instead of clipping or shrinking.
-	title.size = Vector2(450 if mode == "characters" else EQUIPMENT_LIST_TITLE_WIDTH, 96 if mode == "characters" else EQUIPMENT_LIST_TITLE_HEIGHT)
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if mode == "characters" and english_layout else TextServer.AUTOWRAP_OFF
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.size = Vector2(450 if mode == "characters" else EQUIPMENT_LIST_TITLE_WIDTH, COLLECTION_LIST_TITLE_HEIGHT)
+	title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	# Bottom-align the glyphs inside the fixed title lane.  This makes the visible
+	# title-to-tag interval equal to the authored 8px rhythm instead of leaving a
+	# language/font-metric-dependent pocket of empty space below the name.
+	title.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	var title_font_size := 23 if english_layout and mode != "characters" else (24 if english_layout else (27 if spacious else 28))
 	UiKit.apply_label(title, title_font_size, _level_tint(item_level) if unlocked else Color(0.7, 0.75, 0.82, 1.0), 3)
-	if mode != "characters":
-		# Keep every equipment title on the same one-line baseline. Only genuinely
-		# long localized product names shrink to fit; short English and Chinese
-		# names retain the full mobile-readable size and identical spacing below.
-		UiKit.fit_label_text(title, UiKit.scaled_font_size(title_font_size), UiKit.scaled_font_size(18), 2.0, 2.0)
+	# Keep every catalog title on the same one-line baseline. Only genuinely long
+	# localized names shrink to fit; ordinary Chinese and English names retain the
+	# full mobile-readable size and the exact same interval before metadata tags.
+	UiKit.fit_label_text(title, UiKit.scaled_font_size(title_font_size), UiKit.scaled_font_size(18), 2.0, 2.0)
 	title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
@@ -336,11 +343,11 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(text_x, 128.0 if mode == "characters" else EQUIPMENT_LIST_TAG_Y)
+	tag_row.position = Vector2(text_x, COLLECTION_LIST_TAG_Y)
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
-	tag_row.size = Vector2(452 if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, 40)
+	tag_row.size = Vector2(452 if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, COLLECTION_LIST_TAG_HEIGHT)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -359,7 +366,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(text_x, 174.0 if mode == "characters" else EQUIPMENT_LIST_DESCRIPTION_Y)
+	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y)
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
 	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, 120 if mode == "characters" else 104)

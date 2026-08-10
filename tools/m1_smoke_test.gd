@@ -630,8 +630,9 @@ func _initialize() -> void:
 					continue
 				var title_tag_gap := semantic_tags.position.y - (semantic_title.position.y + semantic_title.size.y)
 				var tag_description_gap := semantic_description.position.y - (semantic_tags.position.y + semantic_tags.size.y)
-				_expect(title_tag_gap >= 4.0 and title_tag_gap <= 12.0, "%s %s title-to-tag gap must stay within the shared 4-12px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
-				_expect(tag_description_gap >= 4.0 and tag_description_gap <= 12.0, "%s %s tag-to-description gap must stay within the shared 4-12px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
+				_expect(is_equal_approx(title_tag_gap, 8.0), "%s %s title-to-tag gap must stay at the shared 8px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
+				_expect(is_equal_approx(tag_description_gap, 6.0), "%s %s tag-to-description gap must stay at the shared 6px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
+				_expect(semantic_title.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM, "%s %s title glyphs must bottom-align against the fixed tag gap" % [semantic_language, semantic_mode])
 				for semantic_tag_node in semantic_tags.get_children():
 					var semantic_tag := semantic_tag_node as PanelContainer
 					_expect(semantic_tag != null, "%s %s row tags must use semantic PanelContainers" % [semantic_language, semantic_mode])
