@@ -192,8 +192,7 @@ func _refresh_resource_bar() -> void:
 	var existing := parent.get_node_or_null("ResourceBar")
 	if existing != null:
 		existing.free()
-	var power_level_id := SaveManager.get_highest_unlocked_level_id()
-	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_power_for_level(power_level_id), Vector2(174, 58), 25)
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), Vector2(174, 58), 25)
 	bar.name = "ResourceBar"
 	bar.custom_minimum_size = Vector2(0, 66)
 	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER

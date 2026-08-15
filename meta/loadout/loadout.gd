@@ -267,7 +267,7 @@ func _refresh_resource_bar() -> void:
 	var existing := main.get_node_or_null("ResourceBar")
 	if existing != null:
 		existing.free()
-	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_power_for_level(level_id))
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp())
 	bar.name = "ResourceBar"
 	main.add_child(bar)
 	var header := main.get_node_or_null("HeaderRow")

@@ -4139,3 +4139,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **One term across the complete route**: resource-bar guidance, loadout summary/details, below-recommendation warnings, severe-power confirmation, result hints and the upgrade action all use Effective Power. `推荐战力 / Recommended Power` remains the fixed stage clear line.
 - **Supporting copy is consistent**: visual-only store benefits, chip contribution text and the in-run Gold card no longer refer to the level-relative value as bare Power.
 - **No model or balance drift**: formulas, contracts, recommendations, equipment values, weakness multipliers and combat runtime are unchanged. Static gameplay-polish checks and M1 smoke own the terminology contract.
+
+## Release Review P0: Locked Store State + Three-Resource Header (2026-08-15)
+
+- **The store no longer presents a dead blank route**: when no premium series is revealed, the catalog renders a bilingual encrypted-state card with the nearest unlock requirement, an anonymous summary of later tiers and an explicit restore-purchase reminder.
+- **Unlock messaging stays data-driven**: every displayed requirement is sorted and formatted from `premium_sets.json` `store_unlock` fields. No stage number, series gate, price, entitlement rule or owned-series visibility shortcut changed.
+- **The global header is a resource bar again**: map, loadout and collection now show only Gold, Stars and XP. The redundant level-relative Power chip and its dead map helper code are removed, while the accepted Effective Power / Recommended comparison remains in the loadout tactical summary.
+- **Regression ownership**: localization is green; M1 smoke covers fresh-store empty state, dynamic minimum gate, Stage 30 reveal, owned visibility after progression rollback, and exact three-chip headers. Bilingual store/header captures pass visual review at `artifacts/design30_task12/`.

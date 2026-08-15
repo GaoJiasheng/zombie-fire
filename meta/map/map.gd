@@ -90,21 +90,18 @@ func _apply_page_title_style(size: int) -> void:
 
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 6
-	var power_level_id := SaveManager.get_highest_unlocked_level_id()
-	var power := SaveManager.get_power_for_level(power_level_id)
 	var progress := %Progress as Label
 	progress.visible = false
-	progress.text = "%d  %d/%d  %d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars, power]
+	progress.text = "%d  %d/%d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars]
 	var row := _ensure_resource_bar().get_node("Row") as HBoxContainer
 	for child in row.get_children():
 		row.remove_child(child)
 		child.queue_free()
-	# 统一用 UiKit 共享资源条(金币/星星/经验/有效战力),与出战配置、收藏页一致。
+	# 统一用 UiKit 共享资源条(金币/星星/经验),与出战配置、收藏页一致。
 	var bar := UiKit.standard_resource_bar(
 		SaveManager.get_player_gold(),
 		SaveManager.get_player_star(),
 		SaveManager.get_player_xp(),
-		power,
 		Vector2(174, 56),
 		26
 	)
@@ -149,56 +146,6 @@ func _ensure_resource_bar() -> VBoxContainer:
 	UiKit.apply_label(tip_label, 18, UiKit.TEXT_MAIN, 2)
 	tip.add_child(tip_label)
 	return wrap
-
-func _make_resource_chip(title: String, icon_path: String, accent: Color, value: String, tip: String) -> Button:
-	var button := Button.new()
-	button.name = _resource_chip_name(title)
-	button.text = ""
-	button.custom_minimum_size = Vector2(168, 52)
-	button.focus_mode = Control.FOCUS_NONE
-	button.tooltip_text = "%s：%s" % [title, tip]
-	button.add_theme_stylebox_override("normal", _resource_chip_style(accent, false, false))
-	button.add_theme_stylebox_override("hover", _resource_chip_style(accent, true, false))
-	button.add_theme_stylebox_override("pressed", _resource_chip_style(accent, true, true))
-	button.add_theme_stylebox_override("disabled", _resource_chip_style(accent, false, false))
-	button.pressed.connect(_show_resource_tip.bind(title, tip, accent))
-
-	var content := HBoxContainer.new()
-	content.set_anchors_preset(Control.PRESET_FULL_RECT)
-	content.offset_left = 14
-	content.offset_top = 6
-	content.offset_right = -14
-	content.offset_bottom = -6
-	content.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_theme_constant_override("separation", 9)
-	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(content)
-
-	var icon := UiKit.icon(icon_path, Vector2(34, 34))
-	icon.modulate = Color(1.06, 1.02, 0.92, 1.0)
-	content.add_child(icon)
-
-	var label := UiKit.label(value, 26, UiKit.TEXT_MAIN, 3)
-	label.name = "Value"
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(label)
-	return button
-
-func _resource_chip_name(title: String) -> String:
-	match title:
-		"金币":
-			return "GoldResourceChip"
-		"星星":
-			return "StarResourceChip"
-		"有效战力", "战力":
-			return "PowerResourceChip"
-		_:
-			return "ResourceChip"
-
-func _resource_chip_style(_accent: Color, _hovered: bool, _pressed: bool) -> StyleBox:
-	return UiKit.resource_chip_texture_style()
 
 func _resource_tip_style(_accent: Color) -> StyleBox:
 	return UiKit.hint_texture_style(false)

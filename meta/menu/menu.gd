@@ -19,8 +19,6 @@ func _ready() -> void:
 	(%StartButton as TextureButton).pressed.connect(_on_start_pressed)
 	(%StoreButton as TextureButton).pressed.connect(_on_store_pressed)
 	(%HelpButton as TextureButton).pressed.connect(_on_help_pressed)
-	if not PurchaseManager.commerce_changed.is_connected(_refresh_store_visibility):
-		PurchaseManager.commerce_changed.connect(_refresh_store_visibility)
 
 func _apply_ui_style() -> void:
 	var title := %Title as TextureRect
@@ -43,14 +41,7 @@ func _apply_ui_style() -> void:
 	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, UiKit.TEXT_MAIN, 3)
 	(%StartButton as Control).get_node("Label").text = LocalizationManager.text("开始")
 	(%StoreButton as Control).get_node("Label").text = LocalizationManager.text("终焉军械库")
-	# Do not advertise the premium catalog before its first campaign reveal.
-	# Owned non-consumables remain visible through PurchaseManager's ownership gate.
-	_refresh_store_visibility()
 	(%HelpButton as Control).get_node("Label").text = LocalizationManager.text("设置")
-
-
-func _refresh_store_visibility() -> void:
-	(%StoreButton as Control).visible = not PurchaseManager.store_series_ids().is_empty()
 
 func _visible_logo_texture(source: Texture2D, presentation := {}) -> Texture2D:
 	if source == null:

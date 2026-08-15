@@ -101,6 +101,7 @@ func _rebuild() -> void:
 		content.add_child(_status_label)
 	else:
 		_status_label = null
+		content.add_child(_locked_store_empty_state())
 
 	for series_id in revealed_series:
 		content.add_child(_series_header(series_id))
@@ -111,6 +112,143 @@ func _rebuild() -> void:
 		elif PurchaseManager.is_theme_owned(series_id):
 			content.add_child(_owned_theme_panel(series_id))
 	_configure_store_scroll_surface(content)
+
+
+func _locked_store_empty_state() -> PanelContainer:
+	var tiers := _store_unlock_tiers()
+	var panel := PanelContainer.new()
+	panel.name = "LockedStoreEmptyState"
+	panel.set_meta("store_empty_state", true)
+	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(28.0))
+	panel.custom_minimum_size = Vector2(0, 720)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 56)
+	margin.add_theme_constant_override("margin_top", 58)
+	margin.add_theme_constant_override("margin_right", 56)
+	margin.add_theme_constant_override("margin_bottom", 52)
+	panel.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 22)
+	margin.add_child(box)
+
+	var lock_center := CenterContainer.new()
+	lock_center.custom_minimum_size = Vector2(0, 126)
+	box.add_child(lock_center)
+	var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(112, 112))
+	lock_icon.modulate = Color(1.08, 0.92, 0.58, 1.0)
+	lock_center.add_child(lock_icon)
+
+	var title := UiKit.label(LocalizationManager.text("精品军械库尚未解密"), 34, UiKit.TEXT_MAIN, 4)
+	title.name = "EmptyStateTitle"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+
+	var body := UiKit.label(
+		LocalizationManager.text("继续推进战役，即可逐档解密主题与终焉军械。"),
+		20,
+		UiKit.GREY_300,
+		2
+	)
+	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.custom_minimum_size = Vector2(0, 62)
+	box.add_child(body)
+
+	if not tiers.is_empty():
+		var nearest: Dictionary = tiers[0]
+		panel.set_meta("nearest_clear_level", int(nearest.get("clear_level", 0)))
+		panel.set_meta("nearest_character_level", int(nearest.get("any_character_level", 0)))
+		var nearest_panel := PanelContainer.new()
+		nearest_panel.name = "NearestUnlock"
+		nearest_panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(true))
+		nearest_panel.custom_minimum_size = Vector2(0, 104)
+		box.add_child(nearest_panel)
+		var nearest_box := VBoxContainer.new()
+		nearest_box.alignment = BoxContainer.ALIGNMENT_CENTER
+		nearest_box.add_theme_constant_override("separation", 4)
+		nearest_panel.add_child(nearest_box)
+		var nearest_heading := UiKit.label(LocalizationManager.text("最近解锁条件"), 17, UiKit.GOLD, 2)
+		nearest_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		nearest_box.add_child(nearest_heading)
+		var nearest_copy := UiKit.label(_store_unlock_condition(nearest, false), 24, UiKit.TEXT_MAIN, 3)
+		nearest_copy.name = "NearestUnlockText"
+		nearest_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		nearest_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		nearest_box.add_child(nearest_copy)
+
+		var later_lines: Array[String] = []
+		var later_clear_levels: Array[int] = []
+		for index in range(1, tiers.size()):
+			var later: Dictionary = tiers[index]
+			later_lines.append(_store_unlock_condition(later, true))
+			later_clear_levels.append(int(later.get("clear_level", 0)))
+		panel.set_meta("later_clear_levels", later_clear_levels)
+		if not later_lines.is_empty():
+			var later_heading := UiKit.label(LocalizationManager.text("后续解密档位"), 17, UiKit.CYAN, 2)
+			later_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			box.add_child(later_heading)
+			var later_copy := UiKit.label("  ·  ".join(later_lines), 18, UiKit.GREY_300, 2)
+			later_copy.name = "LaterUnlockText"
+			later_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			later_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			later_copy.custom_minimum_size = Vector2(0, 62)
+			box.add_child(later_copy)
+
+	var restore_hint := UiKit.label(
+		LocalizationManager.text("已购买过？可使用下方“恢复购买”重新同步。"),
+		17,
+		UiKit.SUCCESS,
+		2
+	)
+	restore_hint.name = "RestoreHint"
+	restore_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	restore_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(restore_hint)
+	return panel
+
+
+func _store_unlock_tiers() -> Array[Dictionary]:
+	var tiers: Array[Dictionary] = []
+	var catalog_series := PurchaseManager.catalog_series_ids()
+	for set_id_var in DataLoader.get_table("premium_sets").keys():
+		var set_row := DataLoader.get_row("premium_sets", str(set_id_var))
+		var series_id := str(set_row.get("series_id", ""))
+		if series_id == "" or not catalog_series.has(series_id):
+			continue
+		var unlock_value: Variant = set_row.get("store_unlock", {})
+		if not unlock_value is Dictionary:
+			continue
+		var unlock: Dictionary = unlock_value
+		var clear_level := int(unlock.get("clear_level", 0))
+		if clear_level <= 0:
+			continue
+		tiers.append({
+			"clear_level": clear_level,
+			"any_character_level": int(unlock.get("any_character_level", 0)),
+		})
+	tiers.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_clear := int(a.get("clear_level", 0))
+		var b_clear := int(b.get("clear_level", 0))
+		if a_clear != b_clear:
+			return a_clear < b_clear
+		return int(a.get("any_character_level", 0)) < int(b.get("any_character_level", 0))
+	)
+	return tiers
+
+
+func _store_unlock_condition(tier: Dictionary, compact: bool) -> String:
+	var clear_level := int(tier.get("clear_level", 0))
+	var character_level := int(tier.get("any_character_level", 0))
+	if compact:
+		if character_level > 0:
+			return LocalizationManager.text("第 %d 关 + 任意角色 %d 级") % [clear_level, character_level]
+		return LocalizationManager.text("第 %d 关") % clear_level
+	if character_level > 0:
+		return LocalizationManager.text("通关第 %d 关，并将任意角色提升至 %d 级") % [clear_level, character_level]
+	return LocalizationManager.text("通关第 %d 关") % clear_level
 
 
 func _configure_store_scroll_surface(root: Node) -> void:

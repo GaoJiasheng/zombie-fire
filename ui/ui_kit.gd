@@ -1207,13 +1207,12 @@ static func resource_bar(items: Array, chip_size := Vector2(186, 62), font_size 
 			row.add_child(chip)
 	return row
 
-# 标准四项资源条(金币/可用星星/经验/有效战力),数值由调用方传入,保证各页面内容一致。
-static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:
+# 标准三项资源条(金币/可用星星/经验),数值由调用方传入,保证各页面内容一致。
+static func standard_resource_bar(gold: int, star: int, xp: int, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:
 	return resource_bar([
 		{"name": "GoldResourceChip", "icon": currency_icon_path("gold"), "accent": GOLD, "value": "%d" % gold, "tip": "金币：升级角色/武器/护甲/芯片/宠物"},
 		{"name": "StarResourceChip", "icon": currency_icon_path("star"), "accent": Color(0.96, 0.80, 0.30, 1.0), "value": "%d" % star, "tip": "可用星星：购买/解锁角色与装备"},
 		{"name": "XpResourceChip", "icon": currency_icon_path("xp"), "accent": CYAN, "value": "%d" % xp, "tip": "经验：永久升级技能"},
-		{"name": "PowerResourceChip", "icon": POWER_ICON, "accent": PURPLE, "value": "%d" % power, "tip": "有效战力：当前阵容针对所选关卡的预计通关能力"},
 	], chip_size, font_size)
 
 # 共享武器图标(统一外观,尺寸可变)。

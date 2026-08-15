@@ -257,7 +257,7 @@ func _initialize() -> void:
 	var map_resource_bar: Node = main.current_scene.find_child("ResourceBarWrap", true, false)
 	_expect(map_resource_bar != null, "map must render icon-based account resources")
 	var map_resource_row: Node = map_resource_bar.find_child("Row", true, false)
-	_expect(map_resource_row != null and map_resource_row.get_child_count() >= 4, "map resource bar must show the unified gold/star/xp/power chips")
+	_expect(map_resource_row != null and map_resource_row.get_child_count() == 3, "map resource bar must show only the unified gold/star/xp chips")
 	_assert_resource_chip_geometry(map_resource_row, "map resource bar", "default")
 	_expect(main.current_scene.find_child("Nav", true, false) != null, "map must expose collection navigation")
 	var map_character_card: Node = main.current_scene.find_child("charactersNavCard", true, false)
@@ -2041,6 +2041,13 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(purchase_manager.visible_offer_ids("golden_law").size() == 2, "fresh Golden Law series must expose theme plus complete offers")
 	_expect(purchase_manager.mock_purchase("com.gaojiasheng.zombiefire.theme.neon_tempest", false), "local theme purchase must complete")
 	_expect(purchase_manager.has_entitlement("ent_theme_neon_tempest"), "theme purchase must grant the theme entitlement")
+	var unlocked_progress: Dictionary = test_save["levels_progress"].duplicate(true)
+	var unlocked_vanguard_level := int(test_save["equipment"].get("vanguard", 1))
+	test_save["levels_progress"] = {}
+	test_save["equipment"]["vanguard"] = 1
+	_expect(purchase_manager.store_series_ids().has("thunder"), "owned premium series must remain visible after campaign progress rolls backward")
+	test_save["levels_progress"] = unlocked_progress
+	test_save["equipment"]["vanguard"] = unlocked_vanguard_level
 	_expect(theme_manager.select_character_outfit("vanguard", "neon_tempest", false), "owned themes must be selectable per hero")
 	_expect(theme_manager.effective_character_theme_id("vanguard") == "neon_tempest", "an explicit hero outfit must override the default global theme")
 	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.thunder_upgrade"), "theme owner must see the 4.99 upgrade package")
@@ -2206,7 +2213,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	root.add_child(fresh_menu)
 	await process_frame
 	var fresh_store_button := fresh_menu.find_child("StoreButton", true, false) as Control
-	_expect(fresh_store_button != null and not fresh_store_button.visible, "main menu must hide the arsenal entry before the first series reveal")
+	_expect(fresh_store_button != null and fresh_store_button.visible, "main menu must keep the arsenal entry available so a fresh player can read its unlock path")
 	fresh_menu.queue_free()
 	await process_frame
 
@@ -2284,7 +2291,24 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 				locked_headers.append(child as Control)
 			elif child.has_meta("store_product_id"):
 				locked_cards.append(child as Control)
-	_expect(locked_headers.is_empty(), "fresh premium store must not reveal any series name or unlock hint")
+	var locked_empty_state := locked_store.find_child("LockedStoreEmptyState", true, false) as Control
+	var expected_nearest_clear := 2147483647
+	for set_id_var in data_loader.get_table("premium_sets").keys():
+		var set_row: Dictionary = data_loader.get_row("premium_sets", str(set_id_var))
+		if not purchase_manager.catalog_series_ids().has(str(set_row.get("series_id", ""))):
+			continue
+		var unlock: Dictionary = set_row.get("store_unlock", {})
+		var clear_level := int(unlock.get("clear_level", 0))
+		if clear_level > 0:
+			expected_nearest_clear = mini(expected_nearest_clear, clear_level)
+	_expect(locked_empty_state != null, "fresh premium store must render a deliberate encrypted empty state instead of a blank page")
+	if locked_empty_state != null:
+		_expect(int(locked_empty_state.get_meta("nearest_clear_level", 0)) == expected_nearest_clear, "fresh premium store must derive its nearest unlock tier from premium_sets.store_unlock")
+		_expect(locked_empty_state.find_child("NearestUnlockText", true, false) != null, "fresh premium store must explain the nearest unlock requirement")
+		_expect(locked_empty_state.find_child("LaterUnlockText", true, false) != null, "fresh premium store must summarize later unlock tiers")
+	var locked_restore := locked_store.get_node_or_null("Root/VBox/Footer/RestoreButton") as Button
+	_expect(locked_restore != null and not locked_restore.disabled and locked_restore.visible, "restore purchases must remain available in the locked store empty state")
+	_expect(locked_headers.is_empty(), "fresh premium store must not reveal any series identity before its gate")
 	_expect(locked_cards.is_empty(), "fresh premium store must not reveal any product art, copy, price or action")
 	locked_store.queue_free()
 	await process_frame
@@ -2322,6 +2346,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 				first_reveal_cards.append(child as Control)
 	_expect(first_reveal_headers.size() == 1 and str(first_reveal_headers[0].get_meta("store_series_id", "")) == "inferno", "stage 30 must reveal only the Infernal series")
 	_expect(first_reveal_cards.size() == 2, "stage 30 must reveal exactly the Infernal theme and complete arsenal cards")
+	_expect(first_reveal_store.find_child("LockedStoreEmptyState", true, false) == null, "the store empty state must disappear as soon as the first series is revealed")
 	for card in first_reveal_cards:
 		_expect(str(card.get_meta("store_product_id", "")).contains("inferno") or str(card.get_meta("store_product_id", "")).contains("infernal_dominion"), "first-reveal cards must belong only to Infernal")
 	first_reveal_store.queue_free()
@@ -5075,12 +5100,14 @@ func _verify_resource_chip_theme_matrix(theme_manager: Node) -> void:
 	root.add_child(fixture_host)
 	for theme_id in ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
 		theme_manager._set_active_without_persist(theme_id)
-		var bar := UiKit.standard_resource_bar(31612, 37, 12172, 38, Vector2(174, 58), 25)
+		var bar := UiKit.standard_resource_bar(31612, 37, 12172, Vector2(174, 58), 25)
 		bar.name = "ResourceBar_" + theme_id
 		bar.size = fixture_host.size
 		bar.add_theme_constant_override("separation", 12)
 		fixture_host.add_child(bar)
 		await process_frame
+		_expect(bar.get_child_count() == 3, "%s resource bar must render only gold, stars and XP" % theme_id)
+		_expect(bar.get_node_or_null("PowerResourceChip") == null, "%s resource bar must not present Effective Power as a fourth currency" % theme_id)
 		_assert_resource_chip_geometry(bar, "%s resource chips" % theme_id, theme_id)
 		bar.queue_free()
 		await process_frame
@@ -5155,7 +5182,7 @@ func _assert_resource_chip_geometry(row: Node, context: String, expected_theme_i
 			"%s %s must use the active theme's rendered native bezel" % [context, chip.name]
 		)
 		chips_checked += 1
-	_expect(chips_checked == 4, "%s must audit exactly four account resources" % context)
+	_expect(chips_checked == 3, "%s must audit exactly the three account resources: gold, stars and XP" % context)
 
 func _assert_semantic_tag_panel(tag: PanelContainer, context: String) -> void:
 	_expect(tag.has_meta("semantic_tag_role"), "%s must declare a semantic tag role" % context)
