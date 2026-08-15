@@ -628,7 +628,9 @@ func _item_tag_specs(row: Dictionary, unlocked: bool) -> Array[Dictionary]:
 			specs.append({"text": _element_name(row.get("element_focus", "-")), "role": "element"})
 		"weapons":
 			specs.append({"text": _element_name(row.get("element", "-")), "role": "element"})
-			specs.append({"text": _weapon_special_text(row), "role": "ability"})
+			var weapon_special := _weapon_special_text(row)
+			if weapon_special != "":
+				specs.append({"text": weapon_special, "role": "ability"})
 		"armors":
 			specs.append({"text": "护甲", "role": "kind"})
 			specs.append({"text": _element_name(row.get("resist", "none")), "role": "element"})
@@ -704,18 +706,18 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 		return _item_stat_summary(row)
 	match mode:
 		"weapons":
-			return _loc(
-				"元素：%s  射速：%s\n%s" % [_element_name(row.get("element", "-")), row.get("fire_rate", "-"), _weapon_special_text(row)],
-				"%s · Rate %s\n%s" % [LocalizationManager.text(_element_name(row.get("element", "-"))), row.get("fire_rate", "-"), LocalizationManager.text(_weapon_special_text(row))]
-			)
+			# Element and weapon mechanism already live in the semantic tag row.
+			# Keep prose for the numeric value that is not represented there.
+			return _loc("射速：%s", "Fire Rate: %s") % row.get("fire_rate", "-")
 		"armors":
-			var barrier := "  防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""
+			var barrier_zh := "\n防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""
+			var barrier_en := "\nBarrier +1" if int(row.get("breach_shield", 0)) > 0 else ""
 			return _loc(
-				"生命倍率：%.0f%%  抗性：%s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _element_name(row.get("resist", "none")), _next_upgrade_hint(item_id, row), barrier],
-				"HP: %.0f%% · Resist: %s\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_element_name(row.get("resist", "none"))), LocalizationManager.text(_next_upgrade_hint(item_id, row)), " · Barrier +1" if barrier != "" else ""]
+				"生命倍率：%.0f%%\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _next_upgrade_hint(item_id, row), barrier_zh],
+				"HP: %.0f%%\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_next_upgrade_hint(item_id, row)), barrier_en]
 			)
 		"chips":
-			return "%s +%s\n%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0)), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
+			return _loc("当前加成 +%s", "Current Bonus +%s") % _value_text(row.get("value", 0))
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
 			return "%s · %s" % [LocalizationManager.text(str(pet_skill.get("name", "专属协战"))), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
@@ -730,11 +732,11 @@ func _item_stat_summary(row: Dictionary) -> String:
 		"characters":
 			return _loc("定位：%s  元素：%s", "Role: %s · Element: %s") % [LocalizationManager.text(_role_name(row.get("role_tag", "-"))), LocalizationManager.text(_element_name(row.get("element_focus", "-")))]
 		"weapons":
-			return _loc("元素：%s  射速：%s\n%s", "Element: %s · Fire Rate: %s\n%s") % [LocalizationManager.text(_element_name(row.get("element", "-"))), str(row.get("fire_rate", "-")), LocalizationManager.text(_weapon_special_text(row))]
+			return _loc("射速：%s", "Fire Rate: %s") % str(row.get("fire_rate", "-"))
 		"armors":
-			return _loc("生命倍率：%.0f%%  抗性：%s%s", "HP: %.0f%% · Resist: %s%s") % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_element_name(row.get("resist", "none"))), "\nBarrier +1" if int(row.get("breach_shield", 0)) > 0 else ""]
+			return _loc("生命倍率：%.0f%%%s", "HP: %.0f%%%s") % [float(row.get("hp_mult", 1.0)) * 100.0, _loc("\n防线屏障 +1", "\nBarrier +1") if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
-			return "%s +%s" % [LocalizationManager.text(_stat_name(row.get("stat", "stat"))), _value_text(row.get("value", 0))]
+			return _loc("当前加成 +%s", "Current Bonus +%s") % _value_text(row.get("value", 0))
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
 			return _loc("协战：%s", "Support: %s") % LocalizationManager.text(str(pet_skill.get("name", "专属协战")))
@@ -909,19 +911,20 @@ func _value_text(value: Variant) -> String:
 
 func _weapon_special_text(row: Dictionary) -> String:
 	var special: Dictionary = row.get("special", {})
-	if special.has("pellets"):
+	if int(special.get("pellets", 0)) > 0:
 		return "%d 弹丸" % int(special.get("pellets", 1))
-	if special.has("pierce"):
+	if int(special.get("pierce", 0)) > 0:
 		return "自带穿透 +%d" % int(special.get("pierce", 0))
-	if special.has("chain"):
-		return "自带连锁 +%d" % int(special.get("chain", 0))
-	if special.has("splash"):
+	if int(special.get("chain", 0)) > 0:
+		return "自带连锁 +%d 目标" % int(special.get("chain", 0))
+	if float(special.get("splash", 0.0)) > 0.0:
 		return "溅射 %d" % int(special.get("splash", 0))
-	if special.has("cloud"):
-		return "毒云 %d" % int(special.get("cloud", 0))
-	if special.has("spread"):
-		return "扩散 %d" % int(special.get("spread", 0))
-	return "标准弹道"
+	if float(special.get("cloud", 0.0)) > 0.0:
+		return "毒云范围 %d" % int(special.get("cloud", 0))
+	if float(special.get("spread", 0.0)) > 0.0:
+		# Runtime consumes this field with deg_to_rad(), so the authored unit is degrees.
+		return "扩散 %d°" % int(special.get("spread", 0))
+	return ""
 
 # 升级预览：返回 [{label, cur, next, delta}]，直观展示本级 → 下级各属性变化。
 func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Array:
@@ -1003,7 +1006,7 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 		"armors":
 			return "下级 生命+%d%%" % int(round(float(row.get("hp_mult", 1.0)) * float(row.get("level_hp_growth", 0.0)) * 100.0))
 		"chips":
-			return "下级 %s +%s" % [_stat_name(row.get("stat", "增幅")), _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))]
+			return "下级 +%s" % _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))
 		"pets":
 			if row.get("role", "") == "repair":
 				return "下级 波次+%.1f%% · 持续+%.2f%%" % [

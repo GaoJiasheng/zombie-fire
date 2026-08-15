@@ -4146,3 +4146,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Unlock messaging stays data-driven**: every displayed requirement is sorted and formatted from `premium_sets.json` `store_unlock` fields. No stage number, series gate, price, entitlement rule or owned-series visibility shortcut changed.
 - **The global header is a resource bar again**: map, loadout and collection now show only Gold, Stars and XP. The redundant level-relative Power chip and its dead map helper code are removed, while the accepted Effective Power / Recommended comparison remains in the loadout tactical summary.
 - **Regression ownership**: localization is green; M1 smoke covers fresh-store empty state, dynamic minimum gate, Stage 30 reveal, owned visibility after progression rollback, and exact three-chip headers. Bilingual store/header captures pass visual review at `artifacts/design30_task12/`.
+
+## Release Review P1: Collection Card De-duplication + Mechanism Units (2026-08-15)
+
+- **Tags and prose now have separate jobs**: weapon, armor, chip and pet tags carry categorical identity; card prose contains only numeric or progression information not already present in those tags.
+- **Zero is absence, not a feature**: a non-positive weapon special can no longer create a highlighted mechanism pill. The starter autocannon therefore keeps only its Physical identity instead of turning Spread 0 or a fallback placeholder into a feature.
+- **Units come from runtime semantics**: `spread` is displayed in degrees because firing converts it with `deg_to_rad()`; `cloud` is named as a radius because it enters the projectile area radius; `chain` is suffixed with Targets because it increments the resolved target count.
+- **Cleaner value copy**: chips display Current Bonus plus the value without repeating their stat tag or exposing a rounded Next +0% line.
+- **Proof**: localization, headless boot and M1 smoke pass. Chinese and English weapon, armor, chip and pet captures pass runtime/image and manual visual review at `artifacts/design30_task3/`.

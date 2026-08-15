@@ -660,7 +660,8 @@ func _initialize() -> void:
 				var semantic_description := semantic_row.get_node_or_null("Description") as Label
 				var semantic_action := semantic_row.get_node_or_null("CardActionButton") as TextureButton
 				_expect(semantic_title != null and semantic_tags != null and semantic_description != null, "%s %s row must expose title/tag/description anchors" % [semantic_language, semantic_mode])
-				_expect(semantic_tags != null and semantic_tags.get_child_count() >= 2, "%s %s row must expose at least two categorical tags" % [semantic_language, semantic_mode])
+				var expected_tag_minimum := 1 if semantic_mode == "weapons" else 2
+				_expect(semantic_tags != null and semantic_tags.get_child_count() >= expected_tag_minimum, "%s %s row must expose its available categorical tags without inventing empty values" % [semantic_language, semantic_mode])
 				if semantic_title == null or semantic_tags == null or semantic_description == null:
 					continue
 				var title_tag_gap := semantic_tags.position.y - (semantic_title.position.y + semantic_title.size.y)
@@ -668,11 +669,37 @@ func _initialize() -> void:
 				_expect(is_equal_approx(title_tag_gap, 8.0), "%s %s title-to-tag gap must stay at the shared 8px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
 				_expect(is_equal_approx(tag_description_gap, 6.0), "%s %s tag-to-description gap must stay at the shared 6px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
 				_expect(semantic_title.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM, "%s %s title glyphs must bottom-align against the fixed tag gap" % [semantic_language, semantic_mode])
+				var semantic_tag_texts: Array[String] = []
+				var weapon_ability_tag_count := 0
 				for semantic_tag_node in semantic_tags.get_children():
 					var semantic_tag := semantic_tag_node as PanelContainer
 					_expect(semantic_tag != null, "%s %s row tags must use semantic PanelContainers" % [semantic_language, semantic_mode])
 					if semantic_tag != null:
 						_assert_semantic_tag_panel(semantic_tag, "%s %s collection row" % [semantic_language, semantic_mode])
+						var semantic_tag_text := semantic_tag.get_node_or_null("Text") as Label
+						var tag_copy := semantic_tag_text.text if semantic_tag_text != null else ""
+						semantic_tag_texts.append(tag_copy)
+						var tag_role := str(semantic_tag.get_meta("semantic_tag_role", ""))
+						if semantic_mode in ["weapons", "armors", "chips", "pets"] and tag_role == "ability":
+							_expect(tag_copy == "" or not semantic_description.text.contains(tag_copy), "%s %s %s must not repeat mechanism/stat tag '%s' in prose" % [semantic_language, semantic_mode, semantic_row.name, tag_copy])
+						if semantic_mode in ["weapons", "armors", "pets"] and tag_role == "element":
+							_expect(not semantic_description.text.contains("元素：") and not semantic_description.text.contains("Element:") and not semantic_description.text.contains("抗性：") and not semantic_description.text.contains("Resist:"), "%s %s %s must keep its element/resistance identity only in the tag row" % [semantic_language, semantic_mode, semantic_row.name])
+						if semantic_mode == "weapons" and tag_role == "ability":
+							weapon_ability_tag_count += 1
+							_expect(not tag_copy.ends_with(" 0") and not tag_copy.ends_with(" 0°") and not tag_copy.ends_with("+0"), "%s weapon %s must suppress zero-value mechanism pills" % [semantic_language, semantic_row.name])
+				if semantic_mode == "weapons":
+					var expected_mechanism := ""
+					match semantic_row.name:
+						"weapon_autocannon":
+							_expect(weapon_ability_tag_count == 0, "%s starter autocannon must not turn spread 0 into a mechanism pill" % semantic_language)
+						"weapon_flamethrower":
+							expected_mechanism = "扩散 10°" if semantic_language == "zh" else "Spread 10°"
+						"weapon_teslacoil":
+							expected_mechanism = "自带连锁 +2 目标" if semantic_language == "zh" else "Built-in Chain +2 Targets"
+						"weapon_venomlauncher":
+							expected_mechanism = "毒云范围 120" if semantic_language == "zh" else "Cloud Radius 120"
+					if expected_mechanism != "":
+						_expect(semantic_tag_texts.has(expected_mechanism), "%s weapon %s must expose the verified mechanism unit '%s'" % [semantic_language, semantic_row.name, expected_mechanism])
 				if semantic_action != null:
 					_expect(semantic_action.position.y + semantic_action.size.y <= semantic_row.size.y - 12.0, "%s %s action must stay inside its card" % [semantic_language, semantic_mode])
 				if mode_card_height <= 0.0:

@@ -257,6 +257,8 @@
 }
 ```
 
+`weapons.special` 的展示与运行时单位固定为：`spread` 是弹丸扇形夹角（度，运行时通过 `deg_to_rad()` 转换）；`cloud` / `splash` 是战场作用半径；`chain` / `pierce` 是额外目标数量。数值为 `0` 或字段为空表示没有对应机制，图鉴不得把它渲染成高亮标签。
+
 ## armors.json
 ```jsonc
 {
