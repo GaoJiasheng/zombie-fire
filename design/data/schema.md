@@ -42,6 +42,7 @@
     "active_skill": {
       "id": "sig_vanguard_railvolley",
       "scaling_basis": "weapon",  // weapon=按当前主武器伤害轻成长；character=按角色攻击独立成长
+	  "coverage_mode": "local", // 可选：local=局部命中；battlefield=每段命中战场内全部存活敌人
       "cooldown": 18.0,
       "duration": 6.0,
       "damage_mult": 1.25,
@@ -74,6 +75,7 @@
 
 - `weapon`：基于当前主武器攻击，技能本身只给轻量成长，适合弹幕齐射这类“主武器强化”技能。
 - `character`：基于角色自身攻击和角色等级，不吃武器自身攻击系数、射速、炮塔倍率；可通过 `weapon_level_inherit`（`0~1`）继承部分永久武器等级伤害成长，避免满配后主动技掉出核心循环。
+- `coverage_mode`：默认 `local`，按技能自身的目标 / 半径规则命中；`battlefield` 表示每段伤害覆盖战场内全部存活敌人。它只改变目标覆盖，不进入单体伤害或玩家战力公式，避免把清场语义重复折算为 Boss 数字。
 - `sig_level_*`：角色专属主动技的独立 `0-5` 级成长。所有主动技必须至少声明伤害增幅与冷却缩减；各技能再通过持续时间、范围、状态强度、阈值数组或每 N 级机制增量形成可感知质变。
 
 `bullet_affinity` 是角色被动与弹种绑定的主入口。不同元素可扩展字段：火焰 `splash_bonus/status_bonus`，冰霜 `slow_bonus/shatter_bonus`，闪电 `chain_bonus/status_bonus`，物理 `pierce_bonus`。入门角色的 `pierce_bonus` 应保持 `0`，避免一级普通弹在获得技能前就表现成多目标弹药；需要保留的物理角色特色通过 `rank_pierce_bonus` 在成长档位 II 解锁。闪电还可声明 `chain_overflow_reference`、`chain_overflow_damage_bonus` 与 `chain_target_falloff`：连锁数量不设代码硬上限，超过参考数量的成长转化为主目标增伤，同时后续连锁按递减系数控制密集尸潮收益。
@@ -86,6 +88,7 @@
   "canvas_size": [380, 520],
   "target_body_height_px": 420.0,
   "target_foot_offset_px": 100.0,
+  "scale_reference_pose": "center",
   "profiles": {
     "standard": {
       "char_vanguard": {
@@ -109,8 +112,9 @@
 
 - 这里只记录人物解剖标尺，不记录整张 PNG 的透明外框。`body_height_px` 是头顶到脚底，`foot_y_px` 是落脚线，`body_center_x_px` 是人体中轴；枪械、披风、翅膀和枪口光都不得进入测量。
 - `standard` 覆盖普通融合枪模的 `idle / hurt / left / center / right`；每个带 `presentation.true_grip` 的终焉武器必须有同名 profile，并覆盖四角色与三个射击方向。
-- 运行时把人体统一到 `target_body_height_px × CHARACTER_VISUAL_BASE_SCALE × CHARACTER_PRESENTATION_SCALE`，角色等级不再改变人体尺寸；等级差异继续通过属性、徽记与颜色表达。
-- 方向切换同时应用身体缩放、人体中轴与脚底锚点，枪口坐标跟随同一变换；主题背挂特效保持独立图层，不得参与人物尺寸计算。
+- `scale_reference_pose` 固定使用 `center`：同一角色 / 同一模型 profile 的待机、受击与左 / 中 / 右开枪帧共用一个人体缩放倍率，姿势只改变人体中轴和脚底锚点；禁止再按蹲姿、后仰等动作高度把开枪帧单独放大。
+- 运行时统一人体基础标尺后再乘 `CHARACTER_PRESENTATION_SCALE=1.20`；这是既有 `1.50×` 战场展示的 `80%`。角色等级不再改变人体尺寸，等级差异继续通过属性、徽记与颜色表达。
+- 方向 / 动作切换同时应用人体中轴与脚底锚点，枪口坐标跟随同一共用缩放与姿势锚点；主题背挂特效保持独立图层，不得参与人物尺寸计算。
 
 ## economy.json 后半波压力旋钮
 
@@ -186,6 +190,7 @@
 ```
 > 局内 `run_level` 不存表（运行时状态）；表里只定义每级效果。两层升级逻辑见 `03`。
 > 元素弹药技能使用 `exclusive_group:"projectile_element"` 和 `ammo_element`。物理武器可在火/冰/雷/毒之间选择一种弹药转化；已有元素武器只允许升级同元素模块，不能被其他元素弹药覆盖。
+> `skill_multishot.effect.lane_damage_bonus` 是可选的单弹基础伤害回补（小数倍率）。运行时先按总弹道数应用 `1/0.85/0.80/0.75/0.70` 的基础单弹倍率，再叠加该回补并封顶 `1.0`；玩家战力与推荐战力的技能投影必须读取同一字段。
 
 ## status_vfx.json（持续异常状态视觉）
 
@@ -323,7 +328,7 @@
       "duration":0.60,                  // 完整预备→命中→收招，秒
       "contact_ratio":0.55,             // 命中点占完整动作的时间比例
       "contact_frame":4,                // 固定绑定 8 帧序列的第 4 帧
-      "lunge":25                        // 仅补充向屏幕下方的位移，不替代姿势
+      "lunge":25                        // 仅补充向屏幕下方的位移，不替代姿势；mode 同时路由攻击动作音效族
     },
     "sprite":"res://assets/production/sprites/zombies/zombie_armored_prototype.png"
   }
@@ -337,6 +342,13 @@
 `contact_frame`；不得在动作开始时提前扣基地血，也不得驻足后循环播放攻击帧。
 `duration` 必须在 `0.32..0.8` 秒，`contact_ratio` 在 `0.35..0.68`，
 `lunge` 在 `0..40` 设计像素。方向约定固定为从屏幕上方向下方基地进攻。
+普通僵尸在动作预备开始时按 `attack_animation.mode` 路由到七个短促动作材质音效族
+（普通爪击、快速爪击、撕咬、重击、爆破、腐蚀、支援），实际伤害接触再独立播放
+`sfx_enemy_breach` 的钢板 / 沙袋受击声；二者禁止复用同一素材。`zombie_phantom`
+只用于相位位移的空气风切声，不得带电弧、爆炸或基地撞击层。普通 `phase`
+闪现不得在同一帧叠加通用 `threat_warning`；相位穿行造成近线伤害时也不得播放
+物理 `enemy_breach`。Boss `phase_shift` / `dash_combo` 的可见相位移动同样先路由到
+`zombie_phantom`，只有随后真实命中防线的接触帧才允许播放 `enemy_breach`。
 
 ## bosses.json
 ```jsonc
@@ -415,6 +427,16 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     "primary_weakness":"fire","base_hp_ref":100,
     "threat_tags":["anti_swarm","breach"],
     "card_bias":{"anti_swarm":1.2,"control":1.0,"economy":0.8},
+    "clear_requirement":{
+      "min_output":1.0,"mob_hp_share":1.0,"boss_hp_share":0.0,"boss_id":null,
+      "power_contract":{
+        "model":"bottleneck_v3","recommended_power":11,
+        "crowd_capacity":1.0,"boss_capacity":0.0,"line_capacity":1.0,
+        "boss_effective_hp":0.0,"boss_weights":{},
+        "runtime_boss_pressure_mult":1.0,"guaranteed_skill_ids":[],
+        "reference_skill_rank":1
+      }
+    },
     "onboarding_stage":"aim_and_first_card",
     "waves":[ { "wave":1,"spawns":[
         {"type":"zombie_shambler","count":5,"interval":1.2,"lane":"spread"} ] } ],
@@ -425,6 +447,19 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ]
 ```
 波次 `lane`：`center|left|right|spread`。Boss wave：`{"wave":"boss","boss":"...","support":[...]}`。
+
+终局可选运行时合同示例：
+
+```jsonc
+{
+  "runtime_bosses":[{"wave":5,"type":"boss_tank_titan","interval":2.4,"lane":"left"}],
+  "guaranteed_card_offers":[{"offer":1,"skill_ids":["skill_barrier","skill_slow_field"]}]
+}
+```
+
+- `runtime_bosses` 是运行时在指定波次追加的 Boss，必须由 `battle.gd`、`simulate_balance.py` 与战力合同生成器共同读取；禁止再在战斗代码里按 `variant` 硬编码额外 Boss。当前仅 `level_099` 追加 `boss_tank_titan`。
+- `guaranteed_card_offers` 只保证指定第几次三选一中至少出现 `skill_ids` 之一，不自动替玩家选牌。战力模型只可计入这里明确保证的卡，并按候选中较弱的一张保守折算。
+- `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`。
 
 ## economy.json （全局旋钮）
 ```jsonc
@@ -452,6 +487,16 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   "crit_dmg_base": 1.5,
   "weakness_mult": 1.5, "resist_mult": 0.5,
   "star_thresholds": {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35},
+  "power_ruler": {
+    "boss_dps_per_capacity": 206.98,
+    "boss_clear_window_seconds": 180.0,
+    "runtime_boss_recommendation_calibration": 1.03827,
+    "final_line_capacity": 6.0,
+    "line_curve_exponent": 3.12,
+    "non_boss_line_pressure_mult": 0.72,
+    "armor_break_effective_factor": 0.94,
+    "boss_mechanic_time_mult": {"phase_shift":1.2821,"multi_phase":1.11}
+  },
   "repeat_clear_xp_mult": [1.0, 0.5, 0.25],
   "boss_level_base_hp_mult": {"base": 1.25, "early_mult": 1.75, "early_full_level": 10, "early_end_level": 25},
   "gold_drop_base": 10, "gold_drop_per_level": 2,
@@ -469,6 +514,15 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   }
 }
 ```
+
+### 局外养成成本与 UI 资源语义
+
+- 角色、武器、护甲、芯片、宠物的等级强化读取各表 `cost_base_gold`，唯一消费资源为 `gold`。
+- 通用技能永久等级读取 `economy.skill_base_xp_costs`，角色专属主动技读取 `economy.sig_skill_xp_costs`，唯一消费资源为 `xp`。
+- 免费角色与装备解锁读取 `unlock_cost_star`（兼容旧 `unlock.price`），唯一消费资源为 `star`。
+- 玩家可点击的成本必须渲染为“操作文字 + 对应资源图标 + 纯数字数量”；禁止用 `★`、`金币`、`经验` 或 `Gold / XP` 文字假扮图标。关卡评分星仍使用评分星素材，不属于成本组件。
+- UI 从 `SaveManager.get_*_cost_spec()` 获取 `{kind, amount}`，再由 `UiKit.currency_icon_path(kind)` 路由图标。当前还登记 `talent_point` 与 `reroll_charge` 图标供未来真实消费入口复用；没有真实消费规则时不得虚构扣除。
+
 - `ENEMY_SPEED_MULT` 是普通僵尸与 Boss 共享的基础移动速度旋钮；`BOSS_SPEED_MULT` 是 Boss 专用追加倍率，当前 `1.5` 表示 Boss 在共享速度口径之上再快 50%，不影响普通僵尸、HP、伤害或奖励。
 - `PLAYER_FIRE_RATE_MULT / PLAYER_SHOT_DAMAGE_MULT` 是主武器手感旋钮：当前基础射速节奏值为 `0.25`，单发伤害补偿为 `3.0`；关卡压力由 `tools/rebalance_difficulty.py` 按推荐等级 DPS 重新反推。
 - `late_wave_hp_bonus` 是普通僵尸/支援怪的后半段波次血量旋钮；当前第 3/4/5 波分别为 `1.45/1.85/2.30`。
@@ -631,7 +685,7 @@ Save v3 的外观状态结构为：
 - `target_full_set_ratio_min/center/max` 必须由可复现 DPS 审计验证；第一套雷霆为 `1.52 / 1.55 / 1.58`。
 - 撤权只收回使用权并回退非法已装备项，不删除已投入的装备等级。
 - 商店、权益恢复和一键装备必须遍历 `series_id`，不得再依赖某一套装的代码常量。
-- 四系列商品目录始终可预览；`store_unlock` 只控制购买 / 装备授权。锁定态从同一套装行读取 `unlock_hint_zh/en`（标题下完整条件）和 `unlock_cta_zh/en`（禁用按钮短文案），不得把未达进度误处理为整套不显示。
+- `store_unlock` 同时控制系列在玩家界面的首次揭示与购买授权：未达条件前，商店、主题 / 战衣选择、收藏等入口必须整套隐藏，不得显示标题、素材、价格、按钮或解锁提示；达成后才生成商品卡。`unlock_hint_zh/en` 与 `unlock_cta_zh/en` 仅作为历史数据兼容 / 内部审核说明保留，不得用于未揭示玩家界面。已验证权益始终优先于本地进度门禁。
 - 高级武器可在 `weapons.presentation` 声明 `weapon_scale / muzzle_distance / attack_duration / prefire_lead / recoil_pose / recoil_accent / recoil_twist`。`true_grip` 进一步声明根目录、`viewpoint`（竖屏底部防线战斗固定为 `rear`）、三向文件 pattern、画布尺寸及逐角色三向枪口坐标；运行时与视觉校验器都读取同一份数据。
 - premium 宠物主动 `kind: fire_flyby` 表示按当前手动锁定 / 自动优先目标执行一次有目标上限的火焰掠场；必须声明冷却、伤害倍率、目标数、衰减、轨迹持续时间与最大并发，不得生成无限地面路径。
 - 战报中的 premium 来源必须拆分记录主武器直伤、灼烧、爆燃、护甲反击、宠物与四件套传播；现有 `take_damage` 四参数调用兼容不变，新增来源通过可选上下文传递。

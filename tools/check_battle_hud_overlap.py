@@ -15,7 +15,7 @@ FRAME_RANGE = range(1, 8)
 CHARACTER_BASE_X = 540.0
 CHARACTER_BASE_Y = 1652.0
 CHARACTER_VISUAL_BASE_SCALE = 0.512
-CHARACTER_PRESENTATION_SCALE = 1.50
+CHARACTER_PRESENTATION_SCALE = 1.20
 
 HUD_RECTS = {
     "wave_bar": (124.0, 18.0, 956.0, 66.0),
@@ -107,7 +107,13 @@ def _body_metric(body_metrics: dict, profile_id: str, character_id: str, pose: s
     return poses.get(pose, poses.get(fallback, {}))
 
 
-def _visible_rect(path: Path, metric: dict, body_metrics: dict) -> tuple[float, float, float, float] | None:
+def _visible_rect(
+    path: Path,
+    metric: dict,
+    body_metrics: dict,
+    profile_id: str,
+    character_id: str,
+) -> tuple[float, float, float, float] | None:
     metrics = _visible_metrics(path)
     if metrics is None:
         return None
@@ -115,7 +121,9 @@ def _visible_rect(path: Path, metric: dict, body_metrics: dict) -> tuple[float, 
     left, top, right, bottom = bbox
     target_height = float(body_metrics.get("target_body_height_px", 420.0))
     target_foot = float(body_metrics.get("target_foot_offset_px", 116.0))
-    source_height = max(1.0, float(metric.get("body_height_px", target_height)))
+    reference_pose = str(body_metrics.get("scale_reference_pose", "center"))
+    scale_metric = _body_metric(body_metrics, profile_id, character_id, reference_pose)
+    source_height = max(1.0, float(scale_metric.get("body_height_px", target_height)))
     body_scale = CHARACTER_VISUAL_BASE_SCALE * target_height / source_height
     center_x = float(metric.get("body_center_x_px", width * 0.5))
     foot_y = float(metric.get("foot_y_px", height * 0.5))
@@ -191,7 +199,7 @@ def main() -> int:
                     continue
                 pose = _pose_for_path(path)
                 metric = _body_metric(body_metrics, profile_id, character_id, pose)
-                rect = _visible_rect(path, metric, body_metrics)
+                rect = _visible_rect(path, metric, body_metrics, profile_id, character_id)
                 if rect is None:
                     continue
                 checked_frames += 1

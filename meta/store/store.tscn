@@ -67,11 +67,13 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 horizontal_scroll_mode = 0
+scroll_deadzone = 12
 clip_contents = true
 
 [node name="Content" type="VBoxContainer" parent="Root/VBox/ScrollWrap/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
 theme_override_constants/separation = 18
 
 [node name="Footer" type="HBoxContainer" parent="Root/VBox"]

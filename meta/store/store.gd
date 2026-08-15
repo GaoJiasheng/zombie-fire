@@ -10,9 +10,25 @@ const STORE_PREVIEW_CELL_CONTENT_SIZE := Vector2(146, 146)
 const STORE_THEME_BUST_VISIBLE_HEIGHT := 212.0
 const STORE_THEME_BUST_HEADROOM := 8.0
 const STORE_ITEM_VISIBLE_EXTENT := 124.0
+const STORE_DETAIL_HERO_CELL_SIZE := Vector2(212, 268)
+const STORE_DETAIL_WEAPON_CELL_SIZE := Vector2(212, 184)
+const STORE_DETAIL_GEAR_CELL_SIZE := Vector2(432, 246)
+const STORE_DETAIL_PORTRAIT_VIEW_SIZE := Vector2(200, 194)
+const STORE_DETAIL_PORTRAIT_VISIBLE_HEIGHT := 248.0
+const STORE_DETAIL_HEADER_TEXT_INSET := 16
+const STORE_DETAIL_SECTION_MARGIN_LEFT := 36
+const STORE_DETAIL_SECTION_MARGIN_RIGHT := 24
+const STORE_DETAIL_SECTION_MARGIN_V := 22
+const STORE_DETAIL_INFO_MARGIN_LEFT := 26
+const STORE_DETAIL_INFO_MARGIN_RIGHT := 18
+const STORE_DETAIL_INFO_MARGIN_V := 14
+const STORE_DETAIL_GEAR_MARGIN_LEFT := 26
+const STORE_DETAIL_GEAR_MARGIN_RIGHT := 18
+const STORE_DETAIL_GEAR_MARGIN_V := 16
 
 var router: Node
 var _dialog_layer: CanvasLayer
+var _product_detail: Control
 var _status_label: Label
 var _appearance_selector: CanvasLayer
 var _return_to := "menu"
@@ -76,31 +92,46 @@ func _rebuild() -> void:
 		content.remove_child(child)
 		child.queue_free()
 
-	_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
-	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status_label.custom_minimum_size = Vector2(0, 54)
-	content.add_child(_status_label)
+	var revealed_series := PurchaseManager.store_series_ids()
+	if not revealed_series.is_empty():
+		_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
+		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_status_label.custom_minimum_size = Vector2(0, 54)
+		content.add_child(_status_label)
+	else:
+		_status_label = null
 
-	for series_id in PurchaseManager.catalog_series_ids():
-		var series_unlocked := PurchaseManager.is_series_unlocked(series_id)
-		content.add_child(_series_header(series_id, not series_unlocked))
+	for series_id in revealed_series:
+		content.add_child(_series_header(series_id))
 		for product_id in PurchaseManager.display_offer_ids(series_id):
-			content.add_child(_product_card(PurchaseManager.product(product_id), not series_unlocked))
+			content.add_child(_product_card(PurchaseManager.product(product_id)))
 		if PurchaseManager.is_arsenal_owned(series_id):
 			content.add_child(_owned_set_panel(PurchaseManager.set_id_for_series(series_id)))
 		elif PurchaseManager.is_theme_owned(series_id):
 			content.add_child(_owned_theme_panel(series_id))
+	_configure_store_scroll_surface(content)
 
 
-func _series_header(series_id: String, locked: bool) -> PanelContainer:
+func _configure_store_scroll_surface(root: Node) -> void:
+	# Every visible list surface must let the parent ScrollContainer observe the
+	# same touch sequence. BaseButton keeps stationary taps, while Godot cancels
+	# its pressed action after the scroll deadzone is crossed.
+	if root is Control and (root as Control).mouse_filter != Control.MOUSE_FILTER_IGNORE:
+		(root as Control).mouse_filter = Control.MOUSE_FILTER_PASS
+	if root is BaseButton:
+		root.set_meta("store_scroll_drag_passthrough", true)
+	for child in root.get_children():
+		_configure_store_scroll_surface(child)
+
+
+func _series_header(series_id: String) -> PanelContainer:
 	var set_row := PurchaseManager.set_for_series(series_id)
 	var panel := PanelContainer.new()
 	panel.name = "Series_%s" % series_id
 	panel.set_meta("store_series_id", series_id)
-	panel.set_meta("store_series_locked", locked)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 104 if locked else 72)
+	panel.custom_minimum_size = Vector2(0, 72)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
@@ -112,13 +143,6 @@ func _series_header(series_id: String, locked: bool) -> PanelContainer:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	box.add_child(label)
-	if locked:
-		var hint := UiKit.label(_series_unlock_hint(series_id), 16, UiKit.GREY_300, 2)
-		hint.name = "UnlockHint"
-		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		box.add_child(hint)
 	return panel
 
 
@@ -134,7 +158,7 @@ func _ownership_status() -> String:
 	var lines: Array[String] = []
 	var key := "owned_status_en" if LocalizationManager.is_english() else "owned_status_zh"
 	var theme_key := "theme_status_en" if LocalizationManager.is_english() else "theme_status_zh"
-	for series_id in PurchaseManager.catalog_series_ids():
+	for series_id in PurchaseManager.store_series_ids():
 		var set_row := PurchaseManager.set_for_series(series_id)
 		if PurchaseManager.is_arsenal_owned(series_id):
 			lines.append(str(set_row.get(key, series_id)))
@@ -143,20 +167,25 @@ func _ownership_status() -> String:
 	if not lines.is_empty():
 		return "\n".join(lines)
 	return _loc(
-		"四套系列均已收录 · 达成对应战役条件后开放购买",
-		"All four series are listed · Purchases unlock with campaign progress"
+		"已解密系列可永久购买与恢复",
+		"Revealed series are permanent and restorable"
 	)
 
 
-func _product_card(row: Dictionary, locked := false) -> PanelContainer:
+func _product_card(row: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
 	var offer_role := str(row.get("offer_role", ""))
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
-	panel.set_meta("store_product_locked", locked)
+	panel.set_meta("store_card_opens_detail", true)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
 	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.focus_mode = Control.FOCUS_ALL
+	panel.tooltip_text = _loc("查看完整商品详情", "View complete product details")
+	panel.gui_input.connect(_on_product_card_input.bind(product_id, panel))
 	var margin := MarginContainer.new()
 	for side in ["left", "top", "right", "bottom"]:
 		margin.add_theme_constant_override("margin_%s" % side, 22)
@@ -166,7 +195,6 @@ func _product_card(row: Dictionary, locked := false) -> PanelContainer:
 	margin.add_child(hbox)
 
 	var preview := _product_preview(row)
-	preview.modulate = Color(0.72, 0.76, 0.80, 0.86) if locked else Color.WHITE
 	hbox.add_child(preview)
 
 	var copy := VBoxContainer.new()
@@ -198,35 +226,708 @@ func _product_card(row: Dictionary, locked := false) -> PanelContainer:
 	)
 	contents.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(contents)
+	var detail_hint := UiKit.label(
+		_loc("点击商品查看全部内容", "Tap product to view everything included"),
+		14,
+		UiKit.CYAN,
+		2
+	)
+	detail_hint.name = "DetailHint"
+	detail_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(detail_hint)
 	var buy := Button.new()
 	buy.name = "Buy_" + str(row.get("id", "")).replace(".", "_")
 	buy.focus_mode = Control.FOCUS_NONE
-	if locked:
-		buy.text = _series_unlock_cta(str(row.get("series_id", "")))
-		buy.disabled = true
-		UiKit.apply_armored_button(buy, false, Vector2(484, 102), 18, false)
-	else:
-		buy.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
-		UiKit.apply_armored_button(buy, true, Vector2(484, 102), 20, true)
-		buy.pressed.connect(_confirm_purchase.bind(str(row.get("id", ""))))
+	buy.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
+	UiKit.apply_armored_button(buy, true, Vector2(484, 102), 20, true)
+	# button_down is emitted before the event bubbles to the card. Mark that
+	# origin explicitly because a bubbled touch position remains relative to its
+	# original child control, not to the enclosing product panel.
+	buy.button_down.connect(_on_product_action_button_down.bind(panel))
+	buy.pressed.connect(_confirm_purchase.bind(str(row.get("id", ""))))
 	copy.add_child(buy)
 	return panel
 
 
-func _series_unlock_hint(series_id: String) -> String:
-	var set_row := PurchaseManager.set_for_series(series_id)
-	return str(set_row.get(
-		"unlock_hint_en" if LocalizationManager.is_english() else "unlock_hint_zh",
-		_loc("尚未达到解锁条件", "Unlock requirement not met")
-	))
+func _on_product_action_button_down(panel: PanelContainer) -> void:
+	panel.set_meta("store_detail_press_started_on_action", true)
+	panel.set_meta("store_detail_release_blocked_until_next_press", true)
 
 
-func _series_unlock_cta(series_id: String) -> String:
-	var set_row := PurchaseManager.set_for_series(series_id)
-	return str(set_row.get(
-		"unlock_cta_en" if LocalizationManager.is_english() else "unlock_cta_zh",
-		_loc("尚未解锁", "Not Yet Unlocked")
-	))
+func _on_product_card_input(event: InputEvent, product_id: String, panel: PanelContainer) -> void:
+	var activate := false
+	if event is InputEventMouseButton:
+		if event.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if event.pressed:
+			if bool(panel.get_meta("store_detail_press_started_on_action", false)) or _product_card_event_hits_action(event.position, panel):
+				panel.set_meta("store_detail_press_started_on_action", true)
+				panel.set_meta("store_detail_release_blocked_until_next_press", true)
+				return
+			panel.remove_meta("store_detail_press_started_on_action")
+			panel.remove_meta("store_detail_release_blocked_until_next_press")
+			panel.set_meta("store_detail_press_position", event.position)
+			return
+		if bool(panel.get_meta("store_detail_press_started_on_action", false)) or bool(panel.get_meta("store_detail_release_blocked_until_next_press", false)):
+			panel.remove_meta("store_detail_press_started_on_action")
+			panel.remove_meta("store_detail_press_position")
+			return
+		if _product_card_event_hits_action(event.position, panel):
+			panel.remove_meta("store_detail_press_position")
+			return
+		var press_position: Variant = panel.get_meta("store_detail_press_position", event.position)
+		panel.remove_meta("store_detail_press_position")
+		activate = press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= 18.0
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			if bool(panel.get_meta("store_detail_press_started_on_action", false)) or _product_card_event_hits_action(event.position, panel):
+				panel.set_meta("store_detail_press_started_on_action", true)
+				panel.set_meta("store_detail_release_blocked_until_next_press", true)
+				return
+			panel.remove_meta("store_detail_press_started_on_action")
+			panel.remove_meta("store_detail_release_blocked_until_next_press")
+			panel.set_meta("store_detail_press_position", event.position)
+			return
+		if bool(panel.get_meta("store_detail_press_started_on_action", false)) or bool(panel.get_meta("store_detail_release_blocked_until_next_press", false)):
+			panel.remove_meta("store_detail_press_started_on_action")
+			panel.remove_meta("store_detail_press_position")
+			return
+		if _product_card_event_hits_action(event.position, panel):
+			panel.remove_meta("store_detail_press_position")
+			return
+		var press_position: Variant = panel.get_meta("store_detail_press_position", event.position)
+		panel.remove_meta("store_detail_press_position")
+		activate = press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= 18.0
+	elif event is InputEventKey:
+		activate = event.pressed and not event.echo and event.keycode in [KEY_ENTER, KEY_SPACE]
+	if not activate:
+		return
+	panel.accept_event()
+	AudioManager.play_sfx("ui_click")
+	_show_product_detail(product_id)
+
+
+func _product_card_event_hits_action(local_position: Vector2, panel: PanelContainer) -> bool:
+	var action := panel.find_child("Buy_*", true, false) as BaseButton
+	if action == null or not action.visible:
+		return false
+	var global_position := panel.get_global_transform_with_canvas() * local_position
+	return action.get_global_rect().has_point(global_position)
+
+
+func _show_product_detail(product_id: String) -> void:
+	var row := PurchaseManager.product(product_id)
+	if row.is_empty():
+		return
+	var series_id := str(row.get("series_id", ""))
+	# The detail route obeys exactly the same reveal/offer gate as the list. This
+	# prevents a debug call or stale card from leaking a future premium series.
+	var is_current_offer := PurchaseManager.display_offer_ids(series_id).has(product_id)
+	if not PurchaseManager.store_series_ids().has(series_id):
+		return
+	if not is_current_offer and not PurchaseManager.is_product_owned(product_id):
+		return
+	_close_product_detail()
+	# The modal has its own dimmed backdrop. Remove the store footer's active
+	# touch targets while it is open so hidden controls cannot intercept assistive
+	# input or overlap the fixed detail purchase action.
+	$Root/VBox/Footer.visible = false
+
+	var theme_id := str(row.get("theme_id", "default"))
+	var accent := _theme_preview_accent(theme_id)
+	var detail := Control.new()
+	detail.name = "StoreProductDetail"
+	detail.set_anchors_preset(Control.PRESET_FULL_RECT)
+	detail.mouse_filter = Control.MOUSE_FILTER_STOP
+	detail.z_index = 96
+	detail.set_meta("store_detail_product_id", product_id)
+	detail.set_meta("store_detail_series_id", series_id)
+	detail.set_meta("store_detail_theme_id", theme_id)
+	detail.set_meta("store_detail_offer_role", str(row.get("offer_role", "")))
+	add_child(detail)
+	_product_detail = detail
+
+	var dim := TextureRect.new()
+	dim.name = "DismissBackground"
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
+	dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	dim.stretch_mode = TextureRect.STRETCH_SCALE
+	dim.modulate = Color(0.005, 0.008, 0.014, 0.94)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.gui_input.connect(_on_product_detail_dim_input)
+	detail.add_child(dim)
+
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 96.0, 0.24)
+	var panel := PanelContainer.new()
+	panel.name = "DetailPanel"
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.offset_left = 38.0 + safe.x
+	panel.offset_top = 66.0 + safe.y + modal_shift
+	panel.offset_right = -38.0 - safe.z
+	panel.offset_bottom = -66.0 - safe.w + modal_shift
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.add_theme_stylebox_override("panel", UiKit.detail_panel_texture_style())
+	detail.add_child(panel)
+
+	var outer_margin := MarginContainer.new()
+	outer_margin.name = "OuterMargin"
+	for side in ["left", "top", "right", "bottom"]:
+		outer_margin.add_theme_constant_override("margin_%s" % side, 28)
+	panel.add_child(outer_margin)
+	var outer := VBoxContainer.new()
+	outer.name = "Layout"
+	outer.add_theme_constant_override("separation", 14)
+	outer_margin.add_child(outer)
+
+	outer.add_child(_store_detail_header(row, accent))
+	var scroll := ScrollContainer.new()
+	scroll.name = "DetailScroll"
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.scroll_deadzone = 12
+	outer.add_child(scroll)
+	var content := VBoxContainer.new()
+	content.name = "DetailContent"
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 14)
+	scroll.add_child(content)
+	_populate_store_product_detail(content, row, accent)
+	# Detail pages are a second, independent scrolling surface. Their nested
+	# section, hero, weapon and gear panels must pass the drag sequence just like
+	# the catalog cards do, otherwise the visible scrollbar cannot be touched.
+	_configure_store_scroll_surface(content)
+	outer.add_child(_store_detail_actions(row, is_current_offer))
+
+
+func _store_detail_header(row: Dictionary, accent: Color) -> Control:
+	var header := HBoxContainer.new()
+	header.name = "DetailHeader"
+	header.add_theme_constant_override("separation", 14)
+	var text_inset := Control.new()
+	text_inset.name = "HeaderTextInset"
+	text_inset.custom_minimum_size = Vector2(STORE_DETAIL_HEADER_TEXT_INSET, 0)
+	text_inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(text_inset)
+	var copy := VBoxContainer.new()
+	copy.name = "HeaderCopy"
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 6)
+	header.add_child(copy)
+	var title := UiKit.label(
+		str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")),
+		29,
+		UiKit.TEXT_MAIN,
+		4
+	)
+	title.name = "ProductTitle"
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.custom_minimum_size = Vector2(0, 58 if not LocalizationManager.is_english() else 88)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	copy.add_child(title)
+	var role := str(row.get("offer_role", ""))
+	var type_text := _loc("视觉主题", "VISUAL THEME")
+	if role == "arsenal_complete":
+		type_text = _loc("主题 + 终焉四件套", "THEME + APOCALYPSE SET")
+	elif role == "arsenal_upgrade":
+		type_text = _loc("主题拥有者军械升级", "THEME-OWNER ARSENAL UPGRADE")
+	var type_line := UiKit.label(type_text, 15, accent, 2)
+	type_line.name = "ProductType"
+	copy.add_child(type_line)
+	var close := Button.new()
+	close.name = "CloseButton"
+	close.text = "×"
+	close.focus_mode = Control.FOCUS_ALL
+	close.tooltip_text = _loc("关闭详情", "Close details")
+	UiKit.apply_armored_button(close, false, Vector2(110, 88), 20, true)
+	close.pressed.connect(_close_product_detail)
+	header.add_child(close)
+	return header
+
+
+func _populate_store_product_detail(content: VBoxContainer, row: Dictionary, accent: Color) -> void:
+	var theme_id := str(row.get("theme_id", "default"))
+	var set_id := str(row.get("arsenal_set_id", ""))
+	var grants_theme := _product_grants_entitlement(row, str(DataLoader.get_row("premium_sets", set_id).get("theme_entitlement", "")))
+	var grants_arsenal := _product_grants_entitlement(row, str(DataLoader.get_row("premium_sets", set_id).get("entitlement", "")))
+
+	var summary := _store_detail_section("SummarySection", _loc("商品说明", "Product Overview"), accent)
+	content.add_child(summary)
+	var summary_body := _store_detail_section_body(summary)
+	var subtitle := UiKit.label(
+		str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")),
+		18,
+		UiKit.TEXT_MAIN,
+		2
+	)
+	subtitle.name = "ProductSummary"
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary_body.add_child(subtitle)
+	var promise_text := _loc(
+		"永久解锁 · 可恢复 · 不含消耗品 · 本页为本地演示，不连接 Apple、不会扣款",
+		"Permanent · Restorable · No consumables · Local demo only; Apple is not connected and no charge occurs"
+	)
+	var promise := UiKit.label(promise_text, 15, UiKit.SUCCESS, 2)
+	promise.name = "PermanentPromise"
+	promise.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary_body.add_child(promise)
+	if str(row.get("offer_role", "")) == "arsenal_upgrade":
+		var upgrade_note := UiKit.label(
+			_loc("主题权益已拥有，本商品不会重复计价；只补齐下方四件终焉军械。", "Your theme is already owned and is not charged twice; this offer adds only the four Apocalypse items below."),
+			16,
+			UiKit.GOLD,
+			2
+		)
+		upgrade_note.name = "UpgradePricingNote"
+		upgrade_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary_body.add_child(upgrade_note)
+
+	if grants_theme:
+		_add_store_theme_detail_sections(content, theme_id, accent)
+	if grants_arsenal:
+		_add_store_arsenal_detail_sections(content, set_id, accent)
+
+
+func _add_store_theme_detail_sections(content: VBoxContainer, theme_id: String, accent: Color) -> void:
+	var theme_section := _store_detail_section("ThemeCoverageSection", _loc("主题包含内容", "Theme Contents"), accent)
+	content.add_child(theme_section)
+	var theme_body := _store_detail_section_body(theme_section)
+	var description := UiKit.label(ThemeManager.theme_description(theme_id), 17, UiKit.GREY_300, 2)
+	description.name = "ThemeDescription"
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	theme_body.add_child(description)
+	var coverage := GridContainer.new()
+	coverage.name = "ThemeCoverageGrid"
+	coverage.columns = 2
+	coverage.add_theme_constant_override("h_separation", 12)
+	coverage.add_theme_constant_override("v_separation", 10)
+	theme_body.add_child(coverage)
+	for spec in [
+		[_loc("全局界面", "Global UI"), _loc("菜单、面板、按钮与资源栏", "Menus, panels, buttons and resource HUD")],
+		[_loc("基地防线", "Base Defense"), _loc("主题边框、战斗 HUD 与结算外观", "Themed frames, battle HUD and results")],
+		[_loc("八把免费武器", "8 Free Weapons"), _loc("主题枪械配色与弹体战斗色彩", "Theme colorways and projectile palette")],
+		[_loc("专属开火特征", "Fire Signature"), _loc("角色背挂特征与战斗光效", "Rear character signature and combat effects")],
+	]:
+		coverage.add_child(_store_detail_info_card(str(spec[0]), str(spec[1]), accent))
+	var visual_only := UiKit.label(
+		_loc("纯外观权益：不增加有效战力，不改变数值。", "Visual-only entitlement: no Effective Power or combat-stat increase."),
+		16,
+		UiKit.WARNING,
+		2
+	)
+	visual_only.name = "VisualOnlyDisclosure"
+	visual_only.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	theme_body.add_child(visual_only)
+
+	var heroes_section := _store_detail_section("HeroOutfitsSection", _loc("4 套角色战衣", "4 Hero Outfits"), accent)
+	content.add_child(heroes_section)
+	var hero_grid := GridContainer.new()
+	hero_grid.name = "DetailHeroGrid"
+	hero_grid.columns = 4
+	hero_grid.add_theme_constant_override("h_separation", 12)
+	_store_detail_section_body(heroes_section).add_child(hero_grid)
+	var character_ids: Array[String] = []
+	for character_id_var in DataLoader.get_table("characters").keys():
+		character_ids.append(str(character_id_var))
+	character_ids.sort()
+	for character_id in character_ids:
+		hero_grid.add_child(_store_detail_hero_card(character_id, theme_id, accent))
+
+	var weapons_section := _store_detail_section("WeaponSkinsSection", _loc("8 把免费武器主题外观", "Theme Looks for 8 Free Weapons"), accent)
+	content.add_child(weapons_section)
+	var weapon_grid := GridContainer.new()
+	weapon_grid.name = "DetailWeaponSkinGrid"
+	weapon_grid.columns = 4
+	weapon_grid.add_theme_constant_override("h_separation", 12)
+	weapon_grid.add_theme_constant_override("v_separation", 10)
+	_store_detail_section_body(weapons_section).add_child(weapon_grid)
+	var weapon_ids: Array[String] = []
+	var weapons: Dictionary = DataLoader.get_table("weapons")
+	for weapon_id_var in weapons.keys():
+		var weapon_id := str(weapon_id_var)
+		var weapon_row: Dictionary = weapons.get(weapon_id, {})
+		if str(weapon_row.get("premium_entitlement", "")) == "":
+			weapon_ids.append(weapon_id)
+	weapon_ids.sort()
+	for weapon_id in weapon_ids:
+		weapon_grid.add_child(_store_detail_weapon_skin_card(weapon_id, theme_id, accent))
+
+
+func _add_store_arsenal_detail_sections(content: VBoxContainer, set_id: String, accent: Color) -> void:
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	var gear_section := _store_detail_section("ArsenalContentsSection", _loc("终焉军械 · 4 件", "Apocalypse Arsenal · 4 Items"), accent)
+	content.add_child(gear_section)
+	var gear_grid := GridContainer.new()
+	gear_grid.name = "DetailArsenalGearGrid"
+	gear_grid.columns = 2
+	gear_grid.add_theme_constant_override("h_separation", 14)
+	gear_grid.add_theme_constant_override("v_separation", 12)
+	_store_detail_section_body(gear_section).add_child(gear_grid)
+	for slot_spec in [["weapon", "weapons"], ["armor", "armors"], ["chip", "chips"], ["pet", "pets"]]:
+		var slot := str(slot_spec[0])
+		var table := str(slot_spec[1])
+		gear_grid.add_child(_store_detail_gear_card(table, slot, str(set_row.get(slot, "")), accent))
+
+	var synergy := _store_detail_section("SetSynergySection", _loc("套装协同与主宰区间", "Set Synergy & Dominance"), accent)
+	content.add_child(synergy)
+	var synergy_body := _store_detail_section_body(synergy)
+	var bonus := UiKit.label(str(set_row.get(
+		"two_piece_description_en" if LocalizationManager.is_english() else "two_piece_description_zh",
+		""
+	)), 17, UiKit.CYAN, 2)
+	bonus.name = "SetBonusDescription"
+	bonus.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	synergy_body.add_child(bonus)
+	var dominance := UiKit.label(str(set_row.get(
+		"dominance_en" if LocalizationManager.is_english() else "dominance_zh",
+		""
+	)), 16, UiKit.GOLD, 2)
+	dominance.name = "SetDominanceDescription"
+	dominance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	synergy_body.add_child(dominance)
+
+	var growth := _store_detail_section("GrowthSection", _loc("等级、外观进化与强度承诺", "Levels, Visual Evolution & Power Target"), accent)
+	content.add_child(growth)
+	var growth_body := _store_detail_section_body(growth)
+	var level_line := UiKit.label(
+		LocalizationManager.text("武器等级 1–50 · 护甲等级 1–35 · 芯片等级 1–35 · 宠物等级 1–30"),
+		16,
+		UiKit.TEXT_MAIN,
+		2
+	)
+	level_line.name = "LevelRanges"
+	level_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	growth_body.add_child(level_line)
+	var evolution := UiKit.label(
+		LocalizationManager.text("外观进化：原型 → 激活 → 强化 → 过载 → 觉醒（等级 1 / 10 / 20 / 30 / 满级）"),
+		15,
+		UiKit.GREY_300,
+		2
+	)
+	evolution.name = "EvolutionStages"
+	evolution.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	growth_body.add_child(evolution)
+	var center := float(set_row.get("target_full_set_ratio_center", 1.0))
+	var minimum := float(set_row.get("target_full_set_ratio_min", center))
+	var maximum := float(set_row.get("target_full_set_ratio_max", center))
+	var target_text := _loc(
+		"满级整套真实总输出目标：%.2f×（验收区间 %.2f×–%.2f×）" % [center, minimum, maximum],
+		"Max-level full-set real-output target: %.2f× (acceptance %.2f×–%.2f×)" % [center, minimum, maximum]
+	)
+	var target := UiKit.label(target_text, 16, UiKit.SUCCESS, 2)
+	target.name = "PowerTarget"
+	target.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	growth_body.add_child(target)
+
+
+func _store_detail_section(section_name: String, title_text: String, accent: Color) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = section_name
+	panel.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
+	var margin := MarginContainer.new()
+	margin.name = "Margin"
+	margin.add_theme_constant_override("margin_left", STORE_DETAIL_SECTION_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_top", STORE_DETAIL_SECTION_MARGIN_V)
+	margin.add_theme_constant_override("margin_right", STORE_DETAIL_SECTION_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_bottom", STORE_DETAIL_SECTION_MARGIN_V)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.name = "Box"
+	box.add_theme_constant_override("separation", 12)
+	margin.add_child(box)
+	var title := UiKit.label(title_text, 20, accent, 3)
+	title.name = "SectionTitle"
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(title)
+	var body := VBoxContainer.new()
+	body.name = "Body"
+	body.add_theme_constant_override("separation", 12)
+	box.add_child(body)
+	return panel
+
+
+func _store_detail_section_body(section: PanelContainer) -> VBoxContainer:
+	return section.get_node("Margin/Box/Body") as VBoxContainer
+
+
+func _store_detail_info_card(title_text: String, body_text: String, accent: Color) -> PanelContainer:
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(432, 94)
+	card.add_theme_stylebox_override("panel", _store_preview_cell_style(accent))
+	var margin := MarginContainer.new()
+	margin.name = "InfoMargin"
+	margin.add_theme_constant_override("margin_left", STORE_DETAIL_INFO_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_top", STORE_DETAIL_INFO_MARGIN_V)
+	margin.add_theme_constant_override("margin_right", STORE_DETAIL_INFO_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_bottom", STORE_DETAIL_INFO_MARGIN_V)
+	card.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	margin.add_child(box)
+	var title := UiKit.label(title_text, 15, UiKit.TEXT_MAIN, 2)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(title)
+	var body := UiKit.label(body_text, 12, UiKit.GREY_300, 1)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(body)
+	return card
+
+
+func _store_detail_hero_card(character_id: String, theme_id: String, accent: Color) -> PanelContainer:
+	var row := DataLoader.get_row("characters", character_id)
+	var card := PanelContainer.new()
+	card.name = "Hero_%s" % character_id
+	card.custom_minimum_size = STORE_DETAIL_HERO_CELL_SIZE
+	card.clip_contents = true
+	card.set_meta("store_detail_hero_id", character_id)
+	card.add_theme_stylebox_override("panel", _store_preview_cell_style(accent))
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	card.add_child(box)
+	var viewport := Control.new()
+	viewport.name = "PortraitViewport"
+	viewport.custom_minimum_size = STORE_DETAIL_PORTRAIT_VIEW_SIZE
+	viewport.clip_contents = true
+	box.add_child(viewport)
+	var fallback_path := UiKit.character_bust_path(row)
+	var portrait_path := ThemeManager.resolve_character_portrait_for_theme(character_id, theme_id, fallback_path)
+	var texture := load(portrait_path) as Texture2D if ResourceLoader.exists(portrait_path) else null
+	_add_alpha_fitted_texture(viewport, texture, portrait_path, STORE_DETAIL_PORTRAIT_VIEW_SIZE, STORE_DETAIL_PORTRAIT_VISIBLE_HEIGHT, 4.0, "Portrait")
+	var label := UiKit.label(DataLoader.tr_key(str(row.get("name_key", character_id))), 14, UiKit.TEXT_MAIN, 2)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(label)
+	return card
+
+
+func _store_detail_weapon_skin_card(weapon_id: String, theme_id: String, accent: Color) -> PanelContainer:
+	var row := DataLoader.get_row("weapons", weapon_id)
+	var card := PanelContainer.new()
+	card.name = "WeaponSkin_%s" % weapon_id
+	card.custom_minimum_size = STORE_DETAIL_WEAPON_CELL_SIZE
+	card.set_meta("store_detail_weapon_id", weapon_id)
+	card.add_theme_stylebox_override("panel", _store_preview_cell_style(accent))
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 4)
+	card.add_child(box)
+	var icon_path := _store_theme_weapon_icon_path(theme_id, weapon_id, str(row.get("icon", "")))
+	var icon := UiKit.icon(icon_path, Vector2(134, 122))
+	icon.name = "WeaponIcon"
+	icon.modulate = Color.WHITE.lerp(accent, 0.10)
+	box.add_child(icon)
+	var label := UiKit.label(DataLoader.tr_key(str(row.get("name_key", weapon_id))), 13, UiKit.TEXT_MAIN, 2)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(label)
+	return card
+
+
+func _store_detail_gear_card(table: String, slot: String, item_id: String, accent: Color) -> PanelContainer:
+	var row := DataLoader.get_row(table, item_id)
+	var card := PanelContainer.new()
+	card.name = "Gear_%s" % slot.capitalize()
+	card.custom_minimum_size = STORE_DETAIL_GEAR_CELL_SIZE
+	card.set_meta("store_detail_item_id", item_id)
+	card.set_meta("store_detail_item_table", table)
+	card.add_theme_stylebox_override("panel", _store_preview_cell_style(accent))
+	var margin := MarginContainer.new()
+	margin.name = "GearMargin"
+	margin.add_theme_constant_override("margin_left", STORE_DETAIL_GEAR_MARGIN_LEFT)
+	margin.add_theme_constant_override("margin_top", STORE_DETAIL_GEAR_MARGIN_V)
+	margin.add_theme_constant_override("margin_right", STORE_DETAIL_GEAR_MARGIN_RIGHT)
+	margin.add_theme_constant_override("margin_bottom", STORE_DETAIL_GEAR_MARGIN_V)
+	card.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 5)
+	margin.add_child(box)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 10)
+	box.add_child(head)
+	var icon := UiKit.icon(str(row.get("icon", "")), Vector2(112, 112))
+	icon.name = "ItemIcon"
+	head.add_child(icon)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(copy)
+	var slot_name := _store_slot_name(slot)
+	var name := UiKit.label(DataLoader.tr_key(str(row.get("name_key", item_id))), 16, UiKit.TEXT_MAIN, 2)
+	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(name)
+	var level := UiKit.label(
+		LocalizationManager.text("%s · 等级 1–%d") % [slot_name, int(row.get("max_level", 1))],
+		13,
+		accent,
+		2
+	)
+	level.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(level)
+	var summary := UiKit.label(_store_gear_summary(table, row), 12, UiKit.GREY_300, 1)
+	summary.name = "ItemSummary"
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(summary)
+	return card
+
+
+func _store_detail_actions(row: Dictionary, is_current_offer: bool) -> Control:
+	var actions := HBoxContainer.new()
+	actions.name = "DetailActions"
+	actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	actions.add_theme_constant_override("separation", 18)
+	var product_id := str(row.get("id", ""))
+	var purchase := Button.new()
+	purchase.name = "PurchaseButton"
+	purchase.set_meta("store_detail_product_id", product_id)
+	var owned := PurchaseManager.is_product_owned(product_id)
+	if is_current_offer:
+		purchase.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
+		purchase.set_meta("store_detail_action_state", "purchase")
+		purchase.pressed.connect(_purchase_from_product_detail.bind(product_id))
+	elif owned:
+		purchase.text = _loc("已拥有 · 可恢复", "Owned · Restorable")
+		purchase.set_meta("store_detail_action_state", "owned")
+		purchase.disabled = true
+	else:
+		purchase.text = _loc("商品状态已更新", "Offer State Updated")
+		purchase.set_meta("store_detail_action_state", "stale")
+		purchase.disabled = true
+	UiKit.apply_armored_button(purchase, true, Vector2(620, 96), 20, not purchase.disabled)
+	actions.add_child(purchase)
+	var close := Button.new()
+	close.name = "FooterCloseButton"
+	close.text = _loc("返回商品列表", "Back to Store")
+	UiKit.apply_armored_button(close, false, Vector2(250, 96), 15, true)
+	close.pressed.connect(_close_product_detail)
+	actions.add_child(close)
+	return actions
+
+
+func _purchase_from_product_detail(product_id: String) -> void:
+	_close_product_detail()
+	_confirm_purchase(product_id)
+
+
+func _on_product_detail_dim_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_close_product_detail()
+	elif event is InputEventScreenTouch and event.pressed:
+		_close_product_detail()
+
+
+func _close_product_detail() -> void:
+	if is_instance_valid(_product_detail):
+		_product_detail.queue_free()
+	_product_detail = null
+	if is_node_ready():
+		$Root/VBox/Footer.visible = true
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(_product_detail) and event.is_action_pressed("ui_cancel"):
+		_close_product_detail()
+		get_viewport().set_input_as_handled()
+
+
+func _product_grants_entitlement(row: Dictionary, entitlement_id: String) -> bool:
+	return entitlement_id != "" and row.get("grants", []).has(entitlement_id)
+
+
+func _store_theme_weapon_icon_path(theme_id: String, weapon_id: String, fallback_path: String) -> String:
+	for theme in ThemeManager.catalog_themes():
+		if str(theme.get("id", "")) != theme_id:
+			continue
+		var root_path := str(theme.get("weapons", {}).get("asset_root", "")).trim_suffix("/")
+		var candidate := "%s/%s_icon.png" % [root_path, weapon_id]
+		if root_path != "" and (ResourceLoader.exists(candidate) or FileAccess.file_exists(ProjectSettings.globalize_path(candidate))):
+			return candidate
+		break
+	return fallback_path
+
+
+func _store_slot_name(slot: String) -> String:
+	match slot:
+		"weapon": return _loc("终焉武器", "Apocalypse Weapon")
+		"armor": return _loc("终焉护甲", "Apocalypse Armor")
+		"chip": return _loc("终焉芯片", "Apocalypse Chip")
+		"pet": return _loc("终焉宠物", "Apocalypse Pet")
+		_: return slot
+
+
+func _store_element_name(element: String) -> String:
+	match element:
+		"physical": return _loc("物理", "Physical")
+		"fire": return _loc("火焰", "Fire")
+		"ice": return _loc("冰霜", "Frost")
+		"lightning": return _loc("闪电", "Lightning")
+		"poison": return _loc("毒素", "Poison")
+		"none", "": return _loc("无", "None")
+		_: return element
+
+
+func _store_stat_name(stat: String) -> String:
+	match stat:
+		"damage_mult": return _loc("伤害", "Damage")
+		"element_damage_mult": return _loc("元素伤害", "Element Damage")
+		"fire_rate_mult": return _loc("射速", "Fire Rate")
+		"crit_rate": return _loc("暴击率", "Critical Rate")
+		_: return stat.replace("_", " ").capitalize()
+
+
+func _store_gear_summary(table: String, row: Dictionary) -> String:
+	match table:
+		"weapons":
+			var special: Dictionary = row.get("special", {})
+			return _loc(
+				"%s · 攻击系数 %.3f · 射速 %.1f\n专属机制 %d 项，满级持续强化" % [_store_element_name(str(row.get("element", ""))), float(row.get("base_atk_coef", 0.0)), float(row.get("fire_rate", 0.0)), special.size()],
+				"%s · ATK coefficient %.3f · Rate %.1f\n%d signature mechanics; scales through MAX" % [_store_element_name(str(row.get("element", ""))), float(row.get("base_atk_coef", 0.0)), float(row.get("fire_rate", 0.0)), special.size()]
+			)
+		"armors":
+			return _loc(
+				"基地生命 %.0f%% · %s抗性 · 防线屏障 +%d\n受击反制随等级强化" % [float(row.get("hp_mult", 1.0)) * 100.0, _store_element_name(str(row.get("resist", "none"))), int(row.get("breach_shield", 0))],
+				"Base HP %.0f%% · %s resist · Barrier +%d\nCounter effect scales by level" % [float(row.get("hp_mult", 1.0)) * 100.0, _store_element_name(str(row.get("resist", "none"))), int(row.get("breach_shield", 0))]
+			)
+		"chips":
+			var secondary: Dictionary = row.get("secondary_stats", {})
+			return _loc(
+				"%s +%.0f%% · %d 项副属性\n核心与副属性均随等级成长" % [_store_stat_name(str(row.get("stat", ""))), float(row.get("value", 0.0)) * 100.0, secondary.size()],
+				"%s +%.0f%% · %d secondary stats\nCore and secondary stats scale by level" % [_store_stat_name(str(row.get("stat", ""))), float(row.get("value", 0.0)) * 100.0, secondary.size()]
+			)
+		"pets":
+			var skill: Dictionary = row.get("pet_skill", {})
+			var skill_name := str(skill.get("name", _loc("专属协战", "Signature Support")))
+			if LocalizationManager.is_english():
+				skill_name = "Signature Support"
+			return _loc(
+				"%s · 伤害 %d · 射速 %.2f\n%s · 冷却 %.1f 秒" % [_store_element_name(str(row.get("element", ""))), int(row.get("damage", 0)), float(row.get("fire_rate", 0.0)), skill_name, float(skill.get("cooldown", 0.0))],
+				"%s · Damage %d · Rate %.2f\n%s · %.1fs cooldown" % [_store_element_name(str(row.get("element", ""))), int(row.get("damage", 0)), float(row.get("fire_rate", 0.0)), skill_name, float(skill.get("cooldown", 0.0))]
+			)
+		_:
+			return ""
+
+
+func _add_alpha_fitted_texture(parent: Control, texture: Texture2D, source_path: String, view_size: Vector2, visible_height: float, headroom: float, node_name: String) -> void:
+	var visual := TextureRect.new()
+	visual.name = node_name
+	visual.texture = texture
+	visual.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	visual.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(visual)
+	if texture == null:
+		visual.custom_minimum_size = view_size
+		return
+	var used := _texture_used_rect(texture)
+	var scale_factor := visible_height / maxf(used.size.y, 1.0)
+	var texture_size := texture.get_size() * scale_factor
+	var visible_size := used.size * scale_factor
+	var visible_position := Vector2((view_size.x - visible_size.x) * 0.5, headroom)
+	visual.position = visible_position - used.position * scale_factor
+	visual.size = texture_size
+	visual.custom_minimum_size = texture_size
+	visual.set_meta("store_detail_source", source_path)
+	visual.set_meta("store_detail_visible_rect", Rect2(visible_position, visible_size))
 
 
 func _product_preview(row: Dictionary) -> Control:
@@ -535,10 +1236,15 @@ func _owned_item_row(table: String, slot: String, item_id: String) -> PanelConta
 	var upgrade := Button.new()
 	upgrade.focus_mode = Control.FOCUS_NONE
 	var maxed := level >= int(row.get("max_level", 1))
-	var cost := SaveManager.get_item_upgrade_cost(table, item_id)
-	upgrade.text = _loc("已满级", "MAX") if maxed else _loc("升级 %d 金币" % cost, "Upgrade %d Gold" % cost)
+	var cost_spec := SaveManager.get_item_upgrade_cost_spec(table, item_id)
+	var cost := int(cost_spec.get("amount", 0))
+	upgrade.text = _loc("已满级", "MAX") if maxed else _loc("升级", "Upgrade")
 	upgrade.disabled = maxed or not SaveManager.can_upgrade_item(table, item_id)
 	UiKit.apply_armored_button(upgrade, false, Vector2(320, 80), 17, not upgrade.disabled)
+	if not maxed:
+		UiKit.apply_resource_cost(upgrade, _loc("升级", "Upgrade"), str(cost_spec.get("kind", "gold")), cost, 16, 24.0, -2.0)
+		if upgrade.disabled:
+			upgrade.modulate = Color(0.72, 0.76, 0.80, 0.92)
 	upgrade.pressed.connect(_upgrade_item.bind(table, item_id))
 	h.add_child(upgrade)
 	return panel
@@ -703,5 +1409,9 @@ func _show_toast(message: String) -> void:
 
 
 func _back() -> void:
+	if is_instance_valid(_product_detail):
+		AudioManager.play_sfx("ui_click")
+		_close_product_detail()
+		return
 	AudioManager.play_sfx("ui_click")
 	router.change_scene(_return_to, _return_payload.duplicate(true))

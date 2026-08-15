@@ -37,3 +37,39 @@ These files are owner-directed production masters generated for the third and fi
 - No arbitrary projectile heading: the crystal wave declares a source heading and rotates to the real target vector.
 - No recursive screen-clearing chain: crystal wave generation is fixed at one.
 - No brightness-first UI: glow is restrained so bilingual copy remains primary.
+
+## 2026-08-11 rendered button replacement (V2)
+
+The owner rejected the original runtime buttons because their polygon outlines,
+diamond nodes and rails read as unrendered geometric placeholders. The built-in
+ImageGen path produced two independent wide chroma masters from the locked Polar
+Aurora style board; `remove_chroma_key.py` converted them to reviewed alpha
+masters, and `tools/build_polar_runtime_assets.py --buttons-only` preserves the
+authored end armor while resizing only a calm center lane.
+
+### Primary master prompt
+
+Create one production-ready premium mobile-game primary button master: exactly
+one very wide, symmetric, orthographic frame with deeply rendered cryogenic
+silver/titanium armor, machined bevels, translucent ice-crystal inlays, restrained
+polar-cyan and aurora-violet energy, a dark ocean-navy uninterrupted text well,
+and flat pure `#00FF00` chroma. No text, icon, wireframe geometry, procedural
+outline, dots, rail markers, watermark, perspective, extra controls or shadow.
+
+### Secondary master prompt
+
+Create one production-ready premium mobile-game secondary button master: exactly
+one very wide, symmetric, orthographic frame with quiet dark polar gunmetal,
+frosted titanium end armor, small dark crystal inlays, faint cyan/violet material
+reflections and a nearly black uninterrupted text well on flat pure `#00FF00`
+chroma. No text, icon, central crest, wireframe geometry, procedural outline,
+dots, rail markers, watermark, perspective, extra controls or shadow.
+
+### V2 outputs
+
+- `polar_aurora_button_primary_chroma_v2.png`
+- `polar_aurora_button_secondary_chroma_v2.png`
+- `polar_aurora_button_primary_transparent_v2.png`
+- `polar_aurora_button_secondary_transparent_v2.png`
+- `polar_aurora_button_runtime_manifest_v2.json`
+- `polar_aurora_button_runtime_contact_sheet_v2.png`

@@ -6,10 +6,14 @@ const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondar
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
 const LEVEL_CARD_HEIGHT := 192.0
-const LEVEL_MODE_X := 550.0
-const LEVEL_MODE_W := 412.0
-const LEVEL_MODE_H := 88.0
-const LEVEL_MODE_GAP := 8.0
+const LEVEL_MODE_AREA_X := 540.0
+const LEVEL_MODE_AREA_W := 422.0
+const LEVEL_MODE_SINGLE_W := 286.0
+const LEVEL_MODE_DUAL_GAP := 10.0
+const LEVEL_MODE_DUAL_W := (LEVEL_MODE_AREA_W - LEVEL_MODE_DUAL_GAP) * 0.5
+const LEVEL_MODE_Y := 14.0
+const LEVEL_MODE_H := 164.0
+const LEVEL_MODE_STYLE_SIZE := Vector2(286.0, 112.0)
 const CHAPTER_CARD_HEIGHT := 344.0
 const CHAPTER_HERO_HEIGHT := 324.0
 const CHAPTER_TEXT_X := 64.0
@@ -86,19 +90,21 @@ func _apply_page_title_style(size: int) -> void:
 
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 6
+	var power_level_id := SaveManager.get_highest_unlocked_level_id()
+	var power := SaveManager.get_power_for_level(power_level_id)
 	var progress := %Progress as Label
 	progress.visible = false
-	progress.text = "%d  %d/%d  %d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars, SaveManager.get_loadout_power()]
+	progress.text = "%d  %d/%d  %d" % [SaveManager.get_player_gold(), SaveManager.get_total_stars(), total_stars, power]
 	var row := _ensure_resource_bar().get_node("Row") as HBoxContainer
 	for child in row.get_children():
 		row.remove_child(child)
 		child.queue_free()
-	# 统一用 UiKit 共享资源条(金币/星星/经验/战力),与出战配置、收藏页一致。
+	# 统一用 UiKit 共享资源条(金币/星星/经验/有效战力),与出战配置、收藏页一致。
 	var bar := UiKit.standard_resource_bar(
 		SaveManager.get_player_gold(),
 		SaveManager.get_player_star(),
 		SaveManager.get_player_xp(),
-		SaveManager.get_loadout_power(),
+		power,
 		Vector2(174, 56),
 		26
 	)
@@ -186,7 +192,7 @@ func _resource_chip_name(title: String) -> String:
 			return "GoldResourceChip"
 		"星星":
 			return "StarResourceChip"
-		"战力":
+		"有效战力", "战力":
 			return "PowerResourceChip"
 		_:
 			return "ResourceChip"
@@ -1108,7 +1114,7 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	_add_card_pill(button, Vector2(148, 108), Vector2(154, 34), "战力 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_card_pill(button, Vector2(148, 108), Vector2(154, 34), "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
 	_add_element_pill(button, Vector2(318, 108), Vector2(210, 34), weakness)
 	if level_id == _campaign_focus_level_id():
 		# Keep the translated Current badge in the index lane. The information
@@ -1118,10 +1124,18 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	_add_variant_marker(button, variant)
 
 	var challenge_unlocked := SaveManager.is_challenge_unlocked(level_id)
+	# Do not reserve a dead second row before the player has cleared Normal.
+	# Once Normal has a result, switch the action lane to two equal, tall touch
+	# targets. Challenge remains governed by the existing 3-star unlock rule.
+	var challenge_visible := stars > 0
+	var normal_width := LEVEL_MODE_DUAL_W if challenge_visible else LEVEL_MODE_SINGLE_W
+	var normal_x := LEVEL_MODE_AREA_X if challenge_visible else LEVEL_MODE_AREA_X + (LEVEL_MODE_AREA_W - LEVEL_MODE_SINGLE_W) * 0.5
+	var normal_label := "普通" if challenge_visible else "闯关"
 	_add_level_mode_button(
 		button,
-		Vector2(LEVEL_MODE_X, 4),
-		"普通",
+		Vector2(normal_x, LEVEL_MODE_Y),
+		Vector2(normal_width, LEVEL_MODE_H),
+		normal_label,
 		stars,
 		unlocked,
 		true,
@@ -1130,18 +1144,20 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 		"NormalModeButton",
 		"normal"
 	)
-	_add_level_mode_button(
-		button,
-		Vector2(LEVEL_MODE_X, 4 + LEVEL_MODE_H + LEVEL_MODE_GAP),
-		"挑战",
-		challenge_stars,
-		challenge_unlocked,
-		false,
-		UiKit.PURPLE,
-		_open_challenge_level.bind(level_id),
-		"ChallengeModeButton",
-		"challenge"
-	)
+	if challenge_visible:
+		_add_level_mode_button(
+			button,
+			Vector2(LEVEL_MODE_AREA_X + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, LEVEL_MODE_Y),
+			Vector2(LEVEL_MODE_DUAL_W, LEVEL_MODE_H),
+			"挑战",
+			challenge_stars,
+			challenge_unlocked,
+			false,
+			UiKit.PURPLE,
+			_open_challenge_level.bind(level_id),
+			"ChallengeModeButton",
+			"challenge"
+		)
 	return button
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
@@ -1194,53 +1210,64 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pill.add_child(text)
 
-func _add_level_mode_button(parent: Control, pos: Vector2, text: String, stars: int, enabled: bool, primary: bool, accent: Color, callback: Callable, node_name: String, mode_id: String) -> void:
-	var action := TextureButton.new()
+func _add_level_mode_button(parent: Control, pos: Vector2, size: Vector2, text: String, stars: int, enabled: bool, primary: bool, accent: Color, callback: Callable, node_name: String, mode_id: String) -> void:
+	var action := Button.new()
 	action.name = node_name
 	action.position = pos
-	action.size = Vector2(LEVEL_MODE_W, LEVEL_MODE_H)
+	action.size = size
 	action.custom_minimum_size = action.size
-	UiKit.apply_armored_texture_button(action, primary, action.size, enabled)
+	action.text = ""
+	action.focus_mode = Control.FOCUS_NONE
+	action.disabled = not enabled
+	# Use the authored 286x112 themed raster as a nine-slice surface. This keeps
+	# every theme's real frame/corners while allowing the two-column controls to
+	# become tall enough for a friendly touch target and stacked content.
+	for state in ["normal", "hover", "pressed", "focus"]:
+		action.add_theme_stylebox_override(state, UiKit.armored_button_style(primary, LEVEL_MODE_STYLE_SIZE, false))
+	action.add_theme_stylebox_override("disabled", UiKit.armored_button_style(false, LEVEL_MODE_STYLE_SIZE, true))
 	_make_scroll_friendly_button(action)
 	action.set_meta("level_mode", mode_id)
 	action.set_meta("star_count", stars)
+	action.set_meta("mode_layout", "dual" if size.x < LEVEL_MODE_SINGLE_W else "single")
 	action.tooltip_text = TranslationServer.translate(text) if enabled else "%s · %s" % [TranslationServer.translate(text), TranslationServer.translate("普通三星解锁")]
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)
 
-	var content := HBoxContainer.new()
+	var content := VBoxContainer.new()
 	content.name = "ModeContent"
-	content.position = Vector2(26, 12)
-	content.size = Vector2(360, 64)
+	content.position = Vector2(20, 25)
+	content.size = Vector2(size.x - 40.0, size.y - 50.0)
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_theme_constant_override("separation", 8)
+	content.add_theme_constant_override("separation", 2)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action.add_child(content)
 
-	var label := UiKit.label(text, 21, accent if enabled else UiKit.TEXT_MUTED, 3)
+	var label := UiKit.label(text, 23, accent if enabled else UiKit.TEXT_MUTED, 3)
 	label.name = "ModeLabel"
-	label.custom_minimum_size = Vector2(160, 56)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.custom_minimum_size = Vector2(0, 42)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(label)
+
+	var star_row := HBoxContainer.new()
+	star_row.name = "ModeStars"
+	star_row.custom_minimum_size = Vector2(0, 38)
+	star_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	star_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	star_row.add_theme_constant_override("separation", 2)
+	star_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(star_row)
 
 	if not enabled and mode_id == "challenge":
 		var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(26, 26))
 		lock_icon.name = "UnlockRequirement"
 		lock_icon.modulate = Color(0.72, 0.76, 0.80, 0.86)
-		content.add_child(lock_icon)
-
-	var star_row := HBoxContainer.new()
-	star_row.name = "ModeStars"
-	star_row.custom_minimum_size = Vector2(108, 40)
-	star_row.alignment = BoxContainer.ALIGNMENT_END
-	star_row.add_theme_constant_override("separation", 3)
-	star_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(star_row)
+		star_row.add_child(lock_icon)
 	for i in range(3):
-		var star := UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(32, 32))
+		var star := UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(30, 30))
 		star.name = "Star%d" % (i + 1)
 		star.modulate = Color.WHITE if enabled else Color(0.66, 0.69, 0.72, 0.82)
 		star_row.add_child(star)

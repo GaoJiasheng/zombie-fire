@@ -9,16 +9,23 @@ const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
+const SLOW_FIELD_BOUNDARY_LEVEL_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field_boundary_level.gdshader")
 const UiKit := preload("res://ui/ui_kit.gd")
 const SCREEN_FLASH_TEXTURE := preload("res://assets/production/sprites/ui/ui_panel_skin.png")
 const SLOW_FIELD_SURFACE_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_surface_v3.png")
 const SLOW_FIELD_BOUNDARY_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_slow_field_boundary_v3.png")
+const SLOW_FIELD_SNOW_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_hit_ice.png")
 const BARRIER_GLASS_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_barrier_glass.png")
 const BARRIER_VISUAL_Z := 7
 const DEFENSE_ACTOR_Z := 10
 const CHARACTER_BACK_EFFECT_Z := -2
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
+const PAUSE_ACTION_BUTTON_SIZE := Vector2(760.0, 112.0)
+const PAUSE_ACTION_ICON_RECT := Rect2(108.0, 27.0, 58.0, 58.0)
+const PAUSE_ACTION_TITLE_RECT := Rect2(194.0, 18.0, 394.0, 76.0)
+const PAUSE_ACTION_ARROW_RECT := Rect2(628.0, 19.0, 48.0, 73.0)
+const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(96.0, 18.0, 584.0, 76.0)
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
 const PET_BASE_X_DESIGN := 800.0
@@ -27,6 +34,10 @@ const PET_IDLE_FLOAT_AMPLITUDE := 8.0
 const BASE_LINE_DEFAULT_SLOW_FIELD_INSET := 340.0
 const SLOW_FIELD_BOUNDARY_SIZE := Vector2(1080.0, 240.0)
 const SLOW_FIELD_BOUNDARY_ANCHOR_Y := 96.0
+const SLOW_FIELD_BOUNDARY_SLOPE_COMPENSATION_PX := 18.0
+const SLOW_FIELD_BOUNDARY_SEAM_OPACITY := 0.34
+const SLOW_FIELD_SNOW_MIN_AMOUNT := 56
+const SLOW_FIELD_SNOW_MAX_AMOUNT := 124
 const BASE_LINE_NEAR_WARNING_INSET := 300.0
 const BASE_LINE_BOSS_NEAR_WARNING_INSET := 360.0
 const BASE_LINE_WARNING_INSET := 190.0
@@ -47,7 +58,10 @@ var CHARACTER_BASE_POSITION := Vector2(540, 1652)
 var battle_speed := 1.0
 var battle_speed_progress_level := 1
 const CHARACTER_VISUAL_BASE_SCALE := 0.512
-const CHARACTER_PRESENTATION_SCALE := 1.50
+# Owner 2026-08-13: after making the static and firing models share one
+# character/profile scale, reduce the complete battlefield actor to 80% of the
+# previously approved 1.50x presentation (1.50 * 0.80 = 1.20).
+const CHARACTER_PRESENTATION_SCALE := 1.20
 const CHARACTER_VFX_PRESENTATION_SCALE := 1.25
 const CHARACTER_BODY_TARGET_HEIGHT_FALLBACK := 420.0
 const CHARACTER_BODY_TARGET_FOOT_OFFSET_FALLBACK := 100.0
@@ -229,6 +243,7 @@ const BOSS_HP_HUD_POSITION := Vector2(160, 130)
 const BOSS_HP_HUD_SIZE := Vector2(760, 96)
 const BOSS_HP_LABEL_SIZE := Vector2(760, 56)
 const BOSS_HP_LABEL_FONT_SIZE := 24
+const BOSS_HP_HUD_TOP_GAP := 22.0
 const BOSS_HP_TRACK_POSITION := Vector2(0, 66)
 const BOSS_HP_TRACK_SIZE := Vector2(760, 22)
 const BOSS_HP_FILL_POSITION := Vector2(2, 68)
@@ -282,6 +297,7 @@ const WAVE_TOAST_SIZE := Vector2(500, 54)
 const WAVE_TOAST_LONG_SIZE := Vector2(600, 164)
 const WAVE_TOAST_MIN_INTERVAL := 2.50
 const ACTIVE_SKILL_DOT_COUNT := 8
+const SKILL_HINT_AUTO_HIDE_SECONDS := 3.0
 const HUD_SKILL_DOCK_LEFT := 18.0
 const HUD_SKILL_DOCK_RIGHT := 530.0
 const HUD_SKILL_DOCK_BOTTOM := 1808.0
@@ -294,13 +310,20 @@ const FROST_GLACIER_STATUS_REFRESH := 0.86
 const FROST_GLACIER_NORMAL_SPEED := 0.40
 const FROST_GLACIER_BOSS_SPEED := 0.62
 const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
-const CARD_OFFER_PANEL_POS := Vector2(54.0, 342.0)
+const CARD_OFFER_PANEL_X := 54.0
+const CARD_OFFER_CENTER_TOP_Y := 100.0
 const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1280.0)
 const CARD_OFFER_CARDS_POS := Vector2(54.0, 126.0)
 const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
 const CARD_OFFER_CARD_WIDTH := 864.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
+const CARD_OFFER_ICON_FRAME_POS := Vector2(16.0, 48.0)
+const CARD_OFFER_ICON_FRAME_SIZE := Vector2(176.0, 176.0)
+const CARD_OFFER_ICON_POS := Vector2(26.0, 58.0)
+const CARD_OFFER_ICON_SIZE := Vector2(156.0, 156.0)
+const CARD_OFFER_TEXT_X := 220.0
+const CARD_OFFER_TEXT_WIDTH := 578.0
 const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
 const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
 const CARD_DETAIL_TAGS_FONT_SIZE := 15
@@ -369,6 +392,7 @@ var next_xp_offer := 12
 var card_offer_active := false
 var reroll_charges := 1
 var cards_picked := 0
+var cards_selected := 0
 var level_total_run_xp := 0
 var target_card_picks := 3
 var paused := false
@@ -389,6 +413,7 @@ var skill_hint_press_kind := ""
 var skill_hint_press_skill_id := ""
 var skill_hint_press_started_at := 0.0
 var skill_hint_long_press_opened := false
+var skill_hint_auto_hide_at := 0.0
 var suppress_next_character_skill_press := false
 var weapon_id := "weapon_autocannon"
 var character_id := "vanguard"
@@ -496,7 +521,7 @@ const CLEAR_LINE_CUSHION_MIN_RATIO := 0.85
 var primary_weakness := "physical"
 var loadout_power_ratio := 1.0
 var power_level_id := "level_001"
-var projected_combat_power := 1
+var player_power := 1
 var recommended_combat_power := 1
 var run_skill_hp_pressure_mult := 1.0
 var run_skill_speed_pressure_mult := 1.0
@@ -597,8 +622,8 @@ func _ready() -> void:
 	recommended_combat_power = SaveManager.get_recommended_power_for_level(power_level_id)
 	if is_challenge_mode:
 		recommended_combat_power = int(ceil(float(recommended_combat_power) * _challenge_mult("recommended_power_mult", CHALLENGE_RECOMMENDED_POWER_MULT)))
-	projected_combat_power = SaveManager.get_projected_combat_power_for_level(power_level_id)
-	loadout_power_ratio = float(projected_combat_power) / maxf(float(recommended_combat_power), 1.0)
+	player_power = SaveManager.get_power_for_level(power_level_id)
+	loadout_power_ratio = float(player_power) / maxf(float(recommended_combat_power), 1.0)
 	run_skill_hp_pressure_mult = SaveManager.get_run_skill_hp_pressure_for_level(power_level_id)
 	run_skill_speed_pressure_mult = SaveManager.get_run_skill_speed_pressure_for_level(power_level_id)
 	wave_total = int(level.get("waves", []).size())
@@ -607,6 +632,7 @@ func _ready() -> void:
 	xp = 0
 	gold = 0
 	cards_picked = 0
+	cards_selected = 0
 	target_card_picks = maxi(1, int(level.get("target_card_picks", 3)))
 	level_total_run_xp = _compute_level_total_run_xp()
 	next_xp_offer = _pick_threshold(1)
@@ -1290,6 +1316,14 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 		return
 	var overlay := $Hud/SkillHintOverlay as PanelContainer
 	overlay.visible = true
+	# Runtime skill explanations are temporary, non-pausing combat UI. Card-offer
+	# hover copy keeps its existing hover/exit lifetime so selecting a card never
+	# requires an extra dismissing tap.
+	skill_hint_auto_hide_at = (
+		0.0
+		if card_offer_active
+		else Time.get_ticks_msec() / 1000.0 + SKILL_HINT_AUTO_HIDE_SECONDS
+	)
 	overlay.add_theme_stylebox_override("panel", UiKit.panel_texture_style(12.0))
 	var icon_box := overlay.get_node_or_null("Margin/Row/IconBox") as PanelContainer
 	if icon_box != null:
@@ -1307,10 +1341,76 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 		body.text = body_text
 		UiKit.fit_label_text(body, UiKit.scaled_font_size(19), 17, 2.0, 4.0)
 
-func _hide_skill_hint() -> void:
+func _hide_skill_hint(clear_press_state := true) -> void:
 	if has_node("Hud/SkillHintOverlay"):
 		$Hud/SkillHintOverlay.visible = false
-	_clear_skill_hint_press_state()
+	skill_hint_auto_hide_at = 0.0
+	if clear_press_state:
+		_clear_skill_hint_press_state()
+
+func _skill_hint_is_temporarily_visible() -> bool:
+	return (
+		skill_hint_auto_hide_at > 0.0
+		and has_node("Hud/SkillHintOverlay")
+		and $Hud/SkillHintOverlay.visible
+	)
+
+func _primary_press_position(event: InputEvent) -> Variant:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			return event.position
+	elif event is InputEventScreenTouch and event.pressed:
+		return event.position
+	return null
+
+func _skill_hint_position_hits_action(position: Vector2) -> bool:
+	# Do not turn the explanation into a modal that makes the pause, speed or
+	# another skill button need two taps. Only empty battlefield/HUD space owns
+	# the dismiss gesture.
+	var action_paths := [
+		"Hud/CharacterSkillButton",
+		"PauseLayer/PauseButton",
+		"PauseLayer/SpeedButton",
+	]
+	for path in action_paths:
+		var action := get_node_or_null(path) as Control
+		if action != null and action.visible and action.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+			if action.get_global_rect().has_point(position):
+				return true
+	var slots := get_node_or_null("Hud/SkillSlots")
+	if slots != null:
+		for slot_node in slots.get_children():
+			var slot := slot_node as Control
+			if slot != null and slot.visible and slot.get_global_rect().has_point(position):
+				return true
+	return false
+
+func _input(event: InputEvent) -> void:
+	if not _skill_hint_is_temporarily_visible():
+		return
+	var press_position_var: Variant = _primary_press_position(event)
+	if not (press_position_var is Vector2):
+		return
+	var press_position: Vector2 = press_position_var
+	if _consume_skill_hint_press(press_position):
+		get_viewport().set_input_as_handled()
+
+func _consume_skill_hint_press(press_position: Vector2) -> bool:
+	if not _skill_hint_is_temporarily_visible():
+		return false
+	var overlay := $Hud/SkillHintOverlay as Control
+	if overlay.get_global_rect().has_point(press_position):
+		# The panel itself is informational; consume presses inside it so they do
+		# not leak through to manual aim.
+		return true
+	if _skill_hint_position_hits_action(press_position):
+		return false
+	# An empty-space tap is a pure dismissal. Cancel any already-observed aim
+	# press as a defensive measure against input-order differences on iOS.
+	var keep_press_state := skill_hint_press_kind != ""
+	_hide_skill_hint(not keep_press_state)
+	InputManager.cancel_active_input()
+	return true
 
 func _clear_skill_hint_press_state() -> void:
 	skill_hint_press_kind = ""
@@ -1325,18 +1425,16 @@ func _begin_skill_hint_press(kind: String, skill_id: String) -> void:
 
 func _end_skill_hint_press() -> void:
 	var press_kind := skill_hint_press_kind
-	var pressed_skill_id := skill_hint_press_skill_id
 	var was_long_press := skill_hint_long_press_opened
 	_clear_skill_hint_press_state()
-	if press_kind == "skill" and not was_long_press:
-		_show_skill_hint_for_skill(pressed_skill_id)
-	elif press_kind == "character" and was_long_press:
+	if press_kind == "character" and was_long_press:
 		# BaseButton emits `pressed` after the release gui_input. Swallow exactly
 		# that release so a hold-to-inspect gesture can never also cast.
 		suppress_next_character_skill_press = true
 
-# Seed the equipped weapon's intrinsic element skill at level 1 so the
-# build is visible from the first frame. Anchored on the weapon (not
+# Seed the equipped weapon's intrinsic element skill at its saved permanent
+# level (minimum 1) so the build is visible from the first frame. Anchored on
+# the weapon (not
 # the character's bullet_affinity) because what the player *sees*
 # firing on screen — e.g. flame jets, ice shards, lightning — is the
 # weapon's element, and that should match the seeded skill. Physical
@@ -1383,10 +1481,8 @@ func _on_character_skill_pressed() -> void:
 	if card_offer_active or paused or character_active_id == "":
 		return
 	if character_active_cd > 0.0:
-		# The first ready tap casts. Once the skill is cooling down, the next
-		# tap becomes an explicit inspect action instead of a dead button.
-		_show_character_skill_hint()
-		AudioManager.play_sfx("ui_click", -7.0)
+		# Skill explanations are hold-only. The authored cooldown number already
+		# communicates this short tap's unavailable state without opening a panel.
 		return
 	_hide_skill_hint()
 	var cast_success := false
@@ -1459,11 +1555,13 @@ func _cast_blaze_meltdown() -> bool:
 	var damage := _character_active_damage("fire", float(active.get("damage_mult", 3.6)))
 	var target := _best_active_target()
 	var origin := target.global_position if target != null else _active_skill_fallback_point(0.46)
+	var battlefield_coverage := _blaze_meltdown_uses_battlefield(active)
+	var opening_visual_origin := _blaze_meltdown_battlefield_visual_origin(0) if battlefield_coverage else origin
 	_active_skill_cast_intro("熔毁爆发", Color(1.0, 0.42, 0.14), "sig_blaze_meltdown")
 	_spawn_vfx_sequence("vfx_muzzle_fire", _weapon_fire_origin() + Vector2(0, -38), 0.92, Color(1.0, 0.58, 0.2, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_explosion_fire", origin + Vector2(0, -44), maxf(radius / 300.0, 0.72), Color(1.0, 0.48, 0.16, 0.86), 0.92, randf_range(-0.24, 0.24), 1.16, Vector2(0, -12), randf_range(-0.25, 0.25), true)
+	_spawn_vfx_sequence("vfx_explosion_fire", opening_visual_origin + Vector2(0, -44), maxf(radius / 300.0, 0.72), Color(1.0, 0.48, 0.16, 0.86), 0.92, randf_range(-0.24, 0.24), 1.16, Vector2(0, -12), randf_range(-0.25, 0.25), true)
 	for i in range(_blaze_meltdown_pulse_count(active)):
-		_active_skill_after(0.16 + float(i) * 0.22, Callable(self, "_blaze_meltdown_pulse").bind(origin, radius, damage, i))
+		_active_skill_after(0.16 + float(i) * 0.22, Callable(self, "_blaze_meltdown_pulse").bind(origin, radius, damage, i, battlefield_coverage))
 	return true
 
 func _cast_frost_glacier() -> bool:
@@ -1665,40 +1763,69 @@ func _vanguard_railvolley_hit(volley_index: int, volley_count: int, damage: floa
 	if volley_index == volley_count - 1:
 		_show_screen_flash(Color(1.0, 0.86, 0.38, 0.08), 0.18)
 
-func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_index: int) -> void:
+func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_index: int, battlefield_coverage := false) -> void:
 	if not _active_skill_can_continue():
 		return
+	var weights := [0.18, 0.22, 0.26, 0.3, 0.24, 0.2, 0.16]
+	# Keep the original target-centred geometry as the per-target damage ruler.
+	# Battlefield coverage changes who is eligible, not how hard one enemy is hit;
+	# this prevents a crowd-control fix from silently buffing single-Boss damage.
+	var reference_origin := _blaze_meltdown_reference_origin(origin, radius, pulse_index)
+	var visual_origin := _blaze_meltdown_battlefield_visual_origin(pulse_index) if battlefield_coverage else reference_origin
+	var local_radius := radius * (0.48 + 0.12 * float(pulse_index))
+	var reference_distance := reference_origin.distance_to(origin)
+	var reference_falloff := 1.0 - clampf(reference_distance / maxf(local_radius, 0.01), 0.0, 1.0)
+	var pulse_factor := 0.0
+	if reference_distance <= local_radius:
+		pulse_factor = weights[mini(pulse_index, weights.size() - 1)] * (0.58 + reference_falloff * 0.42)
+	AudioManager.play_sfx("skill_incendiary", -9.0, randf_range(-0.03, 0.04))
+	_spawn_vfx_sequence("vfx_explosion_fire", visual_origin + Vector2(0, -44), 0.9 + 0.18 * float(pulse_index), Color(1.0, 0.42, 0.12, 0.9), 1.0, randf_range(-0.22, 0.22), 1.18, Vector2(0, -20), randf_range(-0.3, 0.3), true)
+	for spark_index in range(3):
+		var angle := TAU * (float(spark_index) / 3.0) + float(pulse_index) * 0.42
+		var burst_pos := visual_origin + Vector2(cos(angle), sin(angle)) * minf(local_radius, 310.0) * randf_range(0.22, 0.48) + Vector2(0, -38)
+		_spawn_vfx_sequence("vfx_hit_fire", burst_pos, 0.56 + 0.08 * float(pulse_index), Color(1.0, 0.48, 0.16, 0.72), 1.2, randf_range(-0.35, 0.35), 1.12, Vector2(0, -16), randf_range(-0.4, 0.4))
+	for enemy in $EnemyLayer.get_children():
+		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("take_damage"):
+			continue
+		var hit_factor := pulse_factor
+		if not battlefield_coverage:
+			var dist: float = (enemy as Node2D).global_position.distance_to(reference_origin)
+			if dist > local_radius:
+				continue
+			var falloff := 1.0 - clampf(dist / local_radius, 0.0, 1.0)
+			hit_factor = weights[mini(pulse_index, weights.size() - 1)] * (0.58 + falloff * 0.42)
+		_active_skill_apply_hit(enemy, damage * hit_factor, "fire", _active_skill_status_scale(character_data.get("active_skill", {})))
+	_active_skill_screen_shake(5.0 + float(pulse_index) * 1.8, 0.12)
+	if pulse_index == 3:
+		_show_screen_flash(Color(1.0, 0.38, 0.12, 0.12), 0.2)
+
+func _blaze_meltdown_reference_origin(origin: Vector2, radius: float, pulse_index: int) -> Vector2:
 	var offsets := [
 		Vector2.ZERO,
 		Vector2(-radius * 0.24, -70.0),
 		Vector2(radius * 0.26, 24.0),
 		Vector2(0.0, -128.0),
 	]
-	var weights := [0.18, 0.22, 0.26, 0.3, 0.24, 0.2, 0.16]
-	var local_origin: Vector2
 	if pulse_index < offsets.size():
-		local_origin = origin + offsets[pulse_index]
-	else:
-		var angle := TAU * float(pulse_index - offsets.size()) / 3.0 + 0.35
-		local_origin = origin + Vector2(cos(angle), sin(angle)) * radius * 0.34 + Vector2(0, -62)
-	var local_radius := radius * (0.48 + 0.12 * float(pulse_index))
-	AudioManager.play_sfx("skill_incendiary", -9.0, randf_range(-0.03, 0.04))
-	_spawn_vfx_sequence("vfx_explosion_fire", local_origin + Vector2(0, -44), 0.9 + 0.18 * float(pulse_index), Color(1.0, 0.42, 0.12, 0.9), 1.0, randf_range(-0.22, 0.22), 1.18, Vector2(0, -20), randf_range(-0.3, 0.3), true)
-	for spark_index in range(3):
-		var angle := TAU * (float(spark_index) / 3.0) + float(pulse_index) * 0.42
-		var burst_pos := local_origin + Vector2(cos(angle), sin(angle)) * local_radius * randf_range(0.22, 0.48) + Vector2(0, -38)
-		_spawn_vfx_sequence("vfx_hit_fire", burst_pos, 0.56 + 0.08 * float(pulse_index), Color(1.0, 0.48, 0.16, 0.72), 1.2, randf_range(-0.35, 0.35), 1.12, Vector2(0, -16), randf_range(-0.4, 0.4))
-	for enemy in $EnemyLayer.get_children():
-		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("take_damage"):
-			continue
-		var dist: float = (enemy as Node2D).global_position.distance_to(local_origin)
-		if dist > local_radius:
-			continue
-		var falloff := 1.0 - clampf(dist / local_radius, 0.0, 1.0)
-		_active_skill_apply_hit(enemy, damage * weights[mini(pulse_index, weights.size() - 1)] * (0.58 + falloff * 0.42), "fire", _active_skill_status_scale(character_data.get("active_skill", {})))
-	_active_skill_screen_shake(5.0 + float(pulse_index) * 1.8, 0.12)
-	if pulse_index == 3:
-		_show_screen_flash(Color(1.0, 0.38, 0.12, 0.12), 0.2)
+		return origin + offsets[pulse_index]
+	var angle := TAU * float(pulse_index - offsets.size()) / 3.0 + 0.35
+	return origin + Vector2(cos(angle), sin(angle)) * radius * 0.34 + Vector2(0, -62)
+
+func _blaze_meltdown_battlefield_visual_origin(pulse_index: int) -> Vector2:
+	# The first four authored pulses already sweep lower-centre, left, right and
+	# upper-centre. Later character/signature growth fills the remaining lanes.
+	var points := [
+		Vector2(540, 1120.0 + bottom_dock_shift * 0.35),
+		Vector2(245, 820.0 + bottom_dock_shift * 0.2),
+		Vector2(835, 760.0 + bottom_dock_shift * 0.2),
+		Vector2(540, 430.0),
+		Vector2(220, 360.0),
+		Vector2(860, 340.0),
+		Vector2(230, 1280.0 + bottom_dock_shift * 0.45),
+		Vector2(850, 1260.0 + bottom_dock_shift * 0.45),
+		Vector2(540, 850.0 + bottom_dock_shift * 0.25),
+	]
+	return points[mini(pulse_index, points.size() - 1)]
 
 func _frost_glacier_wave(wave_y: float, tick_damage: float, wave_index: int) -> void:
 	if not _active_skill_can_continue():
@@ -1980,6 +2107,9 @@ func _blaze_meltdown_radius(active: Dictionary) -> float:
 	var rank_bonus := float(active.get("rank_radius_bonus", 24.0)) * float(_growth_rank(character_level))
 	var sig_bonus := base * float(active.get("sig_level_radius_bonus", 0.0)) * float(_sig_skill_level())
 	return maxf(base, base + level_bonus + rank_bonus + sig_bonus)
+
+func _blaze_meltdown_uses_battlefield(active: Dictionary) -> bool:
+	return str(active.get("coverage_mode", "local")) == "battlefield"
 
 func _blaze_meltdown_pulse_count(active: Dictionary) -> int:
 	var base := int(active.get("base_pulses", 4))
@@ -2525,9 +2655,12 @@ func _ensure_boss_hp_bar() -> void:
 	boss_hp_bar.name = "BossHpBar"
 	# The global font scale turns the authored 24 px label into a 36 px face
 	# with a 6 px outline. The old 28 px box clipped its lower strokes and let
-	# the rail cover CJK / Latin descenders. Keep the rail at the same absolute
-	# Y, but give the identity line its own full-height band plus a clean gap.
-	boss_hp_bar.position = BOSS_HP_HUD_POSITION
+	# the rail cover CJK / Latin descenders. Give the identity line its own
+	# full-height band and preserve that band below the safe-area-shifted wave UI.
+	# The wave rail moves below the notch / Dynamic Island with TopBar. Anchor
+	# the boss band to the shifted rail instead of leaving it at its authored
+	# 1920-canvas Y; otherwise tall iPhones merge both labels into one line.
+	boss_hp_bar.position = _boss_hp_hud_position()
 	boss_hp_bar.size = BOSS_HP_HUD_SIZE
 	boss_hp_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.visible = false
@@ -2557,6 +2690,13 @@ func _ensure_boss_hp_bar() -> void:
 	boss_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	boss_hp_bar.add_child(boss_hp_fill)
 	$Hud.add_child(boss_hp_bar)
+
+func _boss_hp_hud_position() -> Vector2:
+	var y := BOSS_HP_HUD_POSITION.y
+	var top_bar := get_node_or_null("Hud/TopBar") as Control
+	if top_bar != null:
+		y = maxf(y, top_bar.offset_bottom + BOSS_HP_HUD_TOP_GAP)
+	return Vector2(BOSS_HP_HUD_POSITION.x, y)
 
 func _update_boss_hp_bar() -> void:
 	if boss_hp_bar == null or not is_instance_valid(boss_hp_bar):
@@ -2727,10 +2867,9 @@ func _layout_card_offer_panel() -> void:
 	if panel == null:
 		return
 	var viewport_extra_h := maxf(0.0, get_viewport_rect().size.y - 1920.0)
-	var tall_shift_y := UiKit.tall_modal_shift(get_viewport_rect().size.y, 160.0, 0.34)
 	var tall_height_bonus := minf(90.0, viewport_extra_h * 0.12)
-	panel.position = CARD_OFFER_PANEL_POS + Vector2(0.0, tall_shift_y)
 	panel.size = CARD_OFFER_PANEL_SIZE + Vector2(0.0, tall_height_bonus)
+	panel.position = Vector2(CARD_OFFER_PANEL_X, _card_offer_centered_y(panel.size.y))
 	var button_y := panel.size.y - 124.0
 	var title := panel.get_node_or_null("CardTitle") as Label
 	if title != null:
@@ -2765,6 +2904,21 @@ func _layout_card_offer_panel() -> void:
 			label.size = CARD_OFFER_BUTTON_SIZE
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+func _card_offer_vertical_bounds() -> Vector2:
+	# The offer belongs to the live battlefield, not to the full physical phone
+	# height. Centre it between the fixed top combat controls and the real breach
+	# line so tall phones do not push the enlarged cards down onto the hero/base.
+	var insets := _viewport_safe_insets()
+	var top_y := CARD_OFFER_CENTER_TOP_Y + float(insets.get("top", 0.0))
+	var viewport_bottom := get_viewport_rect().size.y - float(insets.get("bottom", 0.0))
+	var bottom_y := minf(BREACH_Y, viewport_bottom)
+	return Vector2(top_y, maxf(top_y, bottom_y))
+
+func _card_offer_centered_y(panel_height: float) -> float:
+	var bounds := _card_offer_vertical_bounds()
+	var centered_y := (bounds.x + bounds.y - panel_height) * 0.5
+	return clampf(centered_y, bounds.x, maxf(bounds.x, bounds.y - panel_height))
 
 func _layout_card_detail_overlay() -> void:
 	var overlay := get_node_or_null("Hud/CardPanel/DetailOverlay") as Control
@@ -3147,13 +3301,14 @@ func _setup_pause_overlay_layout() -> void:
 	content.add_theme_constant_override("separation", 20)
 	content.position = Vector2(68, 142)
 	content.size = Vector2(836, 778)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(106, 950), Vector2(760, 112), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", "恢复战场时间", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(106, 1084), Vector2(760, 112), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", "重新开始当前关卡", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(106, 1218), Vector2(760, 112), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", "离开本局并回到关卡页", false)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(106, 950), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(106, 1084), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(106, 1218), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", false)
 
-func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_size: Vector2, icon_path: String, title_text: String, subtitle_text: String, primary: bool) -> void:
+func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path: String, title_text: String, primary: bool) -> void:
 	if button == null:
 		return
+	var button_size := PAUSE_ACTION_BUTTON_SIZE
 	button.offset_left = pos.x
 	button.offset_top = pos.y
 	button.offset_right = pos.x + button_size.x
@@ -3171,35 +3326,30 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, button_siz
 			old.free()
 	var icon_plate := PanelContainer.new()
 	icon_plate.name = "IconPlate"
-	icon_plate.position = Vector2(28, 22)
-	icon_plate.size = Vector2(68, 68)
+	icon_plate.position = PAUSE_ACTION_ICON_RECT.position
+	icon_plate.size = PAUSE_ACTION_ICON_RECT.size
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
 	button.add_child(icon_plate)
-	var icon := UiKit.icon(icon_path, Vector2(44, 44))
+	var icon := UiKit.icon(icon_path, Vector2(38, 38))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(LocalizationManager.text(title_text), 24, Color.WHITE, 3)
+	var title := UiKit.label(LocalizationManager.text(title_text), 28, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = Vector2(120, 4)
-	title.size = Vector2(button_size.x - 218.0, 58)
+	title.position = PAUSE_ACTION_TITLE_RECT.position
+	title.size = PAUSE_ACTION_TITLE_RECT.size
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.fit_label_text(title, UiKit.scaled_font_size(24), 21, 4.0, 2.0)
+	UiKit.fit_label_text(title, UiKit.scaled_font_size(28), 22, 4.0, 8.0)
 	button.add_child(title)
-	var sub := UiKit.label(LocalizationManager.text(subtitle_text), 13, Color(0.74, 0.82, 0.82, 0.94), 2)
-	sub.name = "ActionSub"
-	sub.position = Vector2(120, 62)
-	sub.size = Vector2(button_size.x - 218.0, 32)
-	sub.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.fit_label_text(sub, UiKit.scaled_font_size(13), 15, 2.0, 0.0)
-	button.add_child(sub)
 	var arrow := UiKit.label(">", 34, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
 	arrow.name = "ActionArrow"
-	arrow.position = Vector2(button_size.x - 86.0, 26)
-	arrow.size = Vector2(48, 60)
+	arrow.position = PAUSE_ACTION_ARROW_RECT.position
+	arrow.size = PAUSE_ACTION_ARROW_RECT.size
 	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	button.add_child(arrow)
+	button.set_meta("pause_action_layout", "single_line")
+	button.set_meta("pause_action_safe_rect", PAUSE_ACTION_FRAME_SAFE_RECT)
 
 func _setup_wave_toast_banner() -> void:
 	if wave_toast_banner != null and is_instance_valid(wave_toast_banner):
@@ -3371,8 +3521,25 @@ func _start_next_wave() -> void:
 		_show_wave_toast("首领来袭：%s" % boss_name, Color(1.0, 0.32, 0.22))
 		_show_boss_banner(boss_name)
 		pending_spawns.append({"type": boss_id, "interval": 1.0, "lane": "center", "boss": true})
-		if variant == "boss_rush":
-			pending_spawns.append({"type": "boss_tank_titan", "interval": 2.4, "lane": "left", "boss": true})
+		# Extra bosses are authored in levels.json so runtime, balance simulation and
+		# the power ruler all see the same encounter. The former boss_rush branch
+		# hardcoded Tank Titan here, which made level_099 about 40% heavier than every
+		# offline recommendation knew about.
+		for extra_var in level.get("runtime_bosses", []):
+			if not extra_var is Dictionary:
+				continue
+			var extra := extra_var as Dictionary
+			if int(extra.get("wave", wave_index)) != wave_index:
+				continue
+			var extra_id := str(extra.get("type", ""))
+			if extra_id == "" or DataLoader.get_row("bosses", extra_id).is_empty():
+				continue
+			pending_spawns.append({
+				"type": extra_id,
+				"interval": maxf(float(extra.get("interval", 1.6)), 0.0),
+				"lane": str(extra.get("lane", "spread")),
+				"boss": true,
+			})
 		if is_endless_mode and _is_endless_final_wave(waves):
 			_queue_endless_final_bosses(1)
 		for support in wave.get("support", []):
@@ -3759,7 +3926,7 @@ func _process_enemy_mechanics(delta: float, enemies: Array = []) -> void:
 		_process_boss_phase_feedback(source)
 		match str(source.mechanic):
 			"basic", "tank":
-				_process_baseline_enemy_audio(source, delta)
+				pass
 			"buff_aura":
 				_apply_speed_aura(source, candidates)
 				_process_aura_feedback(source, "buff_aura", delta)
@@ -3872,24 +4039,26 @@ func _slow_field_inner_offset_for_level(slow_level: int) -> float:
 	return BASE_LINE_DEFAULT_SLOW_FIELD_INSET
 
 func _slow_field_strength_for_level(slow_level: int) -> float:
-	match slow_level:
-		1:
-			return 0.18
-		2:
-			return 0.26
-		3:
-			return 0.35
-		4:
-			return 0.43
-		5:
-			return 0.52
-		_:
-			return 0.0
+	var row: Dictionary = DataLoader.get_row("skills", "skill_slow_field")
+	for entry_var in row.get("levels", []):
+		if not entry_var is Dictionary:
+			continue
+		var entry: Dictionary = entry_var
+		if int(entry.get("lv", 0)) == slow_level:
+			return clampf(float(entry.get("effect", {}).get("slow", 0.0)), 0.0, 0.8)
+	return 0.0
 
 func _slow_field_min_y_for_level(slow_level: int) -> float:
 	return _base_line_inner_y(_slow_field_inner_offset_for_level(slow_level))
 
-func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, color: Color, target_position: Vector2) -> void:
+func _apply_enemy_skill_base_damage(
+	source: Node,
+	damage: int,
+	label: String,
+	color: Color,
+	target_position: Vector2,
+	impact_sfx_id := "enemy_breach"
+) -> void:
 	if battle_finished:
 		return
 	var impact_position := _base_damage_impact_position(target_position.x)
@@ -3909,11 +4078,14 @@ func _apply_enemy_skill_base_damage(source: Node, damage: int, label: String, co
 	if shield_absorbed:
 		battle_base_damage_prevented += preventable_damage
 		_spawn_barrier_break_vfx(impact_position)
+		AudioManager.play_enemy_sfx("hit_immune", -8.0, 0.02)
 		_update_barrier_visual()
 		_spawn_float_text(impact_position, "格挡", Color(0.64, 0.9, 1.0))
 		return
 	if final_damage <= 0:
 		return
+	if not impact_sfx_id.is_empty():
+		AudioManager.play_enemy_sfx(impact_sfx_id, -5.5, 0.025)
 	base_hp = max(base_hp - final_damage, 0)
 	battle_base_damage_taken += final_damage
 	_apply_apocalypse_armor_counter(source, final_damage, impact_position)
@@ -3936,12 +4108,6 @@ func _process_aura_feedback(source: Node, kind: String, delta: float) -> void:
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -42.0))
 	_spawn_attack_ring(source.global_position, radius, color, 0.34)
 	_spawn_float_text(source.global_position + Vector2(0, -118.0), label, color)
-
-func _process_baseline_enemy_audio(source: Node, delta: float) -> void:
-	var interval := float(source.mechanic_params.get("audio_interval", 4.6 if str(source.mechanic) == "basic" else 3.4))
-	if not _enemy_mechanic_timer_ready(source, "baseline_audio", delta, interval, 0.8, 1.2):
-		return
-	_play_enemy_mechanic_sfx(source, -14.0, 0.04)
 
 func _process_runner_skill(source: Node, delta: float) -> void:
 	if source.global_position.y < float(source.mechanic_params.get("dash_y", 680.0)):
@@ -3977,6 +4143,22 @@ func _process_phase_enemy_skill(source: Node, delta: float) -> void:
 	var advance := float(source.mechanic_params.get("blink_advance", 74.0))
 	_advance_enemy_with_skill(source, "phase", advance, "相位", Color(0.62, 0.82, 1.0), float(source.mechanic_params.get("damage_coef", 0.08)))
 
+func _enemy_advance_warning_sfx(_kind: String) -> String:
+	# Every advance already owns one movement/action cue. Defense proximity has
+	# its own global warning route, so a dash/leap/blink must never add a second
+	# generic alarm on the same frame.
+	return ""
+
+func _enemy_skill_base_impact_sfx(kind: String) -> String:
+	# A phase slip can damage the line without making physical contact. Keep its
+	# wind cue, damage flash and floating text, but do not fake a steel/sandbag hit.
+	return "" if kind == "phase" else "enemy_breach"
+
+func _enemy_advance_reaches_base(old_y: float) -> bool:
+	# Advance skills may start far up-lane. Only an action that began inside the
+	# authored base-pressure band is allowed to request base damage/contact audio.
+	return old_y >= _base_line_inner_y(BASE_LINE_DEFAULT_SLOW_FIELD_INSET)
+
 func _advance_enemy_with_skill(source: Node, kind: String, advance: float, label: String, color: Color, damage_scale: float) -> void:
 	if source.has_method("play_special"):
 		source.play_special(0.32)
@@ -3988,10 +4170,19 @@ func _advance_enemy_with_skill(source: Node, kind: String, advance: float, label
 	var travel_direction: Vector2 = source.global_position - old_position
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -36.0), travel_direction)
 	_spawn_attack_telegraph(source.global_position + Vector2(0, 74.0), Color(color.r, color.g, color.b, 0.24), label)
-	AudioManager.play_sfx("threat_warning", -7.0, 0.02)
-	if old_y >= _base_line_inner_y(BASE_LINE_DEFAULT_SLOW_FIELD_INSET):
+	var warning_sfx_id := _enemy_advance_warning_sfx(kind)
+	if not warning_sfx_id.is_empty():
+		AudioManager.play_sfx(warning_sfx_id, -7.0, 0.02)
+	if _enemy_advance_reaches_base(old_y):
 		var damage := _enemy_skill_damage(source, damage_scale, 1.0)
-		_apply_enemy_skill_base_damage(source, damage, label, color, _base_damage_impact_position(source.global_position.x))
+		_apply_enemy_skill_base_damage(
+			source,
+			damage,
+			label,
+			color,
+			_base_damage_impact_position(source.global_position.x),
+			_enemy_skill_base_impact_sfx(kind)
+		)
 
 func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	if source.global_position.y < float(source.mechanic_params.get("trigger_y", 760.0)):
@@ -4007,7 +4198,6 @@ func _process_toxic_cloud_pressure(source: Node, delta: float) -> void:
 	_spawn_enemy_attack_vfx(source, "toxic_cloud", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, float(source.mechanic_params.get("radius", 190.0)), Color(0.42, 1.0, 0.24, 0.28), 0.42)
 	_spawn_enemy_cast_bolt(source.global_position + Vector2(0, -30.0), impact, Color(0.52, 1.0, 0.3), "poison", false)
-	AudioManager.play_sfx("zombie_toxic", -6.5, 0.02)
 	_apply_enemy_skill_base_damage(source, damage, "毒雾", Color(0.56, 1.0, 0.32), impact)
 
 func _process_juggernaut_pressure(source: Node, delta: float) -> void:
@@ -4024,7 +4214,6 @@ func _process_juggernaut_pressure(source: Node, delta: float) -> void:
 	_spawn_attack_ring(source.global_position + Vector2(0, 70.0), 230.0, Color(color.r, color.g, color.b, 0.28), 0.38)
 	var impact := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.26), "震地")
-	AudioManager.play_sfx("zombie_juggernaut", -6.5, 0.02)
 	var damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.16)), 2.0)
 	_apply_enemy_skill_base_damage(source, damage, "震地", color, impact)
 
@@ -4040,7 +4229,7 @@ func _process_regen_feedback(source: Node, delta: float) -> void:
 	_spawn_enemy_attack_vfx(source, "regen", source.global_position + Vector2(0, -48.0))
 	_spawn_attack_ring(source.global_position, 150.0, Color(color.r, color.g, color.b, 0.24), 0.34)
 	_spawn_float_text(source.global_position + Vector2(0, -118.0), "再生", color)
-	AudioManager.play_sfx("zombie_regenerator", -8.0, 0.025)
+	AudioManager.play_enemy_sfx("zombie_regenerator", -8.0, 0.025)
 
 func _process_mutation(source: Node) -> void:
 	if source.has_meta("mutated"):
@@ -4061,7 +4250,7 @@ func _process_mutation(source: Node) -> void:
 	_spawn_enemy_attack_vfx(source, "mutate", source.global_position + Vector2(0, -62.0))
 	_spawn_attack_ring(source.global_position, 210.0, Color(0.88, 0.34, 1.0, 0.28), 0.42)
 	_spawn_float_text(source.global_position + Vector2(0, -132.0), "突变", Color(0.92, 0.45, 1.0))
-	AudioManager.play_sfx("zombie_mutant", -6.0, 0.02)
+	AudioManager.play_enemy_sfx("zombie_mutant", -6.0, 0.02)
 
 func _process_enrage_feedback(source: Node) -> void:
 	if not bool(source.enrage_triggered) or source.has_meta("enrage_feedback_done"):
@@ -4072,7 +4261,7 @@ func _process_enrage_feedback(source: Node) -> void:
 	_spawn_enemy_attack_vfx(source, "enrage", source.global_position + Vector2(0, -52.0))
 	_spawn_attack_ring(source.global_position, 185.0, Color(1.0, 0.32, 0.16, 0.3), 0.36)
 	_spawn_float_text(source.global_position + Vector2(0, -124.0), "狂暴", Color(1.0, 0.32, 0.16))
-	AudioManager.play_sfx("zombie_berserker", -6.5, 0.02)
+	AudioManager.play_enemy_sfx("zombie_berserker", -6.5, 0.02)
 
 func _process_passive_enemy_feedback(source: Node, delta: float) -> void:
 	var interval := float(source.mechanic_params.get("pulse_interval", 3.8))
@@ -4080,7 +4269,6 @@ func _process_passive_enemy_feedback(source: Node, delta: float) -> void:
 		return
 	var kind := str(source.mechanic)
 	var color := _attack_color_for_mechanic(kind)
-	_play_enemy_mechanic_sfx(source, -10.0, 0.035)
 	_spawn_enemy_attack_vfx(source, kind, source.global_position + Vector2(0, -42.0))
 	if kind == "armor":
 		_spawn_float_text(source.global_position + Vector2(0, -116.0), "装甲", color)
@@ -4100,7 +4288,7 @@ func _process_summoner(source: Node, delta: float) -> void:
 		source.play_special(0.54)
 	_spawn_enemy_attack_vfx(source, "summon", spawn_position)
 	_spawn_enemy_instance(str(source.mechanic_params.get("summon_id", "zombie_shambler")), spawn_position, false, 0.0)
-	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
+	AudioManager.play_enemy_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -86), "召唤", Color(0.72, 0.4, 1.0))
 
 func _process_ranged_pressure(source: Node, delta: float) -> void:
@@ -4117,7 +4305,6 @@ func _process_ranged_pressure(source: Node, delta: float) -> void:
 	var target_position := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(target_position, Color(0.46, 1.0, 0.25, 0.34), "腐蚀")
 	_spawn_spit_attack_vfx(source, target_position)
-	AudioManager.play_sfx("zombie_spitter", -5.5, 0.02)
 	_apply_enemy_skill_base_damage(source, spit_damage, "腐蚀", Color(0.56, 1.0, 0.32), target_position)
 
 func _process_boss_pressure(source: Node, delta: float, interval: float, damage_scale: float, label: String, color: Color) -> void:
@@ -4133,7 +4320,6 @@ func _process_boss_pressure(source: Node, delta: float, interval: float, damage_
 	var impact := _base_damage_impact_position(source.global_position.x)
 	_spawn_attack_telegraph(impact, Color(color.r, color.g, color.b, 0.34), label)
 	_spawn_boss_attack_vfx(source, label, color, impact)
-	AudioManager.play_sfx("threat_warning", -5.0)
 	_apply_enemy_skill_base_damage(source, pressure_damage, label, color, impact)
 
 func _process_freeze_field(source: Node, enemies: Array, delta: float) -> void:
@@ -4153,7 +4339,6 @@ func _process_freeze_field(source: Node, enemies: Array, delta: float) -> void:
 	_spawn_attack_telegraph(impact, Color(0.45, 0.86, 1.0, 0.32), "寒潮")
 	_spawn_boss_attack_vfx(source, "寒潮领域", Color(0.45, 0.86, 1.0), impact)
 	var frost_damage := _enemy_skill_damage(source, 0.24, 2.0)
-	AudioManager.play_sfx("hit_ice", -4.0)
 	_apply_enemy_skill_base_damage(source, frost_damage, "寒潮", Color(0.45, 0.86, 1.0), impact)
 
 func _process_boss_minions(source: Node, delta: float) -> void:
@@ -4169,7 +4354,7 @@ func _process_boss_minions(source: Node, delta: float) -> void:
 		spawn_position.y = clampf(spawn_position.y, 220.0, 1180.0 + bottom_dock_shift)
 		_spawn_enemy_attack_vfx(source, "spawn_minions", spawn_position)
 		_spawn_enemy_instance("zombie_crawler", spawn_position, false, 0.0)
-	AudioManager.play_sfx("zombie_necromancer", -6.0, 0.02)
+	AudioManager.play_enemy_sfx("zombie_necromancer", -6.0, 0.02)
 	_spawn_float_text(source.global_position + Vector2(0, -130), "孵化尸群", Color(0.66, 1.0, 0.3))
 
 func _process_phase_shift(source: Node, delta: float) -> void:
@@ -4178,7 +4363,7 @@ func _process_phase_shift(source: Node, delta: float) -> void:
 		source.mechanic_timer = randf_range(2.4, 3.4)
 		if source.has_method("play_special"):
 			source.play_special(0.34)
-		AudioManager.play_sfx("zombie_phantom", -6.5, 0.02)
+		AudioManager.play_enemy_sfx("zombie_phantom", -6.5, 0.02)
 		var old_position: Vector2 = source.global_position
 		source.global_position.y = min(source.global_position.y + 86.0, _base_line_inner_y(60.0))
 		_spawn_enemy_attack_vfx(source, "phase_shift", source.global_position, source.global_position - old_position)
@@ -4223,7 +4408,7 @@ func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 		return
 	if source.has_method("play_special"):
 		source.play_special(0.54)
-	AudioManager.play_sfx("threat_warning", -3.0, 0.02)
+	AudioManager.play_enemy_sfx("threat_warning", -3.0, 0.02)
 	var phase_label := "Boss · %s" % text if LocalizationManager.is_english() else "首领 · %s" % text
 	_show_wave_toast(phase_label, color)
 	_spawn_float_text(source.global_position + Vector2(0, -180), text, color)
@@ -4295,7 +4480,10 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var shot_directions := _lane_pellet_directions(lane_directions, pellet_count, pellet_spread)
 	var shots := shot_directions.size()
 	var visual_scale := _projectile_visual_scale(shots, pierce, split, homing, splash, cloud)
-	var lane_damage_mult := _multishot_damage_multiplier(multishot_lanes)
+	var lane_damage_mult := _multishot_damage_multiplier(
+		multishot_lanes,
+		float(mods.get("multishot_lane_damage_bonus", 0.0)),
+	)
 	var armor_penetration := skills.armor_penetration()
 	var status_strength := skills.projectile_status_strength(element)
 	if visual_profile == "apocalypse_inferno":
@@ -4357,20 +4545,23 @@ func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int,
 			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
 	return result
 
-func _multishot_damage_multiplier(lane_count: int) -> float:
+func _multishot_damage_multiplier(lane_count: int, lane_damage_bonus := 0.0) -> float:
 	# Per-projectile falloff is intentionally mild: multishot should still feel like a power spike,
-	# but homing + dense lanes should not multiply into full-damage swarms.
+	# but homing + dense lanes should not multiply into full-damage swarms. Lv4+ keeps the
+	# four-lane plateau meaningful by restoring a small, data-owned slice of each lane's damage.
+	var base_multiplier := 1.0
 	match clampi(lane_count, 1, MAX_MULTISHOT_LANES):
 		1:
-			return 1.0
+			base_multiplier = 1.0
 		2:
-			return 0.85
+			base_multiplier = 0.85
 		3:
-			return 0.80
+			base_multiplier = 0.80
 		4:
-			return 0.75
+			base_multiplier = 0.75
 		_:
-			return 0.70
+			base_multiplier = 0.70
+	return clampf(base_multiplier + float(lane_damage_bonus), 0.0, 1.0)
 
 func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
@@ -4577,8 +4768,8 @@ func _spawn_character() -> void:
 func _apply_character_presentation_scale() -> void:
 	if character_rig == null or character_sprite == null:
 		return
-	# The rig still owns the previously approved +50% battlefield presentation,
-	# but its lift now follows the anatomical foot contract rather than the full
+	# The rig owns the final 1.20x battlefield presentation (80% of the former
+	# 1.50x size), while its lift follows the anatomical foot contract rather than the full
 	# alpha bounds. A tall cannon, coat, wing or muzzle glow can therefore extend
 	# freely without moving the hero's boots or making the human body smaller.
 	var foot_offset := _character_body_target_foot_offset()
@@ -4627,7 +4818,13 @@ func _character_body_target_foot_offset() -> float:
 	))
 
 func _character_body_sprite_scale(pose_key := "") -> float:
-	var metric := _character_body_metric(pose_key)
+	# Every frame in one character/profile depicts the same person and therefore
+	# shares one physical model scale. The old per-pose normalization enlarged a
+	# crouched/recoiling fire pose and shrank the upright static pose. Centre is the
+	# common ruler for standard fused strips and premium true-grip directions;
+	# pose-specific metrics now affect only body centre and boot anchoring.
+	var scale_pose := str(_character_body_metrics_table().get("scale_reference_pose", "center"))
+	var metric := _character_body_metric(scale_pose)
 	var source_height := maxf(1.0, float(metric.get("body_height_px", _character_body_target_height())))
 	return CHARACTER_VISUAL_BASE_SCALE * _character_body_target_height() / source_height
 
@@ -7011,8 +7208,6 @@ func _spawn_loadout_badge(origin: Vector2, label_text: String, level: int, color
 func _spawn_enemy_entry_vfx(enemy: Node, is_boss: bool) -> void:
 	if not is_instance_valid(enemy):
 		return
-	if not is_boss:
-		_play_enemy_mechanic_sfx(enemy, -15.0, 0.05)
 	var color := Color(1.0, 0.3, 0.16, 0.34) if is_boss else Color(0.74, 0.9, 1.0, 0.22)
 	var sequence := "vfx_boss_phase" if is_boss else "vfx_levelup_glow"
 	var fx := _spawn_vfx_sequence(sequence, enemy.global_position + Vector2(0, -34), 1.05 if is_boss else 0.42, Color(color.r, color.g, color.b, 0.62), 1.15, randf_range(-0.16, 0.16), 1.08, Vector2(0, -8), randf_range(-0.18, 0.18), is_boss)
@@ -8880,7 +9075,12 @@ func _directional_vfx_rotation(sequence_id: String, travel_direction: Vector2, f
 	return direction.angle() - float(DIRECTIONAL_VFX_SOURCE_FORWARD[sequence_id])
 
 func _on_enemy_base_attack_started(enemy: Node, profile: Dictionary) -> void:
-	if not is_instance_valid(enemy) or not bool(enemy.get("boss")) or profile.is_empty():
+	if not is_instance_valid(enemy):
+		return
+	if not bool(enemy.get("boss")):
+		_play_zombie_base_attack_sfx(enemy)
+		return
+	if profile.is_empty():
 		return
 	var element := _boss_attack_element(profile, 0)
 	var color := _boss_attack_color(profile, element, 0)
@@ -8921,7 +9121,44 @@ func _on_enemy_base_attack_started(enemy: Node, profile: Dictionary) -> void:
 			23,
 			360.0
 		)
-	AudioManager.play_sfx("threat_warning", -8.0, 0.025)
+
+func _zombie_base_attack_sfx(enemy: Node) -> String:
+	if enemy == null or not is_instance_valid(enemy):
+		return ""
+	var attack_profile_var: Variant = enemy.get("attack_animation_profile")
+	var attack_profile: Dictionary = attack_profile_var if attack_profile_var is Dictionary else {}
+	var mode := str(attack_profile.get("mode", ""))
+	match mode:
+		"rapid_claw", "claw_combo":
+			return "enemy_attack_fast_claw"
+		"low_bite":
+			return "enemy_attack_bite"
+		"heavy_slam", "shoulder_ram", "shield_bash", "piston_slam", "wedge_ram", "triple_maul", "mutant_hook":
+			return "enemy_attack_heavy_slam"
+		"core_blast":
+			return "enemy_attack_blast"
+		"acid_spit", "corrosion_burst", "regen_hook":
+			return "enemy_attack_corrosion"
+		"sonic_burst", "ritual_strike", "ward_pulse":
+			return "enemy_attack_support"
+		"claw_drag", "leap_rake", "phase_slash":
+			return "enemy_attack_claw"
+		_:
+			return "enemy_attack_claw"
+
+func _play_zombie_base_attack_sfx(enemy: Node) -> void:
+	var sfx_id := _zombie_base_attack_sfx(enemy)
+	if not sfx_id.is_empty():
+		# This is the attacker's motion/material layer. The separate
+		# enemy_breach cue is reserved for actual barricade contact and interrupts
+		# any remaining wind-up tail instead of stacking over it.
+		AudioManager.play_enemy_sfx(sfx_id, -9.5, 0.055)
+
+func _boss_attack_motion_sfx(mode: String) -> String:
+	# The Void Phantom's authored dash_combo is also a visible phase movement.
+	# Give that motion the same air-cut identity before its separate strike and
+	# real barricade-contact layers resolve.
+	return "zombie_phantom" if mode == "dash_combo" else ""
 
 func _on_enemy_base_attack_visual_hit(enemy: Node, profile: Dictionary, hit_index: int, hit_count: int) -> void:
 	if not is_instance_valid(enemy) or profile.is_empty():
@@ -8930,6 +9167,9 @@ func _on_enemy_base_attack_visual_hit(enemy: Node, profile: Dictionary, hit_inde
 	var color := _boss_attack_color(profile, element, hit_index)
 	var target := _boss_attack_target(enemy, profile, hit_index)
 	var mode := str(profile.get("mode", "melee_heavy"))
+	var motion_sfx_id := _boss_attack_motion_sfx(mode)
+	if hit_index == 0 and not motion_sfx_id.is_empty():
+		AudioManager.play_enemy_sfx(motion_sfx_id, -7.0, 0.02)
 	match mode:
 		"ranged_volley":
 			_spawn_boss_siege_projectile(enemy, target, profile, element, color, hit_index, hit_count)
@@ -9130,7 +9370,8 @@ func _spawn_boss_storm_impact(target: Vector2, profile: Dictionary, element: Str
 	_spawn_attack_ring(target, 132.0 if final_hit else 96.0, color, 0.2 if final_hit else 0.13)
 	var shake := float(profile.get("camera_shake", 6.0))
 	_shake_hud(shake if final_hit else shake * 0.35, 0.16 if final_hit else 0.08)
-	AudioManager.play_sfx(_element_hit_sfx(element), -6.5 if final_hit else -10.0, 0.025)
+	if not final_hit:
+		AudioManager.play_enemy_sfx(_element_hit_sfx(element), -10.0, 0.025)
 
 func _spawn_boss_dash_afterimage(enemy: Node, target: Vector2, color: Color) -> void:
 	if not _can_spawn_projectile_fx(true):
@@ -9177,9 +9418,8 @@ func _spawn_boss_profile_impact(target: Vector2, profile: Dictionary, element: S
 	_spawn_attack_ring(target, ring_radius, color, 0.28 if final_hit else 0.18)
 	var shake := float(profile.get("camera_shake", 8.0))
 	_shake_hud(shake if final_hit else shake * 0.42, 0.2 if final_hit else 0.1)
-	AudioManager.play_sfx(_element_hit_sfx(element), -6.0 if final_hit else -9.0, 0.025)
-	if final_hit and mode == "melee_heavy":
-		AudioManager.play_sfx("enemy_breach", -6.0, 0.015)
+	if not final_hit:
+		AudioManager.play_enemy_sfx(_element_hit_sfx(element), -9.0, 0.025)
 
 func _spawn_boss_base_rupture(target: Vector2, impact_scale: float, heavy: bool) -> void:
 	if not _can_spawn_projectile_fx(true):
@@ -9339,11 +9579,8 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	battle_kills += 1
 	if bool(reward.get("boss", false)):
 		battle_boss_kills += 1
-	var death_sfx := _zombie_mechanic_sfx(str(enemy.get("mechanic"))) if is_instance_valid(enemy) else ""
-	if death_sfx != "":
-		AudioManager.play_sfx(death_sfx, -9.0, 0.025)
-	else:
-		AudioManager.play_sfx("enemy_death", -6.0)
+	var death_sfx := _zombie_event_sfx(str(enemy.get("mechanic")) if is_instance_valid(enemy) else "", "death")
+	AudioManager.play_enemy_sfx(death_sfx, -7.5, 0.025)
 	if enemy == active_boss:
 		active_boss = null
 		_refresh_active_boss()
@@ -9504,10 +9741,6 @@ func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: 
 
 func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	var profiled_boss_attack := _boss_has_profiled_base_attack(enemy)
-	if profiled_boss_attack:
-		AudioManager.play_sfx("enemy_breach", -8.0, 0.02)
-	else:
-		AudioManager.play_sfx("enemy_breach", -4.0)
 	_play_character_hurt()
 	if not profiled_boss_attack:
 		_shake_hud(5.0, 0.1)
@@ -9536,6 +9769,9 @@ func _on_enemy_breached(enemy: Node, damage: int) -> void:
 			_update_barrier_visual()
 	if shield_absorbed:
 		battle_base_damage_prevented += preventable_damage
+		AudioManager.play_enemy_sfx("hit_immune", -8.0, 0.02)
+	elif final_damage > 0:
+		AudioManager.play_enemy_sfx("enemy_breach", -8.0 if profiled_boss_attack else -4.0, 0.02)
 	base_hp = max(base_hp - final_damage, 0)
 	battle_base_damage_taken += final_damage
 	_apply_premium_armor_counter(enemy, final_damage, _base_damage_impact_position(enemy.global_position.x))
@@ -9870,10 +10106,10 @@ func _finish(victory: bool) -> void:
 			"stars": 0,
 			"gold": gold,
 			"xp": 0,
-			"standing_power": SaveManager.get_loadout_power(),
-			"projected_power": projected_combat_power,
-			"combat_power": int(round(float(SaveManager.get_combat_power_for_skill_levels(skills.owned)) * SaveManager.get_element_power_factor_for_level(power_level_id))),
+			"power": player_power,
 			"recommended_power": recommended_combat_power,
+			"cards_selected": cards_selected,
+			"target_card_picks": target_card_picks,
 			"run_skill_levels": skills.owned.duplicate(true),
 			"battle_report": _build_battle_report(),
 		})
@@ -9901,10 +10137,10 @@ func _finish(victory: bool) -> void:
 		"xp": awarded_xp,
 		"xp_full": xp,
 		"repeat_xp_mult": repeat_xp_mult,
-		"standing_power": SaveManager.get_loadout_power(),
-		"projected_power": projected_combat_power,
-		"combat_power": int(round(float(SaveManager.get_combat_power_for_skill_levels(skills.owned)) * SaveManager.get_element_power_factor_for_level(power_level_id))),
+		"power": player_power,
 		"recommended_power": recommended_combat_power,
+		"cards_selected": cards_selected,
+		"target_card_picks": target_card_picks,
 		"run_skill_levels": skills.owned.duplicate(true),
 		"battle_report": _build_battle_report(),
 	}
@@ -10442,7 +10678,7 @@ func _apply_slow_field(enemies: Array = []) -> void:
 		if enemy.has_method("targeting_snapshot"):
 			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())
 			if slow_mult < 1.0:
-				slow_mult = max(0.45, 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
+				slow_mult = max(SkillRuntime.SLOW_FIELD_MIN_SPEED_MULT, 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
 				if enemy.has_method("mark_ice_slow_visual"):
 					enemy.mark_ice_slow_visual(0.18)
 			enemy.speed_mult *= slow_mult
@@ -10479,18 +10715,26 @@ func _spawn_slow_field_visual() -> void:
 	slow_field_boundary.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slow_field_boundary.visible = false
 	slow_field_boundary.z_index = 5
-	slow_field_boundary.material = _new_muzzle_additive_material()
+	var boundary_level_material := ShaderMaterial.new()
+	boundary_level_material.shader = SLOW_FIELD_BOUNDARY_LEVEL_SHADER
+	boundary_level_material.set_shader_parameter("slope_compensation_px", SLOW_FIELD_BOUNDARY_SLOPE_COMPENSATION_PX)
+	boundary_level_material.set_shader_parameter("gameplay_seam_y_px", SLOW_FIELD_BOUNDARY_ANCHOR_Y)
+	boundary_level_material.set_shader_parameter("gameplay_seam_opacity", SLOW_FIELD_BOUNDARY_SEAM_OPACITY)
+	slow_field_boundary.material = boundary_level_material
 	$SlowFieldLayer.add_child(slow_field_boundary)
 
 	slow_field_particles = GPUParticles2D.new()
-	slow_field_particles.name = "SlowFieldColdMotes"
+	slow_field_particles.name = "SlowFieldSnowCrystals"
 	slow_field_particles.process_mode = Node.PROCESS_MODE_PAUSABLE
-	slow_field_particles.amount = 36
-	slow_field_particles.lifetime = 1.45
-	slow_field_particles.preprocess = 0.7
+	slow_field_particles.amount = SLOW_FIELD_SNOW_MIN_AMOUNT
+	slow_field_particles.lifetime = 1.85
+	slow_field_particles.preprocess = 1.2
 	slow_field_particles.randomness = 0.84
 	slow_field_particles.local_coords = false
-	slow_field_particles.texture = VfxLib.RADIAL_GLOW_TEXTURE
+	# Reuse the authored crystalline impact artwork at a small scale. The old
+	# radial-glow dots disappeared against bright battlefields and did not read
+	# as snow.
+	slow_field_particles.texture = SLOW_FIELD_SNOW_TEXTURE
 	slow_field_particles.material = _new_muzzle_additive_material()
 	slow_field_particles.z_index = 6
 	slow_field_particles.visibility_rect = Rect2(-620.0, -260.0, 1240.0, 520.0)
@@ -10500,19 +10744,19 @@ func _spawn_slow_field_visual() -> void:
 	process_material.emission_box_extents = Vector3(520.0, 46.0, 0.0)
 	process_material.direction = Vector3(0.0, -1.0, 0.0)
 	process_material.spread = 180.0
-	process_material.initial_velocity_min = 8.0
-	process_material.initial_velocity_max = 48.0
-	process_material.gravity = Vector3(0.0, -10.0, 0.0)
-	process_material.damping_min = 8.0
-	process_material.damping_max = 24.0
-	process_material.angle_min = -45.0
-	process_material.angle_max = 45.0
-	process_material.angular_velocity_min = -48.0
-	process_material.angular_velocity_max = 48.0
-	process_material.scale_min = 0.08
-	process_material.scale_max = 0.22
+	process_material.initial_velocity_min = 14.0
+	process_material.initial_velocity_max = 62.0
+	process_material.gravity = Vector3(0.0, -14.0, 0.0)
+	process_material.damping_min = 6.0
+	process_material.damping_max = 18.0
+	process_material.angle_min = -180.0
+	process_material.angle_max = 180.0
+	process_material.angular_velocity_min = -72.0
+	process_material.angular_velocity_max = 72.0
+	process_material.scale_min = 0.028
+	process_material.scale_max = 0.075
 	process_material.scale_curve = _impact_cloud_scale_curve()
-	process_material.color_ramp = _impact_color_ramp(Color(0.86, 1.0, 1.0, 0.42), Color(0.38, 0.86, 1.0, 0.22), Color(0.26, 0.72, 1.0, 0.0))
+	process_material.color_ramp = _impact_color_ramp(Color(0.92, 1.0, 1.0, 0.72), Color(0.48, 0.9, 1.0, 0.38), Color(0.3, 0.74, 1.0, 0.0))
 	slow_field_particles.process_material = process_material
 	$SlowFieldLayer.add_child(slow_field_particles)
 
@@ -10533,13 +10777,13 @@ func _update_slow_field_visual(slow_level: int) -> void:
 	var field_height := maxf(_base_line_y() - y_min, 60.0)
 	slow_field_rect.size = Vector2(1080, field_height)
 	slow_field_rect.visible = true
-	var field_color := Color(0.3, 0.8, 1.0, 0.1 + slow_pct * 0.18)
+	var field_color := Color(0.3, 0.8, 1.0, 0.13 + slow_pct * 0.20)
 	var shader_material := slow_field_rect.material as ShaderMaterial
 	if shader_material != null:
 		shader_material.set_shader_parameter("field_color", field_color)
-		shader_material.set_shader_parameter("intensity", 0.64 + slow_pct * 0.92)
-		shader_material.set_shader_parameter("secondary_opacity", 0.24 + slow_pct * 0.26)
-		shader_material.set_shader_parameter("zone_fill_opacity", 0.26 + slow_pct * 0.16)
+		shader_material.set_shader_parameter("intensity", 0.82 + slow_pct * 1.05)
+		shader_material.set_shader_parameter("secondary_opacity", 0.34 + slow_pct * 0.28)
+		shader_material.set_shader_parameter("zone_fill_opacity", 0.22 + slow_pct * 0.10)
 	if slow_field_boundary != null:
 		slow_field_boundary.position = Vector2(0.0, y_min - SLOW_FIELD_BOUNDARY_ANCHOR_Y)
 		slow_field_boundary.size = SLOW_FIELD_BOUNDARY_SIZE
@@ -10552,15 +10796,21 @@ func _update_slow_field_particles(y_min: float, field_height: float, slow_pct: f
 		return
 	slow_field_particles.visible = true
 	slow_field_particles.global_position = Vector2(540.0, y_min + field_height * 0.5)
-	slow_field_particles.amount = clampi(20 + slow_level * 8, 24, 44)
+	# Range expands with level, so particle count must grow with field area as
+	# well as level; otherwise the snow becomes visibly sparser at Lv4/Lv5.
+	slow_field_particles.amount = clampi(
+		int(round(field_height * 0.08)) + slow_level * 8,
+		SLOW_FIELD_SNOW_MIN_AMOUNT,
+		SLOW_FIELD_SNOW_MAX_AMOUNT
+	)
 	slow_field_particles.emitting = true
 	var process_material := slow_field_particles.process_material as ParticleProcessMaterial
 	if process_material == null:
 		return
 	process_material.emission_box_extents = Vector3(520.0, maxf(field_height * 0.42, 34.0), 0.0)
-	process_material.initial_velocity_min = 8.0 + slow_pct * 24.0
-	process_material.initial_velocity_max = 42.0 + slow_pct * 56.0
-	process_material.gravity = Vector3(0.0, -8.0 - slow_pct * 24.0, 0.0)
+	process_material.initial_velocity_min = 14.0 + slow_pct * 22.0
+	process_material.initial_velocity_max = 58.0 + slow_pct * 54.0
+	process_material.gravity = Vector3(0.0, -12.0 - slow_pct * 26.0, 0.0)
 
 func _spawn_barrier_visual() -> void:
 	barrier_visual = Node2D.new()
@@ -10741,7 +10991,7 @@ func _render_card_offer(owned_snapshot: Dictionary) -> void:
 	UiKit.apply_label(skip_label, 25, UiKit.TEXT_MAIN, 3)
 
 func _skill_offer_level(skill_id: String) -> int:
-	return mini(skills.level(skill_id) + 1, skills.max_level(skill_id))
+	return skills.level_after_add(skill_id)
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
@@ -10772,8 +11022,9 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.add_child(accent_bar)
 
 	var icon_box := PanelContainer.new()
-	icon_box.position = Vector2(32, 58)
-	icon_box.size = Vector2(116, 116)
+	icon_box.name = "IconFrame"
+	icon_box.position = CARD_OFFER_ICON_FRAME_POS
+	icon_box.size = CARD_OFFER_ICON_FRAME_SIZE
 	icon_box.add_theme_stylebox_override("panel", UiKit.icon_frame_texture_style(true))
 	icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon_box)
@@ -10782,17 +11033,17 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	icon.texture = load(row.get("icon", ""))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.position = Vector2(40, 66)
-	icon.size = Vector2(100, 100)
-	icon.custom_minimum_size = Vector2(100, 100)
+	icon.position = CARD_OFFER_ICON_POS
+	icon.size = CARD_OFFER_ICON_SIZE
+	icon.custom_minimum_size = CARD_OFFER_ICON_SIZE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(icon)
 
 	var title := Label.new()
 	title.name = "Title"
 	title.text = display_name
-	title.position = Vector2(176, 28)
-	title.size = Vector2(362, 48)
+	title.position = Vector2(CARD_OFFER_TEXT_X, 28)
+	title.size = Vector2(538.0 - CARD_OFFER_TEXT_X, 48)
 	UiKit.apply_label(title, 24 if LocalizationManager.is_english() else 28, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -10829,8 +11080,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var stats := Label.new()
 	stats.name = "Stats"
 	stats.text = stats_text
-	stats.position = Vector2(176, 86)
-	stats.size = Vector2(622, 54 + stats_extra_h)
+	stats.position = Vector2(CARD_OFFER_TEXT_X, 86)
+	stats.size = Vector2(CARD_OFFER_TEXT_WIDTH, 54 + stats_extra_h)
 	UiKit.apply_label(stats, 18, UiKit.CYAN, 2)
 	stats.add_theme_constant_override("line_spacing", 6)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -10841,11 +11092,11 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(176, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
+	desc.position = Vector2(CARD_OFFER_TEXT_X, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
 	# The longest Chinese ammo-module descriptions wrap to two mobile-readable
 	# lines at this width. Reserve the real two-line height instead of clipping
 	# the second line behind the tag row.
-	desc.size = Vector2(622, 76 if LocalizationManager.is_english() else 78)
+	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, 76 if LocalizationManager.is_english() else 78)
 	UiKit.apply_label(desc, 16 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
 	desc.add_theme_constant_override("line_spacing", 5)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -10855,8 +11106,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
-	tags.position = Vector2(176, card_h - 78.0)
-	tags.size = Vector2(622, 30)
+	tags.position = Vector2(CARD_OFFER_TEXT_X, card_h - 78.0)
+	tags.size = Vector2(CARD_OFFER_TEXT_WIDTH, 30)
 	tags.add_theme_constant_override("separation", 8)
 	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(tags)
@@ -10939,6 +11190,13 @@ func _on_skill_card_input(event: InputEvent, skill_id: String) -> void:
 
 func _process(_delta: float) -> void:
 	_ensure_battle_running()
+	if (
+		_skill_hint_is_temporarily_visible()
+		and Time.get_ticks_msec() / 1000.0 >= skill_hint_auto_hide_at
+	):
+		# Preserve a still-held long-press state until release so auto-dismissal
+		# can never convert that release into an accidental active-skill cast.
+		_hide_skill_hint(skill_hint_press_kind == "")
 	if card_press_skill_id != "" and not card_long_press_opened:
 		var held_for := Time.get_ticks_msec() / 1000.0 - card_press_started_at
 		if held_for >= 0.45:
@@ -11212,7 +11470,7 @@ func _skill_short_desc(skill_id: String, lv: int) -> String:
 		"skill_multishot":
 			return "额外发射弹丸，正面火力明显变宽。"
 		"skill_slow_field":
-			return "防线前生成大范围减速区，等级越高覆盖越靠前。"
+			return "防线前生成大范围减速区，等级越高覆盖越远、减速越强。"
 		"skill_homing":
 			return "子弹获得轻微追踪，减少高速怪和斜线目标漏枪。"
 		"skill_critical":
@@ -11249,7 +11507,7 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_multishot":
 			return "每次开火额外发射弹丸，最多形成5条弹道。多弹道每发有轻微衰减，但可与追踪、穿透、分裂和跳弹继续叠加。"
 		"skill_slow_field":
-			return "在防线前展开持续减速区。等级越高，覆盖范围按30%/40%/50%/60%/70%向前扩大；减速强度仍按原数值成长。"
+			return "在防线前展开持续减速区。覆盖范围按30%/40%/50%/60%/70%向前扩大；减速强度依次为30%/40%/50%/60%/80%。"
 		"skill_homing":
 			return "子弹飞行中会向最近目标修正方向。等级越高修正越明显，能显著改善斜线开火、高速小怪和残血补刀的手感。"
 		"skill_critical":
@@ -11257,7 +11515,7 @@ func _skill_long_desc(skill_id: String, lv: int) -> String:
 		"skill_barrier":
 			return "不再按僵尸次数格挡，而是直接提高基地生命上限。等级成长为+20%/+40%/+60%/+80%/+120%，并立即补上新增生命。"
 		"skill_gold_rush":
-			return "本局获得金币提高。它不会直接提高战力，但能让过关后的武器和装备成长更快，适合低压波次选择。"
+			return "本局获得金币提高。它不会直接提高有效战力，但能让过关后的武器和装备成长更快，适合低压波次选择。"
 		"skill_ricochet":
 			return "命中后产生额外弹射弹，只负责连锁跳弹，不自带分裂或散射。等级越高弹射数量越多，适合尸潮密度高的关卡。"
 		"skill_salvo":
@@ -11315,6 +11573,7 @@ func _choose_card(skill_id: String) -> void:
 	if skill_sfx != "":
 		AudioManager.play_sfx(skill_sfx, -5.5, 0.02)
 	cards_picked += 1
+	cards_selected += 1
 	_spawn_levelup_vfx(Vector2(540, 1580.0 + bottom_dock_shift), Color(1.0, 0.86, 0.3))
 	_spawn_skill_pick_vfx(skill_id)
 	if skill_id == "skill_barrier":
@@ -11455,8 +11714,6 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 	if not is_instance_valid(enemy):
 		return
 	var incoming_source := str(enemy.get_meta("_damage_source_for_feedback", "weapon"))
-	if str(enemy.get("mechanic")) == "armor" and not immune_hit:
-		AudioManager.play_sfx("zombie_armored", -10.0, 0.02)
 	# Golden Law already emits one authored, localized name for Verdict, Decree,
 	# Skyfalcon and Eternal Counter. Repeating the generic armor-pierce sentence
 	# above every target makes a four-target decree read as overlapping garbage.
@@ -11574,7 +11831,7 @@ func _process_threat_feedback(enemies: Array) -> void:
 			if now - last_threat_warning_at < 2.2:
 				continue
 			last_threat_warning_at = now
-			AudioManager.play_sfx("threat_warning", -4.0, 0.02)
+			AudioManager.play_enemy_sfx("threat_warning", -4.0, 0.02)
 			_show_wave_toast("防线告急", Color(1.0, 0.22, 0.12))
 			return
 
@@ -11585,7 +11842,7 @@ func _check_low_hp_warning() -> void:
 	if hp_ratio > 0.28:
 		return
 	low_hp_warned = true
-	AudioManager.play_sfx("threat_warning", -2.0, 0.0)
+	AudioManager.play_enemy_sfx("threat_warning", -2.0, 0.0)
 	_show_wave_toast("基地生命过低", Color(1.0, 0.12, 0.08))
 	_show_screen_flash(Color(1.0, 0.0, 0.0, 0.1), 0.2)
 
@@ -11799,14 +12056,12 @@ func _zombie_mechanic_sfx(mechanic: String) -> String:
 			return "zombie_hopper"
 		"juggernaut":
 			return "zombie_juggernaut"
-		"phase", "phase_shift":
+		"phase", "phase_shift", "charge":
 			return "zombie_phantom"
 		"summon", "spawn_minions":
 			return "zombie_necromancer"
 		"toxic_cloud":
 			return "zombie_toxic"
-		"charge":
-			return "zombie_charger"
 		"regen", "regenerate":
 			return "zombie_regenerator"
 		"split":
@@ -11832,12 +12087,26 @@ func _zombie_mechanic_sfx(mechanic: String) -> String:
 		_:
 			return ""
 
+func _zombie_event_sfx(mechanic: String, event: String) -> String:
+	# One explicit owner per lifecycle event. Entry/ambient/passive visuals stay
+	# silent; actions use their mechanic identity; every death uses the death cue
+	# instead of accidentally replaying a charge, blink, summon or aura sound.
+	match event:
+		"action":
+			return _zombie_mechanic_sfx(mechanic)
+		"death":
+			return "enemy_death"
+		"entry", "ambient", "passive":
+			return ""
+		_:
+			return ""
+
 func _play_enemy_mechanic_sfx(source: Node, volume_db := -8.0, pitch_variation := 0.03) -> void:
 	if source == null or not is_instance_valid(source):
 		return
-	var sfx_id := _zombie_mechanic_sfx(str(source.get("mechanic")))
+	var sfx_id := _zombie_event_sfx(str(source.get("mechanic")), "action")
 	if sfx_id != "":
-		AudioManager.play_sfx(sfx_id, volume_db, pitch_variation)
+		AudioManager.play_enemy_sfx(sfx_id, volume_db, pitch_variation)
 
 func _element_name(element: String) -> String:
 	match element:

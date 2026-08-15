@@ -83,6 +83,13 @@ const SFX := {
 	"zombie_armored": "res://assets/production/audio/sfx/sfx_zombie_armored.wav",
 	"zombie_crawler": "res://assets/production/audio/sfx/sfx_zombie_crawler.wav",
 	"enemy_death": "res://assets/production/audio/sfx/sfx_enemy_death_small.wav",
+	"enemy_attack_claw": "res://assets/production/audio/sfx/sfx_enemy_attack_claw.wav",
+	"enemy_attack_fast_claw": "res://assets/production/audio/sfx/sfx_enemy_attack_fast_claw.wav",
+	"enemy_attack_bite": "res://assets/production/audio/sfx/sfx_enemy_attack_bite.wav",
+	"enemy_attack_heavy_slam": "res://assets/production/audio/sfx/sfx_enemy_attack_heavy_slam.wav",
+	"enemy_attack_blast": "res://assets/production/audio/sfx/sfx_enemy_attack_blast.wav",
+	"enemy_attack_corrosion": "res://assets/production/audio/sfx/sfx_enemy_attack_corrosion.wav",
+	"enemy_attack_support": "res://assets/production/audio/sfx/sfx_enemy_attack_support.wav",
 	"enemy_breach": "res://assets/production/audio/sfx/sfx_enemy_breach.wav",
 	"threat_warning": "res://assets/production/audio/sfx/sfx_threat_warning.wav",
 	"level_up": "res://assets/production/audio/sfx/sfx_level_up.wav",
@@ -152,6 +159,7 @@ const DEFAULT_BGM_STOP_FADE_SECONDS := 0.25
 const SILENT_DB := -80.0
 const BGM_DUCK_ATTACK_DB_PER_SECOND := 46.0
 const BGM_DUCK_RELEASE_DB_PER_SECOND := 14.0
+const ENEMY_FOLEY_GROUP := "enemy_foley"
 
 var enabled := true
 var _sfx_cache := {}
@@ -276,11 +284,30 @@ func release_for_tests() -> void:
 	_missing_audio_reported.clear()
 
 func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
+	_play_sfx_internal(id, volume_db, pitch_variation, "", false)
+
+func play_enemy_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
+	# All zombie motion, casts, attacks, deaths, defense warnings and real base
+	# contacts share one authored lane. Crowd density may choose which action is
+	# audible, but it must never turn one event into several simultaneous clips.
+	# A real contact/warning replaces the current action instead of layering over it.
+	_play_sfx_internal(id, volume_db, pitch_variation, ENEMY_FOLEY_GROUP, enemy_sfx_interrupts_current(id))
+
+func enemy_sfx_interrupts_current(id: String) -> bool:
+	return id in ["enemy_breach", "threat_warning", "hit_immune"]
+
+func _play_sfx_internal(id: String, volume_db: float, pitch_variation: float, exclusive_group: String, interrupt_group: bool) -> void:
 	if _headless_audio or not enabled:
 		return
 	if not SFX.has(id):
 		_report_missing_audio("SFX id '%s' is not registered" % id)
 		return
+	if not exclusive_group.is_empty() and _has_playing_sfx_group(exclusive_group):
+		if not interrupt_group:
+			return
+		# Contact/defense priority must silence the previous zombie tail even when
+		# the incoming high-priority cue is itself rate-limited by a recent hit.
+		_stop_sfx_group(exclusive_group)
 	if _is_rate_limited(id):
 		return
 	var stream := _load_sfx(id)
@@ -299,6 +326,7 @@ func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	var variation := absf(float(pitch_variation))
 	player.pitch_scale = randf_range(maxf(0.01, 1.0 - variation), 1.0 + variation)
 	player.set_meta("audio_id", id)
+	player.set_meta("exclusive_group", exclusive_group)
 	player.set_meta("music_like", MUSIC_LIKE_SFX.has(id))
 	player.set_meta("priority", priority)
 	player.set_meta("started_msec", Time.get_ticks_msec())
@@ -394,6 +422,8 @@ func _is_rate_limited(id: String) -> bool:
 			min_gap = 0.9
 		"enemy_death":
 			min_gap = 0.04
+		"enemy_attack_claw", "enemy_attack_fast_claw", "enemy_attack_bite", "enemy_attack_heavy_slam", "enemy_attack_blast", "enemy_attack_corrosion", "enemy_attack_support":
+			min_gap = 0.14
 		"enemy_breach", "threat_warning":
 			min_gap = 0.75
 		"victory", "defeat":
@@ -433,7 +463,14 @@ func set_sfx_volume(value: float) -> void:
 ##   reverb_*         ——  施加在 SFX 总线的混响上；UI 音效走 UI 总线，永远保持干声。
 ## 战斗进入时调用，离开战斗时用 clear_environment_mix() 归零。
 func apply_environment_mix(environment_id: String) -> void:
-	var row: Dictionary = DataLoader.get_row("environments", environment_id)
+	# Resolve the autoload at runtime instead of introducing a compile-time dependency.
+	# This keeps standalone audio/smoke checks valid while preserving the normal runtime path.
+	var data_loader := get_node_or_null("/root/DataLoader")
+	if data_loader == null or not data_loader.has_method("get_row"):
+		clear_environment_mix()
+		return
+	var row_var: Variant = data_loader.call("get_row", "environments", environment_id)
+	var row: Dictionary = row_var if row_var is Dictionary else {}
 	var mix_var: Variant = row.get("audio_mix", {})
 	if not (mix_var is Dictionary) or (mix_var as Dictionary).is_empty():
 		clear_environment_mix()
@@ -553,6 +590,8 @@ func get_sfx_priority(id: String) -> int:
 		return 65
 	if id.begins_with("zombie_"):
 		return 50
+	if id.begins_with("enemy_attack_"):
+		return 48
 	if id.begins_with("hit_"):
 		return 40
 	if id.begins_with("shot_") or id.begins_with("muzzle_"):
@@ -566,7 +605,7 @@ func get_sfx_concurrency_limit(id: String) -> int:
 		return 1
 	if id.begins_with("shot_") or id.begins_with("muzzle_") or id.begins_with("hit_"):
 		return 3
-	if id == "enemy_death" or id.begins_with("zombie_"):
+	if id == "enemy_death" or id.begins_with("zombie_") or id.begins_with("enemy_attack_"):
 		return 2
 	if UI_SFX.has(id):
 		return 2
@@ -667,6 +706,17 @@ func _count_playing_sfx(id: String) -> int:
 			count += 1
 	return count
 
+func _has_playing_sfx_group(group_id: String) -> bool:
+	for player in _sfx_pool:
+		if player.playing and str(player.get_meta("exclusive_group", "")) == group_id:
+			return true
+	return false
+
+func _stop_sfx_group(group_id: String) -> void:
+	for player in _sfx_pool:
+		if player.playing and str(player.get_meta("exclusive_group", "")) == group_id:
+			_clear_sfx_player(player)
+
 func _on_sfx_finished(player: AudioStreamPlayer) -> void:
 	_clear_sfx_player(player)
 
@@ -680,6 +730,7 @@ func _clear_sfx_player(player: AudioStreamPlayer) -> void:
 	player.volume_db = 0.0
 	player.pitch_scale = 1.0
 	player.set_meta("audio_id", "")
+	player.set_meta("exclusive_group", "")
 	player.set_meta("music_like", false)
 	player.set_meta("priority", 0)
 	player.set_meta("started_msec", 0)

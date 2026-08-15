@@ -133,6 +133,8 @@ def _source_guard_errors() -> list[str]:
         "BREACH_Y = BREACH_Y_DESIGN + bottom_dock_shift",
         "CHARACTER_BASE_POSITION = Vector2(540, CHARACTER_BASE_Y_DESIGN + bottom_dock_shift)",
         '["Hud/TopBar", "PauseLayer/PauseButton", "PauseLayer/SpeedButton"]',
+        "boss_hp_bar.position = _boss_hp_hud_position()",
+        "y = maxf(y, top_bar.offset_bottom + BOSS_HP_HUD_TOP_GAP)",
         "func _wave_toast_target_position() -> Vector2:",
         "target_y = maxf(target_y, top_bar.offset_bottom + 22.0)",
         "func _battle_visible_height() -> float:",

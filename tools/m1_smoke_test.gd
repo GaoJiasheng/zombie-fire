@@ -89,9 +89,11 @@ func _initialize() -> void:
 	var save_manager := root.get_node("/root/SaveManager")
 	var audio_manager := root.get_node("/root/AudioManager")
 	var input_manager := root.get_node("/root/InputManager")
+	var settings_manager := root.get_node("/root/SettingsManager")
 	data_loader.load_all()
 	save_manager.load_game()
 	var smoke_save_snapshot: Dictionary = save_manager.save_data.duplicate(true)
+	var smoke_settings_snapshot: Dictionary = settings_manager.settings.duplicate(true)
 	_expect(InputMap.has_action("cycle_target_strategy"), "input map must expose target strategy cycling")
 	_expect(save_manager.get_weapon_damage_multiplier("weapon_autocannon") >= 1.0, "weapon upgrade must expose damage multiplier")
 	_expect(root.has_node("/root/SettingsManager"), "settings manager must be autoloaded")
@@ -123,6 +125,11 @@ func _initialize() -> void:
 	_verify_progression_unlock_repair(save_manager)
 	await _verify_battle_speed_progression_gate(save_manager)
 	await _verify_battle_speed_stress(save_manager)
+	# The speed regressions above deliberately exercise the saved 5X setting.
+	# Every timing assertion after them must run against the authored 1X clock,
+	# independent of the developer/tester's persisted TestFlight speed choice.
+	settings_manager.settings["battle_speed"] = 1.0
+	Engine.time_scale = 1.0
 	_verify_power_skill_level_accounting(save_manager)
 	_verify_recommended_power_calibration(save_manager, data_loader)
 	_verify_character_power_identity_model(save_manager, data_loader)
@@ -143,6 +150,7 @@ func _initialize() -> void:
 	await _verify_character_weapon_skins(data_loader, save_manager)
 	await _verify_character_active_skill_controls(data_loader, save_manager)
 	await _verify_bottom_skill_slot_level_merge(save_manager)
+	await _verify_card_offer_permanent_level_preload(save_manager)
 	await _verify_endless_mode(save_manager)
 	await _verify_enemy_hit_flash_scope(data_loader)
 	_verify_ice_slow_visual_tint(data_loader)
@@ -150,6 +158,7 @@ func _initialize() -> void:
 	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
+	_verify_owned_store_upgrade_cost(save_manager)
 	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_store_product_preview_contract(data_loader, save_manager)
 	await _verify_appearance_selector_states(save_manager)
@@ -169,6 +178,8 @@ func _initialize() -> void:
 	# independently by theme_manager_test.gd and the visual screenshot matrix.
 	root.get_node("/root/ThemeManager")._set_active_without_persist("default")
 	await process_frame
+	await _verify_resource_chip_theme_matrix(root.get_node("/root/ThemeManager"))
+	await _verify_combo_hud_optical_layout()
 	_expect(main.current_scene != null, "main must open initial menu")
 	_expect(main.current_scene.find_child("HelpButton", true, false) != null, "menu must expose settings entry")
 	_expect(main.current_scene.find_child("StoreButton", true, false) != null, "menu must expose the Apocalypse Arsenal entry")
@@ -204,6 +215,9 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.name == "Settings", "settings entry must open the dedicated settings page")
 	var settings_vbox: Node = main.current_scene.get_node("Center/Panel/Margin/VBox")
+	var settings_panel := main.current_scene.get_node("Center/Panel") as PanelContainer
+	var settings_panel_style := settings_panel.get_theme_stylebox("panel") as StyleBoxTexture
+	_expect(settings_panel_style != null and settings_panel_style.texture != null and settings_panel_style.texture.resource_path.ends_with("ui_detail_panel_clear.png"), "settings must use the authored rule-free texture surface")
 	_expect(settings_vbox.has_node("SoundButton"), "settings must expose sound toggle")
 	_expect(settings_vbox.has_node("QualityButton"), "settings must expose quality setting")
 	_expect(settings_vbox.has_node("DataRow/BackupButton"), "settings must expose save backup")
@@ -244,6 +258,7 @@ func _initialize() -> void:
 	_expect(map_resource_bar != null, "map must render icon-based account resources")
 	var map_resource_row: Node = map_resource_bar.find_child("Row", true, false)
 	_expect(map_resource_row != null and map_resource_row.get_child_count() >= 4, "map resource bar must show the unified gold/star/xp/power chips")
+	_assert_resource_chip_geometry(map_resource_row, "map resource bar", "default")
 	_expect(main.current_scene.find_child("Nav", true, false) != null, "map must expose collection navigation")
 	var map_character_card: Node = main.current_scene.find_child("charactersNavCard", true, false)
 	_expect(map_character_card != null, "map must expose the character feature card")
@@ -279,36 +294,45 @@ func _initialize() -> void:
 	var first_level: Node = level_list.get_child(1)
 	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
 	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
-	var first_normal := first_level.find_child("NormalModeButton", true, false) as TextureButton
-	var first_challenge := first_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	var first_normal := first_level.find_child("NormalModeButton", true, false) as Button
+	var first_challenge := first_level.find_child("ChallengeModeButton", true, false) as Button
 	_expect(first_normal != null, "chapter level cards must expose Normal itself as the direct entry button")
-	_expect(first_challenge != null, "chapter level cards must expose Challenge itself as the direct entry button")
+	_expect(first_challenge == null, "unplayed normal levels must hide Challenge instead of reserving a dead button")
 	_expect(first_level.find_child("EnterLevelButton", true, false) == null, "chapter level cards must not retain a redundant Enter button")
 	_expect(first_level.find_child("ChallengeLevelButton", true, false) == null, "chapter level cards must not retain a redundant Challenge Mode button")
 	_expect(str(first_normal.get_meta("level_mode", "")) == "normal", "normal entry button must carry an explicit mode identity")
-	_expect(str(first_challenge.get_meta("level_mode", "")) == "challenge", "challenge entry button must carry an explicit mode identity")
-	_expect(first_normal.mouse_filter == Control.MOUSE_FILTER_PASS and first_challenge.mouse_filter == Control.MOUSE_FILTER_PASS, "normal and challenge buttons must pass drag gestures to the map scroll container")
-	_expect(bool(first_normal.get_meta("scroll_drag_passthrough", false)) and bool(first_challenge.get_meta("scroll_drag_passthrough", false)), "both level mode buttons must declare the scroll-drag passthrough contract")
-	_expect(first_normal.find_child("ModeStars", true, false) != null and first_challenge.find_child("ModeStars", true, false) != null, "both direct mode buttons must carry their own three-star progress")
-	_expect(first_normal.size.y >= UiKit.MIN_TOUCH_TARGET.y and first_challenge.size.y >= UiKit.MIN_TOUCH_TARGET.y, "direct mode buttons must meet the shared mobile touch-target height without invisible overlap")
-	_expect(first_normal.position.y + first_normal.size.y <= first_challenge.position.y, "normal and challenge hit regions must never overlap")
+	_expect(first_normal.mouse_filter == Control.MOUSE_FILTER_PASS and bool(first_normal.get_meta("scroll_drag_passthrough", false)), "single Normal button must preserve drag-to-scroll gestures")
+	_expect(first_normal.find_child("ModeStars", true, false) != null, "single Normal button must carry its own three-star progress")
+	_expect(first_normal.size.y >= 150.0 and first_normal.size.x >= 280.0, "single Normal button must be a large centered touch target")
+	_expect(absf(first_normal.get_rect().get_center().x - 751.0) <= 1.0, "single Normal button must be horizontally centered in the action lane")
+	_expect(str(first_normal.get_meta("mode_layout", "")) == "single", "unplayed Normal button must declare the single-button layout")
+	var first_mode_label := first_normal.find_child("ModeLabel", true, false) as Label
+	_expect(first_mode_label != null and first_mode_label.text == "闯关", "single entry must use the standalone action label 闯关 instead of an unpaired 普通")
 	_expect(not first_normal.disabled, "unplayed but unlocked normal level must allow entering normal mode")
-	_expect(first_challenge.disabled, "challenge mode must stay locked until normal mode has 3 stars")
-	_expect(first_challenge.find_child("UnlockRequirement", true, false) != null, "locked challenge mode must show an in-button unlock marker")
-	first_challenge.emit_signal("pressed")
-	await process_frame
-	_expect(main.current_scene.name == "Map", "disabled challenge button must not route to loadout when pressed")
 	main.current_scene._open_challenge_level("level_001")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "challenge route guard must block levels without normal 3-star clear")
 	var second_level: Node = level_list.get_child(2)
-	var second_normal := second_level.find_child("NormalModeButton", true, false) as TextureButton
-	var second_challenge := second_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	var second_normal := second_level.find_child("NormalModeButton", true, false) as Button
+	var second_challenge := second_level.find_child("ChallengeModeButton", true, false) as Button
 	_expect(second_normal != null and not second_normal.disabled, "cleared 2-star normal level must still allow normal re-entry")
 	_expect(second_challenge != null and second_challenge.disabled, "2-star normal clear must not unlock challenge mode")
+	_expect(str(second_normal.get_meta("mode_layout", "")) == "dual" and str(second_challenge.get_meta("mode_layout", "")) == "dual", "cleared levels must use the paired mode-button layout")
+	var second_normal_label := second_normal.find_child("ModeLabel", true, false) as Label
+	var second_challenge_label := second_challenge.find_child("ModeLabel", true, false) as Label
+	_expect(second_normal_label != null and second_normal_label.text == "普通", "paired normal entry must keep the comparative label 普通")
+	_expect(second_challenge_label != null and second_challenge_label.text == "挑战", "paired challenge entry must keep the comparative label 挑战")
+	_expect(second_normal.size.y >= 150.0 and second_challenge.size.y >= 150.0, "paired mode buttons must provide large touch targets")
+	_expect(second_normal.position.x + second_normal.size.x <= second_challenge.position.x, "paired normal and challenge hit regions must never overlap")
+	_expect(absf(second_normal.position.y - second_challenge.position.y) <= 0.1, "paired mode buttons must align on the same row")
+	_expect(second_normal.find_child("ModeStars", true, false) != null and second_challenge.find_child("ModeStars", true, false) != null, "paired mode buttons must carry stacked three-star progress")
+	_expect(second_challenge.find_child("UnlockRequirement", true, false) != null, "visible but locked challenge mode must show an in-button unlock marker")
+	second_challenge.emit_signal("pressed")
+	await process_frame
+	_expect(main.current_scene.name == "Map", "disabled challenge button must not route to loadout when pressed")
 	var third_level: Node = level_list.get_child(3)
-	var third_normal := third_level.find_child("NormalModeButton", true, false) as TextureButton
-	var third_challenge := third_level.find_child("ChallengeModeButton", true, false) as TextureButton
+	var third_normal := third_level.find_child("NormalModeButton", true, false) as Button
+	var third_challenge := third_level.find_child("ChallengeModeButton", true, false) as Button
 	_expect(third_normal != null and not third_normal.disabled, "3-star normal level must allow normal re-entry")
 	_expect(third_challenge != null and not third_challenge.disabled, "3-star normal clear must unlock challenge mode")
 	_expect(third_challenge.find_child("UnlockRequirement", true, false) == null, "unlocked challenge mode must remove the lock marker")
@@ -399,6 +423,9 @@ func _initialize() -> void:
 	_expect(main.current_scene.has_node("CharacterDetail"), "character row click must open character detail")
 	var character_detail: Node = main.current_scene.get_node("CharacterDetail")
 	_expect((character_detail as Control).z_index >= 64, "character detail must render above positive-z collection row children")
+	var character_detail_panel := character_detail.get_node("Panel") as PanelContainer
+	var character_detail_style := character_detail_panel.get_theme_stylebox("panel") as StyleBoxTexture
+	_expect(character_detail_style != null and character_detail_style.texture != null and character_detail_style.texture.resource_path.ends_with("ui_detail_panel_clear.png"), "character detail must use the authored rule-free texture surface")
 	var collection_scroll := main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
 	var hidden_collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
 	_expect(collection_scroll != null and not collection_scroll.visible, "character detail must hide the underlying collection list so row text cannot bleed through translucent artwork")
@@ -460,8 +487,11 @@ func _initialize() -> void:
 	var signature_growth := character_detail.find_child("SignatureGrowth", true, false) as Label
 	var signature_button := character_detail.find_child("SigSkillUpgradeButton", true, false) as TextureButton
 	_expect(signature_layout != null and signature_growth != null and signature_button != null, "character detail signature upgrade must use the dedicated full-width readability layout")
+	_assert_resource_cost(signature_button, "xp", save_manager.get_sig_skill_upgrade_cost("vanguard"), "signature skill upgrade")
 	_expect(signature_growth.get_theme_font_size("font_size") >= 23, "signature growth copy must use at least 23px effective type")
 	_expect(signature_growth.size.x > signature_button.size.x * 2.0, "signature growth copy must own the full card width below the upgrade button")
+	var character_upgrade_button := character_detail.find_child("UpgradeButton", true, false) as TextureButton
+	_assert_resource_cost(character_upgrade_button, "gold", save_manager.get_item_upgrade_cost("characters", "vanguard"), "character upgrade")
 	main.current_scene._close_character_detail()
 	await process_frame
 	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
@@ -569,6 +599,14 @@ func _initialize() -> void:
 	var skill_detail: Node = main.current_scene.get_node("ItemDetail")
 	_expect((skill_detail as Control).z_index >= 64, "item detail must render above positive-z collection row children")
 	_expect(not (main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer).visible, "item detail must hide the underlying collection list")
+	var skill_detail_panel := skill_detail.get_node("Panel") as PanelContainer
+	var skill_detail_style := skill_detail_panel.get_theme_stylebox("panel") as StyleBoxTexture
+	_expect(
+		skill_detail_style != null
+		and skill_detail_style.texture != null
+		and skill_detail_style.texture.resource_path.ends_with("ui_detail_panel_clear.png"),
+		"skill detail must use the authored rule-free texture surface"
+	)
 	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
@@ -583,13 +621,10 @@ func _initialize() -> void:
 	var skill_description := skill_detail.find_child("DescriptionBody", true, false) as Label
 	_expect(skill_description != null and skill_description.get_theme_font_size("font_size") == UiKit.scaled_font_size(22), "skill tactical notes must use the larger mobile body size")
 	var skill_upgrade_button := skill_detail.find_child("SkillUpgradeButton", true, false) as TextureButton
-	var skill_upgrade_label := skill_upgrade_button.get_node("ActionLabel") as Label
 	var expected_skill_cost: int = int(save_manager.get_skill_base_upgrade_cost("skill_split_shot"))
-	_expect(skill_upgrade_label.text == "%d★" % expected_skill_cost, "skill upgrade action must use the compact price label")
-	_expect(not skill_upgrade_label.text.contains("升级技能") and not skill_upgrade_label.text.contains("经验"), "skill upgrade action must not repeat verbose copy inside the button")
-	var upgrade_font_size := skill_upgrade_label.get_theme_font_size("font_size")
-	var upgrade_text_width := skill_upgrade_label.get_theme_font("font").get_string_size(skill_upgrade_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, upgrade_font_size).x
-	_expect(upgrade_text_width <= skill_upgrade_button.size.x - 36.0, "compact skill upgrade copy must fit inside the armored bezel")
+	_assert_resource_cost(skill_upgrade_button, "xp", expected_skill_cost, "generic skill upgrade")
+	var skill_cost_action := skill_upgrade_button.find_child("CostAction", true, false) as Label
+	_expect(skill_cost_action != null and not skill_cost_action.text.contains("经验") and not skill_cost_action.text.contains("★"), "skill action copy must leave resource identity to the XP icon")
 	skill_close.emit_signal("pressed")
 	await process_frame
 	_expect(not main.current_scene.has_node("ItemDetail"), "skill detail compact close must dismiss the modal")
@@ -671,6 +706,9 @@ func _initialize() -> void:
 	main.change_scene("collection", {"mode": "weapons"})
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "main must route to collection")
+	var collection_resource_bar: Node = main.current_scene.find_child("ResourceBar", true, false)
+	_expect(collection_resource_bar != null, "collection must expose the shared account resource bar")
+	_assert_resource_chip_geometry(collection_resource_bar, "collection resource bar", "default")
 	_expect(main.current_scene.find_child("ItemList", true, false) != null, "collection item list must be scrollable")
 	var weapon_list: Node = main.current_scene.find_child("ItemList", true, false)
 	_expect(weapon_list.get_child_count() >= 8, "collection must render weapon pool")
@@ -698,6 +736,20 @@ func _initialize() -> void:
 			purchasable_weapon = weapon_button
 	_expect(first_weapon != null, "collection must expose at least one unlocked weapon")
 	_expect(purchasable_weapon != null, "collection must expose a purchasable locked weapon when player has enough stars")
+	if first_weapon != null:
+		var weapon_frame := first_weapon.get_node_or_null("Frame") as PanelContainer
+		var weapon_icon := first_weapon.get_node_or_null("Icon") as TextureRect
+		var weapon_title := first_weapon.get_node_or_null("Title") as Label
+		var weapon_description := first_weapon.get_node_or_null("Description") as Label
+		var weapon_action := first_weapon.get_node_or_null("CardActionButton") as TextureButton
+		_expect(first_weapon.size.x >= 860.0, "weapon collection cards must use the owner-approved wider safe-area ruler")
+		_expect(weapon_frame != null and weapon_frame.size.x >= 828.0, "weapon collection frame must expand with the wider card; got %.1f inside %.1f" % [weapon_frame.size.x if weapon_frame != null else 0.0, first_weapon.size.x])
+		_expect(weapon_icon != null and weapon_icon.size.x >= 168.0 and weapon_icon.size.y >= 168.0, "weapon collection logo must use the enlarged 168px showcase size")
+		_expect(weapon_icon != null and weapon_icon.position.x >= 44.0, "weapon collection logo must keep its owner-approved left-frame breathing room")
+		_expect(weapon_title != null and weapon_title.position.x >= 244.0, "weapon collection title must shift right of the enlarged logo")
+		_expect(weapon_description != null and weapon_description.position.x == weapon_title.position.x, "weapon collection copy must share one right-shifted text axis")
+		_expect(weapon_icon != null and weapon_title != null and weapon_title.position.x - (weapon_icon.position.x + weapon_icon.size.x) >= 28.0, "weapon collection text must keep breathing room after the enlarged logo")
+		_expect(weapon_action != null and weapon_action.position.x + weapon_action.size.x <= first_weapon.size.x - 32.0, "weapon collection action must remain inside the widened frame")
 	var purchasable_veil := purchasable_weapon.get_node("LockedCardVeil") as TextureRect
 	var purchase_action := purchasable_weapon.find_child("CardActionButton", true, false) as TextureButton
 	var purchase_label := purchase_action.get_node("ActionLabel") as Label
@@ -705,6 +757,7 @@ func _initialize() -> void:
 	_expect(purchase_action != null and not purchase_action.disabled, "purchasable locked weapon rows must keep the purchase button bright and enabled")
 	_expect(purchase_action.z_index > purchasable_veil.z_index, "purchase button must render above the locked-row dark veil")
 	_expect(purchase_label.text.begins_with("购买"), "purchasable locked weapon action must read as purchase, got %s" % purchase_label.text)
+	_assert_resource_cost(purchase_action, "star", save_manager.get_unlock_price_star("weapons", String(purchasable_weapon.name)), "locked collection purchase")
 	_expect(not first_weapon.has_node("LockedCardVeil"), "owned weapon rows must not use the locked dark veil")
 	_expect(not first_weapon.has_node("UpgradeButton"), "collection rows must keep actions inside detail")
 	var purchased_weapon_id := String(purchasable_weapon.name)
@@ -731,12 +784,17 @@ func _initialize() -> void:
 	await process_frame
 	_expect(main.current_scene.has_node("ItemDetail"), "collection row click must open item detail")
 	var item_detail: Node = main.current_scene.get_node("ItemDetail")
+	var item_detail_panel := item_detail.get_node("Panel") as PanelContainer
+	var item_detail_style := item_detail_panel.get_theme_stylebox("panel") as StyleBoxTexture
+	_expect(item_detail_style != null and item_detail_style.texture != null and item_detail_style.texture.resource_path.ends_with("ui_detail_panel_clear.png"), "equipment detail must use the authored rule-free texture surface")
 	var item_close := item_detail.find_child("CloseButton", true, false) as Button
 	_expect(item_close != null, "item detail top close must be a compact button")
 	_expect(item_close.text == "×", "item detail top close must use an icon-only x")
 	_expect(item_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and item_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "item detail top close must keep an accessible mobile touch target")
 	_expect(item_detail.find_child("EquipButton", true, false) != null, "item detail must expose equip action")
-	_expect(item_detail.find_child("UpgradeButton", true, false) != null, "item detail must expose upgrade action")
+	var item_upgrade_button := item_detail.find_child("UpgradeButton", true, false) as TextureButton
+	_expect(item_upgrade_button != null, "item detail must expose upgrade action")
+	_assert_resource_cost(item_upgrade_button, "gold", save_manager.get_item_upgrade_cost("weapons", purchased_weapon_id), "equipment upgrade")
 	main.current_scene._close_character_detail()
 	await process_frame
 	var purchased_row: Dictionary = data_loader.get_row("weapons", purchased_weapon_id)
@@ -804,14 +862,16 @@ func _initialize() -> void:
 	_expect(absf((default_vanguard_layout.get("size", Vector2.ZERO) as Vector2).x - 378.0) <= 0.5, "default Steel Vanguard must retain the owner-approved loadout scale")
 	var golden_law_row: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
 	var golden_law_loadout_path := str(golden_law_row.get("loadout_art", ""))
-	_expect(golden_law_loadout_path.ends_with("weapon_apocalypse_golden_law_icon_v2.png"), "Golden Law loadout must explicitly bypass the staged duplicate-inset handheld art")
+	_expect(golden_law_loadout_path.ends_with("weapon_apocalypse_golden_law_loadout_v3.png"), "Golden Law loadout must use its dedicated horizontal V3 product render")
 	var loadout_weapon_paths: Array[String] = []
+	var loadout_weapon_ids_by_path := {}
 	for weapon_key_var in data_loader.get_table("weapons").keys():
 		var weapon_key := str(weapon_key_var)
 		var weapon_row: Dictionary = data_loader.get_row("weapons", weapon_key)
 		var clean_path := str(weapon_row.get("loadout_art", weapon_row.get("handheld", "")))
 		if clean_path != "" and not loadout_weapon_paths.has(clean_path):
 			loadout_weapon_paths.append(clean_path)
+			loadout_weapon_ids_by_path[clean_path] = weapon_key
 		if weapon_key.begins_with("weapon_apocalypse_"):
 			continue
 		for root in [
@@ -822,8 +882,11 @@ func _initialize() -> void:
 			var themed_path := "%s/%s_handheld.png" % [root, weapon_key]
 			if ResourceLoader.exists(themed_path) and not loadout_weapon_paths.has(themed_path):
 				loadout_weapon_paths.append(themed_path)
+				loadout_weapon_ids_by_path[themed_path] = weapon_key
 	var loadout_weapon_icon := main.current_scene.find_child("WeaponIcon", true, false) as TextureRect
 	for clean_path in loadout_weapon_paths:
+		var path_weapon_id := str(loadout_weapon_ids_by_path.get(clean_path, "weapon_autocannon"))
+		main.current_scene._configure_weapon_showcase_rect(loadout_weapon_icon, path_weapon_id)
 		var clean_weapon := load(clean_path) as Texture2D
 		_expect(clean_weapon != null, "loadout clean weapon art must resolve: %s" % clean_path)
 		if clean_weapon == null:
@@ -835,7 +898,13 @@ func _initialize() -> void:
 			var clean_region := Rect2i((clean_display as AtlasTexture).region)
 			_expect(clean_region.encloses(clean_used), "loadout weapon display must preserve the complete gun silhouette: %s" % clean_path)
 			var visible_long_axis := float(loadout_weapon_icon.get_meta("loadout_weapon_visible_long_axis", 0.0))
-			_expect(visible_long_axis >= 246.0 and visible_long_axis <= 276.0, "loadout weapon must occupy one consistent clean-gun ruler; got %.1f: %s" % [visible_long_axis, clean_path])
+			if path_weapon_id.begins_with("weapon_apocalypse_"):
+				_expect(visible_long_axis >= 260.0 and visible_long_axis <= 400.0, "paid loadout weapon must occupy the enlarged premium ruler; got %.1f: %s" % [visible_long_axis, clean_path])
+			else:
+				_expect(visible_long_axis >= 328.0 and visible_long_axis <= 360.0, "free loadout weapon must occupy the enlarged showcase ruler; got %.1f: %s" % [visible_long_axis, clean_path])
+			if path_weapon_id == "weapon_apocalypse_golden_law":
+				_expect(visible_long_axis >= 370.0, "Golden Law V3 must read as a full-width endgame cannon; got %.1f" % visible_long_axis)
+			_expect(absf(loadout_weapon_icon.rotation_degrees) <= 0.01, "loadout weapon must remain rotation-neutral: %s" % clean_path)
 	main.current_scene._refresh_character_bust(data_loader.get_row("characters", save_manager.get_selected("character")))
 	_expect(main.current_scene.find_child("GrowthBadge", true, false) != null, "loadout must show visible growth tier")
 	_expect(main.current_scene.has_node("GearBadges"), "loadout must summarize gear levels")
@@ -890,7 +959,8 @@ func _initialize() -> void:
 	if loadout_counter_pill != null:
 		_assert_semantic_tag_panel(loadout_counter_pill, "loadout counter guidance")
 	_expect(main.current_scene.get_node("Summary").text.contains("001 城市缺口"), "loadout must show player-facing level name")
-	_expect(main.current_scene.get_node("Summary").text.contains("预计成型"), "loadout must distinguish standing and projected in-run combat power")
+	_expect(main.current_scene.get_node("Summary").text.contains("有效战力"), "loadout must name the level-relative player value Effective Power")
+	_expect(not main.current_scene.get_node("Summary").text.contains("基准") and not main.current_scene.get_node("Summary").text.contains("预计成型"), "loadout must not split power into baseline and projected concepts")
 	_expect(not main.current_scene.get_node("Summary").text.contains("level_001"), "loadout must not expose internal level id")
 	_expect(main.current_scene.get_node("Summary").text.contains("五波") or main.current_scene.get_node("Objective").text.contains("五波"), "loadout copy must mention five-wave pacing")
 	_expect(main.current_scene.get_node("EquipNav").get_child_count() >= 5, "loadout must link to all equipment categories")
@@ -902,7 +972,7 @@ func _initialize() -> void:
 	var challenge_start_label := challenge_start.get_node("Label") as Label
 	var challenge_was_severely_underpowered: bool = bool(main.current_scene._is_severely_underpowered())
 	_expect(
-		challenge_start_label.text.contains("战力严重不足") if challenge_was_severely_underpowered else challenge_start_label.text == "开始挑战",
+		challenge_start_label.text.contains("有效战力严重不足") if challenge_was_severely_underpowered else challenge_start_label.text == "开始挑战",
 		"challenge loadout start button must accurately reflect its combat-power state"
 	)
 	challenge_start.emit_signal("pressed")
@@ -988,7 +1058,8 @@ func _initialize() -> void:
 		_expect(battle.wave_total == 5, "battle must load five waves for %s" % battle.level_id)
 		_expect(battle.turret != null, "battle must spawn turret for %s" % battle.level_id)
 		_expect(battle.character_sprite != null, "battle must spawn selected character avatar for %s" % battle.level_id)
-		_expect((battle.character_rig as Node2D).scale.is_equal_approx(Vector2.ONE * float(battle.CHARACTER_PRESENTATION_SCALE)), "battle hero rig must use the 1.50x presentation scale")
+		_expect(absf(float(battle.CHARACTER_PRESENTATION_SCALE) - 1.20) <= 0.001, "battle hero must be reduced to 80% of the former 1.50x presentation")
+		_expect((battle.character_rig as Node2D).scale.is_equal_approx(Vector2.ONE * float(battle.CHARACTER_PRESENTATION_SCALE)), "battle hero rig must use the 1.20x presentation scale")
 		_expect(float(battle.character_rig_foot_lift) > 0.0 and absf((battle.character_rig as Node2D).position.y + float(battle.character_rig_foot_lift) - float(battle.CHARACTER_BASE_POSITION.y)) <= 0.5, "enlarged battle hero must remain foot-anchored above the bottom HUD")
 		_expect(bool(battle.character_weapon_combo_active), "battle must use fused selected character/weapon art for %s" % battle.level_id)
 		_expect(battle.character_weapon_sprite == null, "fused battle art must not also mount a floating weapon sprite for %s" % battle.level_id)
@@ -1086,7 +1157,11 @@ func _initialize() -> void:
 				_expect(first_card.has_node("Icon") or first_card.get_child_count() >= 4, "card must render icon and text children")
 				var first_card_icon := first_card.get_node("Icon") as TextureRect
 				_expect(first_card_icon != null, "card icon must be a TextureRect")
-				_expect(first_card_icon.size.x <= 128.0 and first_card_icon.size.y <= 128.0, "card icon must stay bounded, got %s" % str(first_card_icon.size))
+				var first_card_icon_frame := first_card.get_node("IconFrame") as PanelContainer
+				_expect(first_card_icon.size == Vector2(156, 156), "card icon must use the final enlarged 156px visual ruler, got %s" % str(first_card_icon.size))
+				_expect(first_card_icon_frame != null and first_card_icon_frame.size == Vector2(176, 176), "card icon frame must enlarge with the skill image")
+				var first_card_title := first_card.get_node("Title") as Label
+				_expect(first_card_title.position.x >= first_card_icon_frame.position.x + first_card_icon_frame.size.x + 20.0, "enlarged card icon must retain at least 20px before the text lane")
 				first_card.emit_signal("mouse_entered")
 				await process_frame
 				_expect(battle.get_node("Hud/SkillHintOverlay").visible, "card hover must show an in-game skill explanation")
@@ -1152,6 +1227,7 @@ func _initialize() -> void:
 	root.add_child(result)
 	result.setup(router, {
 		"level_id": "level_001", "victory": true, "stars": 3, "gold": 120, "xp": 12,
+		"cards_selected": 3, "target_card_picks": 4,
 		"battle_report": {
 			"duration_seconds": 95.0, "damage_total": 12800.0,
 			"damage_by_element": {"fire": 9600.0}, "top_element": "fire",
@@ -1183,18 +1259,21 @@ func _initialize() -> void:
 	_expect(result_gold_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE and result_xp_icon.custom_minimum_size == result.RESULT_REWARD_ICON_SIZE, "result reward icons must share one visual size")
 	_expect(absf(result_gold_icon.get_global_rect().get_center().y - result_xp_icon.get_global_rect().get_center().y) <= 0.1, "result reward icons must share one vertical baseline")
 	_expect(result.get_node("Content/HintCard/HintBox/Hint").text != "", "result must show next action hint")
+	_expect(result.get_node("Content/HintCard/HintBox/Hint").text.contains("本局选卡 3/4"), "result must show the real card-pick count separately from power")
 	var challenge_result := _instance("res://meta/result/result.tscn")
 	root.add_child(challenge_result)
 	challenge_result.setup(router, {
 		"level_id": "level_004", "victory": true, "challenge": true, "stars": 3,
-		"gold": 120, "xp": 12, "standing_power": 23, "combat_power": 19,
+		"gold": 120, "xp": 12, "power": 23,
 		"recommended_power": 27,
+		"cards_selected": 2, "target_card_picks": 5,
 	})
 	await process_frame
 	var challenge_result_hint := (challenge_result.get_node("Content/HintCard/HintBox/Hint") as Label).text
-	_expect(challenge_result_hint.contains("出战预估战力 23"), "challenge result must name the pre-battle estimate instead of exposing the internal baseline term")
-	_expect(challenge_result_hint.contains("本局最终 19（本局技能未选满）"), "challenge result must explain why final power can be below its estimate")
-	_expect(challenge_result_hint.contains("挑战建议战力 27"), "challenge result must name the challenge recommendation explicitly")
+	_expect(challenge_result_hint.contains("有效战力 23"), "challenge result must reuse the one player-facing Effective Power value")
+	_expect(challenge_result_hint.contains("挑战推荐 27"), "challenge result must name the fixed challenge recommendation explicitly")
+	_expect(not challenge_result_hint.contains("本局最终") and not challenge_result_hint.contains("基准"), "challenge result must not reintroduce a second power concept")
+	_expect(challenge_result_hint.contains("本局选卡 2/5"), "challenge result must report actual card progress without converting it into a second power")
 	_expect(challenge_result_hint.contains("超过历史最高"), "challenge result must explain incremental star rewards in player-facing language")
 	challenge_result.queue_free()
 	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
@@ -1287,6 +1366,8 @@ func _initialize() -> void:
 	UiKit.release_cached_resources_for_tests()
 	SequenceVfx.release_cached_resources_for_tests()
 	StatusVfxControllerScript.release_cached_resources_for_tests()
+	settings_manager.settings = smoke_settings_snapshot
+	Engine.time_scale = 1.0
 	for i in range(4):
 		await process_frame
 	print("M1 smoke test passed")
@@ -1510,7 +1591,7 @@ func _verify_underpower_confirmation(save_manager: Node, snapshot: Dictionary) -
 	_expect(loadout._is_severely_underpowered(), "fresh equipment against the final challenge must deterministically exercise the severe-power guard")
 	var start_button := loadout.find_child("StartButton", true, false) as TextureButton
 	var start_label := start_button.get_node("Label") as Label
-	_expect(start_label.text.contains("战力严重不足"), "severe-power challenge entry must warn before the first tap")
+	_expect(start_label.text.contains("有效战力严重不足"), "severe-power challenge entry must warn before the first tap")
 	start_button.emit_signal("pressed")
 	_expect(router.last_started_challenge_level == "", "the first severe-power tap must not start combat")
 	_expect(start_label.text.contains("再次点击"), "the first severe-power tap must arm an explicit second confirmation")
@@ -1556,6 +1637,7 @@ func _verify_medic_pet_repair_runtime(data_loader: Node, save_manager: Node, sna
 	var router := FakeRouter.new()
 	root.add_child(router)
 	var battle := _instance("res://gameplay/battle/battle.tscn")
+	var audio_manager := root.get_node("/root/AudioManager")
 	battle.setup(router, {"level_id": "level_099"})
 	root.add_child(battle)
 	await process_frame
@@ -1882,9 +1964,26 @@ func _verify_collection_star_curve(data_loader: Node) -> void:
 	_expect(maximum == 16, "no single collection unlock may exceed 16 stars")
 	_expect(total - 99 * 3 == 19, "normal campaign must leave only 19 challenge stars for full collection")
 
+func _verify_owned_store_upgrade_cost(save_manager: Node) -> void:
+	var store := _instance("res://meta/store/store.tscn")
+	var owned_row := store.call("_owned_item_row", "weapons", "weapon", "weapon_apocalypse_thunder") as PanelContainer
+	_expect(owned_row != null, "owned premium equipment must build its upgrade row")
+	if owned_row != null:
+		var upgrade_buttons := owned_row.find_children("*", "Button", true, false)
+		var upgrade := upgrade_buttons[0] as Button if not upgrade_buttons.is_empty() else null
+		_assert_resource_cost(
+			upgrade,
+			"gold",
+			save_manager.get_item_upgrade_cost("weapons", "weapon_apocalypse_thunder"),
+			"owned premium equipment upgrade"
+		)
+		owned_row.free()
+	store.free()
+
 func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original: Dictionary = save_manager.save_data.duplicate(true)
 	var theme_manager := root.get_node("/root/ThemeManager")
+	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
 	var test_save: Dictionary = original.duplicate(true)
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
 	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
@@ -1909,32 +2008,19 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	save_manager.save_data = test_save
 	purchase_manager._catalog = data_loader.get_table("store_products")
 	purchase_manager.reconcile_access(false)
-	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
 	_expect(purchase_manager.catalog_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "premium catalog must contain all four authored series")
-	_expect(
-		purchase_manager.store_series_ids() == (
-			["thunder", "inferno", "absolute_zero", "golden_law"] if testflight_preview else []
-		),
-		"fresh premium authorization must follow the production gate or TestFlight preview contract"
-	)
+	_expect(purchase_manager.store_series_ids().is_empty(), "fresh premium catalog must hide every unrevealed series, including in TestFlight")
 	for locked_series_id in purchase_manager.catalog_series_ids():
-		_expect(purchase_manager.display_offer_ids(locked_series_id).size() == 2, "%s must remain previewable as theme plus complete arsenal before purchase unlock" % locked_series_id)
-		_expect(
-			purchase_manager.visible_offer_ids(locked_series_id).size() == (2 if testflight_preview else 0),
-			"%s authorization must follow the production gate or TestFlight preview contract" % locked_series_id
-		)
+		_expect(purchase_manager.display_offer_ids(locked_series_id).is_empty(), "%s must not produce player-facing cards before its reveal gate" % locked_series_id)
+		_expect(purchase_manager.visible_offer_ids(locked_series_id).is_empty(), "%s must not authorize purchase before its reveal gate" % locked_series_id)
 	test_save["levels_progress"] = {"level_030": 1}
-	if not testflight_preview:
-		_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must become purchase-authorized after clearing level 30")
+	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must first appear after clearing level 30")
 	test_save["levels_progress"]["level_050"] = 1
-	if not testflight_preview:
-		_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must become purchase-authorized after clearing level 50")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must first appear after clearing level 50")
 	test_save["levels_progress"]["level_080"] = 1
-	if not testflight_preview:
-		_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must become purchase-authorized after clearing level 80")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 80")
 	test_save["levels_progress"]["level_099"] = 1
-	if not testflight_preview:
-		_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain purchase-locked after level 99 until a hero reaches level 40")
+	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 99 until a hero reaches level 40")
 	test_save["equipment"]["vanguard"] = 40
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 99 clear plus any hero at level 40")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
@@ -2113,10 +2199,75 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	purchase_manager.refresh_catalog_and_access()
 	theme_manager.refresh_from_save()
 	localization_manager.apply_language("en", false)
-	var testflight_preview: bool = bool(theme_manager.preview_access_enabled())
-
 	var router := FakeRouter.new()
 	root.add_child(router)
+	var fresh_menu := _instance("res://meta/menu/menu.tscn")
+	fresh_menu.setup(router, {})
+	root.add_child(fresh_menu)
+	await process_frame
+	var fresh_store_button := fresh_menu.find_child("StoreButton", true, false) as Control
+	_expect(fresh_store_button != null and not fresh_store_button.visible, "main menu must hide the arsenal entry before the first series reveal")
+	fresh_menu.queue_free()
+	await process_frame
+
+	var selector_script := load("res://ui/appearance_selector.gd") as GDScript
+	var fresh_selector := selector_script.new() as CanvasLayer
+	root.add_child(fresh_selector)
+	fresh_selector.open_global()
+	await process_frame
+	_expect(fresh_selector.find_child("Theme_default", true, false) != null, "fresh appearance selector must retain the free default theme")
+	for hidden_theme_id in ["infernal_dominion", "neon_tempest", "polar_aurora", "gilded_eclipse"]:
+		_expect(fresh_selector.find_child("Theme_" + hidden_theme_id, true, false) == null, "%s must be absent from appearance UI before reveal" % hidden_theme_id)
+	fresh_selector.queue_free()
+	await process_frame
+
+	var fresh_outfit_selector := selector_script.new() as CanvasLayer
+	root.add_child(fresh_outfit_selector)
+	fresh_outfit_selector.open_character("vanguard")
+	await process_frame
+	_expect(fresh_outfit_selector.find_child("Outfit_follow_theme", true, false) != null, "fresh outfit selector must retain Follow Global")
+	_expect(fresh_outfit_selector.find_child("Outfit_default", true, false) != null, "fresh outfit selector must retain the free default outfit")
+	for hidden_theme_id in ["infernal_dominion", "neon_tempest", "polar_aurora", "gilded_eclipse"]:
+		_expect(fresh_outfit_selector.find_child("Outfit_" + hidden_theme_id, true, false) == null, "%s must be absent from per-hero outfits before reveal" % hidden_theme_id)
+	fresh_outfit_selector.queue_free()
+	await process_frame
+
+	var hidden_premium_items := {
+		"weapons": [
+			"weapon_apocalypse_inferno",
+			"weapon_apocalypse_thunder",
+			"weapon_apocalypse_absolute_zero",
+			"weapon_apocalypse_golden_law",
+		],
+		"armors": [
+			"armor_apocalypse_molten",
+			"armor_apocalypse_conductor",
+			"armor_apocalypse_permafrost",
+			"armor_apocalypse_eternal_night",
+		],
+		"chips": [
+			"chip_apocalypse_stellar",
+			"chip_apocalypse_superconductive",
+			"chip_apocalypse_entropy",
+			"chip_apocalypse_golden_law",
+		],
+		"pets": [
+			"pet_apocalypse_phoenix",
+			"pet_apocalypse_tempest",
+			"pet_apocalypse_aurora",
+			"pet_apocalypse_skyfalcon",
+		],
+	}
+	for collection_mode in hidden_premium_items.keys():
+		var fresh_collection := _instance("res://meta/collection/collection.tscn")
+		fresh_collection.setup(router, {"mode": str(collection_mode)})
+		root.add_child(fresh_collection)
+		await process_frame
+		for hidden_item_id in hidden_premium_items[collection_mode]:
+			_expect(fresh_collection.find_child(str(hidden_item_id), true, false) == null, "%s must be absent from %s collection before reveal" % [hidden_item_id, collection_mode])
+		fresh_collection.queue_free()
+		await process_frame
+
 	var locked_store := _instance("res://meta/store/store.tscn")
 	locked_store.setup(router, {})
 	root.add_child(locked_store)
@@ -2133,27 +2284,47 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 				locked_headers.append(child as Control)
 			elif child.has_meta("store_product_id"):
 				locked_cards.append(child as Control)
-	_expect(locked_headers.size() == 4, "fresh premium store must list all four authored series before their purchase gates")
-	_expect(locked_cards.size() == 8, "fresh premium store must preview four themes and four complete arsenals before purchase unlock")
-	for header in locked_headers:
-		var series_id := str(header.get_meta("store_series_id", ""))
-		var set_row: Dictionary = purchase_manager.set_for_series(series_id)
-		var unlock_hint := header.find_child("UnlockHint", true, false) as Label
-		_expect(bool(header.get_meta("store_series_locked", false)) == (not testflight_preview), "%s must declare the correct production/TestFlight catalog state" % series_id)
-		if not testflight_preview:
-			_expect(unlock_hint != null and unlock_hint.text == str(set_row.get("unlock_hint_en", "")), "%s must show its full bilingual progression condition" % series_id)
-	for card in locked_cards:
-		var product_id := str(card.get_meta("store_product_id", ""))
-		var product: Dictionary = data_loader.get_row("store_products", product_id)
-		var set_row: Dictionary = purchase_manager.set_for_series(str(product.get("series_id", "")))
-		var buy := card.find_child("Buy_" + product_id.replace(".", "_"), true, false) as Button
-		_expect(bool(card.get_meta("store_product_locked", false)) == (not testflight_preview), "%s must declare the correct production/TestFlight product state" % product_id)
-		if testflight_preview:
-			_expect(buy != null and not buy.disabled, "%s TestFlight preview must expose the no-charge demo action" % product_id)
-		else:
-			_expect(buy != null and buy.disabled, "%s locked preview must not expose a purchase action" % product_id)
-			_expect(buy != null and buy.text == str(set_row.get("unlock_cta_en", "")), "%s locked action must use the compact data-owned unlock copy" % product_id)
+	_expect(locked_headers.is_empty(), "fresh premium store must not reveal any series name or unlock hint")
+	_expect(locked_cards.is_empty(), "fresh premium store must not reveal any product art, copy, price or action")
 	locked_store.queue_free()
+	await process_frame
+
+	# The first reveal is atomic: after stage 30, Infernal appears as a complete
+	# two-card series while every later series remains entirely absent.
+	test_save["levels_progress"] = {"level_030": 3}
+	save_manager.save_data = test_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+	var first_reveal_menu := _instance("res://meta/menu/menu.tscn")
+	first_reveal_menu.setup(router, {})
+	root.add_child(first_reveal_menu)
+	await process_frame
+	var first_reveal_store_button := first_reveal_menu.find_child("StoreButton", true, false) as Control
+	_expect(first_reveal_store_button != null and first_reveal_store_button.visible, "main menu must expose the arsenal entry after the first series reveal")
+	first_reveal_menu.queue_free()
+	await process_frame
+
+	var first_reveal_store := _instance("res://meta/store/store.tscn")
+	first_reveal_store.setup(router, {})
+	root.add_child(first_reveal_store)
+	await process_frame
+	await process_frame
+	var first_reveal_content := first_reveal_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	var first_reveal_headers: Array[Control] = []
+	var first_reveal_cards: Array[Control] = []
+	if first_reveal_content != null:
+		for child in first_reveal_content.get_children():
+			if not child is Control:
+				continue
+			if child.has_meta("store_series_id"):
+				first_reveal_headers.append(child as Control)
+			elif child.has_meta("store_product_id"):
+				first_reveal_cards.append(child as Control)
+	_expect(first_reveal_headers.size() == 1 and str(first_reveal_headers[0].get_meta("store_series_id", "")) == "inferno", "stage 30 must reveal only the Infernal series")
+	_expect(first_reveal_cards.size() == 2, "stage 30 must reveal exactly the Infernal theme and complete arsenal cards")
+	for card in first_reveal_cards:
+		_expect(str(card.get_meta("store_product_id", "")).contains("inferno") or str(card.get_meta("store_product_id", "")).contains("infernal_dominion"), "first-reveal cards must belong only to Infernal")
+	first_reveal_store.queue_free()
 	await process_frame
 
 	test_save["levels_progress"] = {
@@ -2173,16 +2344,79 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	await process_frame
 	var content := store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
 	_expect(content != null, "premium store must expose its product content container")
+	var store_scroll := store.get_node_or_null("Root/VBox/ScrollWrap/Scroll") as ScrollContainer
+	_expect(store_scroll != null, "premium store must retain its vertical ScrollContainer")
+	if store_scroll != null:
+		_expect(store_scroll.scroll_deadzone == 12, "premium store must use a deliberate 12px touch-scroll deadzone")
+		var vertical_bar := store_scroll.get_v_scroll_bar()
+		_expect(vertical_bar != null and vertical_bar.max_value > vertical_bar.page, "fully revealed premium store must have real vertical scroll range")
+		store_scroll.scroll_vertical = 240
+		await process_frame
+		_expect(store_scroll.scroll_vertical > 0, "premium store ScrollContainer must accept vertical movement")
+		store_scroll.scroll_vertical = 0
+	if content is Control:
+		_expect((content as Control).mouse_filter == Control.MOUSE_FILTER_PASS, "premium store content must pass touch drags to its ScrollContainer")
 	var cards: Array[Control] = []
 	if content != null:
 		for child in content.get_children():
 			if child is Control and child.has_meta("store_product_id"):
 				cards.append(child as Control)
 	_expect(cards.size() == 8, "fresh fully revealed store must render four theme and four complete-arsenal cards")
+	# Reproduce the reported mobile gesture from directly on top of a purchase
+	# button. Headless synthetic touch does not run the native ScrollContainer's
+	# OS gesture recognizer, so the scroll range and PASS chain are asserted
+	# above; this sequence guards the remaining observable failure mode: a drag
+	# must not be misread as a product-detail or purchase tap.
+	if store_scroll != null and not cards.is_empty():
+		await process_frame
+		var drag_button := cards[0].find_child("Buy_*", true, false) as BaseButton
+		_expect(drag_button != null, "premium store drag regression requires a visible purchase action")
+		if drag_button != null:
+			var drag_start := drag_button.get_global_rect().get_center()
+			var drag_touch := InputEventScreenTouch.new()
+			drag_touch.index = 7
+			drag_touch.position = drag_start
+			drag_touch.pressed = true
+			Input.parse_input_event(drag_touch)
+			await process_frame
+			var previous_position := drag_start
+			for drag_distance in [32.0, 76.0, 132.0]:
+				var drag_position := drag_start - Vector2(0.0, drag_distance)
+				var drag_event := InputEventScreenDrag.new()
+				drag_event.index = 7
+				drag_event.position = drag_position
+				drag_event.relative = drag_position - previous_position
+				drag_event.screen_relative = drag_position - previous_position
+				drag_event.velocity = Vector2(0.0, -900.0)
+				drag_event.screen_velocity = Vector2(0.0, -900.0)
+				Input.parse_input_event(drag_event)
+				previous_position = drag_position
+				await process_frame
+			var drag_release := InputEventScreenTouch.new()
+			drag_release.index = 7
+			drag_release.position = previous_position
+			drag_release.pressed = false
+			Input.parse_input_event(drag_release)
+			await process_frame
+			_expect(store.find_child("StoreProductDetail", true, false) == null, "dragging the premium store must not misfire a product detail")
+			var accidental_dialog: Variant = store.get("_dialog_layer")
+			_expect(accidental_dialog == null or not is_instance_valid(accidental_dialog), "dragging the premium store must not misfire a purchase confirmation")
+			store_scroll.scroll_vertical = 0
 	for card in cards:
 		var product_id := str(card.get_meta("store_product_id", ""))
 		var product: Dictionary = data_loader.get_row("store_products", product_id)
 		var role := str(product.get("offer_role", ""))
+		_expect(bool(card.get_meta("store_card_opens_detail", false)), "%s entire product card must advertise a detail action" % product_id)
+		_expect(not card.gui_input.get_connections().is_empty(), "%s product card must connect its tap/click detail action" % product_id)
+		_expect(card.mouse_filter == Control.MOUSE_FILTER_PASS, "%s product card must pass vertical drags to the store ScrollContainer" % product_id)
+		var buy := card.find_child("Buy_*", true, false) as BaseButton
+		_expect(buy != null, "%s product card must retain its purchase action" % product_id)
+		if buy != null:
+			_expect(buy.mouse_filter == Control.MOUSE_FILTER_PASS, "%s purchase action must allow drag-to-scroll gestures" % product_id)
+			_expect(bool(buy.get_meta("store_scroll_drag_passthrough", false)), "%s purchase action must declare scroll-drag passthrough" % product_id)
+			var buy_center_global := buy.get_global_rect().get_center()
+			var buy_center_local := card.get_global_transform_with_canvas().affine_inverse() * buy_center_global
+			_expect(bool(store.call("_product_card_event_hits_action", buy_center_local, card)), "%s card tap resolver must exclude its purchase action" % product_id)
 		var expected_layout := "theme_roster" if role == "theme" else "arsenal_grid"
 		var preview := card.find_child("Preview", true, false) as Control
 		var dominance := card.find_child("DominanceRange", true, false) as Label
@@ -2230,7 +2464,121 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 				_expect(visible_rect.position.x >= -0.01 and visible_rect.position.y >= -0.01, "%s arsenal subject must start inside its cell" % product_id)
 				_expect(visible_rect.end.x <= 146.01 and visible_rect.end.y <= 146.01, "%s arsenal subject must not be cropped by its cell" % product_id)
 
+		store.call("_show_product_detail", product_id)
+		await process_frame
+		var detail := store.find_child("StoreProductDetail", true, false) as Control
+		_expect(detail != null, "%s card must open a product detail layer" % product_id)
+		if detail != null:
+			_expect(str(detail.get_meta("store_detail_product_id", "")) == product_id, "%s detail must retain the exact product identity" % product_id)
+			var detail_scroll := detail.find_child("DetailScroll", true, false) as ScrollContainer
+			var detail_content := detail.find_child("DetailContent", true, false) as Control
+			_expect(detail_scroll != null, "%s detail must retain its independent vertical ScrollContainer" % product_id)
+			_expect(detail_content != null and detail_content.mouse_filter == Control.MOUSE_FILTER_PASS, "%s detail content must pass touch drags to its ScrollContainer" % product_id)
+			if detail_scroll != null:
+				_expect(detail_scroll.scroll_deadzone == 12, "%s detail must use the shared 12px touch-scroll deadzone" % product_id)
+				var detail_bar := detail_scroll.get_v_scroll_bar()
+				_expect(detail_bar != null and detail_bar.max_value > detail_bar.page, "%s detail must expose real vertical scroll range" % product_id)
+				detail_scroll.scroll_vertical = 240
+				await process_frame
+				_expect(detail_scroll.scroll_vertical > 0, "%s detail ScrollContainer must accept vertical movement" % product_id)
+				detail_scroll.scroll_vertical = 0
+			if detail_content != null:
+				for surface_var in detail_content.find_children("*", "Control", true, false):
+					var detail_surface := surface_var as Control
+					if detail_surface.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+						_expect(detail_surface.mouse_filter == Control.MOUSE_FILTER_PASS, "%s detail surface %s must allow drag-to-scroll gestures" % [product_id, detail_surface.name])
+			var title := detail.find_child("ProductTitle", true, false) as Label
+			_expect(title != null and title.text == str(product.get("name_en", "")), "%s English detail must use the catalog product name" % product_id)
+			var header_text_inset := detail.find_child("HeaderTextInset", true, false) as Control
+			_expect(header_text_inset != null and header_text_inset.custom_minimum_size.x >= 16.0, "%s product title must clear the outer frame with the shared header inset" % product_id)
+			if detail_content != null:
+				for section_var in detail_content.get_children():
+					if not section_var is PanelContainer:
+						continue
+					var section := section_var as PanelContainer
+					var section_margin := section.get_node_or_null("Margin") as MarginContainer
+					_expect(section_margin != null, "%s section %s must expose its shared text margin" % [product_id, section.name])
+					if section_margin != null:
+						_expect(section_margin.get_theme_constant("margin_left") >= 36 and section_margin.get_theme_constant("margin_right") >= 24, "%s section %s title/body must keep the owner-reviewed 36px left / 24px right clearance" % [product_id, section.name])
+						_expect(section_margin.get_theme_constant("margin_top") >= 22 and section_margin.get_theme_constant("margin_bottom") >= 22, "%s section %s title/body must keep 22px vertical clearance" % [product_id, section.name])
+			for info_margin_var in detail.find_children("InfoMargin", "MarginContainer", true, false):
+				var info_margin := info_margin_var as MarginContainer
+				_expect(info_margin.get_theme_constant("margin_left") >= 26 and info_margin.get_theme_constant("margin_right") >= 18 and info_margin.get_theme_constant("margin_top") >= 14, "%s nested theme info copy must keep its right-shifted inner gutter" % product_id)
+			for gear_margin_var in detail.find_children("GearMargin", "MarginContainer", true, false):
+				var gear_margin := gear_margin_var as MarginContainer
+				_expect(gear_margin.get_theme_constant("margin_left") >= 26 and gear_margin.get_theme_constant("margin_right") >= 18 and gear_margin.get_theme_constant("margin_top") >= 16, "%s arsenal item copy must keep its right-shifted inner gutter" % product_id)
+			var action := detail.find_child("PurchaseButton", true, false) as Button
+			_expect(action != null and not action.disabled, "%s current offer detail must retain a live purchase action" % product_id)
+			if action != null:
+				_expect(str(action.get_meta("store_detail_product_id", "")) == product_id, "%s detail purchase action must target the opened product" % product_id)
+				_expect(str(action.get_meta("store_detail_action_state", "")) == "purchase", "%s current detail action must be marked purchase" % product_id)
+			var hero_grid := detail.find_child("DetailHeroGrid", true, false) as GridContainer
+			var weapon_skin_grid := detail.find_child("DetailWeaponSkinGrid", true, false) as GridContainer
+			var gear_grid := detail.find_child("DetailArsenalGearGrid", true, false) as GridContainer
+			if role in ["theme", "arsenal_complete"]:
+				_expect(hero_grid != null and hero_grid.get_child_count() == 4, "%s detail must enumerate all four themed hero outfits" % product_id)
+				_expect(weapon_skin_grid != null and weapon_skin_grid.get_child_count() == 8, "%s detail must enumerate all eight free-weapon theme looks" % product_id)
+			else:
+				_expect(hero_grid == null and weapon_skin_grid == null, "%s upgrade must not charge for or re-grant owned theme contents" % product_id)
+			if role != "theme":
+				_expect(gear_grid != null and gear_grid.get_child_count() == 4, "%s detail must enumerate weapon, armor, chip and pet" % product_id)
+				_expect(detail.find_child("SetBonusDescription", true, false) != null, "%s detail must disclose the set synergy" % product_id)
+				_expect(detail.find_child("PowerTarget", true, false) != null, "%s detail must disclose the authored max-level power target" % product_id)
+			else:
+				_expect(gear_grid == null, "%s theme-only detail must not imply arsenal ownership" % product_id)
+		store.call("_close_product_detail")
+		await process_frame
+
 	store.queue_free()
+	await process_frame
+
+	# Theme owners see a different logical product. Verify all four upgrade cards
+	# open the same data-driven gear detail while omitting already-owned theme
+	# contents and preserving the discounted purchase action.
+	var theme_receipts: Array[String] = []
+	for product_id_var in data_loader.get_table("store_products").keys():
+		var product_id := str(product_id_var)
+		var product: Dictionary = data_loader.get_row("store_products", product_id)
+		if str(product.get("offer_role", "")) == "theme":
+			theme_receipts.append(product_id)
+	test_save["commerce"] = {"mock_receipts": theme_receipts, "mock_last_transaction_unix": 0}
+	save_manager.save_data = test_save
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+	var upgrade_store := _instance("res://meta/store/store.tscn")
+	upgrade_store.setup(router, {})
+	root.add_child(upgrade_store)
+	await process_frame
+	await process_frame
+	var upgrade_content := upgrade_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	var upgrade_cards: Array[Control] = []
+	if upgrade_content != null:
+		for child in upgrade_content.get_children():
+			if child is Control and child.has_meta("store_product_id"):
+				upgrade_cards.append(child as Control)
+		for button_var in upgrade_content.find_children("*", "BaseButton", true, false):
+			var list_button := button_var as BaseButton
+			_expect(list_button.mouse_filter == Control.MOUSE_FILTER_PASS, "%s must pass vertical drags to the owned-store ScrollContainer" % list_button.name)
+			_expect(bool(list_button.get_meta("store_scroll_drag_passthrough", false)), "%s must declare owned-store scroll-drag passthrough" % list_button.name)
+	_expect(upgrade_cards.size() == 4, "four revealed theme owners must see one discounted arsenal upgrade per series")
+	for upgrade_card in upgrade_cards:
+		var upgrade_product_id := str(upgrade_card.get_meta("store_product_id", ""))
+		var upgrade_product: Dictionary = data_loader.get_row("store_products", upgrade_product_id)
+		_expect(str(upgrade_product.get("offer_role", "")) == "arsenal_upgrade", "%s must be a theme-owner upgrade" % upgrade_product_id)
+		upgrade_store.call("_show_product_detail", upgrade_product_id)
+		await process_frame
+		var detail := upgrade_store.find_child("StoreProductDetail", true, false) as Control
+		_expect(detail != null, "%s must open a discounted upgrade detail" % upgrade_product_id)
+		if detail != null:
+			_expect(detail.find_child("UpgradePricingNote", true, false) != null, "%s must explain that theme value is not charged twice" % upgrade_product_id)
+			_expect(detail.find_child("DetailHeroGrid", true, false) == null, "%s must omit already-owned hero outfits" % upgrade_product_id)
+			var gear_grid := detail.find_child("DetailArsenalGearGrid", true, false) as GridContainer
+			_expect(gear_grid != null and gear_grid.get_child_count() == 4, "%s must enumerate all four missing arsenal items" % upgrade_product_id)
+			var action := detail.find_child("PurchaseButton", true, false) as Button
+			_expect(action != null and action.text.contains("US$4.99"), "%s detail must retain the discounted upgrade price" % upgrade_product_id)
+		upgrade_store.call("_close_product_detail")
+		await process_frame
+	upgrade_store.queue_free()
 	router.queue_free()
 	await process_frame
 	localization_manager.apply_language(original_language, false)
@@ -2246,7 +2594,12 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var original_language := str(localization_manager.current_language)
 	var test_save: Dictionary = original_save.duplicate(true)
-	test_save["levels_progress"] = {"level_099": 3}
+	test_save["levels_progress"] = {
+		"level_030": 3,
+		"level_050": 3,
+		"level_080": 3,
+		"level_099": 3,
+	}
 	test_save["equipment"]["vanguard"] = 40
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
 	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
@@ -2354,6 +2707,7 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 	theme_manager.refresh_from_save()
 
 func _verify_power_skill_level_accounting(save_manager: Node) -> void:
+	var data_loader := save_manager.get_node("/root/DataLoader")
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var base_save: Dictionary = _battle_smoke_loadout(original_save)
 	var equipment: Dictionary = base_save.get("equipment", {}).duplicate(true)
@@ -2365,7 +2719,24 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	base_save["skill_base_levels"] = {}
 	base_save["sig_skill_levels"] = {}
 	save_manager.save_data = base_save
-	var base_power := int(save_manager.get_loadout_power())
+	var base_power := int(save_manager.get_power_for_level("level_097"))
+	var fixed_recommendation := int(save_manager.get_recommended_power_for_level("level_097"))
+	var level97: Dictionary = data_loader.get_row("levels", "level_097")
+	var fixed_projection: Dictionary = save_manager._projected_run_skill_levels_for_profile(
+		int(level97.get("target_card_picks", 4)),
+		str(level97.get("primary_weakness", "physical")),
+		"weapon_autocannon",
+		{},
+	)
+	_expect(not fixed_projection.is_empty(), "fixed recommendation must use the shared skill projector with an explicit reference profile")
+	var previous_upgrade_power := base_power
+	for skill_level in range(1, 6):
+		var step_save: Dictionary = base_save.duplicate(true)
+		step_save["skill_base_levels"] = {"skill_split_shot": skill_level}
+		save_manager.save_data = step_save
+		var step_power := int(save_manager.get_power_for_level("level_097"))
+		_expect(step_power >= previous_upgrade_power, "every permanent skill upgrade must keep player power monotonic; lv%d=%d previous=%d" % [skill_level, step_power, previous_upgrade_power])
+		previous_upgrade_power = step_power
 	var skilled_save: Dictionary = base_save.duplicate(true)
 	skilled_save["skill_base_levels"] = {
 		"skill_split_shot": 5,
@@ -2374,23 +2745,28 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	}
 	skilled_save["sig_skill_levels"] = {"vanguard": 4}
 	save_manager.save_data = skilled_save
-	var skilled_power := int(save_manager.get_loadout_power())
+	var skilled_power := int(save_manager.get_power_for_level("level_097"))
 	# design/28 乘法口径下低端绝对差被压缩(L1 裸装约 21),改按相对涨幅断言。
-	_expect(float(skilled_power) >= float(base_power) * 1.35, "loadout power must visibly account for passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
-	var projected_power := int(save_manager.get_projected_combat_power_for_level("level_097"))
-	var final_power := int(save_manager.get_combat_power_for_skill_levels({
-		"skill_split_shot": 5,
-		"skill_pierce": 5,
-		"skill_multishot": 5,
-		"skill_critical": 5,
-		"skill_salvo": 5,
-	}))
-	_expect(projected_power > skilled_power, "ten-card late levels must expose projected combat growth beyond standing power; standing=%d projected=%d" % [skilled_power, projected_power])
-	_expect(final_power > skilled_power, "actual run skill levels must produce a distinct final combat power; standing=%d final=%d" % [skilled_power, final_power])
-	# design/28: recommended power is the per-level minimum-clear line mapped
-	# through the player's own power pipeline. These floors only confirm the
-	# clear line keeps growing into the late campaign under the new scale
-	# (measured at the time of writing: level_068 ~700+, level_097 ~1900+).
+	_expect(float(skilled_power) >= float(base_power) * 1.35, "power must visibly account for current passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
+	_expect(int(save_manager.get_recommended_power_for_level("level_097")) == fixed_recommendation, "skill upgrades must not move a level's fixed recommended power")
+	var alternate_save: Dictionary = skilled_save.duplicate(true)
+	var alternate_equipment: Dictionary = alternate_save.get("equipment", {}).duplicate(true)
+	alternate_equipment["selected_character"] = "volt"
+	alternate_equipment["selected_weapon"] = "weapon_teslacoil"
+	alternate_equipment["volt"] = 40
+	alternate_equipment["weapon_teslacoil"] = 50
+	alternate_save["equipment"] = alternate_equipment
+	save_manager.save_data = alternate_save
+	_expect(int(save_manager.get_recommended_power_for_level("level_097")) == fixed_recommendation, "changing character or weapon must not move a level's fixed recommended power")
+	var fixed_projection_after_save_change: Dictionary = save_manager._projected_run_skill_levels_for_profile(
+		int(level97.get("target_card_picks", 4)),
+		str(level97.get("primary_weakness", "physical")),
+		"weapon_autocannon",
+		{},
+	)
+	_expect(fixed_projection_after_save_change == fixed_projection, "fixed recommendation projection must be identical across player saves")
+	# Recommended power remains a level-authored minimum-clear line and grows with
+	# campaign pressure, while the one player power value grows with current skills.
 	var level68_power := int(save_manager.get_recommended_power_for_level("level_068"))
 	_expect(level68_power >= 450, "level_068 clear-line power must scale into the late campaign, got %d" % level68_power)
 	var level97_power := int(save_manager.get_recommended_power_for_level("level_097"))
@@ -2400,17 +2776,10 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
-# design/28 验收电池:推荐战力 = 每关"恰好能通关"线(1★能过口径,数据来自
-# generate_clear_requirements.py 落表),预计成型/推荐 的比值是"相对通关线的余量"。
-# 采样断言(带宽按 2026-08-04 实测标定,探针记录见 design/28):
-# 1. 按节奏构筑族(角色/武器/芯片=recommend_level+专属技同族):比值 ∈ [1.05, 1.85]
-#    ——按节奏玩家在通关线上方留有真实的 2★ 余量,且永不触发"打不过"警告
-# 2. Owner 实测惨胜构筑(角色1级+雷霆四件套1级):level_013 比值 ∈ [1.05, 1.45]
-#    (已知模型边界:静态折算对低等级付费套偏乐观,实战为 1★ 贴线)
-# 3. 元素错配:按节奏物理构筑打 level_055(虚空幻影免疫物理)比值 < 0.95,
-#    警告必须触发——错配不再隐身
-# 4. 远落后构筑(等级=recommend_level 一半)在后期关比值 < 1.0,警告仍然生效
-# 5. 满配付费四件套 ÷ 满配同元素免费:战力比 ∈ [1.45, 1.65](design/25 合同带)
+# Owner 2026-08-14 验收电池：玩家仍只看到一个战力，但内部严格取
+# 清群 / Boss / 防线三条比值的最短板。两个实战锚点固定住这次修复：
+# - 99 关满级免费最强物理：4770 / 推荐 4097，Boss 是短板；
+# - 55 关截图配置：401 / 推荐 425，防线是短板，必须预警。
 func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
 	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
 	var cushion_min := float(gate_probe.CLEAR_LINE_CUSHION_MIN_RATIO)
@@ -2419,41 +2788,39 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	_expect(warning_gate > cushion_min, "the warning gate must sit above the cushion floor")
 	_expect(absf(warning_gate - 1.0) <= 0.001, "design/28: the warning gate IS the clear line (ratio 1.0)")
 
+	for level_id in ["level_001", "level_013", "level_055", "level_085", "level_099"]:
+		var contract: Dictionary = data_loader.get_row("levels", level_id).get("clear_requirement", {}).get("power_contract", {})
+		_expect(str(contract.get("model", "")) == "bottleneck_v3", "%s must carry a bottleneck_v3 power contract" % level_id)
+		_expect(float(contract.get("crowd_capacity", 0.0)) > 0.0, "%s crowd contract must be positive" % level_id)
+		_expect(float(contract.get("line_capacity", 0.0)) >= 1.0, "%s line contract must be valid" % level_id)
+
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
-	var sample_levels := ["level_002", "level_013", "level_025", "level_040", "level_050", "level_070", "level_085", "level_099"]
-	for level_id in sample_levels:
-		var level: Dictionary = data_loader.get_row("levels", level_id)
-		var recommend_level: int = int(level.get("recommend_level", 1))
-		_apply_calibration_family(save_manager, original_save, recommend_level)
-		var recommended := int(save_manager.get_recommended_power_for_level(level_id))
-		var on_pace_power := int(save_manager.get_projected_combat_power_for_level(level_id))
-		var on_pace_ratio := float(on_pace_power) / maxf(float(recommended), 1.0)
-		_expect(on_pace_ratio >= 1.05 and on_pace_ratio <= 1.85, "%s on-pace family margin over the clear line must stay in the measured band [1.05,1.85], got %.3f" % [level_id, on_pace_ratio])
-		_expect(on_pace_ratio >= warning_gate, "%s on-pace family must never trip the below-clear-line warning, got %.3f" % [level_id, on_pace_ratio])
+	var all_max_skills: Dictionary = {}
+	for skill_id_var in data_loader.get_table("skills").keys():
+		var skill_id := str(skill_id_var)
+		all_max_skills[skill_id] = save_manager._power_skill_max_level(data_loader.get_row("skills", skill_id))
 
-	# Owner 实测惨胜构筑
-	_apply_calibration_build(save_manager, original_save, "vanguard", 1, "weapon_apocalypse_thunder", 1, "armor_apocalypse_conductor", 1, "chip_apocalypse_superconductive", 1, "pet_apocalypse_tempest", 1, 0)
-	var owner_ratio := float(save_manager.get_projected_combat_power_for_level("level_013")) / maxf(float(save_manager.get_recommended_power_for_level("level_013")), 1.0)
-	_expect(owner_ratio >= 1.05 and owner_ratio <= 1.45, "owner 1-star scenario (L1 thunder set at level_013) must read just-above-the-line, got %.3f" % owner_ratio)
+	_apply_calibration_build(save_manager, original_save, "vanguard", 40, "weapon_scattergun", 50, "armor_kevlar", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
+	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
+	var final_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_099")
+	_expect(int(final_breakdown.get("power", 0)) == 4770, "level_099 max-free power must be 4770, got %d" % int(final_breakdown.get("power", 0)))
+	_expect(int(final_breakdown.get("recommended", 0)) == 4097, "level_099 recommendation must include both runtime bosses, got %d" % int(final_breakdown.get("recommended", 0)))
+	_expect(str(final_breakdown.get("power_bottleneck", "")) == "boss", "level_099 max-free bottleneck must be Boss")
+	var final_ratios: Dictionary = final_breakdown.get("power_ratios", {})
+	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1643) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.164")
 
-	# 元素错配:物理按节奏族打免疫物理的虚空幻影关
-	var rec55: int = int(data_loader.get_row("levels", "level_055").get("recommend_level", 1))
-	_apply_calibration_family(save_manager, original_save, rec55)
-	var mismatch_ratio := float(save_manager.get_projected_combat_power_for_level("level_055")) / maxf(float(save_manager.get_recommended_power_for_level("level_055")), 1.0)
-	_expect(mismatch_ratio < 0.95, "physical on-pace family vs the physical-immune boss level must fall below the clear line, got %.3f" % mismatch_ratio)
+	_apply_calibration_build(save_manager, original_save, "blaze", 40, "weapon_apocalypse_inferno", 17, "armor_apocalypse_molten", 4, "chip_apocalypse_stellar", 21, "pet_apocalypse_phoenix", 15, 5)
+	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
+	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_055")
+	_expect(int(observed_breakdown.get("power", 0)) == 401, "observed level_055 build must read 401, got %d" % int(observed_breakdown.get("power", 0)))
+	_expect(int(observed_breakdown.get("recommended", 0)) == 425, "level_055 recommendation must remain 425")
+	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "observed level_055 build must expose the defence line as its internal bottleneck")
+	_expect(float(observed_breakdown.get("power", 0)) / 425.0 < warning_gate, "observed level_055 build must trigger the below-clear-line warning")
 
-	# 远落后构筑在后期关必须触发警告
-	_apply_calibration_family(save_manager, original_save, int(float(data_loader.get_row("levels", "level_085").get("recommend_level", 43)) * 0.5))
-	var behind_ratio := float(save_manager.get_projected_combat_power_for_level("level_085")) / maxf(float(save_manager.get_recommended_power_for_level("level_085")), 1.0)
-	_expect(behind_ratio < warning_gate, "a half-pace build at level_085 must trip the below-clear-line warning, got %.3f" % behind_ratio)
-
-	# 付费合同带:满配雷霆四件套 vs 满配同元素免费(volt)
-	_apply_calibration_build(save_manager, original_save, "volt", 40, "weapon_teslacoil", 50, "armor_reactive", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
-	var free_power := float(save_manager.get_loadout_power())
-	_apply_calibration_build(save_manager, original_save, "volt", 40, "weapon_apocalypse_thunder", 50, "armor_apocalypse_conductor", 35, "chip_apocalypse_superconductive", 35, "pet_apocalypse_tempest", 30, 5)
-	var paid_power := float(save_manager.get_loadout_power())
-	var paid_ratio := paid_power / maxf(free_power, 1.0)
-	_expect(paid_ratio >= 1.45 and paid_ratio <= 1.65, "maxed thunder set over maxed free lightning build must land in the design/25 contract band [1.45,1.65], got %.3f" % paid_ratio)
+	var level99: Dictionary = data_loader.get_row("levels", "level_099")
+	_expect(level99.get("runtime_bosses", []).size() == 1, "level_099 must author its second runtime Boss in levels.json")
+	_expect(str(level99.get("runtime_bosses", [])[0].get("type", "")) == "boss_tank_titan", "level_099 runtime Boss must be Tank Titan")
+	_expect(level99.get("guaranteed_card_offers", []).size() >= 1, "level_099 must guarantee a defensive card offer")
 	save_manager.save_data = original_save
 
 # design/29 Phase A regression battery. These checks deliberately use the authored
@@ -2492,6 +2859,13 @@ func _verify_character_power_identity_model(save_manager: Node, data_loader: Nod
 	) * (1.0 + float(blaze_affinity.get("status_bonus", 0.0)) * 0.28) * (1.0 + blaze_radius * 0.0001)
 	var measured_blaze := float(save_manager._bullet_affinity_multiplier(blaze, flamethrower, 40))
 	_expect(absf(measured_blaze - expected_blaze) <= 0.0001, "design/29: blaze affinity must include rank damage, status, and splash radius; expected %.5f got %.5f" % [expected_blaze, measured_blaze])
+	var local_coverage_blaze := blaze.duplicate(true)
+	var local_coverage_active: Dictionary = local_coverage_blaze.get("active_skill", {}).duplicate(true)
+	local_coverage_active["coverage_mode"] = "local"
+	local_coverage_blaze["active_skill"] = local_coverage_active
+	var battlefield_active_power := float(save_manager._active_skill_offense_multiplier(blaze, 40, 5))
+	var local_active_power := float(save_manager._active_skill_offense_multiplier(local_coverage_blaze, 40, 5))
+	_expect(absf(battlefield_active_power - local_active_power) <= 0.0001, "Blaze battlefield coverage must not inflate displayed single-target power")
 
 	var frost_affinity: Dictionary = frost.get("bullet_affinity", {})
 	var frost_shatter := float(frost_affinity.get("shatter_bonus", 0.0)) + 0.04 * 3.0
@@ -2574,8 +2948,12 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 	_expect(card_panel.process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
 	_expect(not battle.wave_toast_banner.visible, "card offer must clear any wave or onboarding toast behind the modal")
 	_expect(battle.pending_wave_toast.is_empty(), "card offer must clear queued wave toasts so they do not reappear under the modal")
-	_expect(card_panel.size.y >= 1240.0 and card_panel.size.y <= 1280.0, "card offer panel should use more of the tall-screen vertical space without becoming full-screen")
-	_expect(card_panel.position.y >= 330.0 and card_panel.position.y + card_panel.size.y <= 1630.0, "card offer panel must sit lower while leaving battle context visible above and below")
+	_expect(card_panel.size.y >= 1240.0 and card_panel.size.y <= 1370.0, "card offer panel should use more of the tall-screen vertical space without becoming full-screen")
+	var card_bounds: Vector2 = battle._card_offer_vertical_bounds()
+	var card_center_y := card_panel.position.y + card_panel.size.y * 0.5
+	var battlefield_center_y := (card_bounds.x + card_bounds.y) * 0.5
+	_expect(absf(card_center_y - battlefield_center_y) <= 1.0, "card offer panel must remain vertically centered between the top combat controls and the real breach line")
+	_expect(card_panel.position.y >= card_bounds.x - 1.0 and card_panel.position.y + card_panel.size.y <= card_bounds.y + 1.0, "card offer panel must stay inside its centered battlefield corridor")
 	var cards := card_panel.get_node("Cards") as Control
 	_expect(cards.size.y >= 920.0, "card offer list must give three skill cards enough vertical breathing room")
 	for card_node in cards.get_children():
@@ -2816,7 +3194,17 @@ func _verify_pause_freezes_battle(battle: Node) -> void:
 		var button := pause_panel.get_node(button_path) as Control
 		var rect := Rect2(button.position, button.size)
 		_expect(rect.position.y >= 0.0 and rect.end.y <= pause_panel.size.y, "pause %s must stay inside the panel bounds" % button_path)
-		_expect(button.has_node("IconPlate") and button.has_node("ActionTitle") and button.has_node("ActionSub"), "pause %s must use icon plus title/subtitle styling" % button_path)
+		_expect(button.has_node("IconPlate") and button.has_node("ActionTitle") and button.has_node("ActionArrow"), "pause %s must use icon, single-line title and arrow styling" % button_path)
+		_expect(not button.has_node("ActionSub"), "pause %s must not squeeze a subtitle against the rendered lower frame" % button_path)
+		_expect(str(button.get_meta("pause_action_layout", "")) == "single_line", "pause %s must declare the approved single-line layout" % button_path)
+		var safe_rect := button.get_meta("pause_action_safe_rect", Rect2()) as Rect2
+		for child_name in ["IconPlate", "ActionTitle", "ActionArrow"]:
+			var child := button.get_node(child_name) as Control
+			var child_rect := Rect2(child.position, child.size)
+			_expect(safe_rect.encloses(child_rect), "pause %s/%s must stay inside the deepest five-theme frame safe area (safe=%s child=%s)" % [button_path, child_name, safe_rect, child_rect])
+		var action_title := button.get_node("ActionTitle") as Label
+		_expect(action_title.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "pause %s title must be vertically centered in its single row" % button_path)
+		_expect(absf((action_title.position.y + action_title.size.y * 0.5) - button.size.y * 0.5) <= 0.1, "pause %s title row must share the button centerline" % button_path)
 	battle._physics_process(1.0)
 	_expect(first_enemy.global_position.distance_to(enemy_pos) <= 0.1, "pause must freeze enemy movement even though Battle processes always")
 	_expect(absf(float(battle.spawn_timer) - spawn_timer_before) <= 0.001, "pause must not advance spawn timer")
@@ -2842,10 +3230,20 @@ func _verify_runtime_skill_hints(battle: Node) -> void:
 	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill long press must show a readable skill explanation")
 	battle._end_skill_hint_press()
 	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill explanation must stay visible after the long press ends")
+	_expect(float(battle.skill_hint_auto_hide_at) > Time.get_ticks_msec() / 1000.0, "active skill explanation must arm its three-second auto-dismiss deadline")
+	_expect(battle._consume_skill_hint_press(Vector2(540, 820)), "empty battlefield tap must be consumed as a skill-hint dismissal")
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "empty battlefield tap must dismiss the active skill explanation")
+	_expect(is_zero_approx(float(battle.skill_hint_auto_hide_at)), "manual skill-hint dismissal must clear its pending timeout")
 	# Mirror the BaseButton release signal so the one-shot suppression is
 	# consumed before the next independent active-skill regression.
 	battle._on_character_skill_pressed()
-	battle._hide_skill_hint()
+
+	battle._show_character_skill_hint()
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "active skill explanation must reopen for timeout regression")
+	battle.skill_hint_auto_hide_at = Time.get_ticks_msec() / 1000.0 - 0.01
+	battle._process(0.0)
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "active skill explanation must auto-dismiss after three seconds without input")
+	_expect(is_zero_approx(float(battle.skill_hint_auto_hide_at)), "automatic skill-hint dismissal must clear its deadline")
 
 	if battle.skills.level("skill_split_shot") <= 0:
 		_expect(battle.skills.add_skill("skill_split_shot"), "skill hint regression must seed a bottom skill slot")
@@ -2859,7 +3257,15 @@ func _verify_runtime_skill_hints(battle: Node) -> void:
 	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "owned skill hover must not cover combat before an explicit tap")
 	battle._begin_skill_hint_press("skill", "skill_split_shot")
 	battle._end_skill_hint_press()
-	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned skill must show a readable skill explanation")
+	_expect(not battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned skill must not open a hold-only explanation")
+	battle._begin_skill_hint_press("skill", "skill_split_shot")
+	battle.skill_hint_press_started_at -= 0.5
+	battle._process(0.0)
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "long pressing an owned skill must show a readable skill explanation")
+	battle._end_skill_hint_press()
+	var slot_center: Vector2 = (slot as Control).get_global_rect().get_center()
+	_expect(not battle._consume_skill_hint_press(slot_center), "another skill action must remain directly tappable while a hint is visible")
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "tapping another skill action must not be swallowed as an empty-space dismissal")
 	battle._hide_skill_hint()
 
 func _verify_wave_toast_wrapping(battle: Node) -> void:
@@ -2897,6 +3303,20 @@ func _verify_skill_runtime_mods(save_manager: Node) -> void:
 	var isolated_save: Dictionary = original_save.duplicate(true)
 	isolated_save["skill_base_levels"] = {}
 	save_manager.save_data = isolated_save
+	var progression_runtime := SkillRuntime.new()
+	var expected_extra_projectiles := [1, 2, 3, 3, 4]
+	var expected_lane_damage_bonus := [0.0, 0.0, 0.0, 0.08, 0.02]
+	for level_index in range(5):
+		_expect(progression_runtime.add_skill("skill_multishot"), "multishot level %d must be addable" % (level_index + 1))
+		var progression_mods: Dictionary = progression_runtime.projectile_mods()
+		_expect(
+			int(progression_mods.get("extra_projectiles", 0)) == int(expected_extra_projectiles[level_index]),
+			"multishot Lv%d must add %d projectiles" % [level_index + 1, expected_extra_projectiles[level_index]],
+		)
+		_expect(
+			absf(float(progression_mods.get("multishot_lane_damage_bonus", 0.0)) - float(expected_lane_damage_bonus[level_index])) <= 0.001,
+			"multishot Lv%d must expose the authored lane damage compensation" % (level_index + 1),
+		)
 	var runtime := SkillRuntime.new()
 	runtime.add_skill("skill_multishot")
 	runtime.add_skill("skill_salvo")
@@ -2926,6 +3346,13 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		4: 600.0,
 		5: 450.0,
 	}
+	var expected_slow := {
+		1: 0.30,
+		2: 0.40,
+		3: 0.50,
+		4: 0.60,
+		5: 0.80,
+	}
 	var battle := _instance("res://gameplay/battle/battle.tscn")
 	battle._spawn_slow_field_visual()
 	_expect(battle.slow_field_rect.name == "SlowFieldSurfaceTiles", "slow field must use the rendered tiled interior surface")
@@ -2933,7 +3360,17 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 	_expect(battle.slow_field_rect.texture_repeat == CanvasItem.TEXTURE_REPEAT_ENABLED, "slow field interior texture repeat must be enabled")
 	_expect(battle.slow_field_boundary != null and battle.slow_field_boundary.name == "SlowFieldZoneBoundary", "slow field must have an independent full-width non-radial threshold")
 	_expect(battle.slow_field_boundary.texture.resource_path.ends_with("vfx_slow_field_boundary_v3.png"), "slow field threshold must use the rendered V3 non-radial asset")
+	_expect(is_zero_approx(battle.slow_field_boundary.rotation), "slow field threshold must remain geometrically horizontal instead of rotating its full-width texture")
+	var boundary_level_material := battle.slow_field_boundary.material as ShaderMaterial
+	_expect(boundary_level_material != null, "slow field threshold must use the dedicated slope-leveling shader material")
+	if boundary_level_material != null:
+		_expect(boundary_level_material.shader.resource_path.ends_with("vfx_slow_field_boundary_level.gdshader"), "slow field threshold must use the dedicated non-destructive leveling shader")
+		_expect(absf(float(boundary_level_material.get_shader_parameter("slope_compensation_px")) - 18.0) <= 0.001, "slow field threshold must counter the authored right-edge drop by the approved 18px ruler")
+		_expect(absf(float(boundary_level_material.get_shader_parameter("gameplay_seam_y_px")) - battle.SLOW_FIELD_BOUNDARY_ANCHOR_Y) <= 0.001, "slow field threshold must draw its level seam on the exact gameplay slowdown boundary")
+		_expect(absf(float(boundary_level_material.get_shader_parameter("gameplay_seam_opacity")) - 0.34) <= 0.001, "slow field threshold must keep the horizontal reference seam readable but subordinate to the ice crest")
 	_expect(battle.slow_field_rect.texture.resource_path.ends_with("vfx_slow_field_surface_v3.png"), "slow field interior must use the rendered V3 quiet area tile")
+	_expect(battle.slow_field_particles.name == "SlowFieldSnowCrystals", "slow field particles must read as authored snow crystals rather than generic glow dots")
+	_expect(battle.slow_field_particles.texture.resource_path.ends_with("vfx_hit_ice.png"), "slow field snow must use the authored crystalline ice artwork")
 	var fixed_boundary_size: Vector2 = battle.slow_field_boundary.size
 	_expect(is_equal_approx(fixed_boundary_size.x, 1080.0), "slow field threshold must span the full battlefield width")
 	for entry_var in row.get("levels", []):
@@ -2950,9 +3387,11 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 		var runtime := SkillRuntime.new()
 		runtime.owned["skill_slow_field"] = lv
 		var slow_pct := float(effect.get("slow", 0.0))
+		_expect(absf(slow_pct - float(expected_slow[lv])) <= 0.001, "slow field Lv%d must use the approved %.0f%% slow, got %.0f%%" % [lv, float(expected_slow[lv]) * 100.0, slow_pct * 100.0])
 		_expect(is_equal_approx(runtime.slow_mult_for_y(expected - 1.0), 1.0), "slow field Lv%d runtime must not slow before y_min %.0f" % [lv, expected])
-		_expect(absf(runtime.slow_mult_for_y(expected + 1.0) - maxf(0.4, 1.0 - slow_pct)) <= 0.001, "slow field Lv%d runtime must slow after y_min %.0f" % [lv, expected])
+		_expect(absf(runtime.slow_mult_for_y(expected + 1.0) - maxf(SkillRuntime.SLOW_FIELD_MIN_SPEED_MULT, 1.0 - slow_pct)) <= 0.001, "slow field Lv%d runtime must slow after y_min %.0f" % [lv, expected])
 		battle._update_slow_field_visual(lv)
+		_expect(battle.slow_field_particles.amount >= battle.SLOW_FIELD_SNOW_MIN_AMOUNT, "slow field Lv%d must keep a readable minimum snow density" % lv)
 		_expect(battle.slow_field_boundary.size.is_equal_approx(fixed_boundary_size), "slow field Lv%d must move its full-width rendered threshold without stretching it" % lv)
 		_expect(absf(battle.slow_field_boundary.position.y - (expected - battle.SLOW_FIELD_BOUNDARY_ANCHOR_Y)) <= 0.001, "slow field Lv%d rendered threshold must follow the same data-driven y_min" % lv)
 		_expect(absf(battle.slow_field_rect.position.y - expected) <= 0.001, "slow field Lv%d area fill must begin at the real slowdown boundary" % lv)
@@ -2978,7 +3417,7 @@ func _verify_slow_field_range_contract(data_loader: Node) -> void:
 			continue
 		var effect: Dictionary = entry.get("effect", {})
 		var slow_pct := float(effect.get("slow", 0.0))
-		var expected_mult := maxf(0.45, 1.0 - slow_pct)
+		var expected_mult := maxf(SkillRuntime.SLOW_FIELD_MIN_SPEED_MULT, 1.0 - slow_pct)
 		enemy.position = Vector2(540.0, float(expected_y_min[lv]) + 1.0)
 		enemy.speed_mult = 1.0
 		battle.skills.owned["skill_slow_field"] = lv
@@ -3054,6 +3493,12 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 		_expect(not second_row.get("card_tags", []).has("economy"), "second card offer must not spend a slot on an economy card")
 		second_has_core = second_has_core or opening_director._matches_selected_loadout(second_row)
 	_expect(second_has_core, "second card offer must reinforce the selected-loadout identity")
+	var finale_director := CardDirector.new()
+	var finale_offer := finale_director.offer(data_loader.get_row("levels", "level_099"), {}, 3)
+	_expect(
+		finale_offer.has("skill_barrier") or finale_offer.has("skill_slow_field"),
+		"level_099 first offer must expose Barrier or Slow Field as its authored defence guarantee",
+	)
 	var physical_offers := director.offer({"card_bias": {}, "threat_tags": []}, {"skill_tesla": 1}, 16)
 	_expect(physical_offers.has("skill_tesla"), "physical weapon should continue upgrading the chosen ammo module")
 	_expect(not physical_offers.has("skill_venom"), "physical weapon must not offer a second ammo module after tesla is chosen")
@@ -3285,6 +3730,8 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 	_expect(absf(float(battle._multishot_damage_multiplier(4)) - 0.75) <= 0.001, "4 projectile lanes must use 25% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(5)) - 0.70) <= 0.001, "5 projectile lanes must use 30% falloff")
 	_expect(absf(float(battle._multishot_damage_multiplier(6)) - 0.70) <= 0.001, "projectile lanes above 5 must clamp at 30% falloff")
+	_expect(absf(float(battle._multishot_damage_multiplier(4, 0.08)) - 0.83) <= 0.001, "multishot Lv4 must compensate four-lane damage to 83% per projectile")
+	_expect(absf(float(battle._multishot_damage_multiplier(5, 0.02)) - 0.72) <= 0.001, "multishot Lv5 must retain bounded compensation at 72% per projectile")
 	for target in fake_targets:
 		battle.get_node("EnemyLayer").remove_child(target)
 		target.free()
@@ -3649,12 +4096,11 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 				_expect(battle.character_hurt_frames.size() == 3, "%s + %s must provide three rig-driven hurt beats" % [character_key, weapon_key])
 				for apocalypse_frame in [battle.character_attack_left_frames[0], battle.character_attack_frames[0], battle.character_attack_right_frames[0]]:
 					_expect((apocalypse_frame as Texture2D).get_size() == Vector2(380, 520), "%s + %s true-grip direction masters must preserve the 380x520 battle contract" % [character_key, weapon_key])
+				var apocalypse_reference_scale := float(battle._character_body_sprite_scale("center"))
 				for body_pose in ["left", "center", "right"]:
 					var body_metric: Dictionary = battle._character_body_metric(body_pose)
 					var body_scale: float = battle._character_body_sprite_scale(body_pose)
-					var effective_body_height: float = float(body_metric.get("body_height_px", 0.0)) * body_scale * float(battle.CHARACTER_PRESENTATION_SCALE)
-					var expected_body_height: float = float(battle._character_body_target_height()) * float(battle.CHARACTER_VISUAL_BASE_SCALE) * float(battle.CHARACTER_PRESENTATION_SCALE)
-					_expect(absf(effective_body_height - expected_body_height) <= 0.01, "%s + %s %s body height must normalize independently of gun/effects" % [character_key, weapon_key, body_pose])
+					_expect(absf(body_scale - apocalypse_reference_scale) <= 0.0001, "%s + %s %s must share one true-grip model scale" % [character_key, weapon_key, body_pose])
 					var body_anchor: Vector2 = battle._character_body_anchor_offset(body_pose, body_scale)
 					var body_foot_local := body_anchor.y + (float(body_metric.get("foot_y_px", 260.0)) - 260.0) * body_scale
 					_expect(absf(body_foot_local - battle._character_body_target_foot_offset()) <= 0.01, "%s + %s %s boots must share the global foot line" % [character_key, weapon_key, body_pose])
@@ -3683,12 +4129,14 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
 				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
 				_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
+				var standard_reference_scale := float(battle._character_body_sprite_scale("center"))
 				for body_pose in ["idle", "hurt", "left", "center", "right"]:
 					var body_metric: Dictionary = battle._character_body_metric(body_pose)
 					var body_scale: float = battle._character_body_sprite_scale(body_pose)
-					var effective_body_height: float = float(body_metric.get("body_height_px", 0.0)) * body_scale * float(battle.CHARACTER_PRESENTATION_SCALE)
-					var expected_body_height: float = float(battle._character_body_target_height()) * float(battle.CHARACTER_VISUAL_BASE_SCALE) * float(battle.CHARACTER_PRESENTATION_SCALE)
-					_expect(absf(effective_body_height - expected_body_height) <= 0.01, "%s + %s %s standard body height must stay global" % [character_key, weapon_key, body_pose])
+					_expect(absf(body_scale - standard_reference_scale) <= 0.0001, "%s + %s %s must share one static/firing model scale" % [character_key, weapon_key, body_pose])
+					var body_anchor: Vector2 = battle._character_body_anchor_offset(body_pose, body_scale)
+					var body_foot_local := body_anchor.y + (float(body_metric.get("foot_y_px", 260.0)) - 260.0) * body_scale
+					_expect(absf(body_foot_local - battle._character_body_target_foot_offset()) <= 0.01, "%s + %s %s boots must stay on the shared foot line" % [character_key, weapon_key, body_pose])
 				var expected_combo_origin: Vector2 = battle.character_rig.to_global(battle._character_combo_muzzle_for_aim())
 				_expect(battle._weapon_fire_origin().distance_to(expected_combo_origin) <= 1.0, "%s + %s projectile origin must use fused muzzle" % [character_key, weapon_key])
 				battle._set_character_combo_aim_from_direction(Vector2.UP)
@@ -3768,6 +4216,8 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._vanguard_railvolley_count(active)) >= base_vanguard_volleys + 2, "vanguard signature levels must add volleys")
 				_expect(int(battle._vanguard_railvolley_target_count(active)) >= base_vanguard_targets + 2, "vanguard signature levels must add targets")
 			"blaze":
+				_expect(str(active.get("coverage_mode", "local")) == "battlefield", "blaze meltdown must declare battlefield coverage in character data")
+				_expect(battle._blaze_meltdown_uses_battlefield(active), "blaze meltdown runtime must resolve authored battlefield coverage")
 				# Signature growth is authored as +5% of the skill's base radius
 				# per level. Compare that absolute authored contribution instead
 				# of multiplying the already level/rank-boosted radius; the old
@@ -3845,6 +4295,19 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 			var railvolley_damage := float(battle._vanguard_railvolley_damage(primary_damage))
 			_expect(railvolley_damage * 0.82 >= primary_damage, "railvolley multi-target hit must scale from current primary shot damage; got %.1f vs primary %.1f" % [railvolley_damage * 0.82, primary_damage])
 			battle.sig_vanguard_barrage_timer = 0.0
+		if character_key == "blaze":
+			var blaze_probes := [
+				battle._spawn_enemy_instance("zombie_shambler", Vector2(110, 260), false),
+				battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 840), false),
+				battle._spawn_enemy_instance("zombie_shambler", Vector2(970, 1360), false),
+			]
+			var blaze_probe_hp: Array[float] = []
+			for probe in blaze_probes:
+				blaze_probe_hp.append(float(probe.hp))
+			battle._blaze_meltdown_pulse(Vector2(540, 800), float(battle._blaze_meltdown_radius(active)), 1.0, 0, battle._blaze_meltdown_uses_battlefield(active))
+			for probe_index in range(blaze_probes.size()):
+				var probe = blaze_probes[probe_index]
+				_expect(is_instance_valid(probe) and float(probe.hp) < blaze_probe_hp[probe_index], "blaze battlefield pulse must damage far-separated probe %d" % probe_index)
 		var frost_probe = null
 		var frost_probe_hp_before := 0.0
 		if character_key == "frost":
@@ -3895,7 +4358,7 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		var cooldown_after_ready_tap := float(battle.character_active_cd)
 		battle._on_character_skill_pressed()
 		await process_frame
-		_expect(battle.has_node("Hud/SkillHintOverlay") and battle.get_node("Hud/SkillHintOverlay").visible, "%s second tap during cooldown must show the active-skill description" % character_key)
+		_expect(battle.has_node("Hud/SkillHintOverlay") and not battle.get_node("Hud/SkillHintOverlay").visible, "%s short tap during cooldown must not open a hold-only description" % character_key)
 		_expect(int(battle.battle_active_skill_casts) == cast_count_after_ready_tap, "%s cooldown inspect tap must not cast again" % character_key)
 		_expect(float(battle.character_active_cd) <= cooldown_after_ready_tap and float(battle.character_active_cd) > 0.0, "%s cooldown inspect tap must not reset the cooldown" % character_key)
 		battle.character_active_cd = 0.0
@@ -3994,7 +4457,12 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	_expect((slot.get_node("HBox/LevelBadge") as Label).get_theme_font_size("font_size") >= 23, "HUD skill level must use the new mobile-readable size")
 	battle._begin_skill_hint_press("skill", "skill_tesla")
 	battle._end_skill_hint_press()
-	_expect(battle.has_node("Hud/SkillHintOverlay") and battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned HUD skill must open its detail hint")
+	_expect(battle.has_node("Hud/SkillHintOverlay") and not battle.get_node("Hud/SkillHintOverlay").visible, "single tapping an owned HUD skill must not open its hold-only detail hint")
+	battle._begin_skill_hint_press("skill", "skill_tesla")
+	battle.skill_hint_press_started_at -= 0.5
+	battle._process(0.0)
+	_expect(battle.get_node("Hud/SkillHintOverlay").visible, "long pressing an owned HUD skill must open its detail hint")
+	battle._end_skill_hint_press()
 	battle._hide_skill_hint()
 	_expect(battle.skills.add_skill("skill_tesla"), "adding tesla once must upgrade the existing slot")
 	battle._update_skill_slots()
@@ -4012,6 +4480,51 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	var first_card := slots.get_child(0) as Control
 	var sixth_card := slots.get_child(5) as Control
 	_expect(sixth_card.position.y >= first_card.position.y + 120.0, "sixth skill must wrap below the first row without overlap")
+	battle.queue_free()
+	save_manager.save_data = original_save
+	router.queue_free()
+	await process_frame
+
+func _verify_card_offer_permanent_level_preload(save_manager: Node) -> void:
+	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var test_save: Dictionary = original_save.duplicate(true)
+	test_save["skill_base_levels"] = {"skill_multishot": 4}
+	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
+	equipment["selected_character"] = "vanguard"
+	equipment["selected_weapon"] = "weapon_autocannon"
+	equipment["vanguard"] = maxi(1, int(equipment.get("vanguard", 1)))
+	equipment["weapon_autocannon"] = maxi(1, int(equipment.get("weapon_autocannon", 1)))
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_001"})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	_expect(battle.skills.level("skill_multishot") == 0, "permanent skill levels must not auto-own every skill before it is picked")
+	_expect(battle._skill_offer_level("skill_multishot") == 4, "an unowned level-4 permanent skill must preview its real level 4 on first pick")
+	var row: Dictionary = root.get_node("/root/DataLoader").get_row("skills", "skill_multishot")
+	var card: Panel = battle._build_skill_card("skill_multishot", row, "多重射击", battle._skill_offer_level("skill_multishot"))
+	var badge := card.get_node("LevelBadge").get_child(0) as Label
+	_expect(badge != null and badge.text == "等级 4", "the multishot card badge must display permanent level 4 before acquisition")
+	_expect((card.get_node("Stats") as Label).text == SkillEffectText.format_offer_block(row, 4, 0), "the card's current-value block must use permanent level-4 effects")
+	card.queue_free()
+	_expect(battle.skills.add_skill("skill_multishot"), "level-4 permanent multishot must be acquirable")
+	_expect(battle.skills.level("skill_multishot") == 4, "first acquisition must preload multishot directly at permanent level 4")
+	var level4_mods: Dictionary = battle.skills.projectile_mods()
+	_expect(int(level4_mods.get("extra_projectiles", 0)) == 3, "preloaded multishot must immediately apply its current level-4 projectile value")
+	_expect(absf(float(level4_mods.get("multishot_lane_damage_bonus", 0.0)) - 0.08) <= 0.001, "preloaded multishot Lv4 must apply its lane damage compensation")
+	battle._update_skill_slots()
+	await process_frame
+	var slot_badge := battle.get_node("Hud/SkillSlots/skill_multishot/HBox/LevelBadge") as Label
+	_expect(slot_badge != null and slot_badge.text == "等级4", "battle HUD must show level 4 immediately after the first multishot pick")
+	_expect(battle._skill_offer_level("skill_multishot") == 5, "a later multishot card must preview the next runtime level after the permanent baseline")
+	_expect(battle.skills.add_skill("skill_multishot") and battle.skills.level("skill_multishot") == 5, "the second multishot pick must upgrade level 4 to level 5")
+	var level5_mods: Dictionary = battle.skills.projectile_mods()
+	_expect(int(level5_mods.get("extra_projectiles", 0)) == 4, "multishot Lv5 must increase from four total lanes to five")
+	_expect(absf(float(level5_mods.get("multishot_lane_damage_bonus", 0.0)) - 0.02) <= 0.001, "multishot Lv5 must retain the bounded lane damage compensation")
 	battle.queue_free()
 	save_manager.save_data = original_save
 	router.queue_free()
@@ -4142,6 +4655,7 @@ func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 
 func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 	var zombies: Dictionary = data_loader.get_table("zombies")
+	var audio_manager := root.get_node("/root/AudioManager")
 	var required_params := {
 		"zombie_runner": ["dash_interval", "dash_advance", "damage_coef"],
 		"zombie_spitter": ["skill_interval", "damage_coef"],
@@ -4163,8 +4677,20 @@ func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 		var params: Dictionary = zombies[zombie_id].get("mechanic_params", {})
 		for key in required_params[zombie_id]:
 			_expect(params.has(key), "%s mechanic params must include %s" % [zombie_id, key])
-
 	var battle := _instance("res://gameplay/battle/battle.tscn")
+	for zombie_id_var in zombies.keys():
+		var zombie_id := str(zombie_id_var)
+		var mechanic := str((zombies[zombie_id] as Dictionary).get("mechanic", ""))
+		_expect(not battle._zombie_event_sfx(mechanic, "action").is_empty(), "%s action must resolve exactly one mechanic cue" % zombie_id)
+		_expect(battle._zombie_event_sfx(mechanic, "death") == "enemy_death", "%s death must use the shared death cue instead of replaying its mechanic" % zombie_id)
+		_expect(battle._zombie_event_sfx(mechanic, "entry").is_empty(), "%s entry must remain silent instead of replaying its mechanic" % zombie_id)
+		_expect(battle._zombie_event_sfx(mechanic, "ambient").is_empty(), "%s ambient loop must remain silent" % zombie_id)
+		_expect(battle._zombie_event_sfx(mechanic, "passive").is_empty(), "%s passive visual feedback must remain silent" % zombie_id)
+	_expect(audio_manager.ENEMY_FOLEY_GROUP == "enemy_foley", "all zombie and defense feedback must share one exclusive foley lane")
+	_expect(audio_manager.enemy_sfx_interrupts_current("enemy_breach"), "real base contact must interrupt the current zombie action tail")
+	_expect(audio_manager.enemy_sfx_interrupts_current("threat_warning"), "defense warning must interrupt lower-priority zombie chatter")
+	_expect(audio_manager.enemy_sfx_interrupts_current("hit_immune"), "base barrier contact must interrupt the current zombie action tail")
+	_expect(not audio_manager.enemy_sfx_interrupts_current("zombie_runner"), "ordinary zombie actions must not replace an already audible enemy action")
 	var kind_to_vfx := {
 		"runner_dash": "vfx_threat_warning.png",
 		"leap_strike": "vfx_threat_warning.png",
@@ -4209,6 +4735,29 @@ func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 		is_equal_approx(battle._directional_vfx_rotation("vfx_hit_physical", Vector2.DOWN, 0.37), 0.37),
 		"radial/non-directional VFX must preserve their authored fallback rotation"
 	)
+	_expect(battle._zombie_mechanic_sfx("phase") == "zombie_phantom", "ordinary phase blink must route to the wind-cut SFX")
+	_expect(battle._zombie_mechanic_sfx("phase_shift") == "zombie_phantom", "boss phase shift must route to the wind-cut SFX")
+	_expect(battle._zombie_mechanic_sfx("charge") == "zombie_phantom", "pangolin-like charger movement must route to the wind-cut SFX")
+	_expect(battle._enemy_advance_warning_sfx("phase").is_empty(), "phase blink must not layer the legacy generic warning cue")
+	_expect(battle._enemy_advance_warning_sfx("charge").is_empty(), "far charger movement must not layer the legacy impact-like warning cue")
+	_expect(battle._enemy_advance_warning_sfx("runner_dash").is_empty(), "runner dash must not layer a generic warning over its movement cue")
+	_expect(battle._enemy_advance_warning_sfx("leap_strike").is_empty(), "hopper leap must not layer a generic warning over its movement cue")
+	_expect(battle._enemy_skill_base_impact_sfx("phase").is_empty(), "phase slip damage must not fake a physical barricade impact")
+	_expect(battle._enemy_skill_base_impact_sfx("charge") == "enemy_breach", "physical charge damage must retain barricade contact")
+	var charger_trigger_y := float(zombies["zombie_charger"].get("mechanic_params", {}).get("trigger_y", 660.0))
+	_expect(not battle._enemy_advance_reaches_base(charger_trigger_y), "far charger movement must not enter the base-damage/contact branch")
+	_expect(battle._enemy_advance_reaches_base(battle._base_line_inner_y(battle.BASE_LINE_DEFAULT_SLOW_FIELD_INSET)), "charger contact that begins at the base-pressure band must retain real base damage")
+	_expect(battle._boss_attack_motion_sfx("dash_combo") == "zombie_phantom", "Void Phantom dash attacks must announce their phase motion before impact")
+	_expect(battle._boss_attack_motion_sfx("melee_heavy").is_empty(), "non-phase boss attacks must not inherit the phase whoosh")
+	var bosses: Dictionary = data_loader.get_table("bosses")
+	for boss_id in bosses.keys():
+		var boss_row: Dictionary = bosses[boss_id]
+		if str(boss_row.get("mechanic", "")) == "phase_shift":
+			var base_profile: Dictionary = boss_row.get("mechanic_params", {}).get("base_attack_profile", {})
+			_expect(
+				battle._boss_attack_motion_sfx(str(base_profile.get("mode", ""))) == "zombie_phantom",
+				"%s phase-shift attack motion must route to the wind-cut SFX" % boss_id
+			)
 	var target := FakeAimTarget.new()
 	target.breach_damage = 20
 	battle.breach_damage_mult = 0.5
@@ -4279,6 +4828,22 @@ func _verify_zombie_model_redesigns(data_loader: Node) -> void:
 func _verify_zombie_attack_animation_contracts(data_loader: Node) -> void:
 	var enemy_scene := load("res://gameplay/enemy/enemy.tscn") as PackedScene
 	_expect(enemy_scene != null, "zombie attack contract check must load enemy.tscn")
+	var attack_sfx_by_mode := {
+		"rapid_claw": "enemy_attack_fast_claw", "claw_combo": "enemy_attack_fast_claw",
+		"low_bite": "enemy_attack_bite",
+		"heavy_slam": "enemy_attack_heavy_slam", "shoulder_ram": "enemy_attack_heavy_slam",
+		"shield_bash": "enemy_attack_heavy_slam", "piston_slam": "enemy_attack_heavy_slam",
+		"wedge_ram": "enemy_attack_heavy_slam", "triple_maul": "enemy_attack_heavy_slam",
+		"mutant_hook": "enemy_attack_heavy_slam",
+		"core_blast": "enemy_attack_blast",
+		"acid_spit": "enemy_attack_corrosion", "corrosion_burst": "enemy_attack_corrosion",
+		"regen_hook": "enemy_attack_corrosion",
+		"sonic_burst": "enemy_attack_support", "ritual_strike": "enemy_attack_support",
+		"ward_pulse": "enemy_attack_support",
+		"claw_drag": "enemy_attack_claw", "leap_rake": "enemy_attack_claw",
+		"phase_slash": "enemy_attack_claw",
+	}
+	var attack_sfx_families := {}
 	for zombie_id_var in data_loader.get_table("zombies").keys():
 		var zombie_id := str(zombie_id_var)
 		var row: Dictionary = data_loader.get_row("zombies", zombie_id)
@@ -4293,7 +4858,13 @@ func _verify_zombie_attack_animation_contracts(data_loader: Node) -> void:
 		enemy.call("setup", row, 1.0, false)
 		var frames: Array = enemy.get("_attack_frames")
 		_expect(frames.size() == 8, "%s must import all 8 attack frames" % zombie_id)
-		var events := {"breaches": 0}
+		var attack_sfx_id := str(attack_sfx_by_mode.get(str(attack.get("mode", "")), ""))
+		_expect(not attack_sfx_id.is_empty(), "%s must resolve a zombie attack-action SFX before base contact" % zombie_id)
+		attack_sfx_families[attack_sfx_id] = true
+		var events := {"started": 0, "breaches": 0}
+		enemy.base_attack_started.connect(func(_source: Node, _profile: Dictionary) -> void:
+			events["started"] = int(events["started"]) + 1
+		)
 		enemy.breached.connect(func(_source: Node, _damage: int) -> void:
 			events["breaches"] = int(events["breaches"]) + 1
 		)
@@ -4303,6 +4874,10 @@ func _verify_zombie_attack_animation_contracts(data_loader: Node) -> void:
 		_expect(
 			bool(enemy.get("_normal_attack_sequence_active")),
 			"%s must begin a contact-timed attack state" % zombie_id
+		)
+		_expect(
+			int(events["started"]) == 1,
+			"%s must emit one attack-action cue at wind-up before base contact" % zombie_id
 		)
 		_expect(
 			int(events["breaches"]) == 0,
@@ -4338,6 +4913,9 @@ func _verify_zombie_attack_animation_contracts(data_loader: Node) -> void:
 			"%s must leave the attack state after recovery" % zombie_id
 		)
 		enemy.free()
+	_expect(attack_sfx_families.size() >= 7, "ordinary zombies must span at least seven distinct attack-action SFX families")
+	_expect(str(AudioManager.SFX.get("enemy_breach", "")).ends_with("sfx_enemy_breach.wav"), "base contact must retain its dedicated realistic barricade SFX")
+	_expect(str(AudioManager.SFX.get("zombie_phantom", "")).ends_with("sfx_zombie_phantom.wav"), "phase blink must retain its dedicated wind-cut SFX")
 
 func _color_close(a: Color, b: Color, tolerance := 0.01) -> bool:
 	return absf(a.r - b.r) <= tolerance and absf(a.g - b.g) <= tolerance and absf(a.b - b.b) <= tolerance and absf(a.a - b.a) <= tolerance
@@ -4488,6 +5066,97 @@ func _verify_battle_speed_stress(save_manager: Node) -> void:
 	router.queue_free()
 	await process_frame
 
+func _verify_resource_chip_theme_matrix(theme_manager: Node) -> void:
+	var original_theme_id := str(theme_manager.active_theme_id())
+	var fixture_host := Control.new()
+	fixture_host.name = "ResourceChipThemeFixture"
+	fixture_host.position = Vector2(-2200.0, -2200.0)
+	fixture_host.size = Vector2(904.0, 58.0)
+	root.add_child(fixture_host)
+	for theme_id in ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
+		theme_manager._set_active_without_persist(theme_id)
+		var bar := UiKit.standard_resource_bar(31612, 37, 12172, 38, Vector2(174, 58), 25)
+		bar.name = "ResourceBar_" + theme_id
+		bar.size = fixture_host.size
+		bar.add_theme_constant_override("separation", 12)
+		fixture_host.add_child(bar)
+		await process_frame
+		_assert_resource_chip_geometry(bar, "%s resource chips" % theme_id, theme_id)
+		bar.queue_free()
+		await process_frame
+	theme_manager._set_active_without_persist(original_theme_id)
+	fixture_host.queue_free()
+	await process_frame
+
+func _verify_combo_hud_optical_layout() -> void:
+	var fixture := Control.new()
+	fixture.name = "ComboHudOpticalFixture"
+	fixture.set_script(load("res://gameplay/hud/combo_hud.gd"))
+	var label_node := Label.new()
+	label_node.name = "Label"
+	fixture.add_child(label_node)
+	var milestone_node := Label.new()
+	milestone_node.name = "Milestone"
+	fixture.add_child(milestone_node)
+	var timer_node := Timer.new()
+	timer_node.name = "DecayTimer"
+	fixture.add_child(timer_node)
+	fixture.position = Vector2(-2200.0, -2200.0)
+	root.add_child(fixture)
+	await process_frame
+	var frame := fixture.get_node_or_null("Frame") as Panel
+	var label := fixture.get_node_or_null("Label") as Label
+	_expect(frame != null and label != null, "combo HUD must expose its authored frame and main label")
+	if frame != null and label != null:
+		_expect(label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "combo HUD label must retain vertical alignment")
+		_expect(label.autowrap_mode == TextServer.AUTOWRAP_OFF, "combo HUD text must remain a single centered line")
+		_expect(absf(float(label.get_meta("combo_optical_center_y", 0.0)) + 4.0) <= 0.1, "combo HUD must keep the owner-approved four-pixel upward glyph correction")
+		_expect(absf(label.get_rect().get_center().y - frame.get_rect().get_center().y + 4.0) <= 0.1, "combo HUD label lane must derive from the plate center plus its optical correction")
+		for count in [2, 11, 100]:
+			label.text = "%d 连击" % count
+			_expect(not label.text.contains("\n"), "combo HUD %d-hit copy must remain on one line" % count)
+	fixture.queue_free()
+	await process_frame
+
+func _assert_resource_chip_geometry(row: Node, context: String, expected_theme_id: String) -> void:
+	_expect(row != null, "%s must exist" % context)
+	if row == null:
+		return
+	var chips_checked := 0
+	for chip_node in row.get_children():
+		if not chip_node is Button:
+			continue
+		var chip := chip_node as Button
+		var content := chip.get_node_or_null("Content") as Control
+		var group := chip.get_node_or_null("Content/ContentGroup") as HBoxContainer
+		var icon_node := chip.get_node_or_null("Content/ContentGroup/Icon") as TextureRect
+		var value := chip.get_node_or_null("Content/ContentGroup/Value") as Label
+		_expect(content != null and group != null and icon_node != null and value != null, "%s chips must expose one tightly sized icon + value group" % context)
+		if content == null or group == null or icon_node == null or value == null:
+			continue
+		var chip_rect := chip.get_global_rect()
+		var group_rect := group.get_global_rect()
+		var icon_rect := icon_node.get_global_rect()
+		var value_rect := value.get_global_rect()
+		var optical_x := float(chip.get_meta("resource_chip_optical_offset_x", 0.0))
+		var optical_y := float(chip.get_meta("resource_chip_optical_offset_y", 0.0))
+		_expect(absf(optical_y + 2.0) <= 0.1, "%s %s must keep the owner-approved two-pixel upward visible-ink correction" % [context, chip.name])
+		_expect(absf(group_rect.get_center().x - (chip_rect.get_center().x + optical_x)) <= 0.6, "%s %s content group must keep its declared horizontal optical correction" % [context, chip.name])
+		_expect(absf(group_rect.get_center().y - (chip_rect.get_center().y + optical_y)) <= 0.6, "%s %s content group must keep its declared vertical optical correction" % [context, chip.name])
+		_expect(absf(icon_rect.get_center().y - value_rect.get_center().y) <= 0.6, "%s %s icon and value must share one visual baseline centre" % [context, chip.name])
+		_expect(icon_rect.position.x >= chip_rect.position.x + 42.0, "%s %s icon must clear the deepest themed end armour" % [context, chip.name])
+		_expect(icon_rect.end.x <= value_rect.position.x - 8.0, "%s %s icon and value must keep a readable optical gap" % [context, chip.name])
+		var style := chip.get_theme_stylebox("normal") as StyleBoxTexture
+		var expected_path_fragment := "/sprites/ui/ui_button_secondary_native_" if expected_theme_id == "default" else "/sprites/themes/%s/ui/ui_button_secondary_native_" % expected_theme_id
+		_expect(
+			style != null
+			and style.texture != null
+			and style.texture.resource_path.contains(expected_path_fragment),
+			"%s %s must use the active theme's rendered native bezel" % [context, chip.name]
+		)
+		chips_checked += 1
+	_expect(chips_checked == 4, "%s must audit exactly four account resources" % context)
+
 func _assert_semantic_tag_panel(tag: PanelContainer, context: String) -> void:
 	_expect(tag.has_meta("semantic_tag_role"), "%s must declare a semantic tag role" % context)
 	_expect(tag.custom_minimum_size.y >= 38.0, "%s must preserve the mobile tag height" % context)
@@ -4505,6 +5174,26 @@ func _assert_semantic_tag_panel(tag: PanelContainer, context: String) -> void:
 	_expect(copy != null and copy.text.strip_edges() != "", "%s must expose non-empty tag copy" % context)
 	if copy != null:
 		_expect(copy.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "%s tag copy must be vertically centered" % context)
+
+func _assert_resource_cost(button: BaseButton, expected_kind: String, expected_amount: int, context: String) -> void:
+	_expect(button != null, "%s button must exist" % context)
+	if button == null:
+		return
+	var content := button.get_node_or_null("ResourceCostContent") as CenterContainer
+	var cost_icon := button.find_child("CostIcon", true, false) as TextureRect
+	var cost_value := button.find_child("CostValue", true, false) as Label
+	var action := button.find_child("CostAction", true, false) as Label
+	_expect(content != null and cost_icon != null and cost_value != null and action != null, "%s must render action + resource logo + amount" % context)
+	_expect(str(button.get_meta("cost_resource_kind", "")) == expected_kind, "%s must declare %s as its real resource kind" % [context, expected_kind])
+	_expect(int(button.get_meta("cost_resource_amount", -999)) == expected_amount, "%s must expose the exact cost amount %d" % [context, expected_amount])
+	var expected_path := UiKit.currency_icon_path(expected_kind)
+	_expect(str(button.get_meta("cost_resource_icon", "")) == expected_path, "%s metadata must route to the matching resource icon" % context)
+	_expect(cost_icon != null and cost_icon.texture != null and cost_icon.texture.resource_path == expected_path, "%s must render the matching resource logo" % context)
+	_expect(cost_value != null and cost_value.text == "%d" % expected_amount, "%s amount must be numeric and must not append a conflicting resource glyph" % context)
+	_expect(action != null and action.text.strip_edges() != "", "%s must keep an explicit action label" % context)
+	var legacy_label := button.get_node_or_null("ActionLabel") as Label
+	if legacy_label != null:
+		_expect(not legacy_label.visible, "%s must hide the old combined-text label when structured cost content is active" % context)
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

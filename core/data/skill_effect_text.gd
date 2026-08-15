@@ -6,6 +6,7 @@ const KEY_ORDER := [
 	"falloff",
 	"pierce",
 	"extra_projectiles",
+	"lane_damage_bonus",
 	"spread",
 	"chain",
 	"homing",
@@ -93,6 +94,8 @@ static func key_name(key: String) -> String:
 			return "重摇"
 		"extra_projectiles":
 			return "弹丸"
+		"lane_damage_bonus":
+			return "单弹伤害回补"
 		"spread":
 			return "散射"
 		"homing":

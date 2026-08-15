@@ -4,6 +4,12 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const COMBO_DECAY := 1.6
 const MILESTONES := [10, 25, 50, 100, 200, 500]
+const COMBO_FRAME_RECT := Rect2(4.0, 10.0, 312.0, 76.0)
+# The project font's Chinese glyph ink sits below the middle of its nominal
+# line box. Centering the Label rect mathematically therefore leaves “N 连击”
+# visibly low inside the authored plate. Keep one explicit optical correction
+# for every count width instead of special-casing 11 or changing the font size.
+const COMBO_TEXT_OPTICAL_Y := -4.0
 
 var _count := 0
 var _last_hit_time := -99.0
@@ -33,10 +39,10 @@ func _setup_visuals() -> void:
 		_frame.name = "Frame"
 		add_child(_frame)
 		move_child(_frame, 0)
-	_frame.offset_left = 4.0
-	_frame.offset_top = 10.0
-	_frame.offset_right = 316.0
-	_frame.offset_bottom = 86.0
+	_frame.offset_left = COMBO_FRAME_RECT.position.x
+	_frame.offset_top = COMBO_FRAME_RECT.position.y
+	_frame.offset_right = COMBO_FRAME_RECT.end.x
+	_frame.offset_bottom = COMBO_FRAME_RECT.end.y
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_frame.z_index = -1
 	_frame.add_theme_stylebox_override("panel", _combo_frame_style())
@@ -58,12 +64,14 @@ func _setup_visuals() -> void:
 	_accent_bar.modulate = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.86)
 
 	_label.offset_left = 34.0
-	_label.offset_top = 14.0
+	_label.offset_top = COMBO_FRAME_RECT.position.y + COMBO_TEXT_OPTICAL_Y
 	_label.offset_right = 302.0
-	_label.offset_bottom = 84.0
+	_label.offset_bottom = COMBO_FRAME_RECT.end.y + COMBO_TEXT_OPTICAL_Y
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_label.clip_text = true
+	_label.set_meta("combo_optical_center_y", COMBO_TEXT_OPTICAL_Y)
 	_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(40))
 	_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.42, 1.0))
 	_label.add_theme_color_override("font_outline_color", Color(0.02, 0.012, 0.004, 1.0))

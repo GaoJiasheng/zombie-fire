@@ -5,7 +5,7 @@ extends SceneTree
 ## Unlike the lightweight Python campaign estimator, this stages the real
 ## Battle/Projectile/Enemy code with every non-elemental offensive run skill at
 ## level 5. It therefore includes:
-## - five-lane multishot and the live 0.70 per-lane falloff;
+## - five-lane multishot and the live 0.70 baseline + 0.02 Lv5 per-lane compensation;
 ## - scattergun pellet geometry;
 ## - skill + weapon + character + chip pierce;
 ## - split-shot children, ricochet targets and homing;

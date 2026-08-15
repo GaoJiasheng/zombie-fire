@@ -47,6 +47,12 @@ def main() -> int:
         "BGM_DUCK_RELEASE_DB_PER_SECOND",
         'id.begins_with("boss_intro_")',
         'id in ["enemy_breach", "threat_warning"]',
+        'const ENEMY_FOLEY_GROUP := "enemy_foley"',
+        "func play_enemy_sfx(",
+        "enemy_sfx_interrupts_current(id)",
+        "_has_playing_sfx_group(exclusive_group)",
+        "_stop_sfx_group(exclusive_group)",
+        'player.set_meta("exclusive_group", exclusive_group)',
     ]:
         if required not in audio:
             errors.append(f"AudioManager overlap guard missing: {required}")
@@ -54,9 +60,14 @@ def main() -> int:
     for stale in [
         'AudioManager.play_sfx("defeat", 1.0, 0.0)',
         'AudioManager.play_sfx("victory" if victory else "defeat", 1.0, 0.0)',
+        'AudioManager.play_sfx("zombie_',
+        'AudioManager.play_sfx("enemy_attack_',
+        'AudioManager.play_sfx("enemy_breach"',
+        'AudioManager.play_sfx("threat_warning"',
+        'var death_sfx := _zombie_mechanic_sfx',
     ]:
         if stale in battle:
-            errors.append(f"battle finish must not pre-play result stingers: {stale}")
+            errors.append(f"battle contains a stale overlapping audio route: {stale}")
 
     if result.count('AudioManager.play_bgm("victory" if victory else "defeat")') != 1:
         errors.append("result scene must own exactly one victory/defeat BGM switch")
@@ -86,7 +97,7 @@ def main() -> int:
             print(f"audio overlap check failed: {error}", file=sys.stderr)
         return 1
 
-    print("Audio overlap OK: BGM is singleton, long stingers are mutexed, priority cues duck music, result cue is single-owned")
+    print("Audio overlap OK: BGM/stingers are single-owned and all zombie action/contact cues share one exclusive foley lane")
     return 0
 
 

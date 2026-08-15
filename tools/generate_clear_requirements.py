@@ -35,6 +35,7 @@ def main() -> int:
     economy = prm.load_table("economy")
     characters = prm.load_table("characters")
     weapons = prm.load_table("weapons")
+    skills = prm.load_table("skills")
     chips = prm.load_table("chips")
     pets = prm.load_table("pets")
 
@@ -45,6 +46,8 @@ def main() -> int:
     failures = []
     for level in levels:
         req = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
+        req["power_contract"] = prm.build_power_contract(
+            level, req, characters, weapons, skills, bosses, economy, sim)
         requirements[level["id"]] = req
 
         # 锚点1:按节奏免费构筑族必须过线
@@ -85,7 +88,15 @@ def main() -> int:
     (prm.DATA / "levels.json").write_text(
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
     print(f"Wrote clear_requirement for {len(levels)} levels")
+    contract99 = requirements["level_099"]["power_contract"]
     print(f"anchors: maxed_t={maxed_t:.3f} req99={req99:.3f} | thunder_t={thunder_t:.3f} req13={req13:.3f}")
+    print(
+        "power contract 99: "
+        f"recommended={contract99['recommended_power']} "
+        f"crowd={contract99['crowd_capacity']:.2f} "
+        f"boss={contract99['boss_capacity']:.2f} "
+        f"line={contract99['line_capacity']:.2f}"
+    )
     sample = {k: requirements[k]["min_output"] for k in ("level_001", "level_013", "level_050", "level_099")}
     print("sample required_t:", sample)
     return 0

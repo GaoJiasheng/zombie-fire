@@ -4,7 +4,8 @@ const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
-const MAIN_ICON_SIZE := Vector2(296, 296)
+const FREE_WEAPON_SHOWCASE_SIZE := Vector2(388, 252)
+const PREMIUM_WEAPON_SHOWCASE_SIZE := Vector2(410, 296)
 const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
 const HERO_BUST_REFERENCE_CANVAS_WIDTH := 642.0
 const HERO_BUST_REFERENCE_IMAGE_WIDTH := 378.0
@@ -212,7 +213,7 @@ func _refresh_start_button() -> void:
 		return
 	if _is_severely_underpowered():
 		var armed := Time.get_ticks_msec() <= _underpower_confirmation_armed_until_msec
-		label.text = LocalizationManager.text("再次点击 · 确认出战" if armed else "战力严重不足 · 谨慎出战")
+		label.text = LocalizationManager.text("再次点击 · 确认出战" if armed else "有效战力严重不足 · 谨慎出战")
 		label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.42, 1.0))
 	else:
 		label.text = LocalizationManager.text("开始挑战" if is_challenge_mode else "开始战斗")
@@ -247,12 +248,12 @@ func _is_severely_underpowered() -> bool:
 	var recommended := _recommended_power_for_current_mode()
 	if recommended <= 0:
 		return false
-	var projected := SaveManager.get_projected_combat_power_for_level(level_id)
-	return float(projected) / float(recommended) < SEVERE_POWER_RATIO
+	var power := SaveManager.get_power_for_level(level_id)
+	return float(power) / float(recommended) < SEVERE_POWER_RATIO
 
 # design/28:推荐战力=通关线,三档文案按"能过/压线/过不了"的模型语义命名。
-func _power_state(projected_power: int, recommended_power: int) -> Dictionary:
-	var ratio := float(projected_power) / maxf(float(recommended_power), 1.0)
+func _power_state(power: int, recommended_power: int) -> Dictionary:
+	var ratio := float(power) / maxf(float(recommended_power), 1.0)
 	if ratio >= 1.0:
 		return {"text": "可通关", "color": UiKit.GREEN}
 	if ratio >= SEVERE_POWER_RATIO:
@@ -266,7 +267,7 @@ func _refresh_resource_bar() -> void:
 	var existing := main.get_node_or_null("ResourceBar")
 	if existing != null:
 		existing.free()
-	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power())
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_power_for_level(level_id))
 	bar.name = "ResourceBar"
 	main.add_child(bar)
 	var header := main.get_node_or_null("HeaderRow")
@@ -297,8 +298,7 @@ func _refresh() -> void:
 	var pet_level := SaveManager.get_item_level(pet_id) if pet_id != "" else 0
 	var upgrade_cost := SaveManager.get_weapon_upgrade_cost(weapon_id)
 	var gold := SaveManager.get_player_gold()
-	var power := SaveManager.get_loadout_power()
-	var projected_power := SaveManager.get_projected_combat_power_for_level(level_id)
+	var power := SaveManager.get_power_for_level(level_id)
 	var recommended_power := _recommended_power_for_current_mode()
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
@@ -317,12 +317,11 @@ func _refresh() -> void:
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
-	$Summary.text = "%s · %s · 主弱点 %s\n基准 %d · 预计成型 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s" % [
+	$Summary.text = LocalizationManager.text("%s · %s · 主弱点 %s\n有效战力 %d / 推荐 %d · %s · 金币 %d\n英雄 %s Lv%d · 武器 %s Lv%d\n护甲 %s · 芯片 %s · 宠物 %s") % [
 		DataLoader.level_display_name(level_id),
 		mode_label,
 		_element_name(weakness),
 		power,
-		projected_power,
 		recommended_power,
 		counter_state,
 		gold,
@@ -335,9 +334,10 @@ func _refresh() -> void:
 		pet_display,
 	]
 	$Summary.visible = false
-	_refresh_summary_panel(level_id, weakness, power, projected_power, recommended_power, counter_state, gold, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, armor_id != "", chip_name, chip_level, chip_id != "", pet_name, pet_level, pet_id != "", is_challenge_mode)
+	_refresh_summary_panel(level_id, weakness, power, recommended_power, counter_state, character_name, char_level, weapon_name, weapon_level, armor_name, armor_level, armor_id != "", chip_name, chip_level, chip_id != "", pet_name, pet_level, pet_id != "", is_challenge_mode)
 	var weapon_icon := %WeaponIcon as TextureRect
 	var weapon_row := DataLoader.get_row("weapons", weapon_id)
+	_configure_weapon_showcase_rect(weapon_icon, weapon_id)
 	var weapon_source_path := _loadout_weapon_source_path(weapon_id, weapon_row)
 	var weapon_source := load(weapon_source_path) as Texture2D if weapon_source_path != "" else null
 	weapon_icon.texture = _loadout_weapon_texture(weapon_source, weapon_icon)
@@ -365,8 +365,8 @@ func _refresh() -> void:
 			str(challenge_rule.get("counter_hint", "围绕弱点配装。")),
 			$Objective.text,
 		]
-	if projected_power < recommended_power:
-		$Objective.text += "\n提示：预计成型战力仍偏低；该数值已计入永久技能等级和本关选卡预算。"
+	if power < recommended_power:
+		$Objective.text += "\n" + LocalizationManager.text("提示：有效战力低于推荐；该数值已计入当前永久技能等级和本关选卡预算。")
 	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
 		$Objective.text += "\n提示：当前配装命中主弱点，战斗中弱点装填更强。"
 	$GoldLabel.text = "金币  %d" % gold
@@ -386,6 +386,27 @@ func _refresh() -> void:
 	_rebuild_character_bar(char_id)
 	_rebuild_gear_icon_row(armor_id, chip_id, pet_id)
 	_refresh_signature_panel(char_id)
+
+
+func _configure_weapon_showcase_rect(icon: TextureRect, weapon_id: String) -> void:
+	# Free guns need a broader, banner-like stage so their full mechanical
+	# silhouette reads at phone scale. Apocalypse weapons receive a slightly
+	# larger ruler so their paid hierarchy remains unmistakable without touching
+	# the panel title, item name or metal frame.
+	var display_size := PREMIUM_WEAPON_SHOWCASE_SIZE if weapon_id.begins_with("weapon_apocalypse_") else FREE_WEAPON_SHOWCASE_SIZE
+	icon.custom_minimum_size = display_size
+	icon.anchor_left = 0.5
+	icon.anchor_top = 0.5
+	icon.anchor_right = 0.5
+	icon.anchor_bottom = 0.5
+	icon.offset_left = -display_size.x * 0.5
+	icon.offset_top = -display_size.y * 0.5
+	icon.offset_right = display_size.x * 0.5
+	icon.offset_bottom = display_size.y * 0.5
+	icon.pivot_offset = display_size * 0.5
+	# Every source now has its own authored horizontal showcase silhouette. Keep
+	# the stage rotation-neutral so the weapon and its text share one visual axis.
+	icon.rotation_degrees = 0.0
 
 func _character_display_texture(row: Dictionary) -> Texture2D:
 	return UiKit.character_bust_texture(row)
@@ -523,7 +544,7 @@ func _row_name(table: String, item_id: String) -> String:
 		return item_id
 	return DataLoader.tr_key(row.get("name_key", item_id))
 
-func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, projected_power: int, recommended_power: int, counter_state: String, gold: int, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, has_armor: bool, chip_name: String, chip_level: int, has_chip: bool, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
+func _refresh_summary_panel(display_level_id: String, weakness: String, power: int, recommended_power: int, counter_state: String, character_name: String, char_level: int, weapon_name: String, weapon_level: int, armor_name: String, armor_level: int, has_armor: bool, chip_name: String, chip_level: int, has_chip: bool, pet_name: String, pet_level: int, has_pet: bool, challenge_mode: bool) -> void:
 	var panel: Control = %DetailsPanel
 	var old := panel.get_node_or_null("SummaryGrid")
 	if old != null:
@@ -551,7 +572,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	var title := UiKit.label("挑战摘要" if challenge_mode else "战术摘要", 23, UiKit.TEXT_MAIN, 4)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
-	var power_state := _power_state(projected_power, recommended_power)
+	var power_state := _power_state(power, recommended_power)
 	var power_pill := UiKit.semantic_tag_pill(str(power_state.get("text", "低于通关线")), "status", 14)
 	power_pill.name = "PowerStatePill"
 	power_pill.custom_minimum_size = Vector2(156, 38)
@@ -578,10 +599,8 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	box.add_child(grid)
 	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.CYAN, ""))
 	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
-	grid.add_child(_summary_cell("基准", "%d" % power, UiKit.CYAN, ""))
+	grid.add_child(_summary_cell("有效战力", "%d" % power, UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
-	grid.add_child(_summary_cell("预计成型", "%d (+%d)" % [projected_power, maxi(projected_power - power, 0)], UiKit.GREEN if projected_power >= recommended_power else UiKit.GOLD, ""))
-	grid.add_child(_summary_cell("金币", "%d" % gold, UiKit.GOLD, UiKit.currency_icon_path("gold")))
 
 	var loadout := Label.new()
 	# Never decide level suffixes from translated display text. English used to

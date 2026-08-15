@@ -67,7 +67,9 @@ func can_select(theme_id: String) -> bool:
 		return true
 	if not _themes.has(theme_id):
 		return false
-	if preview_access_enabled():
+	# TestFlight can remove the entitlement friction only after campaign progress
+	# has revealed the series. It must never leak unrevealed themes into player UI.
+	if preview_access_enabled() and PurchaseManager.is_theme_revealed(theme_id):
 		return true
 	var entitlement_id := str((_themes[theme_id] as Dictionary).get("entitlement", ""))
 	return entitlement_id != "" and PurchaseManager.has_entitlement(entitlement_id)
@@ -83,9 +85,8 @@ func select_theme(theme_id: String) -> bool:
 
 
 func preview_access_enabled() -> bool:
-	# TestFlight/dev preview access deliberately grants catalog selection only. It
-	# never writes a verified commerce entitlement and it does not force a theme
-	# on launch, so testers can compare Default plus all four premium treatments.
+	# TestFlight/dev preview access grants selection only for series already
+	# revealed by campaign progress. It never writes a verified entitlement.
 	return (
 		OS.has_feature(TESTFLIGHT_PREVIEW_FEATURE)
 		or (OS.is_debug_build() and OS.get_environment(PREVIEW_ENV).strip_edges() != "")

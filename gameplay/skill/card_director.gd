@@ -52,7 +52,33 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	_offer_index += 1
 	_apply_opening_shape(result, eligible, skills, economy_rules, level)
 	_apply_pity(result, eligible, skills, economy_rules)
+	_apply_level_guarantee(result, eligible, skills, level)
 	return result
+
+# A level may promise one exact family of cards on a specific offer. This is
+# deliberately data-driven and only guarantees visibility, not an automatic
+# selection. level_099 uses it to make either Barrier or Slow Field available
+# before its two-Boss pressure test; the power ruler therefore may conservatively
+# count the weaker of those two choices instead of pretending random defence is
+# guaranteed in every stage.
+func _apply_level_guarantee(result: Array[String], eligible: Array[String], skills: Dictionary, level: Dictionary) -> void:
+	if result.is_empty():
+		return
+	for rule_var in level.get("guaranteed_card_offers", []):
+		if not rule_var is Dictionary:
+			continue
+		var rule := rule_var as Dictionary
+		if int(rule.get("offer", -1)) != _offer_index:
+			continue
+		var guaranteed_ids: Array = rule.get("skill_ids", [])
+		for skill_id_var in guaranteed_ids:
+			if result.has(str(skill_id_var)):
+				return
+		for skill_id_var in guaranteed_ids:
+			var skill_id := str(skill_id_var)
+			if eligible.has(skill_id) and not result.has(skill_id) and skills.has(skill_id):
+				result[result.size() - 1] = skill_id
+				return
 
 func _apply_opening_shape(result: Array[String], eligible: Array[String], skills: Dictionary, economy_rules: Dictionary, level: Dictionary) -> void:
 	var opening_offers := maxi(0, int(economy_rules.get("opening_identity_offer_count", 2)))

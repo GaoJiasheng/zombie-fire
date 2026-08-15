@@ -74,6 +74,7 @@ Current validation result:
 
 - 9 integrated BGM WAVs with runtime crossfade/ducking; final monitored mastering remains an Owner sign-off item.
 - Integrated weapon, impact, zombie, Boss, skill, UI and result SFX with automated overlap and signal-quality gates.
+- Base contact, Phantom blink and ordinary-zombie attack actions now use three independent foley layers: realistic barricade impact, air-only phase whoosh and seven attack-material families, with source backups and a reproducible quality gate.
 - The current ten chapters intentionally reuse four battle identities; chapter-specific late-campaign music remains a future audio-production batch rather than an unreviewed last-minute source replacement.
 
 ## Contact Sheets

@@ -11,6 +11,7 @@ const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const COLLECTION_CARD_WIDTH := 760.0
+const WEAPON_LIST_CARD_WIDTH := 860.0
 const SKILL_CARD_TEXT_WIDTH := 486.0
 const CHARACTER_LIST_PORTRAIT_SIZE := Vector2(220.0, 282.0)
 const CHARACTER_LIST_VISIBLE_HEIGHT := 250.0
@@ -19,6 +20,8 @@ const CHARACTER_LIST_TEXT_X := 260.0
 const CHARACTER_LIST_TEXT_WIDTH := 276.0
 const EQUIPMENT_LIST_CARD_HEIGHT := 256.0
 const EQUIPMENT_LIST_ICON_Y := 82.0
+const WEAPON_LIST_ICON_POSITION := Vector2(44.0, 44.0)
+const WEAPON_LIST_ICON_SIZE := Vector2(168.0, 168.0)
 const COLLECTION_LIST_TITLE_Y := 24.0
 const COLLECTION_LIST_TITLE_HEIGHT := 60.0
 const COLLECTION_LIST_TITLE_TAG_GAP := 8.0
@@ -32,6 +35,10 @@ const EQUIPMENT_LIST_ACTION_Y := 162.0
 const EQUIPMENT_LIST_TEXT_X := 150.0
 const EQUIPMENT_LIST_TEXT_WIDTH := 380.0
 const EQUIPMENT_LIST_TITLE_WIDTH := 576.0
+const WEAPON_LIST_TEXT_X := 244.0
+const WEAPON_LIST_TEXT_WIDTH := 392.0
+const WEAPON_LIST_TITLE_WIDTH := 580.0
+const WEAPON_LIST_ACTION_X := 650.0
 const CHARACTER_DETAIL_BUST_Y := -12.0
 const ARMORED_BUTTON_LABEL_OPTICAL_Y := -4.0
 const SKILL_DETAIL_NAME_FONT_SIZE_ZH := 42
@@ -157,7 +164,11 @@ func _refresh() -> void:
 		child.queue_free()
 	var table_data: Dictionary = _table()
 	for item_id: String in table_data.keys():
-		item_list.add_child(_build_item_button(item_id, table_data[item_id]))
+		var row: Dictionary = table_data[item_id]
+		var premium_entitlement := str(row.get("premium_entitlement", "")).strip_edges()
+		if premium_entitlement != "" and not PurchaseManager.is_entitlement_revealed(premium_entitlement):
+			continue
+		item_list.add_child(_build_item_button(item_id, row))
 	var scroll_end_padding := Control.new()
 	scroll_end_padding.name = "ScrollEndPadding"
 	scroll_end_padding.custom_minimum_size = Vector2(0, 44)
@@ -181,7 +192,8 @@ func _refresh_resource_bar() -> void:
 	var existing := parent.get_node_or_null("ResourceBar")
 	if existing != null:
 		existing.free()
-	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_loadout_power(), Vector2(174, 58), 25)
+	var power_level_id := SaveManager.get_highest_unlocked_level_id()
+	var bar := UiKit.standard_resource_bar(SaveManager.get_player_gold(), SaveManager.get_player_star(), SaveManager.get_player_xp(), SaveManager.get_power_for_level(power_level_id), Vector2(174, 58), 25)
 	bar.name = "ResourceBar"
 	bar.custom_minimum_size = Vector2(0, 66)
 	bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -251,6 +263,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var spacious := _uses_spacious_collection_cards()
 	var english_layout := LocalizationManager.is_english()
+	var card_width := WEAPON_LIST_CARD_WIDTH if mode == "weapons" else COLLECTION_CARD_WIDTH
 	# Character cards use the same generous presentation height in both
 	# languages. This lets the portrait consume the full card instead of keeping
 	# the former tiny-avatar geometry inside an already tall English row.
@@ -260,9 +273,9 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var card_height := 310.0 if mode == "characters" else EQUIPMENT_LIST_CARD_HEIGHT
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, card_height)
-	# ItemList expands to the safe-area width (904px at 1080). The card artwork is
-	# authored at 760px, so an expanding button left-pins every fixed-position child.
+	button.custom_minimum_size = Vector2(card_width, card_height)
+	# Weapon rows deliberately use more of the 904px safe-area width. Other
+	# collection families keep their accepted 760px ruler.
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
@@ -281,8 +294,9 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var accent := _mode_accent(row)
 	var frame := PanelContainer.new()
+	frame.name = "Frame"
 	frame.position = Vector2(16, 14)
-	frame.size = Vector2(728, card_height - 28.0)
+	frame.size = Vector2(card_width - 32.0, card_height - 28.0)
 	frame.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.visible = true
@@ -290,8 +304,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.position = Vector2(20, 14) if mode == "characters" else Vector2(48, EQUIPMENT_LIST_ICON_Y)
-	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else Vector2(92, 92)
+	icon.position = Vector2(20, 14) if mode == "characters" else (WEAPON_LIST_ICON_POSITION if mode == "weapons" else Vector2(48, EQUIPMENT_LIST_ICON_Y))
+	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else (WEAPON_LIST_ICON_SIZE if mode == "weapons" else Vector2(92, 92))
 	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -319,12 +333,12 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var title := Label.new()
 	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
-	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else EQUIPMENT_LIST_TEXT_X
+	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else (WEAPON_LIST_TEXT_X if mode == "weapons" else EQUIPMENT_LIST_TEXT_X)
 	title.position = Vector2(text_x, COLLECTION_LIST_TITLE_Y)
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
 	# full width available so long weapon names plus level/tier remain readable
 	# after the global mobile font increase instead of clipping or shrinking.
-	title.size = Vector2(450 if mode == "characters" else EQUIPMENT_LIST_TITLE_WIDTH, COLLECTION_LIST_TITLE_HEIGHT)
+	title.size = Vector2(450 if mode == "characters" else (WEAPON_LIST_TITLE_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TITLE_WIDTH), COLLECTION_LIST_TITLE_HEIGHT)
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF
 	# Bottom-align the glyphs inside the fixed title lane.  This makes the visible
 	# title-to-tag interval equal to the authored 8px rhythm instead of leaving a
@@ -347,7 +361,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
-	tag_row.size = Vector2(452 if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, COLLECTION_LIST_TAG_HEIGHT)
+	tag_row.size = Vector2(452 if mode == "characters" else (WEAPON_LIST_TEXT_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TEXT_WIDTH), COLLECTION_LIST_TAG_HEIGHT)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -369,7 +383,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y)
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else EQUIPMENT_LIST_TEXT_WIDTH, 120 if mode == "characters" else 104)
+	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else (WEAPON_LIST_TEXT_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TEXT_WIDTH), 120 if mode == "characters" else 104)
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -382,14 +396,16 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	if mode != "skills":
 		var buy_price := 0
 		var can_buy := false
+		var action_cost_spec := {}
 		var premium_locked := not unlocked and _is_premium_item(row)
 		if not unlocked:
 			if premium_locked:
 				can_buy = true
 			else:
-				buy_price = SaveManager.get_unlock_price_star(_data_table_name(), item_id)
+				action_cost_spec = SaveManager.get_unlock_cost_spec(_data_table_name(), item_id)
+				buy_price = int(action_cost_spec.get("amount", 0))
 				can_buy = SaveManager.get_player_star() >= buy_price
-			_add_locked_card_veil(button, card_height, can_buy)
+			_add_locked_card_veil(button, card_width, card_height, can_buy)
 
 		var action_text := "已装备" if selected else ("选  定" if mode == "characters" else "装  备")
 		var action_enabled := unlocked and not selected
@@ -404,24 +420,33 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 			else:
 				action_enabled = false
 				action_callback = Callable()
-				action_text = ("购买 %d★" % buy_price) if can_buy else ("%d★ 不足" % buy_price)
+				action_text = _loc("购买", "Buy") if can_buy else _loc("不足", "Need")
 				action_enabled = can_buy
 				action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
-		var action_pos := Vector2(548, 212.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
+		var action_pos := Vector2(WEAPON_LIST_ACTION_X if mode == "weapons" else 548.0, 212.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
+		if not action_cost_spec.is_empty():
+			UiKit.apply_resource_cost(
+				action_btn,
+				action_text,
+				str(action_cost_spec.get("kind", "star")),
+				buy_price,
+				15,
+				22.0
+			)
 		action_btn.z_index = 3
 		if action_enabled and action_callback.is_valid():
 			action_btn.pressed.connect(action_callback)
 		button.add_child(action_btn)
 	return button
 
-func _add_locked_card_veil(parent: Control, card_height: float, can_buy: bool) -> void:
+func _add_locked_card_veil(parent: Control, card_width: float, card_height: float, can_buy: bool) -> void:
 	var veil := TextureRect.new()
 	veil.name = "LockedCardVeil"
 	veil.texture = load(LOCKED_CARD_VEIL_TEXTURE)
 	veil.position = Vector2(18, 16)
-	veil.size = Vector2(724, card_height - 32.0)
+	veil.size = Vector2(card_width - 36.0, card_height - 32.0)
 	veil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	veil.stretch_mode = TextureRect.STRETCH_SCALE
 	veil.modulate = Color(0.0, 0.0, 0.0, 0.24 if can_buy else 0.32)
@@ -1054,7 +1079,7 @@ func _purchase_item_flow(item_id: String, row: Dictionary) -> void:
 		"title": "购买确认",
 		"message": "确认解锁 %s？" % name_text,
 		"cost_text": "%d" % price,
-		"cost_icon": UiKit.currency_icon_path("star"),
+		"cost_kind": "star",
 		"item_icon": preview_icon,
 		"accent": Color(0.96, 0.80, 0.30, 1.0),
 		"confirm_text": "购买",
@@ -1092,6 +1117,9 @@ func _pulse_selected_item(item_id: String) -> void:
 		return
 
 func _show_item_detail(item_id: String, row: Dictionary) -> void:
+	var premium_entitlement := str(row.get("premium_entitlement", "")).strip_edges()
+	if premium_entitlement != "" and not PurchaseManager.is_entitlement_revealed(premium_entitlement):
+		return
 	if mode == "characters":
 		call_deferred("_show_character_detail", item_id, row)
 		return
@@ -1246,7 +1274,8 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 			str(stat.get("label", "")),
 			str(stat.get("value", "")),
 			str(stat.get("sub", "")),
-			SKILL_DETAIL_STAT_FONT_DELTA if mode == "skills" else 0
+			SKILL_DETAIL_STAT_FONT_DELTA if mode == "skills" else 0,
+			str(stat.get("resource_kind", ""))
 		))
 	# 升级预览：本级 → 下级，直观看到"升级到底加了什么"
 	if mode != "skills" and SaveManager.is_item_unlocked(slot, item_id):
@@ -1289,9 +1318,12 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 			action_row.add_child(store_btn)
 		else:
 			# 未拥有：详情页里直接给购买按钮（买得起=亮，买不起=灰禁用）。
-			var buy_price := SaveManager.get_unlock_price_star(table, item_id)
+			var buy_cost_spec := SaveManager.get_unlock_cost_spec(table, item_id)
+			var buy_price := int(buy_cost_spec.get("amount", 0))
 			var can_buy := SaveManager.get_player_star() >= buy_price
-			var buy_btn := _detail_button("BuyButton", ("购买  %d★" % buy_price) if can_buy else ("星星不足  %d★" % buy_price), true)
+			var buy_action := _loc("购买", "Buy") if can_buy else _loc("不足", "Need")
+			var buy_btn := _detail_button("BuyButton", buy_action, true)
+			UiKit.apply_resource_cost(buy_btn, buy_action, str(buy_cost_spec.get("kind", "star")), buy_price, 18, 28.0)
 			buy_btn.disabled = not can_buy
 			buy_btn.modulate = ACTION_ACTIVE_MODULATE if can_buy else ACTION_DISABLED_MODULATE
 			buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1306,10 +1338,13 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		action_row.add_child(equip_btn)
 
 		var can_upgrade := table != "" and SaveManager.can_upgrade_item(table, item_id)
-		var cost := SaveManager.get_item_upgrade_cost(table, item_id) if table != "" else 0
+		var upgrade_cost_spec := SaveManager.get_item_upgrade_cost_spec(table, item_id) if table != "" else {}
+		var cost := int(upgrade_cost_spec.get("amount", 0))
 		var max_level := int(row.get("max_level", item_level))
-		var upgrade_label := "已满级" if item_level >= max_level else "升级  %d" % cost
+		var upgrade_label := "已满级" if item_level >= max_level else _loc("升级", "Upgrade")
 		var upgrade_btn := _detail_button("UpgradeButton", upgrade_label, false)
+		if item_level < max_level:
+			UiKit.apply_resource_cost(upgrade_btn, upgrade_label, str(upgrade_cost_spec.get("kind", "gold")), cost, 18, 28.0)
 		upgrade_btn.disabled = not can_upgrade
 		upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if can_upgrade else ACTION_DISABLED_MODULATE
 		upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -1318,12 +1353,13 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	else:
 		var skill_lvl := SaveManager.get_skill_base_level(item_id)
 		var skill_max := SaveManager.get_skill_base_max(item_id)
-		var skill_cost := SaveManager.get_skill_base_upgrade_cost(item_id)
+		var skill_cost_spec := SaveManager.get_skill_base_upgrade_cost_spec(item_id)
+		var skill_cost := int(skill_cost_spec.get("amount", -1))
 		var can_up := SaveManager.can_upgrade_skill_base(item_id)
-		# The action is already established by the detail page. Keep the button to a
-		# compact price treatment so the mobile-sized label never overruns the bezel.
-		var skill_label := "已精通" if skill_lvl >= skill_max else ("%d★" % skill_cost)
+		var skill_label := "已精通" if skill_lvl >= skill_max else _loc("升级", "Upgrade")
 		var skill_btn := _armored_action_button("SkillUpgradeButton", skill_label, true, true, Vector2(412, 112), 24)
+		if skill_lvl < skill_max:
+			UiKit.apply_resource_cost(skill_btn, skill_label, str(skill_cost_spec.get("kind", "xp")), skill_cost, 21, 32.0)
 		skill_btn.tooltip_text = _loc("消耗 %d 经验，永久提升技能" % skill_cost, "Spend %d XP to permanently upgrade this skill" % skill_cost)
 		skill_btn.disabled = not can_up
 		skill_btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
@@ -1410,7 +1446,13 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 		elif item_level >= max_level:
 			stats.append({"label": "状态", "value": "已满级", "sub": "成长已完成"})
 		else:
-			stats.append({"label": "升级", "value": "%d 金币" % SaveManager.get_item_upgrade_cost(table, item_id), "sub": _next_upgrade_hint(item_id, row)})
+			var cost_spec := SaveManager.get_item_upgrade_cost_spec(table, item_id)
+			stats.append({
+				"label": "升级",
+				"value": "%d" % int(cost_spec.get("amount", 0)),
+				"resource_kind": str(cost_spec.get("kind", "gold")),
+				"sub": _next_upgrade_hint(item_id, row),
+			})
 	match mode:
 		"weapons":
 			stats.append({"label": "元素", "value": _element_name(row.get("element", "-")), "sub": _projectile_type_name(str(row.get("projectile_type", "bullet")))})
@@ -1594,7 +1636,7 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 		"armors":
 			return "护甲主要提高基地承伤和防线容错。高级护甲不是纯数值堆叠，抗性和屏障会影响特定关卡的防线稳定性。"
 		"chips":
-			return "芯片是核心加成位，偏向伤害、射速、暴击、生命、收益或元素流派。当前芯片会进入战力和关卡克制计算。"
+			return "芯片是核心加成位，偏向伤害、射速、暴击、生命、收益或元素流派。当前芯片会进入有效战力和关卡克制计算。"
 		"pets":
 			match str(row.get("role", "")):
 				"damage":
@@ -1807,13 +1849,6 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	level_text.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_LEVEL_FONT_SIZE))
 	level_text.add_theme_color_override("font_color", Color(1, 0.92, 0.5, 1))
 	level_badge.add_child(level_text)
-	# The textured modal has a fixed ornamental rule below the title. Reserve a
-	# narrow breathing strip here so that rule sits between title and tags rather
-	# than running through the enlarged mobile text.
-	var header_rule_clearance := Control.new()
-	header_rule_clearance.custom_minimum_size = Vector2(0, 12)
-	header_rule_clearance.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_col.add_child(header_rule_clearance)
 	# Tag row: role + element
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "CharacterMetadataTags"
@@ -1976,16 +2011,19 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	vbox.add_child(action_row)
 	# 升级按钮(角色此前一直缺失，只有武器/护甲/芯片/宠物能升级)
 	var char_can_upgrade := SaveManager.can_upgrade_item("characters", item_id)
-	var char_upgrade_cost := SaveManager.get_item_upgrade_cost("characters", item_id)
+	var char_upgrade_cost_spec := SaveManager.get_item_upgrade_cost_spec("characters", item_id)
+	var char_upgrade_cost := int(char_upgrade_cost_spec.get("amount", 0))
 	var char_max_level := int(row.get("max_level", 30))
 	var upgrade_btn := _armored_action_button(
 		"UpgradeButton",
-		("已满级" if item_level >= char_max_level else "升级  %d" % char_upgrade_cost),
+		("已满级" if item_level >= char_max_level else _loc("升级", "Upgrade")),
 		true,
 		false,
 		Vector2(236, 96),
 		20
 	)
+	if item_level < char_max_level:
+		UiKit.apply_resource_cost(upgrade_btn, _loc("升级", "Upgrade"), str(char_upgrade_cost_spec.get("kind", "gold")), char_upgrade_cost, 17, 26.0)
 	upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	upgrade_btn.disabled = not char_can_upgrade
 	upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if char_can_upgrade else ACTION_DISABLED_MODULATE
@@ -2043,7 +2081,7 @@ func _on_character_appearance_store_requested() -> void:
 # === Helper builders for the modal ===
 
 func _build_panel_style() -> StyleBox:
-	return UiKit.result_panel_texture_style()
+	return UiKit.detail_panel_texture_style()
 
 func _build_portrait_frame_style() -> StyleBox:
 	return UiKit.icon_frame_texture_style(true)
@@ -2108,7 +2146,7 @@ func _make_section_panel(title: String, accent: Color, title_font_size := 24) ->
 func _build_section_style(_accent: Color) -> StyleBox:
 	return UiKit.panel_texture_style(14.0)
 
-func _make_stat_pill(label_text: String, value_text: String, sub_text: String, font_delta := 0) -> PanelContainer:
+func _make_stat_pill(label_text: String, value_text: String, sub_text: String, font_delta := 0, resource_kind := "") -> PanelContainer:
 	var pill := PanelContainer.new()
 	pill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var authored_height := 112 if LocalizationManager.is_english() else 98
@@ -2136,7 +2174,24 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String, f
 	value.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	value.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
 	value.add_theme_constant_override("outline_size", 1)
-	v.add_child(value)
+	if resource_kind == "":
+		v.add_child(value)
+	else:
+		var resource_row := HBoxContainer.new()
+		resource_row.name = "StatResourceCost"
+		resource_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		resource_row.add_theme_constant_override("separation", 8)
+		var resource_icon := UiKit.icon(UiKit.currency_icon_path(resource_kind), Vector2(28, 28))
+		resource_icon.name = "StatResourceIcon"
+		resource_row.add_child(resource_icon)
+		# In an ordinary stat cell the value expands to the whole card. For a
+		# resource pair it must shrink to its digits so logo + amount stay together.
+		value.autowrap_mode = TextServer.AUTOWRAP_OFF
+		value.clip_text = false
+		value.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		resource_row.add_child(value)
+		resource_row.set_meta("cost_resource_kind", resource_kind)
+		v.add_child(resource_row)
 	if sub_text != "":
 		var sub := Label.new()
 		sub.name = "StatSub"
@@ -2234,8 +2289,11 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
 	top_row.add_child(level_label)
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
-	var cost := SaveManager.get_sig_skill_upgrade_cost(character_id)
-	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else "升级 %d经验" % cost, true, true, Vector2(286, 112), 20)
+	var cost_spec := SaveManager.get_sig_skill_upgrade_cost_spec(character_id)
+	var cost := int(cost_spec.get("amount", -1))
+	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else _loc("升级", "Upgrade"), true, true, Vector2(286, 112), 20)
+	if not maxed:
+		UiKit.apply_resource_cost(btn, _loc("升级", "Upgrade"), str(cost_spec.get("kind", "xp")), cost, 17, 26.0)
 	btn.custom_minimum_size = Vector2(286, 112)
 	btn.disabled = not can_up
 	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE

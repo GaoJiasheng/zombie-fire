@@ -94,6 +94,7 @@ COLLECTION_IDS = {
     }.items()
 }
 STORE_PRODUCT_IDS = _data_ids("store_products")
+STORE_PRODUCT_ROWS = json.loads((ROOT / "data" / "store_products.json").read_text(encoding="utf-8"))
 LATE_MAP_SAVE_OVERRIDE = {
     "levels_progress": {f"level_{level_no:03d}": 1 for level_no in range(1, 89)},
     "unlocks": {"levels": [f"level_{level_no:03d}" for level_no in range(1, 90)]},
@@ -432,6 +433,14 @@ BASE_SCREENS: list[tuple[str, dict, str]] = [
         "store_purchase_complete",
     ),
     ("battle", {"level_id": "level_001"}, "battle"),
+    *[
+        (
+            "battle",
+            {"level_id": "level_001", "debug_combo_hud": count},
+            f"battle_combo_{count}",
+        )
+        for count in (2, 11, 100)
+    ],
     (
         "result",
         {"level_id": "level_003", "victory": True, "stars": 2, "gold": 120, "xp": 20, "next_level": "level_004"},
@@ -604,6 +613,22 @@ ENGLISH_SCREENS: list[tuple[str, dict, str]] = [
 ]
 
 BATTLE_SKILL_HUD_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "battle",
+        {
+            "level_id": "level_001",
+            "card_offer": True,
+            "debug_card_offer_skills": ["skill_multishot", "skill_barrier", "skill_split_shot"],
+            "save_override": {
+                "skill_base_levels": {
+                    "skill_multishot": 4,
+                    "skill_barrier": 3,
+                    "skill_split_shot": 2,
+                },
+            },
+        },
+        "card_offer_permanent_levels_zh",
+    ),
     (
         "battle",
         {
@@ -1806,10 +1831,26 @@ FINAL_THEME_COMBAT_SCREENS.extend(
     for aim in ("left", "right")
 )
 
-# Focused body-ruler regression: one matching weapon per theme, all four heroes
-# and all three firing corridors. This is the fast visual gate for confirming
-# that guns, coats and signature VFX no longer alter anatomical body size.
+# Focused body-ruler regression: one matching weapon per theme, all four heroes,
+# a frozen idle frame and all three firing corridors. This keeps the easy-to-
+# miss static model in the same visual gate as the shooting model.
 CHARACTER_BODY_NORMALIZATION_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "battle",
+        {
+            "level_id": "level_091" if theme_id == "gilded_eclipse" else "level_001",
+            "save_override": PREMIUM_CROSS_SAVE_OVERRIDES[theme_id],
+            "equipment": {
+                "selected_character": character_id,
+                "selected_weapon": THEME_MATCHING_WEAPONS[theme_id],
+            },
+            "debug_character_idle_frame": 1,
+        },
+        f"body_scale_{theme_id}_{character_id}_idle",
+    )
+    for theme_id in THEME_IDS
+    for character_id in CHARACTER_IDS
+] + [
     (
         "battle",
         {
@@ -1898,6 +1939,113 @@ for theme_id in THEME_IDS:
                     ),
                 ]
             )
+
+
+# Owner-review matrix for release handoff. Unlike FINAL_THEME_INTERFACE_SCREENS,
+# this deliberately avoids the hero/weapon/effect Cartesian sweep: it captures
+# each shipped theme once across the app's core Chinese interface states, plus a
+# single neutral combat HUD, pause, skill offer and result state.
+THEME_INTERFACE_REVIEW_SCREENS: list[tuple[str, dict, str]] = []
+for theme_id in THEME_IDS:
+    theme_save = PREMIUM_CROSS_SAVE_OVERRIDES[theme_id]
+    map_save = {**LATE_MAP_SAVE_OVERRIDE, **theme_save}
+    review_equipment = {
+        "selected_character": "vanguard",
+        "selected_weapon": "weapon_autocannon",
+        "selected_armor": "armor_kevlar",
+        "selected_chip": "chip_attack",
+        "selected_pet": "pet_turret_drone",
+    }
+    review_prefix = f"review_zh_{theme_id}"
+    THEME_INTERFACE_REVIEW_SCREENS.extend(
+        [
+            ("menu", {"save_override": theme_save}, f"{review_prefix}_menu"),
+            ("map", {"save_override": map_save}, f"{review_prefix}_map"),
+            (
+                "map",
+                {"chapter": 1, "save_override": map_save},
+                f"{review_prefix}_map_chapter",
+            ),
+            (
+                "loadout",
+                {
+                    "level_id": "level_003",
+                    "save_override": theme_save,
+                    "equipment": review_equipment,
+                },
+                f"{review_prefix}_loadout",
+            ),
+            *[
+                (
+                    "collection",
+                    {"mode": mode, "save_override": theme_save},
+                    f"{review_prefix}_collection_{mode}",
+                )
+                for mode in ("characters", "weapons", "armors", "chips", "pets", "skills")
+            ],
+            ("settings", {"save_override": theme_save}, f"{review_prefix}_settings"),
+            (
+                "settings",
+                {"debug_theme_appearance": True, "save_override": theme_save},
+                f"{review_prefix}_theme_appearance",
+            ),
+            (
+                "store",
+                {"save_override": theme_save},
+                f"{review_prefix}_store",
+            ),
+            (
+                "battle",
+                {
+                    "level_id": "level_001",
+                    "save_override": theme_save,
+                    "equipment": review_equipment,
+                    "warmup_frames": 2,
+                },
+                f"{review_prefix}_battle_hud",
+            ),
+            (
+                "battle",
+                {
+                    "level_id": "level_001",
+                    "save_override": theme_save,
+                    "equipment": review_equipment,
+                    "pause": True,
+                },
+                f"{review_prefix}_pause",
+            ),
+            (
+                "battle",
+                {
+                    "level_id": "level_001",
+                    "save_override": theme_save,
+                    "equipment": review_equipment,
+                    "card_offer": True,
+                    "debug_card_offer_skills": CARD_OFFER_REGRESSION_SKILLS,
+                },
+                f"{review_prefix}_card_offer",
+            ),
+            (
+                "result",
+                {
+                    "level_id": "level_004",
+                    "victory": True,
+                    "challenge": True,
+                    "stars": 3,
+                    "gold": 686,
+                    "xp": 458,
+                    "save_override": theme_save,
+                    "equipment": review_equipment,
+                    "battle_report": {
+                        "kills": 128,
+                        "max_kill_streak": 27,
+                        "duration_seconds": 132.0,
+                    },
+                },
+                f"{review_prefix}_result",
+            ),
+        ]
+    )
 
 
 # A focused one-time App Store presentation gate. It keeps the regular final
@@ -2039,6 +2187,58 @@ STORE_PREVIEW_SCREENS: list[tuple[str, dict, str]] = [
     for language in ("zh", "en")
     for scroll_index, scroll_y in enumerate((0, 880, 1760, 2640))
 ]
+
+
+def _store_detail_save_override(product_id: str) -> dict:
+    row = STORE_PRODUCT_ROWS[product_id]
+    override = json.loads(json.dumps(FULL_STORE_SAVE_OVERRIDE))
+    if row.get("offer_role") == "arsenal_upgrade":
+        theme_product_id = next(
+            candidate_id
+            for candidate_id, candidate in STORE_PRODUCT_ROWS.items()
+            if candidate.get("series_id") == row.get("series_id")
+            and candidate.get("offer_role") == "theme"
+        )
+        override["commerce"] = {
+            "mock_receipts": [theme_product_id],
+            "mock_last_transaction_unix": 0,
+        }
+    return override
+
+
+# Every catalog product gets a real detail-page capture in both languages. This
+# covers theme-only, complete bundle and theme-owner upgrade states for all four
+# implemented series, including their fixed purchase action below the scroll.
+STORE_PRODUCT_DETAIL_SCREENS: list[tuple[str, dict, str]] = [
+    (
+        "store",
+        {
+            "language": language,
+            "viewport_size": [1080, 2340],
+            "save_override": _store_detail_save_override(product_id),
+            "debug_store_detail_product": product_id,
+        },
+        f"store_tall_detail_{language}_{_file_label(product_id)}",
+    )
+    for language in ("zh", "en")
+    for product_id in STORE_PRODUCT_IDS
+]
+STORE_PRODUCT_DETAIL_SCREENS.extend(
+    (
+        "store",
+        {
+            "language": language,
+            "viewport_size": [1080, 2340],
+            "save_override": _store_detail_save_override(
+                "com.gaojiasheng.zombiefire.arsenal.thunder_complete"
+            ),
+            "debug_store_detail_product": "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+            "debug_scroll_y": 1500,
+        },
+        f"store_tall_detail_scroll_deep_{language}_thunder_complete",
+    )
+    for language in ("zh", "en")
+)
 
 
 FINAL_COPY_STATE_SCREENS: list[tuple[str, dict, str]] = []
@@ -2262,6 +2462,7 @@ FINAL_REGRESSION_SCREENS = _dedupe_screens(
     + FINAL_THEME_COMBAT_SCREENS
     + FINAL_THEME_INTERFACE_SCREENS
     + FINAL_COPY_STATE_SCREENS
+    + STORE_PRODUCT_DETAIL_SCREENS
     + FINAL_VFX_SCREENS
     + THEME_MENU_SCREENS
     + SKILL_TAG_THEME_SCREENS
@@ -2465,6 +2666,31 @@ def analyze(path: Path, label: str) -> list[str]:
                 f"{label} playable top extension still looks like black filler; "
                 f"mean={play_mean:.1f} stdev={play_stdev:.1f} dark<18={play_dark:.2%}"
             )
+    if label.startswith("battle_combo_") and image.size == EXPECTED_SIZE:
+        # ComboHud lives at (700, 1420); its authored plate spans local y=10..86,
+        # so the visible center line is y=1468. Sample only the quiet center of
+        # the plate, excluding the gold accent rail and cyan end ornaments.
+        glyph_pixels: list[tuple[int, int]] = []
+        for y in range(1435, 1501):
+            for x in range(790, 1001):
+                red, green, blue = image.getpixel((x, y))
+                if red > 180 and green > 150 and blue < 125 and red + green > 360:
+                    glyph_pixels.append((x, y))
+        if not glyph_pixels:
+            errors.append(f"{label} combo text ink was not detected inside the plate")
+        else:
+            ink_top = min(y for _, y in glyph_pixels)
+            ink_bottom = max(y for _, y in glyph_pixels)
+            ink_center = (ink_top + ink_bottom) / 2.0
+            # The frame's bright upper armour carries more visual weight than
+            # its dark lower edge, so the accepted optical target is four
+            # pixels below the geometric center rather than the raw y=1468.
+            optical_center = 1472.0
+            if abs(ink_center - optical_center) > 2.0:
+                errors.append(
+                    f"{label} combo text is not optically centered; "
+                    f"ink_center={ink_center:.1f} optical_center={optical_center:.1f}"
+                )
     return errors
 
 
@@ -2486,6 +2712,8 @@ def main() -> int:
             return 2
     if "--full-review" in sys.argv[1:]:
         active_screens = FULL_REVIEW_SCREENS
+    elif "--theme-interface-review" in sys.argv[1:]:
+        active_screens = THEME_INTERFACE_REVIEW_SCREENS
     elif "--final-regression" in sys.argv[1:]:
         active_screens = FINAL_REGRESSION_SCREENS
     elif "--english-only" in sys.argv[1:]:
@@ -2540,6 +2768,8 @@ def main() -> int:
         active_screens = ARMOR_PROTOTYPE_SCREENS
     elif "--store-preview-only" in sys.argv[1:]:
         active_screens = STORE_PREVIEW_SCREENS
+    elif "--store-details-only" in sys.argv[1:]:
+        active_screens = STORE_PRODUCT_DETAIL_SCREENS
     else:
         active_screens = SCREENS
     requested_labels: set[str] = set()

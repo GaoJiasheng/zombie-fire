@@ -98,6 +98,10 @@ func _initialize() -> void:
 		# product list show through and falsely looked like overlapping text.
 		for _dialog_frame in range(12):
 			await process_frame
+	if payload.has("debug_store_detail_product") and route == "store" and main.current_scene != null and main.current_scene.has_method("_show_product_detail"):
+		main.current_scene.call("_show_product_detail", str(payload.get("debug_store_detail_product", "")))
+		for _store_detail_frame in range(10):
+			await process_frame
 	if payload.has("debug_spawn_boss") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy"):
 		if bool(payload.get("debug_clean_boss_stage", false)):
 			# Marketing/visual-regression capture only: suspend the authored wave
@@ -172,7 +176,9 @@ func _initialize() -> void:
 	if bool(payload.get("debug_dense_combat", false)) and main.current_scene != null and main.current_scene.has_method("_spawn_enemy_instance"):
 		await _prepare_dense_combat(main.current_scene)
 	if bool(payload.get("debug_combo_hud", false)) and main.current_scene != null:
-		await _prepare_combo_hud_showcase(main.current_scene)
+		var combo_preview_value: Variant = payload.get("debug_combo_hud", 2)
+		var combo_preview_count := 2 if combo_preview_value is bool else maxi(2, int(combo_preview_value))
+		await _prepare_combo_hud_showcase(main.current_scene, combo_preview_count)
 	if bool(payload.get("debug_spawn_distribution", false)) and main.current_scene != null and main.current_scene.has_method("_next_enemy_spawn_position"):
 		await _prepare_live_spawn_distribution(main.current_scene, str(payload.get("debug_spawn_lane", "spread")))
 	if bool(payload.get("debug_apocalypse_overload", false)) and main.current_scene != null and main.current_scene.has_method("_apply_apocalypse_thunder_on_hit"):
@@ -234,6 +240,11 @@ func _initialize() -> void:
 			int(payload.get("debug_character_shooting_frame", 3)),
 			str(payload.get("debug_character_shooting_aim", "center")),
 			bool(payload.get("debug_character_shooting_muzzle", false))
+		)
+	if payload.has("debug_character_idle_frame") and main.current_scene != null and main.current_scene.has_method("_update_character_body_pose"):
+		await _prepare_character_idle_showcase(
+			main.current_scene,
+			int(payload.get("debug_character_idle_frame", 1))
 		)
 	if bool(payload.get("debug_cast_active", false)) and main.current_scene != null and main.current_scene.has_method("_on_character_skill_pressed"):
 		main.current_scene.character_active_cd = 0.0
@@ -673,7 +684,7 @@ func _prepare_dense_combat(battle: Node) -> void:
 		visible_markers,
 	])
 
-func _prepare_combo_hud_showcase(battle: Node) -> void:
+func _prepare_combo_hud_showcase(battle: Node, preview_count := 2) -> void:
 	if battle.has_method("_hide_wave_toast"):
 		battle.onboarding_tip_shown = true
 		battle.pending_wave_toast = {}
@@ -686,8 +697,20 @@ func _prepare_combo_hud_showcase(battle: Node) -> void:
 			if combo_hud.has_method("reset"):
 				combo_hud.call("reset")
 			if combo_hud.has_method("register_kill"):
+				# Seed the private counter and animate only the final increment. This
+				# keeps 100-hit screenshots deterministic without stacking 100 bump
+				# tweens or flashing an unrelated earlier milestone banner.
+				combo_hud.set("_count", maxi(1, preview_count - 1))
+				var next_milestone_index := 0
+				var milestones: Array[int] = [10, 25, 50, 100, 200, 500]
+				while next_milestone_index < milestones.size() and int(milestones[next_milestone_index]) <= preview_count:
+					next_milestone_index += 1
+				combo_hud.set("_milestone_index", mini(next_milestone_index, maxi(0, milestones.size() - 1)))
 				combo_hud.call("register_kill")
-				combo_hud.call("register_kill")
+				var milestone_label := combo_hud.get_node_or_null("Milestone") as Label
+				if milestone_label != null:
+					milestone_label.text = ""
+					milestone_label.modulate.a = 0.0
 			combo_hud.visible = true
 	for i in range(4):
 		await process_frame
@@ -832,6 +855,49 @@ func _prepare_character_shooting_showcase(battle: Node, one_based_frame: int, ai
 		str(battle.character_sprite.scale),
 		str(battle.character_rig.scale),
 		str(battle.scale),
+		str(battle.character_sprite.global_transform.x),
+		str(battle.character_sprite.global_transform.y),
+		str(battle.character_sprite.texture.resource_path),
+	])
+
+func _prepare_character_idle_showcase(battle: Node, one_based_frame: int) -> void:
+	battle.pending_spawns.clear()
+	battle.active_spawning = false
+	battle.onboarding_tip_shown = true
+	battle.pending_wave_toast = {}
+	battle.pending_wave_toast_timer_active = false
+	battle.call("_hide_wave_toast")
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.queue_free()
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		marker.queue_free()
+	for projectile in battle.get_node("ProjectileLayer").get_children():
+		projectile.queue_free()
+	await process_frame
+	await process_frame
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	battle.character_attack_time = 0.0
+	battle.character_skill_time = 0.0
+	battle.character_hurt_time = 0.0
+	battle.character_weapon_combo_locked_aim = ""
+	var frames: Array[Texture2D] = battle.character_idle_frames
+	var frame_index := clampi(one_based_frame - 1, 0, maxi(frames.size() - 1, 0))
+	if not frames.is_empty():
+		battle.character_anim_frame = frame_index
+		battle.character_sprite.texture = frames[frame_index]
+	var pose_key := "center" if battle.call("_character_uses_true_grip") else "idle"
+	battle.call("_update_character_body_pose", pose_key)
+	battle.set_process(false)
+	battle.set_physics_process(false)
+	await process_frame
+	await process_frame
+	print("character idle audit: character=%s weapon=%s frame=%d scale=%s rig_scale=%s global_x=%s global_y=%s texture=%s" % [
+		battle.character_id,
+		battle.weapon_id,
+		frame_index + 1,
+		str(battle.character_sprite.scale),
+		str(battle.character_rig.scale),
 		str(battle.character_sprite.global_transform.x),
 		str(battle.character_sprite.global_transform.y),
 		str(battle.character_sprite.texture.resource_path),

@@ -1,0 +1,659 @@
+{
+  "version": 2,
+  "count": 72,
+  "source_masters": [
+    "assets/production/source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_button_primary_transparent_v2.png",
+    "assets/production/source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01/polar_aurora_button_secondary_transparent_v2.png"
+  ],
+  "composition": "native three-slice; rendered cryogenic end armor preserved; quiet center lane resized",
+  "assets": [
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_154x44.png",
+      "kind": "button_primary",
+      "size": [
+        154,
+        44
+      ],
+      "sha256": "ab06f8f1f82e8ea59c32a9e73325dd87d70772f5654f943405dc2b36745e7b86"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_154x44.png",
+      "kind": "button_secondary",
+      "size": [
+        154,
+        44
+      ],
+      "sha256": "fe4437f1ed9df85e7146a73a312acff251d5a977d234ac4293bb2d09e219f3d5"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_166x58.png",
+      "kind": "button_primary",
+      "size": [
+        166,
+        58
+      ],
+      "sha256": "4df6fcb17a0a713c3e0db50f4c60b89897e9485d42d837bf024bd5bf684fe6f1"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_166x58.png",
+      "kind": "button_secondary",
+      "size": [
+        166,
+        58
+      ],
+      "sha256": "6701dacb23e083c523260daad236934fe270b8615b10c2612be46e461f6fcb51"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_170x84.png",
+      "kind": "button_primary",
+      "size": [
+        170,
+        84
+      ],
+      "sha256": "0aa60b559ada050e24786bea17f31b102604f36cf6d710dafc196a666f607483"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_170x84.png",
+      "kind": "button_secondary",
+      "size": [
+        170,
+        84
+      ],
+      "sha256": "ee22181b5692b1206a5bce6094f944eca3658a1250cb6117e8e7d4748d8fecd8"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_172x44.png",
+      "kind": "button_primary",
+      "size": [
+        172,
+        44
+      ],
+      "sha256": "c9e517e58d2e776abbc5bc340261c8de71d5d6645be9ffd5ae47d1e7edd9036b"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_172x44.png",
+      "kind": "button_secondary",
+      "size": [
+        172,
+        44
+      ],
+      "sha256": "01771bf65629020775872fca18d1e7beaf69005ec26a39f433f00a33df058d15"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_174x72.png",
+      "kind": "button_primary",
+      "size": [
+        174,
+        72
+      ],
+      "sha256": "571c2928f28f85f71084eae39d5dc1455da81c5122c3115163e8ccda37c359c6"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_174x72.png",
+      "kind": "button_secondary",
+      "size": [
+        174,
+        72
+      ],
+      "sha256": "7f8aa8e97e74ca7fe118ff02e64e5c9e99a137ee4a28339831fffc9d694e50b5"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_176x76.png",
+      "kind": "button_primary",
+      "size": [
+        176,
+        76
+      ],
+      "sha256": "7fa2e44e3f026c320ca4ecd2192498c8a24d5247e573e9effa4c5bacdee69cc5"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_176x76.png",
+      "kind": "button_secondary",
+      "size": [
+        176,
+        76
+      ],
+      "sha256": "b35822e1ac6d8720d35a217e0dd5f60cbe65ea55e8991b6ddb41dc06ad682892"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_236x96.png",
+      "kind": "button_primary",
+      "size": [
+        236,
+        96
+      ],
+      "sha256": "fb3056be0116e0ca7887c67ecd9925179716a196ee797d4ad26e925e898b9004"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_236x96.png",
+      "kind": "button_secondary",
+      "size": [
+        236,
+        96
+      ],
+      "sha256": "78355597256861b62225c25d908273ceea12f92475c0486262cf47978728a4d6"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_260x112.png",
+      "kind": "button_primary",
+      "size": [
+        260,
+        112
+      ],
+      "sha256": "76383c3c807d17cf25a24700c9e0308f9157e35a029d219ed17c5db0355042d8"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_260x112.png",
+      "kind": "button_secondary",
+      "size": [
+        260,
+        112
+      ],
+      "sha256": "2707ef2260f148c58f85bf15875bf0040b0653c76ca757c863b4cc719b59d26d"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_268x48.png",
+      "kind": "button_primary",
+      "size": [
+        268,
+        48
+      ],
+      "sha256": "23326dc59a5cd83636ba72bb9a965cacfbf8e52d688e2a29cf3fb69dcfcd0b5c"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_268x48.png",
+      "kind": "button_secondary",
+      "size": [
+        268,
+        48
+      ],
+      "sha256": "953427ff579d7bb1aa559f95fba675fcf4293ab2e1d443edba633e3bd96203db"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_286x72.png",
+      "kind": "button_primary",
+      "size": [
+        286,
+        72
+      ],
+      "sha256": "1b768498415dcd1b0a396bce8cde6f1f02e25295090a9a6050208bef48e8fdf9"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_286x72.png",
+      "kind": "button_secondary",
+      "size": [
+        286,
+        72
+      ],
+      "sha256": "2c58bfb26a743e27fddeefcd3f21f0d6d359bbd598b060ad217dc73fc2f6c80a"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_286x80.png",
+      "kind": "button_primary",
+      "size": [
+        286,
+        80
+      ],
+      "sha256": "924b4d82c0f9237e60fc1e309a8eb32d245b43f0f2c239bd9e5679a34e289f4a"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_286x80.png",
+      "kind": "button_secondary",
+      "size": [
+        286,
+        80
+      ],
+      "sha256": "1886ad903809b2ce90fed57c02d9515133779b6d54dd8787d0e1d7132eb7c89f"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_286x112.png",
+      "kind": "button_primary",
+      "size": [
+        286,
+        112
+      ],
+      "sha256": "971f867e16296edec05313144c8ea1ccc86672f16869b5fb0edfb9979d6d4667"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_286x112.png",
+      "kind": "button_secondary",
+      "size": [
+        286,
+        112
+      ],
+      "sha256": "2509863aae93662460802e54ceb4d2313120234b8e884332badd568d7b41b119"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_320x74.png",
+      "kind": "button_primary",
+      "size": [
+        320,
+        74
+      ],
+      "sha256": "a73c4170c7a9c7c09a30c391e3d4043132bdbb4de63329354e0d6aaece6043b0"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_320x74.png",
+      "kind": "button_secondary",
+      "size": [
+        320,
+        74
+      ],
+      "sha256": "aa42befae6e59c786b94e3e4640779e705fc5a7d7ced838218bd4e3d7a8ec07b"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_320x80.png",
+      "kind": "button_primary",
+      "size": [
+        320,
+        80
+      ],
+      "sha256": "52a9c4853ece46289f265c30db02382bf6aaea74fb8aa5bec91f36fa529f643c"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_320x80.png",
+      "kind": "button_secondary",
+      "size": [
+        320,
+        80
+      ],
+      "sha256": "616cafc179b7c68aa298bdc4d6b2db1c535b6a859ff5a8db458ee816424c849c"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_412x88.png",
+      "kind": "button_primary",
+      "size": [
+        412,
+        88
+      ],
+      "sha256": "5795512b1793f4476624bf525068f16ea7f322bc7a922d55e849167979ff6380"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_412x88.png",
+      "kind": "button_secondary",
+      "size": [
+        412,
+        88
+      ],
+      "sha256": "80ba554012e31ff27936d2b8878b72706448c32bbc1fc5cbb2d678a8c079e6b6"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_432x88.png",
+      "kind": "button_primary",
+      "size": [
+        432,
+        88
+      ],
+      "sha256": "7de06ee58d96854d39e8307397cddc7be78f61a85c930daf5fd83027c0a24c06"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_432x88.png",
+      "kind": "button_secondary",
+      "size": [
+        432,
+        88
+      ],
+      "sha256": "4ba4f9e3213f3cc6d20d9cca8294b44343c34aad97c83a7e9f9fb068595fef8f"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_440x80.png",
+      "kind": "button_primary",
+      "size": [
+        440,
+        80
+      ],
+      "sha256": "b8a565158d188192f1b336c7dfe9f6ebee067b833000428907f4fa7bfcebaf7f"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_440x80.png",
+      "kind": "button_secondary",
+      "size": [
+        440,
+        80
+      ],
+      "sha256": "60c820a5c5da6caba51fb75d33a520a1a6326b1a373ea700d17f7c52e2605e50"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_440x88.png",
+      "kind": "button_primary",
+      "size": [
+        440,
+        88
+      ],
+      "sha256": "507a6c088d1e7ff6885d8f5774d1ab41142125ac66dc8bc734aba9a93e31bb4e"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_440x88.png",
+      "kind": "button_secondary",
+      "size": [
+        440,
+        88
+      ],
+      "sha256": "ce3585bbd5f0d44a9856bc5af56dc55b078d960732c01fcb61c2c10ad5600f84"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_444x88.png",
+      "kind": "button_primary",
+      "size": [
+        444,
+        88
+      ],
+      "sha256": "c005fa9b39a93d0f3a95f0a0b74fab709da2cd8ef4fb36ec4c8f43eadc5e6f6b"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_444x88.png",
+      "kind": "button_secondary",
+      "size": [
+        444,
+        88
+      ],
+      "sha256": "fd6294fb3663c4c115ca8d8884093dcd7e2d0d3d9950591214dec9c7d51752d9"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_452x88.png",
+      "kind": "button_primary",
+      "size": [
+        452,
+        88
+      ],
+      "sha256": "e29d82f459726cf9c9b09aeed63eb53422f4d6a1076686fbf55133a272285c86"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_452x88.png",
+      "kind": "button_secondary",
+      "size": [
+        452,
+        88
+      ],
+      "sha256": "41a4ffd1b15270da46b476b96af3e5419fb78208e3f4a5eca6e74a11c09a3543"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_484x102.png",
+      "kind": "button_primary",
+      "size": [
+        484,
+        102
+      ],
+      "sha256": "72d51cefa44824eaa31992ed9b155cf44155b3e3d2561a81c1c2d996c2d6a199"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_484x102.png",
+      "kind": "button_secondary",
+      "size": [
+        484,
+        102
+      ],
+      "sha256": "47ec462fe5d498145aa34fc442c9189b2bff700780bb8b6e902055832b11add7"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_512x160.png",
+      "kind": "button_primary",
+      "size": [
+        512,
+        160
+      ],
+      "sha256": "78b262c3d0310a0d589cc1722615f36e26bb8de1471efeb2d8757a34a18a9d6b"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_512x160.png",
+      "kind": "button_secondary",
+      "size": [
+        512,
+        160
+      ],
+      "sha256": "c28a92df1544edeafc5b04324ee7693ae151da1fc27050384c4a8b0a29857bcf"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_560x104.png",
+      "kind": "button_primary",
+      "size": [
+        560,
+        104
+      ],
+      "sha256": "d0bda609ac3489c6bec9f461baa333d276abdab71f0fca5282d6923f278b36ef"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_560x104.png",
+      "kind": "button_secondary",
+      "size": [
+        560,
+        104
+      ],
+      "sha256": "db0363dcae9133c27ad556fd444750c88ce008ba1be0357ab930b0dc7ae73e31"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_600x120.png",
+      "kind": "button_primary",
+      "size": [
+        600,
+        120
+      ],
+      "sha256": "35595b0bf673af81bb77b9b2e82260c893d42cbafe83954f867cd865d54b83ee"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_600x120.png",
+      "kind": "button_secondary",
+      "size": [
+        600,
+        120
+      ],
+      "sha256": "24c564c8dff250f774c02527c0219c457c2dada65dfbb8a77504d94c83f2d2b1"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_760x88.png",
+      "kind": "button_primary",
+      "size": [
+        760,
+        88
+      ],
+      "sha256": "6352faa1bfc1f263c659011cbf608fb54181f399cc91bd1011c24dc37bf72112"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_760x88.png",
+      "kind": "button_secondary",
+      "size": [
+        760,
+        88
+      ],
+      "sha256": "f58cc1ea4e6bd921b067f90e22077d06ba3ffeb49eb1d382f2f42220eb511fe9"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_760x112.png",
+      "kind": "button_primary",
+      "size": [
+        760,
+        112
+      ],
+      "sha256": "1c6e009b70ba18687aa800ae00805a52d43c0abcba37c59bd8ed13be27cb9e80"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_760x112.png",
+      "kind": "button_secondary",
+      "size": [
+        760,
+        112
+      ],
+      "sha256": "661e3213228140fbe0c1fdb2e7b50b957c5561c3b17de536e4fcd00968bb8a5d"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_780x148.png",
+      "kind": "button_primary",
+      "size": [
+        780,
+        148
+      ],
+      "sha256": "a1bf5c4e1849b629d89fcc46548dc1d6ed1894b99c09716207098fc338537120"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_780x148.png",
+      "kind": "button_secondary",
+      "size": [
+        780,
+        148
+      ],
+      "sha256": "747386c692b01b9968679fea436f80c0a75abd618aa6678b7e4f91fa8ef539d1"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_784x96.png",
+      "kind": "button_primary",
+      "size": [
+        784,
+        96
+      ],
+      "sha256": "ef8e32e796235c30d429bf9822305497df17dbc86158fa36decc68724da51c0a"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_784x96.png",
+      "kind": "button_secondary",
+      "size": [
+        784,
+        96
+      ],
+      "sha256": "e98b2208f008747f6ab4614198775e4c5d51d1a0dbe26a98056df4acab166abe"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_840x88.png",
+      "kind": "button_primary",
+      "size": [
+        840,
+        88
+      ],
+      "sha256": "d3f22c2d7aecc99b77bed27a17a2a1e511d73ea1f1932e8529f64c9b6881fc70"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_840x88.png",
+      "kind": "button_secondary",
+      "size": [
+        840,
+        88
+      ],
+      "sha256": "e817210d0621df1299e4bb21d963b9ec89801e369d35d52e6a6da85aaee67807"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_880x88.png",
+      "kind": "button_primary",
+      "size": [
+        880,
+        88
+      ],
+      "sha256": "d8cbb35b7a0261d9bc58c21ce4f4a1b98037e07c941641936d6ebd1b66db843e"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_880x88.png",
+      "kind": "button_secondary",
+      "size": [
+        880,
+        88
+      ],
+      "sha256": "194c05862745ba8d78a716e7366cea61dec3f0f2b6e9e3626319df20b2214154"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_880x96.png",
+      "kind": "button_primary",
+      "size": [
+        880,
+        96
+      ],
+      "sha256": "4500c8dc2fed214433d4d6ffd21c7b09d9c0190a5ada2c44c129a01c7ebcf0f2"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_880x96.png",
+      "kind": "button_secondary",
+      "size": [
+        880,
+        96
+      ],
+      "sha256": "d88099970e254838e43cf3a8300660d605e426ed11be2d9ac2b56fd145c88558"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_904x88.png",
+      "kind": "button_primary",
+      "size": [
+        904,
+        88
+      ],
+      "sha256": "9bb972edfdc53a6f7dda519010cee0c508f6d1a0f219b5c9680d278de4cb11e2"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_904x88.png",
+      "kind": "button_secondary",
+      "size": [
+        904,
+        88
+      ],
+      "sha256": "9a473ffd42074ffeb0930cb454c1f882f60da54fda2384d6aa438a15bf695549"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_920x88.png",
+      "kind": "button_primary",
+      "size": [
+        920,
+        88
+      ],
+      "sha256": "ce83c6d7dfadd2b957d402483c3b99e363277efc6969da9351daca5a5a577978"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_920x88.png",
+      "kind": "button_secondary",
+      "size": [
+        920,
+        88
+      ],
+      "sha256": "988d69f330717c16c7e260937b1c4d621c25f531dcefe34cd543060a7d5e51d3"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_980x58.png",
+      "kind": "button_primary",
+      "size": [
+        980,
+        58
+      ],
+      "sha256": "a2ae2d9c309b15f287d41138ce166ead41ad7a6b6fbe0b511bdf0e5eafa0c97c"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_980x58.png",
+      "kind": "button_secondary",
+      "size": [
+        980,
+        58
+      ],
+      "sha256": "38e602ab5628ae26d4efbe2cd3aca23d331c473d87b9465143d3cbe2377138ed"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_980x96.png",
+      "kind": "button_primary",
+      "size": [
+        980,
+        96
+      ],
+      "sha256": "e06a204676dd5fbd8964142513676a5c9d0d7e3e2538d3e1f4d4bdf3b0a94534"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_980x96.png",
+      "kind": "button_secondary",
+      "size": [
+        980,
+        96
+      ],
+      "sha256": "d64b8726518f30ace852481b14762101141d11b4c054c7770e6feb65b38aa675"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_primary_native_980x100.png",
+      "kind": "button_primary",
+      "size": [
+        980,
+        100
+      ],
+      "sha256": "22fb41b3910044c7a4164fb9b170c22d86afe12e6a8c4ba26bd524ac32c36a97"
+    },
+    {
+      "path": "assets/production/sprites/themes/polar_aurora/ui/ui_button_secondary_native_980x100.png",
+      "kind": "button_secondary",
+      "size": [
+        980,
+        100
+      ],
+      "sha256": "fe3f26b4c8be2ba883efdc79bba5da5d06f22a7de32a043984dc34c9ce0cdc6b"
+    }
+  ]
+}

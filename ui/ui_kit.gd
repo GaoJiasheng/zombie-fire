@@ -664,6 +664,35 @@ static func panel_texture_style(content := 18.0) -> StyleBox:
 static func result_panel_texture_style() -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_result_panel_final.png", 42.0, 22.0, GOLD)
 
+static func detail_panel_texture_style() -> StyleBox:
+	# This authored surface has a deliberately quiet, rule-free centre. Use it
+	# directly as a nine-slice style so tall dialogs keep one continuous texture
+	# without runtime geometry, duplicated borders, or fake progress-bar seams.
+	return texture_style(UI_TEXTURE_ROOT + "ui_detail_panel_clear.png", 28.0, 22.0, CYAN)
+
+static func add_detail_panel_frame(panel: Control) -> NinePatchRect:
+	# Render only the authored metal perimeter. `draw_center = false` is the key
+	# contract for tall detail dialogs: the texture centre never stretches, so
+	# no decorative source row can turn into a fake progress/separator line.
+	var frame := NinePatchRect.new()
+	frame.name = "AuthoredDetailFrame"
+	frame.texture = _load_texture(UI_TEXTURE_ROOT + "ui_detail_panel_clear.png")
+	frame.draw_center = false
+	frame.patch_margin_left = 28
+	frame.patch_margin_top = 28
+	frame.patch_margin_right = 28
+	frame.patch_margin_bottom = 28
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Keep the frame before any authored content so it behaves like a background
+	# StyleBox even when attached to an existing scene at runtime. Keeping it out
+	# of the foreground also prevents the perimeter from masking long localized
+	# titles.
+	frame.z_index = 0
+	panel.add_child(frame)
+	panel.move_child(frame, 0)
+	return frame
+
 static func reward_texture_style(kind: String) -> StyleBox:
 	if kind == "xp":
 		return texture_style(UI_TEXTURE_ROOT + "ui_result_reward_card_xp.png", 26.0, 16.0, CYAN)
@@ -701,10 +730,12 @@ static func deploy_pill_texture_style() -> StyleBox:
 static func resource_chip_texture_style() -> StyleBox:
 	return texture_style(UI_TEXTURE_ROOT + "ui_resource_chip_skin.png", 26.0, 12.0, GOLD)
 
-static func resource_chip_compact_style() -> StyleBox:
-	# The compact combat panel has one continuous mechanical silhouette, unlike
-	# the legacy resource plate whose nested outlines read as a double border.
-	return texture_style(UI_TEXTURE_ROOT + "ui_combo_panel.png", 34.0, 6.0, GOLD)
+static func resource_chip_compact_style(chip_size := Vector2(186, 62)) -> StyleBox:
+	# Resource chips are buttons, so route them through the same rendered native
+	# bezel family as the rest of the active theme. This keeps Default, Neon,
+	# Infernal, Polar and Gilded visually coherent without bringing back the old
+	# nested resource frame.
+	return armored_button_style(false, chip_size, false)
 
 static func collection_card_texture_style(skill := false) -> StyleBox:
 	if skill:
@@ -986,8 +1017,72 @@ static func currency_icon_path(kind: String) -> String:
 			return "res://assets/production/sprites/ui/icon_currency_xp.png"
 		"star":
 			return "res://assets/production/sprites/ui/icon_currency_star.png"
+		"talent_point", "power":
+			return "res://assets/production/sprites/ui/icon_talent_point.png"
+		"reroll_charge":
+			return "res://assets/production/sprites/ui/icon_reroll_charge.png"
 		_:
 			return "res://assets/production/sprites/ui/icon_warning.png"
+
+# Upgrade / unlock actions must never encode a resource through punctuation or
+# prose such as `350★` / `350 XP`. This shared presentation keeps the actual
+# SaveManager resource kind, its authored icon and the numeric amount together.
+# It works for both texture-backed collection buttons and ordinary Button nodes.
+static func apply_resource_cost(
+	button: BaseButton,
+	action_text: String,
+	resource_kind: String,
+	amount: int,
+	font_size := 20,
+	icon_size := 28.0,
+	optical_y := -4.0
+) -> void:
+	if button == null:
+		return
+	var old_content := button.get_node_or_null("ResourceCostContent")
+	if old_content != null:
+		button.remove_child(old_content)
+		old_content.free()
+	if button is Button:
+		(button as Button).text = ""
+	var legacy_label := button.get_node_or_null("ActionLabel") as Label
+	if legacy_label != null:
+		legacy_label.visible = false
+
+	var content := CenterContainer.new()
+	content.name = "ResourceCostContent"
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.offset_top = optical_y
+	content.offset_bottom = optical_y
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(content)
+
+	var group := HBoxContainer.new()
+	group.name = "ResourceCostGroup"
+	group.alignment = BoxContainer.ALIGNMENT_CENTER
+	group.add_theme_constant_override("separation", 7 if icon_size <= 24.0 else 9)
+	group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(group)
+
+	var action := label(action_text, font_size, TEXT_MAIN, 3)
+	action.name = "CostAction"
+	action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	group.add_child(action)
+
+	var icon_path := currency_icon_path(resource_kind)
+	var cost_icon := icon(icon_path, Vector2(icon_size, icon_size))
+	cost_icon.name = "CostIcon"
+	cost_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	group.add_child(cost_icon)
+
+	var value := label("%d" % amount, font_size, TEXT_MAIN, 3)
+	value.name = "CostValue"
+	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	group.add_child(value)
+
+	button.set_meta("cost_resource_kind", resource_kind)
+	button.set_meta("cost_resource_amount", amount)
+	button.set_meta("cost_resource_icon", icon_path)
 
 static func press_feedback(control: Control) -> void:
 	if control == null or not is_instance_valid(control):
@@ -996,26 +1091,30 @@ static func press_feedback(control: Control) -> void:
 	tween.tween_property(control, "scale", Vector2(0.97, 0.97), 0.05)
 	tween.tween_property(control, "scale", Vector2.ONE, 0.08)
 
-# 战力图标(与 map 一致)。
+# 有效战力图标(与 map 一致)。
 const POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 
-# ---- 共享资源条(金币/星星/经验/战力)。各页面统一外观,只在此维护。----
-static func _resource_chip_style(accent: Color) -> StyleBox:
-	var style := resource_chip_compact_style()
-	if style is StyleBoxTexture:
-		var textured := (style as StyleBoxTexture).duplicate(true) as StyleBoxTexture
-		textured.modulate_color = Color(
-			lerpf(1.0, accent.r, 0.18),
-			lerpf(1.0, accent.g, 0.18),
-			lerpf(1.0, accent.b, 0.18),
-			0.94
-		)
-		return textured
-	return style
+# ---- 共享资源条(金币/星星/经验/有效战力)。各页面统一外观,只在此维护。----
+static func _resource_chip_style(_accent: Color, chip_size: Vector2) -> StyleBox:
+	# The icon already owns the resource colour. Keep the rendered bezel's theme
+	# palette intact so each premium treatment reads as authored rather than as a
+	# generic frame with a colour wash.
+	return resource_chip_compact_style(chip_size)
+
+static func _resource_chip_side_reserve(chip_size: Vector2) -> float:
+	# Infernal has the deepest end armour of the five native button families.
+	# Reserve enough mirrored space for that geometry on both sides. This also
+	# guarantees that the tightly centred icon + value group remains inside the
+	# calm text well at every registered native size.
+	return maxf(74.0, chip_size.y + 16.0)
 
 static func _resource_chip_width(value: String, chip_size: Vector2, font_size: int) -> float:
-	var length_bonus: float = float(maxi(0, value.length() - 3)) * (float(font_size) * 0.42)
-	return maxf(chip_size.x, chip_size.x + length_bonus)
+	var side_reserve := _resource_chip_side_reserve(chip_size)
+	var effective_font_size := float(bumped_font_size(font_size))
+	# Glow Sans' account digits occupy roughly 0.56em. Keep a small optical guard
+	# so six-digit balances do not clip after integer container rounding.
+	var estimated_value_width := maxf(1.0, float(value.length())) * effective_font_size * 0.56 + 8.0
+	return maxf(chip_size.x, side_reserve * 2.0 + estimated_value_width)
 
 static func resource_chip(icon_path: String, accent: Color, value: String, tip := "", chip_size := Vector2(186, 62), font_size := 30) -> Button:
 	var btn := Button.new()
@@ -1023,32 +1122,49 @@ static func resource_chip(icon_path: String, accent: Color, value: String, tip :
 	btn.custom_minimum_size = fitted_size
 	btn.focus_mode = Control.FOCUS_NONE
 	btn.tooltip_text = tip
-	var style := _resource_chip_style(accent)
+	btn.set_meta("resource_chip_side_reserve", _resource_chip_side_reserve(chip_size))
+	btn.set_meta("resource_chip_optical_offset_x", -4.0)
+	btn.set_meta("resource_chip_optical_offset_y", -2.0)
+	var style := _resource_chip_style(accent, fitted_size)
 	for st in ["normal", "hover", "pressed", "focus", "disabled"]:
 		btn.add_theme_stylebox_override(st, style)
 	if tip != "":
 		btn.pressed.connect(func() -> void: toast(btn, tip, accent))
-	var content := HBoxContainer.new()
+	var content := CenterContainer.new()
+	content.name = "Content"
 	content.set_anchors_preset(Control.PRESET_FULL_RECT)
-	content.offset_left = 14.0
-	content.offset_top = 5.0
-	content.offset_right = -14.0
-	content.offset_bottom = -5.0
-	content.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_theme_constant_override("separation", 7)
+	# Transparent icon padding plus the digit side bearings move the visible-pixel
+	# centre about four pixels right of the Control bounds. Glow Sans' numeric ink
+	# also sits below its Label bounds centre, so move the whole tight pair left by
+	# four and up by two to centre the visible pixels in the rendered inner well.
+	content.offset_left = -4.0
+	content.offset_right = -4.0
+	content.offset_top = -2.0
+	content.offset_bottom = -2.0
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(content)
-	var icon_size := minf(34.0, maxf(28.0, chip_size.y - 24.0))
+	var group := HBoxContainer.new()
+	group.name = "ContentGroup"
+	group.alignment = BoxContainer.ALIGNMENT_CENTER
+	group.add_theme_constant_override("separation", 10)
+	group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(group)
+	var icon_size := minf(26.0, maxf(24.0, chip_size.y - 32.0))
 	var ic := icon(icon_path, Vector2(icon_size, icon_size))
+	ic.name = "Icon"
+	ic.custom_minimum_size = Vector2(icon_size, icon_size)
+	ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	ic.modulate = Color(1.06, 1.02, 0.92, 1.0)
-	content.add_child(ic)
+	group.add_child(ic)
 	var lbl := label(value, font_size, TEXT_MAIN, 2)
+	lbl.name = "Value"
 	lbl.add_theme_font_size_override("font_size", bumped_font_size(font_size))
+	lbl.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.clip_text = true
-	content.add_child(lbl)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	lbl.clip_text = false
+	group.add_child(lbl)
 	return btn
 
 # 轻量提示条:点资源 chip 时在顶部中央短暂显示说明(手机没有 hover tooltip)。
@@ -1079,23 +1195,25 @@ static func resource_bar(items: Array, chip_size := Vector2(186, 62), font_size 
 	row.add_theme_constant_override("separation", 16)
 	for it in items:
 		if it is Dictionary:
-			row.add_child(resource_chip(
+			var chip := resource_chip(
 				str(it.get("icon", "")),
 				it.get("accent", GOLD),
 				str(it.get("value", "")),
 				str(it.get("tip", "")),
 				chip_size,
 				font_size
-			))
+			)
+			chip.name = str(it.get("name", "ResourceChip"))
+			row.add_child(chip)
 	return row
 
-# 标准四项资源条(金币/可用星星/经验/战力),数值由调用方传入,保证各页面内容一致。
+# 标准四项资源条(金币/可用星星/经验/有效战力),数值由调用方传入,保证各页面内容一致。
 static func standard_resource_bar(gold: int, star: int, xp: int, power: int, chip_size := Vector2(186, 62), font_size := 30) -> HBoxContainer:
 	return resource_bar([
-		{"icon": currency_icon_path("gold"), "accent": GOLD, "value": "%d" % gold, "tip": "金币：升级角色/武器/护甲/芯片/宠物"},
-		{"icon": currency_icon_path("star"), "accent": Color(0.96, 0.80, 0.30, 1.0), "value": "%d" % star, "tip": "可用星星：购买/解锁角色与装备"},
-		{"icon": currency_icon_path("xp"), "accent": CYAN, "value": "%d" % xp, "tip": "经验：永久升级技能"},
-		{"icon": POWER_ICON, "accent": PURPLE, "value": "%d" % power, "tip": "战力：当前阵容综合强度"},
+		{"name": "GoldResourceChip", "icon": currency_icon_path("gold"), "accent": GOLD, "value": "%d" % gold, "tip": "金币：升级角色/武器/护甲/芯片/宠物"},
+		{"name": "StarResourceChip", "icon": currency_icon_path("star"), "accent": Color(0.96, 0.80, 0.30, 1.0), "value": "%d" % star, "tip": "可用星星：购买/解锁角色与装备"},
+		{"name": "XpResourceChip", "icon": currency_icon_path("xp"), "accent": CYAN, "value": "%d" % xp, "tip": "经验：永久升级技能"},
+		{"name": "PowerResourceChip", "icon": POWER_ICON, "accent": PURPLE, "value": "%d" % power, "tip": "有效战力：当前阵容针对所选关卡的预计通关能力"},
 	], chip_size, font_size)
 
 # 共享武器图标(统一外观,尺寸可变)。
@@ -1129,7 +1247,8 @@ static func apply_theme_surface(item: CanvasItem) -> void:
 		item.material = manager.call("create_surface_material") as Material
 
 # ---- 统一购买/确认弹框(所有商店、所有货币共用同一个模型)。----
-# opts: title, message, cost_text, cost_icon, accent, confirm_text, cancel_text,
+# opts: title, message, cost_text, cost_kind (preferred) or cost_icon, accent,
+#       confirm_text, cancel_text,
 #       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
 static func _modal_button(text: String, _accent: Color, primary: bool) -> Button:
 	var b := Button.new()
@@ -1214,7 +1333,8 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 		var cost_row := HBoxContainer.new()
 		cost_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		cost_row.add_theme_constant_override("separation", 12)
-		var cicon := str(opts.get("cost_icon", ""))
+		var cost_kind := str(opts.get("cost_kind", ""))
+		var cicon := currency_icon_path(cost_kind) if cost_kind != "" else str(opts.get("cost_icon", ""))
 		if cicon != "" and ResourceLoader.exists(cicon):
 			cost_row.add_child(icon(cicon, Vector2(46, 46)))
 		cost_row.add_child(label(cost_text, 44, accent, 4))

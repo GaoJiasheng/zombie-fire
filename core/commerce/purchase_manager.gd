@@ -118,6 +118,41 @@ func set_for_series(series_id: String) -> Dictionary:
 	return DataLoader.get_row("premium_sets", set_id_for_series(series_id))
 
 
+func series_id_for_theme(theme_id: String) -> String:
+	var normalized := theme_id.strip_edges()
+	if normalized == "" or normalized == "default":
+		return ""
+	for set_id_var in DataLoader.get_table("premium_sets").keys():
+		var set_row := DataLoader.get_row("premium_sets", str(set_id_var))
+		if str(set_row.get("theme", "")) == normalized:
+			return str(set_row.get("series_id", ""))
+	return ""
+
+
+func series_id_for_entitlement(entitlement_id: String) -> String:
+	var normalized := entitlement_id.strip_edges()
+	if normalized == "":
+		return ""
+	for set_id_var in DataLoader.get_table("premium_sets").keys():
+		var set_row := DataLoader.get_row("premium_sets", str(set_id_var))
+		if normalized in [
+			str(set_row.get("theme_entitlement", "")),
+			str(set_row.get("entitlement", "")),
+		]:
+			return str(set_row.get("series_id", ""))
+	return ""
+
+
+func is_theme_revealed(theme_id: String) -> bool:
+	var series_id := series_id_for_theme(theme_id)
+	return series_id == "" or _series_is_visible(series_id)
+
+
+func is_entitlement_revealed(entitlement_id: String) -> bool:
+	var series_id := series_id_for_entitlement(entitlement_id)
+	return series_id == "" or _series_is_visible(series_id)
+
+
 func theme_entitlement_for_series(series_id: String) -> String:
 	return str(set_for_series(series_id).get("theme_entitlement", ""))
 
@@ -159,11 +194,10 @@ func visible_offer_ids(series_id := "") -> Array[String]:
 
 
 func display_offer_ids(series_id: String) -> Array[String]:
-	# The arsenal is a complete catalog: unrevealed series remain previewable,
-	# while visible_offer_ids() continues to be the purchase authorization gate.
-	# This keeps merchandising visibility separate from entitlement/progression.
+	# Presentation and purchase authorization share the same progression reveal.
+	# Before that reveal the complete product family must be absent everywhere.
 	var ids: Array[String] = []
-	if series_id == "" or not catalog_series_ids().has(series_id):
+	if series_id == "" or not _series_is_visible(series_id):
 		return ids
 	var theme_owned := is_theme_owned(series_id)
 	var arsenal_owned := is_arsenal_owned(series_id)
@@ -301,11 +335,6 @@ func _append_offer_for_kind(ids: Array[String], series_id: String, kind: String)
 func _series_is_visible(series_id: String) -> bool:
 	if series_id == "" or not catalog_series_ids().has(series_id):
 		return false
-	# Acceptance builds expose every authored series through the existing local
-	# demo-purchase flow. This feature is absent from the ordinary Release preset,
-	# so production keeps the 30 / 50 / 80 / endgame progression gates below.
-	if ThemeManager.preview_access_enabled():
-		return true
 	# An owned non-consumable must remain restorable/selectable even if a test
 	# fixture later rolls campaign progress backward.
 	if is_theme_owned(series_id) or is_arsenal_owned(series_id):

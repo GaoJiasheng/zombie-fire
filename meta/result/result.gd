@@ -29,10 +29,10 @@ var is_endless_result := false
 var is_challenge_result := false
 var endless_loops := 0
 var _content_width := CONTENT_MAX_WIDTH
-var standing_power := 1
-var projected_power := 1
-var combat_power := 1
+var power := 1
 var recommended_power := 1
+var cards_picked := 0
+var target_card_picks := 0
 var battle_report: Dictionary = {}
 var repeat_xp_mult := 1.0
 var challenge_rule: Dictionary = {}
@@ -47,10 +47,11 @@ func setup(main: Node, payload := {}) -> void:
 	next_level = _resolve_next_level(payload, victory)
 	result_stars = int(payload.get("stars", 0))
 	repeat_xp_mult = clampf(float(payload.get("repeat_xp_mult", 1.0)), 0.0, 1.0)
-	standing_power = int(payload.get("standing_power", SaveManager.get_loadout_power()))
-	projected_power = int(payload.get("projected_power", SaveManager.get_projected_combat_power_for_level(level_id)))
-	combat_power = int(payload.get("combat_power", projected_power))
+	power = int(payload.get("power", payload.get("projected_power", payload.get("standing_power", SaveManager.get_power_for_level(level_id)))))
 	recommended_power = int(payload.get("recommended_power", SaveManager.get_recommended_power_for_level(level_id)))
+	cards_picked = maxi(0, int(payload.get("cards_selected", payload.get("cards_picked", 0))))
+	var level := DataLoader.get_row("levels", level_id)
+	target_card_picks = maxi(0, int(payload.get("target_card_picks", level.get("target_card_picks", 0))))
 	battle_report = payload.get("battle_report", {}).duplicate(true)
 	challenge_rule = ChallengeRules.for_level(level_id, DataLoader.get_table("challenges"))
 	if is_challenge_result and not payload.has("recommended_power"):
@@ -723,31 +724,17 @@ func _router_level_id() -> String:
 		return str(context.get("level_id", ""))
 	return ""
 
-## design/24 Phase 7: "基准" already folds in the standard four-card projection,
-## so a run that picked fewer cards ends below it and the line used to read like
-## "you got weaker" (measured: 基准 12 → 终局 10). Say why instead of changing
-## the yardstick - the recommended-power calibration is built on this one.
-func _partial_draft_marked() -> bool:
-	return combat_power < standing_power
-
 func _result_hint(victory: bool) -> String:
-	var partial := _partial_draft_marked()
 	if is_endless_result:
-		if partial:
-			return "无尽只结算金币。基准 %d → 终局 %d（选卡未满）；记录最高轮数。" % [standing_power, combat_power]
-		return "无尽只结算金币。基准 %d → 终局 %d；记录最高轮数。" % [standing_power, combat_power]
+		return LocalizationManager.text("无尽只结算金币，并记录最高轮数 · %s") % _card_pick_summary()
 	if victory:
 		if is_challenge_result:
-			if partial:
-				return "出战预估战力 %d · 本局最终 %d（本局技能未选满）\n挑战建议战力 %d · 星星奖励仅补发超过历史最高星数的部分" % [standing_power, combat_power, recommended_power]
-			return "出战预估战力 %d · 本局最终 %d\n挑战建议战力 %d · 星星奖励仅补发超过历史最高星数的部分" % [standing_power, combat_power, recommended_power]
-		if partial:
-			return "基准 %d → 终局 %d（选卡未满）/ 通关线 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
-		return "基准 %d → 终局 %d / 通关线 %d。已计入局内技能。" % [standing_power, combat_power, recommended_power]
+			return LocalizationManager.text("有效战力 %d · 挑战推荐 %d · %s\n星星奖励仅补发超过历史最高星数的部分") % [power, recommended_power, _card_pick_summary()]
+		return LocalizationManager.text("有效战力 %d / 推荐 %d · %s。已完成防守。") % [power, recommended_power, _card_pick_summary()]
 	if is_challenge_result:
-		return "挑战压力 %d；终局战力 %d。优先补强克制配装和核心技能。" % [recommended_power, combat_power]
-	if combat_power < recommended_power:
-		return "终局战力 %d / 通关线 %d。优先强化武器、角色或核心技能。" % [combat_power, recommended_power]
+		return LocalizationManager.text("有效战力 %d / 挑战推荐 %d · %s。优先补强克制配装和核心技能。") % [power, recommended_power, _card_pick_summary()]
+	if power < recommended_power:
+		return LocalizationManager.text("有效战力 %d / 推荐 %d · %s。优先强化武器、角色或核心技能。") % [power, recommended_power, _card_pick_summary()]
 	var level := DataLoader.get_row("levels", level_id)
 	var weakness := str(level.get("primary_weakness", "physical"))
 	match level_id:
@@ -760,11 +747,18 @@ func _result_hint(victory: bool) -> String:
 		_:
 			return "防线被突破。主弱点是 %s，可换克制配装或重打拿卡。" % _element_name(weakness)
 
+func _card_pick_summary() -> String:
+	if target_card_picks <= 0:
+		return LocalizationManager.text("本局选卡 %d") % cards_picked
+	# Keep the numerator truthful even if a future mode awards more offers than
+	# the authored target. This is a run fact, not another projected power value.
+	return LocalizationManager.text("本局选卡 %d/%d") % [cards_picked, target_card_picks]
+
 func _upgrade_action_label(victory: bool) -> String:
 	if victory:
 		return "强化再出发"
-	if combat_power < recommended_power:
-		return "补强战力"
+	if power < recommended_power:
+		return "补强有效战力"
 	return "调整克制"
 
 func _element_name(element: String) -> String:

@@ -359,6 +359,9 @@ func _begin_normal_base_attack_sequence() -> void:
 	_normal_attack_contact_emitted = false
 	var duration := maxf(0.24, float(attack_animation_profile.get("duration", 0.48)))
 	_play_attack_animation(duration)
+	# Ordinary attacks expose the same wind-up event as profiled Boss attacks so
+	# battle audio can play a zombie action cue before the later base-contact hit.
+	base_attack_started.emit(self, attack_animation_profile)
 
 func _process_normal_base_attack_sequence(delta: float) -> void:
 	_normal_attack_sequence_elapsed += delta

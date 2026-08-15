@@ -10,6 +10,13 @@ For each level, estimate:
     levels, 12% leak on boss levels because the boss can't be ignored).
   - Two scenarios: no_skill (very early game) and with_skill (mid-run).
 
+The ordinary campaign path keeps the historical progression estimator so its
+longitudinal pacing signal remains comparable.  Encounters that add bosses
+through ``runtime_bosses`` use the same bottleneck-v3 contract as the player
+power ruler; a generic single-boss autocannon estimate cannot represent that
+encounter without recreating the exact desynchronisation this tool should
+catch.
+
 Outputs a table sorted by level so we can spot trivially-easy and
 impossibly-hard levels at a glance.
 """
@@ -320,11 +327,32 @@ def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_le
     return damage * fr * skill_mult * affinity_mult * pierce_throughput
 
 
-def level_enemy_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, float, int]:
+def runtime_boss_entries(level: dict, wave: dict) -> list[dict]:
+    """Return every boss the runtime queues for this authored wave.
+
+    The primary boss remains on the wave row for backwards compatibility.
+    Additional bosses live on ``level.runtime_bosses``; battle.gd consumes the
+    same rows. Keeping the expansion here prevents finale-only runtime content
+    from disappearing from HP, leak and power-contract calculations again.
+    """
+    entries: list[dict] = []
+    if "boss" in wave:
+        entries.append({"type": str(wave["boss"]), "primary": True})
+    wave_no = wave_number(wave)
+    for extra in level.get("runtime_bosses", []):
+        if not isinstance(extra, dict) or int(extra.get("wave", wave_no)) != wave_no:
+            continue
+        boss_id = str(extra.get("type", ""))
+        if boss_id:
+            entries.append({**extra, "type": boss_id, "primary": False})
+    return entries
+
+
+def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, dict[str, float], int]:
     diff = float(level["difficulty_coef"])
     hp_base = float(level.get("base_hp_ref", 50.0))
     mob_hp = 0.0
-    boss_hp_total = 0.0
+    boss_hp_by_id: dict[str, float] = {}
     count = 0
     boss_level_bonus = boss_hp_level_bonus(economy, level)
     level_no = level_number(level)
@@ -341,12 +369,12 @@ def level_enemy_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict
             c = int(round(int(spawn.get("count", 0)) * count_mult))
             mob_hp += hp * c
             count += c
-        # Boss entry (last wave typically)
-        if "boss" in wave:
-            boss_id = wave["boss"]
+        # Primary + data-authored runtime bosses (last wave typically).
+        for boss_entry in runtime_boss_entries(level, wave):
+            boss_id = boss_entry["type"]
             boss_row = bosses.get(boss_id, {})
             boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * boss_survival_hp_ramp(economy, level_no)
-            boss_hp_total += boss_hp
+            boss_hp_by_id[boss_id] = boss_hp_by_id.get(boss_id, 0.0) + boss_hp
             count += 1
         # Boss support mobs
         for spawn in wave.get("support", []):
@@ -356,7 +384,12 @@ def level_enemy_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict
             c = int(round(int(spawn.get("count", 0)) * count_mult))
             mob_hp += hp * c
             count += c
-    return mob_hp, boss_hp_total, count
+    return mob_hp, boss_hp_by_id, count
+
+
+def level_enemy_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, float, int]:
+    mob_hp, boss_hp_by_id, count = level_enemy_hp_profile(level, zombies, bosses, economy)
+    return mob_hp, sum(boss_hp_by_id.values()), count
 
 
 def level_enemy_hp(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, int]:
@@ -406,8 +439,8 @@ def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, _is_bos
             # HP/difficulty/late-wave multipliers must not inflate it here.
             bd = GLOBAL_DMG_BASE * float(z.get("bd_coef", 1.0)) * damage_mult
             wave_damage += bd * int(round(int(spawn.get("count", 0)) * count_mult))
-        if "boss" in wave:
-            boss_id = wave["boss"]
+        for boss_entry in runtime_boss_entries(level, wave):
+            boss_id = boss_entry["type"]
             boss_row = bosses.get(boss_id, {})
             bd = GLOBAL_DMG_BASE * float(boss_row.get("bd_coef", 4.0)) * damage_mult
             wave_damage += bd
@@ -422,6 +455,50 @@ def leak_damage(level: dict, zombies: dict, bosses: dict, economy: dict, _is_bos
 
 def is_boss_level(level: dict) -> bool:
     return any("boss" in w for w in level.get("waves", []))
+
+
+def runtime_boss_contract_clear_time(
+    level: dict,
+    challenge_mob_hp: float,
+    challenge_hp_mult: float,
+    economy: dict,
+) -> float | None:
+    """Return the equal-recommendation clear time for a runtime multi-Boss.
+
+    ``power_contract`` already owns the effective HP of every authored Boss,
+    including mechanic time and immunity/weakness handling.  Translating its
+    crowd/Boss capacities with the ruler's calibration constants gives the
+    reference encounter time at exactly 1.0 power ratio.  This is intentionally
+    limited to runtime-added Bosses: ordinary levels retain the historical
+    campaign trend estimator above, while the finale cannot silently fall back
+    to a single-Boss model again.
+    """
+    if not level.get("runtime_bosses"):
+        return None
+    requirement = level.get("clear_requirement", {})
+    contract = requirement.get("power_contract", {}) if isinstance(requirement, dict) else {}
+    if not isinstance(contract, dict) or contract.get("model") != "bottleneck_v3":
+        return None
+    ruler = economy.get("power_ruler", {})
+    if not isinstance(ruler, dict):
+        return None
+    crowd_capacity = max(float(contract.get("crowd_capacity", 0.0)), 0.0)
+    boss_capacity = max(float(contract.get("boss_capacity", 0.0)), 0.0)
+    boss_effective_hp = max(float(contract.get("boss_effective_hp", 0.0)), 0.0)
+    crowd_dps_per_capacity = max(float(ruler.get("crowd_dps_per_capacity", 0.0)), 0.0)
+    boss_dps_per_capacity = max(float(ruler.get("boss_dps_per_capacity", 0.0)), 0.0)
+    if crowd_capacity <= 0.0 or crowd_dps_per_capacity <= 0.0:
+        return None
+    crowd_time = challenge_mob_hp / (crowd_capacity * crowd_dps_per_capacity)
+    boss_time = 0.0
+    if boss_effective_hp > 0.0:
+        if boss_capacity <= 0.0 or boss_dps_per_capacity <= 0.0:
+            return None
+        boss_time = (
+            boss_effective_hp * max(challenge_hp_mult, 0.1)
+            / (boss_capacity * boss_dps_per_capacity)
+        )
+    return crowd_time + boss_time
 
 
 def main() -> int:
@@ -510,6 +587,15 @@ def main() -> int:
             # authority the endgame matrix is calibrated on.
             effective_crowd_dps = min(crowd_dps, dps_ws)
             time_ws = mob_hp / max(effective_crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
+        contract_time = runtime_boss_contract_clear_time(
+            lv, mob_hp, challenge_hp_mult, economy)
+        if contract_time is not None:
+            # A runtime multi-Boss is evaluated at the exact recommendation
+            # line.  Keep the table's DPS column internally consistent with
+            # that shared reference time even though Boss mechanic HP is not a
+            # literal projectile-damage pool.
+            time_ws = contract_time
+            dps_ws = hp_total / max(time_ws, 1.0)
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         if args.challenge:
             # HP pressure is represented exactly in clear time above. Faster

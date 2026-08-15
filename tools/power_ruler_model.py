@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""design/28 战力口径 2.0 的 Python 镜像与通关线求解器。
+"""单一战力口径 3.0 的 Python 镜像与通关线求解器。
 
-镜像 SaveManager 的乘法战力公式(输出倍率 O / 生存倍率 S / K·γ 映射),并基于
-simulate_balance 的敌方 HP/刷怪/漏怪模型解出每关"恰好能通关"所需的最小装备侧
-输出 required_t(归一到免费裸装 L1 的 O 基准)。
+玩家仍只看到一个“战力”，但内部不再把输出与生存做几何平均。每关先离线生成
+清群、Boss、防线三份容量合同；运行时按当前装备、永久技能等级与本关确定能拿到
+的卡牌预算计算三条比值，最终只取最短板：
+
+    power = recommended_power * min(crowd_ratio, boss_ratio, line_ratio)
+
+旧 required_t 继续作为战役节奏/推荐数字的校准输入，不再直接冒充玩家战力。
 
 模型只存在于这里和 simulate_balance;GDScript 只查表映射。改任何一侧公式必须
 同步另一侧,check_clear_requirements.py 会在 RC 中抓不同步。
@@ -22,12 +26,24 @@ POWER_SCALE_GAMMA = 1.0
 OFFENSE_WEIGHT = 0.82
 SURVIVAL_WEIGHT = 0.28
 SKILL_THROUGHPUT_CAP = 13.5
+SKILL_SCORE_EXPONENT = 0.5
 AFFINITY_PIERCE_COVERAGE = 0.065
 AFFINITY_CHAIN_COVERAGE = 0.09
 AFFINITY_STATUS_THROUGHPUT = 0.28
 AFFINITY_SLOW_SURVIVAL = 0.40
 AFFINITY_SPLASH_RADIUS = 0.0001
 AFFINITY_SHATTER_CYCLE = 6.0
+
+# Runtime DPS -> static capacity calibration. The checked-in Godot benchmark
+# measures the max free physical finale build against real colliders. These two
+# conversion constants deliberately live in economy.power_ruler at runtime; the
+# Python defaults keep tooling explicit if a legacy data file is inspected.
+DEFAULT_BOSS_DPS_PER_CAPACITY = 207.20
+DEFAULT_CROWD_DPS_PER_CAPACITY = 75.0
+DEFAULT_BOSS_CLEAR_WINDOW = 180.0
+DEFAULT_FINAL_LINE_CAPACITY = 6.0
+DEFAULT_LINE_CURVE_EXPONENT = 3.12
+ARMOR_BREAK_EFFECTIVE_FACTOR = 0.94
 
 # --- simulate_balance 模型常量镜像 ---
 ARMOR_HP_MULT = 1.20      # 通关线求解与 S_ref 使用同一生存基线(典型护甲)
@@ -309,14 +325,186 @@ def core_power(offense: float, survival: float) -> float:
     return max(POWER_SCALE_K * (combined ** POWER_SCALE_GAMMA), 1.0)
 
 
-def generic_card_throughput(card_picks: int) -> float:
-    picks = float(max(0, card_picks))
-    return min(SKILL_THROUGHPUT_CAP, 1.0 + 0.42 * picks + 0.08 * picks * picks)
+def skill_effect_for_level(skill: dict, level: int) -> dict:
+    chosen: dict = {}
+    for entry in skill.get("levels", []):
+        if int(entry.get("lv", 0)) <= level:
+            chosen = entry.get("effect", {}) or {}
+    return chosen
 
 
-def card_scale(card_picks: int) -> float:
-    """推荐战力使用的标准选卡缩放(与 _skill_power_scale 的 ^0.5 同构)。"""
-    return generic_card_throughput(card_picks) ** 0.5
+def skill_max_level(skill: dict) -> int:
+    return max([int(entry.get("lv", 1)) for entry in skill.get("levels", [])] or [1])
+
+
+def skill_capacity_profile(run_skill_levels: dict[str, int], skills: dict) -> dict[str, float]:
+    """Return independent crowd, single-target and line capacity multipliers."""
+    damage_add = fire_rate_add = crit_add = crit_damage_add = 0.0
+    homing = burn = poison = slow = barrier_hp = armor_penetration = 0.0
+    multishot_lane_damage_bonus = 0.0
+    extra_projectiles = pierce = split = chain = 0
+    split_falloff = 0.55
+    for skill_id, level in run_skill_levels.items():
+        effect = skill_effect_for_level(skills.get(skill_id, {}), int(level))
+        damage_add += float(effect.get("dmg_mult", 0.0))
+        fire_rate_add += float(effect.get("fire_rate_mult", 0.0))
+        crit_add += float(effect.get("crit_add", 0.0))
+        crit_damage_add += float(effect.get("crit_dmg", 0.0))
+        extra_projectiles = max(extra_projectiles, int(effect.get("extra_projectiles", 0)))
+        multishot_lane_damage_bonus = max(
+            multishot_lane_damage_bonus,
+            float(effect.get("lane_damage_bonus", 0.0)),
+        )
+        pierce += int(effect.get("pierce", 0))
+        split = max(split, int(effect.get("split", 0)))
+        if "falloff" in effect:
+            split_falloff = float(effect["falloff"])
+        chain += int(effect.get("chain", 0))
+        homing += float(effect.get("homing", 0.0))
+        burn += float(effect.get("burn", 0.0))
+        poison += float(effect.get("poison", 0.0))
+        slow += float(effect.get("slow", 0.0))
+        barrier_hp += float(effect.get("base_hp_mult", 0.0))
+        armor_penetration += float(effect.get("armor_penetration", 0.0))
+
+    direct = max(1.0, 1.0 + damage_add)
+    cadence = max(1.0, 1.0 + fire_rate_add)
+    base_crit = 1.0 + 0.08 * 0.85
+    upgraded_crit = 1.0 + min(max(0.08 + crit_add, 0.0), 0.85) * (0.85 + crit_damage_add)
+    crit = max(1.0, upgraded_crit / base_crit)
+    lane_count = min(max(1 + extra_projectiles, 1), 5)
+    lane_damage = min(
+        (1.0, 1.0, 0.85, 0.80, 0.75, 0.70)[lane_count]
+        + multishot_lane_damage_bonus,
+        1.0,
+    )
+    lane = 1.0 + max(lane_count * lane_damage - 1.0, 0.0) * 0.55
+    secondary = pierce * 0.065 + split * min(max(split_falloff, 0.0), 1.0) * 0.11
+    secondary += chain * 0.09 + homing * 0.03
+    coverage = 1.0 + min(1.75, secondary)
+    status = 1.0 + burn * 0.28 + poison * 0.32
+    penetration = 1.0 + min(max(armor_penetration, 0.0), 0.95) * 0.22
+    common = direct * cadence * crit * status * penetration
+    crowd = common * lane * coverage
+    # Extra lanes and coverage can overlap a large target, but not at their
+    # saturated-crowd value. This mirrors the measured boss/crowd separation.
+    boss_lane = 1.0 + max(lane_count * lane_damage - 1.0, 0.0) * 0.10
+    boss_coverage = 1.0 + min(0.35, pierce * 0.025 + homing * 0.01)
+    boss = common * boss_lane * boss_coverage
+    # Barrier is literal extra base HP. Slow extends the approach/attack window;
+    # cap it before inversion so a control card can never imply immortality.
+    line = (1.0 + max(barrier_hp, 0.0)) / (1.0 - min(max(slow, 0.0), 0.80))
+    return {
+        "crowd": max(crowd, 1.0),
+        "boss": max(boss, 1.0),
+        "line": max(line, 1.0),
+    }
+
+
+def combat_skill_effect_multiplier(run_skill_levels: dict[str, int], skills: dict) -> float:
+    """Legacy scalar kept for compatibility; never used as the final ruler."""
+    profile = skill_capacity_profile(run_skill_levels, skills)
+    offense = profile["crowd"]
+    survival = profile["line"]
+    combined = 1.0 + max(offense - 1.0, 0.0) * OFFENSE_WEIGHT
+    combined += max(survival - 1.0, 0.0) * SURVIVAL_WEIGHT
+    return min(max(combined, 1.0), SKILL_THROUGHPUT_CAP)
+
+
+def _projection_score(levels: dict[str, int], skills: dict) -> float:
+    profile = skill_capacity_profile(levels, skills)
+    # A normal deterministic draft values both the crowded waves and the boss.
+    # Defence is counted only when a level explicitly guarantees its offer.
+    import math
+    return math.log(profile["crowd"]) * 0.70 + math.log(profile["boss"]) * 0.30
+
+
+def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict[str, int], skills: dict) -> str:
+    candidates: list[tuple[float, str]] = []
+    for skill_id in skill_ids:
+        row = skills.get(skill_id, {})
+        if not row:
+            continue
+        level = min(max(int(base_skill_levels.get(skill_id, 0)), 1), skill_max_level(row))
+        line = skill_capacity_profile({skill_id: level}, skills)["line"]
+        candidates.append((line, skill_id))
+    return min(candidates)[1] if candidates else ""
+
+
+def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
+                           base_skill_levels: dict[str, int], skills: dict,
+                           weapons: dict,
+                           guaranteed_skill_ids: list[str] | None = None) -> dict[str, int]:
+    projected: dict[str, int] = {}
+    weapon_element = str(weapons[weapon_id].get("element", "physical"))
+    if weapon_element not in ("", "physical"):
+        for skill_id, row in skills.items():
+            if row.get("exclusive_group", "") == "projectile_element" and row.get("ammo_element", "") == weapon_element:
+                projected[skill_id] = min(max(int(base_skill_levels.get(skill_id, 0)), 1), skill_max_level(row))
+                break
+
+    guaranteed_id = _conservative_guaranteed_skill(
+        list(guaranteed_skill_ids or []), base_skill_levels, skills)
+    consumed_picks = 0
+    if guaranteed_id and guaranteed_id not in projected:
+        row = skills[guaranteed_id]
+        projected[guaranteed_id] = min(
+            max(int(base_skill_levels.get(guaranteed_id, 0)), 1),
+            skill_max_level(row),
+        )
+        consumed_picks = 1
+
+    for _ in range(max(card_picks - consumed_picks, 0)):
+        best_score = _projection_score(projected, skills)
+        best_levels: dict[str, int] | None = None
+        for skill_id in sorted(skills):
+            row = skills[skill_id]
+            group = str(row.get("exclusive_group", ""))
+            if group == "projectile_element":
+                ammo_element = str(row.get("ammo_element", ""))
+                if weapon_element not in ("", "physical") and ammo_element != weapon_element:
+                    continue
+                if weapon_element in ("", "physical") and ammo_element != weakness:
+                    continue
+            current_level = int(projected.get(skill_id, 0))
+            maximum = skill_max_level(row)
+            if current_level >= maximum:
+                continue
+            candidate = dict(projected)
+            if group:
+                for peer_id, peer in skills.items():
+                    if peer_id != skill_id and str(peer.get("exclusive_group", "")) == group:
+                        candidate.pop(peer_id, None)
+            candidate[skill_id] = (
+                min(maximum, current_level + 1)
+                if current_level > 0
+                else min(max(int(base_skill_levels.get(skill_id, 0)), 1), maximum)
+            )
+            candidate_score = _projection_score(candidate, skills)
+            if str(row.get("ammo_element", "")) == weakness:
+                candidate_score += 0.015
+            if candidate_score > best_score + 0.000001:
+                best_score = candidate_score
+                best_levels = candidate
+        if best_levels is None:
+            break
+        projected = best_levels
+    return projected
+
+
+def card_scale(card_picks: int, skills: dict, weapons: dict,
+               weakness: str = "physical", weapon_id: str = "weapon_autocannon",
+               base_skill_levels: dict[str, int] | None = None) -> float:
+    """Mirror the shared GD projection with an explicit, save-independent profile."""
+    levels = projected_skill_levels(
+        card_picks,
+        weakness,
+        weapon_id,
+        base_skill_levels or {},
+        skills,
+        weapons,
+    )
+    return combat_skill_effect_multiplier(levels, skills) ** SKILL_SCORE_EXPONENT
 
 
 def offense_baseline_l1(characters: dict, weapons: dict) -> float:
@@ -325,17 +513,243 @@ def offense_baseline_l1(characters: dict, weapons: dict) -> float:
 
 
 def recommended_power(required_t: float, card_picks: int, recommend_level: int,
-                      characters: dict, weapons: dict,
-                      loadout_char_level: int | None = None) -> int:
-    current_level = int(recommend_level) if loadout_char_level is None else int(loadout_char_level)
-    reference_level = min(max(int(recommend_level), current_level, 1), 40)
+                      characters: dict, weapons: dict, skills: dict,
+                      weakness: str = "physical") -> int:
+    """Return the level's fixed recommendation, independent of player save state."""
+    reference_level = min(max(int(recommend_level), 1), 40)
     character = characters["vanguard"]
     weapon = weapons["weapon_autocannon"]
     affinity_delta = bullet_affinity_multiplier(character, weapon, reference_level)
     affinity_delta /= max(legacy_bullet_affinity_multiplier(character, weapon), 0.01)
     character_survival = survival_multiplier(character, reference_level, weapon)
     o_ref = required_t * offense_baseline_l1(characters, weapons) * affinity_delta
-    return int(round(core_power(o_ref, ARMOR_HP_MULT * character_survival) * card_scale(card_picks)))
+    return int(round(core_power(o_ref, ARMOR_HP_MULT * character_survival) * card_scale(
+        card_picks, skills, weapons, weakness, "weapon_autocannon", {}
+    )))
+
+
+def guaranteed_skill_ids(level: dict) -> list[str]:
+    result: list[str] = []
+    for rule in level.get("guaranteed_card_offers", []):
+        if not isinstance(rule, dict):
+            continue
+        for skill_id in rule.get("skill_ids", []):
+            skill_id = str(skill_id)
+            if skill_id and skill_id not in result:
+                result.append(skill_id)
+    return result
+
+
+def expected_permanent_skill_levels(level: dict, skills: dict) -> dict[str, int]:
+    """Permanent skill rank expected at this campaign graduation point.
+
+    Skills have five ranks and signature progression already uses one rank per
+    eight hero levels. Reusing that cadence fixes the old recommendation bug
+    where late levels assumed every offered skill still began at rank one.
+    """
+    recommend_level = max(int(level.get("recommend_level", 1)), 1)
+    rank = min(max((recommend_level + 7) // 8, 1), 5)
+    return {skill_id: min(rank, skill_max_level(row)) for skill_id, row in skills.items()}
+
+
+def effective_projectile_element(weapon_id: str, projected_levels: dict[str, int],
+                                 skills: dict, weapons: dict) -> str:
+    element = str(weapons.get(weapon_id, {}).get("element", "physical"))
+    for skill_id, level in projected_levels.items():
+        if int(level) <= 0:
+            continue
+        row = skills.get(skill_id, {})
+        if str(row.get("exclusive_group", "")) == "projectile_element":
+            return str(row.get("ammo_element", element))
+    return element
+
+
+def boss_effective_hp_multiplier(boss: dict, economy: dict) -> float:
+    mechanic = str(boss.get("mechanic", ""))
+    ruler = economy.get("power_ruler", {}) or {}
+    table = ruler.get("boss_mechanic_time_mult", {}) or {}
+    return max(float(table.get(mechanic, 1.0)), 1.0)
+
+
+def boss_element_factor(boss: dict, element: str, economy: dict) -> float:
+    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
+    if str(boss.get("weakness", "")) == element:
+        return weakness_mult
+    if element in boss.get("immune", []):
+        if str(boss.get("mechanic", "")) == "armor_break":
+            ruler = economy.get("power_ruler", {}) or {}
+            return float(ruler.get("armor_break_effective_factor", ARMOR_BREAK_EFFECTIVE_FACTOR))
+        params = boss.get("mechanic_params", {}) or {}
+        return min(max(float(params.get("immune_damage_floor", 0.18)), 0.01), 1.0)
+    return 1.0
+
+
+def _boss_contract_profile(level: dict, bosses: dict, economy: dict, sim) -> tuple[dict[str, float], float, float]:
+    zombies = load_table("zombies")
+    _, boss_hp_by_id, _ = sim.level_enemy_hp_profile(level, zombies, bosses, economy)
+    effective: dict[str, float] = {}
+    for boss_id, hp in boss_hp_by_id.items():
+        effective[boss_id] = float(hp) * boss_effective_hp_multiplier(bosses.get(boss_id, {}), economy)
+    total = sum(effective.values())
+    primary_ids = {
+        str(wave["boss"]) for wave in level.get("waves", []) if "boss" in wave
+    }
+    primary = sum(value for boss_id, value in effective.items() if boss_id in primary_ids)
+    weights = {
+        boss_id: value / max(total, 1.0) for boss_id, value in effective.items()
+    }
+    return weights, total, primary
+
+
+def weighted_boss_element_factor(weights: dict[str, float], bosses: dict,
+                                 element: str, economy: dict) -> float:
+    if not weights:
+        return 1.0
+    return sum(
+        float(weight) * boss_element_factor(bosses.get(boss_id, {}), element, economy)
+        for boss_id, weight in weights.items()
+    )
+
+
+def build_power_contract(level: dict, requirement: dict, characters: dict,
+                         weapons: dict, skills: dict, bosses: dict,
+                         economy: dict, sim) -> dict:
+    """Build the fixed three-axis contract consumed by SaveManager."""
+    ruler = economy.get("power_ruler", {}) or {}
+    card_picks = max(int(level.get("target_card_picks", 4)), 1)
+    weakness = str(level.get("primary_weakness", "physical"))
+    recommend_level = min(max(int(level.get("recommend_level", 1)), 1), 40)
+    required_t = max(float(requirement.get("min_output", 1.0)), 0.05)
+
+    reference_character = characters["vanguard"]
+    reference_weapon = weapons["weapon_autocannon"]
+    affinity_delta = bullet_affinity_multiplier(reference_character, reference_weapon, recommend_level)
+    affinity_delta /= max(legacy_bullet_affinity_multiplier(reference_character, reference_weapon), 0.01)
+    reference_offense = required_t * offense_baseline_l1(characters, weapons) * affinity_delta
+    base_levels = expected_permanent_skill_levels(level, skills)
+    guarantees = guaranteed_skill_ids(level)
+    projected = projected_skill_levels(
+        card_picks, weakness, "weapon_autocannon", base_levels, skills, weapons, guarantees)
+    axes = skill_capacity_profile(projected, skills)
+    element = effective_projectile_element("weapon_autocannon", projected, skills, weapons)
+    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
+    mob_element = weakness_mult if element == weakness else 1.0
+    crowd_required = max(reference_offense * axes["crowd"] * mob_element, 0.01)
+
+    boss_weights, boss_effective_hp, primary_effective_hp = _boss_contract_profile(
+        level, bosses, economy, sim)
+    boss_element = weighted_boss_element_factor(boss_weights, bosses, element, economy)
+    reference_boss = reference_offense * axes["boss"] * boss_element if boss_weights else 0.0
+    boss_window = max(float(ruler.get("boss_clear_window_seconds", DEFAULT_BOSS_CLEAR_WINDOW)), 1.0)
+    boss_dps_per_capacity = max(float(ruler.get("boss_dps_per_capacity", DEFAULT_BOSS_DPS_PER_CAPACITY)), 1.0)
+    runtime_boss_required = boss_effective_hp / boss_window / boss_dps_per_capacity
+    boss_required = max(reference_boss, runtime_boss_required) if boss_weights else 0.0
+
+    final_line = max(float(ruler.get("final_line_capacity", DEFAULT_FINAL_LINE_CAPACITY)), 1.0)
+    line_exponent = max(float(ruler.get("line_curve_exponent", DEFAULT_LINE_CURVE_EXPONENT)), 0.25)
+    progression = min(max(float(recommend_level) / 40.0, 0.0), 1.0)
+    line_pressure = (final_line - 1.0) * (progression ** line_exponent)
+    if not boss_weights:
+        line_pressure *= min(max(float(ruler.get("non_boss_line_pressure_mult", 0.72)), 0.1), 1.0)
+    line_required = 1.0 + line_pressure
+
+    base_recommended = recommended_power(
+        required_t, card_picks, recommend_level, characters, weapons, skills, weakness)
+    omitted_boss_mult = (
+        boss_effective_hp / max(primary_effective_hp, 1.0)
+        if primary_effective_hp > 0.0 else 1.0
+    )
+    runtime_calibration = (
+        max(float(ruler.get("runtime_boss_recommendation_calibration", 1.0)), 0.1)
+        if omitted_boss_mult > 1.000001 else 1.0
+    )
+    fixed_recommended = int(round(
+        base_recommended * (omitted_boss_mult ** OFFENSE_WEIGHT) * runtime_calibration))
+    return {
+        "model": "bottleneck_v3",
+        "recommended_power": max(fixed_recommended, 1),
+        "crowd_capacity": round(crowd_required, 4),
+        "boss_capacity": round(boss_required, 4),
+        "line_capacity": round(line_required, 4),
+        "boss_effective_hp": round(boss_effective_hp, 2),
+        "boss_weights": {key: round(value, 6) for key, value in boss_weights.items()},
+        "runtime_boss_pressure_mult": round(omitted_boss_mult, 6),
+        "guaranteed_skill_ids": guarantees,
+        "reference_skill_rank": min(max((recommend_level + 7) // 8, 1), 5),
+    }
+
+
+def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
+                    weapons: dict, armors: dict, chips: dict, pets: dict,
+                    skills: dict, bosses: dict, economy: dict) -> dict:
+    """Python mirror of SaveManager's player-side bottleneck calculation."""
+    character_id = str(build.get("character", "vanguard"))
+    weapon_id = str(build.get("weapon", "weapon_autocannon"))
+    armor_id = str(build.get("armor", ""))
+    chip_id = str(build.get("chip", ""))
+    pet_id = str(build.get("pet", ""))
+    character_level = int(build.get("character_level", 1))
+    weapon_level = int(build.get("weapon_level", 1))
+    armor_level = int(build.get("armor_level", 1))
+    chip_level = int(build.get("chip_level", 1))
+    pet_level = int(build.get("pet_level", 1))
+    sig_level = int(build.get("signature_level", 0))
+    base_levels = dict(build.get("skill_base_levels", {}) or {})
+    projected = projected_skill_levels(
+        max(int(level.get("target_card_picks", 4)), 1),
+        str(level.get("primary_weakness", "physical")),
+        weapon_id, base_levels, skills, weapons,
+        list(contract.get("guaranteed_skill_ids", [])),
+    )
+    offense = offense_multiplier(
+        characters[character_id], weapons[weapon_id], character_level, weapon_level, sig_level,
+        chip=chips.get(chip_id), chip_level=chip_level,
+        pet=pets.get(pet_id), pet_level=pet_level,
+    )
+    survival = survival_multiplier(
+        characters[character_id], character_level, weapons[weapon_id],
+        armors.get(armor_id), armor_level, chips.get(chip_id), chip_level,
+        pets.get(pet_id), pet_level,
+    )
+    axes = skill_capacity_profile(projected, skills)
+    element = effective_projectile_element(weapon_id, projected, skills, weapons)
+    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
+    mob_element = weakness_mult if element == str(level.get("primary_weakness", "physical")) else 1.0
+    crowd_capacity = offense * axes["crowd"] * mob_element
+    boss_factor = weighted_boss_element_factor(
+        dict(contract.get("boss_weights", {})), bosses, element, economy)
+    boss_capacity = offense * axes["boss"] * boss_factor
+    line_capacity = survival * axes["line"]
+    armor = armors.get(armor_id, {})
+    if str(armor.get("resist", "none")) == str(level.get("primary_weakness", "physical")):
+        line_capacity /= 0.88
+    if str(characters[character_id].get("passive", "")) == "breach_guard":
+        line_capacity /= 0.82
+        if growth_rank(character_level) >= 2:
+            line_capacity /= 0.88
+
+    ratios = {
+        "crowd": crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01),
+        "boss": (
+            boss_capacity / max(float(contract.get("boss_capacity", 1.0)), 0.01)
+            if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
+        ),
+        "line": line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01),
+    }
+    bottleneck = min(ratios.values())
+    power = int(round(float(contract.get("recommended_power", 1)) * bottleneck))
+    return {
+        "power": max(power, 1),
+        "recommended": int(contract.get("recommended_power", 1)),
+        "ratios": ratios,
+        "bottleneck": min(ratios, key=ratios.get),
+        "projected_skills": projected,
+        "capacities": {
+            "crowd": crowd_capacity,
+            "boss": boss_capacity,
+            "line": line_capacity,
+        },
+    }
 
 
 # ---------------------------------------------------------------- 通关线求解
@@ -438,19 +852,26 @@ class FamilyContext:
 
 def solve_required_t(level: dict, zombies: dict, bosses: dict, chips: dict,
                      characters: dict, weapons: dict, ctx: FamilyContext) -> dict:
+    # required_t is the historical progression-family calibration for the
+    # authored primary encounter. Runtime-added bosses are represented by the
+    # v3 Boss contract and fixed recommendation correction below; feeding them
+    # back into this legacy scalar would double-charge the same pressure and can
+    # make the autocannon-only calibration family falsely appear unwinnable.
+    calibration_level = dict(level)
+    calibration_level.pop("runtime_bosses", None)
     mob_hp, boss_hp, _ = ctx.sim.level_enemy_hp_split(level, zombies, bosses, ctx.economy)
     hp_total = max(mob_hp + boss_hp, 1.0)
-    if not ctx.model_clears(level, zombies, bosses, FAMILY_MAX_INDEX):
+    if not ctx.model_clears(calibration_level, zombies, bosses, FAMILY_MAX_INDEX):
         raise AssertionError(f"{level.get('id')}: not clearable even by maxed family - model/data inconsistency")
     lo, hi = 1.0, FAMILY_MAX_INDEX
-    if ctx.model_clears(level, zombies, bosses, lo):
+    if ctx.model_clears(calibration_level, zombies, bosses, lo):
         # 族下界(ℓ=1)就能通关的早期关:在 t 空间连续外推真实下限,否则第 1 关的
         # 通关线会高于新号裸装战力,onboarding 观感反掉(实测:required 1.087 > 裸装 1.0)。
-        required_t = ctx.family_offense_t(characters, weapons, chips, 1.0) * _sub_family_scale(level, zombies, bosses, ctx)
+        required_t = ctx.family_offense_t(characters, weapons, chips, 1.0) * _sub_family_scale(calibration_level, zombies, bosses, ctx)
     else:
         for _ in range(40):
             mid = (lo + hi) / 2.0
-            if ctx.model_clears(level, zombies, bosses, mid):
+            if ctx.model_clears(calibration_level, zombies, bosses, mid):
                 hi = mid
             else:
                 lo = mid

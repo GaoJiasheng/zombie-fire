@@ -133,15 +133,17 @@
 			{
 				"lv": 4,
 				"effect": {
-					"extra_projectiles": 4,
-					"spread": 6
+					"extra_projectiles": 3,
+					"spread": 6,
+					"lane_damage_bonus": 0.08
 				}
 			},
 			{
 				"lv": 5,
 				"effect": {
 					"extra_projectiles": 4,
-					"spread": 9
+					"spread": 9,
+					"lane_damage_bonus": 0.02
 				}
 			}
 		]
@@ -161,35 +163,35 @@
 			{
 				"lv": 1,
 				"effect": {
-					"slow": 0.18,
+					"slow": 0.3,
 					"y_min": 1050
 				}
 			},
 			{
 				"lv": 2,
 				"effect": {
-					"slow": 0.26,
+					"slow": 0.4,
 					"y_min": 900
 				}
 			},
 			{
 				"lv": 3,
 				"effect": {
-					"slow": 0.35,
+					"slow": 0.5,
 					"y_min": 750
 				}
 			},
 			{
 				"lv": 4,
 				"effect": {
-					"slow": 0.43,
+					"slow": 0.6,
 					"y_min": 600
 				}
 			},
 			{
 				"lv": 5,
 				"effect": {
-					"slow": 0.52,
+					"slow": 0.8,
 					"y_min": 450
 				}
 			}

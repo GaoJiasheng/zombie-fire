@@ -162,6 +162,8 @@ func _header() -> HBoxContainer:
 func _build_global(content: VBoxContainer) -> void:
 	content.add_child(_section_title(_loc("全局主题", "GLOBAL THEME"), UiKit.CYAN))
 	for theme in ThemeManager.catalog_themes():
+		if not PurchaseManager.is_theme_revealed(str(theme.get("id", DEFAULT_THEME))):
+			continue
 		content.add_child(_theme_card(theme))
 
 	var follow_all := Button.new()
@@ -219,6 +221,8 @@ func _build_character(content: VBoxContainer) -> void:
 	content.add_child(_section_title(_loc("选择战衣", "CHOOSE OUTFIT"), UiKit.CYAN))
 	content.add_child(_outfit_card(FOLLOW_THEME))
 	for theme in ThemeManager.catalog_themes():
+		if not PurchaseManager.is_theme_revealed(str(theme.get("id", DEFAULT_THEME))):
+			continue
 		content.add_child(_outfit_card(str(theme.get("id", DEFAULT_THEME))))
 
 

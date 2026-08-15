@@ -82,7 +82,8 @@ func _slider(path: String) -> HSlider:
 	return _vbox.get_node(path) as HSlider
 
 func _apply_style() -> void:
-	$Center/Panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
+	var panel := $Center/Panel as PanelContainer
+	panel.add_theme_stylebox_override("panel", UiKit.detail_panel_texture_style())
 	UiKit.apply_label(_vbox.get_node("Title") as Label, 46, UiKit.TEXT_MAIN, 4)
 	for section in ["AudioSection", "VideoSection", "AccessibilitySection", "DataSection", "AboutSection"]:
 		UiKit.apply_label(_vbox.get_node(section) as Label, 22, UiKit.GOLD, 2)

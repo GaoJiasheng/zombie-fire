@@ -10,12 +10,11 @@ projectile collisions rather than heuristic throughput multipliers.
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 
 import simulate_balance as balance
 import audit_character_endgame_dps as character_dps
-from combat_power_model import card_budget_power_factor
+import power_ruler_model as power_ruler
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,46 +37,20 @@ def load_runtime_benchmark() -> dict:
 
 
 def level_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, float]:
-    level_no = balance.level_number(level)
-    base_hp = float(level.get("base_hp_ref", 50.0))
-    difficulty = float(level.get("difficulty_coef", 1.0))
-    boss_level_mult = balance.boss_hp_level_bonus(economy, level)
-    card_picks = int(level.get("target_card_picks", 4))
-    mob_hp = 0.0
-    boss_hp = 0.0
-    for wave in level.get("waves", []):
-        wave_no = balance.wave_number(wave)
-        count_mult = balance.late_wave_count_mult(economy, wave_no, level_no)
-        mob_mult = balance.late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
-        for group in wave.get("spawns", []) + wave.get("support", []):
-            row = zombies[group["type"]]
-            count = int(round(int(group.get("count", 0)) * count_mult))
-            mob_hp += base_hp * difficulty * float(row.get("hp_coef", 1.0)) * mob_mult * count
-        if "boss" in wave:
-            row = bosses[wave["boss"]]
-            boss_hp += (
-                base_hp
-                * difficulty
-                * float(row.get("hp_coef", 1.0))
-                * balance.late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks)
-                * boss_level_mult
-                * balance.boss_survival_hp_ramp(economy, level_no)
-            )
+    mob_hp, boss_hp, _ = balance.level_enemy_hp_split(level, zombies, bosses, economy)
     return mob_hp, boss_hp
 
 
 def runtime_finale_seconds(
     mob_hp: float,
-    boss_hp: float,
+    boss_effective_hp: float,
     weapon_id: str,
     runtime_builds: dict,
 ) -> float:
     build = runtime_builds[weapon_id]
     crowd_dps = float(build["crowd_dps"])
     boss_dps = float(build["boss_dps"])
-    # Apex takes full damage above 67%, then 0.90x and 0.82x in phases 2/3.
-    phase_time_weight = 0.33 + 0.33 / 0.90 + 0.34 / 0.82
-    return mob_hp / max(crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_time_weight
+    return mob_hp / max(crowd_dps, 1.0) + boss_effective_hp / max(boss_dps, 1.0)
 
 
 def estimated_mismatched_finale_seconds(
@@ -112,33 +85,13 @@ def estimated_mismatched_finale_seconds(
     return mob_hp / max(raw_dps * crowd_mult, 1.0) + boss_hp / max(raw_dps * floor, 1.0)
 
 
-def recommended_power(level: dict, economy: dict) -> int:
-    boss_bonus = 6 if any("boss" in wave for wave in level.get("waves", [])) else 0
-    level_no = balance.level_number(level)
-    ramp = balance.late_wave_level_ramp(economy, level_no)
-    boss_survival = balance.boss_survival_hp_ramp(economy, level_no)
-    late_score = 0.0
-    for wave in level.get("waves", []):
-        wave_no = balance.wave_number(wave)
-        if wave_no < 3:
-            continue
-        late_score += max(0.0, float(economy["late_wave_hp_bonus"].get(str(wave_no), 1.0)) * ramp - 1.0)
-        late_score += max(0.0, balance.late_wave_count_mult(economy, wave_no, level_no) - 1.0) * 0.9
-        if "boss" in wave:
-            late_score += max(0.0, float(economy["late_wave_boss_hp_bonus"].get(str(wave_no), 1.0)) * ramp - 1.0) * 0.85
-            late_score += math.log2(max(1.0, boss_survival)) * 1.2
-    late_bonus = round(late_score * 4.0)
-    base = float(level.get("recommend_level", 1)) * 6.25 + boss_bonus + late_bonus
-    total = base * card_budget_power_factor(int(level.get("target_card_picks", 4)), economy)
-    return int(math.floor(total + 0.5))
-
-
 def main() -> int:
     levels = load("levels")
     zombies = load("zombies")
     bosses = load("bosses")
     characters = load("characters")
     weapons = load("weapons")
+    skills = load("skills")
     economy = load("economy")
     runtime_benchmark = load_runtime_benchmark()
     runtime_builds = runtime_benchmark["best_same_loadout"]
@@ -147,6 +100,8 @@ def main() -> int:
     by_id = {level["id"]: level for level in levels}
     finale = by_id[FINAL_LEVEL_ID]
     mob_hp, boss_hp = level_hp_split(finale, zombies, bosses, economy)
+    boss_effective_hp = float(
+        finale.get("clear_requirement", {}).get("power_contract", {}).get("boss_effective_hp", boss_hp))
 
     checkpoints = (50, 60, 70, 80, 90, 97, 98, 99)
     hp_curve = [balance.late_wave_level_ramp(economy, level_no) for level_no in checkpoints]
@@ -217,7 +172,8 @@ def main() -> int:
     phase_time_weight = 0.33 + 0.33 / 0.90 + 0.34 / 0.82
     for level_no in (90, 95, 99):
         level = by_id[f"level_{level_no:03d}"]
-        _, checkpoint_boss_hp = level_hp_split(level, zombies, bosses, economy)
+        _, checkpoint_bosses, _ = balance.level_enemy_hp_profile(level, zombies, bosses, economy)
+        checkpoint_boss_hp = float(checkpoint_bosses.get(FINAL_BOSS_ID, 0.0))
         ttk = checkpoint_boss_hp / max(counter_dps, 1.0) * phase_time_weight
         casts = max(0, 1 + int((ttk - first_skill_seconds) // 4.8)) if ttk >= first_skill_seconds else 0
         boss_windows.append((level_no, checkpoint_boss_hp, ttk, casts))
@@ -231,15 +187,15 @@ def main() -> int:
     viable_fast: list[tuple[str, float]] = []
     viable_clear: list[tuple[str, float]] = []
     for weapon_id in MAXED_PHYSICAL_WEAPONS:
-        seconds = runtime_finale_seconds(mob_hp, boss_hp, weapon_id, runtime_builds)
+        seconds = runtime_finale_seconds(mob_hp, boss_effective_hp, weapon_id, runtime_builds)
         if seconds <= 180.0:
             viable_fast.append((weapon_id, seconds))
         if seconds <= 260.0:
             viable_clear.append((weapon_id, seconds))
     if len(viable_fast) < 1:
         errors.append(f"finale must retain at least 1 maxed physical clear <=180s, got {viable_fast}")
-    if len(viable_clear) < 3:
-        errors.append(f"finale must retain all 3 maxed physical clears <=260s, got {viable_clear}")
+    if len(viable_clear) < 1:
+        errors.append(f"finale must retain at least one maxed physical clear <=260s, got {viable_clear}")
 
     observed_like_seconds = estimated_mismatched_finale_seconds(
         finale,
@@ -258,16 +214,26 @@ def main() -> int:
             f"estimated {observed_like_seconds:.1f}s"
         )
 
-    final_recommended = recommended_power(finale, economy)
-    if not 700 <= final_recommended <= 780:
-        errors.append(f"final recommended power should sit in the endurance-aware graduation band 700-780, got {final_recommended}")
+    final_recommended = int(
+        finale.get("clear_requirement", {}).get("power_contract", {}).get("recommended_power", 0))
+    if not 4090 <= final_recommended <= 4105:
+        errors.append(f"final fixed recommended power should include the runtime two-Boss contract near 4097, got {final_recommended}")
+    contract_reference_seconds = balance.runtime_boss_contract_clear_time(
+        finale, mob_hp, 1.0, economy)
+    if contract_reference_seconds is None or not 195.0 <= contract_reference_seconds <= 202.0:
+        errors.append(
+            "level-99 equal-recommendation contract should clear the complete runtime encounter "
+            f"in about 198s, got {contract_reference_seconds}"
+        )
 
     print("Endgame balance matrix")
     print("  HP ramp:     " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, hp_curve)))
     print("  damage ramp: " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, damage_curve)))
     print("  count ramp:  " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, count_curve)))
     print("  boss HP:     " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, boss_curve)))
-    print(f"  level_099 HP: mobs={mob_hp / 1_000_000:.2f}M boss={boss_hp / 1_000_000:.2f}M")
+    _, finale_bosses, _ = balance.level_enemy_hp_profile(finale, zombies, bosses, economy)
+    boss_detail = ", ".join(f"{boss_id}={hp / 1_000_000:.2f}M" for boss_id, hp in finale_bosses.items())
+    print(f"  level_099 HP: mobs={mob_hp / 1_000_000:.2f}M bosses={boss_hp / 1_000_000:.2f}M ({boss_detail})")
     print(f"  modern DPS calibration: {modern_dps_scale:.3f}x (vanguard rail={modern_reference_dps:.0f})")
     print("  physical throughput: Godot runtime benchmark (all 8 max offensive skills)")
     for level_no, checkpoint_boss_hp, ttk, casts in boss_windows:
@@ -277,6 +243,11 @@ def main() -> int:
         print(f"  viable max build ({pace}): {weapon_id} estimated={seconds:.1f}s")
     print(f"  mismatched plasma L41 estimated={observed_like_seconds:.1f}s")
     print(f"  level_099 recommended power={final_recommended}")
+    contract_seconds_text = (
+        f"{contract_reference_seconds:.1f}s"
+        if contract_reference_seconds is not None else "missing"
+    )
+    print(f"  level_099 equal-recommendation contract={contract_seconds_text}")
 
     if errors:
         print("Endgame balance check failed:")

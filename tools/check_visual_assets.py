@@ -42,6 +42,11 @@ INFERNAL_BUTTON_MANIFEST = (
     / "assets/production/source_refs/generated/premium_infernal_dominion_inferno_phase2_2026_07_31"
     / "infernal_dominion_button_runtime_manifest_v2.json"
 )
+POLAR_BUTTON_MANIFEST = (
+    ROOT
+    / "assets/production/source_refs/generated/premium_polar_aurora_absolute_zero_phase3_2026_08_01"
+    / "polar_aurora_button_runtime_manifest_v2.json"
+)
 
 
 def res_path(value: str) -> Path:
@@ -333,6 +338,10 @@ def check_infernal_button_materials() -> list[str]:
     return check_rendered_button_materials("Infernal", INFERNAL_BUTTON_MANIFEST)
 
 
+def check_polar_button_materials() -> list[str]:
+    return check_rendered_button_materials("Polar", POLAR_BUTTON_MANIFEST)
+
+
 def main() -> int:
     errors: list[str] = []
     checked = 0
@@ -359,6 +368,7 @@ def main() -> int:
     errors.extend(check_combo_coverage())
     errors.extend(check_gilded_button_materials())
     errors.extend(check_infernal_button_materials())
+    errors.extend(check_polar_button_materials())
 
     if errors:
         print("Visual asset check failed:")

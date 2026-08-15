@@ -10,10 +10,13 @@ func _initialize() -> void:
 	await process_frame
 	var data_loader := root.get_node_or_null("/root/DataLoader")
 	var save_manager := root.get_node_or_null("/root/SaveManager")
+	var settings_manager := root.get_node_or_null("/root/SettingsManager")
 	if data_loader == null:
 		failures.append("DataLoader autoload is missing")
 	if save_manager == null:
 		failures.append("SaveManager autoload is missing")
+	if settings_manager == null:
+		failures.append("SettingsManager autoload is missing")
 	if not failures.is_empty():
 		await _finish(null, failures)
 		return
@@ -49,10 +52,24 @@ func _initialize() -> void:
 			failures.append("current scene is not the battle scene: %s" % battle.scene_file_path)
 		if str(battle.get("level_id")) != EXPECTED_LEVEL:
 			failures.append("battle loaded the wrong level: %s" % battle.get("level_id"))
-		if paused or not is_equal_approx(Engine.time_scale, 1.0):
-			failures.append("scene tree is paused or time scale is not 1.0")
+		if paused:
+			failures.append("scene tree is paused")
 		if bool(battle.get("paused")):
 			failures.append("battle is paused")
+		var selected_battle_speed := float(battle.get("battle_speed"))
+		var available_battle_speeds: Array = settings_manager.call("available_battle_speeds",
+			int(battle.get("battle_speed_progress_level"))
+		)
+		if not available_battle_speeds.has(selected_battle_speed):
+			failures.append(
+				"battle selected an unavailable speed: %.1f (available: %s)"
+				% [selected_battle_speed, available_battle_speeds]
+			)
+		elif not is_equal_approx(Engine.time_scale, selected_battle_speed):
+			failures.append(
+				"engine time scale %.1f does not match the selected battle speed %.1f"
+				% [Engine.time_scale, selected_battle_speed]
+			)
 		if bool(battle.get("card_offer_active")):
 			failures.append("battle booted into a card offer")
 		if int(battle.get("wave_index")) < 1 or int(battle.get("wave_total")) < 1:
@@ -76,7 +93,8 @@ func _initialize() -> void:
 			"BATTLE_BOOT_PROBE_OK level=", battle.get("level_id"),
 			" scene=", battle.scene_file_path,
 			" wave=", battle.get("wave_index"), "/", battle.get("wave_total"),
-			" enemies=", enemy_count
+			" enemies=", enemy_count,
+			" speed=", battle.get("battle_speed"), "X"
 		)
 	await _finish(main_scene, failures)
 

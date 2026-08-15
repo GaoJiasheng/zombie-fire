@@ -168,6 +168,9 @@ def main() -> int:
             basis = str(active.get("scaling_basis", "")).strip()
             if basis not in {"weapon", "character"}:
                 errors.append(f"{char_id}.active_skill.scaling_basis must be weapon or character, got: {basis}")
+            coverage_mode = str(active.get("coverage_mode", "local")).strip()
+            if coverage_mode not in {"local", "battlefield"}:
+                errors.append(f"{char_id}.active_skill.coverage_mode must be local or battlefield, got: {coverage_mode}")
             if basis == "weapon" and float(active.get("level_damage_growth", 0.0)) > 0.01:
                 errors.append(f"{char_id}.weapon-scaling active skill growth is too high: {active.get('level_damage_growth')}")
             if basis == "character" and float(active.get("level_damage_growth", 0.0)) <= 0.0:
@@ -210,10 +213,13 @@ def main() -> int:
             errors.append("character_body_metrics.canvas_size must stay [380, 520]")
         target_height = float(body_metrics.get("target_body_height_px", 0.0))
         target_foot = float(body_metrics.get("target_foot_offset_px", 0.0))
+        scale_reference_pose = str(body_metrics.get("scale_reference_pose", ""))
         if not 360.0 <= target_height <= 460.0:
             errors.append("character_body_metrics.target_body_height_px must stay in [360, 460]")
         if not 90.0 <= target_foot <= 140.0:
             errors.append("character_body_metrics.target_foot_offset_px must stay in [90, 140]")
+        if scale_reference_pose != "center":
+            errors.append("character_body_metrics.scale_reference_pose must stay center so static and firing frames share one model scale")
         profiles = body_metrics.get("profiles", {})
         if not isinstance(profiles, dict):
             errors.append("character_body_metrics.profiles must be an object")

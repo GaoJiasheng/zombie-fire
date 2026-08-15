@@ -133,13 +133,20 @@ def main() -> int:
     if "distance_squared_to(source.global_position) <= radius_squared" not in battle:
         errors.append("enemy aura range checks must avoid repeated square-root distance work")
     for loadout_contract in [
-        '"%d (+%d)" % [projected_power, maxi(projected_power - power, 0)]',
+        '_summary_cell("有效战力", "%d" % power',
+        '_summary_cell("推荐", "%d" % recommended_power',
         '"英雄 %s Lv%d · 武器 %s Lv%d',
         '宠物 %s%s',
         '" Lv%d" % pet_level',
     ]:
         if loadout_contract not in loadout:
             errors.append(f"loadout summary must keep compact, traceable high-level copy: {loadout_contract}")
+    if '预计成型' in loadout or '_summary_cell("基准"' in loadout:
+        errors.append("loadout must expose one player-facing power value instead of baseline/projected variants")
+    if '_summary_cell("战力",' in loadout or '"战力 %d / 推荐' in loadout:
+        errors.append("level-relative player power must be named 有效战力, never intrinsic 战力")
+    if 'LocalizationManager.text("战力 %d' in result:
+        errors.append("result must preserve the 有效战力 label for the level-relative player value")
     if 'loadout.text = "英雄 %s 等级%d' in loadout:
         errors.append("visible loadout summary must not use the wrapping-prone full 等级 notation")
     if 'ui_button_%s_native_%dx%d.png' not in ui_kit or "func _native_button_size" not in ui_kit:

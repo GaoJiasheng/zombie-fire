@@ -30,7 +30,6 @@ SIGNATURE_LEVEL = 5
 GROWTH_RANK = 3
 CONNECTED_LANES = 3
 TOTAL_LANES = 5
-LANE_DAMAGE_MULT = 0.70
 CRIT_DAMAGE_MULT = 2.40
 FULL_SKILL_DAMAGE_MULT = 1.0 + 0.48 + 0.42 + 0.32 + 0.36
 FULL_SKILL_FIRE_RATE_MULT = 2.20
@@ -56,6 +55,16 @@ WEAPONS = load("weapons.json")
 CHIPS = load("chips.json")
 PETS = load("pets.json")
 ECONOMY = load("economy.json")
+SKILLS = load("skills.json")
+
+# Keep the deterministic endgame audit on the same data-owned max-level
+# compensation as Battle and the power ruler.
+_multishot_levels = SKILLS["skill_multishot"]["levels"]
+_multishot_max_effect = max(_multishot_levels, key=lambda row: int(row["lv"]))["effect"]
+LANE_DAMAGE_MULT = min(
+    1.0,
+    0.70 + float(_multishot_max_effect.get("lane_damage_bonus", 0.0)),
+)
 
 
 @dataclass(frozen=True)

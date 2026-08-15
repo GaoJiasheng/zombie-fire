@@ -126,6 +126,23 @@
 	},
 	"power_ruler": {
 		"survival_reference": 1.2,
-		"element_weight": 0.82
+		"element_weight": 0.82,
+		"boss_dps_per_capacity": 206.98,
+		"crowd_dps_per_capacity": 75.0,
+		"boss_clear_window_seconds": 180.0,
+		"runtime_boss_recommendation_calibration": 1.03827,
+		"final_line_capacity": 6.0,
+		"line_curve_exponent": 3.12,
+		"non_boss_line_pressure_mult": 0.72,
+		"armor_break_effective_factor": 0.94,
+		"boss_mechanic_time_mult": {
+			"phase_burn": 1.04,
+			"freeze_field": 1.04,
+			"storm_chain": 1.05,
+			"spawn_minions": 1.08,
+			"phase_shift": 1.2821,
+			"regenerate": 1.15,
+			"multi_phase": 1.11
+		}
 	}
 }

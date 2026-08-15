@@ -2,6 +2,7 @@ class_name SkillRuntime
 extends RefCounted
 
 const SLOW_FIELD_DESIGN_BASE_LINE_Y := 1500.0
+const SLOW_FIELD_MIN_SPEED_MULT := 0.20
 
 var owned := {}
 var _order: Array[String] = []
@@ -10,14 +11,13 @@ func add_skill(skill_id: String) -> bool:
 	var current := level(skill_id)
 	if current >= max_level(skill_id):
 		return false
+	var next_level := level_after_add(skill_id)
 	var group := _exclusive_group(skill_id)
 	if group != "":
 		_remove_exclusive_peers(skill_id, group)
 	if not owned.has(skill_id):
 		_order.append(skill_id)
-		owned[skill_id] = clampi(maxi(_base_level(skill_id), 1), 1, max_level(skill_id))
-	else:
-		owned[skill_id] = current + 1
+	owned[skill_id] = next_level
 	return true
 
 func owned_order() -> Array[String]:
@@ -25,6 +25,15 @@ func owned_order() -> Array[String]:
 
 func level(skill_id: String) -> int:
 	return int(owned.get(skill_id, 0))
+
+func level_after_add(skill_id: String) -> int:
+	var maximum := max_level(skill_id)
+	if maximum <= 0:
+		return 0
+	var current := level(skill_id)
+	if current > 0:
+		return mini(current + 1, maximum)
+	return clampi(maxi(_base_level(skill_id), 1), 1, maximum)
 
 func max_level(skill_id: String) -> int:
 	var data_loader := _data_loader()
@@ -82,6 +91,7 @@ func projectile_mods() -> Dictionary:
 	return {
 		"pierce": int(_eff("skill_pierce", "pierce") + _eff("skill_homing", "pierce")),
 		"extra_projectiles": int(_eff("skill_multishot", "extra_projectiles")),
+		"multishot_lane_damage_bonus": _eff("skill_multishot", "lane_damage_bonus"),
 		"spread_deg": 8.0 + _eff("skill_multishot", "spread"),
 		"split": int(_eff("skill_split_shot", "split")),
 		"split_falloff": split_falloff,
@@ -117,7 +127,9 @@ func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_
 		y_min = base_line_y - design_offset
 	if y < y_min:
 		return 1.0
-	return max(0.4, 1.0 - slow)
+	# Lv5 is an explicit 80% slow. Keep one shared movement floor so the data,
+	# runtime helper and battle bonuses cannot silently disagree about the cap.
+	return max(SLOW_FIELD_MIN_SPEED_MULT, 1.0 - slow)
 
 func damage_multiplier() -> float:
 	return 1.0 \

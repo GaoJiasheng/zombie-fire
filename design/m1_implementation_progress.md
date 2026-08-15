@@ -9,6 +9,87 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Data-Driven Premium Product Details (2026-08-13)
+
+- Every revealed store product card is now a detail entry: tapping/clicking the four-slot preview, product copy or card surface opens the exact logical offer; the existing card purchase button remains a direct purchase shortcut.
+- Theme details enumerate all four real themed hero portraits, all eight free-weapon looks and the shared UI / base / HUD / firing-signature coverage, with an explicit visual-only / no-Power disclosure.
+- Complete bundles enumerate the full theme plus the real weapon / armor / chip / pet rows, level caps, visual evolution stages, 2-piece / 4-piece effect, dominance range and the data-authored max-level output contract. Theme-owner upgrade details enumerate only the four missing arsenal items and explicitly state that the owned theme is not charged twice.
+- The purchase action remains fixed below the scrolling detail content and follows the actual offer state. It keeps the current local-demo / no-Apple / no-charge contract and cannot reveal or purchase a progression-locked series.
+- M1 smoke covers all four theme products, all four complete bundles and all four upgrade products. A 24-screen Chinese/English 1080×2340 matrix passes runtime and image audit and is saved outside the repo at `/Users/gavin/Desktop/ZombieFire_商店商品详情_2026-08-13/`.
+
+### Permanent Skill Level Preload for First In-Battle Pick (2026-08-13)
+
+- Fixed the card-offer split-brain where the actual pick already jumped to the saved permanent skill level, but the card badge, value block and detail preview still rendered `run level 0 + 1`.
+- `SkillRuntime.level_after_add()` is now the one authority for both preview and mutation. An unowned skill resolves to its saved permanent level with a level-1 floor; an already-owned skill resolves to the next in-run level.
+- Permanent progression remains a starting rank, not automatic ownership. A saved level-4 Multishot is absent until selected, then immediately becomes level 4 and applies four extra projectiles; its next offer previews level 5.
+- M1 smoke locks the card badge, level-4 value text, runtime projectile modifier, bottom HUD badge and later level-5 upgrade. The real routed `4 / 3 / 2` Chinese offer is retained locally at `/tmp/zf-card-permanent-level-regression-20260813/` and passes the visual audit.
+
+### Progression Resource Logo Contract (2026-08-13)
+
+- Fixed the skill-codex defect where permanent skill upgrades deduct XP but rendered a star glyph. Generic and signature skill upgrades now consume and display the same `xp` cost spec.
+- Added one shared structured action treatment: localized action copy, the authored resource logo, and a numeric amount. Character/equipment upgrades use gold; free collection unlocks use stars; skill upgrades use XP.
+- Applied the contract to collection list unlocks, collection and character detail actions, cost summary cards, purchase confirmation, and owned premium-equipment upgrades. App Store mock prices and level-rating stars remain intentionally outside the in-game currency component.
+- `SaveManager` now exposes typed `{kind, amount}` cost specs so UI cannot independently guess a resource from a number. `UiKit` also routes registered talent-point and reroll-charge icons for any future real spend path without inventing one today.
+- `check_upgrade_resource_icons.py` is part of the Release Candidate gate. M1 smoke verifies gold, XP and star buttons against their exact texture path, amount and typed SaveManager cost.
+
+### Combo HUD Optical Vertical Center (2026-08-13)
+
+- `ComboHud` now derives its label lane from one frame rectangle and applies a shared `-4 px` optical baseline correction. The first `-8 px` pass looked slightly high on the real 1080×1920 frame, so the final value keeps half of the original correction without changing font size or special-casing `11`.
+- The capture helper accepts an exact combo preview count. Focused `2 / 11 / 100` screenshots cover one-, two- and three-digit streaks without waiting for live kills or showing an unrelated milestone flare.
+- `check_visual_screens.py` measures the rendered gold glyph bounds against the authored plate center and fails above `2 px` vertical error. All three fresh 1080×1920 captures pass.
+
+### Single Player-Facing Power Ruler (2026-08-12)
+
+- Owner finalized one meaning for `战力`: the current equipment and permanent skill levels, projected through the target stage's card budget and elemental matchup. The loadout, entry warning and result screen now reuse that single value and no longer introduce baseline / projected / final variants.
+- Recommended power is now a fixed stage threshold derived from `clear_requirement`, the stage's authored recommendation level and the same real skill projector used by player power. Its explicit reference inputs are Vanguard + Autocannon + an empty permanent-skill profile, so it cannot read the player's selected character, weapon or permanent skill levels and progression visibly closes the gap instead of moving the goalpost.
+- Map stage cards use the explicit `推荐` label. Shared top bars use the current loadout projected against the active or highest-unlocked stage, keeping the displayed account power on the same player-facing scale.
+- Regression coverage proves every permanent skill upgrade keeps power monotonic, equipment / skill changes cannot move a stage recommendation or its fixed projection, and challenge results show only `战力 / 挑战推荐` plus the separate real `本局选卡 X/Y` fact.
+
+### Shared Player / Recommendation Skill Projection (2026-08-13)
+
+- Removed the last split calculator: recommendation no longer uses the generic `1 + 0.42p + 0.08p²` card-budget approximation. Both player power and the fixed level line call one greedy card projector and one combat-effect multiplier.
+- Inputs are explicit and intentionally asymmetric. Player power supplies the equipped weapon and saved permanent skill levels; recommendation supplies Autocannon and an empty permanent-skill profile. The latter is save-independent by construction rather than by UI convention.
+- Battle result payloads now distinguish offered-card progression from cards actually selected. Skips advance the offer schedule but do not inflate `本局选卡 X/Y`; the result power remains the exact pre-battle player-facing value.
+- The Python endgame mirror uses the same projection and effect terms. The recalibrated fixed recommendation is `292` at level 46 and `3099` at level 99; enemy stats and real clear simulation are unchanged, with all three maxed free physical weapons still clearing the finale in the endgame matrix.
+
+### TestFlight Build 51 · Shared Power Ruler Delivery (2026-08-13)
+
+- Build `1.0.0 (51)` includes the shared player / recommendation skill projector, the single player-facing Power score and truthful selected-card count, together with the current owner-review polish through Stage 145.
+- The complete source Release Candidate passed, followed by exported-PCK battle boot, save-integrity, full M1 and TestFlight-feature probes. Xcode Archive, App Store IPA export and package identity checks also passed.
+- Release probing now accepts a persisted TestFlight `1X / 2X / 5X` choice only when it belongs to the runtime-available speed set and exactly matches `Engine.time_scale`; it still rejects any paused or inconsistent boot. Timing regressions restore an isolated 1X clock after the dedicated 5X stress test, so a tester's saved speed cannot shorten authored-duration assertions.
+- Apple accepted delivery `d37aefe6-ee6e-4f58-9465-6a3f3aefe7ce` with `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE` and `IS-ON-APP-STORE-CONNECT: true`.
+- The accepted IPA is `731519490` bytes with SHA-256 `68ff8f2a7478d9839352fa00378ace5eb0473b1719f2c3e74e9bd7e2372a3e98`; its verified Desktop copy is `/Users/gavin/Desktop/ZombieFire.ipa`. The `702655928`-byte PCK and complete dirty-source disclosure are recorded in `build/ios/release/build_51/release_manifest.json`.
+- The shipping flow restored the ordinary iOS preset to `release` after acceptance. Apple warning `90068` remains non-blocking for Build 51: iOS 14 is accepted now, while uploads beginning in Spring 2027 will require iOS 15 or later.
+
+### TestFlight Build 48 · iPhone Resolution Acceptance (2026-08-11)
+
+- Build `1.0.0 (48)` completed the full Release Candidate gate, iOS archive, App Store export, IPA audit and Apple upload. Apple returned Delivery UUID `01e9553c-79d7-471a-9ecb-6c837a40a800` with `BUILD-STATUS: VALID`, `IMPORT-STATUS: VALID`, `APP_STORE_ELIGIBLE` and `IS-ON-APP-STORE-CONNECT: true`.
+- The internal build temporarily carries `testflight_speed_unlocked` and `testflight_premium_preview`. The preview feature removes entitlement friction only for series already revealed by campaign progress; it does not expose unrevealed 30 / 50 / 80 / Stage 99 + hero Lv.40 catalog entries.
+- The shipping script restored both iOS presets to plain `release` after delivery. Production speed progression and premium reveal gates therefore remain unchanged for the next App Review export.
+- The validated IPA is `728707607` bytes with SHA-256 `1e5b9b6882164f45b27d02a22b592a7b4d0b13046183ed329905e1909969c5cd`. The delivery manifest is stored under `build/ios/release/build_48/`, and a verified copy is available at `/Users/gavin/Desktop/ZombieFire.ipa`.
+- The delivery intentionally records `tracked_changes_present: true`: this TestFlight package includes the current uncommitted owner-review polish. The source state is disclosed rather than represented as a clean release commit.
+- Apple emitted one non-blocking warning: the current minimum iOS version is 14.0; uploads submitted from Spring 2027 onward must require iOS 15 or later. It does not affect Build 48 validity or present TestFlight eligibility.
+
+### iPhone Fullscreen + Safe-Area Regression (2026-08-11)
+
+- Built a 10-profile vertical iPhone matrix spanning 640×1136 SE, Home-button Retina, notch, mini, Dynamic Island and Pro Max aspect classes. Each profile now has one final menu capture and one final in-battle capture.
+- All profiles preserve edge-to-edge `canvas_items / expand` rendering without black bars. Top and bottom HUD groups remain inside their simulated safe areas while the battlefield continues to fill the extra tall canvas.
+- Visual review found one real tall-phone defect: `TopBar` correctly moved below the notch, but the runtime-created Boss identity and HP rail still used the fixed 1920-canvas Y position. The Boss band now derives its Y from the safe-area-shifted `TopBar` and preserves a 22 px authored gap.
+- `check_tall_battle_layout.py` now gates that Boss anchor contract in addition to the existing wave, pause, speed, bottom HUD and battlefield-dock contracts.
+- The final local review set contains exactly 20 PNGs and a device-matrix README outside the repository. Every capture completed with runtime UI audit code `0`; a final dimension/full-bleed scan also found no solid black edge bars.
+
+### Rule-Free Settings Surface (2026-08-11)
+
+- 设置页原先复用了带横向装饰的整张面板纹理；在高纵向布局中，纹理明暗行会被拉伸成类似进度条的横线，并穿过 `Settings / 设置` 标题区域。
+- 设置主面板现与收藏详情页共用连续不拉伸底板，并以 `draw_center = false` 的独立九宫格只绘制已渲染金属外框；标题、按钮及音量滑杆结构与交互保持不变。
+- 冒烟测试锁定设置页必须使用 `ui_detail_panel_clear.png` 的九宫格连续纹理表面，防止未来回退到运行时几何底板、重复边框或会产生伪分隔线的整图拉伸方案。
+
+### Rule-Free Skill Detail Surface (2026-08-11)
+
+- `Tesla Rounds / 特斯拉弹` 标题下方的横线与装备详情的伪进度线同源：它是旧详情面板纹理被拉伸后的装饰行，不代表技能等级、经验或冷却进度。
+- 技能详情现明确纳入收藏详情的 `ui_detail_panel_clear.png` 九宫格无横线纹理契约；技能图标、等级徽章、语义标签、核心数据、等级加成、战术说明和升级按钮均未改变。
+- M1 smoke 新增技能详情专项断言，并以中英文 Tesla Rounds 长屏路由完成视觉复验；以后任何技能重新引入整张面板中心纹理都会直接触发门禁。
+
 ### Slow Field V2 Render + Movement Contract (2026-08-03)
 
 - Replaced the stretched legacy band and procedural crossed-sine grid with two authored cryogenic renders: a sparse seamless aurora/frost interior and an independent crystalline leading edge.
@@ -3820,3 +3901,241 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The apparent power drop is explained**: when the run finishes before the standard skill-card projection is complete, the Chinese copy says `本局技能未选满` and English says `skill choices incomplete` beside the actual final value.
 - **Reward language is player-facing**: `星级只补最高差额` is replaced by a direct historical-best rule—stars are awarded only above the player's best star rating.
 - **Bilingual visual proof**: the Chinese and English copy both wrap cleanly without clipping or border collision. Both routed result captures passed at `/tmp/zf-result-copy-review-20260810-final-v2/` (local QA only, not committed).
+
+## Progress-Revealed Premium Series (2026-08-10)
+
+- **Final owner contract**: this supersedes the 2026-08-08 permanent-catalog decision. Before a series' data-owned gate is met, its name, art, copy, price, purchase action and unlock hint are absent from every player-facing surface.
+- **One reveal authority**: `PurchaseManager` now resolves theme and equipment entitlements back to their premium series and exposes one progression / ownership reveal decision. Store, appearance selector and all four premium equipment collection families consume that same result.
+- **TestFlight separation**: `testflight_premium_preview` may make an already revealed theme wearable without writing a verified entitlement, but it no longer reveals future series. The explicit debug fixture remains available for automated cross-theme QA.
+- **First-entry restraint**: the main-menu arsenal entry remains hidden until at least one series is revealed. Verified ownership still overrides local progress so restore and offline use cannot disappear after a save rollback.
+- **Regression coverage**: M1 smoke starts from a clean save, requires no store headers/cards, no premium appearance cards and no premium weapons, then verifies the stage-30 Infernal-only reveal and the existing 50 / 80 / 99+Lv.40 sequence.
+
+## Rule-Free Collection Detail Surface (2026-08-10)
+
+- **It was not a progress indicator**: the line below item names and the similar marks in blank modal space came from reusing the result-screen texture on very tall detail dialogs. Source lighting / ornament rows stretched into data-like horizontal bands.
+- **Continuous surface contract**: character, weapon, armor, chip and pet details now share one opaque non-stretched surface. No content-free row in the modal can render as a false meter or separator.
+- **Authored frame retained**: the accepted gold-left / cyan-right metal asset is rendered as a `NinePatchRect` perimeter only. Its centre is explicitly disabled instead of stretching the full raster or replacing the dialog with a visible geometric placeholder.
+- **Scope stays local**: result screens keep their authored internal rules; only collection detail modals use the rule-free surface/frame combination.
+- **Permanent proof**: M1 smoke requires every settings/character/skill/equipment detail surface to use the named `ui_detail_panel_clear.png` nine-slice texture, with no runtime flat surface or duplicated frame. Five routed screenshots covering character, weapon, armor, chip and pet details passed at `/tmp/zf-detail-panel-final-20260810/` (local QA only, not committed).
+
+## Five-Theme Top Resource Bar Alignment Regression (2026-08-11)
+
+- **Root cause**: the icon and value shared one centred `HBoxContainer`, so the combined pair was centred while the number itself sat to the right of the bezel centre. The `14 px` left inset also placed the icon over the rendered end armour, especially on the deeper Infernal and Gilded frames.
+- **Independent lanes**: every chip now owns a fixed icon lane and a separate mirrored value lane. Gold, star, XP and power values align to the full bezel's exact horizontal / vertical centre; the icon begins beyond the deepest theme end cap and cannot enter the value lane.
+- **Theme-correct frames**: resource chips now resolve through the active theme's rendered native secondary-button family instead of sharing the default combo panel. Default, Neon Tempest, Infernal Dominion, Polar Aurora and Gilded Eclipse therefore retain their authored material and border silhouette.
+- **Long-value containment**: chip width is derived from the effective digit size plus symmetrical end reserves. The regression fixture `31612 / 37 / 12172 / 38`, and the existing six-digit gold fixture, remain inside the `904 px` collection safe width without clipping.
+- **Permanent proof**: M1 smoke exercises all five theme paths and asserts exact value centring, icon-to-border clearance, icon/value separation and four-resource completeness. Five routed `1080×1920` armor captures passed manual review at `/Users/gavin/Desktop/ZombieFire_TopResourceBar_Regression_2026-08-11/` (local QA only, not committed).
+
+## Polar Rendered Buttons + Optical Resource Content Centre (2026-08-11)
+
+- **The screenshot overruled the rectangle math**: Stage 132 centred the numeric Label independently, but that left the visible icon + number composition strongly left-weighted. The owner correctly rejected it. Each chip now uses one tightly sized `HBoxContainer` inside a full-bezel `CenterContainer`, with a measured `-4 px` horizontal and `+2 px` vertical optical correction for icon alpha padding and Glow Sans digit bearings.
+- **Safety is retained**: the content group keeps a `10 px` icon/value gap, long balances still grow from the effective font size, and the four live resources remain beyond the deepest five-theme end armor. M1 smoke now asserts the declared optical offsets, shared icon/value vertical centre, border clearance, readable gap and exact active-theme texture path.
+- **Polar placeholder source removed**: the prior builder painted nested polygon outlines, repeated diamond nodes and a centre rail. New primary and secondary ImageGen masters follow the locked Polar style board with rendered cryogenic silver, titanium/gunmetal, ice inlays, restrained cyan/violet energy and a dark text well. Chroma removal reports no visible green-key residue.
+- **Native-size contract**: `tools/build_polar_runtime_assets.py --buttons-only` rebuilds the existing `36 × 2 = 72` paths without touching accepted character, weapon or VFX art. Rendered end caps remain independent while only a blended calm center strip changes width; the V2 manifest/contact sheet and `check_visual_assets.py` lock hashes, dimensions, transparent corners, material variation and action-tier distinction.
+- **Runtime cache failure caught**: the first real capture still showed the old geometric Polar textures even though source PNGs and hashes were new. A headless editor import refreshed all 72 Godot textures; repeated runtime screenshots then showed the rendered ice-silver family. This makes the final evidence a real runtime result, not an on-disk preview.
+- **Visual proof**: default, Neon, Infernal, Polar and Gilded Chinese armor pages pass routed runtime/image analysis `5/5`. Final local QA files are at `/Users/gavin/Desktop/ZombieFire_TopResourceBar_Regression_2026-08-11_v2/`.
+
+## Build 49 TestFlight Delivery + Five-Theme Interface Owner Review (2026-08-12)
+
+- **Accepted TestFlight build**: iOS version remains `1.0.0`; build `49` passed the complete source Release Candidate, exported-PCK probes, Xcode Archive, App Store IPA audit and Apple server validation. Delivery `9027e20f-bef7-473c-995b-1961499094c8` is `VALID`, `APP_STORE_ELIGIBLE` and present in App Store Connect.
+- **Release isolation held**: the shipping script temporarily exported `testflight_speed_unlocked,testflight_premium_preview`, then restored the ordinary iOS preset to `release` after acceptance. No production entitlement, progression or balance gate changed.
+- **Owner-sized matrix instead of a content Cartesian sweep**: a dedicated `--theme-interface-review` route captures Default, Neon Tempest, Infernal Dominion, Polar Aurora and Gilded Eclipse across 17 Chinese interface states each. It intentionally uses one neutral loadout/combat fixture and does not enumerate all heroes, weapons or battle effects, matching the owner's explicit acceptance scope.
+- **Core surface coverage**: each theme includes menu, map overview, chapter list, loadout, all six collection catalogs, settings, theme selector, store, ordinary combat HUD, pause, card offer and result. All `85` source PNGs are `1080×1920`; runtime fallback audits and image analysis report `85/85` pass with zero issues.
+- **Manual visual closeout**: five per-theme contact sheets were reviewed alongside full-resolution map, Polar armor/settings/theme-selector and menu captures. Resource icons no longer ride the frame, the compact icon/value composition reads centred, Polar controls use the rendered ice-silver family, and all five button materials switch consistently.
+- **Artifacts**: screenshots, contact sheets, manifest and Chinese review guide are in `/Users/gavin/Desktop/ZombieFire_Build49_Theme_Interface_Review_2026-08-11/`; the exact accepted IPA is `/Users/gavin/Desktop/ZombieFire.ipa`; the release record is `build/ios/release/build_49/release_manifest.json`.
+- **Non-blocking Apple notice**: warning `90068` announces a Spring 2027 minimum of iOS 15. Build 49's current iOS 14 deployment target remains accepted; changing that target is intentionally outside this delivery.
+
+## Resource Digit Visible-Ink Vertical Centre Correction (2026-08-12)
+
+- **The owner screenshot was correct again**: geometry assertions only proved the icon/value Control group sat at its declared offset. Pixel inspection of the rendered digits showed their visible ink centre still `3–4 px` below the Polar bezel's calm inner-well centre.
+- **Correction direction reversed**: the previous `+2 px` downward compensation compounded Glow Sans' naturally low numeric ink. The shared resource content group now uses `x=-4 px, y=-2 px`; horizontal composition, ten-pixel icon gap, long-balance width and end-armour clearance remain unchanged.
+- **Pixel-level acceptance**: five fresh 1080×1920 armor captures report identical digit ink bounds across all themes. The four-value mean is `216.625` against a `216.5` well centre (`0.125 px` residual), replacing subjective Control-bound centring with visible-pixel evidence.
+- **Permanent regression**: M1 smoke now separately requires the owner-approved `-2 px` upward ink correction before checking the declared group centre, shared icon/value baseline, theme-native texture and four-resource completeness.
+- **Artifacts and release boundary**: focused screenshots and a zero-error five-screen manifest are at `/Users/gavin/Desktop/ZombieFire_TopResourceBar_Regression_2026-08-12_v3/`. This fix is newer than the already accepted TestFlight Build 49; no replacement build was uploaded without a new owner request.
+
+## Level Mode Large-Touch Dual Buttons (2026-08-12)
+
+- **Progressive disclosure replaces the dead second row**: an unplayed level now presents one centred `286×164` Normal control. Challenge is not instantiated until Normal has a recorded clear, so the card no longer advertises an unavailable action before it is relevant.
+- **Two equal direct targets after a clear**: cleared levels use side-by-side `206×164` Normal and Challenge controls with a real ten-pixel hit-region gap. Both remain direct route buttons and preserve the existing scroll-drag passthrough contract.
+- **One vertical information hierarchy**: each control stacks its mode title above its own three-star row. A 1–2-star Normal result reveals a disabled Challenge control with the lock marker; the existing same-level Normal 3-star save-layer and route guards remain unchanged.
+- **Rendered themes stay intact**: the controls use the authored themed `286×112` primary / secondary rasters as nine-slice surfaces, retaining real Default, Neon, Infernal, Polar and Gilded metalwork rather than introducing flat geometric replacements.
+- **Permanent and visual proof**: M1 smoke covers hidden, revealed-locked and enabled Challenge states, single-button centring, paired geometry, stacked stars, touch size and drag passthrough. Ten `1080×1920` captures (five themes × two states) passed with zero UI-audit issues at `/Users/gavin/Desktop/ZombieFire_关卡模式双按钮回归_2026-08-12/`.
+
+## Build 50 TestFlight Delivery (2026-08-12)
+
+- **Accepted replacement build**: iOS version remains `1.0.0`; build `50` contains both the visible-ink resource-number vertical correction and the new single / dual large-touch level-mode controls. It passed the complete source release candidate, exported-PCK probes, Xcode archive, App Store IPA audit and Apple processing.
+- **Apple result**: delivery `d53f6ef7-32f8-4b42-a2b7-f154e9fed6e7` is `VALID`, `APP_STORE_ELIGIBLE`, imported successfully and present in App Store Connect. The accepted IPA is `731446327` bytes with SHA-256 `b8bb37e45387334b0535dbf932622d22f187ab5dd79d362e5f8116e48684e3da`.
+- **Artifact identity**: the uploaded archive and `/Users/gavin/Desktop/ZombieFire.ipa` compare byte-for-byte. The complete release record, including source commit / dirty-state disclosure and the `702572780`-byte PCK hash, is stored at `build/ios/release/build_50/release_manifest.json`.
+- **Release isolation restored**: the shipping flow temporarily enabled the existing TestFlight speed and premium-preview features, then restored the ordinary iOS preset to `release` after acceptance. No production entitlement or progression gate changed.
+- **Non-blocking Apple notice**: warning `90068` remains informational for this build. The current iOS 14 deployment target was accepted; Apple requires iOS 15 or later for uploads beginning in Spring 2027.
+
+## Pause Action Single-Line Frame Safety (2026-08-12)
+
+- **The border was not the problem**: the three `760×112` theme rasters remained inside the pause panel. Their generic inner layout placed the icon over rendered end armor and the subtitle against the lower rail, making the content appear to ride the frame.
+- **Three direct actions remain**: Resume, Retry and Back keep separate full-width touch targets. The secondary explanatory line is removed; each button now carries one vertically centred action title between a protected icon lane and arrow lane.
+- **One five-theme safety contract**: icon, title and arrow must all be enclosed by the shared `Rect2(96, 18, 584, 76)` content well, chosen against the deepest shipped end caps. M1 smoke also requires the title row to share the exact `56 px` button centerline and rejects any reintroduced subtitle node.
+- **Visual proof**: Default, Neon Tempest, Infernal Dominion, Polar Aurora and Gilded Eclipse Chinese pause screens plus standard / tall English captures pass runtime and image audits. All seven source images are at `/Users/gavin/Desktop/ZombieFire_暂停按钮单行回归_2026-08-12/`.
+
+## Standalone Stage Entry Action Copy (2026-08-12)
+
+- **One action no longer implies a missing comparison**: before Challenge is revealed, the sole Normal route is labelled `闯关 / Play`. Its internal `level_mode=normal` identity, callback and star data are unchanged.
+- **Paired semantics remain explicit**: once a Normal clear reveals the second route, the controls continue to read `普通 / Normal` and `挑战 / Challenge`, preserving the useful mode comparison.
+- **Regression proof**: M1 smoke requires the standalone and paired labels independently. Routed Chinese standalone, English standalone and Chinese paired captures pass at `/Users/gavin/Desktop/ZombieFire_闯关按钮文案回归_2026-08-12/`.
+
+## Blaze Battlefield-Wide Meltdown (2026-08-13)
+
+- **Coverage now matches the character promise**: every Meltdown pulse damages and ignites every living enemy on the battlefield instead of testing a small circle around one threat target.
+- **Single-target balance is preserved**: each battlefield pulse reuses the exact weight and reference falloff that the former primary target received. Coverage therefore improves crowd clearing without multiplying Boss damage or changing displayed player power.
+- **Data owns the rule**: Blaze declares `active_skill.coverage_mode = battlefield`; runtime defaults every undeclared skill to `local`, and data validation rejects unknown coverage modes.
+- **Readable battlefield feedback**: staged explosion anchors sweep lower centre, left, right and upper centre, while the existing per-enemy fire impact makes actual full-field hits visible.
+- **Permanent regression**: M1 smoke spawns three widely separated enemies and requires one authored battlefield pulse to reduce all three HP values.
+
+## Unified Static / Firing Character Scale at 80% (2026-08-13)
+
+- **Missed state closed**: the previous anatomical ruler normalized every pose independently. A crouched or recoil-leaning firing frame therefore received a larger Sprite scale than the upright idle frame, even though both reported the same projected head-to-foot height.
+- **One person, one scale**: every idle, hurt and directional firing frame in the same character/profile now takes its scale from the centre firing metric. Pose-specific body centre and boot anchors remain active, so stance changes survive without changing the actor's physical size.
+- **Exact owner reduction**: the complete battlefield rig is now `1.20×`, exactly 80% of the former `1.50×` presentation. The transform also carries fused weapons and muzzle sockets, preserving projectile origin alignment.
+- **Static frames are first-class regression states**: the focused body matrix now includes a deterministic frozen idle capture for all five themes and four heroes in addition to left / centre / right firing captures.
+- **Safety result**: the updated 944-frame HUD audit passes with a 22.1 px minimum gap to the bottom resource rails; runtime smoke owns the shared-scale, shared-foot-line and 1.20× contracts.
+
+## Combat Foley Separation and Realism Pass (2026-08-13)
+
+- **Root cause fixed**: ordinary zombie contact and actual base damage previously converged on the same breach sound, while the Phantom blink mixed electric/glitch and impact-like transients. Dense combat therefore made movement, attack and barricade damage sound interchangeable.
+- **Real barricade contact**: `sfx_enemy_breach.wav` is rebuilt as layered steel-plate flex, sandbag/body thump, fastener rattle and settling grit. It remains the high-priority actual-contact layer and is no longer used as an attack wind-up.
+- **Air-only phase blink**: `sfx_zombie_phantom.wav` is now a 0.44-second two-stage broadband wind cut with negligible low-frequency impact energy and no electric arc.
+- **Action before consequence**: all 20 ordinary zombies resolve their existing `attack_animation.mode` into one of seven short action/material families. The action cue starts with the authored attack animation; the separate base-contact sound occurs only when damage resolves at frame 4.
+- **Reproducible production**: the nine new/rebuilt mono 44.1 kHz WAVs, original backups, generation script, manifest and waveform sheet are retained. A dedicated quality gate checks loudness, duration, spectral distinction, registration, routing and base/blink separation, and is part of the Release Candidate suite.
+
+## In-Battle Skill Hint Dismissal Pass (2026-08-13)
+
+- **Root cause fixed**: the runtime `SkillHintOverlay` ignored pointer input and had no lifetime deadline, so a long-press explanation could remain over combat indefinitely.
+- **Explicit temporary lifetime**: each non-card-offer skill explanation arms a three-second real-time deadline when shown. The deadline is independent of 1X / 2X / 5X combat speed and is cleared on every manual or automatic dismissal.
+- **One inspect gesture**: owned-skill taps no longer open the explanation, and a cooling active-skill tap remains inert. Long press is now the only in-battle inspection gesture; a ready active-skill tap remains the cast gesture.
+- **Empty-space dismissal**: a primary mouse/touch press outside the explanation and outside live HUD actions closes the hint immediately and marks the input handled. `InputManager.cancel_active_input()` protects against platform input-order differences so dismissal cannot become manual aim or a target lock.
+- **Actions remain one-tap**: the character skill, owned skill slots, pause and speed controls are excluded from the empty-space dismissal surface, allowing their existing action to receive the same tap while the old hint is replaced or naturally cleared.
+- **Hold/release safety**: timeout during a still-held inspection preserves the press identity until release, so the release suppression contract still prevents an accidental active-skill cast.
+- **Regression ownership**: M1 smoke now checks long-press visibility, armed deadline, empty-space consumption, timeout closure, deadline reset and direct access to another skill action.
+
+## Multishot Five-Level Lane Curve + Lv4 Compensation (2026-08-14)
+
+- **Owner-authored lane sequence**: `skill_multishot` now adds `1 / 2 / 3 / 3 / 4` projectiles from Lv1 through Lv5, producing `2 / 3 / 4 / 4 / 5` total lanes including the primary shot.
+- **Lv4 is not a dead upgrade**: Lv4 uses `lane_damage_bonus = 0.08`; Lv5 keeps a bounded `0.02` after adding the fifth lane. After the existing lane-count falloff, Lv4 fires four lanes at `0.83` damage each and Lv5 fires five at `0.72` each. Ideal full-volley throughput therefore progresses `1.70x → 2.40x → 3.00x → 3.32x → 3.60x` before geometry and other skills.
+- **One data path**: the runtime projectile modifier, real battle damage, card/detail text, SaveManager power ruler and Python recommendation mirror all read the same compensation field. The max-level deterministic DPS audit now mirrors `0.72` rather than the pre-compensation `0.70`.
+- **Regression contract**: smoke coverage asserts all five projectile counts, compensation activation only at Lv4+, baseline and compensated falloff values, permanent Lv4 preload and the Lv5 transition.
+
+## Bottleneck V3 Single Power + Runtime Boss Contract (2026-08-14)
+
+- **One player-facing number, three real checks**: displayed player power is now the fixed stage recommendation multiplied by the minimum of crowd-clear, Boss-kill and line-survival ratios. Excess strength in two dimensions can no longer conceal a losing third dimension.
+- **Stage-owned recommendation**: every level carries a generated `power_contract` derived from its authored waves, enemy stats, weakness, mechanics and card budget. Player equipment and save progression never move that recommendation.
+- **Runtime and ruler share the encounter**: level 99's second Boss is declared through `runtime_bosses`; Battle, the offline simulator and the power contract all consume the same row. The former hidden `boss_rush` append path is removed.
+- **Bounded final-stage variance**: level 99's first offer is data-guaranteed to contain Barrier or Slow Field. This preserves player choice while preventing the double-Boss encounter from depending on an unavailable defensive answer.
+- **Frozen owner anchors**: the maxed free physical level-99 build resolves to `4770 / 4097`, bottlenecked by Boss damage; the reported level-55 Blaze build resolves to `401 / 425`, bottlenecked by line survival. Python contract checks and Godot smoke both own these exact fixtures.
+- **Full-campaign synchronization**: all 99 level contracts are regenerated together, and release validation re-derives their capacities and recommendations so data, runtime and UI cannot silently drift apart.
+
+## Slow Field Five-Level Strength + Snow Readability (2026-08-14)
+
+- **Approved control curve is now literal**: levels 1–5 slow by `30% / 40% / 50% / 60% / 80%`. Their existing field coverage remains `30% / 40% / 50% / 60% / 70%`, so range and slow strength stay independently understandable.
+- **The hidden cap mismatch is removed**: `SkillRuntime` previously floored speed at `40%`, then Battle floored it again at `45%`. Both paths now share `SLOW_FIELD_MIN_SPEED_MULT = 0.20`; a level-5 enemy moves exactly one fifth of its baseline distance.
+- **One data path, including power**: Battle reads the five slow values from `skills.json` instead of duplicating them. SaveManager and the Python ruler now value control up to the same reachable `80%` cap, preserving the V3 three-bottleneck power contract.
+- **Snow is visible without replacing the accepted field**: the V3 seamless ice surface and full-width threshold remain intact. Generic radial motes are replaced by small authored `vfx_hit_ice` crystals, with area-aware density (`56..124`), brighter alpha and a restrained detail boost to the existing surface shader parameters.
+- **Proof**: data validation, slow-field asset audit, power-contract audit, endgame audit and M1 smoke pass. Routed level-1 and level-5 battle captures pass runtime/image analysis at `artifacts/slow_field_review_2026-08-14/`.
+
+## Premium Store Full-Surface Touch Scrolling (2026-08-15)
+
+- **Root cause**: the catalog already had a valid vertical `ScrollContainer` and overflow range, but the full product panel used `MOUSE_FILTER_STOP`; purchase, reset, equip and upgrade controls also intercepted the gesture before it reached the parent scroller.
+- **One scroll contract**: the main catalog now uses a `12 px` deadzone and recursively marks every non-ignored content control as `MOUSE_FILTER_PASS`. Product art, copy, purchase actions and owned-set controls can all start a vertical drag while the fixed footer remains outside the scrolling surface.
+- **Tap / drag separation**: stationary product-card taps still open the complete detail page and stationary action taps keep their purchase or upgrade behavior. An explicit action-origin latch survives Godot's touch-to-mouse duplicate release sequence, so a drag beginning on a purchase button cannot also open detail or confirmation.
+- **Regression ownership**: M1 smoke asserts overflow, programmatic movement, the complete PASS chain, button passthrough metadata and drag-without-side-effects. Routed top and deep catalog captures pass runtime and image analysis at `artifacts/store_scroll_fix_2026-08-14/`.
+
+## Store Product Detail Independent Touch Scrolling (2026-08-15)
+
+- **Second surface closed**: product detail is a separate modal with its own `DetailScroll`; its generated summary, theme, hero, weapon and gear panels retained default input blocking after the catalog fix, which explains why the visible detail scrollbar still could not be dragged.
+- **Shared gesture contract**: `DetailScroll` now uses the same `12 px` deadzone and runs the same recursive PASS configuration after its data-driven content is populated. Theme-only, complete-bundle and theme-owner-upgrade pages all inherit the correction.
+- **Fixed actions remain fixed**: header close and footer purchase / back actions stay outside the scroll surface. Only the center detail body moves, so product identity, purchase behavior and entitlement boundaries are unchanged.
+- **Proof**: M1 smoke checks every catalog product for real detail overflow, programmatic movement and full descendant passthrough. A Thunder complete-bundle top capture and a `1500 px` deep-scroll capture pass runtime/image analysis at `artifacts/store_detail_scroll_fix_2026-08-15/`.
+
+## Build 52 TestFlight Delivery (2026-08-15)
+
+- **Accepted replacement build**: iOS remains `1.0.0`; build `52` contains the owner-approved multishot curve, Bottleneck V3 power contract, slow-field strength / snow pass, and both premium-store scrolling corrections through Stage 151.
+- **Full release proof**: the source Release Candidate, exported-PCK boot / save / M1 / feature probes, Xcode Archive, App Store IPA audit and Apple processing all passed. The exported PCK is `716233260` bytes; the accepted IPA is `744933251` bytes.
+- **Apple result**: delivery `24744398-24a9-4198-992c-27ab5ba6edf8` is `VALID`, `APP_STORE_ELIGIBLE`, imported successfully and present in App Store Connect.
+- **Artifact identity**: `build/ios/ZombieFire.ipa` and `/Users/gavin/Desktop/ZombieFire.ipa` are byte-identical with SHA-256 `505c1ae4a936b875ba155f3c4f98ab949a496b2a982496f317c62593d09f223f`. The complete record is `build/ios/release/build_52/release_manifest.json`.
+- **Source and feature disclosure**: the manifest records tracked workspace changes against commit `6c903db3ed19994458f9ccd4fb406c3160729fed`. TestFlight-only speed unlock and premium preview were enabled for the audited export, then the iOS preset was restored to ordinary `release` after Apple acceptance.
+- **Non-blocking Apple notice**: warning `90068` remains informational. Build 52's iOS 14 target was accepted; Apple requires iOS 15 or later for uploads beginning in Spring 2027.
+
+## Loadout Weapon Product Renders + Golden Law V3 (2026-08-15)
+
+- **Free weapons now have dedicated showcase art**: all eight free guns use new transparent, high-detail product renders through `loadout_art`. Their existing inventory/combat assets, muzzle sockets, projectiles, effects and balance remain untouched.
+- **Real phone-scale hierarchy**: free weapon stages are `388×252`; Apocalypse stages are `410×296`. The loader crops only transparent authoring canvas and keeps a proportional safety gutter, so models fill the weapon card without touching its border or text.
+- **Paid weapons are deliberately larger**: Thunder, Inferno, Absolute Zero and Golden Law now use the enlarged premium ruler. Theme-coated free weapons retain their authored theme assets while inheriting the same free ruler.
+- **Golden Law is a real rerender, not a rotation trick**: V3 is one horizontal blackened-gunmetal verdict cannon with liquid-gold circuitry, a central tribunal reactor, long judgment rails and a concentric muzzle. The former Golden-only rotation and square stage are removed; every weapon renders on a zero-degree axis.
+- **Reproducible asset chain**: accepted masters, prompts, alpha extraction disclosure, deterministic 720×420 builders, contact sheets and SHA-256 manifests are retained under the corresponding generated source directories and registered in the asset index.
+- **Proof**: source asset/data/reference/pressure/card checks, headless boot and M1 smoke pass. Real `1080×1920` loadout captures and the final four-paid-weapon sheet are stored at `artifacts/free_weapon_loadout_showcase_2026_08_15/`.
+
+## Weapon Collection Wide-Card Layout (2026-08-15)
+
+- **Weapon-only expansion**: weapon collection rows now use an `860 px` safe-area ruler instead of the shared `760 px` catalog width. Other collection modes retain their accepted geometry.
+- **Larger product identity**: the wide-card passes moved weapon icons from `92×92` through `120×120` and `144×144`; owner review confirmed remaining space, so the final ruler is `168×168` at `x=44`. Title, semantic tags and stats share an `x=244` axis with at least `28 px` clear space after the icon.
+- **Right action lane remains independent**: Equip, Equipped and Buy controls move to `x=650`; the expanded inner frame and locked veil follow the card width, while every action stays at least `32 px` inside the card edge.
+- **Bilingual proof**: Chinese and English Neon Tempest captures preserve long weapon names, rank suffixes, three tags and purchase copy without clipping. Static validators, reference checks, headless boot and M1 smoke pass; screenshots are at `artifacts/weapon_collection_layout_2026_08_15/`.
+
+## Store Product Detail Text Safe Insets (2026-08-15)
+
+- **One right-shifted section ruler**: after the second owner screenshot review, every generated section now keeps `36 px` left, `24 px` right and `22 px` vertical clearance. Summary, theme, hero, weapon, gear, synergy and growth titles/body copy share the same visibly inset left axis.
+- **Nested copy is protected too**: the four theme-coverage cells use `26 px` left, `18 px` right and `14 px` vertical gutters, while Apocalypse gear cards use `26 / 18 / 16 px`. Their text no longer sits against the inner cyan/gold frame without unnecessarily sacrificing the full right lane.
+- **Header hierarchy stays balanced**: the product title/type stack receives one additional `16 px` left inset without moving the close action or shrinking the fixed purchase/footer actions.
+- **Proof**: M1 smoke enumerates all catalog offer roles and asserts the shared margins. Chinese and English Neon theme captures plus a deep Chinese Thunder complete-bundle capture pass visual review at `artifacts/store_detail_padding_2026-08-15/`.
+
+## In-Battle Card-Offer Skill Image Scale (2026-08-15)
+
+- **Stronger skill identity**: after a second owner screenshot review, every three-choice card now renders its skill image at `156×156` instead of `100×100`; the authored metal frame grows from `116×116` to `176×176` rather than leaving a large empty card lane.
+- **One coordinated text shift**: title, current values, short description and semantic tags move from `x=176` to `x=220`, preserving a real `28 px` gap after the enlarged frame and a `578 px` readable copy lane.
+- **No interaction or balance drift**: card height, level/recommendation badges, offer weights, skill effects, reroll/skip actions and long-press details are unchanged.
+- **Proof**: M1 smoke locks the exact icon/frame rulers and text gap. Chinese and English `1080×2340` routed battle captures pass visual review at `artifacts/card_offer_icon_scale_2026-08-15/`.
+
+## Phase Blink / Base-Impact Audio Isolation (2026-08-15)
+
+- **The files were not duplicated**: `sfx_zombie_phantom.wav` and `sfx_enemy_breach.wav` remain separate assets with radically different waveforms. The audible regression came from runtime layering: an ordinary phase blink played its wind cut and `threat_warning` on the same frame, then a near-line blink could also request the higher-priority barricade impact.
+- **Ordinary blink is now air-only**: the `phase` advance route suppresses the generic warning layer. Its supernatural near-line damage keeps visual/base-HP feedback but no longer claims physical steel/sandbag contact, so the wind identity remains audible at every distance.
+- **Both authored phase actors are covered**: ordinary `zombie_phantom` and periodic `boss_void_phantom` shifts resolve to `zombie_phantom`; the Boss `dash_combo` movement now also starts with the air-cut cue before its separate strike/contact layers.
+- **Physical attacks keep physical consequences**: runner, leap and charge warnings are unchanged, and real zombie/Boss contact still plays `enemy_breach`. No balance, timing, damage, animation or WAV asset was changed in this pass.
+- **Regression ownership**: the combat-foley quality gate now checks runtime separation fragments, while M1 smoke checks every data-authored phase-shift Boss plus negative controls for charge and heavy melee.
+
+## Card-Offer Battlefield-Corridor Vertical Centering (2026-08-15)
+
+- **Root cause removed**: the three-choice panel still used an authored `y=342` plus an extra tall-screen downward shift. Once its skill imagery became substantially larger, that old composition rule left the complete modal visually weighted toward the hero and bottom defense area.
+- **One center on every screen**: runtime now measures the corridor from the bottom of the fixed top combat controls to the real `BREACH_Y`, then places the panel's live height at that corridor's vertical center. Standard, tall and ultra-tall viewports therefore use the same geometric contract instead of separate offsets.
+- **Safe-area aware**: top and bottom device insets participate in the available bounds, while the modal remains clamped inside them. Theme and language only change presentation/copy and cannot move this shared geometry.
+- **No card or balance change**: the accepted card height, `156×156` skill image, detail overlay, badges, reroll/skip actions and offer logic are untouched; the detail overlay follows its centered host automatically.
+- **Regression ownership**: M1 smoke compares the rendered panel center against the live battlefield-corridor center and asserts both modal edges remain inside that corridor. A `1080×1920` baseline plus all five themed `1080×2340` Chinese captures pass runtime/UI audit at `artifacts/card_offer_vertical_center_2026-08-15/`.
+
+## Slow-Field Boundary Crest Leveling (2026-08-15)
+
+- **The owner perception was correct**: the runtime `TextureRect` had zero rotation and the gameplay threshold used one constant `y_min`, but pixel analysis of `vfx_slow_field_boundary_v3.png` found its dominant crest drifting roughly `16–23 px` downward from left to right. The denser snow/ice presentation made that authored bias read as a tilted field.
+- **Correct the cause without moving the zone**: a dedicated canvas shader applies an `18 px` center-symmetric vertical UV counter-warp across the texture. It also places a restrained, edge-faded horizontal ice seam exactly at the gameplay `y_min`, giving both endpoints one unambiguous reference while preserving the accepted local wave silhouette and full `1080 px` span.
+- **No geometric rotation**: rotating the complete boundary would clip or lift its screen edges and visually disagree with the true slow threshold. The node stays at rotation zero, its position remains data-driven, and only the texture's internal slope is neutralized.
+- **No balance drift**: five-level coverage, `30/40/50/60/80%` slow strength, surface fill and snow density are unchanged. Smoke coverage owns the zero-rotation, shader path and exact compensation contract.
+- **Visual proof**: deterministic Lv1 and Lv5 battle captures pass UI audit and show the reference seam at one exact pixel row from left to right; artifacts are retained at `artifacts/slow_field_boundary_level_2026-08-15/`.
+
+## Pangolin-Charger Remote-Movement Audio Isolation (2026-08-15)
+
+- **Model-led root cause**: the pangolin/armadillo-shaped report resolves to `zombie_charger`, not another `phase` actor. Its `charge` advance still played the legacy `zombie_charger` acceleration/impact asset and a generic `threat_warning` together even when the action started around `y=660`, far from the `BREACH_Y` base line.
+- **One clean movement identity**: visible charger advances now use the accepted `zombie_phantom` air-cut whoosh and suppress the generic warning layer. This changes only the movement cue; timing, distance, animation, damage and stats are untouched.
+- **Contact remains truthful**: the real `enemy_breach` barricade sound is still available to a physical charge, but only after the action starts inside the authored base-pressure band and the damage path actually resolves. A remote charge cannot reduce base HP or request that contact layer.
+- **Regression ownership**: the combat-foley quality gate verifies the charger-to-wind route and distance guard, while M1 smoke locks remote/no-contact and near-line/real-contact behavior alongside the existing phase and Boss contracts.
+
+## Full Zombie Lifecycle Foley De-Stacking (2026-08-15)
+
+- **Whole-roster audit**: all 20 zombie rows and all eight Boss runtime routes were traced across entry, mechanic/movement, base-attack wind-up, visual hit, real breach and death. Five independent overlap sources existed: spawn-time mechanic replay, movement plus warning, instant skill plus breach, Boss visual hit plus later breach, and mechanic replay on death.
+- **One enemy lane**: `AudioManager.play_enemy_sfx` owns one global `enemy_foley` group. An ordinary zombie action is skipped while another enemy cue is audible; `enemy_breach`, defense `threat_warning` and base-barrier `hit_immune` replace the current tail. They never layer on top of it, including when the incoming priority cue is rate-limited.
+- **Lifecycle ownership is explicit**: `action` resolves to the authored mechanic identity, `death` always resolves to `enemy_death`, and `entry / ambient / passive` resolve to silence. Spawn glows, armor/potential stealth pulses and baseline walkers remain visually readable without generating horde-wide chatter.
+- **Contact has one owner**: advance skills no longer add generic alarms. Instant base-damage skills resolve with only the real contact cue. Boss final visual hits no longer pre-play an element/contact layer; the later `breached` signal is the sole base-impact owner, while non-final combo hits may retain one element cue.
+- **No content or balance change**: zombie data, movement, intervals, damage, animations, VFX and every WAV file are unchanged. This pass changes event ownership and concurrency only.
+- **Regression ownership**: M1 smoke enumerates all zombie event roles and priority rules; the audio-overlap and combat-foley gates reject direct enemy cues that bypass the exclusive lane or revive mechanic-on-death behavior.
+
+## Level-Relative Power Renamed to Effective Power (2026-08-15)
+
+- **The label now matches the formula**: Bottleneck V3 reads the selected level's crowd, Boss and defense-line contract plus weakness and projected card budget. The resulting player value is therefore displayed as `有效战力 / Effective Power`, not as an intrinsic loadout stat.
+- **One term across the complete route**: resource-bar guidance, loadout summary/details, below-recommendation warnings, severe-power confirmation, result hints and the upgrade action all use Effective Power. `推荐战力 / Recommended Power` remains the fixed stage clear line.
+- **Supporting copy is consistent**: visual-only store benefits, chip contribution text and the in-run Gold card no longer refer to the level-relative value as bare Power.
+- **No model or balance drift**: formulas, contracts, recommendations, equipment values, weakness multipliers and combat runtime are unchanged. Static gameplay-polish checks and M1 smoke own the terminology contract.
