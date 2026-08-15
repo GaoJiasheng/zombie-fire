@@ -4191,3 +4191,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Review delta**: this package closes the Design 30–33 owner-review line, including the Power 3.0 three-bottleneck ruler and mid-corridor calibration, locked/revealed/owned Store states, Collection/result copy and layout cleanup, full double-Boss audit, Thunder contract headroom, and the English result hero-line safety fallback.
 - **Release-only features restored**: `testflight_speed_unlocked` and `testflight_premium_preview` were enabled only in the uploaded artifact. The local iOS preset is back to ordinary `release`; gameplay difficulty, Power contracts, pricing and premium output values are unchanged.
 - **Known future warning**: Apple warning `90068` is non-blocking for Build 53. The current iOS 14 minimum remains accepted now; Spring 2027 uploads will require iOS 15 or later.
+
+## Apple 90068 Minimum-iOS Closure (2026-08-16)
+
+- **Deployment target**: the iOS Release Candidate now declares iOS `15.0` instead of `14.0`, satisfying Apple's announced Spring 2027 upload floor without changing gameplay, layout or balance.
+- **Single-source package audit**: `check_release_package.py` reads the minimum version from the iOS export preset, rejects any target below 15.0, and requires the exported IPA `MinimumOSVersion` to match exactly. The former hardcoded `14.0` package assertion is removed.
+- **Delivery acceptance**: a replacement TestFlight build will be recorded here after Apple reports a valid delivery without `ITMS-90068`.

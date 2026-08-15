@@ -1872,3 +1872,9 @@
 - [x] Xcode Archive、App Store IPA 导出与包体身份审计通过；IPA 为 `872392810` bytes，SHA-256 `87bd7344dedd027fcfb21e50903967212f37f5a679431285605f2d76fdd24495`，桌面副本逐字节一致。
 - [x] Apple 交付 `143d1f0e-f939-413b-b26c-49d31e9b8ce8` 达到 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`；交付记录保存于 `build/ios/release/build_53/`。
 - [x] Apple `90068` 仅提示 2027 年春季后上传需最低 iOS 15，本包当前最低 iOS 14 仍被接受，不影响 Build 53 的 TestFlight 可用性。
+
+## 阶段 170 · Apple 90068 最低系统版本收口（2026-08-16）
+
+- [x] iOS Release Candidate 最低系统由 `14.0` 提升至 `15.0`，提前满足 Apple 2027 年春季开始执行的上传要求；游戏数值、功能与设备画布规则均未改变。
+- [x] 发布包检查不再硬编码第二份 `14.0`：从 `export_presets.cfg` 读取目标版本，门禁要求不低于 iOS 15，并逐字核对最终 IPA 的 `MinimumOSVersion`。
+- [ ] 重新生成并上传新 TestFlight 构建，确认 Apple 不再返回 `ITMS-90068` 后完成发布记录。

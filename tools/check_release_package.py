@@ -81,7 +81,7 @@ def preset_value(body: str, key: str) -> str:
     return match.group(1).strip().strip('"')
 
 
-def check_preset() -> tuple[str, str]:
+def check_preset() -> tuple[str, str, str]:
     text = PRESET_PATH.read_text(encoding="utf-8")
     preset = preset_section(text, "preset.0")
     options = preset_section(text, "preset.0.options")
@@ -104,14 +104,23 @@ def check_preset() -> tuple[str, str]:
     bundle_id = preset_value(options, "application/bundle_identifier")
     build = preset_value(options, "application/version")
     short_version = preset_value(options, "application/short_version")
+    minimum_ios_version = preset_value(options, "application/min_ios_version")
     if bundle_id != EXPECTED_BUNDLE_ID:
         raise PackageCheckError(f"unexpected bundle identifier: {bundle_id}")
     if not build.isdigit() or int(build) < 1:
         raise PackageCheckError(f"invalid iOS build number: {build}")
     if not re.fullmatch(r"\d+(?:\.\d+){1,2}", short_version):
         raise PackageCheckError(f"invalid iOS short version: {short_version}")
-    print(f"iOS export preset passed: build={build}, version={short_version}, excludes={len(excludes)}")
-    return build, short_version
+    if not re.fullmatch(r"\d+(?:\.\d+){1,2}", minimum_ios_version):
+        raise PackageCheckError(f"invalid minimum iOS version: {minimum_ios_version}")
+    minimum_ios_parts = tuple(int(part) for part in minimum_ios_version.split("."))
+    if minimum_ios_parts < (15, 0):
+        raise PackageCheckError(f"minimum iOS version must be 15.0 or later: {minimum_ios_version}")
+    print(
+        f"iOS export preset passed: build={build}, version={short_version}, "
+        f"minimum_iOS={minimum_ios_version}, excludes={len(excludes)}"
+    )
+    return build, short_version, minimum_ios_version
 
 
 def check_xcode_project(path: Path) -> None:
@@ -258,6 +267,7 @@ def check_ipa(
     path: Path,
     expected_build: str,
     expected_short_version: str,
+    expected_minimum_ios_version: str,
     source_pck: Path | None,
 ) -> None:
     if not path.is_file():
@@ -309,8 +319,11 @@ def check_ipa(
             )
         if info.get("CFBundlePackageType") != "APPL":
             raise PackageCheckError("IPA does not identify its payload as an application")
-        if info.get("MinimumOSVersion") != "14.0":
-            raise PackageCheckError(f"unexpected IPA minimum iOS version: {info.get('MinimumOSVersion', '<missing>')}")
+        if info.get("MinimumOSVersion") != expected_minimum_ios_version:
+            raise PackageCheckError(
+                "IPA minimum iOS version mismatch: "
+                f"expected {expected_minimum_ios_version}, got {info.get('MinimumOSVersion', '<missing>')}"
+            )
         if info.get("UIDeviceFamily") != [1]:
             raise PackageCheckError(f"IPA must target iPhone only; UIDeviceFamily={info.get('UIDeviceFamily', '<missing>')}")
         if info.get("UIRequiresFullScreen") is not True:
@@ -355,7 +368,7 @@ def main() -> int:
     parser.add_argument("--source-pck", type=Path)
     args = parser.parse_args()
     try:
-        preset_build, preset_short_version = check_preset()
+        preset_build, preset_short_version, preset_minimum_ios_version = check_preset()
         if args.pck:
             check_pck(args.pck)
         if args.xcode_project:
@@ -365,6 +378,7 @@ def main() -> int:
                 args.ipa,
                 args.expected_build or preset_build,
                 args.expected_short_version or preset_short_version,
+                preset_minimum_ios_version,
                 args.source_pck,
             )
         if args.preset_only and (args.pck or args.ipa or args.xcode_project):
