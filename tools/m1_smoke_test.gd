@@ -1305,7 +1305,13 @@ func _initialize() -> void:
 	challenge_result.queue_free()
 	_expect(result.has_node("Content/ReportButton") and result.has_node("Content/ReportPanel"), "result must expose an expandable battle report")
 	_expect(result.has_node("Content/HeroCard/HeroBox/OutcomePanel"), "result must expose a compact hero outcome showcase")
-	_expect((result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName") as Label).text.contains("完成防守"), "victory outcome showcase must communicate the hero result")
+	var result_outcome_panel := result.get_node("Content/HeroCard/HeroBox/OutcomePanel") as Control
+	var result_hero_name := result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName") as Label
+	_expect(result_hero_name.text.contains("完成防守"), "victory outcome showcase must communicate the hero result")
+	_expect(result_hero_name.custom_minimum_size.y >= result.RESULT_OUTCOME_HERO_LINE_HEIGHT, "result hero line must reserve its two-line fallback height")
+	_expect(result_hero_name.autowrap_mode != TextServer.AUTOWRAP_OFF and result_hero_name.max_lines_visible == 2, "result hero line must wrap safely before reaching the decorated edge")
+	_expect(result_hero_name.clip_text, "result hero line must retain final clipping protection")
+	_expect(result_outcome_panel.get_global_rect().end.x - result_hero_name.get_global_rect().end.x >= result.RESULT_OUTCOME_HORIZONTAL_SAFE - 0.1, "result hero line must keep at least %.0fpx right-side clearance" % result.RESULT_OUTCOME_HORIZONTAL_SAFE)
 	var result_portrait_clip := result.get_node("Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait") as TextureRect
 	var result_portrait_bust := result_portrait_clip.get_node_or_null("BustImage") as TextureRect
 	_expect(result_portrait_clip.clip_contents, "result hero showcase must use a deliberate half-body viewport")

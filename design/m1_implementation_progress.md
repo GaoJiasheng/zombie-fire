@@ -4177,3 +4177,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Owner-approved band decision**: only `set_apocalypse_thunder.target_full_set_ratio_max` changes from `1.58` to `1.60`; every Thunder weapon, armor, chip, pet and set-mechanic value is unchanged.
 - **One data source**: `audit_character_endgame_dps.py` continues to load both limits from `premium_sets.json`, so the release gate cannot drift behind a second hardcoded band. Inferno / Absolute Zero remain `[1.52,1.58]`; Golden Law remains `[1.90,2.05]`.
 - **Healthy gate margin, zero player impact**: the measured Thunder result remains `1.579x`, now `0.021` below the approved upper limit instead of `0.001`; no runtime output, progression, price or entitlement changes.
+
+## English Result Hero-Line Right-Edge Safety (2026-08-15)
+
+- **Decorated edge is no longer copy space**: the compact outcome panel reserves `36 px` on both horizontal sides, while portrait and copy retain independent lanes.
+- **Longest-line fallback**: `Steel Vanguard · Defense Complete` uses a readable `24 px` two-line fallback with a `112 px` title lane; shorter combinations retain the compact `26 px / 62 px` ruler, with clipping kept as the final rendering guard.
+- **Permanent geometry gate**: M1 smoke asserts at least `36 px` between the hero-label box and the outcome panel's right edge, plus the wrap and clip contracts. Localization keys, result copy and all combat values are unchanged.

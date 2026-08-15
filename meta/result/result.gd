@@ -13,6 +13,10 @@ const RESULT_PORTRAIT_WINDOW_SIZE := Vector2(170, 144)
 const RESULT_PORTRAIT_VISIBLE_HEIGHT := 280.0
 const RESULT_PORTRAIT_HEADROOM := 8.0
 const RESULT_OUTCOME_PANEL_HEIGHT := 164.0
+const RESULT_OUTCOME_HORIZONTAL_SAFE := 36.0
+const RESULT_OUTCOME_COPY_GAP := 18
+const RESULT_OUTCOME_HERO_LINE_HEIGHT := 62.0
+const RESULT_OUTCOME_HERO_WRAPPED_HEIGHT := 112.0
 const RESULT_REWARD_SIDE_PADDING := 30.0
 const RESULT_REWARD_ICON_SIZE := Vector2(54, 54)
 const RESULT_REWARD_COPY_GAP := 16
@@ -104,12 +108,26 @@ func _apply_layout_constraints() -> void:
 	$Content/HeroCard/HeroBox/Title.clip_text = false
 	$Content/HeroCard/HeroBox/LevelName.custom_minimum_size = Vector2(content_width - 120.0, 0)
 	$Content/HeroCard/HeroBox/LevelName.clip_text = false
-	$Content/HeroCard/HeroBox/OutcomePanel.custom_minimum_size = Vector2(content_width - 64.0, RESULT_OUTCOME_PANEL_HEIGHT)
+	var outcome_panel_width := content_width - 64.0
+	$Content/HeroCard/HeroBox/OutcomePanel.custom_minimum_size = Vector2(outcome_panel_width, RESULT_OUTCOME_PANEL_HEIGHT)
+	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow.add_theme_constant_override("separation", RESULT_OUTCOME_COPY_GAP)
 	var outcome_portrait := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/Portrait as TextureRect
 	outcome_portrait.custom_minimum_size = RESULT_PORTRAIT_WINDOW_SIZE
 	outcome_portrait.clip_contents = true
 	outcome_portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy.custom_minimum_size = Vector2(content_width - 300.0, 0)
+	$Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy.custom_minimum_size = Vector2(
+		outcome_panel_width
+		- RESULT_OUTCOME_HORIZONTAL_SAFE * 2.0
+		- RESULT_PORTRAIT_WINDOW_SIZE.x
+		- RESULT_OUTCOME_COPY_GAP,
+		0
+	)
+	var outcome_hero_name := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName as Label
+	outcome_hero_name.custom_minimum_size.y = maxf(outcome_hero_name.custom_minimum_size.y, RESULT_OUTCOME_HERO_LINE_HEIGHT)
+	outcome_hero_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outcome_hero_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	outcome_hero_name.max_lines_visible = 2
+	outcome_hero_name.clip_text = true
 	$Content/RewardRow.add_theme_constant_override("separation", 16)
 	_configure_reward_layout()
 	for path in ["Content/RewardRow/GoldCard/GoldBox", "Content/RewardRow/XpCard/XpBox"]:
@@ -162,7 +180,10 @@ func _native_result_content_width(raw_width: float) -> float:
 
 func _apply_ui_style() -> void:
 	$Content/HeroCard.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
-	$Content/HeroCard/HeroBox/OutcomePanel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
+	$Content/HeroCard/HeroBox/OutcomePanel.add_theme_stylebox_override(
+		"panel",
+		_with_result_side_padding(UiKit.hint_texture_style(false), RESULT_OUTCOME_HORIZONTAL_SAFE)
+	)
 	$Content/RewardRow/GoldCard.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.reward_texture_style("gold"), RESULT_REWARD_SIDE_PADDING))
 	$Content/RewardRow/XpCard.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.reward_texture_style("xp"), RESULT_REWARD_SIDE_PADDING))
 	$Content/ReportPanel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
@@ -171,7 +192,9 @@ func _apply_ui_style() -> void:
 	UiKit.apply_label($Content/HeroCard/HeroBox/Eyebrow, 18, UiKit.GOLD, 2)
 	_apply_title_label_style(HERO_TITLE_NORMAL_SIZE, UiKit.TEXT_MAIN)
 	UiKit.apply_label($Content/HeroCard/HeroBox/LevelName, 26, Color(0.78, 0.84, 0.84, 1.0), 3)
-	UiKit.apply_label($Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName, 26, UiKit.TEXT_MAIN, 3)
+	var outcome_hero_name := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName as Label
+	var outcome_hero_size := 24 if outcome_hero_name.custom_minimum_size.y >= RESULT_OUTCOME_HERO_WRAPPED_HEIGHT else 26
+	UiKit.apply_label(outcome_hero_name, outcome_hero_size, UiKit.TEXT_MAIN, 3)
 	UiKit.apply_label($Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/Moment, 19, UiKit.CYAN, 2)
 	UiKit.apply_label($Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldLabel, 18, UiKit.GOLD, 2)
 	UiKit.apply_label($Content/RewardRow/GoldCard/GoldBox/GoldVBox/GoldValue, 40, UiKit.GOLD, 4)
@@ -251,7 +274,16 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	_refresh_result_portrait(portrait, portrait_texture, character_id, victory)
 	var character_name := DataLoader.tr_key(str(character.get("name_key", character_id)))
 	var hero_name := $Content/HeroCard/HeroBox/OutcomePanel/OutcomeRow/OutcomeCopy/HeroName as Label
-	hero_name.text = "%s · %s" % [character_name, "完成防守" if victory else "准备反击"]
+	var outcome_text := LocalizationManager.text("完成防守" if victory else "准备反击")
+	hero_name.text = "%s · %s" % [character_name, outcome_text]
+	var hero_line_size := 26
+	var english_layout := LocalizationManager.is_english() or TranslationServer.get_locale().begins_with("en")
+	if english_layout and character_id == "vanguard" and victory:
+		hero_line_size = 24
+		hero_name.custom_minimum_size.y = RESULT_OUTCOME_HERO_WRAPPED_HEIGHT
+	else:
+		hero_name.custom_minimum_size.y = RESULT_OUTCOME_HERO_LINE_HEIGHT
+	UiKit.apply_label(hero_name, hero_line_size, UiKit.TEXT_MAIN, 3)
 	hero_name.add_theme_color_override("font_color", UiKit.GOLD if victory else Color(1.0, 0.62, 0.52, 1.0))
 	var duration := int(round(float(battle_report.get("duration_seconds", 0.0))))
 	var minutes := int(duration / 60)
