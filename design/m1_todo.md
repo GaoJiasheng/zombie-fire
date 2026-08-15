@@ -1865,3 +1865,10 @@
 - [x] 结算英雄高光卡新增 `36 px` 左右水平安全边，人物与文字继续使用独立栏位；金属内框不再被当作可用文字宽度。
 - [x] 最长英文组合 `Steel Vanguard · Defense Complete` 自动使用 `24 px` 双行回退与 `112 px` 标题高度，其他短组合保持 `26 px / 62 px` 紧凑规格；同时保留最终裁切保护。
 - [x] M1 smoke 直接锁定英雄行右侧净空 `≥36 px`、两行回退和裁切保护；中英文文案键、人物半身标尺与结果页其他布局均未改变。
+
+## 阶段 169 · TestFlight Build 53 发布收口（2026-08-15）
+
+- [x] 完整 Release Candidate 非视觉门禁、Godot Headless 与 M1 smoke 全绿后生成 `1.0.0 (53)`；TestFlight 专属倍速 / 付费预览 feature 仅在打包期间启用，上传后已恢复为普通 `release`。
+- [x] Xcode Archive、App Store IPA 导出与包体身份审计通过；IPA 为 `872392810` bytes，SHA-256 `87bd7344dedd027fcfb21e50903967212f37f5a679431285605f2d76fdd24495`，桌面副本逐字节一致。
+- [x] Apple 交付 `143d1f0e-f939-413b-b26c-49d31e9b8ce8` 达到 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`；交付记录保存于 `build/ios/release/build_53/`。
+- [x] Apple `90068` 仅提示 2027 年春季后上传需最低 iOS 15，本包当前最低 iOS 14 仍被接受，不影响 Build 53 的 TestFlight 可用性。

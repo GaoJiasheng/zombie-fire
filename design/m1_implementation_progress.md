@@ -4183,3 +4183,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Decorated edge is no longer copy space**: the compact outcome panel reserves `36 px` on both horizontal sides, while portrait and copy retain independent lanes.
 - **Longest-line fallback**: `Steel Vanguard · Defense Complete` uses a readable `24 px` two-line fallback with a `112 px` title lane; shorter combinations retain the compact `26 px / 62 px` ruler, with clipping kept as the final rendering guard.
 - **Permanent geometry gate**: M1 smoke asserts at least `36 px` between the hero-label box and the outcome panel's right edge, plus the wrap and clip contracts. Localization keys, result copy and all combat values are unchanged.
+
+## TestFlight Build 53 · Design 30–33 Release Closure (2026-08-15)
+
+- **Validated delivery**: build `1.0.0 (53)` passed the complete non-windowed Release Candidate gate, Godot import/export validation, Xcode Archive, App Store export and package identity checks. Apple accepted delivery `143d1f0e-f939-413b-b26c-49d31e9b8ce8` as `VALID`, `APP_STORE_ELIGIBLE` and present on App Store Connect.
+- **Artifact identity**: the uploaded IPA is `872392810` bytes with SHA-256 `87bd7344dedd027fcfb21e50903967212f37f5a679431285605f2d76fdd24495`; `/Users/gavin/Desktop/ZombieFire.ipa` is byte-identical. The immutable local record is `build/ios/release/build_53/release_manifest.json`.
+- **Review delta**: this package closes the Design 30–33 owner-review line, including the Power 3.0 three-bottleneck ruler and mid-corridor calibration, locked/revealed/owned Store states, Collection/result copy and layout cleanup, full double-Boss audit, Thunder contract headroom, and the English result hero-line safety fallback.
+- **Release-only features restored**: `testflight_speed_unlocked` and `testflight_premium_preview` were enabled only in the uploaded artifact. The local iOS preset is back to ordinary `release`; gameplay difficulty, Power contracts, pricing and premium output values are unchanged.
+- **Known future warning**: Apple warning `90068` is non-blocking for Build 53. The current iOS 14 minimum remains accepted now; Spring 2027 uploads will require iOS 15 or later.
