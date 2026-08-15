@@ -1184,11 +1184,34 @@ func _projected_run_skill_levels_for_profile(
 			_power_skill_max_level(guaranteed_row),
 		)
 		consumed_picks = 1
+	# 物理武器面对非物理弱点时，先消耗一个真实卡位拿对应弹种；否则后续卡
+	# 对本关不构成“兼容”投影。等级仍使用玩家当前永久技能等级。
+	var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	if (weapon_element == "" or weapon_element == "physical") and weakness != "" and weakness != "physical":
+		var element_ids := skills_table.keys()
+		element_ids.sort()
+		for id_var in element_ids:
+			var element_skill_id := str(id_var)
+			var element_row: Dictionary = skills_table.get(element_skill_id, {})
+			if str(element_row.get("exclusive_group", "")) != "projectile_element":
+				continue
+			if str(element_row.get("ammo_element", "")) != weakness:
+				continue
+			if not projected.has(element_skill_id) and consumed_picks < card_picks:
+				projected[element_skill_id] = clampi(
+					maxi(int(base_skill_levels.get(element_skill_id, 0)), 1),
+					1,
+					_power_skill_max_level(element_row),
+				)
+				consumed_picks += 1
+			break
+	# design/32:保底卡按实计；其余卡位按当前永久等级选择最弱的正收益兼容卡。
+	# 这是保守期望，不假设最优选卡、组合或协同。
 	for _pick in range(maxi(card_picks - consumed_picks, 0)):
 		var current_score := _power_projection_score(projected)
-		var best_score := current_score
-		var best_id := ""
-		var best_levels: Dictionary = {}
+		var weakest_score := INF
+		var weakest_id := ""
+		var weakest_levels: Dictionary = {}
 		var ids := skills_table.keys()
 		ids.sort()
 		for id_var in ids:
@@ -1206,15 +1229,21 @@ func _projected_run_skill_levels_for_profile(
 			if candidate.is_empty():
 				continue
 			var candidate_score := _power_projection_score(candidate)
+			if candidate_score <= current_score + 0.000001:
+				continue
+			var selection_score := candidate_score
 			if str(row.get("ammo_element", "")) == weakness:
-				candidate_score += 0.015
-			if candidate_score > best_score + 0.000001:
-				best_score = candidate_score
-				best_id = skill_id
-				best_levels = candidate
-		if best_id == "":
+				selection_score += 0.015
+			if selection_score < weakest_score - 0.000001 or (
+				is_equal_approx(selection_score, weakest_score)
+				and (weakest_id == "" or skill_id < weakest_id)
+			):
+				weakest_score = selection_score
+				weakest_id = skill_id
+				weakest_levels = candidate
+		if weakest_id == "":
 			break
-		projected = best_levels
+		projected = weakest_levels
 	return projected
 
 func _power_projection_score(levels: Dictionary) -> float:

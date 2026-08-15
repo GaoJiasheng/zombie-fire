@@ -45,6 +45,13 @@ DEFAULT_FINAL_LINE_CAPACITY = 6.0
 DEFAULT_LINE_CURVE_EXPONENT = 3.12
 ARMOR_BREAK_EFFECTIVE_FACTOR = 0.94
 
+# design/32 display-contract corridor. These bounds never feed battle damage,
+# enemy HP, waves, economy pressure, or star thresholds.
+PACE_CORRIDOR_MIN = 1.00
+LATE_CORRIDOR_MIN = 0.95
+CORRIDOR_MAX = 1.40
+CORRIDOR_MARGIN = 0.02
+
 # --- simulate_balance 模型常量镜像 ---
 ARMOR_HP_MULT = 1.20      # 通关线求解与 S_ref 使用同一生存基线(典型护甲)
 BOSS_LEAK = 0.12
@@ -454,9 +461,32 @@ def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
         )
         consumed_picks = 1
 
+    # A physical weapon on a non-physical-weakness stage needs one matching
+    # ammo conversion before the remaining offers are stage-compatible. It
+    # consumes a real card slot and uses the same permanent-rank floor.
+    if weapon_element in ("", "physical") and weakness not in ("", "physical"):
+        for skill_id in sorted(skills):
+            row = skills[skill_id]
+            if str(row.get("exclusive_group", "")) != "projectile_element":
+                continue
+            if str(row.get("ammo_element", "")) != weakness:
+                continue
+            if skill_id not in projected and consumed_picks < card_picks:
+                projected[skill_id] = min(
+                    max(int(base_skill_levels.get(skill_id, 0)), 1),
+                    skill_max_level(row),
+                )
+                consumed_picks += 1
+            break
+
+    # Guaranteed offers stay exact. Every remaining slot is filled with the
+    # weakest positive, weapon-compatible card at the player's permanent rank.
+    # This is a conservative expectation, not an optimal draft or synergy plan.
     for _ in range(max(card_picks - consumed_picks, 0)):
-        best_score = _projection_score(projected, skills)
-        best_levels: dict[str, int] | None = None
+        current_score = _projection_score(projected, skills)
+        weakest_score = float("inf")
+        weakest_id = ""
+        weakest_levels: dict[str, int] | None = None
         for skill_id in sorted(skills):
             row = skills[skill_id]
             group = str(row.get("exclusive_group", ""))
@@ -481,14 +511,24 @@ def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
                 else min(max(int(base_skill_levels.get(skill_id, 0)), 1), maximum)
             )
             candidate_score = _projection_score(candidate, skills)
+            if candidate_score <= current_score + 0.000001:
+                continue
+            selection_score = candidate_score
             if str(row.get("ammo_element", "")) == weakness:
-                candidate_score += 0.015
-            if candidate_score > best_score + 0.000001:
-                best_score = candidate_score
-                best_levels = candidate
-        if best_levels is None:
+                selection_score += 0.015
+            if (
+                selection_score < weakest_score - 0.000001
+                or (
+                    abs(selection_score - weakest_score) <= 0.000001
+                    and (not weakest_id or skill_id < weakest_id)
+                )
+            ):
+                weakest_score = selection_score
+                weakest_id = skill_id
+                weakest_levels = candidate
+        if weakest_levels is None:
             break
-        projected = best_levels
+        projected = weakest_levels
     return projected
 
 
@@ -540,15 +580,32 @@ def guaranteed_skill_ids(level: dict) -> list[str]:
     return result
 
 
+def campaign_ordinal(level: dict) -> int:
+    try:
+        return max(int(str(level.get("id", "level_001")).split("_")[-1]), 1)
+    except ValueError:
+        return 1
+
+
+def campaign_skill_rank(level: dict) -> int:
+    """Permanent-skill rank affordable from cumulative campaign XP."""
+    ordinal = campaign_ordinal(level)
+    if ordinal <= 25:
+        return 1
+    if ordinal <= 50:
+        return 2
+    if ordinal <= 70:
+        return 3
+    return 4
+
+
 def expected_permanent_skill_levels(level: dict, skills: dict) -> dict[str, int]:
     """Permanent skill rank expected at this campaign graduation point.
 
-    Skills have five ranks and signature progression already uses one rank per
-    eight hero levels. Reusing that cadence fixes the old recommendation bug
-    where late levels assumed every offered skill still began at rank one.
+    design/32 freezes this against cumulative campaign XP rather than hero
+    recommend_level: levels 1-25 use L1, 26-50 L2, 51-70 L3, and 71+ L4.
     """
-    recommend_level = max(int(level.get("recommend_level", 1)), 1)
-    rank = min(max((recommend_level + 7) // 8, 1), 5)
+    rank = campaign_skill_rank(level)
     return {skill_id: min(rank, skill_max_level(row)) for skill_id, row in skills.items()}
 
 
@@ -665,7 +722,7 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     )
     fixed_recommended = int(round(
         base_recommended * (omitted_boss_mult ** OFFENSE_WEIGHT) * runtime_calibration))
-    return {
+    contract = {
         "model": "bottleneck_v3",
         "recommended_power": max(fixed_recommended, 1),
         "crowd_capacity": round(crowd_required, 4),
@@ -675,8 +732,10 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
         "boss_weights": {key: round(value, 6) for key, value in boss_weights.items()},
         "runtime_boss_pressure_mult": round(omitted_boss_mult, 6),
         "guaranteed_skill_ids": guarantees,
-        "reference_skill_rank": min(max((recommend_level + 7) // 8, 1), 5),
+        "reference_skill_rank": campaign_skill_rank(level),
     }
+    return calibrate_power_contract_corridor(
+        level, contract, characters, weapons, skills, bosses, economy)
 
 
 def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
@@ -750,6 +809,127 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
             "line": line_capacity,
         },
     }
+
+
+def corridor_calibration_fixture(level: dict, characters: dict, weapons: dict,
+                                 armors: dict, chips: dict, pets: dict,
+                                 skills: dict) -> tuple[dict, dict]:
+    """Return design/32's single canonical progression fixture and its manifest."""
+    ordinal = campaign_ordinal(level)
+    recommend = max(int(level.get("recommend_level", 1)), 1)
+    strongest = ordinal >= 71
+    character_id = "vanguard"
+    weapon_id = "weapon_scattergun" if strongest else "weapon_autocannon"
+    armor_id = "armor_kevlar"
+    chip_id = "chip_attack"
+    pet_id = "pet_turret_drone" if strongest else ""
+    skill_rank = campaign_skill_rank(level)
+
+    def capped_level(rows: dict, item_id: str, fallback: int) -> int:
+        if not item_id:
+            return 1
+        return min(recommend, max(int(rows.get(item_id, {}).get("max_level", fallback)), 1))
+
+    build = {
+        "character": character_id,
+        "character_level": capped_level(characters, character_id, 40),
+        "weapon": weapon_id,
+        "weapon_level": capped_level(weapons, weapon_id, 50),
+        "armor": armor_id,
+        "armor_level": capped_level(armors, armor_id, 35),
+        "chip": chip_id,
+        "chip_level": capped_level(chips, chip_id, 35),
+        "pet": pet_id,
+        "pet_level": capped_level(pets, pet_id, 30),
+        "signature_level": min(recommend // 8, 5),
+        "skill_base_levels": {
+            skill_id: min(skill_rank, skill_max_level(row))
+            for skill_id, row in skills.items()
+        },
+    }
+    manifest = {
+        "family": "strongest_free" if strongest else "paced_free",
+        "character": character_id,
+        "character_level": build["character_level"],
+        "weapon": weapon_id,
+        "weapon_level": build["weapon_level"],
+        "armor": armor_id,
+        "armor_level": build["armor_level"],
+        "chip": chip_id,
+        "chip_level": build["chip_level"],
+        "pet": pet_id,
+        "pet_level": build["pet_level"],
+        "signature_level": build["signature_level"],
+        "skill_rank": skill_rank,
+    }
+    return build, manifest
+
+
+def calibrate_power_contract_corridor(level: dict, contract: dict,
+                                      characters: dict, weapons: dict,
+                                      skills: dict, bosses: dict,
+                                      economy: dict) -> dict:
+    """Keep the display contract inside design/32's free-progression corridor.
+
+    Calibration adjusts only the checked-in three-axis display contract. The
+    physical clear requirement and every runtime difficulty input remain intact.
+    """
+    ordinal = campaign_ordinal(level)
+    if ordinal < 2 or ordinal > 98:
+        return contract
+
+    armors = load_table("armors")
+    chips = load_table("chips")
+    pets = load_table("pets")
+    build, manifest = corridor_calibration_fixture(
+        level, characters, weapons, armors, chips, pets, skills)
+    lower = PACE_CORRIDOR_MIN if ordinal <= 70 else LATE_CORRIDOR_MIN
+    upper = CORRIDOR_MAX
+    raw = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    raw_ratios = dict(raw["ratios"])
+    raw_ratio = min(raw_ratios.values())
+    capacities = dict(raw["capacities"])
+    adjusted_axes: list[str] = []
+
+    if raw_ratio < lower:
+        target = lower + CORRIDOR_MARGIN
+        for axis in ("crowd", "boss", "line"):
+            key = f"{axis}_capacity"
+            if axis == "boss" and float(contract.get(key, 0.0)) <= 0.0:
+                continue
+            if float(raw_ratios[axis]) >= target:
+                continue
+            contract[key] = round(float(capacities[axis]) / target, 4)
+            adjusted_axes.append(axis)
+    elif raw_ratio > upper:
+        target = upper - CORRIDOR_MARGIN
+        candidates = ["crowd", "boss", "line"]
+        if str(level.get("id", "")) == "level_055":
+            # The Owner replay freezes the defence-line axis and bottleneck.
+            candidates.remove("line")
+        candidates = [
+            axis for axis in candidates
+            if axis != "boss" or float(contract.get("boss_capacity", 0.0)) > 0.0
+        ]
+        axis = min(candidates, key=lambda name: float(raw_ratios[name]))
+        contract[f"{axis}_capacity"] = round(float(capacities[axis]) / target, 4)
+        adjusted_axes.append(axis)
+
+    calibrated = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    contract["corridor_calibration"] = {
+        "band": [lower, upper],
+        "raw_ratio": round(raw_ratio, 6),
+        "ratio": round(min(calibrated["ratios"].values()), 6),
+        "raw_bottleneck": str(raw["bottleneck"]),
+        "bottleneck": str(calibrated["bottleneck"]),
+        "adjusted_axes": adjusted_axes,
+        "fixture": manifest,
+    }
+    return contract
 
 
 # ---------------------------------------------------------------- 通关线求解

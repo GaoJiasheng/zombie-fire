@@ -102,8 +102,8 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 11,
-				"crowd_capacity": 1.2669,
+				"recommended_power": 10,
+				"crowd_capacity": 1.2279,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0,
 				"boss_effective_hp": 0,
@@ -217,15 +217,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 15,
-				"crowd_capacity": 1.7944,
+				"recommended_power": 13,
+				"crowd_capacity": 1.861,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0003,
+				"line_capacity": 1.0348,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.427553,
+					"ratio": 1.379958,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 2,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 2,
+						"armor": "armor_kevlar",
+						"armor_level": 2,
+						"chip": "chip_attack",
+						"chip_level": 2,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -332,15 +360,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 18,
-				"crowd_capacity": 2.1939,
+				"recommended_power": 15,
+				"crowd_capacity": 2.1264,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0003,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.309937,
+					"ratio": 1.309937,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 2,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 2,
+						"armor": "armor_kevlar",
+						"armor_level": 2,
+						"chip": "chip_attack",
+						"chip_level": 2,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -446,15 +500,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 16,
-				"crowd_capacity": 2.9184,
+				"recommended_power": 13,
+				"crowd_capacity": 1.9597,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0003,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.477125,
+					"ratio": 1.379967,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 2,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 2,
+						"armor": "armor_kevlar",
+						"armor_level": 2,
+						"chip": "chip_attack",
+						"chip_level": 2,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -569,17 +651,45 @@
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 17,
-				"crowd_capacity": 2.0032,
-				"boss_capacity": 1.4548,
-				"line_capacity": 1.0015,
+				"recommended_power": 14,
+				"crowd_capacity": 2.0775,
+				"boss_capacity": 2.0372,
+				"line_capacity": 1.0808,
 				"boss_effective_hp": 4292.68,
 				"boss_weights": {
 					"boss_tank_titan": 1.0
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.489202,
+					"ratio": 1.379937,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 3,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 3,
+						"armor": "armor_kevlar",
+						"armor_level": 3,
+						"chip": "chip_attack",
+						"chip_level": 3,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -687,15 +797,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 20,
-				"crowd_capacity": 2.3716,
+				"recommended_power": 17,
+				"crowd_capacity": 2.4595,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0027,
+				"line_capacity": 1.1277,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.552028,
+					"ratio": 1.379993,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 4,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 4,
+						"armor": "armor_kevlar",
+						"armor_level": 4,
+						"chip": "chip_attack",
+						"chip_level": 4,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -822,15 +960,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 23,
-				"crowd_capacity": 4.3593,
+				"recommended_power": 19,
+				"crowd_capacity": 2.7783,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0027,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.401994,
+					"ratio": 1.379992,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 4,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 4,
+						"armor": "armor_kevlar",
+						"armor_level": 4,
+						"chip": "chip_attack",
+						"chip_level": 4,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -937,15 +1103,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 28,
-				"crowd_capacity": 4.1572,
+				"recommended_power": 22,
+				"crowd_capacity": 3.2446,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0027,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.252566,
+					"ratio": 1.252566,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 4,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 4,
+						"armor": "armor_kevlar",
+						"armor_level": 4,
+						"chip": "chip_attack",
+						"chip_level": 4,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1051,15 +1243,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 25,
-				"crowd_capacity": 5.2563,
+				"recommended_power": 19,
+				"crowd_capacity": 3.4733,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0055,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.750323,
+					"ratio": 1.37998,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 5,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 5,
+						"armor": "armor_kevlar",
+						"armor_level": 5,
+						"chip": "chip_attack",
+						"chip_level": 5,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1192,9 +1412,9 @@
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 31,
-				"crowd_capacity": 4.4911,
-				"boss_capacity": 2.719,
+				"recommended_power": 24,
+				"crowd_capacity": 3.7507,
+				"boss_capacity": 4.1807,
 				"line_capacity": 1.0134,
 				"boss_effective_hp": 13050.27,
 				"boss_weights": {
@@ -1202,7 +1422,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.598521,
+					"ratio": 1.380004,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 6,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 6,
+						"armor": "armor_kevlar",
+						"armor_level": 6,
+						"chip": "chip_attack",
+						"chip_level": 6,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1315,15 +1563,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 29,
-				"crowd_capacity": 4.2381,
+				"recommended_power": 22,
+				"crowd_capacity": 4.0604,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0097,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.693994,
+					"ratio": 1.38001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 6,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 6,
+						"armor": "armor_kevlar",
+						"armor_level": 6,
+						"chip": "chip_attack",
+						"chip_level": 6,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1438,15 +1714,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 32,
-				"crowd_capacity": 7.0299,
+				"recommended_power": 24,
+				"crowd_capacity": 4.0655,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0097,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.531885,
+					"ratio": 1.379996,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 6,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 6,
+						"armor": "armor_kevlar",
+						"armor_level": 6,
+						"chip": "chip_attack",
+						"chip_level": 6,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1553,15 +1857,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 41,
-				"crowd_capacity": 6.4191,
+				"recommended_power": 32,
+				"crowd_capacity": 5.0101,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0157,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.301616,
+					"ratio": 1.301616,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 7,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 7,
+						"armor": "armor_kevlar",
+						"armor_level": 7,
+						"chip": "chip_attack",
+						"chip_level": 7,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 0,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1667,15 +1997,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 38,
-				"crowd_capacity": 8.7882,
+				"recommended_power": 29,
+				"crowd_capacity": 5.9766,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0237,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.80145,
+					"ratio": 1.380008,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 8,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 8,
+						"armor": "armor_kevlar",
+						"armor_level": 8,
+						"chip": "chip_attack",
+						"chip_level": 8,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1796,9 +2154,9 @@
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 39,
-				"crowd_capacity": 5.9788,
-				"boss_capacity": 3.8508,
+				"recommended_power": 30,
+				"crowd_capacity": 5.9692,
+				"boss_capacity": 4.4903,
 				"line_capacity": 1.033,
 				"boss_effective_hp": 16861.8,
 				"boss_weights": {
@@ -1806,7 +2164,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.765278,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 8,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 8,
+						"armor": "armor_kevlar",
+						"armor_level": 8,
+						"chip": "chip_attack",
+						"chip_level": 8,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -1920,15 +2306,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 40,
-				"crowd_capacity": 6.1262,
+				"recommended_power": 31,
+				"crowd_capacity": 6.387,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0237,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.722786,
+					"ratio": 1.380009,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 8,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 8,
+						"armor": "armor_kevlar",
+						"armor_level": 8,
+						"chip": "chip_attack",
+						"chip_level": 8,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2037,15 +2451,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 45,
-				"crowd_capacity": 10.4007,
+				"recommended_power": 35,
+				"crowd_capacity": 7.3704,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0343,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.716179,
+					"ratio": 1.379994,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 9,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 9,
+						"armor": "armor_kevlar",
+						"armor_level": 9,
+						"chip": "chip_attack",
+						"chip_level": 9,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2153,15 +2595,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 42,
-				"crowd_capacity": 14.3028,
+				"recommended_power": 32,
+				"crowd_capacity": 5.0843,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0476,
+				"line_capacity": 1.6245,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.139948,
+					"ratio": 1.38,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 10,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 10,
+						"armor": "armor_kevlar",
+						"armor_level": 10,
+						"chip": "chip_attack",
+						"chip_level": 10,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2285,15 +2755,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 51,
-				"crowd_capacity": 17.99,
+				"recommended_power": 39,
+				"crowd_capacity": 7.9223,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0476,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.709581,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 10,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 10,
+						"armor": "armor_kevlar",
+						"armor_level": 10,
+						"chip": "chip_attack",
+						"chip_level": 10,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2414,9 +2912,9 @@
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 57,
-				"crowd_capacity": 14.9259,
-				"boss_capacity": 9.6133,
+				"recommended_power": 41,
+				"crowd_capacity": 6.9699,
+				"boss_capacity": 7.8005,
 				"line_capacity": 1.0662,
 				"boss_effective_hp": 48418.03,
 				"boss_weights": {
@@ -2424,7 +2922,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.662674,
+					"ratio": 1.379995,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 10,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 10,
+						"armor": "armor_kevlar",
+						"armor_level": 10,
+						"chip": "chip_attack",
+						"chip_level": 10,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2532,15 +3058,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 57,
-				"crowd_capacity": 22.3927,
+				"recommended_power": 41,
+				"crowd_capacity": 9.5853,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0641,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.901488,
+					"ratio": 1.379998,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 11,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 11,
+						"armor": "armor_kevlar",
+						"armor_level": 11,
+						"chip": "chip_attack",
+						"chip_level": 11,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2649,15 +3203,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 56,
-				"crowd_capacity": 21.612,
+				"recommended_power": 40,
+				"crowd_capacity": 6.714,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0841,
+				"line_capacity": 1.7476,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.224585,
+					"ratio": 1.379991,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 12,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 12,
+						"armor": "armor_kevlar",
+						"armor_level": 12,
+						"chip": "chip_attack",
+						"chip_level": 12,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2783,15 +3365,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 66,
-				"crowd_capacity": 26.6744,
+				"recommended_power": 47,
+				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0841,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.818613,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 12,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 12,
+						"armor": "armor_kevlar",
+						"armor_level": 12,
+						"chip": "chip_attack",
+						"chip_level": 12,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -2903,15 +3513,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 62,
-				"crowd_capacity": 24.7846,
+				"recommended_power": 44,
+				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.0841,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.957283,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 12,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 12,
+						"armor": "armor_kevlar",
+						"armor_level": 12,
+						"chip": "chip_attack",
+						"chip_level": 12,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -3026,9 +3664,9 @@
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 78,
-				"crowd_capacity": 31.8958,
-				"boss_capacity": 20.5431,
+				"recommended_power": 57,
+				"crowd_capacity": 10.7511,
+				"boss_capacity": 12.346,
 				"line_capacity": 1.15,
 				"boss_effective_hp": 72380.84,
 				"boss_weights": {
@@ -3036,7 +3674,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 1,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.706039,
+					"ratio": 1.380004,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 13,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 13,
+						"armor": "armor_kevlar",
+						"armor_level": 13,
+						"chip": "chip_attack",
+						"chip_level": 13,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 1
+					}
+				}
 			}
 		}
 	},
@@ -3144,15 +3810,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 74,
-				"crowd_capacity": 30.2538,
+				"recommended_power": 53,
+				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.1361,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.058725,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 14,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 14,
+						"armor": "armor_kevlar",
+						"armor_level": 14,
+						"chip": "chip_attack",
+						"chip_level": 14,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3279,15 +3973,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 78,
-				"crowd_capacity": 32.3993,
+				"recommended_power": 56,
+				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.1361,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.922382,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 14,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 14,
+						"armor": "armor_kevlar",
+						"armor_level": 14,
+						"chip": "chip_attack",
+						"chip_level": 14,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3401,15 +4123,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 71,
-				"crowd_capacity": 28.5819,
+				"recommended_power": 50,
+				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.1361,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.179134,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 14,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 14,
+						"armor": "armor_kevlar",
+						"armor_level": 14,
+						"chip": "chip_attack",
+						"chip_level": 14,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3521,15 +4271,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 100,
-				"crowd_capacity": 43.1376,
+				"recommended_power": 71,
+				"crowd_capacity": 19.6408,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.1688,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.880332,
+					"ratio": 1.379997,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 15,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 15,
+						"armor": "armor_kevlar",
+						"armor_level": 15,
+						"chip": "chip_attack",
+						"chip_level": 15,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 1,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3644,9 +4422,9 @@
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 116,
-				"crowd_capacity": 50.757,
-				"boss_capacity": 32.6909,
+				"recommended_power": 85,
+				"crowd_capacity": 26.8873,
+				"boss_capacity": 17.3369,
 				"line_capacity": 1.2867,
 				"boss_effective_hp": 112804.26,
 				"boss_weights": {
@@ -3654,7 +4432,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.923471,
+					"ratio": 1.380002,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 16,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 16,
+						"armor": "armor_kevlar",
+						"armor_level": 16,
+						"chip": "chip_attack",
+						"chip_level": 16,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3780,15 +4586,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 110,
-				"crowd_capacity": 48.2652,
+				"recommended_power": 78,
+				"crowd_capacity": 23.9217,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.2064,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.046872,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 16,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 16,
+						"armor": "armor_kevlar",
+						"armor_level": 16,
+						"chip": "chip_attack",
+						"chip_level": 16,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -3903,15 +4737,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 104,
-				"crowd_capacity": 49.0697,
+				"recommended_power": 73,
+				"crowd_capacity": 16.8341,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.2064,
+				"line_capacity": 2.0069,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.295674,
+					"ratio": 1.37999,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 16,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 16,
+						"armor": "armor_kevlar",
+						"armor_level": 16,
+						"chip": "chip_attack",
+						"chip_level": 16,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4025,15 +4887,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 125,
-				"crowd_capacity": 113.5022,
+				"recommended_power": 86,
+				"crowd_capacity": 29.5671,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.2494,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.133461,
+					"ratio": 1.380002,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 17,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 17,
+						"armor": "armor_kevlar",
+						"armor_level": 17,
+						"chip": "chip_attack",
+						"chip_level": 17,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4139,15 +5029,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 142,
-				"crowd_capacity": 87.7767,
+				"recommended_power": 100,
+				"crowd_capacity": 36.4349,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.2981,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.057828,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 18,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 18,
+						"armor": "armor_kevlar",
+						"armor_level": 18,
+						"chip": "chip_attack",
+						"chip_level": 18,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4280,9 +5198,9 @@
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 166,
-				"crowd_capacity": 106.1288,
-				"boss_capacity": 54.5552,
+				"recommended_power": 117,
+				"crowd_capacity": 36.4349,
+				"boss_capacity": 25.3877,
 				"line_capacity": 1.414,
 				"boss_effective_hp": 120234.71,
 				"boss_weights": {
@@ -4290,7 +5208,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.701983,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 18,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 18,
+						"armor": "armor_kevlar",
+						"armor_level": 18,
+						"chip": "chip_attack",
+						"chip_level": 18,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4404,15 +5350,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 139,
-				"crowd_capacity": 128.9128,
+				"recommended_power": 98,
+				"crowd_capacity": 38.3665,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.2981,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.113585,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 18,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 18,
+						"armor": "armor_kevlar",
+						"armor_level": 18,
+						"chip": "chip_attack",
+						"chip_level": 18,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4527,15 +5501,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 162,
-				"crowd_capacity": 102.4357,
+				"recommended_power": 114,
+				"crowd_capacity": 40.6587,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.3528,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.967768,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 19,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 19,
+						"armor": "armor_kevlar",
+						"armor_level": 19,
+						"chip": "chip_attack",
+						"chip_level": 19,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4643,15 +5645,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 190,
-				"crowd_capacity": 184.6953,
+				"recommended_power": 131,
+				"crowd_capacity": 41.0935,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.4141,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.822207,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 20,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 20,
+						"armor": "armor_kevlar",
+						"armor_level": 20,
+						"chip": "chip_attack",
+						"chip_level": 20,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4757,15 +5787,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 186,
-				"crowd_capacity": 120.1202,
+				"recommended_power": 131,
+				"crowd_capacity": 45.2576,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.4141,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.86787,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 20,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 20,
+						"armor": "armor_kevlar",
+						"armor_level": 20,
+						"chip": "chip_attack",
+						"chip_level": 20,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -4886,9 +5944,9 @@
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 183,
-				"crowd_capacity": 117.7222,
-				"boss_capacity": 60.5147,
+				"recommended_power": 129,
+				"crowd_capacity": 45.2576,
+				"boss_capacity": 28.161,
 				"line_capacity": 1.5751,
 				"boss_effective_hp": 111923.04,
 				"boss_weights": {
@@ -4896,7 +5954,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.905918,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 20,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 20,
+						"armor": "armor_kevlar",
+						"armor_level": 20,
+						"chip": "chip_attack",
+						"chip_level": 20,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5010,15 +6096,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 208,
-				"crowd_capacity": 206.3867,
+				"recommended_power": 147,
+				"crowd_capacity": 52.9199,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.4822,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.82096,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 21,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 21,
+						"armor": "armor_kevlar",
+						"armor_level": 21,
+						"chip": "chip_attack",
+						"chip_level": 21,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5127,15 +6241,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 221,
-				"crowd_capacity": 146.2537,
+				"recommended_power": 156,
+				"crowd_capacity": 55.719,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.5575,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.887329,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 22,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 22,
+						"armor": "armor_kevlar",
+						"armor_level": 22,
+						"chip": "chip_attack",
+						"chip_level": 22,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5243,15 +6385,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 212,
-				"crowd_capacity": 208.7969,
+				"recommended_power": 146,
+				"crowd_capacity": 50.5551,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.5575,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.982994,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 22,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 22,
+						"armor": "armor_kevlar",
+						"armor_level": 22,
+						"chip": "chip_attack",
+						"chip_level": 22,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5375,15 +6545,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 269,
-				"crowd_capacity": 317.5091,
+				"recommended_power": 184,
+				"crowd_capacity": 61.378,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.5575,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.594002,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 22,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 22,
+						"armor": "armor_kevlar",
+						"armor_level": 22,
+						"chip": "chip_attack",
+						"chip_level": 22,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5504,17 +6702,45 @@
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 262,
-				"crowd_capacity": 305.9406,
-				"boss_capacity": 157.2678,
-				"line_capacity": 1.8895,
+				"recommended_power": 180,
+				"crowd_capacity": 51.2016,
+				"boss_capacity": 41.7602,
+				"line_capacity": 2.5027,
 				"boss_effective_hp": 243498.29,
 				"boss_weights": {
 					"boss_plague_mother": 1.0
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.827883,
+					"ratio": 1.380023,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 23,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 23,
+						"armor": "armor_kevlar",
+						"armor_level": 23,
+						"chip": "chip_attack",
+						"chip_level": 23,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 2,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5622,15 +6848,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 292,
-				"crowd_capacity": 354.2017,
+				"recommended_power": 196,
+				"crowd_capacity": 82.5668,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.7314,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.996391,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 24,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 24,
+						"armor": "armor_kevlar",
+						"armor_level": 24,
+						"chip": "chip_attack",
+						"chip_level": 24,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5739,15 +6993,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 282,
-				"crowd_capacity": 333.2185,
+				"recommended_power": 194,
+				"crowd_capacity": 82.0422,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.7314,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.030207,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 24,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 24,
+						"armor": "armor_kevlar",
+						"armor_level": 24,
+						"chip": "chip_attack",
+						"chip_level": 24,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5873,15 +7155,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 308,
-				"crowd_capacity": 361.9015,
+				"recommended_power": 202,
+				"crowd_capacity": 75.4834,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.7314,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.874776,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 24,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 24,
+						"armor": "armor_kevlar",
+						"armor_level": 24,
+						"chip": "chip_attack",
+						"chip_level": 24,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -5993,15 +7303,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 278,
-				"crowd_capacity": 555.6578,
+				"recommended_power": 182,
+				"crowd_capacity": 48.883,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.8307,
+				"line_capacity": 3.0162,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 2.273641,
+					"ratio": 1.379999,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 25,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 25,
+						"armor": "armor_kevlar",
+						"armor_level": 25,
+						"chip": "chip_attack",
+						"chip_level": 25,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -6116,9 +7454,9 @@
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 409,
-				"crowd_capacity": 901.7665,
-				"boss_capacity": 426.1423,
+				"recommended_power": 281,
+				"crowd_capacity": 86.7086,
+				"boss_capacity": 82.8554,
 				"line_capacity": 2.3039,
 				"boss_effective_hp": 284735.49,
 				"boss_weights": {
@@ -6126,7 +7464,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 2,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.616809,
+					"ratio": 1.38,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 26,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 26,
+						"armor": "armor_kevlar",
+						"armor_level": 26,
+						"chip": "chip_attack",
+						"chip_level": 26,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 2
+					}
+				}
 			}
 		}
 	},
@@ -6234,15 +7600,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 341,
-				"crowd_capacity": 721.7231,
+				"recommended_power": 234,
+				"crowd_capacity": 85.0482,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.9388,
+				"line_capacity": 2.7317,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.944336,
+					"ratio": 1.379975,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 26,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 26,
+						"armor": "armor_kevlar",
+						"armor_level": 26,
+						"chip": "chip_attack",
+						"chip_level": 26,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6369,15 +7763,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 404,
-				"crowd_capacity": 869.1195,
+				"recommended_power": 264,
+				"crowd_capacity": 90.0602,
 				"boss_capacity": 0.0,
 				"line_capacity": 1.9388,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.68696,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 26,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 26,
+						"armor": "armor_kevlar",
+						"armor_level": 26,
+						"chip": "chip_attack",
+						"chip_level": 26,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6491,15 +7913,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 365,
-				"crowd_capacity": 787.5379,
+				"recommended_power": 251,
+				"crowd_capacity": 92.8039,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.0562,
+				"line_capacity": 2.8101,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.886,
+					"ratio": 1.38002,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 27,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 27,
+						"armor": "armor_kevlar",
+						"armor_level": 27,
+						"chip": "chip_attack",
+						"chip_level": 27,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6611,15 +8061,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 430,
-				"crowd_capacity": 998.3789,
+				"recommended_power": 289,
+				"crowd_capacity": 103.5044,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.1831,
+				"line_capacity": 2.8897,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.826677,
+					"ratio": 1.380011,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 28,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 28,
+						"armor": "armor_kevlar",
+						"armor_level": 28,
+						"chip": "chip_attack",
+						"chip_level": 28,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6734,9 +8212,9 @@
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 425,
-				"crowd_capacity": 985.3192,
-				"boss_capacity": 383.457,
+				"recommended_power": 286,
+				"crowd_capacity": 102.1505,
+				"boss_capacity": 92.6574,
 				"line_capacity": 2.6431,
 				"boss_effective_hp": 2246802.51,
 				"boss_weights": {
@@ -6744,7 +8222,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.508765,
+					"ratio": 1.379999,
+					"raw_bottleneck": "line",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 28,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 28,
+						"armor": "armor_kevlar",
+						"armor_level": 28,
+						"chip": "chip_attack",
+						"chip_level": 28,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6870,15 +8376,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 414,
-				"crowd_capacity": 886.6576,
+				"recommended_power": 271,
+				"crowd_capacity": 108.3334,
 				"boss_capacity": 0.0,
 				"line_capacity": 2.1831,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.989108,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 28,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 28,
+						"armor": "armor_kevlar",
+						"armor_level": 28,
+						"chip": "chip_attack",
+						"chip_level": 28,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -6993,15 +8527,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 493,
-				"crowd_capacity": 798.4173,
+				"recommended_power": 318,
+				"crowd_capacity": 157.4314,
 				"boss_capacity": 0.0,
 				"line_capacity": 2.3199,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.90811,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 29,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 29,
+						"armor": "armor_kevlar",
+						"armor_level": 29,
+						"chip": "chip_attack",
+						"chip_level": 29,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7115,15 +8677,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 630,
-				"crowd_capacity": 1740.7397,
+				"recommended_power": 410,
+				"crowd_capacity": 182.3662,
 				"boss_capacity": 0.0,
 				"line_capacity": 2.4672,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.547535,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 30,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 30,
+						"armor": "armor_kevlar",
+						"armor_level": 30,
+						"chip": "chip_attack",
+						"chip_level": 30,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7229,15 +8819,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 652,
-				"crowd_capacity": 1830.6374,
+				"recommended_power": 425,
+				"crowd_capacity": 183.1456,
 				"boss_capacity": 0.0,
 				"line_capacity": 2.4672,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.477828,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 30,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 30,
+						"armor": "armor_kevlar",
+						"armor_level": 30,
+						"chip": "chip_attack",
+						"chip_level": 30,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7370,9 +8988,9 @@
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 565,
-				"crowd_capacity": 1501.5861,
-				"boss_capacity": 584.3727,
+				"recommended_power": 366,
+				"crowd_capacity": 132.7547,
+				"boss_capacity": 132.5137,
 				"line_capacity": 3.0378,
 				"boss_effective_hp": 4936981.93,
 				"boss_weights": {
@@ -7380,7 +8998,33 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.152777,
+					"ratio": 1.152777,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 30,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 30,
+						"armor": "armor_kevlar",
+						"armor_level": 30,
+						"chip": "chip_attack",
+						"chip_level": 30,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7494,15 +9138,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 494,
-				"crowd_capacity": 1268.0114,
+				"recommended_power": 320,
+				"crowd_capacity": 112.1045,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.6253,
+				"line_capacity": 3.135,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.647942,
+					"ratio": 1.380013,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 31,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 31,
+						"armor": "armor_kevlar",
+						"armor_level": 31,
+						"chip": "chip_attack",
+						"chip_level": 31,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 3,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7617,15 +9289,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 652,
-				"crowd_capacity": 1810.9456,
+				"recommended_power": 425,
+				"crowd_capacity": 169.1822,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.7945,
+				"line_capacity": 3.219,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.589622,
+					"ratio": 1.379994,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 32,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 32,
+						"armor": "armor_kevlar",
+						"armor_level": 32,
+						"chip": "chip_attack",
+						"chip_level": 32,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7733,15 +9433,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 568,
-				"crowd_capacity": 1401.0629,
+				"recommended_power": 359,
+				"crowd_capacity": 118.1053,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.7945,
+				"line_capacity": 3.6579,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.806389,
+					"ratio": 1.380014,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 32,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 32,
+						"armor": "armor_kevlar",
+						"armor_level": 32,
+						"chip": "chip_attack",
+						"chip_level": 32,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7847,15 +9575,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 718,
-				"crowd_capacity": 1241.8897,
+				"recommended_power": 462,
+				"crowd_capacity": 225.5114,
 				"boss_capacity": 0.0,
 				"line_capacity": 2.7945,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.757226,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 32,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 32,
+						"armor": "armor_kevlar",
+						"armor_level": 32,
+						"chip": "chip_attack",
+						"chip_level": 32,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -7976,9 +9732,9 @@
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 864,
-				"crowd_capacity": 5252.8792,
-				"boss_capacity": 1423.7602,
+				"recommended_power": 560,
+				"crowd_capacity": 219.5433,
+				"boss_capacity": 188.1981,
 				"line_capacity": 3.7435,
 				"boss_effective_hp": 7011584.46,
 				"boss_weights": {
@@ -7986,7 +9742,33 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.158107,
+					"ratio": 1.158107,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 33,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 33,
+						"armor": "armor_kevlar",
+						"armor_level": 33,
+						"chip": "chip_attack",
+						"chip_level": 33,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8100,15 +9882,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 868,
-				"crowd_capacity": 4357.1847,
+				"recommended_power": 548,
+				"crowd_capacity": 236.2661,
 				"boss_capacity": 0.0,
 				"line_capacity": 3.1682,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.663586,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 34,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 34,
+						"armor": "armor_kevlar",
+						"armor_level": 34,
+						"chip": "chip_attack",
+						"chip_level": 34,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8217,15 +10027,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 672,
-				"crowd_capacity": 3730.805,
+				"recommended_power": 438,
+				"crowd_capacity": 172.4643,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.1682,
+				"line_capacity": 3.3902,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.476688,
+					"ratio": 1.37999,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 34,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 34,
+						"armor": "armor_kevlar",
+						"armor_level": 34,
+						"chip": "chip_attack",
+						"chip_level": 34,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8333,15 +10171,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 724,
-				"crowd_capacity": 4215.3753,
+				"recommended_power": 469,
+				"crowd_capacity": 176.181,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.1682,
+				"line_capacity": 3.3902,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.476688,
+					"ratio": 1.37999,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 34,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 34,
+						"armor": "armor_kevlar",
+						"armor_level": 34,
+						"chip": "chip_attack",
+						"chip_level": 34,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8465,15 +10331,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 877,
-				"crowd_capacity": 5525.684,
+				"recommended_power": 552,
+				"crowd_capacity": 222.4627,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.3734,
+				"line_capacity": 3.4774,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 1.422549,
+					"ratio": 1.380004,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 35,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 35,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8594,9 +10488,9 @@
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1110,
-				"crowd_capacity": 7260.3134,
-				"boss_capacity": 2219.6975,
+				"recommended_power": 698,
+				"crowd_capacity": 292.568,
+				"boss_capacity": 322.1351,
 				"line_capacity": 4.5992,
 				"boss_effective_hp": 21664310.15,
 				"boss_weights": {
@@ -8604,7 +10498,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 3,
+				"corridor_calibration": {
+					"band": [
+						1.0,
+						1.4
+					],
+					"raw_ratio": 0.56506,
+					"ratio": 1.02,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "paced_free",
+						"character": "vanguard",
+						"character_level": 36,
+						"weapon": "weapon_autocannon",
+						"weapon_level": 36,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "",
+						"pet_level": 1,
+						"signature_level": 4,
+						"skill_rank": 3
+					}
+				}
 			}
 		}
 	},
@@ -8711,15 +10633,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1164,
-				"crowd_capacity": 6589.985,
+				"recommended_power": 718,
+				"crowd_capacity": 381.8145,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.5914,
+				"line_capacity": 6.7815,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 2.605788,
+					"ratio": 1.379993,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 36,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 36,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -8828,15 +10778,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1095,
-				"crowd_capacity": 7140.1467,
+				"recommended_power": 688,
+				"crowd_capacity": 413.6901,
 				"boss_capacity": 0.0,
 				"line_capacity": 3.5914,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.35501,
+					"ratio": 1.35501,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 36,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 36,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -8962,15 +10938,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1109,
-				"crowd_capacity": 5917.9983,
+				"recommended_power": 671,
+				"crowd_capacity": 416.7193,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.8227,
+				"line_capacity": 4.0629,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.466698,
+					"ratio": 1.379986,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 37,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 37,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9082,15 +11086,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1059,
-				"crowd_capacity": 6791.8484,
+				"recommended_power": 666,
+				"crowd_capacity": 393.5102,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.0676,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.229592,
+					"ratio": 1.229592,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 38,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 38,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9205,9 +11235,9 @@
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1184,
-				"crowd_capacity": 7782.452,
-				"boss_capacity": 2379.3311,
+				"recommended_power": 744,
+				"crowd_capacity": 450.9043,
+				"boss_capacity": 867.3377,
 				"line_capacity": 5.2606,
 				"boss_effective_hp": 32313879.09,
 				"boss_weights": {
@@ -9215,7 +11245,33 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 0.950745,
+					"ratio": 0.950745,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 38,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 38,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9323,15 +11379,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1210,
-				"crowd_capacity": 7994.8395,
+				"recommended_power": 761,
+				"crowd_capacity": 463.2098,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.0676,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.229592,
+					"ratio": 1.229592,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 38,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 38,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9458,15 +11540,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1344,
-				"crowd_capacity": 7407.9163,
+				"recommended_power": 812,
+				"crowd_capacity": 521.6327,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.3266,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.331363,
+					"ratio": 1.331363,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 39,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 39,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 4,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9579,15 +11687,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1354,
-				"crowd_capacity": 7780.9717,
+				"recommended_power": 836,
+				"crowd_capacity": 450.8186,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 7.158,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 2.147407,
+					"ratio": 1.380004,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 40,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9699,15 +11835,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1559,
-				"crowd_capacity": 10786.2933,
+				"recommended_power": 980,
+				"crowd_capacity": 624.9427,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 40,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9822,17 +11984,46 @@
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1473,
-				"crowd_capacity": 10072.1626,
-				"boss_capacity": 3079.3649,
-				"line_capacity": 6.0,
+				"recommended_power": 926,
+				"crowd_capacity": 583.567,
+				"boss_capacity": 1285.8214,
+				"line_capacity": 5.2955,
 				"boss_effective_hp": 52256728.45,
 				"boss_weights": {
 					"boss_necrotitan": 1.0
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 0.856099,
+					"ratio": 0.969993,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"boss",
+						"line"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 40,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -9958,15 +12149,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1408,
-				"crowd_capacity": 9732.5674,
+				"recommended_power": 848,
+				"crowd_capacity": 666.9292,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 41,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10080,15 +12297,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1439,
-				"crowd_capacity": 9874.3206,
+				"recommended_power": 854,
+				"crowd_capacity": 681.8738,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 42,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10202,15 +12445,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1692,
-				"crowd_capacity": 12174.2393,
+				"recommended_power": 1018,
+				"crowd_capacity": 834.246,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 42,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10316,15 +12585,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1428,
-				"crowd_capacity": 7405.3763,
+				"recommended_power": 836,
+				"crowd_capacity": 739.4437,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.268922,
+					"ratio": 1.268922,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 42,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10457,9 +12752,9 @@
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 2176,
-				"crowd_capacity": 12376.3548,
-				"boss_capacity": 3402.4904,
+				"recommended_power": 1273,
+				"crowd_capacity": 1235.8073,
+				"boss_capacity": 1909.0994,
 				"line_capacity": 6.0,
 				"boss_effective_hp": 103105179.84,
 				"boss_weights": {
@@ -10467,7 +12762,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 0.669146,
+					"ratio": 0.97,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 43,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10581,15 +12904,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1823,
-				"crowd_capacity": 13332.891,
+				"recommended_power": 1097,
+				"crowd_capacity": 913.6432,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 44,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10704,15 +13053,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1858,
-				"crowd_capacity": 10208.2112,
+				"recommended_power": 1087,
+				"crowd_capacity": 1019.3132,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.268922,
+					"ratio": 1.268922,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 44,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10820,15 +13195,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1696,
-				"crowd_capacity": 12209.0603,
+				"recommended_power": 1021,
+				"crowd_capacity": 836.6321,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 44,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -10934,15 +13335,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1924,
-				"crowd_capacity": 14067.9181,
+				"recommended_power": 1142,
+				"crowd_capacity": 971.4638,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 45,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11063,9 +13490,9 @@
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 2185,
-				"crowd_capacity": 12443.2293,
-				"boss_capacity": 3420.8755,
+				"recommended_power": 1279,
+				"crowd_capacity": 1242.4848,
+				"boss_capacity": 2083.0035,
 				"line_capacity": 6.0,
 				"boss_effective_hp": 116641902.53,
 				"boss_weights": {
@@ -11073,7 +13500,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 0.645369,
+					"ratio": 0.97,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 46,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11187,15 +13642,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1460,
-				"crowd_capacity": 7606.5643,
+				"recommended_power": 854,
+				"crowd_capacity": 759.5328,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.268922,
+					"ratio": 1.268922,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 46,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11304,15 +13785,43 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1887,
-				"crowd_capacity": 12090.5466,
+				"recommended_power": 1127,
+				"crowd_capacity": 828.5109,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 7.158,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 2.147407,
+					"ratio": 1.380004,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [
+						"line"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 46,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11420,15 +13929,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1911,
-				"crowd_capacity": 13190.6353,
+				"recommended_power": 1115,
+				"crowd_capacity": 1017.1924,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 47,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11552,15 +14087,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 2184,
-				"crowd_capacity": 11707.735,
+				"recommended_power": 1247,
+				"crowd_capacity": 1309.6829,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.268922,
+					"ratio": 1.268922,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 48,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11681,9 +14242,9 @@
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 2817,
-				"crowd_capacity": 15966.8207,
-				"boss_capacity": 4943.8148,
+				"recommended_power": 1609,
+				"crowd_capacity": 1786.1244,
+				"boss_capacity": 2468.1326,
 				"line_capacity": 6.0,
 				"boss_effective_hp": 184188740.18,
 				"boss_weights": {
@@ -11691,7 +14252,35 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 0.484259,
+					"ratio": 0.97,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
+					"adjusted_axes": [
+						"boss"
+					],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 48,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11799,15 +14388,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1920,
-				"crowd_capacity": 12963.7407,
+				"recommended_power": 1094,
+				"crowd_capacity": 999.6955,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 48,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -11916,15 +14531,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1787,
-				"crowd_capacity": 12157.2213,
+				"recommended_power": 1043,
+				"crowd_capacity": 937.5009,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.116651,
+					"ratio": 1.116651,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 49,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -12050,15 +14691,41 @@
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 1940,
-				"crowd_capacity": 10132.7239,
+				"recommended_power": 1108,
+				"crowd_capacity": 1133.4947,
 				"boss_capacity": 0.0,
 				"line_capacity": 4.6,
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4,
+				"corridor_calibration": {
+					"band": [
+						0.95,
+						1.4
+					],
+					"raw_ratio": 1.268922,
+					"ratio": 1.268922,
+					"raw_bottleneck": "line",
+					"bottleneck": "line",
+					"adjusted_axes": [],
+					"fixture": {
+						"family": "strongest_free",
+						"character": "vanguard",
+						"character_level": 40,
+						"weapon": "weapon_scattergun",
+						"weapon_level": 50,
+						"armor": "armor_kevlar",
+						"armor_level": 35,
+						"chip": "chip_attack",
+						"chip_level": 35,
+						"pet": "pet_turret_drone",
+						"pet_level": 30,
+						"signature_level": 5,
+						"skill_rank": 4
+					}
+				}
 			}
 		}
 	},
@@ -12196,8 +14863,8 @@
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v3",
-				"recommended_power": 4097,
-				"crowd_capacity": 17137.0935,
+				"recommended_power": 2340,
+				"crowd_capacity": 1711.1779,
 				"boss_capacity": 8981.3845,
 				"line_capacity": 6.0,
 				"boss_effective_hp": 334614055.13,
@@ -12210,7 +14877,7 @@
 					"skill_barrier",
 					"skill_slow_field"
 				],
-				"reference_skill_rank": 5
+				"reference_skill_rank": 4
 			}
 		}
 	}

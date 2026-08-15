@@ -4154,3 +4154,12 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Units come from runtime semantics**: `spread` is displayed in degrees because firing converts it with `deg_to_rad()`; `cloud` is named as a radius because it enters the projectile area radius; `chain` is suffixed with Targets because it increments the resolved target count.
 - **Cleaner value copy**: chips display Current Bonus plus the value without repeating their stat tag or exposing a rounded Next +0% line.
 - **Proof**: localization, headless boot and M1 smoke pass. Chinese and English weapon, armor, chip and pet captures pass runtime/image and manual visual review at `artifacts/design30_task3/`.
+
+## Power V3 Mid-Campaign Corridor + Conservative Card Expectation (2026-08-15)
+
+- **One conservative projection**: SaveManager and the Python mirror now count guaranteed offers exactly, then fill every remaining authored card slot with the weakest positive compatible option at the player's permanent rank. A physical gun on a non-physical-weakness stage spends one real slot on the matching ammo conversion before the rest of the conservative draft.
+- **XP-paced reference**: fixed contracts use the campaign-affordable permanent-skill tiers L1 through Stage 25, L2 through 50, L3 through 70 and L4 thereafter. The sole calibration fixture lives in `power_ruler_model.py`; its generated manifest is serialized into each contract for Godot smoke consumption.
+- **Transparent display-only calibration**: the generated crowd, Boss and line capacities are minimally clamped around the approved free-player corridor with a `0.02` interior margin. No clear requirement, runtime enemy stat, wave, damage, economy pressure or star threshold changed.
+- **Frozen replay meaning preserved**: the Stage 99 graduation anchor moves from `4770/4097` to `2724/2340` while retaining `R=1.1643/Boss`; the Stage 55 Owner build moves from `401/425` to `270/286` while retaining `R=0.9430/line`.
+- **CI owns the entire corridor**: all 97 asserted stages are checked, with exact ratios spanning `0.9507–1.3800`; Godot smoke samples 2/13/25/40/50/70/85/98 from the generated fixture manifest. Negative controls remain below line (`physical/no-conversion@055=0.9226`, `half-speed@085=0.4850`) and Thunder L1@013 remains below the Owner review ceiling (`R=1.0260`).
+- **Audit trail**: the complete 99-stage scan, raw ratios, adjusted axes and old/new anchor scale are retained in `design/32_power_v3_mid_corridor_calibration.md`.
