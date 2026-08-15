@@ -1877,4 +1877,5 @@
 
 - [x] iOS Release Candidate 最低系统由 `14.0` 提升至 `15.0`，提前满足 Apple 2027 年春季开始执行的上传要求；游戏数值、功能与设备画布规则均未改变。
 - [x] 发布包检查不再硬编码第二份 `14.0`：从 `export_presets.cfg` 读取目标版本，门禁要求不低于 iOS 15，并逐字核对最终 IPA 的 `MinimumOSVersion`。
-- [ ] 重新生成并上传新 TestFlight 构建，确认 Apple 不再返回 `ITMS-90068` 后完成发布记录。
+- [x] 重新生成并上传 `1.0.0 (54)`；Apple 交付 `edb5d369-49f6-4a79-aaee-0bacd6a53c49` 达到 `VALID / APP_STORE_ELIGIBLE / IS-ON-APP-STORE-CONNECT`，回执明确为 `MINOSVERSION: 15.0` 且不再返回 `ITMS-90068`。
+- [x] 已上传 IPA 为 `869709981` bytes，SHA-256 `8178243a3f2b0dffb381fe04d51b16447fde6596906d86533f5d9c1af614b6fb`；桌面副本逐字节一致，发布记录保存于 `build/ios/release/build_54/`。

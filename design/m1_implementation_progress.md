@@ -4196,4 +4196,6 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - **Deployment target**: the iOS Release Candidate now declares iOS `15.0` instead of `14.0`, satisfying Apple's announced Spring 2027 upload floor without changing gameplay, layout or balance.
 - **Single-source package audit**: `check_release_package.py` reads the minimum version from the iOS export preset, rejects any target below 15.0, and requires the exported IPA `MinimumOSVersion` to match exactly. The former hardcoded `14.0` package assertion is removed.
-- **Delivery acceptance**: a replacement TestFlight build will be recorded here after Apple reports a valid delivery without `ITMS-90068`.
+- **Clean replacement delivery**: Build `1.0.0 (54)` was accepted as `VALID`, `APP_STORE_ELIGIBLE` and present on App Store Connect under delivery `edb5d369-49f6-4a79-aaee-0bacd6a53c49`. Apple's reported `MINOSVERSION` is `15.0`, and both the upload and final processing responses contain no `ITMS-90068` warning.
+- **Artifact identity**: the accepted IPA is `869709981` bytes with SHA-256 `8178243a3f2b0dffb381fe04d51b16447fde6596906d86533f5d9c1af614b6fb`; `/Users/gavin/Desktop/ZombieFire.ipa` is byte-identical. The release record is `build/ios/release/build_54/release_manifest.json`.
+- **Local release state**: TestFlight-only speed and premium-preview features were restored to ordinary `release` after delivery. The tracked iOS build number remains `54` and the minimum target remains `15.0`.
