@@ -4163,3 +4163,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Frozen replay meaning preserved**: the Stage 99 graduation anchor moves from `4770/4097` to `2724/2340` while retaining `R=1.1643/Boss`; the Stage 55 Owner build moves from `401/425` to `270/286` while retaining `R=0.9430/line`.
 - **CI owns the entire corridor**: all 97 asserted stages are checked, with exact ratios spanning `0.9507–1.3800`; Godot smoke samples 2/13/25/40/50/70/85/98 from the generated fixture manifest. Negative controls remain below line (`physical/no-conversion@055=0.9226`, `half-speed@085=0.4850`) and Thunder L1@013 remains below the Owner review ceiling (`R=1.0260`).
 - **Audit trail**: the complete 99-stage scan, raw ratios, adjusted axes and old/new anchor scale are retained in `design/32_power_v3_mid_corridor_calibration.md`.
+
+## Endgame Apex Phase + Full Double-Boss Audit (2026-08-15)
+
+- **Two scopes, no substitution**: `check_endgame_balance.py` now labels the existing matrix as the Apex single-phase audit and retains the Stage 99 `116.6s / 21 skill-window` contract. It is not deleted or reinterpreted as the full finale.
+- **Runtime-authored roster**: the complete encounter section derives the primary and added Boss IDs from `waves` plus `runtime_bosses`, verifies them against `power_contract.boss_weights`, and consumes the contract's `334.61M` mechanic-adjusted effective HP.
+- **Every free max build is disclosed**: autocannon is `323.8s`, railgun `279.9s`, and scattergun `164.3s`; all are printed against the unchanged `460s` phase cap, including over-cap status when applicable.
+- **Graduation decision remains explicit**: scattergun is the fastest free family and satisfies the approved `[150,185]s` full-encounter band. Autocannon is inside the cap in the current data, so the conditional over-cap warning does not fire, while scattergun remains the graduation family.
+- **No difficulty mutation**: this phase changes the audit tool and documentation only. Boss HP, waves, damage, economy pressure, cap and all runtime balance data remain untouched.

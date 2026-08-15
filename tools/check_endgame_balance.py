@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Guard the level-50+ campaign ramp and the level-99 build check.
+"""Guard the level-50+ ramp plus both finale Boss audit scopes.
 
-The three physical finale builds use a checked-in Godot runtime benchmark
+The Apex single-phase matrix preserves the design/25 116.6-second contract.
+The complete level-99 matrix reads the authored primary/runtime Boss roster and
+the generated power contract's mechanic-adjusted effective HP.
+
+All three physical finale builds use a checked-in Godot runtime benchmark
 produced by ``res://tools/audit_physical_endgame_runtime.gd``. Scatter pellets,
 five-lane multishot, pierce sweeps, split children, ricochet, homing, crit,
 Vanguard's active/barrage uptime, chips and pets are therefore based on real
@@ -26,6 +30,9 @@ MAXED_PHYSICAL_WEAPONS = (
     "weapon_scattergun",
 )
 RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
+DOUBLE_BOSS_FASTEST_MIN_SECONDS = 150.0
+DOUBLE_BOSS_FASTEST_MAX_SECONDS = 185.0
+FINALE_PHASE_CAP_SECONDS = 460.0
 
 
 def load(name: str):
@@ -184,18 +191,38 @@ def main() -> int:
     if boss_windows[-1][2] > 125.0:
         errors.append(f"level-99 fastest counter-build TTK must stay below 125s: {boss_windows[-1][2]:.1f}s")
 
-    viable_fast: list[tuple[str, float]] = []
-    viable_clear: list[tuple[str, float]] = []
+    # Complete runtime encounter: primary Apex + every levels.json runtime Boss,
+    # using the power contract's mechanic-adjusted combined effective HP.
+    primary_boss_ids = {
+        str(wave["boss"]) for wave in finale.get("waves", []) if "boss" in wave
+    }
+    runtime_boss_ids = {
+        str(row.get("type", "")) for row in finale.get("runtime_bosses", [])
+        if str(row.get("type", ""))
+    }
+    authored_boss_ids = primary_boss_ids | runtime_boss_ids
+    contract_boss_ids = set(
+        finale.get("clear_requirement", {}).get("power_contract", {}).get("boss_weights", {}))
+    if not runtime_boss_ids:
+        errors.append("level_099 must author at least one runtime Boss for the full-encounter audit")
+    if authored_boss_ids != contract_boss_ids:
+        errors.append(
+            f"level_099 authored Bosses {sorted(authored_boss_ids)} must match "
+            f"power-contract weights {sorted(contract_boss_ids)}")
+
+    double_boss_rows: list[tuple[str, float, bool]] = []
     for weapon_id in MAXED_PHYSICAL_WEAPONS:
         seconds = runtime_finale_seconds(mob_hp, boss_effective_hp, weapon_id, runtime_builds)
-        if seconds <= 180.0:
-            viable_fast.append((weapon_id, seconds))
-        if seconds <= 260.0:
-            viable_clear.append((weapon_id, seconds))
-    if len(viable_fast) < 1:
-        errors.append(f"finale must retain at least 1 maxed physical clear <=180s, got {viable_fast}")
-    if len(viable_clear) < 1:
-        errors.append(f"finale must retain at least one maxed physical clear <=260s, got {viable_clear}")
+        double_boss_rows.append((weapon_id, seconds, seconds <= FINALE_PHASE_CAP_SECONDS))
+    fastest_weapon, fastest_seconds, _ = min(double_boss_rows, key=lambda row: row[1])
+    if fastest_weapon != "weapon_scattergun":
+        errors.append(
+            f"graduation family must remain scattergun, got fastest={fastest_weapon}")
+    if not DOUBLE_BOSS_FASTEST_MIN_SECONDS <= fastest_seconds <= DOUBLE_BOSS_FASTEST_MAX_SECONDS:
+        errors.append(
+            "strongest free max build must clear the complete double-Boss encounter "
+            f"inside [{DOUBLE_BOSS_FASTEST_MIN_SECONDS:.0f},{DOUBLE_BOSS_FASTEST_MAX_SECONDS:.0f}]s, "
+            f"got {fastest_weapon}={fastest_seconds:.1f}s")
 
     observed_like_seconds = estimated_mismatched_finale_seconds(
         finale,
@@ -216,14 +243,16 @@ def main() -> int:
 
     final_recommended = int(
         finale.get("clear_requirement", {}).get("power_contract", {}).get("recommended_power", 0))
-    if not 4090 <= final_recommended <= 4105:
-        errors.append(f"final fixed recommended power should include the runtime two-Boss contract near 4097, got {final_recommended}")
+    if not 2330 <= final_recommended <= 2350:
+        errors.append(
+            "final fixed recommendation must stay on the regenerated v3 corridor scale "
+            f"near 2340, got {final_recommended}")
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)
-    if contract_reference_seconds is None or not 195.0 <= contract_reference_seconds <= 202.0:
+    if contract_reference_seconds is None or not 350.0 <= contract_reference_seconds <= 380.0:
         errors.append(
-            "level-99 equal-recommendation contract should clear the complete runtime encounter "
-            f"in about 198s, got {contract_reference_seconds}"
+            "level-99 equal-recommendation display contract should remain within the authored "
+            f"460s phase cap, expected [350,380]s after corridor calibration, got {contract_reference_seconds}"
         )
 
     print("Endgame balance matrix")
@@ -236,11 +265,22 @@ def main() -> int:
     print(f"  level_099 HP: mobs={mob_hp / 1_000_000:.2f}M bosses={boss_hp / 1_000_000:.2f}M ({boss_detail})")
     print(f"  modern DPS calibration: {modern_dps_scale:.3f}x (vanguard rail={modern_reference_dps:.0f})")
     print("  physical throughput: Godot runtime benchmark (all 8 max offensive skills)")
+    print("  Apex single-phase audit (design/25 116.6s contract)")
     for level_no, checkpoint_boss_hp, ttk, casts in boss_windows:
-        print(f"  Apex L{level_no}: hp={checkpoint_boss_hp / 1_000_000:.2f}M counter-TTK={ttk:.1f}s skill-windows={casts}")
-    for weapon_id, seconds in viable_clear:
-        pace = "fast" if seconds <= 180.0 else "clear"
-        print(f"  viable max build ({pace}): {weapon_id} estimated={seconds:.1f}s")
+        print(f"    Apex L{level_no}: hp={checkpoint_boss_hp / 1_000_000:.2f}M counter-TTK={ttk:.1f}s skill-windows={casts}")
+    print(
+        "  Double-Boss full-encounter audit "
+        f"(authored={','.join(sorted(authored_boss_ids))}; "
+        f"effective={boss_effective_hp / 1_000_000:.2f}M; cap={FINALE_PHASE_CAP_SECONDS:.0f}s)")
+    for weapon_id, seconds, within_cap in double_boss_rows:
+        status = "within cap" if within_cap else "over cap"
+        graduation = "; graduation family" if weapon_id == "weapon_scattergun" else ""
+        print(f"    {weapon_id}: {seconds:.1f}s ({status}{graduation})")
+    autocannon_seconds = next(row[1] for row in double_boss_rows if row[0] == "weapon_autocannon")
+    if autocannon_seconds > FINALE_PHASE_CAP_SECONDS:
+        print("    decision: autocannon exceeds cap; graduation build = scattergun family")
+    else:
+        print("    decision: graduation build = scattergun family; autocannon remains inside cap")
     print(f"  mismatched plasma L41 estimated={observed_like_seconds:.1f}s")
     print(f"  level_099 recommended power={final_recommended}")
     contract_seconds_text = (
