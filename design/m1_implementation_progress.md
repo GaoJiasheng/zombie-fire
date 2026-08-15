@@ -4171,3 +4171,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Every free max build is disclosed**: autocannon is `323.8s`, railgun `279.9s`, and scattergun `164.3s`; all are printed against the unchanged `460s` phase cap, including over-cap status when applicable.
 - **Graduation decision remains explicit**: scattergun is the fastest free family and satisfies the approved `[150,185]s` full-encounter band. Autocannon is inside the cap in the current data, so the conditional over-cap warning does not fire, while scattergun remains the graduation family.
 - **No difficulty mutation**: this phase changes the audit tool and documentation only. Boss HP, waves, damage, economy pressure, cap and all runtime balance data remain untouched.
+
+## Thunder Full-Set Contract Release Headroom (2026-08-15)
+
+- **Owner-approved band decision**: only `set_apocalypse_thunder.target_full_set_ratio_max` changes from `1.58` to `1.60`; every Thunder weapon, armor, chip, pet and set-mechanic value is unchanged.
+- **One data source**: `audit_character_endgame_dps.py` continues to load both limits from `premium_sets.json`, so the release gate cannot drift behind a second hardcoded band. Inferno / Absolute Zero remain `[1.52,1.58]`; Golden Law remains `[1.90,2.05]`.
+- **Healthy gate margin, zero player impact**: the measured Thunder result remains `1.579x`, now `0.021` below the approved upper limit instead of `0.001`; no runtime output, progression, price or entitlement changes.
