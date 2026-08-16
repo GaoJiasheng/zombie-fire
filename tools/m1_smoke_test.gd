@@ -280,6 +280,10 @@ func _initialize() -> void:
 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
 	var enter_chapter_button := first_chapter.find_child("EnterChapterButton", true, false) as TextureButton
 	_expect(enter_chapter_button != null, "map chapter cards must expose an explicit chapter entry button")
+	_expect(enter_chapter_button.size.x >= 280.0 and enter_chapter_button.size.y >= 80.0, "chapter Continue/Review entry must use the enlarged primary-action ruler")
+	_expect(enter_chapter_button.position.y + enter_chapter_button.size.y <= first_chapter.size.y - 10.0, "enlarged chapter action must retain a protected bottom edge")
+	var enter_chapter_label := enter_chapter_button.find_child("ActionLabel", false, false) as Label
+	_expect(enter_chapter_label != null and enter_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "chapter primary-action copy must stay vertically centered inside the taller button")
 	_expect(enter_chapter_button.mouse_filter == Control.MOUSE_FILTER_PASS and bool(enter_chapter_button.get_meta("scroll_drag_passthrough", false)), "chapter entry button must preserve drag-to-scroll gestures")
 	var enter_chapter_touch_target := enter_chapter_button.find_child("TouchTarget", false, false) as Button
 	_expect(enter_chapter_touch_target == null or enter_chapter_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded chapter touch target must not swallow drag-to-scroll gestures")
@@ -289,6 +293,10 @@ func _initialize() -> void:
 	_expect(level_list != null and level_list.get_child_count() >= 11, "chapter detail must render a header plus its ten sub-level cards")
 	var back_to_chapter_map := level_list.get_child(0).find_child("BackToChapterMapButton", true, false) as TextureButton
 	_expect(back_to_chapter_map != null, "chapter detail must expose a back-to-chapter-map button")
+	_expect(back_to_chapter_map.size.x >= 280.0 and back_to_chapter_map.size.y >= 80.0, "Back to Zone Map must share the enlarged primary-navigation ruler")
+	_expect(back_to_chapter_map.position.y >= 172.0 and back_to_chapter_map.position.y + back_to_chapter_map.size.y <= level_list.get_child(0).size.y - 56.0, "Back to Zone Map must keep clear separation from progress and the chapter-card bottom edge")
+	var back_to_chapter_label := back_to_chapter_map.find_child("ActionLabel", false, false) as Label
+	_expect(back_to_chapter_label != null and back_to_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Back to Zone Map copy must stay vertically centered inside the enlarged button")
 	_expect(back_to_chapter_map.mouse_filter == Control.MOUSE_FILTER_PASS and bool(back_to_chapter_map.get_meta("scroll_drag_passthrough", false)), "back-to-chapter-map button must preserve drag-to-scroll gestures")
 	var back_touch_target := back_to_chapter_map.find_child("TouchTarget", false, false) as Button
 	_expect(back_touch_target == null or back_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded back-button touch target must not swallow drag-to-scroll gestures")
@@ -482,16 +490,22 @@ func _initialize() -> void:
 	_expect(skill_titles.size() >= 2 and skill_kinds.size() >= 2, "character detail must expose mobile-readable skill names and kinds")
 	var skill_icon_frames := character_detail.find_children("SkillIconFrame", "PanelContainer", true, false)
 	var skill_icons := character_detail.find_children("SkillIcon", "TextureRect", true, false)
+	var skill_leading_insets := character_detail.find_children("SkillLeadingInset", "Control", true, false)
 	_expect(skill_icon_frames.size() >= 2 and skill_icons.size() == skill_icon_frames.size(), "character detail passive and signature rows must all use the shared large-icon component (frames=%d icons=%d)" % [skill_icon_frames.size(), skill_icons.size()])
+	_expect(skill_leading_insets.size() == skill_icon_frames.size(), "character detail skill rows must all reserve a left safe inset")
+	for skill_leading_inset_node in skill_leading_insets:
+		var skill_leading_inset := skill_leading_inset_node as Control
+		_expect(skill_leading_inset != null and skill_leading_inset.custom_minimum_size.x >= 12.0, "character detail skill icons must stay clear of the left ornamental rail")
 	for skill_icon_frame_node in skill_icon_frames:
 		var skill_row := skill_icon_frame_node.get_parent() as HBoxContainer
-		_expect(skill_row != null and skill_row.custom_minimum_size.y >= 148.0, "character detail skill rows must reserve the enlarged icon height")
-		_expect(skill_row != null and skill_row.get_theme_constant("separation") >= 20, "character detail skill rows must retain a clear icon-to-copy gap")
+		_expect(skill_row != null and skill_row.custom_minimum_size.y >= 168.0, "character detail skill rows must reserve the enlarged icon height")
+		_expect(skill_row != null and skill_row.get_theme_constant("separation") >= 22, "character detail skill rows must retain a clear icon-to-copy gap")
 		var skill_icon_frame := skill_icon_frame_node as PanelContainer
-		_expect(skill_icon_frame != null and skill_icon_frame.custom_minimum_size.x >= 120.0 and skill_icon_frame.custom_minimum_size.y >= 120.0, "character detail skill icon frames must use the enlarged 120px ruler")
+		_expect(skill_icon_frame != null and skill_icon_frame.custom_minimum_size.x >= 148.0 and skill_icon_frame.custom_minimum_size.y >= 148.0, "character detail skill icon frames must use the enlarged 148px square ruler")
+		_expect(skill_icon_frame != null and skill_icon_frame.size_flags_vertical == Control.SIZE_SHRINK_CENTER, "character detail skill icon frames must remain square instead of stretching with the text row")
 	for skill_icon_node in skill_icons:
 		var skill_icon := skill_icon_node as TextureRect
-		_expect(skill_icon != null and skill_icon.custom_minimum_size.x >= 104.0 and skill_icon.custom_minimum_size.y >= 104.0, "character detail skill artwork must use the enlarged 104px ruler")
+		_expect(skill_icon != null and skill_icon.custom_minimum_size.x >= 128.0 and skill_icon.custom_minimum_size.y >= 128.0, "character detail skill artwork must use the enlarged 128px ruler")
 		_expect(skill_icon != null and skill_icon.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "character detail skill artwork must remain aspect-preserving and centered")
 	for skill_title_node in skill_titles:
 		var skill_title := skill_title_node as Label
@@ -504,6 +518,8 @@ func _initialize() -> void:
 	for description_node in skill_descriptions:
 		var skill_description := description_node as Label
 		_expect(skill_description != null and skill_description.get_theme_font_size("font_size") >= 26, "character detail skill descriptions must use at least 26px effective type")
+		if skill_description != null:
+			_expect(_label_required_height_for_smoke(skill_description) <= skill_description.size.y + 0.5, "character detail skill descriptions must expand for wrapped copy without covering the next row")
 	var signature_layout := character_detail.find_child("SignatureUpgradeLayout", true, false) as VBoxContainer
 	var signature_growth := character_detail.find_child("SignatureGrowth", true, false) as Label
 	var signature_button := character_detail.find_child("SigSkillUpgradeButton", true, false) as TextureButton
@@ -548,9 +564,10 @@ func _initialize() -> void:
 	var skill_list_icon_frame := skill_item.get_node_or_null("IconFrame") as PanelContainer
 	var skill_list_icon := skill_list_icon_frame.get_node_or_null("Icon") as TextureRect if skill_list_icon_frame != null else null
 	var skill_title := skill_item.get_node("Title") as Label
-	_expect(skill_item.size.x >= 860.0 and skill_item.size.y >= 256.0, "skill collection rows must share the wide equipment-card ruler")
-	_expect(skill_list_icon_frame != null and skill_list_icon_frame.position.x >= 40.0 and skill_list_icon_frame.size.x >= 176.0, "skill collection icon frame must use the shared large catalog geometry")
-	_expect(skill_list_icon != null and skill_list_icon.size.x >= 156.0 and skill_list_icon.size.y >= 156.0, "skill collection artwork must nearly double the old 80px presentation")
+	_expect(skill_item.size.x >= 896.0 and skill_item.size.y >= 256.0, "skill collection rows must consume the catalog safe width beside the scrollbar")
+	_expect(skill_list_icon_frame != null and skill_list_icon_frame.position.x >= 32.0 and skill_list_icon_frame.size.x >= 204.0, "skill collection icon frame must use the shared 204px catalog geometry")
+	_expect(skill_list_icon != null and skill_list_icon.size.x >= 184.0 and skill_list_icon.size.y >= 184.0, "skill collection artwork must fill the enlarged shared icon frame")
+	_expect(skill_title.position.x >= 272.0, "skill collection copy must use the shared right-shifted catalog text axis")
 	_expect(skill_title.position.x - (skill_list_icon_frame.position.x + skill_list_icon_frame.size.x) >= 30.0, "skill collection copy must share the equipment list text axis after the enlarged icon")
 	_expect(skill_title.text.find("等级4") >= 0, "upgraded skill collection row must show its actual permanent level, got %s" % skill_title.text)
 	var skill_tags := skill_item.get_node("Tags") as HBoxContainer
@@ -584,6 +601,7 @@ func _initialize() -> void:
 	_expect(tag_width_total <= skill_tags.size.x + 0.5, "skill tags must fit inside the authored card width without clipping")
 	var skill_effect_summary := skill_item.get_node("EffectSummary") as Label
 	_expect(skill_effect_summary.position.y >= skill_tags.position.y + skill_tags.size.y + 6.0, "skill effect summary must keep a clean gap below the tag row")
+	_expect(_label_required_height_for_smoke(skill_effect_summary) <= skill_effect_summary.size.y + 0.5, "skill collection effect summary must reserve every wrapped line")
 	var theme_manager := root.get_node("/root/ThemeManager")
 	var tag_border_signatures: Dictionary = {}
 	for theme_id in ["default", "neon_tempest", "infernal_dominion", "polar_aurora", "gilded_eclipse"]:
@@ -600,7 +618,9 @@ func _initialize() -> void:
 			continue
 		checked_skill_tag_rows += 1
 		var row_tags := skill_row.get_node_or_null("Tags") as HBoxContainer
+		var row_effect_summary := skill_row.get_node_or_null("EffectSummary") as Label
 		_expect(row_tags != null and row_tags.get_child_count() >= 2, "every skill row must keep its bilingual semantic tags")
+		_expect(row_effect_summary != null and _label_required_height_for_smoke(row_effect_summary) <= row_effect_summary.size.y + 0.5, "skill row %d effect summary must fit without covering adjacent content" % skill_row_index)
 		if row_tags == null:
 			continue
 		var row_tag_width := 0.0
@@ -693,16 +713,17 @@ func _initialize() -> void:
 				_expect(semantic_tags != null and semantic_tags.get_child_count() >= expected_tag_minimum, "%s %s row must expose its available categorical tags without inventing empty values" % [semantic_language, semantic_mode])
 				if semantic_title == null or semantic_tags == null or semantic_description == null:
 					continue
+				_expect(_label_required_height_for_smoke(semantic_description) <= semantic_description.size.y + 0.5, "%s %s description must reserve all wrapped lines" % [semantic_language, semantic_mode])
 				var title_tag_gap := semantic_tags.position.y - (semantic_title.position.y + semantic_title.size.y)
 				var tag_description_gap := semantic_description.position.y - (semantic_tags.position.y + semantic_tags.size.y)
 				_expect(is_equal_approx(title_tag_gap, 8.0), "%s %s title-to-tag gap must stay at the shared 8px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
 				_expect(is_equal_approx(tag_description_gap, 6.0), "%s %s tag-to-description gap must stay at the shared 6px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
 				_expect(semantic_title.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM, "%s %s title glyphs must bottom-align against the fixed tag gap" % [semantic_language, semantic_mode])
 				if semantic_mode in ["weapons", "armors", "chips", "pets"]:
-					_expect(semantic_row.size.x >= 860.0, "%s %s row must use the shared wide catalog card" % [semantic_language, semantic_mode])
-					_expect(semantic_icon != null and semantic_icon.size.x >= 176.0 and semantic_icon.size.y >= 176.0, "%s %s icon must use the shared enlarged catalog size" % [semantic_language, semantic_mode])
-					_expect(semantic_icon != null and semantic_icon.position.x >= 40.0, "%s %s icon must retain left-frame breathing room" % [semantic_language, semantic_mode])
-					_expect(semantic_title.position.x >= 248.0 and semantic_tags.position.x == semantic_title.position.x and semantic_description.position.x == semantic_title.position.x, "%s %s copy must share one right-shifted text axis" % [semantic_language, semantic_mode])
+					_expect(semantic_row.size.x >= 896.0, "%s %s row must consume the catalog safe width beside the scrollbar" % [semantic_language, semantic_mode])
+					_expect(semantic_icon != null and semantic_icon.size.x >= 204.0 and semantic_icon.size.y >= 204.0, "%s %s icon must use the shared 204px catalog size" % [semantic_language, semantic_mode])
+					_expect(semantic_icon != null and semantic_icon.position.x >= 32.0, "%s %s icon must retain its 16px inner-frame breathing room" % [semantic_language, semantic_mode])
+					_expect(semantic_title.position.x >= 272.0 and semantic_tags.position.x == semantic_title.position.x and semantic_description.position.x == semantic_title.position.x, "%s %s copy must share one right-shifted text axis" % [semantic_language, semantic_mode])
 					_expect(semantic_icon != null and semantic_title.position.x - (semantic_icon.position.x + semantic_icon.size.x) >= 30.0, "%s %s copy must clear the enlarged icon" % [semantic_language, semantic_mode])
 				var semantic_tag_texts: Array[String] = []
 				var weapon_ability_tag_count := 0
@@ -804,11 +825,11 @@ func _initialize() -> void:
 		var weapon_title := first_weapon.get_node_or_null("Title") as Label
 		var weapon_description := first_weapon.get_node_or_null("Description") as Label
 		var weapon_action := first_weapon.get_node_or_null("CardActionButton") as TextureButton
-		_expect(first_weapon.size.x >= 860.0, "weapon collection cards must use the owner-approved wider safe-area ruler")
-		_expect(weapon_frame != null and weapon_frame.size.x >= 828.0, "weapon collection frame must expand with the wider card; got %.1f inside %.1f" % [weapon_frame.size.x if weapon_frame != null else 0.0, first_weapon.size.x])
-		_expect(weapon_icon != null and weapon_icon.size.x >= 176.0 and weapon_icon.size.y >= 176.0, "weapon collection logo must use the shared enlarged 176px showcase size")
-		_expect(weapon_icon != null and weapon_icon.position.x >= 40.0, "weapon collection logo must keep its owner-approved left-frame breathing room")
-		_expect(weapon_title != null and weapon_title.position.x >= 248.0, "weapon collection title must share the right-shifted catalog text axis")
+		_expect(first_weapon.size.x >= 896.0, "weapon collection cards must consume the safe-area ruler beside the scrollbar")
+		_expect(weapon_frame != null and weapon_frame.size.x >= 864.0, "weapon collection frame must expand with the full-width card; got %.1f inside %.1f" % [weapon_frame.size.x if weapon_frame != null else 0.0, first_weapon.size.x])
+		_expect(weapon_icon != null and weapon_icon.size.x >= 204.0 and weapon_icon.size.y >= 204.0, "weapon collection logo must use the shared enlarged 204px showcase size")
+		_expect(weapon_icon != null and weapon_icon.position.x >= 32.0, "weapon collection logo must keep its left-frame breathing room")
+		_expect(weapon_title != null and weapon_title.position.x >= 272.0, "weapon collection title must share the right-shifted catalog text axis")
 		_expect(weapon_description != null and weapon_description.position.x == weapon_title.position.x, "weapon collection copy must share one right-shifted text axis")
 		_expect(weapon_icon != null and weapon_title != null and weapon_title.position.x - (weapon_icon.position.x + weapon_icon.size.x) >= 30.0, "weapon collection text must keep breathing room after the enlarged logo")
 		_expect(weapon_action != null and weapon_action.position.x + weapon_action.size.x <= first_weapon.size.x - 32.0, "weapon collection action must remain inside the widened frame")
@@ -1236,6 +1257,7 @@ func _initialize() -> void:
 				battle._show_card_offer()
 				await process_frame
 				_verify_card_offer_full_pause(battle)
+				await _verify_all_skill_offer_copy_layouts(battle)
 				var paused_fire_counter := {"count": 0}
 				battle.turret.fired.connect(func(_origin: Vector2, _direction: Vector2) -> void:
 					paused_fire_counter["count"] = int(paused_fire_counter.get("count", 0)) + 1
@@ -3211,6 +3233,82 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 		var enemy := battle.get_node("EnemyLayer").get_child(0)
 		_expect(enemy.process_mode != Node.PROCESS_MODE_ALWAYS, "live enemies must not force processing during card offer")
 
+func _verify_all_skill_offer_copy_layouts(battle: Node) -> void:
+	var data_loader := root.get_node("/root/DataLoader")
+	var localization_manager := root.get_node("/root/LocalizationManager")
+	var original_language := str(localization_manager.current_language)
+	var skill_table: Dictionary = data_loader.get_table("skills")
+	var authored_skill_levels := 0
+	for skill_row_value in skill_table.values():
+		var authored_levels: Array = (skill_row_value as Dictionary).get("levels", [])
+		authored_skill_levels += maxi(1, authored_levels.size())
+	var verified_cards := 0
+	for language in ["zh", "en"]:
+		localization_manager.apply_language(language, false)
+		var fixture := VBoxContainer.new()
+		fixture.name = "SkillOfferWrapFixture_" + language
+		fixture.position = Vector2(-2400.0, -2400.0)
+		fixture.size = Vector2(battle.CARD_OFFER_CARD_WIDTH, 4000.0)
+		fixture.add_theme_constant_override("separation", battle.CARD_OFFER_CARD_SEPARATION)
+		root.add_child(fixture)
+		var language_card_heights: Array[float] = []
+		for skill_id_value in skill_table.keys():
+			var skill_id := str(skill_id_value)
+			var row: Dictionary = skill_table.get(skill_id, {})
+			var level_count := maxi(1, (row.get("levels", []) as Array).size())
+			for skill_level in range(1, level_count + 1):
+				var display_name: String = str(data_loader.tr_key(row.get("name_key", skill_id)))
+				var card := battle._build_skill_card(skill_id, row, display_name, skill_level) as Panel
+				card.name = "%s_%d" % [skill_id, skill_level]
+				fixture.add_child(card)
+				verified_cards += 1
+		await process_frame
+		for card_node in fixture.get_children():
+			var card := card_node as Panel
+			battle._layout_skill_offer_card(card)
+			var stats := card.get_node_or_null("Stats") as Label
+			var desc := card.get_node_or_null("Desc") as Label
+			var tags := card.get_node_or_null("Tags") as Control
+			_expect(stats != null and desc != null and tags != null, "%s %s must expose measured stats, description and tag lanes" % [language, card.name])
+			if stats == null or desc == null or tags == null:
+				continue
+			_expect(_label_required_height_for_smoke(stats) <= stats.size.y + 0.5, "%s %s stats must reserve automatic wrapped lines" % [language, card.name])
+			_expect(_label_required_height_for_smoke(desc) <= desc.size.y + 0.5, "%s %s description must reserve automatic wrapped lines" % [language, card.name])
+			_expect(stats.position.y + stats.size.y + battle.CARD_OFFER_COPY_GAP <= desc.position.y + 0.5, "%s %s description must begin below the complete stats block" % [language, card.name])
+			_expect(desc.position.y + desc.size.y + battle.CARD_OFFER_COPY_GAP <= tags.position.y + 0.5, "%s %s tags must begin below the complete description block" % [language, card.name])
+			_expect(tags.position.y + tags.size.y + battle.CARD_OFFER_BOTTOM_PADDING <= card.size.y + 0.5, "%s %s card must grow to contain every wrapped lane" % [language, card.name])
+			language_card_heights.append(card.size.y)
+		# Any possible three-card offer must still fit above the primary actions and
+		# inside the battlefield corridor, even when all three use the longest copy.
+		language_card_heights.sort()
+		var worst_three_height := 0.0
+		for height_index in range(maxi(0, language_card_heights.size() - 3), language_card_heights.size()):
+			worst_three_height += language_card_heights[height_index]
+		if language_card_heights.size() >= 3:
+			worst_three_height += float(battle.CARD_OFFER_CARD_SEPARATION * 2)
+		var bounds: Vector2 = battle._card_offer_vertical_bounds()
+		var maximum_card_lane: float = bounds.y - bounds.x - float(battle.CARD_OFFER_CARDS_POS.y) - 62.0 - 124.0
+		_expect(worst_three_height <= maximum_card_lane + 0.5, "%s three longest skill cards must fit the live battlefield modal; need %.1f have %.1f" % [language, worst_three_height, maximum_card_lane])
+		fixture.queue_free()
+		await process_frame
+	localization_manager.apply_language(original_language, false)
+	_expect(skill_table.size() >= 16, "skill offer wrap regression must retain the complete authored skill roster")
+	_expect(verified_cards == authored_skill_levels * 2, "skill offer wrap regression must inspect every authored skill level in both languages")
+
+func _label_required_height_for_smoke(label: Label) -> float:
+	if label == null:
+		return INF
+	var font := label.get_theme_font("font")
+	var font_size := label.get_theme_font_size("font_size")
+	if font == null or font_size <= 0:
+		return 0.0
+	var text_width := maxf(1.0, label.size.x - 8.0)
+	var measured := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size)
+	var line_height := maxf(1.0, font.get_height(font_size))
+	var line_count := maxi(1, int(ceil(measured.y / line_height)))
+	var line_spacing := label.get_theme_constant("line_spacing")
+	return ceil(measured.y + float(maxi(0, line_count - 1) * line_spacing))
+
 func _verify_ui_font() -> void:
 	var font_path := "res://assets/production/fonts/font_main.ttf"
 	_expect(str(ProjectSettings.get_setting("gui/theme/custom_font")) == font_path, "project must use the production CJK font as the global UI font")
@@ -3965,6 +4063,13 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 	var ang_b := absf(directions[1].angle_to(directions[2]))
 	_expect(ang_a > 0.02 and ang_b > 0.02, "multi-shot must spread into a fan (distinct lanes)")
 	_expect(absf(ang_a - ang_b) < 0.03, "multi-shot fan must use a FIXED equal angle between adjacent lanes")
+	var automatic_homing_targets: Array[Node2D] = battle._homing_target_assignments(origin, directions, 3)
+	_expect(automatic_homing_targets.size() == directions.size(), "scatter homing must assign one preferred target per projectile")
+	var automatic_target_ids := {}
+	for homing_target in automatic_homing_targets:
+		if is_instance_valid(homing_target):
+			automatic_target_ids[homing_target.get_instance_id()] = true
+	_expect(automatic_target_ids.size() == 3, "homing Lv3 must distribute a scatter fan across three distinct live targets")
 	var locked_target := fake_targets[0] as Node2D
 	battle.target_manager.lock_enemy(locked_target)
 	var locked_direction := (locked_target.global_position - origin).normalized()
@@ -3976,6 +4081,10 @@ func _verify_multi_shot_targeting(battle: Node) -> void:
 			break
 	_expect(locked_lane_hits_target, "two-lane multi-shot must keep one projectile exactly on the player-locked enemy")
 	_expect(absf(battle._multishot_center_direction(origin, Vector2.UP).angle_to(locked_direction)) <= 0.001, "player lock must override enemy-centroid multi-shot aiming")
+	var locked_homing_targets: Array[Node2D] = battle._homing_target_assignments(origin, directions, 3, locked_target)
+	_expect(locked_homing_targets.size() == directions.size(), "locked scatter homing must keep one assignment per projectile")
+	for homing_target in locked_homing_targets:
+		_expect(homing_target == locked_target, "player lock must focus every homing pellet on the locked enemy")
 	battle.target_manager.clear_lock()
 	_expect(absf(float(battle._multishot_damage_multiplier(1)) - 1.0) <= 0.001, "single projectile must keep full damage")
 	_expect(absf(float(battle._multishot_damage_multiplier(2)) - 0.85) <= 0.001, "2 projectile lanes must use 15% falloff")
@@ -4236,8 +4345,18 @@ func _verify_projectile_ballistics_rules() -> void:
 	var max_turn := float(projectile._homing_turn_rate_limit(speed)) * 0.6 + 0.015
 	_expect(turn_angle > 0.05, "homing projectile must start steering after the one-second arming delay")
 	_expect(turn_angle <= max_turn, "homing projectile turn must respect the minimum turn radius, got %.3f > %.3f" % [turn_angle, max_turn])
+
+	var scatter_projectile := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(scatter_projectile)
+	scatter_projectile.setup(Vector2(540, 1500), Vector2.UP, 1000.0, 10.0, "physical", 0, 0, 0.55, 5.0, 0.0, 0.0, 1.0, 0, "", "scatter", 0.0, -1.0, target, 0.35)
+	var scatter_initial_dir: Vector2 = scatter_projectile.velocity.normalized()
+	scatter_projectile._physics_process(0.2)
+	_expect(scatter_projectile.velocity.normalized().dot(scatter_initial_dir) > 0.999, "scatter homing must preserve the visible muzzle fan during its short arming delay")
+	scatter_projectile._physics_process(0.20)
+	_expect(scatter_projectile.velocity.normalized().dot(scatter_initial_dir) < 0.999, "scatter homing must begin steering after 0.35 seconds instead of waiting the full second")
 	target.queue_free()
 	projectile.queue_free()
+	scatter_projectile.queue_free()
 
 	var close_boss := FakeAimTarget.new()
 	close_boss.boss = true

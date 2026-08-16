@@ -227,6 +227,7 @@ def main() -> int:
         errors.append("projectile must keep homing runtime support")
     for runtime_key in [
         "HOMING_ACTIVATION_DELAY := 1.0",
+        "homing_activation_delay",
         "HOMING_BOSS_CLOSE_RANGE",
         "_nearest_close_boss",
         "HOMING_MIN_TURN_RADIUS",
@@ -236,6 +237,13 @@ def main() -> int:
     ]:
         if runtime_key not in projectile:
             errors.append(f"projectile homing/lifetime guard missing: {runtime_key}")
+    for battle_homing_key in [
+        "SCATTER_HOMING_ACTIVATION_DELAY := 0.35",
+        "_homing_target_assignments",
+        "homing_target_limit := maxi(1, skills.level(\"skill_homing\"))",
+    ]:
+        if battle_homing_key not in battle:
+            errors.append(f"scatter homing integration guard missing: {battle_homing_key}")
     if "SPRITE_FORWARD_ANGLE := 0.0" not in projectile:
         errors.append("projectile runtime must assume right-facing sprites as the zero-angle baseline")
     if "PROJECTILE_SPEED_MULTIPLIER := 0.5" not in projectile:

@@ -284,6 +284,9 @@ const DIRECTIONAL_VFX_SOURCE_FORWARD := {
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
 const MAX_MULTISHOT_LANES := 5
+# 散弹的运行时弹速较低；沿用普通弹丸 1 秒导引延迟时，外侧弹丸常在导引启动前已经
+# 命中或飞出侧边。保留约 0.3 秒原始扇形，再进入同样受 460px 转弯半径约束的追踪。
+const SCATTER_HOMING_ACTIVATION_DELAY := 0.35
 # Directional character art must not choose its next pose from the muzzle of
 # its current pose. At point-blank range that creates a feedback loop: the
 # left-pose muzzle crosses the target centre and requests right, then the
@@ -335,6 +338,11 @@ const CARD_OFFER_ICON_POS := Vector2(41.0, 57.0)
 const CARD_OFFER_ICON_SIZE := Vector2(178.0, 178.0)
 const CARD_OFFER_TEXT_X := 252.0
 const CARD_OFFER_TEXT_WIDTH := 584.0
+const CARD_OFFER_COPY_TOP_Y := 82.0
+const CARD_OFFER_COPY_GAP := 8.0
+const CARD_OFFER_CARD_SEPARATION := 16
+const CARD_OFFER_TAG_MIN_HEIGHT := 48.0
+const CARD_OFFER_BOTTOM_PADDING := 28.0
 const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
 const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
 const CARD_DETAIL_TAGS_FONT_SIZE := 15
@@ -2951,7 +2959,11 @@ func _layout_card_offer_panel() -> void:
 		return
 	var viewport_extra_h := maxf(0.0, get_viewport_rect().size.y - 1920.0)
 	var tall_height_bonus := minf(90.0, viewport_extra_h * 0.12)
-	panel.size = CARD_OFFER_PANEL_SIZE + Vector2(0.0, tall_height_bonus)
+	var bounds := _card_offer_vertical_bounds()
+	var max_panel_height := maxf(CARD_OFFER_PANEL_SIZE.y, bounds.y - bounds.x)
+	var content_height := float(panel.get_meta("card_offer_content_height", 0.0))
+	var panel_height := minf(max_panel_height, maxf(CARD_OFFER_PANEL_SIZE.y + tall_height_bonus, content_height))
+	panel.size = Vector2(CARD_OFFER_PANEL_SIZE.x, panel_height)
 	panel.position = Vector2(CARD_OFFER_PANEL_X, _card_offer_centered_y(panel.size.y))
 	var button_y := panel.size.y - 124.0
 	var title := panel.get_node_or_null("CardTitle") as Label
@@ -2964,7 +2976,7 @@ func _layout_card_offer_panel() -> void:
 	if cards != null:
 		cards.position = CARD_OFFER_CARDS_POS
 		cards.size = Vector2(CARD_OFFER_CARDS_SIZE.x, maxf(CARD_OFFER_CARDS_SIZE.y, button_y - CARD_OFFER_CARDS_POS.y - 62.0))
-		cards.add_theme_constant_override("separation", 22)
+		cards.add_theme_constant_override("separation", CARD_OFFER_CARD_SEPARATION)
 	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
 	if reroll != null:
 		reroll.position = Vector2(78, button_y)
@@ -4589,12 +4601,21 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	elif visual_profile == "apocalypse_absolute_zero":
 		status_strength = maxf(status_strength, float(special.get("slow", 0.30)) * (1.0 + _chip_value("slow_strength_mult") + _pet_stat_value("slow_strength_mult")))
 	var preferred_target: Node2D = target_manager.locked_enemy if target_manager.has_lock() else null
+	var homing_targets: Array[Node2D] = []
+	var scatter_homing_delay := -1.0
+	if homing > 0.0 and pellet_count > 1:
+		var homing_target_limit := maxi(1, skills.level("skill_homing"))
+		homing_targets = _homing_target_assignments(origin, shot_directions, homing_target_limit, preferred_target)
+		scatter_homing_delay = SCATTER_HOMING_ACTIVATION_DELAY
 	var penetration_feedback_triggered := armor_penetration > 0.0 and randf() < 0.14
 	if penetration_feedback_triggered:
 		AudioManager.play_sfx("skill_pierce", -11.0, 0.02)
 		_spawn_float_text(origin + Vector2(105, -72), "伤害穿透", Color(1.0, 0.78, 0.24))
 	for i in range(shots):
 		var shot_direction: Vector2 = shot_directions[i] if i < shot_directions.size() else direction
+		var shot_preferred_target: Node2D = preferred_target
+		if i < homing_targets.size():
+			shot_preferred_target = homing_targets[i]
 		var damage: float = base_damage * float(turret.damage_mult) * skills.damage_multiplier()
 		damage *= lane_damage_mult
 		damage *= _character_bullet_damage_multiplier(element)
@@ -4621,7 +4642,8 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 			visual_profile,
 			armor_penetration,
 			status_strength,
-			preferred_target
+			shot_preferred_target,
+			scatter_homing_delay
 		)
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element)
@@ -4637,6 +4659,82 @@ func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int,
 			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
 			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
 	return result
+
+func _homing_target_assignments(origin: Vector2, shot_directions: Array[Vector2], max_unique_targets: int, forced_target: Node2D = null) -> Array[Node2D]:
+	var assignments: Array[Node2D] = []
+	if shot_directions.is_empty():
+		return assignments
+	if is_instance_valid(forced_target):
+		for _direction in shot_directions:
+			assignments.append(forced_target)
+		return assignments
+
+	var candidates: Array[Node2D] = []
+	for child in $EnemyLayer.get_children():
+		if not is_instance_valid(child) or not child is Node2D or child.is_queued_for_deletion():
+			continue
+		if not child.has_method("targeting_snapshot"):
+			continue
+		var target := child as Node2D
+		var hp_value: Variant = target.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		if target.global_position.y > BREACH_Y + 40.0:
+			continue
+		candidates.append(target)
+	if candidates.is_empty():
+		for _direction in shot_directions:
+			assignments.append(null)
+		return assignments
+
+	# 追踪等级限制本轮可同时覆盖的目标数：Lv1~5 最多覆盖 1~5 个目标。先按扇形中
+	# 均匀抽样的方向选出兼顾威胁与方向的不同目标，再让所有弹丸在这些目标间稳定轮转。
+	var selected: Array[Node2D] = []
+	var available: Array[Node2D] = candidates.duplicate()
+	var target_count := mini(maxi(1, max_unique_targets), mini(available.size(), shot_directions.size()))
+	for target_index in range(target_count):
+		var direction_index := 0
+		if target_count > 1:
+			direction_index = roundi(float(target_index) * float(shot_directions.size() - 1) / float(target_count - 1))
+		var sample_direction: Vector2 = shot_directions[direction_index]
+		var best_index := _best_homing_candidate_index(available, origin, sample_direction)
+		if best_index < 0:
+			break
+		selected.append(available[best_index])
+		available.remove_at(best_index)
+	if selected.is_empty():
+		for _direction in shot_directions:
+			assignments.append(null)
+		return assignments
+
+	var cycle: Array[Node2D] = []
+	for shot_direction in shot_directions:
+		if cycle.is_empty():
+			for target in selected:
+				cycle.append(target)
+		var cycle_index := _best_homing_candidate_index(cycle, origin, shot_direction)
+		assignments.append(cycle[cycle_index])
+		cycle.remove_at(cycle_index)
+	return assignments
+
+func _best_homing_candidate_index(candidates: Array[Node2D], origin: Vector2, shot_direction: Vector2) -> int:
+	var best_index := -1
+	var best_score := -INF
+	var normalized_direction := shot_direction.normalized()
+	for index in range(candidates.size()):
+		var target := candidates[index]
+		if not is_instance_valid(target):
+			continue
+		var offset := target.global_position - origin
+		if offset.length_squared() <= 0.01:
+			continue
+		var alignment := normalized_direction.dot(offset.normalized())
+		var threat_score := target_manager.score_enemy(target.targeting_snapshot(), origin)
+		var score := threat_score + alignment * 180.0 - offset.length() * 0.01
+		if score > best_score:
+			best_score = score
+			best_index = index
+	return best_index
 
 func _multishot_damage_multiplier(lane_count: int, lane_damage_bonus := 0.0) -> float:
 	# Per-projectile falloff is intentionally mild: multishot should still feel like a power spike,
@@ -4656,14 +4754,14 @@ func _multishot_damage_multiplier(lane_count: int, lane_damage_bonus := 0.0) -> 
 			base_multiplier = 0.70
 	return clampf(base_multiplier + float(lane_damage_bonus), 0.0, 1.0)
 
-func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null) -> void:
+func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var element := skills.projectile_element(str(weapon.get("element", "physical")))
 	var profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
 	if element == "fire" and profile == "":
 		profile = "fire_round"
-	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile, armor_penetration, status_strength, preferred_target)
+	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile, armor_penetration, status_strength, preferred_target, homing_delay_override)
 	projectile.split_requested.connect(_on_projectile_split_requested)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
@@ -11118,6 +11216,11 @@ func _render_card_offer(owned_snapshot: Dictionary) -> void:
 		var name := DataLoader.tr_key(row.get("name_key", skill_id))
 		var lv := _skill_offer_level(skill_id)
 		cards.add_child(_build_skill_card(skill_id, row, name, lv))
+	_refresh_card_offer_dynamic_layout()
+	# Theme/font minimum sizes settle after parenting. Re-measure once on the
+	# deferred pass so the first rendered frame and later locale/font changes use
+	# the real chip and wrapped-text geometry rather than construction-time zeros.
+	call_deferred("_refresh_card_offer_dynamic_layout")
 	var reroll_label: Label = $Hud/CardPanel/RerollButton/RerollLabel
 	reroll_label.text = "重抽 (%d)" % reroll_charges
 	UiKit.apply_armored_texture_button($Hud/CardPanel/RerollButton as TextureButton, true, Vector2(412, 88), reroll_charges > 0)
@@ -11129,14 +11232,38 @@ func _render_card_offer(owned_snapshot: Dictionary) -> void:
 func _skill_offer_level(skill_id: String) -> int:
 	return skills.level_after_add(skill_id)
 
+func _refresh_card_offer_dynamic_layout() -> void:
+	var cards := get_node_or_null("Hud/CardPanel/Cards") as VBoxContainer
+	if cards == null:
+		return
+	for child in cards.get_children():
+		if child is Panel:
+			_layout_skill_offer_card(child as Panel)
+	_fit_card_offer_panel_to_cards()
+
+func _fit_card_offer_panel_to_cards() -> void:
+	var panel := get_node_or_null("Hud/CardPanel") as Panel
+	var cards := get_node_or_null("Hud/CardPanel/Cards") as VBoxContainer
+	if panel == null or cards == null:
+		return
+	var content_h := 0.0
+	var visible_cards := 0
+	for child in cards.get_children():
+		if not child is Control or not (child as Control).visible:
+			continue
+		content_h += (child as Control).custom_minimum_size.y
+		visible_cards += 1
+	if visible_cards > 1:
+		content_h += float(cards.get_theme_constant("separation")) * float(visible_cards - 1)
+	# Keep a full 62px quiet lane between the final card and the primary actions.
+	# The panel may grow up to the real battlefield bounds, never over the base or
+	# the hero model. This lets translated/wrapped card copy own its actual height.
+	panel.set_meta("card_offer_content_height", CARD_OFFER_CARDS_POS.y + content_h + 62.0 + 124.0)
+	_layout_card_offer_panel()
+
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
-	var stats_extra_h := minf(28.0, 18.0 * float(stats_text.count("\n")))
-	# Both locales need a stable two-line description lane plus the real ~50 px
-	# minimum height of the textured tag chips. The 1280 px modal fits three
-	# Chinese 308 px cards, two 22 px gaps, and keeps 28 px inside the frame.
-	var locale_extra_h := 28.0 if LocalizationManager.is_english() else 38.0
-	var card_h := CARD_OFFER_CARD_BASE_HEIGHT + stats_extra_h + locale_extra_h
+	var card_h := CARD_OFFER_CARD_BASE_HEIGHT
 	var card := Panel.new()
 	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, card_h)
 	card.clip_contents = true
@@ -11227,7 +11354,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	stats.name = "Stats"
 	stats.text = stats_text
 	stats.position = Vector2(CARD_OFFER_TEXT_X, 86)
-	stats.size = Vector2(CARD_OFFER_TEXT_WIDTH, 54 + stats_extra_h)
+	stats.size = Vector2(CARD_OFFER_TEXT_WIDTH, 54)
 	UiKit.apply_label(stats, 18, UiKit.CYAN, 2)
 	stats.add_theme_constant_override("line_spacing", 6)
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -11242,13 +11369,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	# the right edge after this card's icon/text geometry changed.
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.text = LocalizationManager.text(_skill_short_desc(skill_id, lv))
-	var desc_position := Vector2(CARD_OFFER_TEXT_X, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
-	var desc_size := Vector2(CARD_OFFER_TEXT_WIDTH, 76 if LocalizationManager.is_english() else 78)
-	desc.position = desc_position
-	# The longest Chinese ammo-module descriptions wrap to two mobile-readable
-	# lines at this width. Reserve the real two-line height instead of clipping
-	# the second line behind the tag row.
-	desc.size = desc_size
+	desc.position = Vector2(CARD_OFFER_TEXT_X, 150)
+	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, 76)
 	# English short descriptions are materially longer than their Chinese peers.
 	# A 12 pt authored size still renders at the mobile UI scale while keeping the
 	# longest description in the intended two-line lane beside the enlarged icon.
@@ -11262,11 +11384,6 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(desc)
-	# Label minimum-size invalidation occurs after parenting. Re-apply the
-	# authored wrap lane after that pass so translated prose cannot expand the
-	# Control itself beyond the card and be clipped by the card ancestor.
-	desc.set_deferred("position", desc_position)
-	desc.set_deferred("size", desc_size)
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
@@ -11277,8 +11394,52 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	card.add_child(tags)
 	for tag in row.get("card_tags", []).slice(0, 3):
 		tags.add_child(_card_tag_chip(str(tag), accent))
+	_layout_skill_offer_card(card)
 
 	return card
+
+func _wrapped_label_required_height(label: Label, width: float, minimum_height: float) -> float:
+	var font := label.get_theme_font("font")
+	var font_size := label.get_theme_font_size("font_size")
+	if font == null or font_size <= 0:
+		return minimum_height
+	var text_width := maxf(1.0, width - 8.0)
+	var measured := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size)
+	var line_height := maxf(1.0, font.get_height(font_size))
+	var line_count := maxi(1, int(ceil(measured.y / line_height)))
+	var line_spacing := label.get_theme_constant("line_spacing")
+	# Font measurement already owns the glyph box. Four extra pixels protect the
+	# two-pixel outline without reserving a phantom half-line on every wrapped
+	# lane; that headroom matters when three long localized cards share one modal.
+	var required := measured.y + float(maxi(0, line_count - 1) * line_spacing) + 4.0
+	return ceil(maxf(minimum_height, required))
+
+func _layout_skill_offer_card(card: Panel) -> void:
+	var stats := card.get_node_or_null("Stats") as Label
+	var desc := card.get_node_or_null("Desc") as Label
+	var tags := card.get_node_or_null("Tags") as HBoxContainer
+	var accent_bar := card.get_child(0) as TextureRect if card.get_child_count() > 0 else null
+	if stats == null or desc == null or tags == null:
+		return
+	# Every vertical lane is derived from the measured lane above it. Explicit
+	# newlines and automatic wrapping therefore follow the same path, so no skill,
+	# level or locale needs a one-off y offset.
+	var stats_h := _wrapped_label_required_height(stats, CARD_OFFER_TEXT_WIDTH, 54.0)
+	stats.position = Vector2(CARD_OFFER_TEXT_X, CARD_OFFER_COPY_TOP_Y)
+	stats.size = Vector2(CARD_OFFER_TEXT_WIDTH, stats_h)
+	var desc_h := _wrapped_label_required_height(desc, CARD_OFFER_TEXT_WIDTH, 48.0)
+	desc.position = Vector2(CARD_OFFER_TEXT_X, stats.position.y + stats_h + CARD_OFFER_COPY_GAP)
+	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, desc_h)
+	var tag_h := maxf(CARD_OFFER_TAG_MIN_HEIGHT, tags.get_combined_minimum_size().y)
+	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_COPY_GAP)
+	tags.size = Vector2(CARD_OFFER_TEXT_WIDTH, tag_h)
+	var icon_bottom := CARD_OFFER_ICON_FRAME_POS.y + CARD_OFFER_ICON_FRAME_SIZE.y + CARD_OFFER_BOTTOM_PADDING
+	var copy_bottom := tags.position.y + tag_h + CARD_OFFER_BOTTOM_PADDING
+	var measured_card_h: float = ceil(maxf(CARD_OFFER_CARD_BASE_HEIGHT, maxf(icon_bottom, copy_bottom)))
+	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, measured_card_h)
+	card.size = card.custom_minimum_size
+	if accent_bar != null:
+		accent_bar.size = Vector2(12.0, measured_card_h)
 
 func _balanced_card_desc_lines(value: String, font: Font, font_size: int) -> String:
 	var words := value.split(" ", false)

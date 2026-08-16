@@ -11,15 +11,24 @@ const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const COLLECTION_CARD_WIDTH := 860.0
-const CATALOG_LIST_CARD_WIDTH := 860.0
+# Non-character catalogs own the full collection safe width after reserving the
+# ScrollContainer's 8px vertical bar. Keeping characters on their separate
+# ruler avoids changing the accepted knee-crop
+# presentation while weapons / armor / chips / pets / skills share one denser
+# showcase layout.
+const CATALOG_LIST_CARD_WIDTH := 896.0
 const CATALOG_LIST_CARD_HEIGHT := 256.0
-const CATALOG_LIST_ICON_POSITION := Vector2(40.0, 40.0)
-const CATALOG_LIST_ICON_SIZE := Vector2(176.0, 176.0)
-const CATALOG_LIST_TEXT_X := 248.0
-const CATALOG_LIST_TEXT_WIDTH := 370.0
-const CATALOG_LIST_TITLE_WIDTH := 576.0
-const CATALOG_LIST_ACTION_X := 650.0
-const SKILL_CARD_TEXT_WIDTH := 486.0
+const CATALOG_LIST_ICON_POSITION := Vector2(32.0, 26.0)
+const CATALOG_LIST_ICON_SIZE := Vector2(204.0, 204.0)
+const CATALOG_LIST_SKILL_ART_POSITION := Vector2(10.0, 10.0)
+const CATALOG_LIST_SKILL_ART_SIZE := Vector2(184.0, 184.0)
+const CATALOG_LIST_TEXT_X := 272.0
+const CATALOG_LIST_ACTION_X := 686.0
+const CATALOG_LIST_TEXT_WIDTH := 382.0
+const CATALOG_LIST_TITLE_WIDTH := 588.0
+const CATALOG_LIST_SKILL_INFO_X := 782.0
+const CATALOG_LIST_SKILL_LEVEL_X := 652.0
+const SKILL_CARD_TEXT_WIDTH := 498.0
 const CHARACTER_LIST_PORTRAIT_POSITION := Vector2(24.0, 10.0)
 const CHARACTER_LIST_PORTRAIT_SIZE := Vector2(320.0, 310.0)
 const CHARACTER_LIST_SUBJECT_HEIGHT := 465.0
@@ -59,8 +68,9 @@ const CHARACTER_DETAIL_STAT_SUB_FONT_SIZE := 18
 const CHARACTER_DETAIL_SKILL_TITLE_FONT_SIZE := 28
 const CHARACTER_DETAIL_SKILL_KIND_FONT_SIZE := 22
 const CHARACTER_DETAIL_SKILL_DESC_FONT_SIZE := 24
-const CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE := Vector2(120.0, 120.0)
-const CHARACTER_DETAIL_SKILL_ICON_SIZE := Vector2(104.0, 104.0)
+const CHARACTER_DETAIL_SKILL_LEADING_INSET := 12.0
+const CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE := Vector2(148.0, 148.0)
+const CHARACTER_DETAIL_SKILL_ICON_SIZE := Vector2(128.0, 128.0)
 const CHARACTER_DETAIL_SIG_LEVEL_FONT_SIZE := 24
 const CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE := 21
 
@@ -512,22 +522,22 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var icon := TextureRect.new()
 	icon.name = "Icon"
 	icon.texture = load(str(row.get("icon", "")))
-	icon.position = Vector2(10, 10)
-	icon.size = Vector2(156, 156)
-	icon.custom_minimum_size = Vector2(156, 156)
+	icon.position = CATALOG_LIST_SKILL_ART_POSITION
+	icon.size = CATALOG_LIST_SKILL_ART_SIZE
+	icon.custom_minimum_size = CATALOG_LIST_SKILL_ART_SIZE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_frame.add_child(icon)
-	icon.set_deferred("position", Vector2(10, 10))
-	icon.set_deferred("size", Vector2(156, 156))
+	icon.set_deferred("position", CATALOG_LIST_SKILL_ART_POSITION)
+	icon.set_deferred("size", CATALOG_LIST_SKILL_ART_SIZE)
 
 	var title := Label.new()
 	title.name = "Title"
 	var english_layout := LocalizationManager.is_english()
 	title.text = DataLoader.tr_key(row.get("name_key", item_id)) if english_layout else "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
 	title.position = Vector2(CATALOG_LIST_TEXT_X, 18)
-	title.size = Vector2(360 if english_layout else SKILL_CARD_TEXT_WIDTH, 40)
+	title.size = Vector2(CATALOG_LIST_SKILL_LEVEL_X - CATALOG_LIST_TEXT_X - 8.0 if english_layout else SKILL_CARD_TEXT_WIDTH, 40)
 	title.clip_text = true
 	UiKit.apply_label(title, 26 if english_layout else 28, UiKit.TEXT_MAIN, 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -540,7 +550,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 		var level := Label.new()
 		level.name = "Level"
 		level.text = "等级%d" % item_level
-		level.position = Vector2(616, 18)
+		level.position = Vector2(CATALOG_LIST_SKILL_LEVEL_X, 18)
 		level.size = Vector2(112, 40)
 		level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -574,7 +584,10 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	# The semantic tag style owns real mobile padding, so leave an authored gap
 	# below its measured height instead of relying on the former hairline badge.
 	effect.position = Vector2(CATALOG_LIST_TEXT_X, 130)
-	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 80)
+	# Own the full remaining copy lane. Some high-level summaries (notably the
+	# critical-charge skill) wrap after the final percentage; the former fixed
+	# 80px height clipped that line and could visually collide with later UI.
+	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, CATALOG_LIST_CARD_HEIGHT - effect.position.y - 20.0)
 	effect.clip_text = true
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiKit.apply_label(effect, 17, Color(0.68, 0.86, 0.88, 1.0), 2)
@@ -584,7 +597,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var info_button := Button.new()
 	info_button.name = "InfoButton"
 	info_button.text = "i"
-	info_button.position = Vector2(746, 34)
+	info_button.position = Vector2(CATALOG_LIST_SKILL_INFO_X, 34)
 	info_button.size = Vector2(88, 88)
 	info_button.custom_minimum_size = Vector2(88, 88)
 	info_button.focus_mode = Control.FOCUS_NONE
@@ -2206,13 +2219,24 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String, f
 func _make_skill_row(icon_path, title: String, kind_label: String, desc: String, accent: Color, parent: Control) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "SkillRow"
-	row.add_theme_constant_override("separation", 20)
+	row.add_theme_constant_override("separation", 22)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.custom_minimum_size = Vector2(0, 148)
+	row.custom_minimum_size = Vector2(0, 168)
+	# The authored section frame already owns its ornamental inset. Keep an
+	# additional content-safe gutter so a larger square icon never rides the
+	# left rail; all enlargement therefore consumes space to the right.
+	var leading_inset := Control.new()
+	leading_inset.name = "SkillLeadingInset"
+	leading_inset.custom_minimum_size = Vector2(CHARACTER_DETAIL_SKILL_LEADING_INSET, 0)
+	row.add_child(leading_inset)
 	# Icon
 	var icon_box := PanelContainer.new()
 	icon_box.name = "SkillIconFrame"
 	icon_box.custom_minimum_size = CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE
+	# HBox children fill the cross axis by default, which previously stretched
+	# the frame into a tall rectangle and forced square artwork to scale by the
+	# narrower width. A centred shrink flag keeps the frame genuinely square.
+	icon_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_box.add_theme_stylebox_override("panel", _build_pill_style(accent, Color(0.06, 0.1, 0.16, 0.85)))
 	row.add_child(icon_box)
 	if icon_path != null and str(icon_path) != "" and ResourceLoader.exists(str(icon_path)):

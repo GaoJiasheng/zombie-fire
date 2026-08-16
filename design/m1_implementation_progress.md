@@ -4324,3 +4324,38 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Release gates are green**: static data and resource validation, localization, normal / challenge balance simulation, clear-requirement and endgame audits, economy, VFX / audio checks, Godot headless boot, M1 smoke, TestFlight feature probe, PCK validation, Xcode archive / export and IPA validation all passed. Windowed screenshot matrices were skipped under the intended no-focus release policy.
 - **Build-number traceability**: App Store Connect already contained Build 55, so the release pipeline reserved it locally and continued with Build 56 instead of attempting a duplicate upload.
 - **Apple accepted the binary**: delivery `1103f07d-6b3e-4635-a27c-7088f58f0773` reports `VALID` build and import status plus `APP_STORE_ELIGIBLE`. The 881,936,380-byte IPA SHA-256 is `283737728a549bcf50fe49cffe073cc5b2cf568c32e23252e9786e53bcb8339f` and the verified desktop copy is `ZombieFire.ipa`.
+
+## Character Detail Square Skill-Icon Expansion (2026-08-16)
+
+- **Square artwork finally receives square space**: passive and signature rows now use a centred `148×148` frame with `128×128` aspect-preserving artwork. The frame no longer fills the HBox cross-axis into a narrow tall rectangle that made the asset look smaller than its authored ruler.
+- **The left rail stays clear**: every skill row reserves a dedicated `12px` leading safe inset, so the larger icon grows to the right instead of overlapping the section ornament; a `22px` copy gap keeps titles and descriptions readable.
+- **Complete roster coverage**: the shared row component updates passive, active-signature and ammo-signature entries for all four heroes. M1 smoke locks the geometry, and all eight Chinese / English 1080×1920 hero-detail captures pass the visual gate.
+
+## Full-Width Catalog Cards + Second Icon Enlargement (2026-08-16)
+
+- **One catalog ruler**: weapons, armor, chips, pets and skills now share a `896×256` card that consumes the available collection width while reserving the ScrollContainer's `8 px` vertical bar. The accepted character portrait cards remain on their separate knee-crop ruler.
+- **Artwork receives the reclaimed space**: equipment artwork grows from `176×176` to `204×204`; skill artwork grows from `156×156` to `184×184`. Every asset keeps aspect-preserving centring inside a square frame.
+- **Copy moves with the artwork**: titles, tags and descriptions align to `x=272` instead of `x=248`. Purchase, equip and detail controls move right in the same shared component while retaining a protected right edge.
+- **Bilingual visual contract**: M1 smoke locks width, icon size, copy axis and action boundaries. Chinese and English captures for all five catalog families—10 screens total—pass runtime overflow and image-boundary auditing.
+
+## Scattergun Multishot Homing Activation (2026-08-16)
+
+- **Root cause**: homing support was present on every pellet, but all projectiles inherited the global one-second straight-flight delay. At the scattergun's lower runtime projectile speed, outer pellets commonly hit, passed their useful steering window or left a side edge before homing armed, so the live result looked identical to no homing.
+- **Weapon-specific arming, shared steering contract**: ordinary projectiles retain the accepted `1.0s` muzzle flight. Native-pellet scatter rounds preserve their initial fan for `0.35s`, then use the same `460px` minimum turn radius and bounded turn rate as every other homing round.
+- **Homing level now bounds target coverage**: automatic scatter fire selects at most 1–5 distinct live targets for Homing Lv1–5, balancing threat priority with each pellet's authored direction and cycling the remaining pellets across that bounded set. A dead, breached or already-hit preferred target still falls back through the existing nearest-live-target path.
+- **Player intent remains stronger than automation**: a manual lock assigns every homing pellet to the locked enemy, preserving focus-fire control. Projectile count, damage, multishot lanes, lane falloff, pierce and all player-facing power data are unchanged.
+- **Regression ownership**: M1 smoke proves the short straight-flight window, post-`0.35s` steering, distinct Lv3 target coverage and full manual-lock focus. `check_gameplay_polish.py` permanently requires the scatter-specific integration while retaining the global one-second rule.
+
+## Campaign Chapter Primary-Action Enlargement (2026-08-16)
+
+- **Primary actions now read as primary**: chapter overview actions grow from `268×54` to `284×80`, giving Continue, Review Zone and Enter Zone substantially more visual weight and a taller visible hit surface.
+- **Copy follows the new ruler**: enabled labels use `20px` type and remain centered across the full button height. Locked guidance stays visually subordinate without changing campaign gates.
+- **Primary navigation is consistent**: after Owner review, the chapter-detail Back to Zone Map control also uses the `284×80` primary ruler. It retains explicit clearance below the progress panel and above the card's bottom edge.
+- **Regression ownership**: M1 smoke owns both overview and detail primary-action geometry, protected card edges, centered copy and scroll-drag passthrough.
+
+## Skill-Card Wrapped Copy + Dynamic Height (2026-08-16)
+
+- **Measured lanes replace newline guesses**: offer-card stats, description and tag rows are laid out sequentially from the font's actual wrapped height. An automatic wrap such as Charged Strike Lv4 therefore reserves its second value line before the explanation begins.
+- **The modal grows inside the battlefield, not across it**: each card owns its real content height and the host panel fits the three-card sum while remaining between the top combat controls and the breach line. The longest possible Chinese trio exactly fits the protected lane; English retains additional room, and neither path covers the hero or base.
+- **The same failure class is covered elsewhere**: skill-codex effect summaries now use the remaining card copy lane, while character-detail and equipment semantic descriptions are checked against their real localized font geometry.
+- **Exhaustive bilingual guard**: M1 smoke constructs all 76 authored skill levels in both languages (152 offer cards), validates every vertical boundary and checks the three tallest simultaneous cards. Chinese / English 1080×2340 routed captures, including a wrapped Charged Strike value line, pass runtime and image audits.

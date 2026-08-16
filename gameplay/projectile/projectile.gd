@@ -32,6 +32,7 @@ var pierce_left := 0
 var split_count := 0
 var split_falloff := 0.55
 var homing_strength := 0.0
+var homing_activation_delay := HOMING_ACTIVATION_DELAY
 var splash_radius := 0.0
 var cloud_radius := 0.0
 var armor_penetration := 0.0
@@ -51,7 +52,7 @@ var _preferred_target_ref: WeakRef
 var _theme_projectile_palette_profile := ""
 var damage_source := "weapon"
 
-func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null) -> void:
+func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0) -> void:
 	global_position = origin
 	_spawn_position = origin
 	var flight_direction := direction.normalized()
@@ -63,6 +64,7 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	split_count = split
 	split_falloff = falloff
 	homing_strength = homing
+	homing_activation_delay = clampf(float(homing_delay_override), 0.0, HOMING_ACTIVATION_DELAY) if float(homing_delay_override) >= 0.0 else HOMING_ACTIVATION_DELAY
 	splash_radius = splash
 	cloud_radius = cloud
 	armor_penetration = clampf(penetration, 0.0, 0.95)
@@ -122,8 +124,9 @@ func _apply_homing(delta: float) -> void:
 	if homing_strength <= 0.0:
 		return
 	# 多弹道追踪弹刚出膛时方向各不相同；如果立刻开始追踪，全部瞬间拐向同一最近目标、弹道当场重合。
-	# 先从枪口按原方向飞满一秒，之后再进入有限半径追踪。
-	if lifetime < HOMING_ACTIVATION_DELAY:
+	# 普通弹丸先直飞一秒；散弹由战斗层传入更短的专用延迟，保留扇形后及时导引，避免低速弹丸
+	# 还没开始转向就已命中、越过目标或飞出侧边。
+	if lifetime < homing_activation_delay:
 		var close_boss := _nearest_close_boss()
 		if close_boss == null:
 			return
@@ -1082,7 +1085,7 @@ func _retarget_after_pierce(origin: Vector2, current_direction: Vector2, remaini
 	velocity = desired * speed
 	rotation = desired.angle() - SPRITE_FORWARD_ANGLE
 	if homing_strength > 0.0:
-		lifetime = maxf(lifetime, HOMING_ACTIVATION_DELAY)
+		lifetime = maxf(lifetime, homing_activation_delay)
 
 func _best_pierce_retarget(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> Node2D:
 	var best: Node2D

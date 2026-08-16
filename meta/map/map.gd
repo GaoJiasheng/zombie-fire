@@ -20,6 +20,8 @@ const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
 const CHAPTER_RIGHT_W := 300.0
+const CHAPTER_ACTION_SIZE := Vector2(284.0, 80.0)
+const CHAPTER_ACTION_Y := 252.0
 
 var router: Node
 var resource_tip_tween: Tween = null
@@ -479,7 +481,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 156, 190), major_boss, "大首领", true, unlocked)
 
 	var action_label := "继续推进" if current else "回顾战区" if completed else "进入战区" if unlocked else _chapter_next_lock_text(chapter)
-	_add_chapter_action_button(button, Vector2(CHAPTER_RIGHT_X + 16, 266), Vector2(CHAPTER_RIGHT_W - 32, 54), action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
+	_add_chapter_action_button(button, Vector2(CHAPTER_RIGHT_X + 8, CHAPTER_ACTION_Y), CHAPTER_ACTION_SIZE, action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
 	return button
 
 func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) -> void:
@@ -636,7 +638,8 @@ func _add_chapter_action_button(parent: Control, pos: Vector2, size: Vector2, te
 	if enabled:
 		action.pressed.connect(callback)
 	parent.add_child(action)
-	var label := UiKit.label(text, 18 if enabled else 15, Color(1.0, 0.88, 0.58, 1.0) if enabled else Color(0.78, 0.82, 0.84, 0.96), 3)
+	var label := UiKit.label(text, 20 if enabled else 16, Color(1.0, 0.88, 0.58, 1.0) if enabled else Color(0.78, 0.82, 0.84, 0.96), 3)
+	label.name = "ActionLabel"
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -699,7 +702,7 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	header.add_child(objective)
 
 	_add_chapter_progress(header, chapter, Vector2(CHAPTER_RIGHT_X, 40), true, accent, Vector2(CHAPTER_RIGHT_W, 112))
-	_add_chapter_action_button(header, Vector2(CHAPTER_RIGHT_X + 16, 196), Vector2(CHAPTER_RIGHT_W - 32, 48), "返回战区地图", true, _back_to_chapter_map, "BackToChapterMapButton")
+	_add_chapter_action_button(header, Vector2(CHAPTER_RIGHT_X + 8, 180), CHAPTER_ACTION_SIZE, "返回战区地图", true, _back_to_chapter_map, "BackToChapterMapButton")
 	return header
 
 func _open_chapter(chapter_id: int) -> void:
