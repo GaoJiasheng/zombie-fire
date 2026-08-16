@@ -397,6 +397,7 @@ var wave_formation := "standard"
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
 var pending_spawns: Array = []
+var boss_spawn_counts: Dictionary = {}
 var recent_spawn_positions: Array[Vector2] = []
 var spawn_timer := 0.0
 var wave_index := 0
@@ -3601,6 +3602,8 @@ func _start_next_wave() -> void:
 	var wave: Dictionary = waves[wave_index]
 	wave_index += 1
 	pending_spawns.clear()
+	if wave_index == 1:
+		boss_spawn_counts.clear()
 	recent_spawn_positions.clear()
 	_update_objective_panel()
 	_show_wave_tip(wave)
@@ -3973,6 +3976,8 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	# endless remain explicit modes and may intentionally multiply that budget.
 	var has_fixed_boss_hp := is_boss and float(row.get("fixed_hp", 0.0)) > 0.0
 	var hp_level_coef := 1.0 if has_fixed_boss_hp else float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
+	if is_boss:
+		hp_level_coef *= _next_same_type_boss_hp_multiplier(enemy_id, economy)
 	if not has_fixed_boss_hp:
 		hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
 		hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
@@ -4000,6 +4005,23 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.threat_marker.position = enemy.global_position + Vector2(0, -90 if not is_boss else -160)
 	_spawn_enemy_entry_vfx(enemy, is_boss)
 	return enemy
+
+func _next_same_type_boss_hp_multiplier(enemy_id: String, economy: Dictionary) -> float:
+	var copy_index := int(boss_spawn_counts.get(enemy_id, 0))
+	boss_spawn_counts[enemy_id] = copy_index + 1
+	var pacing_var: Variant = economy.get("boss_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	var start_level := maxi(int(pacing.get("same_type_hp_start_level", 11)), 1)
+	if int(level.get("id", "level_001").trim_prefix("level_")) < start_level:
+		return 1.0
+	var values_var: Variant = level.get(
+		"boss_stack_hp_multipliers",
+		pacing.get("same_type_hp_multipliers", [1.0]),
+	)
+	var values: Array = values_var if values_var is Array else [1.0]
+	if values.is_empty():
+		return 1.0
+	return maxf(float(values[mini(copy_index, values.size() - 1)]), 0.01)
 
 func _apply_endless_boss_opening_grace(row: Dictionary, economy: Dictionary) -> void:
 	var grace_loops := maxi(0, int(economy.get("endless_boss_resistance_grace_loops", 1)))
@@ -10907,9 +10929,10 @@ func _apply_slow_field(enemies: Array = []) -> void:
 	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
 	for enemy in candidates:
 		if enemy.has_method("targeting_snapshot"):
-			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())
+			var is_boss := bool(enemy.get("boss"))
+			var slow_mult := skills.slow_mult_for_y(enemy.global_position.y, _base_line_y(), is_boss)
 			if slow_mult < 1.0:
-				slow_mult = max(SkillRuntime.SLOW_FIELD_MIN_SPEED_MULT, 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
+				slow_mult = max(skills.slow_speed_floor(is_boss), 1.0 - (1.0 - slow_mult) * slow_strength_bonus)
 				if enemy.has_method("mark_ice_slow_visual"):
 					enemy.mark_ice_slow_visual(0.18)
 			enemy.speed_mult *= slow_mult

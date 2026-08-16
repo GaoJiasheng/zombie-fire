@@ -760,14 +760,16 @@ func get_power_for_level(level_id: String) -> int:
 		weapon_id = "weapon_autocannon"
 	var guaranteed_var: Variant = contract.get("guaranteed_skill_ids", [])
 	var guaranteed: Array = guaranteed_var if guaranteed_var is Array else []
+	var boss_share := _power_contract_boss_share(contract)
 	var projected := _projected_run_skill_levels_for_profile(
 		card_picks,
 		weakness,
 		weapon_id,
 		save_data.get("skill_base_levels", {}),
 		guaranteed,
+		boss_share,
 	)
-	var axes := _power_skill_capacity_profile(projected)
+	var axes := _power_skill_capacity_profile(projected, boss_share)
 	var offense := _loadout_offense_multiplier()
 	var element := _power_effective_element(weapon_id, projected)
 	var weakness_mult := maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0)
@@ -1163,6 +1165,7 @@ func _projected_run_skill_levels_for_profile(
 	weapon_id: String,
 	base_skill_levels: Dictionary,
 	guaranteed_skill_ids: Array = [],
+	boss_share := 0.0,
 ) -> Dictionary:
 	var projected: Dictionary = {}
 	var skills_table: Dictionary = DataLoader.get_table("skills")
@@ -1170,7 +1173,12 @@ func _projected_run_skill_levels_for_profile(
 		return projected
 	_seed_projected_weapon_element(projected, skills_table, weapon_id, base_skill_levels)
 	var consumed_picks := 0
-	var guaranteed_id := _power_conservative_guaranteed_skill(guaranteed_skill_ids, base_skill_levels, skills_table)
+	var guaranteed_id := _power_conservative_guaranteed_skill(
+		guaranteed_skill_ids,
+		base_skill_levels,
+		skills_table,
+		boss_share,
+	)
 	if guaranteed_id != "" and not projected.has(guaranteed_id):
 		var guaranteed_row: Dictionary = skills_table.get(guaranteed_id, {})
 		projected[guaranteed_id] = clampi(
@@ -1246,7 +1254,12 @@ func _power_projection_score(levels: Dictionary) -> float:
 	return log(maxf(float(axes.get("crowd", 1.0)), 1.0)) * 0.70 \
 		+ log(maxf(float(axes.get("boss", 1.0)), 1.0)) * 0.30
 
-func _power_conservative_guaranteed_skill(skill_ids: Array, base_skill_levels: Dictionary, skills_table: Dictionary) -> String:
+func _power_conservative_guaranteed_skill(
+	skill_ids: Array,
+	base_skill_levels: Dictionary,
+	skills_table: Dictionary,
+	boss_share := 0.0,
+) -> String:
 	var best_id := ""
 	var best_line := INF
 	for skill_id_var in skill_ids:
@@ -1255,7 +1268,7 @@ func _power_conservative_guaranteed_skill(skill_ids: Array, base_skill_levels: D
 		if row.is_empty():
 			continue
 		var level := clampi(maxi(int(base_skill_levels.get(skill_id, 0)), 1), 1, _power_skill_max_level(row))
-		var line := float(_power_skill_capacity_profile({skill_id: level}).get("line", 1.0))
+		var line := float(_power_skill_capacity_profile({skill_id: level}, boss_share).get("line", 1.0))
 		if line < best_line or (is_equal_approx(line, best_line) and (best_id == "" or skill_id < best_id)):
 			best_line = line
 			best_id = skill_id
@@ -1330,7 +1343,7 @@ func _power_skill_compatible_with_weapon(row: Dictionary, weapon_id: String, wea
 func _skill_power_scale(run_skill_levels: Dictionary) -> float:
 	return pow(_combat_skill_effect_multiplier(run_skill_levels), POWER_SKILL_SCORE_EXPONENT)
 
-func _power_skill_capacity_profile(run_skill_levels: Dictionary) -> Dictionary:
+func _power_skill_capacity_profile(run_skill_levels: Dictionary, boss_share := 0.0) -> Dictionary:
 	var damage_add := 0.0
 	var fire_rate_add := 0.0
 	var crit_add := 0.0
@@ -1391,9 +1404,15 @@ func _power_skill_capacity_profile(run_skill_levels: Dictionary) -> Dictionary:
 	var boss_lane := 1.0 + maxf(0.0, lane_total - 1.0) * 0.10
 	var boss_coverage := 1.0 + minf(0.35, float(pierce) * 0.025 + homing * 0.01)
 	var boss := common * boss_lane * boss_coverage
-	# Runtime Slow Field now has a real 80% cap. Score the same reachable cap so
-	# displayed power cannot understate a build whose control extends the line.
-	var line := (1.0 + maxf(barrier_hp, 0.0)) / (1.0 - clampf(slow, 0.0, 0.80))
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var pacing_var: Variant = economy.get("boss_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	var mob_slow_cap := clampf(float(pacing.get("mob_slow_cap", 0.80)), 0.0, 0.95)
+	var boss_slow_cap := clampf(float(pacing.get("boss_slow_cap", 0.40)), 0.0, 0.95)
+	var boss_weight := clampf(float(boss_share), 0.0, 1.0)
+	var effective_slow := (1.0 - boss_weight) * minf(maxf(slow, 0.0), mob_slow_cap)
+	effective_slow += boss_weight * minf(maxf(slow, 0.0), boss_slow_cap)
+	var line := (1.0 + maxf(barrier_hp, 0.0)) / (1.0 - effective_slow)
 	return {
 		"crowd": maxf(crowd, 1.0),
 		"boss": maxf(boss, 1.0),
@@ -1566,6 +1585,13 @@ func _power_line_exposure_credit(crowd_ratio: float, boss_ratio: float, contract
 	var upper := maxf(float(ruler.get("line_exposure_credit_max", 1.15)), 1.0)
 	return clampf(pow(maxf(pressure, 0.000001), -0.5), lower, upper)
 
+func _power_contract_boss_share(contract: Dictionary) -> float:
+	var weights_var: Variant = contract.get("line_exposure_weights", {})
+	var weights: Dictionary = weights_var if weights_var is Dictionary else {}
+	var crowd_weight := maxf(float(weights.get("crowd", 1.0)), 0.0)
+	var boss_weight := maxf(float(weights.get("boss", 0.0)), 0.0)
+	return boss_weight / maxf(crowd_weight + boss_weight, 0.000001)
+
 func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 	var level := DataLoader.get_row("levels", level_id)
 	var requirement_var: Variant = level.get("clear_requirement", {})
@@ -1579,14 +1605,16 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 		weapon_id = "weapon_autocannon"
 	var guarantees_var: Variant = contract.get("guaranteed_skill_ids", [])
 	var guarantees: Array = guarantees_var if guarantees_var is Array else []
+	var boss_share := _power_contract_boss_share(contract)
 	var projected := _projected_run_skill_levels_for_profile(
 		maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS))),
 		str(level.get("primary_weakness", "physical")),
 		weapon_id,
 		save_data.get("skill_base_levels", {}),
 		guarantees,
+		boss_share,
 	)
-	var axes := _power_skill_capacity_profile(projected)
+	var axes := _power_skill_capacity_profile(projected, boss_share)
 	var offense := _loadout_offense_multiplier()
 	var element := _power_effective_element(weapon_id, projected)
 	var weakness := str(level.get("primary_weakness", "physical"))

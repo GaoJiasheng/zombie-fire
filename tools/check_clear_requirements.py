@@ -55,7 +55,7 @@ def main() -> int:
             "line_target_hp_ratio", "line_exposure_weights",
             "boss_effective_hp", "runtime_boss_pressure_mult",
             "guaranteed_skill_ids", "reference_skill_rank", "boss_weights",
-            "corridor_calibration",
+            "corridor_calibration", "owner_anchor_calibration",
         ):
             if stored_contract.get(key) != derived_contract.get(key):
                 errors.append(
@@ -67,38 +67,18 @@ def main() -> int:
     # deliberately pin the currently shipped result so a future generator run
     # cannot silently discard an authored reinforcement.
     by_id = {level["id"]: level for level in levels}
-    all_max_skills = {skill_id: prm.skill_max_level(row) for skill_id, row in skills.items()}
-    rank4_skills = {
-        skill_id: min(4, prm.skill_max_level(row))
-        for skill_id, row in skills.items()
-    }
     fixtures = (
         (
             "level_099", 5443, 4650, 1.1706, "boss",
-            {
-                "character": "vanguard", "character_level": 40,
-                "weapon": "weapon_scattergun", "weapon_level": 50,
-                "armor": "armor_kevlar", "armor_level": 35,
-                "chip": "chip_attack", "chip_level": 35,
-                "pet": "pet_turret_drone", "pet_level": 30,
-                "signature_level": 5, "skill_base_levels": all_max_skills,
-            },
         ),
         (
-            "level_080", 4439, 2528, 1.7558, "boss",
-            {
-                "character": "blaze", "character_level": 40,
-                "weapon": "weapon_apocalypse_inferno", "weapon_level": 36,
-                "armor": "armor_apocalypse_molten", "armor_level": 21,
-                "chip": "chip_apocalypse_stellar", "chip_level": 21,
-                "pet": "pet_apocalypse_phoenix", "pet_level": 15,
-                "signature_level": 5, "skill_base_levels": rank4_skills,
-            },
+            "level_080", 3531, 2011, 1.7558, "boss",
         ),
     )
     anchor_summaries = []
-    for level_id, expected_power, expected_recommended, expected_ratio, expected_bottleneck, build in fixtures:
+    for level_id, expected_power, expected_recommended, expected_ratio, expected_bottleneck in fixtures:
         level = by_id[level_id]
+        build = prm.owner_anchor_fixture(level_id, skills)
         outcome = prm.power_for_build(
             level, level["clear_requirement"]["power_contract"], build,
             characters, weapons, armors, chips, pets, skills, bosses, economy)

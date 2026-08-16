@@ -52,7 +52,11 @@ def main() -> int:
     if "attack_line_y = base_line_y" not in enemy:
         errors.append("enemy.gd attack_line_y is not derived from base_line_y")
 
-    if "func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_Y) -> float:" not in skill_runtime:
+    if not all(snippet in skill_runtime for snippet in (
+        "func slow_mult_for_y(",
+        "base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_Y",
+        "is_boss := false",
+    )):
         errors.append("SkillRuntime.slow_mult_for_y must accept runtime base_line_y")
     if "y_min = base_line_y - design_offset" not in skill_runtime:
         errors.append("SkillRuntime slow field y_min must derive from runtime base_line_y")
@@ -67,7 +71,8 @@ def main() -> int:
             '_spawn_float_text(impact_position, "格挡"',
         ],
         "_apply_slow_field": [
-            "skills.slow_mult_for_y(enemy.global_position.y, _base_line_y())",
+            "skills.slow_mult_for_y(enemy.global_position.y, _base_line_y(), is_boss)",
+            "skills.slow_speed_floor(is_boss)",
         ],
         "_update_slow_field_visual": [
             "var y_min := _slow_field_min_y_for_level(slow_level)",

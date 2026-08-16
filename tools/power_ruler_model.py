@@ -53,6 +53,10 @@ PACE_CORRIDOR_MIN = 1.00
 LATE_CORRIDOR_MIN = 0.95
 CORRIDOR_MAX = 1.40
 CORRIDOR_MARGIN = 0.02
+OWNER_ANCHOR_RATIOS = {
+    "level_080": 1.7558,
+    "level_099": 1.1706,
+}
 
 # --- simulate_balance 模型常量镜像 ---
 ARMOR_HP_MULT = 1.20      # 通关线求解与 S_ref 使用同一生存基线(典型护甲)
@@ -346,7 +350,26 @@ def skill_max_level(skill: dict) -> int:
     return max([int(entry.get("lv", 1)) for entry in skill.get("levels", [])] or [1])
 
 
-def skill_capacity_profile(run_skill_levels: dict[str, int], skills: dict) -> dict[str, float]:
+def slow_caps(economy: dict) -> tuple[float, float]:
+    pacing = economy.get("boss_pacing", {}) or {}
+    mob = min(max(float(pacing.get("mob_slow_cap", 0.80)), 0.0), 0.95)
+    boss = min(max(float(pacing.get("boss_slow_cap", 0.40)), 0.0), 0.95)
+    return mob, boss
+
+
+def weighted_slow_amount(slow: float, boss_share: float, economy: dict) -> float:
+    mob_cap, boss_cap = slow_caps(economy)
+    boss_weight = min(max(float(boss_share), 0.0), 1.0)
+    mob_weight = 1.0 - boss_weight
+    return (
+        mob_weight * min(max(slow, 0.0), mob_cap)
+        + boss_weight * min(max(slow, 0.0), boss_cap)
+    )
+
+
+def skill_capacity_profile(run_skill_levels: dict[str, int], skills: dict,
+                           economy: dict | None = None,
+                           boss_share: float = 0.0) -> dict[str, float]:
     """Return independent crowd, single-target and line capacity multipliers."""
     damage_add = fire_rate_add = crit_add = crit_damage_add = 0.0
     homing = burn = poison = slow = barrier_hp = armor_penetration = 0.0
@@ -402,7 +425,8 @@ def skill_capacity_profile(run_skill_levels: dict[str, int], skills: dict) -> di
     boss = common * boss_lane * boss_coverage
     # Barrier is literal extra base HP. Slow extends the approach/attack window;
     # cap it before inversion so a control card can never imply immortality.
-    line = (1.0 + max(barrier_hp, 0.0)) / (1.0 - min(max(slow, 0.0), 0.80))
+    effective_slow = weighted_slow_amount(slow, boss_share, economy or {})
+    line = (1.0 + max(barrier_hp, 0.0)) / (1.0 - effective_slow)
     return {
         "crowd": max(crowd, 1.0),
         "boss": max(boss, 1.0),
@@ -428,14 +452,17 @@ def _projection_score(levels: dict[str, int], skills: dict) -> float:
     return math.log(profile["crowd"]) * 0.70 + math.log(profile["boss"]) * 0.30
 
 
-def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict[str, int], skills: dict) -> str:
+def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict[str, int],
+                                   skills: dict, economy: dict,
+                                   boss_share: float) -> str:
     candidates: list[tuple[float, str]] = []
     for skill_id in skill_ids:
         row = skills.get(skill_id, {})
         if not row:
             continue
         level = min(max(int(base_skill_levels.get(skill_id, 0)), 1), skill_max_level(row))
-        line = skill_capacity_profile({skill_id: level}, skills)["line"]
+        line = skill_capacity_profile(
+            {skill_id: level}, skills, economy, boss_share)["line"]
         candidates.append((line, skill_id))
     return min(candidates)[1] if candidates else ""
 
@@ -443,7 +470,9 @@ def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict
 def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
                            base_skill_levels: dict[str, int], skills: dict,
                            weapons: dict,
-                           guaranteed_skill_ids: list[str] | None = None) -> dict[str, int]:
+                           guaranteed_skill_ids: list[str] | None = None,
+                           economy: dict | None = None,
+                           boss_share: float = 0.0) -> dict[str, int]:
     projected: dict[str, int] = {}
     weapon_element = str(weapons[weapon_id].get("element", "physical"))
     if weapon_element not in ("", "physical"):
@@ -453,7 +482,8 @@ def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
                 break
 
     guaranteed_id = _conservative_guaranteed_skill(
-        list(guaranteed_skill_ids or []), base_skill_levels, skills)
+        list(guaranteed_skill_ids or []), base_skill_levels, skills,
+        economy or {}, boss_share)
     consumed_picks = 0
     if guaranteed_id and guaranteed_id not in projected:
         row = skills[guaranteed_id]
@@ -662,13 +692,17 @@ def _boss_contract_profile(level: dict, bosses: dict, economy: dict, sim) -> tup
     # look like one primary Apex and hid the quantity pressure from the fixed
     # recommendation.  Count only the actual wave-row primary entries here.
     primary = 0.0
+    primary_copy_counts: dict[str, int] = {}
     for wave in level.get("waves", []):
         if "boss" not in wave:
             continue
         boss_id = str(wave["boss"])
         boss_row = bosses.get(boss_id, {})
+        copy_index = primary_copy_counts.get(boss_id, 0)
+        primary_copy_counts[boss_id] = copy_index + 1
         primary += (
             sim.boss_hp_for_entry(level, boss_row, economy, sim.wave_number(wave))
+            * sim.boss_hp_scale_for_index(level, economy, copy_index)
             * boss_effective_hp_multiplier(boss_row, economy)
         )
     weights = {
@@ -732,9 +766,14 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     reference_offense = required_t * offense_baseline_l1(characters, weapons) * affinity_delta
     base_levels = expected_permanent_skill_levels(level, skills)
     guarantees = guaranteed_skill_ids(level)
+    mob_share = max(float(requirement.get("mob_hp_share", 1.0)), 0.0)
+    boss_share = max(float(requirement.get("boss_hp_share", 0.0)), 0.0)
+    share_total = max(mob_share + boss_share, 0.000001)
+    normalized_boss_share = boss_share / share_total
     projected = projected_skill_levels(
-        card_picks, weakness, "weapon_autocannon", base_levels, skills, weapons, guarantees)
-    axes = skill_capacity_profile(projected, skills)
+        card_picks, weakness, "weapon_autocannon", base_levels, skills, weapons,
+        guarantees, economy, normalized_boss_share)
+    axes = skill_capacity_profile(projected, skills, economy, normalized_boss_share)
     element = effective_projectile_element("weapon_autocannon", projected, skills, weapons)
     weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
     mob_element = weakness_mult if element == weakness else 1.0
@@ -766,10 +805,6 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     line_floor = max(float(ruler.get(
         "line_requirement_floor", DEFAULT_LINE_REQUIREMENT_FLOOR)), 0.05)
     line_required = max(expected_breach / (base_line_hp * damage_budget), line_floor)
-    mob_share = max(float(requirement.get("mob_hp_share", 1.0)), 0.0)
-    boss_share = max(float(requirement.get("boss_hp_share", 0.0)), 0.0)
-    share_total = max(mob_share + boss_share, 0.000001)
-
     base_recommended = recommended_power(
         required_t, card_picks, recommend_level, characters, weapons, skills, weakness)
     omitted_boss_mult = (
@@ -801,7 +836,9 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
         "guaranteed_skill_ids": guarantees,
         "reference_skill_rank": campaign_skill_rank(level),
     }
-    return calibrate_power_contract_corridor(
+    contract = calibrate_power_contract_corridor(
+        level, contract, characters, weapons, skills, bosses, economy)
+    return calibrate_owner_anchor(
         level, contract, characters, weapons, skills, bosses, economy)
 
 
@@ -821,11 +858,15 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
     pet_level = int(build.get("pet_level", 1))
     sig_level = int(build.get("signature_level", 0))
     base_levels = dict(build.get("skill_base_levels", {}) or {})
+    line_weights = contract.get("line_exposure_weights", {}) or {}
+    mob_weight = max(float(line_weights.get("crowd", 1.0)), 0.0)
+    boss_weight = max(float(line_weights.get("boss", 0.0)), 0.0)
+    boss_share = boss_weight / max(mob_weight + boss_weight, 0.000001)
     projected = projected_skill_levels(
         max(int(level.get("target_card_picks", 4)), 1),
         str(level.get("primary_weakness", "physical")),
         weapon_id, base_levels, skills, weapons,
-        list(contract.get("guaranteed_skill_ids", [])),
+        list(contract.get("guaranteed_skill_ids", [])), economy, boss_share,
     )
     offense = offense_multiplier(
         characters[character_id], weapons[weapon_id], character_level, weapon_level, sig_level,
@@ -837,7 +878,7 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         armors.get(armor_id), armor_level, chips.get(chip_id), chip_level,
         pets.get(pet_id), pet_level,
     )
-    axes = skill_capacity_profile(projected, skills)
+    axes = skill_capacity_profile(projected, skills, economy, boss_share)
     element = effective_projectile_element(weapon_id, projected, skills, weapons)
     weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
     mob_element = weakness_mult if element == str(level.get("primary_weakness", "physical")) else 1.0
@@ -1007,6 +1048,77 @@ def calibrate_power_contract_corridor(level: dict, contract: dict,
         "bottleneck": str(calibrated["bottleneck"]),
         "adjusted_axes": adjusted_axes,
         "fixture": manifest,
+    }
+    return contract
+
+
+def owner_anchor_fixture(level_id: str, skills: dict) -> dict:
+    """Return the two Owner replay builds whose ratio and bottleneck are frozen.
+
+    The fixture lives here so generation, validation and reporting all consume
+    one definition. Absolute display numbers may move when the ruler scale is
+    regenerated; the replay ratio and Boss bottleneck may not.
+    """
+    if level_id == "level_099":
+        return {
+            "character": "vanguard", "character_level": 40,
+            "weapon": "weapon_scattergun", "weapon_level": 50,
+            "armor": "armor_kevlar", "armor_level": 35,
+            "chip": "chip_attack", "chip_level": 35,
+            "pet": "pet_turret_drone", "pet_level": 30,
+            "signature_level": 5,
+            "skill_base_levels": {
+                skill_id: skill_max_level(row)
+                for skill_id, row in skills.items()
+            },
+        }
+    if level_id == "level_080":
+        return {
+            "character": "blaze", "character_level": 40,
+            "weapon": "weapon_apocalypse_inferno", "weapon_level": 36,
+            "armor": "armor_apocalypse_molten", "armor_level": 21,
+            "chip": "chip_apocalypse_stellar", "chip_level": 21,
+            "pet": "pet_apocalypse_phoenix", "pet_level": 15,
+            "signature_level": 5,
+            "skill_base_levels": {
+                skill_id: min(4, skill_max_level(row))
+                for skill_id, row in skills.items()
+            },
+        }
+    raise KeyError(f"No Owner replay fixture for {level_id}")
+
+
+def calibrate_owner_anchor(level: dict, contract: dict,
+                           characters: dict, weapons: dict, skills: dict,
+                           bosses: dict, economy: dict) -> dict:
+    """Re-pin approved replay ratios after a legitimate contract rescale."""
+    level_id = str(level.get("id", ""))
+    target = OWNER_ANCHOR_RATIOS.get(level_id)
+    if target is None:
+        return contract
+
+    armors = load_table("armors")
+    chips = load_table("chips")
+    pets = load_table("pets")
+    build = owner_anchor_fixture(level_id, skills)
+    raw = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    raw_boss_ratio = float(raw["ratios"]["boss"])
+    contract["boss_capacity"] = round(
+        float(contract["boss_capacity"]) * raw_boss_ratio / float(target), 4)
+    calibrated = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    ratio = min(float(value) for value in calibrated["ratios"].values())
+    if str(calibrated["bottleneck"]) != "boss" or abs(ratio - target) > 0.0002:
+        raise AssertionError(
+            f"{level_id} Owner replay drifted: R={ratio:.4f} "
+            f"bottleneck={calibrated['bottleneck']} target={target:.4f}")
+    contract["owner_anchor_calibration"] = {
+        "ratio": target,
+        "bottleneck": "boss",
+        "fixture": "design32_34_owner_replay",
     }
     return contract
 

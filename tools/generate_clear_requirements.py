@@ -21,11 +21,79 @@ sys.path.insert(0, str(ROOT / "tools"))
 import power_ruler_model as prm  # noqa: E402
 
 
+RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
+
+
 def load_sim():
     spec = importlib.util.spec_from_file_location("simulate_balance", ROOT / "tools" / "simulate_balance.py")
     sim = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(sim)
     return sim
+
+
+def solve_finale_boss_stack(levels: list[dict], zombies: dict, bosses: dict,
+                            economy: dict, sim) -> dict:
+    """Solve the finale-only copy scale from the approved runtime time target.
+
+    Normal stages use economy.boss_pacing.same_type_hp_multipliers.  The finale
+    keeps its already-approved graduation encounter duration instead: all four
+    identical Apex copies receive one generated coefficient, so copy order
+    cannot change which visual model is tougher.
+    """
+    pacing = economy.get("boss_pacing", {}) or {}
+    finale_id = str(pacing.get("finale_level_id", "level_099"))
+    target_seconds = float(pacing.get("finale_target_seconds", 180.0))
+    band = pacing.get("finale_time_band", [150.0, 185.0])
+    if not isinstance(band, list) or len(band) != 2:
+        raise AssertionError("economy.boss_pacing.finale_time_band must contain [min,max]")
+    finale = next((row for row in levels if row.get("id") == finale_id), None)
+    if finale is None:
+        raise AssertionError(f"missing finale level {finale_id}")
+
+    # A stale generated value must never feed its own next solution.
+    finale.pop("boss_stack_hp_multipliers", None)
+    entries = [
+        entry
+        for wave in finale.get("waves", [])
+        for entry in sim.runtime_boss_entries(finale, wave)
+    ]
+    boss_ids = [str(entry.get("type", "")) for entry in entries]
+    if not boss_ids or len(set(boss_ids)) != 1:
+        raise AssertionError(
+            f"{finale_id}: finale stack solver requires one repeated Boss type, got {boss_ids}")
+
+    benchmark = json.loads(RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
+    scatter = benchmark["best_same_loadout"]["weapon_scattergun"]
+    crowd_dps = max(float(scatter["crowd_dps"]), 1.0)
+    boss_dps = max(float(scatter["boss_dps"]), 1.0)
+    mob_hp, _, _ = sim.level_enemy_hp_split(finale, zombies, bosses, economy)
+    mob_seconds = mob_hp / crowd_dps
+    boss_seconds = max(target_seconds - mob_seconds, 1.0)
+    boss_id = boss_ids[0]
+    boss_row = bosses[boss_id]
+    one_raw_hp = sim.boss_hp_for_entry(
+        finale, boss_row, economy,
+        sim.wave_number(next(wave for wave in finale.get("waves", []) if "boss" in wave)),
+    )
+    one_effective_hp = one_raw_hp * prm.boss_effective_hp_multiplier(boss_row, economy)
+    coefficient = (boss_seconds * boss_dps) / max(one_effective_hp * len(entries), 1.0)
+    coefficient = round(max(coefficient, 0.01), 6)
+    finale["boss_stack_hp_multipliers"] = [coefficient] * len(entries)
+
+    _, scaled_boss_hp, _ = sim.level_enemy_hp_split(finale, zombies, bosses, economy)
+    scaled_effective_hp = scaled_boss_hp * prm.boss_effective_hp_multiplier(boss_row, economy)
+    solved_seconds = mob_seconds + scaled_effective_hp / boss_dps
+    if not float(band[0]) <= solved_seconds <= float(band[1]):
+        raise AssertionError(
+            f"{finale_id}: solved graduation time {solved_seconds:.1f}s outside {band}")
+    return {
+        "level_id": finale_id,
+        "boss_id": boss_id,
+        "copies": len(entries),
+        "coefficient": coefficient,
+        "seconds": solved_seconds,
+        "raw_boss_hp": scaled_boss_hp,
+    }
 
 
 def main() -> int:
@@ -39,6 +107,9 @@ def main() -> int:
     skills = prm.load_table("skills")
     chips = prm.load_table("chips")
     pets = prm.load_table("pets")
+
+    finale_solution = solve_finale_boss_stack(
+        levels, zombies, bosses, economy, sim)
 
     baseline_o = prm.offense_baseline_l1(characters, weapons)
     ctx = prm.FamilyContext(sim, characters, weapons, economy)
@@ -109,6 +180,13 @@ def main() -> int:
     (prm.DATA / "levels.json").write_text(
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
     print(f"Wrote clear_requirement for {len(levels)} levels")
+    print(
+        "finale Boss stack: "
+        f"{finale_solution['boss_id']} x{finale_solution['copies']} "
+        f"coefficient={finale_solution['coefficient']:.6f} "
+        f"raw_hp={finale_solution['raw_boss_hp'] / 1_000_000:.2f}M "
+        f"graduation={finale_solution['seconds']:.1f}s"
+    )
     contract99 = requirements["level_099"]["power_contract"]
     print(
         f"anchors: maxed_t={maxed_t:.3f} req99(primary)={req99:.3f} "

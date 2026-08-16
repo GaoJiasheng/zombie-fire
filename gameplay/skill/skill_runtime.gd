@@ -2,7 +2,6 @@ class_name SkillRuntime
 extends RefCounted
 
 const SLOW_FIELD_DESIGN_BASE_LINE_Y := 1500.0
-const SLOW_FIELD_MIN_SPEED_MULT := 0.20
 
 var owned := {}
 var _order: Array[String] = []
@@ -116,7 +115,25 @@ func projectile_status_strength(element: String) -> float:
 func fire_rate_multiplier() -> float:
 	return 1.0 + _eff("skill_salvo", "fire_rate_mult")
 
-func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_Y) -> float:
+func slow_cap(is_boss := false) -> float:
+	var fallback := 0.40 if is_boss else 0.80
+	var data_loader := _data_loader()
+	if data_loader == null:
+		return fallback
+	var economy: Dictionary = data_loader.get_table("economy")
+	var pacing_var: Variant = economy.get("boss_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	var key := "boss_slow_cap" if is_boss else "mob_slow_cap"
+	return clampf(float(pacing.get(key, fallback)), 0.0, 0.95)
+
+func slow_speed_floor(is_boss := false) -> float:
+	return 1.0 - slow_cap(is_boss)
+
+func slow_mult_for_y(
+	y: float,
+	base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_Y,
+	is_boss := false,
+) -> float:
 	var slow := _eff("skill_slow_field", "slow") + _eff("skill_cryo", "slow")
 	if slow <= 0.0:
 		return 1.0
@@ -127,9 +144,9 @@ func slow_mult_for_y(y: float, base_line_y: float = SLOW_FIELD_DESIGN_BASE_LINE_
 		y_min = base_line_y - design_offset
 	if y < y_min:
 		return 1.0
-	# Lv5 is an explicit 80% slow. Keep one shared movement floor so the data,
-	# runtime helper and battle bonuses cannot silently disagree about the cap.
-	return max(SLOW_FIELD_MIN_SPEED_MULT, 1.0 - slow)
+	# Small enemies retain the authored control ceiling. Bosses read their
+	# separate resistance ceiling from economy.json so runtime and audits agree.
+	return max(slow_speed_floor(is_boss), 1.0 - slow)
 
 func damage_multiplier() -> float:
 	return 1.0 \

@@ -64,6 +64,23 @@
 		"final_level": 99,
 		"final_mult": 1.08
 	},
+	"boss_pacing": {
+		"mob_slow_cap": 0.8,
+		"boss_slow_cap": 0.4,
+		"same_type_hp_start_level": 11,
+		"same_type_hp_multipliers": [
+			1.0,
+			0.82,
+			0.45,
+			0.35
+		],
+		"finale_level_id": "level_099",
+		"finale_target_seconds": 180.0,
+		"finale_time_band": [
+			150.0,
+			185.0
+		]
+	},
 	"endless_template_level": "level_025",
 	"endless_boss_resistance_grace_loops": 1,
 	"endless_first_loop_armor_hits_cap": 8,

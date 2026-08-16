@@ -370,6 +370,27 @@ def boss_hp_for_entry(level: dict, boss_row: dict, economy: dict, wave_no: int) 
     )
 
 
+def boss_hp_scale_for_index(level: dict, economy: dict, copy_index: int) -> float:
+    """Return the authored same-type Boss copy multiplier.
+
+    Normal stages read the shared sequence from economy.json.  The generated
+    finale override lives on level_099 so the runtime and every offline audit
+    consume the exact coefficient solved by generate_clear_requirements.py.
+    """
+    pacing = economy.get("boss_pacing", {}) or {}
+    start_level = max(int(pacing.get("same_type_hp_start_level", 11)), 1)
+    if level_number(level) < start_level:
+        return 1.0
+    values = level.get(
+        "boss_stack_hp_multipliers",
+        pacing.get("same_type_hp_multipliers", [1.0]),
+    )
+    if not isinstance(values, list) or not values:
+        return 1.0
+    index = min(max(int(copy_index), 0), len(values) - 1)
+    return max(float(values[index]), 0.01)
+
+
 def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, dict[str, float], int]:
     diff = float(level["difficulty_coef"])
     hp_base = float(level.get("base_hp_ref", 50.0))
@@ -378,6 +399,7 @@ def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: di
     count = 0
     level_no = level_number(level)
     card_picks = int(level.get("target_card_picks", 4))
+    boss_copy_counts: dict[str, int] = {}
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
         mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
@@ -394,10 +416,15 @@ def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: di
         for boss_entry in runtime_boss_entries(level, wave):
             boss_id = boss_entry["type"]
             boss_row = bosses.get(boss_id, {})
-            # Boss durability is an identity-level stat. Normal campaign
-            # encounters repeat the exact same model and raise pressure with
-            # authored quantity/composition, never a hidden level multiplier.
-            boss_hp = boss_hp_for_entry(level, boss_row, economy, wave_no)
+            # Boss durability is an identity-level stat. Repeated copies use
+            # the authored pacing sequence shared with battle.gd; the first
+            # ten onboarding stages remain exempt by the same data rule.
+            copy_index = boss_copy_counts.get(boss_id, 0)
+            boss_copy_counts[boss_id] = copy_index + 1
+            boss_hp = (
+                boss_hp_for_entry(level, boss_row, economy, wave_no)
+                * boss_hp_scale_for_index(level, economy, copy_index)
+            )
             boss_hp_by_id[boss_id] = boss_hp_by_id.get(boss_id, 0.0) + boss_hp
             count += 1
         # Boss support mobs
