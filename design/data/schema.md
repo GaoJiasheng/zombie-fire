@@ -552,6 +552,8 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `levels.json` 的 `wave_pattern` 是**编队原型**（阶段 67 起真正生效）：`standard` 沿用关卡作者写的 `lane`；`rush` 全部压中路；`pincer` 左右交替、中路留空；`escort` 支援目标走中路、其余贴两翼；`siege` 左/右/散开三路轮转铺满战线。运行时入口是 `battle.gd._formation_lane()`，Boss 不受影响（始终按作者写的通道入场）。阶段 89 起，普通怪在每条通道内使用更宽的安全出生带、`158–222` 的轻微 Y 抖动和 9 选 1 最疏候选采样；最近 6 个出生点及仍在入口带的怪物都会参与防聚簇。Boss 保留较窄作者通道与固定 `y=190` 的聚焦入场。**只改队形几何，不改数量、出怪间隔、HP 或总出怪时长**，因此所有平衡口径与该字段无关。`m1_smoke_test.gd:_verify_wave_formation_lanes` / `_verify_wave_spawn_distribution` 分别锁死编队语义与分散度。
 - `levels.json` 的 `variant`（`normal / elite / treasure / boss / boss_rush`）**只决定波次提示文案，不决定是否出怪**。阶段 67 之前出怪循环被错误地缩进在提示分支的 `else` 里，导致 21 个 elite / treasure 关的第 1 波共 442 只敌人从未出现，而平衡模型全程都算了它们；`m1_smoke_test.gd:_verify_variant_wave_one_spawns` 已把这条契约固化。
 - `star_thresholds` 是胜利星级判定的唯一事实来源（design/24 Phase 1）：结算时剩余防线血量比 `>= three_star_hp_ratio` 给 3 星、`>= two_star_hp_ratio` 给 2 星，否则 1 星。运行时经 `core/data/star_rules.gd` 读取，结算页与配装页的提示文案同源动态生成，`tools/simulate_balance.py` 把它换算成 leak% 口径（3 星 leak ≤ 30%、2 星 ≤ 65%）。任何地方都不许再硬编码 `0.70 / 0.35`。`data/levels.json` 的 `star_rule: "base_hp_percent"` 是描述字段，运行时不读。
+- `wave_pressure` 是 design/35 的 11–99 关自适应增压唯一数据源：`start_level` 锁定前十关完全不动，`target_count_increase / scale_step / star_boundary_margin_pct` 控制目标增幅、反解精度与降星边界净空，`boss_target_waves / non_boss_target_waves` 定义两类关卡只允许改写的波次。`tools/generate_wave_pressure.py` 从冻结的原始数量 fixture 每次重新求解，因此可重复运行且不得手改 89 关；发布门禁同时锁定 13×3★/86×2★/0×1★、逐关不降星与前十关整对象哈希。
+- `skill_xp_coverage_contract` 是完整普通战役前三次通关经验供给相对“通用技能 + 角色专属技能全满成本”的覆盖率合同；`target / tolerance` 当前锁定为 `80.9% ±1pp`，由 `tools/check_economy_loop.py` 读取，禁止在检查器另写一份范围。
 
 ## challenges.json （按章节固定变体映射）
 ```jsonc

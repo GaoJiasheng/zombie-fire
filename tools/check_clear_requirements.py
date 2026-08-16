@@ -74,7 +74,7 @@ def main() -> int:
     }
     fixtures = (
         (
-            "level_099", 5322, 4546, 1.1707, "boss",
+            "level_099", 5443, 4650, 1.1706, "boss",
             {
                 "character": "vanguard", "character_level": 40,
                 "weapon": "weapon_scattergun", "weapon_level": 50,
@@ -85,7 +85,7 @@ def main() -> int:
             },
         ),
         (
-            "level_080", 4268, 2431, 1.7558, "boss",
+            "level_080", 4439, 2528, 1.7558, "boss",
             {
                 "character": "blaze", "character_level": 40,
                 "weapon": "weapon_apocalypse_inferno", "weapon_level": 36,

@@ -9,10 +9,6 @@ from check_level_pressure import late_wave_count_mult, level_number
 
 ROOT = Path(__file__).resolve().parents[1]
 
-XP_COVERAGE_MIN = 0.55
-XP_COVERAGE_MAX = 0.85
-
-
 def load(name: str):
     return json.loads((ROOT / "data" / f"{name}.json").read_text(encoding="utf-8"))
 
@@ -149,11 +145,14 @@ def main() -> int:
     signature_skill_cost = signature_skill_count * sum(int(cost) for cost in sig_xp_costs)
     total_xp_cost = permanent_skill_cost + signature_skill_cost
     xp_coverage = three_clear_xp / max(total_xp_cost, 1)
-    if not XP_COVERAGE_MIN <= xp_coverage <= XP_COVERAGE_MAX:
+    xp_contract = economy.get("skill_xp_coverage_contract", {})
+    xp_target = float(xp_contract.get("target", 0.809))
+    xp_tolerance = max(0.0, float(xp_contract.get("tolerance", 0.01)))
+    if abs(xp_coverage - xp_target) > xp_tolerance + 1e-9:
         errors.append(
             "permanent + signature skill XP coverage outside contract: "
             f"income={three_clear_xp}, cost={total_xp_cost}, coverage={xp_coverage:.2%}, "
-            f"expected={XP_COVERAGE_MIN:.0%}-{XP_COVERAGE_MAX:.0%}"
+            f"expected={xp_target:.1%}±{xp_tolerance:.1%}"
         )
 
     if errors:

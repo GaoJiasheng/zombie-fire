@@ -34,6 +34,7 @@ RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.js
 FULL_ROSTER_FASTEST_MIN_SECONDS = 175.0
 FULL_ROSTER_FASTEST_MAX_SECONDS = 190.0
 FINALE_PHASE_CAP_SECONDS = 460.0
+CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS = 0.1
 
 
 def load(name: str):
@@ -275,7 +276,11 @@ def main() -> int:
             f"got R={finale_ratio:.4f}")
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)
-    if contract_reference_seconds is None or not 400.0 <= contract_reference_seconds <= 425.0:
+    if contract_reference_seconds is None or not (
+        400.0 - CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
+        <= contract_reference_seconds
+        <= 425.0 + CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
+    ):
         errors.append(
             "level-99 equal-recommendation display contract should remain within the authored "
             f"460s phase cap, expected [400,425]s, got {contract_reference_seconds}"

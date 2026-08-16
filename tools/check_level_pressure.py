@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
 from combat_power_model import run_skill_hp_pressure
+from generate_wave_pressure import (
+    FIXTURE_PATH as WAVE_PRESSURE_FIXTURE_PATH,
+    build_expected as build_expected_wave_pressure,
+    config as wave_pressure_config,
+    restore_target_rows as restore_wave_pressure_target_rows,
+    validate as validate_wave_pressure,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -118,6 +126,49 @@ def boss_survival_hp_ramp(economy: dict, level_no: int) -> float:
     return ramp
 
 
+def estimate_level_pressure(
+    level: dict,
+    zombies: dict,
+    bosses: dict,
+    economy: dict,
+) -> tuple[float, float, int]:
+    pressure = 0.0
+    duration = 0.0
+    boss_count = 0
+    boss_level_bonus = boss_hp_level_bonus(economy, level)
+    level_no = level_number(level)
+    card_picks = int(level.get("target_card_picks", 4))
+    # Runtime enemy.setup uses 50 * hp_coef *
+    # (difficulty_coef * base_hp_ref / 50). Keep this checker on the same
+    # scale so late levels are not understated by an order of magnitude.
+    hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
+    for wave in level.get("waves", []):
+        wave_no = wave_number(wave)
+        mob_bonus = late_wave_hp_bonus(
+            economy, wave_no, level_no=level_no, card_picks=card_picks)
+        count_mult = late_wave_count_mult(economy, wave_no, level_no)
+        for group in wave.get("spawns", []):
+            row = zombies[group["type"]]
+            count = int(round(int(group.get("count", 1)) * count_mult))
+            pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
+            duration += count * float(group.get("interval", 0.8))
+        if "boss" in wave:
+            boss_count += 1
+            pressure += (
+                float(bosses[wave["boss"]].get("hp_coef", 1.0))
+                * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks)
+                * boss_level_bonus
+                * boss_survival_hp_ramp(economy, level_no)
+            )
+        for group in wave.get("support", []):
+            row = zombies[group["type"]]
+            count = int(round(int(group.get("count", 1)) * count_mult))
+            pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
+            duration += count * float(group.get("interval", 0.8))
+    pressure *= hp_base * float(level.get("difficulty_coef", 1.0))
+    return pressure, duration, boss_count
+
+
 def main() -> int:
     zombies = load("zombies")
     bosses = load("bosses")
@@ -127,34 +178,7 @@ def main() -> int:
     print("Level pressure estimate")
     series: list[tuple[str, float, bool]] = []
     for level in levels:
-        pressure = 0.0
-        duration = 0.0
-        boss_count = 0
-        boss_level_bonus = boss_hp_level_bonus(economy, level)
-        level_no = level_number(level)
-        card_picks = int(level.get("target_card_picks", 4))
-        # Runtime enemy.setup uses 50 * hp_coef *
-        # (difficulty_coef * base_hp_ref / 50). Keep this checker on the same
-        # scale so late levels are not understated by an order of magnitude.
-        hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
-        for wave in level.get("waves", []):
-            wave_no = wave_number(wave)
-            mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
-            count_mult = late_wave_count_mult(economy, wave_no, level_no)
-            for group in wave.get("spawns", []):
-                row = zombies[group["type"]]
-                count = int(round(int(group.get("count", 1)) * count_mult))
-                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
-                duration += count * float(group.get("interval", 0.8))
-            if "boss" in wave:
-                boss_count += 1
-                pressure += float(bosses[wave["boss"]].get("hp_coef", 1.0)) * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * boss_survival_hp_ramp(economy, level_no)
-            for group in wave.get("support", []):
-                row = zombies[group["type"]]
-                count = int(round(int(group.get("count", 1)) * count_mult))
-                pressure += count * float(row.get("hp_coef", 1.0)) * mob_bonus
-                duration += count * float(group.get("interval", 0.8))
-        pressure *= hp_base * float(level.get("difficulty_coef", 1.0))
+        pressure, duration, boss_count = estimate_level_pressure(level, zombies, bosses, economy)
         series.append((level["id"], pressure, boss_count > 0))
         print(f"{level['id']}: pressure={pressure:.1f}, spawn_time={duration:.1f}s, boss={boss_count}")
         min_duration = 40.0 if boss_count else 36.0
@@ -165,9 +189,36 @@ def main() -> int:
         if pressure <= 0.0:
             errors.append(f"{level['id']} pressure must be positive")
 
-    # Difficulty must ramp smoothly. Boss levels are intentional periodic spikes,
-    # so each stream (boss / non-boss) is checked for monotonic non-decreasing
-    # pressure independently rather than the raw interleaved series.
+    # Difficulty must ramp smoothly. The design/35 adaptive bump deliberately
+    # caps a handful of levels at their star-safety boundary, so compare the
+    # generated campaign against its frozen pre-bump baseline. Historical
+    # topology dips remain visible, and newly introduced dips are accepted only
+    # for levels the generator classified as partial/unchanged. Exact generated
+    # counts are validated here as well, so a manual count regression cannot use
+    # this safety exception.
+    baseline_series: dict[str, float] = {}
+    pressure_status: dict[str, str] = {}
+    if economy.get("wave_pressure"):
+        if not WAVE_PRESSURE_FIXTURE_PATH.exists():
+            errors.append(f"missing wave-pressure fixture: {WAVE_PRESSURE_FIXTURE_PATH}")
+        else:
+            fixture = json.loads(WAVE_PRESSURE_FIXTURE_PATH.read_text(encoding="utf-8"))
+            rule = wave_pressure_config(economy)
+            expected_levels, report = build_expected_wave_pressure(
+                levels, fixture, rule, zombies, bosses, economy)
+            errors.extend(validate_wave_pressure(levels, expected_levels, report, fixture, rule))
+            pressure_status = {str(row["id"]): str(row["status"]) for row in report}
+            baseline_levels = copy.deepcopy(levels)
+            for baseline_level in baseline_levels:
+                fixture_row = fixture.get("levels", {}).get(baseline_level["id"], {})
+                if fixture_row.get("target_rows"):
+                    restore_wave_pressure_target_rows(baseline_level, fixture_row, rule)
+                baseline_pressure, _duration, _boss_count = estimate_level_pressure(
+                    baseline_level, zombies, bosses, economy)
+                baseline_series[baseline_level["id"]] = baseline_pressure
+
+    # Boss levels are intentional periodic spikes, so each stream (boss /
+    # non-boss) is checked independently rather than the raw interleaved series.
     for stream_name, want_boss in (("non-boss", False), ("boss", True)):
         prev_id = ""
         prev_pressure = -1.0
@@ -175,10 +226,36 @@ def main() -> int:
             if is_boss != want_boss:
                 continue
             if prev_pressure >= 0.0 and pressure < prev_pressure - 1e-6:
-                errors.append(
-                    f"{stream_name} difficulty regresses: {level_id} pressure "
-                    f"{pressure:.1f} < {prev_id} {prev_pressure:.1f}"
+                baseline_regressed = (
+                    level_id in baseline_series
+                    and prev_id in baseline_series
+                    and baseline_series[level_id] < baseline_series[prev_id] - 1e-6
                 )
+                safely_capped = pressure_status.get(level_id) in ("partial", "unchanged")
+                relative_dip = (prev_pressure - pressure) / max(prev_pressure, 1.0)
+                integer_rounding_dip = (
+                    pressure_status.get(level_id) == "full" and relative_dip <= 0.01
+                )
+                if baseline_regressed:
+                    print(
+                        f"  baseline topology dip retained: {level_id} < {prev_id} "
+                        f"({pressure:.1f} < {prev_pressure:.1f})"
+                    )
+                elif safely_capped:
+                    print(
+                        f"  star-safe adaptive cap: {level_id} < {prev_id} "
+                        f"({pressure:.1f} < {prev_pressure:.1f})"
+                    )
+                elif integer_rounding_dip:
+                    print(
+                        f"  integer rounding dip within 1%: {level_id} < {prev_id} "
+                        f"({pressure:.1f} < {prev_pressure:.1f})"
+                    )
+                else:
+                    errors.append(
+                        f"{stream_name} difficulty regresses: {level_id} pressure "
+                        f"{pressure:.1f} < {prev_id} {prev_pressure:.1f}"
+                    )
             prev_id, prev_pressure = level_id, pressure
 
     # The campaign must finish on a boss, and the finale must be the hardest fight.

@@ -1,0 +1,2036 @@
+{
+  "schema_version": 1,
+  "first_ten_sha256": "f3974ed5a9ac50cbf0cee8a0a904c0e05778b63747fc60fd2e1480d9c551ddd3",
+  "levels": {
+    "level_001": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 27.89855072
+    },
+    "level_002": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.56692913
+    },
+    "level_003": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 59.14179104
+    },
+    "level_004": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 46.51300236
+    },
+    "level_005": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.46180888
+    },
+    "level_006": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.29807692
+    },
+    "level_007": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 52.35173824
+    },
+    "level_008": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 63.97058824
+    },
+    "level_009": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.93408663
+    },
+    "level_010": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 41.94875776
+    },
+    "level_011": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.73647469,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_brute",
+            "count": 8
+          },
+          {
+            "type": "zombie_screamer",
+            "count": 13
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_runner",
+            "count": 23
+          }
+        ]
+      }
+    },
+    "level_012": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 43.88609715,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 8
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 13
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_brute",
+            "count": 15
+          }
+        ]
+      }
+    },
+    "level_013": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 57.72653722,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 14
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 14
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_bomber",
+            "count": 24
+          }
+        ]
+      }
+    },
+    "level_014": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.26760563,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 14
+          },
+          {
+            "type": "zombie_shambler",
+            "count": 14
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_brute",
+            "count": 16
+          }
+        ]
+      }
+    },
+    "level_015": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 37.57416268,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_screamer",
+            "count": 7
+          },
+          {
+            "type": "zombie_spitter",
+            "count": 12
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_armored",
+            "count": 11
+          },
+          {
+            "type": "zombie_spitter",
+            "count": 17
+          }
+        ]
+      }
+    },
+    "level_016": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.20704846,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 9
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 14
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_crawler",
+            "count": 26
+          }
+        ]
+      }
+    },
+    "level_017": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.15598291,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_hopper",
+            "count": 15
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 15
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_shielder",
+            "count": 17
+          }
+        ]
+      }
+    },
+    "level_018": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 26.27939142,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 15
+          },
+          {
+            "type": "zombie_shambler",
+            "count": 15
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 17
+          }
+        ]
+      }
+    },
+    "level_019": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.0729585,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 15
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 15
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 17
+          }
+        ]
+      }
+    },
+    "level_020": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 42.36443015,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_shielder",
+            "count": 16
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 12
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 19
+          }
+        ]
+      }
+    },
+    "level_021": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 32.25602028,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 16
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 16
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 17
+          }
+        ]
+      }
+    },
+    "level_022": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 24.05864198,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 16
+          },
+          {
+            "type": "zombie_runner",
+            "count": 16
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 18
+          }
+        ]
+      }
+    },
+    "level_023": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.49157641,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 16
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 16
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 18
+          }
+        ]
+      }
+    },
+    "level_024": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 30.42840376,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_armored",
+            "count": 10
+          },
+          {
+            "type": "zombie_spitter",
+            "count": 16
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 18
+          }
+        ]
+      }
+    },
+    "level_025": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 38.04123711,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_brute",
+            "count": 16
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 20
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 20
+          }
+        ]
+      }
+    },
+    "level_026": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 27.41081382,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_hopper",
+            "count": 17
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 17
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 19
+          }
+        ]
+      }
+    },
+    "level_027": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 30.77342048,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 17
+          },
+          {
+            "type": "zombie_runner",
+            "count": 17
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 19
+          }
+        ]
+      }
+    },
+    "level_028": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 24.89350373,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_brute",
+            "count": 11
+          },
+          {
+            "type": "zombie_screamer",
+            "count": 17
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 19
+          }
+        ]
+      }
+    },
+    "level_029": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 31.6015625,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 11
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 17
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 19
+          }
+        ]
+      }
+    },
+    "level_030": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.6941896,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_runner",
+            "count": 28
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 21
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 21
+          }
+        ]
+      }
+    },
+    "level_031": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 31.01297405,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 18
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 18
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 20
+          }
+        ]
+      }
+    },
+    "level_032": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 24.1202346,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_shielder",
+            "count": 11
+          },
+          {
+            "type": "zombie_shielder",
+            "count": 18
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 20
+          }
+        ]
+      }
+    },
+    "level_033": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 28.67717287,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 11
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 18
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 20
+          }
+        ]
+      }
+    },
+    "level_034": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 30.13810861,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 18
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 18
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 21
+          }
+        ]
+      }
+    },
+    "level_035": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 41.13131313,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 9
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 15
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_toxic",
+            "count": 22
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 22
+          }
+        ]
+      }
+    },
+    "level_036": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 28.84009009,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 12
+          },
+          {
+            "type": "zombie_screamer",
+            "count": 19
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 21
+          }
+        ]
+      }
+    },
+    "level_037": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 32.08443855,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 12
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 19
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 22
+          }
+        ]
+      }
+    },
+    "level_038": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.92664931,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_charger",
+            "count": 20
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 20
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 22
+          }
+        ]
+      }
+    },
+    "level_039": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.51619778,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 20
+          },
+          {
+            "type": "zombie_runner",
+            "count": 20
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 22
+          }
+        ]
+      }
+    },
+    "level_040": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.54302423,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_necromancer",
+            "count": 10
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 16
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_brute",
+            "count": 15
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 24
+          }
+        ]
+      }
+    },
+    "level_041": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.51929392,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 13
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 21
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 23
+          }
+        ]
+      }
+    },
+    "level_042": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 33.11138015,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 21
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 21
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 23
+          }
+        ]
+      }
+    },
+    "level_043": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 30.58531746,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_charger",
+            "count": 21
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 21
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 24
+          }
+        ]
+      }
+    },
+    "level_044": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 43.35480094,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 22
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 22
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 24
+          }
+        ]
+      }
+    },
+    "level_045": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.37019969,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_armored",
+            "count": 21
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_necromancer",
+            "count": 16
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 26
+          }
+        ]
+      }
+    },
+    "level_046": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.12698413,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 22
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 22
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 24
+          }
+        ]
+      }
+    },
+    "level_047": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 33.23125464,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 22
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 22
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 25
+          }
+        ]
+      }
+    },
+    "level_048": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 37.69188596,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 23
+          },
+          {
+            "type": "zombie_charger",
+            "count": 23
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 25
+          }
+        ]
+      }
+    },
+    "level_049": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 25.19798416,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_shielder",
+            "count": 14
+          },
+          {
+            "type": "zombie_warden",
+            "count": 23
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 25
+          }
+        ]
+      }
+    },
+    "level_050": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 47.46099291,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_warden",
+            "count": 22
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 27
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 27
+          }
+        ]
+      }
+    },
+    "level_051": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 32.66946191,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 24
+          },
+          {
+            "type": "zombie_runner",
+            "count": 24
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 26
+          }
+        ]
+      }
+    },
+    "level_052": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 43.28512397,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_toxic",
+            "count": 24
+          },
+          {
+            "type": "zombie_berserker",
+            "count": 24
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 26
+          }
+        ]
+      }
+    },
+    "level_053": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 31.73794976,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 15
+          },
+          {
+            "type": "zombie_spitter",
+            "count": 24
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_necromancer",
+            "count": 27
+          }
+        ]
+      }
+    },
+    "level_054": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.02839011,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 16
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 25
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 28
+          }
+        ]
+      }
+    },
+    "level_055": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.32542819,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_hopper",
+            "count": 39
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_hopper",
+            "count": 30
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 30
+          }
+        ]
+      }
+    },
+    "level_056": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 32.60233918,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 26
+          },
+          {
+            "type": "zombie_phantom",
+            "count": 26
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 28
+          }
+        ]
+      }
+    },
+    "level_057": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.29487179,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_armored",
+            "count": 16
+          },
+          {
+            "type": "zombie_shielder",
+            "count": 26
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_berserker",
+            "count": 28
+          }
+        ]
+      }
+    },
+    "level_058": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 46.55281467,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 16
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 27
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 29
+          }
+        ]
+      }
+    },
+    "level_059": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 49.92197253,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_charger",
+            "count": 27
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 27
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 30
+          }
+        ]
+      }
+    },
+    "level_060": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 40.0874923,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_regenerator",
+            "count": 13
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 21
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_mutant",
+            "count": 32
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 32
+          }
+        ]
+      }
+    },
+    "level_061": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 25.14420158,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_shielder",
+            "count": 17
+          },
+          {
+            "type": "zombie_screamer",
+            "count": 28
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 30
+          }
+        ]
+      }
+    },
+    "level_062": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.7206235,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 18
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 28
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 31
+          }
+        ]
+      }
+    },
+    "level_063": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 28.09354648,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 28
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 28
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 31
+          }
+        ]
+      }
+    },
+    "level_064": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 43.28947368,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_berserker",
+            "count": 29
+          },
+          {
+            "type": "zombie_shambler",
+            "count": 29
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_berserker",
+            "count": 32
+          }
+        ]
+      }
+    },
+    "level_065": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 55.58405546,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 14
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 22
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 21
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 34
+          }
+        ]
+      }
+    },
+    "level_066": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 45.59075342,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_mutant",
+            "count": 18
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 29
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 32
+          }
+        ]
+      }
+    },
+    "level_067": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 28.75070502,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_hopper",
+            "count": 30
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 30
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_necromancer",
+            "count": 32
+          }
+        ]
+      }
+    },
+    "level_068": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 32.76989427,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 30
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 30
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 33
+          }
+        ]
+      }
+    },
+    "level_069": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.31050605,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_mutant",
+            "count": 31
+          },
+          {
+            "type": "zombie_runner",
+            "count": 31
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 33
+          }
+        ]
+      }
+    },
+    "level_070": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 50.94290375,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_brute",
+            "count": 29
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 23
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 36
+          }
+        ]
+      }
+    },
+    "level_071": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 51.37096774,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_charger",
+            "count": 32
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 32
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_berserker",
+            "count": 35
+          }
+        ]
+      }
+    },
+    "level_072": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 46.81685274,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 33
+          },
+          {
+            "type": "zombie_charger",
+            "count": 33
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 35
+          }
+        ]
+      }
+    },
+    "level_073": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 41.00946372,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_toxic",
+            "count": 33
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 33
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 35
+          }
+        ]
+      }
+    },
+    "level_074": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 33.48283931,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_warden",
+            "count": 21
+          },
+          {
+            "type": "zombie_warden",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_necromancer",
+            "count": 35
+          }
+        ]
+      }
+    },
+    "level_075": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 43.95274782,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_armored",
+            "count": 31
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 39
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 39
+          }
+        ]
+      }
+    },
+    "level_076": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 42.56859756,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_berserker",
+            "count": 34
+          },
+          {
+            "type": "zombie_shambler",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 37
+          }
+        ]
+      }
+    },
+    "level_077": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 44.07993967,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 34
+          },
+          {
+            "type": "zombie_charger",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 37
+          }
+        ]
+      }
+    },
+    "level_078": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.17288557,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 21
+          },
+          {
+            "type": "zombie_spitter",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_berserker",
+            "count": 38
+          }
+        ]
+      }
+    },
+    "level_079": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 51.11398326,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 21
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 39
+          }
+        ]
+      }
+    },
+    "level_080": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 51.91910331,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_phantom",
+            "count": 52
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 41
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 41
+          }
+        ]
+      }
+    },
+    "level_081": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 35.4076218,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_mutant",
+            "count": 34
+          },
+          {
+            "type": "zombie_runner",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_necromancer",
+            "count": 40
+          }
+        ]
+      }
+    },
+    "level_082": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.02479733,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_brute",
+            "count": 21
+          },
+          {
+            "type": "zombie_shielder",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 42
+          }
+        ]
+      }
+    },
+    "level_083": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 46.02809254,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 21
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 42
+          }
+        ]
+      }
+    },
+    "level_084": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.25666199,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 34
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_085": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 49.21666667,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_shielder",
+            "count": 18
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 29
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_toxic",
+            "count": 41
+          },
+          {
+            "type": "zombie_hopper",
+            "count": 41
+          }
+        ]
+      }
+    },
+    "level_086": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 47.62723521,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_warden",
+            "count": 21
+          },
+          {
+            "type": "zombie_screamer",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_087": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 49.84105359,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_mutant",
+            "count": 21
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_088": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 40.92442645,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_berserker",
+            "count": 34
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_necromancer",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_089": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 49.28793947,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_charger",
+            "count": 34
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_090": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 45.87918871,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_regenerator",
+            "count": 19
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 31
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_regenerator",
+            "count": 25
+          },
+          {
+            "type": "zombie_necromancer",
+            "count": 41
+          }
+        ]
+      }
+    },
+    "level_091": {
+      "baseline_star": 3,
+      "baseline_leak_pct": 28.00349498,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_screamer",
+            "count": 21
+          },
+          {
+            "type": "zombie_toxic",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_092": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 45.73593074,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_phantom",
+            "count": 34
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_berserker",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_093": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 39.1999142,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_runner",
+            "count": 34
+          },
+          {
+            "type": "zombie_runner",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_094": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 49.87244898,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_toxic",
+            "count": 34
+          },
+          {
+            "type": "zombie_berserker",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_mutant",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_095": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 56.57479983,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_juggernaut",
+            "count": 38
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_necromancer",
+            "count": 25
+          },
+          {
+            "type": "zombie_bomber",
+            "count": 41
+          }
+        ]
+      }
+    },
+    "level_096": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 36.00855236,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_crawler",
+            "count": 34
+          },
+          {
+            "type": "zombie_mutant",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_phantom",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_097": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 30.43320926,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_hopper",
+            "count": 34
+          },
+          {
+            "type": "zombie_crawler",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_regenerator",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_098": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 34.85547355,
+      "target_rows": {
+        "4": [
+          {
+            "type": "zombie_bomber",
+            "count": 34
+          },
+          {
+            "type": "zombie_phantom",
+            "count": 34
+          }
+        ],
+        "5": [
+          {
+            "type": "zombie_screamer",
+            "count": 43
+          }
+        ]
+      }
+    },
+    "level_099": {
+      "baseline_star": 2,
+      "baseline_leak_pct": 59.5699187,
+      "target_rows": {
+        "3": [
+          {
+            "type": "zombie_berserker",
+            "count": 19
+          },
+          {
+            "type": "zombie_warden",
+            "count": 31
+          }
+        ],
+        "4": [
+          {
+            "type": "zombie_armored",
+            "count": 25
+          },
+          {
+            "type": "zombie_warden",
+            "count": 41
+          }
+        ]
+      }
+    }
+  }
+}

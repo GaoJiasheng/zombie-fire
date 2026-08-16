@@ -1605,13 +1605,13 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 8,
+						"count": 10,
 						"interval": 0.74,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_screamer",
-						"count": 13,
+						"count": 16,
 						"interval": 0.74,
 						"lane": "right"
 					}
@@ -1622,7 +1622,7 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 23,
+						"count": 28,
 						"interval": 0.81,
 						"lane": "spread"
 					}
@@ -1635,17 +1635,17 @@
 		},
 		"reward_gold_mult": 0.52,
 		"clear_requirement": {
-			"min_output": 1.5025,
+			"min_output": 1.6257,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 22,
+				"recommended_power": 24,
 				"crowd_capacity": 4.0604,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6782,
-				"line_expected_breach": 84.2,
+				"line_capacity": 0.7797,
+				"line_expected_breach": 96.8,
 				"line_base_hp": 191.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -1662,7 +1662,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.693994,
+					"raw_ratio": 1.565587,
 					"ratio": 1.38001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -1763,13 +1763,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 8,
+						"count": 10,
 						"interval": 0.73,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 13,
+						"count": 16,
 						"interval": 0.73,
 						"lane": "right"
 					}
@@ -1780,7 +1780,7 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 15,
+						"count": 18,
 						"interval": 0.8,
 						"lane": "spread"
 					}
@@ -1793,17 +1793,17 @@
 		},
 		"reward_gold_mult": 0.52,
 		"clear_requirement": {
-			"min_output": 1.6615,
+			"min_output": 1.807,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 24,
+				"recommended_power": 25,
 				"crowd_capacity": 4.0655,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8102,
-				"line_expected_breach": 104.8,
+				"line_capacity": 0.9393,
+				"line_expected_breach": 121.5,
 				"line_base_hp": 199.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -1820,7 +1820,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.531885,
+					"raw_ratio": 1.40851,
 					"ratio": 1.379996,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -1913,13 +1913,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 14,
+						"count": 15,
 						"interval": 0.72,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 14,
+						"count": 15,
 						"interval": 0.72,
 						"lane": "right"
 					}
@@ -1930,7 +1930,7 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 24,
+						"count": 27,
 						"interval": 0.8,
 						"lane": "spread"
 					}
@@ -1943,17 +1943,17 @@
 		},
 		"reward_gold_mult": 0.51,
 		"clear_requirement": {
-			"min_output": 2.2757,
+			"min_output": 2.392,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 32,
-				"crowd_capacity": 5.0101,
+				"recommended_power": 33,
+				"crowd_capacity": 5.2661,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0657,
-				"line_expected_breach": 142.7,
+				"line_capacity": 1.1621,
+				"line_expected_breach": 155.6,
 				"line_base_hp": 206.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -1970,8 +1970,8 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.301616,
-					"ratio": 1.301616,
+					"raw_ratio": 1.23834,
+					"ratio": 1.23834,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
 					"adjusted_axes": [],
@@ -2060,13 +2060,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 14,
+						"count": 17,
 						"interval": 0.72,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shambler",
-						"count": 14,
+						"count": 17,
 						"interval": 0.72,
 						"lane": "right"
 					}
@@ -2077,7 +2077,7 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 16,
+						"count": 19,
 						"interval": 0.79,
 						"lane": "spread"
 					}
@@ -2090,17 +2090,17 @@
 		},
 		"reward_gold_mult": 0.51,
 		"clear_requirement": {
-			"min_output": 2.0309,
+			"min_output": 2.1991,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 29,
+				"recommended_power": 31,
 				"crowd_capacity": 5.9766,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6696,
-				"line_expected_breach": 92.7,
+				"line_capacity": 0.7692,
+				"line_expected_breach": 106.5,
 				"line_base_hp": 213.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -2117,7 +2117,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.80145,
+					"raw_ratio": 1.663659,
 					"ratio": 1.380008,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -2200,13 +2200,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 7,
+						"count": 8,
 						"interval": 0.91,
 						"lane": "center"
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 12,
+						"count": 14,
 						"interval": 0.91,
 						"lane": "spread"
 					}
@@ -2217,13 +2217,13 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 11,
+						"count": 13,
 						"interval": 0.71,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 17,
+						"count": 20,
 						"interval": 0.71,
 						"lane": "right"
 					}
@@ -2254,22 +2254,22 @@
 		},
 		"reward_gold_mult": 0.51,
 		"clear_requirement": {
-			"min_output": 2.0725,
-			"mob_hp_share": 0.8276,
-			"boss_hp_share": 0.1724,
+			"min_output": 2.142,
+			"mob_hp_share": 0.84,
+			"boss_hp_share": 0.16,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 30,
+				"recommended_power": 31,
 				"crowd_capacity": 5.9692,
-				"boss_capacity": 4.4903,
-				"line_capacity": 0.6937,
-				"line_expected_breach": 157.06,
+				"boss_capacity": 4.6409,
+				"line_capacity": 0.7348,
+				"line_expected_breach": 166.36,
 				"line_base_hp": 348.3333,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.8276,
-					"boss": 0.1724
+					"crowd": 0.84,
+					"boss": 0.16
 				},
 				"boss_effective_hp": 16640.0,
 				"boss_weights": {
@@ -2283,7 +2283,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.765278,
+					"raw_ratio": 1.707996,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -2383,13 +2383,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 9,
+						"count": 11,
 						"interval": 0.71,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 14,
+						"count": 17,
 						"interval": 0.71,
 						"lane": "right"
 					}
@@ -2400,7 +2400,7 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 26,
+						"count": 31,
 						"interval": 0.78,
 						"lane": "spread"
 					}
@@ -2413,17 +2413,17 @@
 		},
 		"reward_gold_mult": 0.5,
 		"clear_requirement": {
-			"min_output": 2.1236,
+			"min_output": 2.2939,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 31,
+				"recommended_power": 33,
 				"crowd_capacity": 6.387,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7238,
-				"line_expected_breach": 106.8,
+				"line_capacity": 0.8279,
+				"line_expected_breach": 122.15,
 				"line_base_hp": 227.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -2440,7 +2440,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.722786,
+					"raw_ratio": 1.594883,
 					"ratio": 1.380009,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -2535,13 +2535,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 15,
+						"count": 18,
 						"interval": 0.7,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 15,
+						"count": 18,
 						"interval": 0.7,
 						"lane": "right"
 					}
@@ -2552,7 +2552,7 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 17,
+						"count": 20,
 						"interval": 0.77,
 						"lane": "spread"
 					}
@@ -2565,17 +2565,17 @@
 		},
 		"reward_gold_mult": 0.5,
 		"clear_requirement": {
-			"min_output": 2.46,
+			"min_output": 2.6636,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 35,
+				"recommended_power": 37,
 				"crowd_capacity": 7.3704,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7229,
-				"line_expected_breach": 109.95,
+				"line_capacity": 0.8294,
+				"line_expected_breach": 126.15,
 				"line_base_hp": 234.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -2592,7 +2592,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.716179,
+					"raw_ratio": 1.585,
 					"ratio": 1.379994,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -2686,13 +2686,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 15,
+						"count": 16,
 						"interval": 0.69,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shambler",
-						"count": 15,
+						"count": 16,
 						"interval": 0.69,
 						"lane": "right"
 					}
@@ -2703,7 +2703,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 17,
+						"count": 19,
 						"interval": 0.77,
 						"lane": "spread"
 					}
@@ -2716,17 +2716,17 @@
 		},
 		"reward_gold_mult": 0.5,
 		"clear_requirement": {
-			"min_output": 2.2553,
+			"min_output": 2.3363,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 32,
+				"recommended_power": 33,
 				"crowd_capacity": 7.9223,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4852,
-				"line_expected_breach": 76.0,
+				"line_capacity": 0.5158,
+				"line_expected_breach": 80.8,
 				"line_base_hp": 241.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -2743,7 +2743,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.1503,
+					"raw_ratio": 2.07575,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -2853,13 +2853,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 15,
+						"count": 18,
 						"interval": 0.69,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 15,
+						"count": 18,
 						"interval": 0.69,
 						"lane": "right"
 					}
@@ -2870,7 +2870,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 17,
+						"count": 20,
 						"interval": 0.76,
 						"lane": "spread"
 					}
@@ -2883,17 +2883,17 @@
 		},
 		"reward_gold_mult": 0.49,
 		"clear_requirement": {
-			"min_output": 2.8367,
+			"min_output": 3.0274,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 39,
+				"recommended_power": 41,
 				"crowd_capacity": 7.9223,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7213,
-				"line_expected_breach": 116.75,
+				"line_capacity": 0.8066,
+				"line_expected_breach": 130.55,
 				"line_base_hp": 249.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -2910,7 +2910,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.709581,
+					"raw_ratio": 1.601871,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -3007,7 +3007,7 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 16,
+						"count": 19,
 						"interval": 0.87,
 						"lane": "spread"
 					}
@@ -3018,13 +3018,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 12,
+						"count": 14,
 						"interval": 0.68,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 19,
+						"count": 23,
 						"interval": 0.68,
 						"lane": "right"
 					}
@@ -3055,22 +3055,22 @@
 		},
 		"reward_gold_mult": 0.49,
 		"clear_requirement": {
-			"min_output": 2.9167,
-			"mob_hp_share": 0.7726,
-			"boss_hp_share": 0.2274,
+			"min_output": 3.0378,
+			"mob_hp_share": 0.7876,
+			"boss_hp_share": 0.2124,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 75,
-				"crowd_capacity": 6.9699,
+				"recommended_power": 79,
+				"crowd_capacity": 7.2593,
 				"boss_capacity": 7.8005,
-				"line_capacity": 0.7821,
-				"line_expected_breach": 184.37,
+				"line_capacity": 0.8368,
+				"line_expected_breach": 197.27,
 				"line_base_hp": 362.6667,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.7726,
-					"boss": 0.2274
+					"crowd": 0.7876,
+					"boss": 0.2124
 				},
 				"boss_effective_hp": 33280.0,
 				"boss_weights": {
@@ -3084,7 +3084,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.662674,
+					"raw_ratio": 1.596395,
 					"ratio": 1.379995,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -3178,13 +3178,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 16,
+						"count": 19,
 						"interval": 0.67,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 16,
+						"count": 19,
 						"interval": 0.67,
 						"lane": "right"
 					}
@@ -3195,7 +3195,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 17,
+						"count": 20,
 						"interval": 0.75,
 						"lane": "spread"
 					}
@@ -3208,17 +3208,17 @@
 		},
 		"reward_gold_mult": 0.48,
 		"clear_requirement": {
-			"min_output": 2.9172,
+			"min_output": 3.137,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 41,
+				"recommended_power": 43,
 				"crowd_capacity": 9.5853,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5955,
-				"line_expected_breach": 101.8,
+				"line_capacity": 0.6745,
+				"line_expected_breach": 115.3,
 				"line_base_hp": 263.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -3235,7 +3235,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.901488,
+					"raw_ratio": 1.768267,
 					"ratio": 1.379998,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -3330,13 +3330,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 16,
+						"count": 19,
 						"interval": 0.67,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 16,
+						"count": 19,
 						"interval": 0.67,
 						"lane": "right"
 					}
@@ -3347,7 +3347,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 18,
+						"count": 22,
 						"interval": 0.74,
 						"lane": "spread"
 					}
@@ -3360,17 +3360,17 @@
 		},
 		"reward_gold_mult": 0.48,
 		"clear_requirement": {
-			"min_output": 2.8155,
+			"min_output": 3.0425,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 40,
+				"recommended_power": 42,
 				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4442,
-				"line_expected_breach": 77.95,
+				"line_capacity": 0.5074,
+				"line_expected_breach": 89.05,
 				"line_base_hp": 270.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -3387,7 +3387,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.244608,
+					"raw_ratio": 2.077143,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -3499,13 +3499,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 16,
+						"count": 19,
 						"interval": 0.66,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 16,
+						"count": 19,
 						"interval": 0.66,
 						"lane": "right"
 					}
@@ -3516,7 +3516,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 18,
+						"count": 22,
 						"interval": 0.73,
 						"lane": "spread"
 					}
@@ -3529,17 +3529,17 @@
 		},
 		"reward_gold_mult": 0.48,
 		"clear_requirement": {
-			"min_output": 3.475,
+			"min_output": 3.7509,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 47,
+				"recommended_power": 50,
 				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6368,
-				"line_expected_breach": 114.65,
+				"line_capacity": 0.7251,
+				"line_expected_breach": 130.55,
 				"line_base_hp": 277.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -3556,7 +3556,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.818613,
+					"raw_ratio": 1.684849,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -3654,13 +3654,13 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 10,
+						"count": 12,
 						"interval": 0.66,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 16,
+						"count": 19,
 						"interval": 0.66,
 						"lane": "right"
 					}
@@ -3671,7 +3671,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 18,
+						"count": 22,
 						"interval": 0.73,
 						"lane": "spread"
 					}
@@ -3684,17 +3684,17 @@
 		},
 		"reward_gold_mult": 0.47,
 		"clear_requirement": {
-			"min_output": 3.2288,
+			"min_output": 3.4707,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 44,
+				"recommended_power": 47,
 				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5618,
-				"line_expected_breach": 103.7,
+				"line_capacity": 0.6354,
+				"line_expected_breach": 117.3,
 				"line_base_hp": 284.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -3711,7 +3711,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.957283,
+					"raw_ratio": 1.820876,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -3794,7 +3794,7 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 16,
+						"count": 19,
 						"interval": 0.84,
 						"lane": "left"
 					}
@@ -3805,13 +3805,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 20,
+						"count": 24,
 						"interval": 0.65,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 20,
+						"count": 24,
 						"interval": 0.65,
 						"lane": "right"
 					}
@@ -3842,22 +3842,22 @@
 		},
 		"reward_gold_mult": 0.47,
 		"clear_requirement": {
-			"min_output": 4.2047,
-			"mob_hp_share": 0.6777,
-			"boss_hp_share": 0.3223,
+			"min_output": 4.4277,
+			"mob_hp_share": 0.7001,
+			"boss_hp_share": 0.2999,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 57,
-				"crowd_capacity": 10.7511,
+				"recommended_power": 60,
+				"crowd_capacity": 11.3213,
 				"boss_capacity": 12.346,
-				"line_capacity": 0.7023,
-				"line_expected_breach": 166.05,
+				"line_capacity": 0.7662,
+				"line_expected_breach": 181.15,
 				"line_base_hp": 363.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.6777,
-					"boss": 0.3223
+					"crowd": 0.7001,
+					"boss": 0.2999
 				},
 				"boss_effective_hp": 72800.0,
 				"boss_weights": {
@@ -3871,7 +3871,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.706039,
+					"raw_ratio": 1.620107,
 					"ratio": 1.380004,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -3982,7 +3982,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 19,
+						"count": 20,
 						"interval": 0.71,
 						"lane": "spread"
 					}
@@ -3995,7 +3995,7 @@
 		},
 		"reward_gold_mult": 0.47,
 		"clear_requirement": {
-			"min_output": 3.9413,
+			"min_output": 3.9767,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
@@ -4004,8 +4004,8 @@
 				"recommended_power": 53,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.506,
-				"line_expected_breach": 98.35,
+				"line_capacity": 0.5138,
+				"line_expected_breach": 99.85,
 				"line_base_hp": 299.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4022,7 +4022,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.058725,
+					"raw_ratio": 2.040398,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -4135,13 +4135,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 20,
 						"interval": 0.64,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 17,
+						"count": 20,
 						"interval": 0.64,
 						"lane": "right"
 					}
@@ -4152,7 +4152,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 19,
+						"count": 23,
 						"interval": 0.71,
 						"lane": "spread"
 					}
@@ -4165,17 +4165,17 @@
 		},
 		"reward_gold_mult": 0.46,
 		"clear_requirement": {
-			"min_output": 4.2208,
+			"min_output": 4.5452,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 56,
+				"recommended_power": 59,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5681,
-				"line_expected_breach": 113.0,
+				"line_capacity": 0.6435,
+				"line_expected_breach": 128.0,
 				"line_base_hp": 306.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4192,7 +4192,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.922382,
+					"raw_ratio": 1.785191,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -4292,13 +4292,13 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 11,
+						"count": 13,
 						"interval": 0.63,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_screamer",
-						"count": 17,
+						"count": 20,
 						"interval": 0.63,
 						"lane": "right"
 					}
@@ -4309,7 +4309,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 19,
+						"count": 22,
 						"interval": 0.7,
 						"lane": "spread"
 					}
@@ -4322,17 +4322,17 @@
 		},
 		"reward_gold_mult": 0.46,
 		"clear_requirement": {
-			"min_output": 3.7235,
+			"min_output": 3.9784,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 50,
+				"recommended_power": 53,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4596,
-				"line_expected_breach": 93.5,
+				"line_capacity": 0.5141,
+				"line_expected_breach": 104.6,
 				"line_base_hp": 313.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4349,7 +4349,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.179134,
+					"raw_ratio": 2.039519,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -4447,13 +4447,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 11,
+						"count": 13,
 						"interval": 0.63,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 17,
+						"count": 20,
 						"interval": 0.63,
 						"lane": "right"
 					}
@@ -4464,7 +4464,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 19,
+						"count": 23,
 						"interval": 0.7,
 						"lane": "spread"
 					}
@@ -4477,17 +4477,17 @@
 		},
 		"reward_gold_mult": 0.46,
 		"clear_requirement": {
-			"min_output": 4.8651,
+			"min_output": 5.2073,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 71,
+				"recommended_power": 75,
 				"crowd_capacity": 19.6408,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5834,
-				"line_expected_breach": 121.35,
+				"line_capacity": 0.6536,
+				"line_expected_breach": 135.95,
 				"line_base_hp": 320.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4504,7 +4504,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.880332,
+					"raw_ratio": 1.756764,
 					"ratio": 1.379997,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -4595,7 +4595,7 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 28,
+						"count": 34,
 						"interval": 0.8,
 						"lane": "center"
 					}
@@ -4606,13 +4606,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 21,
+						"count": 25,
 						"interval": 0.62,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 21,
+						"count": 25,
 						"interval": 0.62,
 						"lane": "right"
 					}
@@ -4643,22 +4643,22 @@
 		},
 		"reward_gold_mult": 0.45,
 		"clear_requirement": {
-			"min_output": 5.7926,
-			"mob_hp_share": 0.6071,
-			"boss_hp_share": 0.3929,
+			"min_output": 5.9811,
+			"mob_hp_share": 0.6262,
+			"boss_hp_share": 0.3738,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 156,
-				"crowd_capacity": 26.8873,
-				"boss_capacity": 17.3369,
-				"line_capacity": 0.659,
-				"line_expected_breach": 175.08,
+				"recommended_power": 159,
+				"crowd_capacity": 19.9181,
+				"boss_capacity": 24.1646,
+				"line_capacity": 0.6936,
+				"line_expected_breach": 184.28,
 				"line_base_hp": 408.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.6071,
-					"boss": 0.3929
+					"crowd": 0.6262,
+					"boss": 0.3738
 				},
 				"boss_effective_hp": 145600.0,
 				"boss_weights": {
@@ -4672,12 +4672,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.923471,
-					"ratio": 1.380002,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
+					"raw_ratio": 1.862852,
+					"ratio": 1.379998,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"crowd"
+						"boss"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -4784,13 +4784,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 18,
+						"count": 22,
 						"interval": 0.61,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 18,
+						"count": 22,
 						"interval": 0.61,
 						"lane": "right"
 					}
@@ -4801,7 +4801,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 20,
+						"count": 24,
 						"interval": 0.68,
 						"lane": "spread"
 					}
@@ -4814,17 +4814,17 @@
 		},
 		"reward_gold_mult": 0.45,
 		"clear_requirement": {
-			"min_output": 5.4434,
+			"min_output": 5.9151,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 78,
+				"recommended_power": 84,
 				"crowd_capacity": 23.9217,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5725,
-				"line_expected_breach": 124.3,
+				"line_capacity": 0.6573,
+				"line_expected_breach": 142.7,
 				"line_base_hp": 334.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4841,7 +4841,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.046872,
+					"raw_ratio": 1.883641,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -4942,13 +4942,13 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 11,
+						"count": 13,
 						"interval": 0.61,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 18,
+						"count": 22,
 						"interval": 0.61,
 						"lane": "right"
 					}
@@ -4959,7 +4959,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 20,
+						"count": 24,
 						"interval": 0.68,
 						"lane": "spread"
 					}
@@ -4972,17 +4972,17 @@
 		},
 		"reward_gold_mult": 0.44,
 		"clear_requirement": {
-			"min_output": 4.6833,
+			"min_output": 5.0802,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 73,
+				"recommended_power": 78,
 				"crowd_capacity": 29.0214,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4453,
-				"line_expected_breach": 98.7,
+				"line_capacity": 0.5103,
+				"line_expected_breach": 113.1,
 				"line_base_hp": 341.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -4999,7 +4999,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.379074,
+					"raw_ratio": 2.193199,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -5248,13 +5248,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 18,
+						"count": 22,
 						"interval": 0.6,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 18,
+						"count": 22,
 						"interval": 0.6,
 						"lane": "right"
 					}
@@ -5265,7 +5265,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 21,
+						"count": 25,
 						"interval": 0.66,
 						"lane": "spread"
 					}
@@ -5278,17 +5278,17 @@
 		},
 		"reward_gold_mult": 0.44,
 		"clear_requirement": {
-			"min_output": 6.7975,
+			"min_output": 7.3734,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 100,
+				"recommended_power": 107,
 				"crowd_capacity": 36.4349,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5564,
-				"line_expected_breach": 128.75,
+				"line_capacity": 0.6359,
+				"line_expected_breach": 147.15,
 				"line_base_hp": 356.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -5305,7 +5305,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.057828,
+					"raw_ratio": 1.897107,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -5400,13 +5400,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 9,
+						"count": 11,
 						"interval": 0.77,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 15,
+						"count": 18,
 						"interval": 0.77,
 						"lane": "right"
 					}
@@ -5417,13 +5417,13 @@
 				"spawns": [
 					{
 						"type": "zombie_toxic",
-						"count": 22,
+						"count": 26,
 						"interval": 0.59,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 22,
+						"count": 26,
 						"interval": 0.59,
 						"lane": "right"
 					}
@@ -5454,22 +5454,22 @@
 		},
 		"reward_gold_mult": 0.43,
 		"clear_requirement": {
-			"min_output": 8.2187,
-			"mob_hp_share": 0.7689,
-			"boss_hp_share": 0.2311,
+			"min_output": 8.6031,
+			"mob_hp_share": 0.7858,
+			"boss_hp_share": 0.2142,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 117,
+				"recommended_power": 121,
 				"crowd_capacity": 36.4349,
-				"boss_capacity": 25.3877,
-				"line_capacity": 0.7593,
-				"line_expected_breach": 223.96,
+				"boss_capacity": 26.5751,
+				"line_capacity": 0.818,
+				"line_expected_breach": 241.26,
 				"line_base_hp": 453.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.7689,
-					"boss": 0.2311
+					"crowd": 0.7858,
+					"boss": 0.2142
 				},
 				"boss_effective_hp": 115500.0,
 				"boss_weights": {
@@ -5483,7 +5483,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.701983,
+					"raw_ratio": 1.625937,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -5741,13 +5741,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 12,
+						"count": 14,
 						"interval": 0.58,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 19,
+						"count": 23,
 						"interval": 0.58,
 						"lane": "right"
 					}
@@ -5758,7 +5758,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 22,
+						"count": 26,
 						"interval": 0.64,
 						"lane": "spread"
 					}
@@ -5771,17 +5771,17 @@
 		},
 		"reward_gold_mult": 0.43,
 		"clear_requirement": {
-			"min_output": 7.9327,
+			"min_output": 8.6122,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 114,
+				"recommended_power": 122,
 				"crowd_capacity": 40.6587,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5923,
-				"line_expected_breach": 145.15,
+				"line_capacity": 0.6772,
+				"line_expected_breach": 165.95,
 				"line_base_hp": 377.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -5798,7 +5798,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.967768,
+					"raw_ratio": 1.812509,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -5892,13 +5892,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 20,
+						"count": 24,
 						"interval": 0.57,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 20,
+						"count": 24,
 						"interval": 0.57,
 						"lane": "right"
 					}
@@ -5909,7 +5909,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 22,
+						"count": 26,
 						"interval": 0.64,
 						"lane": "spread"
 					}
@@ -5922,17 +5922,17 @@
 		},
 		"reward_gold_mult": 0.42,
 		"clear_requirement": {
-			"min_output": 9.5353,
+			"min_output": 10.3289,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 131,
+				"recommended_power": 140,
 				"crowd_capacity": 41.0935,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6633,
-				"line_expected_breach": 165.55,
+				"line_capacity": 0.7546,
+				"line_expected_breach": 188.35,
 				"line_base_hp": 384.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -5949,7 +5949,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.822207,
+					"raw_ratio": 1.682203,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6041,13 +6041,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 20,
+						"count": 24,
 						"interval": 0.56,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 20,
+						"count": 24,
 						"interval": 0.56,
 						"lane": "right"
 					}
@@ -6058,7 +6058,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 22,
+						"count": 26,
 						"interval": 0.63,
 						"lane": "spread"
 					}
@@ -6071,17 +6071,17 @@
 		},
 		"reward_gold_mult": 0.42,
 		"clear_requirement": {
-			"min_output": 9.3022,
+			"min_output": 10.1598,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 131,
+				"recommended_power": 141,
 				"crowd_capacity": 45.2576,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6372,
-				"line_expected_breach": 161.95,
+				"line_capacity": 0.7348,
+				"line_expected_breach": 186.75,
 				"line_base_hp": 391.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -6098,7 +6098,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.86787,
+					"raw_ratio": 1.710203,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6189,13 +6189,13 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 10,
+						"count": 12,
 						"interval": 0.73,
 						"lane": "center"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 16,
+						"count": 19,
 						"interval": 0.73,
 						"lane": "spread"
 					}
@@ -6206,13 +6206,13 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 15,
+						"count": 18,
 						"interval": 0.56,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 24,
+						"count": 29,
 						"interval": 0.56,
 						"lane": "right"
 					}
@@ -6243,22 +6243,22 @@
 		},
 		"reward_gold_mult": 0.42,
 		"clear_requirement": {
-			"min_output": 9.1165,
-			"mob_hp_share": 0.6469,
-			"boss_hp_share": 0.3531,
+			"min_output": 9.5166,
+			"mob_hp_share": 0.6711,
+			"boss_hp_share": 0.3289,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 236,
-				"crowd_capacity": 45.2576,
-				"boss_capacity": 28.161,
-				"line_capacity": 0.6377,
-				"line_expected_breach": 206.74,
+				"recommended_power": 244,
+				"crowd_capacity": 34.2074,
+				"boss_capacity": 38.8932,
+				"line_capacity": 0.6821,
+				"line_expected_breach": 221.14,
 				"line_base_hp": 498.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.6469,
-					"boss": 0.3531
+					"crowd": 0.6711,
+					"boss": 0.3289
 				},
 				"boss_effective_hp": 231000.0,
 				"boss_weights": {
@@ -6272,12 +6272,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.905918,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
+					"raw_ratio": 1.825786,
+					"ratio": 1.38,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"crowd"
+						"boss"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -6372,13 +6372,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 13,
+						"count": 16,
 						"interval": 0.55,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 21,
+						"count": 25,
 						"interval": 0.55,
 						"lane": "right"
 					}
@@ -6389,7 +6389,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 23,
+						"count": 28,
 						"interval": 0.62,
 						"lane": "spread"
 					}
@@ -6402,17 +6402,17 @@
 		},
 		"reward_gold_mult": 0.41,
 		"clear_requirement": {
-			"min_output": 10.5956,
+			"min_output": 11.4504,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 147,
+				"recommended_power": 157,
 				"crowd_capacity": 52.9199,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6557,
-				"line_expected_breach": 173.05,
+				"line_capacity": 0.7427,
+				"line_expected_breach": 196.0,
 				"line_base_hp": 406.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -6429,7 +6429,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.82096,
+					"raw_ratio": 1.68502,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6524,13 +6524,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 21,
+						"count": 25,
 						"interval": 0.55,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 21,
+						"count": 25,
 						"interval": 0.55,
 						"lane": "right"
 					}
@@ -6541,7 +6541,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 23,
+						"count": 28,
 						"interval": 0.61,
 						"lane": "spread"
 					}
@@ -6554,17 +6554,17 @@
 		},
 		"reward_gold_mult": 0.41,
 		"clear_requirement": {
-			"min_output": 11.326,
+			"min_output": 12.366,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 156,
+				"recommended_power": 167,
 				"crowd_capacity": 55.719,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6113,
-				"line_expected_breach": 164.1,
+				"line_capacity": 0.7035,
+				"line_expected_breach": 188.85,
 				"line_base_hp": 413.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -6581,7 +6581,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.887329,
+					"raw_ratio": 1.728603,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6675,13 +6675,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 21,
+						"count": 25,
 						"interval": 0.54,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 21,
+						"count": 25,
 						"interval": 0.54,
 						"lane": "right"
 					}
@@ -6692,7 +6692,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 24,
+						"count": 29,
 						"interval": 0.6,
 						"lane": "spread"
 					}
@@ -6705,17 +6705,17 @@
 		},
 		"reward_gold_mult": 0.41,
 		"clear_requirement": {
-			"min_output": 10.7796,
+			"min_output": 11.594,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 146,
+				"recommended_power": 155,
 				"crowd_capacity": 50.5551,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5647,
-				"line_expected_breach": 154.15,
+				"line_capacity": 0.6346,
+				"line_expected_breach": 173.25,
 				"line_base_hp": 420.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -6732,7 +6732,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.982994,
+					"raw_ratio": 1.843703,
 					"ratio": 1.380001,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6842,13 +6842,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 22,
+						"count": 26,
 						"interval": 0.53,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 22,
+						"count": 26,
 						"interval": 0.53,
 						"lane": "right"
 					}
@@ -6859,7 +6859,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 24,
+						"count": 29,
 						"interval": 0.6,
 						"lane": "spread"
 					}
@@ -6872,17 +6872,17 @@
 		},
 		"reward_gold_mult": 0.4,
 		"clear_requirement": {
-			"min_output": 13.4102,
+			"min_output": 14.7034,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 184,
+				"recommended_power": 199,
 				"crowd_capacity": 61.378,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8004,
-				"line_expected_breach": 222.15,
+				"line_capacity": 0.9261,
+				"line_expected_breach": 257.05,
 				"line_base_hp": 427.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -6899,7 +6899,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.594002,
+					"raw_ratio": 1.453805,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -6988,7 +6988,7 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 21,
+						"count": 25,
 						"interval": 0.69,
 						"lane": "spread"
 					}
@@ -6999,13 +6999,13 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 16,
+						"count": 19,
 						"interval": 0.53,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 26,
+						"count": 31,
 						"interval": 0.53,
 						"lane": "right"
 					}
@@ -7036,22 +7036,22 @@
 		},
 		"reward_gold_mult": 0.4,
 		"clear_requirement": {
-			"min_output": 12.9216,
-			"mob_hp_share": 0.7475,
-			"boss_hp_share": 0.2525,
+			"min_output": 13.5165,
+			"mob_hp_share": 0.7659,
+			"boss_hp_share": 0.2341,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 180,
-				"crowd_capacity": 51.2016,
+				"recommended_power": 186,
+				"crowd_capacity": 53.5589,
 				"boss_capacity": 55.34,
-				"line_capacity": 0.6345,
-				"line_expected_breach": 223.75,
+				"line_capacity": 0.6816,
+				"line_expected_breach": 240.35,
 				"line_base_hp": 542.5,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.7475,
-					"boss": 0.2525
+					"crowd": 0.7659,
+					"boss": 0.2341
 				},
 				"boss_effective_hp": 237600.0,
 				"boss_weights": {
@@ -7065,7 +7065,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.828757,
+					"raw_ratio": 1.748268,
 					"ratio": 1.380001,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -7159,13 +7159,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 22,
+						"count": 26,
 						"interval": 0.52,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 22,
+						"count": 26,
 						"interval": 0.52,
 						"lane": "right"
 					}
@@ -7176,7 +7176,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 24,
+						"count": 29,
 						"interval": 0.59,
 						"lane": "spread"
 					}
@@ -7189,17 +7189,17 @@
 		},
 		"reward_gold_mult": 0.39,
 		"clear_requirement": {
-			"min_output": 14.3121,
+			"min_output": 15.5863,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 196,
+				"recommended_power": 211,
 				"crowd_capacity": 82.5668,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.63,
-				"line_expected_breach": 180.6,
+				"line_capacity": 0.7209,
+				"line_expected_breach": 206.65,
 				"line_base_hp": 441.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -7216,7 +7216,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.996391,
+					"raw_ratio": 1.833183,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -7311,13 +7311,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 22,
+						"count": 26,
 						"interval": 0.52,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 22,
+						"count": 26,
 						"interval": 0.52,
 						"lane": "right"
 					}
@@ -7328,7 +7328,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 25,
+						"count": 30,
 						"interval": 0.58,
 						"lane": "spread"
 					}
@@ -7341,17 +7341,17 @@
 		},
 		"reward_gold_mult": 0.39,
 		"clear_requirement": {
-			"min_output": 14.0737,
+			"min_output": 15.2745,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 194,
+				"recommended_power": 207,
 				"crowd_capacity": 82.0422,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6135,
-				"line_expected_breach": 179.05,
+				"line_capacity": 0.6983,
+				"line_expected_breach": 203.8,
 				"line_base_hp": 449.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -7368,7 +7368,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.030207,
+					"raw_ratio": 1.870602,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -7480,13 +7480,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 23,
+						"count": 28,
 						"interval": 0.51,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_charger",
-						"count": 23,
+						"count": 28,
 						"interval": 0.51,
 						"lane": "right"
 					}
@@ -7497,7 +7497,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 25,
+						"count": 30,
 						"interval": 0.57,
 						"lane": "spread"
 					}
@@ -7510,17 +7510,17 @@
 		},
 		"reward_gold_mult": 0.39,
 		"clear_requirement": {
-			"min_output": 15.2405,
+			"min_output": 16.5461,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 202,
+				"recommended_power": 216,
 				"crowd_capacity": 75.4834,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6959,
-				"line_expected_breach": 206.25,
+				"line_capacity": 0.792,
+				"line_expected_breach": 234.75,
 				"line_base_hp": 456.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -7537,7 +7537,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.874776,
+					"raw_ratio": 1.726844,
 					"ratio": 1.379999,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -7635,13 +7635,13 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 14,
+						"count": 16,
 						"interval": 0.5,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_warden",
-						"count": 23,
+						"count": 26,
 						"interval": 0.5,
 						"lane": "right"
 					}
@@ -7652,7 +7652,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 25,
+						"count": 29,
 						"interval": 0.57,
 						"lane": "spread"
 					}
@@ -7665,17 +7665,17 @@
 		},
 		"reward_gold_mult": 0.38,
 		"clear_requirement": {
-			"min_output": 13.1231,
+			"min_output": 13.9633,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 182,
+				"recommended_power": 192,
 				"crowd_capacity": 84.9856,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4652,
-				"line_expected_breach": 140.0,
+				"line_capacity": 0.5134,
+				"line_expected_breach": 154.5,
 				"line_base_hp": 463.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -7692,7 +7692,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.3992,
+					"raw_ratio": 2.254836,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -7783,7 +7783,7 @@
 				"spawns": [
 					{
 						"type": "zombie_warden",
-						"count": 22,
+						"count": 26,
 						"interval": 0.66,
 						"lane": "left"
 					}
@@ -7794,13 +7794,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 27,
+						"count": 32,
 						"interval": 0.5,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 27,
+						"count": 32,
 						"interval": 0.5,
 						"lane": "right"
 					}
@@ -7831,22 +7831,22 @@
 		},
 		"reward_gold_mult": 0.38,
 		"clear_requirement": {
-			"min_output": 21.4268,
-			"mob_hp_share": 0.6854,
-			"boss_hp_share": 0.3146,
+			"min_output": 22.3663,
+			"mob_hp_share": 0.7024,
+			"boss_hp_share": 0.2976,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 515,
+				"recommended_power": 533,
 				"crowd_capacity": 101.5879,
-				"boss_capacity": 70.7528,
-				"line_capacity": 0.8762,
-				"line_expected_breach": 334.6,
+				"boss_capacity": 73.8551,
+				"line_capacity": 0.9346,
+				"line_expected_breach": 356.9,
 				"line_base_hp": 587.5,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.6854,
-					"boss": 0.3146
+					"crowd": 0.7024,
+					"boss": 0.2976
 				},
 				"boss_effective_hp": 475200.0,
 				"boss_weights": {
@@ -7860,7 +7860,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.616055,
+					"raw_ratio": 1.548172,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -7954,13 +7954,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 24,
+						"count": 29,
 						"interval": 0.49,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 24,
+						"count": 29,
 						"interval": 0.49,
 						"lane": "right"
 					}
@@ -7971,7 +7971,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 26,
+						"count": 31,
 						"interval": 0.55,
 						"lane": "spread"
 					}
@@ -7984,17 +7984,17 @@
 		},
 		"reward_gold_mult": 0.38,
 		"clear_requirement": {
-			"min_output": 17.1408,
+			"min_output": 18.8788,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 234,
+				"recommended_power": 253,
 				"crowd_capacity": 124.4998,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6031,
-				"line_expected_breach": 187.0,
+				"line_capacity": 0.7015,
+				"line_expected_breach": 217.5,
 				"line_base_hp": 477.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8011,7 +8011,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.020145,
+					"raw_ratio": 1.834169,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8124,13 +8124,13 @@
 				"spawns": [
 					{
 						"type": "zombie_toxic",
-						"count": 24,
+						"count": 29,
 						"interval": 0.49,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_berserker",
-						"count": 24,
+						"count": 29,
 						"interval": 0.49,
 						"lane": "right"
 					}
@@ -8141,7 +8141,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 26,
+						"count": 31,
 						"interval": 0.55,
 						"lane": "spread"
 					}
@@ -8154,17 +8154,17 @@
 		},
 		"reward_gold_mult": 0.37,
 		"clear_requirement": {
-			"min_output": 20.5262,
+			"min_output": 22.4775,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 264,
+				"recommended_power": 285,
 				"crowd_capacity": 90.0602,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7991,
-				"line_expected_breach": 251.4,
+				"line_capacity": 0.9199,
+				"line_expected_breach": 289.4,
 				"line_base_hp": 484.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8181,7 +8181,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.68696,
+					"raw_ratio": 1.540513,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8281,13 +8281,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 15,
+						"count": 18,
 						"interval": 0.48,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 24,
+						"count": 29,
 						"interval": 0.48,
 						"lane": "right"
 					}
@@ -8298,7 +8298,7 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 27,
+						"count": 32,
 						"interval": 0.54,
 						"lane": "spread"
 					}
@@ -8311,17 +8311,17 @@
 		},
 		"reward_gold_mult": 0.37,
 		"clear_requirement": {
-			"min_output": 18.6243,
+			"min_output": 20.1246,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 251,
+				"recommended_power": 267,
 				"crowd_capacity": 137.2535,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5859,
-				"line_expected_breach": 187.0,
+				"line_capacity": 0.6611,
+				"line_expected_breach": 211.0,
 				"line_base_hp": 491.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8338,7 +8338,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.040968,
+					"raw_ratio": 1.888813,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8436,13 +8436,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 16,
+						"count": 19,
 						"interval": 0.47,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 25,
+						"count": 30,
 						"interval": 0.47,
 						"lane": "right"
 					}
@@ -8453,7 +8453,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 28,
+						"count": 34,
 						"interval": 0.53,
 						"lane": "spread"
 					}
@@ -8466,17 +8466,17 @@
 		},
 		"reward_gold_mult": 0.37,
 		"clear_requirement": {
-			"min_output": 21.9327,
+			"min_output": 23.9151,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 289,
+				"recommended_power": 310,
 				"crowd_capacity": 142.4396,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6467,
-				"line_expected_breach": 209.75,
+				"line_capacity": 0.7392,
+				"line_expected_breach": 239.75,
 				"line_base_hp": 499.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8493,7 +8493,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.899114,
+					"raw_ratio": 1.741691,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8576,7 +8576,7 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 39,
+						"count": 47,
 						"interval": 0.62,
 						"lane": "center"
 					}
@@ -8587,13 +8587,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 30,
+						"count": 36,
 						"interval": 0.47,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 30,
+						"count": 36,
 						"interval": 0.47,
 						"lane": "right"
 					}
@@ -8624,22 +8624,22 @@
 		},
 		"reward_gold_mult": 0.36,
 		"clear_requirement": {
-			"min_output": 21.721,
-			"mob_hp_share": 0.4737,
-			"boss_hp_share": 0.5263,
+			"min_output": 22.6117,
+			"mob_hp_share": 0.4933,
+			"boss_hp_share": 0.5067,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 286,
-				"crowd_capacity": 142.4396,
-				"boss_capacity": 66.68,
-				"line_capacity": 0.6522,
-				"line_expected_breach": 268.12,
+				"recommended_power": 296,
+				"crowd_capacity": 106.7087,
+				"boss_capacity": 92.6574,
+				"line_capacity": 0.6921,
+				"line_expected_breach": 284.52,
 				"line_base_hp": 632.5,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.4737,
-					"boss": 0.5263
+					"crowd": 0.4933,
+					"boss": 0.5067
 				},
 				"boss_effective_hp": 1794940.0,
 				"boss_weights": {
@@ -8653,12 +8653,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.917623,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
+					"raw_ratio": 1.842087,
+					"ratio": 1.379999,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"crowd"
+						"boss"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -8765,13 +8765,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 26,
+						"count": 31,
 						"interval": 0.46,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_phantom",
-						"count": 26,
+						"count": 31,
 						"interval": 0.46,
 						"lane": "right"
 					}
@@ -8782,7 +8782,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 28,
+						"count": 34,
 						"interval": 0.52,
 						"lane": "spread"
 					}
@@ -8795,17 +8795,17 @@
 		},
 		"reward_gold_mult": 0.36,
 		"clear_requirement": {
-			"min_output": 20.9404,
+			"min_output": 22.7506,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 271,
+				"recommended_power": 290,
 				"crowd_capacity": 108.3334,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6019,
-				"line_expected_breach": 200.7,
+				"line_capacity": 0.6844,
+				"line_expected_breach": 228.2,
 				"line_base_hp": 513.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8822,7 +8822,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.989108,
+					"raw_ratio": 1.83084,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8923,13 +8923,13 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 16,
+						"count": 19,
 						"interval": 0.45,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 26,
+						"count": 31,
 						"interval": 0.45,
 						"lane": "right"
 					}
@@ -8940,7 +8940,7 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 28,
+						"count": 34,
 						"interval": 0.52,
 						"lane": "spread"
 					}
@@ -8953,17 +8953,17 @@
 		},
 		"reward_gold_mult": 0.35,
 		"clear_requirement": {
-			"min_output": 23.8793,
+			"min_output": 26.2687,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 318,
+				"recommended_power": 344,
 				"crowd_capacity": 157.4314,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6331,
-				"line_expected_breach": 214.0,
+				"line_capacity": 0.7331,
+				"line_expected_breach": 247.8,
 				"line_base_hp": 520.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8980,7 +8980,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.90811,
+					"raw_ratio": 1.734548,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -9080,13 +9080,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 16,
+						"count": 19,
 						"interval": 0.45,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 27,
+						"count": 32,
 						"interval": 0.45,
 						"lane": "right"
 					}
@@ -9097,7 +9097,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 29,
+						"count": 35,
 						"interval": 0.51,
 						"lane": "spread"
 					}
@@ -9110,17 +9110,17 @@
 		},
 		"reward_gold_mult": 0.35,
 		"clear_requirement": {
-			"min_output": 32.1551,
+			"min_output": 35.3221,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 410,
+				"recommended_power": 443,
 				"crowd_capacity": 182.3662,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8594,
-				"line_expected_breach": 294.4,
+				"line_capacity": 0.9908,
+				"line_expected_breach": 339.4,
 				"line_base_hp": 527.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9137,7 +9137,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.547535,
+					"raw_ratio": 1.408781,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -9229,13 +9229,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 27,
+						"count": 32,
 						"interval": 0.44,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 27,
+						"count": 32,
 						"interval": 0.44,
 						"lane": "right"
 					}
@@ -9246,7 +9246,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 30,
+						"count": 36,
 						"interval": 0.5,
 						"lane": "spread"
 					}
@@ -9259,17 +9259,17 @@
 		},
 		"reward_gold_mult": 0.35,
 		"clear_requirement": {
-			"min_output": 33.6718,
+			"min_output": 36.576,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 425,
-				"crowd_capacity": 183.1456,
+				"recommended_power": 455,
+				"crowd_capacity": 185.7725,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9216,
-				"line_expected_breach": 319.9,
+				"line_capacity": 1.0444,
+				"line_expected_breach": 362.5,
 				"line_base_hp": 534.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9286,13 +9286,11 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.477828,
-					"ratio": 1.38,
+					"raw_ratio": 1.360486,
+					"ratio": 1.360486,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
+					"adjusted_axes": [],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -9389,13 +9387,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 13,
+						"count": 16,
 						"interval": 0.59,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 21,
+						"count": 25,
 						"interval": 0.59,
 						"lane": "right"
 					}
@@ -9406,13 +9404,13 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 32,
+						"count": 38,
 						"interval": 0.44,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 32,
+						"count": 38,
 						"interval": 0.44,
 						"lane": "right"
 					}
@@ -9443,22 +9441,22 @@
 		},
 		"reward_gold_mult": 0.34,
 		"clear_requirement": {
-			"min_output": 28.4288,
-			"mob_hp_share": 0.4151,
-			"boss_hp_share": 0.5849,
+			"min_output": 30.1956,
+			"mob_hp_share": 0.4451,
+			"boss_hp_share": 0.5549,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 678,
-				"crowd_capacity": 134.6843,
+				"recommended_power": 713,
+				"crowd_capacity": 143.0547,
 				"boss_capacity": 110.6947,
-				"line_capacity": 0.7401,
-				"line_expected_breach": 325.31,
+				"line_capacity": 0.8075,
+				"line_expected_breach": 354.96,
 				"line_base_hp": 676.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.4151,
-					"boss": 0.5849
+					"crowd": 0.4451,
+					"boss": 0.5549
 				},
 				"boss_effective_hp": 3589880.0,
 				"boss_weights": {
@@ -9572,13 +9570,13 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 17,
+						"count": 20,
 						"interval": 0.43,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_screamer",
-						"count": 28,
+						"count": 32,
 						"interval": 0.43,
 						"lane": "right"
 					}
@@ -9589,7 +9587,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 30,
+						"count": 34,
 						"interval": 0.49,
 						"lane": "spread"
 					}
@@ -9602,17 +9600,17 @@
 		},
 		"reward_gold_mult": 0.34,
 		"clear_requirement": {
-			"min_output": 23.6627,
+			"min_output": 25.3383,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 320,
+				"recommended_power": 338,
 				"crowd_capacity": 186.2711,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.4642,
-				"line_expected_breach": 165.65,
+				"line_capacity": 0.5158,
+				"line_expected_breach": 184.05,
 				"line_base_hp": 549.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9629,7 +9627,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.292987,
+					"raw_ratio": 2.141354,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -9730,13 +9728,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 18,
+						"count": 22,
 						"interval": 0.42,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 28,
+						"count": 34,
 						"interval": 0.42,
 						"lane": "right"
 					}
@@ -9747,7 +9745,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 31,
+						"count": 37,
 						"interval": 0.48,
 						"lane": "spread"
 					}
@@ -9760,17 +9758,17 @@
 		},
 		"reward_gold_mult": 0.34,
 		"clear_requirement": {
-			"min_output": 33.3096,
+			"min_output": 36.4848,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 425,
+				"recommended_power": 458,
 				"crowd_capacity": 240.2196,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6779,
-				"line_expected_breach": 245.0,
+				"line_capacity": 0.7779,
+				"line_expected_breach": 281.15,
 				"line_base_hp": 556.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9787,7 +9785,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.959444,
+					"raw_ratio": 1.788917,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -10030,13 +10028,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 29,
+						"count": 35,
 						"interval": 0.41,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shambler",
-						"count": 29,
+						"count": 35,
 						"interval": 0.41,
 						"lane": "right"
 					}
@@ -10047,7 +10045,7 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 32,
+						"count": 38,
 						"interval": 0.47,
 						"lane": "spread"
 					}
@@ -10060,17 +10058,17 @@
 		},
 		"reward_gold_mult": 0.33,
 		"clear_requirement": {
-			"min_output": 37.1428,
+			"min_output": 40.417,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 462,
+				"recommended_power": 496,
 				"crowd_capacity": 225.5114,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7992,
-				"line_expected_breach": 296.1,
+				"line_capacity": 0.9074,
+				"line_expected_breach": 336.2,
 				"line_base_hp": 570.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -10087,7 +10085,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.757226,
+					"raw_ratio": 1.614872,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -10184,13 +10182,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 14,
+						"count": 17,
 						"interval": 0.55,
 						"lane": "center"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 22,
+						"count": 26,
 						"interval": 0.55,
 						"lane": "spread"
 					}
@@ -10201,13 +10199,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 21,
+						"count": 25,
 						"interval": 0.41,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 34,
+						"count": 41,
 						"interval": 0.41,
 						"lane": "right"
 					}
@@ -10238,22 +10236,22 @@
 		},
 		"reward_gold_mult": 0.33,
 		"clear_requirement": {
-			"min_output": 46.962,
-			"mob_hp_share": 0.381,
-			"boss_hp_share": 0.619,
+			"min_output": 48.9812,
+			"mob_hp_share": 0.4045,
+			"boss_hp_share": 0.5955,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1447,
-				"crowd_capacity": 222.4873,
+				"recommended_power": 1498,
+				"crowd_capacity": 232.0534,
 				"boss_capacity": 157.9374,
-				"line_capacity": 1.0262,
-				"line_expected_breach": 481.08,
+				"line_capacity": 1.0889,
+				"line_expected_breach": 510.48,
 				"line_base_hp": 721.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.381,
-					"boss": 0.619
+					"crowd": 0.4045,
+					"boss": 0.5955
 				},
 				"boss_effective_hp": 5384820.0,
 				"boss_weights": {
@@ -10267,7 +10265,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.507973,
+					"raw_ratio": 1.449501,
 					"ratio": 1.38,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -10367,13 +10365,13 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 18,
+						"count": 22,
 						"interval": 0.4,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 29,
+						"count": 35,
 						"interval": 0.4,
 						"lane": "right"
 					}
@@ -10384,7 +10382,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 32,
+						"count": 38,
 						"interval": 0.46,
 						"lane": "spread"
 					}
@@ -10397,17 +10395,17 @@
 		},
 		"reward_gold_mult": 0.32,
 		"clear_requirement": {
-			"min_output": 46.3579,
+			"min_output": 50.9362,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 548,
+				"recommended_power": 592,
 				"crowd_capacity": 236.2661,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8417,
-				"line_expected_breach": 319.5,
+				"line_capacity": 0.9681,
+				"line_expected_breach": 367.5,
 				"line_base_hp": 584.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -10424,7 +10422,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.663586,
+					"raw_ratio": 1.514058,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -10670,13 +10668,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 30,
+						"count": 36,
 						"interval": 0.39,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 30,
+						"count": 36,
 						"interval": 0.39,
 						"lane": "right"
 					}
@@ -10687,7 +10685,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 33,
+						"count": 40,
 						"interval": 0.44,
 						"lane": "spread"
 					}
@@ -10700,17 +10698,17 @@
 		},
 		"reward_gold_mult": 0.32,
 		"clear_requirement": {
-			"min_output": 37.1878,
+			"min_output": 40.6929,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 469,
+				"recommended_power": 505,
 				"crowd_capacity": 264.7576,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.605,
-				"line_expected_breach": 235.55,
+				"line_capacity": 0.6927,
+				"line_expected_breach": 269.7,
 				"line_base_hp": 599.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -10727,7 +10725,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.073808,
+					"raw_ratio": 1.895179,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -10837,13 +10835,13 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 31,
+						"count": 37,
 						"interval": 0.38,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 31,
+						"count": 37,
 						"interval": 0.38,
 						"lane": "right"
 					}
@@ -10854,7 +10852,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 33,
+						"count": 40,
 						"interval": 0.44,
 						"lane": "spread"
 					}
@@ -10867,17 +10865,17 @@
 		},
 		"reward_gold_mult": 0.31,
 		"clear_requirement": {
-			"min_output": 43.6093,
+			"min_output": 47.9743,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 552,
+				"recommended_power": 597,
 				"crowd_capacity": 309.233,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6703,
-				"line_expected_breach": 264.05,
+				"line_capacity": 0.7728,
+				"line_expected_breach": 304.4,
 				"line_base_hp": 606.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -10894,7 +10892,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.918261,
+					"raw_ratio": 1.743725,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -10983,7 +10981,7 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 29,
+						"count": 35,
 						"interval": 0.51,
 						"lane": "spread"
 					}
@@ -10994,13 +10992,13 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 23,
+						"count": 28,
 						"interval": 0.38,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 36,
+						"count": 43,
 						"interval": 0.38,
 						"lane": "right"
 					}
@@ -11031,22 +11029,22 @@
 		},
 		"reward_gold_mult": 0.31,
 		"clear_requirement": {
-			"min_output": 57.9624,
-			"mob_hp_share": 0.2092,
-			"boss_hp_share": 0.7908,
+			"min_output": 60.3395,
+			"mob_hp_share": 0.2224,
+			"boss_hp_share": 0.7776,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 701,
-				"crowd_capacity": 294.4235,
+				"recommended_power": 725,
+				"crowd_capacity": 306.4981,
 				"boss_capacity": 322.1351,
-				"line_capacity": 0.9405,
-				"line_expected_breach": 468.42,
+				"line_capacity": 0.9913,
+				"line_expected_breach": 493.72,
 				"line_base_hp": 766.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.2092,
-					"boss": 0.7908
+					"crowd": 0.2224,
+					"boss": 0.7776
 				},
 				"boss_effective_hp": 17250000.0,
 				"boss_weights": {
@@ -11153,13 +11151,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 32,
+						"count": 38,
 						"interval": 0.37,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 32,
+						"count": 38,
 						"interval": 0.37,
 						"lane": "right"
 					}
@@ -11170,7 +11168,7 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 35,
+						"count": 42,
 						"interval": 0.42,
 						"lane": "spread"
 					}
@@ -11183,17 +11181,17 @@
 		},
 		"reward_gold_mult": 0.3,
 		"clear_requirement": {
-			"min_output": 60.3303,
+			"min_output": 66.0917,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 718,
+				"recommended_power": 774,
 				"crowd_capacity": 989.9124,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9484,
-				"line_expected_breach": 382.2,
+				"line_capacity": 1.0841,
+				"line_expected_breach": 436.9,
 				"line_base_hp": 620.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -11210,7 +11208,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.577861,
+					"raw_ratio": 3.265968,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -11305,13 +11303,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 33,
+						"count": 40,
 						"interval": 0.36,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_charger",
-						"count": 33,
+						"count": 40,
 						"interval": 0.36,
 						"lane": "right"
 					}
@@ -11322,7 +11320,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 35,
+						"count": 42,
 						"interval": 0.42,
 						"lane": "spread"
 					}
@@ -11335,17 +11333,17 @@
 		},
 		"reward_gold_mult": 0.3,
 		"clear_requirement": {
-			"min_output": 56.6438,
+			"min_output": 62.7979,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 688,
+				"recommended_power": 749,
 				"crowd_capacity": 1142.3589,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8643,
-				"line_expected_breach": 352.25,
+				"line_capacity": 1.0059,
+				"line_expected_breach": 409.95,
 				"line_base_hp": 627.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -11362,7 +11360,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.810715,
+					"raw_ratio": 3.437271,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -11474,13 +11472,13 @@
 				"spawns": [
 					{
 						"type": "zombie_toxic",
-						"count": 33,
+						"count": 40,
 						"interval": 0.36,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 33,
+						"count": 40,
 						"interval": 0.36,
 						"lane": "right"
 					}
@@ -11491,7 +11489,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 35,
+						"count": 42,
 						"interval": 0.41,
 						"lane": "spread"
 					}
@@ -11504,17 +11502,17 @@
 		},
 		"reward_gold_mult": 0.3,
 		"clear_requirement": {
-			"min_output": 56.6185,
+			"min_output": 62.875,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 671,
+				"recommended_power": 731,
 				"crowd_capacity": 1224.6997,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7571,
-				"line_expected_breach": 312.0,
+				"line_capacity": 0.8833,
+				"line_expected_breach": 364.0,
 				"line_base_hp": 634.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -11531,7 +11529,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.055693,
+					"raw_ratio": 3.652124,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -11629,13 +11627,13 @@
 				"spawns": [
 					{
 						"type": "zombie_warden",
-						"count": 21,
+						"count": 25,
 						"interval": 0.35,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_warden",
-						"count": 34,
+						"count": 41,
 						"interval": 0.35,
 						"lane": "right"
 					}
@@ -11646,7 +11644,7 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 35,
+						"count": 42,
 						"interval": 0.41,
 						"lane": "spread"
 					}
@@ -11659,17 +11657,17 @@
 		},
 		"reward_gold_mult": 0.29,
 		"clear_requirement": {
-			"min_output": 53.8807,
+			"min_output": 59.171,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 666,
+				"recommended_power": 719,
 				"crowd_capacity": 1291.612,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6181,
-				"line_expected_breach": 257.55,
+				"line_capacity": 0.7097,
+				"line_expected_breach": 295.7,
 				"line_base_hp": 641.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -11686,7 +11684,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.529551,
+					"raw_ratio": 4.124578,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -11777,7 +11775,7 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 31,
+						"count": 37,
 						"interval": 0.48,
 						"lane": "left"
 					}
@@ -11788,13 +11786,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 39,
+						"count": 47,
 						"interval": 0.35,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 39,
+						"count": 47,
 						"interval": 0.35,
 						"lane": "right"
 					}
@@ -11825,22 +11823,22 @@
 		},
 		"reward_gold_mult": 0.29,
 		"clear_requirement": {
-			"min_output": 61.7779,
-			"mob_hp_share": 0.1499,
-			"boss_hp_share": 0.8501,
+			"min_output": 65.7211,
+			"mob_hp_share": 0.1647,
+			"boss_hp_share": 0.8353,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1366,
-				"crowd_capacity": 451.1863,
+				"recommended_power": 1435,
+				"crowd_capacity": 479.9849,
 				"boss_capacity": 926.0154,
-				"line_capacity": 0.8114,
-				"line_expected_breach": 427.88,
+				"line_capacity": 0.8793,
+				"line_expected_breach": 463.68,
 				"line_base_hp": 811.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.1499,
-					"boss": 0.8501
+					"crowd": 0.1647,
+					"boss": 0.8353
 				},
 				"boss_effective_hp": 34500000.0,
 				"boss_weights": {
@@ -11946,13 +11944,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shambler",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -11963,7 +11961,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 37,
+						"count": 44,
 						"interval": 0.39,
 						"lane": "spread"
 					}
@@ -11976,17 +11974,17 @@
 		},
 		"reward_gold_mult": 0.29,
 		"clear_requirement": {
-			"min_output": 63.4242,
+			"min_output": 69.2532,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 761,
+				"recommended_power": 818,
 				"crowd_capacity": 1291.612,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7859,
-				"line_expected_breach": 335.1,
+				"line_capacity": 0.8938,
+				"line_expected_breach": 381.1,
 				"line_base_hp": 656.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12003,7 +12001,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.847985,
+					"raw_ratio": 3.524103,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -12116,13 +12114,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_charger",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12133,7 +12131,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 37,
+						"count": 44,
 						"interval": 0.39,
 						"lane": "spread"
 					}
@@ -12146,17 +12144,17 @@
 		},
 		"reward_gold_mult": 0.28,
 		"clear_requirement": {
-			"min_output": 70.8728,
+			"min_output": 77.1512,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 812,
+				"recommended_power": 871,
 				"crowd_capacity": 1382.2007,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8138,
-				"line_expected_breach": 350.7,
+				"line_capacity": 0.9208,
+				"line_expected_breach": 396.8,
 				"line_base_hp": 663.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12173,7 +12171,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.656667,
+					"raw_ratio": 3.359095,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -12272,13 +12270,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12289,7 +12287,7 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 38,
+						"count": 46,
 						"interval": 0.38,
 						"lane": "spread"
 					}
@@ -12302,17 +12300,17 @@
 		},
 		"reward_gold_mult": 0.28,
 		"clear_requirement": {
-			"min_output": 71.2336,
+			"min_output": 78.5399,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 836,
+				"recommended_power": 905,
 				"crowd_capacity": 1400.9145,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7232,
-				"line_expected_breach": 314.95,
+				"line_capacity": 0.8335,
+				"line_expected_breach": 363.0,
 				"line_base_hp": 670.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12329,7 +12327,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.288337,
+					"raw_ratio": 3.889408,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -12427,13 +12425,13 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12444,7 +12442,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 39,
+						"count": 47,
 						"interval": 0.37,
 						"lane": "spread"
 					}
@@ -12457,17 +12455,17 @@
 		},
 		"reward_gold_mult": 0.28,
 		"clear_requirement": {
-			"min_output": 85.5692,
+			"min_output": 94.0621,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 980,
+				"recommended_power": 1059,
 				"crowd_capacity": 1616.6553,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9436,
-				"line_expected_breach": 415.25,
+				"line_capacity": 1.1059,
+				"line_expected_breach": 486.65,
 				"line_base_hp": 677.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12484,7 +12482,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.569902,
+					"raw_ratio": 3.247575,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -12581,7 +12579,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 52,
+						"count": 62,
 						"interval": 0.44,
 						"lane": "center"
 					}
@@ -12592,13 +12590,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12629,22 +12627,22 @@
 		},
 		"reward_gold_mult": 0.27,
 		"clear_requirement": {
-			"min_output": 82.5088,
-			"mob_hp_share": 0.1247,
-			"boss_hp_share": 0.8753,
+			"min_output": 86.5286,
+			"mob_hp_share": 0.134,
+			"boss_hp_share": 0.866,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 2431,
-				"crowd_capacity": 602.5915,
+				"recommended_power": 2528,
+				"crowd_capacity": 631.9495,
 				"boss_capacity": 1285.8214,
-				"line_capacity": 0.9585,
-				"line_expected_breach": 532.69,
+				"line_capacity": 1.0191,
+				"line_expected_breach": 566.39,
 				"line_base_hp": 855.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.1247,
-					"boss": 0.8753
+					"crowd": 0.134,
+					"boss": 0.866
 				},
 				"boss_effective_hp": 51750000.0,
 				"boss_weights": {
@@ -12770,13 +12768,13 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12787,7 +12785,7 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 40,
+						"count": 48,
 						"interval": 0.36,
 						"lane": "spread"
 					}
@@ -12800,17 +12798,17 @@
 		},
 		"reward_gold_mult": 0.27,
 		"clear_requirement": {
-			"min_output": 69.4286,
+			"min_output": 76.2608,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 848,
+				"recommended_power": 915,
 				"crowd_capacity": 2193.0306,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6537,
-				"line_expected_breach": 293.6,
+				"line_capacity": 0.7494,
+				"line_expected_breach": 336.6,
 				"line_base_hp": 691.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12827,7 +12825,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.537786,
+					"raw_ratio": 4.131247,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -12927,13 +12925,13 @@
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_shielder",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -12944,7 +12942,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 42,
+						"count": 50,
 						"interval": 0.35,
 						"lane": "spread"
 					}
@@ -12957,17 +12955,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 70.5194,
+			"min_output": 77.6033,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 854,
+				"recommended_power": 924,
 				"crowd_capacity": 2275.6252,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6282,
-				"line_expected_breach": 285.4,
+				"line_capacity": 0.722,
+				"line_expected_breach": 328.05,
 				"line_base_hp": 699.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -12984,7 +12982,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.60549,
+					"raw_ratio": 4.185085,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -13084,13 +13082,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13101,7 +13099,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 42,
+						"count": 50,
 						"interval": 0.35,
 						"lane": "spread"
 					}
@@ -13114,17 +13112,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 86.8466,
+			"min_output": 93.2493,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1018,
+				"recommended_power": 1080,
 				"crowd_capacity": 2260.7192,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8497,
-				"line_expected_breach": 389.95,
+				"line_capacity": 0.9603,
+				"line_expected_breach": 440.7,
 				"line_base_hp": 706.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -13141,7 +13139,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.739655,
+					"raw_ratio": 3.482883,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -13233,13 +13231,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13250,7 +13248,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -13263,17 +13261,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 70.8485,
+			"min_output": 78.007,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 836,
+				"recommended_power": 904,
 				"crowd_capacity": 2456.2908,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6324,
-				"line_expected_breach": 293.1,
+				"line_capacity": 0.7275,
+				"line_expected_breach": 337.15,
 				"line_base_hp": 713.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -13290,7 +13288,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.584097,
+					"raw_ratio": 4.163426,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -13385,13 +13383,13 @@
 				"spawns": [
 					{
 						"type": "zombie_shielder",
-						"count": 18,
+						"count": 22,
 						"interval": 0.41,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 29,
+						"count": 35,
 						"interval": 0.41,
 						"lane": "right"
 					}
@@ -13402,13 +13400,13 @@
 				"spawns": [
 					{
 						"type": "zombie_toxic",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_hopper",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13439,22 +13437,22 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 110.4292,
-			"mob_hp_share": 0.1035,
-			"boss_hp_share": 0.8965,
+			"min_output": 117.0322,
+			"mob_hp_share": 0.1116,
+			"boss_hp_share": 0.8884,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1203,
-				"crowd_capacity": 1152.5463,
+				"recommended_power": 1261,
+				"crowd_capacity": 1221.4616,
 				"boss_capacity": 1909.0994,
-				"line_capacity": 0.9086,
-				"line_expected_breach": 531.54,
+				"line_capacity": 0.9725,
+				"line_expected_breach": 568.89,
 				"line_base_hp": 900.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.1035,
-					"boss": 0.8965
+					"crowd": 0.1116,
+					"boss": 0.8884
 				},
 				"boss_effective_hp": 93240000.0,
 				"boss_weights": {
@@ -13568,13 +13566,13 @@
 				"spawns": [
 					{
 						"type": "zombie_warden",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_screamer",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13585,7 +13583,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -13598,17 +13596,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 95.112,
+			"min_output": 103.8503,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1097,
+				"recommended_power": 1179,
 				"crowd_capacity": 2399.1384,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8793,
-				"line_expected_breach": 415.5,
+				"line_capacity": 1.0221,
+				"line_expected_breach": 483.0,
 				"line_base_hp": 727.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -13625,7 +13623,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.623746,
+					"raw_ratio": 3.318833,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -13726,13 +13724,13 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 21,
+						"count": 25,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13743,7 +13741,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -13756,17 +13754,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 97.6637,
+			"min_output": 106.7364,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1087,
+				"recommended_power": 1170,
 				"crowd_capacity": 2606.6845,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9201,
-				"line_expected_breach": 439.0,
+				"line_capacity": 1.0711,
+				"line_expected_breach": 511.0,
 				"line_base_hp": 734.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -13783,7 +13781,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.529067,
+					"raw_ratio": 3.229093,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -13877,13 +13875,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -13894,7 +13892,7 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -13907,17 +13905,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 87.095,
+			"min_output": 94.4302,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1021,
+				"recommended_power": 1091,
 				"crowd_capacity": 2399.1384,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7555,
-				"line_expected_breach": 363.9,
+				"line_capacity": 0.8685,
+				"line_expected_breach": 418.3,
 				"line_base_hp": 741.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -13934,7 +13932,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.957308,
+					"raw_ratio": 3.64991,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -14026,13 +14024,13 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -14043,7 +14041,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -14056,17 +14054,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 100.4688,
+			"min_output": 108.3803,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1142,
+				"recommended_power": 1215,
 				"crowd_capacity": 2486.1542,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9099,
-				"line_expected_breach": 443.0,
+				"line_capacity": 1.0356,
+				"line_expected_breach": 504.2,
 				"line_base_hp": 749.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -14083,7 +14081,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.531673,
+					"raw_ratio": 3.27387,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -14174,13 +14172,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 19,
+						"count": 23,
 						"interval": 0.39,
 						"lane": "center"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 31,
+						"count": 37,
 						"interval": 0.39,
 						"lane": "spread"
 					}
@@ -14191,13 +14189,13 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 25,
+						"count": 30,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_necromancer",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -14228,22 +14226,22 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 102.5963,
-			"mob_hp_share": 0.0615,
-			"boss_hp_share": 0.9385,
+			"min_output": 110.0203,
+			"mob_hp_share": 0.0674,
+			"boss_hp_share": 0.9326,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 2075,
-				"crowd_capacity": 1070.7946,
+				"recommended_power": 2198,
+				"crowd_capacity": 1148.2787,
 				"boss_capacity": 2083.0035,
-				"line_capacity": 0.847,
-				"line_expected_breach": 520.27,
+				"line_capacity": 0.8983,
+				"line_expected_breach": 551.77,
 				"line_base_hp": 945.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.0615,
-					"boss": 0.9385
+					"crowd": 0.0674,
+					"boss": 0.9326
 				},
 				"boss_effective_hp": 186480000.0,
 				"boss_weights": {
@@ -14509,13 +14507,13 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -14526,7 +14524,7 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -14539,17 +14537,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 99.532,
+			"min_output": 108.7304,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1127,
+				"recommended_power": 1212,
 				"crowd_capacity": 2202.4384,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.8444,
-				"line_expected_breach": 422.6,
+				"line_capacity": 0.9819,
+				"line_expected_breach": 491.45,
 				"line_base_hp": 770.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -14566,7 +14564,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.668467,
+					"raw_ratio": 3.358121,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -14660,13 +14658,13 @@
 				"spawns": [
 					{
 						"type": "zombie_runner",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_runner",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -14677,7 +14675,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -14690,17 +14688,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 94.0972,
+			"min_output": 103.4733,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1115,
+				"recommended_power": 1206,
 				"crowd_capacity": 2942.0674,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7237,
-				"line_expected_breach": 365.5,
+				"line_capacity": 0.8516,
+				"line_expected_breach": 430.1,
 				"line_base_hp": 777.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -14717,7 +14715,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.991431,
+					"raw_ratio": 3.629752,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -14827,13 +14825,13 @@
 				"spawns": [
 					{
 						"type": "zombie_toxic",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_berserker",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -14844,7 +14842,7 @@
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -14857,17 +14855,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 112.0099,
+			"min_output": 122.2268,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1247,
+				"recommended_power": 1340,
 				"crowd_capacity": 3272.0599,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9207,
-				"line_expected_breach": 469.2,
+				"line_capacity": 1.0675,
+				"line_expected_breach": 544.0,
 				"line_base_hp": 784.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -14884,7 +14882,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 3.447737,
+					"raw_ratio": 3.159542,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -14987,7 +14985,7 @@
 				"spawns": [
 					{
 						"type": "zombie_juggernaut",
-						"count": 38,
+						"count": 46,
 						"interval": 0.39,
 						"lane": "spread"
 					}
@@ -14998,13 +14996,13 @@
 				"spawns": [
 					{
 						"type": "zombie_necromancer",
-						"count": 25,
+						"count": 30,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_bomber",
-						"count": 41,
+						"count": 49,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -15035,22 +15033,22 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 117.8739,
-			"mob_hp_share": 0.0563,
-			"boss_hp_share": 0.9437,
+			"min_output": 123.1272,
+			"mob_hp_share": 0.0614,
+			"boss_hp_share": 0.9386,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 3325,
-				"crowd_capacity": 1378.2481,
+				"recommended_power": 3445,
+				"crowd_capacity": 1439.6726,
 				"boss_capacity": 2468.1326,
-				"line_capacity": 1.0445,
-				"line_expected_breach": 671.26,
+				"line_capacity": 1.1142,
+				"line_expected_breach": 716.06,
 				"line_base_hp": 988.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.0563,
-					"boss": 0.9437
+					"crowd": 0.0614,
+					"boss": 0.9386
 				},
 				"boss_effective_hp": 279720000.0,
 				"boss_weights": {
@@ -15158,13 +15156,13 @@
 				"spawns": [
 					{
 						"type": "zombie_crawler",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_mutant",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -15175,7 +15173,7 @@
 				"spawns": [
 					{
 						"type": "zombie_phantom",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -15188,17 +15186,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 92.5831,
+			"min_output": 100.6994,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1094,
+				"recommended_power": 1172,
 				"crowd_capacity": 3021.6733,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6648,
-				"line_expected_breach": 345.25,
+				"line_capacity": 0.7679,
+				"line_expected_breach": 398.8,
 				"line_base_hp": 799.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -15215,7 +15213,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.171179,
+					"raw_ratio": 3.834985,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -15310,13 +15308,13 @@
 				"spawns": [
 					{
 						"type": "zombie_hopper",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_crawler",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -15327,7 +15325,7 @@
 				"spawns": [
 					{
 						"type": "zombie_regenerator",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -15340,17 +15338,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 86.7252,
+			"min_output": 95.7778,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1043,
+				"recommended_power": 1132,
 				"crowd_capacity": 3109.2482,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.5618,
-				"line_expected_breach": 294.35,
+				"line_capacity": 0.6495,
+				"line_expected_breach": 340.25,
 				"line_base_hp": 806.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -15367,7 +15365,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.576809,
+					"raw_ratio": 4.144224,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -15479,13 +15477,13 @@
 				"spawns": [
 					{
 						"type": "zombie_bomber",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_phantom",
-						"count": 34,
+						"count": 41,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -15496,7 +15494,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 43,
+						"count": 52,
 						"interval": 0.34,
 						"lane": "spread"
 					}
@@ -15509,17 +15507,17 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 96.9415,
+			"min_output": 104.7896,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 1108,
+				"recommended_power": 1181,
 				"crowd_capacity": 3455.3583,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6435,
-				"line_expected_breach": 340.05,
+				"line_capacity": 0.7352,
+				"line_expected_breach": 388.5,
 				"line_base_hp": 813.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -15536,7 +15534,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 4.206808,
+					"raw_ratio": 3.891744,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -15648,13 +15646,13 @@
 				"spawns": [
 					{
 						"type": "zombie_berserker",
-						"count": 19,
+						"count": 22,
 						"interval": 0.39,
 						"lane": "center"
 					},
 					{
 						"type": "zombie_warden",
-						"count": 31,
+						"count": 37,
 						"interval": 0.39,
 						"lane": "spread"
 					}
@@ -15665,13 +15663,13 @@
 				"spawns": [
 					{
 						"type": "zombie_armored",
-						"count": 25,
+						"count": 29,
 						"interval": 0.34,
 						"lane": "left"
 					},
 					{
 						"type": "zombie_warden",
-						"count": 41,
+						"count": 48,
 						"interval": 0.34,
 						"lane": "right"
 					}
@@ -15702,22 +15700,22 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 129.5269,
-			"mob_hp_share": 0.0654,
-			"boss_hp_share": 0.9346,
+			"min_output": 133.1516,
+			"mob_hp_share": 0.0707,
+			"boss_hp_share": 0.9293,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v4",
-				"recommended_power": 4546,
-				"crowd_capacity": 1351.8685,
+				"recommended_power": 4650,
+				"crowd_capacity": 1389.6994,
 				"boss_capacity": 10010.629,
-				"line_capacity": 1.0998,
-				"line_expected_breach": 732.71,
+				"line_capacity": 1.1599,
+				"line_expected_breach": 772.76,
 				"line_base_hp": 1025.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.0654,
-					"boss": 0.9346
+					"crowd": 0.0707,
+					"boss": 0.9293
 				},
 				"boss_effective_hp": 372960000.0,
 				"boss_weights": {

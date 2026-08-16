@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
 from combat_power_model import run_skill_hp_pressure
+from generate_wave_pressure import (
+    FIXTURE_PATH as WAVE_PRESSURE_FIXTURE_PATH,
+    config as wave_pressure_config,
+    restore_target_rows as restore_wave_pressure_target_rows,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -298,6 +304,22 @@ def main() -> int:
     skills = load("skills")
 
     errors: list[str] = []
+    baseline_durations: dict[str, float] = {}
+    wave_pressure_rule = economy.get("wave_pressure", {})
+    if wave_pressure_rule:
+        if not WAVE_PRESSURE_FIXTURE_PATH.exists():
+            errors.append(f"missing wave-pressure fixture: {WAVE_PRESSURE_FIXTURE_PATH}")
+        else:
+            fixture = json.loads(WAVE_PRESSURE_FIXTURE_PATH.read_text(encoding="utf-8"))
+            rule = wave_pressure_config(economy)
+            for level in levels:
+                baseline_level = copy.deepcopy(level)
+                fixture_row = fixture.get("levels", {}).get(level["id"], {})
+                if fixture_row.get("target_rows"):
+                    restore_wave_pressure_target_rows(baseline_level, fixture_row, rule)
+                _pressure, baseline_duration, _boss_count = level_pressure(
+                    baseline_level, zombies, bosses, economy)
+                baseline_durations[level["id"]] = baseline_duration
     pressures = [level_pressure(level, zombies, bosses, economy)[0] for level in levels]
     for i in range(1, len(pressures)):
         prev = pressures[i - 1]
@@ -324,10 +346,24 @@ def main() -> int:
         # and wave 5 uses x3 count. Keep the old lower bounds, but validate
         # against the current long-form pacing envelope instead of the pre-ramp
         # 105s/140s caps.
-        if boss_count and duration > BOSS_DURATION_MAX:
-            errors.append(f"{level['id']} boss duration too long: {duration:.1f}s")
-        if not boss_count and duration > NORMAL_DURATION_MAX:
-            errors.append(f"{level['id']} normal duration too long: {duration:.1f}s")
+        authored_duration_max = BOSS_DURATION_MAX if boss_count else NORMAL_DURATION_MAX
+        duration_max = authored_duration_max
+        if level["id"] in baseline_durations and wave_pressure_rule:
+            # Preserve the authored pre-bump pacing envelope while allowing the
+            # generated target waves to consume their configured count increase.
+            # Exact count generation is checked separately, so this cannot hide
+            # an arbitrary manual extension of a level.
+            duration_max = max(
+                authored_duration_max,
+                baseline_durations[level["id"]]
+                * (1.0 + float(wave_pressure_rule["target_count_increase"])),
+            )
+        if duration > duration_max + 1e-6:
+            kind = "boss" if boss_count else "normal"
+            errors.append(
+                f"{level['id']} {kind} duration too long: "
+                f"{duration:.1f}s > {duration_max:.1f}s"
+            )
         if not boss_count and duration < 45.0:
             errors.append(f"{level['id']} normal duration too short: {duration:.1f}s")
         if boss_count and duration < 70.0:

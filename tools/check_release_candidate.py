@@ -44,6 +44,7 @@ NON_VISUAL_CHECKS = [
     Check(("bash", "-n", "tools/ship_testflight.sh")),
     Check(("python3", "tools/release_delivery_record.py", "self-test")),
     Check(("python3", "tools/check_release_package.py", "--preset-only")),
+    Check(("python3", "tools/generate_wave_pressure.py", "--check")),
     Check(("python3", "tools/check_level_pressure.py")),
     Check(("python3", "tools/check_balance_profile.py")),
     Check(("python3", "tools/simulate_balance.py")),

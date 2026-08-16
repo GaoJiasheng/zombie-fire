@@ -76,6 +76,20 @@
 		"three_star_hp_ratio": 0.7,
 		"two_star_hp_ratio": 0.35
 	},
+	"wave_pressure": {
+		"start_level": 11,
+		"target_count_increase": 0.2,
+		"scale_step": 0.001,
+		"star_boundary_margin_pct": 2.0,
+		"boss_target_waves": [
+			3,
+			4
+		],
+		"non_boss_target_waves": [
+			4,
+			5
+		]
+	},
 	"repeat_clear_xp_mult": [
 		1.0,
 		0.5,
@@ -98,15 +112,19 @@
 		900,
 		2000,
 		4000,
-		7000
+		8500
 	],
 	"sig_skill_xp_costs": [
 		450,
 		1200,
 		2700,
 		5400,
-		9000
+		11000
 	],
+	"skill_xp_coverage_contract": {
+		"target": 0.809,
+		"tolerance": 0.01
+	},
 	"card_director": {
 		"base_reroll_per_run": 1,
 		"pity_after_missing_core_tag": 2,
