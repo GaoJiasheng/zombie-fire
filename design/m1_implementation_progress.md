@@ -4317,3 +4317,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Owner replay corrected**: the level-080 Inferno loadout now reads `902/926` even at permanent-skill L1 and `1626/926` at the campaign-expected L4, replacing the former false `684/926` severe warning. A stripped low-level reverse build remains `110/926`.
 - **Campaign contracts regenerated**: all 99 levels carry `bottleneck_v4`; the 2–98 corridor remains `R=[0.9700,1.3800]`, the level-085 half-speed reverse case remains `R=0.4850`, and the then-current level-099 max-free double-Boss anchor was `2724/2340, R=1.1643/Boss`. Stage 186 supersedes only the Boss roster / absolute scale via `design/35`; the runtime-leak line formula remains authoritative.
 - **No gameplay rebalance**: enemy HP, damage, waves, star thresholds and premium values are unchanged. Formula, retired level-055 anchor rationale and regression ownership are recorded in `design/34_power_v4_runtime_line_calibration.md`.
+
+## TestFlight Build 56 · Power 4.0 + Fixed Boss Rosters (2026-08-16)
+
+- **Experience package shipped**: Power 4.0 runtime-leak line calibration, same-ID Boss counting, fixed per-model Boss durability and explicit 1 / 2 / 3 / 4-copy campaign rosters are included in Build 56.
+- **Release gates are green**: static data and resource validation, localization, normal / challenge balance simulation, clear-requirement and endgame audits, economy, VFX / audio checks, Godot headless boot, M1 smoke, TestFlight feature probe, PCK validation, Xcode archive / export and IPA validation all passed. Windowed screenshot matrices were skipped under the intended no-focus release policy.
+- **Build-number traceability**: App Store Connect already contained Build 55, so the release pipeline reserved it locally and continued with Build 56 instead of attempting a duplicate upload.
+- **Apple accepted the binary**: delivery `1103f07d-6b3e-4635-a27c-7088f58f0773` reports `VALID` build and import status plus `APP_STORE_ELIGIBLE`. The 881,936,380-byte IPA SHA-256 is `283737728a549bcf50fe49cffe073cc5b2cf568c32e23252e9786e53bcb8339f` and the verified desktop copy is `ZombieFire.ipa`.

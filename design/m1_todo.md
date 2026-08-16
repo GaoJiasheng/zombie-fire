@@ -1998,3 +1998,10 @@
 - [x] 推荐战力修复同 ID 多 Boss 漏算：主 Boss 按 wave 行计，额外同型号 Boss 全量进入数量压力；重生成 99 关合同。
 - [x] 99 关免费毕业族为 `5322/4546, R=1.1707/Boss`；80 关复盘构筑为 `4268/2431, R=1.7558/Boss`；2–98 走廊保持 `R=[0.9700,1.3800]`。
 - [x] 全 99 关普通 / 挑战模拟、固定 Boss 身份、Apex 1/2/3/4 编队与四 Boss 运行时矩阵加入永久审计；完整方案见 `design/35_fixed_boss_identity_and_rosters.md`。
+
+## 阶段 187 · TestFlight Build 56 战力 4.0 / 固定 Boss 编队体验包（2026-08-16）
+
+- [x] 战力 4.0 真实漏怪防线、同 ID 多 Boss 全量计数与 8 族固定单体耐久 / 数量编队已合入体验包；真实难度引擎、星级阈值与付费数值未改。
+- [x] 发布门禁完整通过：数据 / 资源 / 本地化 / 普通与挑战模拟 / 终局双 Boss / 经济 / VFX / 音频 / Godot headless / M1 smoke / TestFlight feature probe / PCK 与 IPA 校验均为绿色；窗口截图矩阵按无前台焦点发布策略跳过。
+- [x] 远端 Build 55 已被既有上传占用，本次候选安全顺延为 Build 56；App Store Connect 返回 `BUILD-STATUS: VALID`、`IMPORT-STATUS: VALID`、`APP_STORE_ELIGIBLE`。
+- [x] Build 56 IPA 已复制到桌面；大小 `881936380` bytes，SHA-256 `283737728a549bcf50fe49cffe073cc5b2cf568c32e23252e9786e53bcb8339f`，Delivery UUID `1103f07d-6b3e-4635-a27c-7088f58f0773`。
