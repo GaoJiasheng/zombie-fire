@@ -17,7 +17,6 @@ const BOSS_HP_TRACK_TEXTURE := preload("res://assets/production/sprites/ui/ui_bo
 const HP_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
 const SHIELD_FILL_TEXTURE := preload("res://assets/production/sprites/ui/ui_bar_fill_wave.png")
 const ICE_SLOW_TINT := Color(0.56, 0.9, 1.28, 1.0)
-const BOSS_IMMUNE_DAMAGE_FLOOR := 0.18
 const NORMAL_SPRITE_SCALE := 0.32
 const BOSS_SPRITE_SCALE := 0.50
 const BURN_RISE_BLEND := 0.46
@@ -43,6 +42,7 @@ var boss := false
 var speed_mult := 1.0
 var attacking_base := false
 var immune := []
+var resistances: Dictionary = {}
 var weakness := "none"
 var resist := "none"
 var mechanic := "basic"
@@ -57,9 +57,12 @@ var _normal_attack_sequence_elapsed := 0.0
 var _normal_attack_contact_emitted := false
 var armor_hits_left := 0
 var armor_broken := false
+var armor_hp_max := 0.0
+var armor_hp := 0.0
 var shield_hp := 0.0
 var external_damage_mult := 1.0
 var mechanic_timer := 0.0
+var regen_suppressed_time := 0.0
 var enrage_triggered := false
 var threat_marker: Label
 var _base_modulate: Color
@@ -106,6 +109,8 @@ const DOT_TICK_MIN_DMG := 5.0
 var _dot_tick_acc: Dictionary = {}
 var _hp_bg: TextureRect
 var _hp_fill: TextureRect
+var _armor_bg: TextureRect
+var _armor_fill: TextureRect
 var _status_vfx: StatusVfxController
 var _rank_aura: Sprite2D
 var _status_label: Label
@@ -117,7 +122,24 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	data = row
 	boss = is_boss
 	elite = boss or row.get("threat_tags", []).has("elite")
-	max_hp = 50.0 * row.get("hp_coef", 1.0) * level_coef
+	# `fixed_hp` is the complete Boss encounter-durability budget. Armored Bosses
+	# split that same budget into an outer armor pool and an inner body pool, so
+	# the readable second bar does not silently make a thick Boss even tankier.
+	# `hp_coef` remains the legacy fallback for ordinary enemies/test fixtures.
+	# Campaign Boss durability is authored once per model. `level_coef` is 1.0
+	# for a normal campaign Boss and only carries an explicit mode multiplier
+	# (challenge/endless), so replaying the same Boss in a later level never
+	# silently turns it into a different stat block.
+	var fixed_boss_hp := float(row.get("fixed_hp", 0.0)) if boss else 0.0
+	var authored_max_hp := (
+		fixed_boss_hp * level_coef
+		if fixed_boss_hp > 0.0
+		else 50.0 * float(row.get("hp_coef", 1.0)) * level_coef
+	)
+	var armor_ratio := clampf(float(row.get("armor_hp_ratio", 0.0)), 0.0, 0.75)
+	armor_hp_max = authored_max_hp * armor_ratio
+	armor_hp = armor_hp_max
+	max_hp = maxf(authored_max_hp - armor_hp_max, 1.0)
 	hp = max_hp
 	speed = row.get("speed", 80.0)
 	breach_damage = int(10 * row.get("bd_coef", 1.0))
@@ -125,6 +147,8 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	gold_coef = float(row.get("gold_coef", 1.0))
 	run_xp = int(row.get("run_xp", 1))
 	immune = row.get("immune", [])
+	var resistances_var: Variant = row.get("resistances", {})
+	resistances = resistances_var.duplicate(true) if resistances_var is Dictionary else {}
 	weakness = row.get("weakness", "none")
 	resist = row.get("resist", "none")
 	mechanic = row.get("mechanic", "basic")
@@ -445,52 +469,44 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 	var final_damage := amount * external_damage_mult
 	var penetration := clampf(armor_penetration, 0.0, 0.95)
 	var resolved_hit_kind := "normal"
-	if immune.has(element):
-		if penetration > 0.0:
-			if boss and not armor_broken and armor_hits_left > 0:
-				armor_hits_left -= 1
-				if armor_hits_left <= 0:
-					armor_broken = true
-					_base_modulate = Color(1.0, 0.55, 0.55)
-					_sync_sprite_status_tint(true)
-					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
-					_update_status_label()
-			final_damage *= penetration
-			resolved_hit_kind = "armor_pierce"
-		elif boss and not armor_broken and armor_hits_left > 0:
-			if armor_hits_left > 0:
-				armor_hits_left -= 1
-				_emit_hit_feedback(element, true, false, "armor")
-				_flash(Color(0.6, 0.6, 0.6))
-				if armor_hits_left <= 0:
-					armor_broken = true
-					_base_modulate = Color(1.0, 0.55, 0.55)
-					_sync_sprite_status_tint(true)
-					_flash(_base_modulate)
-					_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
-					_update_status_label()
-				return
+	# Armor is a temporary resistance, never a zero-damage gate. Every physical
+	# hit contributes to breaking it; penetration reduces the current resistance
+	# instead of being the only way to make the HP bar move.
+	if boss and mechanic == "armor_break" and not armor_broken and armor_hits_left > 0:
+		armor_hits_left -= 1
+		resolved_hit_kind = "armor_pierce" if penetration > 0.0 else "armor"
+		if armor_hits_left <= 0:
 			armor_broken = true
-		elif boss:
-			# Campaign bosses must never become a hard lock for a valid equipped
-			# weapon. An immune element is heavily suppressed, but still chips the
-			# boss while the UI points the player toward the intended weakness.
-			var immune_damage_floor := clampf(
-				float(mechanic_params.get("immune_damage_floor", BOSS_IMMUNE_DAMAGE_FLOOR)),
-				0.01,
-				1.0
-			)
-			final_damage *= immune_damage_floor
-			resolved_hit_kind = "suppressed"
+			_base_modulate = Color(1.0, 0.55, 0.55)
+			_sync_sprite_status_tint(true)
+			_flash(_base_modulate)
+			_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
+			_update_status_label()
+	var resistance_reduction := _element_resistance_reduction(element)
+	if resistance_reduction > 0.0:
+		resistance_reduction *= 1.0 - penetration
+		final_damage *= 1.0 - resistance_reduction
+		if resolved_hit_kind == "normal":
+			resolved_hit_kind = "resisted"
+	# Legacy non-Boss rows may still use `immune`; Boss validation explicitly
+	# rejects it. A stale Boss row is nevertheless softened to the standard
+	# resistance multiplier so an old save/data cache can never hard-lock combat.
+	if immune.has(element):
+		if boss:
+			final_damage *= _resist_damage_multiplier()
+			if resolved_hit_kind == "normal":
+				resolved_hit_kind = "resisted"
 		else:
 			_emit_hit_feedback(element, true, false, "immune")
 			_flash(Color(0.8, 0.8, 0.8))
 			return
 	if weakness != "none" and element == weakness:
-		final_damage *= 1.5
+		final_damage *= _weakness_damage_multiplier()
 		_last_hit_weak = true
 	if resist != "none" and element == resist:
-		final_damage *= 0.5
+		final_damage *= _resist_damage_multiplier()
+		if resolved_hit_kind == "normal":
+			resolved_hit_kind = "resisted"
 	if shield_hp > 0.0 and element != weakness:
 		var bypass_damage := final_damage * penetration
 		var blockable_damage := final_damage - bypass_damage
@@ -504,11 +520,26 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 			return
 		if bypass_damage > 0.0 and absorbed > 0.0:
 			resolved_hit_kind = "armor_pierce"
+	var armor_result := _route_damage_through_armor(final_damage, penetration)
+	var armor_damage := float(armor_result.get("armor_damage", 0.0))
+	final_damage = float(armor_result.get("body_damage", final_damage))
+	if str(armor_result.get("hit_kind", "")) != "":
+		resolved_hit_kind = str(armor_result.get("hit_kind", resolved_hit_kind))
+	var reported_damage := armor_damage + final_damage
+	if final_damage <= 0.0:
+		_update_hp_bar()
+		if reported_damage > 0.0:
+			damage_dealt.emit(self, reported_damage, element, false, _last_hit_weak, damage_source)
+		_emit_hit_feedback(element, false, _last_hit_weak, resolved_hit_kind)
+		_play_hurt_feedback(element)
+		return
 	hp -= final_damage
+	if final_damage > 0.0:
+		_suppress_regeneration(_last_hit_weak)
 	_apply_element_status(final_damage, element, status_strength)
 	_update_hp_bar()
 	var crit_hit := _last_hit_weak or final_damage >= max_hp * (0.22 if not boss else 0.12)
-	damage_dealt.emit(self, final_damage, element, crit_hit, _last_hit_weak, damage_source)
+	damage_dealt.emit(self, reported_damage, element, crit_hit, _last_hit_weak, damage_source)
 	_emit_hit_feedback(element, false, _last_hit_weak, "weak" if _last_hit_weak else resolved_hit_kind)
 	_play_hurt_feedback(element)
 	if crit_hit:
@@ -523,13 +554,77 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 		if _death_frames.is_empty():
 			call_deferred("queue_free")
 
+func _route_damage_through_armor(amount: float, penetration: float) -> Dictionary:
+	if amount <= 0.0 or armor_hp_max <= 0.0 or armor_hp <= 0.0:
+		return {"body_damage": maxf(amount, 0.0), "armor_damage": 0.0, "hit_kind": ""}
+	var bypass := amount * clampf(penetration, 0.0, 0.95)
+	var armor_bound := maxf(amount - bypass, 0.0)
+	var absorbed := minf(armor_hp, armor_bound)
+	armor_hp -= absorbed
+	var overflow := maxf(armor_bound - absorbed, 0.0)
+	var body_damage := bypass + overflow
+	var hit_kind := "armor_pierce" if bypass > 0.0 else "armor"
+	if armor_hp <= 0.001:
+		armor_hp = 0.0
+		_break_armor_layer()
+	else:
+		_flash(Color(0.96, 0.76, 0.26))
+	return {
+		"body_damage": body_damage,
+		"armor_damage": absorbed,
+		"hit_kind": hit_kind,
+	}
+
+func _break_armor_layer() -> void:
+	if armor_broken:
+		return
+	armor_broken = true
+	_base_modulate = Color(1.0, 0.55, 0.55)
+	_sync_sprite_status_tint(true)
+	_flash(_base_modulate)
+	_spawn_crit_vfx(Color(1.0, 0.42, 0.28))
+	_update_status_label()
+
 func _emit_hit_feedback(element: String, immune_hit: bool, weak_hit: bool, hit_kind: String) -> void:
 	hit_feedback.emit(self, element, immune_hit, weak_hit, hit_kind)
 
+func _weakness_damage_multiplier() -> float:
+	return maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0)
+
+func _resist_damage_multiplier() -> float:
+	return clampf(float(DataLoader.get_table("economy").get("resist_mult", 0.5)), 0.05, 1.0)
+
+func _element_resistance_reduction(element: String) -> float:
+	if not resistances.has(element):
+		return 0.0
+	if (
+		mechanic == "armor_break"
+		and armor_broken
+		and bool(mechanic_params.get("resistance_until_armor_break", false))
+	):
+		return 0.0
+	# Values represent damage reduction, not damage received. Full immunity is
+	# deliberately impossible for Boss rows and capped defensively at runtime.
+	return clampf(float(resistances.get(element, 0.0)), 0.0, 0.95)
+
+func _suppress_regeneration(weak_hit: bool) -> void:
+	if mechanic != "regen" and mechanic != "regenerate":
+		return
+	var normal_delay := maxf(float(mechanic_params.get("damage_regen_suppress_seconds", 0.0)), 0.0)
+	var weak_delay := maxf(float(mechanic_params.get("weakness_regen_suppress_seconds", normal_delay)), normal_delay)
+	regen_suppressed_time = maxf(regen_suppressed_time, weak_delay if weak_hit else normal_delay)
+
 func _process_self_mechanic(delta: float) -> void:
 	if mechanic == "regen" or mechanic == "regenerate":
-		hp = min(max_hp, hp + max_hp * float(mechanic_params.get("regen_pct_per_sec", 0.025)) * delta)
-		_update_hp_bar()
+		# Only the unsuppressed slice of this frame may heal. Without this split,
+		# a long frame that merely crosses the timer boundary would incorrectly
+		# grant regeneration for the entire frame.
+		var suppressed_before := regen_suppressed_time
+		regen_suppressed_time = maxf(suppressed_before - delta, 0.0)
+		var healing_delta := maxf(delta - suppressed_before, 0.0)
+		if healing_delta > 0.0:
+			hp = min(max_hp, hp + max_hp * float(mechanic_params.get("regen_pct_per_sec", 0.0)) * healing_delta)
+			_update_hp_bar()
 	elif mechanic == "enrage" and not enrage_triggered and hp <= max_hp * float(mechanic_params.get("trigger_hp_ratio", 0.5)):
 		enrage_triggered = true
 		speed *= float(mechanic_params.get("speed_mult", 1.35))
@@ -698,9 +793,18 @@ func _apply_status_damage(amount: float, element: String) -> void:
 		return
 	if _status_vfx != null:
 		_status_vfx.pulse(element, 0.8)
-	hp -= amount
+	# Damage-over-time has no Armor Bypass of its own. If a prior piercing hit
+	# applied Burn/Poison while armor remains, its later ticks must still consume
+	# that remaining armor before reaching the body.
+	var armor_result := _route_damage_through_armor(amount, 0.0)
+	var body_damage := float(armor_result.get("body_damage", amount))
+	var reported_damage := body_damage + float(armor_result.get("armor_damage", 0.0))
+	if body_damage > 0.0:
+		_suppress_regeneration(element == weakness)
+		hp -= body_damage
 	_update_hp_bar()
-	damage_dealt.emit(self, amount, element, false, false, "burn" if element == "fire" else "status")
+	if reported_damage > 0.0:
+		damage_dealt.emit(self, reported_damage, element, false, false, "burn" if element == "fire" else "status")
 	if hp <= 0.0:
 		_dying = true
 		_anim_state = "death"
@@ -745,6 +849,25 @@ func _build_hp_bar() -> void:
 	_hp_fill.size = _hp_bg.size - Vector2(4, 4)
 	_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hp_bg.add_child(_hp_fill)
+	if armor_hp_max > 0.0:
+		_armor_bg = TextureRect.new()
+		_armor_bg.name = "ArmorBar"
+		_armor_bg.texture = BOSS_HP_TRACK_TEXTURE if boss else HP_TRACK_TEXTURE
+		_armor_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_armor_bg.stretch_mode = TextureRect.STRETCH_SCALE
+		_armor_bg.size = _hp_bg.size
+		_armor_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_armor_bg)
+		_armor_fill = TextureRect.new()
+		_armor_fill.name = "ArmorFill"
+		_armor_fill.texture = HP_FILL_TEXTURE
+		_armor_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_armor_fill.stretch_mode = TextureRect.STRETCH_SCALE
+		_armor_fill.modulate = Color(0.98, 0.76, 0.22, 1.0)
+		_armor_fill.position = Vector2(2, 2)
+		_armor_fill.size = _armor_bg.size - Vector2(4, 4)
+		_armor_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_armor_bg.add_child(_armor_fill)
 	_update_hp_bar_position()
 	_update_hp_bar()
 
@@ -781,18 +904,21 @@ func _update_hp_bar_position() -> void:
 	var width := _hp_bg.size.x
 	var y := -118.0 if not boss else -206.0
 	_hp_bg.position = Vector2(-width / 2.0, y)
+	if _armor_bg != null:
+		_armor_bg.position = Vector2(-width / 2.0, y - (26.0 if boss else 20.0))
 
 func _update_hp_bar() -> void:
 	if _hp_bg == null or _hp_fill == null:
 		return
 	var ratio := clampf(hp / max_hp if max_hp > 0.0 else 0.0, 0.0, 1.0)
 	_hp_fill.size.x = max((_hp_bg.size.x - 4.0) * ratio, 0.0)
+	if _armor_bg != null and _armor_fill != null:
+		var armor_ratio := clampf(armor_hp / armor_hp_max if armor_hp_max > 0.0 else 0.0, 0.0, 1.0)
+		_armor_fill.size.x = maxf((_armor_bg.size.x - 4.0) * armor_ratio, 0.0)
+		_armor_bg.visible = armor_hp_max > 0.0
 	if shield_hp > 0.0:
 		_hp_fill.texture = SHIELD_FILL_TEXTURE
 		_hp_fill.modulate = Color(0.82, 0.96, 1.0, 1.0)
-	elif armor_hits_left > 0 and not armor_broken:
-		_hp_fill.texture = HP_FILL_TEXTURE
-		_hp_fill.modulate = Color(0.98, 0.78, 0.38, 1.0)
 	elif boss:
 		_hp_fill.texture = HP_FILL_TEXTURE
 		_hp_fill.modulate = Color(1.0, 0.42, 0.18, 1.0)
@@ -1130,10 +1256,13 @@ func _update_status_label() -> void:
 	if shield_hp > 0.0:
 		tags.append("护盾")
 		label_color = Color(0.48, 0.84, 1.0, 1.0)
-	if armor_hits_left > 0 and not armor_broken:
+	if armor_hp_max > 0.0 and armor_hp > 0.0:
 		tags.append("装甲")
 		label_color = Color(0.96, 0.74, 0.42, 1.0)
-	elif armor_broken and boss:
+	elif armor_hits_left > 0 and not armor_broken:
+		tags.append("装甲")
+		label_color = Color(0.96, 0.74, 0.42, 1.0)
+	elif armor_broken and boss and (armor_hp_max > 0.0 or mechanic == "armor_break"):
 		tags.append("破甲")
 		label_color = Color(1.0, 0.42, 0.28, 1.0)
 	if _burn_time > 0.0:

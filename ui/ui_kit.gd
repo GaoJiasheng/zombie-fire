@@ -30,6 +30,12 @@ const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
 const DESIGN_HEIGHT := 1920.0
 const MIN_TOUCH_TARGET := Vector2(88.0, 88.0)
+# Icon-only modal dismiss actions share one deliberately larger visual contract.
+# The multiplication glyph has much less visible ink than an ordinary label at
+# the same nominal font size, so it needs its own ruler to remain obvious on a
+# phone without making every text button larger.
+const CLOSE_BUTTON_MIN_SIZE := Vector2(96.0, 96.0)
+const CLOSE_GLYPH_FONT_SIZE := 56
 const NATIVE_BUTTON_SIZES := [
 	Vector2i(154, 44),
 	Vector2i(166, 58),
@@ -76,6 +82,7 @@ const FONT_SCALE := 1.4
 # remain unchanged instead of making large display titles disproportionately huge.
 const FONT_SIZE_STEP := 2
 static var _TEXTURE_CACHE: Dictionary = {}
+static var _CHARACTER_FOCUS_BOUNDS_CACHE: Dictionary = {}
 
 static func scaled_font_size(size: float) -> int:
 	return maxi(1, int(round(size * FONT_SCALE)) + FONT_SIZE_STEP)
@@ -85,6 +92,7 @@ static func bumped_font_size(size: float) -> int:
 
 static func release_cached_resources_for_tests() -> void:
 	_TEXTURE_CACHE.clear()
+	_CHARACTER_FOCUS_BOUNDS_CACHE.clear()
 
 static func tall_modal_shift(viewport_height: float, max_shift := 160.0, ratio := 0.34) -> float:
 	return minf(max_shift, maxf(0.0, viewport_height - DESIGN_HEIGHT) * ratio)
@@ -218,6 +226,19 @@ static func attach_touch_target(button: BaseButton, minimum_size := MIN_TOUCH_TA
 	button.set_meta("touch_target_node", NodePath("TouchTarget"))
 	button.set_meta("touch_target_size", hit_size)
 	return hit
+
+static func apply_close_glyph(button: Button) -> void:
+	if button == null:
+		return
+	button.text = "×"
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.custom_minimum_size = Vector2(
+		maxf(button.custom_minimum_size.x, CLOSE_BUTTON_MIN_SIZE.x),
+		maxf(button.custom_minimum_size.y, CLOSE_BUTTON_MIN_SIZE.y)
+	)
+	button.add_theme_font_size_override("font_size", CLOSE_GLYPH_FONT_SIZE)
+	button.add_theme_constant_override("outline_size", 3)
+	button.set_meta("close_glyph_contract", true)
 
 static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 	var issues: Array[String] = []
@@ -913,16 +934,56 @@ static func add_character_bust(parent: Control, row: Dictionary, viewport_size: 
 	)
 	return bust
 
-static func add_character_fullbody_aligned(parent: Control, row: Dictionary, viewport_size: Vector2, visible_height: float, bottom_baseline: float, tint := Color.WHITE) -> TextureRect:
-	# Collection rows compare all four heroes side by side. Scaling their complete
-	# transparent canvases by width makes a slim hero look much smaller than a
-	# broad one, while cropping the canvas at a fixed Y loses their shared footing.
-	# Normalize the actual non-transparent silhouette instead: every hero receives
-	# the same visible height and the same foot baseline. The backing TextureRect is
-	# allowed to extend beyond this logical portrait lane; the collection card owns
-	# the final safe clip, so hair, coats and shoulder armour can breathe without
-	# colliding with copy or neighbouring cards.
-	parent.clip_contents = false
+static func _character_focus_bounds(texture: Texture2D) -> Rect2i:
+	var cache_key := texture.resource_path
+	if cache_key == "":
+		cache_key = "instance:%d" % texture.get_instance_id()
+	if _CHARACTER_FOCUS_BOUNDS_CACHE.has(cache_key):
+		return _CHARACTER_FOCUS_BOUNDS_CACHE[cache_key]
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		var fallback := Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+		_CHARACTER_FOCUS_BOUNDS_CACHE[cache_key] = fallback
+		return fallback
+	# Low-opacity lightning, fire and coat trails are decorative atmosphere, not
+	# the hero's head/body ruler. Sampling at a stable alpha threshold prevents
+	# those effects from moving the apparent top line or scale between themes.
+	var min_x := image.get_width()
+	var min_y := image.get_height()
+	var max_x := -1
+	var max_y := -1
+	const SAMPLE_STEP := 2
+	const SUBJECT_ALPHA_THRESHOLD := 0.18
+	for y in range(0, image.get_height(), SAMPLE_STEP):
+		for x in range(0, image.get_width(), SAMPLE_STEP):
+			if image.get_pixel(x, y).a < SUBJECT_ALPHA_THRESHOLD:
+				continue
+			min_x = mini(min_x, x)
+			min_y = mini(min_y, y)
+			max_x = maxi(max_x, x)
+			max_y = maxi(max_y, y)
+	var bounds: Rect2i
+	if max_x < min_x or max_y < min_y:
+		bounds = image.get_used_rect()
+	else:
+		# Restore the few pixels skipped by the coarse mobile-friendly scan.
+		var left := maxi(0, min_x - SAMPLE_STEP)
+		var top := maxi(0, min_y - SAMPLE_STEP)
+		var right := mini(image.get_width(), max_x + SAMPLE_STEP + 1)
+		var bottom := mini(image.get_height(), max_y + SAMPLE_STEP + 1)
+		bounds = Rect2i(left, top, right - left, bottom - top)
+	if bounds.size == Vector2i.ZERO:
+		bounds = Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
+	_CHARACTER_FOCUS_BOUNDS_CACHE[cache_key] = bounds
+	return bounds
+
+static func add_character_knee_crop_aligned(parent: Control, row: Dictionary, viewport_size: Vector2, subject_height: float, head_baseline: float, tint := Color.WHITE) -> TextureRect:
+	# Character collection rows are a hero showcase, not a full-body inventory
+	# thumbnail. Align every portrait to one canvas centerline and one subject
+	# headline, then let the shared viewport crop the lower legs near the knees.
+	# Centering the authored canvas (instead of each pose/effect silhouette) keeps
+	# leaning poses, coats, fire and lightning from making rows look staggered.
+	parent.clip_contents = true
 	parent.custom_minimum_size = viewport_size
 	var bust := parent.get_node_or_null("BustImage") as TextureRect
 	if bust == null:
@@ -940,27 +1001,31 @@ static func add_character_fullbody_aligned(parent: Control, row: Dictionary, vie
 		bust.custom_minimum_size = viewport_size
 		bust.position = Vector2.ZERO
 		return bust
-	var image := texture.get_image()
-	var opaque_bounds := image.get_used_rect() if image != null and not image.is_empty() else Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
-	if opaque_bounds.size == Vector2i.ZERO:
-		opaque_bounds = Rect2i(Vector2i.ZERO, Vector2i(texture.get_size()))
-	var scale_factor := visible_height / maxf(float(opaque_bounds.size.y), 1.0)
+	var focus_bounds := _character_focus_bounds(texture)
+	var scale_factor := subject_height / maxf(float(focus_bounds.size.y), 1.0)
 	var texture_size := texture.get_size()
 	var bust_size := texture_size * scale_factor
-	var visible_width := float(opaque_bounds.size.x) * scale_factor
-	var visible_left := (viewport_size.x - visible_width) * 0.5
-	var visible_top := bottom_baseline - visible_height
 	bust.size = bust_size
 	bust.custom_minimum_size = bust_size
 	bust.position = Vector2(
-		visible_left - float(opaque_bounds.position.x) * scale_factor,
-		bottom_baseline - float(opaque_bounds.end.y) * scale_factor
+		(viewport_size.x - bust_size.x) * 0.5,
+		head_baseline - float(focus_bounds.position.y) * scale_factor
 	)
-	# Keep the authored alignment contract inspectable by smoke and screenshot
-	# tooling without re-decoding every portrait texture.
-	bust.set_meta("aligned_visible_rect", Rect2(Vector2(visible_left, visible_top), Vector2(visible_width, visible_height)))
-	bust.set_meta("aligned_visible_height", visible_height)
-	bust.set_meta("aligned_visible_bottom", bottom_baseline)
+	var subject_rect := Rect2(
+		Vector2(
+			bust.position.x + float(focus_bounds.position.x) * scale_factor,
+			head_baseline
+		),
+		Vector2(float(focus_bounds.size.x) * scale_factor, subject_height)
+	)
+	var crop_rect := subject_rect.intersection(Rect2(Vector2.ZERO, viewport_size))
+	# Keep the alignment and crop contract inspectable by smoke/screenshot tools
+	# without rescanning every portrait texture a second time.
+	bust.set_meta("aligned_visible_rect", subject_rect)
+	bust.set_meta("aligned_crop_rect", crop_rect)
+	bust.set_meta("aligned_visible_height", subject_height)
+	bust.set_meta("aligned_visible_top", head_baseline)
+	bust.set_meta("aligned_canvas_center_x", viewport_size.x * 0.5)
 	return bust
 
 static func character_bust_y_with_headroom(texture: Texture2D, image_width: float, authored_y: float, desired_headroom := 8.0) -> float:

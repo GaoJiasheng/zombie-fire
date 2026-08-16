@@ -2616,6 +2616,7 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - **Panel rhythm**: the pause panel is now wider/taller on the authored 1080x1920 layout while still using the shared tall-screen offset. The title, content stack, and action block use clearer vertical zones instead of leaving a small text cluster inside a large dark board.
 - **Readable cards**: `战场状态`, `出战配置`, and `已带技能` cards have larger minimum heights, larger section headers, larger metric pills, wider key/value spacing, and bigger skill chips. Skill chips moved from four narrow columns to three wider columns so names and levels do not read like thumbnails.
+- **Pause modal true-device type and action safety pass**: Raised section, field, value, skill-name and level type one more step while expanding their row heights, then grew all three bottom actions to `276x154`. Each action now keeps its enlarged icon and short verb on one horizontal line inside a shared `32/30px` five-theme frame-safe inset, so neither element touches the thickest premium bezel after device scaling.
 - **Native button size**: the three pause actions now use the existing `760x112` native armored button textures, with larger icon plates, title text, subtitles, and arrows. This keeps the owner-approved armored texture standard without stretching a small button model.
 - **Visual verification**: `tmp/pause_readability_layout_default_2026_07_12.png` checks the 1080x1920 layout, and `tmp/pause_readability_layout_tall_2026_07_12.png` checks the tall 1080x2340 placement.
 
@@ -4199,3 +4200,120 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Clean replacement delivery**: Build `1.0.0 (54)` was accepted as `VALID`, `APP_STORE_ELIGIBLE` and present on App Store Connect under delivery `edb5d369-49f6-4a79-aaee-0bacd6a53c49`. Apple's reported `MINOSVERSION` is `15.0`, and both the upload and final processing responses contain no `ITMS-90068` warning.
 - **Artifact identity**: the accepted IPA is `869709981` bytes with SHA-256 `8178243a3f2b0dffb381fe04d51b16447fde6596906d86533f5d9c1af614b6fb`; `/Users/gavin/Desktop/ZombieFire.ipa` is byte-identical. The release record is `build/ios/release/build_54/release_manifest.json`.
 - **Local release state**: TestFlight-only speed and premium-preview features were restored to ordinary `release` after delivery. The tracked iOS build number remains `54` and the minimum target remains `15.0`.
+
+## Icon-Only Modal Close Readability (2026-08-16)
+
+- **One shared close ruler**: Store product details, Collection character / skill / equipment details, and the character Appearance selector now use the same `96×96` minimum visual target and `56 px` multiplication glyph.
+- **Theme artwork remains authored**: the pass changes only close-button geometry and glyph scale; each screen keeps its existing armored texture, hover / pressed colors, title copy and modal spacing.
+- **Text actions are intentionally separate**: bottom Done, Complete, Back and Return buttons keep their established full-width text treatment instead of being mistaken for icon-only dismiss actions.
+- **Regression ownership**: M1 smoke checks the shared glyph, target and font contracts across all three surfaces. Runtime captures at `1080` width confirm the enlarged close action stays centered, clears the right frame and does not compress the header title.
+
+## Store Scroll-vs-Tap Gesture Arbitration (2026-08-16)
+
+- **Root cause**: the product card compared only press and release coordinates. On iOS, real movement arrives through `InputEventScreenDrag`, while the final release may still be reported near the press origin, allowing a completed scroll to look like a stationary tap.
+- **One page-level decision**: the Store now tracks the complete touch / mouse stream in screen coordinates. Crossing the same `12 px` deadzone used by its ScrollContainers permanently marks that release as a drag and cancels all activation in the dispatch.
+- **Every list action is guarded**: product purchase, detail purchase, equip-full-set, reset-series and item-upgrade actions all pass through the same drag rejection instead of trusting a child Button's `pressed` signal alone.
+- **Clicks remain clicks**: keyboard activation and stationary pointer taps are unchanged. M1 smoke replays the iOS stale-release-coordinate sequence, proves no detail or purchase dialog appears, then verifies a no-movement tap on the same card still opens the expected detail.
+
+## Loadout Hero Entry + Tactical Summary Frame Safety (2026-08-16)
+
+- **The summary now owns real content insets**: a dedicated safe-area container reserves `34 px` on the left and `30 px` on the right, plus vertical breathing room. The title, stat grid, equipment copy, counter suggestion and star rule no longer treat the ornamental frame as writable space.
+- **One hero-card action**: the former portrait-only outfit shortcut and bottom-strip hero-selection split are removed. The complete hero card now opens the character collection, so the most obvious tap target begins with hero selection.
+- **Outfits remain available in the same flow**: each character detail continues to expose both Select and Outfit actions. Returning through Collection preserves the active level, challenge flag and result-return payload exactly as before.
+- **Bilingual, guarded behavior**: the card badge reads `人物 / 外观` or `Hero / Outfit`. M1 smoke checks rendered summary clearance, full-card hit geometry, removal of the obsolete outfit-only overlay, collection routing, and the simultaneous presence of Select and Outfit actions.
+
+## Card-Offer Skill Icon Clearance + Scale (2026-08-16)
+
+- **Clear of the ornamental edge**: the skill-icon frame now begins at `x=32` instead of `x=16`, so neither its artwork nor its metal frame overlaps the card accent strip or left decoration.
+- **Stronger visual hierarchy**: the frame grows from `176×176` to `196×196`, while the aspect-preserving icon art grows from `156×156` to `178×178` and remains centered inside the frame.
+- **Text moves as one system**: the title, stats, description and tags now start at `x=252`, retaining a `24 px` icon-to-copy gap and the existing right-edge safety margin. Chinese stats remain on one line.
+- **Bilingual fallback**: long English titles retain adaptive fitting, and English descriptions use a balanced two-line treatment so the enlarged icon does not create clipping or a hidden third line.
+- **Regression ownership**: M1 smoke asserts frame clearance, minimum icon scale, art containment, icon-to-title separation and copy right clearance. Chinese and English card-offer captures pass the runtime visual audit.
+
+## Unified Large-Icon Collection Lists (2026-08-16)
+
+- **One equipment-card system**: weapon, armor, chip and pet catalogs now share an `860×256` row, a `176×176` showcase icon, and the same `x=248` copy axis. The former 92 px compact icon branch for non-weapon gear is removed.
+- **Skill Codex joins the same grid**: its rows expand to `860×256`; the framed skill art grows from `80×80` to `156×156` inside the shared `176×176` icon footprint, while the information action remains in its own right-side lane.
+- **Coordinated copy movement**: title, semantic tags and summary all move right as a unit and retain at least `30 px` after the icon. Purchase, equip and detail controls remain clear of both imagery and prose.
+- **Bilingual proof**: Chinese and English weapon, armor, chip, pet and skill captures pass runtime clipping and manual visual review. Long English names and three-tag rows remain intact.
+- **Permanent geometry gate**: M1 smoke now rejects any category that falls back to a narrow row, small icon, old text origin or insufficient icon-to-copy gap.
+
+## Character-Detail Skill Icon Scale (2026-08-16)
+
+- **One ruler for every hero skill**: passive talents, signature actives and signature ammo skills now share a `120×120` framed footprint with `104×104` aspect-preserving artwork instead of the legacy `78 / 64 px` treatment.
+- **Copy remains stable**: the skill row grows to `148 px` with a `20 px` icon-to-copy interval, while all approved title, kind and description type sizes and strings remain unchanged.
+- **Scroll absorbs the added hierarchy**: the existing character-detail ScrollContainer owns the extra vertical height, so the modal frame and bottom actions do not shrink or clip the enlarged rows.
+- **Fallbacks cannot regress the layout**: missing dynamic art uses the same named large-icon component and dimensions as authored icons. M1 smoke rejects mixed sizes, insufficient spacing or non-centered stretching.
+
+## Character-List Knee Crop + Cross-Theme Alignment (2026-08-16)
+
+- **Hero showcase instead of full-body thumbnail**: character rows grow to `860×330`, with a `320×310` portrait viewport and a normalized `465 px` subject ruler. Lower legs are intentionally cropped near the knees rather than forcing every hero's feet into a small box.
+- **One headline and one center axis**: every hero and outfit shares `y=6` head alignment and the authored portrait-canvas centerline. Leaning poses no longer re-center each row around a different limb, coat or effect silhouette.
+- **Effects do not steer layout**: a cached alpha-threshold focus scan excludes faint lightning, fire and trailing fabric from the scale reference. Default, Neon, Infernal, Polar and Gilded portrait sets therefore use one stable presentation algorithm.
+- **Copy remains independent**: the character copy axis moves to `x=370`, preserving `26 px` after the larger portrait viewport and keeping selection/purchase controls in a dedicated right-side lane.
+- **Regression ownership**: M1 smoke asserts the wide card, portrait viewport, normalized subject height, intentional lower-body crop, shared headline, shared canvas center and four-hero consistency.
+## Point-Blank Boss Aim Stability (2026-08-16)
+
+- Directional character art now chooses left/centre/right from a pose-independent body-centre reference at the authored muzzle height. The previous loop used the current directional pose's muzzle as the next pose's reference; at the wall, crossing the Boss centre made left request right and right request left.
+- Side selection now has separate enter/exit thresholds, so small collision or target-point movement near a boundary does not flip the full character strip every frame.
+- Projectile contact is unchanged: after the pose is selected, every shot still resolves from that pose's authored muzzle directly toward the live target. A close-wall smoke fixture locks this contract.
+
+## Defense-Barrier Skill / Armor-Intercept Visual Separation (2026-08-16)
+
+- **Root cause**: the persistent blue base-wall visibility test combined learned `skill_barrier` level with armor-authored `breach_shield` charges. Equipping intercept armor therefore painted the skill's full glass wall at stage start even when the card had never been selected.
+- **One visual owner**: the persistent rendered wall now follows `skill_barrier` only. Armor interception retains its authored one-hit protection and transient impact / break feedback, without impersonating a learned card.
+- **No balance change**: base HP, skill scaling, armor charges, damage absorption and card offers are unchanged. M1 smoke holds the mixed state of two armor charges plus no learned barrier and requires the wall to remain hidden.
+
+## Pause Readability + Three-Column Actions (2026-08-16)
+
+- **Larger information hierarchy**: Battle Status, Loadout and Equipped Skills increase section, field, value, skill-name and level type sizes, with skill icons growing from `44` to `52 px`.
+- **More width, less dead space**: the structured reading lane expands from `836` to `884 px`; card gaps and internal vertical spacing contract so the larger text fits without increasing the modal burden.
+- **One action row**: Resume, Restart and Exit now occupy one left/centre/right row with `276×126` touch targets. Short bilingual verbs replace the former long labels, and icon-over-label composition avoids ornamental-corner collisions.
+- **Regression ownership**: M1 smoke verifies the widened content lane, taller targets, one-row ordering, localized short labels and five-theme safe-frame containment.
+
+## Four-Column In-Battle Skill Dock (2026-08-16)
+
+- **Hero lane restored**: the passive-skill dock now owns `x=18–426` instead of `x=18–530`, keeping its fourth card clear of the fixed hero silhouette rather than allowing a fifth card to enter the centre lane.
+- **Presentation unchanged**: every skill keeps the approved `96×120` card, icon size, localized level label and touch target. Only the maximum column count changes from five to four.
+- **Predictable wrapping**: cards 1–4 fill the first row, card 5 starts the next row, and every later group of four grows upward from the existing bottom anchor. The current eight-skill gameplay cap is unchanged.
+- **Permanent guard**: M1 smoke asserts the exact `408 px` dock width, four-column count, fifth-card wrap, row alignment and unchanged card geometry.
+
+## Boss Percentage Resistance + Necrotitan Regeneration Repair (2026-08-16)
+
+- **Root cause fixed**: `boss_necrotitan` had no authored regeneration rate and silently inherited `2.5%` of maximum HP per second. At level 70 this was roughly `471k HP/s`, completely masking the visible 50–100 damage ticks. Regeneration is now explicit at `0.4%/s` and never inherited from code defaults.
+- **Damage reliably holds the gain**: any real damage pauses Necrotitan regeneration for `0.8s`; fire-weak damage pauses it for `3.0s`, and subsequent burn ticks refresh the same weakness window. The first partially unsuppressed frame heals only for its truly unsuppressed time slice.
+- **No Boss hard immunity**: all eight Boss rows use bounded `resistances` dictionaries. The standard resistant element takes `50%` real damage and the weakness takes `150%`; Tank Titan armor also takes damaging physical hits before it breaks instead of returning zero.
+- **Feedback matches the math**: the Boss identity rail shows the weakness bonus, resistant hits state their actual reduction, and adaptive high-end HP precision makes the first real loss visible instead of rounding back to `100%`.
+- **One model on both sides**: SaveManager, the Python ruler, clear-requirement audit and endgame audit read the same resistance data. The frozen `099 R=1.1643/Boss` and Owner `055 R=0.9430/line` anchors remain unchanged; the retired hard-immunity reverse fixture is replaced by the explicit `0.50x` resistance versus `1.50x` weakness contract.
+
+## Blaze Target-Centred Wide-Area Meltdown (2026-08-16)
+
+- **Full-screen overreach removed**: Meltdown no longer grants every living enemy eligibility for every pulse. It locks the current high-threat target and resolves its staged explosions through the authored local-radius geometry.
+- **Crowd-clear identity retained**: the base radius increases from the original local implementation's `260` to `340`, so nearby packs remain meaningfully covered without erasing battlefield positioning.
+- **No hidden single-target rebalance**: damage, pulse count, cooldown, Burn scaling and the target-centred falloff ruler are unchanged. Coverage and radius remain excluded from the player-facing single-target power score, preserving the approved Power 3.0 anchors.
+- **Bilingual and guarded**: Chinese and English skill copy now describes a wide-area target-centred blast. M1 smoke requires the locked target and a nearby add to lose HP while a remote probe remains untouched, and separately proves coverage mode cannot inflate displayed power.
+
+## Armored-Boss Dual Durability + Lighter Void Phantom (2026-08-16)
+
+- **Real armor, not a hit counter**: Tank Titan, Necrotitan and Apex Overlord now allocate `30%` of their authored `hp_coef` durability to armor and `70%` to body HP. The sum is unchanged, so this pass does not secretly add another health bar's worth of difficulty.
+- **Armor Bypass has a visible job**: ordinary damage drains armor before body HP; the existing Armor Bypass stat routes its percentage directly into body HP, while the remaining damage hits armor. Armor-breaking overflow continues into the body and legacy `armor_hits` remains only for stale-data compatibility.
+- **Two readable rails**: armored Bosses expose a gold armor rail and red body rail both above the model and in the global Boss HUD. The global identity line reports `甲 / 血` or `AR / HP` percentages instead of collapsing both resources into one ambiguous number.
+- **Mobility pays for lower durability**: Void Phantom moves from `hp_coef 46` to `36`, leaving teleport / phase routing as its primary pressure. Regenerated contracts change affected stages 55 / 60 / 65; the Owner stage-55 anchor stays `R≈0.9430 / line` at the new `271 / 287` scale.
+- **Permanent regression contract**: validation bounds `armor_hp_ratio`; smoke proves total durability conservation, armor-first routing, 50% bypass splitting, break overflow, local/global dual-bar geometry and the reduced Void HP coefficient.
+
+## Boss Fixed Identity Durability + Quantity Rosters (2026-08-16)
+
+- **Same model now means same Boss**: all eight rows own `fixed_hp`; normal campaign spawning bypasses level, late-wave, card-pressure and retired Boss-survival HP multipliers. Armor remains a split of that fixed total.
+- **Difficulty is visible**: repeated encounters explicitly author 2 / 3 / 4 copies in `levels.json.runtime_bosses`, staggered across left / right / spread lanes. Stage 99 is four identical 84M Apexes instead of one secretly inflated model plus an unrelated Titan.
+- **Mobility and armor identities preserved**: Void Phantom owns lower per-copy durability and scales 1 / 2 / 3 by quantity; Necrotitan and Apex keep two durability rails and can be bypassed by penetration.
+- **Power ruler counts the whole roster**: the primary amount is calculated from actual wave rows rather than Boss IDs, so same-ID reinforcements are no longer swallowed. Stage 99 is `5322/4546, R=1.1707/Boss`; the Stage 80 replay is `4268/2431, R=1.7558/Boss`.
+- **Simulation result**: normal and challenge balance scans pass; the free scattergun graduation path estimates 393.9s for Stage 99, while the runtime four-Boss matrix reads 183.0s and every physical graduation family remains under the 460s cap.
+- **Authority**: formulas, complete Boss table, authored quantities and regression ownership live in `design/35_fixed_boss_identity_and_rosters.md`.
+
+## Power 4.0 Runtime-Leak Line Calibration (2026-08-16)
+
+- **False bottleneck removed**: the defence-line contract no longer grows from an unrelated recommend-level cubic. Each level now serializes the balance simulator's expected breach damage, reference base HP and two-star survival boundary.
+- **Bounded offence interaction**: mob / Boss HP shares control a `0.85–1.15` contact-time factor. Fast clear can no longer be permanently capped by a fictitious line curve, while offence cannot be counted as unlimited defence.
+- **Owner replay corrected**: the level-080 Inferno loadout now reads `902/926` even at permanent-skill L1 and `1626/926` at the campaign-expected L4, replacing the former false `684/926` severe warning. A stripped low-level reverse build remains `110/926`.
+- **Campaign contracts regenerated**: all 99 levels carry `bottleneck_v4`; the 2–98 corridor remains `R=[0.9700,1.3800]`, the level-085 half-speed reverse case remains `R=0.4850`, and the then-current level-099 max-free double-Boss anchor was `2724/2340, R=1.1643/Boss`. Stage 186 supersedes only the Boss roster / absolute scale via `design/35`; the runtime-leak line formula remains authoritative.
+- **No gameplay rebalance**: enemy HP, damage, waves, star thresholds and premium values are unchanged. Formula, retired level-055 anchor rationale and regression ownership are recorded in `design/34_power_v4_runtime_line_calibration.md`.

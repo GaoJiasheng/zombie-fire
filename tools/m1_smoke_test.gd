@@ -117,7 +117,7 @@ func _initialize() -> void:
 	var boss_speed_mult := float(economy.get("BOSS_SPEED_MULT", 1.0))
 	_expect(absf(boss_speed_mult - 1.5) <= 0.001, "boss walking speed must be +50% via BOSS_SPEED_MULT")
 	_expect(str(economy.get("endless_template_level", "")) == "level_025", "endless mode must use a fixed level-25-equivalent template independent of entry level")
-	_expect(int(economy.get("endless_boss_immunity_grace_loops", 0)) >= 1, "endless first loop must not open with a hard boss immunity wall")
+	_expect(int(economy.get("endless_boss_resistance_grace_loops", 0)) >= 1, "endless first loop must soften boss resistance and armor pressure")
 	var fire_rate_mult := float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
 	var shot_damage_mult := float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 3.0))
 	_expect(absf(fire_rate_mult - 0.25) <= 0.001, "initial player fire rate must use the retuned +50% paced value")
@@ -152,6 +152,7 @@ func _initialize() -> void:
 	await _verify_bottom_skill_slot_level_merge(save_manager)
 	await _verify_card_offer_permanent_level_preload(save_manager)
 	await _verify_endless_mode(save_manager)
+	await _verify_boss_resistance_and_regeneration(data_loader)
 	await _verify_enemy_hit_flash_scope(data_loader)
 	_verify_ice_slow_visual_tint(data_loader)
 	await _verify_status_vfx_layers(data_loader)
@@ -385,23 +386,26 @@ func _initialize() -> void:
 	_expect(character_item is TextureButton, "character collection rows must use styled texture buttons")
 	_expect((character_item as Control).size_flags_horizontal == Control.SIZE_SHRINK_CENTER, "character collection rows must center their fixed-width artwork inside the safe-area list")
 	_expect((character_item as Control).clip_contents, "character collection rows must own the final portrait safety clip")
-	_expect((character_item as Control).custom_minimum_size.y >= 310.0, "character collection rows must dedicate the full authored height to hero presentation")
+	_expect((character_item as Control).custom_minimum_size.x >= 860.0 and (character_item as Control).custom_minimum_size.y >= 330.0, "character collection rows must dedicate the wide authored card to the enlarged hero presentation")
 	_expect(character_item.has_node("Icon"), "character collection rows must render a bounded portrait")
 	var character_icon := character_item.get_node("Icon") as TextureRect
 	_expect(character_icon != null, "character collection portrait must be a TextureRect")
-	_expect(character_icon.size == Vector2(220.0, 282.0), "character collection portrait lane must use the enlarged full-body envelope, got %s" % str(character_icon.size))
-	_expect(not character_icon.clip_contents, "character collection portrait lane must allow hair, coats and armour to breathe")
+	_expect(character_icon.position == Vector2(24.0, 10.0) and character_icon.size == Vector2(320.0, 310.0), "character collection portrait lane must use the enlarged knee-crop envelope, got %s at %s" % [str(character_icon.size), str(character_icon.position)])
+	_expect(character_icon.clip_contents, "character collection portrait lane must crop lower legs without leaking into neighbouring copy")
 	var character_bust := character_icon.get_node_or_null("BustImage") as TextureRect
 	_expect(character_bust != null and character_bust.texture != null, "character collection portrait must render a bust image")
 	_expect(str(character_bust.texture.resource_path).ends_with("_portrait_frameless.png"), "character collection portrait must use frameless 正脸立绘")
-	_expect(character_bust.has_meta("aligned_visible_rect"), "character collection portrait must expose its normalized visible silhouette")
+	_expect(character_bust.has_meta("aligned_visible_rect") and character_bust.has_meta("aligned_crop_rect"), "character collection portrait must expose its normalized subject and knee-crop envelopes")
 	var character_visible_rect: Rect2 = character_bust.get_meta("aligned_visible_rect", Rect2())
-	_expect(absf(character_visible_rect.size.y - 250.0) <= 0.1, "character collection portrait must normalize the enlarged visible height, got %s" % str(character_visible_rect))
-	_expect(absf(character_visible_rect.end.y - 276.0) <= 0.1, "character collection portrait must share the enlarged authored foot baseline, got %s" % str(character_visible_rect.end.y))
+	var character_crop_rect: Rect2 = character_bust.get_meta("aligned_crop_rect", Rect2())
+	_expect(absf(character_visible_rect.size.y - 465.0) <= 0.1 and absf(character_visible_rect.position.y - 6.0) <= 0.1, "character collection portrait must normalize subject scale and headline, got %s" % str(character_visible_rect))
+	_expect(character_visible_rect.end.y > character_icon.size.y + 120.0, "character collection portrait must intentionally crop the lower body instead of shrinking to show complete feet")
+	_expect(character_crop_rect.position.y <= 6.1 and character_crop_rect.end.y <= character_icon.size.y + 0.1 and character_crop_rect.size.y >= 300.0, "character collection portrait must preserve a head-to-knee visible crop")
+	_expect(absf(character_bust.position.x + character_bust.size.x * 0.5 - character_icon.size.x * 0.5) <= 0.1, "character collection portrait must align the authored canvas centerline")
 	_expect(character_bust.expand_mode == TextureRect.EXPAND_IGNORE_SIZE, "character collection portrait must use its assigned rect instead of the texture's natural size")
 	for text_node_name in ["Title", "Tags", "Description"]:
 		var character_text_node := character_item.get_node_or_null(text_node_name) as Control
-		_expect(character_text_node != null and character_text_node.position.x >= character_icon.position.x + character_icon.size.x + 12.0, "character collection %s must start to the right of the enlarged portrait lane" % text_node_name)
+		_expect(character_text_node != null and character_text_node.position.x >= character_icon.position.x + character_icon.size.x + 24.0, "character collection %s must start to the right of the enlarged portrait lane" % text_node_name)
 	var character_rows: Array[Node] = main.current_scene.find_child("ItemList", true, false).get_children()
 	var aligned_character_count := 0
 	for character_row in character_rows:
@@ -410,8 +414,11 @@ func _initialize() -> void:
 		if row_bust == null or not row_bust.has_meta("aligned_visible_rect"):
 			continue
 		var row_visible_rect: Rect2 = row_bust.get_meta("aligned_visible_rect")
+		var row_crop_rect: Rect2 = row_bust.get_meta("aligned_crop_rect")
 		_expect(absf(row_visible_rect.size.y - character_visible_rect.size.y) <= 0.1, "all character collection portraits must share one visible height")
-		_expect(absf(row_visible_rect.end.y - character_visible_rect.end.y) <= 0.1, "all character collection portraits must share one foot baseline")
+		_expect(absf(row_visible_rect.position.y - character_visible_rect.position.y) <= 0.1, "all character collection portraits must share one headline")
+		_expect(absf(row_crop_rect.size.y - character_crop_rect.size.y) <= 0.1, "all character collection portraits must share one head-to-knee crop height")
+		_expect(absf(row_bust.position.x + row_bust.size.x * 0.5 - character_icon.size.x * 0.5) <= 0.1, "all character collection portraits must share one authored canvas centerline")
 		aligned_character_count += 1
 	_expect(aligned_character_count == 4, "character collection must align all four hero portraits, got %d" % aligned_character_count)
 	var character_action := character_item.find_child("CardActionButton", true, false) as TextureButton
@@ -436,7 +443,8 @@ func _initialize() -> void:
 	var character_close := character_detail.find_child("CloseButton", true, false) as Button
 	_expect(character_close != null, "character detail top close must be a compact button")
 	_expect(character_close.text == "×", "character detail top close must use an icon-only x")
-	_expect(character_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and character_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "character detail top close must keep an accessible mobile touch target")
+	_expect(character_close.custom_minimum_size.x >= UiKit.CLOSE_BUTTON_MIN_SIZE.x and character_close.custom_minimum_size.y >= UiKit.CLOSE_BUTTON_MIN_SIZE.y, "character detail top close must keep the larger modal-close target")
+	_expect(character_close.get_theme_font_size("font_size") >= UiKit.CLOSE_GLYPH_FONT_SIZE, "character detail top close glyph must remain visually prominent")
 	var affinity_summary := character_detail.find_child("AffinitySummary", true, false) as Label
 	_expect(affinity_summary != null and affinity_summary.get_theme_font_size("font_size") >= 27, "character detail affinity summary must use the second-pass mobile-readable type")
 	var character_name := character_detail.find_child("CharacterName", true, false) as Label
@@ -472,6 +480,19 @@ func _initialize() -> void:
 	var skill_titles := character_detail.find_children("SkillTitle", "Label", true, false)
 	var skill_kinds := character_detail.find_children("SkillKind", "Label", true, false)
 	_expect(skill_titles.size() >= 2 and skill_kinds.size() >= 2, "character detail must expose mobile-readable skill names and kinds")
+	var skill_icon_frames := character_detail.find_children("SkillIconFrame", "PanelContainer", true, false)
+	var skill_icons := character_detail.find_children("SkillIcon", "TextureRect", true, false)
+	_expect(skill_icon_frames.size() >= 2 and skill_icons.size() == skill_icon_frames.size(), "character detail passive and signature rows must all use the shared large-icon component (frames=%d icons=%d)" % [skill_icon_frames.size(), skill_icons.size()])
+	for skill_icon_frame_node in skill_icon_frames:
+		var skill_row := skill_icon_frame_node.get_parent() as HBoxContainer
+		_expect(skill_row != null and skill_row.custom_minimum_size.y >= 148.0, "character detail skill rows must reserve the enlarged icon height")
+		_expect(skill_row != null and skill_row.get_theme_constant("separation") >= 20, "character detail skill rows must retain a clear icon-to-copy gap")
+		var skill_icon_frame := skill_icon_frame_node as PanelContainer
+		_expect(skill_icon_frame != null and skill_icon_frame.custom_minimum_size.x >= 120.0 and skill_icon_frame.custom_minimum_size.y >= 120.0, "character detail skill icon frames must use the enlarged 120px ruler")
+	for skill_icon_node in skill_icons:
+		var skill_icon := skill_icon_node as TextureRect
+		_expect(skill_icon != null and skill_icon.custom_minimum_size.x >= 104.0 and skill_icon.custom_minimum_size.y >= 104.0, "character detail skill artwork must use the enlarged 104px ruler")
+		_expect(skill_icon != null and skill_icon.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "character detail skill artwork must remain aspect-preserving and centered")
 	for skill_title_node in skill_titles:
 		var skill_title := skill_title_node as Label
 		_expect(skill_title != null and skill_title.get_theme_font_size("font_size") >= 30, "character detail skill names must use at least 30px effective type")
@@ -524,7 +545,13 @@ func _initialize() -> void:
 	var skill_card := skill_item.get_node("SkillCard") as PanelContainer
 	_expect(skill_card != null and skill_card.size.x >= 720.0, "skill collection card must span the row without a disconnected right panel")
 	_expect(skill_item.has_node("InfoButton"), "skill collection card must expose a dedicated accessible detail control")
+	var skill_list_icon_frame := skill_item.get_node_or_null("IconFrame") as PanelContainer
+	var skill_list_icon := skill_list_icon_frame.get_node_or_null("Icon") as TextureRect if skill_list_icon_frame != null else null
 	var skill_title := skill_item.get_node("Title") as Label
+	_expect(skill_item.size.x >= 860.0 and skill_item.size.y >= 256.0, "skill collection rows must share the wide equipment-card ruler")
+	_expect(skill_list_icon_frame != null and skill_list_icon_frame.position.x >= 40.0 and skill_list_icon_frame.size.x >= 176.0, "skill collection icon frame must use the shared large catalog geometry")
+	_expect(skill_list_icon != null and skill_list_icon.size.x >= 156.0 and skill_list_icon.size.y >= 156.0, "skill collection artwork must nearly double the old 80px presentation")
+	_expect(skill_title.position.x - (skill_list_icon_frame.position.x + skill_list_icon_frame.size.x) >= 30.0, "skill collection copy must share the equipment list text axis after the enlarged icon")
 	_expect(skill_title.text.find("等级4") >= 0, "upgraded skill collection row must show its actual permanent level, got %s" % skill_title.text)
 	var skill_tags := skill_item.get_node("Tags") as HBoxContainer
 	_expect(skill_tags != null and skill_tags.get_child_count() >= 3, "skill collection rows must render a kind tag plus semantic ability tags")
@@ -610,7 +637,8 @@ func _initialize() -> void:
 	var skill_close := skill_detail.find_child("CloseButton", true, false) as Button
 	_expect(skill_close != null, "skill detail top close must be a compact button")
 	_expect(skill_close.text == "×", "skill detail top close must use an icon-only x")
-	_expect(skill_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and skill_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "skill detail top close must keep an accessible mobile touch target")
+	_expect(skill_close.custom_minimum_size.x >= UiKit.CLOSE_BUTTON_MIN_SIZE.x and skill_close.custom_minimum_size.y >= UiKit.CLOSE_BUTTON_MIN_SIZE.y, "skill detail top close must keep the larger modal-close target")
+	_expect(skill_close.get_theme_font_size("font_size") >= UiKit.CLOSE_GLYPH_FONT_SIZE, "skill detail top close glyph must remain visually prominent")
 	var skill_level_one := skill_detail.find_child("SkillLevel1", true, false) as PanelContainer
 	_expect(skill_level_one != null, "skill detail must render a named first-level readability row")
 	var skill_level_label := skill_level_one.find_child("Level", true, false) as Label
@@ -659,6 +687,7 @@ func _initialize() -> void:
 				var semantic_tags := semantic_row.get_node_or_null("Tags") as HBoxContainer
 				var semantic_description := semantic_row.get_node_or_null("Description") as Label
 				var semantic_action := semantic_row.get_node_or_null("CardActionButton") as TextureButton
+				var semantic_icon := semantic_row.get_node_or_null("Icon") as TextureRect
 				_expect(semantic_title != null and semantic_tags != null and semantic_description != null, "%s %s row must expose title/tag/description anchors" % [semantic_language, semantic_mode])
 				var expected_tag_minimum := 1 if semantic_mode == "weapons" else 2
 				_expect(semantic_tags != null and semantic_tags.get_child_count() >= expected_tag_minimum, "%s %s row must expose its available categorical tags without inventing empty values" % [semantic_language, semantic_mode])
@@ -669,6 +698,12 @@ func _initialize() -> void:
 				_expect(is_equal_approx(title_tag_gap, 8.0), "%s %s title-to-tag gap must stay at the shared 8px rhythm, got %.1f" % [semantic_language, semantic_mode, title_tag_gap])
 				_expect(is_equal_approx(tag_description_gap, 6.0), "%s %s tag-to-description gap must stay at the shared 6px rhythm, got %.1f" % [semantic_language, semantic_mode, tag_description_gap])
 				_expect(semantic_title.vertical_alignment == VERTICAL_ALIGNMENT_BOTTOM, "%s %s title glyphs must bottom-align against the fixed tag gap" % [semantic_language, semantic_mode])
+				if semantic_mode in ["weapons", "armors", "chips", "pets"]:
+					_expect(semantic_row.size.x >= 860.0, "%s %s row must use the shared wide catalog card" % [semantic_language, semantic_mode])
+					_expect(semantic_icon != null and semantic_icon.size.x >= 176.0 and semantic_icon.size.y >= 176.0, "%s %s icon must use the shared enlarged catalog size" % [semantic_language, semantic_mode])
+					_expect(semantic_icon != null and semantic_icon.position.x >= 40.0, "%s %s icon must retain left-frame breathing room" % [semantic_language, semantic_mode])
+					_expect(semantic_title.position.x >= 248.0 and semantic_tags.position.x == semantic_title.position.x and semantic_description.position.x == semantic_title.position.x, "%s %s copy must share one right-shifted text axis" % [semantic_language, semantic_mode])
+					_expect(semantic_icon != null and semantic_title.position.x - (semantic_icon.position.x + semantic_icon.size.x) >= 30.0, "%s %s copy must clear the enlarged icon" % [semantic_language, semantic_mode])
 				var semantic_tag_texts: Array[String] = []
 				var weapon_ability_tag_count := 0
 				for semantic_tag_node in semantic_tags.get_children():
@@ -771,11 +806,11 @@ func _initialize() -> void:
 		var weapon_action := first_weapon.get_node_or_null("CardActionButton") as TextureButton
 		_expect(first_weapon.size.x >= 860.0, "weapon collection cards must use the owner-approved wider safe-area ruler")
 		_expect(weapon_frame != null and weapon_frame.size.x >= 828.0, "weapon collection frame must expand with the wider card; got %.1f inside %.1f" % [weapon_frame.size.x if weapon_frame != null else 0.0, first_weapon.size.x])
-		_expect(weapon_icon != null and weapon_icon.size.x >= 168.0 and weapon_icon.size.y >= 168.0, "weapon collection logo must use the enlarged 168px showcase size")
-		_expect(weapon_icon != null and weapon_icon.position.x >= 44.0, "weapon collection logo must keep its owner-approved left-frame breathing room")
-		_expect(weapon_title != null and weapon_title.position.x >= 244.0, "weapon collection title must shift right of the enlarged logo")
+		_expect(weapon_icon != null and weapon_icon.size.x >= 176.0 and weapon_icon.size.y >= 176.0, "weapon collection logo must use the shared enlarged 176px showcase size")
+		_expect(weapon_icon != null and weapon_icon.position.x >= 40.0, "weapon collection logo must keep its owner-approved left-frame breathing room")
+		_expect(weapon_title != null and weapon_title.position.x >= 248.0, "weapon collection title must share the right-shifted catalog text axis")
 		_expect(weapon_description != null and weapon_description.position.x == weapon_title.position.x, "weapon collection copy must share one right-shifted text axis")
-		_expect(weapon_icon != null and weapon_title != null and weapon_title.position.x - (weapon_icon.position.x + weapon_icon.size.x) >= 28.0, "weapon collection text must keep breathing room after the enlarged logo")
+		_expect(weapon_icon != null and weapon_title != null and weapon_title.position.x - (weapon_icon.position.x + weapon_icon.size.x) >= 30.0, "weapon collection text must keep breathing room after the enlarged logo")
 		_expect(weapon_action != null and weapon_action.position.x + weapon_action.size.x <= first_weapon.size.x - 32.0, "weapon collection action must remain inside the widened frame")
 	var purchasable_veil := purchasable_weapon.get_node("LockedCardVeil") as TextureRect
 	var purchase_action := purchasable_weapon.find_child("CardActionButton", true, false) as TextureButton
@@ -817,7 +852,8 @@ func _initialize() -> void:
 	var item_close := item_detail.find_child("CloseButton", true, false) as Button
 	_expect(item_close != null, "item detail top close must be a compact button")
 	_expect(item_close.text == "×", "item detail top close must use an icon-only x")
-	_expect(item_close.custom_minimum_size.x >= UiKit.MIN_TOUCH_TARGET.x and item_close.custom_minimum_size.y >= UiKit.MIN_TOUCH_TARGET.y, "item detail top close must keep an accessible mobile touch target")
+	_expect(item_close.custom_minimum_size.x >= UiKit.CLOSE_BUTTON_MIN_SIZE.x and item_close.custom_minimum_size.y >= UiKit.CLOSE_BUTTON_MIN_SIZE.y, "item detail top close must keep the larger modal-close target")
+	_expect(item_close.get_theme_font_size("font_size") >= UiKit.CLOSE_GLYPH_FONT_SIZE, "item detail top close glyph must remain visually prominent")
 	_expect(item_detail.find_child("EquipButton", true, false) != null, "item detail must expose equip action")
 	var item_upgrade_button := item_detail.find_child("UpgradeButton", true, false) as TextureButton
 	_expect(item_upgrade_button != null, "item detail must expose upgrade action")
@@ -975,6 +1011,17 @@ func _initialize() -> void:
 	_expect(main.current_scene.get_node("SignatureCards").get_child_count() >= 3, "loadout must show passive and two signature previews")
 	var loadout_details := main.current_scene.find_child("DetailsPanel", true, false) as Control
 	var loadout_start := main.current_scene.find_child("StartButton", true, false) as TextureButton
+	var loadout_summary_safe := loadout_details.find_child("SummarySafeArea", true, false) as MarginContainer
+	var loadout_summary_content := loadout_details.find_child("SummaryContent", true, false) as VBoxContainer
+	_expect(loadout_summary_safe != null, "loadout tactical summary must reserve an explicit content safe area")
+	if loadout_summary_safe != null:
+		_expect(loadout_summary_safe.get_theme_constant("margin_left") >= 32, "loadout tactical summary must keep its copy clear of the left frame")
+		_expect(loadout_summary_safe.get_theme_constant("margin_right") >= 28, "loadout tactical summary must keep its copy clear of the right frame")
+	if loadout_summary_content != null:
+		var loadout_summary_rect := loadout_summary_content.get_global_rect()
+		var loadout_details_rect := loadout_details.get_global_rect()
+		_expect(loadout_summary_rect.position.x - loadout_details_rect.position.x >= 30.0, "loadout tactical summary rendered copy must keep left-frame clearance")
+		_expect(loadout_details_rect.end.x - loadout_summary_rect.end.x >= 26.0, "loadout tactical summary rendered copy must keep right-frame clearance")
 	var loadout_action_gap := loadout_start.get_global_rect().position.y - (loadout_details.get_global_rect().position.y + loadout_details.get_global_rect().size.y)
 	_expect(loadout_action_gap >= 50.0, "loadout bottom action must keep a clear gap below the tactical summary")
 	var loadout_power_pill := loadout_details.find_child("PowerStatePill", true, false) as PanelContainer
@@ -1016,11 +1063,29 @@ func _initialize() -> void:
 	_expect(main.current_scene.next_level == "", "challenge result must not expose campaign next-level progression")
 	main.change_scene("loadout", {"level_id": "level_001"})
 	await process_frame
-	var character_panel: Node = main.current_scene.find_child("CharacterPanel", true, false)
+	var character_panel := main.current_scene.find_child("CharacterPanel", true, false) as Control
 	_expect(character_panel != null and character_panel.has_node("OpenHitArea"), "loadout character panel must open collection as a layer")
-	(character_panel.get_node("OpenHitArea") as Button).emit_signal("pressed")
+	var character_open_hit := character_panel.get_node("OpenHitArea") as Button
+	var character_panel_rect := character_panel.get_global_rect()
+	var character_hit_rect := character_open_hit.get_global_rect()
+	_expect(character_hit_rect.size.x >= character_panel_rect.size.x - 2.0 and character_hit_rect.size.y >= character_panel_rect.size.y - 2.0, "loadout hero card must use its full surface for hero selection")
+	_expect(not character_panel.has_node("AppearanceHitArea"), "loadout hero card must not split portrait taps into an outfit-only shortcut")
+	_expect(character_open_hit.has_node("CharacterEntryBadge"), "loadout hero card must explain that the entry supports hero and outfit changes")
+	character_open_hit.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Collection", "loadout character panel must route to collection")
+	_expect(main.current_scene.mode == "characters", "loadout hero card must open the hero collection rather than an outfit-only dialog")
+	var loadout_selected_character := str(save_manager.get_selected("character"))
+	var loadout_selected_character_row: Dictionary = data_loader.get_row("characters", loadout_selected_character)
+	main.current_scene._show_character_detail(loadout_selected_character, loadout_selected_character_row)
+	await process_frame
+	_expect(main.current_scene.find_child("SelectButton", true, false) != null, "hero detail opened from loadout must retain the hero-selection action")
+	_expect(main.current_scene.find_child("AppearanceButton", true, false) != null, "hero detail opened from loadout must also retain the outfit action")
+	var loadout_character_detail_close := main.current_scene.find_child("CancelButton", true, false) as TextureButton
+	_expect(loadout_character_detail_close != null, "hero detail opened from loadout must remain closable")
+	if loadout_character_detail_close != null:
+		loadout_character_detail_close.emit_signal("pressed")
+		await process_frame
 	collection_back = main.current_scene.find_child("BackButton", true, false) as TextureButton
 	_expect(collection_back != null, "collection opened from loadout must expose back button")
 	_expect((collection_back.get_node("Label") as Label).text == "返回配置", "collection opened from loadout must label back as returning to configuration")
@@ -1185,8 +1250,8 @@ func _initialize() -> void:
 				var first_card_icon := first_card.get_node("Icon") as TextureRect
 				_expect(first_card_icon != null, "card icon must be a TextureRect")
 				var first_card_icon_frame := first_card.get_node("IconFrame") as PanelContainer
-				_expect(first_card_icon.size == Vector2(156, 156), "card icon must use the final enlarged 156px visual ruler, got %s" % str(first_card_icon.size))
-				_expect(first_card_icon_frame != null and first_card_icon_frame.size == Vector2(176, 176), "card icon frame must enlarge with the skill image")
+				_expect(first_card_icon.size == Vector2(178, 178), "card icon must use the final enlarged 178px visual ruler, got %s" % str(first_card_icon.size))
+				_expect(first_card_icon_frame != null and first_card_icon_frame.size == Vector2(196, 196), "card icon frame must enlarge with the skill image")
 				var first_card_title := first_card.get_node("Title") as Label
 				_expect(first_card_title.position.x >= first_card_icon_frame.position.x + first_card_icon_frame.size.x + 20.0, "enlarged card icon must retain at least 20px before the text lane")
 				first_card.emit_signal("mouse_entered")
@@ -1435,14 +1500,11 @@ func _verify_level20_boss_hp_modes(router: Node, data_loader: Node) -> void:
 	normal_battle.wave_index = 5
 	var normal_boss: Node = normal_battle._spawn_enemy_instance(boss_id, Vector2(540, 190), true)
 	var economy: Dictionary = data_loader.get_table("economy")
-	var base_coef := float(level_row.get("difficulty_coef", 1.0)) * float(level_row.get("base_hp_ref", 50)) / 50.0
-	var late_boss_mult := float(normal_battle._late_wave_hp_bonus(5, true, economy))
-	var level20_boss_mult := float(normal_battle._boss_level_hp_bonus(20, true, economy))
-	var expected_normal_hp := 50.0 * float(boss_row.get("hp_coef", 1.0)) * base_coef * late_boss_mult * level20_boss_mult
+	var expected_normal_hp := float(boss_row.get("fixed_hp", 0.0))
 	var normal_boss_hp := float(normal_boss.max_hp)
 	var expected_boss_speed := float(boss_row.get("speed", 80.0)) * float(economy.get("ENEMY_SPEED_MULT", 1.0)) * float(economy.get("BOSS_SPEED_MULT", 1.0))
-	_expect(is_equal_approx(level20_boss_mult, 2.0), "level_020+ boss HP bonus must be 2.0x, got %.2f" % level20_boss_mult)
-	_expect(absf(normal_boss_hp - expected_normal_hp) <= maxf(1.0, expected_normal_hp * 0.001), "normal level_020 boss must include 2.0x boss HP bonus; got %.1f expected %.1f" % [normal_boss_hp, expected_normal_hp])
+	_expect(expected_normal_hp > 0.0, "level_020 boss must own a fixed identity durability")
+	_expect(absf(normal_boss_hp - expected_normal_hp) <= maxf(1.0, expected_normal_hp * 0.001), "normal level_020 boss must use its fixed per-model durability; got %.1f expected %.1f" % [normal_boss_hp, expected_normal_hp])
 	_expect(absf(float(normal_boss.speed) - expected_boss_speed) <= maxf(0.01, expected_boss_speed * 0.001), "boss walking speed must include ENEMY_SPEED_MULT * BOSS_SPEED_MULT; got %.2f expected %.2f" % [float(normal_boss.speed), expected_boss_speed])
 	normal_boss.queue_free()
 	normal_battle.queue_free()
@@ -1458,7 +1520,7 @@ func _verify_level20_boss_hp_modes(router: Node, data_loader: Node) -> void:
 	var challenge_hp_mult := float(challenge_battle._challenge_mult("hp_mult", challenge_battle.CHALLENGE_HP_MULT))
 	var expected_challenge_hp := expected_normal_hp * challenge_hp_mult
 	var challenge_boss_hp := float(challenge_boss.max_hp)
-	_expect(absf(challenge_boss_hp - expected_challenge_hp) <= maxf(1.0, expected_challenge_hp * 0.001), "challenge level_020 boss must stack 2.0x boss HP and challenge HP; got %.1f expected %.1f" % [challenge_boss_hp, expected_challenge_hp])
+	_expect(absf(challenge_boss_hp - expected_challenge_hp) <= maxf(1.0, expected_challenge_hp * 0.001), "challenge level_020 boss may apply only the explicit challenge multiplier to fixed durability; got %.1f expected %.1f" % [challenge_boss_hp, expected_challenge_hp])
 	_expect(absf(challenge_boss_hp / maxf(normal_boss_hp, 1.0) - challenge_hp_mult) <= 0.01, "challenge boss HP must be normal boss HP * chapter challenge multiplier")
 	challenge_boss.queue_free()
 	challenge_battle.queue_free()
@@ -1587,7 +1649,7 @@ func _verify_pet_defense_line_anchor(save_manager: Node, snapshot: Dictionary) -
 		_expect(absf(hp_bar.position.y - 41.0) <= 0.1, "base HP must share the lowered bottom resource row" + context)
 		_expect(maxf(gold_label.position.y + gold_label.size.y, maxf(xp_bar.position.y + xp_bar.size.y, hp_bar.position.y + hp_bar.size.y)) <= bottom_bar.size.y + 0.1, "lowered bottom resources must remain inside the dock" + context)
 		_expect(absf(skill_slots.offset_top - (1688.0 + expected_shift)) <= 0.1, "empty skill dock must align one slot row with the active-skill bottom edge" + context)
-		_expect(absf(skill_slots.offset_left - 18.0) <= 0.1 and absf(skill_slots.offset_right - 530.0) <= 0.1, "skill slots must stay inside the left half-screen dock" + context)
+		_expect(absf(skill_slots.offset_left - 18.0) <= 0.1 and absf(skill_slots.offset_right - 426.0) <= 0.1, "skill slots must stay inside the four-column left-side dock" + context)
 		_expect(is_equal_approx(skill_slots.anchor_left, 0.0) and is_equal_approx(skill_slots.anchor_right, 0.0), "skill dock must not inherit a full-width anchor" + context)
 		_expect(absf(active_skill.offset_top - (1688.0 + expected_shift)) <= 0.1, "active skill must follow the bottom dock" + context)
 		_expect(bottom_bar.offset_bottom <= float(viewport_height) + 0.1, "bottom HUD must remain on-screen" + context)
@@ -2452,13 +2514,47 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 				await process_frame
 			var drag_release := InputEventScreenTouch.new()
 			drag_release.index = 7
-			drag_release.position = previous_position
+			# Reproduce iOS' stale release coordinate: ScreenDrag carried the real
+			# movement, while the final touch can still report the press origin.
+			drag_release.position = drag_start
 			drag_release.pressed = false
 			Input.parse_input_event(drag_release)
+			# Even if a child Button emits pressed on that same release dispatch,
+			# the page-level drag arbiter must reject the action.
+			drag_button.emit_signal("pressed")
 			await process_frame
 			_expect(store.find_child("StoreProductDetail", true, false) == null, "dragging the premium store must not misfire a product detail")
 			var accidental_dialog: Variant = store.get("_dialog_layer")
 			_expect(accidental_dialog == null or not is_instance_valid(accidental_dialog), "dragging the premium store must not misfire a purchase confirmation")
+			# A stationary gesture on the same card must still open its detail.
+			var tap_card := cards[0]
+			var tap_product_id := str(tap_card.get_meta("store_product_id", ""))
+			var tap_local := Vector2(40.0, 40.0)
+			var tap_global := tap_card.get_global_transform_with_canvas() * tap_local
+			var tap_press_global := InputEventScreenTouch.new()
+			tap_press_global.index = 8
+			tap_press_global.position = tap_global
+			tap_press_global.pressed = true
+			store.call("_input", tap_press_global)
+			var tap_press_local := InputEventScreenTouch.new()
+			tap_press_local.index = 8
+			tap_press_local.position = tap_local
+			tap_press_local.pressed = true
+			store.call("_on_product_card_input", tap_press_local, tap_product_id, tap_card)
+			var tap_release_global := InputEventScreenTouch.new()
+			tap_release_global.index = 8
+			tap_release_global.position = tap_global
+			tap_release_global.pressed = false
+			store.call("_input", tap_release_global)
+			var tap_release_local := InputEventScreenTouch.new()
+			tap_release_local.index = 8
+			tap_release_local.position = tap_local
+			tap_release_local.pressed = false
+			store.call("_on_product_card_input", tap_release_local, tap_product_id, tap_card)
+			await process_frame
+			_expect(store.find_child("StoreProductDetail", true, false) != null, "stationary store tap must still open product detail")
+			store.call("_close_product_detail")
+			await process_frame
 			store_scroll.scroll_vertical = 0
 	for card in cards:
 		var product_id := str(card.get_meta("store_product_id", ""))
@@ -2528,6 +2624,11 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 		_expect(detail != null, "%s card must open a product detail layer" % product_id)
 		if detail != null:
 			_expect(str(detail.get_meta("store_detail_product_id", "")) == product_id, "%s detail must retain the exact product identity" % product_id)
+			var detail_close := detail.find_child("CloseButton", true, false) as Button
+			_expect(detail_close != null and detail_close.text == "×", "%s detail must expose the shared icon-only close action" % product_id)
+			if detail_close != null:
+				_expect(detail_close.custom_minimum_size.x >= UiKit.CLOSE_BUTTON_MIN_SIZE.x and detail_close.custom_minimum_size.y >= UiKit.CLOSE_BUTTON_MIN_SIZE.y, "%s detail close must keep the larger modal-close target" % product_id)
+				_expect(detail_close.get_theme_font_size("font_size") >= UiKit.CLOSE_GLYPH_FONT_SIZE, "%s detail close glyph must remain visually prominent" % product_id)
 			var detail_scroll := detail.find_child("DetailScroll", true, false) as ScrollContainer
 			var detail_content := detail.find_child("DetailContent", true, false) as Control
 			_expect(detail_scroll != null, "%s detail must retain its independent vertical ScrollContainer" % product_id)
@@ -2684,6 +2785,11 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 		root.add_child(selector)
 		selector.open_character("vanguard")
 		await process_frame
+		var appearance_close := selector.find_child("HeaderBackButton", true, false) as Button
+		_expect(appearance_close != null and appearance_close.text == "×", "character appearance header must expose the shared icon-only close action")
+		if appearance_close != null:
+			_expect(appearance_close.custom_minimum_size.x >= UiKit.CLOSE_BUTTON_MIN_SIZE.x and appearance_close.custom_minimum_size.y >= UiKit.CLOSE_BUTTON_MIN_SIZE.y, "character appearance close must keep the larger modal-close target")
+			_expect(appearance_close.get_theme_font_size("font_size") >= UiKit.CLOSE_GLYPH_FONT_SIZE, "character appearance close glyph must remain visually prominent")
 		var worn := selector.find_child("OutfitSelect_follow_theme", true, false) as Button
 		var wear := selector.find_child("OutfitSelect_default", true, false) as Button
 		var buy := selector.find_child("OutfitSelect_gilded_eclipse", true, false) as Button
@@ -2828,16 +2934,16 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	var level68_power := int(save_manager.get_recommended_power_for_level("level_068"))
 	_expect(level68_power >= 450, "level_068 clear-line power must scale into the late campaign, got %d" % level68_power)
 	var level97_power := int(save_manager.get_recommended_power_for_level("level_097"))
-	_expect(level97_power >= 1000, "level_097 clear-line power must scale with its ten-card budget on the v3 corridor scale, got %d" % level97_power)
+	_expect(level97_power >= 1000, "level_097 clear-line power must scale with its ten-card budget on the v4 corridor scale, got %d" % level97_power)
 	_expect(level97_power > level68_power, "a later level must have a higher clear line; level_068=%d level_097=%d" % [level68_power, level97_power])
 	_expect(float(save_manager.get_run_skill_hp_pressure_for_level("level_097")) >= 1.45, "level_097 late waves must absorb ten-card DPS growth through authored HP pressure")
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
-# Owner 2026-08-15 战力 3.0 验收电池：玩家仍只看到一个战力，但内部严格取
+# Owner 2026-08-16 战力 4.0 验收电池：玩家仍只看到一个战力，但内部严格取
 # 清群 / Boss / 防线三条比值的最短板。绝对刻度随最弱兼容卡口径更新，冻结物是：
-# - 99 关满级免费最强物理：R≈1.1643，Boss 是短板；
-# - 55 关截图配置：R≈0.9430，防线是短板，必须预警。
+# - 99 关满级免费最强物理：R≈1.1707，Boss 是短板；
+# - 80 关截图配置按战役预期永久技能 L4：R≈1.7558，Boss 是短板，不再误报。
 func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
 	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
 	var cushion_min := float(gate_probe.CLEAR_LINE_CUSHION_MIN_RATIO)
@@ -2848,9 +2954,13 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 
 	for level_id in ["level_001", "level_013", "level_055", "level_085", "level_099"]:
 		var contract: Dictionary = data_loader.get_row("levels", level_id).get("clear_requirement", {}).get("power_contract", {})
-		_expect(str(contract.get("model", "")) == "bottleneck_v3", "%s must carry a bottleneck_v3 power contract" % level_id)
+		_expect(str(contract.get("model", "")) == "bottleneck_v4", "%s must carry a bottleneck_v4 power contract" % level_id)
 		_expect(float(contract.get("crowd_capacity", 0.0)) > 0.0, "%s crowd contract must be positive" % level_id)
-		_expect(float(contract.get("line_capacity", 0.0)) >= 1.0, "%s line contract must be valid" % level_id)
+		_expect(float(contract.get("line_capacity", 0.0)) > 0.0, "%s line contract must be valid" % level_id)
+		_expect(float(contract.get("line_expected_breach", -1.0)) >= 0.0, "%s must serialize expected breach damage" % level_id)
+		_expect(float(contract.get("line_base_hp", 0.0)) > 0.0, "%s must serialize reference base HP" % level_id)
+		_expect(float(contract.get("line_target_hp_ratio", -1.0)) >= 0.0, "%s must serialize the survival boundary" % level_id)
+		_expect(not contract.get("line_exposure_weights", {}).is_empty(), "%s must serialize line exposure weights" % level_id)
 
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var all_max_skills: Dictionary = {}
@@ -2861,19 +2971,24 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	_apply_calibration_build(save_manager, original_save, "vanguard", 40, "weapon_scattergun", 50, "armor_kevlar", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
 	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
 	var final_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_099")
-	_expect(int(final_breakdown.get("power", 0)) == 2724, "level_099 max-free power must be 2724 on the v3 corridor scale, got %d" % int(final_breakdown.get("power", 0)))
-	_expect(int(final_breakdown.get("recommended", 0)) == 2340, "level_099 recommendation must include both runtime bosses on the v3 corridor scale, got %d" % int(final_breakdown.get("recommended", 0)))
+	_expect(int(final_breakdown.get("power", 0)) == 5322, "level_099 max-free power must include the four-Boss roster, got %d" % int(final_breakdown.get("power", 0)))
+	_expect(int(final_breakdown.get("recommended", 0)) == 4546, "level_099 recommendation must include all four fixed-identity Bosses, got %d" % int(final_breakdown.get("recommended", 0)))
 	_expect(str(final_breakdown.get("power_bottleneck", "")) == "boss", "level_099 max-free bottleneck must be Boss")
 	var final_ratios: Dictionary = final_breakdown.get("power_ratios", {})
-	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1643) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.164")
+	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1707) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.171")
 
-	_apply_calibration_build(save_manager, original_save, "blaze", 40, "weapon_apocalypse_inferno", 17, "armor_apocalypse_molten", 4, "chip_apocalypse_stellar", 21, "pet_apocalypse_phoenix", 15, 5)
-	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
-	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_055")
-	_expect(int(observed_breakdown.get("power", 0)) == 270, "observed level_055 build must read 270 on the v3 corridor scale, got %d" % int(observed_breakdown.get("power", 0)))
-	_expect(int(observed_breakdown.get("recommended", 0)) == 286, "level_055 recommendation must read 286 on the v3 corridor scale")
-	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "observed level_055 build must expose the defence line as its internal bottleneck")
-	_expect(float(observed_breakdown.get("power", 0)) / 286.0 < warning_gate, "observed level_055 build must trigger the below-clear-line warning")
+	_apply_calibration_build(save_manager, original_save, "blaze", 40, "weapon_apocalypse_inferno", 36, "armor_apocalypse_molten", 21, "chip_apocalypse_stellar", 21, "pet_apocalypse_phoenix", 15, 5)
+	var rank4_skills: Dictionary = {}
+	for skill_id_var in data_loader.get_table("skills").keys():
+		var skill_id := str(skill_id_var)
+		rank4_skills[skill_id] = mini(4, save_manager._power_skill_max_level(data_loader.get_row("skills", skill_id)))
+	save_manager.save_data["skill_base_levels"] = rank4_skills
+	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_080")
+	_expect(int(observed_breakdown.get("power", 0)) == 4268, "observed level_080 build must include all three identical Necromancers, got %d" % int(observed_breakdown.get("power", 0)))
+	_expect(int(observed_breakdown.get("recommended", 0)) == 2431, "level_080 recommendation must include all three authored Necromancers")
+	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "boss", "observed level_080 build must expose Boss output as its internal bottleneck")
+	_expect(float(observed_breakdown.get("power", 0)) / 2431.0 > warning_gate, "observed level_080 build must no longer trigger the false severe warning")
+	_expect(float(observed_breakdown.get("power_line_exposure_credit", 0.0)) <= 1.1501, "line exposure credit must remain bounded at +15%")
 
 	# The fixture manifest is generated by the single Python model and checked into
 	# each contract. Smoke consumes it rather than defining a second fixture table.
@@ -2910,8 +3025,9 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		_expect(sample_ratio >= float(band[0]) - 0.01 and sample_ratio <= float(band[1]) + 0.01, "%s corridor fixture ratio %.4f must stay inside [%s,%s]" % [sample_level_id, sample_ratio, str(band[0]), str(band[1])])
 
 	var level99: Dictionary = data_loader.get_row("levels", "level_099")
-	_expect(level99.get("runtime_bosses", []).size() == 1, "level_099 must author its second runtime Boss in levels.json")
-	_expect(str(level99.get("runtime_bosses", [])[0].get("type", "")) == "boss_tank_titan", "level_099 runtime Boss must be Tank Titan")
+	_expect(level99.get("runtime_bosses", []).size() == 3, "level_099 must author three Apex reinforcements in levels.json")
+	for runtime_boss in level99.get("runtime_bosses", []):
+		_expect(str(runtime_boss.get("type", "")) == "boss_apex_overlord", "level_099 runtime Boss reinforcements must all reuse the identical Apex model")
 	_expect(level99.get("guaranteed_card_offers", []).size() >= 1, "level_099 must guarantee a defensive card offer")
 	save_manager.save_data = original_save
 
@@ -2951,13 +3067,13 @@ func _verify_character_power_identity_model(save_manager: Node, data_loader: Nod
 	) * (1.0 + float(blaze_affinity.get("status_bonus", 0.0)) * 0.28) * (1.0 + blaze_radius * 0.0001)
 	var measured_blaze := float(save_manager._bullet_affinity_multiplier(blaze, flamethrower, 40))
 	_expect(absf(measured_blaze - expected_blaze) <= 0.0001, "design/29: blaze affinity must include rank damage, status, and splash radius; expected %.5f got %.5f" % [expected_blaze, measured_blaze])
-	var local_coverage_blaze := blaze.duplicate(true)
-	var local_coverage_active: Dictionary = local_coverage_blaze.get("active_skill", {}).duplicate(true)
-	local_coverage_active["coverage_mode"] = "local"
-	local_coverage_blaze["active_skill"] = local_coverage_active
-	var battlefield_active_power := float(save_manager._active_skill_offense_multiplier(blaze, 40, 5))
-	var local_active_power := float(save_manager._active_skill_offense_multiplier(local_coverage_blaze, 40, 5))
-	_expect(absf(battlefield_active_power - local_active_power) <= 0.0001, "Blaze battlefield coverage must not inflate displayed single-target power")
+	var battlefield_coverage_blaze := blaze.duplicate(true)
+	var battlefield_coverage_active: Dictionary = battlefield_coverage_blaze.get("active_skill", {}).duplicate(true)
+	battlefield_coverage_active["coverage_mode"] = "battlefield"
+	battlefield_coverage_blaze["active_skill"] = battlefield_coverage_active
+	var local_active_power := float(save_manager._active_skill_offense_multiplier(blaze, 40, 5))
+	var battlefield_active_power := float(save_manager._active_skill_offense_multiplier(battlefield_coverage_blaze, 40, 5))
+	_expect(absf(battlefield_active_power - local_active_power) <= 0.0001, "Blaze coverage mode must not change displayed single-target power")
 
 	var frost_affinity: Dictionary = frost.get("bullet_affinity", {})
 	var frost_shatter := float(frost_affinity.get("shatter_bonus", 0.0)) + 0.04 * 3.0
@@ -3053,6 +3169,23 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 		if skill_card == null:
 			continue
 		var card_size := skill_card.size
+		var icon_frame := skill_card.get_node_or_null("IconFrame") as Control
+		var card_icon := skill_card.get_node_or_null("Icon") as TextureRect
+		var card_title := skill_card.get_node_or_null("Title") as Label
+		_expect(icon_frame != null and card_icon != null, "card offer must render its skill icon inside a dedicated frame")
+		if icon_frame != null and card_icon != null:
+			_expect(icon_frame.position.x >= 30.0, "card-offer skill icon frame must clear the ornamental left edge")
+			_expect(icon_frame.size.x >= 192.0 and icon_frame.size.y >= 192.0, "card-offer skill icon frame must retain the enlarged mobile-readable size")
+			_expect(card_icon.position.x > icon_frame.position.x and card_icon.position.y > icon_frame.position.y, "card-offer skill artwork must keep an inset inside its icon frame")
+			_expect(card_icon.position.x + card_icon.size.x < icon_frame.position.x + icon_frame.size.x and card_icon.position.y + card_icon.size.y < icon_frame.position.y + icon_frame.size.y, "card-offer skill artwork must stay fully inside its icon frame")
+			_expect(card_icon.size.x >= 176.0 and card_icon.size.y >= 176.0, "card-offer skill artwork must use the approved larger presentation")
+		if icon_frame != null and card_title != null:
+			_expect(card_title.position.x - (icon_frame.position.x + icon_frame.size.x) >= 20.0, "card-offer enlarged icon must keep a clear gap before title copy")
+		var card_stats := skill_card.get_node_or_null("Stats") as Label
+		var card_desc := skill_card.get_node_or_null("Desc") as Label
+		for card_copy in [card_stats, card_desc]:
+			if card_copy != null:
+				_expect(card_copy.position.x + card_copy.size.x <= card_size.x - 24.0, "card-offer copy must retain right-frame clearance after the icon enlargement")
 		var tags := skill_card.get_node_or_null("Tags") as Control
 		if tags != null:
 			_expect(tags.position.y + tags.size.y <= card_size.y - 28.0, "card tag chips must stay inside the rendered card frame")
@@ -3279,24 +3412,49 @@ func _verify_pause_freezes_battle(battle: Node) -> void:
 	_expect(pause_panel.has_node("PauseContent"), "pause panel must render structured content instead of raw text only")
 	var content := pause_panel.get_node("PauseContent") as Control
 	var resume_button := pause_panel.get_node("ResumeButton") as Control
-	_expect(content.position.y + content.size.y <= resume_button.position.y - 24.0, "pause content must leave breathing room before the action buttons")
+	_expect(content.position.y + content.size.y <= resume_button.position.y - 32.0, "pause content must leave breathing room before the action buttons")
+	_expect(content.position.x <= 46.0 and content.size.x >= 880.0, "pause information cards must use the widened reading lane")
+	var status_card := content.get_child(0) as PanelContainer
+	var status_body := status_card.get_node("Body") as VBoxContainer
+	var status_title := status_body.get_node("Header/SectionTitle") as Label
+	var status_grid := status_body.get_child(1) as GridContainer
+	var first_metric := status_grid.get_child(0) as PanelContainer
+	var first_metric_row := first_metric.get_child(0) as HBoxContainer
+	var first_metric_key := first_metric_row.get_node("MetricKey") as Label
+	var first_metric_value := first_metric_row.get_node("MetricValue") as Label
+	_expect(status_title.get_theme_font_size("font_size") >= UiKit.scaled_font_size(25), "pause section titles must keep the enlarged readable type")
+	_expect(first_metric.size.y >= 66.0, "pause metric rows must leave vertical frame clearance around enlarged type")
+	_expect(first_metric_key.get_theme_font_size("font_size") >= UiKit.scaled_font_size(17), "pause metric keys must keep the enlarged bilingual type")
+	_expect(first_metric_value.get_theme_font_size("font_size") >= UiKit.scaled_font_size(18), "pause metric values must keep the enlarged bilingual type")
 	var legacy_summary := battle.get_node("Hud/PauseOverlay/Panel/BuildSummary") as Label
 	_expect(legacy_summary != null and not legacy_summary.visible, "pause legacy summary text must be hidden behind designed cards")
+	var action_buttons: Array[Control] = []
 	for button_path in ["ResumeButton", "RestartButton", "MapButton"]:
 		var button := pause_panel.get_node(button_path) as Control
+		action_buttons.append(button)
 		var rect := Rect2(button.position, button.size)
 		_expect(rect.position.y >= 0.0 and rect.end.y <= pause_panel.size.y, "pause %s must stay inside the panel bounds" % button_path)
-		_expect(button.has_node("IconPlate") and button.has_node("ActionTitle") and button.has_node("ActionArrow"), "pause %s must use icon, single-line title and arrow styling" % button_path)
-		_expect(not button.has_node("ActionSub"), "pause %s must not squeeze a subtitle against the rendered lower frame" % button_path)
-		_expect(str(button.get_meta("pause_action_layout", "")) == "single_line", "pause %s must declare the approved single-line layout" % button_path)
+		_expect(button.size.x >= 270.0 and button.size.y >= 152.0, "pause %s must keep the extra-tall three-column touch target" % button_path)
+		_expect(button.has_node("IconPlate") and button.has_node("ActionTitle"), "pause %s must use the compact icon and title styling" % button_path)
+		_expect(not button.has_node("ActionSub") and not button.has_node("ActionArrow"), "pause %s must not crowd the compact action with subtitle or arrow chrome" % button_path)
+		_expect(str(button.get_meta("pause_action_layout", "")) == "three_column_compact", "pause %s must declare the approved three-column layout" % button_path)
 		var safe_rect := button.get_meta("pause_action_safe_rect", Rect2()) as Rect2
-		for child_name in ["IconPlate", "ActionTitle", "ActionArrow"]:
+		_expect(safe_rect.position.y >= 28.0 and button.size.y - safe_rect.end.y >= 28.0, "pause %s must retain explicit top and bottom bezel clearance" % button_path)
+		for child_name in ["IconPlate", "ActionTitle"]:
 			var child := button.get_node(child_name) as Control
 			var child_rect := Rect2(child.position, child.size)
 			_expect(safe_rect.encloses(child_rect), "pause %s/%s must stay inside the deepest five-theme frame safe area (safe=%s child=%s)" % [button_path, child_name, safe_rect, child_rect])
 		var action_title := button.get_node("ActionTitle") as Label
 		_expect(action_title.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "pause %s title must be vertically centered in its single row" % button_path)
-		_expect(absf((action_title.position.y + action_title.size.y * 0.5) - button.size.y * 0.5) <= 0.1, "pause %s title row must share the button centerline" % button_path)
+		_expect(action_title.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, "pause %s short title must be centered beside its icon" % button_path)
+		var icon_plate := button.get_node("IconPlate") as Control
+		_expect(icon_plate.position.x + icon_plate.size.x <= action_title.position.x, "pause %s icon and title must keep the approved horizontal order" % button_path)
+	_expect(action_buttons[0].position.y == action_buttons[1].position.y and action_buttons[1].position.y == action_buttons[2].position.y, "pause actions must share one horizontal row")
+	_expect(action_buttons[0].position.x < action_buttons[1].position.x and action_buttons[1].position.x < action_buttons[2].position.x, "pause actions must keep left/centre/right ordering")
+	var pause_localization := root.get_node("/root/LocalizationManager")
+	_expect((action_buttons[0].get_node("ActionTitle") as Label).text == pause_localization.text("继续"), "pause primary action must use the short Resume label")
+	_expect((action_buttons[1].get_node("ActionTitle") as Label).text == pause_localization.text("重开"), "pause restart action must use the short Restart label")
+	_expect((action_buttons[2].get_node("ActionTitle") as Label).text == pause_localization.text("退出"), "pause exit action must use the short Exit label")
 	battle._physics_process(1.0)
 	_expect(first_enemy.global_position.distance_to(enemy_pos) <= 0.1, "pause must freeze enemy movement even though Battle processes always")
 	_expect(absf(float(battle.spawn_timer) - spawn_timer_before) <= 0.001, "pause must not advance spawn timer")
@@ -3375,6 +3533,8 @@ func _verify_wave_toast_wrapping(battle: Node) -> void:
 func _verify_boss_hp_hud_layout(battle: Node) -> void:
 	var hud := battle.get_node("Hud/BossHpBar") as Control
 	var label := hud.get_node("Label") as Label
+	var armor_track := hud.get_node("ArmorTrack") as Control
+	var armor_fill := hud.get_node("ArmorFill") as Control
 	var track := hud.get_node("Track") as Control
 	var fill := hud.get_node("Fill") as Control
 	var effective_font := label.get_theme_font_size("font_size")
@@ -3386,6 +3546,9 @@ func _verify_boss_hp_hud_layout(battle: Node) -> void:
 	_expect(not label.get_rect().intersects(track.get_rect()), "Boss identity text box must never overlap the HP rail")
 	_expect(fill.position.y >= track.position.y and fill.position.y + fill.size.y <= track.position.y + track.size.y, "Boss HP fill must remain inside its track")
 	_expect(track.position.y + track.size.y <= hud.size.y, "Boss HP rail must remain inside the shared HUD container")
+	_expect(armor_fill.position.y >= armor_track.position.y and armor_fill.position.y + armor_fill.size.y <= armor_track.position.y + armor_track.size.y, "Boss armor fill must remain inside its track")
+	_expect(armor_track.position.y - (label.position.y + label.size.y) >= float(battle.BOSS_HP_LABEL_TRACK_GAP) - 0.1, "Boss armor rail must keep the identity safety gap")
+	_expect(float(battle.BOSS_HP_STACKED_TRACK_POSITION.y) >= armor_track.position.y + armor_track.size.y, "stacked Boss body rail must stay below the armor rail")
 
 func _verify_skill_runtime_mods(save_manager: Node) -> void:
 	# SkillRuntime intentionally seeds a newly picked card from the player's
@@ -3721,14 +3884,12 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var pre_final_damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
 	_expect(absf(pre_final_damage_ramp - 1.0) <= 0.001, "late-game base damage must remain at authored 1.0x, got %.3f" % pre_final_damage_ramp)
 	_expect(absf(float(battle._late_wave_count_level_ramp_mult(3, economy)) - 1.25) <= 0.001, "level_098 wave-3 count ramp must reach 1.25x")
-	_expect(absf(float(battle._boss_survival_hp_mult(98, true, economy)) - 56.0) <= 0.001, "level_098 boss survival ramp must reach 56.0x")
 	battle.level_ordinal = 99
 	var hp_ramp := float(battle._late_wave_level_ramp_mult(economy))
 	_expect(absf(hp_ramp - 2.296) <= 0.001, "level_099 late-wave HP ramp must reach 2.296x, got %.3f" % hp_ramp)
 	var damage_ramp := float(battle._late_wave_damage_ramp_mult(economy))
 	_expect(absf(damage_ramp - 1.0) <= 0.001, "level_099 base damage must remain at authored 1.0x, got %.3f" % damage_ramp)
 	_expect(absf(float(battle._late_wave_count_level_ramp_mult(3, economy)) - 1.35) <= 0.001, "level_099 wave-3 count ramp must reach 1.35x")
-	_expect(absf(float(battle._boss_survival_hp_mult(99, true, economy)) - 60.48) <= 0.001, "level_099 boss survival ramp must reach 60.48x")
 	_expect(battle._scaled_wave_group_count(100, 3) == 135, "level_099 wave-3 mob count must apply the 1.35x crowd ramp")
 	_expect(battle._scaled_wave_group_count(100, 5) == 405, "level_099 wave-5 mob count must combine the 3.0x wave and 1.35x crowd ramps")
 
@@ -3748,15 +3909,15 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var apex: Dictionary = data_loader.get_row("bosses", "boss_apex_overlord")
 	battle.wave_index = 5
 	var apex_enemy: Node = battle._spawn_enemy_instance("boss_apex_overlord", Vector2(540, 190), true)
-	var expected_apex_hp := 50.0 * float(apex.get("hp_coef", 1.0)) * level_coef
-	expected_apex_hp *= float(battle._late_wave_hp_bonus(5, true, economy))
-	expected_apex_hp *= float(battle._boss_level_hp_bonus(99, true, economy))
-	expected_apex_hp *= float(battle._boss_survival_hp_mult(99, true, economy))
-	_expect(absf(float(apex_enemy.max_hp) - expected_apex_hp) <= maxf(1.0, expected_apex_hp * 0.001), "level_099 Apex must receive the 60.48x survival-only HP ramp")
+	var expected_apex_hp := float(apex.get("fixed_hp", 0.0))
+	var apex_total_durability := float(apex_enemy.max_hp) + float(apex_enemy.armor_hp_max)
+	_expect(absf(apex_total_durability - expected_apex_hp) <= maxf(1.0, expected_apex_hp * 0.001), "level_099 Apex body plus armor must equal the model's fixed total durability")
 	_expect(int(apex_enemy.breach_damage) == int(10.0 * float(apex.get("bd_coef", 1.0))), "Apex attack must not inherit any late-game damage multiplier")
 	apex_enemy.queue_free()
-	var apex_params: Dictionary = apex.get("mechanic_params", {})
-	_expect(absf(float(apex_params.get("immune_damage_floor", 0.18)) - 0.08) <= 0.001, "final boss mismatched-element damage floor must be 8 percent")
+	var apex_resistances: Dictionary = apex.get("resistances", {})
+	_expect(apex_resistances.size() == 4, "final boss must express its four non-physical counters as bounded resistances")
+	for apex_element in ["fire", "ice", "lightning", "poison"]:
+		_expect(absf(float(apex_resistances.get(apex_element, 0.0)) - 0.5) <= 0.001, "final boss %s resistance must reduce damage by 50 percent" % apex_element)
 	_expect(int(save_manager.get_recommended_power_for_level("level_099")) >= 390, "level_099 recommended power must reflect graduation pressure")
 
 	battle.queue_free()
@@ -3939,6 +4100,12 @@ func _verify_barrier_visual_runtime(battle: Node) -> void:
 	battle.skills.owned.erase("skill_barrier")
 	battle._update_barrier_visual()
 	_expect(not battle.barrier_visual.visible, "barrier visual must stay hidden before the defense skill is learned")
+	battle.breach_shields = 2
+	battle._update_barrier_visual()
+	_expect(
+		not battle.barrier_visual.visible,
+		"armor breach interception must not impersonate an unlearned defense skill at stage start"
+	)
 	battle.skills.owned["skill_barrier"] = 1
 	battle._update_barrier_visual()
 	_expect(battle.barrier_visual.visible, "barrier visual must remain visible after barrier becomes a base-HP skill")
@@ -4243,11 +4410,32 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 				battle._play_character_attack()
 				_expect(battle.character_anim_frame == 1, "%s + %s real fire must bind to authored F2 ignition" % [character_key, weapon_key])
 				_expect((battle.character_sprite as Sprite2D).texture == battle.character_attack_frames[1], "%s + %s ignition texture must be visible at real fire contact" % [character_key, weapon_key])
+			_verify_point_blank_character_aim(battle, "%s + %s" % [character_key, weapon_key])
 			battle.queue_free()
 			await process_frame
 	save_manager.save_data = original_save
 	router.queue_free()
 	await process_frame
+
+func _verify_point_blank_character_aim(battle: Node, context: String) -> void:
+	_expect(bool(battle.character_weapon_combo_active), "%s point-blank stability requires directional fused art" % context)
+	battle.character_weapon_combo_locked_aim = ""
+	battle._set_character_combo_aim_from_direction(Vector2.UP)
+	var stable_reference: Vector2 = battle._character_pose_aim_reference_global()
+	var close_wall_target := stable_reference + Vector2(-52.0, -180.0)
+	var close_wall_aims: Array[String] = []
+	for pose in ["left", "center", "right", "left", "right", "center"]:
+		battle.character_weapon_combo_aim = pose
+		battle.character_weapon_combo_locked_aim = ""
+		_expect(battle._character_pose_aim_reference_global().distance_to(stable_reference) <= 0.5, "%s point-blank pose reference must not move with the current muzzle pose" % context)
+		battle._set_character_combo_aim_from_target(close_wall_target)
+		close_wall_aims.append(str(battle.character_weapon_combo_aim))
+	_expect(close_wall_aims.all(func(aim: String) -> bool: return aim == "left"), "%s point-blank wall target must resolve to one stable aim instead of alternating left/right: %s" % [context, str(close_wall_aims)])
+	battle.turret.target_point = close_wall_target
+	var close_wall_direction: Vector2 = battle._weapon_fire_direction()
+	var actual_muzzle: Vector2 = battle._weapon_fire_origin(false)
+	_expect(absf(close_wall_direction.angle_to((close_wall_target - actual_muzzle).normalized())) <= 0.001, "%s stable character pose must still fire directly from the real muzzle to the wall target" % context)
+	battle._set_character_combo_aim_from_direction(Vector2.UP)
 
 func _verify_character_active_skill_controls(data_loader: Node, save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
@@ -4308,8 +4496,9 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._vanguard_railvolley_count(active)) >= base_vanguard_volleys + 2, "vanguard signature levels must add volleys")
 				_expect(int(battle._vanguard_railvolley_target_count(active)) >= base_vanguard_targets + 2, "vanguard signature levels must add targets")
 			"blaze":
-				_expect(str(active.get("coverage_mode", "local")) == "battlefield", "blaze meltdown must declare battlefield coverage in character data")
-				_expect(battle._blaze_meltdown_uses_battlefield(active), "blaze meltdown runtime must resolve authored battlefield coverage")
+				_expect(str(active.get("coverage_mode", "local")) == "local", "blaze meltdown must use a target-centred area instead of unconditional battlefield coverage")
+				_expect(not battle._blaze_meltdown_uses_battlefield(active), "blaze meltdown runtime must not resolve as battlefield-wide")
+				_expect(float(active.get("radius", 0.0)) >= 340.0, "blaze meltdown must keep a generous base blast area after removing full-screen coverage")
 				# Signature growth is authored as +5% of the skill's base radius
 				# per level. Compare that absolute authored contribution instead
 				# of multiplying the already level/rank-boosted radius; the old
@@ -4389,17 +4578,17 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 			battle.sig_vanguard_barrage_timer = 0.0
 		if character_key == "blaze":
 			var blaze_probes := [
-				battle._spawn_enemy_instance("zombie_shambler", Vector2(110, 260), false),
 				battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 840), false),
-				battle._spawn_enemy_instance("zombie_shambler", Vector2(970, 1360), false),
+				battle._spawn_enemy_instance("zombie_shambler", Vector2(700, 840), false),
+				battle._spawn_enemy_instance("zombie_shambler", Vector2(110, 260), false),
 			]
 			var blaze_probe_hp: Array[float] = []
 			for probe in blaze_probes:
 				blaze_probe_hp.append(float(probe.hp))
-			battle._blaze_meltdown_pulse(Vector2(540, 800), float(battle._blaze_meltdown_radius(active)), 1.0, 0, battle._blaze_meltdown_uses_battlefield(active))
-			for probe_index in range(blaze_probes.size()):
-				var probe = blaze_probes[probe_index]
-				_expect(is_instance_valid(probe) and float(probe.hp) < blaze_probe_hp[probe_index], "blaze battlefield pulse must damage far-separated probe %d" % probe_index)
+			battle._blaze_meltdown_pulse(Vector2(540, 840), float(battle._blaze_meltdown_radius(active)), 1.0, 0, battle._blaze_meltdown_uses_battlefield(active))
+			_expect(is_instance_valid(blaze_probes[0]) and float(blaze_probes[0].hp) < blaze_probe_hp[0], "blaze local pulse must damage its locked target")
+			_expect(is_instance_valid(blaze_probes[1]) and float(blaze_probes[1].hp) < blaze_probe_hp[1], "blaze local pulse must retain useful crowd coverage around the locked target")
+			_expect(is_instance_valid(blaze_probes[2]) and absf(float(blaze_probes[2].hp) - blaze_probe_hp[2]) <= 0.001, "blaze local pulse must not damage a remote enemy outside the blast area")
 		var frost_probe = null
 		var frost_probe_hp_before := 0.0
 		if character_key == "frost":
@@ -4538,7 +4727,7 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	_expect(slots.get_child_count() == 1, "tesla weapon seed must create exactly one skill slot")
 	_expect(slots.has_node("skill_tesla"), "tesla weapon seed must use the tesla skill slot")
 	_expect(is_equal_approx(slots.anchor_left, 0.0) and is_equal_approx(slots.anchor_right, 0.0), "skill dock must be bounded to the left half instead of anchored across the viewport")
-	_expect(slots.offset_right <= 540.0 and slots.size.x <= 522.0, "skill dock must occupy no more than the left half of the 1080px canvas")
+	_expect(absf(slots.offset_right - 426.0) <= 0.1 and absf(slots.size.x - 408.0) <= 0.1, "skill dock must reserve exactly four unchanged 96px cards plus three gaps")
 	_expect(absf(slots.offset_bottom - 1808.0) <= 0.1, "single-row skill dock must bottom-align with the active skill")
 	_expect(slots.size.y >= 120.0 and slots.size.y <= 132.0, "single-row skill dock must use the enlarged mobile-readable row; got %.1f" % slots.size.y)
 	var slot := slots.get_node("skill_tesla")
@@ -4567,11 +4756,17 @@ func _verify_bottom_skill_slot_level_merge(save_manager: Node) -> void:
 	await process_frame
 	await process_frame
 	_expect(slots.get_child_count() == 6, "six owned skills must produce six distinct HUD cards")
-	_expect((slots as GridContainer).columns == 5, "skill dock must wrap after five cards")
+	_expect((slots as GridContainer).columns == 4, "skill dock must wrap after four cards")
 	_expect(slots.size.y >= 248.0 and slots.size.y <= 264.0, "six skills must wrap to two enlarged rows; got %.1f" % slots.size.y)
 	var first_card := slots.get_child(0) as Control
+	var fourth_card := slots.get_child(3) as Control
+	var fifth_card := slots.get_child(4) as Control
 	var sixth_card := slots.get_child(5) as Control
-	_expect(sixth_card.position.y >= first_card.position.y + 120.0, "sixth skill must wrap below the first row without overlap")
+	_expect(absf(fourth_card.position.y - first_card.position.y) <= 0.1, "the first four skills must remain on one row")
+	_expect(fifth_card.position.y >= first_card.position.y + 120.0, "the fifth skill must start the second row without overlap")
+	_expect(absf(fifth_card.position.x - first_card.position.x) <= 0.1, "wrapped skill rows must keep the same left alignment")
+	_expect(absf(sixth_card.position.y - fifth_card.position.y) <= 0.1, "later skills must continue across the wrapped second row")
+	_expect(fourth_card.position.x + fourth_card.size.x <= slots.size.x + 0.1, "the fourth skill must remain inside the narrowed dock instead of entering the hero lane")
 	battle.queue_free()
 	save_manager.save_data = original_save
 	router.queue_free()
@@ -4650,7 +4845,7 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	early_probe.queue_free()
 	late_probe.queue_free()
 	var grace_boss: Node = battle._spawn_enemy_instance("boss_tank_titan", Vector2(540, 190), true)
-	_expect(not grace_boss.immune.has("physical"), "endless first-loop boss grace must remove hard immunity walls")
+	_expect(grace_boss.resistances.is_empty(), "endless first-loop boss grace must remove the opening resistance wall")
 	grace_boss.queue_free()
 	late_entry.queue_free()
 	await process_frame
@@ -4705,12 +4900,94 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	_expect(not save_manager.save_data.get("levels_progress", {}).has("level_001") or int(pre_save.get("levels_progress", {}).get("level_001", 0)) == int(save_manager.save_data.get("levels_progress", {}).get("level_001", 0)), "endless result must not alter normal level star progress")
 	save_manager.save_data = original_save
 
+func _verify_boss_resistance_and_regeneration(data_loader: Node) -> void:
+	var armored_bosses := ["boss_tank_titan", "boss_necrotitan", "boss_apex_overlord"]
+	for boss_id_var in data_loader.get_table("bosses").keys():
+		var boss_id := str(boss_id_var)
+		var boss_row: Dictionary = data_loader.get_row("bosses", boss_id)
+		_expect(not boss_row.has("immune") or (boss_row.get("immune", []) as Array).is_empty(), "%s must not ship a hard elemental immunity" % boss_id)
+		var values_var: Variant = boss_row.get("resistances", {})
+		_expect(values_var is Dictionary, "%s resistances must be data-driven" % boss_id)
+		if values_var is Dictionary:
+			for reduction_var in (values_var as Dictionary).values():
+				var reduction := float(reduction_var)
+				_expect(reduction > 0.0 and reduction < 1.0, "%s resistance must stay bounded below full immunity" % boss_id)
+		if boss_id in armored_bosses:
+			_expect(absf(float(boss_row.get("armor_hp_ratio", 0.0)) - 0.3) <= 0.001, "%s must allocate 30 percent of its total durability to armor" % boss_id)
+	_expect(absf(float(data_loader.get_row("bosses", "boss_void_phantom").get("fixed_hp", 0.0)) - 1400000.0) <= 1.0, "Void Phantom must keep lower fixed per-copy HP in exchange for teleport pressure")
+
+	var necro := _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(necro)
+	necro.call("setup", data_loader.get_row("bosses", "boss_necrotitan").duplicate(true), 1.0, true)
+	var necro_total_durability := float(necro.max_hp) + float(necro.armor_hp_max)
+	_expect(absf(float(necro.armor_hp_max) / necro_total_durability - 0.3) <= 0.001, "Necrotitan armor must be split from, not added on top of, authored durability")
+	_expect(necro.has_node("ArmorBar") and necro.get_node("ArmorBar").has_node("ArmorFill"), "armored Bosses must render a local armor rail above the body rail")
+	var necro_body_before_armor_hit := float(necro.hp)
+	var necro_armor_before_hit := float(necro.armor_hp)
+	necro.call("take_damage", 100.0, "lightning")
+	_expect(absf(float(necro.hp) - necro_body_before_armor_hit) <= 0.01, "damage without Armor Bypass must not reach the Necrotitan body while armor remains")
+	_expect(absf(float(necro.armor_hp) - (necro_armor_before_hit - 100.0)) <= 0.01, "damage without Armor Bypass must drain Necrotitan armor")
+	necro.armor_hp = 0.0
+	necro.call("_break_armor_layer")
+	var necro_start := float(necro.hp)
+	necro.call("take_damage", 100.0, "lightning")
+	_expect(absf(float(necro.hp) - (necro_start - 100.0)) <= 0.01, "neutral lightning must visibly damage the Necrotitan")
+	necro.call("_process_self_mechanic", 0.5)
+	_expect(absf(float(necro.hp) - (necro_start - 100.0)) <= 0.01, "recent neutral damage must pause Necrotitan regeneration")
+	necro.call("_process_self_mechanic", 0.31)
+	_expect(float(necro.hp) > necro_start - 100.0, "Necrotitan regeneration must resume after the neutral-hit delay")
+	var before_fire := float(necro.hp)
+	necro.call("take_damage", 100.0, "fire")
+	_expect(absf(float(necro.hp) - (before_fire - 150.0)) <= 0.01, "Necrotitan fire weakness must add 50 percent damage")
+	_expect(float(necro.regen_suppressed_time) >= 2.99, "fire weakness must suppress Necrotitan regeneration for the authored extended window")
+	var before_poison := float(necro.hp)
+	necro.call("take_damage", 100.0, "poison")
+	_expect(absf(float(necro.hp) - (before_poison - 50.0)) <= 0.01, "Necrotitan poison resistance must reduce damage by 50 percent without nullifying it")
+	necro.queue_free()
+	await process_frame
+
+	var titan := _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(titan)
+	titan.call("setup", data_loader.get_row("bosses", "boss_tank_titan").duplicate(true), 1.0, true)
+	var titan_body_start := float(titan.hp)
+	var titan_armor_start := float(titan.armor_hp)
+	titan.call("take_damage", 100.0, "physical")
+	_expect(absf(float(titan.hp) - titan_body_start) <= 0.01, "Tank Titan body must stay intact while a non-penetrating hit is absorbed by armor")
+	_expect(absf(float(titan.armor_hp) - (titan_armor_start - 50.0)) <= 0.01, "Tank Titan physical resistance must reduce armor damage by 50 percent")
+	var body_before_bypass := float(titan.hp)
+	var armor_before_bypass := float(titan.armor_hp)
+	titan.call("take_damage", 100.0, "physical", 0.5)
+	_expect(absf(float(titan.hp) - (body_before_bypass - 37.5)) <= 0.01, "50 percent Armor Bypass must send half of the resisted hit directly to the Tank Titan body")
+	_expect(absf(float(titan.armor_hp) - (armor_before_bypass - 37.5)) <= 0.01, "the non-bypassed half of a penetrating hit must still drain Tank Titan armor")
+	titan.armor_hp = 10.0
+	var before_break := float(titan.hp)
+	titan.call("take_damage", 100.0, "physical")
+	_expect(bool(titan.armor_broken) and is_zero_approx(float(titan.armor_hp)), "Tank Titan armor must break when its durability reaches zero")
+	_expect(absf(float(titan.hp) - (before_break - 40.0)) <= 0.01, "overflow from the armor-breaking physical hit must reach the Boss body")
+	titan.queue_free()
+	await process_frame
+
+	var apex := _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(apex)
+	apex.call("setup", data_loader.get_row("bosses", "boss_apex_overlord").duplicate(true), 1.0, true)
+	apex.armor_hp = 0.0
+	apex.call("_break_armor_layer")
+	var apex_start := float(apex.hp)
+	apex.call("take_damage", 100.0, "fire")
+	_expect(absf(float(apex.hp) - (apex_start - 50.0)) <= 0.01, "Apex elemental resistance must leave 50 percent real damage")
+	var before_physical := float(apex.hp)
+	apex.call("take_damage", 100.0, "physical")
+	_expect(absf(float(apex.hp) - (before_physical - 150.0)) <= 0.01, "Apex physical weakness must add 50 percent damage")
+	apex.queue_free()
+	await process_frame
+
 func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 	var boss_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
 	root.add_child(boss_enemy)
 	var boss_row: Dictionary = data_loader.get_row("bosses", "boss_tank_titan").duplicate(true)
 	boss_row["mechanic"] = "basic"
 	boss_row["immune"] = []
+	boss_row["resistances"] = {}
 	boss_row["weakness"] = "none"
 	boss_row["resist"] = "none"
 	boss_enemy.call("setup", boss_row, 1.0, true)

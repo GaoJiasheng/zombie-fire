@@ -348,13 +348,34 @@ def runtime_boss_entries(level: dict, wave: dict) -> list[dict]:
     return entries
 
 
+def boss_hp_for_entry(level: dict, boss_row: dict, economy: dict, wave_no: int) -> float:
+    """Return one authored Boss model's campaign durability.
+
+    Current Bosses own a fixed total durability in bosses.json.  The legacy
+    coefficient path remains only for backwards-compatible tooling inputs;
+    normal campaign difficulty is expressed by authored Boss quantity.
+    """
+    fixed_hp = float(boss_row.get("fixed_hp", 0.0))
+    if fixed_hp > 0.0:
+        return fixed_hp
+    level_no = level_number(level)
+    card_picks = int(level.get("target_card_picks", 4))
+    return (
+        float(level.get("base_hp_ref", 50.0))
+        * float(boss_row.get("hp_coef", 18.0))
+        * float(level.get("difficulty_coef", 1.0))
+        * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks)
+        * boss_hp_level_bonus(economy, level)
+        * boss_survival_hp_ramp(economy, level_no)
+    )
+
+
 def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, dict[str, float], int]:
     diff = float(level["difficulty_coef"])
     hp_base = float(level.get("base_hp_ref", 50.0))
     mob_hp = 0.0
     boss_hp_by_id: dict[str, float] = {}
     count = 0
-    boss_level_bonus = boss_hp_level_bonus(economy, level)
     level_no = level_number(level)
     card_picks = int(level.get("target_card_picks", 4))
     for wave in level.get("waves", []):
@@ -373,7 +394,10 @@ def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: di
         for boss_entry in runtime_boss_entries(level, wave):
             boss_id = boss_entry["type"]
             boss_row = bosses.get(boss_id, {})
-            boss_hp = hp_base * float(boss_row.get("hp_coef", 18.0)) * diff * late_wave_hp_bonus(economy, wave_no, True, level_no, card_picks) * boss_level_bonus * boss_survival_hp_ramp(economy, level_no)
+            # Boss durability is an identity-level stat. Normal campaign
+            # encounters repeat the exact same model and raise pressure with
+            # authored quantity/composition, never a hidden level multiplier.
+            boss_hp = boss_hp_for_entry(level, boss_row, economy, wave_no)
             boss_hp_by_id[boss_id] = boss_hp_by_id.get(boss_id, 0.0) + boss_hp
             count += 1
         # Boss support mobs
@@ -477,7 +501,7 @@ def runtime_boss_contract_clear_time(
         return None
     requirement = level.get("clear_requirement", {})
     contract = requirement.get("power_contract", {}) if isinstance(requirement, dict) else {}
-    if not isinstance(contract, dict) or contract.get("model") != "bottleneck_v3":
+    if not isinstance(contract, dict) or contract.get("model") != "bottleneck_v4":
         return None
     ruler = economy.get("power_ruler", {})
     if not isinstance(ruler, dict):
@@ -511,7 +535,7 @@ def main() -> int:
     economy: dict = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
     challenges: dict = json.loads(CHALLENGES_PATH.read_text(encoding="utf-8"))
     runtime_benchmark: dict = json.loads(PHYSICAL_RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
-    autocannon_runtime: dict = runtime_benchmark["best_same_loadout"]["weapon_autocannon"]
+    runtime_builds: dict = runtime_benchmark["best_same_loadout"]
     max_reference_dps = character_dps.best_result("vanguard").total_dps
     legacy_reference_dps = estimate_player_dps(
         "vanguard",
@@ -547,10 +571,12 @@ def main() -> int:
         recommended_level = int(lv.get("recommend_level", n))
         char_level = min(recommended_level, int(characters["vanguard"].get("max_level", 40)))
         weapon_level = min(recommended_level, int(weapons["weapon_autocannon"].get("max_level", 50)))
-        raw_progression_dps = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, 1.0)
+        raw_progression_dps = estimate_player_dps(
+            "vanguard", "weapon_autocannon", char_level, weapon_level, 1.0)
         dps_ns = raw_progression_dps
         skill_mult = estimate_skill_mult(lv)
-        dps_ws = estimate_player_dps("vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult)
+        dps_ws = estimate_player_dps(
+            "vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult)
         # The original campaign estimator predates armor/chip/pet/signature
         # growth and active-skill DPS. Blend toward the current measured max
         # calibration with progression level instead of treating late builds
@@ -567,10 +593,18 @@ def main() -> int:
             # Boss 50+ durability is calibrated against the real all-skill
             # projectile benchmark. Scale its measured max throughput back to
             # the level's recommended permanent progression and card budget.
-            permanent_progress = raw_progression_dps / max(max_raw_autocannon_dps, 1.0)
+            # Chapter 8+ is the authored free graduation corridor.  Keep the
+            # historical autocannon curve for ordinary-wave comparability, but
+            # judge its Boss phase with the measured scattergun graduation
+            # family rather than pretending a deliberately weaker Boss weapon
+            # is still the recommended endgame loadout.
+            runtime_weapon_id = "weapon_scattergun" if n >= 71 else "weapon_autocannon"
+            runtime_profile = runtime_builds[runtime_weapon_id]
+            permanent_progress = raw_progression_dps / max(
+                max_raw_autocannon_dps, 1.0)
             card_progress = skill_mult / max(max_card_throughput, 1.0)
-            crowd_dps = float(autocannon_runtime["crowd_dps"]) * permanent_progress * card_progress
-            boss_dps = float(autocannon_runtime["boss_dps"]) * permanent_progress * card_progress
+            crowd_dps = float(runtime_profile["crowd_dps"]) * permanent_progress * card_progress
+            boss_dps = float(runtime_profile["boss_dps"]) * permanent_progress * card_progress
             phase_weight = 1.11
             # Lower-bound protection (design/24 Phase 0). The benchmark's
             # crowd_dps is peak throughput measured against a saturated 45-enemy
@@ -587,15 +621,11 @@ def main() -> int:
             # authority the endgame matrix is calibrated on.
             effective_crowd_dps = min(crowd_dps, dps_ws)
             time_ws = mob_hp / max(effective_crowd_dps, 1.0) + boss_hp / max(boss_dps, 1.0) * phase_weight
-        contract_time = runtime_boss_contract_clear_time(
-            lv, mob_hp, challenge_hp_mult, economy)
-        if contract_time is not None:
-            # A runtime multi-Boss is evaluated at the exact recommendation
-            # line.  Keep the table's DPS column internally consistent with
-            # that shared reference time even though Boss mechanic HP is not a
-            # literal projectile-damage pool.
-            time_ws = contract_time
-            dps_ws = hp_total / max(time_ws, 1.0)
+        # Runtime Boss rows are now the normal campaign quantity authoring
+        # mechanism, not a finale-only exception. Their fixed HP is already in
+        # `boss_hp`; replacing the physical estimate with a display-contract
+        # reference time here would make the simulator judge its own label
+        # instead of the encounter. Keep the real HP/DPS path authoritative.
         leak = leak_damage(lv, zombies, bosses, economy, boss_lvl)
         if args.challenge:
             # HP pressure is represented exactly in clear time above. Faster

@@ -45,13 +45,15 @@ def main() -> int:
             errors.append(f"{level['id']}.boss_id: stored {stored.get('boss_id')} != derived {derived['boss_id']}")
         stored_contract = stored.get("power_contract")
         if not isinstance(stored_contract, dict):
-            errors.append(f"{level['id']}: missing bottleneck_v3 power_contract")
+            errors.append(f"{level['id']}: missing bottleneck_v4 power_contract")
             continue
         derived_contract = prm.build_power_contract(
             level, derived, characters, weapons, skills, bosses, economy, sim)
         for key in (
             "model", "recommended_power", "crowd_capacity", "boss_capacity",
-            "line_capacity", "boss_effective_hp", "runtime_boss_pressure_mult",
+            "line_capacity", "line_expected_breach", "line_base_hp",
+            "line_target_hp_ratio", "line_exposure_weights",
+            "boss_effective_hp", "runtime_boss_pressure_mult",
             "guaranteed_skill_ids", "reference_skill_rank", "boss_weights",
             "corridor_calibration",
         ):
@@ -60,15 +62,19 @@ def main() -> int:
                     f"{level['id']}.power_contract.{key}: stored "
                     f"{stored_contract.get(key)} != derived {derived_contract.get(key)}")
 
-    # Owner-approved replay anchors. These are not cosmetic output snapshots:
-    # the first is the max-free level_099 graduation build, the second is the
-    # exact level_055 configuration whose 4096-vs-425 display contradicted a
-    # real 53-second breach failure.
+    # Owner-approved replay fixtures. Boss identity/quantity authoring is
+    # allowed to move the absolute scale and the observed ratio; these values
+    # deliberately pin the currently shipped result so a future generator run
+    # cannot silently discard an authored reinforcement.
     by_id = {level["id"]: level for level in levels}
     all_max_skills = {skill_id: prm.skill_max_level(row) for skill_id, row in skills.items()}
+    rank4_skills = {
+        skill_id: min(4, prm.skill_max_level(row))
+        for skill_id, row in skills.items()
+    }
     fixtures = (
         (
-            "level_099", 2724, 2340, 1.1643, "boss",
+            "level_099", 5322, 4546, 1.1707, "boss",
             {
                 "character": "vanguard", "character_level": 40,
                 "weapon": "weapon_scattergun", "weapon_level": 50,
@@ -79,14 +85,14 @@ def main() -> int:
             },
         ),
         (
-            "level_055", 270, 286, 0.9430, "line",
+            "level_080", 4268, 2431, 1.7558, "boss",
             {
                 "character": "blaze", "character_level": 40,
-                "weapon": "weapon_apocalypse_inferno", "weapon_level": 17,
-                "armor": "armor_apocalypse_molten", "armor_level": 4,
+                "weapon": "weapon_apocalypse_inferno", "weapon_level": 36,
+                "armor": "armor_apocalypse_molten", "armor_level": 21,
                 "chip": "chip_apocalypse_stellar", "chip_level": 21,
                 "pet": "pet_apocalypse_phoenix", "pet_level": 15,
-                "signature_level": 5, "skill_base_levels": all_max_skills,
+                "signature_level": 5, "skill_base_levels": rank4_skills,
             },
         ),
     )
@@ -135,8 +141,10 @@ def main() -> int:
                 f"outside [{lower:.2f},{prm.CORRIDOR_MAX:.2f}]")
         corridor_rows.append((level["id"], ratio, outcome["bottleneck"]))
 
-    # Reverse case A: max-level free physical equipment with no elemental ammo
-    # conversion must still expose level_055's physical-immunity mismatch.
+    # Resistance case A: the retired level_055 hard immunity is now a bounded
+    # 50% physical reduction. A maxed free build may clear it, but the model
+    # must still make physical exactly one third as effective as the +50%
+    # lightning weakness instead of silently treating both elements as neutral.
     physical_offense = prm.offense_multiplier(
         characters["vanguard"], weapons["weapon_autocannon"], 40, 50, 5,
         chip=chips["chip_attack"], chip_level=35,
@@ -151,13 +159,26 @@ def main() -> int:
         "boss": physical_offense * prm.weighted_boss_element_factor(
             contract55["boss_weights"], bosses, "physical", economy
         ) / float(contract55["boss_capacity"]),
-        "line": physical_survival / float(contract55["line_capacity"]),
     }
+    physical55_raw_line = physical_survival / float(contract55["line_capacity"])
+    physical55_ratios["line"] = physical55_raw_line * prm.line_exposure_credit(
+        physical55_ratios["crowd"], physical55_ratios["boss"], contract55, economy)
     physical55_ratio = min(physical55_ratios.values())
-    if physical55_ratio >= 1.0:
+    physical55_factor = prm.weighted_boss_element_factor(
+        contract55["boss_weights"], bosses, "physical", economy)
+    lightning55_factor = prm.weighted_boss_element_factor(
+        contract55["boss_weights"], bosses, "lightning", economy)
+    if abs(physical55_factor - 0.5) > 1e-6:
         errors.append(
-            f"level_055 max physical/no-conversion reverse case must stay <1.0, "
-            f"got {physical55_ratio:.4f}")
+            f"level_055 physical resistance must leave a 0.5 damage factor, "
+            f"got {physical55_factor:.4f}")
+    if abs(lightning55_factor - 1.5) > 1e-6:
+        errors.append(
+            f"level_055 lightning weakness must provide a 1.5 damage factor, "
+            f"got {lightning55_factor:.4f}")
+    if abs(physical55_factor * 3.0 - lightning55_factor) > 1e-6:
+        errors.append(
+            "level_055 resistance/weakness spread must remain a readable 0.5x/1.5x")
 
     # Reverse case B: halving the offensive cadence at level_085 must remain
     # visibly under the clear line even though survival is unchanged.
@@ -171,8 +192,10 @@ def main() -> int:
     half85_ratios = {
         "crowd": float(full85["capacities"]["crowd"]) * 0.5 / float(contract85["crowd_capacity"]),
         "boss": float(full85["capacities"]["boss"]) * 0.5 / float(contract85["boss_capacity"]),
-        "line": float(full85["capacities"]["line"]) / float(contract85["line_capacity"]),
     }
+    half85_raw_line = float(full85["capacities"]["line"]) / float(contract85["line_capacity"])
+    half85_ratios["line"] = half85_raw_line * prm.line_exposure_credit(
+        half85_ratios["crowd"], half85_ratios["boss"], contract85, economy)
     half85_ratio = min(half85_ratios.values())
     if half85_ratio >= 1.0:
         errors.append(f"level_085 half-speed reverse case must stay <1.0, got {half85_ratio:.4f}")
@@ -206,7 +229,8 @@ def main() -> int:
         f"R=[{min(row[1] for row in corridor_rows):.4f},"
         f"{max(row[1] for row in corridor_rows):.4f}]")
     print(
-        f"reverse: physical@055={physical55_ratio:.4f}; "
+        f"resistance: physical@055={physical55_ratio:.4f} "
+        f"(factor={physical55_factor:.2f}, weak={lightning55_factor:.2f}); "
         f"half-speed@085={half85_ratio:.4f}; "
         f"Thunder-L1@013={thunder13_ratio:.4f}")
     return 0

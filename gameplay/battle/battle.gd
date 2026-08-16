@@ -21,11 +21,13 @@ const DEFENSE_ACTOR_Z := 10
 const CHARACTER_BACK_EFFECT_Z := -2
 const BUTTON_PRIMARY_PATH := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY_PATH := "res://assets/production/sprites/ui/ui_button_secondary.png"
-const PAUSE_ACTION_BUTTON_SIZE := Vector2(760.0, 112.0)
-const PAUSE_ACTION_ICON_RECT := Rect2(108.0, 27.0, 58.0, 58.0)
-const PAUSE_ACTION_TITLE_RECT := Rect2(194.0, 18.0, 394.0, 76.0)
-const PAUSE_ACTION_ARROW_RECT := Rect2(628.0, 19.0, 48.0, 73.0)
-const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(96.0, 18.0, 584.0, 76.0)
+const PAUSE_ACTION_BUTTON_SIZE := Vector2(276.0, 154.0)
+# The deepest premium-theme corners reach farther into a compact three-column
+# action than the default skin. Keep both the larger icon and the short verb in
+# one horizontal row, inside a shared inset that is safe for all five themes.
+const PAUSE_ACTION_ICON_RECT := Rect2(38.0, 39.0, 76.0, 76.0)
+const PAUSE_ACTION_TITLE_RECT := Rect2(120.0, 38.0, 118.0, 78.0)
+const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(32.0, 30.0, 212.0, 94.0)
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
 const PET_BASE_X_DESIGN := 800.0
@@ -240,7 +242,7 @@ const HUD_WAVE_FILL_RIGHT := 680.0
 const HUD_WAVE_BAR_SIZE := Vector2(720, 46)
 const HUD_XP_FILL_RIGHT := 778.0
 const BOSS_HP_HUD_POSITION := Vector2(160, 130)
-const BOSS_HP_HUD_SIZE := Vector2(760, 96)
+const BOSS_HP_HUD_SIZE := Vector2(760, 124)
 const BOSS_HP_LABEL_SIZE := Vector2(760, 56)
 const BOSS_HP_LABEL_FONT_SIZE := 24
 const BOSS_HP_HUD_TOP_GAP := 22.0
@@ -248,6 +250,8 @@ const BOSS_HP_TRACK_POSITION := Vector2(0, 66)
 const BOSS_HP_TRACK_SIZE := Vector2(760, 22)
 const BOSS_HP_FILL_POSITION := Vector2(2, 68)
 const BOSS_HP_FILL_SIZE := Vector2(756, 18)
+const BOSS_HP_STACKED_TRACK_POSITION := Vector2(0, 94)
+const BOSS_HP_STACKED_FILL_POSITION := Vector2(2, 96)
 const BOSS_HP_LABEL_TRACK_GAP := 10.0
 const BOTTOM_RESOURCE_ROW_DROP := 20.0
 const COMBAT_LABEL_FULL_DENSITY_MAX := 8
@@ -280,6 +284,13 @@ const DIRECTIONAL_VFX_SOURCE_FORWARD := {
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
 const MAX_MULTISHOT_LANES := 5
+# Directional character art must not choose its next pose from the muzzle of
+# its current pose. At point-blank range that creates a feedback loop: the
+# left-pose muzzle crosses the target centre and requests right, then the
+# right-pose muzzle crosses back and requests left. Use a pose-independent
+# body reference plus separate enter/exit thresholds instead.
+const CHARACTER_COMBO_SIDE_AIM_ENTER_X := 0.22
+const CHARACTER_COMBO_SIDE_AIM_EXIT_X := 0.12
 # 基地单次受伤上限 = 最大血量的比例。防止 Boss/技能"一下打死"，任何来源都受此限制。
 const MAX_BASE_HIT_FRACTION := 0.4
 # 第3/4/5波单独加血量(绝不加速度)：局内前两波保持开局节奏，后半段用血量拉回张力。
@@ -299,10 +310,10 @@ const WAVE_TOAST_MIN_INTERVAL := 2.50
 const ACTIVE_SKILL_DOT_COUNT := 8
 const SKILL_HINT_AUTO_HIDE_SECONDS := 3.0
 const HUD_SKILL_DOCK_LEFT := 18.0
-const HUD_SKILL_DOCK_RIGHT := 530.0
+const HUD_SKILL_DOCK_RIGHT := 426.0
 const HUD_SKILL_DOCK_BOTTOM := 1808.0
 const HUD_SKILL_SLOT_SIZE := Vector2(96.0, 120.0)
-const HUD_SKILL_DOCK_COLUMNS := 5
+const HUD_SKILL_DOCK_COLUMNS := 4
 const HUD_SKILL_DOCK_GAP := 8
 const FROST_GLACIER_MIN_DURATION := 5.0
 const FROST_GLACIER_TICK_INTERVAL := 0.52
@@ -318,12 +329,12 @@ const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
 const CARD_OFFER_CARD_WIDTH := 864.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
-const CARD_OFFER_ICON_FRAME_POS := Vector2(16.0, 48.0)
-const CARD_OFFER_ICON_FRAME_SIZE := Vector2(176.0, 176.0)
-const CARD_OFFER_ICON_POS := Vector2(26.0, 58.0)
-const CARD_OFFER_ICON_SIZE := Vector2(156.0, 156.0)
-const CARD_OFFER_TEXT_X := 220.0
-const CARD_OFFER_TEXT_WIDTH := 578.0
+const CARD_OFFER_ICON_FRAME_POS := Vector2(32.0, 48.0)
+const CARD_OFFER_ICON_FRAME_SIZE := Vector2(196.0, 196.0)
+const CARD_OFFER_ICON_POS := Vector2(41.0, 57.0)
+const CARD_OFFER_ICON_SIZE := Vector2(178.0, 178.0)
+const CARD_OFFER_TEXT_X := 252.0
+const CARD_OFFER_TEXT_WIDTH := 584.0
 const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
 const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
 const CARD_DETAIL_TAGS_FONT_SIZE := 15
@@ -508,7 +519,10 @@ var pet_level := 1
 var low_hp_warned := false
 var active_boss: Node = null
 var boss_hp_bar: Control = null
+var boss_hp_track: TextureRect = null
 var boss_hp_fill: TextureRect = null
+var boss_armor_track: TextureRect = null
+var boss_armor_fill: TextureRect = null
 var boss_hp_label: Label = null
 var last_threat_warning_at := -99.0
 var last_gold_sfx_at := -99.0
@@ -2492,13 +2506,13 @@ func _rebuild_pause_overlay_content() -> void:
 	content.add_child(_pause_skill_card())
 
 func _pause_status_card() -> PanelContainer:
-	var card := _pause_section("战场状态", UiKit.GOLD, 178)
+	var card := _pause_section("战场状态", UiKit.GOLD, 214)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 18)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("关卡", DataLoader.level_display_name(level_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("建议等级", str(int(level.get("recommend_level", 1))), UiKit.GOLD))
@@ -2507,13 +2521,13 @@ func _pause_status_card() -> PanelContainer:
 	return card
 
 func _pause_loadout_card() -> PanelContainer:
-	var card := _pause_section("出战配置", UiKit.CYAN, 284)
+	var card := _pause_section("出战配置", UiKit.CYAN, 288)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 18)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	grid.add_child(_pause_metric("英雄", _display_name(character_data, character_id), UiKit.CYAN))
 	grid.add_child(_pause_metric("武器", "%s  等级%d" % [_display_name(DataLoader.get_row("weapons", weapon_id), weapon_id), weapon_level], UiKit.GOLD))
@@ -2531,18 +2545,18 @@ func _pause_loadout_card() -> PanelContainer:
 func _pause_skill_card() -> PanelContainer:
 	var skill_count := maxi(skill_slot_ids.size(), 1)
 	var rows := int(ceil(float(skill_count) / 3.0))
-	var card_height := clampf(112.0 + float(rows) * 66.0 + float(maxi(rows - 1, 0)) * 10.0, 178.0, 254.0)
+	var card_height := clampf(92.0 + float(rows) * 78.0 + float(maxi(rows - 1, 0)) * 8.0, 198.0, 256.0)
 	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 8)
 	body.add_child(grid)
 	if skill_slot_ids.is_empty():
-		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 17, UiKit.TEXT_MUTED, 2)
-		empty.custom_minimum_size = Vector2(740, 66)
+		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 20, UiKit.TEXT_MUTED, 2)
+		empty.custom_minimum_size = Vector2(780, 74)
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		body.add_child(empty)
 		return card
@@ -2559,9 +2573,10 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	var body := VBoxContainer.new()
 	body.name = "Body"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 12)
+	body.add_theme_constant_override("separation", 8)
 	card.add_child(body)
 	var header := HBoxContainer.new()
+	header.name = "Header"
 	header.add_theme_constant_override("separation", 14)
 	body.add_child(header)
 	var rail := TextureRect.new()
@@ -2572,14 +2587,15 @@ func _pause_section(title_text: String, accent: Color, min_height: float) -> Pan
 	rail.modulate = accent
 	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(rail)
-	var title := UiKit.label(title_text, 19, Color(0.95, 0.90, 0.76, 1.0), 2)
+	var title := UiKit.label(title_text, 25, Color(0.95, 0.90, 0.76, 1.0), 2)
+	title.name = "SectionTitle"
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title)
 	return card
 
 func _pause_metric(label_text: String, value_text: String, accent: Color) -> PanelContainer:
 	var metric := PanelContainer.new()
-	metric.custom_minimum_size = Vector2(0, 62)
+	metric.custom_minimum_size = Vector2(0, 66)
 	metric.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	metric.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	metric.clip_contents = true
@@ -2587,14 +2603,21 @@ func _pause_metric(label_text: String, value_text: String, accent: Color) -> Pan
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	metric.add_child(row)
-	var key := UiKit.label(label_text, 14, Color(0.62, 0.78, 0.82, 1.0), 2)
-	key.custom_minimum_size = Vector2(94, 0)
+	var english := LocalizationManager.is_english()
+	var key := UiKit.label(label_text, 17 if english else 19, Color(0.62, 0.78, 0.82, 1.0), 2)
+	key.name = "MetricKey"
+	key.custom_minimum_size = Vector2(174 if english else 122, 0)
 	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	key.clip_text = true
+	key.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(key)
-	var value := UiKit.label(value_text, 15, UiKit.TEXT_MAIN, 2)
+	var value := UiKit.label(value_text, 18 if english else 20, UiKit.TEXT_MAIN, 2)
+	value.name = "MetricValue"
+	value.custom_minimum_size = Vector2(1, 0)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.clip_text = true
+	value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(value)
 	return metric
 
@@ -2602,14 +2625,15 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var row: Dictionary = DataLoader.get_row("skills", skill_id)
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(250, 66)
+	chip.custom_minimum_size = Vector2(274, 78)
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 10)
 	chip.add_child(hbox)
-	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(44, 44))
+	var icon := UiKit.icon(str(row.get("icon", UiKit.element_icon_path("physical"))), Vector2(58, 58))
+	icon.name = "SkillIcon"
 	hbox.add_child(icon)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2618,13 +2642,15 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	# Three chips share one phone-width row. English skill names need one logical
 	# point less than CJK here (19 px effective vs 20 px) to remain complete
 	# without ellipsis; the level line keeps the same hierarchy and touch layout.
-	var name_size := 12 if LocalizationManager.is_english() else 13
+	var name_size := 15 if LocalizationManager.is_english() else 17
 	var name := UiKit.label(DataLoader.tr_key(row.get("name_key", skill_id)), name_size, UiKit.TEXT_MAIN, 2)
+	name.name = "SkillName"
 	name.custom_minimum_size = Vector2(0, 24)
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name.clip_text = true
 	col.add_child(name)
-	var level := UiKit.label("Lv%d" % skills.level(skill_id), 12, UiKit.GOLD, 2)
+	var level := UiKit.label("Lv%d" % skills.level(skill_id), 15, UiKit.GOLD, 2)
+	level.name = "SkillLevel"
 	col.add_child(level)
 	return chip
 
@@ -2671,15 +2697,36 @@ func _ensure_boss_hp_bar() -> void:
 	boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	boss_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	boss_hp_bar.add_child(boss_hp_label)
-	var track := TextureRect.new()
-	track.name = "Track"
-	track.texture = load("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
-	track.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	track.stretch_mode = TextureRect.STRETCH_SCALE
-	track.position = BOSS_HP_TRACK_POSITION
-	track.size = BOSS_HP_TRACK_SIZE
-	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	boss_hp_bar.add_child(track)
+	boss_armor_track = TextureRect.new()
+	boss_armor_track.name = "ArmorTrack"
+	boss_armor_track.texture = load("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
+	boss_armor_track.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	boss_armor_track.stretch_mode = TextureRect.STRETCH_SCALE
+	boss_armor_track.position = BOSS_HP_TRACK_POSITION
+	boss_armor_track.size = BOSS_HP_TRACK_SIZE
+	boss_armor_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_armor_track.visible = false
+	boss_hp_bar.add_child(boss_armor_track)
+	boss_armor_fill = TextureRect.new()
+	boss_armor_fill.name = "ArmorFill"
+	boss_armor_fill.texture = load("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
+	boss_armor_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	boss_armor_fill.stretch_mode = TextureRect.STRETCH_SCALE
+	boss_armor_fill.position = BOSS_HP_FILL_POSITION
+	boss_armor_fill.size = BOSS_HP_FILL_SIZE
+	boss_armor_fill.modulate = Color(0.98, 0.76, 0.22, 1.0)
+	boss_armor_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_armor_fill.visible = false
+	boss_hp_bar.add_child(boss_armor_fill)
+	boss_hp_track = TextureRect.new()
+	boss_hp_track.name = "Track"
+	boss_hp_track.texture = load("res://assets/production/sprites/ui/ui_boss_hp_bar.png")
+	boss_hp_track.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	boss_hp_track.stretch_mode = TextureRect.STRETCH_SCALE
+	boss_hp_track.position = BOSS_HP_TRACK_POSITION
+	boss_hp_track.size = BOSS_HP_TRACK_SIZE
+	boss_hp_track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_hp_bar.add_child(boss_hp_track)
 	boss_hp_fill = TextureRect.new()
 	boss_hp_fill.name = "Fill"
 	boss_hp_fill.texture = load("res://assets/production/sprites/ui/ui_bar_fill_hp.png")
@@ -2707,19 +2754,42 @@ func _update_boss_hp_bar() -> void:
 		boss_hp_bar.visible = false
 		return
 	var ratio := clampf(float(active_boss.hp) / maxf(float(active_boss.max_hp), 1.0), 0.0, 1.0)
+	var armor_max := maxf(float(active_boss.get("armor_hp_max")), 0.0)
+	var armor_ratio := clampf(float(active_boss.get("armor_hp")) / armor_max if armor_max > 0.0 else 0.0, 0.0, 1.0)
+	var has_armor_layer := armor_max > 0.0
 	if paused:
 		boss_hp_bar.visible = false
 		return
 	boss_hp_bar.visible = true
+	boss_hp_bar.size.y = BOSS_HP_HUD_SIZE.y if has_armor_layer else 96.0
+	boss_hp_track.position = BOSS_HP_STACKED_TRACK_POSITION if has_armor_layer else BOSS_HP_TRACK_POSITION
+	boss_hp_fill.position = BOSS_HP_STACKED_FILL_POSITION if has_armor_layer else BOSS_HP_FILL_POSITION
 	boss_hp_fill.size.x = BOSS_HP_FILL_SIZE.x * ratio
+	boss_armor_track.visible = has_armor_layer
+	boss_armor_fill.visible = has_armor_layer
+	if has_armor_layer:
+		boss_armor_fill.size.x = BOSS_HP_FILL_SIZE.x * armor_ratio
 	var boss_name := DataLoader.tr_key(active_boss.data.get("name_key", "")) if active_boss.data is Dictionary else ""
 	var boss_count := _living_boss_count()
 	var count_suffix := "  x%d" % boss_count if boss_count > 1 else ""
 	var weakness := _element_name(str(active_boss.data.get("weakness", "physical"))) if active_boss.data is Dictionary else ""
+	var weakness_bonus := int(round((maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0) - 1.0) * 100.0))
+	var hp_percent_text := _boss_hp_percent_text(ratio)
+	var armor_percent_text := _boss_hp_percent_text(armor_ratio)
 	if LocalizationManager.is_english():
-		boss_hp_label.text = "%s%s · Weak: %s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
+		boss_hp_label.text = (
+			"%s%s · Weak: %s +%d%% · AR %s / HP %s"
+			% [boss_name, count_suffix, weakness, weakness_bonus, armor_percent_text, hp_percent_text]
+			if has_armor_layer
+			else "%s%s · Weak: %s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
+		)
 	else:
-		boss_hp_label.text = "%s%s · 弱%s · %d%%" % [boss_name, count_suffix, weakness, int(round(ratio * 100.0))]
+		boss_hp_label.text = (
+			"%s%s · 弱%s +%d%% · 甲%s / 血%s"
+			% [boss_name, count_suffix, weakness, weakness_bonus, armor_percent_text, hp_percent_text]
+			if has_armor_layer
+			else "%s%s · 弱%s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
+		)
 	# Long English names may shrink within the dedicated identity band, but
 	# never wrap, crop, or descend into the HP rail.
 	UiKit.fit_label_text(
@@ -2729,6 +2799,19 @@ func _update_boss_hp_bar() -> void:
 		12.0,
 		4.0
 	)
+
+func _boss_hp_percent_text(ratio: float) -> String:
+	var clamped := clampf(ratio, 0.0, 1.0)
+	if clamped >= 1.0:
+		return "100%"
+	# Large late-game Boss pools can absorb real damage while an integer label
+	# still rounds to 100. Adaptive precision makes the first HP loss observable.
+	var percent := minf(clamped * 100.0, 99.9999)
+	if percent >= 99.9:
+		return "%.4f%%" % percent
+	if percent >= 99.0:
+		return "%.2f%%" % percent
+	return "%.1f%%" % percent
 
 func _living_boss_count() -> int:
 	var count := 0
@@ -3279,13 +3362,13 @@ func _setup_pause_overlay_layout() -> void:
 	scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	var panel := $Hud/PauseOverlay/Panel as Panel
 	panel.offset_left = 54.0
-	panel.offset_top = 156.0 + modal_shift
+	panel.offset_top = 140.0 + modal_shift
 	panel.offset_right = 1026.0
-	panel.offset_bottom = 1526.0 + modal_shift
+	panel.offset_bottom = 1280.0 + modal_shift
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
-	title.position = Vector2(0, 38)
+	title.position = Vector2(0, 24)
 	title.size = Vector2(972, 86)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -3298,12 +3381,15 @@ func _setup_pause_overlay_layout() -> void:
 		content.name = "PauseContent"
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
-	content.add_theme_constant_override("separation", 20)
-	content.position = Vector2(68, 142)
-	content.size = Vector2(836, 778)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(106, 950), "res://assets/production/sprites/ui/icon_pause.png", "继续战斗", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(106, 1084), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重打本关", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(106, 1218), "res://assets/production/sprites/ui/icon_settings.png", "返回关卡", false)
+	content.add_theme_constant_override("separation", 16)
+	content.position = Vector2(44, 124)
+	content.size = Vector2(884, 790)
+	# Pause actions are deliberately one left/centre/right row. Their taller
+	# targets remain easy to hit, while the short verbs keep every locale clear
+	# of the ornamental button corners.
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(44, 946), "res://assets/production/sprites/ui/icon_pause.png", "继续", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(348, 946), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重开", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(652, 946), "res://assets/production/sprites/ui/icon_settings.png", "退出", false)
 
 func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path: String, title_text: String, primary: bool) -> void:
 	if button == null:
@@ -3331,24 +3417,19 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path:
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
 	button.add_child(icon_plate)
-	var icon := UiKit.icon(icon_path, Vector2(38, 38))
+	var icon := UiKit.icon(icon_path, Vector2(48, 48))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
 	icon_plate.add_child(icon)
-	var title := UiKit.label(LocalizationManager.text(title_text), 28, Color.WHITE, 3)
+	var title_size := 21 if LocalizationManager.is_english() else 24
+	var title := UiKit.label(LocalizationManager.text(title_text), title_size, Color.WHITE, 3)
 	title.name = "ActionTitle"
 	title.position = PAUSE_ACTION_TITLE_RECT.position
 	title.size = PAUSE_ACTION_TITLE_RECT.size
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiKit.fit_label_text(title, UiKit.scaled_font_size(28), 22, 4.0, 8.0)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.clip_text = true
 	button.add_child(title)
-	var arrow := UiKit.label(">", 34, UiKit.GOLD if primary else Color(0.70, 0.84, 0.96, 1.0), 2)
-	arrow.name = "ActionArrow"
-	arrow.position = PAUSE_ACTION_ARROW_RECT.position
-	arrow.size = PAUSE_ACTION_ARROW_RECT.size
-	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	button.add_child(arrow)
-	button.set_meta("pause_action_layout", "single_line")
+	button.set_meta("pause_action_layout", "three_column_compact")
 	button.set_meta("pause_action_safe_rect", PAUSE_ACTION_FRAME_SAFE_RECT)
 
 func _setup_wave_toast_banner() -> void:
@@ -3863,7 +3944,10 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var speed_mult := float(economy.get("ENEMY_SPEED_MULT", 1.0))
 	if is_boss:
 		speed_mult *= float(economy.get("BOSS_SPEED_MULT", 1.0))
-	if wave_index >= 3:
+	# Boss movement is part of its stable authored identity. Ordinary enemies
+	# still receive the bounded card-pressure response, while the same Boss does
+	# not walk faster merely because it reappears in a later level.
+	if wave_index >= 3 and not is_boss:
 		speed_mult *= run_skill_speed_pressure_mult
 	if is_challenge_mode:
 		speed_mult *= _challenge_mult("speed_mult")
@@ -3872,10 +3956,15 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	enemy.set_meta("reward_scale", clampf(reward_scale, 0.0, 1.0))
-	var hp_level_coef := float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
-	hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
-	hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
-	hp_level_coef *= _boss_survival_hp_mult(level_ordinal, is_boss, economy)
+	# Boss rows own an absolute total durability budget. Normal campaign play
+	# therefore uses 1.0 regardless of level/difficulty/card count; challenge and
+	# endless remain explicit modes and may intentionally multiply that budget.
+	var has_fixed_boss_hp := is_boss and float(row.get("fixed_hp", 0.0)) > 0.0
+	var hp_level_coef := 1.0 if has_fixed_boss_hp else float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
+	if not has_fixed_boss_hp:
+		hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
+		hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
+		hp_level_coef *= _boss_survival_hp_mult(level_ordinal, is_boss, economy)
 	if is_endless_mode:
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
@@ -3901,9 +3990,10 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	return enemy
 
 func _apply_endless_boss_opening_grace(row: Dictionary, economy: Dictionary) -> void:
-	var grace_loops := maxi(0, int(economy.get("endless_boss_immunity_grace_loops", 1)))
+	var grace_loops := maxi(0, int(economy.get("endless_boss_resistance_grace_loops", 1)))
 	if endless_loop >= grace_loops:
 		return
+	row["resistances"] = {}
 	row["immune"] = []
 	if str(row.get("mechanic", "")) == "armor_break":
 		var params_var = row.get("mechanic_params", {})
@@ -4431,7 +4521,10 @@ func _announce_boss_phase(source: Node, text: String, color: Color) -> void:
 func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	_sync_logic_turret_to_character()
 	direction = _weapon_fire_direction(direction)
-	_set_character_combo_aim_from_direction(direction)
+	if character_weapon_combo_active and turret != null:
+		_set_character_combo_aim_from_target(turret.target_point)
+	else:
+		_set_character_combo_aim_from_direction(direction)
 	# Bind gameplay contact to the authored ignition pose before resolving the
 	# muzzle. The projectile remains instantaneous; only the preceding brace
 	# and following recoil are visual anticipation/follow-through.
@@ -5814,7 +5907,10 @@ func _update_character_weapon_pose(delta: float) -> void:
 		character_weapon_direction = CHARACTER_WEAPON_DEFAULT_DIRECTION
 	if character_weapon_combo_active:
 		if character_weapon_combo_locked_aim == "":
-			_set_character_combo_aim_from_direction(character_weapon_direction)
+			if turret != null:
+				_set_character_combo_aim_from_target(turret.target_point)
+			else:
+				_set_character_combo_aim_from_direction(character_weapon_direction)
 		return
 	if character_weapon_sprite == null:
 		return
@@ -5903,8 +5999,11 @@ func _character_combo_effective_aim() -> String:
 	return character_weapon_combo_aim
 
 func _character_combo_muzzle_for_aim() -> Vector2:
-	var combo_key := _character_combo_key()
 	var aim := _character_combo_effective_aim()
+	return _character_combo_muzzle_for_pose(aim)
+
+func _character_combo_muzzle_for_pose(aim: String) -> Vector2:
+	var combo_key := _character_combo_key()
 	var fallback := character_weapon_combo_muzzle
 	if aim == "left":
 		fallback = CHARACTER_WEAPON_COMBO_MUZZLE_LEFT.get(combo_key, character_weapon_combo_muzzle)
@@ -5915,17 +6014,51 @@ func _character_combo_muzzle_for_aim() -> Vector2:
 	var body_anchor := _character_body_anchor_offset(aim, sprite_scale)
 	return body_anchor + authored_muzzle * (sprite_scale / CHARACTER_VISUAL_BASE_SCALE)
 
+func _character_pose_aim_reference_global() -> Vector2:
+	if character_rig == null:
+		return CHARACTER_BASE_POSITION
+	if not character_weapon_combo_active:
+		return character_rig.to_global(Vector2(0.0, CHARACTER_WEAPON_SOCKET.y))
+	# Keep the reference at the centre of the actor, but at the authored centre
+	# muzzle height. Horizontal left/right muzzle displacement is deliberately
+	# excluded so changing pose cannot change the next pose decision.
+	var center_muzzle := _character_combo_muzzle_for_pose("center")
+	return character_rig.to_global(Vector2(0.0, center_muzzle.y))
+
+func _set_character_combo_aim_from_target(target_point: Vector2) -> void:
+	var direction := target_point - _character_pose_aim_reference_global()
+	_set_character_combo_aim_from_direction(direction)
+
 func _set_character_combo_aim_from_direction(direction: Vector2) -> void:
 	if not character_weapon_combo_active:
 		return
 	if direction.length_squared() <= 0.01:
 		character_weapon_combo_aim = "center"
-	elif direction.x < -0.18:
-		character_weapon_combo_aim = "left"
-	elif direction.x > 0.18:
-		character_weapon_combo_aim = "right"
 	else:
-		character_weapon_combo_aim = "center"
+		var normalized_x := direction.normalized().x
+		var current_aim := _character_combo_effective_aim()
+		match current_aim:
+			"left":
+				if normalized_x <= -CHARACTER_COMBO_SIDE_AIM_EXIT_X:
+					character_weapon_combo_aim = "left"
+				elif normalized_x >= CHARACTER_COMBO_SIDE_AIM_ENTER_X:
+					character_weapon_combo_aim = "right"
+				else:
+					character_weapon_combo_aim = "center"
+			"right":
+				if normalized_x >= CHARACTER_COMBO_SIDE_AIM_EXIT_X:
+					character_weapon_combo_aim = "right"
+				elif normalized_x <= -CHARACTER_COMBO_SIDE_AIM_ENTER_X:
+					character_weapon_combo_aim = "left"
+				else:
+					character_weapon_combo_aim = "center"
+			_:
+				if normalized_x <= -CHARACTER_COMBO_SIDE_AIM_ENTER_X:
+					character_weapon_combo_aim = "left"
+				elif normalized_x >= CHARACTER_COMBO_SIDE_AIM_ENTER_X:
+					character_weapon_combo_aim = "right"
+				else:
+					character_weapon_combo_aim = "center"
 	if character_weapon_combo_locked_aim != "":
 		character_weapon_combo_locked_aim = character_weapon_combo_aim
 
@@ -8039,7 +8172,7 @@ func _impact_palette(element: String, hit_kind := "normal") -> Dictionary:
 				"spark": Color(0.42, 0.82, 1.0, 0.82),
 				"ring": Color(0.48, 0.84, 1.0, 0.62),
 			}
-		"immune", "phase_evade", "suppressed":
+		"immune", "phase_evade", "suppressed", "resisted":
 			return {
 				"core": Color(0.82, 0.9, 1.0, 0.76),
 				"spark": Color(0.64, 0.78, 1.0, 0.48),
@@ -8112,7 +8245,7 @@ func _spawn_b4_impact_stack(position: Vector2, element: String, power := 1.0, hi
 				(burst as Node2D).rotation = randf_range(-PI, PI)
 	_spawn_impact_shock_ring(position, ring, 48.0 * safe_power, 4.0 + safe_power * 2.0, life, priority)
 	match hit_kind:
-		"shield", "immune", "phase_evade", "suppressed":
+		"shield", "immune", "phase_evade", "suppressed", "resisted":
 			_spawn_vfx_sequence(
 				"vfx_hit_immune",
 				position,
@@ -8185,7 +8318,7 @@ func _impact_particle_count(element: String, hit_kind: String, power: float) -> 
 	match hit_kind:
 		"armor", "weak":
 			base += 5
-		"immune", "phase_evade":
+		"immune", "phase_evade", "resisted":
 			base -= 4
 	return clampi(int(round(float(base) * power)), 4, 30)
 
@@ -8205,12 +8338,12 @@ func _impact_particle_speed(element: String, hit_kind: String, power: float) -> 
 	match hit_kind:
 		"armor", "weak":
 			speed += 120.0
-		"immune", "phase_evade":
+		"immune", "phase_evade", "resisted":
 			speed *= 0.7
 	return speed * clampf(power, 0.65, 1.8)
 
 func _impact_particle_spread(element: String, hit_kind: String) -> float:
-	if hit_kind == "immune" or hit_kind == "phase_evade" or hit_kind == "suppressed":
+	if hit_kind == "immune" or hit_kind == "phase_evade" or hit_kind == "suppressed" or hit_kind == "resisted":
 		return 116.0
 	match element:
 		"fire":
@@ -8688,7 +8821,7 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 			power = 1.18
 		"shield":
 			power = 1.12
-		"immune", "phase_evade":
+		"immune", "phase_evade", "resisted", "suppressed":
 			power = 0.88
 		"weak":
 			power = 1.24
@@ -8698,7 +8831,7 @@ func _spawn_hit_layer_vfx(position: Vector2, element: String, weak_hit: bool, hi
 	_spawn_b4_impact_stack(anchor, element, power, kind, weak_hit or kind != "normal")
 	if weak_hit:
 		_spawn_b4_impact_stack(position + Vector2(0, -44), element, 1.18, "weak", true)
-	if hit_kind == "armor" or hit_kind == "armor_pierce" or hit_kind == "shield" or hit_kind == "immune":
+	if hit_kind == "armor" or hit_kind == "armor_pierce" or hit_kind == "shield" or hit_kind == "immune" or hit_kind == "resisted" or hit_kind == "suppressed":
 		var palette := _impact_palette(element, kind)
 		var ring: Color = palette.get("ring", Color.WHITE)
 		_spawn_impact_shock_ring(position + Vector2(0, -36), ring, 74.0, 5.0, 0.18, true)
@@ -10835,7 +10968,10 @@ func _update_barrier_visual() -> void:
 		return
 	var charges := _barrier_charge_count()
 	var skill_level := skills.level("skill_barrier")
-	var has_barrier := charges > 0 or skill_level > 0
+	# The persistent glass wall belongs to the Defense Barrier card. Armor breach
+	# interception is a separate one-hit equipment effect and must not make the
+	# battle look as though the card was already learned at stage start.
+	var has_barrier := skill_level > 0
 	barrier_visual.visible = has_barrier
 	if not has_barrier:
 		return
@@ -11042,13 +11178,23 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var title := Label.new()
 	title.name = "Title"
 	title.text = display_name
-	title.position = Vector2(CARD_OFFER_TEXT_X, 28)
-	title.size = Vector2(538.0 - CARD_OFFER_TEXT_X, 48)
-	UiKit.apply_label(title, 24 if LocalizationManager.is_english() else 28, Color(0.96, 0.99, 1.0, 1.0), 3)
+	title.position = Vector2(CARD_OFFER_TEXT_X, 20)
+	title.size = Vector2(538.0 - CARD_OFFER_TEXT_X, 60)
+	var title_font_size := 24 if LocalizationManager.is_english() else 28
+	UiKit.apply_label(title, title_font_size, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(title)
+	# Enlarging and moving the icon preserves the card's hierarchy, while long
+	# English skill names may step down slightly inside the fixed title lane.
+	UiKit.fit_label_text(
+		title,
+		UiKit.scaled_font_size(title_font_size),
+		UiKit.scaled_font_size(20 if LocalizationManager.is_english() else 24),
+		2.0,
+		2.0
+	)
 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
@@ -11091,18 +11237,36 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var desc := Label.new()
 	desc.name = "Desc"
-	desc.text = _skill_short_desc(skill_id, lv)
-	desc.position = Vector2(CARD_OFFER_TEXT_X, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
+	# Resolve the locale before TextServer measures wrapping. Leaving the Chinese
+	# source for automatic late translation could clip the last English glyph at
+	# the right edge after this card's icon/text geometry changed.
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc.text = LocalizationManager.text(_skill_short_desc(skill_id, lv))
+	var desc_position := Vector2(CARD_OFFER_TEXT_X, (142 if LocalizationManager.is_english() else 150) + stats_extra_h)
+	var desc_size := Vector2(CARD_OFFER_TEXT_WIDTH, 76 if LocalizationManager.is_english() else 78)
+	desc.position = desc_position
 	# The longest Chinese ammo-module descriptions wrap to two mobile-readable
 	# lines at this width. Reserve the real two-line height instead of clipping
 	# the second line behind the tag row.
-	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, 76 if LocalizationManager.is_english() else 78)
-	UiKit.apply_label(desc, 16 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
+	desc.size = desc_size
+	# English short descriptions are materially longer than their Chinese peers.
+	# A 12 pt authored size still renders at the mobile UI scale while keeping the
+	# longest description in the intended two-line lane beside the enlarged icon.
+	UiKit.apply_label(desc, 12 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
+	if LocalizationManager.is_english():
+		var balanced_desc := _balanced_card_desc_lines(desc.text, desc.get_theme_font("font"), desc.get_theme_font_size("font_size"))
+		if balanced_desc.contains("\n"):
+			desc.text = balanced_desc
+			desc.autowrap_mode = TextServer.AUTOWRAP_OFF
 	desc.add_theme_constant_override("line_spacing", 5)
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(desc)
+	# Label minimum-size invalidation occurs after parenting. Re-apply the
+	# authored wrap lane after that pass so translated prose cannot expand the
+	# Control itself beyond the card and be clipped by the card ancestor.
+	desc.set_deferred("position", desc_position)
+	desc.set_deferred("size", desc_size)
 
 	var tags := HBoxContainer.new()
 	tags.name = "Tags"
@@ -11115,6 +11279,26 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 		tags.add_child(_card_tag_chip(str(tag), accent))
 
 	return card
+
+func _balanced_card_desc_lines(value: String, font: Font, font_size: int) -> String:
+	var words := value.split(" ", false)
+	if words.size() < 2 or font == null:
+		return value
+	var best_text := value
+	var best_width := INF
+	for split_index in range(1, words.size()):
+		var first_line := " ".join(words.slice(0, split_index))
+		var second_line := " ".join(words.slice(split_index))
+		var widest := maxf(
+			font.get_string_size(first_line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x,
+			font.get_string_size(second_line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+		)
+		if widest < best_width:
+			best_width = widest
+			best_text = first_line + "\n" + second_line
+	# Keep a little room for the two-pixel outline at both ends. If two balanced
+	# lines still cannot fit, retain ordinary word wrapping as the safe fallback.
+	return best_text if best_width <= CARD_OFFER_TEXT_WIDTH - 8.0 else value
 
 func _skill_card_accent(skill_id: String, row: Dictionary) -> Color:
 	var element := _skill_element(skill_id)
@@ -11725,7 +11909,7 @@ func _on_enemy_hit_feedback(enemy: Node, element: String, immune_hit: bool, weak
 		"skyfalcon_mark",
 		"armor_counter",
 	]
-	if not named_golden_law_hit and (immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade" or hit_kind == "armor_pierce" or hit_kind == "suppressed"):
+	if not named_golden_law_hit and (immune_hit or hit_kind == "armor" or hit_kind == "shield" or hit_kind == "phase_evade" or hit_kind == "armor_pierce" or hit_kind == "suppressed" or hit_kind == "resisted"):
 		_show_enemy_hit_rule_feedback(enemy, element, hit_kind)
 	# 子弹命中(_on_projectile_hit_confirmed)和主动技能命中(_active_skill_apply_hit)
 	# 都会直接调 _spawn_element_impact_vfx，随后 take_damage 又会通过这个信号再触发
@@ -11763,7 +11947,7 @@ func _enemy_hit_rule_text(enemy: Node, element: String, hit_kind: String) -> Str
 	var weakness_text := _enemy_weakness_suffix(enemy)
 	match hit_kind:
 		"armor":
-			return "装甲吸收 · 破甲中"
+			return "装甲承伤 · 破甲中"
 		"armor_pierce":
 			return "伤害穿透 · 直击本体"
 		"shield":
@@ -11773,12 +11957,24 @@ func _enemy_hit_rule_text(enemy: Node, element: String, hit_kind: String) -> Str
 		"immune":
 			return "%s免疫%s" % [_element_combat_label(element), weakness_text]
 		"suppressed":
-			return "%s抗性 · 伤害18%%%s" % [_element_combat_label(element), weakness_text]
+			return "%s抗性 · 减伤50%%%s" % [_element_combat_label(element), weakness_text]
+		"resisted":
+			var reduction_pct := int(round(_enemy_resistance_reduction(enemy, element) * 100.0))
+			return "%s抗性 · 减伤%d%%%s" % [_element_combat_label(element), reduction_pct, weakness_text]
 		_:
 			var immune_list: Variant = enemy.get("immune")
 			if immune_list is Array and (immune_list as Array).has(element):
 				return "%s免疫%s" % [_element_combat_label(element), weakness_text]
 	return ""
+
+func _enemy_resistance_reduction(enemy: Node, element: String) -> float:
+	var values_var: Variant = enemy.get("resistances")
+	if values_var is Dictionary and (values_var as Dictionary).has(element):
+		return clampf(float((values_var as Dictionary).get(element, 0.0)), 0.0, 0.95)
+	var resisted_element := str(enemy.get("resist"))
+	if resisted_element == element:
+		return 1.0 - clampf(float(DataLoader.get_table("economy").get("resist_mult", 0.5)), 0.05, 1.0)
+	return 1.0 - clampf(float(DataLoader.get_table("economy").get("resist_mult", 0.5)), 0.05, 1.0)
 
 func _enemy_weakness_suffix(enemy: Node) -> String:
 	var weak := str(enemy.get("weakness"))

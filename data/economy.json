@@ -65,7 +65,7 @@
 		"final_mult": 1.08
 	},
 	"endless_template_level": "level_025",
-	"endless_boss_immunity_grace_loops": 1,
+	"endless_boss_resistance_grace_loops": 1,
 	"endless_first_loop_armor_hits_cap": 8,
 	"endless_loop_hp_growth": 0.5,
 	"level_xp_coef": 50,
@@ -131,9 +131,9 @@
 		"crowd_dps_per_capacity": 75.0,
 		"boss_clear_window_seconds": 180.0,
 		"runtime_boss_recommendation_calibration": 1.03827,
-		"final_line_capacity": 6.0,
-		"line_curve_exponent": 3.12,
-		"non_boss_line_pressure_mult": 0.72,
+		"line_requirement_floor": 0.25,
+		"line_exposure_credit_min": 0.85,
+		"line_exposure_credit_max": 1.15,
 		"armor_break_effective_factor": 0.94,
 		"boss_mechanic_time_mult": {
 			"phase_burn": 1.04,

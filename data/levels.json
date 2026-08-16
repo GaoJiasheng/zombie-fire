@@ -101,11 +101,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 10,
 				"crowd_capacity": 1.2279,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0,
+				"line_capacity": 0.5151,
+				"line_expected_breach": 53.9,
+				"line_base_hp": 161.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -216,11 +223,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 13,
-				"crowd_capacity": 1.861,
+				"crowd_capacity": 2.1597,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0348,
+				"line_capacity": 0.7305,
+				"line_expected_breach": 60.3,
+				"line_base_hp": 127.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -231,12 +245,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.427553,
-					"ratio": 1.379958,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.601522,
+					"ratio": 1.380021,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -359,11 +373,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 15,
 				"crowd_capacity": 2.1264,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0003,
+				"line_capacity": 1.0918,
+				"line_expected_breach": 95.1,
+				"line_base_hp": 134.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -499,11 +520,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 13,
 				"crowd_capacity": 1.9597,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0003,
+				"line_capacity": 0.8587,
+				"line_expected_breach": 78.7,
+				"line_base_hp": 141.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -646,16 +674,23 @@
 		"reward_gold_mult": 0.54,
 		"clear_requirement": {
 			"min_output": 0.9076,
-			"mob_hp_share": 0.7895,
-			"boss_hp_share": 0.2105,
+			"mob_hp_share": 0.7893,
+			"boss_hp_share": 0.2107,
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 14,
 				"crowd_capacity": 2.0775,
-				"boss_capacity": 2.0372,
-				"line_capacity": 1.0808,
-				"boss_effective_hp": 4292.68,
+				"boss_capacity": 2.5314,
+				"line_capacity": 0.6547,
+				"line_expected_breach": 110.96,
+				"line_base_hp": 260.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.7893,
+					"boss": 0.2107
+				},
+				"boss_effective_hp": 4300.0,
 				"boss_weights": {
 					"boss_tank_titan": 1.0
 				},
@@ -667,12 +702,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.489202,
-					"ratio": 1.379937,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.714749,
+					"ratio": 1.379982,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"line"
+						"boss"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -796,11 +831,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 17,
-				"crowd_capacity": 2.4595,
+				"crowd_capacity": 3.0619,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.1277,
+				"line_capacity": 0.6701,
+				"line_expected_breach": 67.95,
+				"line_base_hp": 156.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -811,12 +853,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.552028,
-					"ratio": 1.379993,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.718027,
+					"ratio": 1.380021,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -959,11 +1001,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 19,
 				"crowd_capacity": 2.7783,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0027,
+				"line_capacity": 0.9665,
+				"line_expected_breach": 102.4,
+				"line_base_hp": 163.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1102,11 +1151,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 22,
 				"crowd_capacity": 3.2446,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0027,
+				"line_capacity": 1.181,
+				"line_expected_breach": 130.5,
+				"line_base_hp": 170.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1242,11 +1298,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 19,
 				"crowd_capacity": 3.4733,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0055,
+				"line_capacity": 0.6449,
+				"line_expected_breach": 74.2,
+				"line_base_hp": 177.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1299,6 +1362,14 @@
 		],
 		"wave_pattern": "pincer",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_tank_titan",
+				"interval": 2.2,
+				"lane": "left"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -1407,20 +1478,27 @@
 		"reward_gold_mult": 0.52,
 		"clear_requirement": {
 			"min_output": 1.5922,
-			"mob_hp_share": 0.8256,
-			"boss_hp_share": 0.1744,
+			"mob_hp_share": 0.8778,
+			"boss_hp_share": 0.1222,
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 24,
+				"model": "bottleneck_v4",
+				"recommended_power": 44,
 				"crowd_capacity": 3.7507,
 				"boss_capacity": 4.1807,
-				"line_capacity": 1.0134,
-				"boss_effective_hp": 13050.27,
+				"line_capacity": 0.7744,
+				"line_expected_breach": 162.09,
+				"line_base_hp": 322.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.8778,
+					"boss": 0.1222
+				},
+				"boss_effective_hp": 8600.0,
 				"boss_weights": {
 					"boss_tank_titan": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 1,
 				"corridor_calibration": {
@@ -1562,11 +1640,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 22,
 				"crowd_capacity": 4.0604,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0097,
+				"line_capacity": 0.6782,
+				"line_expected_breach": 84.2,
+				"line_base_hp": 191.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1713,11 +1798,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 24,
 				"crowd_capacity": 4.0655,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0097,
+				"line_capacity": 0.8102,
+				"line_expected_breach": 104.8,
+				"line_base_hp": 199.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1856,11 +1948,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 32,
 				"crowd_capacity": 5.0101,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0157,
+				"line_capacity": 1.0657,
+				"line_expected_breach": 142.7,
+				"line_base_hp": 206.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -1996,11 +2095,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 29,
 				"crowd_capacity": 5.9766,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0237,
+				"line_capacity": 0.6696,
+				"line_expected_breach": 92.7,
+				"line_base_hp": 213.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -2149,16 +2255,23 @@
 		"reward_gold_mult": 0.51,
 		"clear_requirement": {
 			"min_output": 2.0725,
-			"mob_hp_share": 0.8257,
-			"boss_hp_share": 0.1743,
+			"mob_hp_share": 0.8276,
+			"boss_hp_share": 0.1724,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 30,
 				"crowd_capacity": 5.9692,
 				"boss_capacity": 4.4903,
-				"line_capacity": 1.033,
-				"boss_effective_hp": 16861.8,
+				"line_capacity": 0.6937,
+				"line_expected_breach": 157.06,
+				"line_base_hp": 348.3333,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.8276,
+					"boss": 0.1724
+				},
+				"boss_effective_hp": 16640.0,
 				"boss_weights": {
 					"boss_inferno_maw": 1.0
 				},
@@ -2305,11 +2418,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 31,
 				"crowd_capacity": 6.387,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0237,
+				"line_capacity": 0.7238,
+				"line_expected_breach": 106.8,
+				"line_base_hp": 227.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -2450,11 +2570,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 35,
 				"crowd_capacity": 7.3704,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0343,
+				"line_capacity": 0.7229,
+				"line_expected_breach": 109.95,
+				"line_base_hp": 234.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -2594,11 +2721,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 32,
-				"crowd_capacity": 5.0843,
+				"crowd_capacity": 7.9223,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.6245,
+				"line_capacity": 0.4852,
+				"line_expected_breach": 76.0,
+				"line_base_hp": 241.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -2609,12 +2743,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.139948,
-					"ratio": 1.38,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.1503,
+					"ratio": 1.379999,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -2754,11 +2888,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 39,
 				"crowd_capacity": 7.9223,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0476,
+				"line_capacity": 0.7213,
+				"line_expected_breach": 116.75,
+				"line_base_hp": 249.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -2811,6 +2952,14 @@
 		],
 		"wave_pattern": "siege",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_inferno_maw",
+				"interval": 2.2,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -2907,20 +3056,27 @@
 		"reward_gold_mult": 0.49,
 		"clear_requirement": {
 			"min_output": 2.9167,
-			"mob_hp_share": 0.7001,
-			"boss_hp_share": 0.2999,
+			"mob_hp_share": 0.7726,
+			"boss_hp_share": 0.2274,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 41,
+				"model": "bottleneck_v4",
+				"recommended_power": 75,
 				"crowd_capacity": 6.9699,
 				"boss_capacity": 7.8005,
-				"line_capacity": 1.0662,
-				"boss_effective_hp": 48418.03,
+				"line_capacity": 0.7821,
+				"line_expected_breach": 184.37,
+				"line_base_hp": 362.6667,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.7726,
+					"boss": 0.2274
+				},
+				"boss_effective_hp": 33280.0,
 				"boss_weights": {
 					"boss_inferno_maw": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 1,
 				"corridor_calibration": {
@@ -3057,11 +3213,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 41,
 				"crowd_capacity": 9.5853,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0641,
+				"line_capacity": 0.5955,
+				"line_expected_breach": 101.8,
+				"line_base_hp": 263.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -3202,11 +3365,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 40,
-				"crowd_capacity": 6.714,
+				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.7476,
+				"line_capacity": 0.4442,
+				"line_expected_breach": 77.95,
+				"line_base_hp": 270.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -3217,12 +3387,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.224585,
-					"ratio": 1.379991,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.244608,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -3364,11 +3534,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 47,
 				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0841,
+				"line_capacity": 0.6368,
+				"line_expected_breach": 114.65,
+				"line_base_hp": 277.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -3512,11 +3689,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 44,
 				"crowd_capacity": 10.9205,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0841,
+				"line_capacity": 0.5618,
+				"line_expected_breach": 103.7,
+				"line_base_hp": 284.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -3659,16 +3843,23 @@
 		"reward_gold_mult": 0.47,
 		"clear_requirement": {
 			"min_output": 4.2047,
-			"mob_hp_share": 0.679,
-			"boss_hp_share": 0.321,
+			"mob_hp_share": 0.6777,
+			"boss_hp_share": 0.3223,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 57,
 				"crowd_capacity": 10.7511,
 				"boss_capacity": 12.346,
-				"line_capacity": 1.15,
-				"boss_effective_hp": 72380.84,
+				"line_capacity": 0.7023,
+				"line_expected_breach": 166.05,
+				"line_base_hp": 363.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.6777,
+					"boss": 0.3223
+				},
+				"boss_effective_hp": 72800.0,
 				"boss_weights": {
 					"boss_frost_warden": 1.0
 				},
@@ -3809,11 +4000,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 53,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.1361,
+				"line_capacity": 0.506,
+				"line_expected_breach": 98.35,
+				"line_base_hp": 299.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -3972,11 +4170,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 56,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.1361,
+				"line_capacity": 0.5681,
+				"line_expected_breach": 113.0,
+				"line_base_hp": 306.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -4122,11 +4327,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 50,
 				"crowd_capacity": 15.0815,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.1361,
+				"line_capacity": 0.4596,
+				"line_expected_breach": 93.5,
+				"line_base_hp": 313.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -4270,11 +4482,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 71,
 				"crowd_capacity": 19.6408,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.1688,
+				"line_capacity": 0.5834,
+				"line_expected_breach": 121.35,
+				"line_base_hp": 320.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -4327,6 +4546,14 @@
 		],
 		"wave_pattern": "rush",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_frost_warden",
+				"interval": 2.2,
+				"lane": "left"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -4417,20 +4644,27 @@
 		"reward_gold_mult": 0.45,
 		"clear_requirement": {
 			"min_output": 5.7926,
-			"mob_hp_share": 0.666,
-			"boss_hp_share": 0.334,
+			"mob_hp_share": 0.6071,
+			"boss_hp_share": 0.3929,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 85,
+				"model": "bottleneck_v4",
+				"recommended_power": 156,
 				"crowd_capacity": 26.8873,
 				"boss_capacity": 17.3369,
-				"line_capacity": 1.2867,
-				"boss_effective_hp": 112804.26,
+				"line_capacity": 0.659,
+				"line_expected_breach": 175.08,
+				"line_base_hp": 408.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.6071,
+					"boss": 0.3929
+				},
+				"boss_effective_hp": 145600.0,
 				"boss_weights": {
 					"boss_frost_warden": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 2,
 				"corridor_calibration": {
@@ -4585,11 +4819,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 78,
 				"crowd_capacity": 23.9217,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.2064,
+				"line_capacity": 0.5725,
+				"line_expected_breach": 124.3,
+				"line_base_hp": 334.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -4736,11 +4977,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 73,
-				"crowd_capacity": 16.8341,
+				"crowd_capacity": 29.0214,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.0069,
+				"line_capacity": 0.4453,
+				"line_expected_breach": 98.7,
+				"line_base_hp": 341.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -4751,12 +4999,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.295674,
-					"ratio": 1.37999,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.379074,
+					"ratio": 1.380001,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -4886,11 +5134,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 86,
 				"crowd_capacity": 29.5671,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.2494,
+				"line_capacity": 0.5294,
+				"line_expected_breach": 120.1,
+				"line_base_hp": 349.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5028,11 +5283,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 100,
 				"crowd_capacity": 36.4349,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.2981,
+				"line_capacity": 0.5564,
+				"line_expected_breach": 128.75,
+				"line_base_hp": 356.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5193,16 +5455,23 @@
 		"reward_gold_mult": 0.43,
 		"clear_requirement": {
 			"min_output": 8.2187,
-			"mob_hp_share": 0.7617,
-			"boss_hp_share": 0.2383,
+			"mob_hp_share": 0.7689,
+			"boss_hp_share": 0.2311,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 117,
 				"crowd_capacity": 36.4349,
 				"boss_capacity": 25.3877,
-				"line_capacity": 1.414,
-				"boss_effective_hp": 120234.71,
+				"line_capacity": 0.7593,
+				"line_expected_breach": 223.96,
+				"line_base_hp": 453.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.7689,
+					"boss": 0.2311
+				},
+				"boss_effective_hp": 115500.0,
 				"boss_weights": {
 					"boss_storm_caller": 1.0
 				},
@@ -5349,11 +5618,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 98,
 				"crowd_capacity": 38.3665,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.2981,
+				"line_capacity": 0.5324,
+				"line_expected_breach": 128.05,
+				"line_base_hp": 370.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5500,11 +5776,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 114,
 				"crowd_capacity": 40.6587,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.3528,
+				"line_capacity": 0.5923,
+				"line_expected_breach": 145.15,
+				"line_base_hp": 377.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5644,11 +5927,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 131,
 				"crowd_capacity": 41.0935,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.4141,
+				"line_capacity": 0.6633,
+				"line_expected_breach": 165.55,
+				"line_base_hp": 384.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5786,11 +6076,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 131,
 				"crowd_capacity": 45.2576,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.4141,
+				"line_capacity": 0.6372,
+				"line_expected_breach": 161.95,
+				"line_base_hp": 391.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -5843,6 +6140,14 @@
 		],
 		"wave_pattern": "escort",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_storm_caller",
+				"interval": 2.2,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -5939,20 +6244,27 @@
 		"reward_gold_mult": 0.42,
 		"clear_requirement": {
 			"min_output": 9.1165,
-			"mob_hp_share": 0.7909,
-			"boss_hp_share": 0.2091,
+			"mob_hp_share": 0.6469,
+			"boss_hp_share": 0.3531,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 129,
+				"model": "bottleneck_v4",
+				"recommended_power": 236,
 				"crowd_capacity": 45.2576,
 				"boss_capacity": 28.161,
-				"line_capacity": 1.5751,
-				"boss_effective_hp": 111923.04,
+				"line_capacity": 0.6377,
+				"line_expected_breach": 206.74,
+				"line_base_hp": 498.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.6469,
+					"boss": 0.3531
+				},
+				"boss_effective_hp": 231000.0,
 				"boss_weights": {
 					"boss_storm_caller": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 2,
 				"corridor_calibration": {
@@ -6095,11 +6407,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 147,
 				"crowd_capacity": 52.9199,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.4822,
+				"line_capacity": 0.6557,
+				"line_expected_breach": 173.05,
+				"line_base_hp": 406.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -6240,11 +6559,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 156,
 				"crowd_capacity": 55.719,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.5575,
+				"line_capacity": 0.6113,
+				"line_expected_breach": 164.1,
+				"line_base_hp": 413.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -6384,11 +6710,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 146,
 				"crowd_capacity": 50.5551,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.5575,
+				"line_capacity": 0.5647,
+				"line_expected_breach": 154.15,
+				"line_base_hp": 420.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -6544,11 +6877,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 184,
 				"crowd_capacity": 61.378,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.5575,
+				"line_capacity": 0.8004,
+				"line_expected_breach": 222.15,
+				"line_base_hp": 427.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -6697,16 +7037,23 @@
 		"reward_gold_mult": 0.4,
 		"clear_requirement": {
 			"min_output": 12.9216,
-			"mob_hp_share": 0.7428,
-			"boss_hp_share": 0.2572,
+			"mob_hp_share": 0.7475,
+			"boss_hp_share": 0.2525,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 180,
 				"crowd_capacity": 51.2016,
-				"boss_capacity": 41.7602,
-				"line_capacity": 2.5027,
-				"boss_effective_hp": 243498.29,
+				"boss_capacity": 55.34,
+				"line_capacity": 0.6345,
+				"line_expected_breach": 223.75,
+				"line_base_hp": 542.5,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.7475,
+					"boss": 0.2525
+				},
+				"boss_effective_hp": 237600.0,
 				"boss_weights": {
 					"boss_plague_mother": 1.0
 				},
@@ -6718,12 +7065,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.827883,
-					"ratio": 1.380023,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.828757,
+					"ratio": 1.380001,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"line"
+						"boss"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -6847,11 +7194,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 196,
 				"crowd_capacity": 82.5668,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.7314,
+				"line_capacity": 0.63,
+				"line_expected_breach": 180.6,
+				"line_base_hp": 441.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -6992,11 +7346,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 194,
 				"crowd_capacity": 82.0422,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.7314,
+				"line_capacity": 0.6135,
+				"line_expected_breach": 179.05,
+				"line_base_hp": 449.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7154,11 +7515,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 202,
 				"crowd_capacity": 75.4834,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.7314,
+				"line_capacity": 0.6959,
+				"line_expected_breach": 206.25,
+				"line_base_hp": 456.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7302,11 +7670,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 182,
-				"crowd_capacity": 48.883,
+				"crowd_capacity": 84.9856,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.0162,
+				"line_capacity": 0.4652,
+				"line_expected_breach": 140.0,
+				"line_base_hp": 463.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7317,12 +7692,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 2.273641,
-					"ratio": 1.379999,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.3992,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -7359,6 +7734,14 @@
 		],
 		"wave_pattern": "standard",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_plague_mother",
+				"interval": 2.2,
+				"lane": "left"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -7448,21 +7831,28 @@
 		},
 		"reward_gold_mult": 0.38,
 		"clear_requirement": {
-			"min_output": 21.4168,
-			"mob_hp_share": 0.7843,
-			"boss_hp_share": 0.2157,
+			"min_output": 21.4268,
+			"mob_hp_share": 0.6854,
+			"boss_hp_share": 0.3146,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 281,
-				"crowd_capacity": 86.7086,
-				"boss_capacity": 82.8554,
-				"line_capacity": 2.3039,
-				"boss_effective_hp": 284735.49,
+				"model": "bottleneck_v4",
+				"recommended_power": 515,
+				"crowd_capacity": 101.5879,
+				"boss_capacity": 70.7528,
+				"line_capacity": 0.8762,
+				"line_expected_breach": 334.6,
+				"line_base_hp": 587.5,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.6854,
+					"boss": 0.3146
+				},
+				"boss_effective_hp": 475200.0,
 				"boss_weights": {
 					"boss_plague_mother": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 2,
 				"corridor_calibration": {
@@ -7470,12 +7860,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.616809,
+					"raw_ratio": 1.616055,
 					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"boss"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -7599,11 +7989,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 234,
-				"crowd_capacity": 85.0482,
+				"crowd_capacity": 124.4998,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.7317,
+				"line_capacity": 0.6031,
+				"line_expected_breach": 187.0,
+				"line_base_hp": 477.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7614,12 +8011,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.944336,
-					"ratio": 1.379975,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.020145,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -7762,11 +8159,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 264,
 				"crowd_capacity": 90.0602,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.9388,
+				"line_capacity": 0.7991,
+				"line_expected_breach": 251.4,
+				"line_base_hp": 484.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7912,11 +8316,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 251,
-				"crowd_capacity": 92.8039,
+				"crowd_capacity": 137.2535,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.8101,
+				"line_capacity": 0.5859,
+				"line_expected_breach": 187.0,
+				"line_base_hp": 491.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -7927,12 +8338,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.886,
-					"ratio": 1.38002,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.040968,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -8060,11 +8471,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 289,
-				"crowd_capacity": 103.5044,
+				"crowd_capacity": 142.4396,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.8897,
+				"line_capacity": 0.6467,
+				"line_expected_breach": 209.75,
+				"line_base_hp": 499.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -8075,12 +8493,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.826677,
-					"ratio": 1.380011,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.899114,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -8206,17 +8624,24 @@
 		},
 		"reward_gold_mult": 0.36,
 		"clear_requirement": {
-			"min_output": 21.6458,
-			"mob_hp_share": 0.4182,
-			"boss_hp_share": 0.5818,
+			"min_output": 21.721,
+			"mob_hp_share": 0.4737,
+			"boss_hp_share": 0.5263,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 286,
-				"crowd_capacity": 102.1505,
-				"boss_capacity": 92.6574,
-				"line_capacity": 2.6431,
-				"boss_effective_hp": 2246802.51,
+				"crowd_capacity": 142.4396,
+				"boss_capacity": 66.68,
+				"line_capacity": 0.6522,
+				"line_expected_breach": 268.12,
+				"line_base_hp": 632.5,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.4737,
+					"boss": 0.5263
+				},
+				"boss_effective_hp": 1794940.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
@@ -8228,12 +8653,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.508765,
-					"ratio": 1.379999,
-					"raw_bottleneck": "line",
-					"bottleneck": "boss",
+					"raw_ratio": 1.917623,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"boss"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -8375,11 +8800,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 271,
 				"crowd_capacity": 108.3334,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.1831,
+				"line_capacity": 0.6019,
+				"line_expected_breach": 200.7,
+				"line_base_hp": 513.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -8526,11 +8958,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 318,
 				"crowd_capacity": 157.4314,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.3199,
+				"line_capacity": 0.6331,
+				"line_expected_breach": 214.0,
+				"line_base_hp": 520.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -8676,11 +9115,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 410,
 				"crowd_capacity": 182.3662,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.4672,
+				"line_capacity": 0.8594,
+				"line_expected_breach": 294.4,
+				"line_base_hp": 527.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -8818,11 +9264,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 425,
 				"crowd_capacity": 183.1456,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.4672,
+				"line_capacity": 0.9216,
+				"line_expected_breach": 319.9,
+				"line_base_hp": 534.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -8875,6 +9328,14 @@
 		],
 		"wave_pattern": "pincer",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 2.2,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -8982,21 +9443,28 @@
 		},
 		"reward_gold_mult": 0.34,
 		"clear_requirement": {
-			"min_output": 28.0215,
-			"mob_hp_share": 0.3404,
-			"boss_hp_share": 0.6596,
+			"min_output": 28.4288,
+			"mob_hp_share": 0.4151,
+			"boss_hp_share": 0.5849,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 366,
-				"crowd_capacity": 132.7547,
-				"boss_capacity": 132.5137,
-				"line_capacity": 3.0378,
-				"boss_effective_hp": 4936981.93,
+				"model": "bottleneck_v4",
+				"recommended_power": 678,
+				"crowd_capacity": 134.6843,
+				"boss_capacity": 110.6947,
+				"line_capacity": 0.7401,
+				"line_expected_breach": 325.31,
+				"line_base_hp": 676.25,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.4151,
+					"boss": 0.5849
+				},
+				"boss_effective_hp": 3589880.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
 				"corridor_calibration": {
@@ -9004,11 +9472,13 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.152777,
-					"ratio": 1.152777,
+					"raw_ratio": 1.585356,
+					"ratio": 1.380001,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
-					"adjusted_axes": [],
+					"adjusted_axes": [
+						"boss"
+					],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -9137,11 +9607,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 320,
-				"crowd_capacity": 112.1045,
+				"crowd_capacity": 186.2711,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.135,
+				"line_capacity": 0.4642,
+				"line_expected_breach": 165.65,
+				"line_base_hp": 549.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -9152,12 +9629,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.647942,
-					"ratio": 1.380013,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.292987,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -9288,11 +9765,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 425,
-				"crowd_capacity": 169.1822,
+				"crowd_capacity": 240.2196,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.219,
+				"line_capacity": 0.6779,
+				"line_expected_breach": 245.0,
+				"line_base_hp": 556.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -9303,12 +9787,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.589622,
-					"ratio": 1.379994,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.959444,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -9432,11 +9916,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 359,
-				"crowd_capacity": 118.1053,
+				"crowd_capacity": 199.9561,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.6579,
+				"line_capacity": 0.5187,
+				"line_expected_breach": 189.8,
+				"line_base_hp": 563.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -9447,12 +9938,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.806389,
-					"ratio": 1.380014,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.336385,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -9574,11 +10065,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 462,
 				"crowd_capacity": 225.5114,
 				"boss_capacity": 0.0,
-				"line_capacity": 2.7945,
+				"line_capacity": 0.7992,
+				"line_expected_breach": 296.1,
+				"line_base_hp": 570.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -9631,6 +10129,20 @@
 		],
 		"wave_pattern": "escort",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 1.8,
+				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 1.8,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -9726,21 +10238,28 @@
 		},
 		"reward_gold_mult": 0.33,
 		"clear_requirement": {
-			"min_output": 46.3406,
-			"mob_hp_share": 0.321,
-			"boss_hp_share": 0.679,
+			"min_output": 46.962,
+			"mob_hp_share": 0.381,
+			"boss_hp_share": 0.619,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 560,
-				"crowd_capacity": 219.5433,
-				"boss_capacity": 188.1981,
-				"line_capacity": 3.7435,
-				"boss_effective_hp": 7011584.46,
+				"model": "bottleneck_v4",
+				"recommended_power": 1447,
+				"crowd_capacity": 222.4873,
+				"boss_capacity": 157.9374,
+				"line_capacity": 1.0262,
+				"line_expected_breach": 481.08,
+				"line_base_hp": 721.25,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.381,
+					"boss": 0.619
+				},
+				"boss_effective_hp": 5384820.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 3.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
 				"corridor_calibration": {
@@ -9748,11 +10267,13 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.158107,
-					"ratio": 1.158107,
+					"raw_ratio": 1.507973,
+					"ratio": 1.38,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
-					"adjusted_axes": [],
+					"adjusted_axes": [
+						"boss"
+					],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -9881,11 +10402,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 548,
 				"crowd_capacity": 236.2661,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.1682,
+				"line_capacity": 0.8417,
+				"line_expected_breach": 319.5,
+				"line_base_hp": 584.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10026,11 +10554,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 438,
-				"crowd_capacity": 172.4643,
+				"crowd_capacity": 282.6332,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.3902,
+				"line_capacity": 0.5308,
+				"line_expected_breach": 203.9,
+				"line_base_hp": 591.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10041,12 +10576,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.476688,
-					"ratio": 1.37999,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.261534,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -10170,11 +10705,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 469,
-				"crowd_capacity": 176.181,
+				"crowd_capacity": 264.7576,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.3902,
+				"line_capacity": 0.605,
+				"line_expected_breach": 235.55,
+				"line_base_hp": 599.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10185,12 +10727,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.476688,
-					"ratio": 1.37999,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 2.073808,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -10330,11 +10872,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 552,
-				"crowd_capacity": 222.4627,
+				"crowd_capacity": 309.233,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.4774,
+				"line_capacity": 0.6703,
+				"line_expected_breach": 264.05,
+				"line_base_hp": 606.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10345,12 +10894,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.422549,
-					"ratio": 1.380004,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.918261,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",
@@ -10482,17 +11031,24 @@
 		},
 		"reward_gold_mult": 0.31,
 		"clear_requirement": {
-			"min_output": 57.5971,
-			"mob_hp_share": 0.174,
-			"boss_hp_share": 0.826,
+			"min_output": 57.9624,
+			"mob_hp_share": 0.2092,
+			"boss_hp_share": 0.7908,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 698,
-				"crowd_capacity": 292.568,
+				"model": "bottleneck_v4",
+				"recommended_power": 701,
+				"crowd_capacity": 294.4235,
 				"boss_capacity": 322.1351,
-				"line_capacity": 4.5992,
-				"boss_effective_hp": 21664310.15,
+				"line_capacity": 0.9405,
+				"line_expected_breach": 468.42,
+				"line_base_hp": 766.25,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.2092,
+					"boss": 0.7908
+				},
+				"boss_effective_hp": 17250000.0,
 				"boss_weights": {
 					"boss_necrotitan": 1.0
 				},
@@ -10504,7 +11060,7 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 0.56506,
+					"raw_ratio": 0.709659,
 					"ratio": 1.02,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -10632,11 +11188,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 718,
-				"crowd_capacity": 381.8145,
+				"crowd_capacity": 989.9124,
 				"boss_capacity": 0.0,
-				"line_capacity": 6.7815,
+				"line_capacity": 0.9484,
+				"line_expected_breach": 382.2,
+				"line_base_hp": 620.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10647,12 +11210,12 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 2.605788,
-					"ratio": 1.379993,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 3.577861,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "strongest_free",
@@ -10777,11 +11340,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 688,
-				"crowd_capacity": 413.6901,
+				"crowd_capacity": 1142.3589,
 				"boss_capacity": 0.0,
-				"line_capacity": 3.5914,
+				"line_capacity": 0.8643,
+				"line_expected_breach": 352.25,
+				"line_base_hp": 627.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10792,11 +11362,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.35501,
-					"ratio": 1.35501,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.810715,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -10937,11 +11509,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 671,
-				"crowd_capacity": 416.7193,
+				"crowd_capacity": 1224.6997,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.0629,
+				"line_capacity": 0.7571,
+				"line_expected_breach": 312.0,
+				"line_base_hp": 634.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -10952,12 +11531,12 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.466698,
-					"ratio": 1.379986,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 4.055693,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "strongest_free",
@@ -11085,11 +11664,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 666,
-				"crowd_capacity": 393.5102,
+				"crowd_capacity": 1291.612,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.0676,
+				"line_capacity": 0.6181,
+				"line_expected_breach": 257.55,
+				"line_base_hp": 641.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -11100,11 +11686,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.229592,
-					"ratio": 1.229592,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.529551,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -11140,6 +11728,14 @@
 		],
 		"wave_pattern": "standard",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_necrotitan",
+				"interval": 2.4,
+				"lane": "left"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -11229,21 +11825,28 @@
 		},
 		"reward_gold_mult": 0.29,
 		"clear_requirement": {
-			"min_output": 61.7393,
-			"mob_hp_share": 0.1584,
-			"boss_hp_share": 0.8416,
+			"min_output": 61.7779,
+			"mob_hp_share": 0.1499,
+			"boss_hp_share": 0.8501,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 744,
-				"crowd_capacity": 450.9043,
-				"boss_capacity": 867.3377,
-				"line_capacity": 5.2606,
-				"boss_effective_hp": 32313879.09,
+				"model": "bottleneck_v4",
+				"recommended_power": 1366,
+				"crowd_capacity": 451.1863,
+				"boss_capacity": 926.0154,
+				"line_capacity": 0.8114,
+				"line_expected_breach": 427.88,
+				"line_base_hp": 811.25,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.1499,
+					"boss": 0.8501
+				},
+				"boss_effective_hp": 34500000.0,
 				"boss_weights": {
 					"boss_necrotitan": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 4,
 				"corridor_calibration": {
@@ -11251,10 +11854,10 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 0.950745,
-					"ratio": 0.950745,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 1.076091,
+					"ratio": 1.076091,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [],
 					"fixture": {
 						"family": "strongest_free",
@@ -11378,11 +11981,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 761,
-				"crowd_capacity": 463.2098,
+				"crowd_capacity": 1291.612,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.0676,
+				"line_capacity": 0.7859,
+				"line_expected_breach": 335.1,
+				"line_base_hp": 656.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -11393,11 +12003,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.229592,
-					"ratio": 1.229592,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.847985,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -11539,11 +12151,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 812,
-				"crowd_capacity": 521.6327,
+				"crowd_capacity": 1382.2007,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.3266,
+				"line_capacity": 0.8138,
+				"line_expected_breach": 350.7,
+				"line_base_hp": 663.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -11554,11 +12173,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.331363,
-					"ratio": 1.331363,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.656667,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -11686,11 +12307,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 836,
-				"crowd_capacity": 450.8186,
+				"crowd_capacity": 1400.9145,
 				"boss_capacity": 0.0,
-				"line_capacity": 7.158,
+				"line_capacity": 0.7232,
+				"line_expected_breach": 314.95,
+				"line_base_hp": 670.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -11701,12 +12329,12 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 2.147407,
-					"ratio": 1.380004,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 4.288337,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "strongest_free",
@@ -11834,11 +12462,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 980,
-				"crowd_capacity": 624.9427,
+				"crowd_capacity": 1616.6553,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.9436,
+				"line_expected_breach": 415.25,
+				"line_base_hp": 677.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -11849,11 +12484,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.569902,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -11889,6 +12526,20 @@
 		],
 		"wave_pattern": "rush",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_necrotitan",
+				"interval": 2.2,
+				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_necrotitan",
+				"interval": 2.2,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -11978,21 +12629,28 @@
 		},
 		"reward_gold_mult": 0.27,
 		"clear_requirement": {
-			"min_output": 79.9039,
-			"mob_hp_share": 0.1236,
-			"boss_hp_share": 0.8764,
+			"min_output": 82.5088,
+			"mob_hp_share": 0.1247,
+			"boss_hp_share": 0.8753,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 926,
-				"crowd_capacity": 583.567,
+				"model": "bottleneck_v4",
+				"recommended_power": 2431,
+				"crowd_capacity": 602.5915,
 				"boss_capacity": 1285.8214,
-				"line_capacity": 5.2955,
-				"boss_effective_hp": 52256728.45,
+				"line_capacity": 0.9585,
+				"line_expected_breach": 532.69,
+				"line_base_hp": 855.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.1247,
+					"boss": 0.8753
+				},
+				"boss_effective_hp": 51750000.0,
 				"boss_weights": {
 					"boss_necrotitan": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 3.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 4,
 				"corridor_calibration": {
@@ -12000,13 +12658,12 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 0.856099,
-					"ratio": 0.969993,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 0.897931,
+					"ratio": 0.97,
+					"raw_bottleneck": "boss",
+					"bottleneck": "boss",
 					"adjusted_axes": [
-						"boss",
-						"line"
+						"boss"
 					],
 					"fixture": {
 						"family": "strongest_free",
@@ -12148,11 +12805,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 848,
-				"crowd_capacity": 666.9292,
+				"crowd_capacity": 2193.0306,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.6537,
+				"line_expected_breach": 293.6,
+				"line_base_hp": 691.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -12163,11 +12827,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.537786,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -12296,11 +12962,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 854,
-				"crowd_capacity": 681.8738,
+				"crowd_capacity": 2275.6252,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.6282,
+				"line_expected_breach": 285.4,
+				"line_base_hp": 699.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -12311,11 +12984,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.60549,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -12444,11 +13119,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1018,
-				"crowd_capacity": 834.246,
+				"crowd_capacity": 2260.7192,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.8497,
+				"line_expected_breach": 389.95,
+				"line_base_hp": 706.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -12459,11 +13141,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.739655,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -12584,11 +13268,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 836,
-				"crowd_capacity": 739.4437,
+				"crowd_capacity": 2456.2908,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.6324,
+				"line_expected_breach": 293.1,
+				"line_base_hp": 713.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -12599,11 +13290,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.268922,
-					"ratio": 1.268922,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.584097,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -12746,17 +13439,24 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 118.4067,
-			"mob_hp_share": 0.0945,
-			"boss_hp_share": 0.9055,
+			"min_output": 110.4292,
+			"mob_hp_share": 0.1035,
+			"boss_hp_share": 0.8965,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 1273,
-				"crowd_capacity": 1235.8073,
+				"model": "bottleneck_v4",
+				"recommended_power": 1203,
+				"crowd_capacity": 1152.5463,
 				"boss_capacity": 1909.0994,
-				"line_capacity": 6.0,
-				"boss_effective_hp": 103105179.84,
+				"line_capacity": 0.9086,
+				"line_expected_breach": 531.54,
+				"line_base_hp": 900.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.1035,
+					"boss": 0.8965
+				},
+				"boss_effective_hp": 93240000.0,
 				"boss_weights": {
 					"boss_apex_overlord": 1.0
 				},
@@ -12768,7 +13468,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 0.669146,
+					"raw_ratio": 0.739944,
 					"ratio": 0.97,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -12903,11 +13603,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1097,
-				"crowd_capacity": 913.6432,
+				"crowd_capacity": 2399.1384,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.8793,
+				"line_expected_breach": 415.5,
+				"line_base_hp": 727.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -12918,11 +13625,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.623746,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -13052,11 +13761,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1087,
-				"crowd_capacity": 1019.3132,
+				"crowd_capacity": 2606.6845,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.9201,
+				"line_expected_breach": 439.0,
+				"line_base_hp": 734.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13067,11 +13783,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.268922,
-					"ratio": 1.268922,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.529067,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -13194,11 +13912,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1021,
-				"crowd_capacity": 836.6321,
+				"crowd_capacity": 2399.1384,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.7555,
+				"line_expected_breach": 363.9,
+				"line_base_hp": 741.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13209,11 +13934,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.957308,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -13334,11 +14061,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1142,
-				"crowd_capacity": 971.4638,
+				"crowd_capacity": 2486.1542,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.9099,
+				"line_expected_breach": 443.0,
+				"line_base_hp": 749.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13349,11 +14083,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.531673,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -13389,6 +14125,14 @@
 		],
 		"wave_pattern": "escort",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_apex_overlord",
+				"interval": 2.6,
+				"lane": "left"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -13484,21 +14228,28 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 119.0465,
-			"mob_hp_share": 0.0948,
-			"boss_hp_share": 0.9052,
+			"min_output": 102.5963,
+			"mob_hp_share": 0.0615,
+			"boss_hp_share": 0.9385,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 1279,
-				"crowd_capacity": 1242.4848,
+				"model": "bottleneck_v4",
+				"recommended_power": 2075,
+				"crowd_capacity": 1070.7946,
 				"boss_capacity": 2083.0035,
-				"line_capacity": 6.0,
-				"boss_effective_hp": 116641902.53,
+				"line_capacity": 0.847,
+				"line_expected_breach": 520.27,
+				"line_base_hp": 945.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.0615,
+					"boss": 0.9385
+				},
+				"boss_effective_hp": 186480000.0,
 				"boss_weights": {
 					"boss_apex_overlord": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 4,
 				"corridor_calibration": {
@@ -13506,7 +14257,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 0.645369,
+					"raw_ratio": 0.403674,
 					"ratio": 0.97,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -13641,11 +14392,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 854,
-				"crowd_capacity": 759.5328,
+				"crowd_capacity": 2761.4854,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.517,
+				"line_expected_breach": 256.4,
+				"line_base_hp": 763.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13656,11 +14414,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.268922,
-					"ratio": 1.268922,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 5.01736,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -13784,11 +14544,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1127,
-				"crowd_capacity": 828.5109,
+				"crowd_capacity": 2202.4384,
 				"boss_capacity": 0.0,
-				"line_capacity": 7.158,
+				"line_capacity": 0.8444,
+				"line_expected_breach": 422.6,
+				"line_base_hp": 770.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13799,12 +14566,12 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 2.147407,
-					"ratio": 1.380004,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
+					"raw_ratio": 3.668467,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"line"
+						"crowd"
 					],
 					"fixture": {
 						"family": "strongest_free",
@@ -13928,11 +14695,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1115,
-				"crowd_capacity": 1017.1924,
+				"crowd_capacity": 2942.0674,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.7237,
+				"line_expected_breach": 365.5,
+				"line_base_hp": 777.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -13943,11 +14717,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.991431,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -14086,11 +14862,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1247,
-				"crowd_capacity": 1309.6829,
+				"crowd_capacity": 3272.0599,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.9207,
+				"line_expected_breach": 469.2,
+				"line_base_hp": 784.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -14101,11 +14884,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.268922,
-					"ratio": 1.268922,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 3.447737,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -14141,6 +14926,20 @@
 		],
 		"wave_pattern": "siege",
 		"variant": "boss",
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_apex_overlord",
+				"interval": 2.4,
+				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_apex_overlord",
+				"interval": 2.4,
+				"lane": "right"
+			}
+		],
 		"card_bias": {
 			"anti_swarm": 1.2,
 			"defense": 1.5,
@@ -14236,21 +15035,28 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 152.7573,
-			"mob_hp_share": 0.083,
-			"boss_hp_share": 0.917,
+			"min_output": 117.8739,
+			"mob_hp_share": 0.0563,
+			"boss_hp_share": 0.9437,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 1609,
-				"crowd_capacity": 1786.1244,
+				"model": "bottleneck_v4",
+				"recommended_power": 3325,
+				"crowd_capacity": 1378.2481,
 				"boss_capacity": 2468.1326,
-				"line_capacity": 6.0,
-				"boss_effective_hp": 184188740.18,
+				"line_capacity": 1.0445,
+				"line_expected_breach": 671.26,
+				"line_base_hp": 988.75,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.0563,
+					"boss": 0.9437
+				},
+				"boss_effective_hp": 279720000.0,
 				"boss_weights": {
 					"boss_apex_overlord": 1.0
 				},
-				"runtime_boss_pressure_mult": 1.0,
+				"runtime_boss_pressure_mult": 3.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 4,
 				"corridor_calibration": {
@@ -14258,7 +15064,7 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 0.484259,
+					"raw_ratio": 0.318873,
 					"ratio": 0.97,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
@@ -14387,11 +15193,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1094,
-				"crowd_capacity": 999.6955,
+				"crowd_capacity": 3021.6733,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.6648,
+				"line_expected_breach": 345.25,
+				"line_base_hp": 799.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -14402,11 +15215,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.171179,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -14530,11 +15345,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1043,
-				"crowd_capacity": 937.5009,
+				"crowd_capacity": 3109.2482,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.5618,
+				"line_expected_breach": 294.35,
+				"line_base_hp": 806.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -14545,11 +15367,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.116651,
-					"ratio": 1.116651,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.576809,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -14690,11 +15514,18 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v3",
+				"model": "bottleneck_v4",
 				"recommended_power": 1108,
-				"crowd_capacity": 1133.4947,
+				"crowd_capacity": 3455.3583,
 				"boss_capacity": 0.0,
-				"line_capacity": 4.6,
+				"line_capacity": 0.6435,
+				"line_expected_breach": 340.05,
+				"line_base_hp": 813.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 1.0,
+					"boss": 0.0
+				},
 				"boss_effective_hp": 0,
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
@@ -14705,11 +15536,13 @@
 						0.95,
 						1.4
 					],
-					"raw_ratio": 1.268922,
-					"ratio": 1.268922,
-					"raw_bottleneck": "line",
-					"bottleneck": "line",
-					"adjusted_axes": [],
+					"raw_ratio": 4.206808,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "strongest_free",
 						"character": "vanguard",
@@ -14748,9 +15581,21 @@
 		"runtime_bosses": [
 			{
 				"wave": 5,
-				"type": "boss_tank_titan",
+				"type": "boss_apex_overlord",
 				"interval": 2.4,
 				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_apex_overlord",
+				"interval": 2.4,
+				"lane": "right"
+			},
+			{
+				"wave": 5,
+				"type": "boss_apex_overlord",
+				"interval": 2.4,
+				"lane": "spread"
 			}
 		],
 		"guaranteed_card_offers": [
@@ -14857,22 +15702,28 @@
 		},
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
-			"min_output": 163.9535,
-			"mob_hp_share": 0.0703,
-			"boss_hp_share": 0.9297,
+			"min_output": 129.5269,
+			"mob_hp_share": 0.0654,
+			"boss_hp_share": 0.9346,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v3",
-				"recommended_power": 2340,
-				"crowd_capacity": 1711.1779,
-				"boss_capacity": 8981.3845,
-				"line_capacity": 6.0,
-				"boss_effective_hp": 334614055.13,
-				"boss_weights": {
-					"boss_apex_overlord": 0.711538,
-					"boss_tank_titan": 0.288462
+				"model": "bottleneck_v4",
+				"recommended_power": 4546,
+				"crowd_capacity": 1351.8685,
+				"boss_capacity": 10010.629,
+				"line_capacity": 1.0998,
+				"line_expected_breach": 732.71,
+				"line_base_hp": 1025.0,
+				"line_target_hp_ratio": 0.35,
+				"line_exposure_weights": {
+					"crowd": 0.0654,
+					"boss": 0.9346
 				},
-				"runtime_boss_pressure_mult": 1.405405,
+				"boss_effective_hp": 372960000.0,
+				"boss_weights": {
+					"boss_apex_overlord": 1.0
+				},
+				"runtime_boss_pressure_mult": 4.0,
 				"guaranteed_skill_ids": [
 					"skill_barrier",
 					"skill_slow_field"

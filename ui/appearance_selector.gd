@@ -144,16 +144,19 @@ func _header() -> HBoxContainer:
 	row.add_child(title)
 	var back := Button.new()
 	back.name = "HeaderBackButton"
-	back.text = _loc("角色总览", "All Heroes") if _return_to_global else "×"
 	back.focus_mode = Control.FOCUS_NONE
-	back.custom_minimum_size = Vector2(190 if _return_to_global else 88, 88)
 	back.add_theme_stylebox_override("normal", UiKit.map_pill_texture_style())
 	back.add_theme_stylebox_override("hover", UiKit.map_pill_texture_style())
 	back.add_theme_stylebox_override("pressed", UiKit.map_pill_texture_style())
-	back.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18 if _return_to_global else 30))
 	back.add_theme_color_override("font_color", Color.WHITE)
 	back.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.82))
 	back.add_theme_constant_override("outline_size", 3)
+	if _return_to_global:
+		back.text = _loc("角色总览", "All Heroes")
+		back.custom_minimum_size = Vector2(190, 88)
+		back.add_theme_font_size_override("font_size", UiKit.bumped_font_size(18))
+	else:
+		UiKit.apply_close_glyph(back)
 	back.pressed.connect(_back_or_close)
 	row.add_child(back)
 	return row

@@ -4,7 +4,8 @@
 校准锚点(不满足直接报错,禁止手改锚点凑数):
 1. 全 99 关:按节奏免费构筑族(ℓ=recommend_level)的输出 ≥ required_t
    ——战役设计保证按节奏玩家能通关
-2. level_099:required_t 落在满配免费构筑族输出的 [0.80, 1.02]——design/25"满配将将能过"
+2. level_099:完整多 Boss 合同下，最强免费满配有效战力 / 推荐保持在
+   [1.10, 1.22]——同型号固定耐久后，毕业压力由四只 Boss 的总合同定义
 3. level_013:Owner 实测 1★惨胜构筑(角色1级+雷霆四件套1级)输出落在 required_t 的 [0.95, 1.30]
 """
 from __future__ import annotations
@@ -56,11 +57,31 @@ def main() -> int:
         if on_pace_t < req["min_output"] * 0.999:
             failures.append(f"{level['id']}: on-pace t={on_pace_t:.3f} < required {req['min_output']:.3f}")
 
-    # 锚点2:终局"将将能过"——required_t(99) 贴近满配构筑族输出
+    # 锚点2:终局"将将能过"由完整 Boss 编队定义。固定单体耐久后，
+    # required_t 只校准主 Boss，不能再拿它冒充四只 Boss 的总压力。
     maxed_t = ctx.family_offense_t(characters, weapons, chips, prm.FAMILY_MAX_INDEX)
     req99 = requirements["level_099"]["min_output"]
-    if not (0.80 * maxed_t <= req99 <= 1.02 * maxed_t):
-        failures.append(f"level_099: required {req99:.3f} outside [0.80,1.02]x maxed family t={maxed_t:.3f}")
+    maxed_free_build = {
+        "character": "vanguard", "character_level": 40,
+        "weapon": "weapon_scattergun", "weapon_level": 50,
+        "armor": "armor_kevlar", "armor_level": 35,
+        "chip": "chip_attack", "chip_level": 35,
+        "pet": "pet_turret_drone", "pet_level": 30,
+        "signature_level": 5,
+        "skill_base_levels": {
+            skill_id: prm.skill_max_level(row) for skill_id, row in skills.items()
+        },
+    }
+    final_power = prm.power_for_build(
+        levels[-1], requirements["level_099"]["power_contract"], maxed_free_build,
+        characters, weapons, prm.load_table("armors"), chips, pets, skills,
+        bosses, economy,
+    )
+    final_ratio = float(final_power["power"]) / max(float(final_power["recommended"]), 1.0)
+    if not 1.10 <= final_ratio <= 1.22:
+        failures.append(
+            f"level_099: maxed free full-roster ratio {final_ratio:.4f} outside [1.10,1.22]"
+        )
 
     # 锚点3:Owner 实测惨胜构筑(雷霆四件套 L1,零技能)。
     # 已知模型边界:静态折算对低等级付费套偏乐观(连锁/过载/终端雷柱在低等级、
@@ -89,7 +110,10 @@ def main() -> int:
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
     print(f"Wrote clear_requirement for {len(levels)} levels")
     contract99 = requirements["level_099"]["power_contract"]
-    print(f"anchors: maxed_t={maxed_t:.3f} req99={req99:.3f} | thunder_t={thunder_t:.3f} req13={req13:.3f}")
+    print(
+        f"anchors: maxed_t={maxed_t:.3f} req99(primary)={req99:.3f} "
+        f"full-roster-R={final_ratio:.4f} | thunder_t={thunder_t:.3f} req13={req13:.3f}"
+    )
     print(
         "power contract 99: "
         f"recommended={contract99['recommended_power']} "

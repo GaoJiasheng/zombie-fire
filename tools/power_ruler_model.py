@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""单一战力口径 3.0 的 Python 镜像与通关线求解器。
+"""单一战力口径 4.0 的 Python 镜像与通关线求解器。
 
 玩家仍只看到一个“战力”，但内部不再把输出与生存做几何平均。每关先离线生成
 清群、Boss、防线三份容量合同；运行时按当前装备、永久技能等级与本关确定能拿到
-的卡牌预算计算三条比值，最终只取最短板：
+的卡牌预算计算三条比值，最终只取最短板。4.0 将防线门槛改为同一战斗模拟器
+估出的漏怪伤害与二星剩余血量边界，并只允许有限的清场速度修正：
 
     power = recommended_power * min(crowd_ratio, boss_ratio, line_ratio)
 
@@ -41,8 +42,9 @@ AFFINITY_SHATTER_CYCLE = 6.0
 DEFAULT_BOSS_DPS_PER_CAPACITY = 207.20
 DEFAULT_CROWD_DPS_PER_CAPACITY = 75.0
 DEFAULT_BOSS_CLEAR_WINDOW = 180.0
-DEFAULT_FINAL_LINE_CAPACITY = 6.0
-DEFAULT_LINE_CURVE_EXPONENT = 3.12
+DEFAULT_LINE_REQUIREMENT_FLOOR = 0.25
+DEFAULT_LINE_EXPOSURE_CREDIT_MIN = 0.85
+DEFAULT_LINE_EXPOSURE_CREDIT_MAX = 1.15
 ARMOR_BREAK_EFFECTIVE_FACTOR = 0.94
 
 # design/32 display-contract corridor. These bounds never feed battle damage,
@@ -632,12 +634,19 @@ def boss_element_factor(boss: dict, element: str, economy: dict) -> float:
     weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
     if str(boss.get("weakness", "")) == element:
         return weakness_mult
-    if element in boss.get("immune", []):
-        if str(boss.get("mechanic", "")) == "armor_break":
+    resistances = boss.get("resistances", {}) or {}
+    if element in resistances:
+        params = boss.get("mechanic_params", {}) or {}
+        if (str(boss.get("mechanic", "")) == "armor_break"
+                and bool(params.get("resistance_until_armor_break", False))):
             ruler = economy.get("power_ruler", {}) or {}
             return float(ruler.get("armor_break_effective_factor", ARMOR_BREAK_EFFECTIVE_FACTOR))
-        params = boss.get("mechanic_params", {}) or {}
-        return min(max(float(params.get("immune_damage_floor", 0.18)), 0.01), 1.0)
+        reduction = min(max(float(resistances.get(element, 0.0)), 0.0), 0.95)
+        return 1.0 - reduction
+    # Compatibility only: Boss validation rejects new hard-immunity rows, but
+    # a legacy input must still project non-zero damage just like the runtime.
+    if element in boss.get("immune", []):
+        return min(max(float(economy.get("resist_mult", 0.5)), 0.05), 1.0)
     return 1.0
 
 
@@ -648,10 +657,20 @@ def _boss_contract_profile(level: dict, bosses: dict, economy: dict, sim) -> tup
     for boss_id, hp in boss_hp_by_id.items():
         effective[boss_id] = float(hp) * boss_effective_hp_multiplier(bosses.get(boss_id, {}), economy)
     total = sum(effective.values())
-    primary_ids = {
-        str(wave["boss"]) for wave in level.get("waves", []) if "boss" in wave
-    }
-    primary = sum(value for boss_id, value in effective.items() if boss_id in primary_ids)
+    # Do not derive the primary amount by Boss id: authored reinforcement rows
+    # intentionally repeat the same model.  Grouping by id made four Apexes
+    # look like one primary Apex and hid the quantity pressure from the fixed
+    # recommendation.  Count only the actual wave-row primary entries here.
+    primary = 0.0
+    for wave in level.get("waves", []):
+        if "boss" not in wave:
+            continue
+        boss_id = str(wave["boss"])
+        boss_row = bosses.get(boss_id, {})
+        primary += (
+            sim.boss_hp_for_entry(level, boss_row, economy, sim.wave_number(wave))
+            * boss_effective_hp_multiplier(boss_row, economy)
+        )
     weights = {
         boss_id: value / max(total, 1.0) for boss_id, value in effective.items()
     }
@@ -666,6 +685,34 @@ def weighted_boss_element_factor(weights: dict[str, float], bosses: dict,
         float(weight) * boss_element_factor(bosses.get(boss_id, {}), element, economy)
         for boss_id, weight in weights.items()
     )
+
+
+def line_exposure_credit(crowd_ratio: float, boss_ratio: float,
+                         contract: dict, economy: dict) -> float:
+    """Bounded TTK credit applied to the defence-line ratio.
+
+    The offline leak model already represents a normal on-pace fight. Faster
+    clearing therefore earns only a small contact-time credit, while an
+    underpowered offence receives the symmetric penalty. This prevents the old
+    failure mode where a high-output build was forever capped by a stage-level
+    line curve that did not know whether enemies ever reached the base.
+    """
+    weights = contract.get("line_exposure_weights", {}) or {}
+    crowd_weight = min(max(float(weights.get("crowd", 1.0)), 0.0), 1.0)
+    boss_weight = min(max(float(weights.get("boss", 0.0)), 0.0), 1.0)
+    total = crowd_weight + boss_weight
+    if total <= 0.0:
+        crowd_weight, boss_weight, total = 1.0, 0.0, 1.0
+    crowd_weight /= total
+    boss_weight /= total
+    pressure = crowd_weight / max(float(crowd_ratio), 0.35)
+    pressure += boss_weight / max(float(boss_ratio), 0.35)
+    ruler = economy.get("power_ruler", {}) or {}
+    lower = min(max(float(ruler.get(
+        "line_exposure_credit_min", DEFAULT_LINE_EXPOSURE_CREDIT_MIN)), 0.5), 1.0)
+    upper = max(float(ruler.get(
+        "line_exposure_credit_max", DEFAULT_LINE_EXPOSURE_CREDIT_MAX)), 1.0)
+    return min(max(pressure ** -0.5, lower), upper)
 
 
 def build_power_contract(level: dict, requirement: dict, characters: dict,
@@ -702,13 +749,26 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     runtime_boss_required = boss_effective_hp / boss_window / boss_dps_per_capacity
     boss_required = max(reference_boss, runtime_boss_required) if boss_weights else 0.0
 
-    final_line = max(float(ruler.get("final_line_capacity", DEFAULT_FINAL_LINE_CAPACITY)), 1.0)
-    line_exponent = max(float(ruler.get("line_curve_exponent", DEFAULT_LINE_CURVE_EXPONENT)), 0.25)
-    progression = min(max(float(recommend_level) / 40.0, 0.0), 1.0)
-    line_pressure = (final_line - 1.0) * (progression ** line_exponent)
-    if not boss_weights:
-        line_pressure *= min(max(float(ruler.get("non_boss_line_pressure_mult", 0.72)), 0.1), 1.0)
-    line_required = 1.0 + line_pressure
+    # v4 defence line: derive the requirement from the same per-wave breach
+    # damage estimator and star thresholds used by simulate_balance instead of
+    # an unrelated recommend-level cubic. R=1 on this axis means the build has
+    # enough effective base HP to finish at the two-star survival boundary.
+    expected_breach = max(float(sim.leak_damage(
+        level, load_table("zombies"), bosses, economy, bool(boss_weights))), 0.0)
+    base_hp_cushion = (
+        float(sim.boss_base_hp_cushion(economy, campaign_ordinal(level)))
+        if boss_weights else 1.0
+    )
+    base_line_hp = max(float(level.get("base_hp_ref", 100.0)) * base_hp_cushion, 1.0)
+    star_thresholds = economy.get("star_thresholds", {}) or {}
+    target_hp_ratio = min(max(float(star_thresholds.get("two_star_hp_ratio", 0.35)), 0.0), 0.95)
+    damage_budget = max(1.0 - target_hp_ratio, 0.05)
+    line_floor = max(float(ruler.get(
+        "line_requirement_floor", DEFAULT_LINE_REQUIREMENT_FLOOR)), 0.05)
+    line_required = max(expected_breach / (base_line_hp * damage_budget), line_floor)
+    mob_share = max(float(requirement.get("mob_hp_share", 1.0)), 0.0)
+    boss_share = max(float(requirement.get("boss_hp_share", 0.0)), 0.0)
+    share_total = max(mob_share + boss_share, 0.000001)
 
     base_recommended = recommended_power(
         required_t, card_picks, recommend_level, characters, weapons, skills, weakness)
@@ -723,11 +783,18 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     fixed_recommended = int(round(
         base_recommended * (omitted_boss_mult ** OFFENSE_WEIGHT) * runtime_calibration))
     contract = {
-        "model": "bottleneck_v3",
+        "model": "bottleneck_v4",
         "recommended_power": max(fixed_recommended, 1),
         "crowd_capacity": round(crowd_required, 4),
         "boss_capacity": round(boss_required, 4),
         "line_capacity": round(line_required, 4),
+        "line_expected_breach": round(expected_breach, 4),
+        "line_base_hp": round(base_line_hp, 4),
+        "line_target_hp_ratio": round(target_hp_ratio, 4),
+        "line_exposure_weights": {
+            "crowd": round(mob_share / share_total, 6),
+            "boss": round(boss_share / share_total, 6),
+        },
         "boss_effective_hp": round(boss_effective_hp, 2),
         "boss_weights": {key: round(value, 6) for key, value in boss_weights.items()},
         "runtime_boss_pressure_mult": round(omitted_boss_mult, 6),
@@ -787,13 +854,17 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         if growth_rank(character_level) >= 2:
             line_capacity /= 0.88
 
-    ratios = {
-        "crowd": crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01),
-        "boss": (
+    crowd_ratio = crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01)
+    boss_ratio = (
             boss_capacity / max(float(contract.get("boss_capacity", 1.0)), 0.01)
             if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
-        ),
-        "line": line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01),
+        )
+    raw_line_ratio = line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01)
+    exposure_credit = line_exposure_credit(crowd_ratio, boss_ratio, contract, economy)
+    ratios = {
+        "crowd": crowd_ratio,
+        "boss": boss_ratio,
+        "line": raw_line_ratio * exposure_credit,
     }
     bottleneck = min(ratios.values())
     power = int(round(float(contract.get("recommended_power", 1)) * bottleneck))
@@ -808,6 +879,8 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
             "boss": boss_capacity,
             "line": line_capacity,
         },
+        "line_raw_ratio": raw_line_ratio,
+        "line_exposure_credit": exposure_credit,
     }
 
 
@@ -890,7 +963,6 @@ def calibrate_power_contract_corridor(level: dict, contract: dict,
         skills, bosses, economy)
     raw_ratios = dict(raw["ratios"])
     raw_ratio = min(raw_ratios.values())
-    capacities = dict(raw["capacities"])
     adjusted_axes: list[str] = []
 
     if raw_ratio < lower:
@@ -901,7 +973,10 @@ def calibrate_power_contract_corridor(level: dict, contract: dict,
                 continue
             if float(raw_ratios[axis]) >= target:
                 continue
-            contract[key] = round(float(capacities[axis]) / target, 4)
+            contract[key] = round(
+                float(contract.get(key, 1.0)) * float(raw_ratios[axis]) / target,
+                4,
+            )
             adjusted_axes.append(axis)
     elif raw_ratio > upper:
         target = upper - CORRIDOR_MARGIN
@@ -914,7 +989,11 @@ def calibrate_power_contract_corridor(level: dict, contract: dict,
             if axis != "boss" or float(contract.get("boss_capacity", 0.0)) > 0.0
         ]
         axis = min(candidates, key=lambda name: float(raw_ratios[name]))
-        contract[f"{axis}_capacity"] = round(float(capacities[axis]) / target, 4)
+        key = f"{axis}_capacity"
+        contract[key] = round(
+            float(contract.get(key, 1.0)) * float(raw_ratios[axis]) / target,
+            4,
+        )
         adjusted_axes.append(axis)
 
     calibrated = power_for_build(

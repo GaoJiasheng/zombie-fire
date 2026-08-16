@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Guard the level-50+ ramp plus both finale Boss audit scopes.
+"""Guard the level-50+ crowd ramp plus fixed-identity Boss rosters.
 
-The Apex single-phase matrix preserves the design/25 116.6-second contract.
-The complete level-99 matrix reads the authored primary/runtime Boss roster and
-the generated power contract's mechanic-adjusted effective HP.
+Every Boss model owns one stable total durability in bosses.json. Campaign
+pressure rises through explicit reinforcement rows, not hidden per-stage Boss
+HP multipliers. The complete level-99 matrix reads that authored roster and the
+generated power contract's mechanic-adjusted effective HP.
 
 All three physical finale builds use a checked-in Godot runtime benchmark
 produced by ``res://tools/audit_physical_endgame_runtime.gd``. Scatter pellets,
@@ -30,8 +31,8 @@ MAXED_PHYSICAL_WEAPONS = (
     "weapon_scattergun",
 )
 RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
-DOUBLE_BOSS_FASTEST_MIN_SECONDS = 150.0
-DOUBLE_BOSS_FASTEST_MAX_SECONDS = 185.0
+FULL_ROSTER_FASTEST_MIN_SECONDS = 175.0
+FULL_ROSTER_FASTEST_MAX_SECONDS = 190.0
 FINALE_PHASE_CAP_SECONDS = 460.0
 
 
@@ -67,6 +68,7 @@ def estimated_mismatched_finale_seconds(
     characters: dict,
     weapons: dict,
     bosses: dict,
+    economy: dict,
     weapon_id: str,
     weapon_level: int,
     modern_dps_scale: float,
@@ -83,13 +85,14 @@ def estimated_mismatched_finale_seconds(
         skill_mult,
     ) * modern_dps_scale
     raw_dps /= 1.18
-    floor = float(bosses[FINAL_BOSS_ID].get("mechanic_params", {}).get("immune_damage_floor", 0.18))
+    boss_damage_factor = power_ruler.boss_element_factor(
+        bosses[FINAL_BOSS_ID], str(weapon.get("element", "physical")), economy)
     special = weapon.get("special", {})
     pellets = max(1, int(special.get("pellets", 1)))
     crowd_mult = 1.0 + 0.18 * float(special.get("pierce", 0))
     if pellets > 1:
         crowd_mult *= 1.0 + float(pellets - 1) * 0.62
-    return mob_hp / max(raw_dps * crowd_mult, 1.0) + boss_hp / max(raw_dps * floor, 1.0)
+    return mob_hp / max(raw_dps * crowd_mult, 1.0) + boss_hp / max(raw_dps * boss_damage_factor, 1.0)
 
 
 def main() -> int:
@@ -98,6 +101,9 @@ def main() -> int:
     bosses = load("bosses")
     characters = load("characters")
     weapons = load("weapons")
+    armors = load("armors")
+    chips = load("chips")
+    pets = load("pets")
     skills = load("skills")
     economy = load("economy")
     runtime_benchmark = load_runtime_benchmark()
@@ -114,15 +120,12 @@ def main() -> int:
     hp_curve = [balance.late_wave_level_ramp(economy, level_no) for level_no in checkpoints]
     damage_curve = [balance.late_wave_damage_ramp(economy, level_no, 3) for level_no in checkpoints]
     count_curve = [balance.late_wave_count_level_ramp(economy, level_no, 3) for level_no in checkpoints]
-    boss_curve = [balance.boss_survival_hp_ramp(economy, level_no) for level_no in checkpoints]
     if any(b <= a for a, b in zip(hp_curve, hp_curve[1:])):
         errors.append(f"level-50+ HP ramp must rise strictly: {hp_curve}")
     if any(abs(value - 1.0) > 1e-6 for value in damage_curve):
         errors.append(f"late-game attack ramp must stay disabled at 1.0x: {damage_curve}")
     if any(b < a for a, b in zip(count_curve, count_curve[1:])):
         errors.append(f"level-50+ crowd count ramp must not regress: {count_curve}")
-    if any(b < a for a, b in zip(boss_curve, boss_curve[1:])):
-        errors.append(f"level-50+ boss survival ramp must not regress: {boss_curve}")
     pre_final_levels = range(50, 99)
     pre_final_hp = [balance.late_wave_level_ramp(economy, level_no) for level_no in pre_final_levels]
     hp_steps = [b - a for a, b in zip(pre_final_hp, pre_final_hp[1:])]
@@ -134,10 +137,9 @@ def main() -> int:
         errors.append(f"level-99 late-wave HP ramp must reach 2.296x, got {hp_curve[-1]:.3f}")
     if abs(count_curve[-1] - 1.35) > 1e-6:
         errors.append(f"level-99 crowd count ramp must reach 1.35x, got {count_curve[-1]:.3f}")
-    if abs(balance.boss_survival_hp_ramp(economy, 98) - 56.0) > 1e-6:
-        errors.append("level-98 boss survival ramp must reach 56.0x")
-    if abs(boss_curve[-1] - 60.48) > 1e-6:
-        errors.append(f"level-99 boss survival ramp must reach 60.48x, got {boss_curve[-1]:.3f}")
+    for boss_id, boss in bosses.items():
+        if float(boss.get("fixed_hp", 0.0)) <= 0.0:
+            errors.append(f"{boss_id} must own positive fixed_hp")
     required_skills = {
         "skill_split_shot",
         "skill_pierce",
@@ -163,7 +165,7 @@ def main() -> int:
     )
     modern_dps_scale = modern_reference_dps / max(legacy_reference_dps, 1.0)
 
-    boss_windows: list[tuple[int, float, float, int]] = []
+    boss_windows: list[tuple[int, int, float, float, int]] = []
     apex = bosses[FINAL_BOSS_ID]
     apex_speed = (
         float(apex.get("speed", 22.5))
@@ -177,19 +179,27 @@ def main() -> int:
     counter_dps = max(float(row["boss_dps"]) for row in runtime_builds.values())
     # Apex takes full damage above 67%, then 0.90x and 0.82x in phases 2/3.
     phase_time_weight = 0.33 + 0.33 / 0.90 + 0.34 / 0.82
-    for level_no in (90, 95, 99):
+    for level_no in (85, 90, 95, 99):
         level = by_id[f"level_{level_no:03d}"]
         _, checkpoint_bosses, _ = balance.level_enemy_hp_profile(level, zombies, bosses, economy)
         checkpoint_boss_hp = float(checkpoint_bosses.get(FINAL_BOSS_ID, 0.0))
-        ttk = checkpoint_boss_hp / max(counter_dps, 1.0) * phase_time_weight
+        boss_count = sum(
+            1 for wave in level.get("waves", [])
+            for entry in balance.runtime_boss_entries(level, wave)
+            if entry.get("type") == FINAL_BOSS_ID
+        )
+        per_copy_hp = checkpoint_boss_hp / max(boss_count, 1)
+        ttk = per_copy_hp / max(counter_dps, 1.0) * phase_time_weight
         casts = max(0, 1 + int((ttk - first_skill_seconds) // 4.8)) if ttk >= first_skill_seconds else 0
-        boss_windows.append((level_no, checkpoint_boss_hp, ttk, casts))
-    if boss_windows[0][2] < 50.0 or boss_windows[0][3] < 8:
-        errors.append(f"level-90 Apex must survive for at least 50s / 8 skill windows: {boss_windows[0]}")
-    if boss_windows[-1][2] < 105.0 or boss_windows[-1][3] < 18:
-        errors.append(f"level-99 Apex must survive for at least 105s / 18 skill windows: {boss_windows[-1]}")
-    if boss_windows[-1][2] > 125.0:
-        errors.append(f"level-99 fastest counter-build TTK must stay below 125s: {boss_windows[-1][2]:.1f}s")
+        boss_windows.append((level_no, boss_count, per_copy_hp, ttk, casts))
+    expected_counts = [1, 2, 3, 4]
+    if [row[1] for row in boss_windows] != expected_counts:
+        errors.append(f"Apex campaign roster must rise 1/2/3/4: {boss_windows}")
+    per_copy_values = [row[2] for row in boss_windows]
+    if max(per_copy_values) - min(per_copy_values) > 1e-6:
+        errors.append(f"the same Apex model must keep identical per-copy HP: {per_copy_values}")
+    if not 42.0 <= boss_windows[0][3] <= 50.0 or boss_windows[0][4] < 6:
+        errors.append(f"one Apex must preserve a readable multi-phase window: {boss_windows[0]}")
 
     # Complete runtime encounter: primary Apex + every levels.json runtime Boss,
     # using the power contract's mechanic-adjusted combined effective HP.
@@ -210,18 +220,18 @@ def main() -> int:
             f"level_099 authored Bosses {sorted(authored_boss_ids)} must match "
             f"power-contract weights {sorted(contract_boss_ids)}")
 
-    double_boss_rows: list[tuple[str, float, bool]] = []
+    full_roster_rows: list[tuple[str, float, bool]] = []
     for weapon_id in MAXED_PHYSICAL_WEAPONS:
         seconds = runtime_finale_seconds(mob_hp, boss_effective_hp, weapon_id, runtime_builds)
-        double_boss_rows.append((weapon_id, seconds, seconds <= FINALE_PHASE_CAP_SECONDS))
-    fastest_weapon, fastest_seconds, _ = min(double_boss_rows, key=lambda row: row[1])
+        full_roster_rows.append((weapon_id, seconds, seconds <= FINALE_PHASE_CAP_SECONDS))
+    fastest_weapon, fastest_seconds, _ = min(full_roster_rows, key=lambda row: row[1])
     if fastest_weapon != "weapon_scattergun":
         errors.append(
             f"graduation family must remain scattergun, got fastest={fastest_weapon}")
-    if not DOUBLE_BOSS_FASTEST_MIN_SECONDS <= fastest_seconds <= DOUBLE_BOSS_FASTEST_MAX_SECONDS:
+    if not FULL_ROSTER_FASTEST_MIN_SECONDS <= fastest_seconds <= FULL_ROSTER_FASTEST_MAX_SECONDS:
         errors.append(
-            "strongest free max build must clear the complete double-Boss encounter "
-            f"inside [{DOUBLE_BOSS_FASTEST_MIN_SECONDS:.0f},{DOUBLE_BOSS_FASTEST_MAX_SECONDS:.0f}]s, "
+            "strongest free max build must clear the complete four-Boss encounter "
+            f"inside [{FULL_ROSTER_FASTEST_MIN_SECONDS:.0f},{FULL_ROSTER_FASTEST_MAX_SECONDS:.0f}]s, "
             f"got {fastest_weapon}={fastest_seconds:.1f}s")
 
     observed_like_seconds = estimated_mismatched_finale_seconds(
@@ -231,6 +241,7 @@ def main() -> int:
         characters,
         weapons,
         bosses,
+        economy,
         "weapon_plasmacannon",
         41,
         modern_dps_scale,
@@ -241,48 +252,62 @@ def main() -> int:
             f"estimated {observed_like_seconds:.1f}s"
         )
 
-    final_recommended = int(
-        finale.get("clear_requirement", {}).get("power_contract", {}).get("recommended_power", 0))
-    if not 2330 <= final_recommended <= 2350:
+    final_contract = finale.get("clear_requirement", {}).get("power_contract", {})
+    final_recommended = int(final_contract.get("recommended_power", 0))
+    all_max_skills = {
+        skill_id: power_ruler.skill_max_level(row) for skill_id, row in skills.items()
+    }
+    finale_build = {
+        "character": "vanguard", "character_level": 40,
+        "weapon": "weapon_scattergun", "weapon_level": 50,
+        "armor": "armor_kevlar", "armor_level": 35,
+        "chip": "chip_attack", "chip_level": 35,
+        "pet": "pet_turret_drone", "pet_level": 30,
+        "signature_level": 5, "skill_base_levels": all_max_skills,
+    }
+    finale_power = power_ruler.power_for_build(
+        finale, final_contract, finale_build, characters, weapons,
+        armors, chips, pets, skills, bosses, economy)
+    finale_ratio = min(float(value) for value in finale_power["ratios"].values())
+    if not 1.15 <= finale_ratio <= 1.19:
         errors.append(
-            "final fixed recommendation must stay on the regenerated v3 corridor scale "
-            f"near 2340, got {final_recommended}")
+            "max free graduation build must remain modestly above the level-99 line, "
+            f"got R={finale_ratio:.4f}")
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)
-    if contract_reference_seconds is None or not 350.0 <= contract_reference_seconds <= 380.0:
+    if contract_reference_seconds is None or not 400.0 <= contract_reference_seconds <= 425.0:
         errors.append(
             "level-99 equal-recommendation display contract should remain within the authored "
-            f"460s phase cap, expected [350,380]s after corridor calibration, got {contract_reference_seconds}"
+            f"460s phase cap, expected [400,425]s, got {contract_reference_seconds}"
         )
 
     print("Endgame balance matrix")
     print("  HP ramp:     " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, hp_curve)))
     print("  damage ramp: " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, damage_curve)))
     print("  count ramp:  " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, count_curve)))
-    print("  boss HP:     " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, boss_curve)))
     _, finale_bosses, _ = balance.level_enemy_hp_profile(finale, zombies, bosses, economy)
     boss_detail = ", ".join(f"{boss_id}={hp / 1_000_000:.2f}M" for boss_id, hp in finale_bosses.items())
     print(f"  level_099 HP: mobs={mob_hp / 1_000_000:.2f}M bosses={boss_hp / 1_000_000:.2f}M ({boss_detail})")
     print(f"  modern DPS calibration: {modern_dps_scale:.3f}x (vanguard rail={modern_reference_dps:.0f})")
     print("  physical throughput: Godot runtime benchmark (all 8 max offensive skills)")
-    print("  Apex single-phase audit (design/25 116.6s contract)")
-    for level_no, checkpoint_boss_hp, ttk, casts in boss_windows:
-        print(f"    Apex L{level_no}: hp={checkpoint_boss_hp / 1_000_000:.2f}M counter-TTK={ttk:.1f}s skill-windows={casts}")
+    print("  Apex fixed-identity audit (same per-copy HP; pressure by quantity)")
+    for level_no, boss_count, per_copy_hp, ttk, casts in boss_windows:
+        print(f"    Apex L{level_no}: count={boss_count} each={per_copy_hp / 1_000_000:.2f}M counter-TTK={ttk:.1f}s skill-windows={casts}")
     print(
-        "  Double-Boss full-encounter audit "
+        "  Four-Boss full-encounter audit "
         f"(authored={','.join(sorted(authored_boss_ids))}; "
         f"effective={boss_effective_hp / 1_000_000:.2f}M; cap={FINALE_PHASE_CAP_SECONDS:.0f}s)")
-    for weapon_id, seconds, within_cap in double_boss_rows:
+    for weapon_id, seconds, within_cap in full_roster_rows:
         status = "within cap" if within_cap else "over cap"
         graduation = "; graduation family" if weapon_id == "weapon_scattergun" else ""
         print(f"    {weapon_id}: {seconds:.1f}s ({status}{graduation})")
-    autocannon_seconds = next(row[1] for row in double_boss_rows if row[0] == "weapon_autocannon")
+    autocannon_seconds = next(row[1] for row in full_roster_rows if row[0] == "weapon_autocannon")
     if autocannon_seconds > FINALE_PHASE_CAP_SECONDS:
         print("    decision: autocannon exceeds cap; graduation build = scattergun family")
     else:
         print("    decision: graduation build = scattergun family; autocannon remains inside cap")
     print(f"  mismatched plasma L41 estimated={observed_like_seconds:.1f}s")
-    print(f"  level_099 recommended power={final_recommended}")
+    print(f"  level_099 power={finale_power['power']} recommended={final_recommended} R={finale_ratio:.4f}")
     contract_seconds_text = (
         f"{contract_reference_seconds:.1f}s"
         if contract_reference_seconds is not None else "missing"

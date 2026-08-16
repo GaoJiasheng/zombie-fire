@@ -3,19 +3,21 @@
 		"name_key": "boss_tank_titan",
 		"appear_level": 5,
 		"hp_coef": 36,
+		"fixed_hp": 4300,
 		"speed": 21.0,
 		"bd_coef": 4.0,
 		"gold_coef": 8,
 		"run_xp": 25,
 		"phases": 1,
-		"immune": [
-			"physical"
-		],
+		"armor_hp_ratio": 0.3,
+		"resistances": {
+			"physical": 0.5
+		},
 		"weakness": "fire",
-		"counter_hint": "连续命中击破装甲，破甲后立刻用火焰与主动技能集火。",
+		"counter_hint": "无穿透时先击破装甲，伤害穿透可越过装甲直击本体；破甲后用火焰集火。",
 		"mechanic": "armor_break",
 		"mechanic_params": {
-			"armor_hits": 30,
+			"resistance_until_armor_break": true,
 			"base_attack_kind": "boss_titan_ram_slam",
 			"base_attack_profile": {
 				"id": "titan_ram_slam",
@@ -41,14 +43,15 @@
 		"name_key": "boss_inferno_maw",
 		"appear_level": 15,
 		"hp_coef": 44,
+		"fixed_hp": 16000,
 		"speed": 24.0,
 		"bd_coef": 5.0,
 		"gold_coef": 9.5,
 		"run_xp": 32,
 		"phases": 2,
-		"immune": [
-			"fire"
-		],
+		"resistances": {
+			"fire": 0.5
+		},
 		"weakness": "ice",
 		"counter_hint": "冰霜克制熔火，保留控制与爆发跨过狂暴阈值。",
 		"phase_cues": [
@@ -81,14 +84,15 @@
 		"name_key": "boss_frost_warden",
 		"appear_level": 25,
 		"hp_coef": 48,
+		"fixed_hp": 70000,
 		"speed": 20.0,
 		"bd_coef": 5.333333333333333,
 		"gold_coef": 10.5,
 		"run_xp": 37,
 		"phases": 2,
-		"immune": [
-			"ice"
-		],
+		"resistances": {
+			"ice": 0.5
+		},
 		"weakness": "fire",
 		"counter_hint": "用火焰压制寒潮，阶段转换时主动技能清掉近线敌群。",
 		"phase_cues": [
@@ -121,14 +125,15 @@
 		"name_key": "boss_storm_caller",
 		"appear_level": 35,
 		"hp_coef": 42,
+		"fixed_hp": 110000,
 		"speed": 28.0,
 		"bd_coef": 5.666666666666667,
 		"gold_coef": 11.5,
 		"run_xp": 42,
 		"phases": 2,
-		"immune": [
-			"lightning"
-		],
+		"resistances": {
+			"lightning": 0.5
+		},
 		"weakness": "poison",
 		"counter_hint": "毒素可克制雷暴本体，先清支援单位以切断连锁增幅。",
 		"phase_cues": [
@@ -170,14 +175,15 @@
 		"name_key": "boss_plague_mother",
 		"appear_level": 45,
 		"hp_coef": 52,
+		"fixed_hp": 220000,
 		"speed": 18.0,
 		"bd_coef": 6.0,
 		"gold_coef": 12.5,
 		"run_xp": 47,
 		"phases": 2,
-		"immune": [
-			"poison"
-		],
+		"resistances": {
+			"poison": 0.5
+		},
 		"weakness": "fire",
 		"counter_hint": "火焰优先烧掉召唤物，手动锁定母体阻止尸群滚雪球。",
 		"phase_cues": [
@@ -209,15 +215,16 @@
 	"boss_void_phantom": {
 		"name_key": "boss_void_phantom",
 		"appear_level": 55,
-		"hp_coef": 46,
+		"hp_coef": 36,
+		"fixed_hp": 1400000,
 		"speed": 31.0,
 		"bd_coef": 6.333333333333333,
 		"gold_coef": 13.5,
 		"run_xp": 52,
 		"phases": 2,
-		"immune": [
-			"physical"
-		],
+		"resistances": {
+			"physical": 0.5
+		},
 		"weakness": "lightning",
 		"counter_hint": "用闪电和追踪覆盖相位路线，主动技能留给连续突进。",
 		"phase_cues": [
@@ -255,22 +262,27 @@
 		"name_key": "boss_necrotitan",
 		"appear_level": 70,
 		"hp_coef": 64,
+		"fixed_hp": 15000000,
 		"speed": 17.0,
 		"bd_coef": 6.833333333333334,
 		"gold_coef": 15.0,
 		"run_xp": 60,
 		"phases": 3,
-		"immune": [
-			"poison"
-		],
+		"armor_hp_ratio": 0.3,
+		"resistances": {
+			"poison": 0.5
+		},
 		"weakness": "fire",
-		"counter_hint": "用火焰压制再生，阶段转换后立即爆发，避免血线回升。",
+		"counter_hint": "先破甲或用伤害穿透直击本体，再以火焰压制再生。",
 		"phase_cues": [
 			{"threshold": 0.67, "text": "腐化再生", "color": "81ff62"},
 			{"threshold": 0.34, "text": "亡者狂暴", "color": "ff3d28"}
 		],
 		"mechanic": "regenerate",
 		"mechanic_params": {
+			"regen_pct_per_sec": 0.004,
+			"damage_regen_suppress_seconds": 0.8,
+			"weakness_regen_suppress_seconds": 3.0,
 			"base_attack_kind": "boss_necro_crush",
 			"base_attack_profile": {
 				"id": "necro_crush",
@@ -296,26 +308,27 @@
 		"name_key": "boss_apex_overlord",
 		"appear_level": 90,
 		"hp_coef": 80,
+		"fixed_hp": 84000000,
 		"speed": 22.5,
 		"bd_coef": 7.5,
 		"gold_coef": 17.0,
 		"run_xp": 70,
 		"phases": 3,
-		"immune": [
-			"fire",
-			"ice",
-			"lightning",
-			"poison"
-		],
+		"armor_hp_ratio": 0.3,
+		"resistances": {
+			"fire": 0.5,
+			"ice": 0.5,
+			"lightning": 0.5,
+			"poison": 0.5
+		},
 		"weakness": "physical",
-		"counter_hint": "使用物理破防主轴，并搭配控制或屏障穿过复合机制阶段。",
+		"counter_hint": "先破甲或用伤害穿透直击本体，再用物理主轴跨过复合机制阶段。",
 		"phase_cues": [
 			{"threshold": 0.67, "text": "终焉护阵", "color": "ffb02e"},
 			{"threshold": 0.34, "text": "灾变狂潮", "color": "ff241f"}
 		],
 		"mechanic": "multi_phase",
 		"mechanic_params": {
-			"immune_damage_floor": 0.08,
 			"base_attack_kind": "boss_apex_cataclysm",
 			"base_attack_profile": {
 				"id": "apex_cataclysm",

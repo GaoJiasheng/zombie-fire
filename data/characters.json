@@ -72,10 +72,10 @@
 		"active_skill": {
 			"id": "sig_blaze_meltdown",
 			"scaling_basis": "character",
-			"coverage_mode": "battlefield",
+			"coverage_mode": "local",
 			"cooldown": 16.0,
 			"damage_mult": 2.4,
-			"radius": 260.0,
+			"radius": 340.0,
 			"weapon_level_inherit": 0.65,
 			"level_damage_growth": 0.016,
 			"rank_damage_bonus": 0.08,

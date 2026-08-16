@@ -10,18 +10,23 @@ const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_s
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
-const COLLECTION_CARD_WIDTH := 760.0
-const WEAPON_LIST_CARD_WIDTH := 860.0
+const COLLECTION_CARD_WIDTH := 860.0
+const CATALOG_LIST_CARD_WIDTH := 860.0
+const CATALOG_LIST_CARD_HEIGHT := 256.0
+const CATALOG_LIST_ICON_POSITION := Vector2(40.0, 40.0)
+const CATALOG_LIST_ICON_SIZE := Vector2(176.0, 176.0)
+const CATALOG_LIST_TEXT_X := 248.0
+const CATALOG_LIST_TEXT_WIDTH := 370.0
+const CATALOG_LIST_TITLE_WIDTH := 576.0
+const CATALOG_LIST_ACTION_X := 650.0
 const SKILL_CARD_TEXT_WIDTH := 486.0
-const CHARACTER_LIST_PORTRAIT_SIZE := Vector2(220.0, 282.0)
-const CHARACTER_LIST_VISIBLE_HEIGHT := 250.0
-const CHARACTER_LIST_FOOT_BASELINE := 276.0
-const CHARACTER_LIST_TEXT_X := 260.0
-const CHARACTER_LIST_TEXT_WIDTH := 276.0
-const EQUIPMENT_LIST_CARD_HEIGHT := 256.0
-const EQUIPMENT_LIST_ICON_Y := 82.0
-const WEAPON_LIST_ICON_POSITION := Vector2(44.0, 44.0)
-const WEAPON_LIST_ICON_SIZE := Vector2(168.0, 168.0)
+const CHARACTER_LIST_PORTRAIT_POSITION := Vector2(24.0, 10.0)
+const CHARACTER_LIST_PORTRAIT_SIZE := Vector2(320.0, 310.0)
+const CHARACTER_LIST_SUBJECT_HEIGHT := 465.0
+const CHARACTER_LIST_HEAD_BASELINE := 6.0
+const CHARACTER_LIST_TEXT_X := 370.0
+const CHARACTER_LIST_TEXT_WIDTH := 260.0
+const CHARACTER_LIST_ACTION_X := 650.0
 const COLLECTION_LIST_TITLE_Y := 24.0
 const COLLECTION_LIST_TITLE_HEIGHT := 60.0
 const COLLECTION_LIST_TITLE_TAG_GAP := 8.0
@@ -32,13 +37,6 @@ const COLLECTION_LIST_TAG_HEIGHT := 42.0
 const COLLECTION_LIST_TAG_DESCRIPTION_GAP := 6.0
 const COLLECTION_LIST_DESCRIPTION_Y := COLLECTION_LIST_TAG_Y + COLLECTION_LIST_TAG_HEIGHT + COLLECTION_LIST_TAG_DESCRIPTION_GAP
 const EQUIPMENT_LIST_ACTION_Y := 162.0
-const EQUIPMENT_LIST_TEXT_X := 150.0
-const EQUIPMENT_LIST_TEXT_WIDTH := 380.0
-const EQUIPMENT_LIST_TITLE_WIDTH := 576.0
-const WEAPON_LIST_TEXT_X := 244.0
-const WEAPON_LIST_TEXT_WIDTH := 392.0
-const WEAPON_LIST_TITLE_WIDTH := 580.0
-const WEAPON_LIST_ACTION_X := 650.0
 const CHARACTER_DETAIL_BUST_Y := -12.0
 const ARMORED_BUTTON_LABEL_OPTICAL_Y := -4.0
 const SKILL_DETAIL_NAME_FONT_SIZE_ZH := 42
@@ -61,6 +59,8 @@ const CHARACTER_DETAIL_STAT_SUB_FONT_SIZE := 18
 const CHARACTER_DETAIL_SKILL_TITLE_FONT_SIZE := 28
 const CHARACTER_DETAIL_SKILL_KIND_FONT_SIZE := 22
 const CHARACTER_DETAIL_SKILL_DESC_FONT_SIZE := 24
+const CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE := Vector2(120.0, 120.0)
+const CHARACTER_DETAIL_SKILL_ICON_SIZE := Vector2(104.0, 104.0)
 const CHARACTER_DETAIL_SIG_LEVEL_FONT_SIZE := 24
 const CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE := 21
 
@@ -262,19 +262,19 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var item_level := SaveManager.get_item_level(item_id)
 	var spacious := _uses_spacious_collection_cards()
 	var english_layout := LocalizationManager.is_english()
-	var card_width := WEAPON_LIST_CARD_WIDTH if mode == "weapons" else COLLECTION_CARD_WIDTH
+	var card_width := COLLECTION_CARD_WIDTH if mode == "characters" else CATALOG_LIST_CARD_WIDTH
 	# Character cards use the same generous presentation height in both
 	# languages. This lets the portrait consume the full card instead of keeping
 	# the former tiny-avatar geometry inside an already tall English row.
 	# Equipment cards now also share one bilingual geometry. Previously English
 	# reserved a mostly-empty two-line title block while Chinese compressed its
 	# tags against the title, so changing language visibly reflowed the catalog.
-	var card_height := 310.0 if mode == "characters" else EQUIPMENT_LIST_CARD_HEIGHT
+	var card_height := 330.0 if mode == "characters" else CATALOG_LIST_CARD_HEIGHT
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(card_width, card_height)
-	# Weapon rows deliberately use more of the 904px safe-area width. Other
-	# collection families keep their accepted 760px ruler.
+	# Every equipment family now uses the same wide-card ruler. This keeps pets,
+	# armor and chips from looking like compact text rows beside weapon showcases.
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
@@ -303,21 +303,21 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 
 	var icon := TextureRect.new()
 	icon.name = "Icon"
-	icon.position = Vector2(20, 14) if mode == "characters" else (WEAPON_LIST_ICON_POSITION if mode == "weapons" else Vector2(48, EQUIPMENT_LIST_ICON_Y))
-	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else (WEAPON_LIST_ICON_SIZE if mode == "weapons" else Vector2(92, 92))
+	icon.position = CHARACTER_LIST_PORTRAIT_POSITION if mode == "characters" else CATALOG_LIST_ICON_POSITION
+	icon.size = CHARACTER_LIST_PORTRAIT_SIZE if mode == "characters" else CATALOG_LIST_ICON_SIZE
 	icon.custom_minimum_size = icon.size
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.modulate = Color.WHITE if unlocked else Color(0.46, 0.5, 0.54, 0.72)
 	if mode == "characters":
 		icon.texture = null
-		icon.clip_contents = false
-		UiKit.add_character_fullbody_aligned(
+		icon.clip_contents = true
+		UiKit.add_character_knee_crop_aligned(
 			icon,
 			row,
 			CHARACTER_LIST_PORTRAIT_SIZE,
-			CHARACTER_LIST_VISIBLE_HEIGHT,
-			CHARACTER_LIST_FOOT_BASELINE
+			CHARACTER_LIST_SUBJECT_HEIGHT,
+			CHARACTER_LIST_HEAD_BASELINE
 		)
 	else:
 		icon.texture = load(UiKit.item_icon_path(_data_table_name(), item_id, row))
@@ -332,12 +332,12 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var title := Label.new()
 	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
-	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else (WEAPON_LIST_TEXT_X if mode == "weapons" else EQUIPMENT_LIST_TEXT_X)
+	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else CATALOG_LIST_TEXT_X
 	title.position = Vector2(text_x, COLLECTION_LIST_TITLE_Y)
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
 	# full width available so long weapon names plus level/tier remain readable
 	# after the global mobile font increase instead of clipping or shrinking.
-	title.size = Vector2(450 if mode == "characters" else (WEAPON_LIST_TITLE_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TITLE_WIDTH), COLLECTION_LIST_TITLE_HEIGHT)
+	title.size = Vector2(450 if mode == "characters" else CATALOG_LIST_TITLE_WIDTH, COLLECTION_LIST_TITLE_HEIGHT)
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF
 	# Bottom-align the glyphs inside the fixed title lane.  This makes the visible
 	# title-to-tag interval equal to the authored 8px rhythm instead of leaving a
@@ -360,7 +360,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
-	tag_row.size = Vector2(452 if mode == "characters" else (WEAPON_LIST_TEXT_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TEXT_WIDTH), COLLECTION_LIST_TAG_HEIGHT)
+	tag_row.size = Vector2(452 if mode == "characters" else CATALOG_LIST_TITLE_WIDTH, COLLECTION_LIST_TAG_HEIGHT)
 	tag_row.add_theme_constant_override("separation", 10 if spacious else 8)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tag_row)
@@ -382,7 +382,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y)
 	# The mobile font pass makes a two-line description about 80px tall. Keep a
 	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else (WEAPON_LIST_TEXT_WIDTH if mode == "weapons" else EQUIPMENT_LIST_TEXT_WIDTH), 120 if mode == "characters" else 104)
+	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else CATALOG_LIST_TEXT_WIDTH, 120 if mode == "characters" else 104)
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -423,7 +423,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 				action_enabled = can_buy
 				action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
-		var action_pos := Vector2(WEAPON_LIST_ACTION_X if mode == "weapons" else 548.0, 212.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
+		var action_pos := Vector2(CHARACTER_LIST_ACTION_X if mode == "characters" else CATALOG_LIST_ACTION_X, 238.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
 		if not action_cost_spec.is_empty():
 			UiKit.apply_resource_cost(
@@ -466,7 +466,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var item_level := SaveManager.get_skill_base_level(item_id)
 	var button := TextureButton.new()
 	button.name = item_id
-	button.custom_minimum_size = Vector2(COLLECTION_CARD_WIDTH, 222)
+	button.custom_minimum_size = Vector2(CATALOG_LIST_CARD_WIDTH, CATALOG_LIST_CARD_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.texture_normal = null
 	button.texture_hover = null
@@ -483,7 +483,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var card := PanelContainer.new()
 	card.name = "SkillCard"
 	card.position = Vector2(10, 6)
-	card.size = Vector2(740, 210)
+	card.size = Vector2(CATALOG_LIST_CARD_WIDTH - 20.0, CATALOG_LIST_CARD_HEIGHT - 12.0)
 	card.add_theme_stylebox_override("panel", _build_skill_card_style(accent))
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.visible = true
@@ -492,7 +492,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var accent_bar := TextureRect.new()
 	accent_bar.name = "AccentBar"
 	accent_bar.position = Vector2(10, 6)
-	accent_bar.size = Vector2(18, 196)
+	accent_bar.size = Vector2(18, CATALOG_LIST_CARD_HEIGHT - 26.0)
 	accent_bar.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
 	accent_bar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	accent_bar.stretch_mode = TextureRect.STRETCH_SCALE
@@ -502,8 +502,8 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var icon_frame := PanelContainer.new()
 	icon_frame.name = "IconFrame"
-	icon_frame.position = Vector2(32, 24)
-	icon_frame.size = Vector2(90, 90)
+	icon_frame.position = CATALOG_LIST_ICON_POSITION
+	icon_frame.size = CATALOG_LIST_ICON_SIZE
 	icon_frame.clip_contents = true
 	icon_frame.add_theme_stylebox_override("panel", _build_skill_icon_frame_style(accent))
 	icon_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -512,21 +512,21 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var icon := TextureRect.new()
 	icon.name = "Icon"
 	icon.texture = load(str(row.get("icon", "")))
-	icon.position = Vector2(5, 5)
-	icon.size = Vector2(80, 80)
-	icon.custom_minimum_size = Vector2(80, 80)
+	icon.position = Vector2(10, 10)
+	icon.size = Vector2(156, 156)
+	icon.custom_minimum_size = Vector2(156, 156)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_frame.add_child(icon)
-	icon.set_deferred("position", Vector2(5, 5))
-	icon.set_deferred("size", Vector2(80, 80))
+	icon.set_deferred("position", Vector2(10, 10))
+	icon.set_deferred("size", Vector2(156, 156))
 
 	var title := Label.new()
 	title.name = "Title"
 	var english_layout := LocalizationManager.is_english()
 	title.text = DataLoader.tr_key(row.get("name_key", item_id)) if english_layout else "%s  等级%d" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level]
-	title.position = Vector2(148, 18)
+	title.position = Vector2(CATALOG_LIST_TEXT_X, 18)
 	title.size = Vector2(360 if english_layout else SKILL_CARD_TEXT_WIDTH, 40)
 	title.clip_text = true
 	UiKit.apply_label(title, 26 if english_layout else 28, UiKit.TEXT_MAIN, 3)
@@ -540,7 +540,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 		var level := Label.new()
 		level.name = "Level"
 		level.text = "等级%d" % item_level
-		level.position = Vector2(516, 18)
+		level.position = Vector2(616, 18)
 		level.size = Vector2(112, 40)
 		level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -551,7 +551,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(148, 76)
+	tag_row.position = Vector2(CATALOG_LIST_TEXT_X, 76)
 	tag_row.size = Vector2(SKILL_CARD_TEXT_WIDTH, 40)
 	tag_row.add_theme_constant_override("separation", 10)
 	tag_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -573,7 +573,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	effect.text = _skill_effect_summary(row, item_level)
 	# The semantic tag style owns real mobile padding, so leave an authored gap
 	# below its measured height instead of relying on the former hairline badge.
-	effect.position = Vector2(148, 130)
+	effect.position = Vector2(CATALOG_LIST_TEXT_X, 130)
 	effect.size = Vector2(SKILL_CARD_TEXT_WIDTH, 80)
 	effect.clip_text = true
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -584,7 +584,7 @@ func _build_skill_item_button(item_id: String, row: Dictionary) -> TextureButton
 	var info_button := Button.new()
 	info_button.name = "InfoButton"
 	info_button.text = "i"
-	info_button.position = Vector2(646, 34)
+	info_button.position = Vector2(746, 34)
 	info_button.size = Vector2(88, 88)
 	info_button.custom_minimum_size = Vector2(88, 88)
 	info_button.focus_mode = Control.FOCUS_NONE
@@ -1412,21 +1412,18 @@ func _apply_armored_button_label_alignment(label: Label) -> void:
 func _compact_close_button(node_name: String) -> Button:
 	var button := Button.new()
 	button.name = node_name
-	button.text = "×"
-	button.custom_minimum_size = UiKit.MIN_TOUCH_TARGET
 	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
-	button.add_theme_font_size_override("font_size", UiKit.bumped_font_size(34))
 	button.add_theme_color_override("font_color", Color(0.92, 0.96, 1.0, 0.95))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.45, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(0.78, 0.9, 1.0, 1.0))
 	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.65))
-	button.add_theme_constant_override("outline_size", 2)
 	button.add_theme_stylebox_override("normal", _compact_close_style(Color(0.02, 0.035, 0.05, 0.42), Color(0.55, 0.68, 0.78, 0.45)))
 	button.add_theme_stylebox_override("hover", _compact_close_style(Color(0.06, 0.055, 0.035, 0.72), Color(1.0, 0.76, 0.32, 0.86)))
 	button.add_theme_stylebox_override("pressed", _compact_close_style(Color(0.01, 0.02, 0.03, 0.82), Color(0.56, 0.82, 1.0, 0.9)))
 	button.add_theme_stylebox_override("disabled", _compact_close_style(Color(0.02, 0.025, 0.03, 0.30), Color(0.35, 0.4, 0.45, 0.35)))
+	UiKit.apply_close_glyph(button)
 	return button
 
 func _compact_close_style(_bg: Color, _border: Color) -> StyleBox:
@@ -2209,29 +2206,32 @@ func _make_stat_pill(label_text: String, value_text: String, sub_text: String, f
 func _make_skill_row(icon_path, title: String, kind_label: String, desc: String, accent: Color, parent: Control) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "SkillRow"
-	row.add_theme_constant_override("separation", 14)
+	row.add_theme_constant_override("separation", 20)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.custom_minimum_size = Vector2(0, 132)
+	row.custom_minimum_size = Vector2(0, 148)
 	# Icon
 	var icon_box := PanelContainer.new()
-	icon_box.custom_minimum_size = Vector2(78, 78)
+	icon_box.name = "SkillIconFrame"
+	icon_box.custom_minimum_size = CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE
 	icon_box.add_theme_stylebox_override("panel", _build_pill_style(accent, Color(0.06, 0.1, 0.16, 0.85)))
 	row.add_child(icon_box)
 	if icon_path != null and str(icon_path) != "" and ResourceLoader.exists(str(icon_path)):
 		var icon := TextureRect.new()
+		icon.name = "SkillIcon"
 		icon.texture = load(str(icon_path))
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(64, 64)
+		icon.custom_minimum_size = CHARACTER_DETAIL_SKILL_ICON_SIZE
 		icon_box.add_child(icon)
 	else:
 		# Invalid dynamic data must still resolve to finished raster art in a
 		# release build; never expose the old geometric diamond placeholder.
 		var fallback_icon := TextureRect.new()
+		fallback_icon.name = "SkillIcon"
 		fallback_icon.texture = load("res://assets/production/sprites/ui/icon_talent_point.png")
 		fallback_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		fallback_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		fallback_icon.custom_minimum_size = Vector2(64, 64)
+		fallback_icon.custom_minimum_size = CHARACTER_DETAIL_SKILL_ICON_SIZE
 		icon_box.add_child(fallback_icon)
 	# Text column
 	var text_col := VBoxContainer.new()

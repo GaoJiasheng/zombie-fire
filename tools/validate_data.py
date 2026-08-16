@@ -622,13 +622,36 @@ def main() -> int:
 
     boss_base_attack_profiles: set[str] = set()
     for boss_id, row in tables["bosses"].items():
+        fixed_hp = row.get("fixed_hp", 0)
+        if not isinstance(fixed_hp, (int, float)) or float(fixed_hp) <= 0.0:
+            errors.append(f"{boss_id}.fixed_hp must be a positive, model-stable durability budget")
         if row.get("weakness") not in elements:
             errors.append(f"{boss_id}.weakness unknown: {row.get('weakness')}")
-        for immune in row.get("immune", []):
-            if immune not in elements:
-                errors.append(f"{boss_id}.immune unknown: {immune}")
+        if row.get("immune"):
+            errors.append(f"{boss_id}.immune is retired; use bounded resistances instead")
+        resistances = row.get("resistances", {})
+        if not isinstance(resistances, dict):
+            errors.append(f"{boss_id}.resistances must be an element -> reduction dictionary")
+            resistances = {}
+        for element, reduction in resistances.items():
+            if element not in elements:
+                errors.append(f"{boss_id}.resistances unknown element: {element}")
+                continue
+            if not isinstance(reduction, (int, float)) or not 0.0 < float(reduction) < 1.0:
+                errors.append(f"{boss_id}.resistances.{element} must be a reduction in (0, 1)")
+        armor_hp_ratio = row.get("armor_hp_ratio", 0.0)
+        if not isinstance(armor_hp_ratio, (int, float)) or not 0.0 <= float(armor_hp_ratio) <= 0.6:
+            errors.append(f"{boss_id}.armor_hp_ratio must be a total-durability share in [0, 0.6]")
         check_asset(errors, boss_id, row, ["sprite"])
         mechanic_params = row.get("mechanic_params", {})
+        if row.get("mechanic") in {"regen", "regenerate"}:
+            for field in (
+                "regen_pct_per_sec",
+                "damage_regen_suppress_seconds",
+                "weakness_regen_suppress_seconds",
+            ):
+                if not isinstance(mechanic_params, dict) or float(mechanic_params.get(field, 0.0)) <= 0.0:
+                    errors.append(f"{boss_id}.mechanic_params.{field} must be explicit and positive")
         profile = mechanic_params.get("base_attack_profile", {}) if isinstance(mechanic_params, dict) else {}
         if not isinstance(profile, dict) or not profile:
             errors.append(f"{boss_id}.mechanic_params.base_attack_profile missing")

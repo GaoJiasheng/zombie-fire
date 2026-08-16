@@ -3,7 +3,6 @@ extends Control
 const UiKit := preload("res://ui/ui_kit.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const ChallengeRules := preload("res://core/data/challenge_rules.gd")
-const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const FREE_WEAPON_SHOWCASE_SIZE := Vector2(388, 252)
 const PREMIUM_WEAPON_SHOWCASE_SIZE := Vector2(410, 296)
 const HERO_BUST_WINDOW_SIZE := Vector2(336, 282)
@@ -26,6 +25,10 @@ const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 # design/28:通关线口径下,0.85 以下 = 早期兜底也救不回来的"远低于通关线"档。
 const SEVERE_POWER_RATIO := 0.85
 const UNDERPOWER_CONFIRM_WINDOW_MSEC := 2600
+const SUMMARY_MARGIN_LEFT := 34
+const SUMMARY_MARGIN_RIGHT := 30
+const SUMMARY_MARGIN_TOP := 20
+const SUMMARY_MARGIN_BOTTOM := 20
 
 var router: Node
 var level_id := "level_001"
@@ -33,7 +36,6 @@ var is_challenge_mode := false
 var _return_to := "map"
 var _return_payload := {}
 var _underpower_confirmation_armed_until_msec := 0
-var _appearance_selector: CanvasLayer
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -56,7 +58,6 @@ func _ready() -> void:
 		($Root/Main/TopNeonLine as CanvasItem).visible = false
 	_apply_runtime_layout()
 	_bind_open_hit(%CharacterPanel as Control, "characters")
-	_bind_character_appearance_hit(%CharacterPanel as Control)
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
 	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(760, 112), true)
 	UiKit.apply_armored_texture_button(%BackButton as TextureButton, false, Vector2(170, 88), true)
@@ -112,83 +113,38 @@ func _bind_open_hit(panel: Control, mode: String) -> void:
 	if hit == null:
 		hit = Button.new()
 		hit.name = "OpenHitArea"
-		if mode == "characters":
-			# The portrait itself is the outfit shortcut. Keep hero selection on
-			# the non-overlapping name strip (and the four-hero bar below).
-			hit.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-			hit.offset_top = -88.0
-		else:
-			hit.set_anchors_preset(Control.PRESET_FULL_RECT)
+		hit.set_anchors_preset(Control.PRESET_FULL_RECT)
 		hit.text = ""
 		hit.mouse_filter = Control.MOUSE_FILTER_STOP
 		for key in ["normal", "hover", "pressed", "disabled", "focus"]:
 			hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
 		panel.add_child(hit)
+	if mode == "characters":
+		hit.tooltip_text = LocalizationManager.text("点击更换人物或外观")
+		_add_character_entry_badge(hit)
 	hit.pressed.connect(_open_collection.bind(mode))
 
-func _bind_character_appearance_hit(panel: Control) -> void:
-	var hit := panel.get_node_or_null("AppearanceHitArea") as Button
-	if hit == null:
-		hit = Button.new()
-		hit.name = "AppearanceHitArea"
-		hit.set_anchors_preset(Control.PRESET_CENTER)
-		hit.offset_left = -168.0
-		hit.offset_top = -156.0
-		hit.offset_right = 168.0
-		hit.offset_bottom = 126.0
-		hit.text = ""
-		hit.tooltip_text = "点击人物换装"
-		hit.mouse_filter = Control.MOUSE_FILTER_STOP
-		hit.set_meta("critical_touch", true)
-		for key in ["normal", "hover", "pressed", "disabled", "focus"]:
-			hit.add_theme_stylebox_override(key, StyleBoxEmpty.new())
-		panel.add_child(hit)
-		var badge_panel := PanelContainer.new()
-		badge_panel.name = "AppearanceBadge"
-		badge_panel.position = Vector2(226, 220)
-		badge_panel.size = Vector2(98, 46)
-		badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		badge_panel.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
-		hit.add_child(badge_panel)
-		var badge := Label.new()
-		badge.text = "外观"
-		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiKit.apply_label(badge, 17, UiKit.CYAN, 3)
-		badge_panel.add_child(badge)
-	hit.pressed.connect(_open_character_appearance)
-
-func _open_character_appearance() -> void:
-	if is_instance_valid(_appearance_selector):
+func _add_character_entry_badge(hit: Button) -> void:
+	if hit.has_node("CharacterEntryBadge"):
 		return
-	var character_id := SaveManager.get_selected("character")
-	if character_id == "":
-		character_id = "vanguard"
-	AudioManager.play_sfx("ui_click")
-	_appearance_selector = AppearanceSelector.new()
-	add_child(_appearance_selector)
-	_appearance_selector.character_outfit_changed.connect(
-		func(_changed_character: String, _outfit_mode: String) -> void: _refresh()
-	)
-	_appearance_selector.store_requested.connect(_on_character_appearance_store_requested)
-	_appearance_selector.closed.connect(func() -> void:
-		_appearance_selector = null
-		if is_inside_tree():
-			_refresh()
-	)
-	_appearance_selector.open_character(character_id, router)
-
-func _on_character_appearance_store_requested() -> void:
-	router.change_scene("store", {
-		"return_to": "loadout",
-		"return_payload": {
-			"level_id": level_id,
-			"challenge": is_challenge_mode,
-			"return_to": _return_to,
-			"return_payload": _return_payload.duplicate(true),
-		},
-	})
+	var badge_panel := PanelContainer.new()
+	badge_panel.name = "CharacterEntryBadge"
+	badge_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	badge_panel.offset_left = -174.0
+	badge_panel.offset_top = 58.0
+	badge_panel.offset_right = -22.0
+	badge_panel.offset_bottom = 102.0
+	badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_panel.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
+	hit.add_child(badge_panel)
+	var badge := Label.new()
+	badge.name = "Label"
+	badge.text = LocalizationManager.text("人物 / 外观")
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiKit.apply_label(badge, 16, UiKit.CYAN, 3)
+	badge_panel.add_child(badge)
 
 func _on_back_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
@@ -559,12 +515,23 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	frame.add_theme_stylebox_override("panel", UiKit.panel_texture_style(14.0))
 	panel.add_child(frame)
 
+	var safe_area := MarginContainer.new()
+	safe_area.name = "SummarySafeArea"
+	safe_area.set_anchors_preset(Control.PRESET_FULL_RECT)
+	safe_area.add_theme_constant_override("margin_left", SUMMARY_MARGIN_LEFT)
+	safe_area.add_theme_constant_override("margin_right", SUMMARY_MARGIN_RIGHT)
+	safe_area.add_theme_constant_override("margin_top", SUMMARY_MARGIN_TOP)
+	safe_area.add_theme_constant_override("margin_bottom", SUMMARY_MARGIN_BOTTOM)
+	safe_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(safe_area)
+
 	var box := VBoxContainer.new()
 	box.name = "SummaryContent"
-	box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 10)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_child(box)
+	safe_area.add_child(box)
 
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)
@@ -662,7 +629,7 @@ func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
 	if not is_instance_valid(panel) or not is_instance_valid(content):
 		return
 	var authored_floor := DETAILS_PANEL_HEIGHT_WITH_SUGGESTION if content.get_node_or_null("CounterSuggestion") != null else DETAILS_PANEL_HEIGHT
-	var rendered_height := ceilf(content.get_combined_minimum_size().y + 36.0)
+	var rendered_height := ceilf(content.get_combined_minimum_size().y + SUMMARY_MARGIN_TOP + SUMMARY_MARGIN_BOTTOM)
 	panel.custom_minimum_size = Vector2(0, maxf(authored_floor, rendered_height))
 
 func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:

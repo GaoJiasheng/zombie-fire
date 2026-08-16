@@ -135,7 +135,7 @@
   "late_wave_damage_ramp": {"start_level": 50, "full_level": 98, "start_wave": 3, "max_mult": 1.0, "curve_power": 1.0, "final_level": 99, "final_mult": 1.0},
   "boss_survival_hp_ramp": {"start_level": 50, "full_level": 98, "max_mult": 56.0, "curve_power": 1.15, "final_level": 99, "final_mult": 1.08},
   "endless_template_level": "level_025",
-  "endless_boss_immunity_grace_loops": 1,
+  "endless_boss_resistance_grace_loops": 1,
   "endless_first_loop_armor_hits_cap": 8,
   "endless_loop_hp_growth": 0.50
 }
@@ -149,9 +149,9 @@
 - `late_wave_boss_hp_bonus` 是 Boss 波单独 HP 旋钮，避免 Boss 误吃普通怪的高倍率。
 - `late_wave_level_ramp` 从 `start_level` 到 `full_level` 按 `curve_power` 递增，专门吸收中后期局内技能成型后的 DPS 爆发；当前第 98 关为 `2.05x`，第 99 关为 `2.296x`，只影响第 3 波以后。
 - `late_wave_damage_ramp` 保留为兼容字段，但 `max_mult / final_mult` 永久固定为 `1.0`；后期难度不得再靠提高僵尸或 Boss 攻击制造暴毙。
-- `boss_survival_hp_ramp` 是第 50 关起的 Boss 专用展示窗口倍率；第 98 关达到 `56.0x`，第 99 关为 `60.48x`，只乘 HP，不改变伤害、攻击频率、移速或机制数值。曲线依据真实运行时的满级散弹 / 多重 / 穿透 / 分裂 / 弹射 / 暴击 / 主动技组合校准。
+- `boss_survival_hp_ramp` 自阶段 186 起只服务缺少 `fixed_hp` 的旧数据兼容。当前 8 个正式 Boss 全部以 `bosses.json.fixed_hp` 作为同型号固定总耐久，普通战役不再读取此倍率；后续难度通过 `levels.json.runtime_bosses` 的显式数量与编队表达。
 - `endless_template_level` 是无限尸潮的独立模板关卡；无论从哪一关入口进入，无尽首轮都按该模板的波次、推荐强度、金币等级和 HP 基准起步。
-- `endless_boss_immunity_grace_loops` 控制无尽前几轮 Boss 是否移除硬免疫，避免第一轮出现“打不掉血”的元素/破甲墙。
+- `endless_boss_resistance_grace_loops` 控制无尽前几轮 Boss 是否暂时移除元素抗性，避免第一轮同时承受抗性与破甲压力。
 - `endless_first_loop_armor_hits_cap` 是无尽开局破甲 Boss 的护甲命中上限兜底。
 - `endless_loop_hp_growth` 是无尽模式每完成一整轮后的 HP 复利成长下限；当前 `0.50` 表示第 2/3/4 轮约为 `1.5x/2.25x/3.375x`，运行时不会低于代码默认下限。
 
@@ -356,21 +356,26 @@
 ```jsonc
 {
   "boss_void_phantom": {
-    "name_key":"boss_void_phantom", "appear_level":72,
-    "hp_coef":45, "phases":2,
-    "immune":["physical_is_only"],   // 全元素免疫→只吃物理（特殊标记）
-	    "weakness":"physical",
-	    "counter_hint":"使用物理破防主轴，并搭配控制或屏障。",
+    "name_key":"boss_void_phantom", "appear_level":55,
+    "hp_coef":36, "phases":2,
+    "resistances":{"physical":0.5}, // 数值是减伤比例；0.5 表示该属性减伤 50%
+	    "weakness":"lightning",
+	    "counter_hint":"使用闪电弱点主轴，并搭配控制或屏障。",
 	    "phase_cues":[{"threshold":0.67,"text":"终焉护阵","color":"ffb02e"}],
-    "mechanic":"phase_intangible",
-    "mechanic_params":{"phase_interval":8,"phase_duration":2.5,"immune_damage_floor":0.08},
+    "mechanic":"phase_shift",
+    "mechanic_params":{"phase_interval":8,"phase_duration":2.5},
     "intro_video":"vid_boss_intro_void_phantom.mp4",
     "sprite_prefix":"boss_void_phantom",
     "anim":["idle","attack","hurt","death","special"]
   }
 }
 ```
-`immune_damage_floor` 仅用于 Boss 的错误元素保底伤害比例；必须大于 `0`，以免形成绝对软锁。未声明时使用运行时通用值 `0.18`，终局 Boss 可按毕业配装检查收紧。`phase_cues` 按血量阈值驱动阶段播报，`counter_hint` 同时用于失败战报，不在战斗脚本硬编码首领文案。
+
+- Boss 禁止声明 `immune` 或把任一 `resistances` 值写到 `1.0`。`resistances` 的键必须是五种合法元素，值严格位于 `(0,1)`，表示伤害减免比例而非剩余伤害倍率。
+- `fixed_hp` 是正式 Boss 在普通战役中的**单只固定总耐久**；同一 Boss ID 无论出现在哪一关都使用相同值。若缺少该字段才回退到 `hp_coef × 关卡倍率` 的旧兼容路径。`armor_hp_ratio` 可选，范围 `[0,0.6]`，表示从 `fixed_hp` 所定义的总耐久预算中拆给外层装甲的比例，而不是在本体血量之外额外加血。运行时必须渲染装甲 / 本体双条：无伤害穿透时先扣装甲，`armor_penetration` 按比例越过装甲直击本体；持续伤害自身不带穿透。当前钢铁泰坦、亡骸泰坦和终焉霸主使用 `0.3`。
+- 弱点增伤读取 `economy.weakness_mult`，当前为 `1.5`（+50%）；未命中弱点或抗性的伤害为 `1.0x`。Boss 血条和命中反馈必须显示对应百分比。
+- `regenerate` Boss 必须显式提供 `regen_pct_per_sec`、`damage_regen_suppress_seconds` 与 `weakness_regen_suppress_seconds`，禁止从代码继承隐式回血率。
+- `phase_cues` 按血量阈值驱动阶段播报，`counter_hint` 同时用于失败战报，不在战斗脚本硬编码首领文案。
 
 Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不能再退回按 `mechanic` 共用一团通用命中特效：
 
@@ -432,8 +437,11 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     "clear_requirement":{
       "min_output":1.0,"mob_hp_share":1.0,"boss_hp_share":0.0,"boss_id":null,
       "power_contract":{
-        "model":"bottleneck_v3","recommended_power":11,
-        "crowd_capacity":1.0,"boss_capacity":0.0,"line_capacity":1.0,
+        "model":"bottleneck_v4","recommended_power":11,
+        "crowd_capacity":1.0,"boss_capacity":0.0,"line_capacity":0.5,
+        "line_expected_breach":52.0,"line_base_hp":160.0,
+        "line_target_hp_ratio":0.35,
+        "line_exposure_weights":{"crowd":1.0,"boss":0.0},
         "boss_effective_hp":0.0,"boss_weights":{},
         "runtime_boss_pressure_mult":1.0,"guaranteed_skill_ids":[],
         "reference_skill_rank":1
@@ -461,7 +469,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 
 - `runtime_bosses` 是运行时在指定波次追加的 Boss，必须由 `battle.gd`、`simulate_balance.py` 与战力合同生成器共同读取；禁止再在战斗代码里按 `variant` 硬编码额外 Boss。当前仅 `level_099` 追加 `boss_tank_titan`。
 - `guaranteed_card_offers` 只保证指定第几次三选一中至少出现 `skill_ids` 之一，不自动替玩家选牌。战力模型只可计入这里明确保证的卡，并按候选中较弱的一张保守折算。
-- `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`。
+- `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。`line_expected_breach` 是与 `simulate_balance.py` 同源的预计漏怪伤害，`line_base_hp` 是该关参考防线生命，`line_target_hp_ratio` 是通关目标剩余生命边界，`line_exposure_weights` 用小怪/Boss 的血量份额限制清场速度对承伤时间的修正。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`；防线比最多只获得 `power_ruler.line_exposure_credit_max` 规定的有限清场速度收益。
 
 ## economy.json （全局旋钮）
 ```jsonc
@@ -480,7 +488,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   "boss_hp_level_bonus": {"start_level":20,"multiplier":2.0},
   "boss_survival_hp_ramp": {"start_level":50,"full_level":98,"max_mult":56.0,"curve_power":1.15,"final_level":99,"final_mult":1.08},
   "endless_template_level": "level_025",
-  "endless_boss_immunity_grace_loops": 1,
+  "endless_boss_resistance_grace_loops": 1,
   "endless_first_loop_armor_hits_cap": 8,
   "level_xp_coef": 50, "level_xp_pow": 1.0,
   "atk_growth_default": 0.08, "hp_growth_default": 0.06,
@@ -493,9 +501,9 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     "boss_dps_per_capacity": 206.98,
     "boss_clear_window_seconds": 180.0,
     "runtime_boss_recommendation_calibration": 1.03827,
-    "final_line_capacity": 6.0,
-    "line_curve_exponent": 3.12,
-    "non_boss_line_pressure_mult": 0.72,
+    "line_requirement_floor": 0.25,
+    "line_exposure_credit_min": 0.85,
+    "line_exposure_credit_max": 1.15,
     "armor_break_effective_factor": 0.94,
     "boss_mechanic_time_mult": {"phase_shift":1.2821,"multi_phase":1.11}
   },
@@ -534,9 +542,9 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `late_wave_level_ramp` 是后期第 3 波以后追加的普通怪 / Boss 波基础 HP 曲线；第 98 关为 `2.05x`，第 99 关为 `2.296x`。
 - `late_wave_damage_ramp` 是兼容字段，当前及以后都固定为 `1.0x`；后期不再额外提高压线、技能或 Boss 攻城伤害。
 - `boss_hp_level_bonus` 是关卡段 boss 血量旋钮；当前从第 20 关开始，所有 boss 额外乘 `2.0`，只影响 boss HP/压力估算，不提高 boss 伤害。
-- `boss_survival_hp_ramp` 是后期 Boss 展示窗口旋钮；第 50–98 关由 `1.0x` 曲线提高至 `56.0x`，第 99 关为 `60.48x`，确保即使完整物理技能组合也能让终局 Boss 稳定跨阶段并释放多轮技能。
+- `boss_survival_hp_ramp` 是无 `fixed_hp` 旧 Boss 行的兼容旋钮；当前正式 Boss 均不消费它。同型号普通战役耐久只读 `fixed_hp`，多 Boss 压力只读 `runtime_bosses` 数量。
 - `endless_template_level` 固定无尽首轮的独立模板，当前 `level_025` 表示无尽开局约等价二三十关，不继承入口关卡的高阶波次或 HP 曲线。
-- `endless_boss_immunity_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 直接成为硬免疫墙；后续轮次恢复 Boss 原本免疫机制。
+- `endless_boss_resistance_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 同时形成抗性与厚装甲墙；后续轮次恢复 Boss 原本的百分比抗性与完整装甲层数。
 - `endless_loop_hp_growth` 是无尽模式完成整轮后的复利 HP 成长；当前每轮至少比上一轮提高 50%，覆盖普通怪和 Boss，普通主线/挑战模式不受影响。
 - `boss_level_base_hp_mult` 是 Boss 关的防线血量垫子（design/24 Phase 2，Phase 8 曲线化）：任一波含 `boss` 的关卡，基地血量上限按 `base_hp_ref × 垫子` 起算，之后再乘人物/护甲/芯片/宠物加成。垫子按关卡号取：`≤ early_full_level`（10）为 `early_mult`（1.75），`≥ early_end_level`（25）为 `base`（1.25），中间线性插值；也兼容直接写一个浮点数的旧写法。曲线化的原因是 Boss 关压力呈 U 型（5–20 关与 65–99 关都是 46–57% leak，25–60 关只有 33–46%），平垫子会让玩家最先遇到的三个 Boss 关成为全场最难的一档。只抬防线，不动 Boss HP ramp、不动敌方压力、不动推荐战力公式；无尽模板 `level_025` 含 Boss，故无尽与挑战模式同样吃这个垫子。`tools/simulate_balance.py` 的 `boss_base_hp_cushion()` 与 `battle.gd._boss_level_base_hp_mult()` 是同一条公式的两份实现，改一处必须同步另一处。
 - `repeat_clear_xp_mult` 是重复通关经验递减表（design/24 收尾）：按**本关此前的通关次数**取下标，首通 `1.0`、二周目 `0.5`、三周目及以后取末位 `0.25`（超出表长时钳到末位）。普通关与挑战模式各自独立计数，分别记在存档的 `level_clear_counts` / `challenge_clear_counts`；失败不计数。倍率在 `battle.gd._finish()` 结算时就已乘进 `result.xp`，因此**结算页显示的就是实际入账的数字**；`SaveManager` 不再二次打折。旧存档缺这两个字段时按首通处理（`_merge_defaults_recursive` 补空字典，无需迁移版本号）。结算页在倍率 < 1 时把经验卡标题显示为 `经 验  ×50%`，百分比由数据算出。

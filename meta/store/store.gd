@@ -25,6 +25,9 @@ const STORE_DETAIL_INFO_MARGIN_V := 14
 const STORE_DETAIL_GEAR_MARGIN_LEFT := 26
 const STORE_DETAIL_GEAR_MARGIN_RIGHT := 18
 const STORE_DETAIL_GEAR_MARGIN_V := 16
+# Match both Store ScrollContainers' 12 px deadzone exactly: once the page has
+# enough movement to scroll, the same gesture can no longer activate anything.
+const STORE_TAP_MOVE_LIMIT := 12.0
 
 var router: Node
 var _dialog_layer: CanvasLayer
@@ -34,6 +37,10 @@ var _appearance_selector: CanvasLayer
 var _return_to := "menu"
 var _return_payload := {}
 var _open_appearance_on_ready := false
+var _store_pointer_starts: Dictionary = {}
+var _store_pointer_dragged: Dictionary = {}
+var _store_release_blocks_activation := false
+var _store_release_generation := 0
 
 
 func setup(main: Node, payload := {}) -> void:
@@ -58,6 +65,79 @@ func _ready() -> void:
 	_rebuild()
 	if _open_appearance_on_ready:
 		call_deferred("_open_theme_appearance")
+
+
+func _input(event: InputEvent) -> void:
+	# ScrollContainer correctly owns the physical movement, but iOS can deliver a
+	# touch release near the original press coordinate after one or more separate
+	# ScreenDrag events. Track the complete pointer stream at page scope so a
+	# crossed drag threshold cancels every card/button activation for that release.
+	if event is InputEventScreenTouch:
+		var touch := event as InputEventScreenTouch
+		if touch.pressed:
+			_store_pointer_pressed(touch.index, touch.position)
+		else:
+			_store_pointer_released(touch.index, touch.position)
+	elif event is InputEventScreenDrag:
+		var drag := event as InputEventScreenDrag
+		_store_pointer_moved(drag.index, drag.position)
+	elif event is InputEventMouseButton:
+		var mouse_button := event as InputEventMouseButton
+		if mouse_button.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if mouse_button.pressed:
+			_store_pointer_pressed(-1, mouse_button.position)
+		else:
+			_store_pointer_released(-1, mouse_button.position)
+	elif event is InputEventMouseMotion:
+		var motion := event as InputEventMouseMotion
+		if motion.button_mask & MOUSE_BUTTON_MASK_LEFT:
+			_store_pointer_moved(-1, motion.position)
+
+
+func _store_pointer_pressed(pointer_id: int, position: Vector2) -> void:
+	_store_release_generation += 1
+	_store_release_blocks_activation = false
+	_store_pointer_starts[pointer_id] = position
+	_store_pointer_dragged[pointer_id] = false
+
+
+func _store_pointer_moved(pointer_id: int, position: Vector2) -> void:
+	if not _store_pointer_starts.has(pointer_id):
+		return
+	var start := _store_pointer_starts[pointer_id] as Vector2
+	if position.distance_to(start) > STORE_TAP_MOVE_LIMIT:
+		_store_pointer_dragged[pointer_id] = true
+
+
+func _store_pointer_released(pointer_id: int, position: Vector2) -> void:
+	_store_pointer_moved(pointer_id, position)
+	_store_release_blocks_activation = bool(_store_pointer_dragged.get(pointer_id, false))
+	_store_pointer_starts.erase(pointer_id)
+	_store_pointer_dragged.erase(pointer_id)
+	_store_release_generation += 1
+	var release_generation := _store_release_generation
+	call_deferred("_clear_store_release_block", release_generation)
+
+
+func _clear_store_release_block(release_generation: int) -> void:
+	if release_generation == _store_release_generation:
+		_store_release_blocks_activation = false
+
+
+func _store_activation_is_drag() -> bool:
+	if _store_release_blocks_activation:
+		return true
+	for dragged in _store_pointer_dragged.values():
+		if bool(dragged):
+			return true
+	return false
+
+
+func _run_store_tap(action: Callable) -> void:
+	if _store_activation_is_drag():
+		return
+	action.call()
 
 
 func _loc(zh: String, en: String) -> String:
@@ -382,7 +462,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	# origin explicitly because a bubbled touch position remains relative to its
 	# original child control, not to the enclosing product panel.
 	buy.button_down.connect(_on_product_action_button_down.bind(panel))
-	buy.pressed.connect(_confirm_purchase.bind(str(row.get("id", ""))))
+	buy.pressed.connect(_run_store_tap.bind(_confirm_purchase.bind(str(row.get("id", "")))))
 	copy.add_child(buy)
 	return panel
 
@@ -415,7 +495,7 @@ func _on_product_card_input(event: InputEvent, product_id: String, panel: PanelC
 			return
 		var press_position: Variant = panel.get_meta("store_detail_press_position", event.position)
 		panel.remove_meta("store_detail_press_position")
-		activate = press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= 18.0
+		activate = not _store_activation_is_drag() and press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= STORE_TAP_MOVE_LIMIT
 	elif event is InputEventScreenTouch:
 		if event.pressed:
 			if bool(panel.get_meta("store_detail_press_started_on_action", false)) or _product_card_event_hits_action(event.position, panel):
@@ -435,7 +515,7 @@ func _on_product_card_input(event: InputEvent, product_id: String, panel: PanelC
 			return
 		var press_position: Variant = panel.get_meta("store_detail_press_position", event.position)
 		panel.remove_meta("store_detail_press_position")
-		activate = press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= 18.0
+		activate = not _store_activation_is_drag() and press_position is Vector2 and (event.position - (press_position as Vector2)).length() <= STORE_TAP_MOVE_LIMIT
 	elif event is InputEventKey:
 		activate = event.pressed and not event.echo and event.keycode in [KEY_ENTER, KEY_SPACE]
 	if not activate:
@@ -576,10 +656,10 @@ func _store_detail_header(row: Dictionary, accent: Color) -> Control:
 	copy.add_child(type_line)
 	var close := Button.new()
 	close.name = "CloseButton"
-	close.text = "×"
 	close.focus_mode = Control.FOCUS_ALL
 	close.tooltip_text = _loc("关闭详情", "Close details")
 	UiKit.apply_armored_button(close, false, Vector2(110, 88), 20, true)
+	UiKit.apply_close_glyph(close)
 	close.pressed.connect(_close_product_detail)
 	header.add_child(close)
 	return header
@@ -922,7 +1002,7 @@ func _store_detail_actions(row: Dictionary, is_current_offer: bool) -> Control:
 	if is_current_offer:
 		purchase.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
 		purchase.set_meta("store_detail_action_state", "purchase")
-		purchase.pressed.connect(_purchase_from_product_detail.bind(product_id))
+		purchase.pressed.connect(_run_store_tap.bind(_purchase_from_product_detail.bind(product_id)))
 	elif owned:
 		purchase.text = _loc("已拥有 · 可恢复", "Owned · Restorable")
 		purchase.set_meta("store_detail_action_state", "owned")
@@ -1315,7 +1395,7 @@ func _owned_set_panel(set_id: String) -> Control:
 	equip.focus_mode = Control.FOCUS_NONE
 	equip.text = _loc("一键装备整套并启用主题", "Equip Full Set + Theme")
 	UiKit.apply_armored_button(equip, true, Vector2(760, 96), 22, true)
-	equip.pressed.connect(_equip_set.bind(set_id))
+	equip.pressed.connect(_run_store_tap.bind(_equip_set.bind(set_id)))
 	header_box.add_child(equip)
 	header_box.add_child(_series_reset_button(str(set_row.get("series_id", ""))))
 	root.add_child(header)
@@ -1344,7 +1424,7 @@ func _series_reset_button(series_id: String) -> Button:
 	reset.focus_mode = Control.FOCUS_NONE
 	reset.text = _loc("撤销本系列演示购买", "Reset This Series")
 	UiKit.apply_armored_button(reset, false, Vector2(520, 78), 17, true)
-	reset.pressed.connect(_confirm_series_reset.bind(series_id))
+	reset.pressed.connect(_run_store_tap.bind(_confirm_series_reset.bind(series_id)))
 	return reset
 
 
@@ -1383,7 +1463,7 @@ func _owned_item_row(table: String, slot: String, item_id: String) -> PanelConta
 		UiKit.apply_resource_cost(upgrade, _loc("升级", "Upgrade"), str(cost_spec.get("kind", "gold")), cost, 16, 24.0, -2.0)
 		if upgrade.disabled:
 			upgrade.modulate = Color(0.72, 0.76, 0.80, 0.92)
-	upgrade.pressed.connect(_upgrade_item.bind(table, item_id))
+	upgrade.pressed.connect(_run_store_tap.bind(_upgrade_item.bind(table, item_id)))
 	h.add_child(upgrade)
 	return panel
 

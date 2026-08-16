@@ -747,7 +747,7 @@ func get_power_for_level(level_id: String) -> int:
 	var contract: Dictionary = contract_var if contract_var is Dictionary else {}
 	if contract.is_empty():
 		# Legacy data fallback only. Shipping levels are guarded by
-		# check_clear_requirements.py and always carry a v3 contract.
+		# check_clear_requirements.py and always carry a v4 contract.
 		var card_picks_fallback := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
 		var weakness_fallback := str(level.get("primary_weakness", "physical"))
 		var projected_fallback := _projected_run_skill_levels(card_picks_fallback, weakness_fallback)
@@ -780,7 +780,8 @@ func get_power_for_level(level_id: String) -> int:
 	var crowd_ratio := crowd_capacity / maxf(float(contract.get("crowd_capacity", 1.0)), 0.01)
 	var boss_requirement := float(contract.get("boss_capacity", 0.0))
 	var boss_ratio := boss_capacity / maxf(boss_requirement, 0.01) if boss_requirement > 0.0 else 99.0
-	var line_ratio := line_capacity / maxf(float(contract.get("line_capacity", 1.0)), 0.01)
+	var raw_line_ratio := line_capacity / maxf(float(contract.get("line_capacity", 1.0)), 0.01)
+	var line_ratio := raw_line_ratio * _power_line_exposure_credit(crowd_ratio, boss_ratio, contract)
 	var bottleneck_ratio := minf(crowd_ratio, minf(boss_ratio, line_ratio))
 	return maxi(int(round(float(contract.get("recommended_power", 1)) * bottleneck_ratio)), 1)
 
@@ -788,8 +789,8 @@ func get_combat_power_for_skill_levels(run_skill_levels: Dictionary) -> int:
 	return int(round(_loadout_core_power() * _skill_power_scale(run_skill_levels)))
 
 # design/28 决策③:本关元素乘区——错配构筑的"预计成型"必须现形。
-# 小怪按本关 primary_weakness、Boss 按 bosses.json 弱点/免疫表,伤害倍率全部从
-# economy.json / mechanic_params 动态读取,按敌方 HP 占比(clear_requirement 落表)
+# 小怪按本关 primary_weakness、Boss 按 bosses.json 弱点/抗性表,伤害倍率全部从
+# economy.json / bosses.json 动态读取,按敌方 HP 占比(clear_requirement 落表)
 # 加权后以 0.82 攻击权重压缩进战力空间。
 func get_element_power_factor_for_level(level_id: String) -> float:
 	var level := DataLoader.get_row("levels", level_id)
@@ -812,13 +813,7 @@ func get_element_power_factor_for_level(level_id: String) -> float:
 	if boss_id != "" and boss_id != "<null>":
 		var boss := DataLoader.get_row("bosses", boss_id)
 		if not boss.is_empty():
-			var immune: Array = boss.get("immune", [])
-			if immune.has(element):
-				var params_var: Variant = boss.get("mechanic_params", {})
-				var params: Dictionary = params_var if params_var is Dictionary else {}
-				boss_factor = clampf(float(params.get("immune_damage_floor", 0.0)), 0.02, 1.0)
-			elif str(boss.get("weakness", "")) == element:
-				boss_factor = weakness_mult
+			boss_factor = _power_boss_element_factor(boss, element)
 	var mob_share := clampf(float(requirement.get("mob_hp_share", 1.0)), 0.0, 1.0)
 	var boss_share := clampf(float(requirement.get("boss_hp_share", 0.0)), 0.0, 1.0)
 	var weighted := mob_share * mob_factor + boss_share * boss_factor
@@ -1500,15 +1495,21 @@ func _power_boss_element_factor(boss: Dictionary, element: String) -> float:
 	var weakness_mult := maxf(float(economy.get("weakness_mult", 1.5)), 1.0)
 	if str(boss.get("weakness", "")) == element:
 		return weakness_mult
-	var immune: Array = boss.get("immune", [])
-	if immune.has(element):
+	var resistances_var: Variant = boss.get("resistances", {})
+	var resistances: Dictionary = resistances_var if resistances_var is Dictionary else {}
+	if resistances.has(element):
 		var ruler_var: Variant = economy.get("power_ruler", {})
 		var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
-		if str(boss.get("mechanic", "")) == "armor_break":
-			return clampf(float(ruler.get("armor_break_effective_factor", 0.94)), 0.01, 1.0)
 		var params_var: Variant = boss.get("mechanic_params", {})
 		var params: Dictionary = params_var if params_var is Dictionary else {}
-		return clampf(float(params.get("immune_damage_floor", 0.18)), 0.01, 1.0)
+		if str(boss.get("mechanic", "")) == "armor_break" and bool(params.get("resistance_until_armor_break", false)):
+			return clampf(float(ruler.get("armor_break_effective_factor", 0.94)), 0.01, 1.0)
+		return 1.0 - clampf(float(resistances.get(element, 0.0)), 0.0, 0.95)
+	# A stale Boss row using the retired immune list is still treated as bounded
+	# resistance in projections, matching the runtime compatibility path.
+	var legacy_immune: Array = boss.get("immune", [])
+	if legacy_immune.has(element):
+		return clampf(float(economy.get("resist_mult", 0.5)), 0.05, 1.0)
 	return 1.0
 
 func _power_weighted_boss_element_factor(contract: Dictionary, element: String) -> float:
@@ -1540,6 +1541,31 @@ func _power_line_mitigation_capacity(level: Dictionary) -> float:
 			result /= 0.88
 	return result
 
+func _power_line_exposure_credit(crowd_ratio: float, boss_ratio: float, contract: Dictionary) -> float:
+	# v4: the generated line requirement already represents a normal on-pace
+	# fight. Clearing faster earns only a bounded contact-time credit; clearing
+	# slower receives the symmetric penalty. The HP-share weights are generated
+	# offline with the rest of the immutable level contract.
+	var weights_var: Variant = contract.get("line_exposure_weights", {})
+	var weights: Dictionary = weights_var if weights_var is Dictionary else {}
+	var crowd_weight := clampf(float(weights.get("crowd", 1.0)), 0.0, 1.0)
+	var boss_weight := clampf(float(weights.get("boss", 0.0)), 0.0, 1.0)
+	var total := crowd_weight + boss_weight
+	if total <= 0.0:
+		crowd_weight = 1.0
+		boss_weight = 0.0
+		total = 1.0
+	crowd_weight /= total
+	boss_weight /= total
+	var pressure := crowd_weight / maxf(crowd_ratio, 0.35)
+	pressure += boss_weight / maxf(boss_ratio, 0.35)
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var ruler_var: Variant = economy.get("power_ruler", {})
+	var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
+	var lower := clampf(float(ruler.get("line_exposure_credit_min", 0.85)), 0.5, 1.0)
+	var upper := maxf(float(ruler.get("line_exposure_credit_max", 1.15)), 1.0)
+	return clampf(pow(maxf(pressure, 0.000001), -0.5), lower, upper)
+
 func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 	var level := DataLoader.get_row("levels", level_id)
 	var requirement_var: Variant = level.get("clear_requirement", {})
@@ -1568,10 +1594,14 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 	var crowd_capacity := offense * float(axes.get("crowd", 1.0)) * (weakness_mult if element == weakness else 1.0)
 	var boss_capacity := offense * float(axes.get("boss", 1.0)) * _power_weighted_boss_element_factor(contract, element)
 	var line_capacity := _loadout_survival_multiplier() * float(axes.get("line", 1.0)) * _power_line_mitigation_capacity(level)
+	var crowd_ratio := crowd_capacity / maxf(float(contract.get("crowd_capacity", 1.0)), 0.01)
+	var boss_ratio := boss_capacity / maxf(float(contract.get("boss_capacity", 1.0)), 0.01) if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
+	var raw_line_ratio := line_capacity / maxf(float(contract.get("line_capacity", 1.0)), 0.01)
+	var exposure_credit := _power_line_exposure_credit(crowd_ratio, boss_ratio, contract)
 	var ratios := {
-		"crowd": crowd_capacity / maxf(float(contract.get("crowd_capacity", 1.0)), 0.01),
-		"boss": boss_capacity / maxf(float(contract.get("boss_capacity", 1.0)), 0.01) if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0,
-		"line": line_capacity / maxf(float(contract.get("line_capacity", 1.0)), 0.01),
+		"crowd": crowd_ratio,
+		"boss": boss_ratio,
+		"line": raw_line_ratio * exposure_credit,
 	}
 	var bottleneck := "crowd"
 	if float(ratios.get("boss", 99.0)) < float(ratios.get(bottleneck, 99.0)):
@@ -1588,9 +1618,11 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 			"boss": boss_capacity,
 			"line": line_capacity,
 		},
+		"power_line_raw_ratio": raw_line_ratio,
+		"power_line_exposure_credit": exposure_credit,
 	}
 
-# 单一战力 v3：推荐战力仍是本关固定的“恰好能通关”门槛，不得随存档变化。
+# 单一战力 v4：推荐战力仍是本关固定的“有压力、通常能过”门槛，不得随存档变化。
 # Python 离线模型把运行时追加 Boss、阶段减伤与重复攻线压力写入 power_contract；
 # GDScript 只读合同，杜绝客户端和校验工具再各算一套关卡难度。
 # required_t(min_output)由 tools/generate_clear_requirements.py 基于难度模型离线解出、
