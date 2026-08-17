@@ -9,6 +9,17 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Quantified Defeat / One-Star Premium Guidance (2026-08-17)
+
+- Weak results now reuse the exact same premium-build projection as loadout recommendations. A defeat or
+  one-star win may show an inline offer only when an unlocked, unowned counter set lifts the stage ratio to
+  at least `1.20`; two- and three-star wins and endless results never sell into a strong outcome.
+- The result hint states the current-gear-level premise and full Effective Power change, and the complete hint
+  surface routes to the exact store series while preserving the result return payload. Owned and unrevealed
+  arsenals remain excluded by the shared purchase manager.
+- Chinese and English defeat / one-star / two-star 1080×1920 fixtures pass the visual audit. M1 smoke locks
+  all three visibility states, the ratio threshold, ownership exclusion, shared calculation and focused route.
+
 ### Data-Driven Premium Product Details (2026-08-13)
 
 - Every revealed store product card is now a detail entry: tapping/clicking the four-slot preview, product copy or card surface opens the exact logical offer; the existing card purchase button remains a direct purchase shortcut.

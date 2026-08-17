@@ -233,9 +233,7 @@ func premium_power_offer_for_level(
 		return {}
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var current_power := SaveManager.get_power_for_level(level_id)
-	var requirement_var: Variant = level.get("clear_requirement", {})
-	var requirement: Dictionary = requirement_var if requirement_var is Dictionary else {}
-	var recommended := maxi(1, int(requirement.get("recommended_power", 1)))
+	var recommended := maxi(1, SaveManager.get_recommended_power_for_level(level_id))
 	var best: Dictionary = {}
 	for series_id in store_series_ids():
 		if is_arsenal_owned(series_id):

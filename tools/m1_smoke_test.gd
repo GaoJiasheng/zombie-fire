@@ -162,6 +162,7 @@ func _initialize() -> void:
 	_verify_owned_store_upgrade_cost(save_manager)
 	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_quantified_premium_loadout_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
+	await _verify_quantified_premium_result_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_store_product_preview_contract(data_loader, save_manager)
 	await _verify_appearance_selector_states(save_manager)
 	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
@@ -2161,6 +2162,80 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 	test_save["levels_progress"] = {}
 	save_manager.save_data = test_save
 	_expect(purchase_manager.premium_power_offer_for_level("level_080", 0.15, 0.0).is_empty(), "an unrevealed premium series must never appear in purchase recommendations")
+	save_manager.save_data = original
+	purchase_manager.reconcile_access(false)
+
+func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = save_manager._default_save()
+	test_save["levels_progress"] = {"level_030": 1, "level_072": 1}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	var equipment: Dictionary = test_save.get("equipment", {})
+	equipment.merge({
+		"blaze": 40,
+		"weapon_scattergun": 36,
+		"armor_kevlar": 21,
+		"chip_attack": 21,
+		"pet_turret_drone": 15,
+		"selected_character": "blaze",
+		"selected_weapon": "weapon_scattergun",
+		"selected_armor": "armor_kevlar",
+		"selected_chip": "chip_attack",
+		"selected_pet": "pet_turret_drone",
+	}, true)
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	purchase_manager._catalog = data_loader.get_table("store_products")
+	purchase_manager.reconcile_access(false)
+	var shared_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_072", 0.0, 1.2)
+	_expect(not shared_offer.is_empty(), "result recommendation fixture must reuse the shared premium power calculation")
+	var router := FakeRouter.new()
+	root.add_child(router)
+
+	var defeat := _instance("res://meta/result/result.tscn")
+	root.add_child(defeat)
+	defeat.setup(router, {"level_id": "level_072", "victory": false, "stars": 0, "gold": 0, "xp": 0})
+	await process_frame
+	await process_frame
+	var defeat_hint := defeat.get_node("Content/HintCard/HintBox/Hint") as Label
+	_expect(not defeat._premium_offer.is_empty(), "a defeat must show an unlocked unowned premium set that lifts the stage ratio to at least 1.2")
+	_expect(float(defeat._premium_offer.get("result_ratio", 0.0)) >= 1.2, "result premium guidance must be backed by a projected ratio of at least 1.2")
+	_expect(defeat_hint.text.contains("升级到与你现役同级后") and defeat_hint.text.contains("有效战力"), "defeat guidance must state the same-level premise and quantified effective power")
+	defeat._open_premium_store(str(defeat._premium_offer.get("series_id", "")))
+	_expect(router.last_route == "store" and str(router.last_payload.get("focus_series_id", "")) == "inferno", "result premium guidance must open the matching store series")
+	_expect(str(router.last_payload.get("return_to", "")) == "result", "store opened from a result must return to the same result")
+	defeat.queue_free()
+	await process_frame
+
+	var one_star := _instance("res://meta/result/result.tscn")
+	root.add_child(one_star)
+	one_star.setup(router, {"level_id": "level_072", "victory": true, "stars": 1, "gold": 0, "xp": 0})
+	await process_frame
+	_expect(not one_star._premium_offer.is_empty(), "a one-star victory may show quantified premium guidance")
+	one_star.queue_free()
+	await process_frame
+
+	for stars in [2, 3]:
+		var clean_victory := _instance("res://meta/result/result.tscn")
+		root.add_child(clean_victory)
+		clean_victory.setup(router, {"level_id": "level_072", "victory": true, "stars": stars, "gold": 0, "xp": 0})
+		await process_frame
+		_expect(clean_victory._premium_offer.is_empty(), "%d-star victory must never show a purchase recommendation" % stars)
+		clean_victory.queue_free()
+		await process_frame
+
+	test_save["entitlements"] = {"verified": ["ent_arsenal_inferno"], "last_sync_unix": 1}
+	save_manager.save_data = test_save
+	purchase_manager.reconcile_access(false)
+	var owned_result := _instance("res://meta/result/result.tscn")
+	root.add_child(owned_result)
+	owned_result.setup(router, {"level_id": "level_072", "victory": false, "stars": 0, "gold": 0, "xp": 0})
+	await process_frame
+	_expect(owned_result._premium_offer.is_empty(), "an owned premium set must never appear in result purchase guidance")
+	owned_result.queue_free()
+	router.queue_free()
+	await process_frame
 	save_manager.save_data = original
 	purchase_manager.reconcile_access(false)
 

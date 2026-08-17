@@ -23,6 +23,7 @@ const RESULT_REWARD_COPY_GAP := 16
 const RESULT_HINT_SIDE_PADDING := 28.0
 const RESULT_HINT_ICON_SIZE := Vector2(50, 50)
 const RESULT_HINT_COPY_GAP := 16
+const RESULT_HINT_PREMIUM_HEIGHT := 168.0
 
 var router: Node
 var level_id := "level_001"
@@ -40,6 +41,7 @@ var target_card_picks := 0
 var battle_report: Dictionary = {}
 var repeat_xp_mult := 1.0
 var challenge_rule: Dictionary = {}
+var _premium_offer: Dictionary = {}
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -63,6 +65,7 @@ func setup(main: Node, payload := {}) -> void:
 	if is_endless_result:
 		result_stars = 0
 	_result_return_payload = _build_result_return_payload(payload, victory)
+	_premium_offer = _result_premium_offer(victory)
 	_populate_background(victory)
 	AudioManager.play_bgm("victory" if victory else "defeat")
 	AudioManager.play_sfx("victory" if victory else "defeat")
@@ -85,6 +88,7 @@ func _ready() -> void:
 	$Content/Actions/NextButton.pressed.connect(_on_next_pressed)
 	$Content/Actions/MapButton.pressed.connect(_on_map_pressed)
 	$Content/ReportButton.pressed.connect(_on_report_pressed)
+	$Content/HintCard.gui_input.connect(_on_hint_card_gui_input)
 
 func _apply_layout_constraints() -> void:
 	var viewport_size := get_viewport_rect().size
@@ -143,13 +147,9 @@ func _apply_layout_constraints() -> void:
 		var reward_copy := get_node_or_null(path) as Control
 		if reward_copy != null:
 			reward_copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	$Content/HintCard.custom_minimum_size = Vector2(content_width, 96)
 	$Content/HintCard/HintBox.add_theme_constant_override("separation", RESULT_HINT_COPY_GAP)
 	$Content/HintCard/HintBox/HintIcon.custom_minimum_size = RESULT_HINT_ICON_SIZE
-	$Content/HintCard/HintBox/Hint.custom_minimum_size = Vector2(
-		content_width - RESULT_HINT_SIDE_PADDING * 2.0 - RESULT_HINT_ICON_SIZE.x - RESULT_HINT_COPY_GAP,
-		72
-	)
+	_configure_hint_layout()
 	$Content/ReportButton.custom_minimum_size = Vector2(content_width, UiKit.MIN_TOUCH_TARGET.y)
 	$Content/ReportPanel.custom_minimum_size.x = content_width
 	call_deferred("_center_result_content")
@@ -278,7 +278,7 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	hero_name.text = "%s · %s" % [character_name, outcome_text]
 	var hero_line_size := 26
 	var english_layout := LocalizationManager.is_english() or TranslationServer.get_locale().begins_with("en")
-	if english_layout and character_id == "vanguard" and victory:
+	if english_layout:
 		hero_line_size = 24
 		hero_name.custom_minimum_size.y = RESULT_OUTCOME_HERO_WRAPPED_HEIGHT
 	else:
@@ -423,8 +423,24 @@ func _configure_reward_layout() -> void:
 		xp_card.show()
 
 func _populate_hint(victory: bool) -> void:
+	# setup() may run after _ready() (the normal router path and several tests do
+	# this), so the offer-dependent height must be refreshed after the offer is
+	# known rather than relying on the initial layout pass.
+	_configure_hint_layout()
 	var hint_text := _result_hint(victory)
+	if not _premium_offer.is_empty():
+		var premium_name := _premium_arsenal_name(str(_premium_offer.get("series_id", "")))
+		var premise := LocalizationManager.text("克制本关 · %s：升级到与你现役同级后") % premium_name
+		var power_line := LocalizationManager.text("有效战力 %s → %s") % [
+			_format_full_power_number(int(_premium_offer.get("current_power", 0))),
+			_format_full_power_number(int(_premium_offer.get("projected_power", 0))),
+		]
+		hint_text += "\n↗ %s · %s  ›" % [premise, power_line]
 	$Content/HintCard/HintBox/Hint.text = hint_text
+	$Content/HintCard.set_meta("premium_series_id", str(_premium_offer.get("series_id", "")))
+	$Content/HintCard.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not _premium_offer.is_empty() else Control.CURSOR_ARROW
+	$Content/HintCard.mouse_filter = Control.MOUSE_FILTER_STOP if not _premium_offer.is_empty() else Control.MOUSE_FILTER_PASS
+	UiKit.apply_label($Content/HintCard/HintBox/Hint, 20 if not _premium_offer.is_empty() else 22, UiKit.TEXT_MAIN, 2)
 	# swap hint card style by outcome
 	var card := $Content/HintCard
 	if victory:
@@ -433,6 +449,64 @@ func _populate_hint(victory: bool) -> void:
 	else:
 		_set_hint_style(card, "warning")
 		$Content/HintCard/HintBox/HintIcon.texture = load("res://assets/production/sprites/ui/icon_warning.png")
+	call_deferred("_center_result_content")
+
+func _configure_hint_layout() -> void:
+	var hint_card := get_node_or_null("Content/HintCard") as Control
+	var hint_label := get_node_or_null("Content/HintCard/HintBox/Hint") as Control
+	if hint_card == null or hint_label == null:
+		return
+	hint_card.custom_minimum_size = Vector2(
+		_content_width,
+		RESULT_HINT_PREMIUM_HEIGHT if not _premium_offer.is_empty() else 96.0
+	)
+	hint_label.custom_minimum_size = Vector2(
+		_content_width - RESULT_HINT_SIDE_PADDING * 2.0 - RESULT_HINT_ICON_SIZE.x - RESULT_HINT_COPY_GAP,
+		144.0 if not _premium_offer.is_empty() else 72.0
+	)
+
+func _result_premium_offer(victory: bool) -> Dictionary:
+	if is_endless_result or (victory and result_stars != 1):
+		return {}
+	var offer: Dictionary = PurchaseManager.premium_power_offer_for_level(level_id, 0.0, 0.0)
+	if offer.is_empty():
+		return {}
+	var result_ratio := float(offer.get("projected_power", 0)) / maxf(float(recommended_power), 1.0)
+	if result_ratio + 0.0001 < 1.2:
+		return {}
+	offer["result_ratio"] = result_ratio
+	return offer
+
+func _on_hint_card_gui_input(event: InputEvent) -> void:
+	if _premium_offer.is_empty():
+		return
+	var activate := false
+	if event is InputEventMouseButton:
+		var mouse_button := event as InputEventMouseButton
+		activate = mouse_button.button_index == MOUSE_BUTTON_LEFT and not mouse_button.pressed
+	elif event is InputEventScreenTouch:
+		activate = not (event as InputEventScreenTouch).pressed
+	if not activate:
+		return
+	get_viewport().set_input_as_handled()
+	_open_premium_store(str(_premium_offer.get("series_id", "")))
+
+func _open_premium_store(series_id: String) -> void:
+	if series_id == "":
+		return
+	AudioManager.play_sfx("ui_click")
+	router.change_scene("store", {
+		"return_to": "result",
+		"return_payload": _result_return_payload.duplicate(true),
+		"focus_series_id": series_id,
+	})
+
+func _premium_arsenal_name(series_id: String) -> String:
+	var set_row := PurchaseManager.set_for_series(series_id)
+	return str(set_row.get(
+		"store_title_en" if LocalizationManager.is_english() else "store_title_zh",
+		series_id
+	))
 
 func _set_hint_style(card: PanelContainer, kind: String) -> void:
 	card.add_theme_stylebox_override("panel", _with_result_side_padding(UiKit.hint_texture_style(kind == "warning"), RESULT_HINT_SIDE_PADDING))
@@ -660,6 +734,15 @@ func _format_result_number(value: int) -> String:
 	if abs_value >= 1000:
 		return "%s%.1fk" % [sign, float(abs_value) / 1000.0]
 	return "%s%d" % [sign, abs_value]
+
+func _format_full_power_number(value: int) -> String:
+	var digits := str(maxi(value, 0))
+	var parts: Array[String] = []
+	while digits.length() > 3:
+		parts.push_front(digits.substr(digits.length() - 3, 3))
+		digits = digits.substr(0, digits.length() - 3)
+	parts.push_front(digits)
+	return ",".join(parts)
 
 func _on_upgrade_pressed() -> void:
 	AudioManager.play_sfx("ui_confirm")

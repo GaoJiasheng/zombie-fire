@@ -48,7 +48,7 @@ func setup(main: Node, payload := {}) -> void:
 	router = main
 	if payload is Dictionary:
 		var requested_return := str(payload.get("return_to", "menu"))
-		_return_to = requested_return if requested_return in ["menu", "settings", "collection", "loadout"] else "menu"
+		_return_to = requested_return if requested_return in ["menu", "settings", "collection", "loadout", "result"] else "menu"
 		var raw_return_payload: Variant = payload.get("return_payload", {})
 		_return_payload = raw_return_payload.duplicate(true) if raw_return_payload is Dictionary else {}
 		_open_appearance_on_ready = bool(payload.get("open_theme_appearance", false))
