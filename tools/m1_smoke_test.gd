@@ -161,6 +161,7 @@ func _initialize() -> void:
 	_verify_collection_star_curve(data_loader)
 	_verify_owned_store_upgrade_cost(save_manager)
 	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
+	await _verify_current_warzone_store_recommendation(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_quantified_premium_loadout_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_quantified_premium_result_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_store_product_preview_contract(data_loader, save_manager)
@@ -2387,6 +2388,136 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	save_manager.save_data = original
 	purchase_manager.reconcile_access(false)
 	_verify_multi_series_purchase_routing(data_loader, save_manager, purchase_manager)
+
+
+func _verify_current_warzone_store_recommendation(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = save_manager._default_save()
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_055": 3}
+	var unlocked_levels: Array[String] = []
+	for level_number in range(1, 61):
+		unlocked_levels.append("level_%03d" % level_number)
+	var unlocks: Dictionary = test_save.get("unlocks", {}).duplicate(true)
+	unlocks["levels"] = unlocked_levels
+	test_save["unlocks"] = unlocks
+	save_manager.save_data = test_save
+	purchase_manager._catalog = data_loader.get_table("store_products")
+	purchase_manager.reconcile_access(false)
+
+	var chapter_six_offer: Dictionary = purchase_manager.current_warzone_counter_offer()
+	_expect(str(chapter_six_offer.get("series_id", "")) == "thunder", "chapter 6's authored weakness mode must recommend Thunder")
+	_expect(str(chapter_six_offer.get("weakness", "")) == "lightning", "chapter 6 store recommendation must derive lightning from level data")
+	_expect(int(chapter_six_offer.get("chapter", 0)) == 6, "store recommendation must use the highest unlocked stage's chapter")
+	_expect(int(chapter_six_offer.get("weakness_count", 0)) == 3 and int(chapter_six_offer.get("chapter_stage_count", 0)) == 10, "chapter 6 weakness mode must scan all ten authored stages")
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var chapter_six_store := _instance("res://meta/store/store.tscn")
+	chapter_six_store.setup(router, {})
+	root.add_child(chapter_six_store)
+	await process_frame
+	await process_frame
+	var chapter_six_headers: Array[Control] = []
+	var chapter_six_content := chapter_six_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	if chapter_six_content != null:
+		for child in chapter_six_content.get_children():
+			if child is Control and child.has_meta("store_series_id"):
+				chapter_six_headers.append(child as Control)
+	_expect(not chapter_six_headers.is_empty() and str(chapter_six_headers[0].get_meta("store_series_id", "")) == "thunder", "matching current-warzone arsenal must move to the top of the store")
+	_expect(not chapter_six_headers.is_empty() and bool(chapter_six_headers[0].get_meta("current_warzone_counter", false)), "top matching series must carry the current-warzone counter marker")
+	_expect(chapter_six_store.find_child("CurrentWarzoneCounterBadge", true, false) != null, "matching store series must render one inline current-warzone badge")
+	chapter_six_store.queue_free()
+	await process_frame
+
+	unlocked_levels = []
+	for level_number in range(1, 81):
+		unlocked_levels.append("level_%03d" % level_number)
+	unlocks = test_save.get("unlocks", {}).duplicate(true)
+	unlocks["levels"] = unlocked_levels
+	test_save["unlocks"] = unlocks
+	save_manager.save_data = test_save
+	purchase_manager.reconcile_access(false)
+	var chapter_eight_offer: Dictionary = purchase_manager.current_warzone_counter_offer()
+	_expect(str(chapter_eight_offer.get("series_id", "")) == "inferno", "chapter 8's authored weakness mode must switch the recommendation to Inferno")
+	_expect(str(chapter_eight_offer.get("weakness", "")) == "fire" and int(chapter_eight_offer.get("weakness_count", 0)) == 6, "chapter 8 store recommendation must derive its six-stage fire mode from level data")
+	var chapter_eight_store := _instance("res://meta/store/store.tscn")
+	chapter_eight_store.setup(router, {})
+	root.add_child(chapter_eight_store)
+	await process_frame
+	await process_frame
+	var chapter_eight_headers: Array[Control] = []
+	var chapter_eight_content := chapter_eight_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	if chapter_eight_content != null:
+		for child in chapter_eight_content.get_children():
+			if child is Control and child.has_meta("store_series_id"):
+				chapter_eight_headers.append(child as Control)
+	_expect(not chapter_eight_headers.is_empty() and str(chapter_eight_headers[0].get_meta("store_series_id", "")) == "inferno", "changing campaign progress must data-drive a different store series to the top")
+	var inferno_header_count := 0
+	var counter_badge_count := 0
+	for header in chapter_eight_headers:
+		if str(header.get_meta("store_series_id", "")) == "inferno":
+			inferno_header_count += 1
+		if bool(header.get_meta("current_warzone_counter", false)):
+			counter_badge_count += 1
+	_expect(inferno_header_count == 1, "reordering the matching series must never duplicate it")
+	_expect(counter_badge_count == 1, "the store must render exactly one current-warzone recommendation")
+	chapter_eight_store.queue_free()
+	await process_frame
+
+	# Chapter 4 is poison-led and has no paid poison arsenal. Preserve authored
+	# store order and omit the badge rather than inventing a chapter mapping.
+	test_save["levels_progress"] = {"level_030": 3}
+	unlocked_levels = []
+	for level_number in range(1, 41):
+		unlocked_levels.append("level_%03d" % level_number)
+	unlocks = test_save.get("unlocks", {}).duplicate(true)
+	unlocks["levels"] = unlocked_levels
+	test_save["unlocks"] = unlocks
+	save_manager.save_data = test_save
+	purchase_manager.reconcile_access(false)
+	_expect(purchase_manager.current_warzone_counter_offer().is_empty(), "a chapter with no matching paid element must not fabricate a store recommendation")
+	var unmatched_store := _instance("res://meta/store/store.tscn")
+	unmatched_store.setup(router, {})
+	root.add_child(unmatched_store)
+	await process_frame
+	await process_frame
+	_expect(unmatched_store.find_child("CurrentWarzoneCounterBadge", true, false) == null, "a chapter with no matching premium coverage must render no counter badge")
+	unmatched_store.queue_free()
+	await process_frame
+
+	# Even in a matching chapter, ownership removes the series from sales
+	# recommendations while the existing owned visibility path remains intact.
+	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_055": 3}
+	unlocked_levels = []
+	for level_number in range(1, 81):
+		unlocked_levels.append("level_%03d" % level_number)
+	unlocks = test_save.get("unlocks", {}).duplicate(true)
+	unlocks["levels"] = unlocked_levels
+	test_save["unlocks"] = unlocks
+	test_save["entitlements"] = {"verified": ["ent_arsenal_inferno"], "last_sync_unix": 1}
+	save_manager.save_data = test_save
+	purchase_manager.reconcile_access(false)
+	_expect(purchase_manager.current_warzone_counter_offer().is_empty(), "an already-owned matching arsenal must never be a store sales recommendation")
+	var owned_store := _instance("res://meta/store/store.tscn")
+	owned_store.setup(router, {})
+	root.add_child(owned_store)
+	await process_frame
+	await process_frame
+	_expect(owned_store.find_child("CurrentWarzoneCounterBadge", true, false) == null, "owned matching series must not retain a sales badge")
+	var owned_inferno_headers := 0
+	var owned_content := owned_store.get_node_or_null("Root/VBox/ScrollWrap/Scroll/Content")
+	if owned_content != null:
+		for child in owned_content.get_children():
+			if child is Control and str(child.get_meta("store_series_id", "")) == "inferno":
+				owned_inferno_headers += 1
+	_expect(owned_inferno_headers == 1, "owned series visibility must remain single-instance after recommendation filtering")
+	owned_store.queue_free()
+	router.queue_free()
+	await process_frame
+	save_manager.save_data = original
+	purchase_manager.reconcile_access(false)
+
 
 func _verify_multi_series_purchase_routing(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)

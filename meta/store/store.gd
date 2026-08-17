@@ -38,6 +38,7 @@ var _return_to := "menu"
 var _return_payload := {}
 var _open_appearance_on_ready := false
 var _focus_series_id := ""
+var _current_warzone_counter_series_id := ""
 var _store_pointer_starts: Dictionary = {}
 var _store_pointer_dragged: Dictionary = {}
 var _store_release_blocks_activation := false
@@ -177,6 +178,11 @@ func _rebuild() -> void:
 		child.queue_free()
 
 	var revealed_series := PurchaseManager.store_series_ids()
+	var warzone_counter := PurchaseManager.current_warzone_counter_offer()
+	_current_warzone_counter_series_id = str(warzone_counter.get("series_id", ""))
+	if _current_warzone_counter_series_id != "" and revealed_series.has(_current_warzone_counter_series_id):
+		revealed_series.erase(_current_warzone_counter_series_id)
+		revealed_series.push_front(_current_warzone_counter_series_id)
 	if not revealed_series.is_empty():
 		_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
 		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -360,22 +366,33 @@ func _configure_store_scroll_surface(root: Node) -> void:
 
 func _series_header(series_id: String) -> PanelContainer:
 	var set_row := PurchaseManager.set_for_series(series_id)
+	var is_current_counter := series_id == _current_warzone_counter_series_id
 	var panel := PanelContainer.new()
 	panel.name = "Series_%s" % series_id
 	panel.set_meta("store_series_id", series_id)
+	panel.set_meta("current_warzone_counter", is_current_counter)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 72)
+	panel.custom_minimum_size = Vector2(0, 84 if is_current_counter else 72)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
 	panel.add_child(box)
+	var title_row := HBoxContainer.new()
+	title_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	title_row.add_theme_constant_override("separation", 14)
+	box.add_child(title_row)
 	var label := UiKit.label(str(set_row.get(
 		"store_title_en" if LocalizationManager.is_english() else "store_title_zh",
 		series_id
 	)), 24, UiKit.GOLD, 3)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	box.add_child(label)
+	title_row.add_child(label)
+	if is_current_counter:
+		var badge := UiKit.semantic_tag_pill(_loc("当前战区克制", "Counters Current Warzone"), "status", 14)
+		badge.name = "CurrentWarzoneCounterBadge"
+		badge.set_meta("counter_series_id", series_id)
+		title_row.add_child(badge)
 	return panel
 
 

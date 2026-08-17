@@ -85,6 +85,61 @@ func store_series_ids() -> Array[String]:
 	return result
 
 
+# Data-driven store merchandising for the player's current warzone. The mode is
+# computed from every authored stage in the highest unlocked stage's chapter;
+# ties keep the weakness that appears first in authored stage order. Only a
+# revealed, unowned arsenal can be returned, so ownership never becomes a sales
+# recommendation and a chapter with no premium elemental coverage returns empty.
+func current_warzone_counter_offer() -> Dictionary:
+	var level_id := SaveManager.get_highest_unlocked_level_id()
+	var current_level := DataLoader.get_row("levels", level_id)
+	var chapter := int(current_level.get("chapter", 0))
+	if chapter <= 0:
+		return {}
+	var counts := {}
+	var authored_order: Array[String] = []
+	var chapter_stage_count := 0
+	for level_value in DataLoader.get_table("levels"):
+		var level: Dictionary = level_value
+		if int(level.get("chapter", 0)) != chapter:
+			continue
+		var weakness := str(level.get("primary_weakness", "")).strip_edges()
+		if weakness == "":
+			continue
+		chapter_stage_count += 1
+		if not counts.has(weakness):
+			counts[weakness] = 0
+			authored_order.append(weakness)
+		counts[weakness] = int(counts.get(weakness, 0)) + 1
+	var dominant_weakness := ""
+	var dominant_count := 0
+	for weakness in authored_order:
+		var count := int(counts.get(weakness, 0))
+		if count > dominant_count:
+			dominant_weakness = weakness
+			dominant_count = count
+	if dominant_weakness == "":
+		return {}
+	for series_id in store_series_ids():
+		if is_arsenal_owned(series_id):
+			continue
+		var set_row := set_for_series(series_id)
+		var weapon_id := str(set_row.get("weapon", ""))
+		var element := str(DataLoader.get_row("weapons", weapon_id).get("element", ""))
+		if element != dominant_weakness:
+			continue
+		return {
+			"series_id": series_id,
+			"set_id": set_id_for_series(series_id),
+			"chapter": chapter,
+			"level_id": level_id,
+			"weakness": dominant_weakness,
+			"weakness_count": dominant_count,
+			"chapter_stage_count": chapter_stage_count,
+		}
+	return {}
+
+
 func catalog_series_ids() -> Array[String]:
 	var result: Array[String] = []
 	for row in products():

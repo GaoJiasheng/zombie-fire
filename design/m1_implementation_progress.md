@@ -9,6 +9,18 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Current-Warzone Store Counter Placement (2026-08-17)
+
+- The store now derives the player's current chapter from the highest unlocked stage, scans all authored stages in
+  that chapter, and takes the mode of `primary_weakness`. A revealed, unowned premium arsenal with the matching
+  weapon element moves to the top and receives one inline localized counter badge; no chapter-to-element mapping is
+  hardcoded.
+- Chapters without paid elemental coverage retain authored order and show no badge. An owned matching arsenal keeps
+  the existing owned visibility behavior but is excluded from merchandising and remains single-instance.
+- Chapter 6 (Thunder, lightning 3/10) and Chapter 8 (Inferno, fire 6/10) Chinese / English 1080×1920 captures under
+  `artifacts/design36_purchase_boost/task3/` pass with zero runtime UI issues. M1 smoke locks both progress-driven
+  switches, no-match behavior, ownership exclusion, unique ordering and the existing store scroll/click contract.
+
 ### Absolute Zero Mechanics Positioning + Stage 55 Reveal (2026-08-17)
 
 - Replaced the sparse post-80 ice-weakness promise with a data-authored mechanics claim covering shatter chains,
