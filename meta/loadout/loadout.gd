@@ -21,6 +21,7 @@ const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 # adds a conditional counter-weapon suggestion row on top of that.
 const DETAILS_PANEL_HEIGHT := 388.0
 const DETAILS_PANEL_HEIGHT_WITH_SUGGESTION := 452.0
+const DETAILS_PANEL_HEIGHT_WITH_TWO_SUGGESTIONS := 536.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 # design/28:通关线口径下,0.85 以下 = 早期兜底也救不回来的"远低于通关线"档。
 const SEVERE_POWER_RATIO := 0.85
@@ -105,7 +106,7 @@ func _apply_runtime_layout() -> void:
 		UiKit.apply_armored_texture_button(start, true, Vector2(760, 112), true)
 		var start_label := start.get_node_or_null("Label") as Label
 		if start_label != null:
-			start_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(38))
+			start_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(30 if LocalizationManager.is_english() else 38))
 
 func _bind_open_hit(panel: Control, mode: String) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -174,7 +175,13 @@ func _refresh_start_button() -> void:
 	else:
 		label.text = LocalizationManager.text("开始挑战" if is_challenge_mode else "开始战斗")
 		label.add_theme_color_override("font_color", Color.WHITE)
-	UiKit.fit_label_text(label, UiKit.bumped_font_size(38), 22, 42.0, 10.0)
+	UiKit.fit_label_text(
+		label,
+		UiKit.bumped_font_size(28 if LocalizationManager.is_english() else 38),
+		22,
+		42.0,
+		10.0
+	)
 
 func _on_start_pressed() -> void:
 	if _is_severely_underpowered():
@@ -597,7 +604,9 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	# the collection, say so and offer one tap to go look at it. Suggest only -
 	# never swap gear behind the player's back. The 1.5 comes from economy.json.
 	var suggestion := _counter_weapon_suggestion(weakness, str(SaveManager.get_selected("weapon")))
-	panel.custom_minimum_size = Vector2(0, DETAILS_PANEL_HEIGHT_WITH_SUGGESTION if suggestion != "" else DETAILS_PANEL_HEIGHT)
+	var premium_offer := PurchaseManager.premium_power_offer_for_level(level_id, 0.15, 0.0)
+	var suggestion_count := int(suggestion != "") + int(not premium_offer.is_empty())
+	panel.custom_minimum_size = Vector2(0, _summary_panel_floor(suggestion_count))
 	if suggestion != "":
 		var suggest := Button.new()
 		suggest.name = "CounterSuggestion"
@@ -609,6 +618,41 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		suggest.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
 		suggest.pressed.connect(_open_collection.bind("weapons"))
 		box.add_child(suggest)
+	if not premium_offer.is_empty():
+		var premium_suggest := Button.new()
+		premium_suggest.name = "PremiumCounterSuggestion"
+		var premium_name := _premium_arsenal_name(str(premium_offer.get("series_id", "")))
+		var premium_premise := LocalizationManager.text("克制本关 · %s：升级到与你现役同级后") % premium_name
+		var premium_power := LocalizationManager.text("有效战力 %s → %s") % [
+			_format_power_number(int(premium_offer.get("current_power", 0))),
+			_format_power_number(int(premium_offer.get("projected_power", 0))),
+		]
+		premium_suggest.set_meta("premium_series_id", str(premium_offer.get("series_id", "")))
+		premium_suggest.set_meta("current_power", int(premium_offer.get("current_power", 0)))
+		premium_suggest.set_meta("projected_power", int(premium_offer.get("projected_power", 0)))
+		premium_suggest.flat = true
+		premium_suggest.custom_minimum_size = Vector2(0, 72)
+		premium_suggest.mouse_filter = Control.MOUSE_FILTER_STOP
+		premium_suggest.pressed.connect(_open_premium_store.bind(str(premium_offer.get("series_id", ""))))
+		var premium_copy := VBoxContainer.new()
+		premium_copy.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		premium_copy.offset_left = 8
+		premium_copy.offset_right = -8
+		premium_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+		premium_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		premium_copy.add_theme_constant_override("separation", 0)
+		var premium_premise_label := UiKit.label(premium_premise, 15 if LocalizationManager.is_english() else 17, UiKit.GOLD, 3)
+		premium_premise_label.name = "RecommendationPremiseText"
+		premium_premise_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		premium_premise_label.clip_text = false
+		premium_copy.add_child(premium_premise_label)
+		var premium_power_label := UiKit.label(premium_power, 17 if LocalizationManager.is_english() else 18, UiKit.GOLD, 3)
+		premium_power_label.name = "RecommendationText"
+		premium_power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		premium_power_label.clip_text = false
+		premium_copy.add_child(premium_power_label)
+		premium_suggest.add_child(premium_copy)
+		box.add_child(premium_suggest)
 
 	# design/24 Phase 1: tell the player what earns two and three stars. The
 	# numbers come from data/economy.json through StarRules, never inlined.
@@ -628,13 +672,22 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
 	if not is_instance_valid(panel) or not is_instance_valid(content):
 		return
-	var authored_floor := DETAILS_PANEL_HEIGHT_WITH_SUGGESTION if content.get_node_or_null("CounterSuggestion") != null else DETAILS_PANEL_HEIGHT
+	var suggestion_count := int(content.get_node_or_null("CounterSuggestion") != null)
+	suggestion_count += int(content.get_node_or_null("PremiumCounterSuggestion") != null)
+	var authored_floor := _summary_panel_floor(suggestion_count)
 	var rendered_height := ceilf(content.get_combined_minimum_size().y + SUMMARY_MARGIN_TOP + SUMMARY_MARGIN_BOTTOM)
 	panel.custom_minimum_size = Vector2(0, maxf(authored_floor, rendered_height))
 
+func _summary_panel_floor(suggestion_count: int) -> float:
+	if suggestion_count >= 2:
+		return DETAILS_PANEL_HEIGHT_WITH_TWO_SUGGESTIONS
+	if suggestion_count == 1:
+		return DETAILS_PANEL_HEIGHT_WITH_SUGGESTION
+	return DETAILS_PANEL_HEIGHT
+
 func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.custom_minimum_size = Vector2(360, 36)
+	row.custom_minimum_size = Vector2(360, 50 if LocalizationManager.is_english() else 36)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 8)
 	if icon_path != "":
@@ -643,10 +696,11 @@ func _summary_cell(label_text: String, value_text: String, accent: Color, icon_p
 	title.custom_minimum_size = Vector2(52, 0)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(title)
-	var value := UiKit.label(value_text, 18 if LocalizationManager.is_english() else 21, UiKit.TEXT_MAIN, 4)
+	var value := UiKit.label(value_text, 16 if LocalizationManager.is_english() else 21, UiKit.TEXT_MAIN, 4)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	value.clip_text = true
+	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value.clip_text = false
 	row.add_child(value)
 	return row
 
@@ -1078,6 +1132,38 @@ func _open_collection(mode: String) -> void:
 		"loadout_return_to": _return_to,
 		"loadout_return_payload": _return_payload,
 	})
+
+func _open_premium_store(series_id: String) -> void:
+	if series_id == "":
+		return
+	AudioManager.play_sfx("ui_click")
+	router.change_scene("store", {
+		"return_to": "loadout",
+		"return_payload": {
+			"level_id": level_id,
+			"challenge": is_challenge_mode,
+			"return_to": _return_to,
+			"return_payload": _return_payload.duplicate(true),
+		},
+		"focus_series_id": series_id,
+	})
+
+func _premium_arsenal_name(series_id: String) -> String:
+	var set_row := PurchaseManager.set_for_series(series_id)
+	var value := str(set_row.get(
+		"store_title_en" if LocalizationManager.is_english() else "store_title_zh",
+		series_id
+	))
+	return value
+
+func _format_power_number(value: int) -> String:
+	var digits := str(maxi(value, 0))
+	var parts: Array[String] = []
+	while digits.length() > 3:
+		parts.push_front(digits.substr(digits.length() - 3, 3))
+		digits = digits.substr(0, digits.length() - 3)
+	parts.push_front(digits)
+	return ",".join(parts)
 
 func _level_objective(id: String) -> String:
 	match id:

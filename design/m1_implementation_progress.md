@@ -4375,3 +4375,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Finale time remains the contract**: Stage 99's generator solves a local `0.983097` multiplier for all four Apex copies, yielding `366.66M` effective Boss pressure and an exact `180.0s` scattergun graduation encounter inside `[150,185]s`. The theoretical L99 Apex single-phase audit remains `116.6s`.
 - **Milestones are permanently guarded**: Stages 45–70 measure `1.6–37.8s`, 75–85 measure `62.4–70.7s`, and 90–95 measure `109.0–109.4s`. The checker reads actual rosters and fails any future drift outside the approved bands.
 - **Power and campaign outcomes stay comparable**: the 2–98 corridor remains `[0.9700,1.3800]`; the Stage-99 replay remains `5443/4650, R=1.1706/Boss`, and the Stage-80 Owner replay re-scales to `3531/2011` at the same `R=1.7558/Boss`. Normal stars remain `13/86/0`, challenge remains winnable, and economy coverage remains `80.92%`.
+
+## Quantified Premium Counter Recommendation (2026-08-17)
+
+- **One honest calculation path**: `PurchaseManager` builds a four-piece projection at each current slot level, capped by the premium item maximum, then delegates to the existing player-facing effective-power pipeline. The live equipment dictionary is restored after every projection.
+- **Strict eligibility**: a row exists only when the stage weakness matches the set element, the series is visible, its arsenal is unowned and measured uplift is at least 15%. The existing owned visibility shortcut and all store gates remain unchanged.
+- **The premise travels with the number**: Chinese and English copy both state that the set must be upgraded to current gear levels before showing current → projected Effective Power. Thousands separators retain every digit.
+- **Inline, non-blocking route**: the recommendation shares the Tactical Summary with the existing free counter suggestion, expands the panel from rendered content and opens the matching store series with the complete loadout return payload.
+- **Regression ownership**: M1 smoke covers eligibility, wrong-element / owned / unrevealed negatives, exact projected slot levels, equipment restoration, full number rendering and store focus. Four bilingual 1080×1920 captures cover recommendation-present and recommendation-absent states.

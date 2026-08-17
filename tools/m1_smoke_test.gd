@@ -161,6 +161,7 @@ func _initialize() -> void:
 	_verify_collection_star_curve(data_loader)
 	_verify_owned_store_upgrade_cost(save_manager)
 	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
+	await _verify_quantified_premium_loadout_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_store_product_preview_contract(data_loader, save_manager)
 	await _verify_appearance_selector_states(save_manager)
 	_verify_repeat_clear_xp_decay(save_manager, smoke_save_snapshot)
@@ -2096,6 +2097,72 @@ func _verify_owned_store_upgrade_cost(save_manager: Node) -> void:
 		)
 		owned_row.free()
 	store.free()
+
+func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = save_manager._default_save()
+	test_save["levels_progress"] = {"level_030": 1}
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	var equipment: Dictionary = test_save.get("equipment", {})
+	equipment.merge({
+		"blaze": 40,
+		"weapon_scattergun": 36,
+		"armor_kevlar": 21,
+		"chip_attack": 21,
+		"pet_turret_drone": 15,
+		"selected_character": "blaze",
+		"selected_weapon": "weapon_scattergun",
+		"selected_armor": "armor_kevlar",
+		"selected_chip": "chip_attack",
+		"selected_pet": "pet_turret_drone",
+	}, true)
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	purchase_manager._catalog = data_loader.get_table("store_products")
+	purchase_manager.reconcile_access(false)
+	var equipment_before: Dictionary = save_manager.save_data.get("equipment", {}).duplicate(true)
+	var offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_080", 0.15, 0.0)
+	_expect(str(offer.get("series_id", "")) == "inferno", "fire weakness plus a revealed unowned Inferno series must produce the quantified loadout recommendation")
+	_expect(float(offer.get("uplift_ratio", 0.0)) >= 0.15, "premium loadout recommendation must be backed by at least +15% effective power")
+	_expect(str(offer.get("weakness", "")) == "fire", "premium loadout recommendation must match the stage primary weakness")
+	_expect(save_manager.save_data.get("equipment", {}) == equipment_before, "premium power projection must restore the player's exact equipped build")
+	var projected_build: Dictionary = offer.get("build", {})
+	_expect(int(projected_build.get("weapon", {}).get("level", 0)) == 36, "premium weapon projection must use the current weapon level")
+	_expect(int(projected_build.get("armor", {}).get("level", 0)) == 21, "premium armor projection must use the current armor level")
+	_expect(purchase_manager.premium_power_offer_for_level("level_085", 0.15, 0.0).is_empty(), "a paid series with the wrong element must not be recommended")
+
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var loadout := _instance("res://meta/loadout/loadout.tscn")
+	loadout.setup(router, {"level_id": "level_080"})
+	root.add_child(loadout)
+	await process_frame
+	await process_frame
+	var premium_button := loadout.find_child("PremiumCounterSuggestion", true, false) as Button
+	_expect(premium_button != null, "loadout summary must render the quantified premium recommendation inline")
+	if premium_button != null:
+		var recommendation_text := premium_button.find_child("RecommendationText", true, false) as Label
+		_expect(recommendation_text != null and recommendation_text.text.contains("有效战力"), "quantified premium line must state the effective-power premise")
+		var projected_power_text := str(loadout.call("_format_power_number", int(offer.get("projected_power", 0))))
+		_expect(recommendation_text != null and recommendation_text.text.contains(projected_power_text), "quantified premium line must render the complete projected power value")
+		_expect(str(loadout.call("_format_power_number", 1428)) == "1,428", "quantified premium power must retain all digits when adding thousands separators")
+		premium_button.emit_signal("pressed")
+		_expect(router.last_route == "store", "premium recommendation must route to the store")
+		_expect(str(router.last_payload.get("focus_series_id", "")) == "inferno", "premium recommendation must focus the matching store series")
+	loadout.queue_free()
+	router.queue_free()
+	await process_frame
+
+	test_save["entitlements"] = {"verified": ["ent_arsenal_inferno"], "last_sync_unix": 1}
+	save_manager.save_data = test_save
+	_expect(purchase_manager.premium_power_offer_for_level("level_080", 0.15, 0.0).is_empty(), "an already-owned premium arsenal must never remain in purchase recommendations")
+	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
+	test_save["levels_progress"] = {}
+	save_manager.save_data = test_save
+	_expect(purchase_manager.premium_power_offer_for_level("level_080", 0.15, 0.0).is_empty(), "an unrevealed premium series must never appear in purchase recommendations")
+	save_manager.save_data = original
+	purchase_manager.reconcile_access(false)
 
 func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original: Dictionary = save_manager.save_data.duplicate(true)

@@ -88,3 +88,21 @@ R=0.97<1 的走廊关,显示与真实双高,是晚期真正的钉子关)**、003
 真实压力:`simulate_balance` 逐关 leak/t_ws vs 星级线/超时线;
 付费提升:同 fixture 换装四件套同等级对比;覆盖图:levels.json primary_weakness
 × premium_sets.json store_unlock。一次性脚本未入库(本文数字即快照)。
+
+## 五、实施记录
+
+### 5.1 配装页「错配即转化」量化行（2026-08-17）
+
+- 配装页现在只对「本关主弱点匹配、系列已解锁、军械未拥有、实算提升不少于 15%」
+  的付费系列展示内嵌推荐。投影等级逐槽使用 `min(现役同槽等级, 套装等级上限)`，
+  并明确写出「升级到与现役同级后」的前提。
+- `PurchaseManager.premium_power_offer_for_level()` 是后续配装页与结算页共用的唯一推荐
+  计算入口；实际战力仍由 `SaveManager.power_for_build()` 走现有 `get_power_for_level()`
+  管线，投影结束后完整恢复玩家装备。
+- 推荐行支持免费建议与付费建议同时出现，点击后带 `focus_series_id` 进入对应商店系列，
+  并保留配装页的完整返回路径。
+- 1080×1920 实测截图：
+  `artifacts/design36_purchase_boost/task1/loadout_offer_zh.png`、
+  `loadout_offer_en.png`、`loadout_no_offer_zh.png`、`loadout_no_offer_en.png`。
+- 永久断言覆盖弱点匹配、15% 提升门槛、逐槽等级折算、投影不污染装备、属性错配隐藏、
+  已拥有隐藏、未解锁隐藏、完整数字格式及直达对应商店系列；本地化检查为绿色。

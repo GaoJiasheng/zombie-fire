@@ -219,6 +219,66 @@ func is_series_unlocked(series_id: String) -> bool:
 	return _series_is_visible(series_id)
 
 
+# Single source for every quantified premium recommendation. The four pieces
+# are projected at the levels of the player's currently equipped slots, capped
+# by each premium item's own maximum. No best-in-slot level or synergy is
+# invented, and the result comes from SaveManager.power_for_build().
+func premium_power_offer_for_level(
+	level_id: String,
+	minimum_uplift := 0.15,
+	minimum_result_ratio := 0.0
+) -> Dictionary:
+	var level := DataLoader.get_row("levels", level_id)
+	if level.is_empty():
+		return {}
+	var weakness := str(level.get("primary_weakness", "physical"))
+	var current_power := SaveManager.get_power_for_level(level_id)
+	var requirement_var: Variant = level.get("clear_requirement", {})
+	var requirement: Dictionary = requirement_var if requirement_var is Dictionary else {}
+	var recommended := maxi(1, int(requirement.get("recommended_power", 1)))
+	var best: Dictionary = {}
+	for series_id in store_series_ids():
+		if is_arsenal_owned(series_id):
+			continue
+		var set_row := set_for_series(series_id)
+		var weapon_id := str(set_row.get("weapon", ""))
+		if str(DataLoader.get_row("weapons", weapon_id).get("element", "physical")) != weakness:
+			continue
+		var build := {}
+		for slot in ["weapon", "armor", "chip", "pet"]:
+			var item_id := str(set_row.get(slot, ""))
+			var table_name := "armors" if slot == "armor" else "%ss" % slot
+			var item_row := DataLoader.get_row(table_name, item_id)
+			if item_id == "" or item_row.is_empty():
+				build.clear()
+				break
+			var current_id := SaveManager.get_selected(slot)
+			var current_level := SaveManager.get_item_level(current_id) if current_id != "" else 1
+			build[slot] = {
+				"id": item_id,
+				"level": mini(maxi(current_level, 1), int(item_row.get("max_level", current_level))),
+			}
+		if build.size() != 4:
+			continue
+		var projected_power := SaveManager.power_for_build(level_id, build)
+		var uplift := float(projected_power) / float(maxi(current_power, 1)) - 1.0
+		var result_ratio := float(projected_power) / float(recommended)
+		if uplift + 0.0001 < minimum_uplift or result_ratio + 0.0001 < minimum_result_ratio:
+			continue
+		if best.is_empty() or projected_power > int(best.get("projected_power", 0)):
+			best = {
+				"series_id": series_id,
+				"set_id": set_id_for_series(series_id),
+				"current_power": current_power,
+				"projected_power": projected_power,
+				"uplift_ratio": uplift,
+				"result_ratio": result_ratio,
+				"weakness": weakness,
+				"build": build,
+			}
+	return best
+
+
 func mock_purchase(product_id: String, persist := true) -> bool:
 	var row := product(product_id)
 	if row.is_empty() or not visible_offer_ids().has(product_id):

@@ -37,6 +37,7 @@ var _appearance_selector: CanvasLayer
 var _return_to := "menu"
 var _return_payload := {}
 var _open_appearance_on_ready := false
+var _focus_series_id := ""
 var _store_pointer_starts: Dictionary = {}
 var _store_pointer_dragged: Dictionary = {}
 var _store_release_blocks_activation := false
@@ -51,6 +52,7 @@ func setup(main: Node, payload := {}) -> void:
 		var raw_return_payload: Variant = payload.get("return_payload", {})
 		_return_payload = raw_return_payload.duplicate(true) if raw_return_payload is Dictionary else {}
 		_open_appearance_on_ready = bool(payload.get("open_theme_appearance", false))
+		_focus_series_id = str(payload.get("focus_series_id", "")).strip_edges()
 
 
 func _ready() -> void:
@@ -63,6 +65,8 @@ func _ready() -> void:
 	PurchaseManager.purchase_finished.connect(_on_purchase_finished)
 	_apply_style()
 	_rebuild()
+	if _focus_series_id != "":
+		call_deferred("_focus_requested_series")
 	if _open_appearance_on_ready:
 		call_deferred("_open_theme_appearance")
 
@@ -192,6 +196,17 @@ func _rebuild() -> void:
 		elif PurchaseManager.is_theme_owned(series_id):
 			content.add_child(_owned_theme_panel(series_id))
 	_configure_store_scroll_surface(content)
+	if _focus_series_id != "":
+		call_deferred("_focus_requested_series")
+
+func _focus_requested_series() -> void:
+	if _focus_series_id == "":
+		return
+	var content := $Root/VBox/ScrollWrap/Scroll/Content as VBoxContainer
+	for child in content.get_children():
+		if str(child.get_meta("store_series_id", "")) == _focus_series_id:
+			($Root/VBox/ScrollWrap/Scroll as ScrollContainer).ensure_control_visible(child as Control)
+			return
 
 
 func _locked_store_empty_state() -> PanelContainer:
@@ -1595,6 +1610,7 @@ func _store_payload(open_appearance: bool) -> Dictionary:
 		"return_to": _return_to,
 		"return_payload": _return_payload.duplicate(true),
 		"open_theme_appearance": open_appearance,
+		"focus_series_id": _focus_series_id,
 	}
 
 

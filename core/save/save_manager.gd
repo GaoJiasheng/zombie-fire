@@ -736,6 +736,31 @@ func get_loadout_power() -> int:
 func get_projected_combat_power_for_level(level_id: String) -> int:
 	return get_power_for_level(level_id)
 
+# Runs a hypothetical equipment set through the exact same effective-power
+# pipeline used by the loadout screen. The projection is synchronous and never
+# persists or unlocks the supplied items; callers only receive the calculated
+# number. This keeps commerce guidance tied to real player-facing math.
+func power_for_build(level_id: String, build: Dictionary) -> int:
+	var original_equipment_var: Variant = save_data.get("equipment", {})
+	var original_equipment: Dictionary = (
+		original_equipment_var.duplicate(true) if original_equipment_var is Dictionary else {}
+	)
+	var projected := original_equipment.duplicate(true)
+	for slot in ["weapon", "armor", "chip", "pet"]:
+		var spec_var: Variant = build.get(slot, {})
+		if not spec_var is Dictionary:
+			continue
+		var spec: Dictionary = spec_var
+		var item_id := str(spec.get("id", "")).strip_edges()
+		if item_id == "":
+			continue
+		projected["selected_%s" % slot] = item_id
+		projected[item_id] = maxi(1, int(spec.get("level", 1)))
+	save_data["equipment"] = projected
+	var power := get_power_for_level(level_id)
+	save_data["equipment"] = original_equipment
+	return power
+
 # 2026-08-12 Owner 最终口径：玩家界面只使用一个“战力”。它代表当前装备、
 # 当前永久技能等级，并按目标关卡的选卡预算预期成型后的战力。旧函数保留为内部
 # 兼容入口，避免历史工具和存档路由断裂；新界面统一调用这个无歧义名称。
