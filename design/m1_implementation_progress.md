@@ -4417,3 +4417,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The premise travels with the number**: Chinese and English copy both state that the set must be upgraded to current gear levels before showing current → projected Effective Power. Thousands separators retain every digit.
 - **Inline, non-blocking route**: the recommendation shares the Tactical Summary with the existing free counter suggestion, expands the panel from rendered content and opens the matching store series with the complete loadout return payload.
 - **Regression ownership**: M1 smoke covers eligibility, wrong-element / owned / unrevealed negatives, exact projected slot levels, equipment restoration, full number rendering and store focus. Four bilingual 1080×1920 captures cover recommendation-present and recommendation-absent states.
+
+## Card-Offer Empty-Lane Regression Fix (2026-08-18)
+
+- **One height owner**: measured wrapped card content is now the sole source of the offer modal's vertical size. Tall viewports center the completed modal inside the battlefield corridor without adding presentation-only height.
+- **The list collapses with its content**: the card VBox uses the real three-card sum and separation. A fixed `62px` quiet lane remains before the reroll / skip actions, replacing the accidental several-hundred-pixel blank region.
+- **Long localized copy remains protected**: cards may still grow when measured Chinese or English text wraps; the existing battlefield cap and exhaustive 152-card bilingual capacity test remain unchanged.
+- **Regression ownership**: M1 smoke now recomputes expected modal height from the live cards and fails if the panel stretches, the list retains unused height, the action gap drifts, or battlefield centering is lost.

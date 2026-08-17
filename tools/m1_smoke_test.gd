@@ -3459,14 +3459,25 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 	_expect(card_panel.process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
 	_expect(not battle.wave_toast_banner.visible, "card offer must clear any wave or onboarding toast behind the modal")
 	_expect(battle.pending_wave_toast.is_empty(), "card offer must clear queued wave toasts so they do not reappear under the modal")
-	_expect(card_panel.size.y >= 1240.0 and card_panel.size.y <= 1370.0, "card offer panel should use more of the tall-screen vertical space without becoming full-screen")
 	var card_bounds: Vector2 = battle._card_offer_vertical_bounds()
+	var cards := card_panel.get_node("Cards") as VBoxContainer
+	var visible_card_height := 0.0
+	var visible_card_count := 0
+	for card_node in cards.get_children():
+		var visible_card := card_node as Control
+		if visible_card == null or not visible_card.visible:
+			continue
+		visible_card_height += visible_card.custom_minimum_size.y
+		visible_card_count += 1
+	if visible_card_count > 1:
+		visible_card_height += float(cards.get_theme_constant("separation")) * float(visible_card_count - 1)
+	var expected_content_height: float = battle.CARD_OFFER_CARDS_POS.y + visible_card_height + battle.CARD_OFFER_ACTION_GAP + battle.CARD_OFFER_ACTION_LANE_HEIGHT
+	var expected_panel_height: float = minf(card_bounds.y - card_bounds.x, maxf(battle.CARD_OFFER_PANEL_SIZE.y, expected_content_height))
+	_expect(absf(card_panel.size.y - expected_panel_height) <= 1.0, "card offer panel height must follow measured card content instead of stretching an empty tall-screen lane")
 	var card_center_y := card_panel.position.y + card_panel.size.y * 0.5
 	var battlefield_center_y := (card_bounds.x + card_bounds.y) * 0.5
 	_expect(absf(card_center_y - battlefield_center_y) <= 1.0, "card offer panel must remain vertically centered between the top combat controls and the real breach line")
 	_expect(card_panel.position.y >= card_bounds.x - 1.0 and card_panel.position.y + card_panel.size.y <= card_bounds.y + 1.0, "card offer panel must stay inside its centered battlefield corridor")
-	var cards := card_panel.get_node("Cards") as Control
-	_expect(cards.size.y >= 920.0, "card offer list must give three skill cards enough vertical breathing room")
 	for card_node in cards.get_children():
 		var skill_card := card_node as Control
 		if skill_card == null:
@@ -3498,6 +3509,9 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 				_expect(badge.position.x + badge.size.x <= card_size.x - 40.0, "%s must keep a safe right inset inside the card" % badge_name)
 	var reroll := card_panel.get_node("RerollButton") as TextureButton
 	var skip := card_panel.get_node("SkipButton") as TextureButton
+	var measured_action_gap := reroll.position.y - (cards.position.y + visible_card_height)
+	_expect(absf(measured_action_gap - battle.CARD_OFFER_ACTION_GAP) <= 1.0, "card offer must keep the approved quiet lane after the final card without leaving a large blank region")
+	_expect(absf(cards.size.y - visible_card_height) <= 1.0, "card offer list height must collapse to its three measured cards")
 	var reroll_texture_path := str(reroll.texture_normal.resource_path) if reroll.texture_normal != null else ""
 	var skip_texture_path := str(skip.texture_normal.resource_path) if skip.texture_normal != null else ""
 	_expect(reroll_texture_path.ends_with("ui_button_primary_native_412x88.png"), "card reroll button must use the native primary armored texture, got %s" % reroll_texture_path)

@@ -326,10 +326,12 @@ const FROST_GLACIER_BOSS_SPEED := 0.62
 const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
 const CARD_OFFER_PANEL_X := 54.0
 const CARD_OFFER_CENTER_TOP_Y := 100.0
-const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1280.0)
+const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1154.0)
 const CARD_OFFER_CARDS_POS := Vector2(54.0, 126.0)
-const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 928.0)
+const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 842.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
+const CARD_OFFER_ACTION_GAP := 62.0
+const CARD_OFFER_ACTION_LANE_HEIGHT := 124.0
 const CARD_OFFER_CARD_WIDTH := 864.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
 const CARD_OFFER_ICON_FRAME_POS := Vector2(32.0, 48.0)
@@ -2958,15 +2960,16 @@ func _layout_card_offer_panel() -> void:
 	var panel := get_node_or_null("Hud/CardPanel") as Panel
 	if panel == null:
 		return
-	var viewport_extra_h := maxf(0.0, get_viewport_rect().size.y - 1920.0)
-	var tall_height_bonus := minf(90.0, viewport_extra_h * 0.12)
 	var bounds := _card_offer_vertical_bounds()
-	var max_panel_height := maxf(CARD_OFFER_PANEL_SIZE.y, bounds.y - bounds.x)
+	var max_panel_height := maxf(0.0, bounds.y - bounds.x)
 	var content_height := float(panel.get_meta("card_offer_content_height", 0.0))
-	var panel_height := minf(max_panel_height, maxf(CARD_OFFER_PANEL_SIZE.y + tall_height_bonus, content_height))
+	# Wrapped card copy owns the modal height. Tall screens only move the finished
+	# modal to the battlefield center; they must not stretch an empty lane between
+	# the third card and the primary actions.
+	var panel_height := minf(max_panel_height, maxf(CARD_OFFER_PANEL_SIZE.y, content_height))
 	panel.size = Vector2(CARD_OFFER_PANEL_SIZE.x, panel_height)
 	panel.position = Vector2(CARD_OFFER_PANEL_X, _card_offer_centered_y(panel.size.y))
-	var button_y := panel.size.y - 124.0
+	var button_y := panel.size.y - CARD_OFFER_ACTION_LANE_HEIGHT
 	var title := panel.get_node_or_null("CardTitle") as Label
 	if title != null:
 		title.position = Vector2(54, 30)
@@ -2976,7 +2979,7 @@ func _layout_card_offer_panel() -> void:
 	var cards := panel.get_node_or_null("Cards") as VBoxContainer
 	if cards != null:
 		cards.position = CARD_OFFER_CARDS_POS
-		cards.size = Vector2(CARD_OFFER_CARDS_SIZE.x, maxf(CARD_OFFER_CARDS_SIZE.y, button_y - CARD_OFFER_CARDS_POS.y - 62.0))
+		cards.size = Vector2(CARD_OFFER_CARDS_SIZE.x, maxf(0.0, button_y - CARD_OFFER_CARDS_POS.y - CARD_OFFER_ACTION_GAP))
 		cards.add_theme_constant_override("separation", CARD_OFFER_CARD_SEPARATION)
 	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
 	if reroll != null:
@@ -11281,7 +11284,7 @@ func _fit_card_offer_panel_to_cards() -> void:
 	# Keep a full 62px quiet lane between the final card and the primary actions.
 	# The panel may grow up to the real battlefield bounds, never over the base or
 	# the hero model. This lets translated/wrapped card copy own its actual height.
-	panel.set_meta("card_offer_content_height", CARD_OFFER_CARDS_POS.y + content_h + 62.0 + 124.0)
+	panel.set_meta("card_offer_content_height", CARD_OFFER_CARDS_POS.y + content_h + CARD_OFFER_ACTION_GAP + CARD_OFFER_ACTION_LANE_HEIGHT)
 	_layout_card_offer_panel()
 
 func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, lv: int) -> Panel:
