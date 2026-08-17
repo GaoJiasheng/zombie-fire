@@ -2276,8 +2276,13 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must first appear after clearing level 30")
 	test_save["levels_progress"]["level_050"] = 1
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must first appear after clearing level 50")
-	test_save["levels_progress"]["level_080"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 80")
+	test_save["levels_progress"]["level_054"] = 1
+	_expect(not purchase_manager.store_series_ids().has("absolute_zero"), "Polar Aurora must remain hidden after clearing level 54")
+	test_save["levels_progress"]["level_055"] = 1
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 55")
+	var absolute_zero_set: Dictionary = data_loader.get_row("premium_sets", "set_apocalypse_absolute_zero")
+	_expect(str(absolute_zero_set.get("dominance_zh", "")).begins_with("主宰区间：碎冰连爆与减速控场"), "Absolute Zero store positioning must lead with its authored Shatter and slow-control mechanics")
+	_expect(str(absolute_zero_set.get("dominance_en", "")).begins_with("Dominance Range: Shatter chains and slow control"), "Absolute Zero English positioning must match the mechanics-led claim")
 	test_save["levels_progress"]["level_099"] = 1
 	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 99 until a hero reaches level 40")
 	test_save["equipment"]["vanguard"] = 40
@@ -2417,7 +2422,7 @@ func _verify_multi_series_purchase_routing(data_loader: Node, save_manager: Node
 		}
 	purchase_manager._catalog = fixture_catalog
 	save_manager.save_data = save_manager._default_save()
-	save_manager.save_data["levels_progress"] = {"level_030": 1, "level_050": 1, "level_080": 1, "level_099": 1}
+	save_manager.save_data["levels_progress"] = {"level_030": 1, "level_050": 1, "level_055": 1, "level_080": 1, "level_099": 1}
 	save_manager.save_data["equipment"]["vanguard"] = 40
 	purchase_manager.reconcile_access(false)
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "fixture_second", "golden_law"], "aggregate catalog must expose every eligible independent series in authored offer order")
@@ -2565,6 +2570,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 		_expect(int(locked_empty_state.get_meta("nearest_clear_level", 0)) == expected_nearest_clear, "fresh premium store must derive its nearest unlock tier from premium_sets.store_unlock")
 		_expect(locked_empty_state.find_child("NearestUnlockText", true, false) != null, "fresh premium store must explain the nearest unlock requirement")
 		_expect(locked_empty_state.find_child("LaterUnlockText", true, false) != null, "fresh premium store must summarize later unlock tiers")
+		_expect(locked_empty_state.get_meta("later_clear_levels", []) == [50, 55, 99], "fresh premium store must dynamically summarize the 30 / 50 / 55 / 99 reveal tiers")
 	var locked_restore := locked_store.get_node_or_null("Root/VBox/Footer/RestoreButton") as Button
 	_expect(locked_restore != null and not locked_restore.disabled and locked_restore.visible, "restore purchases must remain available in the locked store empty state")
 	_expect(locked_headers.is_empty(), "fresh premium store must not reveal any series identity before its gate")
@@ -2614,6 +2620,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	test_save["levels_progress"] = {
 		"level_030": 3,
 		"level_050": 3,
+		"level_055": 3,
 		"level_080": 3,
 		"level_099": 3,
 	}
@@ -2920,6 +2927,7 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 	test_save["levels_progress"] = {
 		"level_030": 3,
 		"level_050": 3,
+		"level_055": 3,
 		"level_080": 3,
 		"level_099": 3,
 	}

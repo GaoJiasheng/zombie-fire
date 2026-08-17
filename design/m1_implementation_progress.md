@@ -9,6 +9,17 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Absolute Zero Mechanics Positioning + Stage 55 Reveal (2026-08-17)
+
+- Replaced the sparse post-80 ice-weakness promise with a data-authored mechanics claim covering shatter chains,
+  slow control and reliable control under the boss slow cap. The required Chinese and English dominance prefixes
+  remain intact.
+- Moved the Absolute Zero reveal gate from Stage 80 to Stage 55 without touching price, premium combat values,
+  theme presentation or campaign difficulty. The locked-store summary continues to read the gates dynamically and
+  now presents the full 30 / 50 / 55 / 99 sequence.
+- M1 smoke locks Stage 54 hidden, Stage 55 visible, both localized claims and the dynamic tier order. Five Chinese /
+  English 1080×1920 captures under `artifacts/design36_purchase_boost/task4/` pass with zero runtime UI issues.
+
 ### Quantified Defeat / One-Star Premium Guidance (2026-08-17)
 
 - Weak results now reuse the exact same premium-build projection as loadout recommendations. A defeat or

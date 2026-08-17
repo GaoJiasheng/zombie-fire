@@ -120,3 +120,17 @@ R=0.97<1 的走廊关,显示与真实双高,是晚期真正的钉子关)**、003
   `result_two_star_zh.png`、`result_two_star_en.png`；六张图片布局审计均为零问题。
 - 永久断言覆盖战败显示、1★ 显示、2★ / 3★ 隐藏、`R >= 1.20`、已拥有隐藏、同源计算、
   量化前提与对应商店路由；本地化门禁保持绿色。
+
+### 5.3 绝对零度卖点与揭示门调整（2026-08-17）
+
+- 绝对零度的「主宰区间」不再承诺稀少的冰弱关卡，改为如实强调碎冰连爆、减速控场，
+  以及首领 40% 减速上限下仍然有效的稳定压制；中英文继续保留发布门禁要求的固定前缀。
+- `store_unlock.clear_level` 从 80 调整为 55，价格、套装数值、主题外观与真实难度引擎均未改动。
+  商店空态完全沿用动态数据，后续档位已自动更新为 50 / 55 / 99（完整序列
+  30 / 50 / 55 / 99）。
+- 1080×1920 实测截图：
+  `artifacts/design36_purchase_boost/task4/store_absolute_zero_level55_zh.png`、
+  `store_absolute_zero_level55_en.png`、`store_absolute_zero_level54_zh.png`、
+  `store_empty_tiers_zh.png`、`store_empty_tiers_en.png`；五张图片布局审计均为零问题。
+- 永久断言覆盖 54 关不可见、55 关可见、空态档位动态顺序及中英文机制文案；
+  `check_release_strings`、本地化检查与 M1 smoke 均为绿色。
