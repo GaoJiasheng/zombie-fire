@@ -5273,6 +5273,26 @@ func _verify_card_offer_permanent_level_preload(save_manager: Node) -> void:
 
 func _verify_endless_mode(save_manager: Node) -> void:
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
+	var economy: Dictionary = save_manager.get_node("/root/DataLoader").get_table("economy")
+	_expect(not economy.has("endless_loop_hp_growth"), "endless mode must not retain the retired single-growth source")
+	var growth_stages_var = economy.get("endless_hp_growth_stages", [])
+	var growth_stages: Array = growth_stages_var if growth_stages_var is Array else []
+	_expect(growth_stages.size() == 3, "endless mob HP must use the three approved growth stages")
+	_expect(int(economy.get("endless_boss_count_step", 0)) == 4, "endless Boss count step must come from economy and equal four loops")
+	_expect(int(economy.get("endless_boss_count_cap", 0)) == 6, "endless Boss count cap must come from economy and remain six")
+	var pacing_var = economy.get("endless_boss_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	var budgets_var = pacing.get("budgets", [])
+	var budgets: Array = budgets_var if budgets_var is Array else []
+	_expect(int(pacing.get("max_loop", 0)) >= 20 and budgets.size() >= 20, "endless Boss budget table must cover at least twenty loops")
+	var previous_budget := 0.0
+	for display_loop in range(1, 21):
+		var row_var = budgets[display_loop - 1] if display_loop - 1 < budgets.size() else {}
+		var row: Dictionary = row_var if row_var is Dictionary else {}
+		var total_hp := float(row.get("total_hp", 0.0))
+		_expect(int(row.get("loop", 0)) == display_loop, "endless Boss budget rows must be contiguous at loop %d" % display_loop)
+		_expect(total_hp >= previous_budget and total_hp > 0.0, "endless Boss budgets must be positive and monotonic at loop %d" % display_loop)
+		previous_budget = total_hp
 	var router := FakeRouter.new()
 	root.add_child(router)
 	var battle := _instance("res://gameplay/battle/battle.tscn")
@@ -5284,6 +5304,19 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	_expect(battle.endless_loop == 0 and is_equal_approx(battle.endless_difficulty_mult, 1.0), "endless mode must start at loop 0 with no HP escalation")
 	_expect(battle.endless_template_level_id == "level_025", "endless must resolve to the fixed level_025 template; got %s" % battle.endless_template_level_id)
 	_expect(battle.level_ordinal == 25, "endless first loop must use level-25-equivalent economy scaling, got %d" % battle.level_ordinal)
+	_expect(battle._endless_boss_count() == 1, "endless loops 1-4 must start with one Boss")
+	battle.endless_loop = 4
+	_expect(battle._endless_boss_count() == 2, "endless loop 5 must add the second Boss using the economy step")
+	battle.endless_loop = 40
+	_expect(battle._endless_boss_count() == 6, "endless Boss count must respect the economy cap")
+	battle.endless_loop = 0
+	var last_mob_mult := 0.0
+	for display_loop in range(1, 21):
+		var mob_mult: float = battle._endless_mob_hp_multiplier(display_loop, economy)
+		_expect(mob_mult > last_mob_mult, "endless mob HP multiplier must rise strictly at loop %d" % display_loop)
+		last_mob_mult = mob_mult
+	var loop8_mult: float = battle._endless_mob_hp_multiplier(8, economy)
+	_expect(loop8_mult >= 3.96 and loop8_mult <= 4.84, "endless loop 8 mob HP must remain near 4.4x, got %.3fx" % loop8_mult)
 	var late_entry := _instance("res://gameplay/battle/battle.tscn")
 	late_entry.setup(router, {"level_id": "level_076", "endless": true})
 	root.add_child(late_entry)
@@ -5301,6 +5334,10 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	var grace_boss: Node = battle._spawn_enemy_instance("boss_tank_titan", Vector2(540, 190), true)
 	_expect(grace_boss.resistances.is_empty(), "endless first-loop boss grace must remove the opening resistance wall")
 	grace_boss.queue_free()
+	var budget_probe: Node = battle._spawn_enemy_instance("boss_frost_warden", Vector2(540, 190), true, 1.0, 12345.0)
+	var budget_probe_total := float(budget_probe.max_hp) + float(budget_probe.armor_hp_max)
+	_expect(absf(budget_probe_total - 12345.0) <= 0.1, "endless Boss must use its loop-budget share without campaign fixed HP or mob multiplier; got %.1f" % budget_probe_total)
+	budget_probe.queue_free()
 	late_entry.queue_free()
 	await process_frame
 	var first_endless_threshold := int(battle.next_xp_offer)
@@ -5318,18 +5355,18 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	# _advance_endless_loop 把 wave_index 归零后立刻调用 _start_next_wave()(内部会 +1)，
 	# 所以函数返回时 wave_index==1，代表"重新从第一波开始播"而不是停在0。
 	_expect(battle.wave_index == 1, "advancing an endless loop must restart from the first wave")
-	var mult_loop1: float = pow(1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH), 1.0)
-	_expect(battle.endless_difficulty_mult >= mult_loop1 - 0.001, "first endless loop must raise difficulty by at least 50%%")
+	var mult_loop1: float = battle._endless_mob_hp_multiplier(2, economy)
+	_expect(absf(battle.endless_difficulty_mult - mult_loop1) <= 0.001, "second displayed endless loop must use the first staged mob multiplier")
 	battle.wave_index = 1
 	var after: Node = battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 190), false)
 	var hp_after: float = after.max_hp
 	after.queue_free()
-	_expect(hp_after >= hp_before * 1.49, "endless loop escalation must raise spawned enemy HP by at least 50%%, got %.1f -> %.1f" % [hp_before, hp_after])
+	_expect(absf(hp_after / maxf(hp_before, 0.001) - mult_loop1) <= 0.01, "endless loop escalation must apply the staged mob multiplier, got %.1f -> %.1f" % [hp_before, hp_after])
 	battle._advance_endless_loop()
 	_expect(battle.endless_loop == 2, "second loop completion must advance endless_loop to 2")
-	var mult_loop2: float = pow(1.0 + float(battle.ENDLESS_LOOP_HP_GROWTH), 2.0)
-	_expect(battle.endless_difficulty_mult >= mult_loop2 - 0.001, "second endless loop must compound to at least 2.25x")
-	_expect(battle.endless_difficulty_mult / maxf(mult_loop1, 0.001) >= 1.49, "endless difficulty must grow at least 50%% each completed loop")
+	var mult_loop2: float = battle._endless_mob_hp_multiplier(3, economy)
+	_expect(absf(battle.endless_difficulty_mult - mult_loop2) <= 0.001, "third displayed endless loop must compound the staged mob multiplier")
+	_expect(absf(battle.endless_difficulty_mult / maxf(mult_loop1, 0.001) - 1.20) <= 0.001, "early endless mob difficulty must grow by the approved 20%% stage")
 	battle.base_hp = 0
 	battle._finish(false)
 	_expect(bool(router.last_result.get("endless", false)), "endless defeat must report an endless result to the router")

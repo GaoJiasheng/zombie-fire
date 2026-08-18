@@ -393,7 +393,7 @@ var variant := "normal"
 var variant_gold_mult := 1.0
 var variant_xp_mult := 1.0
 # 无限尸潮：使用 economy.endless_template_level 作为独立模板，不继承入口关卡难度；
-# 每轮血量按 ENDLESS_LOOP_HP_GROWTH 复利递增，只在漏怪耗尽基地生命时结算。
+# 小怪按 economy.endless_hp_growth_stages 分段复利，Boss 则使用独立轮次总预算。
 var is_endless_mode := false
 var is_challenge_mode := false
 var challenge_rule: Dictionary = {}
@@ -401,7 +401,7 @@ var endless_loop := 0
 var endless_difficulty_mult := 1.0
 var endless_template_level_id := ""
 const ENDLESS_LOOP_HP_GROWTH := 0.50
-const ENDLESS_BOSS_COUNT_STEP := 3
+const ENDLESS_BOSS_COUNT_STEP := 4
 const ENDLESS_BOSS_COUNT_CAP := 6
 var level_ordinal := 1
 ## 阶段 67：关卡的 `wave_pattern` 编队原型，决定敌人从哪条通道进攻。
@@ -3638,7 +3638,12 @@ func _process_spawns(delta: float) -> void:
 		active_spawning = false
 		return
 	var item: Dictionary = pending_spawns.pop_front()
-	_spawn_enemy(item.get("type", "zombie_shambler"), item.get("lane", "spread"), item.get("boss", false))
+	_spawn_enemy(
+		item.get("type", "zombie_shambler"),
+		item.get("lane", "spread"),
+		item.get("boss", false),
+		float(item.get("endless_boss_hp", 0.0)),
+	)
 	spawn_timer = item.get("interval", 0.8)
 
 func _start_next_wave() -> void:
@@ -3710,6 +3715,8 @@ func _start_next_wave() -> void:
 		if is_endless_mode and _is_endless_final_wave(waves):
 			_show_wave_toast("第 %d 轮最终波 · 首领压境" % (endless_loop + 1), Color(1.0, 0.36, 0.18))
 			_queue_endless_final_bosses(0)
+	if _is_endless_final_wave(waves):
+		_assign_endless_boss_budget_to_pending()
 	active_spawning = true
 	spawn_timer = 0.2
 
@@ -3728,7 +3735,57 @@ func _queue_endless_final_bosses(existing_boss_count: int) -> void:
 		})
 
 func _endless_boss_count() -> int:
-	return clampi(1 + int(endless_loop / ENDLESS_BOSS_COUNT_STEP), 1, ENDLESS_BOSS_COUNT_CAP)
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var step := maxi(int(economy.get("endless_boss_count_step", ENDLESS_BOSS_COUNT_STEP)), 1)
+	var cap := maxi(int(economy.get("endless_boss_count_cap", ENDLESS_BOSS_COUNT_CAP)), 1)
+	return clampi(1 + int(endless_loop / step), 1, cap)
+
+func _assign_endless_boss_budget_to_pending() -> void:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var total_budget := _endless_boss_total_budget(endless_loop + 1, economy)
+	if total_budget <= 0.0:
+		return
+	var local_counts := {}
+	var boss_indices: Array[int] = []
+	var weights: Array[float] = []
+	for index in range(pending_spawns.size()):
+		var item_var = pending_spawns[index]
+		if not item_var is Dictionary:
+			continue
+		var item := item_var as Dictionary
+		if not bool(item.get("boss", false)):
+			continue
+		var enemy_id := str(item.get("type", ""))
+		var copy_index := int(local_counts.get(enemy_id, 0))
+		local_counts[enemy_id] = copy_index + 1
+		boss_indices.append(index)
+		weights.append(_same_type_boss_hp_multiplier(enemy_id, copy_index, economy))
+	var weight_total := 0.0
+	for weight in weights:
+		weight_total += weight
+	if boss_indices.is_empty() or weight_total <= 0.0:
+		return
+	for offset in range(boss_indices.size()):
+		var item := pending_spawns[boss_indices[offset]] as Dictionary
+		item["endless_boss_hp"] = total_budget * weights[offset] / weight_total
+		pending_spawns[boss_indices[offset]] = item
+
+func _endless_boss_total_budget(display_loop: int, economy: Dictionary) -> float:
+	var pacing_var = economy.get("endless_boss_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	var budgets_var = pacing.get("budgets", [])
+	var budgets: Array = budgets_var if budgets_var is Array else []
+	var fallback := 0.0
+	for row_var in budgets:
+		if not row_var is Dictionary:
+			continue
+		var row := row_var as Dictionary
+		fallback = maxf(float(row.get("total_hp", fallback)), 0.0)
+		if int(row.get("loop", 0)) == display_loop:
+			return fallback
+	# The experience curve caps after the generated table; later loops reuse its
+	# final Boss budget while mob pressure remains free to grow monotonically.
+	return fallback
 
 func _endless_boss_id(offset := 0) -> String:
 	var bosses: Dictionary = DataLoader.get_table("bosses")
@@ -3926,8 +3983,8 @@ func _boss_survival_hp_mult(current_level: int, is_boss_enemy: bool, economy: Di
 		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("final_mult", 1.08))))
 	return ramp_mult
 
-func _spawn_enemy(enemy_id: String, lane: String, is_boss := false) -> void:
-	_spawn_enemy_instance(enemy_id, _next_enemy_spawn_position(lane, is_boss), is_boss)
+func _spawn_enemy(enemy_id: String, lane: String, is_boss := false, endless_boss_hp := 0.0) -> void:
+	_spawn_enemy_instance(enemy_id, _next_enemy_spawn_position(lane, is_boss), is_boss, 1.0, endless_boss_hp)
 
 func _next_enemy_spawn_position(lane: String, is_boss := false) -> Vector2:
 	var bounds := _spawn_lane_x_bounds(lane, is_boss)
@@ -3998,7 +4055,7 @@ func _remember_spawn_position(spawn_position: Vector2) -> void:
 	while recent_spawn_positions.size() > SPAWN_RECENT_HISTORY:
 		recent_spawn_positions.pop_front()
 
-func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0) -> Node:
+func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0, endless_boss_hp := 0.0) -> Node:
 	var row := DataLoader.get_row("bosses" if is_boss else "zombies", enemy_id).duplicate(true)
 	var economy: Dictionary = DataLoader.get_table("economy")
 	if is_endless_mode and is_boss:
@@ -4018,18 +4075,22 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	enemy.set_meta("reward_scale", clampf(reward_scale, 0.0, 1.0))
-	# Boss rows own an absolute total durability budget. Normal campaign play
-	# therefore uses 1.0 regardless of level/difficulty/card count; challenge and
-	# endless remain explicit modes and may intentionally multiply that budget.
+	# Campaign Boss rows own an absolute durability budget. Endless Bosses replace
+	# it with the generated loop budget share and never inherit campaign fixed_hp
+	# or the mob-only endless compound multiplier.
+	if is_endless_mode and is_boss and endless_boss_hp > 0.0:
+		row["fixed_hp"] = endless_boss_hp
 	var has_fixed_boss_hp := is_boss and float(row.get("fixed_hp", 0.0)) > 0.0
 	var hp_level_coef := 1.0 if has_fixed_boss_hp else float(level.get("difficulty_coef", 1.0)) * float(level.get("base_hp_ref", 50)) / 50.0
 	if is_boss:
-		hp_level_coef *= _next_same_type_boss_hp_multiplier(enemy_id, economy)
+		var stack_mult := _next_same_type_boss_hp_multiplier(enemy_id, economy)
+		if not (is_endless_mode and endless_boss_hp > 0.0):
+			hp_level_coef *= stack_mult
 	if not has_fixed_boss_hp:
 		hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
 		hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
 		hp_level_coef *= _boss_survival_hp_mult(level_ordinal, is_boss, economy)
-	if is_endless_mode:
+	if is_endless_mode and not is_boss:
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
 		hp_level_coef *= _challenge_mult("hp_mult", CHALLENGE_HP_MULT)
@@ -4056,6 +4117,9 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 func _next_same_type_boss_hp_multiplier(enemy_id: String, economy: Dictionary) -> float:
 	var copy_index := int(boss_spawn_counts.get(enemy_id, 0))
 	boss_spawn_counts[enemy_id] = copy_index + 1
+	return _same_type_boss_hp_multiplier(enemy_id, copy_index, economy)
+
+func _same_type_boss_hp_multiplier(enemy_id: String, copy_index: int, economy: Dictionary) -> float:
 	var pacing_var: Variant = economy.get("boss_pacing", {})
 	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
 	var start_level := maxi(int(pacing.get("same_type_hp_start_level", 11)), 1)
@@ -10381,13 +10445,28 @@ func _advance_endless_loop() -> void:
 	endless_loop += 1
 	wave_index = 0
 	var economy: Dictionary = DataLoader.get_table("economy")
-	var loop_growth := _endless_loop_hp_growth(economy)
-	endless_difficulty_mult = pow(1.0 + loop_growth, float(endless_loop))
+	endless_difficulty_mult = _endless_mob_hp_multiplier(endless_loop + 1, economy)
 	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
 	_start_next_wave()
 
-func _endless_loop_hp_growth(economy: Dictionary) -> float:
-	return maxf(ENDLESS_LOOP_HP_GROWTH, float(economy.get("endless_loop_hp_growth", ENDLESS_LOOP_HP_GROWTH)))
+func _endless_mob_hp_multiplier(display_loop: int, economy: Dictionary) -> float:
+	var stages_var = economy.get("endless_hp_growth_stages", [])
+	var stages: Array = stages_var if stages_var is Array else []
+	if stages.is_empty():
+		return pow(1.0 + ENDLESS_LOOP_HP_GROWTH, float(maxi(display_loop - 1, 0)))
+	var multiplier := 1.0
+	for current_loop in range(2, maxi(display_loop, 1) + 1):
+		multiplier *= 1.0 + _endless_mob_hp_growth_for_loop(current_loop, stages)
+	return multiplier
+
+func _endless_mob_hp_growth_for_loop(display_loop: int, stages: Array) -> float:
+	for stage_var in stages:
+		if not stage_var is Dictionary:
+			continue
+		var stage := stage_var as Dictionary
+		if not stage.has("until_loop") or display_loop <= int(stage.get("until_loop", display_loop)):
+			return maxf(float(stage.get("growth", 0.0)), 0.0)
+	return ENDLESS_LOOP_HP_GROWTH
 
 func _finish(victory: bool) -> void:
 	if battle_finished:

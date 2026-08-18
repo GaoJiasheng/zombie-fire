@@ -4431,3 +4431,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Measured layout replaces the cap**: the skill section now grows from its real 3-column row count, and the pause frame is finalized again after all status, loadout and skill cards are attached. The action row follows the measured content with a protected `32px` gap.
 - **Exit paths stay authoritative**: Resume, Restart and Exit are explicitly visible and rendered above the dynamic content sibling. The surrounding panel grows to contain both content and actions instead of clipping either one.
 - **Regression ownership**: M1 smoke injects ten real skill IDs, verifies four wrapped rows, checks intrinsic content height against its allocation, and requires all three actions to remain above the content and inside the panel.
+
+## Endless Difficulty Rework · Phase 1 Three-Curve Decoupling (2026-08-18)
+
+- **Boss durability is now an Endless-owned budget**: `tools/generate_endless_boss_budgets.py` solves a twenty-loop table from the approved level-080 Owner and free-graduation fixtures. Runtime divides that total using the existing same-type copy weights; campaign `fixed_hp` and the mob compound multiplier can no longer leak into Endless Bosses.
+- **Roster identity stays intact**: the virtual-level pool still upgrades Boss species and mechanics. Opening resistance grace and the first-loop armor-hit cap are unchanged; only the durability source moves.
+- **Mob pressure compounds in readable stages**: displayed loops 2–5 grow 20% each, 6–10 grow 28%, and 11+ grow 38%. Loop 8 is `4.348×` instead of the retired `17.086×`, while every loop remains strictly stronger than the previous one.
+- **Boss quantity no longer resonates every third loop**: count now rises every four loops up to six, with both values loaded from `economy.json` and constants retained only as missing-data fallbacks.
+- **Permanent gates**: Release Candidate checks generator idempotence; M1 smoke locks data-source removal, stage monotonicity, loop-8 range, budget coverage, step/cap behavior and exact spawned Boss budget. Campaign `levels.json` retains SHA-256 `b68fc5e65cd8bb1bf3399716b5bd9031296be3f8996d5ad468c2324deba625e9`.
