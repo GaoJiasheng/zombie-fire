@@ -37,6 +37,124 @@ def godot_round_positive(value: float) -> int:
     return math.floor(value + 0.5)
 
 
+def endless_gold_audit(economy: dict, levels: list[dict], zombies: dict,
+                       bosses: dict, errors: list[str]) -> list[dict]:
+    """Audit runtime-equivalent endless gold pacing through the budget table.
+
+    Runtime rounds every kill independently, so this intentionally does not
+    multiply an aggregate reward. Boss target time is added to the authored
+    template's spawn schedule to produce a stable per-loop gold/minute metric.
+    Milestone rewards are included in their completion loop: this makes the
+    strict monotonic assertion strong enough to catch an oversized milestone
+    that would create a reward spike followed by a worse next loop.
+    """
+    loop_bonus = float(economy.get("endless_gold_loop_bonus", -1.0))
+    if not math.isclose(loop_bonus, 0.12, rel_tol=0.0, abs_tol=1e-9):
+        errors.append(
+            f"endless_gold_loop_bonus must remain the approved linear 0.12, got {loop_bonus}"
+        )
+    milestone = economy.get("endless_gold_milestone", {})
+    if not isinstance(milestone, dict):
+        errors.append("endless_gold_milestone must be a dictionary")
+        milestone = {}
+    milestone_interval = int(milestone.get("interval", 0))
+    milestone_base = int(milestone.get("gold_per_milestone", 0))
+    if milestone_interval <= 0 or milestone_base <= 0:
+        errors.append("endless gold milestone interval and base reward must be positive")
+
+    template_id = str(economy.get("endless_template_level", ""))
+    template = next((row for row in levels if row.get("id") == template_id), None)
+    if template is None:
+        errors.append(f"endless gold audit cannot resolve template {template_id!r}")
+        return []
+    template_level = level_number(template)
+    gold_per_kill = (
+        float(economy.get("gold_drop_base", 5.0))
+        + float(economy.get("gold_drop_per_level", 0.6)) * template_level
+    )
+    reward_mult = float(template.get("reward_gold_mult", 1.0))
+    mob_groups: list[tuple[int, float]] = []
+    spawn_seconds = 0.0
+    for wave in template.get("waves", []):
+        wave_no = int(wave.get("wave", 0))
+        count_mult = late_wave_count_mult(economy, wave_no, template_level)
+        for group in wave.get("spawns", []) + wave.get("support", []):
+            count = godot_round_positive(int(group.get("count", 0)) * count_mult)
+            zombie = zombies.get(str(group.get("type", "")), {})
+            mob_groups.append((count, float(zombie.get("gold_coef", 1.0))))
+            spawn_seconds += count * max(float(group.get("interval", 0.0)), 0.0)
+
+    pacing = economy.get("endless_boss_pacing", {})
+    budget_rows = pacing.get("budgets", []) if isinstance(pacing, dict) else []
+    if not isinstance(budget_rows, list) or len(budget_rows) < 10:
+        errors.append("endless gold audit requires at least ten Boss budget rows")
+        return []
+
+    audit_rows: list[dict] = []
+    previous_rate = 0.0
+    cumulative_gold = 0
+    cumulative_seconds = 0.0
+    for row in budget_rows:
+        if not isinstance(row, dict):
+            continue
+        loop = int(row.get("loop", 0))
+        if loop <= 0:
+            continue
+        multiplier = 1.0 + max(loop_bonus, 0.0) * (loop - 1)
+        combat_gold = sum(
+            count * godot_round_positive(coef * gold_per_kill * reward_mult * multiplier)
+            for count, coef in mob_groups
+        )
+        boss_ids = row.get("boss_ids", [])
+        if not isinstance(boss_ids, list) or not boss_ids:
+            errors.append(f"endless Boss budget loop {loop} has no reward roster")
+            boss_ids = []
+        combat_gold += sum(
+            godot_round_positive(
+                float(bosses.get(str(boss_id), {}).get("gold_coef", 1.0))
+                * gold_per_kill * reward_mult * multiplier
+            )
+            for boss_id in boss_ids
+        )
+        milestone_gold = 0
+        if milestone_interval > 0 and loop % milestone_interval == 0:
+            milestone_gold = milestone_base * (loop // milestone_interval)
+        total_gold = combat_gold + milestone_gold
+        # Pending Boss spawns are serialized by the battle queue: the authored
+        # first Boss waits 1.0s and extra copies wait 1.6s each.
+        boss_spawn_seconds = 1.0 + max(len(boss_ids) - 1, 0) * 1.6
+        loop_seconds = (
+            spawn_seconds + boss_spawn_seconds
+            + max(float(row.get("target_seconds", 0.0)), 0.0)
+        )
+        gold_per_minute = total_gold * 60.0 / max(loop_seconds, 1.0)
+        if gold_per_minute <= previous_rate + 1e-9:
+            errors.append(
+                "endless gold/min must rise every loop: "
+                f"loop {loop - 1}={previous_rate:.1f}, loop {loop}={gold_per_minute:.1f}"
+            )
+        previous_rate = gold_per_minute
+        cumulative_gold += total_gold
+        cumulative_seconds += loop_seconds
+        audit_rows.append({
+            "loop": loop,
+            "combat_gold": combat_gold,
+            "milestone_gold": milestone_gold,
+            "total_gold": total_gold,
+            "seconds": loop_seconds,
+            "gold_per_minute": gold_per_minute,
+            "cumulative_gold_per_minute": cumulative_gold * 60.0 / cumulative_seconds,
+        })
+
+    if len(audit_rows) >= 10:
+        ratio = audit_rows[9]["gold_per_minute"] / max(audit_rows[0]["gold_per_minute"], 1.0)
+        if ratio > 3.0 + 1e-9:
+            errors.append(
+                f"endless loop 10 gold/min exceeds 3x loop 1: ratio={ratio:.3f}"
+            )
+    return audit_rows
+
+
 def level_xp(level: dict, zombies: dict, bosses: dict, economy: dict) -> int:
     total = 0
     level_no = level_number(level)
@@ -155,6 +273,8 @@ def main() -> int:
             f"expected={xp_target:.1%}±{xp_tolerance:.1%}"
         )
 
+    endless_gold_rows = endless_gold_audit(economy, levels, zombies, bosses, errors)
+
     if errors:
         print("Economy loop check failed:")
         for error in errors:
@@ -171,6 +291,25 @@ def main() -> int:
         f"xp_first_clear={sum(campaign_xp_by_level)} xp_three_clear={three_clear_xp} "
         f"xp_full_cost={total_xp_cost} xp_coverage={xp_coverage:.2%}"
     )
+    if endless_gold_rows:
+        print("endless_gold loop combat milestone total seconds gold/min cumulative_gold/min")
+        for row in endless_gold_rows:
+            print(
+                "  {loop:02d} {combat_gold:5d} {milestone_gold:4d} {total_gold:5d} "
+                "{seconds:6.1f} {gold_per_minute:8.1f} {cumulative_gold_per_minute:8.1f}".format(**row)
+            )
+        loop1 = endless_gold_rows[0]
+        loop10 = endless_gold_rows[9]
+        print(
+            "endless_vs_campaign_repeat template={template} campaign_repeat={campaign:.1f}/min "
+            "loop1={loop1:.1f}/min loop10={loop10:.1f}/min ratio={ratio:.3f} (print-only comparison)".format(
+                template=economy.get("endless_template_level", ""),
+                campaign=loop1["gold_per_minute"],
+                loop1=loop1["gold_per_minute"],
+                loop10=loop10["gold_per_minute"],
+                ratio=loop10["gold_per_minute"] / max(loop1["gold_per_minute"], 1.0),
+            )
+        )
     return 0
 
 

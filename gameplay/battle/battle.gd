@@ -400,6 +400,7 @@ var challenge_rule: Dictionary = {}
 var endless_loop := 0
 var endless_difficulty_mult := 1.0
 var endless_template_level_id := ""
+var endless_gold_milestones_claimed := {}
 const ENDLESS_LOOP_HP_GROWTH := 0.50
 const ENDLESS_BOSS_COUNT_STEP := 4
 const ENDLESS_BOSS_COUNT_CAP := 6
@@ -9959,7 +9960,8 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	_trigger_kill_hit_stop(bool(reward.get("boss", false)))
 	var gold_per_kill := econ_gold_base + econ_gold_per * float(level_ordinal)
 	var reward_scale := float(enemy.get_meta("reward_scale", 1.0)) if is_instance_valid(enemy) else 1.0
-	var reward_gold := int(round(float(reward.get("gold_coef", 1.0)) * gold_per_kill * float(level.get("reward_gold_mult", 1.0)) * gold_mult * skills.gold_multiplier() * variant_gold_mult * reward_scale))
+	var endless_gold_mult := _endless_gold_multiplier(endless_loop + 1) if is_endless_mode else 1.0
+	var reward_gold := int(round(float(reward.get("gold_coef", 1.0)) * gold_per_kill * float(level.get("reward_gold_mult", 1.0)) * gold_mult * skills.gold_multiplier() * variant_gold_mult * reward_scale * endless_gold_mult))
 	var reward_xp := int(round(float(reward.get("xp", 0)) * variant_xp_mult * reward_scale))
 	gold += reward_gold
 	xp += reward_xp
@@ -10442,12 +10444,44 @@ func _check_victory() -> void:
 		_finish(true)
 
 func _advance_endless_loop() -> void:
+	var completed_loop := endless_loop + 1
+	var economy: Dictionary = DataLoader.get_table("economy")
+	_grant_endless_gold_milestone(completed_loop, economy)
 	endless_loop += 1
 	wave_index = 0
-	var economy: Dictionary = DataLoader.get_table("economy")
 	endless_difficulty_mult = _endless_mob_hp_multiplier(endless_loop + 1, economy)
 	_show_wave_toast("第 %d 轮尸潮 · 强度提升" % (endless_loop + 1), Color(1.0, 0.42, 0.22))
 	_start_next_wave()
+
+func _endless_gold_multiplier(display_loop: int, economy: Dictionary = {}) -> float:
+	var source: Dictionary = economy if economy is Dictionary and not economy.is_empty() else DataLoader.get_table("economy")
+	var loop_bonus := maxf(float(source.get("endless_gold_loop_bonus", 0.0)), 0.0)
+	return 1.0 + loop_bonus * float(maxi(display_loop - 1, 0))
+
+func _endless_gold_milestone_reward(completed_loop: int, economy: Dictionary) -> int:
+	var config_var = economy.get("endless_gold_milestone", {})
+	var config: Dictionary = config_var if config_var is Dictionary else {}
+	var interval := maxi(int(config.get("interval", 0)), 0)
+	if interval <= 0 or completed_loop <= 0 or completed_loop % interval != 0:
+		return 0
+	var milestone_index := int(completed_loop / interval)
+	return maxi(int(config.get("gold_per_milestone", 0)) * milestone_index, 0)
+
+func _grant_endless_gold_milestone(completed_loop: int, economy: Dictionary) -> int:
+	if endless_gold_milestones_claimed.has(completed_loop):
+		return 0
+	var reward := _endless_gold_milestone_reward(completed_loop, economy)
+	if reward <= 0:
+		return 0
+	endless_gold_milestones_claimed[completed_loop] = true
+	gold += reward
+	if gold_fly:
+		gold_fly.fly_to_hud(Vector2(540.0, BREACH_Y - 48.0), reward)
+	_pulse_reward_target("gold")
+	AudioManager.play_sfx("gold_pickup", -3.5)
+	var message := LocalizationManager.text("第 %d 轮里程碑 · 金币 +%d") % [completed_loop, reward]
+	_show_wave_toast(message, UiKit.GOLD)
+	return reward
 
 func _endless_mob_hp_multiplier(display_loop: int, economy: Dictionary) -> float:
 	var stages_var = economy.get("endless_hp_growth_stages", [])

@@ -4439,3 +4439,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Mob pressure compounds in readable stages**: displayed loops 2–5 grow 20% each, 6–10 grow 28%, and 11+ grow 38%. Loop 8 is `4.348×` instead of the retired `17.086×`, while every loop remains strictly stronger than the previous one.
 - **Boss quantity no longer resonates every third loop**: count now rises every four loops up to six, with both values loaded from `economy.json` and constants retained only as missing-data fallbacks.
 - **Permanent gates**: Release Candidate checks generator idempotence; M1 smoke locks data-source removal, stage monotonicity, loop-8 range, budget coverage, step/cap behavior and exact spawned Boss budget. Campaign `levels.json` retains SHA-256 `b68fc5e65cd8bb1bf3399716b5bd9031296be3f8996d5ad468c2324deba625e9`.
+
+## Endless Difficulty Rework · Phase 2 Reward Alignment (2026-08-18)
+
+- **Risk and reward now rise together**: Endless kill gold appends a linear `1 + 0.12 × (loop - 1)` multiplier after the existing reward chain. Campaign drops and all existing elite / Boss multipliers remain untouched.
+- **Milestones are visible and one-shot**: completing loops 5 / 10 / 15 / 20 grants 50 / 100 / 150 / 200 gold, with a gold flight, resource pulse, sound and localized loop toast. A claimed-loop ledger prevents duplicate grants.
+- **The amount is audit-derived**: a 50-gold milestone base is the largest stable rounded tier that preserves strict per-loop gold-per-minute growth under real kill rounding and spawn timing.
+- **Economy contract**: the twenty-loop audit rises from `1,103.1` to `2,404.4` gold/minute; loop 10 is `1.533×` loop 1, below the approved `3×` ceiling. Campaign repeat income is printed for comparison but intentionally does not fail the Endless contract.
+- **Regression ownership**: localization and release-string gates cover the bilingual toast; M1 smoke locks the linear multiplier, milestone schedule and duplicate protection; `check_economy_loop.py` owns the monotonic rate and loop-10 ceiling.

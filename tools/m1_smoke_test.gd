@@ -5280,6 +5280,11 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	_expect(growth_stages.size() == 3, "endless mob HP must use the three approved growth stages")
 	_expect(int(economy.get("endless_boss_count_step", 0)) == 4, "endless Boss count step must come from economy and equal four loops")
 	_expect(int(economy.get("endless_boss_count_cap", 0)) == 6, "endless Boss count cap must come from economy and remain six")
+	_expect(absf(float(economy.get("endless_gold_loop_bonus", 0.0)) - 0.12) <= 0.0001, "endless kill gold must use the approved linear 12 percent loop bonus")
+	var milestone_var = economy.get("endless_gold_milestone", {})
+	var milestone: Dictionary = milestone_var if milestone_var is Dictionary else {}
+	_expect(int(milestone.get("interval", 0)) == 5, "endless gold milestone must trigger every five completed loops")
+	_expect(int(milestone.get("gold_per_milestone", 0)) == 50, "endless milestone base must preserve monotonic gold per minute")
 	var pacing_var = economy.get("endless_boss_pacing", {})
 	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
 	var budgets_var = pacing.get("budgets", [])
@@ -5304,6 +5309,17 @@ func _verify_endless_mode(save_manager: Node) -> void:
 	_expect(battle.endless_loop == 0 and is_equal_approx(battle.endless_difficulty_mult, 1.0), "endless mode must start at loop 0 with no HP escalation")
 	_expect(battle.endless_template_level_id == "level_025", "endless must resolve to the fixed level_025 template; got %s" % battle.endless_template_level_id)
 	_expect(battle.level_ordinal == 25, "endless first loop must use level-25-equivalent economy scaling, got %d" % battle.level_ordinal)
+	_expect(absf(battle._endless_gold_multiplier(1, economy) - 1.0) <= 0.0001, "endless loop one kill gold must remain at baseline")
+	_expect(absf(battle._endless_gold_multiplier(10, economy) - 2.08) <= 0.0001, "endless loop ten kill gold must be the linear 2.08x value")
+	_expect(battle._endless_gold_milestone_reward(4, economy) == 0, "endless milestone must not pay before loop five")
+	_expect(battle._endless_gold_milestone_reward(5, economy) == 50, "endless loop five milestone must pay the first 50 gold grant")
+	_expect(battle._endless_gold_milestone_reward(10, economy) == 100, "endless loop ten milestone must scale linearly to 100 gold")
+	var gold_before_milestone := int(battle.gold)
+	_expect(battle._grant_endless_gold_milestone(5, economy) == 50, "endless milestone must pay exactly once on first claim")
+	_expect(int(battle.gold) == gold_before_milestone + 50, "endless milestone must enter the visible run-gold balance")
+	_expect(battle._grant_endless_gold_milestone(5, economy) == 0, "endless milestone must reject duplicate claims")
+	battle.gold = gold_before_milestone
+	battle.endless_gold_milestones_claimed.clear()
 	_expect(battle._endless_boss_count() == 1, "endless loops 1-4 must start with one Boss")
 	battle.endless_loop = 4
 	_expect(battle._endless_boss_count() == 2, "endless loop 5 must add the second Boss using the economy step")
