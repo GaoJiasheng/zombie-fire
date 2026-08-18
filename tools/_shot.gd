@@ -102,6 +102,22 @@ func _initialize() -> void:
 		main.current_scene.call("_show_product_detail", str(payload.get("debug_store_detail_product", "")))
 		for _store_detail_frame in range(10):
 			await process_frame
+	if payload.has("debug_endless_display_loop") and route == "battle" and main.current_scene != null:
+		# Screenshot-only Endless staging. Set the live loop state before spawning a
+		# Boss so the capture exercises the real generated HP budget and HUD copy.
+		var display_loop := maxi(1, int(payload.get("debug_endless_display_loop", 1)))
+		main.current_scene.endless_loop = display_loop - 1
+		var endless_economy: Dictionary = root.get_node("/root/DataLoader").get_table("economy")
+		if main.current_scene.has_method("_endless_mob_hp_multiplier"):
+			main.current_scene.endless_difficulty_mult = main.current_scene.call(
+				"_endless_mob_hp_multiplier",
+				display_loop,
+				endless_economy
+			)
+		if main.current_scene.has_method("_update_hud"):
+			main.current_scene.call("_update_hud")
+		for _endless_loop_frame in range(2):
+			await process_frame
 	if payload.has("debug_spawn_boss") and main.current_scene != null and main.current_scene.has_method("_spawn_enemy"):
 		if bool(payload.get("debug_clean_boss_stage", false)):
 			# Marketing/visual-regression capture only: suspend the authored wave
@@ -119,7 +135,14 @@ func _initialize() -> void:
 			await process_frame
 		var boss_id := str(payload.get("debug_spawn_boss", ""))
 		if boss_id != "":
-			main.current_scene.call("_spawn_enemy", boss_id, "center", true)
+			var endless_boss_hp := 0.0
+			if bool(main.current_scene.get("is_endless_mode")) and main.current_scene.has_method("_endless_boss_total_budget"):
+				endless_boss_hp = float(main.current_scene.call(
+					"_endless_boss_total_budget",
+					int(main.current_scene.get("endless_loop")) + 1,
+					root.get_node("/root/DataLoader").get_table("economy")
+				))
+			main.current_scene.call("_spawn_enemy", boss_id, "center", true, endless_boss_hp)
 			if bool(payload.get("debug_clean_boss_stage", false)):
 				var showcase_boss: Node = main.current_scene.get("active_boss")
 				if showcase_boss != null and is_instance_valid(showcase_boss):
@@ -387,6 +410,31 @@ func _initialize() -> void:
 	for i in range(warmup_frames):
 		await process_frame
 		await physics_frame
+	if payload.has("debug_endless_transition_to_loop") and route == "battle" and main.current_scene != null and main.current_scene.has_method("_advance_endless_loop"):
+		var transition_loop := maxi(2, int(payload.get("debug_endless_transition_to_loop", 2)))
+		main.current_scene.endless_loop = transition_loop - 2
+		main.current_scene.call("_advance_endless_loop")
+		for _endless_transition_frame in range(3):
+			await process_frame
+	if payload.has("debug_endless_milestone_loop") and route == "battle" and main.current_scene != null and main.current_scene.has_method("_grant_endless_gold_milestone"):
+		var milestone_loop := maxi(1, int(payload.get("debug_endless_milestone_loop", 5)))
+		# Screenshot routes may still have the opening weakness toast queued. Clear it
+		# so the milestone capture exercises the real reward feedback, not a stale tip.
+		main.current_scene.pending_wave_toast = {}
+		main.current_scene.pending_wave_toast_timer_active = false
+		main.current_scene.last_wave_toast_at = -999.0
+		if main.current_scene.has_method("_hide_wave_toast"):
+			main.current_scene.call("_hide_wave_toast")
+		await process_frame
+		main.current_scene.call(
+			"_grant_endless_gold_milestone",
+			milestone_loop,
+			root.get_node("/root/DataLoader").get_table("economy")
+		)
+		if main.current_scene.has_method("_update_hud"):
+			main.current_scene.call("_update_hud")
+		for _endless_milestone_frame in range(3):
+			await process_frame
 	if bool(payload.get("pause", false)) and main.current_scene != null and main.current_scene.has_method("_set_battle_paused"):
 		main.current_scene.call("_set_battle_paused", true, false)
 		for i in range(2):

@@ -4447,3 +4447,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The amount is audit-derived**: a 50-gold milestone base is the largest stable rounded tier that preserves strict per-loop gold-per-minute growth under real kill rounding and spawn timing.
 - **Economy contract**: the twenty-loop audit rises from `1,103.1` to `2,404.4` gold/minute; loop 10 is `1.533×` loop 1, below the approved `3×` ceiling. Campaign repeat income is printed for comparison but intentionally does not fail the Endless contract.
 - **Regression ownership**: localization and release-string gates cover the bilingual toast; M1 smoke locks the linear multiplier, milestone schedule and duplicate protection; `check_economy_loop.py` owns the monotonic rate and loop-10 ceiling.
+
+## Endless Difficulty Rework · Phase 3 CI Survival Simulation (2026-08-18)
+
+- **The audit consumes the production contract**: the offline simulator reads the generated Boss budget table, runtime roster / resistance data, staged mob multiplier, authored Endless template timing and the existing `power_for_build` fixtures instead of maintaining a parallel balance curve.
+- **Approved survival bands are now release gates**: the level-080 Owner fixture reaches its wall at loop 10 inside `[10,14]`; the max-free scattergun fixture covers the full twenty-loop budget horizon at cumulative pressure `0.989`, inside `[16,20]`.
+- **Pacing targets are independently recomputed**: all twenty cross-faded Boss references reproduce their generated targets within `0.05s` and stay in the approved 1–3 / 4–6 / 7–10 / 11+ loop experience bands. Mob multipliers must remain strictly increasing.
+- **The complete runtime path has visual evidence**: five 1080×1920 captures cover entry, loop transition, generated Boss budget, milestone gold feedback and Endless defeat / best-round settlement. Every capture reports zero UI-audit issues.
+- **Release ownership**: `tools/simulate_endless.py` now runs in the non-visual Release Candidate chain. Any future drift in budget coverage, pacing, curve monotonicity or either survival fixture fails before release.
