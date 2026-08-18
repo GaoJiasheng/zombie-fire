@@ -4424,3 +4424,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The list collapses with its content**: the card VBox uses the real three-card sum and separation. A fixed `62px` quiet lane remains before the reroll / skip actions, replacing the accidental several-hundred-pixel blank region.
 - **Long localized copy remains protected**: cards may still grow when measured Chinese or English text wraps; the existing battlefield cap and exhaustive 152-card bilingual capacity test remain unchanged.
 - **Regression ownership**: M1 smoke now recomputes expected modal height from the live cards and fails if the panel stretches, the list retains unused height, the action gap drifts, or battlefield centering is lost.
+
+## Pause Late-Skill Overflow + Persistent Action Row (2026-08-18)
+
+- **Root cause**: the pause summary capped its skill section at `256px` and its whole content lane at `790px`. Seven or more carried skills require a third row, so Godot honored the child controls' larger intrinsic minimum and let the dynamically rebuilt content paint across the authored action buttons.
+- **Measured layout replaces the cap**: the skill section now grows from its real 3-column row count, and the pause frame is finalized again after all status, loadout and skill cards are attached. The action row follows the measured content with a protected `32px` gap.
+- **Exit paths stay authoritative**: Resume, Restart and Exit are explicitly visible and rendered above the dynamic content sibling. The surrounding panel grows to contain both content and actions instead of clipping either one.
+- **Regression ownership**: M1 smoke injects ten real skill IDs, verifies four wrapped rows, checks intrinsic content height against its allocation, and requires all three actions to remain above the content and inside the panel.

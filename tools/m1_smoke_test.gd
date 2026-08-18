@@ -3848,6 +3848,34 @@ func _verify_pause_freezes_battle(battle: Node) -> void:
 	_expect((action_buttons[0].get_node("ActionTitle") as Label).text == pause_localization.text("继续"), "pause primary action must use the short Resume label")
 	_expect((action_buttons[1].get_node("ActionTitle") as Label).text == pause_localization.text("重开"), "pause restart action must use the short Restart label")
 	_expect((action_buttons[2].get_node("ActionTitle") as Label).text == pause_localization.text("退出"), "pause exit action must use the short Exit label")
+	# Late chapters can carry 8-10 skills. The previous fixed-height skill card
+	# silently grew past its clamp at 7 skills and, because it was rebuilt after
+	# the authored buttons, painted over the whole action row. Exercise the real
+	# ten-skill ceiling so the three actions can never become intermittent again.
+	var original_skill_slot_ids: Array[String] = battle.skill_slot_ids.duplicate()
+	var skill_table: Dictionary = root.get_node("/root/DataLoader").get_table("skills")
+	var stress_skill_ids: Array[String] = []
+	var sorted_skill_ids: Array = skill_table.keys()
+	sorted_skill_ids.sort()
+	for skill_id_var in sorted_skill_ids:
+		stress_skill_ids.append(str(skill_id_var))
+		if stress_skill_ids.size() == 10:
+			break
+	_expect(stress_skill_ids.size() == 10, "pause max-skill regression requires ten data-backed skills")
+	battle.skill_slot_ids = stress_skill_ids
+	battle._rebuild_pause_overlay_content()
+	content = pause_panel.get_node("PauseContent") as Control
+	resume_button = pause_panel.get_node("ResumeButton") as Control
+	_expect(int(battle._pause_skill_row_count()) == 4, "ten pause skills must wrap into four rows")
+	_expect(content.get_combined_minimum_size().y <= content.size.y + 0.1, "pause content must allocate the full intrinsic height of ten skills (minimum=%.1f size=%.1f)" % [content.get_combined_minimum_size().y, content.size.y])
+	_expect(content.position.y + content.size.y <= resume_button.position.y - 32.0, "ten-skill pause content must leave the action-row gap")
+	for button_path in ["ResumeButton", "RestartButton", "MapButton"]:
+		var stress_button := pause_panel.get_node(button_path) as Control
+		_expect(stress_button.visible, "pause %s must remain visible with ten carried skills" % button_path)
+		_expect(stress_button.z_index > content.z_index, "pause %s must render above rebuilt dynamic content" % button_path)
+		_expect(stress_button.position.y + stress_button.size.y <= pause_panel.size.y, "pause %s must remain inside the grown ten-skill panel" % button_path)
+	battle.skill_slot_ids = original_skill_slot_ids
+	battle._rebuild_pause_overlay_content()
 	battle._physics_process(1.0)
 	_expect(first_enemy.global_position.distance_to(enemy_pos) <= 0.1, "pause must freeze enemy movement even though Battle processes always")
 	_expect(absf(float(battle.spawn_timer) - spawn_timer_before) <= 0.001, "pause must not advance spawn timer")

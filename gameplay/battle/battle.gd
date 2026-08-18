@@ -28,6 +28,16 @@ const PAUSE_ACTION_BUTTON_SIZE := Vector2(276.0, 154.0)
 const PAUSE_ACTION_ICON_RECT := Rect2(38.0, 39.0, 76.0, 76.0)
 const PAUSE_ACTION_TITLE_RECT := Rect2(120.0, 38.0, 118.0, 78.0)
 const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(32.0, 30.0, 212.0, 94.0)
+const PAUSE_CONTENT_ORIGIN := Vector2(44.0, 124.0)
+const PAUSE_CONTENT_WIDTH := 884.0
+const PAUSE_CONTENT_SECTION_GAP := 16.0
+const PAUSE_STATUS_CARD_HEIGHT := 214.0
+const PAUSE_LOADOUT_CARD_HEIGHT := 288.0
+const PAUSE_SKILL_CHIP_HEIGHT := 78.0
+const PAUSE_SKILL_ROW_GAP := 8.0
+const PAUSE_SKILL_CARD_CHROME := 92.0
+const PAUSE_ACTION_CONTENT_GAP := 32.0
+const PAUSE_PANEL_BOTTOM_PADDING := 42.0
 const BREACH_Y_DESIGN := 1500.0
 const CHARACTER_BASE_Y_DESIGN := 1652.0
 const PET_BASE_X_DESIGN := 800.0
@@ -2515,9 +2525,13 @@ func _rebuild_pause_overlay_content() -> void:
 	content.add_child(_pause_status_card())
 	content.add_child(_pause_loadout_card())
 	content.add_child(_pause_skill_card())
+	# Container minimum sizes are only authoritative after the dynamic cards are
+	# attached. Re-run the frame layout against that measured height so late-game
+	# 8-10 skill summaries grow the panel instead of covering the action row.
+	_setup_pause_overlay_layout()
 
 func _pause_status_card() -> PanelContainer:
-	var card := _pause_section("战场状态", UiKit.GOLD, 214)
+	var card := _pause_section("战场状态", UiKit.GOLD, PAUSE_STATUS_CARD_HEIGHT)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
@@ -2532,7 +2546,7 @@ func _pause_status_card() -> PanelContainer:
 	return card
 
 func _pause_loadout_card() -> PanelContainer:
-	var card := _pause_section("出战配置", UiKit.CYAN, 288)
+	var card := _pause_section("出战配置", UiKit.CYAN, PAUSE_LOADOUT_CARD_HEIGHT)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
 	grid.columns = 2
@@ -2554,9 +2568,7 @@ func _pause_loadout_card() -> PanelContainer:
 	return card
 
 func _pause_skill_card() -> PanelContainer:
-	var skill_count := maxi(skill_slot_ids.size(), 1)
-	var rows := int(ceil(float(skill_count) / 3.0))
-	var card_height := clampf(92.0 + float(rows) * 78.0 + float(maxi(rows - 1, 0)) * 8.0, 198.0, 256.0)
+	var card_height := _pause_skill_card_height()
 	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
@@ -2574,6 +2586,29 @@ func _pause_skill_card() -> PanelContainer:
 	for skill_id in skill_slot_ids:
 		grid.add_child(_pause_skill_chip(skill_id))
 	return card
+
+func _pause_skill_row_count() -> int:
+	return maxi(1, int(ceil(float(maxi(skill_slot_ids.size(), 1)) / 3.0)))
+
+func _pause_skill_card_height() -> float:
+	var rows := _pause_skill_row_count()
+	var row_gaps := float(maxi(rows - 1, 0)) * PAUSE_SKILL_ROW_GAP
+	return maxf(198.0, PAUSE_SKILL_CARD_CHROME + float(rows) * PAUSE_SKILL_CHIP_HEIGHT + row_gaps)
+
+func _pause_content_height() -> float:
+	var predicted_height := (
+		PAUSE_STATUS_CARD_HEIGHT
+		+ PAUSE_LOADOUT_CARD_HEIGHT
+		+ _pause_skill_card_height()
+		+ PAUSE_CONTENT_SECTION_GAP * 2.0
+	)
+	# Preserve the approved two-row baseline, then let the live container be the
+	# source of truth for fonts, locale and theme content margins.
+	var measured_height := 0.0
+	var content := get_node_or_null("Hud/PauseOverlay/Panel/PauseContent") as VBoxContainer
+	if content != null:
+		measured_height = content.get_combined_minimum_size().y
+	return maxf(790.0, maxf(predicted_height, measured_height))
 
 func _pause_section(title_text: String, accent: Color, min_height: float) -> PanelContainer:
 	var card := PanelContainer.new()
@@ -2636,7 +2671,7 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var row: Dictionary = DataLoader.get_row("skills", skill_id)
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(274, 78)
+	chip.custom_minimum_size = Vector2(274, PAUSE_SKILL_CHIP_HEIGHT)
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
@@ -3365,6 +3400,9 @@ func _setup_pause_overlay_layout() -> void:
 	if not has_node("Hud/PauseOverlay/Panel"):
 		return
 	var modal_shift := UiKit.tall_modal_shift(get_viewport_rect().size.y, 160.0, 0.34)
+	var content_height := _pause_content_height()
+	var action_top := PAUSE_CONTENT_ORIGIN.y + content_height + PAUSE_ACTION_CONTENT_GAP
+	var panel_height := action_top + PAUSE_ACTION_BUTTON_SIZE.y + PAUSE_PANEL_BOTTOM_PADDING
 	var overlay := $Hud/PauseOverlay as Control
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var scrim := $Hud/PauseOverlay/Dim as TextureRect
@@ -3380,7 +3418,7 @@ func _setup_pause_overlay_layout() -> void:
 	panel.offset_left = 54.0
 	panel.offset_top = 140.0 + modal_shift
 	panel.offset_right = 1026.0
-	panel.offset_bottom = 1280.0 + modal_shift
+	panel.offset_bottom = panel.offset_top + panel_height
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var title := $Hud/PauseOverlay/Panel/Title as Label
@@ -3397,20 +3435,26 @@ func _setup_pause_overlay_layout() -> void:
 		content.name = "PauseContent"
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
+	content.z_index = 0
 	content.add_theme_constant_override("separation", 16)
-	content.position = Vector2(44, 124)
-	content.size = Vector2(884, 790)
+	content.position = PAUSE_CONTENT_ORIGIN
+	content.size = Vector2(PAUSE_CONTENT_WIDTH, content_height)
 	# Pause actions are deliberately one left/centre/right row. Their taller
 	# targets remain easy to hit, while the short verbs keep every locale clear
 	# of the ornamental button corners.
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(44, 946), "res://assets/production/sprites/ui/icon_pause.png", "继续", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(348, 946), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重开", true)
-	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(652, 946), "res://assets/production/sprites/ui/icon_settings.png", "退出", false)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/ResumeButton as TextureButton, Vector2(44, action_top), "res://assets/production/sprites/ui/icon_pause.png", "继续", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/RestartButton as TextureButton, Vector2(348, action_top), "res://assets/production/sprites/ui/icon_reroll_charge.png", "重开", true)
+	_layout_pause_action_button($Hud/PauseOverlay/Panel/MapButton as TextureButton, Vector2(652, action_top), "res://assets/production/sprites/ui/icon_settings.png", "退出", false)
 
 func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path: String, title_text: String, primary: bool) -> void:
 	if button == null:
 		return
 	var button_size := PAUSE_ACTION_BUTTON_SIZE
+	button.visible = true
+	# PauseContent is rebuilt after the authored scene buttons. Keep the actions
+	# explicitly above that dynamic sibling so even an unexpectedly tall locale
+	# or future skill row can never paint over the three required exits.
+	button.z_index = 10
 	button.offset_left = pos.x
 	button.offset_top = pos.y
 	button.offset_right = pos.x + button_size.x
