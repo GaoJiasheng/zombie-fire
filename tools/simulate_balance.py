@@ -371,24 +371,13 @@ def boss_hp_for_entry(level: dict, boss_row: dict, economy: dict, wave_no: int) 
 
 
 def boss_hp_scale_for_index(level: dict, economy: dict, copy_index: int) -> float:
-    """Return the authored same-type Boss copy multiplier.
+    """Campaign copies preserve the Boss model's literal authored durability.
 
-    Normal stages read the shared sequence from economy.json.  The generated
-    finale override lives on level_099 so the runtime and every offline audit
-    consume the exact coefficient solved by generate_clear_requirements.py.
+    Endless mode owns an independent generated budget table and uses the
+    same-type sequence only as an internal split weight. Campaign progression
+    is therefore visible in the roster count instead of a hidden copy discount.
     """
-    pacing = economy.get("boss_pacing", {}) or {}
-    start_level = max(int(pacing.get("same_type_hp_start_level", 11)), 1)
-    if level_number(level) < start_level:
-        return 1.0
-    values = level.get(
-        "boss_stack_hp_multipliers",
-        pacing.get("same_type_hp_multipliers", [1.0]),
-    )
-    if not isinstance(values, list) or not values:
-        return 1.0
-    index = min(max(int(copy_index), 0), len(values) - 1)
-    return max(float(values[index]), 0.01)
+    return 1.0
 
 
 def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, dict[str, float], int]:
@@ -528,7 +517,7 @@ def runtime_boss_contract_clear_time(
         return None
     requirement = level.get("clear_requirement", {})
     contract = requirement.get("power_contract", {}) if isinstance(requirement, dict) else {}
-    if not isinstance(contract, dict) or contract.get("model") != "bottleneck_v4":
+    if not isinstance(contract, dict) or contract.get("model") != "bottleneck_v5":
         return None
     ruler = economy.get("power_ruler", {})
     if not isinstance(ruler, dict):

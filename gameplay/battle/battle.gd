@@ -4121,15 +4121,16 @@ func _next_same_type_boss_hp_multiplier(enemy_id: String, economy: Dictionary) -
 	return _same_type_boss_hp_multiplier(enemy_id, copy_index, economy)
 
 func _same_type_boss_hp_multiplier(enemy_id: String, copy_index: int, economy: Dictionary) -> float:
+	# Campaign quantity is literal: every copy has the model's authored fixed_hp.
+	# Endless retains the sequence solely to distribute its generated loop budget.
+	if not is_endless_mode:
+		return 1.0
 	var pacing_var: Variant = economy.get("boss_pacing", {})
 	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
 	var start_level := maxi(int(pacing.get("same_type_hp_start_level", 11)), 1)
 	if int(level.get("id", "level_001").trim_prefix("level_")) < start_level:
 		return 1.0
-	var values_var: Variant = level.get(
-		"boss_stack_hp_multipliers",
-		pacing.get("same_type_hp_multipliers", [1.0]),
-	)
+	var values_var: Variant = pacing.get("same_type_hp_multipliers", [1.0])
 	var values: Array = values_var if values_var is Array else [1.0]
 	if values.is_empty():
 		return 1.0

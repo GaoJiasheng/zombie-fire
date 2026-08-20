@@ -45,7 +45,7 @@ def main() -> int:
             errors.append(f"{level['id']}.boss_id: stored {stored.get('boss_id')} != derived {derived['boss_id']}")
         stored_contract = stored.get("power_contract")
         if not isinstance(stored_contract, dict):
-            errors.append(f"{level['id']}: missing bottleneck_v4 power_contract")
+            errors.append(f"{level['id']}: missing bottleneck_v5 power_contract")
             continue
         derived_contract = prm.build_power_contract(
             level, derived, characters, weapons, skills, bosses, economy, sim)
@@ -55,24 +55,23 @@ def main() -> int:
             "line_target_hp_ratio", "line_exposure_weights",
             "boss_effective_hp", "runtime_boss_pressure_mult",
             "guaranteed_skill_ids", "reference_skill_rank", "boss_weights",
-            "corridor_calibration", "owner_anchor_calibration",
+            "corridor_calibration", "runtime_replay_calibration",
         ):
             if stored_contract.get(key) != derived_contract.get(key):
                 errors.append(
                     f"{level['id']}.power_contract.{key}: stored "
                     f"{stored_contract.get(key)} != derived {derived_contract.get(key)}")
 
-    # Owner-approved replay fixtures. Boss identity/quantity authoring is
-    # allowed to move the absolute scale and the observed ratio; these values
-    # deliberately pin the currently shipped result so a future generator run
-    # cannot silently discard an authored reinforcement.
+    # Outcome-backed replay fixtures. Absolute display numbers may change when
+    # the runtime collider profile or authored roster changes; the checked-in
+    # ratio and bottleneck are the durable player-facing contract.
     by_id = {level["id"]: level for level in levels}
     fixtures = (
         (
-            "level_099", 5443, 4650, 1.1706, "boss",
+            "level_099", 1667, 1437, 1.1600, "boss",
         ),
         (
-            "level_080", 3531, 2011, 1.7558, "boss",
+            "level_080", 1038, 989, 1.0500, "boss",
         ),
     )
     anchor_summaries = []
@@ -135,8 +134,10 @@ def main() -> int:
         pets["pet_turret_drone"], 30)
     contract55 = by_id["level_055"]["clear_requirement"]["power_contract"]
     physical55_ratios = {
-        "crowd": physical_offense / float(contract55["crowd_capacity"]),
-        "boss": physical_offense * prm.weighted_boss_element_factor(
+        "crowd": physical_offense * prm.weapon_axis_calibration(
+            economy, "weapon_autocannon", "crowd") / float(contract55["crowd_capacity"]),
+        "boss": physical_offense * prm.weapon_axis_calibration(
+            economy, "weapon_autocannon", "boss") * prm.weighted_boss_element_factor(
             contract55["boss_weights"], bosses, "physical", economy
         ) / float(contract55["boss_capacity"]),
     }

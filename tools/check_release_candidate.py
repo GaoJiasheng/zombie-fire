@@ -45,6 +45,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/release_delivery_record.py", "self-test")),
     Check(("python3", "tools/check_release_package.py", "--preset-only")),
     Check(("python3", "tools/generate_wave_pressure.py", "--check")),
+    Check(("python3", "tools/generate_weapon_power_profiles.py", "--check")),
     Check(("python3", "tools/generate_endless_boss_budgets.py", "--check")),
     Check(("python3", "tools/simulate_endless.py")),
     Check(("python3", "tools/check_level_pressure.py")),

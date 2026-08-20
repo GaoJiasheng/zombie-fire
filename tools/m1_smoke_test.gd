@@ -2134,7 +2134,7 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 	var projected_build: Dictionary = offer.get("build", {})
 	_expect(int(projected_build.get("weapon", {}).get("level", 0)) == 36, "premium weapon projection must use the current weapon level")
 	_expect(int(projected_build.get("armor", {}).get("level", 0)) == 21, "premium armor projection must use the current armor level")
-	_expect(purchase_manager.premium_power_offer_for_level("level_085", 0.15, 0.0).is_empty(), "a paid series with the wrong element must not be recommended")
+	_expect(purchase_manager.premium_power_offer_for_level("level_084", 0.15, 0.0).is_empty(), "a paid series with the wrong element must not be recommended")
 
 	var router := FakeRouter.new()
 	root.add_child(router)
@@ -2171,7 +2171,7 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original: Dictionary = save_manager.save_data.duplicate(true)
 	var test_save: Dictionary = save_manager._default_save()
-	test_save["levels_progress"] = {"level_030": 1, "level_072": 1}
+	test_save["levels_progress"] = {"level_030": 1, "level_070": 1}
 	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
 	var equipment: Dictionary = test_save.get("equipment", {})
@@ -2191,14 +2191,14 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	save_manager.save_data = test_save
 	purchase_manager._catalog = data_loader.get_table("store_products")
 	purchase_manager.reconcile_access(false)
-	var shared_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_072", 0.0, 1.2)
+	var shared_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_070", 0.0, 1.2)
 	_expect(not shared_offer.is_empty(), "result recommendation fixture must reuse the shared premium power calculation")
 	var router := FakeRouter.new()
 	root.add_child(router)
 
 	var defeat := _instance("res://meta/result/result.tscn")
 	root.add_child(defeat)
-	defeat.setup(router, {"level_id": "level_072", "victory": false, "stars": 0, "gold": 0, "xp": 0})
+	defeat.setup(router, {"level_id": "level_070", "victory": false, "stars": 0, "gold": 0, "xp": 0})
 	await process_frame
 	await process_frame
 	var defeat_hint := defeat.get_node("Content/HintCard/HintBox/Hint") as Label
@@ -2213,7 +2213,7 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 
 	var one_star := _instance("res://meta/result/result.tscn")
 	root.add_child(one_star)
-	one_star.setup(router, {"level_id": "level_072", "victory": true, "stars": 1, "gold": 0, "xp": 0})
+	one_star.setup(router, {"level_id": "level_070", "victory": true, "stars": 1, "gold": 0, "xp": 0})
 	await process_frame
 	_expect(not one_star._premium_offer.is_empty(), "a one-star victory may show quantified premium guidance")
 	one_star.queue_free()
@@ -2222,7 +2222,7 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	for stars in [2, 3]:
 		var clean_victory := _instance("res://meta/result/result.tscn")
 		root.add_child(clean_victory)
-		clean_victory.setup(router, {"level_id": "level_072", "victory": true, "stars": stars, "gold": 0, "xp": 0})
+		clean_victory.setup(router, {"level_id": "level_070", "victory": true, "stars": stars, "gold": 0, "xp": 0})
 		await process_frame
 		_expect(clean_victory._premium_offer.is_empty(), "%d-star victory must never show a purchase recommendation" % stars)
 		clean_victory.queue_free()
@@ -2233,7 +2233,7 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	purchase_manager.reconcile_access(false)
 	var owned_result := _instance("res://meta/result/result.tscn")
 	root.add_child(owned_result)
-	owned_result.setup(router, {"level_id": "level_072", "victory": false, "stars": 0, "gold": 0, "xp": 0})
+	owned_result.setup(router, {"level_id": "level_070", "victory": false, "stars": 0, "gold": 0, "xp": 0})
 	await process_frame
 	_expect(owned_result._premium_offer.is_empty(), "an owned premium set must never appear in result purchase guidance")
 	owned_result.queue_free()
@@ -3182,8 +3182,12 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	var equipment: Dictionary = base_save.get("equipment", {}).duplicate(true)
 	equipment["selected_character"] = "vanguard"
 	equipment["selected_weapon"] = "weapon_autocannon"
-	equipment["vanguard"] = 1
-	equipment["weapon_autocannon"] = 1
+	# Use a formed permanent loadout so the public integer power display does
+	# not round both sides of the skill comparison down to 1 on the v5 runtime
+	# throughput scale. The assertion still isolates skill levels: equipment is
+	# identical in every sample below.
+	equipment["vanguard"] = 40
+	equipment["weapon_autocannon"] = 50
 	base_save["equipment"] = equipment
 	base_save["skill_base_levels"] = {}
 	base_save["sig_skill_levels"] = {}
@@ -3245,10 +3249,10 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
-# Owner 2026-08-16 战力 4.0 验收电池：玩家仍只看到一个战力，但内部严格取
+# Owner 2026-08-20 战力 5.0 验收电池：玩家仍只看到一个战力，但内部严格取
 # 清群 / Boss / 防线三条比值的最短板。绝对刻度随最弱兼容卡口径更新，冻结物是：
-# - 99 关满级免费最强物理：R≈1.1706，Boss 是短板；
-# - 80 关截图配置按战役预期永久技能 L4：R≈1.7558，Boss 是短板，不再误报。
+# - 99 关满级免费最强物理：R≈1.1600，Boss 是短板；
+# - 80 关 Owner 实战配置：R≈1.0500，Boss 是短板，不再把面板弹丸当成实命中。
 func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
 	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
 	var cushion_min := float(gate_probe.CLEAR_LINE_CUSHION_MIN_RATIO)
@@ -3259,7 +3263,7 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 
 	for level_id in ["level_001", "level_013", "level_055", "level_085", "level_099"]:
 		var contract: Dictionary = data_loader.get_row("levels", level_id).get("clear_requirement", {}).get("power_contract", {})
-		_expect(str(contract.get("model", "")) == "bottleneck_v4", "%s must carry a bottleneck_v4 power contract" % level_id)
+		_expect(str(contract.get("model", "")) == "bottleneck_v5", "%s must carry a bottleneck_v5 power contract" % level_id)
 		_expect(float(contract.get("crowd_capacity", 0.0)) > 0.0, "%s crowd contract must be positive" % level_id)
 		_expect(float(contract.get("line_capacity", 0.0)) > 0.0, "%s line contract must be valid" % level_id)
 		_expect(float(contract.get("line_expected_breach", -1.0)) >= 0.0, "%s must serialize expected breach damage" % level_id)
@@ -3276,11 +3280,11 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	_apply_calibration_build(save_manager, original_save, "vanguard", 40, "weapon_scattergun", 50, "armor_kevlar", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
 	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
 	var final_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_099")
-	_expect(int(final_breakdown.get("power", 0)) == 5443, "level_099 max-free power must include the four-Boss roster, got %d" % int(final_breakdown.get("power", 0)))
-	_expect(int(final_breakdown.get("recommended", 0)) == 4650, "level_099 recommendation must include all four fixed-identity Bosses, got %d" % int(final_breakdown.get("recommended", 0)))
+	_expect(int(final_breakdown.get("power", 0)) == 1667, "level_099 max-free power must include the literal four-Boss roster, got %d" % int(final_breakdown.get("power", 0)))
+	_expect(int(final_breakdown.get("recommended", 0)) == 1437, "level_099 recommendation must include all four fixed-identity Bosses exactly once, got %d" % int(final_breakdown.get("recommended", 0)))
 	_expect(str(final_breakdown.get("power_bottleneck", "")) == "boss", "level_099 max-free bottleneck must be Boss")
 	var final_ratios: Dictionary = final_breakdown.get("power_ratios", {})
-	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1707) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.171")
+	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1600) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.160")
 
 	_apply_calibration_build(save_manager, original_save, "blaze", 40, "weapon_apocalypse_inferno", 36, "armor_apocalypse_molten", 21, "chip_apocalypse_stellar", 21, "pet_apocalypse_phoenix", 15, 5)
 	var rank4_skills: Dictionary = {}
@@ -3289,10 +3293,10 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		rank4_skills[skill_id] = mini(4, save_manager._power_skill_max_level(data_loader.get_row("skills", skill_id)))
 	save_manager.save_data["skill_base_levels"] = rank4_skills
 	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_080")
-	_expect(int(observed_breakdown.get("power", 0)) == 3531, "observed level_080 build must include the attenuated three-Necromancer stack, got %d" % int(observed_breakdown.get("power", 0)))
-	_expect(int(observed_breakdown.get("recommended", 0)) == 2011, "level_080 recommendation must include the attenuated three-Necromancer stack")
+	_expect(int(observed_breakdown.get("power", 0)) == 1038, "observed level_080 build must use collider-calibrated Boss throughput, got %d" % int(observed_breakdown.get("power", 0)))
+	_expect(int(observed_breakdown.get("recommended", 0)) == 989, "level_080 recommendation must count the three-Necromancer roster exactly once")
 	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "boss", "observed level_080 build must expose Boss output as its internal bottleneck")
-	_expect(absf(float(observed_breakdown.get("power", 0)) / 2011.0 - 1.7558) <= 0.002, "observed level_080 replay ratio must stay pinned after Boss stack attenuation")
+	_expect(absf(float(observed_breakdown.get("power", 0)) / 989.0 - 1.0500) <= 0.002, "observed level_080 replay ratio must stay aligned with the pressure-clear result")
 	_expect(float(observed_breakdown.get("power_line_exposure_credit", 0.0)) <= 1.1501, "line exposure credit must remain bounded at +15%")
 
 	# The fixture manifest is generated by the single Python model and checked into
@@ -4348,21 +4352,19 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var apex: Dictionary = data_loader.get_row("bosses", "boss_apex_overlord")
 	battle.wave_index = 5
 	var expected_apex_hp := float(apex.get("fixed_hp", 0.0))
-	var finale_stack_values: Array = level_row.get("boss_stack_hp_multipliers", [])
-	_expect(finale_stack_values.size() == 4, "level_099 must carry four generated Boss-stack coefficients")
+	_expect(not level_row.has("boss_stack_hp_multipliers"), "campaign levels must not hide per-copy Boss durability overrides")
 	battle.boss_spawn_counts.clear()
-	for copy_index in range(finale_stack_values.size()):
+	for copy_index in range(4):
 		var apex_enemy: Node = battle._spawn_enemy_instance("boss_apex_overlord", Vector2(540, 190), true)
-		var expected_copy_hp := expected_apex_hp * float(finale_stack_values[copy_index])
 		var apex_total_durability := float(apex_enemy.max_hp) + float(apex_enemy.armor_hp_max)
-		_expect(absf(apex_total_durability - expected_copy_hp) <= maxf(1.0, expected_copy_hp * 0.001), "level_099 Apex copy %d must apply its generated Boss-stack coefficient" % [copy_index + 1])
+		_expect(absf(apex_total_durability - expected_apex_hp) <= maxf(1.0, expected_apex_hp * 0.001), "level_099 Apex copy %d must keep the model's full fixed durability" % [copy_index + 1])
 		_expect(int(apex_enemy.breach_damage) == int(10.0 * float(apex.get("bd_coef", 1.0))), "Apex attack must not inherit any late-game damage multiplier")
 		apex_enemy.queue_free()
 	var finale_level: Dictionary = battle.level
-	battle.level = {"id": "level_010"}
+	battle.level = {"id": "level_085"}
 	battle.boss_spawn_counts.clear()
-	_expect(absf(float(battle._next_same_type_boss_hp_multiplier("boss_apex_overlord", economy)) - 1.0) <= 0.001, "first ten levels must not attenuate the first same-type Boss")
-	_expect(absf(float(battle._next_same_type_boss_hp_multiplier("boss_apex_overlord", economy)) - 1.0) <= 0.001, "first ten levels must not attenuate repeated same-type Bosses")
+	_expect(absf(float(battle._next_same_type_boss_hp_multiplier("boss_necromancer_titan", economy)) - 1.0) <= 0.001, "campaign Bosses must keep full durability on the first copy")
+	_expect(absf(float(battle._next_same_type_boss_hp_multiplier("boss_necromancer_titan", economy)) - 1.0) <= 0.001, "campaign Bosses must keep full durability on repeated copies")
 	battle.level = finale_level
 	var apex_resistances: Dictionary = apex.get("resistances", {})
 	_expect(apex_resistances.size() == 4, "final boss must express its four non-physical counters as bounded resistances")

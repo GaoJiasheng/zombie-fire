@@ -157,7 +157,7 @@
 - `late_wave_level_ramp` 从 `start_level` 到 `full_level` 按 `curve_power` 递增，专门吸收中后期局内技能成型后的 DPS 爆发；当前第 98 关为 `2.05x`，第 99 关为 `2.296x`，只影响第 3 波以后。
 - `late_wave_damage_ramp` 保留为兼容字段，但 `max_mult / final_mult` 永久固定为 `1.0`；后期难度不得再靠提高僵尸或 Boss 攻击制造暴毙。
 - `boss_survival_hp_ramp` 自阶段 186 起只服务缺少 `fixed_hp` 的旧数据兼容。当前 8 个正式 Boss 全部以 `bosses.json.fixed_hp` 作为同型号固定总耐久，普通战役不再读取此倍率；后续难度通过 `levels.json.runtime_bosses` 的显式数量与编队表达。
-- `boss_pacing` 是阶段 194 的 Boss 节奏唯一数据源：普通怪 / Boss 减速上限分别为 `80% / 40%`；同型第 1 / 2 / 3 / 4 只耐久倍率为 `1.0 / 0.82 / 0.45 / 0.35`，且 `same_type_hp_start_level=11` 保证前十关不消费折减。终局目标与验收带由 `finale_target_seconds / finale_time_band` 定义。
+- `boss_pacing` 是 Boss 节奏唯一数据源：普通怪 / Boss 减速上限分别为 `80% / 40%`。`same_type_hp_multipliers` 只供无尽模式在轮预算内分摊同型 Boss，普通战役的每一只同型 Boss 都保持 `bosses.json.fixed_hp` 全额耐久；终局目标与验收带由 `finale_target_seconds / finale_time_band` 定义。
 - `endless_template_level` 是无限尸潮的独立模板关卡；无论从哪一关入口进入，无尽首轮都按该模板的波次、推荐强度、金币等级和 HP 基准起步。
 - `endless_boss_resistance_grace_loops` 控制无尽前几轮 Boss 是否暂时移除元素抗性，避免第一轮同时承受抗性与破甲压力。
 - `endless_first_loop_armor_hits_cap` 是无尽开局破甲 Boss 的护甲命中上限兜底。
@@ -445,7 +445,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     "clear_requirement":{
       "min_output":1.0,"mob_hp_share":1.0,"boss_hp_share":0.0,"boss_id":null,
       "power_contract":{
-        "model":"bottleneck_v4","recommended_power":11,
+        "model":"bottleneck_v5","recommended_power":11,
         "crowd_capacity":1.0,"boss_capacity":0.0,"line_capacity":0.5,
         "line_expected_breach":52.0,"line_base_hp":160.0,
         "line_target_hp_ratio":0.35,
@@ -475,15 +475,13 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     {"wave":5,"type":"boss_apex_overlord","interval":2.4,"lane":"right"},
     {"wave":5,"type":"boss_apex_overlord","interval":2.4,"lane":"spread"}
   ],
-  "boss_stack_hp_multipliers":[0.983097,0.983097,0.983097,0.983097],
   "guaranteed_card_offers":[{"offer":1,"skill_ids":["skill_barrier","skill_slow_field"]}]
 }
 ```
 
 - `runtime_bosses` 是运行时在指定波次追加的 Boss，必须由 `battle.gd`、`simulate_balance.py` 与战力合同生成器共同读取；禁止再在战斗代码里按 `variant` 硬编码额外 Boss。中后期 Boss 里程碑用本字段显式组成 2 / 3 / 4 只同型编队；`level_099` 的主波次 Boss 加三条运行时行，共四只 `boss_apex_overlord`。
-- `boss_stack_hp_multipliers` 是生成器专用的逐只同型 Boss 耐久覆盖。通常关卡留空并读取 `economy.boss_pacing.same_type_hp_multipliers`；终局由 `generate_clear_requirements.py` 按毕业构筑目标时间反解后落表。它按同一 Boss ID 的出场序号消费，禁止手填或用来改变前十关。
 - `guaranteed_card_offers` 只保证指定第几次三选一中至少出现 `skill_ids` 之一，不自动替玩家选牌。战力模型只可计入这里明确保证的卡，并按候选中较弱的一张保守折算。
-- `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。`line_expected_breach` 是与 `simulate_balance.py` 同源的预计漏怪伤害，`line_base_hp` 是该关参考防线生命，`line_target_hp_ratio` 是通关目标剩余生命边界，`line_exposure_weights` 用小怪/Boss 的血量份额限制清场速度对承伤时间的修正。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`；防线比最多只获得 `power_ruler.line_exposure_credit_max` 规定的有限清场速度收益。
+- `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。`bottleneck_v5` 通过 `economy.power_ruler.weapon_runtime_axis_calibration` 把武器理论面板倍率转换为实测碰撞产能，并确保 Boss 数量只在 `boss_capacity` 计入一次，禁止在 headline 推荐值上再次乘数量。`line_expected_breach` 是与 `simulate_balance.py` 同源的预计漏怪伤害，`line_base_hp` 是该关参考防线生命，`line_target_hp_ratio` 是通关目标剩余生命边界，`line_exposure_weights` 用小怪/Boss 的血量份额限制清场速度对承伤时间的修正。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`；防线比最多只获得 `power_ruler.line_exposure_credit_max` 规定的有限清场速度收益。
 
 ## economy.json （全局旋钮）
 ```jsonc
@@ -518,9 +516,13 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   "weakness_mult": 1.5, "resist_mult": 0.5,
   "star_thresholds": {"three_star_hp_ratio": 0.70, "two_star_hp_ratio": 0.35},
   "power_ruler": {
+    "crowd_dps_per_capacity": 75.0,
     "boss_dps_per_capacity": 206.98,
     "boss_clear_window_seconds": 180.0,
-    "runtime_boss_recommendation_calibration": 1.03827,
+    "runtime_replay_ratio_targets": {"level_080":1.05,"level_099":1.16},
+    "weapon_runtime_axis_calibration": {
+      "weapon_autocannon":{"crowd":4.739506,"boss":0.400941}
+    },
     "line_requirement_floor": 0.25,
     "line_exposure_credit_min": 0.85,
     "line_exposure_credit_max": 1.15,
@@ -564,7 +566,8 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `boss_hp_level_bonus` 是关卡段 boss 血量旋钮；当前从第 20 关开始，所有 boss 额外乘 `2.0`，只影响 boss HP/压力估算，不提高 boss 伤害。
 - `boss_survival_hp_ramp` 是无 `fixed_hp` 旧 Boss 行的兼容旋钮；当前正式 Boss 均不消费它。同型号普通战役耐久只读 `fixed_hp`，多 Boss 压力只读 `runtime_bosses` 数量。
 - `boss_pacing.mob_slow_cap / boss_slow_cap` 是减速力场的两条运行时夹取上限：普通怪保持 `80%`，Boss 最多受 `40%` 减速；技能自身五级数据不改。战力防线轴按合同中的小怪 / Boss 暴露份额对两条上限加权，GD 与 Python 必须同源镜像。
-- `boss_pacing.same_type_hp_start_level` 锁定前十关不消费叠只折减；`same_type_hp_multipliers` 按同 ID 第 1 / 2 / 3 / 4 只依次取 `1.0 / 0.82 / 0.45 / 0.35`，超出数组继续取末值。`finale_level_id / finale_target_seconds / finale_time_band` 是终局生成器反解与审计的唯一时间合同源。
+- `boss_pacing.same_type_hp_start_level / same_type_hp_multipliers` 只服务无尽 Boss 轮预算内部的同型分摊；普通战役分支明确返回 `1.0`，不得再用隐藏折减抵消 `runtime_bosses` 数量。`finale_level_id / finale_target_seconds / finale_time_band` 是终局生成器与审计的唯一时间合同源。
+- `power_ruler.weapon_runtime_axis_calibration` 由 `tools/generate_weapon_power_profiles.py` 从运行时碰撞基准和付费套合同机械生成，分别校准清群与单体命中产能；禁止手填。`runtime_replay_ratio_targets` 只冻结已实测回放的结果语义，当前 80 关压力通关为 `R=1.05`，99 关毕业战为 `R=1.16`。
 - `endless_template_level` 固定无尽首轮的独立模板，当前 `level_025` 表示无尽开局约等价二三十关，不继承入口关卡的高阶波次或 HP 曲线。
 - `endless_boss_resistance_grace_loops` / `endless_first_loop_armor_hits_cap` 用于避免无尽第一轮 Boss 同时形成抗性与厚装甲墙；后续轮次恢复 Boss 原本的百分比抗性与完整装甲层数。
 - `endless_loop_hp_growth` 是无尽模式完成整轮后的复利 HP 成长；当前每轮至少比上一轮提高 50%，覆盖普通怪和 Boss，普通主线/挑战模式不受影响。

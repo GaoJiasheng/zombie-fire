@@ -225,9 +225,10 @@ def main() -> int:
             "design/25 Apex single-phase contract must remain 116.6s, "
             f"got {apex_phase_windows[-1][2]:.1f}s")
 
-    # Contract effective HP contains phase/armor mechanics plus the authored
-    # same-type stack scaling. These milestone bands are the design/35 player
-    # experience contract and therefore fail CI on either side of the band.
+    # Contract effective HP contains phase/armor mechanics and literal authored
+    # copies. Stage 198 replaces the old cross-family time bands with explicit
+    # roster checkpoints: within each free-family segment, durability and phase
+    # time must rise; the L80→L85 family graduation may reset the time scale.
     boss_stage_rows: list[tuple[int, str, float, float, float, float]] = []
     for level_no in (45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95):
         level = by_id[f"level_{level_no:03d}"]
@@ -237,16 +238,25 @@ def main() -> int:
             level, effective_hp, family_context, runtime_builds)
         if level_no <= 70:
             lower, upper = 0.0, 60.0
-        elif level_no <= 85:
+        elif level_no <= 80:
             lower, upper = 60.0, 100.0
+        elif level_no == 85:
+            lower, upper = 40.0, 65.0
+        elif level_no == 90:
+            lower, upper = 50.0, 80.0
         else:
-            lower, upper = 100.0, 170.0
+            lower, upper = 85.0, 120.0
         boss_stage_rows.append(
             (level_no, weapon_id, effective_hp, seconds, lower, upper))
         if not lower <= seconds <= upper:
             errors.append(
                 f"level_{level_no:03d} Boss stage {seconds:.1f}s outside "
                 f"design/35 band [{lower:.0f},{upper:.0f}]s")
+    milestone_durabilities = [row[2] for row in boss_stage_rows if row[0] >= 70]
+    if any(b <= a for a, b in zip(milestone_durabilities, milestone_durabilities[1:])):
+        errors.append(
+            "level_070..095 authored Boss durability must rise strictly through quantity tiers: "
+            f"{milestone_durabilities}")
 
     # Complete runtime encounter: primary Apex + every levels.json runtime Boss,
     # using the power contract's mechanic-adjusted combined effective HP.
@@ -327,13 +337,13 @@ def main() -> int:
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)
     if contract_reference_seconds is None or not (
-        400.0 - CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
+        340.0 - CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
         <= contract_reference_seconds
-        <= 425.0 + CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
+        <= 380.0 + CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
     ):
         errors.append(
             "level-99 equal-recommendation display contract should remain within the authored "
-            f"460s phase cap, expected [400,425]s, got {contract_reference_seconds}"
+            f"460s phase cap, expected [340,380]s, got {contract_reference_seconds}"
         )
 
     print("Endgame balance matrix")

@@ -6,12 +6,20 @@ The endless Boss *species* still follows the runtime pool (virtual level
 each displayed loop owns one total raw-HP budget. The budget is solved from a
 Boss-phase target and the conservative player fixture for that loop.
 
-Loops 1-6 use the approved level_080 Owner anchor's Boss-axis DPS. From loop 7
-through 12 the reference cross-fades linearly to the measured max-free
-scattergun graduation DPS used by check_endgame_balance; loop 12+ stays on the
-graduation fixture. The same cross-fade is applied to attack-element matchup
+Loops 1-6 use the approved level_080 Owner anchor's Boss-axis DPS. Loops 7-10
+use a deliberately tiny 2% graduation bridge, which is just enough to keep the
+generated raw-HP budget monotonic when the roster changes. From loop 11 through
+20 the reference cross-fades linearly to the measured max-free scattergun
+graduation DPS used by check_endgame_balance. The same cross-fade is applied to
+attack-element matchup
 so the generated raw HP accounts for each loop's actual Boss roster without
 silently importing any campaign fixed_hp value.
+
+Power v5 replaces panel-DPS estimates with checked-in collider throughput. A
+full early cross-fade would make the level_080 fixture fail before its approved
+10-14 survival band; the small bridge preserves both that band and the existing
+68/78/89/100-second loop targets, so the approved +12% endless-gold contract
+remains strictly increasing instead of being diluted by longer loop times.
 
 Run normally to update data/economy.json. Run with --check in CI to prove the
 checked-in table is current. Repeated normal runs are byte-idempotent.
@@ -49,7 +57,9 @@ DEFAULT_TARGET_SECONDS = [
     150.0, 150.0, 150.0, 150.0,
 ]
 MID_TRANSITION_START_LOOP = 7
-GRADUATION_TRANSITION_END_LOOP = 12
+GRADUATION_TRANSITION_FULL_LOOP = 20
+MID_BRIDGE_END_LOOP = 10
+MID_BRIDGE_RATIO = 0.02
 
 
 def load_json(path: Path):
@@ -126,8 +136,10 @@ def stack_weights(roster: list[str], economy: dict) -> list[float]:
 def transition_ratio(loop: int) -> float:
     if loop < MID_TRANSITION_START_LOOP:
         return 0.0
-    span = GRADUATION_TRANSITION_END_LOOP - MID_TRANSITION_START_LOOP + 1
-    return min(max((loop - MID_TRANSITION_START_LOOP + 1) / span, 0.0), 1.0)
+    if loop <= MID_BRIDGE_END_LOOP:
+        return MID_BRIDGE_RATIO
+    span = GRADUATION_TRANSITION_FULL_LOOP - MID_BRIDGE_END_LOOP
+    return min(max((loop - MID_BRIDGE_END_LOOP) / span, 0.0), 1.0)
 
 
 def element_time_factor(boss: dict, element: str, economy: dict, grace: bool) -> float:
@@ -221,7 +233,9 @@ def generate_pacing(economy: dict, bosses: dict) -> dict:
             "graduation_dps": round(graduation_dps, 2),
             "graduation_element": graduation_element,
             "start_loop": MID_TRANSITION_START_LOOP,
-            "full_loop": GRADUATION_TRANSITION_END_LOOP,
+            "bridge_end_loop": MID_BRIDGE_END_LOOP,
+            "bridge_ratio": MID_BRIDGE_RATIO,
+            "full_loop": GRADUATION_TRANSITION_FULL_LOOP,
         },
         "budgets": rows,
     }

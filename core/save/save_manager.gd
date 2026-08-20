@@ -772,7 +772,7 @@ func get_power_for_level(level_id: String) -> int:
 	var contract: Dictionary = contract_var if contract_var is Dictionary else {}
 	if contract.is_empty():
 		# Legacy data fallback only. Shipping levels are guarded by
-		# check_clear_requirements.py and always carry a v4 contract.
+		# check_clear_requirements.py and always carry a v5 contract.
 		var card_picks_fallback := maxi(1, int(level.get("target_card_picks", POWER_REFERENCE_CARD_PICKS)))
 		var weakness_fallback := str(level.get("primary_weakness", "physical"))
 		var projected_fallback := _projected_run_skill_levels(card_picks_fallback, weakness_fallback)
@@ -800,7 +800,9 @@ func get_power_for_level(level_id: String) -> int:
 	var weakness_mult := maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0)
 	var mob_element := weakness_mult if element == weakness else 1.0
 	var crowd_capacity := offense * float(axes.get("crowd", 1.0)) * mob_element
+	crowd_capacity *= _power_weapon_axis_calibration(weapon_id, "crowd")
 	var boss_capacity := offense * float(axes.get("boss", 1.0)) * _power_weighted_boss_element_factor(contract, element)
+	boss_capacity *= _power_weapon_axis_calibration(weapon_id, "boss")
 	var line_capacity := _loadout_survival_multiplier() * float(axes.get("line", 1.0))
 	line_capacity *= _power_line_mitigation_capacity(level)
 
@@ -1617,6 +1619,16 @@ func _power_contract_boss_share(contract: Dictionary) -> float:
 	var boss_weight := maxf(float(weights.get("boss", 0.0)), 0.0)
 	return boss_weight / maxf(crowd_weight + boss_weight, 0.000001)
 
+func _power_weapon_axis_calibration(weapon_id: String, axis: String) -> float:
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var ruler_var: Variant = economy.get("power_ruler", {})
+	var ruler: Dictionary = ruler_var if ruler_var is Dictionary else {}
+	var profiles_var: Variant = ruler.get("weapon_runtime_axis_calibration", {})
+	var profiles: Dictionary = profiles_var if profiles_var is Dictionary else {}
+	var row_var: Variant = profiles.get(weapon_id, {})
+	var row: Dictionary = row_var if row_var is Dictionary else {}
+	return maxf(float(row.get(axis, 1.0)), 0.01)
+
 func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 	var level := DataLoader.get_row("levels", level_id)
 	var requirement_var: Variant = level.get("clear_requirement", {})
@@ -1645,7 +1657,9 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 	var weakness := str(level.get("primary_weakness", "physical"))
 	var weakness_mult := maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0)
 	var crowd_capacity := offense * float(axes.get("crowd", 1.0)) * (weakness_mult if element == weakness else 1.0)
+	crowd_capacity *= _power_weapon_axis_calibration(weapon_id, "crowd")
 	var boss_capacity := offense * float(axes.get("boss", 1.0)) * _power_weighted_boss_element_factor(contract, element)
+	boss_capacity *= _power_weapon_axis_calibration(weapon_id, "boss")
 	var line_capacity := _loadout_survival_multiplier() * float(axes.get("line", 1.0)) * _power_line_mitigation_capacity(level)
 	var crowd_ratio := crowd_capacity / maxf(float(contract.get("crowd_capacity", 1.0)), 0.01)
 	var boss_ratio := boss_capacity / maxf(float(contract.get("boss_capacity", 1.0)), 0.01) if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
@@ -1675,9 +1689,10 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 		"power_line_exposure_credit": exposure_credit,
 	}
 
-# 单一战力 v4：推荐战力仍是本关固定的“有压力、通常能过”门槛，不得随存档变化。
+# 单一战力 v5：推荐战力仍是本关固定的“有压力、通常能过”门槛，不得随存档变化。
 # Python 离线模型把运行时追加 Boss、阶段减伤与重复攻线压力写入 power_contract；
-# GDScript 只读合同，杜绝客户端和校验工具再各算一套关卡难度。
+# 生成表把每把武器的真实碰撞清群/Boss产能写入 economy；GDScript 只读合同和
+# 校准表，杜绝客户端和校验工具再各算一套关卡难度。
 # required_t(min_output)由 tools/generate_clear_requirements.py 基于难度模型离线解出、
 # 落表在 levels.json 的 clear_requirement 字段(check_clear_requirements.py 在 RC 中防
 # 不同步);这里只做查表 + 与玩家同一把尺的映射:

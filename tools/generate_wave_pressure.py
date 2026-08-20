@@ -57,6 +57,20 @@ def canonical_hash(value) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def authored_level_projection(levels: list[dict]) -> list[dict]:
+    """Drop generated recommendation contracts from authored difficulty data.
+
+    ``clear_requirement`` is regenerated whenever the power ruler changes.  It
+    is not part of the waves, HP, rewards, or any other authored campaign
+    pressure, so including it made the frozen first-ten guard reject a model-
+    only migration even though gameplay was byte-for-byte unchanged.
+    """
+    return [
+        {key: value for key, value in level.items() if key != "clear_requirement"}
+        for level in levels
+    ]
+
+
 def predicted_star(leak_pct: float, three_cap: float, two_cap: float) -> int:
     if leak_pct > two_cap:
         return 1
@@ -150,8 +164,10 @@ def capture_fixture(levels: list[dict], zombies: dict, bosses: dict, economy: di
             row["target_rows"] = target_rows(level, rule)
         rows[level["id"]] = row
     return {
-        "schema_version": 1,
-        "first_ten_sha256": canonical_hash(levels[:start_level - 1]),
+        "schema_version": 2,
+        "first_ten_authored_sha256": canonical_hash(
+            authored_level_projection(levels[:start_level - 1])
+        ),
         "levels": rows,
     }
 
@@ -238,7 +254,8 @@ def validate(
 ) -> list[str]:
     errors: list[str] = []
     start_level = int(rule["start_level"])
-    if canonical_hash(current[:start_level - 1]) != fixture.get("first_ten_sha256"):
+    authored_hash = canonical_hash(authored_level_projection(current[:start_level - 1]))
+    if authored_hash != fixture.get("first_ten_authored_sha256"):
         errors.append(f"levels 001-{start_level - 1:03d} changed from the frozen pre-bump baseline")
 
     current_by_id = {level["id"]: level for level in current}
