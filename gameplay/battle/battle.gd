@@ -11390,7 +11390,14 @@ func _animate_card_panel_in(delay := 0.0) -> void:
 
 func _render_card_offer(owned_snapshot: Dictionary) -> void:
 	var cards: VBoxContainer = $Hud/CardPanel/Cards
+	# queue_free() alone keeps the outgoing controls parented until the end of
+	# the frame. A reroll (or a new offer opened on that same frame) would then
+	# make the height pass count both the old and new trios, stretching the modal
+	# to the battlefield cap even though only the new three cards survive to the
+	# rendered frame. Detach first so layout always measures one authoritative
+	# generation of cards, independent of deferred deletion order.
 	for child in cards.get_children():
+		cards.remove_child(child)
 		child.queue_free()
 	$Hud/CardPanel/DetailOverlay.visible = false
 	_set_card_offer_base_content_visible(true)

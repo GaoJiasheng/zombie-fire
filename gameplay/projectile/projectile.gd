@@ -1011,7 +1011,16 @@ func _hit(target: Node) -> void:
 		else:
 			pierce_left = remaining_pass_throughs
 			global_position = hit_origin + flight_direction * (52.0 + 24.0 * float(swept_hits))
-			_retarget_after_pierce(global_position, flight_direction, remaining_pass_throughs)
+			var retargeted := _retarget_after_pierce(global_position, flight_direction, remaining_pass_throughs)
+			# A homing round has already spent its steering intent on the target it
+			# just hit. If no live onward target exists, letting the remaining
+			# pierce fly on its inbound vector makes close-line impacts bloom into
+			# a giant reverse fan across the whole screen. Keep straight ballistic
+			# pierce unchanged, and keep homing pierce whenever it can actually
+			# chain into another enemy; otherwise dissipate it at the confirmed hit.
+			if homing_strength > 0.0 and not retargeted:
+				queue_free()
+				return
 			_spawn_pierce_flash()
 
 func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max_hits: int) -> int:
@@ -1069,23 +1078,24 @@ func _apply_damage_with_source(target: Node, amount: float) -> void:
 	if is_instance_valid(target) and target.has_meta("incoming_damage_source"):
 		target.remove_meta("incoming_damage_source")
 
-func _retarget_after_pierce(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> void:
+func _retarget_after_pierce(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> bool:
 	if current_direction.length_squared() <= 0.0 or velocity.length_squared() <= 1.0:
-		return
+		return false
 	var target := _best_pierce_retarget(origin, current_direction.normalized(), remaining_pass_throughs)
 	if target == null:
-		return
+		return false
 	var desired := (target.global_position - origin).normalized()
 	if desired.length_squared() <= 0.0:
-		return
+		return false
 	var turn := current_direction.normalized().angle_to(desired)
 	if absf(turn) > PIERCE_RETARGET_MAX_TURN:
-		return
+		return false
 	var speed := velocity.length()
 	velocity = desired * speed
 	rotation = desired.angle() - SPRITE_FORWARD_ANGLE
 	if homing_strength > 0.0:
 		lifetime = maxf(lifetime, homing_activation_delay)
+	return true
 
 func _best_pierce_retarget(origin: Vector2, current_direction: Vector2, remaining_pass_throughs: int) -> Node2D:
 	var best: Node2D

@@ -4455,3 +4455,15 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Pacing targets are independently recomputed**: all twenty cross-faded Boss references reproduce their generated targets within `0.05s` and stay in the approved 1–3 / 4–6 / 7–10 / 11+ loop experience bands. Mob multipliers must remain strictly increasing.
 - **The complete runtime path has visual evidence**: five 1080×1920 captures cover entry, loop transition, generated Boss budget, milestone gold feedback and Endless defeat / best-round settlement. Every capture reports zero UI-audit issues.
 - **Release ownership**: `tools/simulate_endless.py` now runs in the non-visual Release Candidate chain. Any future drift in budget coverage, pacing, curve monotonicity or either survival fixture fails before release.
+
+## Card-Offer Same-Frame Replacement Stability (2026-08-20)
+
+- **Root cause**: outgoing offer cards remained children of the `VBoxContainer` until `queue_free()` completed at frame end. A reroll or subsequent offer could therefore measure both generations and cache a battlefield-height modal even though only three cards were visible afterward.
+- **Deterministic replacement**: old cards are detached synchronously before being queued for deletion, so every immediate and deferred layout pass sees only the current trio.
+- **Regression ownership**: M1 smoke rebuilds the offer twice without yielding, then checks the live trio, measured modal height, exact action gap and battlefield centering both immediately and after deferred cleanup.
+
+## Frontline Homing-Pierce Trajectory Cleanup (2026-08-20)
+
+- **Root cause**: multiple homing lanes converged on one close target, then unused pierce charges continued along each inbound vector when no onward target existed. Past the impact point those vectors became a screen-height reverse fan, falsely reading as fire emitted by the enemy.
+- **Target-aware continuation**: homing pierce now continues only after resolving a real, live onward target. If none exists, the projectile dissipates at the confirmed impact; ordinary ballistic pierce remains unchanged.
+- **Regression ownership**: M1 smoke covers both sides of the contract—single-target frontline impacts terminate, while a valid backline enemy keeps the projectile alive and aligned into the next target.

@@ -144,6 +144,7 @@ func _initialize() -> void:
 	await _verify_endgame_pressure_ramp(data_loader, save_manager)
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
+	_verify_homing_pierce_frontline_cleanup()
 	_verify_projectile_visual_profiles()
 	_verify_projectile_ballistics_rules()
 	await _verify_turret_muzzle_sockets(data_loader)
@@ -1261,6 +1262,7 @@ func _initialize() -> void:
 				await process_frame
 				_verify_card_offer_full_pause(battle)
 				await _verify_all_skill_offer_copy_layouts(battle)
+				await _verify_card_offer_same_frame_rebuild(battle)
 				var paused_fire_counter := {"count": 0}
 				battle.turret.fired.connect(func(_origin: Vector2, _direction: Vector2) -> void:
 					paused_fire_counter["count"] = int(paused_fire_counter.get("count", 0)) + 1
@@ -3528,6 +3530,21 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 		var enemy := battle.get_node("EnemyLayer").get_child(0)
 		_expect(enemy.process_mode != Node.PROCESS_MODE_ALWAYS, "live enemies must not force processing during card offer")
 
+func _verify_card_offer_same_frame_rebuild(battle: Node) -> void:
+	var cards := battle.get_node("Hud/CardPanel/Cards") as VBoxContainer
+	var outgoing_cards := cards.get_children()
+	# Rebuild twice without yielding, matching a reroll/new-offer transition in
+	# the exact frame where the old controls are still queued for deletion.
+	battle._render_card_offer(battle.skills.owned)
+	battle._render_card_offer(battle.skills.owned)
+	_expect(cards.get_child_count() == 3, "same-frame card-offer rebuild must expose only the current trio to layout")
+	for outgoing_card in outgoing_cards:
+		_expect(outgoing_card.get_parent() == null, "outgoing offer cards must detach before deferred deletion")
+	_verify_card_offer_full_pause(battle)
+	await process_frame
+	_expect(cards.get_child_count() == 3, "deferred card cleanup must not remove the replacement trio")
+	_verify_card_offer_full_pause(battle)
+
 func _verify_all_skill_offer_copy_layouts(battle: Node) -> void:
 	var data_loader := root.get_node("/root/DataLoader")
 	var localization_manager := root.get_node("/root/LocalizationManager")
@@ -4613,6 +4630,53 @@ func _verify_projectile_pierce_sweep_runtime() -> void:
 	second.queue_free()
 	off_lane.queue_free()
 	projectile.queue_free()
+
+func _verify_homing_pierce_frontline_cleanup() -> void:
+	var no_target_projectile := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(no_target_projectile)
+	no_target_projectile.setup(Vector2(540, 1460), Vector2.UP, 1000.0, 10.0, "fire", 2, 0, 0.55, 5.0)
+	# Keep the regression isolated from any combat fixture that may still own an
+	# enemy-group node elsewhere in the smoke tree.
+	for enemy in get_nodes_in_group("enemies"):
+		no_target_projectile.hit_target_ids[enemy.get_instance_id()] = true
+	var frontline_target := FakeDamageTarget.new()
+	frontline_target.global_position = Vector2(540, 1380)
+	root.add_child(frontline_target)
+	no_target_projectile._hit(frontline_target)
+	_expect(frontline_target.hits == 1, "frontline homing projectile must still damage its confirmed target")
+	_expect(
+		no_target_projectile.is_queued_for_deletion(),
+		"homing pierce must dissipate after a frontline hit when no onward enemy exists"
+	)
+	frontline_target.queue_free()
+	no_target_projectile.queue_free()
+
+	var chained_projectile := _instance("res://gameplay/projectile/projectile.tscn")
+	root.add_child(chained_projectile)
+	chained_projectile.setup(Vector2(540, 1460), Vector2.UP, 1000.0, 10.0, "fire", 2, 0, 0.55, 5.0)
+	for enemy in get_nodes_in_group("enemies"):
+		chained_projectile.hit_target_ids[enemy.get_instance_id()] = true
+	var first_target := FakeDamageTarget.new()
+	var onward_target := FakeDamageTarget.new()
+	first_target.global_position = Vector2(540, 1380)
+	onward_target.global_position = Vector2(540, 880)
+	onward_target.add_to_group("enemies")
+	root.add_child(first_target)
+	root.add_child(onward_target)
+	chained_projectile._hit(first_target)
+	_expect(first_target.hits == 1, "homing pierce chain must keep its primary hit")
+	_expect(
+		not chained_projectile.is_queued_for_deletion(),
+		"homing pierce must remain active when a real onward enemy can consume the remaining pierce"
+	)
+	_expect(
+		chained_projectile.velocity.normalized().dot(Vector2.UP) > 0.99,
+		"homing pierce must leave the frontline aimed at the real onward target instead of fanning away"
+	)
+	first_target.queue_free()
+	onward_target.remove_from_group("enemies")
+	onward_target.queue_free()
+	chained_projectile.queue_free()
 
 func _verify_projectile_visual_profiles() -> void:
 	var expected := {

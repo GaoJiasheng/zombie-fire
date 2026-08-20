@@ -459,6 +459,7 @@ func _initialize() -> void:
 			var cards := main.current_scene.get_node_or_null("Hud/CardPanel/Cards") as VBoxContainer
 			if cards != null:
 				for child in cards.get_children():
+					cards.remove_child(child)
 					child.queue_free()
 				var data_loader := root.get_node("/root/DataLoader")
 				for raw_skill_id in payload.get("debug_card_offer_skills", []):
@@ -475,6 +476,8 @@ func _initialize() -> void:
 						display_name,
 						level_value
 					))
+				if main.current_scene.has_method("_refresh_card_offer_dynamic_layout"):
+					main.current_scene.call("_refresh_card_offer_dynamic_layout")
 		for i in range(18):
 			await process_frame
 	if payload.has("card_detail") and main.current_scene != null and main.current_scene.has_method("_show_card_detail"):
