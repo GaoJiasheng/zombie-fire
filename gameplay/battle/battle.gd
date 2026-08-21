@@ -11456,6 +11456,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
 	var card_h := CARD_OFFER_CARD_BASE_HEIGHT
 	var card := Panel.new()
+	# Runtime audits select from the exact cards rendered by the live director.
+	# The metadata is inert in player builds, but keeps headless probes from
+	# duplicating the offer/filtering rules in a second implementation.
+	card.set_meta("skill_id", skill_id)
 	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, card_h)
 	card.clip_contents = true
 	card.mouse_filter = Control.MOUSE_FILTER_STOP

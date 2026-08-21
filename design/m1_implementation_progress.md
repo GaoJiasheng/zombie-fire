@@ -4510,3 +4510,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **One progression fixture owns calibration inputs**: `data/campaign_progression_fixture.json` defines the resource-constrained free account, purchase and upgrade policy, weapon selection, three card seeds and ten calibration levels. The audit exports the exact per-level build JSON that the runtime probe consumes.
 - **Failure is no longer mislabeled as difficulty**: the analytical baseline separates four edge-reaching clears from six destroyed-base / timeout outcomes. The present distribution is `82 easy / 7 light / 0 pressure / 4 high / 6 unwinnable`.
 - **Comparable inputs are recorded**: the audit manifest pins `data/levels.json` at SHA-256 `7429c0acdb3e0c4b76c64a1fc9d428b26de96ec8988f588aabb78cc6235d3f3e` and records hashes for both new sources. No campaign or power data changed.
+
+## Campaign Rebuild v2 · Phase A Runtime Calibration (2026-08-21)
+
+- **The runtime is now the calibration judge**: a fixed-step headless probe injects the exact exported progression build into the real `Battle` scene, auto-selects live cards and casts the signature skill while recording deepest progress, base health, outcome and elapsed time.
+- **Determinism is explicit**: card selection owns an isolated seeded RNG and the combat stream is reset at each fixed physics tick. Re-running the same level and seed produces byte-identical output instead of inheriting wall-clock or UI-frame jitter.
+- **The early contradiction is resolved without touching levels**: Stages 003 / 008 / 013 reach median progress `24.55% / 30.65% / 26.40%` and clear `3/3` at full base health. The retired sub-1.2% readings came from treating abstract output capacity as frame DPS.
+- **One scalar cannot hide the residual**: the old queue model's median progress error is `22.91pp`, and Stages 040 / 055 / 075 expose material card-path variance. The runtime median is therefore the authority and the three-seed range remains first-class evidence; the old analytical result is diagnostic only.
+- **Acceptance remains deliberately open**: `frontline_calibration_report.md` is pending Owner review. The target source stays `frozen=false`, the proposed 16/43/33/7 distribution is not a release assertion, and no campaign data changed.

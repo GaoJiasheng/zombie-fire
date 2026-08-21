@@ -1,0 +1,2224 @@
+{
+  "schema_version": 1,
+  "fixture_source": "design/audits/campaign_progression_fixture_builds.json",
+  "levels": [
+    3,
+    8,
+    13,
+    30,
+    40,
+    55,
+    62,
+    75,
+    84,
+    95
+  ],
+  "seeds_per_level": 3,
+  "simulation_step_seconds": 0.0166666666666667,
+  "wall_acceleration": 1.0,
+  "runs": [
+    {
+      "level": 3,
+      "level_id": "level_003",
+      "seed": 1103,
+      "build": {
+        "armor": "",
+        "armor_level": 1.0,
+        "character": "vanguard",
+        "character_level": 3.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 0.0,
+        "skill_base_levels": {
+          "skill_multishot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 4.0
+      },
+      "max_progress": 0.287901807013359,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 110.506666666662,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 1,
+        "skill_charge_shot": 1
+      },
+      "battle_report": {
+        "duration_seconds": 110.506666666662,
+        "damage_total": 22632.468689623,
+        "damage_by_element": {
+          "physical": 19705.8708363994,
+          "lightning": 2676.55334638197,
+          "fire": 250.0445068416
+        },
+        "damage_by_source": {
+          "weapon": 22603.1511267814,
+          "burn": 29.3175628416
+        },
+        "top_element": "physical",
+        "crit_damage": 22382.4241827814,
+        "weak_damage": 3054.53683713024,
+        "kills": 107,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 21.3526666666667,
+        "active_skill_casts": 7,
+        "max_kill_streak": 107,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 3,
+      "level_id": "level_003",
+      "seed": 2207,
+      "build": {
+        "armor": "",
+        "armor_level": 1.0,
+        "character": "vanguard",
+        "character_level": 3.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 0.0,
+        "skill_base_levels": {
+          "skill_multishot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 4.0
+      },
+      "max_progress": 0.221002802958015,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 108.989999999995,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 1,
+        "skill_pierce": 1
+      },
+      "battle_report": {
+        "duration_seconds": 108.989999999995,
+        "damage_total": 24178.7350770717,
+        "damage_by_element": {
+          "physical": 23982.632861631,
+          "fire": 196.10221544064
+        },
+        "damage_by_source": {
+          "weapon": 24154.907549631,
+          "burn": 23.82752744064
+        },
+        "top_element": "physical",
+        "crit_damage": 23982.632861631,
+        "weak_damage": 2981.63156736614,
+        "kills": 107,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 107,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 3,
+      "level_id": "level_003",
+      "seed": 3301,
+      "build": {
+        "armor": "",
+        "armor_level": 1.0,
+        "character": "vanguard",
+        "character_level": 3.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 0.0,
+        "skill_base_levels": {
+          "skill_multishot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 4.0
+      },
+      "max_progress": 0.245455117262047,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 111.222666666662,
+      "timeout": false,
+      "selected_skills": [
+        "skill_homing",
+        "skill_charge_shot"
+      ],
+      "final_skill_levels": {
+        "skill_homing": 1,
+        "skill_charge_shot": 1
+      },
+      "battle_report": {
+        "duration_seconds": 111.222666666662,
+        "damage_total": 24214.2014353452,
+        "damage_by_element": {
+          "physical": 23997.9622469676,
+          "fire": 216.2391883776
+        },
+        "damage_by_source": {
+          "weapon": 24170.2369349676,
+          "burn": 43.9645003776
+        },
+        "top_element": "physical",
+        "crit_damage": 23997.9622469676,
+        "weak_damage": 3232.48441575629,
+        "kills": 107,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 107,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 8,
+      "level_id": "level_008",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
+        "character": "vanguard",
+        "character_level": 7.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 1.0,
+          "skill_pierce": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 9.0
+      },
+      "max_progress": 0.325495456375239,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 144.926666666674,
+      "timeout": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_tesla"
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 1,
+        "skill_critical": 1,
+        "skill_tesla": 1
+      },
+      "battle_report": {
+        "duration_seconds": 144.926666666674,
+        "damage_total": 63007.2502214742,
+        "damage_by_element": {
+          "physical": 46910.714364352,
+          "fire": 707.44506941952,
+          "lightning": 15389.0907877024
+        },
+        "damage_by_source": {
+          "weapon": 62897.4788800545,
+          "burn": 109.77134141952
+        },
+        "top_element": "physical",
+        "crit_damage": 59436.3401984441,
+        "weak_damage": 6127.81715163341,
+        "kills": 150,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 27.7180000000002,
+        "active_skill_casts": 9,
+        "max_kill_streak": 150,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 8,
+      "level_id": "level_008",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
+        "character": "vanguard",
+        "character_level": 7.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 1.0,
+          "skill_pierce": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 9.0
+      },
+      "max_progress": 0.306496470211116,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 134.526666666666,
+      "timeout": false,
+      "selected_skills": [
+        "skill_homing",
+        "skill_charge_shot",
+        "skill_critical"
+      ],
+      "final_skill_levels": {
+        "skill_homing": 1,
+        "skill_charge_shot": 1,
+        "skill_critical": 1
+      },
+      "battle_report": {
+        "duration_seconds": 134.526666666666,
+        "damage_total": 63205.6448066951,
+        "damage_by_element": {
+          "physical": 62427.8354477445,
+          "fire": 777.8093589504
+        },
+        "damage_by_source": {
+          "weapon": 63082.0458797446,
+          "burn": 123.5989269504
+        },
+        "top_element": "physical",
+        "crit_damage": 62427.8354477445,
+        "weak_damage": 6009.41662923571,
+        "kills": 150,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 8,
+        "max_kill_streak": 150,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 8,
+      "level_id": "level_008",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
+        "character": "vanguard",
+        "character_level": 7.0,
+        "chip": "",
+        "chip_level": 1.0,
+        "pet": "",
+        "pet_level": 1.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 1.0,
+          "skill_pierce": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 9.0
+      },
+      "max_progress": 0.24746513075501,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 134.476666666666,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_multishot",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 1,
+        "skill_multishot": 1,
+        "skill_pierce": 1
+      },
+      "battle_report": {
+        "duration_seconds": 134.476666666666,
+        "damage_total": 58574.0724142576,
+        "damage_by_element": {
+          "physical": 48624.3428338105,
+          "lightning": 9291.88959973908,
+          "fire": 657.83998070784
+        },
+        "damage_by_source": {
+          "weapon": 58481.5994735497,
+          "burn": 92.4729407078401
+        },
+        "top_element": "physical",
+        "crit_damage": 51455.1998086843,
+        "weak_damage": 5729.14534193971,
+        "kills": 150,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 50.7526666666656,
+        "active_skill_casts": 8,
+        "max_kill_streak": 150,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 13,
+      "level_id": "level_013",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7.0,
+        "character": "vanguard",
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_critical": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 2.0,
+          "skill_pierce": 2.0,
+          "skill_ricochet": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0,
+          "skill_split_shot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 12.0
+      },
+      "max_progress": 0.311513979380367,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 159.947333333353,
+      "timeout": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_tesla"
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 1,
+        "skill_critical": 1,
+        "skill_tesla": 1
+      },
+      "battle_report": {
+        "duration_seconds": 159.947333333353,
+        "damage_total": 110715.102896556,
+        "damage_by_element": {
+          "physical": 90769.1250920935,
+          "fire": 1154.36389370129,
+          "lightning": 18791.6139107598
+        },
+        "damage_by_source": {
+          "weapon": 109209.332394376,
+          "pet": 1328.9824,
+          "burn": 176.788102179739
+        },
+        "top_element": "physical",
+        "crit_damage": 103567.731829374,
+        "weak_damage": 9596.67520923476,
+        "kills": 181,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 27.9860000000001,
+        "active_skill_casts": 10,
+        "max_kill_streak": 181,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 13,
+      "level_id": "level_013",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7.0,
+        "character": "vanguard",
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_critical": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 2.0,
+          "skill_pierce": 2.0,
+          "skill_ricochet": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0,
+          "skill_split_shot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 12.0
+      },
+      "max_progress": 0.264019123106512,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 158.196666666685,
+      "timeout": false,
+      "selected_skills": [
+        "skill_homing",
+        "skill_charge_shot",
+        "skill_critical"
+      ],
+      "final_skill_levels": {
+        "skill_homing": 1,
+        "skill_charge_shot": 1,
+        "skill_critical": 1
+      },
+      "battle_report": {
+        "duration_seconds": 158.196666666685,
+        "damage_total": 109419.63031815,
+        "damage_by_element": {
+          "physical": 108085.123701648,
+          "fire": 1334.50661650141
+        },
+        "damage_by_source": {
+          "weapon": 107576.167340081,
+          "pet": 1643.8432,
+          "burn": 199.619778068342
+        },
+        "top_element": "physical",
+        "crit_damage": 106515.680501648,
+        "weak_damage": 9272.64119547501,
+        "kills": 181,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 10,
+        "max_kill_streak": 181,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 13,
+      "level_id": "level_013",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7.0,
+        "character": "vanguard",
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
+        "signature_level": 1.0,
+        "skill_base_levels": {
+          "skill_barrier": 1.0,
+          "skill_charge_shot": 1.0,
+          "skill_critical": 1.0,
+          "skill_homing": 1.0,
+          "skill_multishot": 2.0,
+          "skill_pierce": 2.0,
+          "skill_ricochet": 1.0,
+          "skill_salvo": 1.0,
+          "skill_slow_field": 1.0,
+          "skill_split_shot": 1.0
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 12.0
+      },
+      "max_progress": 0.252027112655057,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 155.344000000016,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_multishot",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 1,
+        "skill_multishot": 2,
+        "skill_pierce": 2
+      },
+      "battle_report": {
+        "duration_seconds": 155.344000000016,
+        "damage_total": 101930.832198026,
+        "damage_by_element": {
+          "physical": 86582.4571937274,
+          "lightning": 14471.4522141121,
+          "fire": 876.922790185956
+        },
+        "damage_by_source": {
+          "weapon": 100321.613442397,
+          "pet": 1518.8512,
+          "burn": 90.3675556283859
+        },
+        "top_element": "physical",
+        "crit_damage": 88352.8635133856,
+        "weak_damage": 8893.86864182672,
+        "kills": 181,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 56.6539999999988,
+        "active_skill_casts": 9,
+        "max_kill_streak": 181,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 30,
+      "level_id": "level_030",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12.0,
+        "character": "vanguard",
+        "character_level": 18.0,
+        "chip": "chip_attack",
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 2.0,
+          "skill_charge_shot": 2.0,
+          "skill_critical": 2.0,
+          "skill_homing": 2.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 2.0,
+          "skill_slow_field": 2.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 17.0
+      },
+      "max_progress": 0.211956297896291,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 194.76733333338,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_tesla",
+        "skill_salvo"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 2,
+        "skill_charge_shot": 2,
+        "skill_tesla": 1,
+        "skill_salvo": 2
+      },
+      "battle_report": {
+        "duration_seconds": 194.76733333338,
+        "damage_total": 404147.877231356,
+        "damage_by_element": {
+          "physical": 140822.364000228,
+          "lightning": 263325.513231119
+        },
+        "damage_by_source": {
+          "weapon": 402167.627759356,
+          "pet": 1980.249472
+        },
+        "top_element": "lightning",
+        "crit_damage": 193476.826247912,
+        "weak_damage": 64644.1827264037,
+        "kills": 258,
+        "boss_kills": 2,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 165.015333333339,
+        "active_skill_casts": 12,
+        "max_kill_streak": 258,
+        "boss_id": "boss_frost_warden",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 30,
+      "level_id": "level_030",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12.0,
+        "character": "vanguard",
+        "character_level": 18.0,
+        "chip": "chip_attack",
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 2.0,
+          "skill_charge_shot": 2.0,
+          "skill_critical": 2.0,
+          "skill_homing": 2.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 2.0,
+          "skill_slow_field": 2.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 17.0
+      },
+      "max_progress": 0.145753397468392,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 192.916666666712,
+      "timeout": false,
+      "selected_skills": [
+        "skill_split_shot",
+        "skill_charge_shot",
+        "skill_homing",
+        "skill_cryo"
+      ],
+      "final_skill_levels": {
+        "skill_split_shot": 2,
+        "skill_charge_shot": 2,
+        "skill_homing": 2,
+        "skill_cryo": 1
+      },
+      "battle_report": {
+        "duration_seconds": 192.916666666712,
+        "damage_total": 401792.052678186,
+        "damage_by_element": {
+          "physical": 326807.780911546,
+          "ice": 74984.271766638
+        },
+        "damage_by_source": {
+          "weapon": 400114.805382186,
+          "pet": 1677.247296
+        },
+        "top_element": "physical",
+        "crit_damage": 144880.672122751,
+        "weak_damage": 34935.6976941084,
+        "kills": 258,
+        "boss_kills": 2,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 50.4879999999994,
+        "active_skill_casts": 12,
+        "max_kill_streak": 258,
+        "boss_id": "boss_frost_warden",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 30,
+      "level_id": "level_030",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12.0,
+        "character": "vanguard",
+        "character_level": 18.0,
+        "chip": "chip_attack",
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 2.0,
+          "skill_charge_shot": 2.0,
+          "skill_critical": 2.0,
+          "skill_homing": 2.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 2.0,
+          "skill_slow_field": 2.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 17.0
+      },
+      "max_progress": 0.275217070834327,
+      "base_ratio": 0.982158786797502,
+      "victory": true,
+      "elapsed_seconds": 195.915333333381,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_critical",
+        "skill_barrier",
+        "skill_incendiary"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 3,
+        "skill_barrier": 2,
+        "skill_incendiary": 1
+      },
+      "battle_report": {
+        "duration_seconds": 195.915333333381,
+        "damage_total": 412398.926596627,
+        "damage_by_element": {
+          "physical": 354860.358939814,
+          "fire": 57538.5676568257
+        },
+        "damage_by_source": {
+          "weapon": 407038.534182694,
+          "pet": 2216.995008,
+          "burn": 3143.3974059447
+        },
+        "top_element": "physical",
+        "crit_damage": 225264.669157953,
+        "weak_damage": 1472.47348661422,
+        "kills": 258,
+        "boss_kills": 2,
+        "base_damage_taken": 20,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 12,
+        "max_kill_streak": 258,
+        "boss_id": "boss_frost_warden",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 40,
+      "level_id": "level_040",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 16.0,
+        "character": "vanguard",
+        "character_level": 23.0,
+        "chip": "chip_attack",
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 2.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23.0
+      },
+      "max_progress": 0.311914481825501,
+      "base_ratio": 0.986737400530504,
+      "victory": true,
+      "elapsed_seconds": 169.832000000027,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_tesla",
+        "skill_salvo",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 2,
+        "skill_charge_shot": 3,
+        "skill_tesla": 1,
+        "skill_salvo": 3,
+        "skill_pierce": 3
+      },
+      "battle_report": {
+        "duration_seconds": 169.832000000027,
+        "damage_total": 807756.609049192,
+        "damage_by_element": {
+          "physical": 269621.685019044,
+          "lightning": 538134.924030197
+        },
+        "damage_by_source": {
+          "weapon": 805260.633049193,
+          "pet": 2495.976
+        },
+        "top_element": "lightning",
+        "crit_damage": 249674.578079218,
+        "weak_damage": 120365.836493385,
+        "kills": 300,
+        "boss_kills": 2,
+        "base_damage_taken": 15,
+        "base_damage_prevented": 0,
+        "control_seconds": 244.956000000009,
+        "active_skill_casts": 11,
+        "max_kill_streak": 300,
+        "boss_id": "boss_storm_caller",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 40,
+      "level_id": "level_040",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 16.0,
+        "character": "vanguard",
+        "character_level": 23.0,
+        "chip": "chip_attack",
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 2.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23.0
+      },
+      "max_progress": 0.183893497845599,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 162.334000000021,
+      "timeout": false,
+      "selected_skills": [
+        "skill_split_shot",
+        "skill_charge_shot",
+        "skill_homing",
+        "skill_cryo",
+        "skill_homing"
+      ],
+      "final_skill_levels": {
+        "skill_split_shot": 2,
+        "skill_charge_shot": 3,
+        "skill_homing": 4,
+        "skill_cryo": 1
+      },
+      "battle_report": {
+        "duration_seconds": 162.334000000021,
+        "damage_total": 792817.894377471,
+        "damage_by_element": {
+          "physical": 433336.327959727,
+          "ice": 359481.566417746
+        },
+        "damage_by_source": {
+          "weapon": 790929.411977472,
+          "pet": 1888.4824
+        },
+        "top_element": "physical",
+        "crit_damage": 309823.411546406,
+        "weak_damage": 204853.073112643,
+        "kills": 287,
+        "boss_kills": 2,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 101.232666666664,
+        "active_skill_casts": 10,
+        "max_kill_streak": 287,
+        "boss_id": "boss_storm_caller",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 40,
+      "level_id": "level_040",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 16.0,
+        "character": "vanguard",
+        "character_level": 23.0,
+        "chip": "chip_attack",
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
+        "signature_level": 2.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 2.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 3.0,
+          "skill_pierce": 3.0,
+          "skill_ricochet": 2.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 2.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23.0
+      },
+      "max_progress": 0.730321706524332,
+      "base_ratio": 0.933701657458563,
+      "victory": true,
+      "elapsed_seconds": 161.551333333354,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_critical",
+        "skill_barrier",
+        "skill_incendiary",
+        "skill_recycle"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 3,
+        "skill_barrier": 3,
+        "skill_incendiary": 1,
+        "skill_recycle": 1
+      },
+      "battle_report": {
+        "duration_seconds": 161.551333333354,
+        "damage_total": 892446.070868417,
+        "damage_by_element": {
+          "physical": 474977.425261186,
+          "fire": 416667.615515978,
+          "lightning": 801.03009124563
+        },
+        "damage_by_source": {
+          "weapon": 872173.235647508,
+          "pet": 2998.8232,
+          "burn": 17274.012020905
+        },
+        "top_element": "physical",
+        "crit_damage": 514174.509413783,
+        "weak_damage": 302106.014986113,
+        "kills": 332,
+        "boss_kills": 2,
+        "base_damage_taken": 120,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.35,
+        "active_skill_casts": 10,
+        "max_kill_streak": 332,
+        "boss_id": "boss_storm_caller",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 23.0,
+        "character": "vanguard",
+        "character_level": 32.0,
+        "chip": "chip_attack",
+        "chip_level": 26.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 17.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 32.0
+      },
+      "max_progress": 0.96744664315959,
+      "base_ratio": 0.381188118811881,
+      "victory": true,
+      "elapsed_seconds": 208.749333333391,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_tesla",
+        "skill_pierce",
+        "skill_pierce",
+        "skill_ricochet"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 4,
+        "skill_charge_shot": 3,
+        "skill_tesla": 1,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 208.749333333391,
+        "damage_total": 3058858.63964261,
+        "damage_by_element": {
+          "physical": 423111.10302182,
+          "lightning": 2635747.53662075
+        },
+        "damage_by_source": {
+          "weapon": 3055616.31513061,
+          "pet": 3242.32451200001
+        },
+        "top_element": "lightning",
+        "crit_damage": 1625366.55126264,
+        "weak_damage": 1387286.5957215,
+        "kills": 400,
+        "boss_kills": 1,
+        "base_damage_taken": 1125,
+        "base_damage_prevented": 0,
+        "control_seconds": 333.383333333346,
+        "active_skill_casts": 13,
+        "max_kill_streak": 400,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 23.0,
+        "character": "vanguard",
+        "character_level": 32.0,
+        "chip": "chip_attack",
+        "chip_level": 26.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 17.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 32.0
+      },
+      "max_progress": 0.967485966573235,
+      "base_ratio": 0.306930693069307,
+      "victory": true,
+      "elapsed_seconds": 205.444666666722,
+      "timeout": false,
+      "selected_skills": [
+        "skill_split_shot",
+        "skill_charge_shot",
+        "skill_homing",
+        "skill_cryo",
+        "skill_homing",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_split_shot": 3,
+        "skill_charge_shot": 3,
+        "skill_homing": 5,
+        "skill_cryo": 1,
+        "skill_pierce": 4
+      },
+      "battle_report": {
+        "duration_seconds": 205.444666666722,
+        "damage_total": 3676374.35884294,
+        "damage_by_element": {
+          "physical": 745363.801678857,
+          "ice": 2931010.55716375
+        },
+        "damage_by_source": {
+          "weapon": 3673586.79666695,
+          "pet": 2787.56217600001
+        },
+        "top_element": "ice",
+        "crit_damage": 380693.344538455,
+        "weak_damage": 207538.588573706,
+        "kills": 522,
+        "boss_kills": 1,
+        "base_damage_taken": 1260,
+        "base_damage_prevented": 0,
+        "control_seconds": 454.987333333333,
+        "active_skill_casts": 13,
+        "max_kill_streak": 522,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 23.0,
+        "character": "vanguard",
+        "character_level": 32.0,
+        "chip": "chip_attack",
+        "chip_level": 26.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 17.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 32.0
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 205.189333333389,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_critical",
+        "skill_barrier",
+        "skill_incendiary",
+        "skill_recycle"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 4,
+        "skill_barrier": 3,
+        "skill_incendiary": 1,
+        "skill_recycle": 1
+      },
+      "battle_report": {
+        "duration_seconds": 205.189333333389,
+        "damage_total": 2244548.60416093,
+        "damage_by_element": {
+          "physical": 790682.677488504,
+          "fire": 1451320.0966628,
+          "lightning": 2545.83000955386
+        },
+        "damage_by_source": {
+          "weapon": 2199525.79571562,
+          "pet": 3346.40521600001,
+          "burn": 41676.4032291574
+        },
+        "top_element": "fire",
+        "crit_damage": 1199081.5188632,
+        "weak_damage": 763287.339838458,
+        "kills": 380,
+        "boss_kills": 0,
+        "base_damage_taken": 2911,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.35,
+        "active_skill_casts": 13,
+        "max_kill_streak": 309,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 62,
+      "level_id": "level_062",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 26.0,
+        "character": "vanguard",
+        "character_level": 36.0,
+        "chip": "chip_attack",
+        "chip_level": 29.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 20.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37.0
+      },
+      "max_progress": 0.205146242098044,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 162.208666666688,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_ricochet",
+        "skill_pierce",
+        "skill_salvo",
+        "skill_ricochet",
+        "skill_recycle"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 5,
+        "skill_charge_shot": 4,
+        "skill_pierce": 4,
+        "skill_salvo": 4,
+        "skill_recycle": 1
+      },
+      "battle_report": {
+        "duration_seconds": 162.208666666688,
+        "damage_total": 2555483.09939271,
+        "damage_by_element": {
+          "physical": 1639234.83600698,
+          "fire": 1129.64522777416,
+          "lightning": 915118.618157985
+        },
+        "damage_by_source": {
+          "weapon": 2553086.70969196,
+          "pet": 2339.97872,
+          "burn": 56.4109807474678
+        },
+        "top_element": "physical",
+        "crit_damage": 274032.191710472,
+        "weak_damage": 136737.939634015,
+        "kills": 312,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 290.898666666687,
+        "active_skill_casts": 10,
+        "max_kill_streak": 312,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 62,
+      "level_id": "level_062",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 26.0,
+        "character": "vanguard",
+        "character_level": 36.0,
+        "chip": "chip_attack",
+        "chip_level": 29.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 20.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37.0
+      },
+      "max_progress": 0.332283916910186,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 167.442000000025,
+      "timeout": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_tesla",
+        "skill_charge_shot",
+        "skill_slow_field",
+        "skill_barrier",
+        "skill_homing",
+        "skill_split_shot"
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 5,
+        "skill_tesla": 1,
+        "skill_slow_field": 3,
+        "skill_barrier": 4,
+        "skill_homing": 4,
+        "skill_split_shot": 3
+      },
+      "battle_report": {
+        "duration_seconds": 167.442000000025,
+        "damage_total": 2592396.01645821,
+        "damage_by_element": {
+          "physical": 523923.37109973,
+          "fire": 4917.52235291889,
+          "lightning": 2063555.1230055
+        },
+        "damage_by_source": {
+          "weapon": 2588699.37718,
+          "pet": 3250.926287899,
+          "burn": 445.712990307688
+        },
+        "top_element": "lightning",
+        "crit_damage": 145347.693560286,
+        "weak_damage": 134.154280878336,
+        "kills": 312,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 370.912666666682,
+        "active_skill_casts": 11,
+        "max_kill_streak": 312,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 62,
+      "level_id": "level_062",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 26.0,
+        "character": "vanguard",
+        "character_level": 36.0,
+        "chip": "chip_attack",
+        "chip_level": 29.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 20.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 3.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37.0
+      },
+      "max_progress": 0.221507018577052,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 162.874666666688,
+      "timeout": false,
+      "selected_skills": [
+        "skill_homing",
+        "skill_split_shot",
+        "skill_pierce",
+        "skill_critical",
+        "skill_salvo",
+        "skill_charge_shot",
+        "skill_venom"
+      ],
+      "final_skill_levels": {
+        "skill_homing": 4,
+        "skill_split_shot": 3,
+        "skill_pierce": 4,
+        "skill_critical": 3,
+        "skill_salvo": 4,
+        "skill_charge_shot": 4,
+        "skill_venom": 1
+      },
+      "battle_report": {
+        "duration_seconds": 162.874666666688,
+        "damage_total": 2522761.96207047,
+        "damage_by_element": {
+          "physical": 2179844.69047241,
+          "fire": 988.881016416632,
+          "poison": 341928.390581661
+        },
+        "damage_by_source": {
+          "weapon": 2518250.18897804,
+          "pet": 2198.666816,
+          "burn": 5.08295664216807,
+          "status": 2308.02331980058
+        },
+        "top_element": "physical",
+        "crit_damage": 135709.74981377,
+        "weak_damage": 0.0,
+        "kills": 312,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 10,
+        "max_kill_streak": 312,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 75,
+      "level_id": "level_075",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 29.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.553460739951097,
+      "base_ratio": 0.953426480372588,
+      "victory": true,
+      "elapsed_seconds": 222.479333333402,
+      "timeout": false,
+      "selected_skills": [
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_tesla",
+        "skill_salvo",
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_split_shot"
+      ],
+      "final_skill_levels": {
+        "skill_ricochet": 4,
+        "skill_charge_shot": 5,
+        "skill_tesla": 1,
+        "skill_salvo": 4,
+        "skill_pierce": 4,
+        "skill_critical": 4,
+        "skill_split_shot": 4
+      },
+      "battle_report": {
+        "duration_seconds": 222.479333333402,
+        "damage_total": 35177263.5915595,
+        "damage_by_element": {
+          "physical": 1570967.01022781,
+          "lightning": 33606296.5813317
+        },
+        "damage_by_source": {
+          "weapon": 35168798.4899595,
+          "pet": 8465.1016
+        },
+        "top_element": "lightning",
+        "crit_damage": 1124169.96219796,
+        "weak_damage": 777939.220994521,
+        "kills": 497,
+        "boss_kills": 2,
+        "base_damage_taken": 140,
+        "base_damage_prevented": 0,
+        "control_seconds": 496.480000000035,
+        "active_skill_casts": 15,
+        "max_kill_streak": 497,
+        "boss_id": "boss_necrotitan",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 75,
+      "level_id": "level_075",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 29.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.855463438543655,
+      "base_ratio": 0.911510312707917,
+      "victory": true,
+      "elapsed_seconds": 253.345333333427,
+      "timeout": false,
+      "selected_skills": [
+        "skill_split_shot",
+        "skill_charge_shot",
+        "skill_homing",
+        "skill_cryo",
+        "skill_homing",
+        "skill_pierce",
+        "skill_cryo",
+        "skill_multishot"
+      ],
+      "final_skill_levels": {
+        "skill_split_shot": 4,
+        "skill_charge_shot": 4,
+        "skill_homing": 5,
+        "skill_cryo": 2,
+        "skill_pierce": 4,
+        "skill_multishot": 4
+      },
+      "battle_report": {
+        "duration_seconds": 253.345333333427,
+        "damage_total": 36741060.2536883,
+        "damage_by_element": {
+          "physical": 3428255.76164485,
+          "ice": 33299090.3689548,
+          "lightning": 13714.1230678592
+        },
+        "damage_by_source": {
+          "weapon": 36731705.1240882,
+          "pet": 9355.12959999999
+        },
+        "top_element": "ice",
+        "crit_damage": 2316711.48650683,
+        "weak_damage": 2081114.15036361,
+        "kills": 529,
+        "boss_kills": 2,
+        "base_damage_taken": 266,
+        "base_damage_prevented": 0,
+        "control_seconds": 434.585333333328,
+        "active_skill_casts": 16,
+        "max_kill_streak": 527,
+        "boss_id": "boss_necrotitan",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 75,
+      "level_id": "level_075",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 29.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 4.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.842996611849952,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 315.398666666708,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_critical",
+        "skill_ricochet",
+        "skill_venom",
+        "skill_recycle",
+        "skill_pierce",
+        "skill_barrier",
+        "skill_barrier"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 5,
+        "skill_ricochet": 4,
+        "skill_venom": 1,
+        "skill_recycle": 1,
+        "skill_pierce": 4,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 315.398666666708,
+        "damage_total": 18980019.70011,
+        "damage_by_element": {
+          "physical": 3369119.25393829,
+          "lightning": 416254.742735152,
+          "poison": 15194645.7034346
+        },
+        "damage_by_source": {
+          "weapon": 18913407.326225,
+          "pet": 12214.0999999999,
+          "status": 54398.2738841074
+        },
+        "top_element": "poison",
+        "crit_damage": 1957994.51081723,
+        "weak_damage": 1237411.71671055,
+        "kills": 521,
+        "boss_kills": 0,
+        "base_damage_taken": 6630,
+        "base_damage_prevented": 0,
+        "control_seconds": 40.5559999999998,
+        "active_skill_casts": 20,
+        "max_kill_streak": 521,
+        "boss_id": "boss_necrotitan",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 84,
+      "level_id": "level_084",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.243400329123927,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 190.600000000044,
+      "timeout": false,
+      "selected_skills": [
+        "skill_salvo",
+        "skill_split_shot",
+        "skill_incendiary",
+        "skill_multishot",
+        "skill_critical",
+        "skill_incendiary",
+        "skill_homing",
+        "skill_critical",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_salvo": 4,
+        "skill_split_shot": 4,
+        "skill_incendiary": 2,
+        "skill_multishot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 190.600000000044,
+        "damage_total": 10654501.3908575,
+        "damage_by_element": {
+          "physical": 2237675.71701968,
+          "fire": 8416825.67383709
+        },
+        "damage_by_source": {
+          "weapon": 10630110.2882916,
+          "pet": 6063.19913600002,
+          "burn": 18327.9034299
+        },
+        "top_element": "fire",
+        "crit_damage": 898045.570866991,
+        "weak_damage": 717469.724127194,
+        "kills": 495,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 13,
+        "max_kill_streak": 495,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 84,
+      "level_id": "level_084",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.161284678218929,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 190.014000000043,
+      "timeout": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_split_shot",
+        "skill_homing",
+        "skill_ricochet",
+        "skill_charge_shot",
+        "skill_recycle",
+        "skill_pierce",
+        "skill_multishot",
+        "skill_cryo"
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 5,
+        "skill_split_shot": 4,
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_recycle": 1,
+        "skill_pierce": 5,
+        "skill_multishot": 5,
+        "skill_cryo": 1
+      },
+      "battle_report": {
+        "duration_seconds": 190.014000000043,
+        "damage_total": 10646207.6894563,
+        "damage_by_element": {
+          "physical": 8446481.20531408,
+          "lightning": 1318634.13529433,
+          "ice": 881092.348848364
+        },
+        "damage_by_source": {
+          "weapon": 10640637.2387683,
+          "pet": 5570.45068800001
+        },
+        "top_element": "physical",
+        "crit_damage": 6112998.80441759,
+        "weak_damage": 5939984.19586852,
+        "kills": 495,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 174.032000000002,
+        "active_skill_casts": 12,
+        "max_kill_streak": 495,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 84,
+      "level_id": "level_084",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 4.0,
+          "skill_charge_shot": 4.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 4.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.154106780772901,
+      "base_ratio": 1.0,
+      "victory": true,
+      "elapsed_seconds": 195.418000000048,
+      "timeout": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_charge_shot",
+        "skill_homing",
+        "skill_cryo",
+        "skill_cryo",
+        "skill_barrier",
+        "skill_multishot",
+        "skill_charge_shot",
+        "skill_ricochet"
+      ],
+      "final_skill_levels": {
+        "skill_critical": 4,
+        "skill_charge_shot": 5,
+        "skill_homing": 5,
+        "skill_cryo": 2,
+        "skill_barrier": 4,
+        "skill_multishot": 5,
+        "skill_ricochet": 4
+      },
+      "battle_report": {
+        "duration_seconds": 195.418000000048,
+        "damage_total": 10867442.4003227,
+        "damage_by_element": {
+          "physical": 3920013.60672475,
+          "ice": 6947428.79359731
+        },
+        "damage_by_source": {
+          "weapon": 10859381.0002907,
+          "pet": 8061.40003200003
+        },
+        "top_element": "ice",
+        "crit_damage": 2053631.08035327,
+        "weak_damage": 1361528.72026658,
+        "kills": 495,
+        "boss_kills": 0,
+        "base_damage_taken": 0,
+        "base_damage_prevented": 0,
+        "control_seconds": 395.481333333362,
+        "active_skill_casts": 13,
+        "max_kill_streak": 495,
+        "boss_id": "",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 95,
+      "level_id": "level_095",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 5.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.781225026836832,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 276.790666666744,
+      "timeout": false,
+      "selected_skills": [
+        "skill_salvo",
+        "skill_homing",
+        "skill_tesla",
+        "skill_split_shot",
+        "skill_critical",
+        "skill_split_shot",
+        "skill_tesla",
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_pierce"
+      ],
+      "final_skill_levels": {
+        "skill_salvo": 5,
+        "skill_homing": 5,
+        "skill_tesla": 2,
+        "skill_split_shot": 5,
+        "skill_critical": 5,
+        "skill_charge_shot": 5,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 276.790666666744,
+        "damage_total": 118420183.513518,
+        "damage_by_element": {
+          "physical": 4913438.42049775,
+          "fire": 4256.70433838622,
+          "lightning": 113502488.388683
+        },
+        "damage_by_source": {
+          "weapon": 118408631.841774,
+          "pet": 11445.11441344,
+          "burn": 106.557330075602
+        },
+        "top_element": "lightning",
+        "crit_damage": 103846.229281146,
+        "weak_damage": 568115.660918322,
+        "kills": 570,
+        "boss_kills": 0,
+        "base_damage_taken": 3678,
+        "base_damage_prevented": 0,
+        "control_seconds": 712.133333333249,
+        "active_skill_casts": 18,
+        "max_kill_streak": 292,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 95,
+      "level_id": "level_095",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 5.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.793443519650525,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 364.740666666664,
+      "timeout": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_pierce",
+        "skill_recycle",
+        "skill_recycle",
+        "skill_slow_field",
+        "skill_recycle",
+        "skill_cryo",
+        "skill_homing",
+        "skill_critical",
+        "skill_ricochet",
+        "skill_barrier"
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_pierce": 5,
+        "skill_recycle": 1,
+        "skill_slow_field": 4,
+        "skill_cryo": 1,
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 364.740666666664,
+        "damage_total": 41117923.9156505,
+        "damage_by_element": {
+          "physical": 10889260.1103488,
+          "fire": 7651.0240583027,
+          "lightning": 15921.7574581179,
+          "ice": 30205091.0237879
+        },
+        "damage_by_source": {
+          "weapon": 41099060.2126935,
+          "pet": 18381.11464,
+          "burn": 482.588316675267
+        },
+        "top_element": "ice",
+        "crit_damage": 5216588.54371069,
+        "weak_damage": 6230572.46582307,
+        "kills": 596,
+        "boss_kills": 0,
+        "base_damage_taken": 8075,
+        "base_damage_prevented": 0,
+        "control_seconds": 783.883333333107,
+        "active_skill_casts": 24,
+        "max_kill_streak": 596,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 95,
+      "level_id": "level_095",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35.0,
+        "character": "vanguard",
+        "character_level": 40.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 30.0,
+        "signature_level": 4.0,
+        "skill_base_levels": {
+          "skill_barrier": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_critical": 4.0,
+          "skill_homing": 5.0,
+          "skill_multishot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_ricochet": 4.0,
+          "skill_salvo": 5.0,
+          "skill_slow_field": 4.0,
+          "skill_split_shot": 4.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50.0
+      },
+      "max_progress": 0.791943545741889,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 312.640666666711,
+      "timeout": false,
+      "selected_skills": [
+        "skill_multishot",
+        "skill_critical",
+        "skill_incendiary",
+        "skill_pierce",
+        "skill_homing",
+        "skill_barrier",
+        "skill_split_shot",
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_recycle"
+      ],
+      "final_skill_levels": {
+        "skill_multishot": 5,
+        "skill_critical": 5,
+        "skill_incendiary": 1,
+        "skill_pierce": 5,
+        "skill_homing": 5,
+        "skill_barrier": 5,
+        "skill_split_shot": 4,
+        "skill_charge_shot": 5,
+        "skill_recycle": 1
+      },
+      "battle_report": {
+        "duration_seconds": 312.640666666711,
+        "damage_total": 97528347.0076287,
+        "damage_by_element": {
+          "physical": 5411974.2659529,
+          "fire": 92095540.0458724,
+          "lightning": 20832.6958031372
+        },
+        "damage_by_source": {
+          "weapon": 97281087.2579606,
+          "pet": 15005.605616,
+          "burn": 232254.144051664
+        },
+        "top_element": "fire",
+        "crit_damage": 7596266.78305176,
+        "weak_damage": 8260453.01997221,
+        "kills": 631,
+        "boss_kills": 0,
+        "base_damage_taken": 8139,
+        "base_damage_prevented": 0,
+        "control_seconds": 2.1,
+        "active_skill_casts": 20,
+        "max_kill_streak": 544,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {}
+      }
+    }
+  ]
+}

@@ -5,6 +5,23 @@ extends RefCounted
 # pity_after_missing_core_tag)；实例跟随 battle 生命周期存活，天然按局重置。
 var _missed_core_tag_streak := 0
 var _offer_index := 0
+var _audit_rng: RandomNumberGenerator
+
+
+# Headless audits may isolate card randomness from unrelated VFX/gameplay RNG.
+# Player builds never call this method, so the default path below remains the
+# exact Array.pick_random() behavior used before the audit hook existed.
+func set_audit_seed(value: int) -> void:
+	_audit_rng = RandomNumberGenerator.new()
+	_audit_rng.seed = value
+
+
+func _pick_random(values: Array) -> Variant:
+	if values.is_empty():
+		return null
+	if _audit_rng == null:
+		return values.pick_random()
+	return values[_audit_rng.randi_range(0, values.size() - 1)]
 
 func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	var weighted: Array[String] = []
@@ -40,7 +57,7 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	var max_economy := int(economy_rules.get("max_economy_cards_per_offer", 1))
 	var economy_count := 0
 	while result.size() < count and not weighted.is_empty():
-		var picked: String = weighted.pick_random()
+		var picked: String = str(_pick_random(weighted))
 		var picked_row: Dictionary = skills.get(picked, {})
 		var picked_tags: Array = picked_row.get("card_tags", [])
 		var is_economy := picked_tags.has("economy")
@@ -167,7 +184,7 @@ func _apply_pity(result: Array[String], eligible: Array[String], skills: Diction
 			matching_pool.append(skill_id)
 	if matching_pool.is_empty():
 		return
-	result[result.size() - 1] = matching_pool.pick_random()
+	result[result.size() - 1] = str(_pick_random(matching_pool))
 	_missed_core_tag_streak = 0
 
 func _skill_max_level(row: Dictionary) -> int:
