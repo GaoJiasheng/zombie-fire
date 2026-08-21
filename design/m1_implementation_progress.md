@@ -4526,3 +4526,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Status throughput remains comparable**: per-projectile slow, ignite and chill strength is normalized by the control/current cadence ratio. Smoke guards require reference slow coverage and ignite uptime to remain within 5%; current analytical drift is 0%.
 - **Control has numerical identity guards**: the reference build remains at final cadence `3.740233728` and ordinary-projectile DPS `314.179633152`. Any future default-profile drift fails M1 before release.
 - **Every calculator speaks the profile**: runtime combat, player power, campaign simulation and endgame DPS audit accept the same profile IDs. Campaign levels, economy rewards, prices, star thresholds and the Power 6.0 workstream remain untouched.
+
+## Campaign Rebuild v2 · Phase A2 Parallel Audit Baselines (2026-08-21)
+
+- **Experimental outputs stay parallel**: Tier A and Tier B now have complete 99-stage CSVs, while the checked-in Control baseline remains the sole formal-package freshness source.
+- **One fixture drives all three views**: the comparison tool reuses the resource-constrained campaign progression fixture and the shared power model; no second build-growth policy was introduced.
+- **The decision packet is explicit**: the report includes full crowd/Boss DPS curves, analytical grade distributions and side-by-side Stage 055 / 075 / 095 checkpoints. RC rejects stale A/B outputs.
+- **A failed experiment remains visible**: Tier A projects Stage 099 at roughly `486.9s`, beyond the existing `460s` cap. The report preserves that result for B1 rather than weakening the formal gate or changing campaign data.

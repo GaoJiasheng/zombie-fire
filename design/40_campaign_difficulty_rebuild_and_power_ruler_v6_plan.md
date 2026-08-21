@@ -937,3 +937,23 @@ Owner 已拍板如下，本节替代原审批项清单：
   审计可显式选择实验档，但 Release Candidate 仍只钉默认 `control`，B1 冻结前不得以
   A/B 的实验结果替换现有基线。
 - 本阶段未修改 `data/levels.json`、战役难度、经济收入、价格、星级阈值或战力 6.0 口径。
+
+### 11.4 阶段 A2：三档并列基线与 B1 输入
+
+- `tools/report_fire_rate_tier_comparison.py --write` 复用
+  `data/campaign_progression_fixture.json` 与现有战线审计模型，生成
+  `design/audits/campaign_frontline_tier_a.csv`、
+  `design/audits/campaign_frontline_tier_b.csv` 和
+  `design/audits/fire_rate_profile_comparison_report.md`；`--check` 已接入 RC，防止实验结果
+  与档位合同静默漂移。
+- Control 的 `design/audits/campaign_frontline_baseline.csv` 仍是正式档新鲜度基线，未被
+  A/B 结果替换。三档旧解析模型分布分别为 `82/7/0/4/6`、`81/7/0/5/6`、
+  `82/7/0/4/6`（轻松 / 略有压力 / 压力 / 难度高 / 不可胜）；该数量仅用于相对比较，
+  绝对档位仍须服从 11.2 的固定帧运行时校准。
+- 055 / 075 / 095 三个节点的群体 DPS，Control 为
+  `232,783 / 1,058,074 / 9,069,988`，Tier A 为
+  `215,737 / 964,690 / 8,267,421`，Tier B 为
+  `230,457 / 1,041,150 / 8,923,772`。完整 99 关群体 / Boss DPS 成长表已进入对照报告。
+- Tier A 在现有 `simulate_balance` 口径下，099 预计清场时间约 `486.9s`，超过当前
+  `460s` 上限；这是档位冻结前必须由 B1 试点裁决的实验风险。正式 Control、关卡数据和
+  既有门禁均不因此修改，也禁止通过放宽上限掩盖。

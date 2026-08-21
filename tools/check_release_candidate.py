@@ -53,6 +53,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/simulate_balance.py")),
     Check(("python3", "tools/simulate_balance.py", "--challenge")),
     Check(("python3", "tools/audit_campaign_frontline.py", "--check")),
+    Check(("python3", "tools/report_fire_rate_tier_comparison.py", "--check")),
     Check(("python3", "tools/check_endgame_balance.py")),
     Check(("python3", "tools/check_clear_requirements.py")),
     Check(

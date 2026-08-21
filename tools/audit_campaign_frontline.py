@@ -188,7 +188,11 @@ def spend_xp(account: Account) -> None:
             return
 
 
-def build_for(account: Account, level: dict) -> tuple[dict, dict]:
+def build_for(
+    account: Account,
+    level: dict,
+    fire_rate_profile: str = "control",
+) -> tuple[dict, dict]:
     contract = level.get("clear_requirement", {}).get("power_contract", {})
     base = {
         "character": "vanguard",
@@ -210,6 +214,10 @@ def build_for(account: Account, level: dict) -> tuple[dict, dict]:
     scored: list[tuple[float, dict, dict]] = []
     for weapon_id in choices:
         candidate = {**base, "weapon": weapon_id, "weapon_level": account.levels[weapon_id]}
+        # Keep the checked-in control fixture byte-for-byte stable.  Laboratory
+        # reports opt into A/B explicitly and share this exact progression build.
+        if fire_rate_profile != "control":
+            candidate["fire_rate_profile"] = fire_rate_profile
         result = power_for_build(
             level, contract, candidate,
             TABLES["characters"], TABLES["weapons"], TABLES["armors"],
@@ -314,8 +322,12 @@ def units_for_wave(level: dict, wave: dict) -> list[dict]:
     return sorted(units, key=lambda unit: (unit["arrival"], not unit["boss"]))
 
 
-def simulate_level(account: Account, level: dict) -> dict:
-    build, power = build_for(account, level)
+def simulate_level(
+    account: Account,
+    level: dict,
+    fire_rate_profile: str = "control",
+) -> dict:
+    build, power = build_for(account, level, fire_rate_profile)
     projected = power["projected_skills"]
     ruler = TABLES["economy"].get("power_ruler", {}) or {}
     crowd_dps = max(float(power["capacities"]["crowd"]) * float(ruler.get("crowd_dps_per_capacity", 75.0)), 1.0)
@@ -461,12 +473,14 @@ def target_rows() -> dict[int, dict]:
     return result
 
 
-def generate_rows() -> tuple[list[dict], list[dict]]:
+def generate_rows(
+    fire_rate_profile: str = "control",
+) -> tuple[list[dict], list[dict]]:
     account = Account.from_fixture()
     rows: list[dict] = []
     builds: list[dict] = []
     for level in TABLES["levels"]:
-        result = simulate_level(account, level)
+        result = simulate_level(account, level, fire_rate_profile)
         rows.append({
             **{
                 key: result[key] for key in result
