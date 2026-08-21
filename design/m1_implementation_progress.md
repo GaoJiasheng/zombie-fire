@@ -9,6 +9,33 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Campaign Growth + Front-Line Baseline (2026-08-21)
+
+- Added a deterministic, resource-constrained free-account audit covering all 99 normal first clears. The fixture
+  spends only earned gold / XP / stars, mirrors runtime upgrade prices, buys only free progression items and chooses
+  the stronger owned free weapon per encounter.
+- Added route-depth and base-damage grading using the Owner-approved 50% / 80% / base-edge semantics. The checked-in
+  CSV currently reports 82 easy, 7 light-pressure, 0 pressure and 10 high-difficulty stages.
+- The baseline exposes a structural sawtooth: late ordinary stages are overwhelmingly easy while Stage 55 onward
+  places high difficulty almost exclusively on five-stage Boss nodes. No campaign, economy, equipment, skill or
+  power values changed in this phase.
+- `tools/audit_campaign_frontline.py --check` is now a release-candidate freshness gate; methodology and the next-pass
+  recommendations are recorded in `design/39_campaign_growth_and_frontline_baseline.md`.
+
+### Campaign Difficulty Rebuild + Power Ruler 6.0 Plan (2026-08-21)
+
+- Added the approval-ready `design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md`. It separates the
+  already measured 99-stage baseline from proposed regression targets and makes real combat difficulty the input to,
+  rather than the output of, the player-facing Power ruler.
+- The proposed first-pass contract is 16 easy, 43 light-pressure, 33 pressure, 7 high-difficulty and zero unwinnable
+  normal stages. It includes per-chapter quotas, an initial per-stage grade schedule, route / base-health bands,
+  Boss-time bands and strict adjacent-stage continuity limits.
+- Power 6.0 is specified as one monotonic scale over the real resource-constrained three-axis growth curve. Player
+  ability may read the loadout and explicit matchup only; stage durability and wave composition affect recommendation
+  only. The existing corridor is to become a read-only regression gate instead of mutating stage requirements.
+- The document splits future work into contract, real-difficulty, Power-model and runtime-review commits with explicit
+  stop conditions and release gates. This planning pass changes no campaign, economy, equipment, skill or Power data.
+
 ### Current-Warzone Store Counter Placement (2026-08-17)
 
 - The store now derives the player's current chapter from the highest unlocked stage, scans all authored stages in
