@@ -1,0 +1,23 @@
+{
+  "current_grade_counts": {
+    "easy": 82,
+    "high": 4,
+    "light_pressure": 7,
+    "pressure": 0,
+    "unwinnable": 6
+  },
+  "levels_path": "data/levels.json",
+  "levels_sha256": "7429c0acdb3e0c4b76c64a1fc9d428b26de96ec8988f588aabb78cc6235d3f3e",
+  "pacing_targets_frozen": false,
+  "pacing_targets_path": "data/campaign_pacing_targets.json",
+  "pacing_targets_sha256": "a1dcd8c536bdedc7e3d4dae6cd7270ff1e3c65b1c1eb022a2ffab15638a202d8",
+  "progression_fixture_path": "data/campaign_progression_fixture.json",
+  "progression_fixture_sha256": "1d92f162ad4b24bb01f80169921ba8d9a22ad39abd71b6c3d7ad4f5649a08e06",
+  "reports": [
+    "design/audits/campaign_frontline_baseline.csv",
+    "design/audits/campaign_frontline_target_delta.csv",
+    "design/audits/campaign_progression_fixture_builds.json"
+  ],
+  "row_count": 99,
+  "schema_version": 1
+}

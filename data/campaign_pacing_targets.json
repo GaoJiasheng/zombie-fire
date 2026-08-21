@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "frozen": false,
+  "status": "initial_reference_pending_b1_owner_review",
+  "source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.4",
+  "grade_order": [
+    "easy",
+    "light_pressure",
+    "pressure",
+    "high"
+  ],
+  "target_bands": {
+    "easy": {
+      "max_progress_pct": [25.0, 48.0],
+      "base_hp_pct": [100.0, 100.0],
+      "center": {"progress_pct": 38.0, "base_hp_pct": 100.0}
+    },
+    "light_pressure": {
+      "max_progress_pct": [52.0, 78.0],
+      "base_hp_pct": [100.0, 100.0],
+      "center": {"progress_pct": 66.0, "base_hp_pct": 100.0}
+    },
+    "pressure": {
+      "max_progress_pct": [80.0, 98.0],
+      "base_hp_pct": [35.0, 95.0],
+      "center": {"progress_pct": 89.0, "base_hp_pct": 75.0}
+    },
+    "high": {
+      "max_progress_pct": [100.0, 100.0],
+      "base_hp_pct": [35.0, 65.0],
+      "center": {"progress_pct": 100.0, "base_hp_pct": 50.0}
+    }
+  },
+  "unwinnable": {
+    "description": "base_destroyed_or_clear_timeout",
+    "is_target_grade": false
+  },
+  "chapter_quotas": {
+    "1": {"easy": 8, "light_pressure": 2, "pressure": 0, "high": 0},
+    "2": {"easy": 4, "light_pressure": 6, "pressure": 0, "high": 0},
+    "3": {"easy": 2, "light_pressure": 7, "pressure": 1, "high": 0},
+    "4": {"easy": 1, "light_pressure": 7, "pressure": 2, "high": 0},
+    "5": {"easy": 1, "light_pressure": 6, "pressure": 3, "high": 0},
+    "6": {"easy": 0, "light_pressure": 5, "pressure": 5, "high": 0},
+    "7": {"easy": 0, "light_pressure": 4, "pressure": 5, "high": 1},
+    "8": {"easy": 0, "light_pressure": 3, "pressure": 5, "high": 2},
+    "9": {"easy": 0, "light_pressure": 2, "pressure": 6, "high": 2},
+    "10": {"easy": 0, "light_pressure": 1, "pressure": 6, "high": 2}
+  },
+  "chapter_level_targets": {
+    "1": ["easy", "easy", "easy", "easy", "light_pressure", "easy", "easy", "easy", "easy", "light_pressure"],
+    "2": ["easy", "easy", "light_pressure", "light_pressure", "light_pressure", "easy", "easy", "light_pressure", "light_pressure", "light_pressure"],
+    "3": ["easy", "easy", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "pressure"],
+    "4": ["easy", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "pressure", "pressure"],
+    "5": ["easy", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "light_pressure", "pressure", "pressure", "pressure"],
+    "6": ["light_pressure", "light_pressure", "light_pressure", "light_pressure", "pressure", "light_pressure", "pressure", "pressure", "pressure", "pressure"],
+    "7": ["light_pressure", "light_pressure", "light_pressure", "light_pressure", "pressure", "pressure", "pressure", "pressure", "pressure", "high"],
+    "8": ["light_pressure", "light_pressure", "light_pressure", "pressure", "high", "pressure", "pressure", "pressure", "pressure", "high"],
+    "9": ["light_pressure", "light_pressure", "pressure", "pressure", "high", "pressure", "pressure", "pressure", "pressure", "high"],
+    "10": ["light_pressure", "pressure", "pressure", "pressure", "high", "pressure", "pressure", "pressure", "high"]
+  }
+}

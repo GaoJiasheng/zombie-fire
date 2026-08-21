@@ -1,0 +1,4295 @@
+{
+  "calibration_levels": [
+    3,
+    8,
+    13,
+    30,
+    40,
+    55,
+    62,
+    75,
+    84,
+    95
+  ],
+  "fixture_id": "resource_constrained_free_first_clear_v1",
+  "fixture_sha256": "1d92f162ad4b24bb01f80169921ba8d9a22ad39abd71b6c3d7ad4f5649a08e06",
+  "fixture_source": "data/campaign_progression_fixture.json",
+  "levels_sha256": "7429c0acdb3e0c4b76c64a1fc9d428b26de96ec8988f588aabb78cc6235d3f3e",
+  "rows": [
+    {
+      "build": {
+        "armor": "",
+        "armor_level": 1,
+        "character": "vanguard",
+        "character_level": 1,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {},
+        "weapon": "weapon_autocannon",
+        "weapon_level": 1
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 1,
+      "level_id": "level_001",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 1
+      },
+      "resources_before": {
+        "gold": 0,
+        "stars": 0,
+        "xp": 0
+      }
+    },
+    {
+      "build": {
+        "armor": "",
+        "armor_level": 1,
+        "character": "vanguard",
+        "character_level": 2,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {},
+        "weapon": "weapon_autocannon",
+        "weapon_level": 3
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 2,
+      "level_id": "level_002",
+      "projected_skills": {
+        "skill_homing": 1,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 59,
+        "stars": 2,
+        "xp": 249
+      }
+    },
+    {
+      "build": {
+        "armor": "",
+        "armor_level": 1,
+        "character": "vanguard",
+        "character_level": 3,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_multishot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 4
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 3,
+      "level_id": "level_003",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 1
+      },
+      "resources_before": {
+        "gold": 241,
+        "stars": 4,
+        "xp": 302
+      }
+    },
+    {
+      "build": {
+        "armor": "",
+        "armor_level": 1,
+        "character": "vanguard",
+        "character_level": 4,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_multishot": 1,
+          "skill_pierce": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 5
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 4,
+      "level_id": "level_004",
+      "projected_skills": {
+        "skill_homing": 2
+      },
+      "resources_before": {
+        "gold": 329,
+        "stars": 6,
+        "xp": 328
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 3,
+        "character": "vanguard",
+        "character_level": 5,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 6
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 5,
+      "level_id": "level_005",
+      "projected_skills": {
+        "skill_homing": 1,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 75,
+        "stars": 0,
+        "xp": 86
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5,
+        "character": "vanguard",
+        "character_level": 5,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_salvo": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 7
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 6,
+      "level_id": "level_006",
+      "projected_skills": {
+        "skill_homing": 1,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 8,
+        "stars": 2,
+        "xp": 179
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5,
+        "character": "vanguard",
+        "character_level": 6,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_salvo": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 8
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 7,
+      "level_id": "level_007",
+      "projected_skills": {
+        "skill_homing": 2
+      },
+      "resources_before": {
+        "gold": 118,
+        "stars": 4,
+        "xp": 345
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5,
+        "character": "vanguard",
+        "character_level": 7,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 9
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 8,
+      "level_id": "level_008",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 2
+      },
+      "resources_before": {
+        "gold": 46,
+        "stars": 6,
+        "xp": 13
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5,
+        "character": "vanguard",
+        "character_level": 7,
+        "chip": "chip_attack",
+        "chip_level": 6,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 9
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 9,
+      "level_id": "level_009",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_pierce": 1
+      },
+      "resources_before": {
+        "gold": 308,
+        "stars": 0,
+        "xp": 273
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 5,
+        "character": "vanguard",
+        "character_level": 8,
+        "chip": "chip_attack",
+        "chip_level": 6,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 10
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 10,
+      "level_id": "level_010",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 128,
+        "stars": 2,
+        "xp": 315
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 6,
+        "character": "vanguard",
+        "character_level": 8,
+        "chip": "chip_attack",
+        "chip_level": 7,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 11
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 11,
+      "level_id": "level_011",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 2
+      },
+      "resources_before": {
+        "gold": 339,
+        "stars": 4,
+        "xp": 655
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 6,
+        "character": "vanguard",
+        "character_level": 9,
+        "chip": "chip_attack",
+        "chip_level": 7,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 1,
+          "skill_multishot": 2,
+          "skill_pierce": 1,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 12
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 12,
+      "level_id": "level_012",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_pierce": 1
+      },
+      "resources_before": {
+        "gold": 498,
+        "stars": 6,
+        "xp": 351
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7,
+        "character": "vanguard",
+        "character_level": 9,
+        "chip": "chip_attack",
+        "chip_level": 8,
+        "pet": "pet_turret_drone",
+        "pet_level": 5,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 1,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 12
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 13,
+      "level_id": "level_013",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 2
+      },
+      "resources_before": {
+        "gold": 326,
+        "stars": 0,
+        "xp": 116
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "chip_attack",
+        "chip_level": 8,
+        "pet": "pet_turret_drone",
+        "pet_level": 6,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 1,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 13
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 14,
+      "level_id": "level_014",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 1
+      },
+      "resources_before": {
+        "gold": 94,
+        "stars": 2,
+        "xp": 733
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 7,
+        "character": "vanguard",
+        "character_level": 11,
+        "chip": "chip_attack",
+        "chip_level": 9,
+        "pet": "pet_turret_drone",
+        "pet_level": 6,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 13
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 15,
+      "level_id": "level_015",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 2,
+        "skill_ricochet": 1
+      },
+      "resources_before": {
+        "gold": 584,
+        "stars": 4,
+        "xp": 484
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 8,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 9,
+        "pet": "pet_turret_drone",
+        "pet_level": 6,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 14
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 16,
+      "level_id": "level_016",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_incendiary": 1,
+        "skill_ricochet": 1
+      },
+      "resources_before": {
+        "gold": 339,
+        "stars": 6,
+        "xp": 329
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 10,
+        "pet": "pet_turret_drone",
+        "pet_level": 7,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 15
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 17,
+      "level_id": "level_017",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_incendiary": 1,
+        "skill_ricochet": 1
+      },
+      "resources_before": {
+        "gold": 98,
+        "stars": 8,
+        "xp": 244
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 10,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 6
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 18,
+      "level_id": "level_018",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 2
+      },
+      "resources_before": {
+        "gold": 21,
+        "stars": 1,
+        "xp": 154
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 10,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 8
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 19,
+      "level_id": "level_019",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 2
+      },
+      "resources_before": {
+        "gold": 564,
+        "stars": 3,
+        "xp": 675
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 10,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 11
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 20,
+      "level_id": "level_020",
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_homing": 2,
+        "skill_ricochet": 2
+      },
+      "resources_before": {
+        "gold": 2,
+        "stars": 5,
+        "xp": 278
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 11,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 12
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 21,
+      "level_id": "level_021",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 115,
+        "stars": 7,
+        "xp": 307
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 11,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 13
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 22,
+      "level_id": "level_022",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 217,
+        "stars": 9,
+        "xp": 108
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 14,
+        "chip": "chip_attack",
+        "chip_level": 11,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 13
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 23,
+      "level_id": "level_023",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 96,
+        "stars": 11,
+        "xp": 846
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 14,
+        "chip": "chip_attack",
+        "chip_level": 11,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 14
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 24,
+      "level_id": "level_024",
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 6,
+        "stars": 13,
+        "xp": 816
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11,
+        "character": "vanguard",
+        "character_level": 15,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 14
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 25,
+      "level_id": "level_025",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 211,
+        "stars": 15,
+        "xp": 713
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11,
+        "character": "vanguard",
+        "character_level": 15,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 15
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 26,
+      "level_id": "level_026",
+      "projected_skills": {
+        "skill_homing": 5
+      },
+      "resources_before": {
+        "gold": 196,
+        "stars": 17,
+        "xp": 1648
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 15
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 27,
+      "level_id": "level_027",
+      "projected_skills": {
+        "skill_homing": 5
+      },
+      "resources_before": {
+        "gold": 304,
+        "stars": 19,
+        "xp": 583
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 16
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 28,
+      "level_id": "level_028",
+      "projected_skills": {
+        "skill_homing": 5
+      },
+      "resources_before": {
+        "gold": 581,
+        "stars": 21,
+        "xp": 1319
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 17,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 17
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 29,
+      "level_id": "level_029",
+      "projected_skills": {
+        "skill_homing": 5
+      },
+      "resources_before": {
+        "gold": 745,
+        "stars": 23,
+        "xp": 164
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 18,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 17
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 30,
+      "level_id": "level_030",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 1
+      },
+      "resources_before": {
+        "gold": 625,
+        "stars": 25,
+        "xp": 1028
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 18,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 18
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 31,
+      "level_id": "level_031",
+      "projected_skills": {
+        "skill_homing": 5
+      },
+      "resources_before": {
+        "gold": 930,
+        "stars": 27,
+        "xp": 1856
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 19,
+        "chip": "chip_attack",
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 18
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 32,
+      "level_id": "level_032",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 59,
+        "stars": 29,
+        "xp": 822
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 19,
+        "chip": "chip_attack",
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 19
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 33,
+      "level_id": "level_033",
+      "projected_skills": {
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 489,
+        "stars": 31,
+        "xp": 1729
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 20,
+        "chip": "chip_attack",
+        "chip_level": 16,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 19
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 34,
+      "level_id": "level_034",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 393,
+        "stars": 33,
+        "xp": 456
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 20,
+        "chip": "chip_attack",
+        "chip_level": 17,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 20
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 35,
+      "level_id": "level_035",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 10,
+        "stars": 35,
+        "xp": 1414
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 15,
+        "character": "vanguard",
+        "character_level": 21,
+        "chip": "chip_attack",
+        "chip_level": 17,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 20
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 36,
+      "level_id": "level_036",
+      "projected_skills": {
+        "skill_split_shot": 5,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 129,
+        "stars": 37,
+        "xp": 763
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 15,
+        "character": "vanguard",
+        "character_level": 21,
+        "chip": "chip_attack",
+        "chip_level": 17,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 21
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 37,
+      "level_id": "level_037",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 667,
+        "stars": 39,
+        "xp": 1774
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 15,
+        "character": "vanguard",
+        "character_level": 22,
+        "chip": "chip_attack",
+        "chip_level": 18,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 22
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 38,
+      "level_id": "level_038",
+      "projected_skills": {
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 171,
+        "stars": 41,
+        "xp": 930
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 16,
+        "character": "vanguard",
+        "character_level": 23,
+        "chip": "chip_attack",
+        "chip_level": 18,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 22
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 39,
+      "level_id": "level_039",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 757,
+        "stars": 43,
+        "xp": 125
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 16,
+        "character": "vanguard",
+        "character_level": 23,
+        "chip": "chip_attack",
+        "chip_level": 19,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 40,
+      "level_id": "level_040",
+      "projected_skills": {
+        "skill_split_shot": 2,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 50,
+        "stars": 45,
+        "xp": 1101
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 17,
+        "character": "vanguard",
+        "character_level": 24,
+        "chip": "chip_attack",
+        "chip_level": 20,
+        "pet": "pet_turret_drone",
+        "pet_level": 13,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 41,
+      "level_id": "level_041",
+      "projected_skills": {
+        "skill_ricochet": 5,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 393,
+        "stars": 47,
+        "xp": 409
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 18,
+        "character": "vanguard",
+        "character_level": 24,
+        "chip": "chip_attack",
+        "chip_level": 20,
+        "pet": "pet_turret_drone",
+        "pet_level": 13,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 24
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 42,
+      "level_id": "level_042",
+      "projected_skills": {
+        "skill_incendiary": 4,
+        "skill_ricochet": 2
+      },
+      "resources_before": {
+        "gold": 504,
+        "stars": 49,
+        "xp": 1719
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 18,
+        "character": "vanguard",
+        "character_level": 25,
+        "chip": "chip_attack",
+        "chip_level": 20,
+        "pet": "pet_turret_drone",
+        "pet_level": 14,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 24
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 43,
+      "level_id": "level_043",
+      "projected_skills": {
+        "skill_homing": 3,
+        "skill_ricochet": 5
+      },
+      "resources_before": {
+        "gold": 740,
+        "stars": 51,
+        "xp": 83
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 18,
+        "character": "vanguard",
+        "character_level": 25,
+        "chip": "chip_attack",
+        "chip_level": 21,
+        "pet": "pet_turret_drone",
+        "pet_level": 14,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 25
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 44,
+      "level_id": "level_044",
+      "projected_skills": {
+        "skill_incendiary": 4,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 1013,
+        "stars": 53,
+        "xp": 1394
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 19,
+        "character": "vanguard",
+        "character_level": 26,
+        "chip": "chip_attack",
+        "chip_level": 21,
+        "pet": "pet_turret_drone",
+        "pet_level": 14,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 26
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 45,
+      "level_id": "level_045",
+      "projected_skills": {
+        "skill_incendiary": 4,
+        "skill_ricochet": 3
+      },
+      "resources_before": {
+        "gold": 618,
+        "stars": 55,
+        "xp": 640
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 19,
+        "character": "vanguard",
+        "character_level": 27,
+        "chip": "chip_attack",
+        "chip_level": 22,
+        "pet": "pet_turret_drone",
+        "pet_level": 15,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 26
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 46,
+      "level_id": "level_046",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 4,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 65,
+        "stars": 57,
+        "xp": 14
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 20,
+        "character": "vanguard",
+        "character_level": 27,
+        "chip": "chip_attack",
+        "chip_level": 22,
+        "pet": "pet_turret_drone",
+        "pet_level": 15,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 27
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 47,
+      "level_id": "level_047",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 4
+      },
+      "resources_before": {
+        "gold": 53,
+        "stars": 59,
+        "xp": 1340
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 20,
+        "character": "vanguard",
+        "character_level": 28,
+        "chip": "chip_attack",
+        "chip_level": 22,
+        "pet": "pet_turret_drone",
+        "pet_level": 15,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 28
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 48,
+      "level_id": "level_048",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 431,
+        "stars": 61,
+        "xp": 2398
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 20,
+        "character": "vanguard",
+        "character_level": 28,
+        "chip": "chip_attack",
+        "chip_level": 23,
+        "pet": "pet_turret_drone",
+        "pet_level": 16,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 28
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 49,
+      "level_id": "level_049",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 474,
+        "stars": 63,
+        "xp": 3810
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 20,
+        "character": "vanguard",
+        "character_level": 29,
+        "chip": "chip_attack",
+        "chip_level": 23,
+        "pet": "pet_turret_drone",
+        "pet_level": 16,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 29
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 50,
+      "level_id": "level_050",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 4
+      },
+      "resources_before": {
+        "gold": 913,
+        "stars": 65,
+        "xp": 1013
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 21,
+        "character": "vanguard",
+        "character_level": 29,
+        "chip": "chip_attack",
+        "chip_level": 24,
+        "pet": "pet_turret_drone",
+        "pet_level": 16,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 30
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 51,
+      "level_id": "level_051",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 4
+      },
+      "resources_before": {
+        "gold": 935,
+        "stars": 67,
+        "xp": 2828
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 21,
+        "character": "vanguard",
+        "character_level": 30,
+        "chip": "chip_attack",
+        "chip_level": 24,
+        "pet": "pet_turret_drone",
+        "pet_level": 17,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 30
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 52,
+      "level_id": "level_052",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 450,
+        "stars": 69,
+        "xp": 3776
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 22,
+        "character": "vanguard",
+        "character_level": 31,
+        "chip": "chip_attack",
+        "chip_level": 24,
+        "pet": "pet_turret_drone",
+        "pet_level": 17,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 31
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 53,
+      "level_id": "level_053",
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_venom": 4
+      },
+      "resources_before": {
+        "gold": 1115,
+        "stars": 71,
+        "xp": 1543
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 22,
+        "character": "vanguard",
+        "character_level": 31,
+        "chip": "chip_attack",
+        "chip_level": 25,
+        "pet": "pet_turret_drone",
+        "pet_level": 17,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 32
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 54,
+      "level_id": "level_054",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 4,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 495,
+        "stars": 73,
+        "xp": 2879
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 23,
+        "character": "vanguard",
+        "character_level": 32,
+        "chip": "chip_attack",
+        "chip_level": 26,
+        "pet": "pet_turret_drone",
+        "pet_level": 17,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 32
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 55,
+      "level_id": "level_055",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 77,
+        "stars": 75,
+        "xp": 550
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 23,
+        "character": "vanguard",
+        "character_level": 32,
+        "chip": "chip_attack",
+        "chip_level": 26,
+        "pet": "pet_turret_drone",
+        "pet_level": 19,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 33
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 56,
+      "level_id": "level_056",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_ricochet": 3,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 84,
+        "stars": 77,
+        "xp": 2348
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 24,
+        "character": "vanguard",
+        "character_level": 33,
+        "chip": "chip_attack",
+        "chip_level": 28,
+        "pet": "pet_turret_drone",
+        "pet_level": 19,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 33
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 57,
+      "level_id": "level_057",
+      "projected_skills": {
+        "skill_cryo": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 247,
+        "stars": 79,
+        "xp": 3897
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 24,
+        "character": "vanguard",
+        "character_level": 33,
+        "chip": "chip_attack",
+        "chip_level": 28,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 34
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 58,
+      "level_id": "level_058",
+      "projected_skills": {
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 130,
+        "stars": 81,
+        "xp": 1427
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 25,
+        "character": "vanguard",
+        "character_level": 34,
+        "chip": "chip_attack",
+        "chip_level": 28,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 34
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 59,
+      "level_id": "level_059",
+      "projected_skills": {
+        "skill_split_shot": 4,
+        "skill_venom": 5
+      },
+      "resources_before": {
+        "gold": 1132,
+        "stars": 83,
+        "xp": 3050
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 25,
+        "character": "vanguard",
+        "character_level": 35,
+        "chip": "chip_attack",
+        "chip_level": 28,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 35
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 60,
+      "level_id": "level_060",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 2
+      },
+      "resources_before": {
+        "gold": 905,
+        "stars": 85,
+        "xp": 905
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 26,
+        "character": "vanguard",
+        "character_level": 36,
+        "chip": "chip_attack",
+        "chip_level": 29,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 36
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 61,
+      "level_id": "level_061",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 2
+      },
+      "resources_before": {
+        "gold": 70,
+        "stars": 87,
+        "xp": 2946
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 26,
+        "character": "vanguard",
+        "character_level": 36,
+        "chip": "chip_attack",
+        "chip_level": 29,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 62,
+      "level_id": "level_062",
+      "projected_skills": {
+        "skill_split_shot": 4,
+        "skill_venom": 5
+      },
+      "resources_before": {
+        "gold": 1636,
+        "stars": 89,
+        "xp": 476
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 27,
+        "character": "vanguard",
+        "character_level": 37,
+        "chip": "chip_attack",
+        "chip_level": 30,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 63,
+      "level_id": "level_063",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 635,
+        "stars": 91,
+        "xp": 2152
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 27,
+        "character": "vanguard",
+        "character_level": 37,
+        "chip": "chip_attack",
+        "chip_level": 30,
+        "pet": "pet_turret_drone",
+        "pet_level": 20,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 64,
+      "level_id": "level_064",
+      "projected_skills": {
+        "skill_cryo": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 1077,
+        "stars": 93,
+        "xp": 3405
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 27,
+        "character": "vanguard",
+        "character_level": 38,
+        "chip": "chip_attack",
+        "chip_level": 31,
+        "pet": "pet_turret_drone",
+        "pet_level": 21,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 65,
+      "level_id": "level_065",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 2
+      },
+      "resources_before": {
+        "gold": 1534,
+        "stars": 95,
+        "xp": 18
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 28,
+        "character": "vanguard",
+        "character_level": 39,
+        "chip": "chip_attack",
+        "chip_level": 31,
+        "pet": "pet_turret_drone",
+        "pet_level": 21,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 39
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 66,
+      "level_id": "level_066",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 315,
+        "stars": 97,
+        "xp": 2352
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 29,
+        "character": "vanguard",
+        "character_level": 39,
+        "chip": "chip_attack",
+        "chip_level": 32,
+        "pet": "pet_turret_drone",
+        "pet_level": 22,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 40
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 67,
+      "level_id": "level_067",
+      "projected_skills": {
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 899,
+        "stars": 99,
+        "xp": 549
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 29,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 33,
+        "pet": "pet_turret_drone",
+        "pet_level": 22,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 40
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 68,
+      "level_id": "level_068",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 2
+      },
+      "resources_before": {
+        "gold": 1555,
+        "stars": 101,
+        "xp": 2280
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 29,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 33,
+        "pet": "pet_turret_drone",
+        "pet_level": 24,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 42
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 69,
+      "level_id": "level_069",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 4,
+        "skill_venom": 5
+      },
+      "resources_before": {
+        "gold": 63,
+        "stars": 103,
+        "xp": 506
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 30,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 34,
+        "pet": "pet_turret_drone",
+        "pet_level": 24,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 43
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 70,
+      "level_id": "level_070",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 1362,
+        "stars": 105,
+        "xp": 2362
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 32,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 24,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 44
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 71,
+      "level_id": "level_071",
+      "projected_skills": {
+        "skill_cryo": 5,
+        "skill_homing": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 2155,
+        "stars": 107,
+        "xp": 744
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 32,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 25,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 46
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 72,
+      "level_id": "level_072",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 1930,
+        "stars": 109,
+        "xp": 3054
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 34,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 26,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 47
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 73,
+      "level_id": "level_073",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 1787,
+        "stars": 111,
+        "xp": 1300
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 34,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 27,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 49
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 74,
+      "level_id": "level_074",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 1623,
+        "stars": 113,
+        "xp": 3782
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 29,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 75,
+      "level_id": "level_075",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 512,
+        "stars": 115,
+        "xp": 6037
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 76,
+      "level_id": "level_076",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 11438,
+        "stars": 117,
+        "xp": 8192
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 77,
+      "level_id": "level_077",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 25653,
+        "stars": 119,
+        "xp": 2051
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 78,
+      "level_id": "level_078",
+      "projected_skills": {
+        "skill_cryo": 5,
+        "skill_homing": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 39508,
+        "stars": 121,
+        "xp": 4292
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 79,
+      "level_id": "level_079",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 53351,
+        "stars": 123,
+        "xp": 6663
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 80,
+      "level_id": "level_080",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 67617,
+        "stars": 125,
+        "xp": 576
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 81,
+      "level_id": "level_081",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 86213,
+        "stars": 127,
+        "xp": 3982
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 82,
+      "level_id": "level_082",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 5
+      },
+      "resources_before": {
+        "gold": 100477,
+        "stars": 129,
+        "xp": 6303
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 83,
+      "level_id": "level_083",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 114171,
+        "stars": 131,
+        "xp": 106
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 84,
+      "level_id": "level_084",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 128451,
+        "stars": 133,
+        "xp": 2476
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 85,
+      "level_id": "level_085",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 144001,
+        "stars": 135,
+        "xp": 5073
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 86,
+      "level_id": "level_086",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 163558,
+        "stars": 137,
+        "xp": 51
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 87,
+      "level_id": "level_087",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 179198,
+        "stars": 139,
+        "xp": 2656
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 88,
+      "level_id": "level_088",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 196167,
+        "stars": 141,
+        "xp": 5587
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 89,
+      "level_id": "level_089",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5,
+        "skill_tesla": 5
+      },
+      "resources_before": {
+        "gold": 214107,
+        "stars": 143,
+        "xp": 133
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 90,
+      "level_id": "level_090",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 232219,
+        "stars": 145,
+        "xp": 3067
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 91,
+      "level_id": "level_091",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 251609,
+        "stars": 147,
+        "xp": 6305
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 92,
+      "level_id": "level_092",
+      "projected_skills": {
+        "skill_cryo": 5,
+        "skill_homing": 5,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 265979,
+        "stars": 149,
+        "xp": 8442
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 93,
+      "level_id": "level_093",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 284845,
+        "stars": 151,
+        "xp": 2987
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 94,
+      "level_id": "level_094",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 299250,
+        "stars": 153,
+        "xp": 4845
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 95,
+      "level_id": "level_095",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 319528,
+        "stars": 155,
+        "xp": 8161
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 5,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 96,
+      "level_id": "level_096",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5,
+        "skill_tesla": 5
+      },
+      "resources_before": {
+        "gold": 338243,
+        "stars": 157,
+        "xp": 1
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 5,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 97,
+      "level_id": "level_097",
+      "projected_skills": {
+        "skill_homing": 5,
+        "skill_incendiary": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 357100,
+        "stars": 159,
+        "xp": 2893
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 5,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 98,
+      "level_id": "level_098",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 375736,
+        "stars": 161,
+        "xp": 5636
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 35,
+        "character": "vanguard",
+        "character_level": 40,
+        "chip": "chip_attack",
+        "chip_level": 35,
+        "pet": "pet_turret_drone",
+        "pet_level": 30,
+        "signature_level": 5,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 50
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 99,
+      "level_id": "level_099",
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_slow_field": 4,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 394439,
+        "stars": 163,
+        "xp": 8286
+      }
+    }
+  ],
+  "schema_version": 1
+}

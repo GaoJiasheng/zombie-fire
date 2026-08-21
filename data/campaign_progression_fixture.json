@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": "resource_constrained_free_first_clear_v1",
+  "description": "Deterministic free-account growth fixture shared by campaign front-line audit and runtime calibration probes.",
+  "assumptions": {
+    "difficulty": "normal",
+    "first_clear_only": true,
+    "stars_per_clear": 2,
+    "challenge_rewards": false,
+    "repeat_farming": false,
+    "premium_items": false
+  },
+  "runtime_probe": {
+    "fixed_card_seeds": [1103, 2207, 3301],
+    "calibration_levels": [3, 8, 13, 30, 40, 55, 62, 75, 84, 95]
+  },
+  "initial_account": {
+    "gold": 0,
+    "xp": 0,
+    "stars": 0,
+    "owned": {
+      "character": ["vanguard"],
+      "weapon": ["weapon_autocannon"],
+      "armor": [],
+      "chip": [],
+      "pet": []
+    },
+    "levels": {"vanguard": 1, "weapon_autocannon": 1},
+    "skills": {},
+    "signature_level": 0
+  },
+  "free_purchase_order": [
+    {"slot": "armor", "item_id": "armor_kevlar"},
+    {"slot": "chip", "item_id": "chip_attack"},
+    {"slot": "pet", "item_id": "pet_turret_drone"},
+    {"slot": "weapon", "item_id": "weapon_scattergun"}
+  ],
+  "gold_upgrade_weights": {
+    "character": 1.0,
+    "weapon_autocannon": 1.0,
+    "weapon_scattergun": 0.82,
+    "armor": 0.82,
+    "chip": 0.92,
+    "pet": 0.74
+  },
+  "xp_upgrade_order": [
+    "skill_multishot",
+    "skill_pierce",
+    "skill_homing",
+    "skill_barrier",
+    "skill_salvo",
+    "skill_charge_shot",
+    "signature",
+    "skill_slow_field",
+    "skill_split_shot",
+    "skill_critical",
+    "skill_ricochet"
+  ],
+  "weapon_selection": {
+    "candidates": ["weapon_autocannon", "weapon_scattergun"],
+    "boss_capacity_weight_if_present": 0.42,
+    "boss_capacity_weight_otherwise": 0.1
+  }
+}

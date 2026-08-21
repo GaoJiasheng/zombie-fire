@@ -18,7 +18,8 @@ Front-line grades mirror the owner-approved semantics:
 * easy: nobody reaches 50% of the route;
 * light_pressure: reaches 50%, base remains full;
 * pressure: reaches the attack zone and damages the base without a breach;
-* high: an enemy reaches the base edge or the base is destroyed.
+* high: an enemy reaches the base edge, but the build still clears in time;
+* unwinnable: the base is destroyed or the analytical clear exceeds its cap.
 """
 from __future__ import annotations
 
@@ -26,6 +27,7 @@ import argparse
 import csv
 import io
 import json
+import hashlib
 import math
 import sys
 from dataclasses import dataclass, field
@@ -34,34 +36,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 REPORT = ROOT / "design" / "audits" / "campaign_frontline_baseline.csv"
+TARGET_REPORT = ROOT / "design" / "audits" / "campaign_frontline_target_delta.csv"
+BUILD_REPORT = ROOT / "design" / "audits" / "campaign_progression_fixture_builds.json"
+MANIFEST_REPORT = ROOT / "design" / "audits" / "campaign_frontline_audit_manifest.json"
+TARGET_SOURCE = DATA / "campaign_pacing_targets.json"
+FIXTURE_SOURCE = DATA / "campaign_progression_fixture.json"
 sys.path.insert(0, str(ROOT / "tools"))
 
 import simulate_balance as sim  # noqa: E402
-from power_ruler_model import power_for_build, survival_multiplier  # noqa: E402
+from power_ruler_model import clear_time_cap, power_for_build, survival_multiplier  # noqa: E402
 
 SPAWN_Y = 190.0
 BASE_Y = 1500.0
 ROUTE_DISTANCE = BASE_Y - SPAWN_Y
 DEFAULT_ATTACK_INTERVAL = 1.35
-FREE_PURCHASE_ORDER = (
-    ("armor", "armor_kevlar"),
-    ("chip", "chip_attack"),
-    ("pet", "pet_turret_drone"),
-    ("weapon", "weapon_scattergun"),
-)
-CORE_SKILLS = (
-    "skill_multishot",
-    "skill_pierce",
-    "skill_homing",
-    "skill_barrier",
-    "skill_salvo",
-    "skill_charge_shot",
-    "signature",
-    "skill_slow_field",
-    "skill_split_shot",
-    "skill_critical",
-    "skill_ricochet",
-)
 SLOT_TABLE = {
     "character": "characters",
     "weapon": "weapons",
@@ -74,6 +62,7 @@ GRADE_ZH = {
     "light_pressure": "略有压力",
     "pressure": "压力",
     "high": "难度高",
+    "unwinnable": "不可胜",
 }
 
 
@@ -85,6 +74,12 @@ TABLES = {name: load(name) for name in (
     "levels", "characters", "weapons", "armors", "chips", "pets",
     "skills", "zombies", "bosses", "economy",
 )}
+TARGETS = json.loads(TARGET_SOURCE.read_text(encoding="utf-8"))
+FIXTURE = json.loads(FIXTURE_SOURCE.read_text(encoding="utf-8"))
+FREE_PURCHASE_ORDER = tuple(
+    (str(row["slot"]), str(row["item_id"])) for row in FIXTURE["free_purchase_order"]
+)
+CORE_SKILLS = tuple(str(value) for value in FIXTURE["xp_upgrade_order"])
 
 
 @dataclass
@@ -101,6 +96,19 @@ class Account:
     })
     skills: dict[str, int] = field(default_factory=dict)
     signature: int = 0
+
+    @classmethod
+    def from_fixture(cls) -> "Account":
+        row = FIXTURE["initial_account"]
+        return cls(
+            gold=int(row.get("gold", 0)),
+            xp=int(row.get("xp", 0)),
+            stars=int(row.get("stars", 0)),
+            owned={slot: set(values) for slot, values in row["owned"].items()},
+            levels={str(key): int(value) for key, value in row["levels"].items()},
+            skills={str(key): int(value) for key, value in row.get("skills", {}).items()},
+            signature=int(row.get("signature_level", 0)),
+        )
 
 
 def upgrade_cost(row: dict, current_level: int) -> int:
@@ -123,11 +131,10 @@ def buy_available(account: Account) -> None:
 
 
 def level_weight(slot: str, item_id: str) -> float:
-    if slot == "character":
-        return 1.00
-    if slot == "weapon":
-        return 1.00 if item_id == "weapon_autocannon" else 0.82
-    return {"armor": 0.82, "chip": 0.92, "pet": 0.74}[slot]
+    weights = FIXTURE["gold_upgrade_weights"]
+    if item_id in weights:
+        return float(weights[item_id])
+    return float(weights[slot])
 
 
 def spend_gold(account: Account) -> None:
@@ -195,9 +202,11 @@ def build_for(account: Account, level: dict) -> tuple[dict, dict]:
         "signature_level": account.signature,
         "skill_base_levels": dict(account.skills),
     }
-    choices = ["weapon_autocannon"]
-    if "weapon_scattergun" in account.owned["weapon"]:
-        choices.append("weapon_scattergun")
+    selection = FIXTURE["weapon_selection"]
+    choices = [
+        weapon_id for weapon_id in selection["candidates"]
+        if weapon_id in account.owned["weapon"]
+    ]
     scored: list[tuple[float, dict, dict]] = []
     for weapon_id in choices:
         candidate = {**base, "weapon": weapon_id, "weapon_level": account.levels[weapon_id]}
@@ -207,7 +216,11 @@ def build_for(account: Account, level: dict) -> tuple[dict, dict]:
             TABLES["chips"], TABLES["pets"], TABLES["skills"],
             TABLES["bosses"], TABLES["economy"],
         )
-        boss_weight = 0.42 if any("boss" in wave for wave in level.get("waves", [])) else 0.10
+        boss_weight = (
+            float(selection["boss_capacity_weight_if_present"])
+            if any("boss" in wave for wave in level.get("waves", []))
+            else float(selection["boss_capacity_weight_otherwise"])
+        )
         score = result["capacities"]["crowd"] * (1.0 - boss_weight) + result["capacities"]["boss"] * boss_weight
         scored.append((score, candidate, result))
     _, build, result = max(scored, key=lambda row: row[0])
@@ -311,6 +324,7 @@ def simulate_level(account: Account, level: dict) -> dict:
     remaining_hp = maximum_hp
     max_progress = 0.0
     edge_reached = False
+    elapsed = 0.0
     for wave in level.get("waves", []):
         server_free = 0.0
         for unit in units_for_wave(level, wave):
@@ -341,19 +355,33 @@ def simulate_level(account: Account, level: dict) -> dict:
                     edge_reached = True
                     remaining_hp -= 10.0 * float(row.get("bd_coef", 1.0))
                 server_free = exit_at
+        elapsed += server_free
     max_progress = min(max_progress, 1.0)
     hp_ratio = max(remaining_hp / max(maximum_hp, 1.0), 0.0)
-    if edge_reached or hp_ratio <= 0.0:
+    cap = clear_time_cap(sim.level_number(level))
+    timed_out = elapsed > cap
+    cleared = hp_ratio > 0.0 and not timed_out
+    if not cleared:
+        grade = "unwinnable"
+        unwinnable_reason = "base_destroyed" if hp_ratio <= 0.0 else "clear_timeout"
+    elif edge_reached:
         grade = "high"
+        unwinnable_reason = ""
     elif hp_ratio < 0.999 and max_progress >= 0.80:
         grade = "pressure"
+        unwinnable_reason = ""
     elif max_progress >= 0.50:
         grade = "light_pressure"
+        unwinnable_reason = ""
     else:
         grade = "easy"
+        unwinnable_reason = ""
     return {
         "level": sim.level_number(level), "chapter": int(level.get("chapter", 1)),
         "grade": grade, "max_progress": max_progress, "base_hp_ratio": hp_ratio,
+        "cleared": cleared, "edge_reached": edge_reached, "timed_out": timed_out,
+        "unwinnable_reason": unwinnable_reason, "clear_time_seconds": elapsed,
+        "clear_time_cap_seconds": cap,
         "weapon": build["weapon"], "character_level": build["character_level"],
         "weapon_level": build["weapon_level"], "armor_level": build["armor_level"] if build["armor"] else 0,
         "chip_level": build["chip_level"] if build["chip"] else 0,
@@ -361,6 +389,7 @@ def simulate_level(account: Account, level: dict) -> dict:
         "signature_level": build["signature_level"],
         "gold_before": account.gold, "xp_before": account.xp, "stars_before": account.stars,
         "crowd_dps": crowd_dps, "boss_dps": boss_dps,
+        "build": build, "projected_skills": projected,
     }
 
 
@@ -386,33 +415,89 @@ def earned_resources(level: dict) -> tuple[int, int]:
 
 FIELDS = (
     "level", "chapter", "grade", "grade_zh", "max_progress_pct", "base_hp_pct",
+    "cleared", "edge_reached", "timed_out", "unwinnable_reason",
+    "clear_time_seconds", "clear_time_cap_seconds",
     "weapon", "character_level", "weapon_level", "armor_level", "chip_level",
     "pet_level", "signature_level", "gold_before", "xp_before", "stars_before",
     "crowd_dps", "boss_dps",
 )
 
+TARGET_FIELDS = (
+    "level", "chapter", "current_grade", "target_grade", "grade_delta_steps",
+    "current_progress_pct", "target_progress_pct", "progress_delta_pct",
+    "current_base_hp_pct", "target_base_hp_pct", "base_hp_delta_pct",
+    "cleared", "unwinnable_reason", "target_frozen",
+)
 
-def generate_rows() -> list[dict]:
-    account = Account()
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def target_rows() -> dict[int, dict]:
+    result: dict[int, dict] = {}
+    expected_quotas = TARGETS["chapter_quotas"]
+    level_number = 1
+    for chapter in range(1, 11):
+        grades = list(TARGETS["chapter_level_targets"][str(chapter)])
+        expected_count = 9 if chapter == 10 else 10
+        if len(grades) != expected_count:
+            raise SystemExit(f"chapter {chapter} target sequence must contain {expected_count} grades")
+        counts = {grade: grades.count(grade) for grade in TARGETS["grade_order"]}
+        if counts != {key: int(value) for key, value in expected_quotas[str(chapter)].items()}:
+            raise SystemExit(f"chapter {chapter} target sequence does not match quota: {counts}")
+        for grade in grades:
+            center = TARGETS["target_bands"][grade]["center"]
+            result[level_number] = {
+                "level": level_number,
+                "chapter": chapter,
+                "grade": grade,
+                "progress_pct": float(center["progress_pct"]),
+                "base_hp_pct": float(center["base_hp_pct"]),
+            }
+            level_number += 1
+    if level_number != 100:
+        raise SystemExit("campaign pacing target sequence must cover level_001..099 exactly")
+    return result
+
+
+def generate_rows() -> tuple[list[dict], list[dict]]:
+    account = Account.from_fixture()
     rows: list[dict] = []
+    builds: list[dict] = []
     for level in TABLES["levels"]:
         result = simulate_level(account, level)
         rows.append({
-            **{key: result[key] for key in result if key not in {"max_progress", "base_hp_ratio"}},
+            **{
+                key: result[key] for key in result
+                if key not in {"max_progress", "base_hp_ratio", "build", "projected_skills"}
+            },
             "grade_zh": GRADE_ZH[result["grade"]],
             "max_progress_pct": round(result["max_progress"] * 100.0, 2),
             "base_hp_pct": round(result["base_hp_ratio"] * 100.0, 2),
+            "clear_time_seconds": round(result["clear_time_seconds"], 3),
+            "clear_time_cap_seconds": round(result["clear_time_cap_seconds"], 3),
             "crowd_dps": round(result["crowd_dps"], 2),
             "boss_dps": round(result["boss_dps"], 2),
+        })
+        builds.append({
+            "level_id": str(level["id"]),
+            "level": result["level"],
+            "card_seeds": list(FIXTURE["runtime_probe"]["fixed_card_seeds"]),
+            "build": result["build"],
+            "projected_skills": result["projected_skills"],
+            "resources_before": {
+                "gold": account.gold, "xp": account.xp, "stars": account.stars,
+            },
         })
         gold, xp = earned_resources(level)
         account.gold += gold
         account.xp += xp
-        account.stars += 2
+        account.stars += int(FIXTURE["assumptions"]["stars_per_clear"])
         buy_available(account)
         spend_gold(account)
         spend_xp(account)
-    return rows
+    return rows, builds
 
 
 def render_csv(rows: list[dict]) -> str:
@@ -423,25 +508,104 @@ def render_csv(rows: list[dict]) -> str:
     return stream.getvalue()
 
 
+def render_target_csv(rows: list[dict]) -> str:
+    targets = target_rows()
+    grade_order = list(TARGETS["grade_order"])
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, fieldnames=TARGET_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for row in rows:
+        target = targets[row["level"]]
+        current_grade = row["grade"]
+        grade_delta = ""
+        if current_grade in grade_order:
+            grade_delta = grade_order.index(current_grade) - grade_order.index(target["grade"])
+        writer.writerow({
+            "level": row["level"],
+            "chapter": row["chapter"],
+            "current_grade": current_grade,
+            "target_grade": target["grade"],
+            "grade_delta_steps": grade_delta,
+            "current_progress_pct": row["max_progress_pct"],
+            "target_progress_pct": target["progress_pct"],
+            "progress_delta_pct": round(row["max_progress_pct"] - target["progress_pct"], 2),
+            "current_base_hp_pct": row["base_hp_pct"],
+            "target_base_hp_pct": target["base_hp_pct"],
+            "base_hp_delta_pct": round(row["base_hp_pct"] - target["base_hp_pct"], 2),
+            "cleared": row["cleared"],
+            "unwinnable_reason": row["unwinnable_reason"],
+            "target_frozen": bool(TARGETS["frozen"]),
+        })
+    return stream.getvalue()
+
+
+def render_builds(builds: list[dict]) -> str:
+    payload = {
+        "schema_version": 1,
+        "fixture_id": FIXTURE["id"],
+        "fixture_source": str(FIXTURE_SOURCE.relative_to(ROOT)),
+        "fixture_sha256": _sha256(FIXTURE_SOURCE),
+        "levels_sha256": _sha256(DATA / "levels.json"),
+        "calibration_levels": list(FIXTURE["runtime_probe"]["calibration_levels"]),
+        "rows": builds,
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+def render_manifest(rows: list[dict]) -> str:
+    counts = {grade: 0 for grade in GRADE_ZH}
+    for row in rows:
+        counts[row["grade"]] += 1
+    payload = {
+        "schema_version": 1,
+        "levels_path": "data/levels.json",
+        "levels_sha256": _sha256(DATA / "levels.json"),
+        "pacing_targets_path": str(TARGET_SOURCE.relative_to(ROOT)),
+        "pacing_targets_sha256": _sha256(TARGET_SOURCE),
+        "pacing_targets_frozen": bool(TARGETS["frozen"]),
+        "progression_fixture_path": str(FIXTURE_SOURCE.relative_to(ROOT)),
+        "progression_fixture_sha256": _sha256(FIXTURE_SOURCE),
+        "row_count": len(rows),
+        "current_grade_counts": counts,
+        "reports": [
+            str(REPORT.relative_to(ROOT)),
+            str(TARGET_REPORT.relative_to(ROOT)),
+            str(BUILD_REPORT.relative_to(ROOT)),
+        ],
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    rows = generate_rows()
+    rows, builds = generate_rows()
     if len(rows) != 99 or [row["level"] for row in rows] != list(range(1, 100)):
         raise SystemExit("campaign frontline audit must cover level_001..099 exactly")
-    text = render_csv(rows)
+    outputs = {
+        REPORT: render_csv(rows),
+        TARGET_REPORT: render_target_csv(rows),
+        BUILD_REPORT: render_builds(builds),
+        MANIFEST_REPORT: render_manifest(rows),
+    }
     if args.write:
         REPORT.parent.mkdir(parents=True, exist_ok=True)
-        REPORT.write_text(text, encoding="utf-8")
+        for path, text in outputs.items():
+            path.write_text(text, encoding="utf-8")
     if args.check:
-        if not REPORT.is_file() or REPORT.read_text(encoding="utf-8") != text:
-            raise SystemExit("campaign frontline baseline is stale; run tools/audit_campaign_frontline.py --write")
+        for path, text in outputs.items():
+            if not path.is_file() or path.read_text(encoding="utf-8") != text:
+                raise SystemExit(
+                    f"{path.relative_to(ROOT)} is stale; run tools/audit_campaign_frontline.py --write"
+                )
     counts: dict[str, int] = {}
     for row in rows:
         counts[row["grade"]] = counts.get(row["grade"], 0) + 1
     print("Campaign growth/front-line baseline (no level or power mutation)")
+    print(f"levels.json sha256={_sha256(DATA / 'levels.json')}")
+    print(f"targets frozen={bool(TARGETS['frozen'])}; deltas are report-only")
     print(" ".join(f"{GRADE_ZH[key]}={counts.get(key, 0)}" for key in GRADE_ZH))
     for row in rows:
         print(
