@@ -6,6 +6,7 @@ const PROJECTILE_SCENE := preload("res://gameplay/projectile/projectile.tscn")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const ChallengeRules := preload("res://core/data/challenge_rules.gd")
+const FireRateProfiles := preload("res://core/combat/fire_rate_profiles.gd")
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const VfxLib := preload("res://gameplay/vfx/vfx_lib.gd")
 const SLOW_FIELD_SHADER := preload("res://gameplay/vfx/shaders/vfx_slow_field.gdshader")
@@ -523,6 +524,10 @@ var golden_law_awakening_cooldown := 0.0
 var golden_law_decree_cooldown := 0.0
 var absolute_zero_feedback_cooldown := 0.0
 var skill_fire_rate_mult := 1.0
+var fire_rate_profile_id := FireRateProfiles.DEFAULT_PROFILE_ID
+var fire_rate_weapon_base := 1.0
+var fire_rate_authored_weapon_base := 1.0
+var fire_rate_control_rate := 1.0
 var skill_slot_ids: Array[String] = []
 var character_active_id := ""
 var character_active_cd := 0.0
@@ -676,6 +681,10 @@ func _ready() -> void:
 	battle_finished = false
 	pre_final_offer_used = false
 	skill_fire_rate_mult = 1.0
+	fire_rate_profile_id = SettingsManager.get_fire_rate_profile()
+	fire_rate_weapon_base = 1.0
+	fire_rate_authored_weapon_base = 1.0
+	fire_rate_control_rate = 1.0
 	character_active_cd = 0.0
 	character_fire_rate_mult = 1.0
 	sig_vanguard_barrage_timer = 0.0
@@ -721,6 +730,8 @@ func _ready() -> void:
 	turret = TURRET_SCENE.instantiate()
 	turret.position = Vector2(540, 1660.0 + bottom_dock_shift)
 	turret.setup(_themed_weapon_row(DataLoader.get_row("weapons", weapon_id)), weapon_level)
+	fire_rate_weapon_base = turret.fire_rate
+	fire_rate_authored_weapon_base = turret.fire_rate
 	_apply_turret_modifiers()
 	turret.visible = false
 	turret.fired.connect(_on_turret_fired)
@@ -1921,13 +1932,26 @@ func _refresh_character_fire_rate_buff() -> void:
 	var next_mult := 1.0
 	if sig_vanguard_barrage_timer > 0.0:
 		var active: Dictionary = character_data.get("active_skill", {})
-		next_mult *= _vanguard_railvolley_fire_rate_mult(active)
+		if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+			next_mult *= _vanguard_railvolley_fire_rate_mult(active)
+		else:
+			next_mult *= FireRateProfiles.barrage_multiplier(
+				_fire_rate_economy(),
+				fire_rate_profile_id,
+				active,
+				character_level,
+				_growth_rank(character_level),
+				_sig_skill_level(),
+			)
 	if sig_vanguard_overload_timer > 0.0:
-		next_mult *= 1.5
+		next_mult *= 1.5 if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID else FireRateProfiles.overload_multiplier(_fire_rate_economy(), fire_rate_profile_id)
 	if absf(next_mult - character_fire_rate_mult) <= 0.001:
 		return
-	turret.fire_rate *= next_mult / maxf(character_fire_rate_mult, 0.001)
+	if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+		turret.fire_rate *= next_mult / maxf(character_fire_rate_mult, 0.001)
 	character_fire_rate_mult = next_mult
+	if fire_rate_profile_id != FireRateProfiles.DEFAULT_PROFILE_ID:
+		_recompute_profiled_fire_rate()
 
 func _update_character_skill_button() -> void:
 	if not has_node("Hud/CharacterSkillButton"):
@@ -2359,12 +2383,78 @@ func _apply_turret_modifiers() -> void:
 	if weapon_element != "physical" or str(pet_data.get("element", "")) == weapon_element:
 		attack_mult *= 1.0 + _pet_stat_value("element_damage_mult")
 	turret.damage_mult *= attack_mult
-	turret.fire_rate *= float(character_data.get("fire_rate_mod", 1.0)) * _chip_multiplier("fire_rate_mult") * (1.0 + 0.01 * float(max(chip_level - 1, 0))) * (1.0 + _pet_stat_value("fire_rate_mult"))
+	if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+		# Production/control intentionally retains the exact pre-profile
+		# multiplication expression and operation order.
+		turret.fire_rate *= float(character_data.get("fire_rate_mod", 1.0)) * _chip_multiplier("fire_rate_mult") * (1.0 + 0.01 * float(max(chip_level - 1, 0))) * (1.0 + _pet_stat_value("fire_rate_mult"))
+		fire_rate_control_rate = turret.fire_rate
+	else:
+		_recompute_profiled_fire_rate()
 	turret.turn_speed *= float(character_data.get("aim_turn_speed", 1.0))
 	crit_rate = float(character_data.get("crit_rate_base", 0.0)) + _chip_value("crit_rate") + _pet_stat_value("crit_rate")
 	pierce_bonus = int(round(_chip_value("pierce_bonus"))) + int(round(_pet_stat_value("pierce_bonus")))
 	element_damage_bonus = 1.0
 	chain_bonus = int(round(_pet_stat_value("chain_bonus")))
+
+func _fire_rate_economy() -> Dictionary:
+	return DataLoader.get_table("economy")
+
+func _fire_rate_for_profile(profile_id: String) -> float:
+	var economy := _fire_rate_economy()
+	var fire_rate := fire_rate_weapon_base
+	fire_rate *= float(character_data.get("fire_rate_mod", 1.0))
+	var chip_intrinsic := _chip_value("fire_rate_mult")
+	if profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+		fire_rate *= (1.0 + chip_intrinsic) * (1.0 + 0.01 * float(max(chip_level - 1, 0)))
+		fire_rate *= 1.0 + _pet_stat_value("fire_rate_mult")
+		fire_rate *= skills.fire_rate_multiplier()
+	else:
+		fire_rate *= FireRateProfiles.chip_multiplier(economy, profile_id, chip_intrinsic, chip_level)
+		fire_rate *= FireRateProfiles.pet_multiplier(economy, profile_id, _pet_stat_value("fire_rate_mult"))
+		fire_rate *= FireRateProfiles.salvo_multiplier(economy, profile_id, skills.level("skill_salvo"), skills.fire_rate_multiplier())
+	var active_mult := 1.0
+	if sig_vanguard_barrage_timer > 0.0:
+		var active: Dictionary = character_data.get("active_skill", {})
+		active_mult *= _vanguard_railvolley_fire_rate_mult(active) if profile_id == FireRateProfiles.DEFAULT_PROFILE_ID else FireRateProfiles.barrage_multiplier(
+			economy,
+			profile_id,
+			active,
+			character_level,
+			_growth_rank(character_level),
+			_sig_skill_level(),
+		)
+	if sig_vanguard_overload_timer > 0.0:
+		active_mult *= 1.5 if profile_id == FireRateProfiles.DEFAULT_PROFILE_ID else FireRateProfiles.overload_multiplier(economy, profile_id)
+	fire_rate *= active_mult
+	return FireRateProfiles.capped_fire_rate(economy, profile_id, fire_rate, fire_rate_authored_weapon_base)
+
+func _recompute_profiled_fire_rate() -> void:
+	if turret == null:
+		return
+	turret.fire_rate = _fire_rate_for_profile(fire_rate_profile_id)
+	skill_fire_rate_mult = skills.fire_rate_multiplier() if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID else FireRateProfiles.salvo_multiplier(
+		_fire_rate_economy(), fire_rate_profile_id, skills.level("skill_salvo"), skills.fire_rate_multiplier()
+	)
+	fire_rate_control_rate = _fire_rate_for_profile(FireRateProfiles.DEFAULT_PROFILE_ID)
+
+func _fire_rate_shot_damage_compensation() -> float:
+	if turret == null or fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+		return 1.0
+	return FireRateProfiles.shot_damage_compensation(
+		_fire_rate_economy(), fire_rate_profile_id, _fire_rate_for_profile(FireRateProfiles.DEFAULT_PROFILE_ID), turret.fire_rate
+	)
+
+func _fire_rate_status_normalization() -> float:
+	if turret == null or fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+		return 1.0
+	return FireRateProfiles.per_shot_status_normalization(_fire_rate_for_profile(FireRateProfiles.DEFAULT_PROFILE_ID), turret.fire_rate)
+
+func _set_fire_rate_profile(profile_id: String) -> void:
+	var ids := FireRateProfiles.profile_ids(_fire_rate_economy())
+	if not ids.has(profile_id):
+		profile_id = FireRateProfiles.DEFAULT_PROFILE_ID
+	fire_rate_profile_id = profile_id
+	_recompute_profiled_fire_rate()
 
 func _chip_multiplier(stat: String) -> float:
 	return 1.0 + _chip_value(stat)
@@ -2534,6 +2624,18 @@ func _rebuild_pause_overlay_content() -> void:
 func _pause_status_card() -> PanelContainer:
 	var card := _pause_section("战场状态", UiKit.GOLD, PAUSE_STATUS_CARD_HEIGHT)
 	var body := card.get_child(0) as VBoxContainer
+	if SettingsManager.has_fire_rate_lab():
+		var header := body.get_child(0) as HBoxContainer
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header.add_child(spacer)
+		var lab_button := Button.new()
+		lab_button.name = "FireRateLabButton"
+		lab_button.process_mode = Node.PROCESS_MODE_ALWAYS
+		lab_button.text = LocalizationManager.text("攻速实验：%s") % SettingsManager.fire_rate_profile_label(fire_rate_profile_id)
+		lab_button.pressed.connect(_on_pause_fire_rate_lab)
+		header.add_child(lab_button)
+		UiKit.apply_armored_button(lab_button, false, Vector2(224, 60), 19, true)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2545,6 +2647,12 @@ func _pause_status_card() -> PanelContainer:
 	grid.add_child(_pause_metric("本关弱点", _element_name(primary_weakness), UiKit.element_color(primary_weakness)))
 	grid.add_child(_pause_metric("防线生命", "%d/%d" % [base_hp, base_hp_max], UiKit.GREEN))
 	return card
+
+func _on_pause_fire_rate_lab() -> void:
+	var next_profile := SettingsManager.cycle_fire_rate_profile()
+	_set_fire_rate_profile(next_profile)
+	AudioManager.play_sfx("ui_click")
+	_refresh_pause_build_summary()
 
 func _pause_loadout_card() -> PanelContainer:
 	var card := _pause_section("出战配置", UiKit.CYAN, PAUSE_LOADOUT_CARD_HEIGHT)
@@ -4710,6 +4818,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	_pulse_character_theme_material()
 	_spawn_character_theme_fire_signature(origin, direction, element)
 	var base_damage: float = 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
+	base_damage *= _fire_rate_shot_damage_compensation()
 	var pierce: int = int(mods.get("pierce", 0)) + pierce_bonus + int(special.get("pierce", 0)) + _character_pierce_bonus(element)
 	if sig_vanguard_barrage_timer > 0.0:
 		pierce += 1
@@ -4735,6 +4844,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 		inferno_high_heat_shots += 1
 	elif visual_profile == "apocalypse_absolute_zero":
 		status_strength = maxf(status_strength, float(special.get("slow", 0.30)) * (1.0 + _chip_value("slow_strength_mult") + _pet_stat_value("slow_strength_mult")))
+	status_strength *= _fire_rate_status_normalization()
 	var preferred_target: Node2D = target_manager.locked_enemy if target_manager.has_lock() else null
 	var homing_targets: Array[Node2D] = []
 	var scatter_homing_delay := -1.0
@@ -12122,8 +12232,11 @@ func _choose_card(skill_id: String) -> void:
 		reroll_charges += skills.reroll_gain()
 	if skill_id == "skill_salvo" and turret != null:
 		var next_fire_rate_mult := skills.fire_rate_multiplier()
-		turret.fire_rate *= next_fire_rate_mult / skill_fire_rate_mult
-		skill_fire_rate_mult = next_fire_rate_mult
+		if fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
+			turret.fire_rate *= next_fire_rate_mult / skill_fire_rate_mult
+			skill_fire_rate_mult = next_fire_rate_mult
+		else:
+			_recompute_profiled_fire_rate()
 		_spawn_float_text(_weapon_fire_origin() + Vector2(0, -82), "攻速提升", Color(1.0, 0.86, 0.32))
 	_process_build_feedback(skill_id)
 	_show_wave_toast("%s 已生效" % DataLoader.tr_key(DataLoader.get_row("skills", skill_id).get("name_key", skill_id)), Color(1.0, 0.86, 0.28))

@@ -14,10 +14,13 @@ then evaluates a neutral large Boss at 1000 px:
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
+
+import fire_rate_profiles as fire_rate_lab
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -194,6 +197,7 @@ def evaluate(
     chip_id: str,
     pet_id: str,
     weapon_override: str = "",
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
 ) -> DpsResult:
     character = CHARACTERS[character_id]
     weapon_id = weapon_override or MATCHING_WEAPON[character_id]
@@ -229,16 +233,49 @@ def evaluate(
         attack_mult *= 1.0 + pet_stat(pet, "element_damage_mult")
     turret_damage_mult = weapon_damage_mult * attack_mult
 
-    fire_rate = (
+    authored_fire_rate = (
         float(weapon["fire_rate"])
         * weapon_fire_rate_mult
         * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
+    )
+    control_fire_rate = (
+        authored_fire_rate
         * float(character.get("fire_rate_mod", 1.0))
         * (1.0 + chip_value(chip, "fire_rate_mult"))
         * (1.0 + 0.01 * (CHIP_LEVEL - 1))
         * (1.0 + pet_stat(pet, "fire_rate_mult"))
         * FULL_SKILL_FIRE_RATE_MULT
     )
+    if fire_rate_profile_id == fire_rate_lab.DEFAULT_PROFILE_ID:
+        fire_rate = control_fire_rate
+    else:
+        raw_fire_rate = (
+            authored_fire_rate
+            * float(character.get("fire_rate_mod", 1.0))
+            * fire_rate_lab.chip_multiplier(
+                ECONOMY,
+                fire_rate_profile_id,
+                chip_value(chip, "fire_rate_mult"),
+                CHIP_LEVEL,
+            )
+            * fire_rate_lab.pet_multiplier(
+                ECONOMY,
+                fire_rate_profile_id,
+                pet_stat(pet, "fire_rate_mult"),
+            )
+            * fire_rate_lab.salvo_multiplier(
+                ECONOMY,
+                fire_rate_profile_id,
+                5,
+                FULL_SKILL_FIRE_RATE_MULT,
+            )
+        )
+        fire_rate = fire_rate_lab.capped_fire_rate(
+            ECONOMY,
+            fire_rate_profile_id,
+            raw_fire_rate,
+            authored_fire_rate,
+        )
     crit_rate = (
         float(character.get("crit_rate_base", 0.0))
         + chip_value(chip, "crit_rate")
@@ -268,7 +305,7 @@ def evaluate(
             affinity.get("chain_overflow_damage_bonus", 0.0)
         )
 
-    primary_damage = (
+    uncompensated_primary_damage = (
         28.0
         * float(weapon["base_atk_coef"])
         * float(ECONOMY["PLAYER_SHOT_DAMAGE_MULT"])
@@ -276,6 +313,12 @@ def evaluate(
         * FULL_SKILL_DAMAGE_MULT
         * affinity_mult
         * overflow_mult
+    )
+    primary_damage = uncompensated_primary_damage * fire_rate_lab.shot_damage_compensation(
+        ECONOMY,
+        fire_rate_profile_id,
+        control_fire_rate,
+        fire_rate,
     )
     connected_lane_mult = CONNECTED_LANES * LANE_DAMAGE_MULT
     all_lane_mult = TOTAL_LANES * LANE_DAMAGE_MULT
@@ -300,7 +343,9 @@ def evaluate(
         pet_dps += pet_shot_damage * 0.22
 
     if str(active.get("scaling_basis", "weapon")) == "weapon":
-        active_base_damage = primary_damage / overflow_mult
+        # The profile refund belongs to ordinary projectiles only.  Active
+        # skills retain their authored hit damage when cadence is capped.
+        active_base_damage = uncompensated_primary_damage / overflow_mult
     else:
         active_base_damage = (
             28.0
@@ -336,11 +381,21 @@ def evaluate(
             + float(active.get("rank_duration_bonus", 0.0)) * GROWTH_RANK
             + float(active.get("sig_level_duration_bonus", 0.0)) * SIGNATURE_LEVEL
         )
-        barrage_rate_bonus = (
-            float(active.get("barrage_fire_rate_mult", 1.0))
-            + float(active.get("rank_fire_rate_bonus", 0.0)) * GROWTH_RANK
-            - 1.0
-        )
+        if fire_rate_profile_id == fire_rate_lab.DEFAULT_PROFILE_ID:
+            barrage_rate = (
+                float(active.get("barrage_fire_rate_mult", 1.0))
+                + float(active.get("rank_fire_rate_bonus", 0.0)) * GROWTH_RANK
+            )
+        else:
+            barrage_rate = fire_rate_lab.barrage_multiplier(
+                ECONOMY,
+                fire_rate_profile_id,
+                active,
+                CHARACTER_LEVEL,
+                GROWTH_RANK,
+                SIGNATURE_LEVEL,
+            )
+        barrage_rate_bonus = barrage_rate - 1.0
         active_dps += weapon_dps * barrage_rate_bonus * min(duration / cooldown, 1.0)
     elif character_id == "blaze":
         active_dps = active_hit_damage * blaze_pulse_factor(active) / cooldown
@@ -379,9 +434,17 @@ def evaluate(
     )
 
 
-def best_result(character_id: str) -> DpsResult:
+def best_result(
+    character_id: str,
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+) -> DpsResult:
     candidates = [
-        evaluate(character_id, chip_id, pet_id)
+        evaluate(
+            character_id,
+            chip_id,
+            pet_id,
+            fire_rate_profile_id=fire_rate_profile_id,
+        )
         for chip_id, chip in CHIPS.items()
         if not chip.get("premium_entitlement")
         for pet_id, pet in PETS.items()
@@ -467,11 +530,27 @@ def apocalypse_audit(baseline: DpsResult) -> dict:
 
 
 def main() -> int:
-    results = [best_result(character_id) for character_id in MATCHING_WEAPON]
+    parser = argparse.ArgumentParser(description="Audit endgame DPS by fire-rate laboratory profile.")
+    parser.add_argument(
+        "--fire-rate-profile",
+        default=fire_rate_lab.DEFAULT_PROFILE_ID,
+        metavar="PROFILE",
+    )
+    args = parser.parse_args()
+    profile_id = str(args.fire_rate_profile)
+    if profile_id not in fire_rate_lab.profile_ids(ECONOMY):
+        parser.error(
+            f"unknown fire-rate profile '{profile_id}'; "
+            f"available: {', '.join(fire_rate_lab.profile_ids(ECONOMY))}"
+        )
+    results = [
+        best_result(character_id, fire_rate_profile_id=profile_id)
+        for character_id in MATCHING_WEAPON
+    ]
     print(
         "Endgame single-Boss DPS audit "
         f"(Lv{CHARACTER_LEVEL}/W{WEAPON_LEVEL}/A35/C{CHIP_LEVEL}/P{PET_LEVEL}/Sig{SIGNATURE_LEVEL}, "
-        f"{CONNECTED_LANES}/{TOTAL_LANES} multishot lanes connect)"
+        f"{CONNECTED_LANES}/{TOTAL_LANES} multishot lanes connect, fire-rate profile={profile_id})"
     )
     print(
         f"{'character':10} {'weapon':21} {'chip':14} {'pet':18} "
@@ -487,6 +566,9 @@ def main() -> int:
     totals = [result.total_dps for result in results]
     spread = max(totals) / min(totals)
     print(f"single-Boss max/min spread: {spread:.3f}x ({(spread - 1.0) * 100.0:.1f}%)")
+    if profile_id != fire_rate_lab.DEFAULT_PROFILE_ID:
+        print("Premium contract audit skipped: paid-set release contracts remain control-profile only.")
+        return 0
     free_volt = next(result for result in results if result.character_id == "volt")
     premium = apocalypse_audit(free_volt)
     base = premium["base"]

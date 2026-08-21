@@ -107,6 +107,36 @@ def main() -> int:
             errors.append("economy.run_skill_pressure.max_speed_mult must be in [1, 1.5]")
 
     economy = tables["economy"]
+    fire_rate_profiles = economy.get("fire_rate_profiles")
+    if not isinstance(fire_rate_profiles, dict):
+        errors.append("economy.fire_rate_profiles must be an object")
+    else:
+        default_profile = str(fire_rate_profiles.get("default", ""))
+        profile_order = fire_rate_profiles.get("order", [])
+        profiles = fire_rate_profiles.get("profiles", {})
+        if default_profile != "control":
+            errors.append("economy.fire_rate_profiles.default must remain control")
+        if profile_order != ["control", "tier_a", "tier_b"]:
+            errors.append("economy.fire_rate_profiles.order must be control/tier_a/tier_b")
+        if not isinstance(profiles, dict) or set(profiles) != {"control", "tier_a", "tier_b"}:
+            errors.append("economy.fire_rate_profiles.profiles must define exactly control/tier_a/tier_b")
+        else:
+            control = profiles["control"]
+            expected_control_salvo = [0.22, 0.44, 0.66, 0.9, 1.2]
+            if control.get("salvo_fire_rate_mult") != expected_control_salvo:
+                errors.append("economy.fire_rate_profiles.control must mirror authored skill_salvo values")
+            if float(control.get("global_weapon_base_cap", -1.0)) != 0.0:
+                errors.append("economy.fire_rate_profiles.control cap must remain infinite (0)")
+            if float(control.get("removed_dps_compensation", -1.0)) != 0.0:
+                errors.append("economy.fire_rate_profiles.control compensation must remain zero")
+            for profile_id, cap in (("tier_a", 1.8), ("tier_b", 2.2)):
+                profile = profiles[profile_id]
+                if abs(float(profile.get("global_weapon_base_cap", 0.0)) - cap) > 1e-9:
+                    errors.append(f"economy.fire_rate_profiles.{profile_id} cap must be {cap}")
+                if abs(float(profile.get("removed_dps_compensation", 0.0)) - 0.5) > 1e-9:
+                    errors.append(f"economy.fire_rate_profiles.{profile_id} compensation must be 0.5")
+                if len(profile.get("salvo_fire_rate_mult", [])) != 5:
+                    errors.append(f"economy.fire_rate_profiles.{profile_id} must define five salvo ranks")
     for table_key in ("late_wave_hp_bonus", "late_wave_count_mult", "late_wave_boss_hp_bonus"):
         value = economy.get(table_key)
         if not isinstance(value, dict) or not value:

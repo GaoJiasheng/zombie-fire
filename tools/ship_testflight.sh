@@ -16,7 +16,7 @@ GODOT_BIN="${GODOT_BIN:-/opt/homebrew/bin/godot}"
 # 1X / 2X / 5X control from stage 1 and all four premium series through the local
 # no-charge demo flow. Keep the ordinary export preset clean and omit both
 # temporary features when selecting an App Review build.
-TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release,testflight_speed_unlocked,testflight_premium_preview}"
+TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release,testflight_speed_unlocked,testflight_premium_preview,testflight_firerate_lab}"
 TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-testflight_premium_preview}"
 # Godot's macOS viewport windows can activate even when launched hidden. A
 # TestFlight build therefore runs only static + true --headless gates unless

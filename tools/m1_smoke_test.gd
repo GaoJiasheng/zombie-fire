@@ -2,6 +2,7 @@ extends SceneTree
 
 const SequenceVfx := preload("res://gameplay/vfx/sequence_vfx.gd")
 const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
+const FireRateProfiles := preload("res://core/combat/fire_rate_profiles.gd")
 
 class FakeRouter:
 	extends Node
@@ -122,6 +123,7 @@ func _initialize() -> void:
 	var shot_damage_mult := float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 3.0))
 	_expect(absf(fire_rate_mult - 0.25) <= 0.001, "initial player fire rate must use the retuned +50% paced value")
 	_expect(absf(fire_rate_mult * shot_damage_mult - 0.75) <= 0.005, "fire-rate retune must preserve the intended shot damage product")
+	_verify_fire_rate_profiles(economy)
 	_verify_progression_unlock_repair(save_manager)
 	await _verify_battle_speed_progression_gate(save_manager)
 	await _verify_battle_speed_stress(save_manager)
@@ -6138,6 +6140,41 @@ func _assert_resource_cost(button: BaseButton, expected_kind: String, expected_a
 	var legacy_label := button.get_node_or_null("ActionLabel") as Label
 	if legacy_label != null:
 		_expect(not legacy_label.visible, "%s must hide the old combined-text label when structured cost content is active" % context)
+
+func _verify_fire_rate_profiles(economy: Dictionary) -> void:
+	var ids := FireRateProfiles.profile_ids(economy)
+	_expect(ids == ["control", "tier_a", "tier_b"], "fire-rate laboratory must expose the data-owned control/A/B order")
+	var authored_base := 1.0
+	var character_mult := 0.96
+	var chip_intrinsic := 0.18
+	var chip_level := 35
+	var pet_stat := 0.12
+	var skill_level := 5
+	var control_rate := authored_base * character_mult
+	control_rate *= FireRateProfiles.chip_multiplier(economy, "control", chip_intrinsic, chip_level)
+	control_rate *= FireRateProfiles.pet_multiplier(economy, "control", pet_stat)
+	control_rate *= FireRateProfiles.salvo_multiplier(economy, "control", skill_level, 2.20)
+	# This is the exact pre-profile reference cadence and projectile DPS.  The
+	# control row must retain both values rather than merely remaining close.
+	_expect(absf(control_rate - 3.740233728) <= 0.000001, "control profile must preserve the pre-A2 reference cadence exactly")
+	var control_dps := 28.0 * 3.0 * control_rate
+	_expect(absf(control_dps - 314.179633152) <= 0.000001, "control profile must preserve the pre-A2 reference projectile DPS exactly")
+	for profile_id in ["tier_a", "tier_b"]:
+		var raw_rate := authored_base * character_mult
+		raw_rate *= FireRateProfiles.chip_multiplier(economy, profile_id, chip_intrinsic, chip_level)
+		raw_rate *= FireRateProfiles.pet_multiplier(economy, profile_id, pet_stat)
+		raw_rate *= FireRateProfiles.salvo_multiplier(economy, profile_id, skill_level, 2.20)
+		var actual_rate := FireRateProfiles.capped_fire_rate(economy, profile_id, raw_rate, authored_base)
+		var expected_cap := 1.8 if profile_id == "tier_a" else 2.2
+		_expect(absf(actual_rate - expected_cap) <= 0.000001, "%s stacked cadence must land on its authored weapon-base cap" % profile_id)
+		var compensation := FireRateProfiles.shot_damage_compensation(economy, profile_id, control_rate, actual_rate)
+		var expected_dps := actual_rate * compensation
+		_expect(absf(expected_dps - (actual_rate + control_rate) * 0.5) <= 0.000001, "%s must refund exactly 50%% of removed projectile DPS" % profile_id)
+		var status_norm := FireRateProfiles.per_shot_status_normalization(control_rate, actual_rate)
+		var normalized_triggers_per_second := actual_rate * status_norm
+		var drift := absf(normalized_triggers_per_second / control_rate - 1.0)
+		_expect(drift <= 0.05, "%s slow coverage must stay within 5%% of control after per-shot normalization" % profile_id)
+		_expect(drift <= 0.05, "%s ignite uptime must stay within 5%% of control after per-shot normalization" % profile_id)
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

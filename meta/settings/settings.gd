@@ -31,6 +31,7 @@ func _ready() -> void:
 	_button("ThemeButton").pressed.connect(_on_theme)
 	_button("AccessibilityRow/ReduceEffectsButton").pressed.connect(_on_reduce_effects)
 	_button("AccessibilityRow/HapticsButton").pressed.connect(_on_haptics)
+	_button("AccessibilityRow/FireRateLabButton").pressed.connect(_on_fire_rate_lab)
 	_button("DataRow/BackupButton").pressed.connect(_on_backup)
 	_button("DataRow/RestoreButton").pressed.connect(_on_restore)
 	_button("ResetButton").pressed.connect(_on_reset)
@@ -66,7 +67,7 @@ func _apply_layout() -> void:
 	margin.add_theme_constant_override("margin_bottom", 12 if compact_safe_layout else 44)
 	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 88)
-	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 80)
 	var info_height := 132
 	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(
@@ -93,9 +94,9 @@ func _apply_style() -> void:
 		UiKit.apply_label(row.get_node("Value") as Label, 19, UiKit.CYAN, 2)
 		_style_slider(row.get_node("Slider") as HSlider)
 	UiKit.apply_label(_vbox.get_node("InfoBody") as Label, 18 if LocalizationManager.is_english() else 20, UiKit.GREY_300, 2)
-	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AccessibilityRow/FireRateLabButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 24)
-	for path in ["AccessibilityRow/ReduceEffectsButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
+	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 22)
 	_style_button(_button("BackButton"), UiKit.GOLD, 28)
 
@@ -232,9 +233,17 @@ func _on_haptics() -> void:
 		SettingsManager.pulse_haptic("light")
 	_refresh_accessibility()
 
+func _on_fire_rate_lab() -> void:
+	SettingsManager.cycle_fire_rate_profile()
+	AudioManager.play_sfx("ui_click")
+	_refresh_accessibility()
+
 func _refresh_accessibility() -> void:
 	_button("AccessibilityRow/ReduceEffectsButton").text = "减弱闪烁震动：%s" % ("开" if SettingsManager.reduced_effects_enabled() else "关")
 	_button("AccessibilityRow/HapticsButton").text = "触感反馈：%s" % ("开" if SettingsManager.haptics_enabled() else "关")
+	var lab_button := _button("AccessibilityRow/FireRateLabButton")
+	lab_button.visible = SettingsManager.has_fire_rate_lab()
+	lab_button.text = LocalizationManager.text("攻速实验：%s") % SettingsManager.fire_rate_profile_label()
 
 func _on_backup() -> void:
 	SaveManager.backup_game()

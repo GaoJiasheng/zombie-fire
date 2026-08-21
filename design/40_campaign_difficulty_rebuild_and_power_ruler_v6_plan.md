@@ -919,3 +919,21 @@ Owner 已拍板如下，本节替代原审批项清单：
   旧解析模型只保留作快速差值筛查，不再独立证明关卡达标，也禁止逐关补丁拟合。
 - 校准报告当前为 **待 Owner 认可**。获认可前 `frozen=false`、16/43/33/7 不冻结，且本轮
   实测不得作为任何战役关卡改数依据；阶段 A 未修改 `data/levels.json`。
+
+### 11.3 阶段 A2：攻速实验档工程合同
+
+- `data/economy.json.fire_rate_profiles` 成为攻速档位的唯一来源，固定顺序为
+  `control / tier_a / tier_b`；正式包恒为 `control`，只有带
+  `testflight_firerate_lab` custom feature 的 TestFlight 实验包显示切档入口。
+- `control` 保持现行乘区、运算顺序与未封顶语义。参考构筑的最终射速乘数锁定为
+  `3.740233728`，普通弹丸 DPS 锁定为 `314.179633152`；M1 smoke 逐位校验这两个黄金值，
+  防止“接入档位系统”本身改变玩家行为。
+- `tier_a / tier_b` 将总射速乘数分别封顶于 `1.8× / 2.2×`，并把被削减 DPS 的 50%
+  折回单发伤害。齐射、芯片、角色弹幕、宠物与过载来源按档位数据缩放；多重射击固定夹角
+  与弹道数量语义不变。
+- 点燃、减速、冰缓等逐发状态按 `control 射速 / 当前射速` 归一其每发强度，参考构筑的
+  每秒期望触发量相对 `control` 偏差为 0%，M1 smoke 门禁上限为 5%。
+- GDScript 运行时与 Python DPS / 战力工具共读同一档位合同；`simulate_balance` 和终局角色
+  审计可显式选择实验档，但 Release Candidate 仍只钉默认 `control`，B1 冻结前不得以
+  A/B 的实验结果替换现有基线。
+- 本阶段未修改 `data/levels.json`、战役难度、经济收入、价格、星级阈值或战力 6.0 口径。

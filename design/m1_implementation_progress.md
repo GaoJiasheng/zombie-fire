@@ -4518,3 +4518,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The early contradiction is resolved without touching levels**: Stages 003 / 008 / 013 reach median progress `24.55% / 30.65% / 26.40%` and clear `3/3` at full base health. The retired sub-1.2% readings came from treating abstract output capacity as frame DPS.
 - **One scalar cannot hide the residual**: the old queue model's median progress error is `22.91pp`, and Stages 040 / 055 / 075 expose material card-path variance. The runtime median is therefore the authority and the three-seed range remains first-class evidence; the old analytical result is diagnostic only.
 - **Acceptance remains deliberately open**: `frontline_calibration_report.md` is pending Owner review. The target source stays `frozen=false`, the proposed 16/43/33/7 distribution is not a release assertion, and no campaign data changed.
+
+## Campaign Rebuild v2 · Phase A2 Fire-rate Profiles (2026-08-21)
+
+- **The laboratory is inert by default**: `control` preserves the authored multiplication path and has no cap or compensation. Formal packages hard-lock it; only the TestFlight laboratory feature exposes the three-way selector.
+- **Alternative cadence is data-owned**: Tier A / B cap total cadence at `1.8× / 2.2×`, refund 50% of removed projectile DPS as per-shot damage, and scale salvo, chip, barrage, pet and overload sources from the same economy profile.
+- **Status throughput remains comparable**: per-projectile slow, ignite and chill strength is normalized by the control/current cadence ratio. Smoke guards require reference slow coverage and ignite uptime to remain within 5%; current analytical drift is 0%.
+- **Control has numerical identity guards**: the reference build remains at final cadence `3.740233728` and ordinary-projectile DPS `314.179633152`. Any future default-profile drift fails M1 before release.
+- **Every calculator speaks the profile**: runtime combat, player power, campaign simulation and endgame DPS audit accept the same profile IDs. Campaign levels, economy rewards, prices, star thresholds and the Power 6.0 workstream remain untouched.

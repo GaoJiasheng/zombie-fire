@@ -5,6 +5,70 @@
 	"BOSS_SPEED_MULT": 1.5,
 	"PLAYER_FIRE_RATE_MULT": 0.25,
 	"PLAYER_SHOT_DAMAGE_MULT": 3.0,
+	"fire_rate_profiles": {
+		"default": "control",
+		"order": [
+			"control",
+			"tier_a",
+			"tier_b"
+		],
+		"profiles": {
+			"control": {
+				"global_weapon_base_cap": 0.0,
+				"removed_dps_compensation": 0.0,
+				"salvo_fire_rate_mult": [
+					0.22,
+					0.44,
+					0.66,
+					0.9,
+					1.2
+				],
+				"chip_intrinsic_scale": 1.0,
+				"chip_level_bonus_per_level": 0.01,
+				"pet_fire_rate_scale": 1.0,
+				"barrage_fire_rate_mult": 1.25,
+				"barrage_rank_bonus": 0.03,
+				"barrage_level_growth_scale": 1.0,
+				"overload_fire_rate_mult": 1.5
+			},
+			"tier_a": {
+				"global_weapon_base_cap": 1.8,
+				"removed_dps_compensation": 0.5,
+				"salvo_fire_rate_mult": [
+					0.13,
+					0.26,
+					0.39,
+					0.54,
+					0.7
+				],
+				"chip_intrinsic_scale": 0.7,
+				"chip_level_bonus_per_level": 0.006,
+				"pet_fire_rate_scale": 0.7,
+				"barrage_fire_rate_mult": 1.15,
+				"barrage_rank_bonus": 0.018,
+				"barrage_level_growth_scale": 0.7,
+				"overload_fire_rate_mult": 1.25
+			},
+			"tier_b": {
+				"global_weapon_base_cap": 2.2,
+				"removed_dps_compensation": 0.5,
+				"salvo_fire_rate_mult": [
+					0.17,
+					0.34,
+					0.51,
+					0.7,
+					0.92
+				],
+				"chip_intrinsic_scale": 0.85,
+				"chip_level_bonus_per_level": 0.008,
+				"pet_fire_rate_scale": 0.85,
+				"barrage_fire_rate_mult": 1.2,
+				"barrage_rank_bonus": 0.024,
+				"barrage_level_growth_scale": 0.85,
+				"overload_fire_rate_mult": 1.35
+			}
+		}
+	},
 	"late_wave_hp_bonus": {
 		"3": 1.45,
 		"4": 1.85,

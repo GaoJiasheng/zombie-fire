@@ -28,6 +28,7 @@ from pathlib import Path
 
 from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
 import audit_character_endgame_dps as character_dps
+import fire_rate_profiles as fire_rate_lab
 
 ROOT = Path(__file__).resolve().parent.parent
 LEVELS_PATH = ROOT / "data" / "levels.json"
@@ -76,6 +77,12 @@ def parse_args() -> argparse.Namespace:
         default=2.0,
         metavar="PERCENT",
         help="absolute leak-percentage window used by --star-boundary-audit (default: 2.0)",
+    )
+    parser.add_argument(
+        "--fire-rate-profile",
+        default=fire_rate_lab.DEFAULT_PROFILE_ID,
+        metavar="PROFILE",
+        help="data-owned fire-rate laboratory profile (default: control)",
     )
     return parser.parse_args()
 
@@ -305,7 +312,14 @@ def boss_survival_hp_ramp(economy: dict, level_no: int) -> float:
     return ramp_mult
 
 
-def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_level: int, skill_mult: float) -> float:
+def estimate_player_dps(
+    char_id: str,
+    weapon_id: str,
+    char_level: int,
+    weapon_level: int,
+    skill_mult: float,
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+) -> float:
     chars = json.loads(CHARS_PATH.read_text(encoding="utf-8"))
     weapons = json.loads(WEAPONS_PATH.read_text(encoding="utf-8"))
     economy = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
@@ -321,7 +335,20 @@ def estimate_player_dps(char_id: str, weapon_id: str, char_level: int, weapon_le
     weapon_fr_mult = 1.0 + 0.025 * (weapon_level - 1)
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef
     damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))
-    fr = fire_rate * weapon_fr_mult * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25)) * fire_rate_mod
+    authored_fire_rate = fire_rate * weapon_fr_mult * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
+    control_fr = authored_fire_rate * fire_rate_mod
+    fr = fire_rate_lab.capped_fire_rate(
+        economy,
+        fire_rate_profile_id,
+        control_fr,
+        authored_fire_rate,
+    )
+    damage *= fire_rate_lab.shot_damage_compensation(
+        economy,
+        fire_rate_profile_id,
+        control_fr,
+        fr,
+    )
     affinity_mult = 1.10 if weapon.get("element", "physical") == char.get("element_focus", "") else 1.0
     pierce_throughput = 1.18 if char_id == "vanguard" else 1.0
     return damage * fr * skill_mult * affinity_mult * pierce_throughput
@@ -552,13 +579,20 @@ def main() -> int:
     challenges: dict = json.loads(CHALLENGES_PATH.read_text(encoding="utf-8"))
     runtime_benchmark: dict = json.loads(PHYSICAL_RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
     runtime_builds: dict = runtime_benchmark["best_same_loadout"]
-    max_reference_dps = character_dps.best_result("vanguard").total_dps
+    profile_id = str(args.fire_rate_profile)
+    if profile_id not in fire_rate_lab.profile_ids(economy):
+        available = ", ".join(fire_rate_lab.profile_ids(economy))
+        print(f"Unknown fire-rate profile '{profile_id}'. Available: {available}")
+        return 2
+    max_reference_dps = character_dps.best_result(
+        "vanguard", fire_rate_profile_id=profile_id).total_dps
     legacy_reference_dps = estimate_player_dps(
         "vanguard",
         "weapon_railgun",
         int(characters["vanguard"].get("max_level", 40)),
         int(weapons["weapon_railgun"].get("max_level", 50)),
         estimate_skill_mult(levels[-1]),
+        profile_id,
     )
     max_modern_dps_scale = max_reference_dps / max(legacy_reference_dps, 1.0)
     max_raw_autocannon_dps = estimate_player_dps(
@@ -567,11 +601,13 @@ def main() -> int:
         int(characters["vanguard"].get("max_level", 40)),
         int(weapons["weapon_autocannon"].get("max_level", 50)),
         1.0,
+        profile_id,
     )
     max_card_throughput = estimate_skill_mult(levels[-1])
 
     mode_name = "challenge" if args.challenge else "normal"
     print(f"Simulation mode: {mode_name}")
+    print(f"Fire-rate profile: {profile_id}")
     print(f"{'level':<11} {'ch':<3} {'recom':<5} {'coef':<6} {'cards':>5} {'spawn':>6} {'hp_total':>9} {'dps_ns':>6} {'dps_ws':>6} {'t_ns':>6} {'t_ws':>6} {'leak%':>6}  notes")
     print("-" * 110)
 
@@ -588,11 +624,11 @@ def main() -> int:
         char_level = min(recommended_level, int(characters["vanguard"].get("max_level", 40)))
         weapon_level = min(recommended_level, int(weapons["weapon_autocannon"].get("max_level", 50)))
         raw_progression_dps = estimate_player_dps(
-            "vanguard", "weapon_autocannon", char_level, weapon_level, 1.0)
+            "vanguard", "weapon_autocannon", char_level, weapon_level, 1.0, profile_id)
         dps_ns = raw_progression_dps
         skill_mult = estimate_skill_mult(lv)
         dps_ws = estimate_player_dps(
-            "vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult)
+            "vanguard", "weapon_autocannon", char_level, weapon_level, skill_mult, profile_id)
         # The original campaign estimator predates armor/chip/pet/signature
         # growth and active-skill DPS. Blend toward the current measured max
         # calibration with progression level instead of treating late builds

@@ -5,11 +5,13 @@ const BATTLE_SPEEDS := [1.0, 2.0, 5.0]
 const BATTLE_SPEED_VISIBLE_LEVEL := 30
 const BATTLE_SPEED_5X_LEVEL := 50
 const TESTFLIGHT_SPEED_FEATURE := "testflight_speed_unlocked"
+const TESTFLIGHT_FIRERATE_FEATURE := "testflight_firerate_lab"
 
 var settings := {
 	"language": _system_default_language(),
 	"quality": "standard",
 	"battle_speed": 1.0,
+	"fire_rate_profile": "control",
 	"audio_enabled": true,
 	"bgm_volume": 0.82,
 	"sfx_volume": 0.90,
@@ -155,6 +157,43 @@ func available_battle_speeds(progression_level: int) -> Array[float]:
 
 func is_testflight_speed_unlocked() -> bool:
 	return OS.has_feature(TESTFLIGHT_SPEED_FEATURE)
+
+func has_fire_rate_lab() -> bool:
+	return OS.has_feature(TESTFLIGHT_FIRERATE_FEATURE)
+
+func get_fire_rate_profile() -> String:
+	# Formal/release packages have no selector and are hard-locked to the
+	# bit-equivalent control profile even if a TestFlight settings file survives.
+	if not has_fire_rate_lab():
+		return "control"
+	var table: Dictionary = DataLoader.get_table("economy").get("fire_rate_profiles", {})
+	var order: Array = table.get("order", ["control"])
+	var stored := str(settings.get("fire_rate_profile", "control"))
+	return stored if order.has(stored) else "control"
+
+func cycle_fire_rate_profile() -> String:
+	if not has_fire_rate_lab():
+		return "control"
+	var table: Dictionary = DataLoader.get_table("economy").get("fire_rate_profiles", {})
+	var order: Array = table.get("order", ["control"])
+	if order.is_empty():
+		return "control"
+	var current := get_fire_rate_profile()
+	var index := order.find(current)
+	var next_id := str(order[(index + 1) % order.size()]) if index >= 0 else str(order[0])
+	settings["fire_rate_profile"] = next_id
+	save_settings()
+	return next_id
+
+func fire_rate_profile_label(profile_id := "") -> String:
+	var resolved := get_fire_rate_profile() if profile_id.is_empty() else profile_id
+	match resolved:
+		"tier_a":
+			return LocalizationManager.text("A档")
+		"tier_b":
+			return LocalizationManager.text("B档")
+		_:
+			return LocalizationManager.text("对照档")
 
 func apply_settings() -> void:
 	Engine.max_fps = 30 if get_quality() == "battery" else 60

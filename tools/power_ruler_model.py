@@ -19,6 +19,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import fire_rate_profiles as fire_rate_lab
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
@@ -131,7 +133,13 @@ def weapon_dps_multiplier(weapon: dict, weapon_level: int) -> float:
     return mult
 
 
-def active_skill_multiplier(character: dict, char_level: int, sig_level: int) -> float:
+def active_skill_multiplier(
+    character: dict,
+    char_level: int,
+    sig_level: int,
+    economy: dict | None = None,
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+) -> float:
     active = character.get("active_skill", {}) or {}
     if not active:
         return 1.0
@@ -140,7 +148,17 @@ def active_skill_multiplier(character: dict, char_level: int, sig_level: int) ->
     uptime = min(max(duration / cooldown, 0.0), 1.0)
     damage_mult = float(active.get("damage_mult", 1.0)) + float(active.get("sig_level_damage_bonus", 0.0)) * sig_level
     damage_mult *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.52 * max(char_level - 1, 0)
-    burst = damage_mult * float(active.get("barrage_fire_rate_mult", 1.0))
+    barrage_rate = float(active.get("barrage_fire_rate_mult", 1.0))
+    if economy is not None and fire_rate_profile_id != fire_rate_lab.DEFAULT_PROFILE_ID:
+        barrage_rate = fire_rate_lab.barrage_multiplier(
+            economy,
+            fire_rate_profile_id,
+            active,
+            char_level,
+            growth_rank(char_level),
+            sig_level,
+        )
+    burst = damage_mult * barrage_rate
     return 1.0 + uptime * max(burst - 1.0, 0.0)
 
 
@@ -235,7 +253,9 @@ def offense_stat_factor(stat: str, value: float) -> float:
 
 def offense_multiplier(character: dict, weapon: dict, char_level: int, weapon_level: int,
                        sig_level: int = 0, chip: dict | None = None, chip_level: int = 1,
-                       pet: dict | None = None, pet_level: int = 1) -> float:
+                       pet: dict | None = None, pet_level: int = 1,
+                       economy: dict | None = None,
+                       fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID) -> float:
     mult = char_atk_multiplier(character, char_level) * weapon_dps_multiplier(weapon, weapon_level)
     mult *= bullet_affinity_multiplier(character, weapon, char_level)
     if chip:
@@ -259,8 +279,111 @@ def offense_multiplier(character: dict, weapon: dict, char_level: int, weapon_le
             main_output = 40.0 * char_atk_multiplier(character, char_level) * weapon_dps_multiplier(weapon, weapon_level)
             mult *= 1.0 + pet_dps / max(main_output, 1.0)
         mult *= pet_skill_offense_multiplier(pet, pet_level)
-    mult *= active_skill_multiplier(character, char_level, sig_level)
+    mult *= active_skill_multiplier(
+        character,
+        char_level,
+        sig_level,
+        economy,
+        fire_rate_profile_id,
+    )
     return max(mult, 0.05)
+
+
+def _runtime_chip_value(chip: dict | None, chip_level: int, stat: str) -> float:
+    if not chip:
+        return 0.0
+    if str(chip.get("stat", "")) == stat:
+        value = float(chip.get("value", 0.0))
+        growth = float(chip.get("level_value_growth", 0.035))
+        return value * (1.0 + growth * max(chip_level - 1, 0))
+    secondary = chip.get("secondary_stats", {}) or {}
+    growth = chip.get("secondary_level_growth", {}) or {}
+    return float(secondary.get(stat, 0.0)) + float(growth.get(stat, 0.0)) * max(chip_level - 1, 0)
+
+
+def _runtime_pet_stat(pet: dict | None, pet_level: int, stat: str) -> float:
+    if not pet:
+        return 0.0
+    base = float((pet.get("stat_bonus", {}) or {}).get(stat, 0.0))
+    growth = float((pet.get("level_stat_growth", {}) or {}).get(stat, 0.0))
+    return base + growth * max(pet_level - 1, 0)
+
+
+def fire_rate_profile_throughput(
+    character: dict,
+    weapon: dict,
+    weapon_level: int,
+    chip: dict | None,
+    chip_level: int,
+    pet: dict | None,
+    pet_level: int,
+    projected_skills: dict[str, int],
+    skills: dict,
+    economy: dict,
+    profile_id: str,
+) -> dict[str, float]:
+    """Return runtime-equivalent cadence and 50% damage compensation.
+
+    ``control`` exits at exact identity so checked-in contracts retain their
+    pre-lab arithmetic.  Tier profiles replace only cadence sources and cap the
+    resulting rate against the levelled weapon's authored base.
+    """
+    if profile_id == fire_rate_lab.DEFAULT_PROFILE_ID:
+        return {
+            "control_rate": 1.0,
+            "actual_rate": 1.0,
+            "damage_compensation": 1.0,
+            "throughput": 1.0,
+            "status_normalization": 1.0,
+        }
+
+    authored_base = (
+        float(weapon.get("fire_rate", 4.0))
+        * (1.0 + 0.025 * max(weapon_level - 1, 0))
+        * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
+    )
+    character_mult = float(character.get("fire_rate_mod", 1.0))
+    chip_value = _runtime_chip_value(chip, chip_level, "fire_rate_mult")
+    pet_value = _runtime_pet_stat(pet, pet_level, "fire_rate_mult")
+    salvo_level = int(projected_skills.get("skill_salvo", 0))
+    control_salvo = 1.0
+    if salvo_level > 0:
+        levels = (skills.get("skill_salvo", {}) or {}).get("levels", [])
+        for entry in levels:
+            if int(entry.get("lv", 0)) <= salvo_level:
+                control_salvo = 1.0 + float((entry.get("effect", {}) or {}).get("fire_rate_mult", 0.0))
+
+    control_rate = (
+        authored_base
+        * character_mult
+        * (1.0 + chip_value)
+        * (1.0 + 0.01 * max(chip_level - 1, 0))
+        * (1.0 + pet_value)
+        * control_salvo
+    )
+    raw_rate = (
+        authored_base
+        * character_mult
+        * fire_rate_lab.chip_multiplier(economy, profile_id, chip_value, chip_level)
+        * fire_rate_lab.pet_multiplier(economy, profile_id, pet_value)
+        * fire_rate_lab.salvo_multiplier(economy, profile_id, salvo_level, control_salvo)
+    )
+    actual_rate = fire_rate_lab.capped_fire_rate(
+        economy, profile_id, raw_rate, authored_base
+    )
+    compensation = fire_rate_lab.shot_damage_compensation(
+        economy, profile_id, control_rate, actual_rate
+    )
+    throughput = actual_rate / max(control_rate, 0.000001) * compensation
+    return {
+        "control_rate": control_rate,
+        "actual_rate": actual_rate,
+        "damage_compensation": compensation,
+        "throughput": throughput,
+        "status_normalization": fire_rate_lab.per_shot_status_normalization(
+            control_rate, actual_rate
+        ),
+    }
 
 
 def pet_skill_offense_multiplier(pet: dict, pet_level: int) -> float:
@@ -877,6 +1000,11 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
     chip_level = int(build.get("chip_level", 1))
     pet_level = int(build.get("pet_level", 1))
     sig_level = int(build.get("signature_level", 0))
+    fire_rate_profile_id = str(
+        build.get("fire_rate_profile", fire_rate_lab.DEFAULT_PROFILE_ID)
+    )
+    if fire_rate_profile_id not in fire_rate_lab.profile_ids(economy):
+        fire_rate_profile_id = fire_rate_lab.DEFAULT_PROFILE_ID
     base_levels = dict(build.get("skill_base_levels", {}) or {})
     line_weights = contract.get("line_exposure_weights", {}) or {}
     mob_weight = max(float(line_weights.get("crowd", 1.0)), 0.0)
@@ -892,6 +1020,8 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         characters[character_id], weapons[weapon_id], character_level, weapon_level, sig_level,
         chip=chips.get(chip_id), chip_level=chip_level,
         pet=pets.get(pet_id), pet_level=pet_level,
+        economy=economy,
+        fire_rate_profile_id=fire_rate_profile_id,
     )
     survival = survival_multiplier(
         characters[character_id], character_level, weapons[weapon_id],
@@ -899,17 +1029,30 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         pets.get(pet_id), pet_level,
     )
     axes = skill_capacity_profile(projected, skills, economy, boss_share)
+    cadence = fire_rate_profile_throughput(
+        characters[character_id],
+        weapons[weapon_id],
+        weapon_level,
+        chips.get(chip_id),
+        chip_level,
+        pets.get(pet_id),
+        pet_level,
+        projected,
+        skills,
+        economy,
+        fire_rate_profile_id,
+    )
     element = effective_projectile_element(weapon_id, projected, skills, weapons)
     weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
     mob_element = weakness_mult if element == str(level.get("primary_weakness", "physical")) else 1.0
     crowd_capacity = (
-        offense * axes["crowd"] * mob_element
+        offense * axes["crowd"] * cadence["throughput"] * mob_element
         * weapon_axis_calibration(economy, weapon_id, "crowd")
     )
     boss_factor = weighted_boss_element_factor(
         dict(contract.get("boss_weights", {})), bosses, element, economy)
     boss_capacity = (
-        offense * axes["boss"] * boss_factor
+        offense * axes["boss"] * cadence["throughput"] * boss_factor
         * weapon_axis_calibration(economy, weapon_id, "boss")
     )
     line_capacity = survival * axes["line"]
@@ -948,6 +1091,8 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         },
         "line_raw_ratio": raw_line_ratio,
         "line_exposure_credit": exposure_credit,
+        "fire_rate_profile": fire_rate_profile_id,
+        "fire_rate": cadence,
     }
 
 
