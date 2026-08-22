@@ -4169,6 +4169,61 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	equipment["selected_character"] = "vanguard"
 	test_save["equipment"] = equipment
 	save_manager.save_data = test_save
+	var pre_floor_sequences := {
+		1103: [
+			["skill_ricochet", "skill_charge_shot", "skill_barrier"],
+			["skill_tesla", "skill_barrier", "skill_charge_shot"],
+			["skill_pierce", "skill_homing", "skill_multishot"],
+			["skill_salvo", "skill_charge_shot", "skill_multishot"],
+		],
+		2207: [
+			["skill_split_shot", "skill_pierce", "skill_barrier"],
+			["skill_critical", "skill_barrier", "skill_charge_shot"],
+			["skill_barrier", "skill_pierce", "skill_recycle"],
+			["skill_pierce", "skill_charge_shot", "skill_split_shot"],
+		],
+		3301: [
+			["skill_critical", "skill_ricochet", "skill_homing"],
+			["skill_homing", "skill_slow_field", "skill_barrier"],
+			["skill_venom", "skill_barrier", "skill_salvo"],
+			["skill_charge_shot", "skill_pierce", "skill_gold_rush"],
+		],
+	}
+	var non_floor_level: Dictionary = data_loader.get_row("levels", "level_050")
+	_expect(not non_floor_level.has("offer_category_floor"), "level 050 must remain outside the chapter 6 category-floor pilot")
+	for audit_seed_var in pre_floor_sequences.keys():
+		var audit_seed := int(audit_seed_var)
+		var sequence_director := CardDirector.new()
+		sequence_director.set_audit_seed(audit_seed)
+		var actual_sequence: Array = []
+		var sequence_owned: Dictionary = {}
+		for _offer_index in range(4):
+			var sequence_offer := sequence_director.offer(non_floor_level, sequence_owned, 3)
+			actual_sequence.append(sequence_offer.duplicate())
+			if not sequence_offer.is_empty():
+				var selected_id := str(sequence_offer[0])
+				sequence_owned[selected_id] = int(sequence_owned.get(selected_id, 0)) + 1
+		_expect(
+			actual_sequence == pre_floor_sequences[audit_seed_var],
+			"non-enabled card offers must stay byte-for-byte equivalent for audit seed %d" % audit_seed,
+		)
+	var floor_policy: Dictionary = data_loader.get_table("economy").get("probe_card_policy", {})
+	var synthetic_floor_level := non_floor_level.duplicate(true)
+	synthetic_floor_level["offer_category_floor"] = "crowd"
+	for audit_seed in [1103, 2207, 3301]:
+		var floor_director := CardDirector.new()
+		floor_director.set_audit_seed(audit_seed)
+		var floor_owned: Dictionary = {}
+		for _offer_index in range(4):
+			var floor_offer := floor_director.offer(synthetic_floor_level, floor_owned, 3)
+			var has_crowd := false
+			for skill_id in floor_offer:
+				var tags: Array = data_loader.get_row("skills", skill_id).get("card_tags", [])
+				has_crowd = has_crowd or floor_director._has_policy_category(tags, "crowd", floor_policy)
+			_expect(has_crowd, "category-floor offers must contain an eligible crowd card")
+			if not floor_offer.is_empty():
+				var selected_id := str(floor_offer[0])
+				floor_owned[selected_id] = int(floor_owned.get(selected_id, 0)) + 1
 	var opening_director := CardDirector.new()
 	var opening_level: Dictionary = data_loader.get_row("levels", "level_001")
 	var opening_offer := opening_director.offer(opening_level, {}, 3)

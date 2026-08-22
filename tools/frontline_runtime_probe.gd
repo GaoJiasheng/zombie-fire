@@ -51,6 +51,7 @@ var _profile_id := "control"
 var _card_policy_id := "v2"
 var _seed_override: Array[int] = []
 var _ignore_level_guarantees := false
+var _ignore_offer_category_floor := false
 var _results: Array[Dictionary] = []
 
 
@@ -130,6 +131,8 @@ func _parse_arguments() -> bool:
 					_seed_override.append(seed_value)
 		elif text == "--ignore-level-guarantees":
 			_ignore_level_guarantees = true
+		elif text == "--ignore-offer-category-floor":
+			_ignore_offer_category_floor = true
 	if _requested_levels.is_empty():
 		_fail("--levels must contain at least one positive level number")
 		return false
@@ -290,7 +293,7 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 
 
 func _install_level_override(data_loader: Node, level_id: String) -> Dictionary:
-	if not _ignore_level_guarantees:
+	if not _ignore_level_guarantees and not _ignore_offer_category_floor:
 		return {}
 	var rows: Array = data_loader.get_table("levels")
 	for index in range(rows.size()):
@@ -298,7 +301,10 @@ func _install_level_override(data_loader: Node, level_id: String) -> Dictionary:
 		if str(row.get("id", "")) != level_id:
 			continue
 		var override := row.duplicate(true)
-		override.erase("guaranteed_card_offers")
+		if _ignore_level_guarantees:
+			override.erase("guaranteed_card_offers")
+		if _ignore_offer_category_floor:
+			override.erase("offer_category_floor")
 		rows[index] = override
 		return {"index": index, "original": row}
 	return {}
@@ -581,6 +587,8 @@ func _write_output() -> bool:
 		"levels": _requested_levels,
 		"profile": _profile_id,
 		"card_policy": _card_policy_id,
+		"ignore_level_guarantees": _ignore_level_guarantees,
+		"ignore_offer_category_floor": _ignore_offer_category_floor,
 		"seeds_per_level": _seed_override.size() if not _seed_override.is_empty() else 3,
 		"simulation_step_seconds": 1.0 / float(BASE_PHYSICS_TICKS),
 		"wall_acceleration": WALL_ACCELERATION,

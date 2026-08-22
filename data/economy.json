@@ -546,17 +546,41 @@
 		"version": "v2",
 		"boss_hp_share_threshold": 0.5,
 		"boss_share_source": "level.clear_requirement.boss_hp_share",
-		"element_tags": ["physical", "fire", "ice", "lightning", "poison"],
+		"element_tags": [
+			"physical",
+			"fire",
+			"ice",
+			"lightning",
+			"poison"
+		],
 		"category_tags": {
-			"crowd": ["anti_swarm", "chain"],
-			"single_target": ["anti_armor", "pierce", "execute", "dps"],
-			"control": ["control"],
-			"defense": ["defense"],
-			"economy": ["economy"]
+			"crowd": [
+				"anti_swarm",
+				"chain"
+			],
+			"single_target": [
+				"anti_armor",
+				"pierce",
+				"execute",
+				"dps"
+			],
+			"control": [
+				"control"
+			],
+			"defense": [
+				"defense"
+			],
+			"economy": [
+				"economy"
+			]
 		},
 		"category_exclusions": {
-			"crowd": ["defense"],
-			"single_target": ["economy"]
+			"crowd": [
+				"defense"
+			],
+			"single_target": [
+				"economy"
+			]
 		},
 		"mob_priority": [
 			"owned_crowd_upgrade",

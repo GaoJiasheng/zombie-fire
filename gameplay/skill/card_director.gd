@@ -70,7 +70,145 @@ func offer(level: Dictionary, owned: Dictionary, count := 3) -> Array[String]:
 	_apply_opening_shape(result, eligible, skills, economy_rules, level)
 	_apply_pity(result, eligible, skills, economy_rules)
 	_apply_level_guarantee(result, eligible, skills, level)
+	_apply_offer_category_floor(result, eligible, skills, economy, level, owned)
 	return result
+
+
+# Chapter pilots may guarantee that every offer contains one card from a broad
+# pressure category without promising a specific skill.  The branch is a hard
+# no-op when the level omits offer_category_floor: it performs no extra random
+# draw and therefore preserves the exact offer stream for all existing stages.
+func _apply_offer_category_floor(
+	result: Array[String],
+	eligible: Array[String],
+	skills: Dictionary,
+	economy: Dictionary,
+	level: Dictionary,
+	owned: Dictionary
+) -> void:
+	var category := str(level.get("offer_category_floor", "")).strip_edges()
+	if category == "" or result.is_empty():
+		return
+	var policy: Dictionary = economy.get("probe_card_policy", {})
+	if policy.is_empty():
+		return
+	for skill_id in result:
+		if _has_policy_category(skills.get(skill_id, {}).get("card_tags", []), category, policy):
+			return
+	var replacement_pool: Array[String] = []
+	for skill_id in eligible:
+		if result.has(skill_id):
+			continue
+		var tags: Array = skills.get(skill_id, {}).get("card_tags", [])
+		if _has_policy_category(tags, category, policy):
+			replacement_pool.append(skill_id)
+	if replacement_pool.is_empty():
+		return
+	var replace_index := _lowest_policy_priority_index(result, skills, policy, level, owned)
+	result[replace_index] = str(_pick_random(replacement_pool))
+
+
+func _lowest_policy_priority_index(
+	result: Array[String],
+	skills: Dictionary,
+	policy: Dictionary,
+	level: Dictionary,
+	owned: Dictionary
+) -> int:
+	var boss_share := float(level.get("clear_requirement", {}).get("boss_hp_share", 0.0))
+	var boss_dominant := boss_share >= float(policy.get("boss_hp_share_threshold", 0.5))
+	var priorities: Array = policy.get("boss_priority", []) if boss_dominant else policy.get("mob_priority", [])
+	var weapon_element := _selected_weapon_element()
+	var worst_index := result.size() - 1
+	var worst_rank := -1
+	for index in range(result.size()):
+		var skill_id := result[index]
+		var tags: Array = skills.get(skill_id, {}).get("card_tags", [])
+		var reason := _policy_reason(
+			tags,
+			int(owned.get(skill_id, 0)) > 0,
+			boss_dominant,
+			weapon_element,
+			policy
+		)
+		var rank := priorities.find(reason)
+		if rank < 0:
+			rank = priorities.find("remaining")
+		if rank < 0:
+			rank = priorities.size()
+		# On ties replace the later card, preserving the earlier offer ordering.
+		if rank >= worst_rank:
+			worst_rank = rank
+			worst_index = index
+	return worst_index
+
+
+func _policy_reason(
+	tags: Array,
+	owned: bool,
+	boss_dominant: bool,
+	weapon_element: String,
+	policy: Dictionary
+) -> String:
+	if _has_policy_category(tags, "economy", policy):
+		return "economy"
+	var crowd := _has_policy_category(tags, "crowd", policy)
+	var single_target := _has_policy_category(tags, "single_target", policy)
+	if boss_dominant:
+		if owned and single_target:
+			return "owned_single_target_upgrade"
+		if not owned and single_target:
+			return "new_single_target"
+		if crowd:
+			return "crowd"
+		if _has_policy_category(tags, "control", policy):
+			return "control"
+		if _has_policy_category(tags, "defense", policy):
+			return "defense"
+		return "remaining"
+	if owned and crowd:
+		return "owned_crowd_upgrade"
+	if not owned and crowd and _card_matches_weapon_element(tags, weapon_element, policy):
+		return "new_matching_element_crowd"
+	if _has_policy_category(tags, "control", policy):
+		return "control"
+	if _has_policy_category(tags, "defense", policy):
+		return "defense"
+	return "remaining"
+
+
+func _has_policy_category(tags: Array, category: String, policy: Dictionary) -> bool:
+	var category_tags: Array = policy.get("category_tags", {}).get(category, [])
+	var exclusion_tags: Array = policy.get("category_exclusions", {}).get(category, [])
+	for tag_var in exclusion_tags:
+		if tags.has(str(tag_var)):
+			return false
+	for tag_var in category_tags:
+		if tags.has(str(tag_var)):
+			return true
+	return false
+
+
+func _card_matches_weapon_element(tags: Array, weapon_element: String, policy: Dictionary) -> bool:
+	var element_tags: Array = policy.get("element_tags", [])
+	var has_element_tag := false
+	for tag_var in element_tags:
+		var tag := str(tag_var)
+		if not tags.has(tag):
+			continue
+		has_element_tag = true
+		if tag == weapon_element:
+			return true
+	return not has_element_tag and bool(policy.get("neutral_cards_match_weapon_element", true))
+
+
+func _selected_weapon_element() -> String:
+	var save_manager = _save_manager()
+	var data_loader = _data_loader()
+	if save_manager == null or data_loader == null:
+		return "physical"
+	var weapon_id := str(save_manager.get_selected("weapon"))
+	return str(data_loader.get_row("weapons", weapon_id).get("element", "physical"))
 
 # A level may promise one exact family of cards on a specific offer. This is
 # deliberately data-driven and only guarantees visibility, not an automatic

@@ -599,12 +599,27 @@ def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict
     return min(candidates)[1] if candidates else ""
 
 
+def _skill_in_offer_category(row: dict, category: str, economy: dict) -> bool:
+    if not category:
+        return False
+    policy = economy.get("probe_card_policy", {}) or {}
+    tags = set(str(tag) for tag in row.get("card_tags", []))
+    category_tags = set(str(tag) for tag in (
+        (policy.get("category_tags", {}) or {}).get(category, [])
+    ))
+    exclusion_tags = set(str(tag) for tag in (
+        (policy.get("category_exclusions", {}) or {}).get(category, [])
+    ))
+    return bool(tags & category_tags) and not bool(tags & exclusion_tags)
+
+
 def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
                            base_skill_levels: dict[str, int], skills: dict,
                            weapons: dict,
                            guaranteed_skill_ids: list[str] | None = None,
                            economy: dict | None = None,
-                           boss_share: float = 0.0) -> dict[str, int]:
+                           boss_share: float = 0.0,
+                           offer_category_floor: str = "") -> dict[str, int]:
     projected: dict[str, int] = {}
     weapon_element = str(weapons[weapon_id].get("element", "physical"))
     if weapon_element not in ("", "physical"):
@@ -648,9 +663,7 @@ def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
     # This is a conservative expectation, not an optimal draft or synergy plan.
     for _ in range(max(card_picks - consumed_picks, 0)):
         current_score = _projection_score(projected, skills)
-        weakest_score = float("inf")
-        weakest_id = ""
-        weakest_levels: dict[str, int] | None = None
+        candidates: list[tuple[float, str, dict[str, int], bool]] = []
         for skill_id in sorted(skills):
             row = skills[skill_id]
             group = str(row.get("exclusive_group", ""))
@@ -680,19 +693,20 @@ def projected_skill_levels(card_picks: int, weakness: str, weapon_id: str,
             selection_score = candidate_score
             if str(row.get("ammo_element", "")) == weakness:
                 selection_score += 0.015
-            if (
-                selection_score < weakest_score - 0.000001
-                or (
-                    abs(selection_score - weakest_score) <= 0.000001
-                    and (not weakest_id or skill_id < weakest_id)
-                )
-            ):
-                weakest_score = selection_score
-                weakest_id = skill_id
-                weakest_levels = candidate
-        if weakest_levels is None:
+            candidates.append((
+                selection_score,
+                skill_id,
+                candidate,
+                _skill_in_offer_category(
+                    row, offer_category_floor, economy or {}),
+            ))
+        if offer_category_floor and any(item[3] for item in candidates):
+            candidates = [item for item in candidates if item[3]]
+        if not candidates:
             break
-        projected = weakest_levels
+        # The category-floor promise is valued conservatively: among compatible
+        # cards in the promised pool, count the weakest positive upgrade.
+        projected = min(candidates, key=lambda item: (item[0], item[1]))[2]
     return projected
 
 
@@ -904,7 +918,8 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     normalized_boss_share = boss_share / share_total
     projected = projected_skill_levels(
         card_picks, weakness, "weapon_autocannon", base_levels, skills, weapons,
-        guarantees, economy, normalized_boss_share)
+        guarantees, economy, normalized_boss_share,
+        str(level.get("offer_category_floor", "")))
     axes = skill_capacity_profile(projected, skills, economy, normalized_boss_share)
     element = effective_projectile_element("weapon_autocannon", projected, skills, weapons)
     weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
@@ -974,6 +989,7 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
         "boss_weights": {key: round(value, 6) for key, value in boss_weights.items()},
         "runtime_boss_pressure_mult": round(omitted_boss_mult, 6),
         "guaranteed_skill_ids": guarantees,
+        "offer_category_floor": str(level.get("offer_category_floor", "")),
         "reference_skill_rank": campaign_skill_rank(level),
     }
     # The corridor remains a progression sanity rail.  Individual Owner
@@ -1015,6 +1031,7 @@ def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
         str(level.get("primary_weakness", "physical")),
         weapon_id, base_levels, skills, weapons,
         list(contract.get("guaranteed_skill_ids", [])), economy, boss_share,
+        str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
     )
     offense = offense_multiplier(
         characters[character_id], weapons[weapon_id], character_level, weapon_level, sig_level,

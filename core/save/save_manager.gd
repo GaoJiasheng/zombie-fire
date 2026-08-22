@@ -793,6 +793,7 @@ func get_power_for_level(level_id: String) -> int:
 		save_data.get("skill_base_levels", {}),
 		guaranteed,
 		boss_share,
+		str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
 	)
 	var axes := _power_skill_capacity_profile(projected, boss_share)
 	var offense := _loadout_offense_multiplier()
@@ -1193,6 +1194,7 @@ func _projected_run_skill_levels_for_profile(
 	base_skill_levels: Dictionary,
 	guaranteed_skill_ids: Array = [],
 	boss_share := 0.0,
+	offer_category_floor := "",
 ) -> Dictionary:
 	var projected: Dictionary = {}
 	var skills_table: Dictionary = DataLoader.get_table("skills")
@@ -1239,9 +1241,7 @@ func _projected_run_skill_levels_for_profile(
 	# 这是保守期望，不假设最优选卡、组合或协同。
 	for _pick in range(maxi(card_picks - consumed_picks, 0)):
 		var current_score := _power_projection_score(projected)
-		var weakest_score := INF
-		var weakest_id := ""
-		var weakest_levels: Dictionary = {}
+		var candidates: Array[Dictionary] = []
 		var ids := skills_table.keys()
 		ids.sort()
 		for id_var in ids:
@@ -1264,17 +1264,49 @@ func _projected_run_skill_levels_for_profile(
 			var selection_score := candidate_score
 			if str(row.get("ammo_element", "")) == weakness:
 				selection_score += 0.015
-			if selection_score < weakest_score - 0.000001 or (
-				is_equal_approx(selection_score, weakest_score)
-				and (weakest_id == "" or skill_id < weakest_id)
-			):
-				weakest_score = selection_score
-				weakest_id = skill_id
-				weakest_levels = candidate
-		if weakest_id == "":
+			candidates.append({
+				"score": selection_score,
+				"skill_id": skill_id,
+				"levels": candidate,
+				"in_floor": _power_skill_in_offer_category(row, str(offer_category_floor)),
+			})
+		var floor_candidates: Array[Dictionary] = []
+		if str(offer_category_floor) != "":
+			for item in candidates:
+				if bool(item.get("in_floor", false)):
+					floor_candidates.append(item)
+		var selection_pool := floor_candidates if not floor_candidates.is_empty() else candidates
+		if selection_pool.is_empty():
 			break
-		projected = weakest_levels
+		selection_pool.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var a_score := float(a.get("score", INF))
+			var b_score := float(b.get("score", INF))
+			if not is_equal_approx(a_score, b_score):
+				return a_score < b_score
+			return str(a.get("skill_id", "")) < str(b.get("skill_id", ""))
+		)
+		projected = selection_pool[0].get("levels", {})
 	return projected
+
+
+func _power_skill_in_offer_category(row: Dictionary, category: String) -> bool:
+	if category == "":
+		return false
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var policy_var: Variant = economy.get("probe_card_policy", {})
+	var policy: Dictionary = policy_var if policy_var is Dictionary else {}
+	var category_tags_var: Variant = policy.get("category_tags", {})
+	var category_tags: Dictionary = category_tags_var if category_tags_var is Dictionary else {}
+	var exclusions_var: Variant = policy.get("category_exclusions", {})
+	var exclusions: Dictionary = exclusions_var if exclusions_var is Dictionary else {}
+	var tags: Array = row.get("card_tags", [])
+	for exclusion_var in exclusions.get(category, []):
+		if tags.has(str(exclusion_var)):
+			return false
+	for tag_var in category_tags.get(category, []):
+		if tags.has(str(tag_var)):
+			return true
+	return false
 
 func _power_projection_score(levels: Dictionary) -> float:
 	var axes := _power_skill_capacity_profile(levels)
@@ -1650,6 +1682,7 @@ func _power_internal_breakdown_for_level(level_id: String) -> Dictionary:
 		save_data.get("skill_base_levels", {}),
 		guarantees,
 		boss_share,
+		str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
 	)
 	var axes := _power_skill_capacity_profile(projected, boss_share)
 	var offense := _loadout_offense_multiplier()
