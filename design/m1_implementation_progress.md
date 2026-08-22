@@ -4533,3 +4533,19 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **One fixture drives all three views**: the comparison tool reuses the resource-constrained campaign progression fixture and the shared power model; no second build-growth policy was introduced.
 - **The decision packet is explicit**: the report includes full crowd/Boss DPS curves, analytical grade distributions and side-by-side Stage 055 / 075 / 095 checkpoints. RC rejects stale A/B outputs.
 - **A failed experiment remains visible**: Tier A projects Stage 099 at roughly `486.9s`, beyond the existing `460s` cap. The report preserves that result for B1 rather than weakening the formal gate or changing campaign data.
+
+## Campaign Rebuild v2 · B1 Category-Floor Stop Audit (2026-08-22)
+
+- **The deal-floor mechanism is ready but inert without data**: `offer_category_floor` guarantees that an
+  authored pressure category is represented by replacing the current offer's lowest-priority card. It reuses
+  the probe policy's category tags and adds no RNG call to stages without the field.
+- **Power uses the same conservative premise**: runtime and Python projection both count the weakest compatible
+  card from the guaranteed category, preventing the UI contract from assuming an optimal draw.
+- **Card variance is no longer the active blocker**: Tier-B Stage-051 diagnostics receive a crowd option in the
+  first offer, receive the first choice in wave 1 and have at least three choices before the final wave.
+- **The remaining conflict is structural**: a whole-stage durability scalar raises wave 1 before later waves
+  reach the Light band. Reducing it restores the approved opening but leaves the stage below target; extra count
+  at the approved interval floor extends cleanup without reliably moving the frontline.
+- **Stop discipline preserved the release baseline**: all diagnostic level edits and temporary files were
+  removed. Stages 052–060, derived power contracts and TestFlight were not attempted. B1 remains blocked pending
+  authorization for a per-wave threat/durability profile or a revised enemy composition/topology.
