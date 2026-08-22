@@ -3,8 +3,9 @@ extends SceneTree
 ## Deterministic, headless campaign-frontline calibration probe.
 ##
 ## The probe consumes the single progression-fixture export produced by
-## audit_campaign_frontline.py, stages the real Battle scene, selects the first
-## card offered by the live CardDirector, auto-casts the real signature skill,
+## audit_campaign_frontline.py, stages the real Battle scene, applies the
+## deterministic player policy stored in economy.probe_card_policy, auto-casts
+## the real signature skill,
 ## and records the deepest enemy advance, base health, outcome and elapsed
 ## one-speed battle time. It never persists the synthetic save.
 
@@ -46,6 +47,10 @@ var _snapshot: Dictionary
 var _rows_by_level: Dictionary = {}
 var _requested_levels: Array[int] = []
 var _output_path := DEFAULT_OUTPUT_PATH
+var _profile_id := "control"
+var _card_policy_id := "v2"
+var _seed_override: Array[int] = []
+var _ignore_level_guarantees := false
 var _results: Array[Dictionary] = []
 
 
@@ -73,18 +78,21 @@ func _initialize() -> void:
 		if fixture_row.is_empty():
 			_fail("fixture export is missing level %03d" % level_number)
 			continue
-		for seed_value in fixture_row.get("card_seeds", []):
+		var run_seeds: Array = _seed_override if not _seed_override.is_empty() else fixture_row.get("card_seeds", [])
+		for seed_value in run_seeds:
 			var run := await _run_level(save_manager, fixture_row, int(seed_value))
 			_results.append(run)
 			print(
-				"FRONTLINE_RUNTIME level=%03d seed=%d progress=%.4f base=%.4f victory=%s elapsed=%.2f cards=%s"
+				"FRONTLINE_RUNTIME profile=%s level=%03d seed=%d progress=%.4f base=%.4f victory=%s elapsed=%.2f boss=%.2f cards=%s"
 				% [
+					_profile_id,
 					level_number,
 					int(seed_value),
 					float(run.get("max_progress", 0.0)),
 					float(run.get("base_ratio", 0.0)),
 					str(run.get("victory", false)),
 					float(run.get("elapsed_seconds", 0.0)),
+					float(run.get("boss_phase_seconds", 0.0)),
 					str(run.get("selected_skills", [])),
 				]
 			)
@@ -110,8 +118,26 @@ func _parse_arguments() -> bool:
 					_requested_levels.append(number)
 		elif text.begins_with("--output="):
 			_output_path = text.trim_prefix("--output=")
+		elif text.begins_with("--profile="):
+			_profile_id = text.trim_prefix("--profile=").strip_edges()
+		elif text.begins_with("--card-policy="):
+			_card_policy_id = text.trim_prefix("--card-policy=").strip_edges()
+		elif text.begins_with("--seeds="):
+			_seed_override.clear()
+			for token in text.trim_prefix("--seeds=").split(",", false):
+				var seed_value := int(token)
+				if seed_value > 0 and not _seed_override.has(seed_value):
+					_seed_override.append(seed_value)
+		elif text == "--ignore-level-guarantees":
+			_ignore_level_guarantees = true
 	if _requested_levels.is_empty():
 		_fail("--levels must contain at least one positive level number")
+		return false
+	if not ["control", "tier_a", "tier_b"].has(_profile_id):
+		_fail("--profile must be control, tier_a or tier_b")
+		return false
+	if not ["v2", "legacy"].has(_card_policy_id):
+		_fail("--card-policy must be v2 or legacy")
 		return false
 	_requested_levels.sort()
 	return true
@@ -135,6 +161,7 @@ func _load_fixture_export() -> bool:
 func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) -> Dictionary:
 	var build: Dictionary = fixture_row.get("build", {})
 	save_manager.save_data = _save_for_build(save_manager, fixture_row)
+	var data_loader := root.get_node("/root/DataLoader")
 	var router := ProbeRouter.new()
 	root.add_child(router)
 	var seed_driver := CombatSeedDriver.new()
@@ -147,14 +174,20 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		seed_driver.queue_free()
 		return _error_result(fixture_row, seed_value, "battle scene load failed")
 	var battle := packed.instantiate()
+	var level_override_state := _install_level_override(
+		data_loader,
+		str(fixture_row.get("level_id", ""))
+	)
 	# Freeze the battle before it enters the tree so startup frames cannot consume
 	# combat RNG or advance the wave before the deterministic audit setup is done.
 	battle.set_physics_process(false)
 	battle.setup(router, {"level_id": str(fixture_row.get("level_id", ""))})
 	root.add_child(battle)
 	await process_frame
+	_restore_level_override(data_loader, level_override_state)
 	if battle.card_director != null:
 		battle.card_director.set_audit_seed(seed_value)
+	battle._set_fire_rate_profile(_profile_id)
 	# Run this script with Godot's `--fixed-fps 60` switch. That mode advances
 	# process and physics time in lockstep without wall-clock synchronization, so
 	# it is both faster than real time and exactly the 1/60 control simulation.
@@ -166,16 +199,45 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 
 	var max_progress := 0.0
 	var selected_skills: Array[String] = []
+	var card_timeline: Array[Dictionary] = []
+	var wave_timeline: Array[Dictionary] = []
 	var logical_seconds := 0.0
 	var timeout := false
+	var boss_phase_start := -1.0
+	var boss_phase_last_seen := -1.0
+	var max_living_bosses := 0
+	var tracked_wave := int(battle.wave_index)
+	var wave_max_progress := 0.0
 	while is_instance_valid(battle) and not battle.battle_finished:
 		await physics_frame
 		logical_seconds += 1.0 / float(BASE_PHYSICS_TICKS)
-		max_progress = maxf(max_progress, _deepest_progress(battle))
+		var current_progress := _deepest_progress(battle)
+		max_progress = maxf(max_progress, current_progress)
+		wave_max_progress = maxf(wave_max_progress, current_progress)
+		if int(battle.wave_index) != tracked_wave:
+			wave_timeline.append(
+				_wave_snapshot(battle, tracked_wave, logical_seconds, wave_max_progress)
+			)
+			tracked_wave = int(battle.wave_index)
+			wave_max_progress = current_progress
+		var boss_state := _boss_combat_state(battle)
+		var living_bosses := int(boss_state.get("living", 0))
+		max_living_bosses = maxi(max_living_bosses, living_bosses)
+		# Boss phase means the actual combat window, not the approach from its
+		# spawn point.  Starting at first damage keeps this metric comparable
+		# across lanes and support formations.
+		if bool(boss_state.get("engaged", false)):
+			if boss_phase_start < 0.0:
+				boss_phase_start = logical_seconds
+			boss_phase_last_seen = logical_seconds
 		if battle.card_offer_active:
-			var selected := _select_first_live_offer(battle)
+			var choice := _select_live_offer(battle)
+			var selected := str(choice.get("selected", ""))
 			if selected != "":
 				selected_skills.append(selected)
+				choice["time"] = logical_seconds
+				choice["wave"] = int(battle.wave_index)
+				card_timeline.append(choice)
 		if (
 			float(battle.character_active_cd) <= 0.0
 			and battle.get_node("EnemyLayer").get_child_count() > 0
@@ -187,6 +249,10 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 			break
 
 	max_progress = maxf(max_progress, _deepest_progress(battle))
+	if tracked_wave >= 0:
+		wave_timeline.append(
+			_wave_snapshot(battle, tracked_wave, logical_seconds, wave_max_progress)
+		)
 	var base_ratio := clampf(
 		float(battle.base_hp) / maxf(float(battle.base_hp_max), 1.0),
 		0.0,
@@ -203,8 +269,13 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		"base_ratio": base_ratio,
 		"victory": victory,
 		"elapsed_seconds": elapsed,
+		"boss_phase_seconds": maxf(boss_phase_last_seen - boss_phase_start, 0.0) if boss_phase_start >= 0.0 else 0.0,
+		"max_living_bosses": max_living_bosses,
 		"timeout": timeout,
+		"card_policy": _card_policy_id,
 		"selected_skills": selected_skills,
+		"card_timeline": card_timeline,
+		"wave_timeline": wave_timeline,
 		"final_skill_levels": battle.skills.owned.duplicate(true),
 		"battle_report": router.result.get("battle_report", {}).duplicate(true),
 	}
@@ -216,6 +287,30 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 	for _frame in range(SETTLE_FRAMES):
 		await process_frame
 	return result
+
+
+func _install_level_override(data_loader: Node, level_id: String) -> Dictionary:
+	if not _ignore_level_guarantees:
+		return {}
+	var rows: Array = data_loader.get_table("levels")
+	for index in range(rows.size()):
+		var row := rows[index] as Dictionary
+		if str(row.get("id", "")) != level_id:
+			continue
+		var override := row.duplicate(true)
+		override.erase("guaranteed_card_offers")
+		rows[index] = override
+		return {"index": index, "original": row}
+	return {}
+
+
+func _restore_level_override(data_loader: Node, state: Dictionary) -> void:
+	if state.is_empty():
+		return
+	var rows: Array = data_loader.get_table("levels")
+	var index := int(state.get("index", -1))
+	if index >= 0 and index < rows.size():
+		rows[index] = state.get("original", {})
 
 
 func _save_for_build(save_manager: Node, fixture_row: Dictionary) -> Dictionary:
@@ -260,17 +355,184 @@ func _save_for_build(save_manager: Node, fixture_row: Dictionary) -> Dictionary:
 	return data
 
 
-func _select_first_live_offer(battle: Node) -> String:
+func _select_live_offer(battle: Node) -> Dictionary:
 	var cards := battle.get_node_or_null("Hud/CardPanel/Cards")
 	if cards == null:
-		return ""
+		return {}
+	var candidates: Array[String] = []
 	for child in cards.get_children():
-		var skill_id := str(child.get_meta("skill_id", ""))
-		if skill_id != "":
-			battle._choose_card(skill_id)
-			return skill_id
-	battle._on_skip_card()
-	return ""
+		var candidate_id := str(child.get_meta("skill_id", ""))
+		if candidate_id != "":
+			candidates.append(candidate_id)
+	if candidates.is_empty():
+		battle._on_skip_card()
+		return {}
+	if _card_policy_id == "legacy":
+		return _select_legacy_offer(battle, candidates)
+	return _select_policy_offer(battle, candidates)
+
+
+func _select_legacy_offer(battle: Node, candidates: Array[String]) -> Dictionary:
+	var guaranteed_ids: Array[String] = []
+	for rule_var in battle.level.get("guaranteed_card_offers", []):
+		if not rule_var is Dictionary:
+			continue
+		var rule := rule_var as Dictionary
+		if int(rule.get("offer", -1)) != int(battle.card_director._offer_index):
+			continue
+		for skill_id_var in rule.get("skill_ids", []):
+			guaranteed_ids.append(str(skill_id_var))
+	for guaranteed_id in candidates:
+		if guaranteed_ids.has(guaranteed_id):
+			battle._choose_card(guaranteed_id)
+			return {
+				"selected": guaranteed_id,
+				"candidates": candidates,
+				"reason": "legacy_guarantee",
+				"offer": int(battle.card_director._offer_index),
+			}
+	var selected := candidates[0]
+	battle._choose_card(selected)
+	return {
+		"selected": selected,
+		"candidates": candidates,
+		"reason": "legacy_first",
+		"offer": int(battle.card_director._offer_index),
+	}
+
+
+func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary:
+	var data_loader := root.get_node("/root/DataLoader")
+	var economy: Dictionary = data_loader.get_table("economy")
+	var policy: Dictionary = economy.get("probe_card_policy", {})
+	if policy.is_empty():
+		_fail("economy.probe_card_policy is missing")
+		return _select_legacy_offer(battle, candidates)
+	var clear_requirement: Dictionary = battle.level.get("clear_requirement", {})
+	var boss_share := float(clear_requirement.get("boss_hp_share", 0.0))
+	var boss_dominant := boss_share >= float(policy.get("boss_hp_share_threshold", 0.5))
+	var priorities: Array = (
+		policy.get("boss_priority", []) if boss_dominant else policy.get("mob_priority", [])
+	)
+	var weapon_row: Dictionary = data_loader.get_row("weapons", str(battle.weapon_id))
+	var weapon_element := str(weapon_row.get("element", "physical"))
+	var best_index := 0
+	var best_rank := 1000000
+	var best_reason := "remaining"
+	for index in range(candidates.size()):
+		var skill_id := candidates[index]
+		var skill_row: Dictionary = data_loader.get_row("skills", skill_id)
+		var tags: Array = skill_row.get("card_tags", [])
+		var owned := int(battle.skills.level(skill_id)) > 0
+		var reason := _policy_reason(
+			tags,
+			owned,
+			boss_dominant,
+			weapon_element,
+			policy
+		)
+		var rank := priorities.find(reason)
+		if rank < 0:
+			rank = priorities.find("remaining")
+		if rank < 0:
+			rank = priorities.size()
+		if rank < best_rank:
+			best_index = index
+			best_rank = rank
+			best_reason = reason
+	var selected := candidates[best_index]
+	battle._choose_card(selected)
+	return {
+		"selected": selected,
+		"candidates": candidates,
+		"reason": best_reason,
+		"rank": best_rank,
+		"mode": "boss" if boss_dominant else "mob",
+		"boss_hp_share": boss_share,
+		"weapon_element": weapon_element,
+		"offer": int(battle.card_director._offer_index),
+	}
+
+
+func _policy_reason(
+	tags: Array,
+	owned: bool,
+	boss_dominant: bool,
+	weapon_element: String,
+	policy: Dictionary
+) -> String:
+	if _has_policy_category(tags, "economy", policy):
+		return "economy"
+	var crowd := _has_policy_category(tags, "crowd", policy)
+	var single_target := _has_policy_category(tags, "single_target", policy)
+	if boss_dominant:
+		if owned and single_target:
+			return "owned_single_target_upgrade"
+		if not owned and single_target:
+			return "new_single_target"
+		if crowd:
+			return "crowd"
+		if _has_policy_category(tags, "control", policy):
+			return "control"
+		if _has_policy_category(tags, "defense", policy):
+			return "defense"
+		return "remaining"
+	if owned and crowd:
+		return "owned_crowd_upgrade"
+	if not owned and crowd and _card_matches_weapon_element(tags, weapon_element, policy):
+		return "new_matching_element_crowd"
+	if _has_policy_category(tags, "control", policy):
+		return "control"
+	if _has_policy_category(tags, "defense", policy):
+		return "defense"
+	return "remaining"
+
+
+func _has_policy_category(tags: Array, category: String, policy: Dictionary) -> bool:
+	var category_tags: Array = policy.get("category_tags", {}).get(category, [])
+	var exclusion_tags: Array = policy.get("category_exclusions", {}).get(category, [])
+	for tag_var in exclusion_tags:
+		if tags.has(str(tag_var)):
+			return false
+	for tag_var in category_tags:
+		if tags.has(str(tag_var)):
+			return true
+	return false
+
+
+func _card_matches_weapon_element(
+	tags: Array,
+	weapon_element: String,
+	policy: Dictionary
+) -> bool:
+	var element_tags: Array = policy.get("element_tags", [])
+	var has_element_tag := false
+	for tag_var in element_tags:
+		var tag := str(tag_var)
+		if not tags.has(tag):
+			continue
+		has_element_tag = true
+		if tag == weapon_element:
+			return true
+	return not has_element_tag and bool(policy.get("neutral_cards_match_weapon_element", true))
+
+
+func _wave_snapshot(
+	battle: Node,
+	wave_index: int,
+	time_seconds: float,
+	progress: float
+) -> Dictionary:
+	return {
+		"wave": wave_index,
+		"end_time": time_seconds,
+		"max_progress": progress,
+		"base_ratio": clampf(
+			float(battle.base_hp) / maxf(float(battle.base_hp_max), 1.0),
+			0.0,
+			1.0
+		),
+	}
 
 
 func _deepest_progress(battle: Node) -> float:
@@ -288,12 +550,38 @@ func _deepest_progress(battle: Node) -> float:
 	return deepest
 
 
+func _boss_combat_state(battle: Node) -> Dictionary:
+	var enemy_layer := battle.get_node_or_null("EnemyLayer")
+	if enemy_layer == null:
+		return {"living": 0, "engaged": false}
+	var count := 0
+	var engaged := false
+	for enemy in enemy_layer.get_children():
+		if (
+			enemy is Node
+			and is_instance_valid(enemy)
+			and not enemy.is_queued_for_deletion()
+			and bool(enemy.get("boss"))
+			and float(enemy.get("hp")) > 0.0
+		):
+			count += 1
+			var hp_damaged := float(enemy.get("hp")) < float(enemy.get("max_hp")) - 0.001
+			var armor_damaged := (
+				float(enemy.get("armor_hp_max")) > 0.0
+				and float(enemy.get("armor_hp")) < float(enemy.get("armor_hp_max")) - 0.001
+			)
+			engaged = engaged or hp_damaged or armor_damaged
+	return {"living": count, "engaged": engaged}
+
+
 func _write_output() -> bool:
 	var payload := {
 		"schema_version": 1,
 		"fixture_source": BUILD_EXPORT_PATH.trim_prefix("res://"),
 		"levels": _requested_levels,
-		"seeds_per_level": 3,
+		"profile": _profile_id,
+		"card_policy": _card_policy_id,
+		"seeds_per_level": _seed_override.size() if not _seed_override.is_empty() else 3,
 		"simulation_step_seconds": 1.0 / float(BASE_PHYSICS_TICKS),
 		"wall_acceleration": WALL_ACCELERATION,
 		"runs": _results,

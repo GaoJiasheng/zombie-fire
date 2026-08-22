@@ -542,6 +542,41 @@
 			"defense"
 		]
 	},
+	"probe_card_policy": {
+		"version": "v2",
+		"boss_hp_share_threshold": 0.5,
+		"boss_share_source": "level.clear_requirement.boss_hp_share",
+		"element_tags": ["physical", "fire", "ice", "lightning", "poison"],
+		"category_tags": {
+			"crowd": ["anti_swarm", "chain"],
+			"single_target": ["anti_armor", "pierce", "execute", "dps"],
+			"control": ["control"],
+			"defense": ["defense"],
+			"economy": ["economy"]
+		},
+		"category_exclusions": {
+			"crowd": ["defense"],
+			"single_target": ["economy"]
+		},
+		"mob_priority": [
+			"owned_crowd_upgrade",
+			"new_matching_element_crowd",
+			"control",
+			"defense",
+			"remaining",
+			"economy"
+		],
+		"boss_priority": [
+			"owned_single_target_upgrade",
+			"new_single_target",
+			"crowd",
+			"control",
+			"defense",
+			"remaining",
+			"economy"
+		],
+		"neutral_cards_match_weapon_element": true
+	},
 	"power_ruler": {
 		"survival_reference": 1.2,
 		"element_weight": 0.82,
