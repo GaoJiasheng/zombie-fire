@@ -5,6 +5,8 @@ import copy
 import json
 from pathlib import Path
 
+import simulate_balance as sim
+
 from combat_power_model import run_skill_hp_pressure
 from generate_wave_pressure import (
     FIXTURE_PATH as WAVE_PRESSURE_FIXTURE_PATH,
@@ -159,7 +161,9 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
     card_picks = int(level.get("target_card_picks", 4))
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
+        mob_bonus = sim.wave_hp_coef(wave) * late_wave_hp_bonus(
+            economy, wave_no, level_no=level_no, card_picks=card_picks
+        )
         damage_bonus = late_wave_damage_ramp(economy, level_no, wave_no)
         count_mult = late_wave_count_mult(economy, wave_no, level_no)
         for group in wave.get("spawns", []):

@@ -854,6 +854,9 @@ def main() -> int:
         if env_id not in environments:
             errors.append(f"{level_id} unknown env: {env_id}")
         for wave in level.get("waves", []):
+            wave_hp_coef = wave.get("hp_coef", 1.0)
+            if not isinstance(wave_hp_coef, (int, float)) or float(wave_hp_coef) <= 0.0:
+                errors.append(f"{level_id} wave {wave.get('wave')} hp_coef must be a positive number")
             if "boss" in wave and wave["boss"] not in bosses:
                 errors.append(f"{level_id} unknown boss: {wave['boss']}")
             for group in wave.get("spawns", []) + wave.get("support", []):

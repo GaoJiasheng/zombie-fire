@@ -4395,6 +4395,7 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 
 	var zombie_id := "zombie_berserker"
 	var zombie_row: Dictionary = data_loader.get_row("zombies", zombie_id)
+	_expect(absf(float(battle._wave_hp_coef(3)) - 1.0) <= 0.000001, "waves without hp_coef must remain exactly neutral")
 	var enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
 	var level_row: Dictionary = data_loader.get_row("levels", "level_099")
 	var level_coef := float(level_row.get("difficulty_coef", 1.0)) * float(level_row.get("base_hp_ref", 50)) / 50.0
@@ -4403,6 +4404,14 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	_expect(absf(float(enemy.max_hp) - expected_hp) <= maxf(1.0, expected_hp * 0.001), "level_099 wave-3 enemy must receive the full authored HP ramp")
 	_expect(int(enemy.breach_damage) == expected_breach, "level_099 wave-3 enemy must keep authored base damage; got %d expected %d" % [int(enemy.breach_damage), expected_breach])
 	enemy.queue_free()
+	var authored_level: Dictionary = battle.level
+	var synthetic_level: Dictionary = authored_level.duplicate(true)
+	(synthetic_level.get("waves", [])[2] as Dictionary)["hp_coef"] = 0.5
+	battle.level = synthetic_level
+	var reduced_enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
+	_expect(absf(float(reduced_enemy.max_hp) - expected_hp * 0.5) <= maxf(1.0, expected_hp * 0.001), "explicit wave hp_coef must multiply only the existing mob durability chain")
+	reduced_enemy.queue_free()
+	battle.level = authored_level
 
 	battle.wave_index = 2
 	_expect(absf(float(battle._late_wave_damage_ramp_mult(economy)) - 1.0) <= 0.001, "waves 1-2 must stay outside the late-game damage ramp")

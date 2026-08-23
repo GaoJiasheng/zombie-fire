@@ -263,6 +263,7 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 	)
 	var elapsed := float(battle.battle_elapsed_seconds) * WALL_ACCELERATION
 	var victory := bool(router.result.get("victory", false)) if not router.result.is_empty() else false
+	var boss_state_at_end := _boss_combat_state(battle)
 	var result := {
 		"level": int(fixture_row.get("level", 0)),
 		"level_id": str(fixture_row.get("level_id", "")),
@@ -274,6 +275,7 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		"elapsed_seconds": elapsed,
 		"boss_phase_seconds": maxf(boss_phase_last_seen - boss_phase_start, 0.0) if boss_phase_start >= 0.0 else 0.0,
 		"max_living_bosses": max_living_bosses,
+		"boss_hp_ratio_at_end": float(boss_state_at_end.get("hp_ratio", 0.0)),
 		"timeout": timeout,
 		"card_policy": _card_policy_id,
 		"selected_skills": selected_skills,
@@ -559,9 +561,11 @@ func _deepest_progress(battle: Node) -> float:
 func _boss_combat_state(battle: Node) -> Dictionary:
 	var enemy_layer := battle.get_node_or_null("EnemyLayer")
 	if enemy_layer == null:
-		return {"living": 0, "engaged": false}
+		return {"living": 0, "engaged": false, "hp_ratio": 0.0}
 	var count := 0
 	var engaged := false
+	var living_hp := 0.0
+	var living_max_hp := 0.0
 	for enemy in enemy_layer.get_children():
 		if (
 			enemy is Node
@@ -571,13 +575,19 @@ func _boss_combat_state(battle: Node) -> Dictionary:
 			and float(enemy.get("hp")) > 0.0
 		):
 			count += 1
+			living_hp += float(enemy.get("hp"))
+			living_max_hp += maxf(float(enemy.get("max_hp")), 1.0)
 			var hp_damaged := float(enemy.get("hp")) < float(enemy.get("max_hp")) - 0.001
 			var armor_damaged := (
 				float(enemy.get("armor_hp_max")) > 0.0
 				and float(enemy.get("armor_hp")) < float(enemy.get("armor_hp_max")) - 0.001
 			)
 			engaged = engaged or hp_damaged or armor_damaged
-	return {"living": count, "engaged": engaged}
+	return {
+		"living": count,
+		"engaged": engaged,
+		"hp_ratio": living_hp / living_max_hp if living_max_hp > 0.0 else 0.0,
+	}
 
 
 func _write_output() -> bool:

@@ -425,11 +425,13 @@ def boss_attack_stats(row: dict) -> tuple[float, float, float, float]:
     return damage, interval, line_y, first_delay
 
 
-def mob_hp(level: dict, row: dict, wave_no: int) -> float:
+def mob_hp(level: dict, row: dict, wave: dict) -> float:
+    wave_no = sim.wave_number(wave)
     return (
         float(level.get("base_hp_ref", 50.0))
         * float(row.get("hp_coef", 1.0))
         * float(level.get("difficulty_coef", 1.0))
+        * sim.wave_hp_coef(wave)
         * sim.late_wave_hp_bonus(TABLES["economy"], wave_no, level_no=sim.level_number(level), card_picks=int(level.get("target_card_picks", 4)))
     )
 
@@ -457,7 +459,7 @@ def units_for_wave(level: dict, wave: dict) -> list[dict]:
         count = int(round(int(group.get("count", 0)) * count_mult))
         interval = float(group.get("interval", 0.8))
         for index in range(count):
-            units.append({"arrival": index * interval, "boss": False, "row": row, "hp": mob_hp(level, row, wave_no)})
+            units.append({"arrival": index * interval, "boss": False, "row": row, "hp": mob_hp(level, row, wave)})
     for entry in sim.runtime_boss_entries(level, wave):
         row = TABLES["bosses"][entry["type"]]
         units.append({"arrival": 0.0, "boss": True, "row": row, "hp": sim.boss_hp_for_entry(level, row, TABLES["economy"], wave_no)})

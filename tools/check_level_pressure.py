@@ -5,6 +5,8 @@ import copy
 import json
 from pathlib import Path
 
+import simulate_balance as sim
+
 from combat_power_model import run_skill_hp_pressure
 from generate_wave_pressure import (
     FIXTURE_PATH as WAVE_PRESSURE_FIXTURE_PATH,
@@ -144,7 +146,7 @@ def estimate_level_pressure(
     hp_base = float(level.get("base_hp_ref", 50.0)) / 50.0
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(
+        mob_bonus = sim.wave_hp_coef(wave) * late_wave_hp_bonus(
             economy, wave_no, level_no=level_no, card_picks=card_picks)
         count_mult = late_wave_count_mult(economy, wave_no, level_no)
         for group in wave.get("spawns", []):

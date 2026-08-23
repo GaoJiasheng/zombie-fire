@@ -456,7 +456,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
       }
     },
     "onboarding_stage":"aim_and_first_card",
-    "waves":[ { "wave":1,"spawns":[
+    "waves":[ { "wave":1,"hp_coef":1.0,"spawns":[
         {"type":"zombie_shambler","count":5,"interval":1.2,"lane":"spread"} ] } ],
     "star_rule":"base_hp_percent",
     "first_clear_reward":{"gold":120},
@@ -464,7 +464,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   // ... 至 level_099
 ]
 ```
-波次 `lane`：`center|left|right|spread`。Boss wave：`{"wave":"boss","boss":"...","support":[...]}`。
+波次 `lane`：`center|left|right|spread`。可选 `hp_coef` 默认为 `1.0`，只在普通怪/支援怪现有的 `difficulty_coef × late_wave_hp_bonus × 等级爬坡` 耐久链上追加一层；固定血量 Boss 不读取该字段。未填写时运行时与所有离线工具保持原行为。Boss wave：`{"wave":"boss","boss":"...","support":[...]}`。
 
 终局可选运行时合同示例：
 

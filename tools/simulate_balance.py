@@ -418,7 +418,9 @@ def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: di
     boss_copy_counts: dict[str, int] = {}
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
+        mob_bonus = wave_hp_coef(wave) * late_wave_hp_bonus(
+            economy, wave_no, level_no=level_no, card_picks=card_picks
+        )
         count_mult = late_wave_count_mult(economy, wave_no, level_no)
         # Normal spawns
         for spawn in wave.get("spawns", []):
@@ -452,6 +454,15 @@ def level_enemy_hp_profile(level: dict, zombies: dict, bosses: dict, economy: di
             mob_hp += hp * c
             count += c
     return mob_hp, boss_hp_by_id, count
+
+
+def wave_hp_coef(wave: dict) -> float:
+    """Optional per-wave mob durability; absent is exactly neutral.
+
+    Fixed-HP campaign Bosses deliberately do not consume this coefficient,
+    matching battle.gd's authored Boss identity path.
+    """
+    return max(0.01, float(wave.get("hp_coef", 1.0)))
 
 
 def level_enemy_hp_split(level: dict, zombies: dict, bosses: dict, economy: dict) -> tuple[float, float, int]:

@@ -1,0 +1,1085 @@
+{
+	"schema_version": 1,
+	"source": "data/levels.json before design/40 B1 chapter-six generation",
+	"authored_sha256": "06b3859511bbd6f16927fd78091c0b7b41c95a6bbb36ec8c1db197661a73ef41",
+	"levels": [
+		{
+			"id": "level_051",
+			"name": "电塔重压",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 26,
+			"difficulty_coef": 2.1721,
+			"primary_weakness": "fire",
+			"base_hp_ref": 477,
+			"threat_tags": [
+				"breach",
+				"fast"
+			],
+			"wave_pattern": "rush",
+			"variant": "normal",
+			"card_bias": {
+				"anti_swarm": 1.4,
+				"control": 1.7,
+				"defense": 1.2,
+				"fire": 1.35,
+				"homing": 1.1,
+				"ice": 1.3
+			},
+			"xp_first_offer": 66,
+			"xp_offer_growth": 48,
+			"xp_offer_ramp": 7,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_052",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_runner",
+							"count": 20,
+							"interval": 0.82,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_runner",
+							"count": 28,
+							"interval": 0.65,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_runner",
+							"count": 31,
+							"interval": 0.65,
+							"lane": "center"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_runner",
+							"count": 29,
+							"interval": 0.49,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_runner",
+							"count": 29,
+							"interval": 0.49,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 31,
+							"interval": 0.55,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1462
+			},
+			"reward_gold_mult": 0.38
+		},
+		{
+			"id": "level_052",
+			"name": "电塔裂隙",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 26,
+			"difficulty_coef": 1.942,
+			"primary_weakness": "physical",
+			"base_hp_ref": 484,
+			"threat_tags": [
+				"support",
+				"tank"
+			],
+			"wave_pattern": "pincer",
+			"variant": "treasure",
+			"card_bias": {
+				"anti_armor": 1.4,
+				"chain": 1.3,
+				"execute": 1.2,
+				"homing": 1.5,
+				"lightning": 1.1,
+				"physical": 1.35,
+				"pierce": 1.7
+			},
+			"xp_first_offer": 137,
+			"xp_offer_growth": 99,
+			"xp_offer_ramp": 15,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_053",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_shambler",
+							"count": 10,
+							"interval": 0.81,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_berserker",
+							"count": 10,
+							"interval": 0.81,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_berserker",
+							"count": 14,
+							"interval": 0.64,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_shambler",
+							"count": 14,
+							"interval": 0.64,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_brute",
+							"count": 10,
+							"interval": 0.64,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_toxic",
+							"count": 16,
+							"interval": 0.64,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_toxic",
+							"count": 29,
+							"interval": 0.49,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_berserker",
+							"count": 29,
+							"interval": 0.49,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_mutant",
+							"count": 31,
+							"interval": 0.55,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1492
+			},
+			"reward_gold_mult": 0.37
+		},
+		{
+			"id": "level_053",
+			"name": "电塔尖啸",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 27,
+			"difficulty_coef": 2.463,
+			"primary_weakness": "poison",
+			"base_hp_ref": 491,
+			"threat_tags": [
+				"burst",
+				"fast"
+			],
+			"wave_pattern": "escort",
+			"variant": "normal",
+			"card_bias": {
+				"anti_swarm": 1.2,
+				"control": 1.7,
+				"defense": 1.5,
+				"poison": 1.35,
+				"homing": 1.1,
+				"ice": 1.3
+			},
+			"xp_first_offer": 106,
+			"xp_offer_growth": 75,
+			"xp_offer_ramp": 12,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_054",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_bomber",
+							"count": 20,
+							"interval": 0.81,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 18,
+							"interval": 0.63,
+							"lane": "center"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_necromancer",
+							"count": 10,
+							"interval": 0.64,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_spitter",
+							"count": 16,
+							"interval": 0.64,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 18,
+							"interval": 0.48,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_spitter",
+							"count": 29,
+							"interval": 0.48,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_necromancer",
+							"count": 32,
+							"interval": 0.54,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1521
+			},
+			"reward_gold_mult": 0.37
+		},
+		{
+			"id": "level_054",
+			"name": "电塔终战",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 28,
+			"difficulty_coef": 2.5282,
+			"primary_weakness": "lightning",
+			"base_hp_ref": 499,
+			"threat_tags": [
+				"elite",
+				"tank"
+			],
+			"wave_pattern": "siege",
+			"variant": "elite",
+			"card_bias": {
+				"anti_armor": 1.4,
+				"execute": 1.4,
+				"lightning": 1.35,
+				"pierce": 1.7
+			},
+			"xp_first_offer": 136,
+			"xp_offer_growth": 98,
+			"xp_offer_ramp": 15,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_055",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_charger",
+							"count": 21,
+							"interval": 0.8,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_mutant",
+							"count": 15,
+							"interval": 0.63,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 15,
+							"interval": 0.63,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_regenerator",
+							"count": 20,
+							"interval": 0.63,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_phantom",
+							"count": 19,
+							"interval": 0.47,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_mutant",
+							"count": 30,
+							"interval": 0.47,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_phantom",
+							"count": 34,
+							"interval": 0.53,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1551
+			},
+			"reward_gold_mult": 0.37
+		},
+		{
+			"id": "level_055",
+			"name": "毒巷缺口",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 28,
+			"difficulty_coef": 3.2443,
+			"primary_weakness": "lightning",
+			"base_hp_ref": 506,
+			"threat_tags": [
+				"boss",
+				"burst",
+				"elite"
+			],
+			"wave_pattern": "rush",
+			"variant": "boss",
+			"card_bias": {
+				"anti_swarm": 1.2,
+				"defense": 1.5,
+				"execute": 1.6,
+				"lightning": 1.35,
+				"pierce": 1.4
+			},
+			"xp_first_offer": 156,
+			"xp_offer_growth": 110,
+			"xp_offer_ramp": 18,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_056",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_hopper",
+							"count": 24,
+							"interval": 0.79,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_crawler",
+							"count": 35,
+							"interval": 0.62,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_hopper",
+							"count": 47,
+							"interval": 0.62,
+							"lane": "center"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_hopper",
+							"count": 36,
+							"interval": 0.47,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 36,
+							"interval": 0.47,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"boss": "boss_void_phantom",
+					"support": [
+						{
+							"type": "zombie_necromancer",
+							"count": 21,
+							"interval": 0.56,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_hopper",
+							"count": 15,
+							"interval": 0.56,
+							"lane": "right"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1581
+			},
+			"reward_gold_mult": 0.36
+		},
+		{
+			"id": "level_056",
+			"name": "毒巷突围",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 28,
+			"difficulty_coef": 3.2518,
+			"primary_weakness": "physical",
+			"base_hp_ref": 513,
+			"threat_tags": [
+				"breach",
+				"fast"
+			],
+			"wave_pattern": "pincer",
+			"variant": "normal",
+			"card_bias": {
+				"anti_swarm": 1.4,
+				"control": 1.7,
+				"defense": 1.2,
+				"homing": 1.1,
+				"ice": 1.3,
+				"physical": 1.35
+			},
+			"xp_first_offer": 130,
+			"xp_offer_growth": 92,
+			"xp_offer_ramp": 15,
+			"target_card_picks": 6,
+			"onboarding_stage": "",
+			"next_level": "level_057",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_hopper",
+							"count": 11,
+							"interval": 0.78,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_phantom",
+							"count": 11,
+							"interval": 0.78,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_phantom",
+							"count": 15,
+							"interval": 0.61,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_hopper",
+							"count": 15,
+							"interval": 0.61,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_warden",
+							"count": 10,
+							"interval": 0.61,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_bomber",
+							"count": 17,
+							"interval": 0.61,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_bomber",
+							"count": 31,
+							"interval": 0.46,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_phantom",
+							"count": 31,
+							"interval": 0.46,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_screamer",
+							"count": 34,
+							"interval": 0.52,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1611
+			},
+			"reward_gold_mult": 0.36
+		},
+		{
+			"id": "level_057",
+			"name": "毒巷尸潮",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 29,
+			"difficulty_coef": 2.5058,
+			"primary_weakness": "ice",
+			"base_hp_ref": 520,
+			"threat_tags": [
+				"support",
+				"tank"
+			],
+			"wave_pattern": "escort",
+			"variant": "normal",
+			"card_bias": {
+				"anti_armor": 1.4,
+				"chain": 1.3,
+				"execute": 1.2,
+				"homing": 1.5,
+				"ice": 1.35,
+				"lightning": 1.1,
+				"pierce": 1.7
+			},
+			"xp_first_offer": 113,
+			"xp_offer_growth": 79,
+			"xp_offer_ramp": 13,
+			"target_card_picks": 7,
+			"onboarding_stage": "",
+			"next_level": "level_058",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_runner",
+							"count": 21,
+							"interval": 0.78,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_armored",
+							"count": 19,
+							"interval": 0.61,
+							"lane": "center"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_berserker",
+							"count": 11,
+							"interval": 0.61,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_shielder",
+							"count": 17,
+							"interval": 0.61,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_armored",
+							"count": 19,
+							"interval": 0.45,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_shielder",
+							"count": 31,
+							"interval": 0.45,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_berserker",
+							"count": 34,
+							"interval": 0.52,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1642
+			},
+			"reward_gold_mult": 0.35
+		},
+		{
+			"id": "level_058",
+			"name": "毒巷围城",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 30,
+			"difficulty_coef": 1.8884,
+			"primary_weakness": "fire",
+			"base_hp_ref": 527,
+			"threat_tags": [
+				"burst",
+				"fast"
+			],
+			"wave_pattern": "siege",
+			"variant": "normal",
+			"card_bias": {
+				"anti_swarm": 1.2,
+				"control": 1.7,
+				"defense": 1.5,
+				"fire": 1.35,
+				"homing": 1.1,
+				"ice": 1.3
+			},
+			"xp_first_offer": 126,
+			"xp_offer_growth": 62,
+			"xp_offer_ramp": 14,
+			"target_card_picks": 7,
+			"onboarding_stage": "",
+			"next_level": "level_059",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_shambler",
+							"count": 22,
+							"interval": 0.77,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_toxic",
+							"count": 16,
+							"interval": 0.6,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_berserker",
+							"count": 16,
+							"interval": 0.6,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_brute",
+							"count": 21,
+							"interval": 0.6,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 19,
+							"interval": 0.45,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_toxic",
+							"count": 32,
+							"interval": 0.45,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 35,
+							"interval": 0.51,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1672
+			},
+			"reward_gold_mult": 0.35
+		},
+		{
+			"id": "level_059",
+			"name": "毒巷死守",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 30,
+			"difficulty_coef": 2.2259,
+			"primary_weakness": "poison",
+			"base_hp_ref": 534,
+			"threat_tags": [
+				"elite",
+				"tank"
+			],
+			"wave_pattern": "standard",
+			"variant": "treasure",
+			"card_bias": {
+				"anti_armor": 1.4,
+				"execute": 1.4,
+				"poison": 1.35,
+				"pierce": 1.7
+			},
+			"xp_first_offer": 143,
+			"xp_offer_growth": 69,
+			"xp_offer_ramp": 16,
+			"target_card_picks": 7,
+			"onboarding_stage": "",
+			"next_level": "level_060",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_bomber",
+							"count": 22,
+							"interval": 0.76,
+							"lane": "spread"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_charger",
+							"count": 32,
+							"interval": 0.59,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_juggernaut",
+							"count": 22,
+							"interval": 0.59,
+							"lane": "left"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_charger",
+							"count": 32,
+							"interval": 0.44,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_bomber",
+							"count": 32,
+							"interval": 0.44,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"spawns": [
+						{
+							"type": "zombie_mutant",
+							"count": 36,
+							"interval": 0.5,
+							"lane": "spread"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1702
+			},
+			"reward_gold_mult": 0.35
+		},
+		{
+			"id": "level_060",
+			"name": "毒巷重压",
+			"env": "env_flooded_subway",
+			"chapter": 6,
+			"recommend_level": 30,
+			"difficulty_coef": 2.8499,
+			"primary_weakness": "lightning",
+			"base_hp_ref": 541,
+			"threat_tags": [
+				"boss",
+				"burst",
+				"elite"
+			],
+			"wave_pattern": "pincer",
+			"variant": "boss",
+			"runtime_bosses": [
+				{
+					"wave": 5,
+					"type": "boss_void_phantom",
+					"interval": 2.2,
+					"lane": "right"
+				}
+			],
+			"card_bias": {
+				"anti_swarm": 1.2,
+				"defense": 1.5,
+				"execute": 1.6,
+				"lightning": 1.35,
+				"pierce": 1.4
+			},
+			"xp_first_offer": 176,
+			"xp_offer_growth": 124,
+			"xp_offer_ramp": 20,
+			"target_card_picks": 7,
+			"onboarding_stage": "",
+			"next_level": "level_061",
+			"waves": [
+				{
+					"wave": 1,
+					"spawns": [
+						{
+							"type": "zombie_charger",
+							"count": 13,
+							"interval": 0.75,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 13,
+							"interval": 0.75,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 2,
+					"spawns": [
+						{
+							"type": "zombie_crawler",
+							"count": 19,
+							"interval": 0.59,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_charger",
+							"count": 19,
+							"interval": 0.59,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 3,
+					"spawns": [
+						{
+							"type": "zombie_regenerator",
+							"count": 16,
+							"interval": 0.59,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_mutant",
+							"count": 25,
+							"interval": 0.59,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 4,
+					"spawns": [
+						{
+							"type": "zombie_mutant",
+							"count": 38,
+							"interval": 0.44,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 38,
+							"interval": 0.44,
+							"lane": "right"
+						}
+					]
+				},
+				{
+					"wave": 5,
+					"boss": "boss_void_phantom",
+					"support": [
+						{
+							"type": "zombie_necromancer",
+							"count": 14,
+							"interval": 0.52,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 16,
+							"interval": 0.52,
+							"lane": "right"
+						}
+					]
+				}
+			],
+			"star_rule": "base_hp_percent",
+			"first_clear_reward": {
+				"gold": 1733
+			},
+			"reward_gold_mult": 0.34
+		}
+	]
+}

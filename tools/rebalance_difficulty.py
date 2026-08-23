@@ -213,13 +213,14 @@ def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) 
 def enemy_hp_weight(waves: list[dict], zombies: dict, bosses: dict, economy: dict, level_no: int) -> float:
     total = 0.0
     for wave in waves:
+        wave_hp_mult = max(0.01, float(wave.get("hp_coef", 1.0)))
         count_mult = late_wave_count_mult(economy, wave_number(wave), level_no)
         for spawn in wave.get("spawns", []):
-            total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
+            total += wave_hp_mult * float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
         if "boss" in wave:
             total += float(bosses[wave["boss"]].get("hp_coef", 18.0)) * boss_survival_hp_ramp(economy, level_no)
         for spawn in wave.get("support", []):
-            total += float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
+            total += wave_hp_mult * float(zombies[spawn["type"]].get("hp_coef", 1.0)) * int(round(int(spawn.get("count", 0)) * count_mult))
     return max(total, 1.0)
 
 
@@ -530,7 +531,10 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> f
     card_picks = int(level.get("target_card_picks", 4))
     for wave in level.get("waves", []):
         wave_no = wave_number(wave)
-        mob_bonus = late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
+        mob_bonus = (
+            max(0.01, float(wave.get("hp_coef", 1.0)))
+            * late_wave_hp_bonus(economy, wave_no, level_no=level_no, card_picks=card_picks)
+        )
         count_mult = late_wave_count_mult(economy, wave_no, level_no)
         for grp in wave.get("spawns", []) + wave.get("support", []):
             row = zombies[grp["type"]]

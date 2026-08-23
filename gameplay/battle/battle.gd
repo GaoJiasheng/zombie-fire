@@ -4196,6 +4196,10 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 		if not (is_endless_mode and endless_boss_hp > 0.0):
 			hp_level_coef *= stack_mult
 	if not has_fixed_boss_hp:
+		# Optional authored per-wave durability sits inside the existing mob HP
+		# chain. Missing data is exactly neutral; fixed-HP campaign Boss identity
+		# remains outside this chain by design.
+		hp_level_coef *= _wave_hp_coef(wave_index)
 		hp_level_coef *= _late_wave_hp_bonus(wave_index, is_boss, economy)
 		hp_level_coef *= _boss_level_hp_bonus(level_ordinal, is_boss, economy)
 		hp_level_coef *= _boss_survival_hp_mult(level_ordinal, is_boss, economy)
@@ -4222,6 +4226,16 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	enemy.threat_marker.position = enemy.global_position + Vector2(0, -90 if not is_boss else -160)
 	_spawn_enemy_entry_vfx(enemy, is_boss)
 	return enemy
+
+func _wave_hp_coef(current_wave: int) -> float:
+	var waves_var: Variant = level.get("waves", [])
+	if not waves_var is Array:
+		return 1.0
+	var waves := waves_var as Array
+	var index := current_wave - 1
+	if index < 0 or index >= waves.size() or not waves[index] is Dictionary:
+		return 1.0
+	return maxf(float((waves[index] as Dictionary).get("hp_coef", 1.0)), 0.01)
 
 func _next_same_type_boss_hp_multiplier(enemy_id: String, economy: Dictionary) -> float:
 	var copy_index := int(boss_spawn_counts.get(enemy_id, 0))
