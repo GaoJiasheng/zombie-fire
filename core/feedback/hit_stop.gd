@@ -6,11 +6,17 @@ const MIN_SCALE := 0.04
 const DEFAULT_SCALE := 0.06
 
 var _cooldown := 0.0
+## Runtime probes turn presentation-only hit stop off so wall-clock feedback
+## throttling cannot change the simulated combat timeline. Product builds keep
+## the default enabled behavior.
+var enabled := true
 ## 顿帧结束后要恢复到的"正常"速度——战斗加速功能会把这个设成当前选择的
 ## 倍速(1x/2x/5x)，不能写死恢复成 1.0，否则每次顿帧都会把加速悄悄打回原速。
 var target_scale := 1.0
 
 func pulse(duration: float = DEFAULT_SCALE) -> void:
+	if not enabled:
+		return
 	if _cooldown > 0.0:
 		return
 	_cooldown = 0.16

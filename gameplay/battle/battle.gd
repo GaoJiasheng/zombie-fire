@@ -413,6 +413,12 @@ var econ_gold_per := 0.6
 var pending_spawns: Array = []
 var boss_spawn_counts: Dictionary = {}
 var recent_spawn_positions: Array[Vector2] = []
+## Headless audit probes can isolate combat randomness from presentation-only
+## randomness. Runtime leaves this null and keeps the legacy global RNG path.
+var _audit_combat_rng: RandomNumberGenerator
+var _audit_enemy_spawn_sequence := 0
+var _audit_projectile_spawn_sequence := 0
+var _audit_delayed_skill_callbacks: Array[Dictionary] = []
 var spawn_timer := 0.0
 var wave_index := 0
 var wave_total := 0
@@ -624,8 +630,45 @@ func setup(main: Node, payload := {}) -> void:
 	is_endless_mode = bool(payload.get("endless", false))
 	is_challenge_mode = bool(payload.get("challenge", false))
 
+func set_audit_combat_seed(seed_value: int) -> void:
+	_audit_combat_rng = RandomNumberGenerator.new()
+	_audit_combat_rng.seed = seed_value
+
+func _combat_randf() -> float:
+	return _audit_combat_rng.randf() if _audit_combat_rng != null else randf()
+
+func _combat_randf_range(from: float, to: float) -> float:
+	return _audit_combat_rng.randf_range(from, to) if _audit_combat_rng != null else randf_range(from, to)
+
+func _next_audit_enemy_seed() -> int:
+	return int(_audit_combat_rng.randi()) if _audit_combat_rng != null else 0
+
+func _configure_audit_projectile(projectile: Node) -> void:
+	if _audit_combat_rng != null and projectile != null and projectile.has_method("set_audit_deterministic_collisions"):
+		_audit_projectile_spawn_sequence += 1
+		projectile.set_meta("audit_projectile_spawn_index", _audit_projectile_spawn_sequence)
+		projectile.process_physics_priority = 20000 + _audit_projectile_spawn_sequence
+		# Nodes created from inside a physics callback are not guaranteed to join
+		# that same callback list on every run.  Arm them at the deferred boundary
+		# so every audit projectile starts on the following authored tick.
+		projectile.set_physics_process(false)
+		projectile.call("set_audit_deterministic_collisions", true)
+
+func _activate_audit_physics_node(node: Node) -> void:
+	# Runtime probes advance combat actors explicitly from Battle's authored
+	# physics tick.  Keeping their automatic callbacks disabled removes Godot's
+	# tree-insertion/callback-order variance without changing production combat.
+	if _audit_combat_rng != null and node != null:
+		node.set_physics_process(false)
+		node.set_process(false)
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if _audit_combat_rng != null:
+		# The runtime probe observes a full physics tick only after battle state,
+		# aiming, enemies and projectiles have advanced in a stable authored order.
+		# Production combat keeps Godot's legacy default priorities unchanged.
+		process_physics_priority = -100000
 	get_tree().paused = false
 	battle_speed_progress_level = _level_ordinal_from_id(SaveManager.get_highest_unlocked_level_id())
 	battle_speed = SettingsManager.get_battle_speed(battle_speed_progress_level)
@@ -728,6 +771,8 @@ func _ready() -> void:
 	_seed_character_affinity()
 	_apply_base_survivability()
 	turret = TURRET_SCENE.instantiate()
+	if _audit_combat_rng != null:
+		turret.process_physics_priority = -50000
 	turret.position = Vector2(540, 1660.0 + bottom_dock_shift)
 	turret.setup(_themed_weapon_row(DataLoader.get_row("weapons", weapon_id)), weapon_level)
 	fire_rate_weapon_base = turret.fire_rate
@@ -737,6 +782,8 @@ func _ready() -> void:
 	turret.fired.connect(_on_turret_fired)
 	add_child(turret)
 	turret.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if _audit_combat_rng != null:
+		turret.set_physics_process(false)
 	_spawn_character()
 	_spawn_theme_base_overlay()
 	_spawn_pet()
@@ -863,6 +910,10 @@ func _physics_process(delta: float) -> void:
 	# Newly spawned enemies enter after this group and are intentionally picked
 	# up on the next physics tick, matching the existing processing order.
 	var frame_enemies := $EnemyLayer.get_children()
+	if _audit_combat_rng != null:
+		frame_enemies.sort_custom(func(left: Node, right: Node) -> bool:
+			return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
+		)
 	battle_elapsed_seconds += real_delta
 	apocalypse_terminal_cooldown = maxf(0.0, apocalypse_terminal_cooldown - real_delta)
 	inferno_awakening_cooldown = maxf(0.0, inferno_awakening_cooldown - real_delta)
@@ -878,14 +929,42 @@ func _physics_process(delta: float) -> void:
 	_update_combat_information_density(delta, false, frame_enemies)
 	_process_character_animation(delta)
 	_process_character_signatures(delta)
+	_audit_process_delayed_skill_callbacks(real_delta)
 	_process_pet(delta)
 	_process_enemy_mechanics(delta * _challenge_mult("mechanic_rate_mult"), frame_enemies)
 	_apply_slow_field(frame_enemies)
 	_process_spawns(delta)
+	_audit_advance_combat_nodes(delta)
 	_check_victory()
 	_update_lock_indicator()
 	_update_off_screen_indicators()
 	_update_hud()
+
+func _audit_advance_combat_nodes(delta: float) -> void:
+	if _audit_combat_rng == null:
+		return
+	# Match the production frame's logical order, but make it explicit and
+	# stable for the headless calibration probe: battle -> turret -> enemies ->
+	# projectiles.  Nodes born during this pass join on the next authored tick.
+	if turret != null and is_instance_valid(turret) and not turret.is_queued_for_deletion():
+		turret.call("_physics_process", delta)
+	var audit_enemies := $EnemyLayer.get_children()
+	audit_enemies.sort_custom(func(left: Node, right: Node) -> bool:
+		return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
+	)
+	for enemy in audit_enemies:
+		if is_instance_valid(enemy) and not enemy.is_queued_for_deletion():
+			enemy.call("_physics_process", delta)
+	var audit_projectiles := $ProjectileLayer.get_children()
+	audit_projectiles = audit_projectiles.filter(func(node: Node) -> bool:
+		return node.has_meta("audit_projectile_spawn_index")
+	)
+	audit_projectiles.sort_custom(func(left: Node, right: Node) -> bool:
+		return int(left.get_meta("audit_projectile_spawn_index", 2147483647)) < int(right.get_meta("audit_projectile_spawn_index", 2147483647))
+	)
+	for projectile in audit_projectiles:
+		if is_instance_valid(projectile) and not projectile.is_queued_for_deletion():
+			projectile.call("_physics_process", delta)
 
 func _update_auto_target(enemies: Array = []) -> void:
 	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
@@ -1717,6 +1796,12 @@ func _active_skill_fallback_chain_points(count: int) -> Array[Vector2]:
 	return points
 
 func _active_skill_after(delay: float, callback: Callable) -> void:
+	if _audit_combat_rng != null:
+		_audit_delayed_skill_callbacks.append({
+			"remaining": maxf(delay, 0.0),
+			"callback": callback,
+		})
+		return
 	var tween := create_tween()
 	tween.tween_interval(maxf(delay, 0.0))
 	tween.tween_callback(func() -> void:
@@ -1727,6 +1812,25 @@ func _active_skill_after(delay: float, callback: Callable) -> void:
 			return
 		callback.call()
 	)
+
+func _audit_process_delayed_skill_callbacks(delta: float) -> void:
+	if _audit_combat_rng == null or _audit_delayed_skill_callbacks.is_empty():
+		return
+	# SceneTree tweens advance on rendered/process frames, so accelerated probes
+	# can group a different number of authored physics ticks around a callback.
+	# Audit combat owns the same delays on its fixed 1/60 clock instead.  Copy the
+	# queue before invoking callbacks because a callback may schedule more work;
+	# newly scheduled work starts on the next authored tick in stable FIFO order.
+	var pending := _audit_delayed_skill_callbacks
+	_audit_delayed_skill_callbacks = []
+	for item in pending:
+		var remaining := maxf(0.0, float(item.get("remaining", 0.0)) - delta)
+		var callback: Callable = item.get("callback", Callable())
+		if remaining > 0.000001:
+			item["remaining"] = remaining
+			_audit_delayed_skill_callbacks.append(item)
+		elif _active_skill_can_continue() and callback.is_valid():
+			callback.call()
 
 func _active_skill_can_continue() -> bool:
 	return is_inside_tree() and not battle_finished and has_node("EnemyLayer") and has_node("ProjectileLayer")
@@ -4098,7 +4202,7 @@ func _spawn_enemy(enemy_id: String, lane: String, is_boss := false, endless_boss
 func _next_enemy_spawn_position(lane: String, is_boss := false) -> Vector2:
 	var bounds := _spawn_lane_x_bounds(lane, is_boss)
 	if is_boss:
-		var boss_position := Vector2(randf_range(bounds.x, bounds.y), 190.0)
+		var boss_position := Vector2(_combat_randf_range(bounds.x, bounds.y), 190.0)
 		_remember_spawn_position(boss_position)
 		return boss_position
 
@@ -4106,20 +4210,20 @@ func _next_enemy_spawn_position(lane: String, is_boss := false) -> Vector2:
 	# positions, then keep the one farthest from recent births and enemies still
 	# inside the entry band. It stays unpredictable across runs while preventing
 	# the visually obvious piles produced by independent random samples.
-	var best_position := Vector2(randf_range(bounds.x, bounds.y), randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y))
+	var best_position := Vector2(_combat_randf_range(bounds.x, bounds.y), _combat_randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y))
 	var has_blockers := not recent_spawn_positions.is_empty() or _has_live_entry_blockers()
 	if has_blockers:
 		var best_score := -INF
 		for _candidate_index in range(SPAWN_CANDIDATE_COUNT):
 			var candidate := Vector2(
-				randf_range(bounds.x, bounds.y),
-				randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y)
+				_combat_randf_range(bounds.x, bounds.y),
+				_combat_randf_range(NORMAL_SPAWN_Y_BOUNDS.x, NORMAL_SPAWN_Y_BOUNDS.y)
 			)
 			var edge_clearance := minf(candidate.x - bounds.x, bounds.y - candidate.x)
 			var previous_gap_bonus := 0.0
 			if not recent_spawn_positions.is_empty():
 				previous_gap_bonus = absf(candidate.x - recent_spawn_positions.back().x) * 0.72
-			var score := _spawn_candidate_clearance(candidate) + previous_gap_bonus + edge_clearance * 0.08 + randf_range(-18.0, 18.0)
+			var score := _spawn_candidate_clearance(candidate) + previous_gap_bonus + edge_clearance * 0.08 + _combat_randf_range(-18.0, 18.0)
 			if score > best_score:
 				best_score = score
 				best_position = candidate
@@ -4207,6 +4311,13 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 		hp_level_coef *= endless_difficulty_mult
 	if is_challenge_mode:
 		hp_level_coef *= _challenge_mult("hp_mult", CHALLENGE_HP_MULT)
+	if _audit_combat_rng != null and enemy.has_method("set_audit_combat_seed"):
+		enemy.call("set_audit_combat_seed", _next_audit_enemy_seed())
+	if _audit_combat_rng != null:
+		_audit_enemy_spawn_sequence += 1
+		enemy.set_meta("audit_spawn_index", _audit_enemy_spawn_sequence)
+		enemy.process_physics_priority = 1000 + _audit_enemy_spawn_sequence
+		enemy.set_physics_process(false)
 	enemy.setup(row, hp_level_coef, is_boss)
 	if enemy.has_method("configure_attack_line"):
 		enemy.call("configure_attack_line", BREACH_Y)
@@ -4221,6 +4332,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	if is_boss:
 		battle_last_boss_id = enemy_id
 	$EnemyLayer.add_child(enemy)
+	_activate_audit_physics_node(enemy)
 	$ThreatMarkerLayer.add_child(enemy.threat_marker)
 	enemy.tree_exiting.connect(_on_enemy_tree_exiting.bind(enemy))
 	enemy.threat_marker.position = enemy.global_position + Vector2(0, -90 if not is_boss else -160)
@@ -4365,7 +4477,7 @@ func _enemy_mechanic_timer_ready(source: Node, key: String, delta: float, interv
 	if remaining > 0.0:
 		source.set_meta(meta_key, remaining)
 		return false
-	source.set_meta(meta_key, maxf(0.15, interval + randf_range(0.0, jitter)))
+	source.set_meta(meta_key, maxf(0.15, interval + _combat_randf_range(0.0, jitter)))
 	return true
 
 func _enemy_skill_damage(source: Node, scale: float, minimum := 1.0) -> int:
@@ -4377,6 +4489,13 @@ func _base_line_y() -> float:
 
 func _pet_anchor_position() -> Vector2:
 	return Vector2(PET_BASE_X_DESIGN, _base_line_y() + PET_BASE_LINE_OFFSET)
+
+func _pet_combat_origin() -> Vector2:
+	# Preserve the shipped runtime origin exactly. The deterministic probe uses
+	# the authored anchor because its presentation process is intentionally off.
+	if _audit_combat_rng != null:
+		return to_global(_pet_anchor_position())
+	return pet_sprite.global_position
 
 func _base_line_inner_y(offset: float) -> float:
 	return _base_line_y() - offset
@@ -4639,8 +4758,8 @@ func _process_summoner(source: Node, delta: float) -> void:
 	if source.mechanic_timer > 0.0:
 		return
 	var interval := float(source.mechanic_params.get("skill_interval", 5.0))
-	source.mechanic_timer = randf_range(interval, interval + 1.2)
-	var spawn_position: Vector2 = source.global_position + Vector2(randf_range(-75, 75), randf_range(-35, 45))
+	source.mechanic_timer = _combat_randf_range(interval, interval + 1.2)
+	var spawn_position: Vector2 = source.global_position + Vector2(_combat_randf_range(-75, 75), _combat_randf_range(-35, 45))
 	spawn_position.x = clampf(spawn_position.x, 120.0, 960.0)
 	spawn_position.y = clampf(spawn_position.y, 190.0, 1220.0)
 	if source.has_method("play_special"):
@@ -4657,7 +4776,7 @@ func _process_ranged_pressure(source: Node, delta: float) -> void:
 	if source.mechanic_timer > 0.0:
 		return
 	var interval := float(source.mechanic_params.get("skill_interval", 4.2))
-	source.mechanic_timer = randf_range(interval, interval + 0.9)
+	source.mechanic_timer = _combat_randf_range(interval, interval + 0.9)
 	if source.has_method("play_special"):
 		source.play_special(0.46)
 	var spit_damage := _enemy_skill_damage(source, float(source.mechanic_params.get("damage_coef", 0.35)), 2.0)
@@ -4672,7 +4791,7 @@ func _process_boss_pressure(source: Node, delta: float, interval: float, damage_
 	source.mechanic_timer -= delta
 	if source.mechanic_timer > 0.0:
 		return
-	source.mechanic_timer = randf_range(interval, interval + 1.4)
+	source.mechanic_timer = _combat_randf_range(interval, interval + 1.4)
 	if source.has_method("play_special"):
 		source.play_special()
 	var pressure_damage := _enemy_skill_damage(source, damage_scale, 3.0)
@@ -4690,7 +4809,7 @@ func _process_freeze_field(source: Node, enemies: Array, delta: float) -> void:
 	source.mechanic_timer -= delta
 	if source.mechanic_timer > 0.0:
 		return
-	source.mechanic_timer = randf_range(5.0, 6.6)
+	source.mechanic_timer = _combat_randf_range(5.0, 6.6)
 	if source.has_method("play_special"):
 		source.play_special()
 	_spawn_float_text(source.global_position + Vector2(0, -120), "寒潮领域", Color(0.45, 0.86, 1.0))
@@ -4704,7 +4823,7 @@ func _process_boss_minions(source: Node, delta: float) -> void:
 	source.mechanic_timer -= delta
 	if source.mechanic_timer > 0.0:
 		return
-	source.mechanic_timer = randf_range(5.5, 7.2)
+	source.mechanic_timer = _combat_randf_range(5.5, 7.2)
 	if source.has_method("play_special"):
 		source.play_special(0.58)
 	for offset in [-92.0, 0.0, 92.0]:
@@ -4719,7 +4838,7 @@ func _process_boss_minions(source: Node, delta: float) -> void:
 func _process_phase_shift(source: Node, delta: float) -> void:
 	source.mechanic_timer -= delta
 	if source.mechanic_timer <= 0.0:
-		source.mechanic_timer = randf_range(2.4, 3.4)
+		source.mechanic_timer = _combat_randf_range(2.4, 3.4)
 		if source.has_method("play_special"):
 			source.play_special(0.34)
 		AudioManager.play_enemy_sfx("zombie_phantom", -6.5, 0.02)
@@ -4883,7 +5002,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 			damage *= 1.08
 		if element == primary_weakness:
 			damage *= 1.15
-		var is_crit := randf() < crit_rate + skills.crit_bonus()
+		var is_crit := _combat_randf() < crit_rate + skills.crit_bonus()
 		if is_crit:
 			damage *= skills.crit_damage_mult()
 			_spawn_crit_shot_vfx(origin, shot_direction, element)
@@ -5015,6 +5134,7 @@ func _multishot_damage_multiplier(lane_count: int, lane_damage_bonus := 0.0) -> 
 
 func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
+	_configure_audit_projectile(projectile)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var element := skills.projectile_element(str(weapon.get("element", "physical")))
 	var profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
@@ -5024,6 +5144,7 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 	projectile.split_requested.connect(_on_projectile_split_requested)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
+	_activate_audit_physics_node(projectile)
 	if homing > 0.0:
 		if skills.level("skill_homing") > 0:
 			AudioManager.play_sfx("skill_homing", -12.0, 0.02)
@@ -6337,6 +6458,8 @@ func _sync_logic_turret_to_character() -> void:
 	if turret == null:
 		return
 	turret.global_position = _weapon_socket_global()
+	if _audit_combat_rng != null:
+		turret.force_update_transform()
 
 func _weapon_socket_global() -> Vector2:
 	if character_rig != null:
@@ -6530,7 +6653,11 @@ func _process_pet(delta: float) -> void:
 		shot_damage *= _pet_skill_linear_value("damage_mult", "level_damage_mult_growth")
 	if fire_rate <= 0.0:
 		return
-	var target := target_manager.choose_target($EnemyLayer.get_children(), pet_sprite.global_position)
+	var pet_targets: Array[Node] = $EnemyLayer.get_children()
+	if _audit_combat_rng != null:
+		pet_targets.sort_custom(_audit_enemy_precedes)
+	var pet_origin := _pet_combat_origin()
+	var target := target_manager.choose_target(pet_targets, pet_origin)
 	if target == null:
 		return
 	pet_cooldown = 1.0 / fire_rate
@@ -6538,10 +6665,11 @@ func _process_pet(delta: float) -> void:
 	pet_attack_time = 0.22
 	pet_anim_time = 0.0
 	pet_anim_frame = 0
-	var direction: Vector2 = (target.global_position - pet_sprite.global_position).normalized()
+	var direction: Vector2 = (target.global_position - pet_origin).normalized()
 	var projectile := PROJECTILE_SCENE.instantiate()
+	_configure_audit_projectile(projectile)
 	projectile.setup(
-		pet_sprite.global_position,
+		pet_origin,
 		direction,
 		1120.0,
 		shot_damage,
@@ -6552,6 +6680,7 @@ func _process_pet(delta: float) -> void:
 	projectile.damage_source = "phoenix" if str(pet_data.get("role", "")) == "apocalypse_fire" else "pet"
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
+	_activate_audit_physics_node(projectile)
 
 func _process_pet_skill(delta: float) -> void:
 	if battle_finished:
@@ -6708,10 +6837,13 @@ func _pet_skill_targets(max_count: int) -> Array[Node2D]:
 		if hp_value != null and float(hp_value) <= 0.0:
 			continue
 		valid.append(enemy)
+	if _audit_combat_rng != null:
+		valid.sort_custom(_audit_enemy_precedes)
 	if valid.is_empty():
 		return []
 	var result: Array[Node2D] = []
-	var primary = target_manager.choose_target(valid, pet_sprite.global_position) if target_manager != null else valid[0]
+	var pet_origin := _pet_combat_origin()
+	var primary = target_manager.choose_target(valid, pet_origin) if target_manager != null else valid[0]
 	if primary is Node2D and is_instance_valid(primary):
 		result.append(primary as Node2D)
 	var ranked: Array[Dictionary] = []
@@ -6719,10 +6851,14 @@ func _pet_skill_targets(max_count: int) -> Array[Node2D]:
 		if enemy == primary:
 			continue
 		var snapshot: Dictionary = enemy.targeting_snapshot()
-		var score := target_manager.score_enemy(snapshot, pet_sprite.global_position) if target_manager != null else float(snapshot.get("y", 0.0))
+		var score := target_manager.score_enemy(snapshot, pet_origin) if target_manager != null else float(snapshot.get("y", 0.0))
 		ranked.append({"enemy": enemy, "score": score})
 	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+		var a_score := float(a.get("score", 0.0))
+		var b_score := float(b.get("score", 0.0))
+		if not is_equal_approx(a_score, b_score):
+			return a_score > b_score
+		return _audit_enemy_precedes(a.get("enemy") as Node, b.get("enemy") as Node)
 	)
 	for item in ranked:
 		if result.size() >= max_count:
@@ -6818,10 +6954,17 @@ func _track_transient_fx(node: Node, bucket: String) -> void:
 		node.set_meta("transient_vfx", true)
 
 func _can_spawn_projectile_fx(priority := false) -> bool:
+	# Runtime probes own a deterministic authored combat clock and intentionally
+	# skip presentation-only nodes.  Their deferred/tween lifetimes otherwise
+	# depend on how many authored ticks are batched into one host frame.
+	if _audit_combat_rng != null:
+		return false
 	var base_limit := MAX_PROJECTILE_PRIORITY_FX if priority else MAX_PROJECTILE_TRANSIENT_FX
 	return _transient_fx_count($ProjectileLayer, "projectile") < _scaled_vfx_budget(base_limit, priority)
 
 func _can_spawn_hud_fx(priority := false) -> bool:
+	if _audit_combat_rng != null:
+		return false
 	var base_limit := MAX_HUD_PRIORITY_FX if priority else MAX_HUD_TRANSIENT_FX
 	return _transient_fx_count($Hud, "hud") < _scaled_vfx_budget(base_limit, priority)
 
@@ -6843,6 +6986,8 @@ func _scaled_vfx_budget(base_limit: int, priority: bool) -> int:
 	return maxi(18 if priority else 12, int(round(float(base_limit) * scale)))
 
 func _can_spawn_float_text(priority := false) -> bool:
+	if _audit_combat_rng != null:
+		return false
 	var base_limit := MAX_PRIORITY_FLOAT_TEXTS if priority else MAX_FLOAT_TEXTS
 	return _transient_fx_count($Hud, "float_text") < _scaled_vfx_budget(base_limit, priority)
 
@@ -7878,10 +8023,15 @@ func _on_projectile_split_requested(origin: Vector2, direction: Vector2, count: 
 	var target_directions := _split_target_directions(origin, direction, count, fan)
 	for i in range(count):
 		var projectile := PROJECTILE_SCENE.instantiate()
+		_configure_audit_projectile(projectile)
 		var split_direction: Vector2 = target_directions[i]
 		projectile.setup(origin + split_direction * 22.0, split_direction, 1180.0, damage, element, 0, 0, 0.55, 2.6, 0.0, 0.0, 0.82, 0, "res://assets/production/sprites/projectiles/proj_split_mini.png", "split", armor_penetration, status_strength)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
-		$ProjectileLayer.call_deferred("add_child", projectile)
+		if _audit_combat_rng != null:
+			$ProjectileLayer.add_child(projectile)
+		else:
+			$ProjectileLayer.call_deferred("add_child", projectile)
+		_activate_audit_physics_node(projectile)
 
 func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float, element: String, splash_radius: float, cloud_radius: float, chain_depth: int, visual_profile: String, armor_penetration: float, status_strength: float, damage_source := "weapon") -> void:
 	_spawn_element_impact_vfx(primary, origin, element, visual_profile)
@@ -8400,10 +8550,10 @@ func _apply_character_bullet_on_hit(primary: Node, origin: Vector2, damage: floa
 					_spawn_attack_sprite("res://assets/production/sprites/vfx/vfx_freeze.png", origin + Vector2(0, -34), Color(0.58, 0.92, 1.0, 0.78), 0.46, 0.16)
 					primary.take_damage(shatter_damage, "ice")
 		"blaze":
-			if randf() < 0.18 + 0.03 * float(rank):
+			if _combat_randf() < 0.18 + 0.03 * float(rank):
 				_spawn_attack_ring(origin, 92.0, Color(1.0, 0.42, 0.12, 0.2), 0.14)
 		"volt":
-			if randf() < 0.14 + 0.03 * float(rank):
+			if _combat_randf() < 0.14 + 0.03 * float(rank):
 				_spawn_chain_flash(origin, primary)
 
 func _split_target_directions(origin: Vector2, base_direction: Vector2, count: int, fan: float) -> Array[Vector2]:
@@ -8421,7 +8571,7 @@ func _split_target_directions(origin: Vector2, base_direction: Vector2, count: i
 		var angle_penalty := absf(wrapf(to_enemy.angle() - base_direction.angle(), -PI, PI))
 		candidates.append({"enemy": enemy, "score": dist + angle_penalty * 180.0})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", 0.0)) < float(b.get("score", 0.0))
+		return _audit_target_score_less(a, b)
 	)
 	var directions: Array[Vector2] = []
 	for i in range(count):
@@ -8462,6 +8612,7 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 			continue
 		var direction: Vector2 = (target.global_position - origin).normalized()
 		var projectile := PROJECTILE_SCENE.instantiate()
+		_configure_audit_projectile(projectile)
 		var chain_element := "lightning" if element == "physical" else element
 		var chain_base := 0.52 if weapon_profile == "apocalypse_thunder" else 0.42
 		var chain_damage := damage * chain_base * pow(target_falloff, float(target_index))
@@ -8470,7 +8621,11 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 		var chain_texture := "" if weapon_profile == "apocalypse_thunder" else "res://assets/production/sprites/projectiles/proj_split_mini.png"
 		projectile.setup(origin + direction * 18.0, direction, 1500.0, chain_damage, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.62 if weapon_profile == "apocalypse_thunder" else 0.52, 1, chain_texture, chain_profile, armor_penetration, status_strength, target)
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
-		$ProjectileLayer.call_deferred("add_child", projectile)
+		if _audit_combat_rng != null:
+			$ProjectileLayer.add_child(projectile)
+		else:
+			$ProjectileLayer.call_deferred("add_child", projectile)
+		_activate_audit_physics_node(projectile)
 
 func _chain_targets(origin: Vector2, primary: Node, count: int, radius: float) -> Array[Node2D]:
 	var candidates := []
@@ -8483,7 +8638,7 @@ func _chain_targets(origin: Vector2, primary: Node, count: int, radius: float) -
 			continue
 		candidates.append({"enemy": enemy_node, "score": dist + maxf(0.0, enemy_node.global_position.y - origin.y) * 0.18})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", 0.0)) < float(b.get("score", 0.0))
+		return _audit_target_score_less(a, b)
 	)
 	var targets: Array[Node2D] = []
 	for item in candidates:
@@ -8493,6 +8648,30 @@ func _chain_targets(origin: Vector2, primary: Node, count: int, radius: float) -
 		if target != null and is_instance_valid(target):
 			targets.append(target)
 	return targets
+
+
+func _audit_target_score_less(a: Dictionary, b: Dictionary) -> bool:
+	var left_score := float(a.get("score", 0.0))
+	var right_score := float(b.get("score", 0.0))
+	if not is_equal_approx(left_score, right_score):
+		return left_score < right_score
+	# Godot does not promise a stable custom sort when two floating scores are
+	# equal. The runtime probe gives every enemy a deterministic spawn index so
+	# audit-only target ties cannot depend on scene-tree/deferred queue timing.
+	# Production combat has no such metadata and keeps its existing order.
+	if _audit_combat_rng == null:
+		return false
+	var left := a.get("enemy") as Node
+	var right := b.get("enemy") as Node
+	if left == null or right == null:
+		return false
+	return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
+
+
+func _audit_enemy_precedes(left: Node, right: Node) -> bool:
+	if left == null or right == null:
+		return false
+	return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
 
 func _impact_anchor(primary: Node, fallback: Vector2, vertical_offset := -38.0) -> Vector2:
 	var pos := fallback
@@ -10105,6 +10284,14 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	if enemy == target_manager.locked_enemy:
 		target_manager.clear_lock()
 	_try_show_xp_card_offer(enemy)
+	# The runtime calibration probe can advance many authored physics ticks
+	# before SceneTree gets another process-frame boundary.  queue_free() is
+	# intentionally deferred, so leaving a defeated enemy under EnemyLayer
+	# would make wave completion and target snapshots depend on the chosen
+	# acceleration factor.  Detach it immediately in audit mode while keeping
+	# production death-animation / deferred-free behaviour unchanged.
+	if _audit_combat_rng != null and is_instance_valid(enemy) and enemy.get_parent() == $EnemyLayer:
+		$EnemyLayer.remove_child(enemy)
 
 func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool, damage_source := "weapon") -> void:
 	var applied := maxf(amount, 0.0)
@@ -10159,7 +10346,10 @@ func _trigger_kill_hit_stop(is_boss: bool) -> void:
 		hit_stop.pulse(0.12)
 
 func _process_kill_feedback(enemy: Node, reward: Dictionary) -> void:
-	var now := Time.get_ticks_msec() / 1000.0
+	# Combo accounting is part of the battle report.  Runtime keeps the authored
+	# wall-clock feel, while deterministic probes use the battle's fixed logical
+	# clock so host acceleration and process scheduling cannot change the streak.
+	var now := battle_elapsed_seconds if _audit_combat_rng != null else Time.get_ticks_msec() / 1000.0
 	kill_streak = kill_streak + 1 if now - last_kill_at <= 1.35 else 1
 	battle_max_kill_streak = maxi(battle_max_kill_streak, kill_streak)
 	last_kill_at = now

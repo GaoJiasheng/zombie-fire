@@ -116,6 +116,19 @@ var _rank_aura: Sprite2D
 var _status_label: Label
 var _threat_marker_allowed := true
 var _status_label_allowed := true
+## Probe-only RNG isolation. Runtime keeps this null, preserving the legacy
+## global RNG path exactly.
+var _audit_combat_rng: RandomNumberGenerator
+
+func set_audit_combat_seed(seed_value: int) -> void:
+	_audit_combat_rng = RandomNumberGenerator.new()
+	_audit_combat_rng.seed = seed_value
+
+func _combat_randf() -> float:
+	return _audit_combat_rng.randf() if _audit_combat_rng != null else randf()
+
+func _combat_randf_range(from: float, to: float) -> float:
+	return _audit_combat_rng.randf_range(from, to) if _audit_combat_rng != null else randf_range(from, to)
 
 func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 	add_to_group("enemies")
@@ -166,7 +179,7 @@ func setup(row: Dictionary, level_coef: float, is_boss := false) -> void:
 		shield_hp = max_hp * float(mechanic_params.get("shield_ratio", 0.35))
 	var sprite_base_alpha := 0.82 if mechanic == "phase" or mechanic == "phase_shift" else 1.0
 	if mechanic == "summon":
-		mechanic_timer = randf_range(1.2, 2.4)
+		mechanic_timer = _combat_randf_range(1.2, 2.4)
 	var tex := load(row.get("sprite", "")) as Texture2D
 	$Sprite.texture = tex
 	_load_animation_frames(row, is_boss)
@@ -325,9 +338,9 @@ func _configure_base_attack() -> void:
 	if boss:
 		base_attack_damage = maxi(1, int(round(float(base_attack_damage) * 1.35)))
 		base_attack_interval += 0.28
-		attack_line_y = BASE_ATTACK_Y - 80.0 + randf_range(-14.0, 18.0)
+		attack_line_y = BASE_ATTACK_Y - 80.0 + _combat_randf_range(-14.0, 18.0)
 	else:
-		attack_line_y = BASE_ATTACK_Y + randf_range(-18.0, 26.0)
+		attack_line_y = BASE_ATTACK_Y + _combat_randf_range(-18.0, 26.0)
 	base_attack_damage = int(mechanic_params.get("base_attack_damage", base_attack_damage))
 	base_attack_interval = float(mechanic_params.get("base_attack_interval", base_attack_interval))
 	base_attack_kind = str(mechanic_params.get("base_attack_kind", base_attack_kind))
@@ -341,15 +354,15 @@ func configure_attack_line(base_line_y: float) -> void:
 
 func _attack_line_jitter() -> float:
 	if boss:
-		return randf_range(-14.0, 18.0)
-	return randf_range(-18.0, 26.0)
+		return _combat_randf_range(-14.0, 18.0)
+	return _combat_randf_range(-18.0, 26.0)
 
 func _enter_base_attack() -> void:
 	attacking_base = true
 	position.y = attack_line_y
 	speed_mult = 1.0
 	var first_delay := float(base_attack_profile.get("first_attack_delay", -1.0))
-	base_attack_timer = first_delay if first_delay >= 0.0 else randf_range(0.08, 0.34)
+	base_attack_timer = first_delay if first_delay >= 0.0 else _combat_randf_range(0.08, 0.34)
 	_anim_state = "idle"
 	_anim_time = 0.0
 	_anim_frame = 0
@@ -371,7 +384,7 @@ func _process_base_attack(delta: float) -> void:
 		return
 	if base_attack_timer > 0.0:
 		return
-	base_attack_timer = maxf(0.45, base_attack_interval + randf_range(-0.12, 0.18))
+	base_attack_timer = maxf(0.45, base_attack_interval + _combat_randf_range(-0.12, 0.18))
 	if boss and not base_attack_profile.is_empty():
 		_begin_base_attack_sequence()
 		return
@@ -462,7 +475,7 @@ func take_damage(amount: float, element := "physical", armor_penetration := 0.0,
 		remove_meta("incoming_damage_source")
 	_last_hit_weak = false
 	_last_hit_element = element
-	if (mechanic == "phase" or mechanic == "phase_shift") and element != "lightning" and randf() < (0.32 if not boss else 0.22):
+	if (mechanic == "phase" or mechanic == "phase_shift") and element != "lightning" and _combat_randf() < (0.32 if not boss else 0.22):
 		_emit_hit_feedback(element, true, false, "phase_evade")
 		_flash(Color(0.45, 0.8, 1.0, 0.72))
 		return

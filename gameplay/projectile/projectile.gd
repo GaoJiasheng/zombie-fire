@@ -51,6 +51,18 @@ var _projectile_vfx_ready := false
 var _preferred_target_ref: WeakRef
 var _theme_projectile_palette_profile := ""
 var damage_source := "weapon"
+## Physics overlap ordering is intentionally left untouched in product builds.
+## The headless pacing probe enables this path before setup so projectile hits
+## use a stable segment test instead of process-dependent Area2D signal order.
+var _audit_deterministic_collisions := false
+
+func set_audit_deterministic_collisions(value := true) -> void:
+	_audit_deterministic_collisions = bool(value)
+	if _audit_deterministic_collisions:
+		collision_layer = 0
+		collision_mask = 0
+		monitoring = false
+		monitorable = false
 
 func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem := "physical", pierce := 0, split := 0, falloff := 0.55, homing := 0.0, splash := 0.0, cloud := 0.0, scale_mult := 1.0, chain_depth_value := 0, texture_override := "", profile := "", penetration := 0.0, status_effect_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0) -> void:
 	global_position = origin
@@ -88,30 +100,100 @@ func setup(origin: Vector2, direction: Vector2, speed: float, dmg: float, elem :
 	$CollisionShape2D.shape = CircleShape2D.new()
 	$CollisionShape2D.shape.radius = 18.0 * maxf(visual_scale, 0.85) * _collision_radius_mult(visual_profile)
 	trail_interval = _trail_interval_for(visual_profile)
-	body_entered.connect(_on_body_entered)
-	area_entered.connect(_on_area_entered)
+	if not _audit_deterministic_collisions:
+		body_entered.connect(_on_body_entered)
+		area_entered.connect(_on_area_entered)
 	if is_inside_tree():
 		_configure_projectile_vfx()
 
 func _ready() -> void:
+	# The pacing probe owns projectile lifetime/collision advancement and has no
+	# visual consumer.  Building tween-driven child VFX here makes accelerated
+	# headless runs depend on SceneTree flush cadence even though combat is fixed
+	# step.  Product builds keep the complete legacy presentation path.
+	if _audit_deterministic_collisions:
+		return
 	_configure_projectile_vfx()
 
 func _physics_process(delta: float) -> void:
 	lifetime += delta
 	if lifetime >= PROJECTILE_MAX_LIFETIME:
-		queue_free()
+		_retire()
 		return
 	if _is_outside_screen():
-		queue_free()
+		_retire()
 		return
 	_apply_homing(delta)
+	var segment_start := global_position
 	position += velocity * delta
+	var segment_end := global_position
 	if velocity.length_squared() > 1.0:
 		rotation = velocity.angle() - SPRITE_FORWARD_ANGLE
-	_process_trail(delta)
+	if _audit_deterministic_collisions:
+		_audit_resolve_collision(segment_start, segment_end)
+	else:
+		_process_trail(delta)
 	if _is_outside_screen():
-		queue_free()
+		_retire()
 		return
+
+func _retire() -> void:
+	# The accelerated headless probe can execute several authored physics ticks
+	# before SceneTree flushes deferred deletions. Detach immediately in that
+	# audit-only path so collision candidate sets stay identical at 1x/10x/20x.
+	if _audit_deterministic_collisions and get_parent() != null:
+		get_parent().remove_child(self)
+	queue_free()
+
+func _audit_resolve_collision(segment_start: Vector2, segment_end: Vector2) -> void:
+	if is_queued_for_deletion():
+		return
+	var segment := segment_end - segment_start
+	var segment_length_squared := segment.length_squared()
+	var projectile_radius := 18.0 * maxf(visual_scale, 0.85) * _collision_radius_mult(visual_profile)
+	var best_target: Node2D
+	var best_t := INF
+	var best_spawn_index := 2147483647
+	for candidate in _enemy_candidates():
+		if not is_instance_valid(candidate) or not candidate is Node2D:
+			continue
+		var enemy := candidate as Node2D
+		if not enemy.has_method("take_damage") or enemy.is_queued_for_deletion():
+			continue
+		if hit_target_ids.has(enemy.get_instance_id()):
+			continue
+		var hp_value: Variant = enemy.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		var radius := projectile_radius + _audit_enemy_collision_radius(enemy)
+		var to_center := enemy.global_position - segment_start
+		var t := 0.0
+		if segment_length_squared > 0.0001:
+			t = clampf(to_center.dot(segment) / segment_length_squared, 0.0, 1.0)
+		var closest := segment_start + segment * t
+		if closest.distance_squared_to(enemy.global_position) > radius * radius:
+			continue
+		# Recover the first intersection along the segment rather than the nearest
+		# point so one projectile cannot choose a farther overlapping body first.
+		if segment_length_squared > 0.0001:
+			var along := to_center.dot(segment.normalized())
+			var perpendicular_squared := maxf(to_center.length_squared() - along * along, 0.0)
+			var entry := along - sqrt(maxf(radius * radius - perpendicular_squared, 0.0))
+			t = clampf(entry / sqrt(segment_length_squared), 0.0, 1.0)
+		var spawn_index := int(enemy.get_meta("audit_spawn_index", 2147483647))
+		if t < best_t - 0.000001 or (absf(t - best_t) <= 0.000001 and spawn_index < best_spawn_index):
+			best_t = t
+			best_spawn_index = spawn_index
+			best_target = enemy
+	if best_target != null:
+		global_position = segment_start + segment * best_t
+		_hit(best_target)
+
+func _audit_enemy_collision_radius(enemy: Node2D) -> float:
+	var collision_shape := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision_shape != null and collision_shape.shape is CircleShape2D:
+		return float((collision_shape.shape as CircleShape2D).radius) * maxf(absf(enemy.global_scale.x), absf(enemy.global_scale.y))
+	return 70.0
 
 func _is_outside_screen() -> bool:
 	var p := global_position
@@ -176,7 +258,8 @@ func _homing_turn_rate_limit(speed: float) -> float:
 func _nearest_enemy() -> Node2D:
 	var best: Node2D
 	var best_dist := INF
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	var best_spawn_index := 2147483647
+	for enemy in _enemy_candidates():
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		var enemy_node := enemy as Node2D
@@ -185,16 +268,19 @@ func _nearest_enemy() -> Node2D:
 		if enemy_node.global_position.y > 1540.0:
 			continue
 		var dist := global_position.distance_squared_to(enemy_node.global_position)
-		if dist < best_dist:
+		var spawn_index := int(enemy_node.get_meta("audit_spawn_index", 2147483647))
+		if dist < best_dist - 0.000001 or (absf(dist - best_dist) <= 0.000001 and spawn_index < best_spawn_index):
 			best = enemy_node
 			best_dist = dist
+			best_spawn_index = spawn_index
 	return best
 
 func _nearest_close_boss() -> Node2D:
 	var best: Node2D
 	var best_dist := INF
+	var best_spawn_index := 2147483647
 	var max_dist_sq := HOMING_BOSS_CLOSE_RANGE * HOMING_BOSS_CLOSE_RANGE
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in _enemy_candidates():
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		var enemy_node := enemy as Node2D
@@ -206,10 +292,14 @@ func _nearest_close_boss() -> Node2D:
 		if enemy_node.global_position.y > 1540.0:
 			continue
 		var dist := global_position.distance_squared_to(enemy_node.global_position)
-		if dist > max_dist_sq or dist >= best_dist:
+		var spawn_index := int(enemy_node.get_meta("audit_spawn_index", 2147483647))
+		if dist > max_dist_sq or dist > best_dist + 0.000001:
+			continue
+		if absf(dist - best_dist) <= 0.000001 and spawn_index >= best_spawn_index:
 			continue
 		best = enemy_node
 		best_dist = dist
+		best_spawn_index = spawn_index
 	return best
 
 func _process_trail(delta: float) -> void:
@@ -220,6 +310,8 @@ func _process_trail(delta: float) -> void:
 	_spawn_trail_particle_pulse(0.34)
 
 func _configure_projectile_vfx() -> void:
+	if _audit_deterministic_collisions:
+		return
 	if _projectile_vfx_ready or $Sprite.texture == null:
 		return
 	_projectile_vfx_ready = true
@@ -1001,13 +1093,13 @@ func _hit(target: Node) -> void:
 	if split_count > 0:
 		split_requested.emit(hit_origin, flight_direction, split_count, damage * split_falloff, element, armor_penetration, status_strength)
 	if pierce_left <= 0:
-		queue_free()
+		_retire()
 	else:
 		var pass_throughs_before := pierce_left
 		var swept_hits := _apply_pierce_sweep(target, hit_origin, flight_direction, pass_throughs_before)
 		var remaining_pass_throughs := pass_throughs_before - swept_hits - 1
 		if remaining_pass_throughs < 0:
-			queue_free()
+			_retire()
 		else:
 			pierce_left = remaining_pass_throughs
 			global_position = hit_origin + flight_direction * (52.0 + 24.0 * float(swept_hits))
@@ -1019,7 +1111,7 @@ func _hit(target: Node) -> void:
 			# pierce unchanged, and keep homing pierce whenever it can actually
 			# chain into another enemy; otherwise dissipate it at the confirmed hit.
 			if homing_strength > 0.0 and not retargeted:
-				queue_free()
+				_retire()
 				return
 			_spawn_pierce_flash()
 
@@ -1027,7 +1119,7 @@ func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max
 	if max_hits <= 0 or direction.length_squared() <= 0.0:
 		return 0
 	var candidates: Array = []
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in _enemy_candidates():
 		if enemy == primary or not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		if not enemy.has_method("take_damage"):
@@ -1045,7 +1137,7 @@ func _apply_pierce_sweep(primary: Node, origin: Vector2, direction: Vector2, max
 			continue
 		candidates.append({"enemy": enemy_node, "forward": forward})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("forward", 0.0)) < float(b.get("forward", 0.0))
+		return _audit_forward_candidate_less(a, b)
 	)
 	var hits := 0
 	var trace_start := origin
@@ -1101,7 +1193,7 @@ func _best_pierce_retarget(origin: Vector2, current_direction: Vector2, remainin
 	var best: Node2D
 	var best_score := -INF
 	var max_future_hits := maxi(1, remaining_pass_throughs + 1)
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in _enemy_candidates():
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		if not enemy.has_method("take_damage"):
@@ -1129,7 +1221,7 @@ func _best_pierce_retarget(origin: Vector2, current_direction: Vector2, remainin
 		if boss_value is bool and bool(boss_value):
 			boss_bonus = 160.0
 		var score := chain_value * 520.0 + boss_bonus - distance * 0.42 - turn * 95.0
-		if score > best_score:
+		if score > best_score or (_audit_deterministic_collisions and is_equal_approx(score, best_score) and _audit_enemy_precedes(enemy_node, best)):
 			best = enemy_node
 			best_score = score
 	return best
@@ -1138,7 +1230,7 @@ func _pierce_retarget_chain_value(origin: Vector2, direction: Vector2, max_hits:
 	if max_hits <= 0 or direction.length_squared() <= 0.0:
 		return 0.0
 	var candidates: Array = []
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in _enemy_candidates():
 		if not is_instance_valid(enemy) or not enemy is Node2D:
 			continue
 		if not enemy.has_method("take_damage"):
@@ -1155,7 +1247,7 @@ func _pierce_retarget_chain_value(origin: Vector2, direction: Vector2, max_hits:
 			continue
 		candidates.append({"enemy": enemy_node, "forward": forward})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("forward", 0.0)) < float(b.get("forward", 0.0))
+		return _audit_forward_candidate_less(a, b)
 	)
 	var value := 0.0
 	var hits := 0
@@ -1166,6 +1258,46 @@ func _pierce_retarget_chain_value(origin: Vector2, direction: Vector2, max_hits:
 		value += 1.0 + (PIERCE_RETARGET_RANGE - forward) / PIERCE_RETARGET_RANGE
 		hits += 1
 	return value
+
+
+func _audit_forward_candidate_less(a: Dictionary, b: Dictionary) -> bool:
+	var left_forward := float(a.get("forward", 0.0))
+	var right_forward := float(b.get("forward", 0.0))
+	if not is_equal_approx(left_forward, right_forward):
+		return left_forward < right_forward
+	if not _audit_deterministic_collisions:
+		return false
+	return _audit_enemy_precedes(a.get("enemy") as Node, b.get("enemy") as Node)
+
+
+func _audit_enemy_precedes(left: Node, right: Node) -> bool:
+	if left == null:
+		return false
+	if right == null:
+		return true
+	return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
+
+
+func _enemy_candidates() -> Array[Node]:
+	if not _audit_deterministic_collisions:
+		return get_tree().get_nodes_in_group("enemies")
+	# Group registration and removal are SceneTree-boundary operations.  A
+	# runtime probe can author several fixed combat ticks between those
+	# boundaries, so using the group cache here made 1x and accelerated probes
+	# see different candidate sets.  EnemyLayer is the combat source of truth
+	# and its children are inserted/removed synchronously by Battle's audit path.
+	var battle := get_parent().get_parent() if get_parent() != null else null
+	var layer := battle.get_node_or_null("EnemyLayer") if battle != null else null
+	if layer == null:
+		return []
+	var candidates: Array[Node] = []
+	for child in layer.get_children():
+		if child is Node:
+			candidates.append(child)
+	candidates.sort_custom(func(left: Node, right: Node) -> bool:
+		return _audit_enemy_precedes(left, right)
+	)
+	return candidates
 
 func _pierce_sweep_half_width(enemy: Node2D) -> float:
 	var width := PIERCE_SWEEP_HALF_WIDTH * maxf(visual_scale, 0.9)

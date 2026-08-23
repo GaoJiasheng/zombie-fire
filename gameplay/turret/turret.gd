@@ -52,6 +52,11 @@ func _physics_process(delta: float) -> void:
 	if aim_vector.length_squared() > 1.0:
 		var desired := aim_vector.angle() - muzzle_local_position.angle()
 		rotation = lerp_angle(rotation, desired, min(turn_speed * delta, 1.0))
+		# The headless frontline probe advances authored 60 Hz combat ticks
+		# directly. Flush the transform before reading the child muzzle so its
+		# projectile origin never depends on the host process-frame cadence.
+		force_update_transform()
+		$Muzzle.force_update_transform()
 	cooldown = maxf(cooldown - delta, 0.0)
 	if not fire_enabled or aim_vector.length_squared() <= 1.0:
 		_update_animation(delta)

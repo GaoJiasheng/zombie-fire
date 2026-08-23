@@ -13,7 +13,6 @@ const BUILD_EXPORT_PATH := "res://design/audits/campaign_progression_fixture_bui
 const DEFAULT_OUTPUT_PATH := "res://design/audits/frontline_runtime_probe.json"
 const BATTLE_SCENE_PATH := "res://gameplay/battle/battle.tscn"
 const DEFAULT_LEVELS := [3, 8, 13, 30, 40, 55, 62, 75, 84, 95]
-const WALL_ACCELERATION := 1.0
 const BASE_PHYSICS_TICKS := 60
 const MAX_LOGICAL_SECONDS := 540.0
 const SETTLE_FRAMES := 4
@@ -27,20 +26,42 @@ class ProbeRouter:
 		result = value.duplicate(true)
 
 
-class CombatSeedDriver:
+class ProbeTickDriver:
 	extends Node
-	var base_seed := 0
-	var frame_index := 0
+	var probe: Object
+	var battle: Node
+	var done := false
+	var timeout := false
+	var logical_seconds := 0.0
+	var max_progress := 0.0
+	var selected_skills: Array[String] = []
+	var card_timeline: Array[Dictionary] = []
+	var wave_timeline: Array[Dictionary] = []
+	var boss_phase_start := -1.0
+	var boss_phase_last_seen := -1.0
+	var max_living_bosses := 0
+	var tracked_wave := -1
+	var wave_max_progress := 0.0
 
 	func _ready() -> void:
-		process_physics_priority = -100000
+		# Card offers pause the tree.  The probe player must still make exactly one
+		# deterministic decision after every authored combat tick.
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		process_physics_priority = 100000
+		set_process(false)
+		set_physics_process(true)
 
 	func _physics_process(_delta: float) -> void:
-		# Reset the global stream at the start of every simulation tick. Rendering
-		# helpers also use the global RNG; this keeps their variable tween/process
-		# cadence from perturbing combat randomness between identical audit runs.
-		seed(base_seed + frame_index * 104729)
-		frame_index += 1
+		if done:
+			return
+		if probe == null or battle == null or not is_instance_valid(battle):
+			done = true
+			return
+		# Pair time_scale with the same physics tick multiplier. Godot therefore
+		# schedules more host physics frames per wall second while every authored
+		# combat transition still receives the control 1/60 delta.
+		battle.call("_physics_process", 1.0 / float(BASE_PHYSICS_TICKS))
+		probe.call("_drive_probe_tick", self)
 
 
 var _snapshot: Dictionary
@@ -53,6 +74,7 @@ var _seed_override: Array[int] = []
 var _ignore_level_guarantees := false
 var _ignore_offer_category_floor := false
 var _results: Array[Dictionary] = []
+var _wall_acceleration := 1.0
 
 
 func _initialize() -> void:
@@ -73,7 +95,8 @@ func _initialize() -> void:
 		return
 
 	var original_ticks := Engine.physics_ticks_per_second
-	Engine.physics_ticks_per_second = int(round(float(BASE_PHYSICS_TICKS) * WALL_ACCELERATION))
+	Engine.physics_ticks_per_second = int(round(float(BASE_PHYSICS_TICKS) * _wall_acceleration))
+	Engine.time_scale = _wall_acceleration
 	for level_number in _requested_levels:
 		var fixture_row: Dictionary = _rows_by_level.get(level_number, {})
 		if fixture_row.is_empty():
@@ -123,6 +146,8 @@ func _parse_arguments() -> bool:
 			_profile_id = text.trim_prefix("--profile=").strip_edges()
 		elif text.begins_with("--card-policy="):
 			_card_policy_id = text.trim_prefix("--card-policy=").strip_edges()
+		elif text.begins_with("--accel="):
+			_wall_acceleration = float(text.trim_prefix("--accel=").strip_edges())
 		elif text.begins_with("--seeds="):
 			_seed_override.clear()
 			for token in text.trim_prefix("--seeds=").split(",", false):
@@ -141,6 +166,9 @@ func _parse_arguments() -> bool:
 		return false
 	if not ["v2", "legacy"].has(_card_policy_id):
 		_fail("--card-policy must be v2 or legacy")
+		return false
+	if _wall_acceleration < 1.0 or _wall_acceleration > 50.0:
+		_fail("--accel must be between 1 and 50")
 		return false
 	_requested_levels.sort()
 	return true
@@ -162,19 +190,20 @@ func _load_fixture_export() -> bool:
 
 
 func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) -> Dictionary:
+	# Battle and Enemy route gameplay-affecting randomness through their audit
+	# RNGs.  Seed Godot's global stream as well so presentation-only jitter and
+	# audio pitch variation cannot perturb node/tween ordering between headless
+	# processes while proving accelerated-run determinism.
+	seed(seed_value + 17000033)
 	var build: Dictionary = fixture_row.get("build", {})
 	save_manager.save_data = _save_for_build(save_manager, fixture_row)
 	var data_loader := root.get_node("/root/DataLoader")
 	var router := ProbeRouter.new()
 	root.add_child(router)
-	var seed_driver := CombatSeedDriver.new()
-	seed_driver.base_seed = seed_value + 7000003
-	root.add_child(seed_driver)
 	var packed := load(BATTLE_SCENE_PATH) as PackedScene
 	if packed == null:
 		_fail("unable to load %s" % BATTLE_SCENE_PATH)
 		router.queue_free()
-		seed_driver.queue_free()
 		return _error_result(fixture_row, seed_value, "battle scene load failed")
 	var battle := packed.instantiate()
 	var level_override_state := _install_level_override(
@@ -184,9 +213,12 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 	# Freeze the battle before it enters the tree so startup frames cannot consume
 	# combat RNG or advance the wave before the deterministic audit setup is done.
 	battle.set_physics_process(false)
+	if battle.has_method("set_audit_combat_seed"):
+		battle.call("set_audit_combat_seed", seed_value + 7000003)
 	battle.setup(router, {"level_id": str(fixture_row.get("level_id", ""))})
 	root.add_child(battle)
 	await process_frame
+	_disable_battle_process_frames(battle)
 	_restore_level_override(data_loader, level_override_state)
 	if battle.card_director != null:
 		battle.card_director.set_audit_seed(seed_value)
@@ -194,74 +226,54 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 	# Run this script with Godot's `--fixed-fps 60` switch. That mode advances
 	# process and physics time in lockstep without wall-clock synchronization, so
 	# it is both faster than real time and exactly the 1/60 control simulation.
-	battle.battle_speed = WALL_ACCELERATION
-	Engine.time_scale = WALL_ACCELERATION
+	# Wall acceleration must not masquerade as the product's battle-speed mode.
+	# battle_speed changes real-time cooldown/report semantics inside Battle and
+	# therefore changes the encounter.  Instead, keep the authored 1x rules and
+	# pair Engine.time_scale with an equal physics tick-rate multiplier so every
+	# physics step still receives the exact control delta (1 / 60 second).
+	battle.battle_speed = 1.0
+	Engine.time_scale = _wall_acceleration
+	# Battle enters the tree once so it can finish normal scene setup before the
+	# authored clock takes ownership.  Godot may deliver a fractional startup
+	# callback during that hand-off depending on the accelerated host tick rate;
+	# no combat actors exist yet, so reset the report clock at the deterministic
+	# boundary rather than leaking that host-frame fraction into audit output.
+	battle._reset_battle_report()
 	if battle.hit_stop != null:
-		battle.hit_stop.target_scale = WALL_ACCELERATION
-	battle.set_physics_process(true)
+		battle.hit_stop.enabled = false
+		battle.hit_stop.target_scale = _wall_acceleration
+	var driver := ProbeTickDriver.new()
+	driver.probe = self
+	driver.battle = battle
+	driver.tracked_wave = int(battle.wave_index)
+	root.add_child(driver)
+	# ProbeTickDriver is the sole combat clock for audit runs.  Gameplay children
+	# are likewise advanced by Battle's audit path, while presentation nodes may
+	# continue to use the SceneTree without affecting combat state.
+	battle.set_physics_process(false)
 
-	var max_progress := 0.0
-	var selected_skills: Array[String] = []
-	var card_timeline: Array[Dictionary] = []
-	var wave_timeline: Array[Dictionary] = []
-	var logical_seconds := 0.0
-	var timeout := false
-	var boss_phase_start := -1.0
-	var boss_phase_last_seen := -1.0
-	var max_living_bosses := 0
-	var tracked_wave := int(battle.wave_index)
-	var wave_max_progress := 0.0
-	while is_instance_valid(battle) and not battle.battle_finished:
-		await physics_frame
-		logical_seconds += 1.0 / float(BASE_PHYSICS_TICKS)
-		var current_progress := _deepest_progress(battle)
-		max_progress = maxf(max_progress, current_progress)
-		wave_max_progress = maxf(wave_max_progress, current_progress)
-		if int(battle.wave_index) != tracked_wave:
-			wave_timeline.append(
-				_wave_snapshot(battle, tracked_wave, logical_seconds, wave_max_progress)
+	# Waiting on process frames is now only lifecycle coordination.  All combat
+	# observation and player decisions happen in ProbeTickDriver after each
+	# physics tick, so accelerated runs cannot skip or duplicate decisions.
+	while not driver.done:
+		await process_frame
+
+	driver.max_progress = maxf(driver.max_progress, _deepest_progress(battle))
+	if driver.tracked_wave >= 0:
+		driver.wave_timeline.append(
+			_wave_snapshot(
+				battle,
+				driver.tracked_wave,
+				driver.logical_seconds,
+				driver.wave_max_progress
 			)
-			tracked_wave = int(battle.wave_index)
-			wave_max_progress = current_progress
-		var boss_state := _boss_combat_state(battle)
-		var living_bosses := int(boss_state.get("living", 0))
-		max_living_bosses = maxi(max_living_bosses, living_bosses)
-		# Boss phase means the actual combat window, not the approach from its
-		# spawn point.  Starting at first damage keeps this metric comparable
-		# across lanes and support formations.
-		if bool(boss_state.get("engaged", false)):
-			if boss_phase_start < 0.0:
-				boss_phase_start = logical_seconds
-			boss_phase_last_seen = logical_seconds
-		if battle.card_offer_active:
-			var choice := _select_live_offer(battle)
-			var selected := str(choice.get("selected", ""))
-			if selected != "":
-				selected_skills.append(selected)
-				choice["time"] = logical_seconds
-				choice["wave"] = int(battle.wave_index)
-				card_timeline.append(choice)
-		if (
-			float(battle.character_active_cd) <= 0.0
-			and battle.get_node("EnemyLayer").get_child_count() > 0
-			and not battle.card_offer_active
-		):
-			battle._on_character_skill_pressed()
-		if logical_seconds > MAX_LOGICAL_SECONDS:
-			timeout = true
-			break
-
-	max_progress = maxf(max_progress, _deepest_progress(battle))
-	if tracked_wave >= 0:
-		wave_timeline.append(
-			_wave_snapshot(battle, tracked_wave, logical_seconds, wave_max_progress)
 		)
 	var base_ratio := clampf(
 		float(battle.base_hp) / maxf(float(battle.base_hp_max), 1.0),
 		0.0,
 		1.0
 	)
-	var elapsed := float(battle.battle_elapsed_seconds) * WALL_ACCELERATION
+	var elapsed := float(battle.battle_elapsed_seconds)
 	var victory := bool(router.result.get("victory", false)) if not router.result.is_empty() else false
 	var boss_state_at_end := _boss_combat_state(battle)
 	var result := {
@@ -269,29 +281,96 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		"level_id": str(fixture_row.get("level_id", "")),
 		"seed": seed_value,
 		"build": build.duplicate(true),
-		"max_progress": max_progress,
+		"max_progress": driver.max_progress,
 		"base_ratio": base_ratio,
 		"victory": victory,
 		"elapsed_seconds": elapsed,
-		"boss_phase_seconds": maxf(boss_phase_last_seen - boss_phase_start, 0.0) if boss_phase_start >= 0.0 else 0.0,
-		"max_living_bosses": max_living_bosses,
+		"boss_phase_seconds": maxf(driver.boss_phase_last_seen - driver.boss_phase_start, 0.0) if driver.boss_phase_start >= 0.0 else 0.0,
+		"max_living_bosses": driver.max_living_bosses,
 		"boss_hp_ratio_at_end": float(boss_state_at_end.get("hp_ratio", 0.0)),
-		"timeout": timeout,
+		"timeout": driver.timeout,
 		"card_policy": _card_policy_id,
-		"selected_skills": selected_skills,
-		"card_timeline": card_timeline,
-		"wave_timeline": wave_timeline,
+		"selected_skills": driver.selected_skills,
+		"card_timeline": driver.card_timeline,
+		"wave_timeline": driver.wave_timeline,
 		"final_skill_levels": battle.skills.owned.duplicate(true),
 		"battle_report": router.result.get("battle_report", {}).duplicate(true),
 	}
+	driver.queue_free()
 	battle.queue_free()
 	router.queue_free()
-	seed_driver.queue_free()
 	paused = false
 	Engine.time_scale = 1.0
 	for _frame in range(SETTLE_FRAMES):
 		await process_frame
 	return result
+
+
+func _disable_battle_process_frames(node: Node) -> void:
+	# Combat is advanced exclusively by ProbeTickDriver. Presentation `_process`
+	# callbacks are intentionally disabled in the audited subtree so changing
+	# how many authored physics ticks fit between host process frames cannot
+	# alter cached transforms, tweens, or lifecycle ordering.
+	node.set_process(false)
+	for child in node.get_children():
+		_disable_battle_process_frames(child)
+
+
+func _drive_probe_tick(driver: ProbeTickDriver) -> void:
+	var battle := driver.battle
+	if battle == null or not is_instance_valid(battle):
+		driver.done = true
+		return
+	driver.logical_seconds += 1.0 / float(BASE_PHYSICS_TICKS)
+	var current_progress := _deepest_progress(battle)
+	driver.max_progress = maxf(driver.max_progress, current_progress)
+	driver.wave_max_progress = maxf(driver.wave_max_progress, current_progress)
+	if int(battle.wave_index) != driver.tracked_wave:
+		driver.wave_timeline.append(
+			_wave_snapshot(
+				battle,
+				driver.tracked_wave,
+				driver.logical_seconds,
+				driver.wave_max_progress
+			)
+		)
+		driver.tracked_wave = int(battle.wave_index)
+		driver.wave_max_progress = current_progress
+	var boss_state := _boss_combat_state(battle)
+	var living_bosses := int(boss_state.get("living", 0))
+	driver.max_living_bosses = maxi(driver.max_living_bosses, living_bosses)
+	# Boss phase means the actual combat window, not the approach from its spawn
+	# point. Starting at first damage keeps it comparable across lanes/support.
+	if bool(boss_state.get("engaged", false)):
+		if driver.boss_phase_start < 0.0:
+			driver.boss_phase_start = driver.logical_seconds
+		driver.boss_phase_last_seen = driver.logical_seconds
+	if battle.card_offer_active:
+		var choice := _select_live_offer(battle)
+		var selected := str(choice.get("selected", ""))
+		if selected != "":
+			driver.selected_skills.append(selected)
+			choice["time"] = driver.logical_seconds
+			choice["wave"] = int(battle.wave_index)
+			driver.card_timeline.append(choice)
+		# Closing an offer restores Battle.battle_speed (1x). Restore the
+		# probe-only wall clock; gameplay delta remains exactly 1 / 60.
+		Engine.time_scale = _wall_acceleration
+	if (
+		float(battle.character_active_cd) <= 0.0
+		and battle.get_node("EnemyLayer").get_child_count() > 0
+		and not battle.card_offer_active
+	):
+		battle._on_character_skill_pressed()
+	# Hit stop is presentation feedback and is disabled above. Keep this guard at
+	# the end of every deterministic tick as protection against any unrelated UI
+	# path restoring the product's selected battle speed while a card is open.
+	Engine.time_scale = _wall_acceleration
+	if driver.logical_seconds > MAX_LOGICAL_SECONDS:
+		driver.timeout = true
+		driver.done = true
+	elif battle.battle_finished:
+		driver.done = true
 
 
 func _install_level_override(data_loader: Node, level_id: String) -> Dictionary:
@@ -601,7 +680,7 @@ func _write_output() -> bool:
 		"ignore_offer_category_floor": _ignore_offer_category_floor,
 		"seeds_per_level": _seed_override.size() if not _seed_override.is_empty() else 3,
 		"simulation_step_seconds": 1.0 / float(BASE_PHYSICS_TICKS),
-		"wall_acceleration": WALL_ACCELERATION,
+		"wall_acceleration": _wall_acceleration,
 		"runs": _results,
 	}
 	var file := FileAccess.open(_output_path, FileAccess.WRITE)
