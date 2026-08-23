@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASELINE_PATH = ROOT / "design/audits/campaign_frontline_baseline.csv"
 RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe.json"
 LEGACY_RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe_legacy.json"
+SAMPLE_V1_RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe_sample_v1.json"
 FIXTURE_PATH = ROOT / "data/campaign_progression_fixture.json"
 ECONOMY_PATH = ROOT / "data/economy.json"
 REPORT_PATH = ROOT / "design/audits/frontline_calibration_report.md"
@@ -71,6 +72,19 @@ def _summarize_runtime(runs: list[dict]) -> dict:
     }
 
 
+def _build_short(runs: list[dict]) -> str:
+    build = runs[0]["build"]
+    weapon = str(build.get("weapon", "-")).removeprefix("weapon_")
+    return (
+        f"{weapon} L{int(float(build.get('weapon_level', 1)))}；"
+        f"人/甲/芯/宠 "
+        f"{int(float(build.get('character_level', 1)))}/"
+        f"{int(float(build.get('armor_level', 1)))}/"
+        f"{int(float(build.get('chip_level', 1)))}/"
+        f"{int(float(build.get('pet_level', 1)))}"
+    )
+
+
 def build_report() -> str:
     baseline = {
         int(row["level"]): row
@@ -78,6 +92,7 @@ def build_report() -> str:
     }
     runtime = json.loads(RUNTIME_PATH.read_text(encoding="utf-8"))
     legacy_runtime = json.loads(LEGACY_RUNTIME_PATH.read_text(encoding="utf-8"))
+    sample_v1_runtime = json.loads(SAMPLE_V1_RUNTIME_PATH.read_text(encoding="utf-8"))
     fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
     economy = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
     grouped: dict[int, list[dict]] = defaultdict(list)
@@ -86,6 +101,9 @@ def build_report() -> str:
     legacy_grouped: dict[int, list[dict]] = defaultdict(list)
     for run in legacy_runtime["runs"]:
         legacy_grouped[int(run["level"])].append(run)
+    sample_v1_grouped: dict[int, list[dict]] = defaultdict(list)
+    for run in sample_v1_runtime["runs"]:
+        sample_v1_grouped[int(run["level"])].append(run)
 
     rows: list[dict] = []
     for level in runtime["levels"]:
@@ -174,7 +192,9 @@ def build_report() -> str:
         "## 3. 003 / 008 / 013 矛盾裁决",
         "",
         "- 旧战线模型分别给出 `0.75% / 0.85% / 0.44%`，看起来所有敌人都死在出生点。",
-        "- 真实运行时中位推进分别为 `24.55% / 30.65% / 26.40%`，三关均 `3/3` 满血通关。",
+        "- 真实运行时中位推进分别为 "
+        f"`{rows[0]['progress']:.2f}% / {rows[1]['progress']:.2f}% / {rows[2]['progress']:.2f}%`，"
+        "三关均 `3/3` 满血通关。",
         "- `simulate_balance` 的 Top5 压力与旧战线模型不是同一物理量：前者基于总耐久/输出预算，",
         "  后者又把抽象 capacity 当成逐帧 DPS。二者的排名冲突来自口径混用，不是前三章关卡数据异常。",
         "",
@@ -230,9 +250,9 @@ def build_report() -> str:
         "| 关卡 | 旧策略推进（范围）/基地（范围）/胜场 | v2 推进（范围）/基地（范围）/胜场 | 档位变化 |",
         "|---:|---:|---:|---|",
     ]
-    for level in runtime["levels"]:
+    for level in sample_v1_runtime["levels"]:
         old = _summarize_runtime(legacy_grouped[int(level)])
-        new = _summarize_runtime(grouped[int(level)])
+        new = _summarize_runtime(sample_v1_grouped[int(level)])
         lines.append(
             f"| {int(level):03d} | {old['progress']:.2f}%（{old['progress_range']}%）/"
             f"{old['base']:.2f}%（{old['base_range']}%）/{old['victories']}/{old['runs']} | "
@@ -259,15 +279,42 @@ def build_report() -> str:
         "  探针代码不硬编码技能 ID；经济卡永远最低，同优先级保持候选出现顺序。",
         "- 保底卡没有额外选中权重：它只保证进入候选，仍与其他候选按相同规则竞争。",
         "",
-        "原始证据：`frontline_runtime_probe_legacy.json` 与 `frontline_runtime_probe.json`。",
+        "原始证据：`frontline_runtime_probe_legacy.json` 与 "
+        "`frontline_runtime_probe_sample_v1.json`。",
         "051 的 v2/legacy、有无保底十种子前置对照归档在 `design/audits/pilot_chapter6/`；",
         "这些是推倒旧关内波形前的证据，不是最终 B1 验收数字。",
         "",
-        "## 6. 后续约束",
+        "## 6. 资源成长样本 v2：旧样本 → 新样本",
+        "",
+        "样本 v2 不改任何武器数值。它把免费账号的武器决策从“抽象容量更高”改为“先看下一章众数弱点购买，",
+        "再用游戏同源 `power_for_build` 在已拥有武器中选本关匹配战力最高者”；切换武器时每关最多投入 40% 金币追等级。",
+        "99 关逐关新旧武器与等级时间线见 `campaign_progression_weapon_strategy_v2.csv`。",
+        "",
+        "| 关卡 | 旧样本构筑 | 新样本构筑 | 旧样本运行时 推进/基地/胜场 | 新样本运行时 推进/基地/胜场 | 档位 |",
+        "|---:|---|---|---:|---:|---|",
+    ]
+    for level in runtime["levels"]:
+        old_runs = sample_v1_grouped[int(level)]
+        new_runs = grouped[int(level)]
+        old = _summarize_runtime(old_runs)
+        new = _summarize_runtime(new_runs)
+        lines.append(
+            f"| {int(level):03d} | {_build_short(old_runs)} | {_build_short(new_runs)} | "
+            f"{old['progress']:.2f}%/{old['base']:.2f}%/{old['victories']}/{old['runs']} | "
+            f"{new['progress']:.2f}%/{new['base']:.2f}%/{new['victories']}/{new['runs']} | "
+            f"{GRADE_ZH[old['grade']]} → {GRADE_ZH[new['grade']]} |"
+        )
+
+    lines += [
+        "",
+        "新样本不会把难度墙包装成可过：055 仍为 `1/3`，075 仍为 `1/3`，095 仍为 `0/3`。",
+        "这证明样本改动是玩家成长路径的校正，不是关卡调参的替代品；B1 仍需用同一样本重调第六章。",
+        "",
+        "## 7. 后续约束",
         "",
         "- 固定帧真实战斗中位数继续作为 B1 战线权威口径，并保留三种子范围。",
         "- `campaign_pacing_targets.json` 继续为 `frozen: false`；16/43/33/7 只作目标差值报告。",
-        "- v2 策略是探针玩家模型口径变更，后续 B1 数据必须在同一策略下重跑，不得混用旧策略结果。",
+        "- 选卡 v2 与资源成长样本 v2 是两个独立口径变更，后续 B1 数据必须同时使用两者，不得混用旧结果。",
         "- 阶段 A2 的攻速档位对照可使用该探针观察，但不能据此修改 B1 范围外的战役关卡。",
         "",
     ]

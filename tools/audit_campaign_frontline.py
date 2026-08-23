@@ -9,10 +9,11 @@ the next balance pass; this tool does not mutate levels, economy or power data.
 
 The fixture is intentionally conservative and reproducible:
 * normal first clears, two stars, no challenge rewards and no repeat farming;
-* free purchases in a fixed practical order;
-* gold is spread across the currently equipped free build;
+* star weapons follow the next chapter's modal weakness;
+* loadouts use the same matchup-aware power pipeline as the game UI;
+* gold prioritizes the next encounter's weapon with a capped switch catch-up;
 * XP is spent round-robin on a physical clear/control package and signature;
-* the stronger of the owned autocannon/scattergun is equipped per encounter.
+* the checked-in comparison report preserves the former capacity-only strategy.
 
 Front-line grades mirror the owner-approved semantics:
 * easy: nobody reaches 50% of the route;
@@ -38,6 +39,7 @@ DATA = ROOT / "data"
 REPORT = ROOT / "design" / "audits" / "campaign_frontline_baseline.csv"
 TARGET_REPORT = ROOT / "design" / "audits" / "campaign_frontline_target_delta.csv"
 BUILD_REPORT = ROOT / "design" / "audits" / "campaign_progression_fixture_builds.json"
+WEAPON_REPORT = ROOT / "design" / "audits" / "campaign_progression_weapon_strategy_v2.csv"
 MANIFEST_REPORT = ROOT / "design" / "audits" / "campaign_frontline_audit_manifest.json"
 TARGET_SOURCE = DATA / "campaign_pacing_targets.json"
 FIXTURE_SOURCE = DATA / "campaign_progression_fixture.json"
@@ -76,10 +78,10 @@ TABLES = {name: load(name) for name in (
 )}
 TARGETS = json.loads(TARGET_SOURCE.read_text(encoding="utf-8"))
 FIXTURE = json.loads(FIXTURE_SOURCE.read_text(encoding="utf-8"))
-FREE_PURCHASE_ORDER = tuple(
-    (str(row["slot"]), str(row["item_id"])) for row in FIXTURE["free_purchase_order"]
-)
+ACTIVE_WEAPON_STRATEGY = str(FIXTURE["active_weapon_strategy"])
+LEGACY_WEAPON_STRATEGY = "legacy_capacity_v1"
 CORE_SKILLS = tuple(str(value) for value in FIXTURE["xp_upgrade_order"])
+WEAPON_ORDER = tuple(str(value) for value in TABLES["weapons"])
 
 
 @dataclass
@@ -117,17 +119,97 @@ def upgrade_cost(row: dict, current_level: int) -> int:
     return int(round(base * (1.0 + k * max(current_level - 1, 0))))
 
 
-def buy_available(account: Account) -> None:
-    for slot, item_id in FREE_PURCHASE_ORDER:
+def weapon_strategy(strategy_id: str) -> dict:
+    strategies = FIXTURE.get("weapon_strategies", {})
+    if strategy_id not in strategies:
+        raise SystemExit(f"unknown campaign progression weapon strategy: {strategy_id}")
+    return dict(strategies[strategy_id])
+
+
+def chapter_modal_weakness(chapter: int) -> str:
+    """Return the chapter weakness mode; authored level order breaks ties."""
+    counts: dict[str, int] = {}
+    first_seen: dict[str, int] = {}
+    for index, level in enumerate(TABLES["levels"]):
+        if int(level.get("chapter", 0)) != chapter:
+            continue
+        element = str(level.get("primary_weakness", "physical"))
+        counts[element] = counts.get(element, 0) + 1
+        first_seen.setdefault(element, index)
+    if not counts:
+        return "physical"
+    return min(counts, key=lambda value: (-counts[value], first_seen[value]))
+
+
+def purchase_target_after_level(level: dict, strategy_id: str) -> tuple[int, str]:
+    strategy = weapon_strategy(strategy_id)
+    if strategy.get("purchase_mode") != "next_chapter_modal_weakness":
+        return int(level.get("chapter", 1)), ""
+    current = int(level.get("chapter", 1))
+    target = min(current + 1, max(int(row.get("chapter", 1)) for row in TABLES["levels"]))
+    return target, chapter_modal_weakness(target)
+
+
+def _unlock(account: Account, slot: str, item_id: str, cost: int) -> dict:
+    account.stars -= cost
+    account.owned[slot].add(item_id)
+    account.levels[item_id] = 1
+    return {"slot": slot, "item_id": item_id, "star_cost": cost}
+
+
+def buy_available(account: Account, cleared_level: dict, strategy_id: str) -> list[dict]:
+    """Purchase deterministic free progression items under the selected strategy."""
+    strategy = weapon_strategy(strategy_id)
+    events: list[dict] = []
+    if strategy.get("purchase_mode") == "fixed_order":
+        for entry in strategy.get("purchase_order", []):
+            slot, item_id = str(entry["slot"]), str(entry["item_id"])
+            if item_id in account.owned[slot]:
+                continue
+            row = TABLES[SLOT_TABLE[slot]][item_id]
+            cost = int(row.get("unlock_cost_star", 0))
+            if account.stars < cost:
+                return events
+            events.append(_unlock(account, slot, item_id, cost))
+        return events
+
+    if strategy.get("purchase_mode") != "next_chapter_modal_weakness":
+        raise SystemExit(f"unsupported purchase mode for {strategy_id}")
+    target_chapter, target_element = purchase_target_after_level(cleared_level, strategy_id)
+    pool = strategy["star_weapon_pool"]
+    minimum = int(pool.get("minimum_star_cost", 1))
+    maximum = int(pool.get("maximum_star_cost", 999))
+    matching: list[tuple[int, int, str]] = []
+    for index, (item_id, row) in enumerate(TABLES["weapons"].items()):
+        cost = int(row.get("unlock_cost_star", 0))
+        if item_id in account.owned["weapon"] or not minimum <= cost <= maximum:
+            continue
+        if str(row.get("element", "physical")) != target_element:
+            continue
+        matching.append((cost, index, str(item_id)))
+    matching.sort()
+    if matching:
+        cost, _index, item_id = matching[0]
+        # Holding stars for the next useful element weapon prevents the fixture
+        # from spending its campaign currency on an unrelated catalogue item.
+        if account.stars >= cost:
+            event = _unlock(account, "weapon", item_id, cost)
+            event.update({"target_chapter": target_chapter, "target_weakness": target_element})
+            events.append(event)
+        return events
+
+    for entry in strategy.get("non_weapon_purchase_order", []):
+        slot, item_id = str(entry["slot"]), str(entry["item_id"])
         if item_id in account.owned[slot]:
             continue
         row = TABLES[SLOT_TABLE[slot]][item_id]
         cost = int(row.get("unlock_cost_star", 0))
         if account.stars < cost:
-            return
-        account.stars -= cost
-        account.owned[slot].add(item_id)
-        account.levels[item_id] = 1
+            return events
+        event = _unlock(account, slot, item_id, cost)
+        event.update({"target_chapter": target_chapter, "target_weakness": target_element})
+        events.append(event)
+    return events
 
 
 def level_weight(slot: str, item_id: str) -> float:
@@ -137,8 +219,52 @@ def level_weight(slot: str, item_id: str) -> float:
     return float(weights[slot])
 
 
-def spend_gold(account: Account) -> None:
+def _buy_gold_upgrade(account: Account, slot: str, item_id: str) -> int:
+    row = TABLES[SLOT_TABLE[slot]][item_id]
+    level = account.levels[item_id]
+    if level >= int(row.get("max_level", 1)):
+        return 0
+    cost = upgrade_cost(row, level)
+    if cost > account.gold:
+        return 0
+    account.gold -= cost
+    account.levels[item_id] += 1
+    return cost
+
+
+def spend_gold(
+    account: Account,
+    strategy_id: str,
+    earned_gold: int,
+    current_weapon: str,
+    preferred_next_weapon: str,
+) -> dict:
     """Balanced free progression using exact runtime upgrade prices."""
+    priority_spent = 0
+    priority_upgrades = 0
+    strategy = weapon_strategy(strategy_id)
+    gold_rule = strategy.get("gold_upgrade", {}) or {}
+    if preferred_next_weapon and preferred_next_weapon in account.owned["weapon"]:
+        if preferred_next_weapon != current_weapon:
+            ceiling = int(account.levels.get(current_weapon, 1))
+            budget = int(math.floor(max(earned_gold, 0) * float(gold_rule.get("switch_catch_up_max_gold_ratio", 0.0))))
+            while account.levels[preferred_next_weapon] < ceiling:
+                row = TABLES["weapons"][preferred_next_weapon]
+                cost = upgrade_cost(row, account.levels[preferred_next_weapon])
+                if priority_spent + cost > budget:
+                    break
+                paid = _buy_gold_upgrade(account, "weapon", preferred_next_weapon)
+                if paid <= 0:
+                    break
+                priority_spent += paid
+                priority_upgrades += 1
+        else:
+            for _unused in range(int(gold_rule.get("same_weapon_priority_upgrades_per_clear", 0))):
+                paid = _buy_gold_upgrade(account, "weapon", preferred_next_weapon)
+                if paid <= 0:
+                    break
+                priority_spent += paid
+                priority_upgrades += 1
     while True:
         candidates: list[tuple[float, int, str, str]] = []
         for slot, ids in account.owned.items():
@@ -158,10 +284,15 @@ def spend_gold(account: Account) -> None:
                 priority = level_weight(slot, item_id) / (0.08 + progress)
                 candidates.append((-priority, cost, slot, item_id))
         if not candidates:
-            return
+            break
         _, cost, _slot, item_id = min(candidates)
         account.gold -= cost
         account.levels[item_id] += 1
+    return {
+        "preferred_next_weapon": preferred_next_weapon,
+        "priority_gold_spent": priority_spent,
+        "priority_upgrades": priority_upgrades,
+    }
 
 
 def spend_xp(account: Account) -> None:
@@ -192,6 +323,7 @@ def build_for(
     account: Account,
     level: dict,
     fire_rate_profile: str = "control",
+    strategy_id: str = ACTIVE_WEAPON_STRATEGY,
 ) -> tuple[dict, dict]:
     contract = level.get("clear_requirement", {}).get("power_contract", {})
     base = {
@@ -206,13 +338,16 @@ def build_for(
         "signature_level": account.signature,
         "skill_base_levels": dict(account.skills),
     }
-    selection = FIXTURE["weapon_selection"]
-    choices = [
-        weapon_id for weapon_id in selection["candidates"]
-        if weapon_id in account.owned["weapon"]
-    ]
-    scored: list[tuple[float, dict, dict]] = []
-    for weapon_id in choices:
+    selection = weapon_strategy(strategy_id)["selection"]
+    if selection.get("candidates") == "all_owned_weapons":
+        choices = [weapon_id for weapon_id in WEAPON_ORDER if weapon_id in account.owned["weapon"]]
+    else:
+        choices = [
+            str(weapon_id) for weapon_id in selection.get("candidates", [])
+            if str(weapon_id) in account.owned["weapon"]
+        ]
+    scored: list[tuple[float, int, dict, dict]] = []
+    for choice_index, weapon_id in enumerate(choices):
         candidate = {**base, "weapon": weapon_id, "weapon_level": account.levels[weapon_id]}
         # Keep the checked-in control fixture byte-for-byte stable.  Laboratory
         # reports opt into A/B explicitly and share this exact progression build.
@@ -224,14 +359,21 @@ def build_for(
             TABLES["chips"], TABLES["pets"], TABLES["skills"],
             TABLES["bosses"], TABLES["economy"],
         )
-        boss_weight = (
-            float(selection["boss_capacity_weight_if_present"])
-            if any("boss" in wave for wave in level.get("waves", []))
-            else float(selection["boss_capacity_weight_otherwise"])
-        )
-        score = result["capacities"]["crowd"] * (1.0 - boss_weight) + result["capacities"]["boss"] * boss_weight
-        scored.append((score, candidate, result))
-    _, build, result = max(scored, key=lambda row: row[0])
+        if selection.get("method") == "power_for_build":
+            score = float(result["power"])
+        elif selection.get("method") == "weighted_capacity":
+            boss_weight = (
+                float(selection["boss_capacity_weight_if_present"])
+                if any("boss" in wave for wave in level.get("waves", []))
+                else float(selection["boss_capacity_weight_otherwise"])
+            )
+            score = result["capacities"]["crowd"] * (1.0 - boss_weight) + result["capacities"]["boss"] * boss_weight
+        else:
+            raise SystemExit(f"unsupported weapon selection method for {strategy_id}")
+        scored.append((score, -choice_index, candidate, result))
+    if not scored:
+        raise SystemExit(f"campaign progression fixture owns no selectable weapon for {strategy_id}")
+    _, _tie_break, build, result = max(scored, key=lambda row: (row[0], row[1]))
     return build, result
 
 
@@ -326,8 +468,9 @@ def simulate_level(
     account: Account,
     level: dict,
     fire_rate_profile: str = "control",
+    strategy_id: str = ACTIVE_WEAPON_STRATEGY,
 ) -> dict:
-    build, power = build_for(account, level, fire_rate_profile)
+    build, power = build_for(account, level, fire_rate_profile, strategy_id)
     projected = power["projected_skills"]
     ruler = TABLES["economy"].get("power_ruler", {}) or {}
     crowd_dps = max(float(power["capacities"]["crowd"]) * float(ruler.get("crowd_dps_per_capacity", 75.0)), 1.0)
@@ -401,6 +544,7 @@ def simulate_level(
         "signature_level": build["signature_level"],
         "gold_before": account.gold, "xp_before": account.xp, "stars_before": account.stars,
         "crowd_dps": crowd_dps, "boss_dps": boss_dps,
+        "effective_power": int(round(float(power["power"]))),
         "build": build, "projected_skills": projected,
     }
 
@@ -441,6 +585,14 @@ TARGET_FIELDS = (
     "cleared", "unwinnable_reason", "target_frozen",
 )
 
+WEAPON_COMPARISON_FIELDS = (
+    "level", "chapter", "next_chapter_target", "next_chapter_weakness",
+    "legacy_weapon", "legacy_weapon_level", "legacy_effective_power",
+    "v2_weapon", "v2_weapon_level", "v2_effective_power",
+    "weapon_changed", "level_delta", "v2_purchases_after_clear",
+    "v2_preferred_next_weapon", "v2_priority_gold_spent",
+)
+
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -475,13 +627,14 @@ def target_rows() -> dict[int, dict]:
 
 def generate_rows(
     fire_rate_profile: str = "control",
+    strategy_id: str = ACTIVE_WEAPON_STRATEGY,
 ) -> tuple[list[dict], list[dict]]:
     account = Account.from_fixture()
     rows: list[dict] = []
     builds: list[dict] = []
-    for level in TABLES["levels"]:
-        result = simulate_level(account, level, fire_rate_profile)
-        rows.append({
+    for level_index, level in enumerate(TABLES["levels"]):
+        result = simulate_level(account, level, fire_rate_profile, strategy_id)
+        row = {
             **{
                 key: result[key] for key in result
                 if key not in {"max_progress", "base_hp_ratio", "build", "projected_skills"}
@@ -493,8 +646,9 @@ def generate_rows(
             "clear_time_cap_seconds": round(result["clear_time_cap_seconds"], 3),
             "crowd_dps": round(result["crowd_dps"], 2),
             "boss_dps": round(result["boss_dps"], 2),
-        })
-        builds.append({
+        }
+        rows.append(row)
+        build_row = {
             "level_id": str(level["id"]),
             "level": result["level"],
             "card_seeds": list(FIXTURE["runtime_probe"]["fixed_card_seeds"]),
@@ -503,14 +657,43 @@ def generate_rows(
             "resources_before": {
                 "gold": account.gold, "xp": account.xp, "stars": account.stars,
             },
-        })
+        }
+        builds.append(build_row)
         gold, xp = earned_resources(level)
         account.gold += gold
         account.xp += xp
         account.stars += int(FIXTURE["assumptions"]["stars_per_clear"])
-        buy_available(account)
-        spend_gold(account)
+        purchases = buy_available(account, level, strategy_id)
+        next_level = TABLES["levels"][level_index + 1] if level_index + 1 < len(TABLES["levels"]) else level
+        preferred_next, _preferred_power = build_for(account, next_level, fire_rate_profile, strategy_id)
+        gold_result = spend_gold(
+            account,
+            strategy_id,
+            gold,
+            str(result["weapon"]),
+            str(preferred_next["weapon"]),
+        )
         spend_xp(account)
+        target_chapter, target_weakness = purchase_target_after_level(level, strategy_id)
+        progression = {
+            "strategy_id": strategy_id,
+            "gold_earned": gold,
+            "xp_earned": xp,
+            "star_weapon_target_chapter": target_chapter,
+            "star_weapon_target_weakness": target_weakness,
+            "purchases": purchases,
+            **gold_result,
+            "resources_after": {
+                "gold": account.gold, "xp": account.xp, "stars": account.stars,
+            },
+        }
+        build_row["progression_after_clear"] = progression
+        row["strategy_id"] = strategy_id
+        row["purchases_after_clear"] = ";".join(str(event["item_id"]) for event in purchases)
+        row["star_weapon_target_chapter"] = target_chapter
+        row["star_weapon_target_weakness"] = target_weakness
+        row["preferred_next_weapon"] = gold_result["preferred_next_weapon"]
+        row["priority_gold_spent"] = gold_result["priority_gold_spent"]
     return rows, builds
 
 
@@ -553,10 +736,38 @@ def render_target_csv(rows: list[dict]) -> str:
     return stream.getvalue()
 
 
+def render_weapon_comparison(legacy_rows: list[dict], v2_rows: list[dict]) -> str:
+    if len(legacy_rows) != len(v2_rows):
+        raise SystemExit("weapon strategy comparison row counts differ")
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, fieldnames=WEAPON_COMPARISON_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for legacy, current in zip(legacy_rows, v2_rows):
+        writer.writerow({
+            "level": current["level"],
+            "chapter": current["chapter"],
+            "next_chapter_target": current.get("star_weapon_target_chapter", ""),
+            "next_chapter_weakness": current.get("star_weapon_target_weakness", ""),
+            "legacy_weapon": legacy["weapon"],
+            "legacy_weapon_level": legacy["weapon_level"],
+            "legacy_effective_power": legacy.get("effective_power", ""),
+            "v2_weapon": current["weapon"],
+            "v2_weapon_level": current["weapon_level"],
+            "v2_effective_power": current.get("effective_power", ""),
+            "weapon_changed": legacy["weapon"] != current["weapon"],
+            "level_delta": int(current["weapon_level"]) - int(legacy["weapon_level"]),
+            "v2_purchases_after_clear": current.get("purchases_after_clear", ""),
+            "v2_preferred_next_weapon": current.get("preferred_next_weapon", ""),
+            "v2_priority_gold_spent": current.get("priority_gold_spent", 0),
+        })
+    return stream.getvalue()
+
+
 def render_builds(builds: list[dict]) -> str:
     payload = {
         "schema_version": 1,
         "fixture_id": FIXTURE["id"],
+        "weapon_strategy_id": ACTIVE_WEAPON_STRATEGY,
         "fixture_source": str(FIXTURE_SOURCE.relative_to(ROOT)),
         "fixture_sha256": _sha256(FIXTURE_SOURCE),
         "levels_sha256": _sha256(DATA / "levels.json"),
@@ -579,12 +790,14 @@ def render_manifest(rows: list[dict]) -> str:
         "pacing_targets_frozen": bool(TARGETS["frozen"]),
         "progression_fixture_path": str(FIXTURE_SOURCE.relative_to(ROOT)),
         "progression_fixture_sha256": _sha256(FIXTURE_SOURCE),
+        "weapon_strategy_id": ACTIVE_WEAPON_STRATEGY,
         "row_count": len(rows),
         "current_grade_counts": counts,
         "reports": [
             str(REPORT.relative_to(ROOT)),
             str(TARGET_REPORT.relative_to(ROOT)),
             str(BUILD_REPORT.relative_to(ROOT)),
+            str(WEAPON_REPORT.relative_to(ROOT)),
         ],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -595,13 +808,15 @@ def main() -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    rows, builds = generate_rows()
+    rows, builds = generate_rows(strategy_id=ACTIVE_WEAPON_STRATEGY)
+    legacy_rows, _legacy_builds = generate_rows(strategy_id=LEGACY_WEAPON_STRATEGY)
     if len(rows) != 99 or [row["level"] for row in rows] != list(range(1, 100)):
         raise SystemExit("campaign frontline audit must cover level_001..099 exactly")
     outputs = {
         REPORT: render_csv(rows),
         TARGET_REPORT: render_target_csv(rows),
         BUILD_REPORT: render_builds(builds),
+        WEAPON_REPORT: render_weapon_comparison(legacy_rows, rows),
         MANIFEST_REPORT: render_manifest(rows),
     }
     if args.write:

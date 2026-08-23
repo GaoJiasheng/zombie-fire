@@ -15,8 +15,6 @@
   ],
   "profile": "control",
   "card_policy": "v2",
-  "ignore_level_guarantees": false,
-  "ignore_offer_category_floor": false,
   "seeds_per_level": 3,
   "simulation_step_seconds": 0.0166666666666667,
   "wall_acceleration": 1.0,
@@ -408,10 +406,10 @@
       "level_id": "level_008",
       "seed": 1103,
       "build": {
-        "armor": "",
-        "armor_level": 1.0,
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
         "character": "vanguard",
-        "character_level": 5.0,
+        "character_level": 7.0,
         "chip": "",
         "chip_level": 1.0,
         "pet": "",
@@ -429,10 +427,10 @@
         "weapon": "weapon_autocannon",
         "weapon_level": 9.0
       },
-      "max_progress": 0.299779947295444,
+      "max_progress": 0.277889012926407,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 140.776000000004,
+      "elapsed_seconds": 141.075333333338,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -472,7 +470,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 76.399999999997,
+          "time": 75.149999999997,
           "wave": 4
         },
         {
@@ -488,7 +486,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 110.199999999995,
+          "time": 109.266666666662,
           "wave": 5
         }
       ],
@@ -513,14 +511,14 @@
         },
         {
           "wave": 4,
-          "end_time": 85.5333333333298,
-          "max_progress": 0.299779947295444,
+          "end_time": 85.9666666666631,
+          "max_progress": 0.277889012926407,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 141.000000000004,
-          "max_progress": 0.14298915717438,
+          "end_time": 141.283333333338,
+          "max_progress": 0.242697143554687,
           "base_ratio": 1.0
         }
       ],
@@ -530,25 +528,25 @@
         "skill_multishot": 1
       },
       "battle_report": {
-        "duration_seconds": 140.776000000004,
-        "damage_total": 63287.3095945493,
+        "duration_seconds": 141.075333333338,
+        "damage_total": 64140.067683847,
         "damage_by_element": {
-          "physical": 17816.368462344,
-          "ice": 45119.8622381881,
-          "fire": 351.07889401728
+          "physical": 18026.7203684626,
+          "ice": 45658.2299711642,
+          "fire": 455.117344220159
         },
         "damage_by_source": {
-          "weapon": 63247.767068532,
-          "burn": 39.54252601728
+          "weapon": 64080.7072676268,
+          "burn": 59.36041622016
         },
         "top_element": "ice",
-        "crit_damage": 62936.2307005321,
-        "weak_damage": 44048.6610612337,
+        "crit_damage": 63684.9503396268,
+        "weak_damage": 45326.4380964945,
         "kills": 150,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 95.2033333333297,
+        "control_seconds": 93.60533333333,
         "active_skill_casts": 9,
         "max_kill_streak": 150,
         "boss_id": "",
@@ -560,10 +558,10 @@
       "level_id": "level_008",
       "seed": 2207,
       "build": {
-        "armor": "",
-        "armor_level": 1.0,
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
         "character": "vanguard",
-        "character_level": 5.0,
+        "character_level": 7.0,
         "chip": "",
         "chip_level": 1.0,
         "pet": "",
@@ -584,7 +582,7 @@
       "max_progress": 0.269572483674261,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 132.392666666664,
+      "elapsed_seconds": 131.09333333333,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -624,7 +622,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 71.0333333333306,
+          "time": 71.8166666666639,
           "wave": 4
         },
         {
@@ -640,7 +638,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 103.499999999995,
+          "time": 101.383333333329,
           "wave": 5
         }
       ],
@@ -665,14 +663,14 @@
         },
         {
           "wave": 4,
-          "end_time": 75.8833333333303,
+          "end_time": 75.4166666666637,
           "max_progress": 0.269572483674261,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 132.616666666664,
-          "max_progress": 0.245627832776718,
+          "end_time": 131.33333333333,
+          "max_progress": 0.190442104194,
           "base_ratio": 1.0
         }
       ],
@@ -682,26 +680,26 @@
         "skill_critical": 1
       },
       "battle_report": {
-        "duration_seconds": 132.392666666664,
-        "damage_total": 59502.6513773194,
+        "duration_seconds": 131.09333333333,
+        "damage_total": 61692.052229042,
         "damage_by_element": {
-          "physical": 58844.6940652387,
-          "fire": 657.957312080641
+          "physical": 61097.3657927924,
+          "fire": 594.686436249599
         },
         "damage_by_source": {
-          "weapon": 59399.3807692386,
-          "burn": 103.27060808064
+          "weapon": 61614.2728007924,
+          "burn": 77.7794282496001
         },
         "top_element": "physical",
-        "crit_damage": 56744.0210524003,
-        "weak_damage": 5639.77864677427,
+        "crit_damage": 61097.3657927924,
+        "weak_damage": 6009.41662923571,
         "kills": 150,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
         "control_seconds": 0.0,
         "active_skill_casts": 8,
-        "max_kill_streak": 150,
+        "max_kill_streak": 127,
         "boss_id": "",
         "challenge_rule": {}
       }
@@ -711,10 +709,10 @@
       "level_id": "level_008",
       "seed": 3301,
       "build": {
-        "armor": "",
-        "armor_level": 1.0,
+        "armor": "armor_kevlar",
+        "armor_level": 5.0,
         "character": "vanguard",
-        "character_level": 5.0,
+        "character_level": 7.0,
         "chip": "",
         "chip_level": 1.0,
         "pet": "",
@@ -732,10 +730,10 @@
         "weapon": "weapon_autocannon",
         "weapon_level": 9.0
       },
-      "max_progress": 0.257126949397662,
+      "max_progress": 0.248064300304151,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 134.758666666666,
+      "elapsed_seconds": 134.476666666666,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -775,7 +773,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 72.3833333333305,
+          "time": 71.6499999999972,
           "wave": 4
         },
         {
@@ -791,7 +789,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 105.249999999995,
+          "time": 105.383333333329,
           "wave": 5
         }
       ],
@@ -816,14 +814,14 @@
         },
         {
           "wave": 4,
-          "end_time": 77.5666666666636,
-          "max_progress": 0.236042471150406,
+          "end_time": 76.8999999999969,
+          "max_progress": 0.20069000011182,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 134.966666666666,
-          "max_progress": 0.257126949397662,
+          "end_time": 134.716666666666,
+          "max_progress": 0.248064300304151,
           "base_ratio": 1.0
         }
       ],
@@ -833,25 +831,25 @@
         "skill_pierce": 1
       },
       "battle_report": {
-        "duration_seconds": 134.758666666666,
-        "damage_total": 57044.8924300657,
+        "duration_seconds": 134.476666666666,
+        "damage_total": 58918.1832725488,
         "damage_by_element": {
-          "physical": 46691.3145054887,
-          "lightning": 9672.72051122658,
-          "fire": 680.857413350401
+          "physical": 48780.9704434105,
+          "lightning": 9479.37284843029,
+          "fire": 657.83998070784
         },
         "damage_by_source": {
-          "weapon": 56941.5170647152,
-          "burn": 103.3753653504
+          "weapon": 58825.7103318409,
+          "burn": 92.4729407078401
         },
         "top_element": "physical",
-        "crit_damage": 49807.4929606513,
-        "weak_damage": 5376.10236991027,
+        "crit_damage": 51733.5270709435,
+        "weak_damage": 5729.14534193971,
         "kills": 150,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 54.5199999999986,
+        "control_seconds": 50.951999999999,
         "active_skill_casts": 8,
         "max_kill_streak": 150,
         "boss_id": "",
@@ -864,13 +862,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6.0,
+        "armor_level": 7.0,
         "character": "vanguard",
-        "character_level": 7.0,
-        "chip": "",
-        "chip_level": 1.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
         "signature_level": 1.0,
         "skill_base_levels": {
           "skill_barrier": 1.0,
@@ -885,12 +883,12 @@
           "skill_split_shot": 1.0
         },
         "weapon": "weapon_autocannon",
-        "weapon_level": 14.0
+        "weapon_level": 12.0
       },
-      "max_progress": 0.233731684793953,
+      "max_progress": 0.226786326634065,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 158.194000000018,
+      "elapsed_seconds": 156.39333333335,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -914,7 +912,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 64.0166666666643,
+          "time": 59.7833333333312,
           "wave": 4
         },
         {
@@ -930,7 +928,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 98.333333333329,
+          "time": 93.6166666666626,
           "wave": 5
         },
         {
@@ -946,39 +944,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 127.233333333327,
+          "time": 124.299999999994,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 16.8000000000003,
-          "max_progress": 0.186465710356035,
+          "end_time": 16.3833333333337,
+          "max_progress": 0.168619030668535,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 34.166666666666,
-          "max_progress": 0.173929322220897,
+          "end_time": 32.5666666666661,
+          "max_progress": 0.138718559905773,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 46.783333333332,
-          "max_progress": 0.0710125872197042,
+          "end_time": 43.3999999999988,
+          "max_progress": 0.0532566449114385,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 92.2833333333294,
-          "max_progress": 0.229934715678674,
+          "end_time": 89.0666666666629,
+          "max_progress": 0.226786326634065,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 158.450000000018,
-          "max_progress": 0.233731684793953,
+          "end_time": 156.63333333335,
+          "max_progress": 0.195499705540315,
           "base_ratio": 1.0
         }
       ],
@@ -988,26 +986,27 @@
         "skill_multishot": 2
       },
       "battle_report": {
-        "duration_seconds": 158.194000000018,
-        "damage_total": 110934.800805052,
+        "duration_seconds": 156.39333333335,
+        "damage_total": 114756.984647812,
         "damage_by_element": {
-          "physical": 36200.8819258698,
-          "ice": 73921.3458298125,
-          "fire": 812.5730493696
+          "physical": 39993.2838608643,
+          "ice": 74034.38654776,
+          "fire": 729.31423918781
         },
         "damage_by_source": {
-          "weapon": 110825.489195682,
-          "burn": 109.3116093696
+          "weapon": 113511.605202972,
+          "pet": 1167.7824,
+          "burn": 77.5970448401092
         },
         "top_element": "ice",
-        "crit_damage": 110122.227755682,
-        "weak_damage": 84401.4111959904,
+        "crit_damage": 112934.288008624,
+        "weak_damage": 83631.0617569947,
         "kills": 181,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 97.2566666666631,
-        "active_skill_casts": 10,
+        "control_seconds": 95.0373333333296,
+        "active_skill_casts": 9,
         "max_kill_streak": 181,
         "boss_id": "",
         "challenge_rule": {}
@@ -1019,13 +1018,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6.0,
+        "armor_level": 7.0,
         "character": "vanguard",
-        "character_level": 7.0,
-        "chip": "",
-        "chip_level": 1.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
         "signature_level": 1.0,
         "skill_base_levels": {
           "skill_barrier": 1.0,
@@ -1040,12 +1039,12 @@
           "skill_split_shot": 1.0
         },
         "weapon": "weapon_autocannon",
-        "weapon_level": 14.0
+        "weapon_level": 12.0
       },
-      "max_progress": 0.312762777313931,
+      "max_progress": 0.203610229492187,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 158.029333333351,
+      "elapsed_seconds": 158.028000000018,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -1069,7 +1068,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 58.649999999998,
+          "time": 57.149999999998,
           "wave": 4
         },
         {
@@ -1085,7 +1084,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 97.5166666666624,
+          "time": 93.7333333333293,
           "wave": 5
         },
         {
@@ -1101,39 +1100,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 127.449999999994,
+          "time": 124.383333333328,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 15.2333333333337,
-          "max_progress": 0.180530437440363,
+          "end_time": 14.6833333333336,
+          "max_progress": 0.16168513407234,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 31.7166666666661,
-          "max_progress": 0.11768078986015,
+          "end_time": 30.8666666666662,
+          "max_progress": 0.106926278849594,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 42.5833333333322,
-          "max_progress": 0.0678452353441078,
+          "end_time": 41.8666666666656,
+          "max_progress": 0.0577863154520515,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 91.2999999999961,
-          "max_progress": 0.312762777313931,
+          "end_time": 89.4499999999962,
+          "max_progress": 0.203610229492187,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 158.333333333351,
-          "max_progress": 0.224280041410723,
+          "end_time": 158.300000000018,
+          "max_progress": 0.170948313938752,
           "base_ratio": 1.0
         }
       ],
@@ -1143,19 +1142,20 @@
         "skill_critical": 1
       },
       "battle_report": {
-        "duration_seconds": 158.029333333351,
-        "damage_total": 103948.843690635,
+        "duration_seconds": 158.028000000018,
+        "damage_total": 105231.689423777,
         "damage_by_element": {
-          "physical": 102760.140837832,
-          "fire": 1188.70285280256
+          "physical": 104319.860660661,
+          "fire": 911.828763115219
         },
         "damage_by_source": {
-          "weapon": 103784.893221832,
-          "burn": 163.95046880256
+          "weapon": 103645.627805271,
+          "pet": 1494.4976,
+          "burn": 91.5640185051814
         },
         "top_element": "physical",
-        "crit_damage": 90496.7912877278,
-        "weak_damage": 9640.7840369111,
+        "crit_damage": 102899.763060661,
+        "weak_damage": 9272.64119547501,
         "kills": 181,
         "boss_kills": 0,
         "base_damage_taken": 0,
@@ -1173,13 +1173,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6.0,
+        "armor_level": 7.0,
         "character": "vanguard",
-        "character_level": 7.0,
-        "chip": "",
-        "chip_level": 1.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "character_level": 9.0,
+        "chip": "chip_attack",
+        "chip_level": 8.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 5.0,
         "signature_level": 1.0,
         "skill_base_levels": {
           "skill_barrier": 1.0,
@@ -1194,12 +1194,12 @@
           "skill_split_shot": 1.0
         },
         "weapon": "weapon_autocannon",
-        "weapon_level": 14.0
+        "weapon_level": 12.0
       },
-      "max_progress": 0.279972548157204,
+      "max_progress": 0.247032619796636,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 158.028000000018,
+      "elapsed_seconds": 156.644666666683,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -1223,7 +1223,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 60.6833333333312,
+          "time": 59.8166666666646,
           "wave": 4
         },
         {
@@ -1239,7 +1239,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 96.6333333333291,
+          "time": 95.3166666666625,
           "wave": 5
         },
         {
@@ -1255,39 +1255,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 126.766666666661,
+          "time": 125.683333333327,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 15.6000000000004,
-          "max_progress": 0.199410521529103,
+          "end_time": 15.2500000000003,
+          "max_progress": 0.180644610455928,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 33.4499999999994,
-          "max_progress": 0.145933241516579,
+          "end_time": 33.2999999999994,
+          "max_progress": 0.150103619990458,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 44.2833333333321,
-          "max_progress": 0.063589267876312,
+          "end_time": 43.9499999999988,
+          "max_progress": 0.0448154828020635,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 91.0999999999961,
-          "max_progress": 0.27193682721553,
+          "end_time": 90.6999999999961,
+          "max_progress": 0.247032619796636,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 158.300000000018,
-          "max_progress": 0.279972548157204,
+          "end_time": 156.916666666684,
+          "max_progress": 0.167172217915076,
           "base_ratio": 1.0
         }
       ],
@@ -1297,26 +1297,27 @@
         "skill_pierce": 2
       },
       "battle_report": {
-        "duration_seconds": 158.028000000018,
-        "damage_total": 101544.834466409,
+        "duration_seconds": 156.644666666683,
+        "damage_total": 102146.710683813,
         "damage_by_element": {
-          "physical": 83858.2285728335,
-          "lightning": 16666.3703233843,
-          "fire": 1020.23557019136
+          "physical": 86205.604359687,
+          "lightning": 15115.2555391498,
+          "fire": 825.850784975842
         },
         "damage_by_source": {
-          "weapon": 101418.745584218,
-          "burn": 126.08888219136
+          "weapon": 100554.85021664,
+          "pet": 1496.3824,
+          "burn": 95.4780671723846
         },
         "top_element": "physical",
-        "crit_damage": 86859.8377910965,
-        "weak_damage": 10085.9799095194,
+        "crit_damage": 89320.6080386654,
+        "weak_damage": 8893.86864182672,
         "kills": 181,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 65.9559999999984,
-        "active_skill_casts": 10,
+        "control_seconds": 55.8013333333321,
+        "active_skill_casts": 9,
         "max_kill_streak": 181,
         "boss_id": "",
         "challenge_rule": {}
@@ -1328,13 +1329,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 12.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 18.0,
         "chip": "chip_attack",
-        "chip_level": 7.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 2.0,
@@ -1349,13 +1350,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 22.0
+        "weapon_level": 17.0
       },
-      "max_progress": 0.262595606214218,
+      "max_progress": 0.181237723081167,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 195.633333333381,
-      "boss_phase_seconds": 20.9666666666834,
+      "elapsed_seconds": 191.912666666711,
+      "boss_phase_seconds": 9.86666666667452,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -1379,7 +1380,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 49.9666666666651,
+          "time": 46.883333333332,
           "wave": 3
         },
         {
@@ -1395,7 +1396,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 102.616666666662,
+          "time": 101.266666666662,
           "wave": 4
         },
         {
@@ -1411,7 +1412,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 128.233333333328,
+          "time": 125.749999999994,
           "wave": 4
         },
         {
@@ -1427,7 +1428,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 155.666666666683,
+          "time": 144.250000000007,
           "wave": 5
         }
       ],
@@ -1435,31 +1436,31 @@
         {
           "wave": 1,
           "end_time": 17.9500000000003,
-          "max_progress": 0.203982334282562,
+          "max_progress": 0.148694499940363,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 39.9166666666657,
-          "max_progress": 0.200250710057848,
+          "end_time": 39.8333333333324,
+          "max_progress": 0.181237723081167,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 69.0333333333307,
-          "max_progress": 0.262595606214218,
+          "end_time": 67.6499999999974,
+          "max_progress": 0.116692556133707,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 134.716666666666,
-          "max_progress": 0.23996882547859,
+          "end_time": 131.549999999997,
+          "max_progress": 0.118313388970062,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 196.033333333381,
-          "max_progress": 0.210921076417879,
+          "end_time": 192.216666666712,
+          "max_progress": 0.110763852650883,
           "base_ratio": 1.0
         }
       ],
@@ -1469,25 +1470,26 @@
         "skill_split_shot": 2
       },
       "battle_report": {
-        "duration_seconds": 195.633333333381,
-        "damage_total": 395666.967718386,
+        "duration_seconds": 191.912666666711,
+        "damage_total": 398814.193251163,
         "damage_by_element": {
-          "physical": 271137.761612929,
-          "lightning": 124529.206105462
+          "physical": 279811.701906352,
+          "lightning": 119002.491344813
         },
         "damage_by_source": {
-          "weapon": 395666.967718386
+          "weapon": 396935.445731163,
+          "pet": 1878.74752
         },
         "top_element": "physical",
-        "crit_damage": 109513.794028245,
-        "weak_damage": 29281.1030709507,
+        "crit_damage": 122200.497359744,
+        "weak_damage": 22275.1966287293,
         "kills": 258,
         "boss_kills": 2,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 175.666000000006,
+        "control_seconds": 141.125333333333,
         "active_skill_casts": 12,
-        "max_kill_streak": 258,
+        "max_kill_streak": 178,
         "boss_id": "boss_frost_warden",
         "challenge_rule": {}
       }
@@ -1498,13 +1500,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 12.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 18.0,
         "chip": "chip_attack",
-        "chip_level": 7.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 2.0,
@@ -1519,13 +1521,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 22.0
+        "weapon_level": 17.0
       },
-      "max_progress": 0.297824585892772,
+      "max_progress": 0.166130310524511,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 193.433333333379,
-      "boss_phase_seconds": 13.6000000000108,
+      "elapsed_seconds": 192.430666666712,
+      "boss_phase_seconds": 9.633333333341,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -1549,7 +1551,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 49.7166666666651,
+          "time": 46.6499999999986,
           "wave": 3
         },
         {
@@ -1565,7 +1567,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 102.633333333329,
+          "time": 101.566666666662,
           "wave": 4
         },
         {
@@ -1581,7 +1583,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 126.999999999994,
+          "time": 126.733333333327,
           "wave": 4
         },
         {
@@ -1597,7 +1599,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 146.750000000009,
+          "time": 144.550000000007,
           "wave": 5
         }
       ],
@@ -1605,31 +1607,31 @@
         {
           "wave": 1,
           "end_time": 17.9500000000003,
-          "max_progress": 0.233441022334208,
+          "max_progress": 0.1441138114638,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 39.0833333333324,
-          "max_progress": 0.16624816428614,
+          "end_time": 39.5166666666657,
+          "max_progress": 0.111497299543774,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 68.8999999999974,
-          "max_progress": 0.297824585892772,
+          "end_time": 68.1333333333308,
+          "max_progress": 0.122984185837607,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 132.899999999998,
-          "max_progress": 0.212578157614206,
+          "end_time": 131.83333333333,
+          "max_progress": 0.166130310524511,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 193.83333333338,
-          "max_progress": 0.155476577409351,
+          "end_time": 192.766666666712,
+          "max_progress": 0.110512723267533,
           "base_ratio": 1.0
         }
       ],
@@ -1639,25 +1641,26 @@
         "skill_cryo": 1
       },
       "battle_report": {
-        "duration_seconds": 193.433333333379,
-        "damage_total": 393925.900850429,
+        "duration_seconds": 192.430666666712,
+        "damage_total": 394771.327300346,
         "damage_by_element": {
-          "physical": 317847.473907116,
-          "ice": 76078.4269433146
+          "physical": 317339.140708359,
+          "ice": 77432.1865919834
         },
         "damage_by_source": {
-          "weapon": 393925.900850429
+          "weapon": 393330.207492346,
+          "pet": 1441.119808
         },
         "top_element": "physical",
-        "crit_damage": 105457.110380406,
-        "weak_damage": 34373.9443523547,
+        "crit_damage": 116944.867118606,
+        "weak_damage": 34455.0545351455,
         "kills": 258,
         "boss_kills": 2,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 46.7673333333328,
+        "control_seconds": 44.034666666666,
         "active_skill_casts": 12,
-        "max_kill_streak": 258,
+        "max_kill_streak": 178,
         "boss_id": "boss_frost_warden",
         "challenge_rule": {}
       }
@@ -1668,13 +1671,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 12.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 18.0,
         "chip": "chip_attack",
-        "chip_level": 7.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 14.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 9.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 2.0,
@@ -1689,13 +1692,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 22.0
+        "weapon_level": 17.0
       },
-      "max_progress": 0.315709191242247,
-      "base_ratio": 0.988133764832794,
+      "max_progress": 0.257028827230439,
+      "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 199.565333333384,
-      "boss_phase_seconds": 32.3666666666924,
+      "elapsed_seconds": 194.684000000047,
+      "boss_phase_seconds": 14.3666666666781,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -1719,7 +1722,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 49.5833333333318,
+          "time": 48.1499999999985,
           "wave": 3
         },
         {
@@ -1735,7 +1738,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 103.049999999995,
+          "time": 102.383333333329,
           "wave": 4
         },
         {
@@ -1751,7 +1754,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 127.366666666661,
+          "time": 127.083333333327,
           "wave": 4
         },
         {
@@ -1767,7 +1770,7 @@
           "boss_hp_share": 0.3738,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 160.70000000002,
+          "time": 148.10000000001,
           "wave": 5
         }
       ],
@@ -1775,32 +1778,32 @@
         {
           "wave": 1,
           "end_time": 17.9500000000003,
-          "max_progress": 0.197873483905355,
+          "max_progress": 0.119781983353709,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 39.6166666666657,
-          "max_progress": 0.209604697191078,
+          "end_time": 39.7666666666657,
+          "max_progress": 0.103989323040911,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 68.8833333333307,
-          "max_progress": 0.230181232481512,
+          "end_time": 68.6666666666641,
+          "max_progress": 0.145831531786737,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 136.600000000001,
-          "max_progress": 0.242903591476324,
+          "end_time": 133.449999999998,
+          "max_progress": 0.0911213183221016,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 199.933333333385,
-          "max_progress": 0.315709191242247,
-          "base_ratio": 0.988133764832794
+          "end_time": 195.100000000047,
+          "max_progress": 0.257028827230439,
+          "base_ratio": 1.0
         }
       ],
       "final_skill_levels": {
@@ -1810,25 +1813,26 @@
         "skill_incendiary": 1
       },
       "battle_report": {
-        "duration_seconds": 199.565333333384,
-        "damage_total": 399647.253524728,
+        "duration_seconds": 194.684000000047,
+        "damage_total": 401343.392018486,
         "damage_by_element": {
-          "physical": 216111.820052226,
-          "lightning": 116393.527649107,
-          "fire": 67141.9058234028
+          "physical": 225175.757168255,
+          "lightning": 108244.802359394,
+          "fire": 67922.8324908209
         },
         "damage_by_source": {
-          "weapon": 397650.536498654,
-          "burn": 1996.71702607467
+          "weapon": 396998.323530318,
+          "pet": 2097.508096,
+          "burn": 2247.56039216692
         },
         "top_element": "physical",
-        "crit_damage": 131544.774259135,
-        "weak_damage": 42156.4175160375,
+        "crit_damage": 132828.415844439,
+        "weak_damage": 11969.1486125545,
         "kills": 258,
         "boss_kills": 2,
-        "base_damage_taken": 11,
+        "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 166.90933333333,
+        "control_seconds": 109.290666666663,
         "active_skill_casts": 12,
         "max_kill_streak": 258,
         "boss_id": "boss_frost_warden",
@@ -1841,13 +1845,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 16.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 23.0,
         "chip": "chip_attack",
-        "chip_level": 10.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -1862,13 +1866,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 32.0
+        "weapon_level": 23.0
       },
-      "max_progress": 0.259414602963979,
+      "max_progress": 0.163751011040375,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 172.251333333362,
-      "boss_phase_seconds": 10.4333333333367,
+      "elapsed_seconds": 166.482000000025,
+      "boss_phase_seconds": 7.24999999999959,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -1893,7 +1897,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 53.9666666666649,
+          "time": 47.3333333333319,
           "wave": 3
         },
         {
@@ -1909,7 +1913,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 81.3166666666633,
+          "time": 73.3833333333305,
           "wave": 4
         },
         {
@@ -1925,7 +1929,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 104.449999999995,
+          "time": 94.4833333333293,
           "wave": 4
         },
         {
@@ -1941,7 +1945,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 121.516666666661,
+          "time": 116.733333333328,
           "wave": 4
         },
         {
@@ -1957,39 +1961,39 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 139.783333333337,
+          "time": 135.366666666667,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 20.6166666666668,
-          "max_progress": 0.114267922903745,
+          "end_time": 19.9666666666668,
+          "max_progress": 0.0781787668475668,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 35.6833333333326,
-          "max_progress": 0.11653351528954,
+          "end_time": 34.916666666666,
+          "max_progress": 0.0841515460997137,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 64.8999999999976,
-          "max_progress": 0.259414602963979,
+          "end_time": 60.4833333333312,
+          "max_progress": 0.163751011040375,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 122.049999999994,
-          "max_progress": 0.220477457992903,
+          "end_time": 117.333333333328,
+          "max_progress": 0.145568544810055,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 172.683333333363,
-          "max_progress": 0.13247610776479,
+          "end_time": 166.850000000025,
+          "max_progress": 0.112012673880308,
           "base_ratio": 1.0
         }
       ],
@@ -2000,25 +2004,26 @@
         "skill_homing": 3
       },
       "battle_report": {
-        "duration_seconds": 172.251333333362,
-        "damage_total": 833476.143637973,
+        "duration_seconds": 166.482000000025,
+        "damage_total": 768960.14371131,
         "damage_by_element": {
-          "physical": 539145.548057724,
-          "lightning": 294330.595580208
+          "physical": 568515.542880764,
+          "lightning": 200444.600830517
         },
         "damage_by_source": {
-          "weapon": 833476.143637973
+          "weapon": 766892.64691131,
+          "pet": 2067.49679999999
         },
         "top_element": "physical",
-        "crit_damage": 161319.975214251,
-        "weak_damage": 109060.950715456,
-        "kills": 338,
+        "crit_damage": 201454.015980062,
+        "weak_damage": 115381.034231098,
+        "kills": 280,
         "boss_kills": 2,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 238.984000000014,
-        "active_skill_casts": 11,
-        "max_kill_streak": 338,
+        "control_seconds": 153.732000000002,
+        "active_skill_casts": 10,
+        "max_kill_streak": 201,
         "boss_id": "boss_storm_caller",
         "challenge_rule": {}
       }
@@ -2029,13 +2034,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 16.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 23.0,
         "chip": "chip_attack",
-        "chip_level": 10.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -2050,13 +2055,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 32.0
+        "weapon_level": 23.0
       },
-      "max_progress": 0.308237276732467,
+      "max_progress": 0.1792212333388,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 169.996000000027,
-      "boss_phase_seconds": 13.1166666666704,
+      "elapsed_seconds": 162.847333333355,
+      "boss_phase_seconds": 12.7666666666659,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -2081,7 +2086,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 54.3666666666649,
+          "time": 47.5833333333319,
           "wave": 3
         },
         {
@@ -2097,7 +2102,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 76.9999999999969,
+          "time": 71.2999999999972,
           "wave": 4
         },
         {
@@ -2113,7 +2118,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 98.7499999999957,
+          "time": 91.7833333333294,
           "wave": 4
         },
         {
@@ -2129,7 +2134,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 119.199999999995,
+          "time": 112.549999999995,
           "wave": 4
         },
         {
@@ -2145,39 +2150,39 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 137.866666666669,
+          "time": 130.483333333329,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 19.2833333333335,
-          "max_progress": 0.136702373009602,
+          "end_time": 19.6166666666668,
+          "max_progress": 0.124329382044668,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 35.066666666666,
-          "max_progress": 0.13050977401151,
+          "end_time": 34.3999999999993,
+          "max_progress": 0.116733603441078,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 63.9166666666643,
-          "max_progress": 0.308237276732467,
+          "end_time": 58.4166666666646,
+          "max_progress": 0.161521806789719,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 119.883333333328,
-          "max_progress": 0.0990528601726503,
+          "end_time": 113.083333333328,
+          "max_progress": 0.0808191197519084,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 170.300000000028,
-          "max_progress": 0.193736861134303,
+          "end_time": 163.183333333355,
+          "max_progress": 0.1792212333388,
           "base_ratio": 1.0
         }
       ],
@@ -2188,25 +2193,26 @@
         "skill_homing": 3
       },
       "battle_report": {
-        "duration_seconds": 169.996000000027,
-        "damage_total": 805150.238566737,
+        "duration_seconds": 162.847333333355,
+        "damage_total": 759299.539431266,
         "damage_by_element": {
-          "physical": 425651.382045058,
-          "ice": 379498.856521662
+          "physical": 401259.376992601,
+          "ice": 358040.162438679
         },
         "damage_by_source": {
-          "weapon": 805150.238566737
+          "weapon": 757450.100231266,
+          "pet": 1849.4392
         },
         "top_element": "physical",
-        "crit_damage": 245864.016205581,
-        "weak_damage": 196670.128046149,
-        "kills": 316,
+        "crit_damage": 258472.367961751,
+        "weak_damage": 200005.39228309,
+        "kills": 272,
         "boss_kills": 2,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 116.545999999997,
-        "active_skill_casts": 11,
-        "max_kill_streak": 316,
+        "control_seconds": 98.5693333333314,
+        "active_skill_casts": 10,
+        "max_kill_streak": 189,
         "boss_id": "boss_storm_caller",
         "challenge_rule": {}
       }
@@ -2217,13 +2223,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 16.0,
         "character": "vanguard",
-        "character_level": 10.0,
+        "character_level": 23.0,
         "chip": "chip_attack",
-        "chip_level": 10.0,
-        "pet": "",
-        "pet_level": 1.0,
+        "chip_level": 19.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 12.0,
         "signature_level": 2.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -2238,13 +2244,13 @@
           "skill_split_shot": 2.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 32.0
+        "weapon_level": 23.0
       },
-      "max_progress": 0.540477211056775,
-      "base_ratio": 0.907823392718823,
+      "max_progress": 0.364890434905773,
+      "base_ratio": 0.975138121546961,
       "victory": true,
-      "elapsed_seconds": 174.849333333365,
-      "boss_phase_seconds": 34.0500000000248,
+      "elapsed_seconds": 169.796666666694,
+      "boss_phase_seconds": 22.6833333333438,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -2269,7 +2275,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 56.2666666666648,
+          "time": 46.4499999999986,
           "wave": 3
         },
         {
@@ -2285,7 +2291,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 85.4499999999964,
+          "time": 71.8499999999972,
           "wave": 4
         },
         {
@@ -2301,7 +2307,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 105.949999999995,
+          "time": 93.7333333333293,
           "wave": 4
         },
         {
@@ -2317,7 +2323,7 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 124.266666666661,
+          "time": 117.583333333328,
           "wave": 4
         },
         {
@@ -2333,40 +2339,40 @@
           "boss_hp_share": 0.3289,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 158.250000000018,
+          "time": 140.766666666671,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 20.6833333333334,
-          "max_progress": 0.149476052786558,
+          "end_time": 19.1500000000002,
+          "max_progress": 0.0762904043416031,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 38.2499999999991,
-          "max_progress": 0.13809453367277,
+          "end_time": 34.366666666666,
+          "max_progress": 0.0987854702782085,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 68.9999999999974,
-          "max_progress": 0.277076360105558,
+          "end_time": 59.7666666666646,
+          "max_progress": 0.107710673790852,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 125.133333333328,
-          "max_progress": 0.240604476346314,
+          "end_time": 118.116666666661,
+          "max_progress": 0.1089723776315,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 175.233333333365,
-          "max_progress": 0.540477211056775,
-          "base_ratio": 0.907823392718823
+          "end_time": 170.116666666694,
+          "max_progress": 0.364890434905773,
+          "base_ratio": 0.975138121546961
         }
       ],
       "final_skill_levels": {
@@ -2376,27 +2382,28 @@
         "skill_incendiary": 2
       },
       "battle_report": {
-        "duration_seconds": 174.849333333365,
-        "damage_total": 948825.003594437,
+        "duration_seconds": 169.796666666694,
+        "damage_total": 810510.290505731,
         "damage_by_element": {
-          "physical": 314115.351606893,
-          "lightning": 172082.799118863,
-          "fire": 462626.852868675
+          "physical": 323312.813893619,
+          "lightning": 99953.3465727091,
+          "fire": 387244.130039403
         },
         "damage_by_source": {
-          "weapon": 937800.943857235,
-          "burn": 11024.0597372024
+          "weapon": 801426.220749671,
+          "pet": 2768.8136,
+          "burn": 6315.25615605893
         },
         "top_element": "fire",
-        "crit_damage": 370624.105455401,
-        "weak_damage": 298990.974624228,
-        "kills": 400,
+        "crit_damage": 343063.883445533,
+        "weak_damage": 241596.252196475,
+        "kills": 304,
         "boss_kills": 2,
-        "base_damage_taken": 119,
+        "base_damage_taken": 45,
         "base_damage_prevented": 0,
-        "control_seconds": 177.291999999999,
+        "control_seconds": 119.458666666663,
         "active_skill_casts": 11,
-        "max_kill_streak": 297,
+        "max_kill_streak": 304,
         "boss_id": "boss_storm_caller",
         "challenge_rule": {}
       }
@@ -2407,13 +2414,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 23.0,
         "character": "vanguard",
-        "character_level": 12.0,
+        "character_level": 32.0,
         "chip": "chip_attack",
-        "chip_level": 12.0,
+        "chip_level": 26.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 17.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -2428,13 +2435,13 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47.0
+        "weapon_level": 32.0
       },
-      "max_progress": 0.957664338322996,
+      "max_progress": 0.955461481691317,
       "base_ratio": 0.0,
       "victory": false,
-      "elapsed_seconds": 189.998000000043,
-      "boss_phase_seconds": 44.4333333333687,
+      "elapsed_seconds": 211.662666666727,
+      "boss_phase_seconds": 67.2333333333868,
       "max_living_bosses": 1,
       "timeout": false,
       "card_policy": "v2",
@@ -2442,7 +2449,9 @@
         "skill_charge_shot",
         "skill_charge_shot",
         "skill_critical",
-        "skill_incendiary"
+        "skill_incendiary",
+        "skill_charge_shot",
+        "skill_critical"
       ],
       "card_timeline": [
         {
@@ -2450,7 +2459,7 @@
           "candidates": [
             "skill_ricochet",
             "skill_charge_shot",
-            "skill_barrier"
+            "skill_split_shot"
           ],
           "reason": "new_single_target",
           "rank": 1,
@@ -2458,7 +2467,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 42.1499999999989,
+          "time": 28.8166666666663,
           "wave": 2
         },
         {
@@ -2474,8 +2483,8 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 76.1833333333303,
-          "wave": 4
+          "time": 53.2333333333316,
+          "wave": 3
         },
         {
           "selected": "skill_critical",
@@ -2490,7 +2499,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 103.249999999995,
+          "time": 75.6666666666637,
           "wave": 4
         },
         {
@@ -2506,69 +2515,101 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 132.033333333331,
+          "time": 91.3166666666628,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_homing",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "boss_hp_share": 0.5067,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 108.166666666662,
+          "wave": 4
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_recycle",
+            "skill_critical",
+            "skill_ricochet"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "boss_hp_share": 0.5067,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 131.049999999996,
           "wave": 4
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 19.7166666666668,
-          "max_progress": 0.240088076991889,
+          "end_time": 19.7666666666668,
+          "max_progress": 0.0888916015625,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 42.6833333333322,
-          "max_progress": 0.185166593362357,
+          "end_time": 42.6166666666655,
+          "max_progress": 0.105701102919251,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 73.0833333333305,
-          "max_progress": 0.272517499850907,
+          "end_time": 73.1499999999971,
+          "max_progress": 0.13495052425006,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 145.700000000008,
-          "max_progress": 0.350617480096016,
+          "end_time": 144.316666666674,
+          "max_progress": 0.238570351637047,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 190.350000000044,
-          "max_progress": 0.957664338322996,
+          "end_time": 211.966666666727,
+          "max_progress": 0.955461481691317,
           "base_ratio": 0.0
         }
       ],
       "final_skill_levels": {
-        "skill_charge_shot": 4,
-        "skill_critical": 3,
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
         "skill_incendiary": 1
       },
       "battle_report": {
-        "duration_seconds": 189.998000000043,
-        "damage_total": 1647631.79307103,
+        "duration_seconds": 211.662666666727,
+        "damage_total": 1814590.32265996,
         "damage_by_element": {
-          "physical": 750085.884958352,
-          "fire": 897545.908112755
+          "physical": 497060.084715643,
+          "fire": 1317530.2379443
         },
         "damage_by_source": {
-          "weapon": 1610285.66221816,
-          "pet": 2689.658464,
-          "burn": 34656.4723888978
+          "weapon": 1779775.90127658,
+          "pet": 3316.43132800001,
+          "burn": 31497.9900553946
         },
         "top_element": "fire",
-        "crit_damage": 775471.569044718,
-        "weak_damage": 514664.142577018,
-        "kills": 334,
+        "crit_damage": 562446.804002293,
+        "weak_damage": 256677.20437877,
+        "kills": 259,
         "boss_kills": 0,
-        "base_damage_taken": 1071,
+        "base_damage_taken": 1845,
         "base_damage_prevented": 0,
         "control_seconds": 0.0,
-        "active_skill_casts": 12,
-        "max_kill_streak": 297,
+        "active_skill_casts": 13,
+        "max_kill_streak": 259,
         "boss_id": "boss_void_phantom",
         "challenge_rule": {}
       }
@@ -2579,13 +2620,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 23.0,
         "character": "vanguard",
-        "character_level": 12.0,
+        "character_level": 32.0,
         "chip": "chip_attack",
-        "chip_level": 12.0,
+        "chip_level": 26.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 17.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -2600,13 +2641,13 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47.0
+        "weapon_level": 32.0
       },
-      "max_progress": 0.900266131917939,
+      "max_progress": 0.625658480811665,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 207.468000000057,
-      "boss_phase_seconds": 23.3166666666852,
+      "elapsed_seconds": 160.077333333353,
+      "boss_phase_seconds": 16.6500000000133,
       "max_living_bosses": 1,
       "timeout": false,
       "card_policy": "v2",
@@ -2632,7 +2673,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 43.8666666666655,
+          "time": 28.6166666666663,
           "wave": 2
         },
         {
@@ -2648,8 +2689,8 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 78.3999999999968,
-          "wave": 4
+          "time": 52.266666666665,
+          "wave": 3
         },
         {
           "selected": "skill_split_shot",
@@ -2664,7 +2705,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 102.983333333329,
+          "time": 74.9166666666637,
           "wave": 4
         },
         {
@@ -2680,7 +2721,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 131.48333333333,
+          "time": 90.6333333333295,
           "wave": 4
         },
         {
@@ -2696,8 +2737,8 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 160.20000000002,
-          "wave": 5
+          "time": 107.083333333329,
+          "wave": 4
         },
         {
           "selected": "skill_split_shot",
@@ -2712,39 +2753,39 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 179.650000000035,
-          "wave": 5
+          "time": 127.899999999994,
+          "wave": 4
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 20.9500000000001,
-          "max_progress": 0.230638949561665,
+          "end_time": 19.4166666666668,
+          "max_progress": 0.174299982667879,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.3999999999988,
-          "max_progress": 0.183339848409172,
+          "end_time": 41.8166666666656,
+          "max_progress": 0.12663213132902,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 75.199999999997,
-          "max_progress": 0.168852991002207,
+          "end_time": 72.4666666666638,
+          "max_progress": 0.144570992739146,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 145.300000000008,
-          "max_progress": 0.14920954813484,
+          "end_time": 142.916666666673,
+          "max_progress": 0.0743307099087548,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 207.900000000058,
-          "max_progress": 0.900266131917939,
+          "end_time": 160.333333333353,
+          "max_progress": 0.625658480811665,
           "base_ratio": 1.0
         }
       ],
@@ -2756,26 +2797,26 @@
         "skill_multishot": 4
       },
       "battle_report": {
-        "duration_seconds": 207.468000000057,
-        "damage_total": 2849890.73126265,
+        "duration_seconds": 160.077333333353,
+        "damage_total": 2197343.7446801,
         "damage_by_element": {
-          "physical": 688120.575936202,
-          "lightning": 2161770.15532656
+          "physical": 411370.152087089,
+          "lightning": 1785973.59259295
         },
         "damage_by_source": {
-          "weapon": 2847783.54396665,
-          "pet": 2107.187296
+          "weapon": 2195691.1996881,
+          "pet": 1652.544992
         },
         "top_element": "lightning",
-        "crit_damage": 1575423.2914174,
-        "weak_damage": 1395148.81366846,
-        "kills": 361,
+        "crit_damage": 1604491.10192144,
+        "weak_damage": 1396300.44252354,
+        "kills": 257,
         "boss_kills": 1,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 129.686666666663,
-        "active_skill_casts": 13,
-        "max_kill_streak": 361,
+        "control_seconds": 85.3353333333304,
+        "active_skill_casts": 10,
+        "max_kill_streak": 256,
         "boss_id": "boss_void_phantom",
         "challenge_rule": {}
       }
@@ -2786,13 +2827,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10.0,
+        "armor_level": 23.0,
         "character": "vanguard",
-        "character_level": 12.0,
+        "character_level": 32.0,
         "chip": "chip_attack",
-        "chip_level": 12.0,
+        "chip_level": 26.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 17.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 3.0,
@@ -2807,13 +2848,13 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47.0
+        "weapon_level": 32.0
       },
-      "max_progress": 0.956834260197996,
-      "base_ratio": 0.0,
-      "victory": false,
-      "elapsed_seconds": 190.862666666711,
-      "boss_phase_seconds": 42.1333333333669,
+      "max_progress": 0.967824222477338,
+      "base_ratio": 0.158415841584158,
+      "victory": true,
+      "elapsed_seconds": 204.666666666722,
+      "boss_phase_seconds": 59.7833333333809,
       "max_living_bosses": 1,
       "timeout": false,
       "card_policy": "v2",
@@ -2822,7 +2863,8 @@
         "skill_critical",
         "skill_salvo",
         "skill_salvo",
-        "skill_incendiary"
+        "skill_incendiary",
+        "skill_charge_shot"
       ],
       "card_timeline": [
         {
@@ -2830,7 +2872,7 @@
           "candidates": [
             "skill_critical",
             "skill_ricochet",
-            "skill_homing"
+            "skill_split_shot"
           ],
           "reason": "new_single_target",
           "rank": 1,
@@ -2838,7 +2880,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 44.3499999999988,
+          "time": 28.8166666666663,
           "wave": 2
         },
         {
@@ -2854,8 +2896,8 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 81.7499999999966,
-          "wave": 4
+          "time": 53.1166666666649,
+          "wave": 3
         },
         {
           "selected": "skill_salvo",
@@ -2870,7 +2912,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 103.033333333329,
+          "time": 74.9666666666637,
           "wave": 4
         },
         {
@@ -2886,7 +2928,7 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 132.783333333331,
+          "time": 91.2666666666628,
           "wave": 4
         },
         {
@@ -2902,69 +2944,86 @@
           "boss_hp_share": 0.5067,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 186.183333333374,
-          "wave": 5
+          "time": 107.983333333328,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_slow_field",
+            "skill_charge_shot",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "boss_hp_share": 0.5067,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 129.699999999995,
+          "wave": 4
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 19.8333333333335,
-          "max_progress": 0.236790058631023,
+          "end_time": 19.4833333333335,
+          "max_progress": 0.163096607004413,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.8833333333321,
-          "max_progress": 0.167148036811188,
+          "end_time": 42.2666666666656,
+          "max_progress": 0.104231367038406,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 75.3333333333303,
-          "max_progress": 0.238277382887047,
+          "end_time": 72.8499999999972,
+          "max_progress": 0.142545883528149,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 148.816666666677,
-          "max_progress": 0.341175807341364,
+          "end_time": 144.516666666674,
+          "max_progress": 0.167328253593154,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 191.166666666711,
-          "max_progress": 0.956834260197996,
-          "base_ratio": 0.0
+          "end_time": 205.066666666722,
+          "max_progress": 0.967824222477338,
+          "base_ratio": 0.158415841584158
         }
       ],
       "final_skill_levels": {
         "skill_critical": 4,
         "skill_salvo": 4,
-        "skill_incendiary": 1
+        "skill_incendiary": 1,
+        "skill_charge_shot": 3
       },
       "battle_report": {
-        "duration_seconds": 190.862666666711,
-        "damage_total": 1679436.0245522,
+        "duration_seconds": 204.666666666722,
+        "damage_total": 2257291.86199979,
         "damage_by_element": {
-          "physical": 1513210.97963513,
-          "fire": 166225.044917053
+          "physical": 618404.528041298,
+          "fire": 1638887.33395854
         },
         "damage_by_source": {
-          "weapon": 1675448.51954722,
-          "pet": 2601.639904,
-          "burn": 1385.86510097522
+          "weapon": 2234195.30322344,
+          "pet": 2967.72537600001,
+          "burn": 20128.8334003637
         },
-        "top_element": "physical",
-        "crit_damage": 459121.137447477,
-        "weak_damage": 84513.424652545,
-        "kills": 345,
-        "boss_kills": 0,
-        "base_damage_taken": 1071,
+        "top_element": "fire",
+        "crit_damage": 611687.559998119,
+        "weak_damage": 239841.351976175,
+        "kills": 259,
+        "boss_kills": 1,
+        "base_damage_taken": 1530,
         "base_damage_prevented": 0,
         "control_seconds": 0.0,
-        "active_skill_casts": 12,
-        "max_kill_streak": 299,
+        "active_skill_casts": 13,
+        "max_kill_streak": 258,
         "boss_id": "boss_void_phantom",
         "challenge_rule": {}
       }
@@ -2975,13 +3034,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 12.0,
+        "armor_level": 26.0,
         "character": "vanguard",
-        "character_level": 13.0,
+        "character_level": 36.0,
         "chip": "chip_attack",
-        "chip_level": 13.0,
+        "chip_level": 29.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 20.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -2996,12 +3055,12 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 50.0
+        "weapon_level": 37.0
       },
-      "max_progress": 0.345224954153745,
+      "max_progress": 0.205607267190482,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 176.535333333366,
+      "elapsed_seconds": 166.688000000025,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -3029,7 +3088,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 35.1833333333326,
+          "time": 31.3999999999995,
           "wave": 2
         },
         {
@@ -3045,7 +3104,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 66.2666666666642,
+          "time": 57.9333333333313,
           "wave": 4
         },
         {
@@ -3061,7 +3120,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 81.83333333333,
+          "time": 71.8999999999972,
           "wave": 4
         },
         {
@@ -3077,7 +3136,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 99.333333333329,
+          "time": 91.9833333333294,
           "wave": 4
         },
         {
@@ -3093,7 +3152,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 122.466666666661,
+          "time": 115.533333333328,
           "wave": 5
         },
         {
@@ -3109,7 +3168,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 140.400000000004,
+          "time": 133.483333333332,
           "wave": 5
         },
         {
@@ -3125,39 +3184,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 157.166666666684,
+          "time": 150.150000000012,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 17.6000000000003,
-          "max_progress": 0.2998927458552,
+          "end_time": 17.3333333333336,
+          "max_progress": 0.15268515084536,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 38.9999999999991,
-          "max_progress": 0.345224954153745,
+          "end_time": 36.2833333333326,
+          "max_progress": 0.205607267190482,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 62.6166666666644,
-          "max_progress": 0.177388757603769,
+          "end_time": 55.7999999999981,
+          "max_progress": 0.108753349944835,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 115.799999999995,
-          "max_progress": 0.112273028424678,
+          "end_time": 108.816666666662,
+          "max_progress": 0.108268003973342,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 176.583333333366,
-          "max_progress": 0.0815583906100907,
+          "end_time": 166.800000000025,
+          "max_progress": 0.0840993633707061,
           "base_ratio": 1.0
         }
       ],
@@ -3168,27 +3227,27 @@
         "skill_cryo": 1
       },
       "battle_report": {
-        "duration_seconds": 176.535333333366,
-        "damage_total": 2533492.55233314,
+        "duration_seconds": 166.688000000025,
+        "damage_total": 2528309.61483898,
         "damage_by_element": {
-          "physical": 1090567.28869415,
-          "fire": 2222.72207991964,
-          "lightning": 1097570.944386,
-          "ice": 343131.597173152
+          "physical": 1323307.27522591,
+          "fire": 1582.06652836701,
+          "lightning": 862290.064036805,
+          "ice": 341130.20904799
         },
         "damage_by_source": {
-          "weapon": 2531238.07101883,
-          "pet": 2108.22448,
-          "burn": 146.256834315383
+          "weapon": 2525141.70726991,
+          "pet": 3106.25622400001,
+          "burn": 61.6513450791998
         },
-        "top_element": "lightning",
-        "crit_damage": 218477.260211033,
-        "weak_damage": 173493.834173449,
+        "top_element": "physical",
+        "crit_damage": 196536.200015432,
+        "weak_damage": 122308.678516597,
         "kills": 312,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 413.48333333335,
+        "control_seconds": 309.706666666683,
         "active_skill_casts": 11,
         "max_kill_streak": 312,
         "boss_id": "",
@@ -3201,13 +3260,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 12.0,
+        "armor_level": 26.0,
         "character": "vanguard",
-        "character_level": 13.0,
+        "character_level": 36.0,
         "chip": "chip_attack",
-        "chip_level": 13.0,
+        "chip_level": 29.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 20.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -3222,12 +3281,12 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 50.0
+        "weapon_level": 37.0
       },
-      "max_progress": 1.0,
-      "base_ratio": 0.621457489878543,
+      "max_progress": 0.640625745467557,
+      "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 229.052666666741,
+      "elapsed_seconds": 192.604666666712,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -3255,7 +3314,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 35.0833333333326,
+          "time": 32.8666666666661,
           "wave": 2
         },
         {
@@ -3271,7 +3330,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 120.083333333328,
+          "time": 86.6833333333297,
           "wave": 4
         },
         {
@@ -3287,7 +3346,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 139.16666666667,
+          "time": 102.766666666662,
           "wave": 4
         },
         {
@@ -3303,7 +3362,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 153.200000000014,
+          "time": 119.466666666661,
           "wave": 4
         },
         {
@@ -3319,7 +3378,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 182.716666666704,
+          "time": 144.466666666674,
           "wave": 5
         },
         {
@@ -3335,7 +3394,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 194.53333333338,
+          "time": 159.233333333352,
           "wave": 5
         },
         {
@@ -3351,40 +3410,40 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 211.133333333393,
+          "time": 175.983333333366,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 17.9666666666669,
-          "max_progress": 0.263642289256322,
+          "end_time": 17.3333333333336,
+          "max_progress": 0.129206929680045,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 39.9833333333323,
-          "max_progress": 0.353037314378578,
+          "end_time": 37.0833333333325,
+          "max_progress": 0.322098453900286,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 115.516666666661,
-          "max_progress": 1.0,
-          "base_ratio": 0.621457489878543
+          "end_time": 83.2499999999966,
+          "max_progress": 0.640625745467557,
+          "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 169.300000000027,
-          "max_progress": 0.315275655265983,
-          "base_ratio": 0.621457489878543
+          "end_time": 134.733333333333,
+          "max_progress": 0.169027453706465,
+          "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 229.116666666741,
-          "max_progress": 0.216080923298843,
-          "base_ratio": 0.621457489878543
+          "end_time": 192.716666666712,
+          "max_progress": 0.117209467997078,
+          "base_ratio": 1.0
         }
       ],
       "final_skill_levels": {
@@ -3395,27 +3454,27 @@
         "skill_ricochet": 3
       },
       "battle_report": {
-        "duration_seconds": 229.052666666741,
-        "damage_total": 2555405.41221676,
+        "duration_seconds": 192.604666666712,
+        "damage_total": 2541339.30352296,
         "damage_by_element": {
-          "physical": 207252.948268333,
-          "fire": 7773.51557791895,
-          "ice": 2340378.94837049
+          "physical": 233845.761243999,
+          "fire": 2680.35781385553,
+          "ice": 2304813.18446519
         },
         "damage_by_source": {
-          "weapon": 2551077.93267216,
-          "pet": 3017.79932800001,
-          "burn": 1309.68021660249
+          "weapon": 2537144.12188255,
+          "pet": 3974.31897600001,
+          "burn": 220.862664419367
         },
         "top_element": "ice",
-        "crit_damage": 411541.824872186,
-        "weak_damage": 363121.57190223,
+        "crit_damage": 440614.068933849,
+        "weak_damage": 355948.907386354,
         "kills": 312,
         "boss_kills": 0,
-        "base_damage_taken": 374,
+        "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 683.81666666668,
-        "active_skill_casts": 14,
+        "control_seconds": 521.900000000031,
+        "active_skill_casts": 12,
         "max_kill_streak": 312,
         "boss_id": "",
         "challenge_rule": {}
@@ -3427,13 +3486,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 12.0,
+        "armor_level": 26.0,
         "character": "vanguard",
-        "character_level": 13.0,
+        "character_level": 36.0,
         "chip": "chip_attack",
-        "chip_level": 13.0,
+        "chip_level": 29.0,
         "pet": "pet_turret_drone",
-        "pet_level": 9.0,
+        "pet_level": 20.0,
         "signature_level": 3.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -3448,12 +3507,12 @@
           "skill_split_shot": 3.0
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 50.0
+        "weapon_level": 37.0
       },
-      "max_progress": 0.448436148840053,
+      "max_progress": 0.222334604044907,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 177.3186666667,
+      "elapsed_seconds": 161.854000000021,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -3481,7 +3540,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 35.8499999999992,
+          "time": 31.9666666666661,
           "wave": 2
         },
         {
@@ -3497,7 +3556,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 68.5999999999974,
+          "time": 56.0166666666648,
           "wave": 4
         },
         {
@@ -3513,7 +3572,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 84.8166666666631,
+          "time": 69.0833333333307,
           "wave": 4
         },
         {
@@ -3529,7 +3588,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 102.333333333329,
+          "time": 89.3333333333295,
           "wave": 4
         },
         {
@@ -3545,7 +3604,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 126.899999999994,
+          "time": 112.066666666662,
           "wave": 5
         },
         {
@@ -3561,7 +3620,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 142.100000000005,
+          "time": 128.033333333327,
           "wave": 5
         },
         {
@@ -3577,39 +3636,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 159.400000000019,
+          "time": 145.650000000008,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 17.5000000000003,
-          "max_progress": 0.248976146901837,
+          "end_time": 16.7833333333337,
+          "max_progress": 0.158386510019084,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 39.9333333333323,
-          "max_progress": 0.448436148840053,
+          "end_time": 36.3666666666659,
+          "max_progress": 0.222334604044907,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 66.1333333333309,
-          "max_progress": 0.268719202871541,
+          "end_time": 53.5833333333316,
+          "max_progress": 0.127063314423306,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 118.349999999995,
-          "max_progress": 0.136731516131918,
+          "end_time": 104.599999999995,
+          "max_progress": 0.11076399242605,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 177.3666666667,
-          "max_progress": 0.115894859255725,
+          "end_time": 161.950000000021,
+          "max_progress": 0.0879460225578483,
           "base_ratio": 1.0
         }
       ],
@@ -3621,26 +3680,26 @@
         "skill_charge_shot": 4
       },
       "battle_report": {
-        "duration_seconds": 177.3186666667,
-        "damage_total": 2507935.70424194,
+        "duration_seconds": 161.854000000021,
+        "damage_total": 2511591.69284587,
         "damage_by_element": {
-          "physical": 2506386.98491867,
-          "fire": 1548.71932326312
+          "physical": 2510706.46837047,
+          "fire": 885.224475391305
         },
         "damage_by_source": {
-          "weapon": 2505853.2491297,
-          "pet": 1940.373536,
-          "burn": 142.081576240889
+          "weapon": 2509307.29058137,
+          "pet": 2248.821568,
+          "burn": 35.5806964951765
         },
         "top_element": "physical",
-        "crit_damage": 44443.8503902549,
-        "weak_damage": 100.474124787302,
+        "crit_damage": 80035.3476995198,
+        "weak_damage": 0.0,
         "kills": 312,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
         "control_seconds": 0.0,
-        "active_skill_casts": 11,
+        "active_skill_casts": 10,
         "max_kill_streak": 312,
         "boss_id": "",
         "challenge_rule": {}
@@ -3652,13 +3711,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 14.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 20.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 16.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 11.0,
+        "pet_level": 29.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -3675,11 +3734,11 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.840272859762643,
-      "base_ratio": 0.0,
-      "victory": false,
-      "elapsed_seconds": 281.143333333406,
-      "boss_phase_seconds": 104.616666666707,
+      "max_progress": 0.850343380993559,
+      "base_ratio": 0.9208250166334,
+      "victory": true,
+      "elapsed_seconds": 239.802000000083,
+      "boss_phase_seconds": 88.783333333404,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -3707,7 +3766,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 72.0166666666639,
+          "time": 57.1833333333314,
           "wave": 3
         },
         {
@@ -3723,7 +3782,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 116.633333333328,
+          "time": 92.3666666666627,
           "wave": 4
         },
         {
@@ -3739,7 +3798,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 147.566666666676,
+          "time": 118.116666666661,
           "wave": 4
         },
         {
@@ -3755,7 +3814,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 159.333333333352,
+          "time": 130.533333333329,
           "wave": 4
         },
         {
@@ -3771,7 +3830,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 166.633333333358,
+          "time": 142.833333333339,
           "wave": 4
         },
         {
@@ -3787,7 +3846,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 185.60000000004,
+          "time": 161.683333333354,
           "wave": 5
         },
         {
@@ -3803,7 +3862,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 214.000000000062,
+          "time": 177.333333333367,
           "wave": 5
         },
         {
@@ -3819,40 +3878,40 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 228.683333333407,
+          "time": 193.483333333379,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 21.7333333333334,
-          "max_progress": 0.132899020828364,
+          "end_time": 20.2166666666668,
+          "max_progress": 0.13139308317927,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.0999999999988,
-          "max_progress": 0.110166826320969,
+          "end_time": 42.4666666666655,
+          "max_progress": 0.106032626319478,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 96.3666666666625,
-          "max_progress": 0.668384907263836,
+          "end_time": 71.8166666666639,
+          "max_progress": 0.257133239280177,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 175.816666666699,
-          "max_progress": 0.215932621846672,
+          "end_time": 150.700000000012,
+          "max_progress": 0.119472125104365,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 281.383333333406,
-          "max_progress": 0.840272859762643,
-          "base_ratio": 0.0
+          "end_time": 240.250000000083,
+          "max_progress": 0.850343380993559,
+          "base_ratio": 0.9208250166334
         }
       ],
       "final_skill_levels": {
@@ -3862,26 +3921,26 @@
         "skill_pierce": 5
       },
       "battle_report": {
-        "duration_seconds": 281.143333333406,
-        "damage_total": 25688529.9188426,
+        "duration_seconds": 239.802000000083,
+        "damage_total": 35005832.4177455,
         "damage_by_element": {
-          "physical": 25681395.7383214,
-          "lightning": 7134.18052128691
+          "physical": 34994023.0339927,
+          "lightning": 11809.3837528788
         },
         "damage_by_source": {
-          "weapon": 25683154.8788427,
-          "pet": 5375.03999999999
+          "weapon": 34997157.3649455,
+          "pet": 8675.0528
         },
         "top_element": "physical",
-        "crit_damage": 3235694.49227644,
-        "weak_damage": 2748666.46687976,
-        "kills": 669,
-        "boss_kills": 0,
-        "base_damage_taken": 1704,
+        "crit_damage": 3463304.04049998,
+        "weak_damage": 2774600.32329827,
+        "kills": 512,
+        "boss_kills": 2,
+        "base_damage_taken": 238,
         "base_damage_prevented": 0,
-        "control_seconds": 0.684,
-        "active_skill_casts": 18,
-        "max_kill_streak": 669,
+        "control_seconds": 0.700000000000001,
+        "active_skill_casts": 16,
+        "max_kill_streak": 511,
         "boss_id": "boss_necrotitan",
         "challenge_rule": {}
       }
@@ -3892,13 +3951,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 14.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 20.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 16.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 11.0,
+        "pet_level": 29.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -3915,11 +3974,11 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.760946445610687,
-      "base_ratio": 0.867924528301887,
+      "max_progress": 0.420079867530415,
+      "base_ratio": 0.976713240186294,
       "victory": true,
-      "elapsed_seconds": 270.626666666749,
-      "boss_phase_seconds": 105.033333333392,
+      "elapsed_seconds": 222.946000000069,
+      "boss_phase_seconds": 57.5833333333792,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -3947,7 +4006,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 71.2166666666639,
+          "time": 57.1833333333314,
           "wave": 3
         },
         {
@@ -3963,7 +4022,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 107.449999999995,
+          "time": 88.8833333333296,
           "wave": 4
         },
         {
@@ -3979,7 +4038,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 132.749999999998,
+          "time": 115.083333333328,
           "wave": 4
         },
         {
@@ -3995,7 +4054,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 145.133333333341,
+          "time": 127.849999999994,
           "wave": 4
         },
         {
@@ -4011,7 +4070,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 157.566666666684,
+          "time": 140.083333333337,
           "wave": 4
         },
         {
@@ -4027,7 +4086,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 174.716666666698,
+          "time": 156.966666666684,
           "wave": 5
         },
         {
@@ -4043,7 +4102,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 191.450000000044,
+          "time": 174.283333333364,
           "wave": 5
         },
         {
@@ -4059,40 +4118,40 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 208.416666666725,
+          "time": 190.616666666711,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 21.85,
-          "max_progress": 0.139742739145992,
+          "end_time": 21.4666666666667,
+          "max_progress": 0.16784868313156,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.6166666666654,
-          "max_progress": 0.0965189227621064,
+          "end_time": 43.7333333333321,
+          "max_progress": 0.121224579556298,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 86.1833333333297,
-          "max_progress": 0.535424478545444,
+          "end_time": 69.0999999999974,
+          "max_progress": 0.21457458962011,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 165.06666666669,
-          "max_progress": 0.1263743859211,
+          "end_time": 147.966666666677,
+          "max_progress": 0.087695592050334,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 270.866666666749,
-          "max_progress": 0.760946445610687,
-          "base_ratio": 0.867924528301887
+          "end_time": 223.25000000007,
+          "max_progress": 0.420079867530415,
+          "base_ratio": 0.976713240186294
         }
       ],
       "final_skill_levels": {
@@ -4104,25 +4163,25 @@
         "skill_salvo": 4
       },
       "battle_report": {
-        "duration_seconds": 270.626666666749,
-        "damage_total": 34586589.5717291,
+        "duration_seconds": 222.946000000069,
+        "damage_total": 34612004.6556557,
         "damage_by_element": {
-          "physical": 3259642.07087787,
-          "lightning": 31326947.500841
+          "physical": 3302460.01853217,
+          "lightning": 31309544.6371188
         },
         "damage_by_source": {
-          "weapon": 34580860.9317291,
-          "pet": 5728.63999999999
+          "weapon": 34604278.9660557,
+          "pet": 7725.68960000001
         },
         "top_element": "lightning",
-        "crit_damage": 1785703.105582,
-        "weak_damage": 1507362.72917863,
-        "kills": 502,
+        "crit_damage": 1979990.16000468,
+        "weak_damage": 1533785.72098528,
+        "kills": 498,
         "boss_kills": 2,
-        "base_damage_taken": 224,
+        "base_damage_taken": 70,
         "base_damage_prevented": 0,
-        "control_seconds": 384.228666666657,
-        "active_skill_casts": 18,
+        "control_seconds": 260.089333333347,
+        "active_skill_casts": 15,
         "max_kill_streak": 330,
         "boss_id": "boss_necrotitan",
         "challenge_rule": {}
@@ -4134,13 +4193,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 14.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 20.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 16.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 11.0,
+        "pet_level": 29.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -4157,11 +4216,11 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.849936635257634,
+      "max_progress": 0.843517973222805,
       "base_ratio": 0.0,
       "victory": false,
-      "elapsed_seconds": 274.160666666746,
-      "boss_phase_seconds": 104.833333333385,
+      "elapsed_seconds": 270.968666666749,
+      "boss_phase_seconds": 121.066666666737,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -4189,7 +4248,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 69.9333333333307,
+          "time": 57.399999999998,
           "wave": 3
         },
         {
@@ -4205,7 +4264,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 109.083333333328,
+          "time": 91.3333333333294,
           "wave": 4
         },
         {
@@ -4221,7 +4280,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 134.699999999999,
+          "time": 116.833333333328,
           "wave": 4
         },
         {
@@ -4237,7 +4296,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 146.500000000009,
+          "time": 129.566666666662,
           "wave": 4
         },
         {
@@ -4253,7 +4312,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 164.166666666689,
+          "time": 145.566666666675,
           "wave": 4
         },
         {
@@ -4269,7 +4328,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 180.600000000036,
+          "time": 162.383333333355,
           "wave": 5
         },
         {
@@ -4285,7 +4344,7 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 195.600000000048,
+          "time": 176.383333333366,
           "wave": 5
         },
         {
@@ -4301,39 +4360,39 @@
           "boss_hp_share": 0.8353,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 212.433333333395,
+          "time": 193.033333333379,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 20.1833333333335,
-          "max_progress": 0.182981348401718,
+          "end_time": 20.1666666666668,
+          "max_progress": 0.10998695897692,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 42.8166666666655,
-          "max_progress": 0.0920792208373092,
+          "end_time": 42.7999999999989,
+          "max_progress": 0.0683942256083015,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 88.066666666663,
-          "max_progress": 0.572928112699785,
+          "end_time": 70.7166666666639,
+          "max_progress": 0.248481203035544,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 169.366666666694,
-          "max_progress": 0.222147514983898,
+          "end_time": 150.133333333345,
+          "max_progress": 0.163657221903328,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 274.416666666746,
-          "max_progress": 0.849936635257634,
+          "end_time": 271.416666666748,
+          "max_progress": 0.843517973222805,
           "base_ratio": 0.0
         }
       ],
@@ -4345,28 +4404,28 @@
         "skill_pierce": 5
       },
       "battle_report": {
-        "duration_seconds": 274.160666666746,
-        "damage_total": 14101557.8872727,
+        "duration_seconds": 270.968666666749,
+        "damage_total": 23895199.219011,
         "damage_by_element": {
-          "physical": 2913678.49688214,
-          "lightning": 487328.472086423,
-          "poison": 10700550.9183031
+          "physical": 3402544.48616336,
+          "lightning": 403882.021173539,
+          "poison": 20088772.7116749
         },
         "damage_by_source": {
-          "weapon": 14011944.713725,
-          "pet": 5884.93100710494,
-          "status": 83728.2425398912
+          "weapon": 23763464.2355583,
+          "pet": 10061.6848,
+          "status": 121673.298645202
         },
         "top_element": "poison",
-        "crit_damage": 1546190.99710196,
-        "weak_damage": 1035861.66332728,
-        "kills": 523,
+        "crit_damage": 1986680.6222406,
+        "weak_damage": 1221123.66722148,
+        "kills": 519,
         "boss_kills": 0,
-        "base_damage_taken": 1704,
+        "base_damage_taken": 3028,
         "base_damage_prevented": 0,
-        "control_seconds": 47.8239999999996,
+        "control_seconds": 40.1873333333333,
         "active_skill_casts": 18,
-        "max_kill_streak": 449,
+        "max_kill_streak": 330,
         "boss_id": "boss_necrotitan",
         "challenge_rule": {}
       }
@@ -4377,13 +4436,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 17.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 23.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 19.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 13.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -4400,10 +4459,10 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.149357523444955,
+      "max_progress": 0.242087514163884,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 190.290000000044,
+      "elapsed_seconds": 188.742000000042,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -4433,7 +4492,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 27.883333333333,
+          "time": 27.1833333333331,
           "wave": 2
         },
         {
@@ -4449,7 +4508,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 51.7833333333317,
+          "time": 49.5666666666651,
           "wave": 3
         },
         {
@@ -4465,7 +4524,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 72.9333333333305,
+          "time": 70.8499999999973,
           "wave": 4
         },
         {
@@ -4481,7 +4540,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 95.9833333333292,
+          "time": 91.4333333333294,
           "wave": 4
         },
         {
@@ -4497,7 +4556,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 106.349999999995,
+          "time": 103.933333333329,
           "wave": 4
         },
         {
@@ -4513,7 +4572,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 118.766666666661,
+          "time": 116.933333333328,
           "wave": 4
         },
         {
@@ -4529,7 +4588,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 136.016666666667,
+          "time": 134.249999999999,
           "wave": 5
         },
         {
@@ -4545,7 +4604,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 154.016666666681,
+          "time": 152.683333333347,
           "wave": 5
         },
         {
@@ -4561,39 +4620,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 9,
-          "time": 172.283333333363,
+          "time": 170.233333333361,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 17.7000000000003,
-          "max_progress": 0.148177401710103,
+          "end_time": 17.4833333333336,
+          "max_progress": 0.242087514163884,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 36.6666666666659,
-          "max_progress": 0.0939210848043893,
+          "end_time": 36.4666666666659,
+          "max_progress": 0.0524136841752147,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 54.1666666666649,
-          "max_progress": 0.115651370914838,
+          "end_time": 52.416666666665,
+          "max_progress": 0.0778622226860687,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 124.166666666661,
-          "max_progress": 0.149357523444955,
+          "end_time": 122.699999999994,
+          "max_progress": 0.0835082075978053,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 190.450000000044,
-          "max_progress": 0.0535028355722209,
+          "end_time": 188.950000000043,
+          "max_progress": 0.0351036130016997,
           "base_ratio": 1.0
         }
       ],
@@ -4607,24 +4666,24 @@
         "skill_pierce": 5
       },
       "battle_report": {
-        "duration_seconds": 190.290000000044,
-        "damage_total": 10579512.9346456,
+        "duration_seconds": 188.742000000042,
+        "damage_total": 10552125.1518973,
         "damage_by_element": {
-          "physical": 8943338.44443336,
-          "lightning": 1636174.49021307
+          "physical": 9359133.64008796,
+          "lightning": 1192991.51180899
         },
         "damage_by_source": {
-          "weapon": 10575948.6240536,
-          "pet": 3564.310592
+          "weapon": 10547162.8409213,
+          "pet": 4962.31097600001
         },
         "top_element": "physical",
-        "crit_damage": 6565510.67287135,
-        "weak_damage": 6505286.3411336,
+        "crit_damage": 7074357.76549663,
+        "weak_damage": 6912605.03978377,
         "kills": 495,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 164.214666666676,
+        "control_seconds": 126.738666666662,
         "active_skill_casts": 12,
         "max_kill_streak": 495,
         "boss_id": "",
@@ -4637,13 +4696,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 17.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 23.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 19.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 13.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -4660,10 +4719,10 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.413883913928316,
+      "max_progress": 0.168044112110866,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 203.11066666672,
+      "elapsed_seconds": 191.717333333378,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -4693,7 +4752,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 27.9499999999997,
+          "time": 27.6166666666664,
           "wave": 2
         },
         {
@@ -4709,7 +4768,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 64.433333333331,
+          "time": 52.7499999999983,
           "wave": 3
         },
         {
@@ -4725,7 +4784,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 85.6666666666631,
+          "time": 73.5833333333304,
           "wave": 4
         },
         {
@@ -4741,7 +4800,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 106.699999999995,
+          "time": 94.1499999999959,
           "wave": 4
         },
         {
@@ -4757,7 +4816,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 118.533333333328,
+          "time": 106.666666666662,
           "wave": 4
         },
         {
@@ -4773,7 +4832,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 131.366666666663,
+          "time": 119.633333333328,
           "wave": 4
         },
         {
@@ -4789,7 +4848,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 149.183333333344,
+          "time": 137.200000000001,
           "wave": 5
         },
         {
@@ -4805,7 +4864,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 167.066666666692,
+          "time": 155.616666666683,
           "wave": 5
         },
         {
@@ -4821,39 +4880,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 9,
-          "time": 184.633333333372,
+          "time": 173.316666666697,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 17.9333333333336,
-          "max_progress": 0.280082085296398,
+          "end_time": 17.4833333333336,
+          "max_progress": 0.161284678218929,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 37.0999999999992,
-          "max_progress": 0.0706178621481393,
+          "end_time": 36.6833333333325,
+          "max_progress": 0.0653915288794132,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 66.9499999999975,
-          "max_progress": 0.413883913928316,
+          "end_time": 54.9166666666648,
+          "max_progress": 0.168044112110866,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 136.983333333334,
-          "max_progress": 0.134846158792044,
+          "end_time": 125.349999999994,
+          "max_progress": 0.0812890671591722,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 203.366666666721,
-          "max_progress": 0.093338082582896,
+          "end_time": 192.133333333378,
+          "max_progress": 0.0944589629428077,
           "base_ratio": 1.0
         }
       ],
@@ -4868,27 +4927,27 @@
         "skill_critical": 4
       },
       "battle_report": {
-        "duration_seconds": 203.11066666672,
-        "damage_total": 10640593.3794133,
+        "duration_seconds": 191.717333333378,
+        "damage_total": 10622339.8741314,
         "damage_by_element": {
-          "physical": 5431574.58194776,
-          "lightning": 1252971.08878403,
-          "ice": 3956047.70868287
+          "physical": 5555013.60193452,
+          "lightning": 1064328.6062353,
+          "ice": 4002997.66596072
         },
         "damage_by_source": {
-          "weapon": 10636181.3317333,
-          "pet": 4412.04768000001
+          "weapon": 10615318.4641154,
+          "pet": 7021.41001600002
         },
         "top_element": "physical",
-        "crit_damage": 2926476.78154065,
-        "weak_damage": 2856994.39765885,
+        "crit_damage": 3218253.93932331,
+        "weak_damage": 3050415.93609073,
         "kills": 495,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 282.561333333347,
+        "control_seconds": 236.500666666675,
         "active_skill_casts": 13,
-        "max_kill_streak": 307,
+        "max_kill_streak": 495,
         "boss_id": "",
         "challenge_rule": {}
       }
@@ -4899,13 +4958,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 17.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 23.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 19.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 13.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 4.0,
@@ -4922,10 +4981,10 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.901579179836594,
+      "max_progress": 0.451256904893249,
       "base_ratio": 1.0,
       "victory": true,
-      "elapsed_seconds": 227.161333333406,
+      "elapsed_seconds": 207.284666666724,
       "boss_phase_seconds": 0.0,
       "max_living_bosses": 0,
       "timeout": false,
@@ -4955,7 +5014,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 28.8166666666663,
+          "time": 27.6499999999997,
           "wave": 2
         },
         {
@@ -4971,7 +5030,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 83.2166666666632,
+          "time": 66.7999999999975,
           "wave": 3
         },
         {
@@ -4987,7 +5046,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 120.549999999994,
+          "time": 95.7999999999958,
           "wave": 4
         },
         {
@@ -5003,7 +5062,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 135.283333333333,
+          "time": 114.399999999995,
           "wave": 4
         },
         {
@@ -5019,7 +5078,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 146.633333333342,
+          "time": 123.566666666661,
           "wave": 4
         },
         {
@@ -5035,7 +5094,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 155.966666666683,
+          "time": 135.65,
           "wave": 4
         },
         {
@@ -5051,7 +5110,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 173.20000000003,
+          "time": 152.86666666668,
           "wave": 5
         },
         {
@@ -5067,7 +5126,7 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 191.033333333377,
+          "time": 171.333333333362,
           "wave": 5
         },
         {
@@ -5083,39 +5142,39 @@
           "boss_hp_share": 0.0,
           "weapon_element": "physical",
           "offer": 9,
-          "time": 209.183333333392,
+          "time": 189.76666666671,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 18.6166666666669,
-          "max_progress": 0.220050538041209,
+          "end_time": 17.4833333333336,
+          "max_progress": 0.150521734106632,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 37.8333333333325,
-          "max_progress": 0.0899529144054151,
+          "end_time": 36.4833333333325,
+          "max_progress": 0.0695463923097567,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 90.7499999999961,
-          "max_progress": 0.901579179836594,
+          "end_time": 70.7499999999973,
+          "max_progress": 0.451256904893249,
           "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 161.05000000002,
-          "max_progress": 0.663675788704676,
+          "end_time": 141.300000000005,
+          "max_progress": 0.300864975325024,
           "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 227.433333333406,
-          "max_progress": 0.0661490403968869,
+          "end_time": 207.716666666724,
+          "max_progress": 0.0659576648974237,
           "base_ratio": 1.0
         }
       ],
@@ -5130,26 +5189,26 @@
         "skill_split_shot": 4
       },
       "battle_report": {
-        "duration_seconds": 227.161333333406,
-        "damage_total": 10775204.898831,
+        "duration_seconds": 207.284666666724,
+        "damage_total": 10832885.6353823,
         "damage_by_element": {
-          "physical": 718655.634395696,
-          "ice": 10056549.2644353
+          "physical": 874372.791501238,
+          "ice": 9958512.84388093
         },
         "damage_by_source": {
-          "weapon": 10769172.813423,
-          "pet": 6032.08540800002
+          "weapon": 10823598.4557983,
+          "pet": 9287.17958400004
         },
         "top_element": "ice",
-        "crit_damage": 274971.445139093,
-        "weak_damage": 211261.050990086,
+        "crit_damage": 541172.256605533,
+        "weak_damage": 351208.623649171,
         "kills": 495,
         "boss_kills": 0,
         "base_damage_taken": 0,
         "base_damage_prevented": 0,
-        "control_seconds": 1142.17599999988,
-        "active_skill_casts": 15,
-        "max_kill_streak": 287,
+        "control_seconds": 764.890666666573,
+        "active_skill_casts": 14,
+        "max_kill_streak": 495,
         "boss_id": "",
         "challenge_rule": {}
       }
@@ -5160,13 +5219,13 @@
       "seed": 1103,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 20.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 28.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 23.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 16.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 5.0,
@@ -5183,11 +5242,11 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.786399783068941,
+      "max_progress": 0.795849423008111,
       "base_ratio": 0.0,
       "victory": false,
-      "elapsed_seconds": 286.072000000068,
-      "boss_phase_seconds": 114.733333333373,
+      "elapsed_seconds": 304.324000000052,
+      "boss_phase_seconds": 147.450000000035,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -5217,7 +5276,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 34.616666666666,
+          "time": 32.5333333333328,
           "wave": 2
         },
         {
@@ -5233,7 +5292,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 71.0833333333306,
+          "time": 64.7166666666643,
           "wave": 3
         },
         {
@@ -5249,7 +5308,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 103.533333333329,
+          "time": 87.2333333333297,
           "wave": 4
         },
         {
@@ -5265,7 +5324,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 118.799999999995,
+          "time": 101.483333333329,
           "wave": 4
         },
         {
@@ -5281,7 +5340,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 134.983333333333,
+          "time": 118.049999999995,
           "wave": 4
         },
         {
@@ -5297,7 +5356,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 159.016666666685,
+          "time": 142.516666666672,
           "wave": 4
         },
         {
@@ -5313,7 +5372,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 180.133333333369,
+          "time": 165.21666666669,
           "wave": 5
         },
         {
@@ -5329,7 +5388,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 194.13333333338,
+          "time": 179.383333333368,
           "wave": 5
         },
         {
@@ -5345,7 +5404,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 9,
-          "time": 208.850000000058,
+          "time": 194.216666666713,
           "wave": 5
         },
         {
@@ -5361,39 +5420,39 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 10,
-          "time": 223.30000000007,
+          "time": 208.900000000058,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 20.6666666666668,
-          "max_progress": 0.118727705860866,
+          "end_time": 20.6500000000001,
+          "max_progress": 0.10518437742277,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.4833333333321,
-          "max_progress": 0.146505224795742,
+          "end_time": 44.2999999999988,
+          "max_progress": 0.148014330681954,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 100.916666666662,
-          "max_progress": 0.639807874373807,
-          "base_ratio": 0.981322957198444
+          "end_time": 85.1666666666631,
+          "max_progress": 0.389493520023259,
+          "base_ratio": 1.0
         },
         {
           "wave": 4,
-          "end_time": 171.250000000028,
-          "max_progress": 0.230082504621899,
-          "base_ratio": 0.981322957198444
+          "end_time": 156.83333333335,
+          "max_progress": 0.21283238534709,
+          "base_ratio": 1.0
         },
         {
           "wave": 5,
-          "end_time": 286.200000000068,
-          "max_progress": 0.786399783068941,
+          "end_time": 304.500000000052,
+          "max_progress": 0.795849423008111,
           "base_ratio": 0.0
         }
       ],
@@ -5407,28 +5466,28 @@
         "skill_split_shot": 5
       },
       "battle_report": {
-        "duration_seconds": 286.072000000068,
-        "damage_total": 119492120.964873,
+        "duration_seconds": 304.324000000052,
+        "damage_total": 167772168.378766,
         "damage_by_element": {
-          "physical": 6904984.22717674,
-          "fire": 14777.1011355644,
-          "lightning": 112572359.6365
+          "physical": 7065197.0900764,
+          "fire": 13859.3480227567,
+          "lightning": 160693111.940657
         },
         "damage_by_source": {
-          "weapon": 119483183.3162,
-          "pet": 7518.172016,
-          "burn": 1419.47665752873
+          "weapon": 167758370.534042,
+          "pet": 12954.866864,
+          "burn": 842.977860328054
         },
         "top_element": "lightning",
-        "crit_damage": 71336.060506852,
-        "weak_damage": 439495.240015165,
-        "kills": 586,
-        "boss_kills": 0,
-        "base_damage_taken": 2621,
+        "crit_damage": 107053.161060296,
+        "weak_damage": 681445.966414849,
+        "kills": 569,
+        "boss_kills": 1,
+        "base_damage_taken": 3682,
         "base_damage_prevented": 0,
-        "control_seconds": 686.116666666603,
-        "active_skill_casts": 19,
-        "max_kill_streak": 262,
+        "control_seconds": 638.616666666555,
+        "active_skill_casts": 20,
+        "max_kill_streak": 311,
         "boss_id": "boss_apex_overlord",
         "challenge_rule": {}
       }
@@ -5439,13 +5498,13 @@
       "seed": 2207,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 20.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 28.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 23.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 16.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 5.0,
@@ -5462,11 +5521,11 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 0.974794344137643,
+      "max_progress": 0.791438771022185,
       "base_ratio": 0.0,
       "victory": false,
-      "elapsed_seconds": 274.924000000079,
-      "boss_phase_seconds": 83.5833333333672,
+      "elapsed_seconds": 272.606000000081,
+      "boss_phase_seconds": 100.783333333385,
       "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
@@ -5496,7 +5555,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 34.2499999999993,
+          "time": 32.5166666666661,
           "wave": 2
         },
         {
@@ -5512,7 +5571,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 82.6166666666633,
+          "time": 69.3333333333307,
           "wave": 3
         },
         {
@@ -5528,7 +5587,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 124.099999999994,
+          "time": 101.916666666662,
           "wave": 4
         },
         {
@@ -5544,7 +5603,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 4,
-          "time": 135.383333333333,
+          "time": 115.516666666661,
           "wave": 4
         },
         {
@@ -5560,7 +5619,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 5,
-          "time": 153.816666666681,
+          "time": 132.049999999997,
           "wave": 4
         },
         {
@@ -5576,7 +5635,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 6,
-          "time": 174.766666666698,
+          "time": 153.666666666681,
           "wave": 4
         },
         {
@@ -5592,7 +5651,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 7,
-          "time": 199.966666666718,
+          "time": 180.150000000036,
           "wave": 5
         },
         {
@@ -5608,7 +5667,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 8,
-          "time": 214.733333333396,
+          "time": 195.300000000048,
           "wave": 5
         },
         {
@@ -5624,7 +5683,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 9,
-          "time": 228.883333333408,
+          "time": 210.050000000059,
           "wave": 5
         },
         {
@@ -5640,39 +5699,39 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 10,
-          "time": 244.850000000087,
+          "time": 224.166666666737,
           "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 21.3500000000001,
-          "max_progress": 0.137988234658278,
+          "end_time": 20.3333333333335,
+          "max_progress": 0.111475051996362,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.4666666666654,
-          "max_progress": 0.183075789822877,
+          "end_time": 42.8499999999989,
+          "max_progress": 0.0980071555567152,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 119.316666666661,
-          "max_progress": 0.974794344137643,
-          "base_ratio": 0.833463035019455
+          "end_time": 99.483333333329,
+          "max_progress": 0.613830333447638,
+          "base_ratio": 0.99127114020731
         },
         {
           "wave": 4,
-          "end_time": 191.300000000044,
-          "max_progress": 0.317446596567867,
-          "base_ratio": 0.833463035019455
+          "end_time": 171.750000000029,
+          "max_progress": 0.216317259810353,
+          "base_ratio": 0.99127114020731
         },
         {
           "wave": 5,
-          "end_time": 275.100000000078,
-          "max_progress": 0.780219297918655,
+          "end_time": 272.750000000081,
+          "max_progress": 0.791438771022185,
           "base_ratio": 0.0
         }
       ],
@@ -5686,30 +5745,30 @@
         "skill_ricochet": 4
       },
       "battle_report": {
-        "duration_seconds": 274.924000000079,
-        "damage_total": 46775094.0470963,
+        "duration_seconds": 272.606000000081,
+        "damage_total": 75113065.4797106,
         "damage_by_element": {
-          "physical": 7111588.35242282,
-          "fire": 10357.5991081772,
-          "lightning": 20651.1269408386,
-          "poison": 39632496.968631
+          "physical": 6978619.75731799,
+          "fire": 13088.3060439061,
+          "lightning": 31665.078605015,
+          "poison": 68089692.3377226
         },
         "damage_by_source": {
-          "weapon": 46467660.1985719,
-          "pet": 6992.97280000002,
-          "burn": 713.104900209226,
-          "status": 299727.770818731
+          "weapon": 74787316.7291509,
+          "pet": 11906.803712,
+          "burn": 763.627049529155,
+          "status": 313078.319807137
         },
         "top_element": "poison",
-        "crit_damage": 76304.240070866,
-        "weak_damage": 372545.708840367,
-        "kills": 622,
+        "crit_damage": 111856.683560575,
+        "weak_damage": 661659.182065832,
+        "kills": 586,
         "boss_kills": 0,
-        "base_damage_taken": 2592,
+        "base_damage_taken": 3716,
         "base_damage_prevented": 0,
-        "control_seconds": 2.45,
+        "control_seconds": 2.79999999999999,
         "active_skill_casts": 18,
-        "max_kill_streak": 326,
+        "max_kill_streak": 586,
         "boss_id": "boss_apex_overlord",
         "challenge_rule": {}
       }
@@ -5720,13 +5779,13 @@
       "seed": 3301,
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 20.0,
+        "armor_level": 35.0,
         "character": "vanguard",
-        "character_level": 28.0,
+        "character_level": 40.0,
         "chip": "chip_attack",
-        "chip_level": 23.0,
+        "chip_level": 35.0,
         "pet": "pet_turret_drone",
-        "pet_level": 16.0,
+        "pet_level": 30.0,
         "signature_level": 4.0,
         "skill_base_levels": {
           "skill_barrier": 5.0,
@@ -5743,18 +5802,25 @@
         "weapon": "weapon_scattergun",
         "weapon_level": 50.0
       },
-      "max_progress": 1.0,
+      "max_progress": 0.779228291984733,
       "base_ratio": 0.0,
       "victory": false,
-      "elapsed_seconds": 163.091333333355,
-      "boss_phase_seconds": 0.0,
-      "max_living_bosses": 0,
+      "elapsed_seconds": 265.557333333421,
+      "boss_phase_seconds": 100.433333333397,
+      "max_living_bosses": 2,
       "timeout": false,
       "card_policy": "v2",
       "selected_skills": [
         "skill_multishot",
         "skill_critical",
-        "skill_incendiary"
+        "skill_incendiary",
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_critical",
+        "skill_split_shot",
+        "skill_ricochet",
+        "skill_split_shot"
       ],
       "card_timeline": [
         {
@@ -5770,7 +5836,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 1,
-          "time": 35.116666666666,
+          "time": 34.6833333333326,
           "wave": 2
         },
         {
@@ -5786,7 +5852,7 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 2,
-          "time": 79.0166666666635,
+          "time": 69.4833333333307,
           "wave": 3
         },
         {
@@ -5802,65 +5868,188 @@
           "boss_hp_share": 0.9106,
           "weapon_element": "physical",
           "offer": 3,
-          "time": 110.066666666662,
+          "time": 97.8166666666624,
           "wave": 4
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_salvo",
+            "skill_ricochet"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 118.749999999995,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_homing",
+            "skill_incendiary",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 127.816666666661,
+          "wave": 4
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_incendiary",
+            "skill_salvo",
+            "skill_gold_rush"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 149.433333333344,
+          "wave": 4
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_ricochet",
+            "skill_barrier",
+            "skill_critical"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 7,
+          "time": 173.05000000003,
+          "wave": 5
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_barrier",
+            "skill_homing",
+            "skill_split_shot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 8,
+          "time": 187.883333333375,
+          "wave": 5
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_ricochet",
+            "skill_split_shot",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 9,
+          "time": 203.200000000054,
+          "wave": 5
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_homing",
+            "skill_split_shot",
+            "skill_incendiary"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "boss_hp_share": 0.9106,
+          "weapon_element": "physical",
+          "offer": 10,
+          "time": 217.683333333399,
+          "wave": 5
         }
       ],
       "wave_timeline": [
         {
           "wave": 1,
-          "end_time": 22.1833333333334,
-          "max_progress": 0.134178918736582,
+          "end_time": 21.9333333333334,
+          "max_progress": 0.104912165285067,
           "base_ratio": 1.0
         },
         {
           "wave": 2,
-          "end_time": 44.6333333333321,
-          "max_progress": 0.151200948234733,
+          "end_time": 45.0999999999987,
+          "max_progress": 0.108782329996124,
           "base_ratio": 1.0
         },
         {
           "wave": 3,
-          "end_time": 105.666666666662,
-          "max_progress": 0.750349251550573,
-          "base_ratio": 0.931517509727626
+          "end_time": 95.0333333333292,
+          "max_progress": 0.585643646007276,
+          "base_ratio": 0.997817785051828
         },
         {
           "wave": 4,
-          "end_time": 163.283333333355,
-          "max_progress": 1.0,
+          "end_time": 165.083333333357,
+          "max_progress": 0.404980235791388,
+          "base_ratio": 0.997817785051828
+        },
+        {
+          "wave": 5,
+          "end_time": 265.73333333342,
+          "max_progress": 0.779228291984733,
           "base_ratio": 0.0
         }
       ],
       "final_skill_levels": {
         "skill_multishot": 5,
-        "skill_critical": 4,
-        "skill_incendiary": 1
+        "skill_critical": 5,
+        "skill_incendiary": 1,
+        "skill_pierce": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_split_shot": 5,
+        "skill_ricochet": 4
       },
       "battle_report": {
-        "duration_seconds": 163.091333333355,
-        "damage_total": 9574678.2728904,
+        "duration_seconds": 265.557333333421,
+        "damage_total": 146086551.32044,
         "damage_by_element": {
-          "physical": 4433100.53194574,
-          "fire": 5138815.83213428,
-          "lightning": 2761.90880888234
+          "physical": 5095888.05309689,
+          "fire": 140950290.824161,
+          "lightning": 40372.4431865212
         },
         "damage_by_source": {
-          "weapon": 9367987.6493125,
-          "pet": 3792.6052,
-          "burn": 202898.018377106
+          "weapon": 145875441.758779,
+          "pet": 11677.952336,
+          "burn": 199431.609325905
         },
         "top_element": "fire",
-        "crit_damage": 4861331.51803445,
-        "weak_damage": 4765041.24685855,
-        "kills": 380,
+        "crit_damage": 7025512.79688365,
+        "weak_damage": 7474924.13816747,
+        "kills": 604,
         "boss_kills": 0,
-        "base_damage_taken": 2575,
+        "base_damage_taken": 3750,
         "base_damage_prevented": 0,
-        "control_seconds": 0.35,
-        "active_skill_casts": 11,
-        "max_kill_streak": 293,
-        "boss_id": "",
+        "control_seconds": 3.84999999999999,
+        "active_skill_casts": 17,
+        "max_kill_streak": 348,
+        "boss_id": "boss_apex_overlord",
         "challenge_rule": {}
       }
     }

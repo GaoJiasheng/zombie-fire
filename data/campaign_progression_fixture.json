@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "id": "resource_constrained_free_first_clear_v1",
-  "description": "Deterministic free-account growth fixture shared by campaign front-line audit and runtime calibration probes.",
+  "schema_version": 2,
+  "id": "resource_constrained_free_first_clear_v2",
+  "description": "Deterministic free-account growth fixture shared by campaign front-line audit and runtime calibration probes. Weapon purchases and loadouts are matchup-aware from v2 onward.",
   "assumptions": {
     "difficulty": "normal",
     "first_clear_only": true,
@@ -29,14 +29,57 @@
     "skills": {},
     "signature_level": 0
   },
-  "free_purchase_order": [
-    {"slot": "armor", "item_id": "armor_kevlar"},
-    {"slot": "chip", "item_id": "chip_attack"},
-    {"slot": "pet", "item_id": "pet_turret_drone"},
-    {"slot": "weapon", "item_id": "weapon_scattergun"}
-  ],
+  "active_weapon_strategy": "matchup_aware_v2",
+  "weapon_strategies": {
+    "legacy_capacity_v1": {
+      "purchase_mode": "fixed_order",
+      "purchase_order": [
+        {"slot": "armor", "item_id": "armor_kevlar"},
+        {"slot": "chip", "item_id": "chip_attack"},
+        {"slot": "pet", "item_id": "pet_turret_drone"},
+        {"slot": "weapon", "item_id": "weapon_scattergun"}
+      ],
+      "selection": {
+        "method": "weighted_capacity",
+        "candidates": ["weapon_autocannon", "weapon_scattergun"],
+        "boss_capacity_weight_if_present": 0.42,
+        "boss_capacity_weight_otherwise": 0.1
+      }
+    },
+    "matchup_aware_v2": {
+      "purchase_mode": "next_chapter_modal_weakness",
+      "non_weapon_purchase_order": [
+        {"slot": "armor", "item_id": "armor_kevlar"},
+        {"slot": "chip", "item_id": "chip_attack"},
+        {"slot": "pet", "item_id": "pet_turret_drone"}
+      ],
+      "star_weapon_pool": {
+        "source": "free_star_weapons",
+        "minimum_star_cost": 1,
+        "maximum_star_cost": 999,
+        "chapter_reference": "next_chapter",
+        "final_chapter_fallback": "current_chapter",
+        "weakness_rule": "chapter_primary_weakness_mode",
+        "tie_break": "first_authored_level_then_unlock_cost_then_weapon_order",
+        "reserve_stars_for_next_matching_weapon": true
+      },
+      "selection": {
+        "method": "power_for_build",
+        "candidates": "all_owned_weapons",
+        "tie_break": "weapon_data_order"
+      },
+      "gold_upgrade": {
+        "priority": "next_level_equipped_weapon",
+        "same_weapon_priority_upgrades_per_clear": 1,
+        "switch_catch_up_max_gold_ratio": 0.4,
+        "switch_catch_up_level_ceiling": "current_equipped_weapon_level",
+        "after_priority": "balanced_existing_weights"
+      }
+    }
+  },
   "gold_upgrade_weights": {
     "character": 1.0,
+    "weapon": 0.9,
     "weapon_autocannon": 1.0,
     "weapon_scattergun": 0.82,
     "armor": 0.82,
@@ -56,9 +99,7 @@
     "skill_critical",
     "skill_ricochet"
   ],
-  "weapon_selection": {
-    "candidates": ["weapon_autocannon", "weapon_scattergun"],
-    "boss_capacity_weight_if_present": 0.42,
-    "boss_capacity_weight_otherwise": 0.1
+  "audit_outputs": {
+    "weapon_strategy_comparison": "design/audits/campaign_progression_weapon_strategy_v2.csv"
   }
 }
