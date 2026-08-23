@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "level": "level_051",
+  "seed": 1103,
+  "determinism": {
+    "profiles_compared": [1.0, 10.0, 20.0],
+    "highest_verified_acceleration": 20.0,
+    "exact_fields": [
+      "battle_report",
+      "wave_timeline",
+      "card_timeline",
+      "max_progress",
+      "base_ratio",
+      "victory",
+      "elapsed_seconds",
+      "boss_phase_seconds",
+      "selected_skills"
+    ],
+    "status": "exact_match"
+  },
+  "parallel_ten_seed_wall_clock": {
+    "jobs": 10,
+    "acceleration_1x_seconds": 17.63,
+    "acceleration_20x_seconds": 18.153,
+    "target_seconds": 180.0,
+    "status": "pass",
+    "note": "Ten parallel headless processes saturate the local CPU, so wall acceleration does not reduce this already-parallel wall clock; both measurements are far below the three-minute target."
+  },
+  "commands": [
+    "python3 tools/run_frontline_sweep.py --levels=51 --seeds=1103 --profile=tier_b --accel=1",
+    "python3 tools/run_frontline_sweep.py --levels=51 --seeds=1103 --profile=tier_b --accel=10",
+    "python3 tools/run_frontline_sweep.py --levels=51 --seeds=1103 --profile=tier_b --accel=20",
+    "python3 tools/run_frontline_sweep.py --levels=51 --seeds=1103,2207,3301,4409,5501,6619,7723,8831,9901,10009 --profile=tier_b --jobs=10 --accel=1",
+    "python3 tools/run_frontline_sweep.py --levels=51 --seeds=1103,2207,3301,4409,5501,6619,7723,8831,9901,10009 --profile=tier_b --jobs=10 --accel=20"
+  ]
+}

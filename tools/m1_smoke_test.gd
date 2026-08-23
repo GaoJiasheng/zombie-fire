@@ -1156,7 +1156,7 @@ func _initialize() -> void:
 	_expect(main.current_scene.level_id == "level_035", "main start_level must initialize requested battle level before _ready")
 	if main.current_scene.get_node("EnemyLayer").get_child_count() > 0:
 		var routed_enemy: Node = main.current_scene.get_node("EnemyLayer").get_child(0)
-		var routed_hp_floor: float = float(main.current_scene.level.get("base_hp_ref", 50)) * float(main.current_scene.level.get("difficulty_coef", 1.0)) * 0.55
+		var routed_hp_floor: float = float(main.current_scene.level.get("base_hp_ref", 50)) * float(main.current_scene.level.get("difficulty_coef", 1.0)) * float(main.current_scene._wave_hp_coef(1)) * 0.55
 		_expect(float(routed_enemy.max_hp) >= routed_hp_floor, "main-routed battle enemy hp must use requested level; got %.1f expected floor %.1f" % [float(routed_enemy.max_hp), routed_hp_floor])
 	save_manager.save_data = smoke_save_snapshot.duplicate(true)
 	main.queue_free()
@@ -1257,7 +1257,7 @@ func _initialize() -> void:
 		if battle.get_node("EnemyLayer").get_child_count() > 0:
 			var first_enemy := battle.get_node("EnemyLayer").get_child(0)
 			_expect(first_enemy.has_node("HpBar"), "enemy must render hp bar")
-			var expected_runtime_hp_floor := float(battle.level.get("base_hp_ref", 50)) * float(battle.level.get("difficulty_coef", 1.0)) * 0.55
+			var expected_runtime_hp_floor := float(battle.level.get("base_hp_ref", 50)) * float(battle.level.get("difficulty_coef", 1.0)) * float(battle._wave_hp_coef(1)) * 0.55
 			_expect(float(first_enemy.max_hp) >= expected_runtime_hp_floor, "enemy hp must scale with base_hp_ref; got %.1f expected floor %.1f on %s" % [float(first_enemy.max_hp), expected_runtime_hp_floor, battle.level_id])
 			if battle.level_id == "level_001":
 				battle._show_card_offer()
@@ -4396,6 +4396,33 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var zombie_id := "zombie_berserker"
 	var zombie_row: Dictionary = data_loader.get_row("zombies", zombie_id)
 	_expect(absf(float(battle._wave_hp_coef(3)) - 1.0) <= 0.000001, "waves without hp_coef must remain exactly neutral")
+	var expected_ch6_xp_budgets := {
+		"level_051": 948, "level_052": 1767, "level_053": 1336, "level_054": 1671,
+		"level_055": 1798, "level_056": 1549, "level_057": 1530, "level_058": 1623,
+		"level_059": 1855, "level_060": 1989,
+	}
+	for xp_level_id in expected_ch6_xp_budgets:
+		var xp_level_row: Dictionary = data_loader.get_row("levels", xp_level_id)
+		_expect(int(xp_level_row.get("run_xp_budget", 0)) == int(expected_ch6_xp_budgets[xp_level_id]), "%s must preserve its topology-neutral authored-wave XP budget" % xp_level_id)
+	_expect(not data_loader.get_row("levels", "level_050").has("run_xp_budget"), "non-pilot levels must keep legacy per-enemy XP behavior")
+	var saved_raw_xp_total: int = int(battle.level_raw_run_xp_total)
+	var saved_xp_budget: int = int(battle.level_run_xp_budget)
+	var saved_raw_xp_earned: float = float(battle.level_run_xp_raw_earned)
+	var saved_xp_budget_awarded: int = int(battle.level_run_xp_budget_awarded)
+	var saved_variant_xp_mult: float = float(battle.variant_xp_mult)
+	battle.level_raw_run_xp_total = 40
+	battle.level_run_xp_budget = 100
+	battle.level_run_xp_raw_earned = 0.0
+	battle.level_run_xp_budget_awarded = 0
+	battle.variant_xp_mult = 1.0
+	_expect(battle._normalized_run_xp_reward(10.0, true) == 25, "authored-wave XP must preserve its proportional card timing under topology normalization")
+	_expect(battle._normalized_run_xp_reward(30.0, true) == 75, "authored-wave XP normalization must land exactly on the level budget")
+	_expect(battle._normalized_run_xp_reward(10.0, false) == 10, "runtime extra enemies must remain outside the authored-wave XP budget")
+	battle.level_raw_run_xp_total = saved_raw_xp_total
+	battle.level_run_xp_budget = saved_xp_budget
+	battle.level_run_xp_raw_earned = saved_raw_xp_earned
+	battle.level_run_xp_budget_awarded = saved_xp_budget_awarded
+	battle.variant_xp_mult = saved_variant_xp_mult
 	var enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
 	var level_row: Dictionary = data_loader.get_row("levels", "level_099")
 	var level_coef := float(level_row.get("difficulty_coef", 1.0)) * float(level_row.get("base_hp_ref", 50)) / 50.0
@@ -5555,7 +5582,7 @@ func _verify_boss_resistance_and_regeneration(data_loader: Node) -> void:
 			_expect(absf(float(boss_row.get("armor_hp_ratio", 0.0)) - 0.3) <= 0.001, "%s must allocate 30 percent of its total durability to armor" % boss_id)
 	var void_phantom: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
 	_expect(absf(float(void_phantom.get("fixed_hp", 0.0)) - 380000.0) <= 1.0, "Void Phantom must keep the B1 model-level HP solve")
-	_expect(absf(float(void_phantom.get("bd_coef", 0.0)) - 0.8) <= 0.0001, "Void Phantom must keep the B1 route-pressure base-damage solve")
+	_expect(absf(float(void_phantom.get("bd_coef", 0.0)) - 0.85) <= 0.0001, "Void Phantom must keep the B1 route-pressure base-damage solve")
 	_expect(absf(float((void_phantom.get("resistances", {}) as Dictionary).get("physical", 0.0)) - 0.25) <= 0.0001, "Void Phantom must preserve its physical-resistant lightning-weak identity")
 
 	var necro := _instance("res://gameplay/enemy/enemy.tscn")

@@ -7892,7 +7892,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 26,
-		"difficulty_coef": 2.1721,
+		"difficulty_coef": 14.7,
 		"primary_weakness": "fire",
 		"base_hp_ref": 477,
 		"threat_tags": [
@@ -7931,21 +7931,31 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 28,
+						"type": "zombie_brute",
+						"count": 8,
 						"interval": 0.65,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.4
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 31,
+						"type": "zombie_mutant",
+						"count": 7,
 						"interval": 0.65,
 						"lane": "center"
+					}
+				],
+				"hp_coef": 1.28,
+				"support": [
+					{
+						"type": "zombie_shambler",
+						"count": 1,
+						"interval": 0.65,
+						"lane": "spread"
 					}
 				]
 			},
@@ -7953,16 +7963,19 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 29,
-						"interval": 0.49,
-						"lane": "left"
-					},
+						"type": "zombie_charger",
+						"count": 4,
+						"interval": 0.3,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.605189189189189,
+				"support": [
 					{
-						"type": "zombie_runner",
-						"count": 29,
-						"interval": 0.49,
-						"lane": "right"
+						"type": "zombie_shielder",
+						"count": 1,
+						"interval": 0.3,
+						"lane": "center"
 					}
 				]
 			},
@@ -7970,10 +7983,19 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 31,
-						"interval": 0.55,
-						"lane": "spread"
+						"type": "zombie_charger",
+						"count": 2,
+						"interval": 0.33,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 2.05,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 1,
+						"interval": 0.33,
+						"lane": "center"
 					}
 				]
 			}
@@ -7983,18 +8005,20 @@
 			"gold": 1462
 		},
 		"reward_gold_mult": 0.38,
+		"run_xp_budget": 948,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 18.8788,
+			"min_output": 18.4916,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 253,
-				"crowd_capacity": 590.0675,
+				"recommended_power": 249,
+				"crowd_capacity": 546.3031,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7015,
-				"line_expected_breach": 217.5,
+				"line_capacity": 0.25,
+				"line_expected_breach": 41.6,
 				"line_base_hp": 477.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8006,12 +8030,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.834168,
+					"raw_ratio": 1.872574,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8043,7 +8068,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 26,
-		"difficulty_coef": 1.942,
+		"difficulty_coef": 14.0,
 		"primary_weakness": "physical",
 		"base_hp_ref": 484,
 		"threat_tags": [
@@ -8072,35 +8097,25 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_shambler",
-						"count": 10,
-						"interval": 0.81,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_berserker",
-						"count": 10,
-						"interval": 0.81,
-						"lane": "right"
+						"type": "zombie_screamer",
+						"count": 12,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.0
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 14,
-						"interval": 0.64,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_shambler",
-						"count": 14,
-						"interval": 0.64,
-						"lane": "right"
+						"type": "zombie_screamer",
+						"count": 17,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.3
 			},
 			{
 				"wave": 3,
@@ -8108,14 +8123,17 @@
 					{
 						"type": "zombie_brute",
 						"count": 10,
-						"interval": 0.64,
-						"lane": "left"
-					},
+						"interval": 0.5,
+						"lane": "spread"
+					}
+				],
+				"hp_coef": 0.8,
+				"support": [
 					{
-						"type": "zombie_toxic",
-						"count": 16,
-						"interval": 0.64,
-						"lane": "right"
+						"type": "zombie_shambler",
+						"count": 1,
+						"interval": 0.5,
+						"lane": "spread"
 					}
 				]
 			},
@@ -8123,29 +8141,25 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
-						"count": 29,
-						"interval": 0.49,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_berserker",
-						"count": 29,
-						"interval": 0.49,
-						"lane": "right"
+						"type": "zombie_armored",
+						"count": 4,
+						"interval": 0.5,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 0.6
 			},
 			{
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 31,
-						"interval": 0.55,
-						"lane": "spread"
+						"type": "zombie_armored",
+						"count": 3,
+						"interval": 0.5,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 0.7
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -8153,18 +8167,20 @@
 			"gold": 1492
 		},
 		"reward_gold_mult": 0.37,
+		"run_xp_budget": 1767,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 22.4775,
+			"min_output": 10.6228,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 285,
-				"crowd_capacity": 426.8409,
+				"recommended_power": 154,
+				"crowd_capacity": 474.6551,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9199,
-				"line_expected_breach": 289.4,
+				"line_capacity": 0.25,
+				"line_expected_breach": 41.0,
 				"line_base_hp": 484.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8176,12 +8192,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.540513,
+					"raw_ratio": 3.259676,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8213,7 +8230,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 27,
-		"difficulty_coef": 2.463,
+		"difficulty_coef": 10.3,
 		"primary_weakness": "poison",
 		"base_hp_ref": 491,
 		"threat_tags": [
@@ -8241,9 +8258,9 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 20,
-						"interval": 0.81,
+						"type": "zombie_screamer",
+						"count": 15,
+						"interval": 0.5,
 						"lane": "spread"
 					}
 				]
@@ -8252,26 +8269,36 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 18,
-						"interval": 0.63,
-						"lane": "center"
+						"type": "zombie_warden",
+						"count": 10,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.2
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
-						"count": 10,
-						"interval": 0.64,
+						"type": "zombie_charger",
+						"count": 6,
+						"interval": 0.5,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.95,
+				"support": [
+					{
+						"type": "zombie_warden",
+						"count": 3,
+						"interval": 0.5,
 						"lane": "center"
 					},
 					{
-						"type": "zombie_spitter",
-						"count": 16,
-						"interval": 0.64,
+						"type": "zombie_screamer",
+						"count": 1,
+						"interval": 0.5,
 						"lane": "spread"
 					}
 				]
@@ -8280,16 +8307,19 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 18,
-						"interval": 0.48,
-						"lane": "left"
-					},
+						"type": "zombie_armored",
+						"count": 4,
+						"interval": 0.3,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.893,
+				"support": [
 					{
-						"type": "zombie_spitter",
-						"count": 29,
-						"interval": 0.48,
-						"lane": "right"
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.3,
+						"lane": "center"
 					}
 				]
 			},
@@ -8297,10 +8327,19 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_necromancer",
-						"count": 32,
-						"interval": 0.54,
-						"lane": "spread"
+						"type": "zombie_charger",
+						"count": 3,
+						"interval": 0.27,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.105,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.27,
+						"lane": "center"
 					}
 				]
 			}
@@ -8310,18 +8349,20 @@
 			"gold": 1521
 		},
 		"reward_gold_mult": 0.37,
+		"run_xp_budget": 1336,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 20.1246,
+			"min_output": 10.8627,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 267,
-				"crowd_capacity": 650.5136,
+				"recommended_power": 161,
+				"crowd_capacity": 641.6535,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6611,
-				"line_expected_breach": 211.0,
+				"line_capacity": 0.25,
+				"line_expected_breach": 50.35,
 				"line_base_hp": 491.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8333,12 +8374,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.888812,
+					"raw_ratio": 3.499277,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8370,7 +8412,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 28,
-		"difficulty_coef": 2.5282,
+		"difficulty_coef": 21.0,
 		"primary_weakness": "lightning",
 		"base_hp_ref": 499,
 		"threat_tags": [
@@ -8396,55 +8438,55 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 21,
-						"interval": 0.8,
+						"type": "zombie_warden",
+						"count": 8,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 15,
-						"interval": 0.63,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_crawler",
-						"count": 15,
-						"interval": 0.63,
-						"lane": "right"
+						"type": "zombie_armored",
+						"count": 8,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.6
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_regenerator",
-						"count": 20,
-						"interval": 0.63,
+						"type": "zombie_shambler",
+						"count": 22,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 19,
-						"interval": 0.47,
-						"lane": "left"
-					},
+						"type": "zombie_charger",
+						"count": 5,
+						"interval": 0.25,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.62,
+				"support": [
 					{
-						"type": "zombie_mutant",
-						"count": 30,
-						"interval": 0.47,
-						"lane": "right"
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.25,
+						"lane": "center"
 					}
 				]
 			},
@@ -8452,10 +8494,19 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
-						"count": 34,
-						"interval": 0.53,
-						"lane": "spread"
+						"type": "zombie_charger",
+						"count": 3,
+						"interval": 0.25,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.65,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.25,
+						"lane": "center"
 					}
 				]
 			}
@@ -8465,18 +8516,20 @@
 			"gold": 1551
 		},
 		"reward_gold_mult": 0.37,
+		"run_xp_budget": 1671,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 23.9151,
+			"min_output": 14.1765,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 310,
-				"crowd_capacity": 675.0934,
+				"recommended_power": 202,
+				"crowd_capacity": 709.6665,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7392,
-				"line_expected_breach": 239.75,
+				"line_capacity": 0.25,
+				"line_expected_breach": 52.6,
 				"line_base_hp": 499.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8488,12 +8541,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.74169,
+					"raw_ratio": 2.938151,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8525,7 +8579,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 28,
-		"difficulty_coef": 3.2443,
+		"difficulty_coef": 7.06,
 		"primary_weakness": "lightning",
 		"base_hp_ref": 506,
 		"threat_tags": [
@@ -8553,69 +8607,62 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 24,
-						"interval": 0.79,
+						"type": "zombie_runner",
+						"count": 18,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.2
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 35,
-						"interval": 0.62,
+						"type": "zombie_runner",
+						"count": 27,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.64
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 47,
-						"interval": 0.62,
+						"type": "zombie_runner",
+						"count": 18,
+						"interval": 0.5,
 						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 2.2
 			},
 			{
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 36,
-						"interval": 0.47,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_crawler",
-						"count": 36,
-						"interval": 0.47,
-						"lane": "right"
+						"type": "zombie_runner",
+						"count": 6,
+						"interval": 0.32,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 2.7588
 			},
 			{
 				"wave": 5,
 				"boss": "boss_void_phantom",
 				"support": [
 					{
-						"type": "zombie_necromancer",
-						"count": 21,
-						"interval": 0.56,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_hopper",
-						"count": 15,
-						"interval": 0.56,
-						"lane": "right"
+						"type": "zombie_juggernaut",
+						"count": 1,
+						"interval": 0.34,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 2.64
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -8623,41 +8670,46 @@
 			"gold": 1581
 		},
 		"reward_gold_mult": 0.36,
+		"run_xp_budget": 1798,
+		"offer_category_floor": "single_target",
 		"clear_requirement": {
-			"min_output": 22.6117,
-			"mob_hp_share": 0.4933,
-			"boss_hp_share": 0.5067,
+			"min_output": 9.7483,
+			"mob_hp_share": 0.715,
+			"boss_hp_share": 0.285,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 296,
-				"crowd_capacity": 505.7467,
-				"boss_capacity": 48.178,
-				"line_capacity": 0.6921,
-				"line_expected_breach": 284.52,
+				"recommended_power": 148,
+				"crowd_capacity": 1102.0741,
+				"boss_capacity": 22.0557,
+				"line_capacity": 0.25,
+				"line_expected_breach": 41.82,
 				"line_base_hp": 632.5,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.4933,
-					"boss": 0.5067
+					"crowd": 0.715,
+					"boss": 0.285
 				},
-				"boss_effective_hp": 1794940.0,
+				"boss_effective_hp": 487198.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "single_target",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.06412,
-					"ratio": 1.06412,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [],
+					"raw_ratio": 4.272816,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
+					"adjusted_axes": [
+						"crowd"
+					],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -8683,7 +8735,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 28,
-		"difficulty_coef": 3.2518,
+		"difficulty_coef": 12.45,
 		"primary_weakness": "physical",
 		"base_hp_ref": 513,
 		"threat_tags": [
@@ -8711,16 +8763,10 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_hopper",
-						"count": 11,
-						"interval": 0.78,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_phantom",
-						"count": 11,
-						"interval": 0.78,
-						"lane": "right"
+						"type": "zombie_shambler",
+						"count": 14,
+						"interval": 0.5,
+						"lane": "spread"
 					}
 				]
 			},
@@ -8728,33 +8774,31 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_phantom",
+						"type": "zombie_screamer",
 						"count": 15,
-						"interval": 0.61,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_hopper",
-						"count": 15,
-						"interval": 0.61,
-						"lane": "right"
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.5
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_warden",
-						"count": 10,
-						"interval": 0.61,
-						"lane": "left"
-					},
+						"type": "zombie_brute",
+						"count": 7,
+						"interval": 0.5,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.192,
+				"support": [
 					{
-						"type": "zombie_bomber",
-						"count": 17,
-						"interval": 0.61,
-						"lane": "right"
+						"type": "zombie_shambler",
+						"count": 3,
+						"interval": 0.5,
+						"lane": "spread"
 					}
 				]
 			},
@@ -8762,16 +8806,19 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 31,
-						"interval": 0.46,
-						"lane": "left"
-					},
+						"type": "zombie_charger",
+						"count": 3,
+						"interval": 0.32,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.462,
+				"support": [
 					{
-						"type": "zombie_phantom",
-						"count": 31,
-						"interval": 0.46,
-						"lane": "right"
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.32,
+						"lane": "center"
 					}
 				]
 			},
@@ -8779,10 +8826,19 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_screamer",
-						"count": 34,
-						"interval": 0.52,
-						"lane": "spread"
+						"type": "zombie_charger",
+						"count": 2,
+						"interval": 0.34,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.303,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.34,
+						"lane": "center"
 					}
 				]
 			}
@@ -8792,18 +8848,20 @@
 			"gold": 1611
 		},
 		"reward_gold_mult": 0.36,
+		"run_xp_budget": 1549,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 22.7506,
+			"min_output": 15.6665,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 290,
-				"crowd_capacity": 513.447,
+				"recommended_power": 214,
+				"crowd_capacity": 570.9628,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.6844,
-				"line_expected_breach": 228.2,
+				"line_capacity": 0.25,
+				"line_expected_breach": 41.3,
 				"line_base_hp": 513.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8815,12 +8873,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.830839,
+					"raw_ratio": 2.658711,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -8852,7 +8911,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 29,
-		"difficulty_coef": 2.5058,
+		"difficulty_coef": 10.3,
 		"primary_weakness": "ice",
 		"base_hp_ref": 520,
 		"threat_tags": [
@@ -8881,37 +8940,42 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_runner",
-						"count": 21,
-						"interval": 0.78,
+						"type": "zombie_brute",
+						"count": 24,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.5
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 19,
-						"interval": 0.61,
-						"lane": "center"
+						"type": "zombie_screamer",
+						"count": 40,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.8
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 11,
-						"interval": 0.61,
-						"lane": "center"
-					},
+						"type": "zombie_charger",
+						"count": 10,
+						"interval": 0.5,
+						"lane": "spread"
+					}
+				],
+				"hp_coef": 1.6,
+				"support": [
 					{
-						"type": "zombie_shielder",
-						"count": 17,
-						"interval": 0.61,
+						"type": "zombie_warden",
+						"count": 10,
+						"interval": 0.5,
 						"lane": "spread"
 					}
 				]
@@ -8920,29 +8984,25 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_armored",
-						"count": 19,
-						"interval": 0.45,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_shielder",
-						"count": 31,
-						"interval": 0.45,
-						"lane": "right"
+						"type": "zombie_spitter",
+						"count": 8,
+						"interval": 0.38,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.7
 			},
 			{
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_berserker",
-						"count": 34,
-						"interval": 0.52,
+						"type": "zombie_spitter",
+						"count": 10,
+						"interval": 0.38,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 2.7
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -8950,18 +9010,20 @@
 			"gold": 1642
 		},
 		"reward_gold_mult": 0.35,
+		"run_xp_budget": 1530,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 26.2687,
+			"min_output": 44.7943,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 344,
-				"crowd_capacity": 746.147,
+				"recommended_power": 532,
+				"crowd_capacity": 999.8815,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.7331,
-				"line_expected_breach": 247.8,
+				"line_capacity": 0.2624,
+				"line_expected_breach": 88.7,
 				"line_base_hp": 520.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -8973,18 +9035,17 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.734548,
-					"ratio": 1.38,
+					"raw_ratio": 1.01719,
+					"ratio": 1.01719,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
+					"adjusted_axes": [],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -9010,7 +9071,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 30,
-		"difficulty_coef": 1.8884,
+		"difficulty_coef": 14.3,
 		"primary_weakness": "fire",
 		"base_hp_ref": 527,
 		"threat_tags": [
@@ -9039,8 +9100,8 @@
 				"spawns": [
 					{
 						"type": "zombie_shambler",
-						"count": 22,
-						"interval": 0.77,
+						"count": 16,
+						"interval": 0.5,
 						"lane": "spread"
 					}
 				]
@@ -9049,26 +9110,30 @@
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
+						"type": "zombie_screamer",
 						"count": 16,
-						"interval": 0.6,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_berserker",
-						"count": 16,
-						"interval": 0.6,
-						"lane": "right"
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.5
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_brute",
-						"count": 21,
-						"interval": 0.6,
+						"type": "zombie_armored",
+						"count": 6,
+						"interval": 0.5,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.066,
+				"support": [
+					{
+						"type": "zombie_shambler",
+						"count": 3,
+						"interval": 0.5,
 						"lane": "spread"
 					}
 				]
@@ -9077,16 +9142,25 @@
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 19,
-						"interval": 0.45,
-						"lane": "left"
+						"type": "zombie_charger",
+						"count": 1,
+						"interval": 0.34,
+						"lane": "center"
 					},
 					{
 						"type": "zombie_toxic",
-						"count": 32,
-						"interval": 0.45,
-						"lane": "right"
+						"count": 3,
+						"interval": 0.34,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.5,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.34,
+						"lane": "center"
 					}
 				]
 			},
@@ -9094,12 +9168,13 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 35,
-						"interval": 0.51,
-						"lane": "spread"
+						"type": "zombie_toxic",
+						"count": 5,
+						"interval": 0.36,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 3.0
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -9107,18 +9182,20 @@
 			"gold": 1672
 		},
 		"reward_gold_mult": 0.35,
+		"run_xp_budget": 1623,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 35.3221,
+			"min_output": 27.0965,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 443,
-				"crowd_capacity": 864.3258,
+				"recommended_power": 357,
+				"crowd_capacity": 956.3486,
 				"boss_capacity": 0.0,
-				"line_capacity": 0.9908,
-				"line_expected_breach": 339.4,
+				"line_capacity": 0.25,
+				"line_expected_breach": 47.2,
 				"line_base_hp": 527.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9130,12 +9207,13 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.408782,
+					"raw_ratio": 1.836441,
 					"ratio": 1.38,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
@@ -9167,7 +9245,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 30,
-		"difficulty_coef": 2.2259,
+		"difficulty_coef": 33.2,
 		"primary_weakness": "poison",
 		"base_hp_ref": 534,
 		"threat_tags": [
@@ -9193,32 +9271,43 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_bomber",
-						"count": 22,
-						"interval": 0.76,
+						"type": "zombie_shambler",
+						"count": 16,
+						"interval": 0.5,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 32,
-						"interval": 0.59,
-						"lane": "right"
+						"type": "zombie_screamer",
+						"count": 16,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.8
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 22,
-						"interval": 0.59,
-						"lane": "left"
+						"type": "zombie_armored",
+						"count": 6,
+						"interval": 0.5,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.58,
+				"support": [
+					{
+						"type": "zombie_shambler",
+						"count": 3,
+						"interval": 0.5,
+						"lane": "spread"
 					}
 				]
 			},
@@ -9227,15 +9316,30 @@
 				"spawns": [
 					{
 						"type": "zombie_charger",
-						"count": 32,
-						"interval": 0.44,
-						"lane": "left"
+						"count": 2,
+						"interval": 0.32,
+						"lane": "center"
 					},
 					{
-						"type": "zombie_bomber",
-						"count": 32,
-						"interval": 0.44,
-						"lane": "right"
+						"type": "zombie_phantom",
+						"count": 1,
+						"interval": 0.32,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 1.3,
+				"support": [
+					{
+						"type": "zombie_shielder",
+						"count": 2,
+						"interval": 0.32,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_toxic",
+						"count": 2,
+						"interval": 0.32,
+						"lane": "center"
 					}
 				]
 			},
@@ -9243,12 +9347,19 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_mutant",
-						"count": 36,
-						"interval": 0.5,
+						"type": "zombie_screamer",
+						"count": 2,
+						"interval": 0.34,
+						"lane": "spread"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 2,
+						"interval": 0.34,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.7
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -9256,18 +9367,20 @@
 			"gold": 1702
 		},
 		"reward_gold_mult": 0.35,
+		"run_xp_budget": 1855,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 36.576,
+			"min_output": 37.9495,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 455,
-				"crowd_capacity": 880.47,
+				"recommended_power": 469,
+				"crowd_capacity": 933.8369,
 				"boss_capacity": 0.0,
-				"line_capacity": 1.0444,
-				"line_expected_breach": 362.5,
+				"line_capacity": 0.25,
+				"line_expected_breach": 42.0,
 				"line_base_hp": 534.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9279,13 +9392,14 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 1.360486,
-					"ratio": 1.360486,
+					"raw_ratio": 1.311246,
+					"ratio": 1.311246,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
 					"adjusted_axes": [],
@@ -9314,7 +9428,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 30,
-		"difficulty_coef": 2.8499,
+		"difficulty_coef": 8.0,
 		"primary_weakness": "lightning",
 		"base_hp_ref": 541,
 		"threat_tags": [
@@ -9328,7 +9442,31 @@
 			{
 				"wave": 5,
 				"type": "boss_void_phantom",
-				"interval": 2.2,
+				"interval": 2.5,
+				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 2.5,
+				"lane": "right"
+			},
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 2.5,
+				"lane": "spread"
+			},
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 3.0,
+				"lane": "left"
+			},
+			{
+				"wave": 5,
+				"type": "boss_void_phantom",
+				"interval": 3.0,
 				"lane": "right"
 			}
 		],
@@ -9350,67 +9488,55 @@
 				"wave": 1,
 				"spawns": [
 					{
-						"type": "zombie_charger",
-						"count": 13,
-						"interval": 0.75,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_crawler",
-						"count": 13,
-						"interval": 0.75,
-						"lane": "right"
+						"type": "zombie_mutant",
+						"count": 27,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 2,
 				"spawns": [
 					{
-						"type": "zombie_crawler",
-						"count": 19,
-						"interval": 0.59,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_charger",
-						"count": 19,
-						"interval": 0.59,
-						"lane": "right"
+						"type": "zombie_mutant",
+						"count": 34,
+						"interval": 0.5,
+						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.7
 			},
 			{
 				"wave": 3,
 				"spawns": [
 					{
-						"type": "zombie_regenerator",
-						"count": 16,
-						"interval": 0.59,
-						"lane": "left"
-					},
-					{
 						"type": "zombie_mutant",
-						"count": 25,
-						"interval": 0.59,
-						"lane": "right"
+						"count": 24,
+						"interval": 0.5,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 4,
 				"spawns": [
 					{
 						"type": "zombie_mutant",
-						"count": 38,
-						"interval": 0.44,
-						"lane": "left"
-					},
+						"count": 7,
+						"interval": 0.32,
+						"lane": "center"
+					}
+				],
+				"hp_coef": 0.627,
+				"support": [
 					{
-						"type": "zombie_crawler",
-						"count": 38,
-						"interval": 0.44,
-						"lane": "right"
+						"type": "zombie_armored",
+						"count": 1,
+						"interval": 0.32,
+						"lane": "center"
 					}
 				]
 			},
@@ -9419,18 +9545,13 @@
 				"boss": "boss_void_phantom",
 				"support": [
 					{
-						"type": "zombie_necromancer",
-						"count": 14,
-						"interval": 0.52,
-						"lane": "left"
-					},
-					{
-						"type": "zombie_crawler",
-						"count": 16,
-						"interval": 0.52,
-						"lane": "right"
+						"type": "zombie_juggernaut",
+						"count": 9,
+						"interval": 0.34,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 0.55
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -9438,38 +9559,41 @@
 			"gold": 1733
 		},
 		"reward_gold_mult": 0.34,
+		"run_xp_budget": 1989,
+		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 30.1956,
-			"mob_hp_share": 0.4451,
-			"boss_hp_share": 0.5549,
+			"min_output": 22.84,
+			"mob_hp_share": 0.4518,
+			"boss_hp_share": 0.5482,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 389,
-				"crowd_capacity": 678.0088,
-				"boss_capacity": 60.0463,
-				"line_capacity": 0.8075,
-				"line_expected_breach": 354.96,
+				"recommended_power": 310,
+				"crowd_capacity": 564.2041,
+				"boss_capacity": 54.5876,
+				"line_capacity": 0.5235,
+				"line_expected_breach": 230.12,
 				"line_base_hp": 676.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.4451,
-					"boss": 0.5549
+					"crowd": 0.4518,
+					"boss": 0.5482
 				},
-				"boss_effective_hp": 3589880.0,
+				"boss_effective_hp": 2923188.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
-				"runtime_boss_pressure_mult": 2.0,
+				"runtime_boss_pressure_mult": 6.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 3,
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
 						1.4
 					],
-					"raw_ratio": 0.635634,
-					"ratio": 1.02,
+					"raw_ratio": 0.70964,
+					"ratio": 1.019999,
 					"raw_bottleneck": "boss",
 					"bottleneck": "boss",
 					"adjusted_axes": [
@@ -10234,24 +10358,24 @@
 		},
 		"reward_gold_mult": 0.33,
 		"clear_requirement": {
-			"min_output": 48.9812,
-			"mob_hp_share": 0.4045,
-			"boss_hp_share": 0.5955,
+			"min_output": 48.6954,
+			"mob_hp_share": 0.7145,
+			"boss_hp_share": 0.2855,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 586,
-				"crowd_capacity": 1099.8186,
-				"boss_capacity": 85.6731,
-				"line_capacity": 1.0889,
-				"line_expected_breach": 510.48,
+				"recommended_power": 583,
+				"crowd_capacity": 1155.2092,
+				"boss_capacity": 59.9355,
+				"line_capacity": 1.0468,
+				"line_expected_breach": 490.74,
 				"line_base_hp": 721.25,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.4045,
-					"boss": 0.5955
+					"crowd": 0.7145,
+					"boss": 0.2855
 				},
-				"boss_effective_hp": 5384820.0,
+				"boss_effective_hp": 1461594.0,
 				"boss_weights": {
 					"boss_void_phantom": 1.0
 				},
@@ -10263,12 +10387,12 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 0.604608,
-					"ratio": 1.02,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
+					"raw_ratio": 1.458009,
+					"ratio": 1.38,
+					"raw_bottleneck": "crowd",
+					"bottleneck": "crowd",
 					"adjusted_axes": [
-						"boss"
+						"crowd"
 					],
 					"fixture": {
 						"family": "paced_free",

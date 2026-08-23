@@ -2,7 +2,225 @@
   "schema_version": 1,
   "frozen": false,
   "status": "initial_reference_pending_b1_owner_review",
-  "source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.4",
+	"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.4",
+	"pacing_rules": {
+		"pilot_scope": [
+			51,
+			60
+		],
+		"wave_hp_coef": {
+			"default": 1.0,
+			"minimum": 0.5,
+		"composite_nondecreasing": true,
+			"max_adjacent_composite_ratio": 1.6,
+			"max_final_to_first_composite_ratio": 4.0,
+		"description": "hp_coef may rise or fall. The constrained value is composite durability: difficulty_coef × wave hp_coef × the frozen data-owned late-wave HP bonus and level ramp."
+		},
+		"within_level_shape": {
+			"effective_durability_share_nondecreasing": true,
+			"max_wave_share": 0.35,
+			"max_adjacent_share_ratio": 1.6,
+			"min_interval_vs_baseline": 0.6,
+			"deepest_progress_wave_window": [
+				4,
+				5
+			],
+			"max_progress_regression_pp": 10.0,
+			"first_wave_max_progress_pct": 42.0,
+			"first_card_by_wave_end": 2,
+			"min_card_offers_before_final_wave": 3
+		},
+		"owner_authorized_topology_envelope": {
+			"allowed_levels": [
+				51,
+				60
+			],
+			"existing_enemy_types_only": true,
+			"existing_lane_values_only": true,
+			"freeze_level_051_wave_1": true,
+			"max_final_to_first_composite_ratio": 6.0,
+			"max_first_wave_progress_pct": 45.0,
+			"min_interval_vs_baseline": 0.5,
+			"max_wave_share": 0.4,
+			"max_adjacent_share_ratio": 1.8,
+			"runtime_duration_vs_baseline_max": 1.3,
+			"static_duration_max_normal_seconds": 180.0,
+			"static_duration_max_boss_seconds": 215.0,
+			"final_ratio_above_base_requires_fewer_late_bodies": true,
+			"final_ratio_above_base_requires_no_total_durability_growth": true,
+			"description": "Only existing enemy types and lane values may reshape chapter 6. Any use beyond the base shape contract must stay inside this envelope and be declared per level for the pilot report."
+		},
+		"between_level_continuity": {
+			"internal_levels": [
+				51,
+				58
+			],
+			"max_weighted_average_composite_increase": 0.12,
+			"entry_050_to_051_max_grade_steps": 1,
+			"exit_060_to_061_deferred_to_b2": true
+		},
+		"offer_category_floor": {
+			"mob_dominant": "crowd",
+			"boss_dominant": "single_target",
+			"boss_dominant_min_hp_share": 0.5,
+			"enabled_levels": [
+				51,
+				60
+			]
+		}
+	},
+	"pilot_chapter6": {
+		"status": "b1_runtime_contracts_passed_pending_owner_playtest",
+		"authoritative_profile": "tier_b",
+		"runtime_evidence": "design/audits/pilot_chapter6/ch6_final_tier_b_10.json",
+		"levels": {
+			"level_051": {
+				"difficulty_coef": 14.7,
+				"run_xp_budget": 948,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {
+					"first_wave_progress_cap": 45.0,
+					"min_interval_vs_baseline": 0.5,
+					"max_wave_share": 0.4,
+					"max_adjacent_share_ratio": 1.8,
+					"max_final_to_first_composite_ratio": 6.0,
+					"prior_proposal_total_durability_budget": 7577.616803
+				},
+				"waves": [
+					{"hp_coef": 1.0},
+					{"hp_coef": 1.4, "spawns": [{"type": "zombie_brute", "count": 8, "interval": 0.65, "lane": "spread"}]},
+					{"hp_coef": 1.28, "spawns": [{"type": "zombie_mutant", "count": 7, "interval": 0.65, "lane": "center"}], "support": [{"type": "zombie_shambler", "count": 1, "interval": 0.65, "lane": "spread"}]},
+					{"hp_coef": 1.605189189189189, "spawns": [{"type": "zombie_charger", "count": 4, "interval": 0.30, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 1, "interval": 0.30, "lane": "center"}]},
+					{"hp_coef": 2.05, "spawns": [{"type": "zombie_charger", "count": 2, "interval": 0.33, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 1, "interval": 0.33, "lane": "center"}]}
+				]
+			},
+			"level_052": {
+				"difficulty_coef": 14.0,
+				"run_xp_budget": 1767,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8, "prior_proposal_total_durability_budget": 4183.926057},
+				"waves": [
+					{"hp_coef": 2.0, "spawns": [{"type": "zombie_screamer", "count": 12, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.3, "spawns": [{"type": "zombie_screamer", "count": 17, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.800000000, "spawns": [{"type": "zombie_brute", "count": 10, "interval": 0.50, "lane": "spread"}], "support": [{"type": "zombie_shambler", "count": 1, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.6, "spawns": [{"type": "zombie_armored", "count": 4, "interval": 0.50, "lane": "center"}]},
+					{"hp_coef": 0.7, "spawns": [{"type": "zombie_armored", "count": 3, "interval": 0.50, "lane": "center"}]}
+				]
+			},
+			"level_053": {
+				"difficulty_coef": 10.3,
+				"run_xp_budget": 1336,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 1.0, "spawns": [{"type": "zombie_screamer", "count": 15, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.2, "spawns": [{"type": "zombie_warden", "count": 10, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.95, "spawns": [{"type": "zombie_charger", "count": 6, "interval": 0.50, "lane": "center"}], "support": [{"type": "zombie_warden", "count": 3, "interval": 0.50, "lane": "center"}, {"type": "zombie_screamer", "count": 1, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.893, "spawns": [{"type": "zombie_armored", "count": 4, "interval": 0.30, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.30, "lane": "center"}]},
+					{"hp_coef": 1.105, "spawns": [{"type": "zombie_charger", "count": 3, "interval": 0.27, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.27, "lane": "center"}]}
+				]
+			},
+			"level_054": {
+				"difficulty_coef": 21.0,
+				"run_xp_budget": 1671,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8, "prior_proposal_total_durability_budget": 4453.554426},
+				"waves": [
+					{"hp_coef": 0.5, "spawns": [{"type": "zombie_warden", "count": 8, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.6, "spawns": [{"type": "zombie_armored", "count": 8, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.5, "spawns": [{"type": "zombie_shambler", "count": 22, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.62, "spawns": [{"type": "zombie_charger", "count": 5, "interval": 0.25, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.25, "lane": "center"}]},
+					{"hp_coef": 0.65, "spawns": [{"type": "zombie_charger", "count": 3, "interval": 0.25, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.25, "lane": "center"}]}
+				]
+			},
+			"level_055": {
+				"difficulty_coef": 7.06,
+				"run_xp_budget": 1798,
+				"offer_category_floor": "single_target",
+				"runtime_bosses": [],
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 2.2, "spawns": [{"type": "zombie_runner", "count": 18, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 2.64, "spawns": [{"type": "zombie_runner", "count": 27, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 2.2, "spawns": [{"type": "zombie_runner", "count": 18, "interval": 0.50, "lane": "center"}]},
+					{"hp_coef": 2.7588, "spawns": [{"type": "zombie_runner", "count": 6, "interval": 0.32, "lane": "center"}]},
+					{"hp_coef": 2.64, "support": [{"type": "zombie_juggernaut", "count": 1, "interval": 0.34, "lane": "center"}]}
+				]
+			},
+			"level_056": {
+				"difficulty_coef": 12.45,
+				"run_xp_budget": 1549,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 1.0, "spawns": [{"type": "zombie_shambler", "count": 14, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.5, "spawns": [{"type": "zombie_screamer", "count": 15, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.192, "spawns": [{"type": "zombie_brute", "count": 7, "interval": 0.50, "lane": "center"}], "support": [{"type": "zombie_shambler", "count": 3, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.462, "spawns": [{"type": "zombie_charger", "count": 3, "interval": 0.32, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.32, "lane": "center"}]},
+					{"hp_coef": 1.303, "spawns": [{"type": "zombie_charger", "count": 2, "interval": 0.34, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.34, "lane": "center"}]}
+				]
+			},
+			"level_057": {
+				"difficulty_coef": 10.3,
+				"run_xp_budget": 1530,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 2.5, "spawns": [{"type": "zombie_brute", "count": 24, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.8, "spawns": [{"type": "zombie_screamer", "count": 40, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.6, "spawns": [{"type": "zombie_charger", "count": 10, "interval": 0.50, "lane": "spread"}], "support": [{"type": "zombie_warden", "count": 10, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 2.7, "spawns": [{"type": "zombie_spitter", "count": 8, "interval": 0.38, "lane": "spread"}]},
+					{"hp_coef": 2.7, "spawns": [{"type": "zombie_spitter", "count": 10, "interval": 0.38, "lane": "spread"}]}
+				]
+			},
+			"level_058": {
+				"difficulty_coef": 14.3,
+				"run_xp_budget": 1623,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 1.0, "spawns": [{"type": "zombie_shambler", "count": 16, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.5, "spawns": [{"type": "zombie_screamer", "count": 16, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.066, "spawns": [{"type": "zombie_armored", "count": 6, "interval": 0.50, "lane": "center"}], "support": [{"type": "zombie_shambler", "count": 3, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.5, "spawns": [{"type": "zombie_charger", "count": 1, "interval": 0.34, "lane": "center"}, {"type": "zombie_toxic", "count": 3, "interval": 0.34, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.34, "lane": "center"}]},
+					{"hp_coef": 3.0, "spawns": [{"type": "zombie_toxic", "count": 5, "interval": 0.36, "lane": "center"}]}
+				]
+			},
+			"level_059": {
+				"difficulty_coef": 33.2,
+				"run_xp_budget": 1855,
+				"offer_category_floor": "crowd",
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 0.5, "spawns": [{"type": "zombie_shambler", "count": 16, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.8, "spawns": [{"type": "zombie_screamer", "count": 16, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.58, "spawns": [{"type": "zombie_armored", "count": 6, "interval": 0.50, "lane": "center"}], "support": [{"type": "zombie_shambler", "count": 3, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 1.3, "spawns": [{"type": "zombie_charger", "count": 2, "interval": 0.32, "lane": "center"}, {"type": "zombie_phantom", "count": 1, "interval": 0.32, "lane": "center"}], "support": [{"type": "zombie_shielder", "count": 2, "interval": 0.32, "lane": "center"}, {"type": "zombie_toxic", "count": 2, "interval": 0.32, "lane": "center"}]},
+					{"hp_coef": 1.7, "spawns": [{"type": "zombie_screamer", "count": 2, "interval": 0.34, "lane": "spread"}, {"type": "zombie_spitter", "count": 2, "interval": 0.34, "lane": "spread"}]}
+				]
+			},
+			"level_060": {
+				"difficulty_coef": 8.0,
+				"run_xp_budget": 1989,
+				"offer_category_floor": "crowd",
+				"runtime_bosses": [
+					{"wave": 5, "type": "boss_void_phantom", "interval": 2.5, "lane": "left"},
+					{"wave": 5, "type": "boss_void_phantom", "interval": 2.5, "lane": "right"},
+					{"wave": 5, "type": "boss_void_phantom", "interval": 2.5, "lane": "spread"},
+					{"wave": 5, "type": "boss_void_phantom", "interval": 3.0, "lane": "left"},
+					{"wave": 5, "type": "boss_void_phantom", "interval": 3.0, "lane": "right"}
+				],
+				"envelope_usage": {"max_final_to_first_composite_ratio": 6.0, "max_wave_share": 0.4, "max_adjacent_share_ratio": 1.8},
+				"waves": [
+					{"hp_coef": 0.5, "spawns": [{"type": "zombie_mutant", "count": 27, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.7, "spawns": [{"type": "zombie_mutant", "count": 34, "interval": 0.50, "lane": "spread"}]},
+					{"hp_coef": 0.5, "spawns": [{"type": "zombie_mutant", "count": 24, "interval": 0.50, "lane": "center"}]},
+					{"hp_coef": 0.627, "spawns": [{"type": "zombie_mutant", "count": 7, "interval": 0.32, "lane": "center"}], "support": [{"type": "zombie_armored", "count": 1, "interval": 0.32, "lane": "center"}]},
+					{"hp_coef": 0.55, "support": [{"type": "zombie_juggernaut", "count": 9, "interval": 0.34, "lane": "center"}]}
+				]
+			}
+		}
+	},
   "grade_order": [
     "easy",
     "light_pressure",

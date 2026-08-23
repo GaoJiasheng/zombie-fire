@@ -8,7 +8,7 @@
   },
   "after": {
     "fixed_hp": 380000,
-    "bd_coef": 0.8,
+    "bd_coef": 0.85,
     "physical_resistance": 0.25
   },
   "level_065_spillover": {
@@ -24,7 +24,9 @@
     "boss_effective_hp_before": 5384820.0,
     "boss_effective_hp_after_derived": 1461594.0,
     "milestone_phase_seconds_before": 16.6,
-    "milestone_phase_seconds_after_derived": 4.5
+    "milestone_phase_seconds_after_derived": 4.5,
+    "runtime_sample": "design/audits/pilot_chapter6/level065_spillover_tier_b_3_summary.json",
+    "runtime_sample_result": "2/3 wins; median progress 71.35%; median base 100%; informational only until chapter 7 rebuild"
   },
   "endless_regression": {
     "budget_contract_regenerated": true,

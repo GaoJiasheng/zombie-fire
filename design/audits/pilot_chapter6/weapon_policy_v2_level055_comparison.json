@@ -1,0 +1,85 @@
+{
+  "status": "stopped_runtime_gate",
+  "level_id": "level_055",
+  "profile": "tier_b",
+  "fixture_strategy": "matchup_aware_v2",
+  "fixed_seeds": [1103, 2207, 3301],
+  "ten_seed_scan": [1103, 2207, 3301, 4409, 5501, 6619, 7723, 8831, 9901, 10009],
+  "fixture_purchase_result": {
+    "weapon_teslacoil_owned": true,
+    "purchase_after_level": 45,
+    "selected_weapon": "weapon_scattergun",
+    "selected_weapon_level": 43,
+    "weapon_teslacoil_level": 12
+  },
+  "power_for_build_comparison": [
+    {
+      "weapon": "weapon_scattergun",
+      "level": 43,
+      "effective_power": 909,
+      "crowd_capacity": 1916.2371,
+      "boss_capacity": 147.9923,
+      "note": "actual fixture selection"
+    },
+    {
+      "weapon": "weapon_teslacoil",
+      "level": 12,
+      "effective_power": 145,
+      "crowd_capacity": 366.6538,
+      "boss_capacity": 23.6634,
+      "note": "actual fixture level"
+    },
+    {
+      "weapon": "weapon_teslacoil",
+      "level": 43,
+      "effective_power": 508,
+      "crowd_capacity": 1282.0774,
+      "boss_capacity": 82.7439,
+      "note": "forced equal level comparison"
+    },
+    {
+      "weapon": "weapon_scattergun",
+      "level": 50,
+      "effective_power": 1012,
+      "crowd_capacity": 2336.8747,
+      "boss_capacity": 180.4784,
+      "note": "forced max level comparison"
+    },
+    {
+      "weapon": "weapon_teslacoil",
+      "level": 50,
+      "effective_power": 620,
+      "crowd_capacity": 1563.2402,
+      "boss_capacity": 100.8898,
+      "note": "forced max level comparison"
+    }
+  ],
+  "runtime_summary": {
+    "wins": 0,
+    "runs": 10,
+    "median_max_progress": 0.9554,
+    "min_max_progress": 0.9551,
+    "max_max_progress": 0.9561,
+    "median_base_ratio": 0.0,
+    "median_elapsed_seconds": 119.675,
+    "min_elapsed_seconds": 101.3667,
+    "max_elapsed_seconds": 129.9,
+    "median_boss_phase_seconds": 43.6833,
+    "min_boss_phase_seconds": 42.8833,
+    "max_boss_phase_seconds": 44.7833,
+    "boss_phase_target_seconds": [40.0, 60.0]
+  },
+  "runtime_runs": [
+    {"seed": 1103, "max_progress": 0.9554, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 124.58, "boss_phase_seconds": 44.27},
+    {"seed": 2207, "max_progress": 0.9554, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 103.82, "boss_phase_seconds": 44.78},
+    {"seed": 3301, "max_progress": 0.9556, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 125.93, "boss_phase_seconds": 43.83},
+    {"seed": 4409, "max_progress": 0.9561, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 115.63, "boss_phase_seconds": 43.17},
+    {"seed": 5501, "max_progress": 0.9554, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 123.72, "boss_phase_seconds": 43.53},
+    {"seed": 6619, "max_progress": 0.9551, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 103.37, "boss_phase_seconds": 44.45},
+    {"seed": 7723, "max_progress": 0.9561, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 101.37, "boss_phase_seconds": 43.12},
+    {"seed": 8831, "max_progress": 0.9552, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 110.75, "boss_phase_seconds": 43.53},
+    {"seed": 9901, "max_progress": 0.9554, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 129.9, "boss_phase_seconds": 42.88},
+    {"seed": 10009, "max_progress": 0.9559, "base_ratio": 0.0, "victory": false, "elapsed_seconds": 126.15, "boss_phase_seconds": 44.05}
+  ],
+  "conclusion": "The fixture buys Tesla after level 45, but power_for_build still selects the actual level-43 scattergun. Tesla remains lower even when forced to level 43 or 50. The selected build fails 0/10 while its Boss phase already satisfies the 40-60 second target, so no per-level Boss budget or Void Phantom base-HP change is justified."
+}

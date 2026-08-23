@@ -121,9 +121,9 @@ def main() -> int:
         corridor_rows.append((level["id"], ratio, outcome["bottleneck"]))
 
     # Resistance case A: the retired level_055 hard immunity is now a bounded
-    # 50% physical reduction. A maxed free build may clear it, but the model
-    # must still make physical exactly one third as effective as the +50%
-    # lightning weakness instead of silently treating both elements as neutral.
+    # 25% physical reduction. A maxed free build may clear it, but the model
+    # must still preserve the authored 0.75x / 1.5x matchup identity instead of
+    # silently treating both elements as neutral.
     physical_offense = prm.offense_multiplier(
         characters["vanguard"], weapons["weapon_autocannon"], 40, 50, 5,
         chip=chips["chip_attack"], chip_level=35,
@@ -149,17 +149,17 @@ def main() -> int:
         contract55["boss_weights"], bosses, "physical", economy)
     lightning55_factor = prm.weighted_boss_element_factor(
         contract55["boss_weights"], bosses, "lightning", economy)
-    if abs(physical55_factor - 0.5) > 1e-6:
+    if abs(physical55_factor - 0.75) > 1e-6:
         errors.append(
-            f"level_055 physical resistance must leave a 0.5 damage factor, "
+            f"level_055 physical resistance must leave a 0.75 damage factor, "
             f"got {physical55_factor:.4f}")
     if abs(lightning55_factor - 1.5) > 1e-6:
         errors.append(
             f"level_055 lightning weakness must provide a 1.5 damage factor, "
             f"got {lightning55_factor:.4f}")
-    if abs(physical55_factor * 3.0 - lightning55_factor) > 1e-6:
+    if abs(physical55_factor * 2.0 - lightning55_factor) > 1e-6:
         errors.append(
-            "level_055 resistance/weakness spread must remain a readable 0.5x/1.5x")
+            "level_055 resistance/weakness spread must remain a readable 0.75x/1.5x")
 
     # Reverse case B: halving the offensive cadence at level_085 must remain
     # visibly under the clear line even though survival is unchanged.

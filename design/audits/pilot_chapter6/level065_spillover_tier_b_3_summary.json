@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "level": "level_065",
+  "profile": "tier_b",
+  "seeds": [1103, 2207, 3301],
+  "runs": [
+    {"seed": 1103, "victory": true, "max_progress_percent": 70.56, "base_percent": 100.0, "duration_seconds": 196.72, "boss_phase_seconds": 20.78},
+    {"seed": 2207, "victory": true, "max_progress_percent": 71.35, "base_percent": 100.0, "duration_seconds": 199.73, "boss_phase_seconds": 20.77},
+    {"seed": 3301, "victory": false, "max_progress_percent": 100.0, "base_percent": 0.0, "duration_seconds": 200.77, "boss_phase_seconds": 68.92}
+  ],
+  "summary": {
+    "victories": 2,
+    "runs": 3,
+    "median_progress_percent": 71.35,
+    "median_base_percent": 100.0,
+    "median_duration_seconds": 199.73,
+    "median_boss_phase_seconds": 20.78,
+    "classification": "informational_b1_spillover_only"
+  },
+  "note": "Level 065 is outside the chapter-six authoritative acceptance set. The approved model-level Void Phantom change makes its derived boss axis easier; this three-seed runtime sample is retained as variance evidence for the chapter-seven rebuild."
+}
