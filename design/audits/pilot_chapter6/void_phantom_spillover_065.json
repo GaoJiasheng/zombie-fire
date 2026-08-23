@@ -1,0 +1,44 @@
+{
+  "model_id": "boss_void_phantom",
+  "change_scope": "model_level",
+  "before": {
+    "fixed_hp": 1400000,
+    "bd_coef": 6.3333333333,
+    "physical_resistance": 0.5
+  },
+  "after": {
+    "fixed_hp": 380000,
+    "bd_coef": 0.8,
+    "physical_resistance": 0.25
+  },
+  "level_065_spillover": {
+    "direction": "easier_only",
+    "star_result_before": "2_star",
+    "star_result_after": "2_star",
+    "recommended_power_before": 586,
+    "recommended_power_after_derived": 583,
+    "corridor_ratio_before": 1.02,
+    "corridor_ratio_after_derived": 1.38,
+    "corridor_bottleneck_before": "boss",
+    "corridor_bottleneck_after_derived": "crowd",
+    "boss_effective_hp_before": 5384820.0,
+    "boss_effective_hp_after_derived": 1461594.0,
+    "milestone_phase_seconds_before": 16.6,
+    "milestone_phase_seconds_after_derived": 4.5
+  },
+  "endless_regression": {
+    "budget_contract_regenerated": true,
+    "midgame_survival_loop": 11,
+    "graduate_survival_loop": 20,
+    "status": "pass"
+  },
+  "evidence": {
+    "derived_contract_command": "python3 tools/check_clear_requirements.py",
+    "star_command": "python3 tools/simulate_balance.py",
+    "endless_commands": [
+      "python3 tools/generate_endless_boss_budgets.py --check",
+      "python3 tools/simulate_endless.py"
+    ],
+    "note": "The displayed level contract remains pending the chapter-6 contract re-pin. These values record the approved model-level spillover before that delivery step."
+  }
+}

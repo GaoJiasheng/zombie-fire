@@ -216,14 +216,14 @@
 		"name_key": "boss_void_phantom",
 		"appear_level": 55,
 		"hp_coef": 36,
-		"fixed_hp": 1400000,
+		"fixed_hp": 380000,
 		"speed": 31.0,
-		"bd_coef": 6.333333333333333,
+		"bd_coef": 0.8,
 		"gold_coef": 13.5,
 		"run_xp": 52,
 		"phases": 2,
 		"resistances": {
-			"physical": 0.5
+			"physical": 0.25
 		},
 		"weakness": "lightning",
 		"counter_hint": "用闪电和追踪覆盖相位路线，主动技能留给连续突进。",

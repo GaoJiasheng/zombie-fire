@@ -5553,7 +5553,10 @@ func _verify_boss_resistance_and_regeneration(data_loader: Node) -> void:
 				_expect(reduction > 0.0 and reduction < 1.0, "%s resistance must stay bounded below full immunity" % boss_id)
 		if boss_id in armored_bosses:
 			_expect(absf(float(boss_row.get("armor_hp_ratio", 0.0)) - 0.3) <= 0.001, "%s must allocate 30 percent of its total durability to armor" % boss_id)
-	_expect(absf(float(data_loader.get_row("bosses", "boss_void_phantom").get("fixed_hp", 0.0)) - 1400000.0) <= 1.0, "Void Phantom must keep lower fixed per-copy HP in exchange for teleport pressure")
+	var void_phantom: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
+	_expect(absf(float(void_phantom.get("fixed_hp", 0.0)) - 380000.0) <= 1.0, "Void Phantom must keep the B1 model-level HP solve")
+	_expect(absf(float(void_phantom.get("bd_coef", 0.0)) - 0.8) <= 0.0001, "Void Phantom must keep the B1 route-pressure base-damage solve")
+	_expect(absf(float((void_phantom.get("resistances", {}) as Dictionary).get("physical", 0.0)) - 0.25) <= 0.0001, "Void Phantom must preserve its physical-resistant lightning-weak identity")
 
 	var necro := _instance("res://gameplay/enemy/enemy.tscn")
 	root.add_child(necro)
