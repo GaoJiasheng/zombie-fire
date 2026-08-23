@@ -156,6 +156,9 @@ def endless_gold_audit(economy: dict, levels: list[dict], zombies: dict,
 
 
 def level_xp(level: dict, zombies: dict, bosses: dict, economy: dict) -> int:
+    authored_budget = int(level.get("run_xp_budget", 0))
+    if authored_budget > 0:
+        return authored_budget
     total = 0
     level_no = level_number(level)
     for wave in level.get("waves", []):

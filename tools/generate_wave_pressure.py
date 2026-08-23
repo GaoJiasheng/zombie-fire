@@ -25,10 +25,14 @@ import simulate_balance as sim  # noqa: E402
 
 LEVELS_PATH = ROOT / "data" / "levels.json"
 FIXTURE_PATH = TOOLS / "wave_pressure_baseline.json"
+PACING_TARGETS_PATH = ROOT / "data" / "campaign_pacing_targets.json"
 
 # Owner-approved design/35 acceptance contract.  These are expected outcomes,
 # not a second copy of any runtime coefficient.
-EXPECTED_STARS = {1: 0, 2: 86, 3: 13}
+# B1 chapter-6 runtime pilot intentionally moves its ten levels from the old
+# 2-star analytical bucket into the 3-star bucket.  The other 89 levels retain
+# the frozen design/35 distribution.
+EXPECTED_STARS = {1: 0, 2: 76, 3: 23}
 EXPECTED_FULL_COUNT = 77
 EXPECTED_PARTIAL = {
     "level_013": 11,
@@ -46,6 +50,17 @@ EXPECTED_UNCHANGED = {
     "level_067",
     "level_091",
 }
+
+
+def pilot_scope_ids() -> set[str]:
+    """Levels whose authored waves are owned by the B1 runtime pilot."""
+    if not PACING_TARGETS_PATH.exists():
+        return set()
+    payload = load_json(PACING_TARGETS_PATH)
+    raw = payload.get("pacing_rules", {}).get("pilot_scope", [])
+    if isinstance(raw, list) and len(raw) == 2 and all(isinstance(value, int) for value in raw):
+        return {f"level_{number:03d}" for number in range(raw[0], raw[1] + 1)}
+    return {f"level_{int(value):03d}" for value in raw if isinstance(value, (int, float, str))}
 
 
 def load_json(path: Path):
@@ -220,8 +235,21 @@ def build_expected(
     start_level = int(rule["start_level"])
     generated = copy.deepcopy(levels)
     report = []
+    pilot_ids = pilot_scope_ids()
+    three_cap, two_cap = sim.star_leak_caps(economy)
     for index, level in enumerate(generated):
         if sim.level_number(level) < start_level:
+            continue
+        if level["id"] in pilot_ids:
+            final_leak = leak_pct(level, zombies, bosses, economy)
+            report.append({
+                "id": level["id"],
+                "status": "pilot",
+                "scale": 0.0,
+                "display_pct": 0,
+                "leak_pct": final_leak,
+                "star": predicted_star(final_leak, three_cap, two_cap),
+            })
             continue
         fixture_row = fixture["levels"].get(level["id"], {})
         solved, scale, final_leak, final_star = solve_level(
@@ -259,7 +287,10 @@ def validate(
         errors.append(f"levels 001-{start_level - 1:03d} changed from the frozen pre-bump baseline")
 
     current_by_id = {level["id"]: level for level in current}
+    pilot_ids = pilot_scope_ids()
     for expected in generated[start_level - 1:]:
+        if expected["id"] in pilot_ids:
+            continue
         actual = current_by_id.get(expected["id"], {})
         if not target_counts_equal(actual, expected, rule):
             errors.append(f"{expected['id']}: target-wave counts differ from generated output")
@@ -279,8 +310,16 @@ def validate(
     full = [row["id"] for row in report if row["status"] == "full"]
     partial = {row["id"]: row["display_pct"] for row in report if row["status"] == "partial"}
     unchanged = {row["id"] for row in report if row["status"] == "unchanged"}
-    if len(full) != EXPECTED_FULL_COUNT:
-        errors.append(f"full-bump levels {len(full)} != {EXPECTED_FULL_COUNT}")
+    # The original design/35 fixture classifies every chapter-6 pilot level as
+    # a full bump.  B1 now owns those waves directly, so compare the unchanged
+    # legacy population after subtracting the data-gated pilot range.
+    expected_pilot_full = sum(
+        1 for level_id in pilot_ids
+        if level_id not in EXPECTED_PARTIAL and level_id not in EXPECTED_UNCHANGED
+    )
+    expected_full = EXPECTED_FULL_COUNT - expected_pilot_full
+    if len(full) != expected_full:
+        errors.append(f"non-pilot full-bump levels {len(full)} != {expected_full}")
     if partial != EXPECTED_PARTIAL:
         errors.append(f"partial-bump levels {partial} != {EXPECTED_PARTIAL}")
     if unchanged != EXPECTED_UNCHANGED:
@@ -335,10 +374,11 @@ def main() -> int:
         )
         print(
             "Wave-pressure check OK: "
-            f"full={counts['full']} partial={counts['partial']} unchanged={counts['unchanged']}"
+            f"full={counts['full']} partial={counts['partial']} "
+            f"unchanged={counts['unchanged']} pilot={counts['pilot']}"
         )
         print(f"partial: {partial}")
-        print("stars: 13x3-star / 86x2-star / 0x1-star; per-level regressions=0")
+        print("stars: 23x3-star / 76x2-star / 0x1-star; per-level regressions=0")
         return 0
 
     LEVELS_PATH.write_text(json.dumps(generated, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")

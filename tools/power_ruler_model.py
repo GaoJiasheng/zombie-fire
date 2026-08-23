@@ -989,9 +989,11 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
         "boss_weights": {key: round(value, 6) for key, value in boss_weights.items()},
         "runtime_boss_pressure_mult": round(omitted_boss_mult, 6),
         "guaranteed_skill_ids": guarantees,
-        "offer_category_floor": str(level.get("offer_category_floor", "")),
         "reference_skill_rank": campaign_skill_rank(level),
     }
+    offer_category_floor = str(level.get("offer_category_floor", ""))
+    if offer_category_floor:
+        contract["offer_category_floor"] = offer_category_floor
     # The corridor remains a progression sanity rail.  Individual Owner
     # replays are deliberately no longer force-pinned: authored Boss pressure
     # and measured weapon throughput must be allowed to move their result.

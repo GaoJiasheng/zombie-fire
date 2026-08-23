@@ -434,6 +434,10 @@ var reroll_charges := 1
 var cards_picked := 0
 var cards_selected := 0
 var level_total_run_xp := 0
+var level_raw_run_xp_total := 0
+var level_run_xp_budget := 0
+var level_run_xp_raw_earned := 0.0
+var level_run_xp_budget_awarded := 0
 var target_card_picks := 3
 var paused := false
 var manual_aim_active := false
@@ -718,6 +722,10 @@ func _ready() -> void:
 	cards_picked = 0
 	cards_selected = 0
 	target_card_picks = maxi(1, int(level.get("target_card_picks", 3)))
+	level_raw_run_xp_total = _compute_level_raw_run_xp()
+	level_run_xp_budget = 0 if is_endless_mode else maxi(0, int(level.get("run_xp_budget", 0)))
+	level_run_xp_raw_earned = 0.0
+	level_run_xp_budget_awarded = 0
 	level_total_run_xp = _compute_level_total_run_xp()
 	next_xp_offer = _pick_threshold(1)
 	reroll_charges = 1
@@ -3856,6 +3864,7 @@ func _process_spawns(delta: float) -> void:
 		item.get("lane", "spread"),
 		item.get("boss", false),
 		float(item.get("endless_boss_hp", 0.0)),
+		bool(item.get("xp_budget_counted", false)),
 	)
 	spawn_timer = item.get("interval", 0.8)
 
@@ -3881,7 +3890,7 @@ func _start_next_wave() -> void:
 		var boss_name := DataLoader.tr_key(DataLoader.get_row("bosses", boss_id).get("name_key", boss_id))
 		_show_wave_toast("首领来袭：%s" % boss_name, Color(1.0, 0.32, 0.22))
 		_show_boss_banner(boss_name)
-		pending_spawns.append({"type": boss_id, "interval": 1.0, "lane": "center", "boss": true})
+		pending_spawns.append({"type": boss_id, "interval": 1.0, "lane": "center", "boss": true, "xp_budget_counted": not is_endless_mode})
 		# Extra bosses are authored in levels.json so runtime, balance simulation and
 		# the power ruler all see the same encounter. The former boss_rush branch
 		# hardcoded Tank Titan here, which made level_099 about 40% heavier than every
@@ -3900,6 +3909,7 @@ func _start_next_wave() -> void:
 				"interval": maxf(float(extra.get("interval", 1.6)), 0.0),
 				"lane": str(extra.get("lane", "spread")),
 				"boss": true,
+				"xp_budget_counted": false,
 			})
 		if is_endless_mode and _is_endless_final_wave(waves):
 			_queue_endless_final_bosses(1)
@@ -4039,7 +4049,8 @@ func _queue_spawn_group(group: Dictionary, is_boss: bool, support := false) -> v
 			"type": group.get("type", "zombie_shambler"),
 			"interval": group.get("interval", 0.8),
 			"lane": authored_lane if is_boss else _formation_lane(authored_lane, i, support),
-			"boss": is_boss
+			"boss": is_boss,
+			"xp_budget_counted": not is_endless_mode,
 		})
 
 ## 阶段 67：所有 99 关都写了 `wave_pattern`，但运行时从来没读过——五种编队名
@@ -4196,8 +4207,8 @@ func _boss_survival_hp_mult(current_level: int, is_boss_enemy: bool, economy: Di
 		ramp_mult *= maxf(1.0, float(rule.get("final_mult", DEFAULT_BOSS_SURVIVAL_HP_RAMP.get("final_mult", 1.08))))
 	return ramp_mult
 
-func _spawn_enemy(enemy_id: String, lane: String, is_boss := false, endless_boss_hp := 0.0) -> void:
-	_spawn_enemy_instance(enemy_id, _next_enemy_spawn_position(lane, is_boss), is_boss, 1.0, endless_boss_hp)
+func _spawn_enemy(enemy_id: String, lane: String, is_boss := false, endless_boss_hp := 0.0, xp_budget_counted := false) -> void:
+	_spawn_enemy_instance(enemy_id, _next_enemy_spawn_position(lane, is_boss), is_boss, 1.0, endless_boss_hp, xp_budget_counted)
 
 func _next_enemy_spawn_position(lane: String, is_boss := false) -> Vector2:
 	var bounds := _spawn_lane_x_bounds(lane, is_boss)
@@ -4268,7 +4279,7 @@ func _remember_spawn_position(spawn_position: Vector2) -> void:
 	while recent_spawn_positions.size() > SPAWN_RECENT_HISTORY:
 		recent_spawn_positions.pop_front()
 
-func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0, endless_boss_hp := 0.0) -> Node:
+func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss := false, reward_scale := 1.0, endless_boss_hp := 0.0, xp_budget_counted := false) -> Node:
 	var row := DataLoader.get_row("bosses" if is_boss else "zombies", enemy_id).duplicate(true)
 	var economy: Dictionary = DataLoader.get_table("economy")
 	if is_endless_mode and is_boss:
@@ -4288,6 +4299,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	var enemy := ENEMY_SCENE.instantiate()
 	enemy.position = spawn_position
 	enemy.set_meta("reward_scale", clampf(reward_scale, 0.0, 1.0))
+	enemy.set_meta("xp_budget_counted", xp_budget_counted)
 	# Campaign Boss rows own an absolute durability budget. Endless Bosses replace
 	# it with the generated loop budget share and never inherit campaign fixed_hp
 	# or the mob-only endless compound multiplier.
@@ -10266,7 +10278,9 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	var reward_scale := float(enemy.get_meta("reward_scale", 1.0)) if is_instance_valid(enemy) else 1.0
 	var endless_gold_mult := _endless_gold_multiplier(endless_loop + 1) if is_endless_mode else 1.0
 	var reward_gold := int(round(float(reward.get("gold_coef", 1.0)) * gold_per_kill * float(level.get("reward_gold_mult", 1.0)) * gold_mult * skills.gold_multiplier() * variant_gold_mult * reward_scale * endless_gold_mult))
-	var reward_xp := int(round(float(reward.get("xp", 0)) * variant_xp_mult * reward_scale))
+	var raw_reward_xp := float(reward.get("xp", 0)) * reward_scale
+	var xp_budget_counted := bool(enemy.get_meta("xp_budget_counted", false)) if is_instance_valid(enemy) else false
+	var reward_xp := _normalized_run_xp_reward(raw_reward_xp, xp_budget_counted)
 	gold += reward_gold
 	xp += reward_xp
 	if is_instance_valid(enemy):
@@ -10292,6 +10306,20 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	# production death-animation / deferred-free behaviour unchanged.
 	if _audit_combat_rng != null and is_instance_valid(enemy) and enemy.get_parent() == $EnemyLayer:
 		$EnemyLayer.remove_child(enemy)
+
+func _normalized_run_xp_reward(raw_reward_xp: float, xp_budget_counted: bool) -> int:
+	var reward_xp := int(round(raw_reward_xp * variant_xp_mult))
+	if level_run_xp_budget > 0 and xp_budget_counted and level_raw_run_xp_total > 0:
+		# Chapter pacing may replace many light bodies with fewer durable ones. A
+		# topology-neutral authored-wave budget preserves campaign XP and card
+		# timing without changing any per-enemy reward row. Runtime extra Bosses
+		# and summons are deliberately outside this authored budget.
+		level_run_xp_raw_earned += raw_reward_xp
+		var earned_ratio := clampf(level_run_xp_raw_earned / float(level_raw_run_xp_total), 0.0, 1.0)
+		var target_awarded := int(round(earned_ratio * float(level_run_xp_budget) * variant_xp_mult))
+		reward_xp = maxi(0, target_awarded - level_run_xp_budget_awarded)
+		level_run_xp_budget_awarded = target_awarded
+	return reward_xp
 
 func _on_enemy_damage_dealt(enemy: Node, amount: float, element: String, crit_hit: bool, weak_hit: bool, damage_source := "weapon") -> void:
 	var applied := maxf(amount, 0.0)
@@ -10668,7 +10696,7 @@ func _boss_level_base_hp_mult(economy: Dictionary) -> float:
 	var t := (ordinal - full_level) / (end_level - full_level)
 	return early + (base - early) * t
 
-func _compute_level_total_run_xp() -> int:
+func _compute_level_raw_run_xp() -> int:
 	var total := 0
 	var economy: Dictionary = DataLoader.get_table("economy")
 	for w in level.get("waves", []):
@@ -10681,6 +10709,11 @@ func _compute_level_total_run_xp() -> int:
 		for s in w.get("support", []):
 			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
 	return total
+
+func _compute_level_total_run_xp() -> int:
+	if level_run_xp_budget > 0:
+		return level_run_xp_budget
+	return level_raw_run_xp_total if level_raw_run_xp_total > 0 else _compute_level_raw_run_xp()
 
 func _pick_threshold(k: int) -> int:
 	if k > target_card_picks and not is_endless_mode:

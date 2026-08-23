@@ -17,10 +17,25 @@ from generate_wave_pressure import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+PACING_TARGETS_PATH = ROOT / "data" / "campaign_pacing_targets.json"
 
 
 def load(name: str):
     return json.loads((ROOT / "data" / f"{name}.json").read_text(encoding="utf-8"))
+
+
+def pilot_pacing_contract() -> tuple[set[str], dict]:
+    if not PACING_TARGETS_PATH.exists():
+        return set(), {}
+    payload = json.loads(PACING_TARGETS_PATH.read_text(encoding="utf-8"))
+    rules = payload.get("pacing_rules", {})
+    raw = rules.get("pilot_scope", [])
+    if isinstance(raw, list) and len(raw) == 2 and all(isinstance(value, int) for value in raw):
+        ids = {f"level_{number:03d}" for number in range(raw[0], raw[1] + 1)}
+    else:
+        ids = {f"level_{int(value):03d}" for value in raw if isinstance(value, (int, float, str))}
+    envelope = rules.get("owner_authorized_topology_envelope", {})
+    return ids, envelope if isinstance(envelope, dict) else {}
 
 
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
@@ -176,7 +191,16 @@ def main() -> int:
     bosses = load("bosses")
     economy = load("economy")
     levels = load("levels")
+    pilot_ids, pilot_envelope = pilot_pacing_contract()
     errors: list[str] = []
+    pilot_runtime_levels, pilot_runtime, pilot_runtime_errors = sim.pilot_runtime_contract()
+    errors.extend(pilot_runtime_errors)
+    expected_runtime_ids = {int(level_id.split("_")[-1]) for level_id in pilot_ids}
+    if pilot_runtime_levels != expected_runtime_ids:
+        errors.append(
+            "pilot runtime evidence scope does not match campaign pacing scope: "
+            f"{sorted(pilot_runtime_levels)} != {sorted(expected_runtime_ids)}"
+        )
     print("Level pressure estimate")
     series: list[tuple[str, float, bool]] = []
     for level in levels:
@@ -186,7 +210,30 @@ def main() -> int:
         min_duration = 40.0 if boss_count else 36.0
         if level["id"] == "level_001":
             min_duration = 38.0
-        if duration < min_duration:
+        if level["id"] in pilot_ids:
+            max_key = "static_duration_max_boss_seconds" if boss_count else "static_duration_max_normal_seconds"
+            max_duration = float(pilot_envelope.get(max_key, 215.0 if boss_count else 180.0))
+            level_no = level_number(level)
+            runtime_row = pilot_runtime.get(level_no)
+            if runtime_row is None:
+                errors.append(f"{level['id']} has no fixed-frame runtime evidence")
+            elif float(runtime_row["median_seconds"]) > max_duration:
+                errors.append(
+                    f"{level['id']} runtime median too long: "
+                    f"{runtime_row['median_seconds']:.1f}s > {max_duration:.1f}s"
+                )
+            if duration > max_duration:
+                errors.append(
+                    f"{level['id']} pilot authored spawn duration too long: "
+                    f"{duration:.1f}s > {max_duration:.1f}s"
+                )
+            if runtime_row is not None:
+                print(
+                    "  pilot runtime probe owns the clear-time contract: "
+                    f"median={runtime_row['median_seconds']:.1f}s "
+                    f"wins={runtime_row['wins']}/{runtime_row['runs']}"
+                )
+        elif duration < min_duration:
             errors.append(f"{level['id']} spawn duration too short: {duration:.1f}s")
         if pressure <= 0.0:
             errors.append(f"{level['id']} pressure must be positive")
@@ -212,6 +259,8 @@ def main() -> int:
             pressure_status = {str(row["id"]): str(row["status"]) for row in report}
             baseline_levels = copy.deepcopy(levels)
             for baseline_level in baseline_levels:
+                if baseline_level["id"] in pilot_ids:
+                    continue
                 fixture_row = fixture.get("levels", {}).get(baseline_level["id"], {})
                 if fixture_row.get("target_rows"):
                     restore_wave_pressure_target_rows(baseline_level, fixture_row, rule)
@@ -228,6 +277,13 @@ def main() -> int:
             if is_boss != want_boss:
                 continue
             if prev_pressure >= 0.0 and pressure < prev_pressure - 1e-6:
+                if level_id in pilot_ids or prev_id in pilot_ids:
+                    print(
+                        f"  pilot runtime-authoritative topology: {level_id} < {prev_id} "
+                        f"({pressure:.1f} < {prev_pressure:.1f})"
+                    )
+                    prev_id, prev_pressure = level_id, pressure
+                    continue
                 baseline_regressed = (
                     level_id in baseline_series
                     and prev_id in baseline_series

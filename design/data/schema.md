@@ -456,6 +456,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
       }
     },
     "onboarding_stage":"aim_and_first_card",
+    "run_xp_budget":948,
     "waves":[ { "wave":1,"hp_coef":1.0,"spawns":[
         {"type":"zombie_shambler","count":5,"interval":1.2,"lane":"spread"} ] } ],
     "star_rule":"base_hp_percent",
@@ -465,6 +466,8 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ]
 ```
 波次 `lane`：`center|left|right|spread`。可选 `hp_coef` 默认为 `1.0`，只在普通怪/支援怪现有的 `difficulty_coef × late_wave_hp_bonus × 等级爬坡` 耐久链上追加一层；固定血量 Boss 不读取该字段。未填写时运行时与所有离线工具保持原行为。Boss wave：`{"wave":"boss","boss":"...","support":[...]}`。
+
+可选 `run_xp_budget` 是本关**作者波次**的拓扑中性经验预算：填写后，普通怪、支援怪与主 Boss 的逐只经验按原始经验权重等比归一到该总额，从而在“少量重型单位替代大量轻型单位”时保持永久经验收入与三选一卡牌节奏；`runtime_bosses`、召唤物和无尽模式不计入该预算。缺省时继续逐只读取敌人 `run_xp`，行为完全不变。
 
 终局可选运行时合同示例：
 

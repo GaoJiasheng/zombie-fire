@@ -850,6 +850,9 @@ def main() -> int:
             errors.append(f"{level_id} display name must not contain ASCII characters: {level_name}")
         if len(level.get("waves", [])) != 5:
             errors.append(f"{level_id} must define exactly 5 waves")
+        run_xp_budget = level.get("run_xp_budget", 0)
+        if not isinstance(run_xp_budget, int) or isinstance(run_xp_budget, bool) or run_xp_budget < 0:
+            errors.append(f"{level_id} run_xp_budget must be a non-negative integer")
         env_id = level.get("env", "")
         if env_id not in environments:
             errors.append(f"{level_id} unknown env: {env_id}")

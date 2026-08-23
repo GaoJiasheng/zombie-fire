@@ -34,6 +34,7 @@ def run_one(
     accel: float,
     ignore_level_guarantees: bool,
     ignore_offer_category_floor: bool,
+    challenge: bool,
     temp_dir: Path,
 ) -> tuple[dict, float]:
     output = temp_dir / f"level_{level:03d}_seed_{seed}.json"
@@ -60,6 +61,8 @@ def run_one(
         args.append("--ignore-level-guarantees")
     if ignore_offer_category_floor:
         args.append("--ignore-offer-category-floor")
+    if challenge:
+        args.append("--challenge")
     started = time.monotonic()
     environment = os.environ.copy()
     environment["HOME"] = str(home_dir)
@@ -101,6 +104,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ignore-level-guarantees", action="store_true")
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
+    parser.add_argument("--challenge", action="store_true")
     options = parser.parse_args()
     if not 1.0 <= options.accel <= 50.0:
         parser.error("--accel must be between 1 and 50")
@@ -123,6 +127,7 @@ def main() -> int:
                     options.accel,
                     options.ignore_level_guarantees,
                     options.ignore_offer_category_floor,
+                    options.challenge,
                     temp_dir,
                 )
                 for level in options.levels
@@ -143,6 +148,7 @@ def main() -> int:
         "card_policy": options.card_policy,
         "ignore_level_guarantees": options.ignore_level_guarantees,
         "ignore_offer_category_floor": options.ignore_offer_category_floor,
+        "challenge": options.challenge,
         "seeds_per_level": len(options.seeds),
         "simulation_step_seconds": 1.0 / 60.0,
         "wall_acceleration": options.accel,

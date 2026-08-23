@@ -555,7 +555,8 @@ def earned_resources(level: dict) -> tuple[int, int]:
     number = sim.level_number(level)
     gold_per = float(TABLES["economy"].get("gold_drop_base", 5.0)) + float(TABLES["economy"].get("gold_drop_per_level", 0.6)) * number
     gold = int(level.get("first_clear_reward", {}).get("gold", 0))
-    xp = 0
+    authored_xp = 0
+    runtime_extra_xp = 0
     for wave in level.get("waves", []):
         wave_no = sim.wave_number(wave)
         count_mult = sim.late_wave_count_mult(TABLES["economy"], wave_no, number)
@@ -563,12 +564,19 @@ def earned_resources(level: dict) -> tuple[int, int]:
             row = TABLES["zombies"].get(str(group.get("type", "")), {})
             count = int(round(int(group.get("count", 0)) * count_mult))
             gold += int(round(count * gold_per * float(row.get("gold_coef", 1.0)) * float(level.get("reward_gold_mult", 1.0))))
-            xp += count * int(row.get("run_xp", 1))
+            authored_xp += count * int(row.get("run_xp", 1))
+        if "boss" in wave:
+            row = TABLES["bosses"].get(str(wave.get("boss", "")), {})
+            gold += int(round(gold_per * float(row.get("gold_coef", 1.0)) * float(level.get("reward_gold_mult", 1.0))))
+            authored_xp += int(row.get("run_xp", 1))
         for entry in sim.runtime_boss_entries(level, wave):
+            if bool(entry.get("primary", False)):
+                continue
             row = TABLES["bosses"].get(entry["type"], {})
             gold += int(round(gold_per * float(row.get("gold_coef", 1.0)) * float(level.get("reward_gold_mult", 1.0))))
-            xp += int(row.get("run_xp", 1))
-    return gold, xp
+            runtime_extra_xp += int(row.get("run_xp", 1))
+    xp = int(level.get("run_xp_budget", 0)) or authored_xp
+    return gold, xp + runtime_extra_xp
 
 
 FIELDS = (

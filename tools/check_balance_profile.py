@@ -11,6 +11,7 @@ from combat_power_model import run_skill_hp_pressure
 from generate_wave_pressure import (
     FIXTURE_PATH as WAVE_PRESSURE_FIXTURE_PATH,
     config as wave_pressure_config,
+    pilot_scope_ids,
     restore_target_rows as restore_wave_pressure_target_rows,
 )
 
@@ -183,6 +184,9 @@ def level_pressure(level: dict, zombies: dict, bosses: dict, economy: dict) -> t
 
 
 def level_xp_total(level: dict, zombies: dict, bosses: dict, economy: dict) -> int:
+    authored_budget = int(level.get("run_xp_budget", 0))
+    if authored_budget > 0:
+        return authored_budget
     total = 0
     for wave in level.get("waves", []):
         count_mult = late_wave_count_mult(economy, wave_number(wave), level_number(level))
@@ -309,6 +313,9 @@ def main() -> int:
 
     errors: list[str] = []
     baseline_durations: dict[str, float] = {}
+    pilot_ids = pilot_scope_ids()
+    _pilot_numbers, pilot_runtime, pilot_errors = sim.pilot_runtime_contract()
+    errors.extend(pilot_errors)
     wave_pressure_rule = economy.get("wave_pressure", {})
     if wave_pressure_rule:
         if not WAVE_PRESSURE_FIXTURE_PATH.exists():
@@ -319,7 +326,7 @@ def main() -> int:
             for level in levels:
                 baseline_level = copy.deepcopy(level)
                 fixture_row = fixture.get("levels", {}).get(level["id"], {})
-                if fixture_row.get("target_rows"):
+                if fixture_row.get("target_rows") and level["id"] not in pilot_ids:
                     restore_wave_pressure_target_rows(baseline_level, fixture_row, rule)
                 _pressure, baseline_duration, _boss_count = level_pressure(
                     baseline_level, zombies, bosses, economy)
@@ -335,6 +342,11 @@ def main() -> int:
         # This is a durability spike only; the separate damage-ramp contract
         # remains fixed at 1.0x.
         level_no = level_number(levels[i])
+        # The chapter-6 pilot deliberately changes spawn topology. Its checked
+        # fixed-frame evidence owns progression; this scalar remains a screen
+        # for every non-pilot level only.
+        if level_id in pilot_ids:
+            continue
         # The exact runtime endgame audit owns late-Boss clearability. Raw
         # pressure intentionally jumps because Boss HP is concentrated into a
         # long mechanic window while attack remains flat.
@@ -346,6 +358,9 @@ def main() -> int:
 
     for level in levels:
         pressure, duration, boss_count = level_pressure(level, zombies, bosses, economy)
+        runtime_row = pilot_runtime.get(level_number(level))
+        if runtime_row is not None:
+            duration = float(runtime_row["median_seconds"])
         # Late waves intentionally spawn more enemies now: wave 4 uses x2 count
         # and wave 5 uses x3 count. Keep the old lower bounds, but validate
         # against the current long-form pacing envelope instead of the pre-ramp

@@ -73,6 +73,7 @@ var _card_policy_id := "v2"
 var _seed_override: Array[int] = []
 var _ignore_level_guarantees := false
 var _ignore_offer_category_floor := false
+var _challenge_mode := false
 var _results: Array[Dictionary] = []
 var _wall_acceleration := 1.0
 
@@ -158,6 +159,8 @@ func _parse_arguments() -> bool:
 			_ignore_level_guarantees = true
 		elif text == "--ignore-offer-category-floor":
 			_ignore_offer_category_floor = true
+		elif text == "--challenge":
+			_challenge_mode = true
 	if _requested_levels.is_empty():
 		_fail("--levels must contain at least one positive level number")
 		return false
@@ -215,7 +218,13 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 	battle.set_physics_process(false)
 	if battle.has_method("set_audit_combat_seed"):
 		battle.call("set_audit_combat_seed", seed_value + 7000003)
-	battle.setup(router, {"level_id": str(fixture_row.get("level_id", ""))})
+	battle.setup(
+		router,
+		{
+			"level_id": str(fixture_row.get("level_id", "")),
+			"challenge": _challenge_mode,
+		}
+	)
 	root.add_child(battle)
 	await process_frame
 	_disable_battle_process_frames(battle)
@@ -290,6 +299,7 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		"boss_hp_ratio_at_end": float(boss_state_at_end.get("hp_ratio", 0.0)),
 		"timeout": driver.timeout,
 		"card_policy": _card_policy_id,
+		"challenge": _challenge_mode,
 		"selected_skills": driver.selected_skills,
 		"card_timeline": driver.card_timeline,
 		"wave_timeline": driver.wave_timeline,
@@ -497,7 +507,19 @@ func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 		return _select_legacy_offer(battle, candidates)
 	var clear_requirement: Dictionary = battle.level.get("clear_requirement", {})
 	var boss_share := float(clear_requirement.get("boss_hp_share", 0.0))
-	var boss_dominant := boss_share >= float(policy.get("boss_hp_share_threshold", 0.5))
+	# Chapter pacing can author an offer-category floor when aggregate HP share is
+	# not representative of the encounter's intended pressure axis.  The probe's
+	# deterministic player must evaluate those offers using the same axis; using
+	# boss_hp_share here made the bot ignore the authored single-target floor on
+	# 055/060 and reintroduced card-luck variance that a real player would avoid.
+	var authored_floor := str(battle.level.get("offer_category_floor", ""))
+	var boss_dominant := (
+		authored_floor == "single_target"
+		or (
+			authored_floor == ""
+			and boss_share >= float(policy.get("boss_hp_share_threshold", 0.5))
+		)
+	)
 	var priorities: Array = (
 		policy.get("boss_priority", []) if boss_dominant else policy.get("mob_priority", [])
 	)
@@ -535,6 +557,8 @@ func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 		"reason": best_reason,
 		"rank": best_rank,
 		"mode": "boss" if boss_dominant else "mob",
+		"mode_source": "offer_category_floor" if authored_floor != "" else "boss_hp_share",
+		"offer_category_floor": authored_floor,
 		"boss_hp_share": boss_share,
 		"weapon_element": weapon_element,
 		"offer": int(battle.card_director._offer_index),

@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import statistics
 from pathlib import Path
 
 from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
@@ -39,6 +40,7 @@ WEAPONS_PATH = ROOT / "data" / "weapons.json"
 ECONOMY_PATH = ROOT / "data" / "economy.json"
 CHALLENGES_PATH = ROOT / "data" / "challenges.json"
 PHYSICAL_RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
+PACING_TARGETS_PATH = ROOT / "data" / "campaign_pacing_targets.json"
 
 GLOBAL_DMG_BASE = 10.0
 BASE_WEAPON_DAMAGE = 28.0
@@ -87,6 +89,62 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def pilot_runtime_contract() -> tuple[set[int], dict[int, dict], list[str]]:
+    """Load the checked-in fixed-frame pilot evidence used by runtime-owned gates.
+
+    The analytical campaign model remains useful for screening and display, but
+    design/40 B1 makes the deterministic fixed-frame probe authoritative for the
+    rebuilt chapter. Missing or incomplete evidence is therefore a hard error,
+    never an implicit exemption.
+    """
+    if not PACING_TARGETS_PATH.exists():
+        return set(), {}, []
+    payload = json.loads(PACING_TARGETS_PATH.read_text(encoding="utf-8"))
+    rules = payload.get("pacing_rules", {})
+    raw_scope = rules.get("pilot_scope", [])
+    if isinstance(raw_scope, list) and len(raw_scope) == 2:
+        pilot_levels = set(range(int(raw_scope[0]), int(raw_scope[1]) + 1))
+    else:
+        pilot_levels = {int(value) for value in raw_scope}
+    pilot = payload.get("pilot_chapter6", {})
+    evidence_ref = str(pilot.get("runtime_evidence", "")).strip()
+    errors: list[str] = []
+    if not pilot_levels:
+        return set(), {}, errors
+    if not evidence_ref:
+        return pilot_levels, {}, ["pilot runtime evidence path is missing"]
+    evidence_path = ROOT / evidence_ref
+    if not evidence_path.exists():
+        return pilot_levels, {}, [f"pilot runtime evidence is missing: {evidence_ref}"]
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    expected_profile = str(pilot.get("authoritative_profile", "tier_b"))
+    if str(evidence.get("profile", "")) != expected_profile:
+        errors.append(
+            f"pilot runtime evidence profile {evidence.get('profile')} != {expected_profile}"
+        )
+    grouped: dict[int, list[dict]] = {level_no: [] for level_no in pilot_levels}
+    for run in evidence.get("runs", []):
+        level_no = int(run.get("level", 0))
+        if level_no in grouped:
+            grouped[level_no].append(run)
+    contract: dict[int, dict] = {}
+    for level_no in sorted(pilot_levels):
+        runs = grouped.get(level_no, [])
+        if len(runs) != 10:
+            errors.append(f"pilot level_{level_no:03d} evidence has {len(runs)} runs, want 10")
+            continue
+        wins = sum(1 for run in runs if bool(run.get("victory", False)))
+        elapsed = [float(run.get("elapsed_seconds", 0.0)) for run in runs]
+        contract[level_no] = {
+            "wins": wins,
+            "runs": len(runs),
+            "median_seconds": statistics.median(elapsed),
+        }
+        if wins != len(runs):
+            errors.append(f"pilot level_{level_no:03d} runtime wins {wins}/{len(runs)}, want 10/10")
+    return pilot_levels, contract, errors
+
+
 def challenge_rule_for_level(level: dict, challenges: dict) -> dict:
     """Mirror ChallengeRules.for_level without duplicating authored values."""
     chapter = max(1, min(10, int(level.get("chapter", 1))))
@@ -98,6 +156,9 @@ def challenge_rule_for_level(level: dict, challenges: dict) -> dict:
         "speed_mult": max(0.1, float(row.get("speed_mult", 1.0))),
         "breach_damage_mult": max(0.1, float(row.get("breach_damage_mult", 1.0))),
         "mechanic_rate_mult": max(0.1, float(row.get("mechanic_rate_mult", 1.0))),
+        "recommended_power_mult": max(
+            0.1, float(row.get("recommended_power_mult", 1.0))
+        ),
     }
 
 
@@ -589,6 +650,7 @@ def main() -> int:
     economy: dict = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
     challenges: dict = json.loads(CHALLENGES_PATH.read_text(encoding="utf-8"))
     runtime_benchmark: dict = json.loads(PHYSICAL_RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
+    pilot_levels, pilot_runtime, pilot_runtime_errors = pilot_runtime_contract()
     runtime_builds: dict = runtime_benchmark["best_same_loadout"]
     profile_id = str(args.fire_rate_profile)
     if profile_id not in fire_rate_lab.profile_ids(economy):
@@ -623,11 +685,21 @@ def main() -> int:
     print("-" * 110)
 
     rows = []
+    challenge_recommendation_scales: dict[int, float] = {}
     for lv in levels:
         n = int(lv["id"].split("_")[1])
         mob_hp, boss_hp, count = level_enemy_hp_split(lv, zombies, bosses, economy)
         challenge_rule = challenge_rule_for_level(lv, challenges) if args.challenge else challenge_rule_for_level(lv, {})
         challenge_hp_mult = challenge_rule["hp_mult"]
+        if args.challenge:
+            # Challenge recommendations deliberately ask the player to bring a
+            # stronger build.  The pilot chapter's fixed-frame runtime is the
+            # clear-time authority, so project that measured time at the
+            # challenge recommendation instead of falling back to the legacy
+            # scalar HP/DPS estimate that B1 proved inaccurate for ch6.
+            challenge_recommendation_scales[n] = challenge_hp_mult / max(
+                float(challenge_rule.get("recommended_power_mult", 1.0)), 0.1
+            )
         mob_hp *= challenge_hp_mult
         boss_hp *= challenge_hp_mult
         hp_total = mob_hp + boss_hp
@@ -762,9 +834,28 @@ def main() -> int:
             return 190.0
         return 180.0
 
-    too_hard_rows = [r for r in rows if r[10] > clear_time_cap(r[0])]
+    def effective_clear_seconds(row: tuple) -> float:
+        level_no = int(row[0])
+        if level_no in pilot_runtime:
+            measured = float(pilot_runtime[level_no]["median_seconds"])
+            if args.challenge:
+                return measured * challenge_recommendation_scales.get(level_no, 1.0)
+            return measured
+        return float(row[10])
+
+    too_hard_rows = [r for r in rows if effective_clear_seconds(r) > clear_time_cap(r[0])]
     print(f"Levels < 30s (with skill): {too_easy}")
     print(f"Levels above phase-specific clear-time cap: {len(too_hard_rows)}")
+    if pilot_runtime:
+        details = ", ".join(
+            (
+                f"level_{level_no:03d}={effective_clear_seconds(next(r for r in rows if r[0] == level_no)):.1f}s "
+                f"{row['wins']}/{row['runs']}"
+            )
+            for level_no, row in sorted(pilot_runtime.items())
+        )
+        suffix = " at challenge recommended power" if args.challenge else ""
+        print(f"Pilot fixed-frame clear-time authority{suffix}: {details}")
     if args.star_boundary_audit:
         print_star_boundary_audit(
             rows,
@@ -773,8 +864,12 @@ def main() -> int:
             args.star_boundary_window,
         )
     errors: list[str] = []
+    errors.extend(pilot_runtime_errors)
     if too_hard_rows:
-        details = ", ".join(f"level_{row[0]:03d}={row[10]:.1f}s>{clear_time_cap(row[0]):.0f}s" for row in too_hard_rows)
+        details = ", ".join(
+            f"level_{row[0]:03d}={effective_clear_seconds(row):.1f}s>{clear_time_cap(row[0]):.0f}s"
+            for row in too_hard_rows
+        )
         errors.append(f"campaign contains an HP wall above its phase cap: {details}")
     finale_hp = rows[-1][6]
     prior_peak = max(row[6] for row in rows[:-1])
