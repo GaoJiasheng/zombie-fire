@@ -4546,6 +4546,45 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The remaining conflict is structural**: a whole-stage durability scalar raises wave 1 before later waves
   reach the Light band. Reducing it restores the approved opening but leaves the stage below target; extra count
   at the approved interval floor extends cleanup without reliably moving the frontline.
-- **Stop discipline preserved the release baseline**: all diagnostic level edits and temporary files were
-  removed. Stages 052–060, derived power contracts and TestFlight were not attempted. B1 remains blocked pending
-  authorization for a per-wave threat/durability profile or a revised enemy composition/topology.
+- **The next two authorized levers were exercised**: per-wave `hp_coef` was mirrored across runtime and offline
+  consumers, then existing enemy / lane composition was used to separate frontline depth from cleanup duration.
+  Stage 051 reached 10/10 and Stages 051–054 reached their Tier-B three-seed median L bands without changing
+  movement speed, damage, global curves or star thresholds.
+- **Stage 055 is the new hard stop**: all three fixed seeds fail against the frozen Void Phantom contract, and a
+  Boss-only run with every support enemy removed still ends at 95.56% progress, zero base health and zero Boss
+  kills after a 66.07-second Boss phase. Ordinary-wave durability, count, interval and lane cannot change this
+  fixed-HP / resistance matchup.
+- **Weapon strategy v2 exposes a growth / selection conflict**: the fixture buys Tesla after Stage 45, but its
+  actual Stage-055 inventory is Lv43 scattergun versus Lv12 Tesla. Tier-B `power_for_build` still selects the
+  scattergun (`909` vs `145`); forcing Tesla to Lv43 or max level does not reverse the ranking (`508` vs `909`,
+  then `620` vs `1012`). The fixture therefore cannot legally force lightning without violating its approved
+  matchup-power selection rule.
+- **Stage 055 formally trips the runtime gate, not the Boss-time gate**: the selected build finishes `0/10`,
+  with median progress `95.54%` and median base health `0%`, while the Boss phase already sits at `43.68s`
+  (`42.88-44.78s`) inside the approved `40-60s` band. No per-level Boss budget or Void Phantom base-HP change
+  was made because the prerequisite Boss-time failure is absent.
+- **No partial pilot is shipping**: the candidate data remains uncommitted, derived contracts and TestFlight were
+  not produced, and `frozen=false` remains in force. Owner direction on free-lightning growth versus an additional
+  Stage-055 base-pressure lever is required before B1 can continue; the 10/10 and 40-60-second gates remain unchanged.
+
+## Campaign Rebuild v2 · B1 Chapter 6 Sandbox Completion (2026-08-24)
+
+- **The runtime contracts now pass**: Tier-B Stages 051-060 all win 10/10 fixed seeds and match the approved
+  `L/L/L/L/P/L/P/P/P/P` sequence. Stages 055 / 060 finish their Boss phases in `50.5s / 46.0s` with
+  median base health `79.8% / 87.0%`.
+- **The Void Phantom is model-owned**: its shared values are `380,000 HP`, `0.85` base-damage coefficient and
+  `25%` physical resistance. Stage 065 only becomes easier, while Endless remains at the 11 / 20-round survival
+  contract.
+- **Per-wave durability is one mirrored contract**: optional `hp_coef` participates in runtime HP, balance,
+  clear-requirement, wave-pressure and level-pressure calculations; an omitted value is exactly neutral and is
+  locked by smoke coverage.
+- **Card variance is data-gated**: only Stages 051-060 request an offer-category floor. Fixed card guarantees are
+  gone, and stages without the field preserve the historical offer sequence byte for byte.
+- **Verification is practical and deterministic**: the fixed-frame probe accepts an acceleration factor and the
+  parallel sweep runner fans out seeds. Stage 051 is byte-identical at 1×, 10× and 20×.
+- **Derived contracts are retied, not hidden**: the simulated distribution is now `23 three-star / 76 two-star /
+  0 one-star`; every added three-star stage is within the approved pilot scope, and the 97-stage power corridor
+  remains `[0.97,1.38]`.
+- **One laboratory risk remains visible**: Control clears every three-seed informational run, while Tier A loses
+  one of three Stage-059 seeds. This is an Owner playtest decision, not a reason to relax the Tier-B acceptance gate.
+- **The target remains reviewable**: `frozen=false` stays in place until Owner completes the TestFlight playtest.
