@@ -434,6 +434,22 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ```
 `levels[].env` 必须引用本表。战斗背景、环境预览图、布局安全区、BGM、章节地图标题、章节故事和章节目标都从本表读取，避免在场景脚本里硬编码环境资源或关卡叙事。主线新增战斗背景按 iPhone 17 竖屏全屏比例 `1206x2622` 输出，运行时由 Battle 场景按可见视口 cover 缩放。
 
+## campaign_pacing_targets.json（主线节奏冻结合同）
+
+- `frozen / status` 表示 Owner 是否已经冻结逐关档位目标；B2 使用 `true / b2_owner_frozen`。
+- `frozen_contract.authoritative_fire_rate_profile` 是关卡反解唯一权威攻速档；`target_grade_counts` 固定全 99 关目标分布并显式包含 `unwinnable: 0`。
+- `chapter6_level_range / chapter6_levels_sha256` 锁定已经验收的第 6 章，后续生成器与审计不得改动其中任意关卡数据。
+- `max_free_graduation` 引用 `campaign_progression_fixture.json` 中同 ID 毕业族，要求全 99 关可过且不超时。
+- `chapter_level_targets / chapter_quotas / grade_bands` 分别是逐关序列、逐章配额与运行时战线档位带。冻结后只能由 Owner 新决策变更。
+- `pacing_rules` 是生成与审计的单一约束源；关卡局部试点数据不能替代冻结合同。
+
+## campaign_progression_fixture.json（主线成长样本）
+
+- 根级样本描述无付费、首通、不刷关的按节奏免费账户；武器购买、升级和出战规则必须数据化并可确定性复现。
+- `max_free_graduation` 描述免费满级毕业族：拥有全部非付费角色与装备并升满，每关以共享 `power_for_build` 口径选有效战力最高的完整免费配装。
+- `fire_rate_profile` 必须与节奏冻结合同一致；同分时按各数据表原始顺序稳定决胜，禁止随机选择。
+- 运行时探针与 Python 审计必须读取同一 fixture，不得各自手写另一份成长或毕业构筑。
+
 ## levels.json （数组，见 08 完整示例）
 ```jsonc
 [

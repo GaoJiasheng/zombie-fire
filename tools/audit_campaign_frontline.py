@@ -466,13 +466,14 @@ def units_for_wave(level: dict, wave: dict) -> list[dict]:
     return sorted(units, key=lambda unit: (unit["arrival"], not unit["boss"]))
 
 
-def simulate_level(
-    account: Account,
-    level: dict,
-    fire_rate_profile: str = "control",
-    strategy_id: str = ACTIVE_WEAPON_STRATEGY,
-) -> dict:
-    build, power = build_for(account, level, fire_rate_profile, strategy_id)
+def simulate_build(level: dict, build: dict, power: dict) -> dict:
+    """Run the shared analytical front-line model for an explicit build.
+
+    Progression fixtures and graduation fixtures intentionally use the same
+    movement, damage and timeout calculation.  Keeping the simulator here lets
+    permanent CI swap only the build selector without maintaining a second
+    approximation of campaign difficulty.
+    """
     projected = power["projected_skills"]
     ruler = TABLES["economy"].get("power_ruler", {}) or {}
     crowd_dps = max(float(power["capacities"]["crowd"]) * float(ruler.get("crowd_dps_per_capacity", 75.0)), 1.0)
@@ -544,11 +545,26 @@ def simulate_level(
         "chip_level": build["chip_level"] if build["chip"] else 0,
         "pet_level": build["pet_level"] if build["pet"] else 0,
         "signature_level": build["signature_level"],
-        "gold_before": account.gold, "xp_before": account.xp, "stars_before": account.stars,
         "crowd_dps": crowd_dps, "boss_dps": boss_dps,
         "effective_power": int(round(float(power["power"]))),
         "build": build, "projected_skills": projected,
     }
+
+
+def simulate_level(
+    account: Account,
+    level: dict,
+    fire_rate_profile: str = "control",
+    strategy_id: str = ACTIVE_WEAPON_STRATEGY,
+) -> dict:
+    build, power = build_for(account, level, fire_rate_profile, strategy_id)
+    result = simulate_build(level, build, power)
+    result.update({
+        "gold_before": account.gold,
+        "xp_before": account.xp,
+        "stars_before": account.stars,
+    })
+    return result
 
 
 def earned_resources(level: dict) -> tuple[int, int]:

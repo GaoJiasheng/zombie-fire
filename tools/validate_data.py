@@ -62,6 +62,13 @@ def main() -> int:
         print("\n".join(errors))
         return 1
 
+    try:
+        pacing_targets = load("campaign_pacing_targets")
+        progression_fixture = load("campaign_progression_fixture")
+    except Exception as exc:
+        print(f"campaign pacing contract failed to load: {exc}")
+        return 1
+
     elements = set(tables["elements"].keys())
     zombies = set(tables["zombies"].keys())
     bosses = set(tables["bosses"].keys())
@@ -137,6 +144,30 @@ def main() -> int:
                     errors.append(f"economy.fire_rate_profiles.{profile_id} compensation must be 0.5")
                 if len(profile.get("salvo_fire_rate_mult", [])) != 5:
                     errors.append(f"economy.fire_rate_profiles.{profile_id} must define five salvo ranks")
+
+    frozen_contract = pacing_targets.get("frozen_contract", {}) or {}
+    if pacing_targets.get("frozen") is not True:
+        errors.append("campaign_pacing_targets.frozen must be true after B2 owner approval")
+    if str(pacing_targets.get("status", "")) != "b2_owner_frozen":
+        errors.append("campaign_pacing_targets.status must be b2_owner_frozen")
+    if str(frozen_contract.get("authoritative_fire_rate_profile", "")) != "tier_b":
+        errors.append("campaign_pacing_targets authoritative profile must be tier_b")
+    expected_counts = frozen_contract.get("target_grade_counts", {}) or {}
+    if expected_counts != {
+        "easy": 16,
+        "light_pressure": 43,
+        "pressure": 33,
+        "high": 7,
+        "unwinnable": 0,
+    }:
+        errors.append("campaign_pacing_targets frozen distribution must remain 16/43/33/7/0")
+    graduation = progression_fixture.get("max_free_graduation", {}) or {}
+    graduation_contract = frozen_contract.get("max_free_graduation", {}) or {}
+    if str(graduation.get("id", "")) != str(graduation_contract.get("fixture_id", "")):
+        errors.append("campaign progression max-free fixture must match the frozen pacing contract")
+    if str(graduation.get("fire_rate_profile", "")) != "tier_b":
+        errors.append("campaign progression max-free fixture must use tier_b")
+
     for table_key in ("late_wave_hp_bonus", "late_wave_count_mult", "late_wave_boss_hp_bonus"):
         value = economy.get(table_key)
         if not isinstance(value, dict) or not value:

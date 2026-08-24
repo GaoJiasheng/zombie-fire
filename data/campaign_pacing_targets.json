@@ -1,8 +1,25 @@
 {
   "schema_version": 1,
-  "frozen": false,
-  "status": "initial_reference_pending_b1_owner_review",
+	"frozen": true,
+	"status": "b2_owner_frozen",
 	"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.4",
+	"frozen_contract": {
+		"authoritative_fire_rate_profile": "tier_b",
+		"target_grade_counts": {
+			"easy": 16,
+			"light_pressure": 43,
+			"pressure": 33,
+			"high": 7,
+			"unwinnable": 0
+		},
+		"chapter6_level_range": [51, 60],
+		"chapter6_levels_sha256": "d817a86a797700f12ba2de8462ea286564104f04d4570608c9096c36db9ae1d1",
+		"max_free_graduation": {
+			"fixture_id": "maxed_free_matchup_aware_v1",
+			"all_campaign_levels_clearable": true,
+			"within_clear_time_caps": true
+		}
+	},
 	"pacing_rules": {
 		"pilot_scope": [
 			51,

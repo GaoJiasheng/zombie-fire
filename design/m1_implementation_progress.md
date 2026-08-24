@@ -4600,3 +4600,13 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **One laboratory risk remains visible**: Control clears every three-seed informational run, while Tier A loses
   one of three Stage-059 seeds. This is an Owner playtest decision, not a reason to relax the Tier-B acceptance gate.
 - **The target remains reviewable**: `frozen=false` stays in place until Owner completes the TestFlight playtest.
+
+## Campaign Rebuild v2 · B2 Frozen Contract Baseline (2026-08-24)
+
+- **The experiment is now a product contract**: Tier B, the `16/43/33/7/0` target distribution, chapter quotas,
+  and the exact Chapter-6 data hash are stored with `frozen=true`; B2 generators must preserve Stages 051-060.
+- **A second player family is permanent**: a maxed-free fixture equips the highest official matchup-power free
+  build per stage and scans all 99 stages alongside the resource-constrained progression family.
+- **Pre-rebuild failures stay visible**: Stages 095 and 099 currently fail the graduation-family analytical gate.
+  The checker reports them during B2 construction and becomes a hard RC failure when the full campaign rebuild lands;
+  no cap or target-band relaxation is permitted as a substitute for rebuilding the stages.
