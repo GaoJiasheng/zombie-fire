@@ -1072,8 +1072,10 @@ func _initialize() -> void:
 	_expect(loadout_action_gap >= 50.0, "loadout bottom action must keep a clear gap below the tactical summary")
 	var loadout_power_pill := loadout_details.find_child("PowerStatePill", true, false) as PanelContainer
 	var loadout_counter_pill := loadout_details.find_child("CounterStatePill", true, false) as PanelContainer
+	var loadout_bottleneck_reason := loadout_details.find_child("BottleneckReason", true, false) as Label
 	_expect(loadout_power_pill != null, "loadout must expose a dedicated combat-power state pill")
 	_expect(loadout_counter_pill != null, "loadout must keep counter guidance secondary to combat-power state")
+	_expect(loadout_bottleneck_reason != null and loadout_bottleneck_reason.text.strip_edges() != "", "loadout tactical summary must explain the current three-axis power bottleneck")
 	if loadout_power_pill != null:
 		_assert_semantic_tag_panel(loadout_power_pill, "loadout combat-power state")
 	if loadout_counter_pill != null:

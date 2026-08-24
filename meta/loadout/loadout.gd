@@ -19,9 +19,9 @@ const CHALLENGE_RECOMMENDED_POWER_MULT := 1.5
 # design/24 Phase 1 added the star-rule line. The height must clear the worst
 # case: English wraps the armor/chip/pet line to three rows. design/24 Phase 5
 # adds a conditional counter-weapon suggestion row on top of that.
-const DETAILS_PANEL_HEIGHT := 388.0
-const DETAILS_PANEL_HEIGHT_WITH_SUGGESTION := 452.0
-const DETAILS_PANEL_HEIGHT_WITH_TWO_SUGGESTIONS := 536.0
+const DETAILS_PANEL_HEIGHT := 430.0
+const DETAILS_PANEL_HEIGHT_WITH_SUGGESTION := 494.0
+const DETAILS_PANEL_HEIGHT_WITH_TWO_SUGGESTIONS := 578.0
 const BOTTOM_ACTION_SPACER_HEIGHT := 28.0
 # design/28:通关线口径下,0.85 以下 = 早期兜底也救不回来的"远低于通关线"档。
 const SEVERE_POWER_RATIO := 0.85
@@ -573,6 +573,17 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_child(_summary_cell("有效战力", "%d" % power, UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
 
+	# The three-axis power contract already determines why this loadout is held
+	# back. Surface that existing result here instead of asking players to infer
+	# it from one scalar. This is explanatory UI only; it does not recalculate or
+	# alter Effective Power.
+	var bottleneck_reason := UiKit.label(_power_bottleneck_reason(display_level_id, challenge_mode), 18, UiKit.GOLD, 4)
+	bottleneck_reason.name = "BottleneckReason"
+	bottleneck_reason.custom_minimum_size = Vector2(0, 32)
+	bottleneck_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bottleneck_reason.clip_text = false
+	box.add_child(bottleneck_reason)
+
 	var loadout := Label.new()
 	# Never decide level suffixes from translated display text. English used to
 	# render the impossible "Not Equipped Lv0" because this branch compared the
@@ -665,6 +676,20 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	# the summary from its rendered minimum instead of letting the fixed floor
 	# clip into the battle button on tall iPhones.
 	call_deferred("_fit_summary_panel_to_content", panel, box)
+
+func _power_bottleneck_reason(display_level_id: String, challenge_mode: bool) -> String:
+	var breakdown := SaveManager.get_power_breakdown_for_level(display_level_id, challenge_mode)
+	match str(breakdown.get("power_bottleneck", "crowd")):
+		"boss":
+			var level := DataLoader.get_row("levels", display_level_id)
+			var requirement_var: Variant = level.get("clear_requirement", {})
+			var requirement: Dictionary = requirement_var if requirement_var is Dictionary else {}
+			var boss_share := clampi(int(round(float(requirement.get("boss_hp_share", 0.0)) * 100.0)), 0, 100)
+			return LocalizationManager.text("短板：Boss 单体输出（本关 Boss 血量占比 %d%%）") % boss_share
+		"line":
+			return LocalizationManager.text("短板：防线维持")
+		_:
+			return LocalizationManager.text("短板：清群火力")
 
 func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
 	if not is_instance_valid(panel) or not is_instance_valid(content):
