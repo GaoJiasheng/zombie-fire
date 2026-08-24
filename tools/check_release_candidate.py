@@ -65,6 +65,7 @@ NON_VISUAL_CHECKS = [
     Check(("python3", "tools/audit_inferno_premium_dps.py")),
     Check(("python3", "tools/audit_absolute_zero_premium_dps.py")),
     Check(("python3", "tools/audit_golden_law_premium_dps.py")),
+    Check(("python3", "tools/audit_free_elemental_weapons.py", "--check")),
     Check(("python3", "tools/check_economy_loop.py")),
     Check(("python3", "tools/check_hardcoded_colors.py")),
     Check(("python3", "tools/check_contrast.py")),
