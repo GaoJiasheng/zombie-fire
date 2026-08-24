@@ -199,6 +199,8 @@ const WEAPON_VISUAL_PROFILES := {
 	"weapon_scattergun": "scatter",
 	"weapon_plasmacannon": "plasma",
 }
+const ELEMENTAL_AMMO_VISUAL_PROFILE_PREFIX := "ammo_"
+const PREMIUM_WEAPON_VISUAL_PROFILE_PREFIX := "apocalypse_"
 const CHARACTER_WEAPON_SCALE := {
 	"weapon_autocannon": 0.56,
 	"weapon_cryocannon": 0.57,
@@ -4944,9 +4946,14 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var lane_spread := deg_to_rad(float(mods.get("spread_deg", 0.0)))
 	var pellet_spread := deg_to_rad(float(special.get("spread", 0.0)))
 	var homing: float = float(mods.get("homing", 0)) * 1.8
-	var element: String = skills.projectile_element(str(weapon.get("element", "physical")))
+	var base_element := str(weapon.get("element", "physical"))
+	var element: String = skills.projectile_element(base_element)
 	var chain_count := _resolved_chain_count(element, mods, special)
-	var visual_profile := _weapon_visual_profile(weapon_id)
+	var visual_profile := _resolved_weapon_projectile_visual_profile(
+		base_element,
+		element,
+		_weapon_visual_profile(weapon_id),
+	)
 	homing += _character_homing_bonus(element)
 	AudioManager.play_sfx(_weapon_shot_sfx(weapon_id), -7.0)
 	if element != "physical":
@@ -5036,7 +5043,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 			scatter_homing_delay
 		)
 	if shots >= 3:
-		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element)
+		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element, visual_profile)
 
 func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float) -> Array[Vector2]:
 	var result: Array[Vector2] = []
@@ -5148,8 +5155,10 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 	var projectile := PROJECTILE_SCENE.instantiate()
 	_configure_audit_projectile(projectile)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
-	var element := skills.projectile_element(str(weapon.get("element", "physical")))
-	var profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
+	var base_element := str(weapon.get("element", "physical"))
+	var element := skills.projectile_element(base_element)
+	var base_profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
+	var profile := _resolved_weapon_projectile_visual_profile(base_element, element, base_profile)
 	if element == "fire" and profile == "":
 		profile = "fire_round"
 	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile, armor_penetration, status_strength, preferred_target, homing_delay_override)
@@ -6466,6 +6475,22 @@ func _weapon_visual_profile(id := "") -> String:
 	var row := DataLoader.get_row("weapons", resolved_id)
 	return str(row.get("visual_profile", WEAPON_VISUAL_PROFILES.get(resolved_id, "")))
 
+func _resolved_weapon_projectile_visual_profile(base_element: String, effective_element: String, base_profile: String) -> String:
+	# Attribute-ammo skills already change the damage element. Keep the authored
+	# profile only when the weapon remains on its native element. A free physical
+	# weapon converted to fire / ice / lightning / poison must also change its
+	# projectile model, muzzle, trail, and impact presentation instead of retaining
+	# the original ballistic rail/scatter/autocannon shell.
+	#
+	# Apocalypse weapons are a deliberate exception: their paid, authored weapon
+	# identity remains intact and their native element is never visually flattened
+	# into the shared free-ammo family.
+	if base_element != "physical" or effective_element == "physical":
+		return base_profile
+	if base_profile.begins_with(PREMIUM_WEAPON_VISUAL_PROFILE_PREFIX):
+		return base_profile
+	return "%s%s" % [ELEMENTAL_AMMO_VISUAL_PROFILE_PREFIX, effective_element]
+
 func _sync_logic_turret_to_character() -> void:
 	if turret == null:
 		return
@@ -7090,9 +7115,9 @@ func _projectile_visual_scale(shots: int, pierce: int, split: int, homing: float
 		scale *= 0.88
 	return clampf(scale, 0.78, 1.55)
 
-func _spawn_salvo_fan_vfx(origin: Vector2, direction: Vector2, spread: float, shots: int, element: String) -> void:
+func _spawn_salvo_fan_vfx(origin: Vector2, direction: Vector2, spread: float, shots: int, element: String, visual_profile := "") -> void:
 	var dir := _safe_vfx_direction(direction)
-	var spec := _muzzle_element_spec(element, _muzzle_weapon_profile(""))
+	var spec := _muzzle_element_spec(element, _muzzle_weapon_profile(visual_profile))
 	var color: Color = spec.get("cone", _element_color(element))
 	color.a = 0.42
 	var fan_glow := VfxLib.spawn_glow($ProjectileLayer, origin + dir * 18.0, color, 78.0 + float(mini(shots, 6)) * 6.0, 0.1)

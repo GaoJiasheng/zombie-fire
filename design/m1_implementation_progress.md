@@ -9,6 +9,18 @@ The project now passes static validators, `res://` reference scans, Godot headle
 and an automated M1 smoke test that instantiates the main flow, loadout upgrade entry,
 all five battle scenes, and the result scene.
 
+### Elemental Ammo Visual Synchronization (2026-08-24)
+
+- Physical weapons converted by an elemental-ammo skill now resolve a matching fire, ice, lightning, or poison projectile presentation instead of retaining their ballistic shell profile.
+- The resolved presentation is shared by the projectile model, color, trail, muzzle fan, and impact stack while leaving damage, trajectory, penetration, and hit logic unchanged.
+- Native elemental weapons, unmodified physical rounds, and authored premium weapon profiles keep their existing presentation; M1 smoke locks all positive and negative cases.
+
+### Loadout Return-to-Sub-Warzone Routing (2026-08-24)
+
+- Level entry from a chapter detail now carries the originating chapter as an explicit map return payload for both normal and challenge modes.
+- The loadout back action now honors its sanitized route and payload uniformly, so collection round-trips keep the same destination while result-originated loadouts still return to the result screen.
+- M1 smoke exercises the complete chapter-detail → loadout → back path and verifies that the restored map still renders the chapter header plus all ten stage cards.
+
 ### Campaign Growth + Front-Line Baseline (2026-08-21)
 
 - Added a deterministic, resource-constrained free-account audit covering all 99 normal first clears. The fixture

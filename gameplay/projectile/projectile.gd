@@ -596,6 +596,14 @@ func _projectile_texture_path(elem: String, profile := "") -> String:
 			return "res://assets/production/sprites/projectiles/proj_heavy_charge.png"
 		"acid":
 			return "res://assets/production/sprites/projectiles/proj_acid_spit.png"
+		"ammo_fire":
+			return "res://assets/production/sprites/projectiles/proj_bullet_fire.png"
+		"ammo_ice":
+			return "res://assets/production/sprites/projectiles/proj_bullet_ice.png"
+		"ammo_lightning":
+			return "res://assets/production/sprites/projectiles/proj_bullet_lightning.png"
+		"ammo_poison":
+			return "res://assets/production/sprites/projectiles/proj_bullet_poison.png"
 	match elem:
 		"fire":
 			return "res://assets/production/sprites/projectiles/proj_bullet_fire.png"
@@ -635,6 +643,10 @@ func _projectile_sprite_scale(profile := "") -> Vector2:
 			return Vector2(0.40, 0.34)
 		"acid":
 			return Vector2(0.34, 0.30)
+		"ammo_fire", "ammo_ice", "ammo_lightning", "ammo_poison":
+			# Attribute rounds share one readable footprint. Multi-pellet weapons
+			# still receive the existing shot-count visual downscale in battle.gd.
+			return Vector2(0.30, 0.30)
 		_:
 			return Vector2(0.30, 0.30)
 

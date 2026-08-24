@@ -911,6 +911,22 @@ func _initialize() -> void:
 	main.current_scene._close_character_detail()
 	await process_frame
 	save_manager.save_data = smoke_save_snapshot.duplicate(true)
+	main.change_scene("map", {"chapter": 1})
+	await process_frame
+	_expect(main.current_scene.name == "Map" and main.current_scene.selected_chapter == 1, "chapter route payload must open the requested sub-warzone")
+	main.current_scene._open_level("level_001")
+	await process_frame
+	_expect(main.current_scene.name == "Loadout", "sub-warzone level entry must route to loadout")
+	_expect(int(main.current_scene._return_payload.get("chapter", 0)) == 1, "loadout opened from a sub-warzone must retain its chapter return context")
+	var sub_warzone_loadout_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
+	_expect(sub_warzone_loadout_back != null, "sub-warzone loadout must expose a back button")
+	if sub_warzone_loadout_back != null:
+		sub_warzone_loadout_back.emit_signal("pressed")
+		await process_frame
+	_expect(main.current_scene.name == "Map", "loadout back must return to the map route")
+	_expect(main.current_scene.selected_chapter == 1, "loadout back must restore the originating sub-warzone instead of the chapter overview")
+	var returned_sub_warzone_levels: Node = main.current_scene.find_child("LevelList", true, false)
+	_expect(returned_sub_warzone_levels != null and returned_sub_warzone_levels.get_child_count() >= 11, "restored sub-warzone must render its header and ten level cards")
 	main.change_scene("loadout", {"level_id": "level_001"})
 	await process_frame
 	_expect(main.current_scene.name == "Loadout", "main must route to loadout")
@@ -4798,6 +4814,46 @@ func _verify_projectile_visual_profiles() -> void:
 		elif profile == "plasma":
 			_expect(sprite.scale.x >= 0.36 and sprite.modulate.r > 0.8 and sprite.modulate.b > 0.8, "plasma projectile must read as a large purple energy core")
 		projectile.queue_free()
+
+	var battle = load("res://gameplay/battle/battle.gd").new()
+	_expect(
+		battle._resolved_weapon_projectile_visual_profile("physical", "physical", "rail") == "rail",
+		"unmodified physical ammo must retain its authored weapon profile"
+	)
+	_expect(
+		battle._resolved_weapon_projectile_visual_profile("fire", "fire", "plasma") == "plasma",
+		"native elemental weapons must retain their authored projectile profile"
+	)
+	_expect(
+		battle._resolved_weapon_projectile_visual_profile("physical", "lightning", "apocalypse_golden_law") == "apocalypse_golden_law",
+		"premium physical weapon presentation must not be replaced by shared elemental ammo art"
+	)
+	var converted_expected := {
+		"fire": "proj_bullet_fire.png",
+		"ice": "proj_bullet_ice.png",
+		"lightning": "proj_bullet_lightning.png",
+		"poison": "proj_bullet_poison.png",
+	}
+	var source_profiles := ["autocannon", "rail", "scatter", "autocannon"]
+	var converted_index := 0
+	for converted_element in converted_expected.keys():
+		var source_profile: String = source_profiles[converted_index]
+		converted_index += 1
+		var converted_profile: String = battle._resolved_weapon_projectile_visual_profile("physical", converted_element, source_profile)
+		_expect(converted_profile == "ammo_%s" % converted_element, "physical %s rounds must switch to the %s ammo presentation" % [source_profile, converted_element])
+		_expect(battle._muzzle_weapon_profile(converted_profile) == converted_profile, "converted %s ammo must bypass the original physical muzzle profile" % converted_element)
+		var converted_projectile := _instance("res://gameplay/projectile/projectile.tscn")
+		root.add_child(converted_projectile)
+		converted_projectile.setup(Vector2(100, 100), Vector2.RIGHT, 1000.0, 10.0, converted_element, 0, 0, 0.55, 0.0, 0.0, 0.0, 1.0, 0, "", converted_profile)
+		var converted_sprite := converted_projectile.get_node("Sprite") as Sprite2D
+		_expect(str(converted_projectile.visual_profile) == converted_profile, "converted %s ammo must retain its presentation profile" % converted_element)
+		_expect(
+			converted_sprite.texture != null and str(converted_sprite.texture.resource_path).ends_with(str(converted_expected[converted_element])),
+			"converted %s ammo must use its element model, got %s" % [converted_element, str(converted_sprite.texture.resource_path)]
+		)
+		_expect(not converted_projectile._uses_compact_ballistic_impact(), "converted %s ammo must use elemental rather than physical impact VFX" % converted_element)
+		converted_projectile.queue_free()
+	battle.free()
 
 func _verify_starter_projectile_hierarchy(data_loader: Node) -> void:
 	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")

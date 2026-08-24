@@ -1259,14 +1259,25 @@ func _open_level(level_id: String) -> void:
 		AudioManager.play_sfx("ui_click", -8.0)
 		return
 	AudioManager.play_sfx("ui_confirm")
-	router.change_scene("loadout", {"level_id": level_id})
+	router.change_scene("loadout", _loadout_route_payload(level_id, false))
 
 func _open_challenge_level(level_id: String) -> void:
 	if not SaveManager.is_challenge_unlocked(level_id):
 		AudioManager.play_sfx("ui_click", -8.0)
 		return
 	AudioManager.play_sfx("ui_confirm")
-	router.change_scene("loadout", {"level_id": level_id, "challenge": true})
+	router.change_scene("loadout", _loadout_route_payload(level_id, true))
+
+func _loadout_route_payload(level_id: String, challenge: bool) -> Dictionary:
+	var chapter_id := selected_chapter
+	if chapter_id <= 0:
+		chapter_id = _chapter_from_level_id(level_id)
+	return {
+		"level_id": level_id,
+		"challenge": challenge,
+		"return_to": "map",
+		"return_payload": {"chapter": chapter_id},
+	}
 
 func _stars_text(count: int) -> String:
 	var text := ""

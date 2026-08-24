@@ -151,10 +151,7 @@ func _on_back_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
 	if router == null:
 		return
-	if _return_to == "result":
-		router.change_scene("result", _return_payload.duplicate(true))
-		return
-	router.change_scene("map")
+	router.change_scene(_return_to, _return_payload.duplicate(true))
 
 func _refresh_back_button() -> void:
 	var button := %BackButton as TextureButton
