@@ -265,6 +265,11 @@
 }
 ```
 
+`endgame_damage_growth_bonus` / `endgame_growth_curve` 是可选的武器后段伤害成长曲线：
+等级 1 恒为中性，满级达到 `1 + endgame_damage_growth_bonus`，中间按归一化等级进度的
+`endgame_growth_curve` 次幂插值。该乘区必须同时进入战斗伤害、配装页有效战力与所有离线
+DPS/难度审计；缺字段时视为 `0 / 1.0`，不得产生行为变化。
+
 `weapons.special` 的展示与运行时单位固定为：`spread` 是弹丸扇形夹角（度，运行时通过 `deg_to_rad()` 转换）；`cloud` / `splash` 是战场作用半径；`chain` / `pierce` 是额外目标数量。数值为 `0` 或字段为空表示没有对应机制，图鉴不得把它渲染成高亮标签。
 
 ## armors.json

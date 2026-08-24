@@ -6,6 +6,7 @@ import math
 from pathlib import Path
 
 from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
+from power_ruler_model import weapon_endgame_growth_multiplier
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
@@ -202,7 +203,10 @@ def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) 
     base_atk_coef = float(weapon.get("base_atk_coef", 1.0))
     fire_rate = float(weapon.get("fire_rate", 4.0))
     char_atk_mult = (base_atk / 100.0) * (1.0 + atk_growth * 0.45 * (level - 1))
-    weapon_dmg_mult = 1.0 + 0.08 * (level - 1)
+    weapon_dmg_mult = (1.0 + 0.08 * (level - 1)) * weapon_endgame_growth_multiplier(
+        weapon,
+        level,
+    )
     weapon_fr_mult = 1.0 + 0.025 * (level - 1)
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef
     damage = base_damage * char_atk_mult * weapon_dmg_mult * CHIP_DAMAGE_MULT * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))

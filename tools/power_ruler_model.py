@@ -126,10 +126,25 @@ def char_atk_multiplier(character: dict, char_level: int) -> float:
     return mult
 
 
+def weapon_endgame_growth_multiplier(weapon: dict, weapon_level: float) -> float:
+    """Mirror the optional late-level damage curve used by the runtime turret.
+
+    The field existed for Golden Law before B2, but the effective-power model
+    did not include it.  Keeping the helper here makes free elemental-weapon
+    growth and premium growth share one exact, level-normalized definition.
+    """
+    max_level = max(float(weapon.get("max_level", 50)), 2.0)
+    progress = min(max((float(weapon_level) - 1.0) / (max_level - 1.0), 0.0), 1.0)
+    bonus = max(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
+    curve = max(float(weapon.get("endgame_growth_curve", 1.0)), 1.0)
+    return 1.0 + bonus * progress ** curve
+
+
 def weapon_dps_multiplier(weapon: dict, weapon_level: int) -> float:
     mult = max(weapon_effective_dps(weapon) / 4.0, 0.35)
     mult *= 1.0 + 0.08 * max(weapon_level - 1, 0)
     mult *= 1.0 + 0.025 * max(weapon_level - 1, 0)
+    mult *= weapon_endgame_growth_multiplier(weapon, weapon_level)
     return mult
 
 
@@ -1119,7 +1134,8 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
                                weapons: dict, armors: dict, chips: dict,
                                pets: dict, skills: dict, bosses: dict,
                                economy: dict,
-                               fire_rate_profile_id: str = "tier_b") -> tuple[dict, dict]:
+                               fire_rate_profile_id: str = "tier_b",
+                               allowed_weapon_ids: set[str] | None = None) -> tuple[dict, dict]:
     """Return the exact matchup-aware best fully maxed non-premium loadout.
 
     This is the permanent B2 graduation fixture.  It evaluates every free
@@ -1130,7 +1146,11 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
     Ties retain authored table order.
     """
     free_characters = [key for key, row in characters.items() if not row.get("premium_entitlement")]
-    free_weapons = [key for key, row in weapons.items() if not row.get("premium_entitlement")]
+    free_weapons = [
+        key for key, row in weapons.items()
+        if not row.get("premium_entitlement")
+        and (allowed_weapon_ids is None or key in allowed_weapon_ids)
+    ]
     free_armors = [key for key, row in armors.items() if not row.get("premium_entitlement")]
     free_chips = [key for key, row in chips.items() if not row.get("premium_entitlement")]
     free_pets = [key for key, row in pets.items() if not row.get("premium_entitlement")]
@@ -1606,7 +1626,7 @@ def _player_dps_cont(sim, characters: dict, weapons: dict, char_level: float, we
     weapon = weapons["weapon_autocannon"]
     economy = load_table("economy")
     char_atk = (float(char["base_atk"]) / 100.0) * (1.0 + float(char["atk_growth"]) * 0.45 * (char_level - 1.0))
-    weapon_dmg = 1.0 + 0.08 * (weapon_level - 1.0)
+    weapon_dmg = (1.0 + 0.08 * (weapon_level - 1.0)) * weapon_endgame_growth_multiplier(weapon, weapon_level)
     weapon_fr = 1.0 + 0.025 * (weapon_level - 1.0)
     damage = BASE_WEAPON_DAMAGE * float(weapon.get("base_atk_coef", 1.0)) * char_atk * weapon_dmg * 1.20 * float(economy.get("PLAYER_SHOT_DAMAGE_MULT", 1.0))
     fr = float(weapon.get("fire_rate", 4.0)) * weapon_fr * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25)) * float(char.get("fire_rate_mod", 1.0))
@@ -1622,6 +1642,7 @@ def offense_multiplier_cont(character: dict, weapon: dict, char_level: float, we
     wq = max(weapon_effective_dps(weapon) / 4.0, 0.35)
     wq *= 1.0 + 0.08 * max(weapon_level - 1.0, 0.0)
     wq *= 1.0 + 0.025 * max(weapon_level - 1.0, 0.0)
+    wq *= weapon_endgame_growth_multiplier(weapon, weapon_level)
     mult *= wq
     mult *= bullet_affinity_multiplier(character, weapon, char_level)
     if chip:

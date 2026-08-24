@@ -101,6 +101,9 @@ func _initialize() -> void:
 
 	_expect(data_loader.get_table("levels").size() >= 99, "levels table must contain a launch campaign")
 	_expect(data_loader.get_table("skills").size() >= 16, "skills table must contain a broad launch pool")
+	var golden_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
+	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, 1) - 1.0) <= 0.000001, "weapon endgame growth must be neutral at level 1")
+	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, int(golden_weapon.get("max_level", 50))) - 1.07) <= 0.000001, "weapon endgame growth must reach its authored max-level bonus")
 	_verify_zombie_mechanic_profiles(data_loader)
 	_verify_zombie_model_redesigns(data_loader)
 	_verify_zombie_attack_animation_contracts(data_loader)

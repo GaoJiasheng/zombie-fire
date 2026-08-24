@@ -721,11 +721,14 @@ func get_weapon_damage_multiplier(weapon_id: String) -> float:
 	var row := DataLoader.get_row("weapons", weapon_id)
 	var level := get_weapon_level(weapon_id)
 	var multiplier := 1.0 + 0.08 * float(max(level - 1, 0))
-	var max_level := maxi(2, int(row.get("max_level", 50)))
-	var progress := clampf(float(level - 1) / float(max_level - 1), 0.0, 1.0)
-	var growth_bonus := float(row.get("endgame_damage_growth_bonus", 0.0))
-	var growth_curve := maxf(1.0, float(row.get("endgame_growth_curve", 1.0)))
-	return multiplier * (1.0 + growth_bonus * pow(progress, growth_curve))
+	return multiplier * _weapon_endgame_growth_multiplier(row, level)
+
+func _weapon_endgame_growth_multiplier(weapon: Dictionary, weapon_level: int) -> float:
+	var max_level := maxi(2, int(weapon.get("max_level", 50)))
+	var progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var growth_bonus := maxf(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
+	var growth_curve := maxf(1.0, float(weapon.get("endgame_growth_curve", 1.0)))
+	return 1.0 + growth_bonus * pow(progress, growth_curve)
 
 func get_weapon_fire_rate_multiplier(weapon_id: String) -> float:
 	return 1.0 + 0.025 * float(max(get_weapon_level(weapon_id) - 1, 0))
@@ -907,6 +910,7 @@ func _loadout_offense_multiplier() -> float:
 	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
 	weapon_dps *= 1.0 + 0.08 * float(maxi(weapon_level - 1, 0))
 	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	weapon_dps *= _weapon_endgame_growth_multiplier(weapon, weapon_level)
 	# 角色-武器元素亲和(bullet_affinity):真实战斗与模拟器都算这 10% 上下的加成,
 	# 战力不算的话跨元素配装(如先锋+雷霆)会被系统性高估。
 	var affinity := _bullet_affinity_multiplier(character, weapon, char_level)
@@ -1042,6 +1046,7 @@ func _main_output_multiplier() -> float:
 	var weapon_level := get_item_level(weapon_id)
 	weapon_dps *= 1.0 + 0.08 * float(maxi(weapon_level - 1, 0))
 	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	weapon_dps *= _weapon_endgame_growth_multiplier(weapon, weapon_level)
 	return maxf(char_atk * weapon_dps, 0.05)
 
 # 宠物技能的进攻侧期望折算(uptime/冷却期望,同旧公式的分类口径,但输出乘数而非加分)。
