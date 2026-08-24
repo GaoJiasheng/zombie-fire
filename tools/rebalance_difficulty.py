@@ -206,6 +206,7 @@ def estimate_player_dps(characters: dict, weapons: dict, economy: dict, n: int) 
     weapon_dmg_mult = (1.0 + 0.08 * (level - 1)) * weapon_endgame_growth_multiplier(
         weapon,
         level,
+        "tier_b",
     )
     weapon_fr_mult = 1.0 + 0.025 * (level - 1)
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef

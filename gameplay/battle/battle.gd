@@ -2558,6 +2558,17 @@ func _fire_rate_shot_damage_compensation() -> float:
 		_fire_rate_economy(), fire_rate_profile_id, _fire_rate_for_profile(FireRateProfiles.DEFAULT_PROFILE_ID), turret.fire_rate
 	)
 
+func _weapon_profile_endgame_damage_multiplier(weapon: Dictionary) -> float:
+	var profile_bonuses_var: Variant = weapon.get("profile_endgame_damage_growth_bonus", {})
+	var profile_bonuses: Dictionary = profile_bonuses_var if profile_bonuses_var is Dictionary else {}
+	var growth_bonus := maxf(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
+	if growth_bonus <= 0.0:
+		return 1.0
+	var max_level := maxi(2, int(weapon.get("max_level", 50)))
+	var progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var curve := maxf(float(weapon.get("endgame_growth_curve", 1.0)), 1.0)
+	return 1.0 + growth_bonus * pow(progress, curve)
+
 func _fire_rate_status_normalization() -> float:
 	if turret == null or fire_rate_profile_id == FireRateProfiles.DEFAULT_PROFILE_ID:
 		return 1.0
@@ -4971,6 +4982,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	_spawn_character_theme_fire_signature(origin, direction, element)
 	var base_damage: float = 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
 	base_damage *= _fire_rate_shot_damage_compensation()
+	base_damage *= _weapon_profile_endgame_damage_multiplier(weapon)
 	var pierce: int = int(mods.get("pierce", 0)) + pierce_bonus + int(special.get("pierce", 0)) + _character_pierce_bonus(element)
 	if sig_vanguard_barrage_timer > 0.0:
 		pierce += 1

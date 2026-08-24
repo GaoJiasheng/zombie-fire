@@ -3,15 +3,19 @@
 口径：Tier B、免费装备全满级、永久技能全满；每把武器分别调用同一套
 `maxed_free_build_for_level → power_for_build` 管线，在已编写的对应弱点关卡上
 选择其余免费槽位的最优组合。硬门槛是原生元素枪的 matchup 感知战力必须高于
-通用物理入门枪 `weapon_autocannon`。属性弹转化后的散弹枪只作信息项。
+同关最强免费物理枪（包括真实技能投影产生的属性弹转化）。完整付费套的专属
+触发、套装联动与主动技能不属于通用战力管线，因此付费对照直接引用各套装独立
+DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用战力数字误判。
 
-| 元素 | 代表关 | 原生元素枪 | 有效战力 | 自动机枪 | 相对值 | 属性散弹信息项 | 结论 |
-|---|---:|---|---:|---:|---:|---:|---|
-| ice | 20 | `weapon_cryocannon` | 3,989 | 1,918 | 2.080× | 2,889 | 通过 |
-| poison | 40 | `weapon_venomlauncher` | 5,159 | 3,405 | 1.515× | 4,606 | 通过 |
-| lightning | 65 | `weapon_teslacoil` | 9,559 | 7,585 | 1.260× | 11,161 | 通过 |
-| fire | 75 | `weapon_flamethrower` | 6,713 | 3,334 | 2.013× | 5,360 | 通过 |
+| 元素 | 代表关 | 原生元素枪 | 有效战力 | 最强免费物理枪 | 物理战力 | 相对值 | 同元素完整付费套 DPS 合同 | 结论 |
+|---|---:|---|---:|---|---:|---:|---:|---|
+| ice | 20 | `weapon_cryocannon` | 3,989 | `weapon_scattergun` | 2,889 | 1.381× | `set_apocalypse_absolute_zero` 1.52–1.58× | 通过 |
+| poison | 40 | `weapon_venomlauncher` | 5,159 | `weapon_scattergun` | 4,606 | 1.120× | — | 通过 |
+| lightning | 65 | `weapon_teslacoil` | 11,376 | `weapon_scattergun` | 11,161 | 1.019× | `set_apocalypse_thunder` 1.52–1.60× | 通过 |
+| fire | 75 | `weapon_flamethrower` | 6,713 | `weapon_scattergun` | 5,360 | 1.252× | `set_apocalypse_inferno` 1.52–1.58× | 通过 |
 
-说明：本表不承诺原生元素枪在每一种清群/单体组合上都压过已完成属性转化的散弹枪；
-它锁定的是免费玩家在对应克制关至少拥有一个优于通用物理入门枪的原生元素选择。
-付费同元素套装的优势继续由各系列独立 DPS 合同审计，不在本门槛中重复定义。
+说明：绝对零度、雷霆、炼狱完整套分别继续由
+`audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、
+`audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个
+忽略套装机制的“付费有效战力”。B2b 将 Tier B 切成正式默认档前，须把三套独立
+DPS 审计一并迁移到 Tier B 口径并重新确认倍率；B2a 试验包默认仍为 control。

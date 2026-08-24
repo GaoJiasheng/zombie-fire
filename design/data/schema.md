@@ -270,6 +270,11 @@
 `endgame_growth_curve` 次幂插值。该乘区必须同时进入战斗伤害、配装页有效战力与所有离线
 DPS/难度审计；缺字段时视为 `0 / 1.0`，不得产生行为变化。
 
+`profile_endgame_damage_growth_bonus` 是同一后段曲线在指定攻速档位下追加的可选伤害成长，
+键必须是 `economy.fire_rate_profiles` 已存在的 profile id。它只用于攻速重整后某把武器的
+后段成长校准：运行时按当前 profile 即时生效，离线战力与 DPS 工具必须传入同一 profile；
+未配置或当前 profile 无对应项时追加值为 0，control 行为不得漂移。
+
 `weapons.special` 的展示与运行时单位固定为：`spread` 是弹丸扇形夹角（度，运行时通过 `deg_to_rad()` 转换）；`cloud` / `splash` 是战场作用半径；`chain` / `pierce` 是额外目标数量。数值为 `0` 或字段为空表示没有对应机制，图鉴不得把它渲染成高亮标签。
 
 ## armors.json

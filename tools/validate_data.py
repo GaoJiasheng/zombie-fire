@@ -144,6 +144,26 @@ def main() -> int:
                     errors.append(f"economy.fire_rate_profiles.{profile_id} compensation must be 0.5")
                 if len(profile.get("salvo_fire_rate_mult", [])) != 5:
                     errors.append(f"economy.fire_rate_profiles.{profile_id} must define five salvo ranks")
+        known_profile_ids = set(profiles) if isinstance(profiles, dict) else set()
+        for weapon_id, weapon in tables["weapons"].items():
+            profile_growth = weapon.get("profile_endgame_damage_growth_bonus", {})
+            if not isinstance(profile_growth, dict):
+                errors.append(
+                    f"weapons.{weapon_id}.profile_endgame_damage_growth_bonus must be an object"
+                )
+                continue
+            unknown_profiles = set(profile_growth) - known_profile_ids
+            if unknown_profiles:
+                errors.append(
+                    f"weapons.{weapon_id}.profile_endgame_damage_growth_bonus has unknown profiles "
+                    f"{sorted(unknown_profiles)}"
+                )
+            for profile_id, bonus in profile_growth.items():
+                if not isinstance(bonus, (int, float)) or float(bonus) < 0.0:
+                    errors.append(
+                        f"weapons.{weapon_id}.profile_endgame_damage_growth_bonus.{profile_id} "
+                        "must be a non-negative number"
+                    )
 
     frozen_contract = pacing_targets.get("frozen_contract", {}) or {}
     if pacing_targets.get("frozen") is not True:

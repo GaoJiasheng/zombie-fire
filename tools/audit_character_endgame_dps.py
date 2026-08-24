@@ -214,9 +214,10 @@ def evaluate(
         max(float(WEAPON_LEVEL - 1) / float(weapon_max_level - 1), 0.0),
         1.0,
     )
-    weapon_damage_mult *= 1.0 + float(
-        weapon.get("endgame_damage_growth_bonus", 0.0)
-    ) * weapon_growth_progress ** max(
+    weapon_growth_bonus = float(weapon.get("endgame_damage_growth_bonus", 0.0))
+    profile_growth = weapon.get("profile_endgame_damage_growth_bonus", {}) or {}
+    weapon_growth_bonus += float(profile_growth.get(fire_rate_profile_id, 0.0))
+    weapon_damage_mult *= 1.0 + weapon_growth_bonus * weapon_growth_progress ** max(
         1.0, float(weapon.get("endgame_growth_curve", 1.0))
     )
     weapon_fire_rate_mult = 1.0 + 0.025 * (WEAPON_LEVEL - 1)

@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Audit the B2 free elemental-weapon availability contract.
 
-The Owner contract compares each native free elemental weapon with the free
-generic physical starter (autocannon) on an authored counter-matchup.  A
-scattergun whose projectile element has been converted by a permanent ammo
-skill is printed as useful context, but is deliberately not the generic
-physical baseline: treating converted ammunition as "physical" would compare
-two elemental builds and would silently invalidate the premium-set bands.
+The Owner contract compares each native free elemental weapon against the
+strongest fully maxed free physical weapon on an authored counter-matchup.
+Projectile conversion is part of the real build pipeline, so it is deliberately
+included rather than replaced by a hand-authored "generic" baseline.
 
 All values come from power_for_build through maxed_free_build_for_level; this
 tool has no parallel damage formula.
@@ -15,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import json
 from pathlib import Path
 
 from power_ruler_model import load_table, maxed_free_build_for_level
@@ -22,13 +21,11 @@ from power_ruler_model import load_table, maxed_free_build_for_level
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "design" / "audits" / "free_elemental_weapon_availability.md"
-GENERIC_PHYSICAL_WEAPON = "weapon_autocannon"
-INFORMATIONAL_SCATTER_WEAPON = "weapon_scattergun"
 CASES = (
-    ("ice", "level_020", "weapon_cryocannon"),
-    ("poison", "level_040", "weapon_venomlauncher"),
-    ("lightning", "level_065", "weapon_teslacoil"),
-    ("fire", "level_075", "weapon_flamethrower"),
+    ("ice", "level_020", "weapon_cryocannon", "set_apocalypse_absolute_zero"),
+    ("poison", "level_040", "weapon_venomlauncher", ""),
+    ("lightning", "level_065", "weapon_teslacoil", "set_apocalypse_thunder"),
+    ("fire", "level_075", "weapon_flamethrower", "set_apocalypse_inferno"),
 )
 
 
@@ -53,19 +50,28 @@ def render_report() -> str:
     tables = tuple(load_table(name) for name in (
         "characters", "weapons", "armors", "chips", "pets", "skills", "bosses", "economy"
     ))
+    premium_sets = json.loads((ROOT / "data" / "premium_sets.json").read_text(encoding="utf-8"))
     lines = [
         "# B2 免费元素武器可用性审计",
         "",
         "口径：Tier B、免费装备全满级、永久技能全满；每把武器分别调用同一套",
         "`maxed_free_build_for_level → power_for_build` 管线，在已编写的对应弱点关卡上",
         "选择其余免费槽位的最优组合。硬门槛是原生元素枪的 matchup 感知战力必须高于",
-        "通用物理入门枪 `weapon_autocannon`。属性弹转化后的散弹枪只作信息项。",
+        "同关最强免费物理枪（包括真实技能投影产生的属性弹转化）。完整付费套的专属",
+        "触发、套装联动与主动技能不属于通用战力管线，因此付费对照直接引用各套装独立",
+        "DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用战力数字误判。",
         "",
-        "| 元素 | 代表关 | 原生元素枪 | 有效战力 | 自动机枪 | 相对值 | 属性散弹信息项 | 结论 |",
-        "|---|---:|---|---:|---:|---:|---:|---|",
+        "| 元素 | 代表关 | 原生元素枪 | 有效战力 | 最强免费物理枪 | 物理战力 | 相对值 | 同元素完整付费套 DPS 合同 | 结论 |",
+        "|---|---:|---|---:|---|---:|---:|---:|---|",
     ]
     failures: list[str] = []
-    for element, level_id, weapon_id in CASES:
+    characters, weapons, armors, chips, pets, skills, bosses, economy = tables
+    physical_weapon_ids = {
+        weapon_id for weapon_id, row in weapons.items()
+        if str(row.get("element", "physical")) == "physical"
+        and not row.get("premium_entitlement")
+    }
+    for element, level_id, weapon_id, premium_set_id in CASES:
         level = levels[level_id]
         if str(level.get("primary_weakness", "")) != element:
             raise AssertionError(
@@ -73,24 +79,40 @@ def render_report() -> str:
             )
         contract = dict(level["clear_requirement"]["power_contract"])
         native = _measure(level, contract, weapon_id, tables)
-        generic = _measure(level, contract, GENERIC_PHYSICAL_WEAPON, tables)
-        scatter = _measure(level, contract, INFORMATIONAL_SCATTER_WEAPON, tables)
-        ratio = native["power"] / max(generic["power"], 1)
-        passed = native["power"] > generic["power"]
+        physical_candidates = [
+            _measure(level, contract, physical_id, tables)
+            for physical_id in sorted(physical_weapon_ids)
+        ]
+        strongest_physical = max(physical_candidates, key=lambda row: row["power"])
+        ratio = native["power"] / max(strongest_physical["power"], 1)
+        paid_cell = "—"
+        paid_ok = True
+        if premium_set_id:
+            set_row = premium_sets[premium_set_id]
+            target_min = float(set_row["target_full_set_ratio_min"])
+            target_max = float(set_row["target_full_set_ratio_max"])
+            paid_cell = f"`{premium_set_id}` {target_min:.2f}–{target_max:.2f}×"
+            paid_ok = target_min >= 1.10
+        passed = native["power"] > strongest_physical["power"] and paid_ok
         if not passed:
             failures.append(
-                f"{weapon_id}@{level_id}: {native['power']} <= {generic['power']}"
+                f"{weapon_id}@{level_id}: native={native['power']}, "
+                f"physical={strongest_physical['weapon']}:{strongest_physical['power']}, "
+                f"paid_contract={premium_set_id or 'n/a'}:{paid_cell}"
             )
         lines.append(
             f"| {element} | {int(level_id[-3:])} | `{weapon_id}` | {native['power']:,} | "
-            f"{generic['power']:,} | {ratio:.3f}× | {scatter['power']:,} | "
+            f"`{strongest_physical['weapon']}` | {strongest_physical['power']:,} | {ratio:.3f}× | "
+            f"{paid_cell} | "
             f"{'通过' if passed else '失败'} |"
         )
     lines.extend((
         "",
-        "说明：本表不承诺原生元素枪在每一种清群/单体组合上都压过已完成属性转化的散弹枪；",
-        "它锁定的是免费玩家在对应克制关至少拥有一个优于通用物理入门枪的原生元素选择。",
-        "付费同元素套装的优势继续由各系列独立 DPS 合同审计，不在本门槛中重复定义。",
+        "说明：绝对零度、雷霆、炼狱完整套分别继续由",
+        "`audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、",
+        "`audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个",
+        "忽略套装机制的“付费有效战力”。B2b 将 Tier B 切成正式默认档前，须把三套独立",
+        "DPS 审计一并迁移到 Tier B 口径并重新确认倍率；B2a 试验包默认仍为 control。",
         "",
     ))
     if failures:

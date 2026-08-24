@@ -396,6 +396,7 @@ def estimate_player_dps(
     weapon_dmg_mult = (1.0 + 0.08 * (weapon_level - 1)) * weapon_endgame_growth_multiplier(
         weapon,
         weapon_level,
+        fire_rate_profile_id,
     )
     weapon_fr_mult = 1.0 + 0.025 * (weapon_level - 1)
     base_damage = BASE_WEAPON_DAMAGE * base_atk_coef

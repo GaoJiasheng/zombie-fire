@@ -126,7 +126,11 @@ def char_atk_multiplier(character: dict, char_level: int) -> float:
     return mult
 
 
-def weapon_endgame_growth_multiplier(weapon: dict, weapon_level: float) -> float:
+def weapon_endgame_growth_multiplier(
+    weapon: dict,
+    weapon_level: float,
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+) -> float:
     """Mirror the optional late-level damage curve used by the runtime turret.
 
     The field existed for Golden Law before B2, but the effective-power model
@@ -136,15 +140,21 @@ def weapon_endgame_growth_multiplier(weapon: dict, weapon_level: float) -> float
     max_level = max(float(weapon.get("max_level", 50)), 2.0)
     progress = min(max((float(weapon_level) - 1.0) / (max_level - 1.0), 0.0), 1.0)
     bonus = max(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
+    profile_bonuses = weapon.get("profile_endgame_damage_growth_bonus", {}) or {}
+    bonus += max(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
     curve = max(float(weapon.get("endgame_growth_curve", 1.0)), 1.0)
     return 1.0 + bonus * progress ** curve
 
 
-def weapon_dps_multiplier(weapon: dict, weapon_level: int) -> float:
+def weapon_dps_multiplier(
+    weapon: dict,
+    weapon_level: int,
+    fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+) -> float:
     mult = max(weapon_effective_dps(weapon) / 4.0, 0.35)
     mult *= 1.0 + 0.08 * max(weapon_level - 1, 0)
     mult *= 1.0 + 0.025 * max(weapon_level - 1, 0)
-    mult *= weapon_endgame_growth_multiplier(weapon, weapon_level)
+    mult *= weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile_id)
     return mult
 
 
@@ -271,7 +281,8 @@ def offense_multiplier(character: dict, weapon: dict, char_level: int, weapon_le
                        pet: dict | None = None, pet_level: int = 1,
                        economy: dict | None = None,
                        fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID) -> float:
-    mult = char_atk_multiplier(character, char_level) * weapon_dps_multiplier(weapon, weapon_level)
+    mult = char_atk_multiplier(character, char_level) * weapon_dps_multiplier(
+        weapon, weapon_level, fire_rate_profile_id)
     mult *= bullet_affinity_multiplier(character, weapon, char_level)
     if chip:
         offset = max(chip_level - 1, 0)
@@ -291,7 +302,8 @@ def offense_multiplier(character: dict, weapon: dict, char_level: int, weapon_le
         pet_damage = float(pet.get("damage", 0.0))
         if pet_damage > 0.0:
             pet_dps = pet_damage * (1.0 + float(pet.get("level_damage_growth", 0.0)) * max(pet_level - 1, 0)) * float(pet.get("fire_rate", 1.0))
-            main_output = 40.0 * char_atk_multiplier(character, char_level) * weapon_dps_multiplier(weapon, weapon_level)
+            main_output = 40.0 * char_atk_multiplier(character, char_level) * weapon_dps_multiplier(
+                weapon, weapon_level, fire_rate_profile_id)
             mult *= 1.0 + pet_dps / max(main_output, 1.0)
         mult *= pet_skill_offense_multiplier(pet, pet_level)
     mult *= active_skill_multiplier(
