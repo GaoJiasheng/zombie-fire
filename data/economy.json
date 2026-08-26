@@ -210,8 +210,10 @@
 		],
 		"reference_transition": {
 			"mid_level_id": "level_080",
-			"mid_dps": 120169.78,
+			"mid_crowd_dps": 1396371.8482227186,
+			"mid_dps": 120169.77895995848,
 			"mid_element": "fire",
+			"mid_line_capacity": 3.910202846,
 			"graduation_weapon": "weapon_scattergun",
 			"graduation_dps": 2044839.75,
 			"graduation_element": "physical",
@@ -558,8 +560,11 @@
 				"anti_swarm",
 				"chain"
 			],
+			"compatible_crowd": [
+				"anti_swarm",
+				"chain"
+			],
 			"single_target": [
-				"anti_armor",
 				"pierce",
 				"execute",
 				"dps"
@@ -577,6 +582,13 @@
 		"category_exclusions": {
 			"crowd": [
 				"defense"
+			],
+			"compatible_crowd": [
+				"defense",
+				"fire",
+				"ice",
+				"lightning",
+				"poison"
 			],
 			"single_target": [
 				"economy"
@@ -670,8 +682,8 @@
 				"boss": 0.191672
 			},
 			"weapon_apocalypse_golden_law": {
-				"crowd": 6.164408,
-				"boss": 0.405167
+				"crowd": 5.76727,
+				"boss": 0.379064
 			}
 		}
 	}

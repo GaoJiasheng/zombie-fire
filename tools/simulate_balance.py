@@ -30,6 +30,7 @@ from pathlib import Path
 from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
 import audit_character_endgame_dps as character_dps
 import fire_rate_profiles as fire_rate_lab
+import campaign_runtime_contracts as runtime_contracts
 from power_ruler_model import weapon_endgame_growth_multiplier
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -91,59 +92,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def pilot_runtime_contract() -> tuple[set[int], dict[int, dict], list[str]]:
-    """Load the checked-in fixed-frame pilot evidence used by runtime-owned gates.
-
-    The analytical campaign model remains useful for screening and display, but
-    design/40 B1 makes the deterministic fixed-frame probe authoritative for the
-    rebuilt chapter. Missing or incomplete evidence is therefore a hard error,
-    never an implicit exemption.
-    """
-    if not PACING_TARGETS_PATH.exists():
-        return set(), {}, []
-    payload = json.loads(PACING_TARGETS_PATH.read_text(encoding="utf-8"))
-    rules = payload.get("pacing_rules", {})
-    raw_scope = rules.get("pilot_scope", [])
-    if isinstance(raw_scope, list) and len(raw_scope) == 2:
-        pilot_levels = set(range(int(raw_scope[0]), int(raw_scope[1]) + 1))
-    else:
-        pilot_levels = {int(value) for value in raw_scope}
-    pilot = payload.get("pilot_chapter6", {})
-    evidence_ref = str(pilot.get("runtime_evidence", "")).strip()
-    errors: list[str] = []
-    if not pilot_levels:
-        return set(), {}, errors
-    if not evidence_ref:
-        return pilot_levels, {}, ["pilot runtime evidence path is missing"]
-    evidence_path = ROOT / evidence_ref
-    if not evidence_path.exists():
-        return pilot_levels, {}, [f"pilot runtime evidence is missing: {evidence_ref}"]
-    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    expected_profile = str(pilot.get("authoritative_profile", "tier_b"))
-    if str(evidence.get("profile", "")) != expected_profile:
-        errors.append(
-            f"pilot runtime evidence profile {evidence.get('profile')} != {expected_profile}"
-        )
-    grouped: dict[int, list[dict]] = {level_no: [] for level_no in pilot_levels}
-    for run in evidence.get("runs", []):
-        level_no = int(run.get("level", 0))
-        if level_no in grouped:
-            grouped[level_no].append(run)
-    contract: dict[int, dict] = {}
-    for level_no in sorted(pilot_levels):
-        runs = grouped.get(level_no, [])
-        if len(runs) != 10:
-            errors.append(f"pilot level_{level_no:03d} evidence has {len(runs)} runs, want 10")
-            continue
-        wins = sum(1 for run in runs if bool(run.get("victory", False)))
-        elapsed = [float(run.get("elapsed_seconds", 0.0)) for run in runs]
-        contract[level_no] = {
-            "wins": wins,
-            "runs": len(runs),
-            "median_seconds": statistics.median(elapsed),
-        }
-        if wins != len(runs):
-            errors.append(f"pilot level_{level_no:03d} runtime wins {wins}/{len(runs)}, want 10/10")
-    return pilot_levels, contract, errors
+    """Compatibility name for the combined B1 + B2a runtime contracts."""
+    return runtime_contracts.load()
 
 
 def challenge_rule_for_level(level: dict, challenges: dict) -> dict:
@@ -848,7 +798,17 @@ def main() -> int:
             return measured
         return float(row[10])
 
-    too_hard_rows = [r for r in rows if effective_clear_seconds(r) > clear_time_cap(r[0])]
+    def effective_clear_time_cap(level_no: int) -> float:
+        if level_no in pilot_runtime:
+            # Rebuilt ranges are owned by deterministic fixed-frame evidence.
+            # Keep their duration guard beside the evidence contract instead
+            # of mixing it with the retired analytical phase buckets below.
+            return float(pilot_runtime[level_no]["max_duration_seconds"])
+        return clear_time_cap(level_no)
+
+    too_hard_rows = [
+        r for r in rows if effective_clear_seconds(r) > effective_clear_time_cap(r[0])
+    ]
     print(f"Levels < 30s (with skill): {too_easy}")
     print(f"Levels above phase-specific clear-time cap: {len(too_hard_rows)}")
     if pilot_runtime:
@@ -872,7 +832,8 @@ def main() -> int:
     errors.extend(pilot_runtime_errors)
     if too_hard_rows:
         details = ", ".join(
-            f"level_{row[0]:03d}={effective_clear_seconds(row):.1f}s>{clear_time_cap(row[0]):.0f}s"
+            f"level_{row[0]:03d}={effective_clear_seconds(row):.1f}s>"
+            f"{effective_clear_time_cap(row[0]):.0f}s"
             for row in too_hard_rows
         )
         errors.append(f"campaign contains an HP wall above its phase cap: {details}")

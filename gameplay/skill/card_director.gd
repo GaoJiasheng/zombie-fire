@@ -104,8 +104,22 @@ func _apply_offer_category_floor(
 			replacement_pool.append(skill_id)
 	if replacement_pool.is_empty():
 		return
-	var replace_index := _lowest_policy_priority_index(result, skills, policy, level, owned)
+	var protected_ids := _current_guaranteed_ids(level)
+	var replace_index := _lowest_policy_priority_index(result, skills, policy, level, owned, protected_ids)
 	result[replace_index] = str(_pick_random(replacement_pool))
+
+
+func _current_guaranteed_ids(level: Dictionary) -> Array[String]:
+	var protected: Array[String] = []
+	for rule_var in level.get("guaranteed_card_offers", []):
+		if not rule_var is Dictionary:
+			continue
+		var rule := rule_var as Dictionary
+		if int(rule.get("offer", -1)) != _offer_index:
+			continue
+		for skill_id_var in rule.get("skill_ids", []):
+			protected.append(str(skill_id_var))
+	return protected
 
 
 func _lowest_policy_priority_index(
@@ -113,7 +127,8 @@ func _lowest_policy_priority_index(
 	skills: Dictionary,
 	policy: Dictionary,
 	level: Dictionary,
-	owned: Dictionary
+	owned: Dictionary,
+	protected_ids: Array[String] = []
 ) -> int:
 	var boss_share := float(level.get("clear_requirement", {}).get("boss_hp_share", 0.0))
 	var boss_dominant := boss_share >= float(policy.get("boss_hp_share_threshold", 0.5))
@@ -123,6 +138,8 @@ func _lowest_policy_priority_index(
 	var worst_rank := -1
 	for index in range(result.size()):
 		var skill_id := result[index]
+		if protected_ids.has(skill_id):
+			continue
 		var tags: Array = skills.get(skill_id, {}).get("card_tags", [])
 		var reason := _policy_reason(
 			tags,

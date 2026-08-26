@@ -502,13 +502,13 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   "runtime_bosses":[
     {"wave":5,"type":"boss_apex_overlord","interval":2.4,"lane":"left"},
     {"wave":5,"type":"boss_apex_overlord","interval":2.4,"lane":"right"},
-    {"wave":5,"type":"boss_apex_overlord","interval":2.4,"lane":"spread"}
+    {"wave":5,"type":"boss_apex_overlord","interval":2.4,"spawn_delay":30.0,"lane":"spread"}
   ],
   "guaranteed_card_offers":[{"offer":1,"skill_ids":["skill_barrier","skill_slow_field"]}]
 }
 ```
 
-- `runtime_bosses` 是运行时在指定波次追加的 Boss，必须由 `battle.gd`、`simulate_balance.py` 与战力合同生成器共同读取；禁止再在战斗代码里按 `variant` 硬编码额外 Boss。中后期 Boss 里程碑用本字段显式组成 2 / 3 / 4 只同型编队；`level_099` 的主波次 Boss 加三条运行时行，共四只 `boss_apex_overlord`。
+- `runtime_bosses` 是运行时在指定波次追加的 Boss，必须由 `battle.gd`、`simulate_balance.py` 与战力合同生成器共同读取；禁止再在战斗代码里按 `variant` 硬编码额外 Boss。可选 `spawn_delay` 是该援军进入队列后的上场前延迟，缺省 `0`，不得为负；离线耐久/战力模型仍计入该 Boss，运行时探针负责验证分段到场后的接战时长与基地压力。
 - `guaranteed_card_offers` 只保证指定第几次三选一中至少出现 `skill_ids` 之一，不自动替玩家选牌。战力模型只可计入这里明确保证的卡，并按候选中较弱的一张保守折算。
 - `clear_requirement.power_contract` 由 `tools/generate_clear_requirements.py` 机械生成、`tools/check_clear_requirements.py` 逐关重算校验，不得手填。`recommended_power` 是固定通关线；`crowd_capacity / boss_capacity / line_capacity` 是内部三轴门槛；`boss_weights` 已含运行时追加 Boss 和阶段/机制等效血量。`bottleneck_v5` 通过 `economy.power_ruler.weapon_runtime_axis_calibration` 把武器理论面板倍率转换为实测碰撞产能，并确保 Boss 数量只在 `boss_capacity` 计入一次，禁止在 headline 推荐值上再次乘数量。`line_expected_breach` 是与 `simulate_balance.py` 同源的预计漏怪伤害，`line_base_hp` 是该关参考防线生命，`line_target_hp_ratio` 是通关目标剩余生命边界，`line_exposure_weights` 用小怪/Boss 的血量份额限制清场速度对承伤时间的修正。玩家界面仍只显示一个“战力”，其内部定义为 `recommended_power × min(清群比, Boss比, 防线比)`；防线比最多只获得 `power_ruler.line_exposure_credit_max` 规定的有限清场速度收益。
 

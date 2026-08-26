@@ -232,20 +232,96 @@ def _buy_gold_upgrade(account: Account, slot: str, item_id: str) -> int:
     return cost
 
 
+def _chapter_matchup_level(chapter: int, element: str) -> dict:
+    """Use the first authored matching stage as the deterministic catch-up matchup."""
+    chapter_levels = [row for row in TABLES["levels"] if int(row.get("chapter", 0)) == chapter]
+    for row in chapter_levels:
+        if str(row.get("primary_weakness", "physical")) == element:
+            return row
+    if chapter_levels:
+        return chapter_levels[0]
+    return TABLES["levels"][-1]
+
+
+def catch_up_target_weapon(
+    account: Account,
+    current_weapon: str,
+    target_chapter: int,
+    target_element: str,
+    fire_rate_profile: str,
+    strategy_id: str,
+) -> str:
+    """Pick an owned counter at a normalized level, breaking the level-lead self-lock.
+
+    Actual deployment remains matchup-aware at real levels in ``build_for``.  This
+    helper only decides which already-purchased counter may receive at most 40% of
+    the current clear's gold so a newly unlocked elemental weapon can catch up.
+    """
+    strategy = weapon_strategy(strategy_id)
+    gold_rule = strategy.get("gold_upgrade", {}) or {}
+    if gold_rule.get("switch_catch_up_target") != "best_owned_free_weapon_matching_next_chapter_modal_weakness":
+        return ""
+    if not target_element:
+        return ""
+    normalized_level = int(account.levels.get(current_weapon, 1))
+    level = _chapter_matchup_level(target_chapter, target_element)
+    contract = level.get("clear_requirement", {}).get("power_contract", {})
+    reference_build, _reference_result = build_for(account, level, fire_rate_profile, strategy_id)
+    candidates: list[tuple[float, int, str]] = []
+    for order, weapon_id in enumerate(WEAPON_ORDER):
+        if weapon_id not in account.owned["weapon"]:
+            continue
+        row = TABLES["weapons"][weapon_id]
+        if row.get("premium_set"):
+            continue
+        if str(row.get("element", "physical")) != target_element:
+            continue
+        candidate_level = min(normalized_level, int(row.get("max_level", 1)))
+        candidate = {
+            **reference_build,
+            "weapon": weapon_id,
+            "weapon_level": candidate_level,
+        }
+        result = power_for_build(
+            level, contract, candidate,
+            TABLES["characters"], TABLES["weapons"], TABLES["armors"],
+            TABLES["chips"], TABLES["pets"], TABLES["skills"],
+            TABLES["bosses"], TABLES["economy"],
+        )
+        candidates.append((float(result["power"]), -order, weapon_id))
+    if not candidates:
+        return ""
+    return max(candidates, key=lambda item: (item[0], item[1]))[2]
+
+
 def spend_gold(
     account: Account,
     strategy_id: str,
     earned_gold: int,
     current_weapon: str,
     preferred_next_weapon: str,
+    catch_up_weapon: str = "",
 ) -> dict:
     """Balanced free progression using exact runtime upgrade prices."""
     priority_spent = 0
     priority_upgrades = 0
     strategy = weapon_strategy(strategy_id)
     gold_rule = strategy.get("gold_upgrade", {}) or {}
+    if catch_up_weapon and catch_up_weapon in account.owned["weapon"] and catch_up_weapon != current_weapon:
+        ceiling = int(account.levels.get(current_weapon, 1))
+        budget = int(math.floor(max(earned_gold, 0) * float(gold_rule.get("switch_catch_up_max_gold_ratio", 0.0))))
+        while account.levels[catch_up_weapon] < ceiling:
+            row = TABLES["weapons"][catch_up_weapon]
+            cost = upgrade_cost(row, account.levels[catch_up_weapon])
+            if priority_spent + cost > budget:
+                break
+            paid = _buy_gold_upgrade(account, "weapon", catch_up_weapon)
+            if paid <= 0:
+                break
+            priority_spent += paid
+            priority_upgrades += 1
     if preferred_next_weapon and preferred_next_weapon in account.owned["weapon"]:
-        if preferred_next_weapon != current_weapon:
+        if preferred_next_weapon != current_weapon and not catch_up_weapon:
             ceiling = int(account.levels.get(current_weapon, 1))
             budget = int(math.floor(max(earned_gold, 0) * float(gold_rule.get("switch_catch_up_max_gold_ratio", 0.0))))
             while account.levels[preferred_next_weapon] < ceiling:
@@ -290,6 +366,7 @@ def spend_gold(
         account.levels[item_id] += 1
     return {
         "preferred_next_weapon": preferred_next_weapon,
+        "catch_up_target_weapon": catch_up_weapon,
         "priority_gold_spent": priority_spent,
         "priority_upgrades": priority_upgrades,
     }
@@ -616,7 +693,7 @@ WEAPON_COMPARISON_FIELDS = (
     "legacy_weapon", "legacy_weapon_level", "legacy_effective_power",
     "v2_weapon", "v2_weapon_level", "v2_effective_power",
     "weapon_changed", "level_delta", "v2_purchases_after_clear",
-    "v2_preferred_next_weapon", "v2_priority_gold_spent",
+    "v2_preferred_next_weapon", "v2_catch_up_target_weapon", "v2_priority_gold_spent",
 )
 
 
@@ -692,15 +769,24 @@ def generate_rows(
         purchases = buy_available(account, level, strategy_id)
         next_level = TABLES["levels"][level_index + 1] if level_index + 1 < len(TABLES["levels"]) else level
         preferred_next, _preferred_power = build_for(account, next_level, fire_rate_profile, strategy_id)
+        target_chapter, target_weakness = purchase_target_after_level(level, strategy_id)
+        catch_up_weapon = catch_up_target_weapon(
+            account,
+            str(result["weapon"]),
+            target_chapter,
+            target_weakness,
+            fire_rate_profile,
+            strategy_id,
+        )
         gold_result = spend_gold(
             account,
             strategy_id,
             gold,
             str(result["weapon"]),
             str(preferred_next["weapon"]),
+            catch_up_weapon,
         )
         spend_xp(account)
-        target_chapter, target_weakness = purchase_target_after_level(level, strategy_id)
         progression = {
             "strategy_id": strategy_id,
             "gold_earned": gold,
@@ -719,6 +805,7 @@ def generate_rows(
         row["star_weapon_target_chapter"] = target_chapter
         row["star_weapon_target_weakness"] = target_weakness
         row["preferred_next_weapon"] = gold_result["preferred_next_weapon"]
+        row["catch_up_target_weapon"] = gold_result["catch_up_target_weapon"]
         row["priority_gold_spent"] = gold_result["priority_gold_spent"]
     return rows, builds
 
@@ -784,6 +871,7 @@ def render_weapon_comparison(legacy_rows: list[dict], v2_rows: list[dict]) -> st
             "level_delta": int(current["weapon_level"]) - int(legacy["weapon_level"]),
             "v2_purchases_after_clear": current.get("purchases_after_clear", ""),
             "v2_preferred_next_weapon": current.get("preferred_next_weapon", ""),
+            "v2_catch_up_target_weapon": current.get("catch_up_target_weapon", ""),
             "v2_priority_gold_spent": current.get("priority_gold_spent", 0),
         })
     return stream.getvalue()

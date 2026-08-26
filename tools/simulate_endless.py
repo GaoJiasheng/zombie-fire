@@ -116,7 +116,22 @@ def fixture_power(level_id: str, economy: dict, tables: dict) -> dict:
 
 
 def fixtures(economy: dict, tables: dict) -> list[dict]:
-    mid = fixture_power("level_080", economy, tables)
+    transition = (
+        (economy.get("endless_boss_pacing", {}) or {})
+        .get("reference_transition", {}) or {}
+    )
+    mid = {
+        "build": {"contract": "design/37 level_080 Owner replay"},
+        "element": str(transition.get("mid_element", "fire")),
+        "crowd_dps": float(transition.get("mid_crowd_dps", 0.0)),
+        "boss_dps": float(transition.get("mid_dps", 0.0)),
+        "line_capacity": float(transition.get("mid_line_capacity", 0.0)),
+    }
+    if min(mid["crowd_dps"], mid["boss_dps"], mid["line_capacity"]) <= 0.0:
+        raise AssertionError(
+            "endless_boss_pacing.reference_transition must freeze the complete "
+            "design/37 mid fixture"
+        )
     mid.update({"id": "mid_owner", "label": "level_080 Owner"})
 
     graduation = fixture_power("level_099", economy, tables)

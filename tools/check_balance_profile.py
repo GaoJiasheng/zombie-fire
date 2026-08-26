@@ -367,6 +367,11 @@ def main() -> int:
         # 105s/140s caps.
         authored_duration_max = BOSS_DURATION_MAX if boss_count else NORMAL_DURATION_MAX
         duration_max = authored_duration_max
+        if runtime_row is not None:
+            # Deterministic fixed-frame sweeps own rebuilt ranges, including
+            # their checked duration envelope.  Do not reapply the retired
+            # analytical normal/Boss buckets to measured runs.
+            duration_max = float(runtime_row["max_duration_seconds"])
         if level["id"] in baseline_durations and wave_pressure_rule:
             # Preserve the authored pre-bump pacing envelope while allowing the
             # generated target waves to consume their configured count increase.
@@ -376,7 +381,7 @@ def main() -> int:
                 authored_duration_max,
                 baseline_durations[level["id"]]
                 * (1.0 + float(wave_pressure_rule["target_count_increase"])),
-            )
+            ) if runtime_row is None else duration_max
         if duration > duration_max + 1e-6:
             kind = "boss" if boss_count else "normal"
             errors.append(

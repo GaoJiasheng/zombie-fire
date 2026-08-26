@@ -197,7 +197,13 @@ func _audit_enemy_collision_radius(enemy: Node2D) -> float:
 
 func _is_outside_screen() -> bool:
 	var p := global_position
-	var viewport_size := get_viewport().get_visible_rect().size
+	# Accelerated headless audits may detach a retired projectile before the
+	# deferred free is flushed. Keep the authored 1080x1920 bounds in that
+	# audit-only lifetime gap instead of dereferencing a missing viewport.
+	var viewport := get_viewport()
+	var viewport_size := Vector2(1080.0, 1920.0)
+	if viewport != null:
+		viewport_size = viewport.get_visible_rect().size
 	var max_x := maxf(1080.0, viewport_size.x)
 	var max_y := maxf(1920.0, viewport_size.y)
 	return p.y < -PROJECTILE_OFFSCREEN_MARGIN or p.y > max_y + PROJECTILE_OFFSCREEN_MARGIN or p.x < -PROJECTILE_OFFSCREEN_MARGIN or p.x > max_x + PROJECTILE_OFFSCREEN_MARGIN

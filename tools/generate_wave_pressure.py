@@ -22,6 +22,7 @@ TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 
 import simulate_balance as sim  # noqa: E402
+import campaign_runtime_contracts as runtime_contracts  # noqa: E402
 
 LEVELS_PATH = ROOT / "data" / "levels.json"
 FIXTURE_PATH = TOOLS / "wave_pressure_baseline.json"
@@ -29,10 +30,8 @@ PACING_TARGETS_PATH = ROOT / "data" / "campaign_pacing_targets.json"
 
 # Owner-approved design/35 acceptance contract.  These are expected outcomes,
 # not a second copy of any runtime coefficient.
-# B1 chapter-6 runtime pilot intentionally moves its ten levels from the old
-# 2-star analytical bucket into the 3-star bucket.  The other 89 levels retain
-# the frozen design/35 distribution.
-EXPECTED_STARS = {1: 0, 2: 76, 3: 23}
+# Runtime-rebuilt ranges derive their star evidence from fixed-frame reports;
+# untouched ranges continue to use the frozen design/35 fixture.
 EXPECTED_FULL_COUNT = 77
 EXPECTED_PARTIAL = {
     "level_013": 11,
@@ -53,14 +52,22 @@ EXPECTED_UNCHANGED = {
 
 
 def pilot_scope_ids() -> set[str]:
-    """Levels whose authored waves are owned by the B1 runtime pilot."""
-    if not PACING_TARGETS_PATH.exists():
-        return set()
-    payload = load_json(PACING_TARGETS_PATH)
-    raw = payload.get("pacing_rules", {}).get("pilot_scope", [])
-    if isinstance(raw, list) and len(raw) == 2 and all(isinstance(value, int) for value in raw):
-        return {f"level_{number:03d}" for number in range(raw[0], raw[1] + 1)}
-    return {f"level_{int(value):03d}" for value in raw if isinstance(value, (int, float, str))}
+    """Levels whose wave/star contracts are owned by fixed-frame evidence."""
+    return runtime_contracts.ids()
+
+
+def expected_star_distribution(levels: list[dict], fixture: dict) -> dict[int, int]:
+    """Return the mixed runtime/frozen star contract used by validation."""
+    expected_stars = Counter()
+    _runtime_numbers, runtime_rows, _runtime_errors = runtime_contracts.load()
+    for level in levels:
+        level_no = sim.level_number(level)
+        if level_no in runtime_rows:
+            runtime_leak = max(0.0, (1.0 - float(runtime_rows[level_no]["median_base_ratio"])) * 100.0)
+            expected_stars[predicted_star(runtime_leak, 30.0, 65.0)] += 1
+        else:
+            expected_stars[int(fixture["levels"][level["id"]]["baseline_star"])] += 1
+    return {rating: int(expected_stars.get(rating, 0)) for rating in (1, 2, 3)}
 
 
 def load_json(path: Path):
@@ -236,15 +243,22 @@ def build_expected(
     generated = copy.deepcopy(levels)
     report = []
     pilot_ids = pilot_scope_ids()
+    runtime_numbers, runtime_rows, runtime_errors = runtime_contracts.load()
+    if runtime_errors:
+        raise ValueError("; ".join(runtime_errors))
     three_cap, two_cap = sim.star_leak_caps(economy)
     for index, level in enumerate(generated):
         if sim.level_number(level) < start_level:
             continue
         if level["id"] in pilot_ids:
-            final_leak = leak_pct(level, zombies, bosses, economy)
+            level_no = sim.level_number(level)
+            runtime_row = runtime_rows.get(level_no)
+            if runtime_row is None:
+                raise ValueError(f"{level['id']}: fixed-frame runtime evidence missing")
+            final_leak = max(0.0, (1.0 - float(runtime_row["median_base_ratio"])) * 100.0)
             report.append({
                 "id": level["id"],
-                "status": "pilot",
+                "status": "runtime",
                 "scale": 0.0,
                 "display_pct": 0,
                 "leak_pct": final_leak,
@@ -300,9 +314,14 @@ def validate(
         baseline = fixture["levels"][level["id"]]
         stars[int(baseline["baseline_star"])] += 1
     star_distribution = {rating: int(stars.get(rating, 0)) for rating in (1, 2, 3)}
-    if star_distribution != EXPECTED_STARS:
-        errors.append(f"star distribution {star_distribution} != {EXPECTED_STARS}")
+    runtime_numbers, runtime_rows, runtime_errors = runtime_contracts.load()
+    errors.extend(runtime_errors)
+    expected_distribution = expected_star_distribution(current, fixture)
+    if star_distribution != expected_distribution:
+        errors.append(f"star distribution {star_distribution} != {expected_distribution}")
     for row in report:
+        if row["id"] in pilot_ids:
+            continue
         baseline_star = int(fixture["levels"][row["id"]]["baseline_star"])
         if int(row["star"]) < baseline_star:
             errors.append(f"{row['id']}: star regression {baseline_star} -> {row['star']}")
@@ -320,10 +339,12 @@ def validate(
     expected_full = EXPECTED_FULL_COUNT - expected_pilot_full
     if len(full) != expected_full:
         errors.append(f"non-pilot full-bump levels {len(full)} != {expected_full}")
-    if partial != EXPECTED_PARTIAL:
-        errors.append(f"partial-bump levels {partial} != {EXPECTED_PARTIAL}")
-    if unchanged != EXPECTED_UNCHANGED:
-        errors.append(f"unchanged levels {sorted(unchanged)} != {sorted(EXPECTED_UNCHANGED)}")
+    expected_partial = {key: value for key, value in EXPECTED_PARTIAL.items() if key not in pilot_ids}
+    expected_unchanged = {level_id for level_id in EXPECTED_UNCHANGED if level_id not in pilot_ids}
+    if partial != expected_partial:
+        errors.append(f"partial-bump levels {partial} != {expected_partial}")
+    if unchanged != expected_unchanged:
+        errors.append(f"unchanged levels {sorted(unchanged)} != {sorted(expected_unchanged)}")
     return errors
 
 
@@ -378,7 +399,11 @@ def main() -> int:
             f"unchanged={counts['unchanged']} pilot={counts['pilot']}"
         )
         print(f"partial: {partial}")
-        print("stars: 23x3-star / 76x2-star / 0x1-star; per-level regressions=0")
+        stars = expected_star_distribution(levels, fixture)
+        print(
+            f"stars: {stars[3]}x3-star / {stars[2]}x2-star / "
+            f"{stars[1]}x1-star; per-level regressions=0"
+        )
         return 0
 
     LEVELS_PATH.write_text(json.dumps(generated, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")

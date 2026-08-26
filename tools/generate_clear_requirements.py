@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -19,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import power_ruler_model as prm  # noqa: E402
+import campaign_runtime_contracts as runtime_contracts  # noqa: E402
 
 
 RUNTIME_BENCHMARK_PATH = ROOT / "tools" / "physical_endgame_runtime_benchmark.json"
@@ -26,20 +28,8 @@ PACING_TARGETS_PATH = ROOT / "data" / "campaign_pacing_targets.json"
 
 
 def pilot_scope_ids() -> set[str]:
-    """Return the runtime-probe-authoritative B1 pilot range.
-
-    The legacy scalar family anchor is a useful campaign-wide sanity check, but
-    it cannot represent the matchup-aware, card-policy-aware runtime fixture
-    used to author the chapter-6 pilot.  Keep the anchor everywhere else and
-    let the checked-in runtime sweep own only the explicitly data-gated pilot.
-    """
-    if not PACING_TARGETS_PATH.exists():
-        return set()
-    payload = json.loads(PACING_TARGETS_PATH.read_text(encoding="utf-8"))
-    raw = payload.get("pacing_rules", {}).get("pilot_scope", [])
-    if isinstance(raw, list) and len(raw) == 2 and all(isinstance(value, int) for value in raw):
-        return {f"level_{number:03d}" for number in range(raw[0], raw[1] + 1)}
-    return {f"level_{int(value):03d}" for value in raw if isinstance(value, (int, float, str))}
+    """Return all fixed-frame-authoritative campaign level ids."""
+    return runtime_contracts.ids()
 
 
 def load_sim():
@@ -51,12 +41,7 @@ def load_sim():
 
 def verify_finale_boss_stack(levels: list[dict], zombies: dict, bosses: dict,
                              economy: dict, sim) -> dict:
-    """Verify the literal four-copy finale against the graduation time band.
-
-    Campaign Boss identity now has one stable durability.  Repeated copies are
-    therefore always full-strength, including the finale; the generator may
-    verify the authored roster but must never solve a hidden per-level HP scale.
-    """
+    """Verify the finale roster and its authoritative fixed-frame time band."""
     pacing = economy.get("boss_pacing", {}) or {}
     finale_id = str(pacing.get("finale_level_id", "level_099"))
     band = pacing.get("finale_time_band", [150.0, 185.0])
@@ -78,30 +63,33 @@ def verify_finale_boss_stack(levels: list[dict], zombies: dict, bosses: dict,
         raise AssertionError(
             f"{finale_id}: finale audit requires one repeated Boss type, got {boss_ids}")
 
-    benchmark = json.loads(RUNTIME_BENCHMARK_PATH.read_text(encoding="utf-8"))
-    scatter = benchmark["best_same_loadout"]["weapon_scattergun"]
-    crowd_dps = max(float(scatter["crowd_dps"]), 1.0)
-    boss_dps = max(float(scatter["boss_dps"]), 1.0)
-    mob_hp, _, _ = sim.level_enemy_hp_split(finale, zombies, bosses, economy)
-    mob_seconds = mob_hp / crowd_dps
     boss_id = boss_ids[0]
-    boss_row = bosses[boss_id]
-    _, literal_boss_hp, _ = sim.level_enemy_hp_split(finale, zombies, bosses, economy)
-    literal_effective_hp = literal_boss_hp * prm.boss_effective_hp_multiplier(boss_row, economy)
-    solved_seconds = mob_seconds + literal_effective_hp / boss_dps
+    runtime_levels, runtime_rows, runtime_errors = runtime_contracts.load()
+    if runtime_errors:
+        raise AssertionError("; ".join(runtime_errors))
+    finale_no = int(finale_id.split("_")[-1])
+    if finale_no not in runtime_levels or finale_no not in runtime_rows:
+        raise AssertionError(f"{finale_id}: fixed-frame runtime contract is missing")
+    solved_seconds = float(runtime_rows[finale_no]["median_boss_phase_seconds"])
     if not float(band[0]) <= solved_seconds <= float(band[1]):
         raise AssertionError(
-            f"{finale_id}: literal graduation time {solved_seconds:.1f}s outside {band}")
+            f"{finale_id}: runtime Boss phase {solved_seconds:.1f}s outside {band}")
     return {
         "level_id": finale_id,
         "boss_id": boss_id,
         "copies": len(entries),
         "seconds": solved_seconds,
-        "raw_boss_hp": literal_boss_hp,
+        "runtime_runs": int(runtime_rows[finale_no]["runs"]),
     }
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate campaign clear requirements")
+    parser.add_argument("--start", type=int, default=1)
+    parser.add_argument("--end", type=int, default=99)
+    args = parser.parse_args()
+    if args.start < 1 or args.end > 99 or args.start > args.end:
+        parser.error("scope must satisfy 1 <= start <= end <= 99")
     sim = load_sim()
     levels = prm.load_table("levels")
     zombies = prm.load_table("zombies")
@@ -123,7 +111,14 @@ def main() -> int:
     failures = []
     pilot_ids = pilot_scope_ids()
     for level in levels:
-        req = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
+        level_no = int(str(level["id"]).split("_")[-1])
+        if runtime_contracts.clear_requirement_mode(level_no) == "preserve_v5_scale":
+            mob_hp, boss_hp, _count = sim.level_enemy_hp_split(level, zombies, bosses, economy)
+            req = runtime_contracts.preserve_v5_requirement(
+                level_no, level.get("clear_requirement", {}), mob_hp, boss_hp,
+                prm._boss_id(level))
+        else:
+            req = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
         req["power_contract"] = prm.build_power_contract(
             level, req, characters, weapons, skills, bosses, economy, sim)
         requirements[level["id"]] = req
@@ -181,16 +176,19 @@ def main() -> int:
             print(f"- {f}")
         return 1
 
+    written = 0
     for level in levels:
-        level["clear_requirement"] = requirements[level["id"]]
+        level_no = int(str(level["id"]).split("_")[-1])
+        if args.start <= level_no <= args.end:
+            level["clear_requirement"] = requirements[level["id"]]
+            written += 1
     (prm.DATA / "levels.json").write_text(
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
-    print(f"Wrote clear_requirement for {len(levels)} levels")
+    print(f"Wrote clear_requirement for {written} levels ({args.start:03d}-{args.end:03d})")
     print(
         "finale Boss stack: "
         f"{finale_solution['boss_id']} x{finale_solution['copies']} "
         "literal_copy_scale=1.000000 "
-        f"raw_hp={finale_solution['raw_boss_hp'] / 1_000_000:.2f}M "
         f"graduation={finale_solution['seconds']:.1f}s"
     )
     contract99 = requirements["level_099"]["power_contract"]

@@ -35,6 +35,7 @@ def run_one(
     ignore_level_guarantees: bool,
     ignore_offer_category_floor: bool,
     challenge: bool,
+    process_timeout: float,
     temp_dir: Path,
 ) -> tuple[dict, float]:
     output = temp_dir / f"level_{level:03d}_seed_{seed}.json"
@@ -67,15 +68,32 @@ def run_one(
     environment = os.environ.copy()
     environment["HOME"] = str(home_dir)
     environment["XDG_DATA_HOME"] = str(home_dir / "xdg_data")
-    completed = subprocess.run(
-        args,
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
-        env=environment,
-    )
+    try:
+        completed = subprocess.run(
+            args,
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+            env=environment,
+            timeout=process_timeout,
+        )
+    except subprocess.TimeoutExpired as error:
+        wall_seconds = time.monotonic() - started
+        raw_output = error.stdout or ""
+        if isinstance(raw_output, bytes):
+            raw_output = raw_output.decode("utf-8", errors="replace")
+        timeout_run = {
+            "level": level,
+            "seed": seed,
+            "victory": False,
+            "timeout": True,
+            "probe_status": "process_timeout",
+            "process_timeout_seconds": process_timeout,
+            "diagnostic_tail": raw_output[-2000:],
+        }
+        return timeout_run, wall_seconds
     wall_seconds = time.monotonic() - started
     if completed.returncode != 0:
         raise RuntimeError(
@@ -101,6 +119,12 @@ def main() -> int:
     parser.add_argument("--card-policy", choices=("v2", "legacy"), default="v2")
     parser.add_argument("--accel", type=float, default=1.0)
     parser.add_argument("--jobs", type=int, default=10)
+    parser.add_argument(
+        "--process-timeout",
+        type=float,
+        default=240.0,
+        help="maximum wall seconds for one Godot probe process (default: 240)",
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ignore-level-guarantees", action="store_true")
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
@@ -110,6 +134,8 @@ def main() -> int:
         parser.error("--accel must be between 1 and 50")
     if options.jobs < 1:
         parser.error("--jobs must be positive")
+    if options.process_timeout <= 0.0:
+        parser.error("--process-timeout must be positive")
 
     started = time.monotonic()
     runs: list[dict] = []
@@ -128,6 +154,7 @@ def main() -> int:
                     options.ignore_level_guarantees,
                     options.ignore_offer_category_floor,
                     options.challenge,
+                    options.process_timeout,
                     temp_dir,
                 )
                 for level in options.levels

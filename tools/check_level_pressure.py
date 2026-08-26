@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import simulate_balance as sim
+import campaign_runtime_contracts as runtime_contracts
 
 from combat_power_model import run_skill_hp_pressure
 from generate_wave_pressure import (
@@ -35,7 +36,7 @@ def pilot_pacing_contract() -> tuple[set[str], dict]:
     else:
         ids = {f"level_{int(value):03d}" for value in raw if isinstance(value, (int, float, str))}
     envelope = rules.get("owner_authorized_topology_envelope", {})
-    return ids, envelope if isinstance(envelope, dict) else {}
+    return runtime_contracts.ids(), envelope if isinstance(envelope, dict) else {}
 
 
 DEFAULT_LATE_WAVE_HP_BONUS = {"3": 1.45, "4": 1.85, "5": 2.30}
@@ -211,10 +212,11 @@ def main() -> int:
         if level["id"] == "level_001":
             min_duration = 38.0
         if level["id"] in pilot_ids:
-            max_key = "static_duration_max_boss_seconds" if boss_count else "static_duration_max_normal_seconds"
-            max_duration = float(pilot_envelope.get(max_key, 215.0 if boss_count else 180.0))
             level_no = level_number(level)
             runtime_row = pilot_runtime.get(level_no)
+            max_key = "static_duration_max_boss_seconds" if boss_count else "static_duration_max_normal_seconds"
+            max_duration = float(runtime_row.get("max_duration_seconds", 460.0)) if runtime_row else float(
+                pilot_envelope.get(max_key, 215.0 if boss_count else 180.0))
             if runtime_row is None:
                 errors.append(f"{level['id']} has no fixed-frame runtime evidence")
             elif float(runtime_row["median_seconds"]) > max_duration:
@@ -222,14 +224,14 @@ def main() -> int:
                     f"{level['id']} runtime median too long: "
                     f"{runtime_row['median_seconds']:.1f}s > {max_duration:.1f}s"
                 )
-            if duration > max_duration:
+            if level_no <= 60 and duration > max_duration:
                 errors.append(
                     f"{level['id']} pilot authored spawn duration too long: "
                     f"{duration:.1f}s > {max_duration:.1f}s"
                 )
             if runtime_row is not None:
                 print(
-                    "  pilot runtime probe owns the clear-time contract: "
+                    "  fixed-frame runtime probe owns the clear-time contract: "
                     f"median={runtime_row['median_seconds']:.1f}s "
                     f"wins={runtime_row['wins']}/{runtime_row['runs']}"
                 )

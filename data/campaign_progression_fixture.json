@@ -80,10 +80,12 @@
         "tie_break": "weapon_data_order"
       },
       "gold_upgrade": {
-        "priority": "next_level_equipped_weapon",
+        "priority": "next_chapter_counter_then_next_level_equipped",
         "same_weapon_priority_upgrades_per_clear": 1,
         "switch_catch_up_max_gold_ratio": 0.4,
         "switch_catch_up_level_ceiling": "current_equipped_weapon_level",
+        "switch_catch_up_target": "best_owned_free_weapon_matching_next_chapter_modal_weakness",
+        "switch_catch_up_score": "power_for_build_at_current_equipped_weapon_level",
         "after_priority": "balanced_existing_weights"
       }
     }

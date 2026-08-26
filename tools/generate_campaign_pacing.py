@@ -136,12 +136,16 @@ def normalized_runtime_boss(level_id: str, index: int, raw: dict,
         raise AssertionError(f"{level_id} runtime_bosses[{index}]: unknown Boss {boss_id}")
     wave = int(raw.get("wave", 0))
     interval = float(raw.get("interval", 0.0))
+    spawn_delay = float(raw.get("spawn_delay", 0.0))
     lane = str(raw.get("lane", ""))
-    if wave < 1 or wave > 5 or interval <= 0.0 or lane not in lanes:
+    if wave < 1 or wave > 5 or interval <= 0.0 or spawn_delay < 0.0 or lane not in lanes:
         raise AssertionError(
-            f"{level_id} runtime_bosses[{index}]: invalid wave/interval/lane"
+            f"{level_id} runtime_bosses[{index}]: invalid wave/interval/spawn_delay/lane"
         )
-    return {"wave": wave, "type": boss_id, "interval": interval, "lane": lane}
+    result = {"wave": wave, "type": boss_id, "interval": interval, "lane": lane}
+    if spawn_delay > 0.0:
+        result["spawn_delay"] = spawn_delay
+    return result
 
 
 def baseline_interval_floor(baseline_wave: dict, key: str, group_index: int, multiplier: float) -> float:

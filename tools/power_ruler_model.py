@@ -1026,7 +1026,9 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     # and measured weapon throughput must be allowed to move their result.
     contract = calibrate_power_contract_corridor(
         level, contract, characters, weapons, skills, bosses, economy)
-    return calibrate_runtime_replay_reference(
+    contract = calibrate_runtime_replay_reference(
+        level, contract, characters, weapons, skills, bosses, economy)
+    return calibrate_post_replay_corridor_guard(
         level, contract, characters, weapons, skills, bosses, economy)
 
 
@@ -1443,6 +1445,72 @@ def calibrate_runtime_replay_reference(level: dict, contract: dict,
         "ratio": round(min(calibrated["ratios"].values()), 6),
         "adjusted_axis": axis,
         "fixture": "maxed_free_scattergun" if level_id == "level_099" else "owner_inferno_midgame",
+    }
+    return contract
+
+
+def calibrate_post_replay_corridor_guard(level: dict, contract: dict,
+                                         characters: dict, weapons: dict,
+                                         skills: dict, bosses: dict,
+                                         economy: dict) -> dict:
+    """Keep the progression corridor after an outcome replay is pinned.
+
+    Runtime replay calibration deliberately owns its observed bottleneck axis.
+    A different free-progression fixture can be materially stronger on that
+    same axis (level 080 is the concrete case), so changing the replay axis a
+    second time would silently invalidate the Owner outcome.  When the final
+    corridor would otherwise sit above its frozen band, cap it through the
+    weakest *unprotected* axis instead.  This changes display-contract scale
+    only; battle data, the replay ratio and its bottleneck remain untouched.
+    """
+    replay = contract.get("runtime_replay_calibration")
+    ordinal = campaign_ordinal(level)
+    if not isinstance(replay, dict) or ordinal < 2 or ordinal > 98:
+        return contract
+
+    armors = load_table("armors")
+    chips = load_table("chips")
+    pets = load_table("pets")
+    build, manifest = corridor_calibration_fixture(
+        level, characters, weapons, armors, chips, pets, skills)
+    before = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    before_ratio = min(float(value) for value in before["ratios"].values())
+    upper = CORRIDOR_MAX
+    target = upper - CORRIDOR_MARGIN
+    protected_axis = str(replay.get("adjusted_axis", ""))
+    adjusted_axis = ""
+
+    if before_ratio > upper:
+        candidates = [
+            axis for axis in ("crowd", "boss", "line")
+            if axis != protected_axis
+            and (axis != "boss" or float(contract.get("boss_capacity", 0.0)) > 0.0)
+            and float(before["ratios"][axis]) > target
+        ]
+        if not candidates:
+            raise AssertionError(
+                f"{level.get('id')}: replay-protected corridor has no adjustable axis"
+            )
+        adjusted_axis = min(candidates, key=lambda axis: float(before["ratios"][axis]))
+        key = f"{adjusted_axis}_capacity"
+        contract[key] = round(
+            float(contract.get(key, 1.0))
+            * float(before["ratios"][adjusted_axis]) / target,
+            4,
+        )
+
+    after = power_for_build(
+        level, contract, build, characters, weapons, armors, chips, pets,
+        skills, bosses, economy)
+    contract["post_replay_corridor_guard"] = {
+        "band": [PACE_CORRIDOR_MIN if ordinal <= 70 else LATE_CORRIDOR_MIN, upper],
+        "raw_ratio": round(before_ratio, 6),
+        "ratio": round(min(float(value) for value in after["ratios"].values()), 6),
+        "protected_axis": protected_axis,
+        "adjusted_axis": adjusted_axis,
+        "fixture": manifest,
     }
     return contract
 

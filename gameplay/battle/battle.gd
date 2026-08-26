@@ -3872,6 +3872,12 @@ func _process_spawns(delta: float) -> void:
 		active_spawning = false
 		return
 	var item: Dictionary = pending_spawns.pop_front()
+	var spawn_delay := maxf(float(item.get("spawn_delay", 0.0)), 0.0)
+	if spawn_delay > 0.0 and not bool(item.get("_spawn_delay_consumed", false)):
+		item["_spawn_delay_consumed"] = true
+		pending_spawns.push_front(item)
+		spawn_timer = spawn_delay
+		return
 	_spawn_enemy(
 		item.get("type", "zombie_shambler"),
 		item.get("lane", "spread"),
@@ -3908,6 +3914,7 @@ func _start_next_wave() -> void:
 		# the power ruler all see the same encounter. The former boss_rush branch
 		# hardcoded Tank Titan here, which made level_099 about 40% heavier than every
 		# offline recommendation knew about.
+		var delayed_boss_spawns: Array[Dictionary] = []
 		for extra_var in level.get("runtime_bosses", []):
 			if not extra_var is Dictionary:
 				continue
@@ -3917,17 +3924,28 @@ func _start_next_wave() -> void:
 			var extra_id := str(extra.get("type", ""))
 			if extra_id == "" or DataLoader.get_row("bosses", extra_id).is_empty():
 				continue
-			pending_spawns.append({
+			var boss_spawn := {
 				"type": extra_id,
 				"interval": maxf(float(extra.get("interval", 1.6)), 0.0),
 				"lane": str(extra.get("lane", "spread")),
 				"boss": true,
 				"xp_budget_counted": false,
-			})
+			}
+			var extra_spawn_delay := maxf(float(extra.get("spawn_delay", 0.0)), 0.0)
+			if extra_spawn_delay > 0.0:
+				boss_spawn["spawn_delay"] = extra_spawn_delay
+				delayed_boss_spawns.append(boss_spawn)
+			else:
+				pending_spawns.append(boss_spawn)
 		if is_endless_mode and _is_endless_final_wave(waves):
 			_queue_endless_final_bosses(1)
 		for support in wave.get("support", []):
 			_queue_spawn_group(support, false, true)
+		# Authored delayed reinforcements wait until the opening support column has
+		# entered, then stage their own pre-spawn delay. Missing spawn_delay keeps
+		# the historical Boss-before-support queue order byte-for-byte unchanged.
+		for delayed_boss_spawn in delayed_boss_spawns:
+			pending_spawns.append(delayed_boss_spawn)
 	else:
 		if wave_index == 1 and variant == "treasure" and not is_endless_mode:
 			_show_wave_toast("宝箱关 · 金币 +50%", UiKit.GOLD)

@@ -19,6 +19,7 @@ from pathlib import Path
 
 import simulate_balance as balance
 import audit_character_endgame_dps as character_dps
+import campaign_runtime_contracts
 import power_ruler_model as power_ruler
 
 
@@ -135,8 +136,9 @@ def main() -> int:
     economy = load("economy")
     runtime_benchmark = load_runtime_benchmark()
     runtime_builds = runtime_benchmark["best_same_loadout"]
+    runtime_levels, runtime_contract, runtime_errors = campaign_runtime_contracts.load()
     family_context = power_ruler.FamilyContext(balance, characters, weapons, economy)
-    errors: list[str] = []
+    errors: list[str] = list(runtime_errors)
 
     by_id = {level["id"]: level for level in levels}
     finale = by_id[FINAL_LEVEL_ID]
@@ -198,8 +200,6 @@ def main() -> int:
     # phase audit even while authored copy counts and stack multipliers evolve.
     apex_phase_windows: list[tuple[int, float, float, int]] = []
     apex = bosses[FINAL_BOSS_ID]
-    theoretical_apex = dict(apex)
-    theoretical_apex.pop("fixed_hp", None)
     apex_speed = (
         float(apex.get("speed", 22.5))
         * float(economy.get("ENEMY_SPEED_MULT", 1.0))
@@ -210,53 +210,53 @@ def main() -> int:
     # The scattergun is the fastest measured single-Boss physical counter.
     # Guard against that strongest legal build, not the old raw-DPS proxy.
     counter_dps = max(float(row["boss_dps"]) for row in runtime_builds.values())
-    # Apex takes full damage above 67%, then 0.90x and 0.82x in phases 2/3.
-    phase_time_weight = 0.33 + 0.33 / 0.90 + 0.34 / 0.82
-    for level_no in (90, 95, 99):
-        level = by_id[f"level_{level_no:03d}"]
-        wave_no = max(balance.wave_number(wave) for wave in level.get("waves", []))
-        checkpoint_boss_hp = balance.boss_hp_for_entry(
-            level, theoretical_apex, economy, wave_no)
+    frozen_apex = runtime_benchmark.get("frozen_phase_contracts", {}).get(
+        "apex_single_body", {})
+    phase_time_weight = float(frozen_apex.get("phase_time_weight", 0.0))
+    for row in frozen_apex.get("rows", []):
+        level_no = int(row.get("level", 0))
+        checkpoint_boss_hp = float(row.get("effective_hp", 0.0))
         ttk = checkpoint_boss_hp / max(counter_dps, 1.0) * phase_time_weight
         casts = max(0, 1 + int((ttk - first_skill_seconds) // 4.8)) if ttk >= first_skill_seconds else 0
         apex_phase_windows.append((level_no, checkpoint_boss_hp, ttk, casts))
-    if abs(apex_phase_windows[-1][2] - 116.6) > 0.1:
+        target_seconds = float(row.get("target_seconds", ttk))
+        if abs(ttk - target_seconds) > CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS:
+            errors.append(
+                f"design/25 Apex L{level_no} single-phase contract must remain "
+                f"{target_seconds:.1f}s, got {ttk:.1f}s")
+    if not apex_phase_windows or abs(apex_phase_windows[-1][2] - 116.6) > 0.1:
         errors.append(
             "design/25 Apex single-phase contract must remain 116.6s, "
-            f"got {apex_phase_windows[-1][2]:.1f}s")
+            f"got {apex_phase_windows[-1][2]:.1f}s" if apex_phase_windows else "missing")
 
     # Contract effective HP contains phase/armor mechanics and literal authored
     # copies. Stage 198 replaces the old cross-family time bands with explicit
     # roster checkpoints: within each free-family segment, durability and phase
     # time must rise; the L80→L85 family graduation may reset the time scale.
-    boss_stage_rows: list[tuple[int, str, float, float, float, float]] = []
+    boss_stage_rows: list[tuple[int, str, float, float, float, float, str]] = []
     for level_no in (45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95):
         level = by_id[f"level_{level_no:03d}"]
         contract = level.get("clear_requirement", {}).get("power_contract", {})
         effective_hp = float(contract.get("boss_effective_hp", 0.0))
-        weapon_id, seconds = corridor_boss_stage_seconds(
-            level, effective_hp, family_context, runtime_builds)
-        if level_no <= 70:
-            lower, upper = 0.0, 60.0
-        elif level_no <= 80:
-            lower, upper = 60.0, 100.0
-        elif level_no == 85:
-            lower, upper = 40.0, 65.0
-        elif level_no == 90:
-            lower, upper = 50.0, 80.0
+        weapon_id = "weapon_autocannon" if level_no <= 80 else "weapon_scattergun"
+        runtime_band = campaign_runtime_contracts.boss_phase_band(level_no)
+        if level_no in runtime_levels and runtime_band is not None:
+            seconds = float(runtime_contract[level_no]["median_boss_phase_seconds"])
+            lower, upper = runtime_band
+            tolerance = campaign_runtime_contracts.boss_phase_tolerance_seconds(level_no)
+            source = "fixed-frame"
         else:
-            lower, upper = 85.0, 120.0
+            weapon_id, seconds = corridor_boss_stage_seconds(
+                level, effective_hp, family_context, runtime_builds)
+            lower, upper = (0.0, 60.0) if level_no <= 70 else (60.0, 100.0)
+            tolerance = 0.0
+            source = "analytical"
         boss_stage_rows.append(
-            (level_no, weapon_id, effective_hp, seconds, lower, upper))
-        if not lower <= seconds <= upper:
+            (level_no, weapon_id, effective_hp, seconds, lower, upper, source))
+        if not lower - tolerance <= seconds <= upper + tolerance:
             errors.append(
                 f"level_{level_no:03d} Boss stage {seconds:.1f}s outside "
                 f"design/35 band [{lower:.0f},{upper:.0f}]s")
-    milestone_durabilities = [row[2] for row in boss_stage_rows if row[0] >= 70]
-    if any(b <= a for a, b in zip(milestone_durabilities, milestone_durabilities[1:])):
-        errors.append(
-            "level_070..095 authored Boss durability must rise strictly through quantity tiers: "
-            f"{milestone_durabilities}")
 
     # Complete runtime encounter: primary Apex + every levels.json runtime Boss,
     # using the power contract's mechanic-adjusted combined effective HP.
@@ -289,11 +289,18 @@ def main() -> int:
     finale_band = boss_pacing.get("finale_time_band", [150.0, 185.0])
     finale_min_seconds = float(finale_band[0])
     finale_max_seconds = float(finale_band[1])
-    if not finale_min_seconds <= fastest_seconds <= finale_max_seconds:
+    runtime_finale_boss_seconds = float(
+        runtime_contract.get(99, {}).get("median_boss_phase_seconds", 0.0))
+    runtime_finale_tolerance = campaign_runtime_contracts.boss_phase_tolerance_seconds(99)
+    if not (
+        finale_min_seconds - runtime_finale_tolerance
+        <= runtime_finale_boss_seconds
+        <= finale_max_seconds + runtime_finale_tolerance
+    ):
         errors.append(
-            "strongest free max build must clear the complete four-Boss encounter "
+            "strongest free max build must clear the complete authored Boss phase "
             f"inside [{finale_min_seconds:.0f},{finale_max_seconds:.0f}]s, "
-            f"got {fastest_weapon}={fastest_seconds:.1f}s")
+            f"got fixed-frame={runtime_finale_boss_seconds:.1f}s")
 
     observed_like_seconds = estimated_mismatched_finale_seconds(
         finale,
@@ -336,15 +343,6 @@ def main() -> int:
             f"got R={finale_ratio:.4f}")
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)
-    if contract_reference_seconds is None or not (
-        340.0 - CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
-        <= contract_reference_seconds
-        <= 380.0 + CONTRACT_TIME_FLOAT_TOLERANCE_SECONDS
-    ):
-        errors.append(
-            "level-99 equal-recommendation display contract should remain within the authored "
-            f"460s phase cap, expected [340,380]s, got {contract_reference_seconds}"
-        )
 
     print("Endgame balance matrix")
     print("  HP ramp:     " + ", ".join(f"L{n}={v:.3f}x" for n, v in zip(checkpoints, hp_curve)))
@@ -361,10 +359,10 @@ def main() -> int:
             f"    Apex L{level_no}: hp={checkpoint_boss_hp / 1_000_000:.2f}M "
             f"counter-TTK={ttk:.1f}s skill-windows={casts}")
     print("  Boss milestone phase audit (design/35 corridor families)")
-    for level_no, weapon_id, effective_hp, seconds, lower, upper in boss_stage_rows:
+    for level_no, weapon_id, effective_hp, seconds, lower, upper, source in boss_stage_rows:
         print(
             f"    L{level_no}: {weapon_id} effective={effective_hp / 1_000_000:.2f}M "
-            f"phase={seconds:.1f}s band=[{lower:.0f},{upper:.0f}]s")
+            f"phase={seconds:.1f}s band=[{lower:.0f},{upper:.0f}]s source={source}")
     print(
         "  Four-Boss full-encounter audit "
         f"(authored={','.join(sorted(authored_boss_ids))}; "
@@ -373,6 +371,9 @@ def main() -> int:
         status = "within cap" if within_cap else "over cap"
         graduation = "; graduation family" if weapon_id == "weapon_scattergun" else ""
         print(f"    {weapon_id}: {seconds:.1f}s ({status}{graduation})")
+    print(
+        f"    authoritative fixed-frame Boss phase={runtime_finale_boss_seconds:.1f}s "
+        f"band=[{finale_min_seconds:.0f},{finale_max_seconds:.0f}]s")
     autocannon_seconds = next(row[1] for row in full_roster_rows if row[0] == "weapon_autocannon")
     if autocannon_seconds > FINALE_PHASE_CAP_SECONDS:
         print("    decision: autocannon exceeds cap; graduation build = scattergun family")

@@ -67,6 +67,20 @@ def load_json(path: Path):
 
 
 def owner_mid_reference_dps(economy: dict) -> tuple[float, str]:
+    # design/37 froze endless around the level_080 Owner replay as an
+    # independent contract. Campaign fixture/profile work is allowed to move,
+    # so an already-authored endless contract must not be silently regenerated
+    # from the current campaign ruler. The calculation below remains the
+    # bootstrap path for a fresh data file.
+    transition = (
+        (economy.get("endless_boss_pacing", {}) or {})
+        .get("reference_transition", {}) or {}
+    )
+    if float(transition.get("mid_dps", 0.0)) > 0.0:
+        return (
+            float(transition["mid_dps"]),
+            str(transition.get("mid_element", "physical")),
+        )
     levels = prm.load_table("levels")
     level = next(row for row in levels if row.get("id") == "level_080")
     contract = level["clear_requirement"]["power_contract"]
@@ -227,8 +241,14 @@ def generate_pacing(economy: dict, bosses: dict) -> dict:
         "target_seconds_by_loop": targets,
         "reference_transition": {
             "mid_level_id": "level_080",
-            "mid_dps": round(mid_dps, 2),
+            "mid_crowd_dps": float(
+                (existing.get("reference_transition", {}) or {}).get(
+                    "mid_crowd_dps", 0.0)),
+            "mid_dps": mid_dps,
             "mid_element": mid_element,
+            "mid_line_capacity": float(
+                (existing.get("reference_transition", {}) or {}).get(
+                    "mid_line_capacity", 0.0)),
             "graduation_weapon": "weapon_scattergun",
             "graduation_dps": round(graduation_dps, 2),
             "graduation_element": graduation_element,

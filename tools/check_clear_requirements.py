@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import power_ruler_model as prm  # noqa: E402
+import campaign_runtime_contracts as runtime_contracts  # noqa: E402
 
 
 def main() -> int:
@@ -35,7 +36,13 @@ def main() -> int:
         if not isinstance(stored, dict):
             errors.append(f"{level['id']}: missing clear_requirement (run generate_clear_requirements.py)")
             continue
-        derived = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
+        level_no = int(str(level["id"]).split("_")[-1])
+        if runtime_contracts.clear_requirement_mode(level_no) == "preserve_v5_scale":
+            mob_hp, boss_hp, _count = sim.level_enemy_hp_split(level, zombies, bosses, economy)
+            derived = runtime_contracts.preserve_v5_requirement(
+                level_no, stored, mob_hp, boss_hp, prm._boss_id(level))
+        else:
+            derived = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
         for key in ("min_output", "mob_hp_share", "boss_hp_share"):
             got = float(stored.get(key, -1.0))
             want = float(derived[key])
@@ -56,6 +63,7 @@ def main() -> int:
             "boss_effective_hp", "runtime_boss_pressure_mult",
             "guaranteed_skill_ids", "reference_skill_rank", "boss_weights",
             "corridor_calibration", "runtime_replay_calibration",
+            "post_replay_corridor_guard",
         ):
             if stored_contract.get(key) != derived_contract.get(key):
                 errors.append(
