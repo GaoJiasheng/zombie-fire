@@ -4610,3 +4610,11 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Pre-rebuild failures stay visible**: Stages 095 and 099 currently fail the graduation-family analytical gate.
   The checker reports them during B2 construction and becomes a hard RC failure when the full campaign rebuild lands;
   no cap or target-band relaxation is permitted as a substitute for rebuilding the stages.
+
+## Campaign Rebuild v2 · B2a Chapters 7–10 Closure (2026-08-26)
+
+- **The runtime set is complete**: Tier-B Stages 061-099 pass 390/390 fixed-seed runs with zero timeouts; campaign data through Stage 060 remains unchanged.
+- **Shared Boss identity is restored**: Necrotitan stays on its accepted home-stage model, Stages 075/080/085 no longer chase shared parameters, and Stage 099 reaches a 153.367-second Boss phase through encounter composition only.
+- **Derived contracts are range-scoped**: clear requirements, star expectations, corridor evidence, wave pressure, level pressure and smoke fixtures are retied only for Stages 061-099; the v5 headline recommendation scale is intentionally preserved until Phase C.
+- **Blade stages remain visible**: worst-seed base margins are 9.81% / 5.18% / 11.07% / 1.41% / 6.55% at Stages 068 / 080 / 085 / 095 / 099. Stage 095 is the B2b `<2%` targeted recheck, not a reason for more B2a tuning.
+- **B2b fixture coupling is explicit**: rebuilding Stages 001-050 changes kill gold and therefore later builds. B2b must regenerate the full progression fixture and may perform planned, evidence-based spot retests of Stages 061-099.
