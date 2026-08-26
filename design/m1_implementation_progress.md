@@ -4618,3 +4618,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Derived contracts are range-scoped**: clear requirements, star expectations, corridor evidence, wave pressure, level pressure and smoke fixtures are retied only for Stages 061-099; the v5 headline recommendation scale is intentionally preserved until Phase C.
 - **Blade stages remain visible**: worst-seed base margins are 9.81% / 5.18% / 11.07% / 1.41% / 6.55% at Stages 068 / 080 / 085 / 095 / 099. Stage 095 is the B2b `<2%` targeted recheck, not a reason for more B2a tuning.
 - **B2b fixture coupling is explicit**: rebuilding Stages 001-050 changes kill gold and therefore later builds. B2b must regenerate the full progression fixture and may perform planned, evidence-based spot retests of Stages 061-099.
+
+## Campaign Rebuild v2 · B2b Fixture Regeneration Checkpoint (2026-08-26)
+
+- **The full progression fixture is current and idempotent**: regenerating from the build-63 99-stage table produces zero second-pass diff; the audit compares it with the pre-B2a fixture without storing a duplicate source file.
+- **Wave rewards materially change later builds**: 71/99 progression builds differ from the pre-B2a fixture, including all 39 stages from 061-099. The complete slot/level/resource comparison is stored in `design/audits/b2b_fixture_build_old_to_new.csv`.
+- **Late-stage repair stays staged**: the new-fixture Tier-B three-seed scan records 26 target-band candidates, with same-seed losses at 066 and 067. No 061-099 tuning is performed until Chapters 001-050 are rebuilt and the fixture is regenerated again.
+- **Blade evidence uses a comparable definition**: `design/audits/b2b_fixture_061_099_repair_list.md` reports minimum base ratio for the same three seeds before and after fixture regeneration, rather than mixing it with the prior ten-seed blade-margin summary.
