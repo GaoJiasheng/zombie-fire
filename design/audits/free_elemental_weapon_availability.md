@@ -11,8 +11,8 @@ DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用�
 |---|---:|---|---:|---|---:|---:|---:|---|
 | ice | 20 | `weapon_cryocannon` | 3,989 | `weapon_scattergun` | 2,889 | 1.381× | `set_apocalypse_absolute_zero` 1.52–1.58× | 通过 |
 | poison | 40 | `weapon_venomlauncher` | 5,159 | `weapon_scattergun` | 4,606 | 1.120× | — | 通过 |
-| lightning | 65 | `weapon_teslacoil` | 11,376 | `weapon_scattergun` | 11,161 | 1.019× | `set_apocalypse_thunder` 1.52–1.60× | 通过 |
-| fire | 75 | `weapon_flamethrower` | 6,713 | `weapon_scattergun` | 5,360 | 1.252× | `set_apocalypse_inferno` 1.52–1.58× | 通过 |
+| lightning | 65 | `weapon_teslacoil` | 19,139 | `weapon_scattergun` | 18,165 | 1.054× | `set_apocalypse_thunder` 1.52–1.60× | 通过 |
+| fire | 75 | `weapon_flamethrower` | 3,061 | `weapon_scattergun` | 2,488 | 1.230× | `set_apocalypse_inferno` 1.52–1.58× | 通过 |
 
 说明：绝对零度、雷霆、炼狱完整套分别继续由
 `audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、

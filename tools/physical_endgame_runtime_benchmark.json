@@ -18,6 +18,17 @@
   "skill_level": 5,
   "formation": "45 enemies, 5 rows x 9 columns",
   "notes": "Measured by res://tools/audit_physical_endgame_runtime.gd with real projectile collisions. DPS includes crit expectation, Vanguard active direct damage and barrage uptime, chip and pet.",
+  "frozen_phase_contracts": {
+    "apex_single_body": {
+      "source": "design/25 theoretical single-body Apex phase contract",
+      "phase_time_weight": 1.11130081300813,
+      "rows": [
+        {"level": 90, "effective_hp": 105066376.7615062, "target_seconds": 57.1},
+        {"level": 95, "effective_hp": 165971754.533938, "target_seconds": 90.2},
+        {"level": 99, "effective_hp": 214548853.42191982, "target_seconds": 116.6}
+      ]
+    }
+  },
   "best_same_loadout": {
     "weapon_autocannon": {
       "chip": "chip_attack",

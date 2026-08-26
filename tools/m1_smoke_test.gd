@@ -3357,7 +3357,7 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		_expect(sample_ratio >= float(band[0]) - 0.01 and sample_ratio <= float(band[1]) + 0.01, "%s corridor fixture ratio %.4f must stay inside [%s,%s]" % [sample_level_id, sample_ratio, str(band[0]), str(band[1])])
 
 	var level99: Dictionary = data_loader.get_row("levels", "level_099")
-	_expect(level99.get("runtime_bosses", []).size() == 3, "level_099 must author three Apex reinforcements in levels.json")
+	_expect(level99.get("runtime_bosses", []).size() == 2, "level_099 must author two Apex reinforcements in levels.json")
 	for runtime_boss in level99.get("runtime_bosses", []):
 		_expect(str(runtime_boss.get("type", "")) == "boss_apex_overlord", "level_099 runtime Boss reinforcements must all reuse the identical Apex model")
 	_expect(level99.get("guaranteed_card_offers", []).size() >= 1, "level_099 must guarantee a defensive card offer")
@@ -4270,11 +4270,21 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 		second_has_core = second_has_core or opening_director._matches_selected_loadout(second_row)
 	_expect(second_has_core, "second card offer must reinforce the selected-loadout identity")
 	var finale_director := CardDirector.new()
-	var finale_offer := finale_director.offer(data_loader.get_row("levels", "level_099"), {}, 3)
+	var finale_level: Dictionary = data_loader.get_row("levels", "level_099")
+	var finale_offer := finale_director.offer(finale_level, {}, 3)
 	_expect(
 		finale_offer.has("skill_barrier") or finale_offer.has("skill_slow_field"),
-		"level_099 first offer must expose Barrier or Slow Field as its authored defence guarantee",
+		"level_099 category floor must preserve its authored Barrier or Slow Field guarantee",
 	)
+	var finale_policy: Dictionary = data_loader.get_table("economy").get("probe_card_policy", {})
+	var finale_has_single_target := false
+	for skill_id in finale_offer:
+		finale_has_single_target = finale_has_single_target or finale_director._has_policy_category(
+			data_loader.get_row("skills", skill_id).get("card_tags", []),
+			"single_target",
+			finale_policy,
+		)
+	_expect(finale_has_single_target, "level_099 first offer must also satisfy its single-target category floor")
 	var physical_offers := director.offer({"card_bias": {}, "threat_tags": []}, {"skill_tesla": 1}, 16)
 	_expect(physical_offers.has("skill_tesla"), "physical weapon should continue upgrading the chosen ammo module")
 	_expect(not physical_offers.has("skill_venom"), "physical weapon must not offer a second ammo module after tesla is chosen")
@@ -4416,7 +4426,12 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 
 	var zombie_id := "zombie_berserker"
 	var zombie_row: Dictionary = data_loader.get_row("zombies", zombie_id)
+	var authored_level: Dictionary = battle.level
+	var neutral_level: Dictionary = authored_level.duplicate(true)
+	(neutral_level.get("waves", [])[2] as Dictionary).erase("hp_coef")
+	battle.level = neutral_level
 	_expect(absf(float(battle._wave_hp_coef(3)) - 1.0) <= 0.000001, "waves without hp_coef must remain exactly neutral")
+	battle.level = authored_level
 	var expected_ch6_xp_budgets := {
 		"level_051": 948, "level_052": 1767, "level_053": 1336, "level_054": 1671,
 		"level_055": 1798, "level_056": 1549, "level_057": 1530, "level_058": 1623,
@@ -4425,6 +4440,13 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	for xp_level_id in expected_ch6_xp_budgets:
 		var xp_level_row: Dictionary = data_loader.get_row("levels", xp_level_id)
 		_expect(int(xp_level_row.get("run_xp_budget", 0)) == int(expected_ch6_xp_budgets[xp_level_id]), "%s must preserve its topology-neutral authored-wave XP budget" % xp_level_id)
+	var b2a_xp_budget_total := 0
+	for b2a_level_number in range(61, 100):
+		var b2a_level_id := "level_%03d" % b2a_level_number
+		var b2a_level_row: Dictionary = data_loader.get_row("levels", b2a_level_id)
+		_expect(b2a_level_row.has("run_xp_budget"), "%s must preserve its topology-neutral authored-wave XP budget" % b2a_level_id)
+		b2a_xp_budget_total += int(b2a_level_row.get("run_xp_budget", 0))
+	_expect(b2a_xp_budget_total == 95310, "B2a levels must preserve the frozen authored-wave XP total; got %d" % b2a_xp_budget_total)
 	_expect(not data_loader.get_row("levels", "level_050").has("run_xp_budget"), "non-pilot levels must keep legacy per-enemy XP behavior")
 	var saved_raw_xp_total: int = int(battle.level_raw_run_xp_total)
 	var saved_xp_budget: int = int(battle.level_run_xp_budget)
@@ -4447,14 +4469,13 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 	var enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
 	var level_row: Dictionary = data_loader.get_row("levels", "level_099")
 	var level_coef := float(level_row.get("difficulty_coef", 1.0)) * float(level_row.get("base_hp_ref", 50)) / 50.0
-	var expected_hp := 50.0 * float(zombie_row.get("hp_coef", 1.0)) * level_coef * float(battle._late_wave_hp_bonus(3, false, economy))
+	var expected_hp := 50.0 * float(zombie_row.get("hp_coef", 1.0)) * level_coef * float(battle._wave_hp_coef(3)) * float(battle._late_wave_hp_bonus(3, false, economy))
 	var expected_breach := int(10.0 * float(zombie_row.get("bd_coef", 1.0)) * damage_ramp)
 	_expect(absf(float(enemy.max_hp) - expected_hp) <= maxf(1.0, expected_hp * 0.001), "level_099 wave-3 enemy must receive the full authored HP ramp")
 	_expect(int(enemy.breach_damage) == expected_breach, "level_099 wave-3 enemy must keep authored base damage; got %d expected %d" % [int(enemy.breach_damage), expected_breach])
 	enemy.queue_free()
-	var authored_level: Dictionary = battle.level
 	var synthetic_level: Dictionary = authored_level.duplicate(true)
-	(synthetic_level.get("waves", [])[2] as Dictionary)["hp_coef"] = 0.5
+	(synthetic_level.get("waves", [])[2] as Dictionary)["hp_coef"] = float(battle._wave_hp_coef(3)) * 0.5
 	battle.level = synthetic_level
 	var reduced_enemy: Node = battle._spawn_enemy_instance(zombie_id, Vector2(540, 190), false)
 	_expect(absf(float(reduced_enemy.max_hp) - expected_hp * 0.5) <= maxf(1.0, expected_hp * 0.001), "explicit wave hp_coef must multiply only the existing mob durability chain")

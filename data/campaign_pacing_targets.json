@@ -86,6 +86,33 @@
 			]
 		}
 	},
+	"runtime_contracts": [
+		{
+			"id": "b1_chapter6",
+			"scope": [51, 60],
+			"authoritative_profile": "tier_b",
+			"runtime_evidence": "design/audits/pilot_chapter6/ch6_final_tier_b_10.json",
+			"runs_per_level": 10,
+			"max_duration_seconds": 215.0
+		},
+		{
+			"id": "b2a_chapters7_10",
+			"scope": [61, 99],
+			"authoritative_profile": "tier_b",
+			"runtime_evidence": "design/audits/b2a_final_061_099_tier_b_10_corrected.json",
+			"runs_per_level": 10,
+			"clear_requirement_mode": "preserve_v5_scale",
+			"max_duration_seconds": 460.0,
+			"boss_phase_tolerance_seconds": 1.0,
+			"boss_phase_bands": [
+				{"scope": [61, 70], "seconds": [0.0, 60.0]},
+				{"scope": [71, 85], "seconds": [60.0, 100.0]},
+				{"scope": [86, 98], "seconds": [100.0, 170.0]},
+				{"scope": [99, 99], "seconds": [150.0, 185.0]}
+			],
+			"finale_boss_phase_band": [150.0, 185.0]
+		}
+	],
 	"pilot_chapter6": {
 		"status": "b1_runtime_contracts_passed_pending_owner_playtest",
 		"authoritative_profile": "tier_b",

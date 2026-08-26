@@ -1,0 +1,3152 @@
+{
+  "schema_version": 1,
+  "status": "b2a_tuning",
+  "authoritative_profile": "tier_b",
+  "scope": [
+    61,
+    99
+  ],
+  "baseline_sha256": "6e6e7c4df2424db162f81991af8ddcad5f42e903ed2c3f8c9ec3cbfa8c18a7d4",
+  "levels": {
+    "level_061": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 11.5,
+      "waves": [
+        {
+          "hp_coef": 0.6,
+          "spawns": [
+            {
+              "type": "zombie_regenerator",
+              "count": 5,
+              "interval": 0.74,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_warden",
+              "count": 7,
+              "interval": 0.57,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.9,
+          "spawns": [
+            {
+              "type": "zombie_bomber",
+              "count": 8,
+              "interval": 0.57,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.3,
+          "spawns": [
+            {
+              "type": "zombie_hopper",
+              "count": 8,
+              "interval": 0.42,
+              "lane": "left"
+            },
+            {
+              "type": "zombie_bomber",
+              "count": 5,
+              "interval": 0.42,
+              "lane": "right"
+            }
+          ]
+        },
+        {
+          "hp_coef": 2.4,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 12,
+              "interval": 0.48,
+              "lane": "left"
+            },
+            {
+              "type": "zombie_bomber",
+              "count": 4,
+              "interval": 0.48,
+              "lane": "right"
+            }
+          ]
+        }
+      ],
+      "run_xp_budget": 1530
+    },
+    "level_062": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 10.5,
+      "waves": [
+        {
+          "hp_coef": 0.6,
+          "spawns": [
+            {
+              "type": "zombie_regenerator",
+              "count": 5,
+              "interval": 0.74,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_warden",
+              "count": 7,
+              "interval": 0.57,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.9,
+          "spawns": [
+            {
+              "type": "zombie_bomber",
+              "count": 8,
+              "interval": 0.57,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.3,
+          "spawns": [
+            {
+              "type": "zombie_hopper",
+              "count": 8,
+              "interval": 0.42,
+              "lane": "left"
+            },
+            {
+              "type": "zombie_bomber",
+              "count": 5,
+              "interval": 0.42,
+              "lane": "right"
+            }
+          ]
+        },
+        {
+          "hp_coef": 2.4,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 12,
+              "interval": 0.48,
+              "lane": "left"
+            },
+            {
+              "type": "zombie_bomber",
+              "count": 4,
+              "interval": 0.48,
+              "lane": "right"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 1676
+    },
+    "level_063": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 9.4,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 1253
+    },
+    "level_064": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 13.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.45,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2022
+    },
+    "level_065": {
+      "target_grade": "pressure",
+      "difficulty_coef": 3.0,
+      "waves": [
+        {
+          "spawns": [
+            {
+              "type": "zombie_bomber",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 6,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_necromancer",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 4,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_necromancer",
+              "count": 4,
+              "interval": 0.4,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "support": [
+            {
+              "type": "zombie_necromancer",
+              "count": 2,
+              "interval": 0.4,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_void_phantom",
+          "spawn_delay": 0.0,
+          "interval": 1.8,
+          "lane": "left"
+        },
+        {
+          "wave": 5,
+          "type": "boss_void_phantom",
+          "spawn_delay": 0.0,
+          "interval": 1.8,
+          "lane": "right"
+        },
+        {
+          "wave": 5,
+          "type": "boss_void_phantom",
+          "spawn_delay": 24.0,
+          "interval": 1.8,
+          "lane": "center"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 2230
+    },
+    "level_066": {
+      "target_grade": "pressure",
+      "difficulty_coef": 26.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_screamer",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_charger",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 3,
+              "interval": 0.34,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 3.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 6,
+              "interval": 0.36,
+              "lane": "center"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2197
+    },
+    "level_067": {
+      "target_grade": "pressure",
+      "difficulty_coef": 27.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_screamer",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 1731
+    },
+    "level_068": {
+      "target_grade": "pressure",
+      "difficulty_coef": 67.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 12,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_armored",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 12,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_warden",
+              "count": 2,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2226
+    },
+    "level_069": {
+      "target_grade": "pressure",
+      "difficulty_coef": 21.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 1856
+    },
+    "level_070": {
+      "target_grade": "high",
+      "difficulty_coef": 7.5,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_berserker",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.9,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 3,
+              "interval": 0.62,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.56,
+              "lane": "spread",
+              "spawn_delay": 5.0
+            },
+            {
+              "type": "zombie_charger",
+              "count": 4,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 10.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.273,
+          "support": [
+            {
+              "type": "zombie_runner",
+              "count": 2,
+              "interval": 0.72,
+              "lane": "spread",
+              "spawn_delay": 24.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "interval": 2.4,
+          "lane": "right",
+          "spawn_delay": 8.0
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 2382
+    },
+    "level_071": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 15.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2310
+    },
+    "level_072": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 15.0,
+      "waves": [
+        {
+          "hp_coef": 0.6,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 3,
+              "interval": 0.66,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 4,
+              "interval": 0.51,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.9,
+          "spawns": [
+            {
+              "type": "zombie_crawler",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.3,
+          "spawns": [
+            {
+              "type": "zombie_crawler",
+              "count": 8,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 4.0,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 16,
+              "interval": 0.42,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2246
+    },
+    "level_073": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 10.12,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2482
+    },
+    "level_074": {
+      "target_grade": "pressure",
+      "difficulty_coef": 23.0,
+      "waves": [
+        {
+          "hp_coef": 0.85,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 14,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_armored",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 16,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_warden",
+              "count": 1,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2255
+    },
+    "level_075": {
+      "target_grade": "high",
+      "difficulty_coef": 9.0,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 20,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 28,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.1,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 3,
+              "interval": 0.6,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_armored",
+              "count": 5,
+              "interval": 0.52,
+              "lane": "spread",
+              "spawn_delay": 5.0
+            },
+            {
+              "type": "zombie_charger",
+              "count": 2,
+              "interval": 0.46,
+              "lane": "spread",
+              "spawn_delay": 10.0
+            },
+            {
+              "type": "zombie_runner",
+              "count": 14,
+              "interval": 0.42,
+              "lane": "spread",
+              "spawn_delay": 11.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 2,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 12.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "support": [
+            {
+              "type": "zombie_runner",
+              "count": 4,
+              "interval": 0.8,
+              "lane": "spread",
+              "spawn_delay": 50.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "interval": 2.4,
+          "lane": "right",
+          "spawn_delay": 24.0
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 2095
+    },
+    "level_076": {
+      "target_grade": "pressure",
+      "difficulty_coef": 38.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 4,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 4,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2359
+    },
+    "level_077": {
+      "target_grade": "pressure",
+      "difficulty_coef": 31.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2241
+    },
+    "level_078": {
+      "target_grade": "pressure",
+      "difficulty_coef": 42.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 12,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.25,
+          "spawns": [
+            {
+              "type": "zombie_spitter",
+              "count": 12,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_warden",
+              "count": 1,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2371
+    },
+    "level_079": {
+      "target_grade": "pressure",
+      "difficulty_coef": 24.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2413
+    },
+    "level_080": {
+      "target_grade": "high",
+      "difficulty_coef": 11.0,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_phantom",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_hopper",
+              "count": 18,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_phantom",
+              "count": 20,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 2.12,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 4,
+              "interval": 0.6,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 5,
+              "interval": 0.52,
+              "lane": "spread",
+              "spawn_delay": 5.0
+            },
+            {
+              "type": "zombie_charger",
+              "count": 5,
+              "interval": 0.46,
+              "lane": "spread",
+              "spawn_delay": 10.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.22,
+          "support": []
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "interval": 2.2,
+          "lane": "left",
+          "spawn_delay": 10.0
+        },
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "spawn_delay": 24.0,
+          "interval": 2.2,
+          "lane": "right"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 3286
+    },
+    "level_081": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 11.6365,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2321
+    },
+    "level_082": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 15.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2303
+    },
+    "level_083": {
+      "target_grade": "pressure",
+      "difficulty_coef": 26.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2370
+    },
+    "level_084": {
+      "target_grade": "pressure",
+      "difficulty_coef": 35.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_screamer",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_charger",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 3,
+              "interval": 0.34,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 3.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 7,
+              "interval": 0.36,
+              "lane": "center"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2597
+    },
+    "level_085": {
+      "target_grade": "high",
+      "difficulty_coef": 20.0,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_crawler",
+              "count": 9,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_hopper",
+              "count": 9,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_hopper",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_crawler",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_shielder",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.3,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 3,
+              "interval": 0.6,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.52,
+              "lane": "spread",
+              "spawn_delay": 5.0
+            },
+            {
+              "type": "zombie_charger",
+              "count": 2,
+              "interval": 0.46,
+              "lane": "spread",
+              "spawn_delay": 10.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "support": [
+            {
+              "type": "zombie_runner",
+              "count": 4,
+              "interval": 0.8,
+              "lane": "spread",
+              "spawn_delay": 45.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "interval": 2.4,
+          "lane": "left",
+          "spawn_delay": 4.0
+        },
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "spawn_delay": 14.0,
+          "interval": 2.4,
+          "lane": "right"
+        },
+        {
+          "wave": 5,
+          "type": "boss_necrotitan",
+          "spawn_delay": 24.0,
+          "interval": 2.4,
+          "lane": "left"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 3304
+    },
+    "level_086": {
+      "target_grade": "pressure",
+      "difficulty_coef": 29.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_splitter",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 18,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2605
+    },
+    "level_087": {
+      "target_grade": "pressure",
+      "difficulty_coef": 29.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.9,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 14,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2931
+    },
+    "level_088": {
+      "target_grade": "pressure",
+      "difficulty_coef": 32.0,
+      "waves": [
+        {
+          "hp_coef": 0.6,
+          "spawns": [
+            {
+              "type": "zombie_necromancer",
+              "count": 1,
+              "interval": 0.55,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_brute",
+              "count": 4,
+              "interval": 0.55,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 7,
+              "interval": 0.41,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.9,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.7,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_berserker",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 3046
+    },
+    "level_089": {
+      "target_grade": "pressure",
+      "difficulty_coef": 22.2,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 2.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 2,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 2,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 3.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 3,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 3,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2934
+    },
+    "level_090": {
+      "target_grade": "high",
+      "difficulty_coef": 7.0,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_charger",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_regenerator",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_regenerator",
+              "count": 2,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_necromancer",
+              "count": 2,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_regenerator",
+              "count": 2,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_necromancer",
+              "count": 2,
+              "interval": 0.4,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 20.0,
+          "support": [
+            {
+              "type": "zombie_charger",
+              "count": 1,
+              "interval": 1.0,
+              "lane": "right",
+              "spawn_delay": 12.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_apex_overlord",
+          "spawn_delay": 0.0,
+          "interval": 2.4,
+          "lane": "left"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 3244
+    },
+    "level_091": {
+      "target_grade": "light_pressure",
+      "difficulty_coef": 15.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 6,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.8,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 9,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2142
+    },
+    "level_092": {
+      "target_grade": "pressure",
+      "difficulty_coef": 23.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 5,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 2,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 6.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 9,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 3,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 7.0
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 3055
+    },
+    "level_093": {
+      "target_grade": "pressure",
+      "difficulty_coef": 28.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.7,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_berserker",
+              "count": 4,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_toxic",
+              "count": 6,
+              "interval": 0.36,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 4,
+              "interval": 0.36,
+              "lane": "spread"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 1862
+    },
+    "level_094": {
+      "target_grade": "pressure",
+      "difficulty_coef": 23.5,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_shielder",
+              "count": 1,
+              "interval": 0.34,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 2,
+              "interval": 0.34,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.34,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 8,
+              "interval": 0.34,
+              "lane": "center"
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 3335
+    },
+    "level_095": {
+      "target_grade": "high",
+      "difficulty_coef": 10.5,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_bomber",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_bomber",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_charger",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_juggernaut",
+              "count": 10,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_necromancer",
+              "count": 3,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_bomber",
+              "count": 3,
+              "interval": 0.4,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 17.0,
+          "support": [
+            {
+              "type": "zombie_charger",
+              "count": 1,
+              "interval": 1.0,
+              "lane": "right",
+              "spawn_delay": 12.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_apex_overlord",
+          "spawn_delay": 35.0,
+          "interval": 2.4,
+          "lane": "left"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 2774
+    },
+    "level_096": {
+      "target_grade": "pressure",
+      "difficulty_coef": 28.5,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 12,
+              "interval": 0.46,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 1,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 6.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 16,
+              "interval": 0.46,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 1,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 7.0
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2903
+    },
+    "level_097": {
+      "target_grade": "pressure",
+      "difficulty_coef": 18.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 1,
+              "interval": 0.8,
+              "lane": "center",
+              "spawn_delay": 6.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 17,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.3,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 5,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_hopper",
+              "count": 2,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 6.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.6,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 9,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_hopper",
+              "count": 3,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 7.0
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2752
+    },
+    "level_098": {
+      "target_grade": "pressure",
+      "difficulty_coef": 22.0,
+      "waves": [
+        {
+          "hp_coef": 1.0,
+          "spawns": [
+            {
+              "type": "zombie_shambler",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 8,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.75,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 4,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_shambler",
+              "count": 3,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.65,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 8,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 5,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 2,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 6.0
+            }
+          ]
+        },
+        {
+          "hp_coef": 1.2,
+          "spawns": [
+            {
+              "type": "zombie_toxic",
+              "count": 10,
+              "interval": 0.42,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 9,
+              "interval": 0.48,
+              "lane": "spread",
+              "spawn_delay": 2.0
+            },
+            {
+              "type": "zombie_phantom",
+              "count": 3,
+              "interval": 0.62,
+              "lane": "spread",
+              "spawn_delay": 7.0
+            }
+          ]
+        }
+      ],
+      "offer_category_floor": "compatible_crowd",
+      "run_xp_budget": 2664
+    },
+    "level_099": {
+      "target_grade": "high",
+      "difficulty_coef": 11.0,
+      "waves": [
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_runner",
+              "count": 18,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 14,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_berserker",
+              "count": 6,
+              "interval": 0.5,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_warden",
+              "count": 6,
+              "interval": 0.5,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 0.5,
+          "spawns": [
+            {
+              "type": "zombie_armored",
+              "count": 6,
+              "interval": 0.4,
+              "lane": "spread"
+            },
+            {
+              "type": "zombie_warden",
+              "count": 6,
+              "interval": 0.4,
+              "lane": "spread"
+            }
+          ]
+        },
+        {
+          "hp_coef": 12.0,
+          "support": [
+            {
+              "type": "zombie_charger",
+              "count": 1,
+              "interval": 1.0,
+              "lane": "center",
+              "spawn_delay": 12.0
+            },
+            {
+              "type": "zombie_runner",
+              "count": 1,
+              "interval": 0.8,
+              "lane": "spread",
+              "spawn_delay": 44.0
+            }
+          ]
+        }
+      ],
+      "runtime_bosses": [
+        {
+          "wave": 5,
+          "type": "boss_apex_overlord",
+          "spawn_delay": 20.0,
+          "interval": 2.4,
+          "lane": "left"
+        },
+        {
+          "wave": 5,
+          "type": "boss_apex_overlord",
+          "spawn_delay": 70.0,
+          "interval": 2.4,
+          "lane": "right"
+        }
+      ],
+      "offer_category_floor": "single_target",
+      "run_xp_budget": 3007
+    }
+  }
+}
