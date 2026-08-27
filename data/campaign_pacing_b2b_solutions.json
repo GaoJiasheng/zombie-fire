@@ -515,7 +515,7 @@
 					]
 				},
 				{
-      "hp_coef": 1.6,
+					"hp_coef": 1.6,
       "support": [
         {
           "type": "zombie_brute",
@@ -554,6 +554,7 @@
 		"level_032": {
 			"target_grade": "light_pressure",
 			"difficulty_coef": 1.9902,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -564,18 +565,22 @@
 		},
 		"level_033": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 2.2948,
+			"difficulty_coef": 4.35,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
-				{},
+				{
+					"hp_coef": 1.4
+				},
 				{},
 				{}
 			]
 		},
 		"level_034": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 2.5614,
+			"difficulty_coef": 8.7779,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -586,18 +591,49 @@
 		},
 		"level_035": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.973,
+			"difficulty_coef": 1.5,
+			"offer_category_floor": "single_target",
 			"waves": [
 				{},
 				{},
-				{},
-				{},
-				{}
+				{
+					"hp_coef": 0.8
+				},
+				{
+					"hp_coef": 0.8,
+					"spawn_types": [
+						"zombie_brute",
+						"zombie_runner"
+					],
+					"spawn_counts": [
+						12,
+						24
+					],
+					"spawn_intervals": [
+						0.5,
+						0.5
+					]
+				},
+				{
+					"support_types": [
+						"zombie_runner",
+						"zombie_runner"
+					],
+          "support_counts": [
+            0,
+            0
+					],
+					"support_intervals": [
+						0.9,
+						0.9
+					]
+				}
 			]
 		},
 		"level_036": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 2.2112,
+			"difficulty_coef": 3.5835,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -608,7 +644,8 @@
 		},
 		"level_037": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.6408,
+			"difficulty_coef": 2.5156,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -619,7 +656,8 @@
 		},
 		"level_038": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 2.1564,
+			"difficulty_coef": 5.6,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -630,24 +668,108 @@
 		},
 		"level_039": {
 			"target_grade": "pressure",
-			"difficulty_coef": 1.6048,
+			"difficulty_coef": 6.292,
+			"offer_category_floor": "single_target",
 			"waves": [
 				{},
 				{},
 				{},
 				{},
-				{}
+				{
+					"hp_coef": 1.35,
+					"spawns": [
+						{
+							"type": "zombie_brute",
+							"count": 15,
+							"interval": 0.5,
+							"lane": "left"
+						},
+						{
+							"type": "zombie_runner",
+							"count": 3,
+							"interval": 0.5,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_spitter",
+							"count": 9,
+							"interval": 0.5,
+							"lane": "right"
+						}
+					]
+				}
 			]
 		},
 		"level_040": {
 			"target_grade": "pressure",
-			"difficulty_coef": 1.6709,
+			"difficulty_coef": 3.3418,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
-				{},
-				{},
-				{}
+				{
+					"hp_coef": 0.5
+				},
+				{
+					"hp_coef": 1.5,
+          "spawns": [
+            {
+              "type": "zombie_brute",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "left"
+            },
+            {
+              "type": "zombie_charger",
+              "count": 12,
+              "interval": 0.5,
+              "lane": "center"
+            },
+            {
+              "type": "zombie_runner",
+              "count": 24,
+              "interval": 0.5,
+              "lane": "right"
+            }
+          ]
+        },
+				{
+					"hp_coef": 2.17,
+          "support": [
+            {
+              "type": "zombie_brute",
+              "count": 16,
+              "interval": 0.5,
+              "lane": "left"
+            },
+						{
+							"type": "zombie_spitter",
+							"count": 18,
+							"interval": 0.5,
+							"lane": "right"
+						},
+						{
+							"type": "zombie_shambler",
+							"count": 6,
+							"interval": 0.5,
+							"lane": "center"
+			}
+          ]
+        }
+			],
+			"runtime_bosses": [
+				{
+					"wave": 5,
+					"type": "boss_storm_caller",
+					"interval": 2.2,
+					"lane": "right"
+				},
+				{
+					"wave": 5,
+					"type": "boss_storm_caller",
+					"interval": 2.2,
+					"lane": "left"
+				}
 			]
 		},
 		"level_041": {

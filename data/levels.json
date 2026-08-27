@@ -5116,7 +5116,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_033",
@@ -5124,7 +5125,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 17,
-		"difficulty_coef": 2.2948,
+		"difficulty_coef": 4.35,
 		"primary_weakness": "physical",
 		"base_hp_ref": 349,
 		"threat_tags": [
@@ -5185,7 +5186,8 @@
 						"interval": 0.78,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 1.4
 			},
 			{
 				"wave": 4,
@@ -5273,7 +5275,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_034",
@@ -5281,7 +5284,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 18,
-		"difficulty_coef": 2.5614,
+		"difficulty_coef": 8.7779,
 		"primary_weakness": "poison",
 		"base_hp_ref": 356,
 		"threat_tags": [
@@ -5422,7 +5425,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_035",
@@ -5430,7 +5434,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 18,
-		"difficulty_coef": 1.973,
+		"difficulty_coef": 1.5,
 		"primary_weakness": "poison",
 		"base_hp_ref": 363,
 		"threat_tags": [
@@ -5503,39 +5507,41 @@
 						"interval": 0.77,
 						"lane": "right"
 					}
-				]
+				],
+				"hp_coef": 0.8
 			},
 			{
 				"wave": 4,
 				"spawns": [
 					{
-						"type": "zombie_toxic",
-						"count": 26,
-						"interval": 0.59,
+						"type": "zombie_brute",
+						"count": 12,
+						"interval": 0.5,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_hopper",
-						"count": 26,
-						"interval": 0.59,
+						"type": "zombie_runner",
+						"count": 24,
+						"interval": 0.5,
 						"lane": "right"
 					}
-				]
+				],
+				"hp_coef": 0.8
 			},
 			{
 				"wave": 5,
 				"boss": "boss_storm_caller",
 				"support": [
 					{
-						"type": "zombie_necromancer",
-						"count": 10,
-						"interval": 0.69,
+						"type": "zombie_runner",
+						"count": 0,
+						"interval": 0.9,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_hopper",
-						"count": 11,
-						"interval": 0.69,
+						"type": "zombie_runner",
+						"count": 0,
+						"interval": 0.9,
 						"lane": "right"
 					}
 				]
@@ -5600,7 +5606,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "single_target"
 	},
 	{
 		"id": "level_036",
@@ -5608,7 +5615,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 18,
-		"difficulty_coef": 2.2112,
+		"difficulty_coef": 3.5835,
 		"primary_weakness": "lightning",
 		"base_hp_ref": 370,
 		"threat_tags": [
@@ -5757,7 +5764,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_037",
@@ -5765,7 +5773,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 19,
-		"difficulty_coef": 1.6408,
+		"difficulty_coef": 2.5156,
 		"primary_weakness": "poison",
 		"base_hp_ref": 377,
 		"threat_tags": [
@@ -5915,7 +5923,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_038",
@@ -5923,7 +5932,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 20,
-		"difficulty_coef": 2.1564,
+		"difficulty_coef": 5.6,
 		"primary_weakness": "physical",
 		"base_hp_ref": 384,
 		"threat_tags": [
@@ -6066,7 +6075,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_039",
@@ -6074,7 +6084,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 20,
-		"difficulty_coef": 1.6048,
+		"difficulty_coef": 6.292,
 		"primary_weakness": "poison",
 		"base_hp_ref": 391,
 		"threat_tags": [
@@ -6150,12 +6160,25 @@
 				"wave": 5,
 				"spawns": [
 					{
-						"type": "zombie_juggernaut",
-						"count": 26,
-						"interval": 0.63,
-						"lane": "spread"
+						"type": "zombie_brute",
+						"count": 15,
+						"interval": 0.5,
+						"lane": "left"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 3,
+						"interval": 0.5,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_spitter",
+						"count": 9,
+						"interval": 0.5,
+						"lane": "right"
 					}
-				]
+				],
+				"hp_coef": 1.35
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -6215,7 +6238,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "single_target"
 	},
 	{
 		"id": "level_040",
@@ -6223,7 +6247,7 @@
 		"env": "env_toxic_biolab",
 		"chapter": 4,
 		"recommend_level": 20,
-		"difficulty_coef": 1.6709,
+		"difficulty_coef": 3.3418,
 		"primary_weakness": "poison",
 		"base_hp_ref": 399,
 		"threat_tags": [
@@ -6239,6 +6263,12 @@
 				"type": "boss_storm_caller",
 				"interval": 2.2,
 				"lane": "right"
+			},
+			{
+				"wave": 5,
+				"type": "boss_storm_caller",
+				"interval": 2.2,
+				"lane": "left"
 			}
 		],
 		"card_bias": {
@@ -6292,42 +6322,57 @@
 						"interval": 0.73,
 						"lane": "spread"
 					}
-				]
+				],
+				"hp_coef": 0.5
 			},
 			{
 				"wave": 4,
 				"spawns": [
 					{
 						"type": "zombie_brute",
-						"count": 18,
-						"interval": 0.56,
+						"count": 12,
+						"interval": 0.5,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_necromancer",
-						"count": 29,
-						"interval": 0.56,
+						"type": "zombie_charger",
+						"count": 12,
+						"interval": 0.5,
+						"lane": "center"
+					},
+					{
+						"type": "zombie_runner",
+						"count": 24,
+						"interval": 0.5,
 						"lane": "right"
 					}
-				]
+				],
+				"hp_coef": 1.5
 			},
 			{
 				"wave": 5,
 				"boss": "boss_storm_caller",
 				"support": [
 					{
-						"type": "zombie_necromancer",
-						"count": 11,
-						"interval": 0.66,
+						"type": "zombie_brute",
+						"count": 16,
+						"interval": 0.5,
 						"lane": "left"
 					},
 					{
-						"type": "zombie_hopper",
-						"count": 12,
-						"interval": 0.66,
+						"type": "zombie_spitter",
+						"count": 18,
+						"interval": 0.5,
 						"lane": "right"
+					},
+					{
+						"type": "zombie_shambler",
+						"count": 6,
+						"interval": 0.5,
+						"lane": "center"
 					}
-				]
+				],
+				"hp_coef": 2.17
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -6389,7 +6434,8 @@
 					}
 				}
 			}
-		}
+		},
+		"offer_category_floor": "compatible_crowd"
 	},
 	{
 		"id": "level_041",
