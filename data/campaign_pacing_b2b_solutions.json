@@ -158,7 +158,7 @@
 		},
 		"level_012": {
 			"target_grade": "easy",
-			"difficulty_coef": 0.7926,
+			"difficulty_coef": 1.4176,
 			"waves": [
 				{},
 				{},
@@ -169,7 +169,8 @@
 		},
 		"level_013": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.0326,
+			"difficulty_coef": 2.8756,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -180,7 +181,7 @@
 		},
 		"level_014": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 0.935,
+			"difficulty_coef": 2.03,
 			"waves": [
 				{},
 				{},
@@ -192,12 +193,36 @@
 		"level_015": {
 			"target_grade": "light_pressure",
 			"difficulty_coef": 0.9571,
+			"offer_category_floor": "defense",
+			"runtime_bosses": [
+				{
+					"wave": 5,
+					"type": "boss_inferno_maw",
+					"interval": 4.0,
+					"lane": "left"
+				}
+			],
 			"waves": [
 				{},
 				{},
 				{},
-				{},
-				{}
+				{
+					"hp_coef": 1.7,
+					"spawn_types": [
+						"zombie_armored",
+						"zombie_brute"
+					],
+					"spawn_counts": [
+						4,
+						4
+					]
+				},
+				{
+					"support_counts": [
+						0,
+						0
+					]
+				}
 			]
 		},
 		"level_016": {
@@ -213,7 +238,7 @@
 		},
 		"level_017": {
 			"target_grade": "easy",
-			"difficulty_coef": 1.016,
+			"difficulty_coef": 0.7192,
 			"waves": [
 				{},
 				{},
@@ -224,18 +249,22 @@
 		},
 		"level_018": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.5302,
+			"difficulty_coef": 3.2173,
 			"waves": [
 				{},
 				{},
 				{},
 				{},
-				{}
+				{
+					"spawn_counts": [
+						16
+					]
+				}
 			]
 		},
 		"level_019": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.2903,
+			"difficulty_coef": 2.4414,
 			"waves": [
 				{},
 				{},
@@ -246,13 +275,50 @@
 		},
 		"level_020": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.1809,
+			"difficulty_coef": 1.5,
+			"runtime_bosses": [
+				{
+					"wave": 5,
+					"type": "boss_inferno_maw",
+					"interval": 4.0,
+					"lane": "left"
+				},
+				{
+					"wave": 5,
+					"type": "boss_inferno_maw",
+					"interval": 8.0,
+					"lane": "right"
+				},
+				{
+					"wave": 5,
+					"type": "boss_inferno_maw",
+					"interval": 12.0,
+					"lane": "center"
+				},
+				{
+					"wave": 5,
+					"type": "boss_inferno_maw",
+					"interval": 16.0,
+					"lane": "left"
+				}
+			],
 			"waves": [
 				{},
 				{},
+				{
+					"hp_coef": 1.5
+				},
 				{},
-				{},
-				{}
+				{
+					"support_types": [
+						"zombie_armored",
+						"zombie_armored"
+					],
+					"support_counts": [
+						4,
+						4
+					]
+				}
 			]
 		},
 		"level_021": {

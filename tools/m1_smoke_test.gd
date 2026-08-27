@@ -5882,6 +5882,8 @@ func _verify_zombie_mechanic_profiles(data_loader: Node) -> void:
 	target.breach_damage = 20
 	battle.breach_damage_mult = 0.5
 	_expect(battle._enemy_skill_damage(target, 0.35, 2.0) == 4, "enemy skill damage must respect breach damage mitigation")
+	target.breach_damage = 0
+	_expect(battle._enemy_skill_damage(target, 0.35, 2.0) == 0, "zero model base damage must not be overridden by generic enemy skill chip damage")
 	target.free()
 	battle.free()
 

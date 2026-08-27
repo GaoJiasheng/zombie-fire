@@ -4524,7 +4524,12 @@ func _enemy_mechanic_timer_ready(source: Node, key: String, delta: float, interv
 	return true
 
 func _enemy_skill_damage(source: Node, scale: float, minimum := 1.0) -> int:
-	var raw := maxf(minimum, float(source.breach_damage) * scale)
+	var breach_damage := float(source.breach_damage)
+	# A model-level bd_coef of zero is an explicit "no base damage" contract.
+	# Do not let the generic minimum chip damage silently override that data.
+	if breach_damage <= 0.0:
+		return 0
+	var raw := maxf(minimum, breach_damage * scale)
 	return maxi(0, int(ceil(raw * breach_damage_mult * _challenge_mult("breach_damage_mult"))))
 
 func _base_line_y() -> float:
