@@ -345,7 +345,8 @@
 		},
 		"level_023": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.8296,
+			"difficulty_coef": 2.474,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -356,62 +357,116 @@
 		},
 		"level_024": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.627,
+			"difficulty_coef": 1.5,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
+				{
+					"hp_coef": 1.8
+				},
 				{},
-				{},
-				{},
+				{
+					"hp_coef": 0.7
+				},
 				{}
 			]
 		},
 		"level_025": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.4236,
+			"difficulty_coef": 3.5,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
-				{},
-				{},
-				{}
+				{
+					"hp_coef": 2.1
+				},
+				{
+					"hp_coef": 2.2,
+					"spawn_types": [
+						"zombie_brute",
+						"zombie_runner"
+					],
+					"spawn_counts": [
+						8,
+						18
+					],
+					"spawn_intervals": [
+						0.55,
+						0.55
+					]
+				},
+				{
+					"support_counts": [
+						0,
+						0
+					]
+				}
 			]
 		},
 		"level_026": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 2.1165,
+			"difficulty_coef": 7.5121,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
 				{},
-				{},
+    {
+      "hp_coef": 0.65,
+      "support": [
+        {
+          "type": "zombie_runner",
+          "count": 10,
+          "interval": 0.55,
+          "lane": "center"
+        },
+        {
+          "type": "zombie_crawler",
+          "count": 10,
+          "interval": 0.55,
+          "lane": "center"
+        }
+      ]
+    },
 				{}
-			]
+			],
+			"runtime_bosses": []
 		},
 		"level_027": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.9937,
+			"difficulty_coef": 2.7492,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
-				{},
+				{
+					"hp_coef": 1.2
+				},
 				{},
 				{}
 			]
 		},
 		"level_028": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.7406,
+			"difficulty_coef": 4.6,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
 				{},
 				{},
-				{}
+				{
+					"spawn_counts": [
+						24
+					]
+				}
 			]
 		},
 		"level_029": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.8994,
+			"difficulty_coef": 3.3,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
@@ -422,14 +477,68 @@
 		},
 		"level_030": {
 			"target_grade": "pressure",
-			"difficulty_coef": 1.9744,
+			"difficulty_coef": 5.0,
+			"offer_category_floor": "compatible_crowd",
+			"xp_first_offer": 45,
+			"xp_offer_growth": 55,
+			"xp_offer_ramp": 5,
+			"target_card_picks": 4,
 			"waves": [
 				{},
 				{},
 				{},
-				{},
-				{}
-			]
+				{
+					"hp_coef": 2.2,
+					"spawn_counts": [
+						12,
+						12
+					],
+					"support": [
+						{
+							"type": "zombie_runner",
+							"count": 4,
+							"interval": 0.55,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_crawler",
+							"count": 4,
+							"interval": 0.55,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_spitter",
+							"count": 40,
+							"interval": 0.9,
+							"lane": "center"
+						}
+					]
+				},
+				{
+      "hp_coef": 1.6,
+      "support": [
+        {
+          "type": "zombie_brute",
+          "count": 3,
+          "interval": 1.3,
+          "lane": "center"
+        },
+        {
+          "type": "zombie_spitter",
+          "count": 10,
+          "interval": 1.05,
+          "lane": "center"
+        },
+        {
+          "type": "zombie_spitter",
+          "count": 5,
+          "interval": 1.05,
+          "lane": "center"
+        }
+      ]
+				}
+			],
+  "runtime_bosses": []
 		},
 		"level_031": {
 			"target_grade": "easy",
