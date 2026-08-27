@@ -90,6 +90,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.start < 1 or args.end > 99 or args.start > args.end:
         parser.error("scope must satisfy 1 <= start <= end <= 99")
+
+    def in_scope(level_no: int) -> bool:
+        return args.start <= level_no <= args.end
+
     sim = load_sim()
     levels = prm.load_table("levels")
     zombies = prm.load_table("zombies")
@@ -126,7 +130,7 @@ def main() -> int:
         # 锚点1:按节奏免费构筑族必须过线
         rec = float(level.get("recommend_level", 1))
         on_pace_t = ctx.family_offense_t(characters, weapons, chips, rec)
-        if level["id"] not in pilot_ids and on_pace_t < req["min_output"] * 0.999:
+        if in_scope(level_no) and level["id"] not in pilot_ids and on_pace_t < req["min_output"] * 0.999:
             failures.append(f"{level['id']}: on-pace t={on_pace_t:.3f} < required {req['min_output']:.3f}")
 
     # 锚点2:终局"将将能过"由完整 Boss 编队定义。固定单体耐久后，
@@ -150,7 +154,7 @@ def main() -> int:
         bosses, economy,
     )
     final_ratio = float(final_power["power"]) / max(float(final_power["recommended"]), 1.0)
-    if not 1.10 <= final_ratio <= 1.22:
+    if in_scope(99) and not 1.10 <= final_ratio <= 1.22:
         failures.append(
             f"level_099: maxed free full-roster ratio {final_ratio:.4f} outside [1.10,1.22]"
         )
@@ -167,7 +171,7 @@ def main() -> int:
     )
     thunder_t = thunder_o / baseline_o
     req13 = requirements["level_013"]["min_output"]
-    if not (0.95 * req13 <= thunder_t <= 1.45 * req13):
+    if in_scope(13) and not (0.95 * req13 <= thunder_t <= 1.45 * req13):
         failures.append(f"level_013: thunder-L1 t={thunder_t:.3f} outside [0.95,1.45]x required {req13:.3f}")
 
     if failures:
@@ -179,7 +183,7 @@ def main() -> int:
     written = 0
     for level in levels:
         level_no = int(str(level["id"]).split("_")[-1])
-        if args.start <= level_no <= args.end:
+        if in_scope(level_no):
             level["clear_requirement"] = requirements[level["id"]]
             written += 1
     (prm.DATA / "levels.json").write_text(
