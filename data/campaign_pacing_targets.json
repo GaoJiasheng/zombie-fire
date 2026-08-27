@@ -88,6 +88,15 @@
 	},
 	"runtime_contracts": [
 		{
+			"id": "b2b_chapter1",
+			"scope": [1, 10],
+			"authoritative_profile": "tier_b",
+			"runtime_evidence": "design/audits/b2b_final_ch1_tier_b_10.json",
+			"runs_per_level": 10,
+			"clear_requirement_mode": "preserve_v5_scale",
+			"max_duration_seconds": 180.0
+		},
+		{
 			"id": "b1_chapter6",
 			"scope": [51, 60],
 			"authoritative_profile": "tier_b",

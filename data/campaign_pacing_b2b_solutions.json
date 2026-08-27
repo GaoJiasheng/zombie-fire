@@ -44,7 +44,7 @@
 		},
 		"level_004": {
 			"target_grade": "easy",
-			"difficulty_coef": 0.4274,
+			"difficulty_coef": 1.2938,
 			"waves": [
 				{},
 				{},
@@ -55,13 +55,16 @@
 		},
 		"level_005": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 0.4573,
+			"difficulty_coef": 0.96,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
 				{},
 				{},
-				{}
+				{
+					"hp_coef": 1.15
+				}
 			]
 		},
 		"level_006": {
@@ -88,7 +91,7 @@
 		},
 		"level_008": {
 			"target_grade": "easy",
-			"difficulty_coef": 0.8657,
+			"difficulty_coef": 1.2633,
 			"waves": [
 				{},
 				{},
@@ -99,7 +102,7 @@
 		},
 		"level_009": {
 			"target_grade": "easy",
-			"difficulty_coef": 0.8767,
+			"difficulty_coef": 1.3753,
 			"waves": [
 				{},
 				{},
@@ -110,13 +113,36 @@
 		},
 		"level_010": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 1.1258,
+			"difficulty_coef": 2.15,
+			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
 				{},
 				{},
-				{},
-				{}
+				{
+					"spawn_counts": [
+						8,
+						8
+					]
+				},
+				{
+					"support_types": [
+						"zombie_brute",
+						"zombie_brute"
+					],
+					"support_counts": [
+						2,
+						2
+					]
+				}
+			],
+			"runtime_bosses": [
+				{
+					"wave": 5,
+					"type": "boss_tank_titan",
+					"interval": 2.2,
+					"lane": "center"
+				}
 			]
 		},
 		"level_011": {
