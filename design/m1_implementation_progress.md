@@ -4651,6 +4651,7 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - **Owner approval is frozen**: the proposed 96×3★ / 3×2★ / 0×1★ table is approved. Final validation may automatically freeze only unchanged or upward results; any star downgrade is a hard stop.
 - **Boss duration bands now have one source**: `data/campaign_pacing_targets.json.boss_phase_contract` encodes design/40 §3.7 by chapter, with the dedicated Stage-099 override. Runtime specifications no longer carry divergent local bands or tolerances.
+- **Stage 015 was already corrected in the main repository**: a fresh tier-B/v2.1 ten-seed sweep is 10/10 with 27.5-second median Boss phase, 60.53% median progress and 100% median/minimum base. The stale 52.3-second Process-B result does not require another data edit.
 
 - **The proposed normal-campaign table improves without regressions**: 83 / 15 / 1 becomes 96 / 3 / 0 for three-/two-/one-star stages, raising expected normal stars from 280 to 294. Thirteen stages rise and none fall.
 - **The collection loop remains challenge-backed**: 30 free collection purchases cost 316 stars in total, so the expected normal table leaves a 22-star challenge requirement versus 36 previously. Premium entitlement rows remain outside the star loop.
