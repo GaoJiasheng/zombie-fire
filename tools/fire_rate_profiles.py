@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Shared Python mirror of the data-owned fire-rate laboratory profiles.
+"""Shared Python mirror of the data-owned fire-rate profiles.
 
-The shipping game remains hard-locked to ``control``.  Tier A/B are analysis
-profiles exposed only by the TestFlight custom feature.  Keep arithmetic in
-this module aligned with ``core/combat/fire_rate_profiles.gd`` so audits and
-runtime never invent separate caps or compensation rules.
+``control`` remains the immutable arithmetic reference while the shipping
+default is selected by ``economy.fire_rate_profiles.default`` (frozen to
+``tier_b`` for B2).  Keep this module aligned with the GDScript mirror so
+audits and runtime never invent separate caps or compensation rules.
 """
 
 from __future__ import annotations
 
 
 DEFAULT_PROFILE_ID = "control"
+SHIPPING_PROFILE_ID = "tier_b"
 
 
 def table(economy: dict) -> dict:

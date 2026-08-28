@@ -121,8 +121,8 @@ def main() -> int:
         default_profile = str(fire_rate_profiles.get("default", ""))
         profile_order = fire_rate_profiles.get("order", [])
         profiles = fire_rate_profiles.get("profiles", {})
-        if default_profile != "control":
-            errors.append("economy.fire_rate_profiles.default must remain control")
+        if default_profile != "tier_b":
+            errors.append("economy.fire_rate_profiles.default must be frozen tier_b")
         if profile_order != ["control", "tier_a", "tier_b"]:
             errors.append("economy.fire_rate_profiles.order must be control/tier_a/tier_b")
         if not isinstance(profiles, dict) or set(profiles) != {"control", "tier_a", "tier_b"}:

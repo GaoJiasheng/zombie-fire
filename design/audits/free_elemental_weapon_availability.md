@@ -9,13 +9,13 @@ DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用�
 
 | 元素 | 代表关 | 原生元素枪 | 有效战力 | 最强免费物理枪 | 物理战力 | 相对值 | 同元素完整付费套 DPS 合同 | 结论 |
 |---|---:|---|---:|---|---:|---:|---:|---|
-| ice | 20 | `weapon_cryocannon` | 3,989 | `weapon_scattergun` | 2,889 | 1.381× | `set_apocalypse_absolute_zero` 1.52–1.58× | 通过 |
-| poison | 40 | `weapon_venomlauncher` | 5,159 | `weapon_scattergun` | 4,606 | 1.120× | — | 通过 |
+| ice | 20 | `weapon_cryocannon` | 4,387 | `weapon_scattergun` | 2,889 | 1.519× | `set_apocalypse_absolute_zero` 1.52–1.58× | 通过 |
+| poison | 40 | `weapon_venomlauncher` | 3,608 | `weapon_scattergun` | 3,253 | 1.109× | — | 通过 |
 | lightning | 65 | `weapon_teslacoil` | 19,139 | `weapon_scattergun` | 18,165 | 1.054× | `set_apocalypse_thunder` 1.52–1.60× | 通过 |
 | fire | 75 | `weapon_flamethrower` | 3,061 | `weapon_scattergun` | 2,488 | 1.230× | `set_apocalypse_inferno` 1.52–1.58× | 通过 |
 
 说明：绝对零度、雷霆、炼狱完整套分别继续由
 `audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、
 `audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个
-忽略套装机制的“付费有效战力”。B2b 将 Tier B 切成正式默认档前，须把三套独立
-DPS 审计一并迁移到 Tier B 口径并重新确认倍率；B2a 试验包默认仍为 control。
+忽略套装机制的“付费有效战力”。战役与正式运行时默认现已冻结为 Tier B；
+付费套装继续沿用各自既有 control 发布合同，本链不改任何付费装备数据。

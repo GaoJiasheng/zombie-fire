@@ -534,7 +534,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Audit endgame DPS by fire-rate laboratory profile.")
     parser.add_argument(
         "--fire-rate-profile",
-        default=fire_rate_lab.DEFAULT_PROFILE_ID,
+        default=fire_rate_lab.SHIPPING_PROFILE_ID,
         metavar="PROFILE",
     )
     args = parser.parse_args()

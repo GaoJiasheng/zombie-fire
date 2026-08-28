@@ -111,8 +111,8 @@ def render_report() -> str:
         "说明：绝对零度、雷霆、炼狱完整套分别继续由",
         "`audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、",
         "`audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个",
-        "忽略套装机制的“付费有效战力”。B2b 将 Tier B 切成正式默认档前，须把三套独立",
-        "DPS 审计一并迁移到 Tier B 口径并重新确认倍率；B2a 试验包默认仍为 control。",
+        "忽略套装机制的“付费有效战力”。战役与正式运行时默认现已冻结为 Tier B；",
+        "付费套装继续沿用各自既有 control 发布合同，本链不改任何付费装备数据。",
         "",
     ))
     if failures:

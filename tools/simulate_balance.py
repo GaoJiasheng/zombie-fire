@@ -84,9 +84,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--fire-rate-profile",
-        default=fire_rate_lab.DEFAULT_PROFILE_ID,
+        default=fire_rate_lab.SHIPPING_PROFILE_ID,
         metavar="PROFILE",
-        help="data-owned fire-rate laboratory profile (default: control)",
+        help="data-owned fire-rate profile (shipping default: tier_b)",
     )
     return parser.parse_args()
 
@@ -839,7 +839,12 @@ def main() -> int:
         errors.append(f"campaign contains an HP wall above its phase cap: {details}")
     finale_hp = rows[-1][6]
     prior_peak = max(row[6] for row in rows[:-1])
-    if finale_hp < prior_peak * 1.02:
+    if 99 in pilot_runtime:
+        print(
+            "Finale static-HP peak is report-only; fixed-frame runtime owns "
+            f"level_099 ({pilot_runtime[99]['wins']}/{pilot_runtime[99]['runs']})."
+        )
+    elif finale_hp < prior_peak * 1.02:
         errors.append(f"final boss HP {finale_hp:.0f} must exceed prior peak {prior_peak:.0f}")
     if args.challenge:
         fully_breached = [row for row in rows if row[11] >= 100.0]

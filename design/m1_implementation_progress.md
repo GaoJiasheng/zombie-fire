@@ -4639,3 +4639,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The merged surface has fresh evidence**: all 34 affected or explicitly retained stages pass a three-seed Tier-B v2.1 spot sweep (102/102), including mandatory Stages 066 / 067 / 089.
 - **Blade safety is no longer sub-threshold**: Stage 040 receives one small durability step and passes ten seeds with a 2.06% minimum base margin. Stages 039 / 084 retain Process B's documented choice to protect seed safety when it conflicts with the strict analytical envelope.
 - **Derived pins intentionally follow in the next commit**: full clear/star/corridor/pressure regeneration, smoke re-pinning and the formal Tier-B default switch remain isolated as the contract chain.
+
+## Campaign Rebuild v2 · B2b Full Contract Retie and Tier-B Default (2026-08-29)
+
+- **Tier B is now the shipping default**: formal runtime settings and the default balance simulation resolve to `tier_b`; `control` remains the immutable arithmetic reference and the paid-equipment data set is untouched.
+- **All campaign contracts share current evidence**: repaired ten-seed rows are spliced into their chapter evidence sources, all 99 clear requirements are regenerated, the 97-stage power corridor remains `[1.02,1.38]`, and the maxed-free family clears 99/99 within authored caps.
+- **Pressure and smoke pins follow authored B2b data**: the first-ten authored hash, Chapter-6 full-data hash, 061–099 XP total, Stage-050 category floor and data-owned Tank Titan resistance assertion are current. Runtime-derived stars total 96 three-star / 3 two-star / 0 one-star.
+- **Static envelopes remain visible**: Stage 039 / 084 conflicts stay report-only, while the refreshed Boss-duration checker identifies Stage 065 at 61.5 seconds and Stage 090 at 91.8 seconds for the post-approval 99×10 repair pass.

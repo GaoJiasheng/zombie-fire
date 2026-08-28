@@ -4210,8 +4210,10 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 			["skill_charge_shot", "skill_pierce", "skill_gold_rush"],
 		],
 	}
-	var non_floor_level: Dictionary = data_loader.get_row("levels", "level_050")
-	_expect(not non_floor_level.has("offer_category_floor"), "level 050 must remain outside the chapter 6 category-floor pilot")
+	var level_050: Dictionary = data_loader.get_row("levels", "level_050")
+	_expect(str(level_050.get("offer_category_floor", "")) == "compatible_crowd", "level 050 must preserve its accepted clear-pool floor")
+	var non_floor_level: Dictionary = level_050.duplicate(true)
+	non_floor_level.erase("offer_category_floor")
 	for audit_seed_var in pre_floor_sequences.keys():
 		var audit_seed := int(audit_seed_var)
 		var sequence_director := CardDirector.new()
@@ -4446,7 +4448,7 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 		var b2a_level_row: Dictionary = data_loader.get_row("levels", b2a_level_id)
 		_expect(b2a_level_row.has("run_xp_budget"), "%s must preserve its topology-neutral authored-wave XP budget" % b2a_level_id)
 		b2a_xp_budget_total += int(b2a_level_row.get("run_xp_budget", 0))
-	_expect(b2a_xp_budget_total == 95310, "B2a levels must preserve the frozen authored-wave XP total; got %d" % b2a_xp_budget_total)
+	_expect(b2a_xp_budget_total == 95741, "B2a levels must preserve the B2b-merged authored-wave XP total; got %d" % b2a_xp_budget_total)
 	_expect(not data_loader.get_row("levels", "level_050").has("run_xp_budget"), "non-pilot levels must keep legacy per-enemy XP behavior")
 	var saved_raw_xp_total: int = int(battle.level_raw_run_xp_total)
 	var saved_xp_budget: int = int(battle.level_run_xp_budget)
@@ -4515,7 +4517,9 @@ func _verify_endgame_pressure_ramp(data_loader: Node, save_manager: Node) -> voi
 func _wave_mob_count(wave: Dictionary) -> int:
 	var total := 0
 	for group in wave.get("spawns", []) + wave.get("support", []):
-		total += int(group.get("count", 0))
+		# Runtime treats an authored zero-count group as one before applying the
+		# late-wave multiplier; mirror that exact queue contract here.
+		total += maxi(1, int(group.get("count", 1)))
 	return total
 
 func _verify_multi_shot_targeting(battle: Node) -> void:
@@ -5702,19 +5706,22 @@ func _verify_boss_resistance_and_regeneration(data_loader: Node) -> void:
 	titan.call("setup", data_loader.get_row("bosses", "boss_tank_titan").duplicate(true), 1.0, true)
 	var titan_body_start := float(titan.hp)
 	var titan_armor_start := float(titan.armor_hp)
+	var titan_physical_resistance := float((data_loader.get_row("bosses", "boss_tank_titan").get("resistances", {}) as Dictionary).get("physical", 0.0))
+	var titan_resisted_hit := 100.0 * (1.0 - titan_physical_resistance)
 	titan.call("take_damage", 100.0, "physical")
 	_expect(absf(float(titan.hp) - titan_body_start) <= 0.01, "Tank Titan body must stay intact while a non-penetrating hit is absorbed by armor")
-	_expect(absf(float(titan.armor_hp) - (titan_armor_start - 50.0)) <= 0.01, "Tank Titan physical resistance must reduce armor damage by 50 percent")
+	_expect(absf(float(titan.armor_hp) - (titan_armor_start - titan_resisted_hit)) <= 0.01, "Tank Titan physical resistance must reduce armor damage by its authored amount")
 	var body_before_bypass := float(titan.hp)
 	var armor_before_bypass := float(titan.armor_hp)
 	titan.call("take_damage", 100.0, "physical", 0.5)
-	_expect(absf(float(titan.hp) - (body_before_bypass - 37.5)) <= 0.01, "50 percent Armor Bypass must send half of the resisted hit directly to the Tank Titan body")
-	_expect(absf(float(titan.armor_hp) - (armor_before_bypass - 37.5)) <= 0.01, "the non-bypassed half of a penetrating hit must still drain Tank Titan armor")
+	var titan_penetrating_hit := 100.0 * (1.0 - titan_physical_resistance * 0.5)
+	_expect(absf(float(titan.hp) - (body_before_bypass - titan_penetrating_hit * 0.5)) <= 0.01, "50 percent Armor Bypass must send half of the resisted hit directly to the Tank Titan body")
+	_expect(absf(float(titan.armor_hp) - (armor_before_bypass - titan_penetrating_hit * 0.5)) <= 0.01, "the non-bypassed half of a penetrating hit must still drain Tank Titan armor")
 	titan.armor_hp = 10.0
 	var before_break := float(titan.hp)
 	titan.call("take_damage", 100.0, "physical")
 	_expect(bool(titan.armor_broken) and is_zero_approx(float(titan.armor_hp)), "Tank Titan armor must break when its durability reaches zero")
-	_expect(absf(float(titan.hp) - (before_break - 40.0)) <= 0.01, "overflow from the armor-breaking physical hit must reach the Boss body")
+	_expect(absf(float(titan.hp) - (before_break - (titan_resisted_hit - 10.0))) <= 0.01, "overflow from the armor-breaking physical hit must reach the Boss body")
 	titan.queue_free()
 	await process_frame
 
@@ -6322,6 +6329,7 @@ func _assert_resource_cost(button: BaseButton, expected_kind: String, expected_a
 func _verify_fire_rate_profiles(economy: Dictionary) -> void:
 	var ids := FireRateProfiles.profile_ids(economy)
 	_expect(ids == ["control", "tier_a", "tier_b"], "fire-rate laboratory must expose the data-owned control/A/B order")
+	_expect(str(economy.get("fire_rate_profiles", {}).get("default", "")) == "tier_b", "formal fire-rate profile must default to frozen Tier B")
 	var authored_base := 1.0
 	var character_mult := 0.96
 	var chip_intrinsic := 0.18

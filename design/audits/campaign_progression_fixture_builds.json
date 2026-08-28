@@ -14,7 +14,7 @@
   "fixture_id": "resource_constrained_free_first_clear_v2",
   "fixture_sha256": "cc866e53ec3799e8a1906c071e1d291a70ae3597ad70dc272d728b54cb50926f",
   "fixture_source": "data/campaign_progression_fixture.json",
-  "levels_sha256": "103f4b735f64b7e1914353f00993180bcfda9d7668ad1275f3ef01413837563d",
+  "levels_sha256": "0880e17a0ba3162fa7318b8d57ff934120077509fa7f0af68f935e1f208e866b",
   "rows": [
     {
       "build": {
@@ -269,8 +269,8 @@
         "xp_earned": 443
       },
       "projected_skills": {
-        "skill_homing": 1,
-        "skill_incendiary": 1
+        "skill_incendiary": 1,
+        "skill_ricochet": 1
       },
       "resources_before": {
         "gold": 349,
@@ -545,24 +545,24 @@
       "level_id": "level_010",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_cryocannon",
-        "gold_earned": 1850,
+        "gold_earned": 1236,
         "preferred_next_weapon": "weapon_autocannon",
         "priority_gold_spent": 800,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 143,
+          "gold": 43,
           "stars": 4,
-          "xp": 655
+          "xp": 375
         },
         "star_weapon_target_chapter": 2,
         "star_weapon_target_weakness": "ice",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 690
+        "xp_earned": 410
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_incendiary": 1
+        "skill_incendiary": 1,
+        "skill_ricochet": 2
       },
       "resources_before": {
         "gold": 259,
@@ -573,9 +573,9 @@
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 5,
+        "armor_level": 4,
         "character": "vanguard",
-        "character_level": 6,
+        "character_level": 7,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -611,9 +611,9 @@
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 435,
+          "gold": 177,
           "stars": 6,
-          "xp": 351
+          "xp": 71
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
@@ -625,15 +625,15 @@
         "skill_homing": 2
       },
       "resources_before": {
-        "gold": 143,
+        "gold": 43,
         "stars": 4,
-        "xp": 655
+        "xp": 375
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 5,
+        "armor_level": 4,
         "character": "vanguard",
         "character_level": 7,
         "chip": "",
@@ -671,9 +671,9 @@
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 80,
+          "gold": 85,
           "stars": 8,
-          "xp": 116
+          "xp": 736
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
@@ -685,17 +685,17 @@
         "skill_pierce": 1
       },
       "resources_before": {
-        "gold": 435,
+        "gold": 177,
         "stars": 6,
-        "xp": 351
+        "xp": 71
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6,
+        "armor_level": 5,
         "character": "vanguard",
-        "character_level": 7,
+        "character_level": 8,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -707,7 +707,7 @@
           "skill_critical": 1,
           "skill_homing": 1,
           "skill_multishot": 2,
-          "skill_pierce": 2,
+          "skill_pierce": 1,
           "skill_ricochet": 1,
           "skill_salvo": 1,
           "skill_slow_field": 1,
@@ -739,9 +739,9 @@
           }
         ],
         "resources_after": {
-          "gold": 241,
+          "gold": 246,
           "stars": 1,
-          "xp": 733
+          "xp": 453
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
@@ -750,20 +750,20 @@
       },
       "projected_skills": {
         "skill_cryo": 1,
-        "skill_homing": 2
+        "skill_ricochet": 2
       },
       "resources_before": {
-        "gold": 80,
+        "gold": 85,
         "stars": 8,
-        "xp": 116
+        "xp": 736
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6,
+        "armor_level": 5,
         "character": "vanguard",
-        "character_level": 7,
+        "character_level": 8,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -799,9 +799,9 @@
         "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 87,
+          "gold": 92,
           "stars": 3,
-          "xp": 484
+          "xp": 204
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
@@ -813,17 +813,17 @@
         "skill_ricochet": 1
       },
       "resources_before": {
-        "gold": 241,
+        "gold": 246,
         "stars": 1,
-        "xp": 733
+        "xp": 453
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 6,
+        "armor_level": 5,
         "character": "vanguard",
-        "character_level": 7,
+        "character_level": 8,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -853,20 +853,20 @@
       "level_id": "level_015",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 2453,
+        "gold_earned": 1392,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 810,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 40,
+          "gold": 237,
           "stars": 5,
-          "xp": 329
+          "xp": 573
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 745
+        "xp_earned": 369
       },
       "projected_skills": {
         "skill_cryo": 1,
@@ -874,9 +874,70 @@
         "skill_ricochet": 1
       },
       "resources_before": {
-        "gold": 87,
+        "gold": 92,
         "stars": 3,
-        "xp": 484
+        "xp": 204
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 6,
+        "character": "vanguard",
+        "character_level": 8,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 1,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_charge_shot": 1,
+          "skill_critical": 1,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 1,
+          "skill_salvo": 1,
+          "skill_slow_field": 1,
+          "skill_split_shot": 1
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 7
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 16,
+      "level_id": "level_016",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 2725,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 936,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 28,
+          "stars": 7,
+          "xp": 488
+        },
+        "star_weapon_target_chapter": 3,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 815
+      },
+      "projected_skills": {
+        "skill_homing": 2,
+        "skill_incendiary": 1,
+        "skill_ricochet": 1
+      },
+      "resources_before": {
+        "gold": 237,
+        "stars": 5,
+        "xp": 573
       }
     },
     {
@@ -910,24 +971,24 @@
         2207,
         3301
       ],
-      "level": 16,
-      "level_id": "level_016",
+      "level": 17,
+      "level_id": "level_017",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 2725,
+        "gold_earned": 2759,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1062,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 123,
-          "stars": 7,
-          "xp": 244
+          "gold": 352,
+          "stars": 9,
+          "xp": 398
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 815
+        "xp_earned": 810
       },
       "projected_skills": {
         "skill_homing": 2,
@@ -935,9 +996,9 @@
         "skill_ricochet": 1
       },
       "resources_before": {
-        "gold": 40,
-        "stars": 5,
-        "xp": 329
+        "gold": 28,
+        "stars": 7,
+        "xp": 488
       }
     },
     {
@@ -945,7 +1006,7 @@
         "armor": "armor_kevlar",
         "armor_level": 7,
         "character": "vanguard",
-        "character_level": 8,
+        "character_level": 9,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -971,40 +1032,39 @@
         2207,
         3301
       ],
-      "level": 17,
-      "level_id": "level_017",
+      "level": 18,
+      "level_id": "level_018",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 2759,
+        "gold_earned": 2161,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1188,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 241,
-          "stars": 9,
-          "xp": 154
+          "gold": 137,
+          "stars": 11,
+          "xp": 874
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 810
+        "xp_earned": 476
       },
       "projected_skills": {
         "skill_homing": 2,
-        "skill_incendiary": 1,
-        "skill_ricochet": 1
+        "skill_ricochet": 2
       },
       "resources_before": {
-        "gold": 123,
-        "stars": 7,
-        "xp": 244
+        "gold": 352,
+        "stars": 9,
+        "xp": 398
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 8,
+        "armor_level": 7,
         "character": "vanguard",
         "character_level": 9,
         "chip": "",
@@ -1014,7 +1074,7 @@
         "signature_level": 1,
         "skill_base_levels": {
           "skill_barrier": 2,
-          "skill_charge_shot": 2,
+          "skill_charge_shot": 1,
           "skill_critical": 1,
           "skill_homing": 2,
           "skill_multishot": 2,
@@ -1032,33 +1092,33 @@
         2207,
         3301
       ],
-      "level": 18,
-      "level_id": "level_018",
+      "level": 19,
+      "level_id": "level_019",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 2289,
+        "gold_earned": 3002,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1314,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 28,
-          "stars": 11,
-          "xp": 675
+          "gold": 270,
+          "stars": 13,
+          "xp": 777
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 521
+        "xp_earned": 803
       },
       "projected_skills": {
         "skill_homing": 2,
         "skill_ricochet": 2
       },
       "resources_before": {
-        "gold": 241,
-        "stars": 9,
-        "xp": 154
+        "gold": 137,
+        "stars": 11,
+        "xp": 874
       }
     },
     {
@@ -1066,7 +1126,7 @@
         "armor": "armor_kevlar",
         "armor_level": 8,
         "character": "vanguard",
-        "character_level": 9,
+        "character_level": 10,
         "chip": "",
         "chip_level": 1,
         "pet": "",
@@ -1092,33 +1152,42 @@
         2207,
         3301
       ],
-      "level": 19,
-      "level_id": "level_019",
+      "level": 20,
+      "level_id": "level_020",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 3002,
+        "gold_earned": 3199,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1440,
         "priority_upgrades": 1,
-        "purchases": [],
+        "purchases": [
+          {
+            "item_id": "weapon_railgun",
+            "slot": "weapon",
+            "star_cost": 14,
+            "target_chapter": 3,
+            "target_weakness": "physical"
+          }
+        ],
         "resources_after": {
-          "gold": 633,
-          "stars": 13,
-          "xp": 278
+          "gold": 397,
+          "stars": 1,
+          "xp": 452
         },
         "star_weapon_target_chapter": 3,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 803
+        "xp_earned": 875
       },
       "projected_skills": {
+        "skill_cryo": 1,
         "skill_homing": 2,
         "skill_ricochet": 2
       },
       "resources_before": {
-        "gold": 28,
-        "stars": 11,
-        "xp": 675
+        "gold": 270,
+        "stars": 13,
+        "xp": 777
       }
     },
     {
@@ -1152,42 +1221,33 @@
         2207,
         3301
       ],
-      "level": 20,
-      "level_id": "level_020",
+      "level": 21,
+      "level_id": "level_021",
       "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 3399,
+        "catch_up_target_weapon": "",
+        "gold_earned": 2930,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1566,
         "priority_upgrades": 1,
-        "purchases": [
-          {
-            "item_id": "weapon_railgun",
-            "slot": "weapon",
-            "star_cost": 14,
-            "target_chapter": 3,
-            "target_weakness": "physical"
-          }
-        ],
+        "purchases": [],
         "resources_after": {
-          "gold": 156,
-          "stars": 1,
-          "xp": 307
+          "gold": 91,
+          "stars": 3,
+          "xp": 253
         },
-        "star_weapon_target_chapter": 3,
-        "star_weapon_target_weakness": "physical",
+        "star_weapon_target_chapter": 4,
+        "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 929
+        "xp_earned": 701
       },
       "projected_skills": {
-        "skill_cryo": 1,
         "skill_homing": 2,
-        "skill_ricochet": 2
+        "skill_ricochet": 3
       },
       "resources_before": {
-        "gold": 633,
-        "stars": 13,
-        "xp": 278
+        "gold": 397,
+        "stars": 1,
+        "xp": 452
       }
     },
     {
@@ -1221,33 +1281,33 @@
         2207,
         3301
       ],
-      "level": 21,
-      "level_id": "level_021",
+      "level": 22,
+      "level_id": "level_022",
       "progression_after_clear": {
         "catch_up_target_weapon": "",
-        "gold_earned": 2930,
+        "gold_earned": 3151,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1692,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 402,
-          "stars": 3,
-          "xp": 108
+          "gold": 334,
+          "stars": 5,
+          "xp": 91
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 701
+        "xp_earned": 738
       },
       "projected_skills": {
         "skill_homing": 2,
         "skill_ricochet": 3
       },
       "resources_before": {
-        "gold": 156,
-        "stars": 1,
-        "xp": 307
+        "gold": 91,
+        "stars": 3,
+        "xp": 253
       }
     },
     {
@@ -1281,33 +1341,32 @@
         2207,
         3301
       ],
-      "level": 22,
-      "level_id": "level_022",
+      "level": 23,
+      "level_id": "level_023",
       "progression_after_clear": {
         "catch_up_target_weapon": "",
-        "gold_earned": 3151,
+        "gold_earned": 3589,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 1818,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 519,
-          "stars": 5,
-          "xp": 846
+          "gold": 665,
+          "stars": 7,
+          "xp": 61
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 738
+        "xp_earned": 870
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 3
+        "skill_ricochet": 4
       },
       "resources_before": {
-        "gold": 402,
-        "stars": 3,
-        "xp": 108
+        "gold": 334,
+        "stars": 5,
+        "xp": 91
       }
     },
     {
@@ -1324,7 +1383,7 @@
         "skill_base_levels": {
           "skill_barrier": 2,
           "skill_charge_shot": 2,
-          "skill_critical": 1,
+          "skill_critical": 2,
           "skill_homing": 2,
           "skill_multishot": 2,
           "skill_pierce": 2,
@@ -1341,33 +1400,40 @@
         2207,
         3301
       ],
-      "level": 23,
-      "level_id": "level_023",
+      "level": 24,
+      "level_id": "level_024",
       "progression_after_clear": {
-        "catch_up_target_weapon": "",
-        "gold_earned": 3589,
+        "catch_up_target_weapon": "weapon_venomlauncher",
+        "gold_earned": 3349,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 1944,
-        "priority_upgrades": 1,
-        "purchases": [],
+        "priority_gold_spent": 3168,
+        "priority_upgrades": 4,
+        "purchases": [
+          {
+            "item_id": "weapon_venomlauncher",
+            "slot": "weapon",
+            "star_cost": 8,
+            "target_chapter": 4,
+            "target_weakness": "poison"
+          }
+        ],
         "resources_after": {
-          "gold": 724,
-          "stars": 7,
-          "xp": 816
+          "gold": 102,
+          "stars": 1,
+          "xp": 858
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 870
+        "xp_earned": 797
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 3
+        "skill_ricochet": 4
       },
       "resources_before": {
-        "gold": 519,
-        "stars": 5,
-        "xp": 846
+        "gold": 665,
+        "stars": 7,
+        "xp": 61
       }
     },
     {
@@ -1401,41 +1467,92 @@
         2207,
         3301
       ],
-      "level": 24,
-      "level_id": "level_024",
+      "level": 25,
+      "level_id": "level_025",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 3349,
+        "gold_earned": 2336,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 3294,
-        "priority_upgrades": 4,
-        "purchases": [
-          {
-            "item_id": "weapon_venomlauncher",
-            "slot": "weapon",
-            "star_cost": 8,
-            "target_chapter": 4,
-            "target_weakness": "poison"
-          }
-        ],
+        "priority_gold_spent": 912,
+        "priority_upgrades": 1,
+        "purchases": [],
         "resources_after": {
-          "gold": 35,
-          "stars": 1,
-          "xp": 713
+          "gold": 446,
+          "stars": 3,
+          "xp": 406
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 797
+        "xp_earned": 448
       },
       "projected_skills": {
-        "skill_homing": 2,
+        "skill_incendiary": 1,
         "skill_ricochet": 3
       },
       "resources_before": {
-        "gold": 724,
-        "stars": 7,
-        "xp": 816
+        "gold": 102,
+        "stars": 1,
+        "xp": 858
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 2,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 16
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 26,
+      "level_id": "level_026",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_venomlauncher",
+        "gold_earned": 4438,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 3318,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 150,
+          "stars": 5,
+          "xp": 1461
+        },
+        "star_weapon_target_chapter": 4,
+        "star_weapon_target_weakness": "poison",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1055
+      },
+      "projected_skills": {
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 446,
+        "stars": 3,
+        "xp": 406
       }
     },
     {
@@ -1469,39 +1586,38 @@
         2207,
         3301
       ],
-      "level": 25,
-      "level_id": "level_025",
+      "level": 27,
+      "level_id": "level_027",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 4006,
+        "gold_earned": 3651,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 3108,
-        "priority_upgrades": 2,
+        "priority_gold_spent": 2196,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 174,
-          "stars": 3,
-          "xp": 1648
+          "gold": 21,
+          "stars": 7,
+          "xp": 197
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 935
+        "xp_earned": 736
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 1
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 35,
-        "stars": 1,
-        "xp": 713
+        "gold": 150,
+        "stars": 5,
+        "xp": 1461
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
         "chip": "",
@@ -1514,7 +1630,7 @@
           "skill_charge_shot": 2,
           "skill_critical": 2,
           "skill_homing": 2,
-          "skill_multishot": 2,
+          "skill_multishot": 3,
           "skill_pierce": 2,
           "skill_ricochet": 2,
           "skill_salvo": 2,
@@ -1529,42 +1645,50 @@
         2207,
         3301
       ],
-      "level": 26,
-      "level_id": "level_026",
+      "level": 28,
+      "level_id": "level_028",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 3954,
+        "gold_earned": 4011,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 3402,
-        "priority_upgrades": 2,
-        "purchases": [],
+        "priority_gold_spent": 2322,
+        "priority_upgrades": 1,
+        "purchases": [
+          {
+            "item_id": "chip_attack",
+            "slot": "chip",
+            "star_cost": 8,
+            "target_chapter": 4,
+            "target_weakness": "poison"
+          }
+        ],
         "resources_after": {
-          "gold": 726,
-          "stars": 5,
-          "xp": 583
+          "gold": 451,
+          "stars": 1,
+          "xp": 1072
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 935
+        "xp_earned": 875
       },
       "projected_skills": {
-        "skill_homing": 5
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 174,
-        "stars": 3,
-        "xp": 1648
+        "gold": 21,
+        "stars": 7,
+        "xp": 197
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
-        "chip": "",
-        "chip_level": 1,
+        "chip": "chip_attack",
+        "chip_level": 6,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -1588,42 +1712,42 @@
         2207,
         3301
       ],
-      "level": 27,
-      "level_id": "level_027",
+      "level": 29,
+      "level_id": "level_029",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 3651,
+        "gold_earned": 4136,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 3696,
-        "priority_upgrades": 2,
+        "priority_gold_spent": 2448,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 681,
-          "stars": 7,
-          "xp": 1319
+          "gold": 3,
+          "stars": 3,
+          "xp": 1936
         },
         "star_weapon_target_chapter": 4,
         "star_weapon_target_weakness": "poison",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 736
+        "xp_earned": 864
       },
       "projected_skills": {
-        "skill_homing": 5
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 726,
-        "stars": 5,
-        "xp": 583
+        "gold": 451,
+        "stars": 1,
+        "xp": 1072
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
-        "chip": "",
-        "chip_level": 1,
+        "chip": "chip_attack",
+        "chip_level": 7,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -1647,169 +1771,102 @@
         2207,
         3301
       ],
-      "level": 28,
-      "level_id": "level_028",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 3902,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 3990,
-        "priority_upgrades": 2,
-        "purchases": [
-          {
-            "item_id": "chip_attack",
-            "slot": "chip",
-            "star_cost": 8,
-            "target_chapter": 4,
-            "target_weakness": "poison"
-          }
-        ],
-        "resources_after": {
-          "gold": 58,
-          "stars": 1,
-          "xp": 164
-        },
-        "star_weapon_target_chapter": 4,
-        "star_weapon_target_weakness": "poison",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 845
-      },
-      "projected_skills": {
-        "skill_homing": 5
-      },
-      "resources_before": {
-        "gold": 681,
-        "stars": 7,
-        "xp": 1319
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 10,
-        "chip": "chip_attack",
-        "chip_level": 4,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 2,
-        "skill_base_levels": {
-          "skill_barrier": 2,
-          "skill_charge_shot": 2,
-          "skill_critical": 2,
-          "skill_homing": 2,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 2,
-          "skill_salvo": 2,
-          "skill_slow_field": 2,
-          "skill_split_shot": 2
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 21
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 29,
-      "level_id": "level_029",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 4136,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 1584,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 222,
-          "stars": 3,
-          "xp": 1028
-        },
-        "star_weapon_target_chapter": 4,
-        "star_weapon_target_weakness": "poison",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 864
-      },
-      "projected_skills": {
-        "skill_homing": 5
-      },
-      "resources_before": {
-        "gold": 58,
-        "stars": 1,
-        "xp": 164
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 10,
-        "chip": "chip_attack",
-        "chip_level": 6,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 2,
-        "skill_base_levels": {
-          "skill_barrier": 2,
-          "skill_charge_shot": 2,
-          "skill_critical": 2,
-          "skill_homing": 2,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 2,
-          "skill_salvo": 2,
-          "skill_slow_field": 2,
-          "skill_split_shot": 2
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 21
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 30,
       "level_id": "level_030",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_venomlauncher",
-        "gold_earned": 4359,
+        "gold_earned": 4852,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 4326,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 529,
+          "stars": 5,
+          "xp": 918
+        },
+        "star_weapon_target_chapter": 4,
+        "star_weapon_target_weakness": "poison",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 982
+      },
+      "projected_skills": {
+        "skill_incendiary": 1,
+        "skill_split_shot": 4
+      },
+      "resources_before": {
+        "gold": 3,
+        "stars": 3,
+        "xp": 1936
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "chip_attack",
+        "chip_level": 7,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 21
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 31,
+      "level_id": "level_031",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "",
+        "gold_earned": 4710,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 2700,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 243,
-          "stars": 5,
-          "xp": 1856
+          "gold": 105,
+          "stars": 7,
+          "xp": 1884
         },
-        "star_weapon_target_chapter": 4,
-        "star_weapon_target_weakness": "poison",
+        "star_weapon_target_chapter": 5,
+        "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 828
+        "xp_earned": 966
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 1
+        "skill_homing": 5
       },
       "resources_before": {
-        "gold": 222,
-        "stars": 3,
-        "xp": 1028
+        "gold": 529,
+        "stars": 5,
+        "xp": 918
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
         "chip": "chip_attack",
-        "chip_level": 9,
+        "chip_level": 8,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -1833,38 +1890,107 @@
         2207,
         3301
       ],
-      "level": 31,
-      "level_id": "level_031",
+      "level": 32,
+      "level_id": "level_032",
       "progression_after_clear": {
-        "catch_up_target_weapon": "",
-        "gold_earned": 4710,
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 4392,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 2826,
-        "priority_upgrades": 1,
-        "purchases": [],
+        "priority_gold_spent": 4302,
+        "priority_upgrades": 5,
+        "purchases": [
+          {
+            "item_id": "weapon_flamethrower",
+            "slot": "weapon",
+            "star_cost": 8,
+            "target_chapter": 5,
+            "target_weakness": "fire"
+          }
+        ],
         "resources_after": {
-          "gold": 239,
-          "stars": 7,
-          "xp": 822
+          "gold": 195,
+          "stars": 1,
+          "xp": 791
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 966
+        "xp_earned": 907
       },
       "projected_skills": {
-        "skill_homing": 5
+        "skill_split_shot": 5,
+        "skill_venom": 1
       },
       "resources_before": {
-        "gold": 243,
-        "stars": 5,
-        "xp": 1856
+        "gold": 105,
+        "stars": 7,
+        "xp": 1884
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "chip_attack",
+        "chip_level": 8,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 23
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 33,
+      "level_id": "level_033",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 3959,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 1494,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 42,
+          "stars": 3,
+          "xp": 1518
+        },
+        "star_weapon_target_chapter": 5,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 727
+      },
+      "projected_skills": {
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 195,
+        "stars": 1,
+        "xp": 791
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
         "chip": "chip_attack",
@@ -1892,147 +2018,19 @@
         2207,
         3301
       ],
-      "level": 32,
-      "level_id": "level_032",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 4392,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4428,
-        "priority_upgrades": 5,
-        "purchases": [
-          {
-            "item_id": "weapon_flamethrower",
-            "slot": "weapon",
-            "star_cost": 8,
-            "target_chapter": 5,
-            "target_weakness": "fire"
-          }
-        ],
-        "resources_after": {
-          "gold": 203,
-          "stars": 1,
-          "xp": 1729
-        },
-        "star_weapon_target_chapter": 5,
-        "star_weapon_target_weakness": "fire",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 907
-      },
-      "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
-      },
-      "resources_before": {
-        "gold": 239,
-        "stars": 7,
-        "xp": 822
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 10,
-        "chip": "chip_attack",
-        "chip_level": 9,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 2,
-        "skill_base_levels": {
-          "skill_barrier": 2,
-          "skill_charge_shot": 2,
-          "skill_critical": 2,
-          "skill_homing": 3,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 2,
-          "skill_salvo": 2,
-          "skill_slow_field": 2,
-          "skill_split_shot": 2
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 24
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 33,
-      "level_id": "level_033",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 3959,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 1494,
-        "priority_upgrades": 2,
-        "purchases": [],
-        "resources_after": {
-          "gold": 670,
-          "stars": 3,
-          "xp": 456
-        },
-        "star_weapon_target_chapter": 5,
-        "star_weapon_target_weakness": "fire",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 727
-      },
-      "projected_skills": {
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 203,
-        "stars": 1,
-        "xp": 1729
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 10,
-        "chip": "chip_attack",
-        "chip_level": 9,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 2,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 2,
-          "skill_critical": 2,
-          "skill_homing": 3,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 2,
-          "skill_salvo": 2,
-          "skill_slow_field": 2,
-          "skill_split_shot": 2
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 24
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 34,
       "level_id": "level_034",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
         "gold_earned": 4983,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4266,
+        "priority_gold_spent": 4140,
         "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 73,
+          "gold": 192,
           "stars": 5,
-          "xp": 1414
+          "xp": 476
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
@@ -2040,23 +2038,23 @@
         "xp_earned": 958
       },
       "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
+        "skill_split_shot": 5,
+        "skill_venom": 1
       },
       "resources_before": {
-        "gold": 670,
+        "gold": 42,
         "stars": 3,
-        "xp": 456
+        "xp": 1518
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 9,
         "character": "vanguard",
         "character_level": 10,
         "chip": "chip_attack",
-        "chip_level": 9,
+        "chip_level": 10,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -2069,6 +2067,127 @@
           "skill_pierce": 3,
           "skill_ricochet": 2,
           "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 24
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 35,
+      "level_id": "level_035",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 3698,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 1314,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 464,
+          "stars": 7,
+          "xp": 1124
+        },
+        "star_weapon_target_chapter": 5,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 648
+      },
+      "projected_skills": {
+        "skill_charge_shot": 2,
+        "skill_critical": 4,
+        "skill_venom": 1
+      },
+      "resources_before": {
+        "gold": 192,
+        "stars": 5,
+        "xp": 476
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "chip_attack",
+        "chip_level": 10,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 24
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 36,
+      "level_id": "level_036",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 4962,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 4518,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 142,
+          "stars": 9,
+          "xp": 135
+        },
+        "star_weapon_target_chapter": 5,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1011
+      },
+      "projected_skills": {
+        "skill_split_shot": 5,
+        "skill_tesla": 1
+      },
+      "resources_before": {
+        "gold": 464,
+        "stars": 7,
+        "xp": 1124
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 9,
+        "character": "vanguard",
+        "character_level": 10,
+        "chip": "chip_attack",
+        "chip_level": 11,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
           "skill_slow_field": 2,
           "skill_split_shot": 2
         },
@@ -2080,33 +2199,33 @@
         2207,
         3301
       ],
-      "level": 35,
-      "level_id": "level_035",
+      "level": 37,
+      "level_id": "level_037",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 6175,
+        "gold_earned": 5660,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4518,
+        "priority_gold_spent": 4770,
         "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 672,
-          "stars": 7,
-          "xp": 763
+          "gold": 273,
+          "stars": 11,
+          "xp": 1291
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1349
+        "xp_earned": 1156
       },
       "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
+        "skill_split_shot": 5,
+        "skill_venom": 1
       },
       "resources_before": {
-        "gold": 73,
-        "stars": 5,
-        "xp": 1414
+        "gold": 142,
+        "stars": 9,
+        "xp": 135
       }
     },
     {
@@ -2114,9 +2233,9 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 11,
+        "character_level": 10,
         "chip": "chip_attack",
-        "chip_level": 9,
+        "chip_level": 11,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -2140,33 +2259,33 @@
         2207,
         3301
       ],
-      "level": 36,
-      "level_id": "level_036",
+      "level": 38,
+      "level_id": "level_038",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 4962,
+        "gold_earned": 6024,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4770,
+        "priority_gold_spent": 5022,
         "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 171,
-          "stars": 9,
-          "xp": 1774
+          "gold": 217,
+          "stars": 13,
+          "xp": 486
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1011
+        "xp_earned": 1195
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_tesla": 1
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 672,
-        "stars": 7,
-        "xp": 763
+        "gold": 273,
+        "stars": 11,
+        "xp": 1291
       }
     },
     {
@@ -2176,13 +2295,13 @@
         "character": "vanguard",
         "character_level": 11,
         "chip": "chip_attack",
-        "chip_level": 10,
+        "chip_level": 11,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
         "skill_base_levels": {
           "skill_barrier": 3,
-          "skill_charge_shot": 2,
+          "skill_charge_shot": 3,
           "skill_critical": 2,
           "skill_homing": 3,
           "skill_multishot": 3,
@@ -2200,33 +2319,33 @@
         2207,
         3301
       ],
-      "level": 37,
-      "level_id": "level_037",
+      "level": 39,
+      "level_id": "level_039",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 5660,
+        "gold_earned": 5158,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5022,
+        "priority_gold_spent": 5274,
         "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 43,
-          "stars": 11,
-          "xp": 930
+          "gold": 101,
+          "stars": 15,
+          "xp": 1345
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1156
+        "xp_earned": 859
       },
       "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
+        "skill_critical": 5,
+        "skill_venom": 1
       },
       "resources_before": {
-        "gold": 171,
-        "stars": 9,
-        "xp": 1774
+        "gold": 217,
+        "stars": 13,
+        "xp": 486
       }
     },
     {
@@ -2260,33 +2379,41 @@
         2207,
         3301
       ],
-      "level": 38,
-      "level_id": "level_038",
+      "level": 40,
+      "level_id": "level_040",
       "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 6024,
+        "catch_up_target_weapon": "weapon_plasmacannon",
+        "gold_earned": 6923,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5274,
-        "priority_upgrades": 2,
-        "purchases": [],
+        "priority_gold_spent": 6206,
+        "priority_upgrades": 5,
+        "purchases": [
+          {
+            "item_id": "weapon_plasmacannon",
+            "slot": "weapon",
+            "star_cost": 16,
+            "target_chapter": 5,
+            "target_weakness": "fire"
+          }
+        ],
         "resources_after": {
-          "gold": 793,
-          "stars": 13,
-          "xp": 125
+          "gold": 818,
+          "stars": 1,
+          "xp": 641
         },
         "star_weapon_target_chapter": 5,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1195
+        "xp_earned": 1296
       },
       "projected_skills": {
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
+        "skill_split_shot": 5,
+        "skill_venom": 1
       },
       "resources_before": {
-        "gold": 43,
-        "stars": 11,
-        "xp": 930
+        "gold": 101,
+        "stars": 15,
+        "xp": 1345
       }
     },
     {
@@ -2320,33 +2447,33 @@
         2207,
         3301
       ],
-      "level": 39,
-      "level_id": "level_039",
+      "level": 41,
+      "level_id": "level_041",
       "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 5463,
+        "catch_up_target_weapon": "",
+        "gold_earned": 6526,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5526,
-        "priority_upgrades": 2,
+        "priority_gold_spent": 3708,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 730,
-          "stars": 15,
-          "xp": 1101
+          "gold": 140,
+          "stars": 3,
+          "xp": 1951
         },
-        "star_weapon_target_chapter": 5,
-        "star_weapon_target_weakness": "fire",
+        "star_weapon_target_chapter": 6,
+        "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 976
+        "xp_earned": 1310
       },
       "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
+        "skill_split_shot": 5,
+        "skill_tesla": 1
       },
       "resources_before": {
-        "gold": 793,
-        "stars": 13,
-        "xp": 125
+        "gold": 818,
+        "stars": 1,
+        "xp": 641
       }
     },
     {
@@ -2356,7 +2483,7 @@
         "character": "vanguard",
         "character_level": 11,
         "chip": "chip_attack",
-        "chip_level": 11,
+        "chip_level": 12,
         "pet": "",
         "pet_level": 1,
         "signature_level": 2,
@@ -2380,41 +2507,33 @@
         2207,
         3301
       ],
-      "level": 40,
-      "level_id": "level_040",
+      "level": 42,
+      "level_id": "level_042",
       "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_plasmacannon",
-        "gold_earned": 6602,
+        "catch_up_target_weapon": "",
+        "gold_earned": 6067,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6458,
-        "priority_upgrades": 5,
-        "purchases": [
-          {
-            "item_id": "weapon_plasmacannon",
-            "slot": "weapon",
-            "star_cost": 16,
-            "target_chapter": 5,
-            "target_weakness": "fire"
-          }
-        ],
+        "priority_gold_spent": 3834,
+        "priority_upgrades": 1,
+        "purchases": [],
         "resources_after": {
-          "gold": 34,
-          "stars": 1,
-          "xp": 409
+          "gold": 709,
+          "stars": 5,
+          "xp": 315
         },
-        "star_weapon_target_chapter": 5,
-        "star_weapon_target_weakness": "fire",
+        "star_weapon_target_chapter": 6,
+        "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1308
+        "xp_earned": 1064
       },
       "projected_skills": {
-        "skill_split_shot": 2,
-        "skill_venom": 4
+        "skill_incendiary": 1,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 730,
-        "stars": 15,
-        "xp": 1101
+        "gold": 140,
+        "stars": 3,
+        "xp": 1951
       }
     },
     {
@@ -2427,7 +2546,7 @@
         "chip_level": 12,
         "pet": "",
         "pet_level": 1,
-        "signature_level": 2,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
           "skill_charge_shot": 3,
@@ -2438,7 +2557,7 @@
           "skill_ricochet": 2,
           "skill_salvo": 3,
           "skill_slow_field": 3,
-          "skill_split_shot": 3
+          "skill_split_shot": 2
         },
         "weapon": "weapon_scattergun",
         "weapon_level": 31
@@ -2448,33 +2567,33 @@
         2207,
         3301
       ],
-      "level": 41,
-      "level_id": "level_041",
+      "level": 43,
+      "level_id": "level_043",
       "progression_after_clear": {
         "catch_up_target_weapon": "",
-        "gold_earned": 6526,
+        "gold_earned": 7053,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 3960,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 224,
-          "stars": 3,
-          "xp": 1719
+          "gold": 600,
+          "stars": 7,
+          "xp": 1626
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1310
+        "xp_earned": 1311
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_tesla": 1
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 34,
-        "stars": 1,
-        "xp": 409
+        "gold": 709,
+        "stars": 5,
+        "xp": 315
       }
     },
     {
@@ -2482,12 +2601,12 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 11,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "",
         "pet_level": 1,
-        "signature_level": 2,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
           "skill_charge_shot": 3,
@@ -2498,7 +2617,7 @@
           "skill_ricochet": 2,
           "skill_salvo": 3,
           "skill_slow_field": 3,
-          "skill_split_shot": 3
+          "skill_split_shot": 2
         },
         "weapon": "weapon_scattergun",
         "weapon_level": 32
@@ -2508,33 +2627,34 @@
         2207,
         3301
       ],
-      "level": 42,
-      "level_id": "level_042",
+      "level": 44,
+      "level_id": "level_044",
       "progression_after_clear": {
         "catch_up_target_weapon": "",
-        "gold_earned": 6067,
+        "gold_earned": 6873,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 4086,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 765,
-          "stars": 5,
-          "xp": 83
+          "gold": 115,
+          "stars": 9,
+          "xp": 872
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1064
+        "xp_earned": 1246
       },
       "projected_skills": {
-        "skill_incendiary": 4,
-        "skill_ricochet": 2
+        "skill_incendiary": 1,
+        "skill_ricochet": 2,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 224,
-        "stars": 3,
-        "xp": 1719
+        "gold": 600,
+        "stars": 7,
+        "xp": 1626
       }
     },
     {
@@ -2568,19 +2688,27 @@
         2207,
         3301
       ],
-      "level": 43,
-      "level_id": "level_043",
+      "level": 45,
+      "level_id": "level_045",
       "progression_after_clear": {
-        "catch_up_target_weapon": "",
-        "gold_earned": 7053,
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 7008,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4212,
-        "priority_upgrades": 1,
-        "purchases": [],
+        "priority_gold_spent": 6180,
+        "priority_upgrades": 5,
+        "purchases": [
+          {
+            "item_id": "weapon_teslacoil",
+            "slot": "weapon",
+            "star_cost": 10,
+            "target_chapter": 6,
+            "target_weakness": "lightning"
+          }
+        ],
         "resources_after": {
-          "gold": 54,
-          "stars": 7,
-          "xp": 1394
+          "gold": 31,
+          "stars": 1,
+          "xp": 183
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
@@ -2588,73 +2716,14 @@
         "xp_earned": 1311
       },
       "projected_skills": {
-        "skill_homing": 3,
-        "skill_ricochet": 5
+        "skill_charge_shot": 3,
+        "skill_critical": 5,
+        "skill_incendiary": 1
       },
       "resources_before": {
-        "gold": 765,
-        "stars": 5,
-        "xp": 83
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 12,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 2,
-          "skill_homing": 3,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 2,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 34
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 44,
-      "level_id": "level_044",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "",
-        "gold_earned": 6873,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 4338,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 477,
-          "stars": 9,
-          "xp": 640
-        },
-        "star_weapon_target_chapter": 6,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1246
-      },
-      "projected_skills": {
-        "skill_incendiary": 4,
-        "skill_ricochet": 3
-      },
-      "resources_before": {
-        "gold": 54,
-        "stars": 7,
-        "xp": 1394
+        "gold": 115,
+        "stars": 9,
+        "xp": 872
       }
     },
     {
@@ -2681,48 +2750,41 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 35
+        "weapon_level": 34
       },
       "card_seeds": [
         1103,
         2207,
         3301
       ],
-      "level": 45,
-      "level_id": "level_045",
+      "level": 46,
+      "level_id": "level_046",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 7287,
+        "gold_earned": 6078,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 7344,
-        "priority_upgrades": 6,
-        "purchases": [
-          {
-            "item_id": "weapon_teslacoil",
-            "slot": "weapon",
-            "star_cost": 10,
-            "target_chapter": 6,
-            "target_weakness": "lightning"
-          }
-        ],
+        "priority_gold_spent": 2328,
+        "priority_upgrades": 2,
+        "purchases": [],
         "resources_after": {
-          "gold": 420,
-          "stars": 1,
-          "xp": 14
+          "gold": 781,
+          "stars": 3,
+          "xp": 1227
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1374
+        "xp_earned": 1044
       },
       "projected_skills": {
-        "skill_incendiary": 4,
-        "skill_ricochet": 3
+        "skill_ricochet": 5,
+        "skill_split_shot": 3,
+        "skill_tesla": 1
       },
       "resources_before": {
-        "gold": 477,
-        "stars": 9,
-        "xp": 640
+        "gold": 31,
+        "stars": 1,
+        "xp": 183
       }
     },
     {
@@ -2731,6 +2793,127 @@
         "armor_level": 10,
         "character": "vanguard",
         "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 34
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 47,
+      "level_id": "level_047",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 6618,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 6090,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 47,
+          "stars": 5,
+          "xp": 285
+        },
+        "star_weapon_target_chapter": 6,
+        "star_weapon_target_weakness": "lightning",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1058
+      },
+      "projected_skills": {
+        "skill_incendiary": 1,
+        "skill_ricochet": 5,
+        "skill_split_shot": 3
+      },
+      "resources_before": {
+        "gold": 781,
+        "stars": 3,
+        "xp": 1227
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 35
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 48,
+      "level_id": "level_048",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 7670,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 6384,
+        "priority_upgrades": 2,
+        "purchases": [],
+        "resources_after": {
+          "gold": 183,
+          "stars": 7,
+          "xp": 1557
+        },
+        "star_weapon_target_chapter": 6,
+        "star_weapon_target_weakness": "lightning",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1272
+      },
+      "projected_skills": {
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 47,
+        "stars": 5,
+        "xp": 285
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "",
@@ -2756,34 +2939,41 @@
         2207,
         3301
       ],
-      "level": 46,
-      "level_id": "level_046",
+      "level": 49,
+      "level_id": "level_049",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 7222,
+        "gold_earned": 7402,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6918,
-        "priority_upgrades": 3,
-        "purchases": [],
+        "priority_gold_spent": 6678,
+        "priority_upgrades": 2,
+        "purchases": [
+          {
+            "item_id": "pet_turret_drone",
+            "slot": "pet",
+            "star_cost": 8,
+            "target_chapter": 6,
+            "target_weakness": "lightning"
+          }
+        ],
         "resources_after": {
-          "gold": 724,
-          "stars": 3,
-          "xp": 1340
+          "gold": 244,
+          "stars": 1,
+          "xp": 2821
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1326
+        "xp_earned": 1264
       },
       "projected_skills": {
-        "skill_homing": 5,
-        "skill_split_shot": 4,
-        "skill_tesla": 1
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 420,
-        "stars": 1,
-        "xp": 14
+        "gold": 183,
+        "stars": 7,
+        "xp": 1557
       }
     },
     {
@@ -2791,11 +2981,11 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
-        "pet": "",
-        "pet_level": 1,
+        "pet": "pet_turret_drone",
+        "pet_level": 4,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
@@ -2817,221 +3007,34 @@
         2207,
         3301
       ],
-      "level": 47,
-      "level_id": "level_047",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 6618,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6132,
-        "priority_upgrades": 2,
-        "purchases": [],
-        "resources_after": {
-          "gold": 60,
-          "stars": 5,
-          "xp": 2398
-        },
-        "star_weapon_target_chapter": 6,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1058
-      },
-      "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 4
-      },
-      "resources_before": {
-        "gold": 724,
-        "stars": 3,
-        "xp": 1340
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 12,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 3,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 3,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 38
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 48,
-      "level_id": "level_048",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 7985,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6426,
-        "priority_upgrades": 2,
-        "purchases": [],
-        "resources_after": {
-          "gold": 179,
-          "stars": 7,
-          "xp": 3810
-        },
-        "star_weapon_target_chapter": 6,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1412
-      },
-      "projected_skills": {
-        "skill_homing": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 60,
-        "stars": 5,
-        "xp": 2398
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 12,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "",
-        "pet_level": 1,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 3,
-          "skill_multishot": 3,
-          "skill_pierce": 3,
-          "skill_ricochet": 3,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 39
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 49,
-      "level_id": "level_049",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 6907,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6720,
-        "priority_upgrades": 2,
-        "purchases": [
-          {
-            "item_id": "pet_turret_drone",
-            "slot": "pet",
-            "star_cost": 8,
-            "target_chapter": 6,
-            "target_weakness": "lightning"
-          }
-        ],
-        "resources_after": {
-          "gold": 15,
-          "stars": 1,
-          "xp": 1013
-        },
-        "star_weapon_target_chapter": 6,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1203
-      },
-      "projected_skills": {
-        "skill_homing": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 179,
-        "stars": 7,
-        "xp": 3810
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 12,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "pet_turret_drone",
-        "pet_level": 3,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 3,
-          "skill_multishot": 4,
-          "skill_pierce": 3,
-          "skill_ricochet": 3,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 40
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 50,
       "level_id": "level_050",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 9646,
+        "gold_earned": 5782,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 7014,
-        "priority_upgrades": 2,
+        "priority_gold_spent": 2256,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 180,
+          "gold": 537,
           "stars": 3,
-          "xp": 2828
+          "xp": 3772
         },
         "star_weapon_target_chapter": 6,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1815
+        "xp_earned": 951
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 4
+        "skill_incendiary": 1,
+        "skill_ricochet": 4,
+        "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 15,
+        "gold": 244,
         "stars": 1,
-        "xp": 1013
+        "xp": 2821
       }
     },
     {
@@ -3039,18 +3042,18 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 5,
+        "pet_level": 6,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
           "skill_charge_shot": 3,
           "skill_critical": 3,
           "skill_homing": 3,
-          "skill_multishot": 4,
+          "skill_multishot": 3,
           "skill_pierce": 3,
           "skill_ricochet": 3,
           "skill_salvo": 3,
@@ -3058,7 +3061,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 37
       },
       "card_seeds": [
         1103,
@@ -3075,9 +3078,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 225,
+          "gold": 267,
           "stars": 5,
-          "xp": 3776
+          "xp": 720
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3089,9 +3092,9 @@
         "skill_split_shot": 3
       },
       "resources_before": {
-        "gold": 180,
+        "gold": 537,
         "stars": 3,
-        "xp": 2828
+        "xp": 3772
       }
     },
     {
@@ -3099,11 +3102,11 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 6,
+        "pet_level": 7,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
@@ -3118,7 +3121,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 37
       },
       "card_seeds": [
         1103,
@@ -3135,9 +3138,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 148,
+          "gold": 105,
           "stars": 7,
-          "xp": 1543
+          "xp": 2487
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3149,9 +3152,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 225,
+        "gold": 267,
         "stars": 5,
-        "xp": 3776
+        "xp": 720
       }
     },
     {
@@ -3159,7 +3162,128 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "pet_turret_drone",
+        "pet_level": 7,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 53,
+      "level_id": "level_053",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 3105,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 70,
+          "stars": 9,
+          "xp": 3823
+        },
+        "star_weapon_target_chapter": 7,
+        "star_weapon_target_weakness": "lightning",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1336
+      },
+      "projected_skills": {
+        "skill_ricochet": 4,
+        "skill_split_shot": 5,
+        "skill_venom": 1
+      },
+      "resources_before": {
+        "gold": 105,
+        "stars": 7,
+        "xp": 2487
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "pet_turret_drone",
+        "pet_level": 7,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 3,
+          "skill_multishot": 4,
+          "skill_pierce": 3,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 37
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 54,
+      "level_id": "level_054",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 3038,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 548,
+          "stars": 11,
+          "xp": 1494
+        },
+        "star_weapon_target_chapter": 7,
+        "star_weapon_target_weakness": "lightning",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1671
+      },
+      "projected_skills": {
+        "skill_split_shot": 5,
+        "skill_tesla": 3
+      },
+      "resources_before": {
+        "gold": 70,
+        "stars": 9,
+        "xp": 3823
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
@@ -3178,41 +3302,41 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 37
       },
       "card_seeds": [
         1103,
         2207,
         3301
       ],
-      "level": 53,
-      "level_id": "level_053",
+      "level": 55,
+      "level_id": "level_055",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 3105,
+        "gold_earned": 2873,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 0,
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 241,
-          "stars": 9,
-          "xp": 2879
+          "gold": 185,
+          "stars": 13,
+          "xp": 3292
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1336
+        "xp_earned": 1798
       },
       "projected_skills": {
-        "skill_ricochet": 4,
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_charge_shot": 5,
+        "skill_critical": 4,
+        "skill_tesla": 1
       },
       "resources_before": {
-        "gold": 148,
-        "stars": 7,
-        "xp": 1543
+        "gold": 548,
+        "stars": 11,
+        "xp": 1494
       }
     },
     {
@@ -3220,7 +3344,7 @@
         "armor": "armor_kevlar",
         "armor_level": 10,
         "character": "vanguard",
-        "character_level": 12,
+        "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
@@ -3239,128 +3363,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 54,
-      "level_id": "level_054",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 3038,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 97,
-          "stars": 11,
-          "xp": 550
-        },
-        "star_weapon_target_chapter": 7,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1671
-      },
-      "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_tesla": 3
-      },
-      "resources_before": {
-        "gold": 241,
-        "stars": 9,
-        "xp": 2879
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 13,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "pet_turret_drone",
-        "pet_level": 8,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 4,
-          "skill_multishot": 4,
-          "skill_pierce": 4,
-          "skill_ricochet": 3,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 41
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 55,
-      "level_id": "level_055",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 2873,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 410,
-          "stars": 13,
-          "xp": 2348
-        },
-        "star_weapon_target_chapter": 7,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1798
-      },
-      "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 4,
-        "skill_tesla": 1
-      },
-      "resources_before": {
-        "gold": 97,
-        "stars": 11,
-        "xp": 550
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 10,
-        "character": "vanguard",
-        "character_level": 13,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "pet_turret_drone",
-        "pet_level": 8,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 3,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 4,
-          "skill_multishot": 4,
-          "skill_pierce": 4,
-          "skill_ricochet": 3,
-          "skill_salvo": 3,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 37
       },
       "card_seeds": [
         1103,
@@ -3377,9 +3380,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 58,
+          "gold": 232,
           "stars": 15,
-          "xp": 3897
+          "xp": 841
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3391,21 +3394,21 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 410,
+        "gold": 185,
         "stars": 13,
-        "xp": 2348
+        "xp": 3292
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 10,
+        "armor_level": 11,
         "character": "vanguard",
         "character_level": 13,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 3,
@@ -3420,7 +3423,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 37
       },
       "card_seeds": [
         1103,
@@ -3431,15 +3434,15 @@
       "level_id": "level_057",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 4717,
+        "gold_earned": 5150,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 4716,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 281,
+          "gold": 666,
           "stars": 17,
-          "xp": 1427
+          "xp": 2371
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3452,9 +3455,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 58,
+        "gold": 232,
         "stars": 15,
-        "xp": 3897
+        "xp": 841
       }
     },
     {
@@ -3466,10 +3469,10 @@
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
-          "skill_barrier": 4,
+          "skill_barrier": 3,
           "skill_charge_shot": 3,
           "skill_critical": 3,
           "skill_homing": 4,
@@ -3481,7 +3484,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 38
       },
       "card_seeds": [
         1103,
@@ -3493,14 +3496,14 @@
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_teslacoil",
         "gold_earned": 3223,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "preferred_next_weapon": "weapon_venomlauncher",
+        "priority_gold_spent": 2256,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 53,
+          "gold": 270,
           "stars": 19,
-          "xp": 3050
+          "xp": 3994
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3512,9 +3515,9 @@
         "skill_split_shot": 4
       },
       "resources_before": {
-        "gold": 281,
+        "gold": 666,
         "stars": 17,
-        "xp": 1427
+        "xp": 2371
       }
     },
     {
@@ -3526,7 +3529,69 @@
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 14
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 59,
+      "level_id": "level_059",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_teslacoil",
+        "gold_earned": 3251,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 737,
+          "stars": 21,
+          "xp": 1849
+        },
+        "star_weapon_target_chapter": 7,
+        "star_weapon_target_weakness": "lightning",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 1855
+      },
+      "projected_skills": {
+        "skill_multishot": 4,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5,
+        "skill_venom": 1
+      },
+      "resources_before": {
+        "gold": 270,
+        "stars": 19,
+        "xp": 3994
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11,
+        "character": "vanguard",
+        "character_level": 14,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -3541,68 +3606,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 59,
-      "level_id": "level_059",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_teslacoil",
-        "gold_earned": 3187,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 456,
-          "stars": 21,
-          "xp": 905
-        },
-        "star_weapon_target_chapter": 7,
-        "star_weapon_target_weakness": "lightning",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1855
-      },
-      "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_venom": 1
-      },
-      "resources_before": {
-        "gold": 53,
-        "stars": 19,
-        "xp": 3050
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 11,
-        "character": "vanguard",
-        "character_level": 14,
-        "chip": "chip_attack",
-        "chip_level": 12,
-        "pet": "pet_turret_drone",
-        "pet_level": 9,
-        "signature_level": 3,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 3,
-          "skill_critical": 3,
-          "skill_homing": 4,
-          "skill_multishot": 4,
-          "skill_pierce": 4,
-          "skill_ricochet": 3,
-          "skill_salvo": 4,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 38
       },
       "card_seeds": [
         1103,
@@ -3615,13 +3619,13 @@
         "catch_up_target_weapon": "weapon_teslacoil",
         "gold_earned": 6858,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 2256,
-        "priority_upgrades": 1,
+        "priority_gold_spent": 7266,
+        "priority_upgrades": 2,
         "purchases": [],
         "resources_after": {
-          "gold": 582,
+          "gold": 329,
           "stars": 23,
-          "xp": 3154
+          "xp": 98
         },
         "star_weapon_target_chapter": 7,
         "star_weapon_target_weakness": "lightning",
@@ -3634,9 +3638,9 @@
         "skill_tesla": 3
       },
       "resources_before": {
-        "gold": 456,
+        "gold": 737,
         "stars": 21,
-        "xp": 905
+        "xp": 1849
       }
     },
     {
@@ -3648,7 +3652,7 @@
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -3663,7 +3667,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3675,14 +3679,14 @@
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
         "gold_earned": 3762,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "preferred_next_weapon": "weapon_venomlauncher",
+        "priority_gold_spent": 2424,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 270,
+          "gold": 203,
           "stars": 25,
-          "xp": 684
+          "xp": 1628
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -3695,9 +3699,9 @@
         "skill_tesla": 2
       },
       "resources_before": {
-        "gold": 582,
+        "gold": 329,
         "stars": 23,
-        "xp": 3154
+        "xp": 98
       }
     },
     {
@@ -3705,15 +3709,15 @@
         "armor": "armor_kevlar",
         "armor_level": 11,
         "character": "vanguard",
-        "character_level": 14,
+        "character_level": 15,
         "chip": "chip_attack",
         "chip_level": 12,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
-          "skill_charge_shot": 4,
+          "skill_charge_shot": 3,
           "skill_critical": 3,
           "skill_homing": 4,
           "skill_multishot": 4,
@@ -3724,7 +3728,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3741,9 +3745,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 171,
+          "gold": 328,
           "stars": 27,
-          "xp": 2360
+          "xp": 3304
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -3756,9 +3760,9 @@
         "skill_venom": 1
       },
       "resources_before": {
-        "gold": 270,
+        "gold": 203,
         "stars": 25,
-        "xp": 684
+        "xp": 1628
       }
     },
     {
@@ -3766,15 +3770,15 @@
         "armor": "armor_kevlar",
         "armor_level": 11,
         "character": "vanguard",
-        "character_level": 14,
+        "character_level": 15,
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
-        "pet_level": 9,
+        "pet_level": 8,
         "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
-          "skill_charge_shot": 4,
+          "skill_charge_shot": 3,
           "skill_critical": 3,
           "skill_homing": 4,
           "skill_multishot": 4,
@@ -3785,7 +3789,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3802,9 +3806,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 729,
+          "gold": 384,
           "stars": 29,
-          "xp": 3613
+          "xp": 557
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -3817,9 +3821,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 171,
+        "gold": 328,
         "stars": 27,
-        "xp": 2360
+        "xp": 3304
       }
     },
     {
@@ -3827,7 +3831,68 @@
         "armor": "armor_kevlar",
         "armor_level": 11,
         "character": "vanguard",
-        "character_level": 14,
+        "character_level": 15,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 3,
+          "skill_split_shot": 3
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 39
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 64,
+      "level_id": "level_064",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 3608,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 217,
+          "stars": 31,
+          "xp": 2579
+        },
+        "star_weapon_target_chapter": 8,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2022
+      },
+      "projected_skills": {
+        "skill_cryo": 1,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 384,
+        "stars": 29,
+        "xp": 557
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11,
+        "character": "vanguard",
+        "character_level": 15,
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
@@ -3846,68 +3911,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 64,
-      "level_id": "level_064",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 3608,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 693,
-          "stars": 31,
-          "xp": 235
-        },
-        "star_weapon_target_chapter": 8,
-        "star_weapon_target_weakness": "fire",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2022
-      },
-      "projected_skills": {
-        "skill_cryo": 1,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 729,
-        "stars": 29,
-        "xp": 3613
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 11,
-        "character": "vanguard",
-        "character_level": 14,
-        "chip": "chip_attack",
-        "chip_level": 13,
-        "pet": "pet_turret_drone",
-        "pet_level": 9,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 4,
-          "skill_critical": 3,
-          "skill_homing": 4,
-          "skill_multishot": 4,
-          "skill_pierce": 4,
-          "skill_ricochet": 3,
-          "skill_salvo": 4,
-          "skill_slow_field": 3,
-          "skill_split_shot": 3
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3924,9 +3928,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 551,
+          "gold": 145,
           "stars": 33,
-          "xp": 2621
+          "xp": 965
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -3940,9 +3944,9 @@
         "skill_tesla": 1
       },
       "resources_before": {
-        "gold": 693,
+        "gold": 217,
         "stars": 31,
-        "xp": 235
+        "xp": 2579
       }
     },
     {
@@ -3950,12 +3954,12 @@
         "armor": "armor_kevlar",
         "armor_level": 11,
         "character": "vanguard",
-        "character_level": 14,
+        "character_level": 15,
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
         "pet_level": 9,
-        "signature_level": 4,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
@@ -3965,11 +3969,11 @@
           "skill_pierce": 4,
           "skill_ricochet": 3,
           "skill_salvo": 4,
-          "skill_slow_field": 3,
+          "skill_slow_field": 4,
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3980,15 +3984,15 @@
       "level_id": "level_066",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 3571,
+        "gold_earned": 3486,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 0,
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 32,
+          "gold": 399,
           "stars": 35,
-          "xp": 818
+          "xp": 3162
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -4001,9 +4005,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 551,
+        "gold": 145,
         "stars": 33,
-        "xp": 2621
+        "xp": 965
       }
     },
     {
@@ -4011,12 +4015,12 @@
         "armor": "armor_kevlar",
         "armor_level": 11,
         "character": "vanguard",
-        "character_level": 14,
+        "character_level": 15,
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
-        "signature_level": 4,
+        "pet_level": 9,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
@@ -4030,7 +4034,7 @@
           "skill_split_shot": 3
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -4043,13 +4047,13 @@
         "catch_up_target_weapon": "weapon_flamethrower",
         "gold_earned": 4718,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 4968,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 54,
+          "gold": 149,
           "stars": 37,
-          "xp": 2549
+          "xp": 893
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -4062,9 +4066,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 32,
+        "gold": 399,
         "stars": 35,
-        "xp": 818
+        "xp": 3162
       }
     },
     {
@@ -4076,8 +4080,8 @@
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
-        "signature_level": 4,
+        "pet_level": 9,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
@@ -4088,10 +4092,10 @@
           "skill_ricochet": 3,
           "skill_salvo": 4,
           "skill_slow_field": 4,
-          "skill_split_shot": 3
+          "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4108,9 +4112,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 210,
+          "gold": 307,
           "stars": 39,
-          "xp": 775
+          "xp": 3119
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -4118,14 +4122,15 @@
         "xp_earned": 2226
       },
       "projected_skills": {
+        "skill_multishot": 4,
         "skill_ricochet": 5,
         "skill_split_shot": 5,
         "skill_tesla": 1
       },
       "resources_before": {
-        "gold": 54,
+        "gold": 149,
         "stars": 37,
-        "xp": 2549
+        "xp": 893
       }
     },
     {
@@ -4137,8 +4142,8 @@
         "chip": "chip_attack",
         "chip_level": 13,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
-        "signature_level": 4,
+        "pet_level": 9,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
@@ -4152,7 +4157,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4169,9 +4174,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 199,
+          "gold": 83,
           "stars": 41,
-          "xp": 2631
+          "xp": 975
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -4185,9 +4190,9 @@
         "skill_venom": 1
       },
       "resources_before": {
-        "gold": 210,
+        "gold": 307,
         "stars": 39,
-        "xp": 775
+        "xp": 3119
       }
     },
     {
@@ -4197,14 +4202,14 @@
         "character": "vanguard",
         "character_level": 15,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
-        "signature_level": 4,
+        "pet_level": 9,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
-          "skill_critical": 3,
+          "skill_critical": 4,
           "skill_homing": 4,
           "skill_multishot": 4,
           "skill_pierce": 4,
@@ -4214,7 +4219,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4231,9 +4236,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 336,
+          "gold": 220,
           "stars": 43,
-          "xp": 1073
+          "xp": 3417
         },
         "star_weapon_target_chapter": 8,
         "star_weapon_target_weakness": "fire",
@@ -4244,12 +4249,13 @@
         "skill_charge_shot": 5,
         "skill_critical": 5,
         "skill_incendiary": 1,
-        "skill_pierce": 5
+        "skill_pierce": 5,
+        "skill_salvo": 4
       },
       "resources_before": {
-        "gold": 199,
+        "gold": 83,
         "stars": 41,
-        "xp": 2631
+        "xp": 975
       }
     },
     {
@@ -4259,10 +4265,10 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
-        "signature_level": 4,
+        "pet_level": 9,
+        "signature_level": 3,
         "skill_base_levels": {
           "skill_barrier": 4,
           "skill_charge_shot": 4,
@@ -4276,7 +4282,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4293,9 +4299,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 754,
+          "gold": 142,
           "stars": 45,
-          "xp": 3383
+          "xp": 327
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4309,9 +4315,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 336,
+        "gold": 220,
         "stars": 43,
-        "xp": 1073
+        "xp": 3417
       }
     },
     {
@@ -4321,9 +4327,9 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 10,
+        "pet_level": 9,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4338,7 +4344,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4355,9 +4361,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 26,
+          "gold": 363,
           "stars": 47,
-          "xp": 1629
+          "xp": 2573
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4371,9 +4377,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 754,
+        "gold": 142,
         "stars": 45,
-        "xp": 3383
+        "xp": 327
       }
     },
     {
@@ -4383,9 +4389,9 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 9,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4394,13 +4400,13 @@
           "skill_homing": 4,
           "skill_multishot": 4,
           "skill_pierce": 4,
-          "skill_ricochet": 4,
+          "skill_ricochet": 3,
           "skill_salvo": 4,
           "skill_slow_field": 4,
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 41
+        "weapon_level": 40
       },
       "card_seeds": [
         1103,
@@ -4417,9 +4423,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 605,
+          "gold": 58,
           "stars": 49,
-          "xp": 4111
+          "xp": 1055
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4427,15 +4433,15 @@
         "xp_earned": 2482
       },
       "projected_skills": {
-        "skill_homing": 5,
+        "skill_homing": 4,
         "skill_multishot": 5,
         "skill_ricochet": 5,
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 26,
+        "gold": 363,
         "stars": 47,
-        "xp": 1629
+        "xp": 2573
       }
     },
     {
@@ -4445,9 +4451,134 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 40
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 74,
+      "level_id": "level_074",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 4871,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 789,
+          "stars": 51,
+          "xp": 3310
+        },
+        "star_weapon_target_chapter": 9,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2255
+      },
+      "projected_skills": {
+        "skill_incendiary": 2,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 58,
+        "stars": 49,
+        "xp": 1055
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 40
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 75,
+      "level_id": "level_075",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_flamethrower",
+        "gold_earned": 5128,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 5094,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 823,
+          "stars": 53,
+          "xp": 5670
+        },
+        "star_weapon_target_chapter": 9,
+        "star_weapon_target_weakness": "fire",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2360
+      },
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_incendiary": 1,
+        "skill_pierce": 5,
+        "skill_salvo": 4
+      },
+      "resources_before": {
+        "gold": 789,
+        "stars": 51,
+        "xp": 3310
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4469,24 +4600,24 @@
         2207,
         3301
       ],
-      "level": 74,
-      "level_id": "level_074",
+      "level": 76,
+      "level_id": "level_076",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 4871,
+        "gold_earned": 4425,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 5220,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 256,
-          "stars": 51,
-          "xp": 6366
+          "gold": 28,
+          "stars": 55,
+          "xp": 8029
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2255
+        "xp_earned": 2359
       },
       "projected_skills": {
         "skill_incendiary": 2,
@@ -4495,9 +4626,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 605,
-        "stars": 49,
-        "xp": 4111
+        "gold": 823,
+        "stars": 53,
+        "xp": 5670
       }
     },
     {
@@ -4507,9 +4638,9 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4531,131 +4662,6 @@
         2207,
         3301
       ],
-      "level": 75,
-      "level_id": "level_075",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 5128,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5346,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 38,
-          "stars": 53,
-          "xp": 21
-        },
-        "star_weapon_target_chapter": 9,
-        "star_weapon_target_weakness": "fire",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2155
-      },
-      "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_incendiary": 1,
-        "skill_pierce": 5,
-        "skill_salvo": 4
-      },
-      "resources_before": {
-        "gold": 256,
-        "stars": 51,
-        "xp": 6366
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 12,
-        "character": "vanguard",
-        "character_level": 16,
-        "chip": "chip_attack",
-        "chip_level": 13,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 4,
-          "skill_critical": 4,
-          "skill_homing": 4,
-          "skill_multishot": 5,
-          "skill_pierce": 4,
-          "skill_ricochet": 4,
-          "skill_salvo": 4,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 43
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 76,
-      "level_id": "level_076",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_flamethrower",
-        "gold_earned": 4425,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 273,
-          "stars": 55,
-          "xp": 2380
-        },
-        "star_weapon_target_chapter": 9,
-        "star_weapon_target_weakness": "fire",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2359
-      },
-      "projected_skills": {
-        "skill_incendiary": 3,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 38,
-        "stars": 53,
-        "xp": 21
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 12,
-        "character": "vanguard",
-        "character_level": 16,
-        "chip": "chip_attack",
-        "chip_level": 13,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 4,
-          "skill_critical": 4,
-          "skill_homing": 4,
-          "skill_multishot": 5,
-          "skill_pierce": 4,
-          "skill_ricochet": 4,
-          "skill_salvo": 4,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 43
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 77,
       "level_id": "level_077",
       "progression_after_clear": {
@@ -4666,9 +4672,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 345,
+          "gold": 100,
           "stars": 57,
-          "xp": 4621
+          "xp": 1770
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4678,14 +4684,13 @@
       "projected_skills": {
         "skill_homing": 5,
         "skill_multishot": 5,
-        "skill_pierce": 4,
         "skill_ricochet": 5,
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 273,
+        "gold": 28,
         "stars": 55,
-        "xp": 2380
+        "xp": 8029
       }
     },
     {
@@ -4695,9 +4700,9 @@
         "character": "vanguard",
         "character_level": 16,
         "chip": "chip_attack",
-        "chip_level": 13,
+        "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4712,7 +4717,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 43
+        "weapon_level": 42
       },
       "card_seeds": [
         1103,
@@ -4729,9 +4734,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 307,
+          "gold": 539,
           "stars": 59,
-          "xp": 6992
+          "xp": 4141
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4745,9 +4750,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 345,
+        "gold": 100,
         "stars": 57,
-        "xp": 4621
+        "xp": 1770
       }
     },
     {
@@ -4759,7 +4764,7 @@
         "chip": "chip_attack",
         "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4774,7 +4779,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 43
+        "weapon_level": 42
       },
       "card_seeds": [
         1103,
@@ -4787,13 +4792,13 @@
         "catch_up_target_weapon": "weapon_flamethrower",
         "gold_earned": 5106,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 5346,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 65,
+          "gold": 299,
           "stars": 61,
-          "xp": 905
+          "xp": 6554
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4807,9 +4812,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 307,
+        "gold": 539,
         "stars": 59,
-        "xp": 6992
+        "xp": 4141
       }
     },
     {
@@ -4817,11 +4822,11 @@
         "armor": "armor_kevlar",
         "armor_level": 12,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 16,
         "chip": "chip_attack",
         "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4829,7 +4834,7 @@
           "skill_critical": 4,
           "skill_homing": 4,
           "skill_multishot": 5,
-          "skill_pierce": 5,
+          "skill_pierce": 4,
           "skill_ricochet": 4,
           "skill_salvo": 4,
           "skill_slow_field": 4,
@@ -4853,9 +4858,9 @@
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 493,
+          "gold": 727,
           "stars": 63,
-          "xp": 4311
+          "xp": 1460
         },
         "star_weapon_target_chapter": 9,
         "star_weapon_target_weakness": "fire",
@@ -4867,12 +4872,12 @@
         "skill_critical": 5,
         "skill_incendiary": 1,
         "skill_pierce": 5,
-        "skill_salvo": 5
+        "skill_salvo": 4
       },
       "resources_before": {
-        "gold": 65,
+        "gold": 299,
         "stars": 61,
-        "xp": 905
+        "xp": 6554
       }
     },
     {
@@ -4880,11 +4885,11 @@
         "armor": "armor_kevlar",
         "armor_level": 12,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 16,
         "chip": "chip_attack",
         "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4916,9 +4921,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 405,
+          "gold": 387,
           "stars": 65,
-          "xp": 6632
+          "xp": 3781
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -4933,21 +4938,21 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 493,
+        "gold": 727,
         "stars": 63,
-        "xp": 4311
+        "xp": 1460
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 12,
+        "armor_level": 13,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 16,
         "chip": "chip_attack",
         "chip_level": 14,
         "pet": "pet_turret_drone",
-        "pet_level": 11,
+        "pet_level": 10,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 4,
@@ -4979,9 +4984,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 822,
+          "gold": 79,
           "stars": 67,
-          "xp": 435
+          "xp": 6084
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -4996,19 +5001,145 @@
         "skill_tesla": 2
       },
       "resources_before": {
-        "gold": 405,
+        "gold": 387,
         "stars": 65,
-        "xp": 6632
+        "xp": 3781
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 12,
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 43
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 83,
+      "level_id": "level_083",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 5186,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 669,
+          "stars": 69,
+          "xp": 8454
+        },
+        "star_weapon_target_chapter": 10,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2370
+      },
+      "projected_skills": {
+        "skill_homing": 4,
+        "skill_incendiary": 3,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 79,
+        "stars": 67,
+        "xp": 6084
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 13,
         "character": "vanguard",
         "character_level": 17,
         "chip": "chip_attack",
         "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 43
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 84,
+      "level_id": "level_084",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 4434,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
+        "purchases": [],
+        "resources_after": {
+          "gold": 139,
+          "stars": 71,
+          "xp": 2551
+        },
+        "star_weapon_target_chapter": 10,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2597
+      },
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 669,
+        "stars": 69,
+        "xp": 8454
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 17,
+        "chip": "chip_attack",
+        "chip_level": 15,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5032,145 +5163,19 @@
         2207,
         3301
       ],
-      "level": 83,
-      "level_id": "level_083",
+      "level": 85,
+      "level_id": "level_085",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 5186,
+        "gold_earned": 6167,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 5472,
         "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 536,
-          "stars": 69,
-          "xp": 2805
-        },
-        "star_weapon_target_chapter": 10,
-        "star_weapon_target_weakness": "physical",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2370
-      },
-      "projected_skills": {
-        "skill_incendiary": 4,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 822,
-        "stars": 67,
-        "xp": 435
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 12,
-        "character": "vanguard",
-        "character_level": 17,
-        "chip": "chip_attack",
-        "chip_level": 14,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 4,
-          "skill_critical": 4,
-          "skill_homing": 5,
-          "skill_multishot": 5,
-          "skill_pierce": 5,
-          "skill_ricochet": 4,
-          "skill_salvo": 4,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 44
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 84,
-      "level_id": "level_084",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 4434,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
-        "purchases": [],
-        "resources_after": {
-          "gold": 66,
-          "stars": 71,
-          "xp": 5402
-        },
-        "star_weapon_target_chapter": 10,
-        "star_weapon_target_weakness": "physical",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2597
-      },
-      "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_homing": 5,
-        "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 536,
-        "stars": 69,
-        "xp": 2805
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 13,
-        "character": "vanguard",
-        "character_level": 17,
-        "chip": "chip_attack",
-        "chip_level": 14,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 4,
-          "skill_charge_shot": 4,
-          "skill_critical": 4,
-          "skill_homing": 5,
-          "skill_multishot": 5,
-          "skill_pierce": 5,
-          "skill_ricochet": 4,
-          "skill_salvo": 4,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 44
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 85,
-      "level_id": "level_085",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 6123,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5598,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 591,
+          "gold": 834,
           "stars": 73,
-          "xp": 386
+          "xp": 6035
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5185,9 +5190,9 @@
         "skill_salvo": 5
       },
       "resources_before": {
-        "gold": 66,
+        "gold": 139,
         "stars": 71,
-        "xp": 5402
+        "xp": 2551
       }
     },
     {
@@ -5197,7 +5202,69 @@
         "character": "vanguard",
         "character_level": 17,
         "chip": "chip_attack",
-        "chip_level": 14,
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 44
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 86,
+      "level_id": "level_086",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 5856,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 5598,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 11,
+          "stars": 75,
+          "xp": 140
+        },
+        "star_weapon_target_chapter": 10,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 2605
+      },
+      "projected_skills": {
+        "skill_incendiary": 4,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 834,
+        "stars": 73,
+        "xp": 6035
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 17,
+        "chip": "chip_attack",
+        "chip_level": 15,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5221,81 +5288,19 @@
         2207,
         3301
       ],
-      "level": 86,
-      "level_id": "level_086",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 5856,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5724,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 723,
-          "stars": 75,
-          "xp": 2991
-        },
-        "star_weapon_target_chapter": 10,
-        "star_weapon_target_weakness": "physical",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2605
-      },
-      "projected_skills": {
-        "skill_incendiary": 4,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 591,
-        "stars": 73,
-        "xp": 386
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 13,
-        "character": "vanguard",
-        "character_level": 17,
-        "chip": "chip_attack",
-        "chip_level": 14,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 5,
-          "skill_charge_shot": 4,
-          "skill_critical": 4,
-          "skill_homing": 5,
-          "skill_multishot": 5,
-          "skill_pierce": 5,
-          "skill_ricochet": 4,
-          "skill_salvo": 4,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 46
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 87,
       "level_id": "level_087",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
         "gold_earned": 5691,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5850,
-        "priority_upgrades": 1,
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 564,
+          "gold": 298,
           "stars": 77,
-          "xp": 5922
+          "xp": 3071
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5311,19 +5316,19 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 723,
+        "gold": 11,
         "stars": 75,
-        "xp": 2991
+        "xp": 140
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 13,
+        "armor_level": 14,
         "character": "vanguard",
         "character_level": 17,
         "chip": "chip_attack",
-        "chip_level": 14,
+        "chip_level": 15,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5340,7 +5345,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47
+        "weapon_level": 45
       },
       "card_seeds": [
         1103,
@@ -5357,9 +5362,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 124,
+          "gold": 918,
           "stars": 79,
-          "xp": 468
+          "xp": 6117
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5373,15 +5378,15 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 564,
+        "gold": 298,
         "stars": 77,
-        "xp": 5922
+        "xp": 3071
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 13,
+        "armor_level": 14,
         "character": "vanguard",
         "character_level": 17,
         "chip": "chip_attack",
@@ -5397,12 +5402,12 @@
           "skill_multishot": 5,
           "skill_pierce": 5,
           "skill_ricochet": 4,
-          "skill_salvo": 5,
+          "skill_salvo": 4,
           "skill_slow_field": 4,
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47
+        "weapon_level": 45
       },
       "card_seeds": [
         1103,
@@ -5413,15 +5418,15 @@
       "level_id": "level_089",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 4174,
+        "gold_earned": 5715,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 5724,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 121,
+          "gold": 909,
           "stars": 81,
-          "xp": 3402
+          "xp": 551
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5435,9 +5440,9 @@
         "skill_tesla": 4
       },
       "resources_before": {
-        "gold": 124,
+        "gold": 918,
         "stars": 79,
-        "xp": 468
+        "xp": 6117
       }
     },
     {
@@ -5464,7 +5469,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47
+        "weapon_level": 46
       },
       "card_seeds": [
         1103,
@@ -5475,15 +5480,15 @@
       "level_id": "level_090",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 4632,
+        "gold_earned": 4754,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 0,
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 87,
+          "gold": 798,
           "stars": 83,
-          "xp": 6716
+          "xp": 3865
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5499,9 +5504,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 121,
+        "gold": 909,
         "stars": 81,
-        "xp": 3402
+        "xp": 551
       }
     },
     {
@@ -5509,7 +5514,7 @@
         "armor": "armor_kevlar",
         "armor_level": 14,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 18,
         "chip": "chip_attack",
         "chip_level": 15,
         "pet": "pet_turret_drone",
@@ -5528,7 +5533,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 47
+        "weapon_level": 46
       },
       "card_seeds": [
         1103,
@@ -5545,9 +5550,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 704,
+          "gold": 877,
           "stars": 85,
-          "xp": 358
+          "xp": 6007
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5563,9 +5568,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 87,
+        "gold": 798,
         "stars": 83,
-        "xp": 6716
+        "xp": 3865
       }
     },
     {
@@ -5573,7 +5578,69 @@
         "armor": "armor_kevlar",
         "armor_level": 14,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 18,
+        "chip": "chip_attack",
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 46
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 92,
+      "level_id": "level_092",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 6845,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 5850,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 2,
+          "stars": 87,
+          "xp": 562
+        },
+        "star_weapon_target_chapter": 10,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 3055
+      },
+      "projected_skills": {
+        "skill_cryo": 4,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 877,
+        "stars": 85,
+        "xp": 6007
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 19,
         "chip": "chip_attack",
         "chip_level": 15,
         "pet": "pet_turret_drone",
@@ -5599,35 +5666,35 @@
         2207,
         3301
       ],
-      "level": 92,
-      "level_id": "level_092",
+      "level": 93,
+      "level_id": "level_093",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 6845,
+        "gold_earned": 5841,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 5976,
-        "priority_upgrades": 1,
+        "priority_gold_spent": 0,
+        "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 439,
-          "stars": 87,
-          "xp": 3413
+          "gold": 75,
+          "stars": 89,
+          "xp": 2424
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 3055
+        "xp_earned": 1862
       },
       "projected_skills": {
-        "skill_cryo": 4,
+        "skill_incendiary": 5,
         "skill_multishot": 5,
         "skill_ricochet": 5,
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 704,
-        "stars": 85,
-        "xp": 358
+        "gold": 2,
+        "stars": 87,
+        "xp": 562
       }
     },
     {
@@ -5635,9 +5702,74 @@
         "armor": "armor_kevlar",
         "armor_level": 14,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 19,
         "chip": "chip_attack",
-        "chip_level": 16,
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 47
+      },
+      "card_seeds": [
+        1103,
+        2207,
+        3301
+      ],
+      "level": 94,
+      "level_id": "level_094",
+      "progression_after_clear": {
+        "catch_up_target_weapon": "weapon_scattergun",
+        "gold_earned": 6356,
+        "preferred_next_weapon": "weapon_scattergun",
+        "priority_gold_spent": 5976,
+        "priority_upgrades": 1,
+        "purchases": [],
+        "resources_after": {
+          "gold": 455,
+          "stars": 91,
+          "xp": 5759
+        },
+        "star_weapon_target_chapter": 10,
+        "star_weapon_target_weakness": "physical",
+        "strategy_id": "matchup_aware_v2",
+        "xp_earned": 3335
+      },
+      "projected_skills": {
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_pierce": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5
+      },
+      "resources_before": {
+        "gold": 75,
+        "stars": 89,
+        "xp": 2424
+      }
+    },
+    {
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 14,
+        "character": "vanguard",
+        "character_level": 19,
+        "chip": "chip_attack",
+        "chip_level": 15,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5661,151 +5793,24 @@
         2207,
         3301
       ],
-      "level": 93,
-      "level_id": "level_093",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 5841,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6102,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 178,
-          "stars": 89,
-          "xp": 5275
-        },
-        "star_weapon_target_chapter": 10,
-        "star_weapon_target_weakness": "physical",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 1862
-      },
-      "projected_skills": {
-        "skill_incendiary": 5,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 439,
-        "stars": 87,
-        "xp": 3413
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 14,
-        "character": "vanguard",
-        "character_level": 17,
-        "chip": "chip_attack",
-        "chip_level": 16,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 5,
-          "skill_charge_shot": 5,
-          "skill_critical": 4,
-          "skill_homing": 5,
-          "skill_multishot": 5,
-          "skill_pierce": 5,
-          "skill_ricochet": 4,
-          "skill_salvo": 5,
-          "skill_slow_field": 4,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 49
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
-      "level": 94,
-      "level_id": "level_094",
-      "progression_after_clear": {
-        "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 6387,
-        "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 6228,
-        "priority_upgrades": 1,
-        "purchases": [],
-        "resources_after": {
-          "gold": 337,
-          "stars": 91,
-          "xp": 110
-        },
-        "star_weapon_target_chapter": 10,
-        "star_weapon_target_weakness": "physical",
-        "strategy_id": "matchup_aware_v2",
-        "xp_earned": 3335
-      },
-      "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
-        "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
-      },
-      "resources_before": {
-        "gold": 178,
-        "stars": 89,
-        "xp": 5275
-      }
-    },
-    {
-      "build": {
-        "armor": "armor_kevlar",
-        "armor_level": 14,
-        "character": "vanguard",
-        "character_level": 17,
-        "chip": "chip_attack",
-        "chip_level": 16,
-        "pet": "pet_turret_drone",
-        "pet_level": 11,
-        "signature_level": 4,
-        "skill_base_levels": {
-          "skill_barrier": 5,
-          "skill_charge_shot": 5,
-          "skill_critical": 4,
-          "skill_homing": 5,
-          "skill_multishot": 5,
-          "skill_pierce": 5,
-          "skill_ricochet": 4,
-          "skill_salvo": 5,
-          "skill_slow_field": 5,
-          "skill_split_shot": 4
-        },
-        "weapon": "weapon_scattergun",
-        "weapon_level": 50
-      },
-      "card_seeds": [
-        1103,
-        2207,
-        3301
-      ],
       "level": 95,
       "level_id": "level_095",
       "progression_after_clear": {
         "catch_up_target_weapon": "weapon_scattergun",
-        "gold_earned": 5392,
+        "gold_earned": 5618,
         "preferred_next_weapon": "weapon_scattergun",
         "priority_gold_spent": 0,
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 393,
+          "gold": 811,
           "stars": 93,
-          "xp": 2954
+          "xp": 329
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
         "strategy_id": "matchup_aware_v2",
-        "xp_earned": 2844
+        "xp_earned": 3070
       },
       "projected_skills": {
         "skill_charge_shot": 5,
@@ -5817,9 +5822,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 337,
+        "gold": 455,
         "stars": 91,
-        "xp": 110
+        "xp": 5759
       }
     },
     {
@@ -5827,9 +5832,9 @@
         "armor": "armor_kevlar",
         "armor_level": 14,
         "character": "vanguard",
-        "character_level": 17,
+        "character_level": 19,
         "chip": "chip_attack",
-        "chip_level": 17,
+        "chip_level": 16,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5846,7 +5851,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 50
+        "weapon_level": 48
       },
       "card_seeds": [
         1103,
@@ -5859,13 +5864,13 @@
         "catch_up_target_weapon": "weapon_scattergun",
         "gold_earned": 7887,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 6102,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 453,
+          "gold": 148,
           "stars": 95,
-          "xp": 5857
+          "xp": 3232
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5880,19 +5885,19 @@
         "skill_tesla": 4
       },
       "resources_before": {
-        "gold": 393,
+        "gold": 811,
         "stars": 93,
-        "xp": 2954
+        "xp": 329
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 15,
+        "armor_level": 14,
         "character": "vanguard",
-        "character_level": 18,
+        "character_level": 19,
         "chip": "chip_attack",
-        "chip_level": 17,
+        "chip_level": 16,
         "pet": "pet_turret_drone",
         "pet_level": 11,
         "signature_level": 4,
@@ -5909,7 +5914,7 @@
           "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
-        "weapon_level": 50
+        "weapon_level": 49
       },
       "card_seeds": [
         1103,
@@ -5922,13 +5927,13 @@
         "catch_up_target_weapon": "weapon_scattergun",
         "gold_earned": 7310,
         "preferred_next_weapon": "weapon_scattergun",
-        "priority_gold_spent": 0,
-        "priority_upgrades": 0,
+        "priority_gold_spent": 6228,
+        "priority_upgrades": 1,
         "purchases": [],
         "resources_after": {
-          "gold": 195,
+          "gold": 22,
           "stars": 97,
-          "xp": 109
+          "xp": 5984
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -5942,21 +5947,21 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 453,
+        "gold": 148,
         "stars": 95,
-        "xp": 5857
+        "xp": 3232
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 15,
+        "armor_level": 14,
         "character": "vanguard",
-        "character_level": 18,
+        "character_level": 19,
         "chip": "chip_attack",
         "chip_level": 17,
         "pet": "pet_turret_drone",
-        "pet_level": 12,
+        "pet_level": 11,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 5,
@@ -5968,7 +5973,7 @@
           "skill_ricochet": 4,
           "skill_salvo": 5,
           "skill_slow_field": 5,
-          "skill_split_shot": 5
+          "skill_split_shot": 4
         },
         "weapon": "weapon_scattergun",
         "weapon_level": 50
@@ -5988,9 +5993,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 22,
+          "gold": 439,
           "stars": 99,
-          "xp": 2773
+          "xp": 148
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -6004,25 +6009,24 @@
         "skill_multishot": 5,
         "skill_pierce": 5,
         "skill_ricochet": 5,
-        "skill_salvo": 5,
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 195,
+        "gold": 22,
         "stars": 97,
-        "xp": 109
+        "xp": 5984
       }
     },
     {
       "build": {
         "armor": "armor_kevlar",
-        "armor_level": 16,
+        "armor_level": 15,
         "character": "vanguard",
         "character_level": 19,
         "chip": "chip_attack",
         "chip_level": 17,
         "pet": "pet_turret_drone",
-        "pet_level": 12,
+        "pet_level": 11,
         "signature_level": 4,
         "skill_base_levels": {
           "skill_barrier": 5,
@@ -6054,9 +6058,9 @@
         "priority_upgrades": 0,
         "purchases": [],
         "resources_after": {
-          "gold": 381,
+          "gold": 952,
           "stars": 101,
-          "xp": 5920
+          "xp": 3295
         },
         "star_weapon_target_chapter": 10,
         "star_weapon_target_weakness": "physical",
@@ -6074,9 +6078,9 @@
         "skill_split_shot": 5
       },
       "resources_before": {
-        "gold": 22,
+        "gold": 439,
         "stars": 99,
-        "xp": 2773
+        "xp": 148
       }
     }
   ],

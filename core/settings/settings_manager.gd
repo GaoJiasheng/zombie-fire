@@ -11,7 +11,7 @@ var settings := {
 	"language": _system_default_language(),
 	"quality": "standard",
 	"battle_speed": 1.0,
-	"fire_rate_profile": "control",
+	"fire_rate_profile": "tier_b",
 	"audio_enabled": true,
 	"bgm_volume": 0.82,
 	"sfx_volume": 0.90,
@@ -162,18 +162,19 @@ func has_fire_rate_lab() -> bool:
 	return OS.has_feature(TESTFLIGHT_FIRERATE_FEATURE)
 
 func get_fire_rate_profile() -> String:
-	# Formal/release packages have no selector and are hard-locked to the
-	# bit-equivalent control profile even if a TestFlight settings file survives.
-	if not has_fire_rate_lab():
-		return "control"
 	var table: Dictionary = DataLoader.get_table("economy").get("fire_rate_profiles", {})
+	var default_profile := str(table.get("default", "tier_b"))
+	# Formal/release packages have no selector and are hard-locked to the
+	# frozen shipping profile even if a TestFlight settings file survives.
+	if not has_fire_rate_lab():
+		return default_profile
 	var order: Array = table.get("order", ["control"])
-	var stored := str(settings.get("fire_rate_profile", "control"))
-	return stored if order.has(stored) else "control"
+	var stored := str(settings.get("fire_rate_profile", default_profile))
+	return stored if order.has(stored) else default_profile
 
 func cycle_fire_rate_profile() -> String:
 	if not has_fire_rate_lab():
-		return "control"
+		return get_fire_rate_profile()
 	var table: Dictionary = DataLoader.get_table("economy").get("fire_rate_profiles", {})
 	var order: Array = table.get("order", ["control"])
 	if order.is_empty():

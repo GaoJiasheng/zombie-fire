@@ -309,13 +309,21 @@ def validate(
         if not target_counts_equal(actual, expected, rule):
             errors.append(f"{expected['id']}: target-wave counts differ from generated output")
 
-    stars = Counter(int(row["star"]) for row in report)
-    for level in current[:start_level - 1]:
-        baseline = fixture["levels"][level["id"]]
-        stars[int(baseline["baseline_star"])] += 1
-    star_distribution = {rating: int(stars.get(rating, 0)) for rating in (1, 2, 3)}
     runtime_numbers, runtime_rows, runtime_errors = runtime_contracts.load()
     errors.extend(runtime_errors)
+    stars = Counter(int(row["star"]) for row in report)
+    for level in current[:start_level - 1]:
+        level_no = sim.level_number(level)
+        if level_no in runtime_rows:
+            runtime_leak = max(
+                0.0,
+                (1.0 - float(runtime_rows[level_no]["median_base_ratio"])) * 100.0,
+            )
+            stars[predicted_star(runtime_leak, 30.0, 65.0)] += 1
+        else:
+            baseline = fixture["levels"][level["id"]]
+            stars[int(baseline["baseline_star"])] += 1
+    star_distribution = {rating: int(stars.get(rating, 0)) for rating in (1, 2, 3)}
     expected_distribution = expected_star_distribution(current, fixture)
     if star_distribution != expected_distribution:
         errors.append(f"star distribution {star_distribution} != {expected_distribution}")
@@ -336,7 +344,7 @@ def validate(
         1 for level_id in pilot_ids
         if level_id not in EXPECTED_PARTIAL and level_id not in EXPECTED_UNCHANGED
     )
-    expected_full = EXPECTED_FULL_COUNT - expected_pilot_full
+    expected_full = max(0, EXPECTED_FULL_COUNT - expected_pilot_full)
     if len(full) != expected_full:
         errors.append(f"non-pilot full-bump levels {len(full)} != {expected_full}")
     expected_partial = {key: value for key, value in EXPECTED_PARTIAL.items() if key not in pilot_ids}
