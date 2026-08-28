@@ -4646,3 +4646,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **All campaign contracts share current evidence**: repaired ten-seed rows are spliced into their chapter evidence sources, all 99 clear requirements are regenerated, the 97-stage power corridor remains `[1.02,1.38]`, and the maxed-free family clears 99/99 within authored caps.
 - **Pressure and smoke pins follow authored B2b data**: the first-ten authored hash, Chapter-6 full-data hash, 061–099 XP total, Stage-050 category floor and data-owned Tank Titan resistance assertion are current. Runtime-derived stars total 96 three-star / 3 two-star / 0 one-star.
 - **Static envelopes remain visible**: Stage 039 / 084 conflicts stay report-only, while the refreshed Boss-duration checker identifies Stage 065 at 61.5 seconds and Stage 090 at 91.8 seconds for the post-approval 99×10 repair pass.
+
+## Campaign Rebuild v2 · B2b Star Approval Gate (2026-08-29)
+
+- **The proposed normal-campaign table improves without regressions**: 83 / 15 / 1 becomes 96 / 3 / 0 for three-/two-/one-star stages, raising expected normal stars from 280 to 294. Thirteen stages rise and none fall.
+- **The collection loop remains challenge-backed**: 30 free collection purchases cost 316 stars in total, so the expected normal table leaves a 22-star challenge requirement versus 36 previously. Premium entitlement rows remain outside the star loop.
+- **Existing saves stay additive**: stored stars are not rewritten; a replay only credits an improvement delta. The conservative progression fixture deliberately remains fixed at two stars per clear.
+- **Work stops at the approval gate**: the per-stage CSV and consumer audit are ready for Owner review; no 99×10 final sweep, Boss-band repair or build-64 packaging has started.
