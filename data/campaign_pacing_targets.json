@@ -2,7 +2,7 @@
   "schema_version": 1,
 	"frozen": true,
 	"status": "b2_owner_frozen",
-	"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.4",
+	"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.7",
 	"frozen_contract": {
 		"authoritative_fire_rate_profile": "tier_b",
 		"target_grade_counts": {
@@ -86,6 +86,22 @@
 			]
 		}
 	},
+	"boss_phase_contract": {
+		"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md section 3.7",
+		"tolerance_seconds": 0.0,
+		"chapter_bands": [
+			{"chapters": [1, 2], "seconds": [20.0, 35.0]},
+			{"chapters": [3, 4], "seconds": [30.0, 45.0]},
+			{"chapters": [5, 6], "seconds": [40.0, 60.0]},
+			{"chapters": [7], "seconds": [55.0, 80.0]},
+			{"chapters": [8], "seconds": [70.0, 100.0]},
+			{"chapters": [9], "seconds": [90.0, 130.0]},
+			{"chapters": [10], "seconds": [120.0, 185.0]}
+		],
+		"level_overrides": {
+			"level_099": [150.0, 185.0]
+		}
+	},
 	"runtime_contracts": [
 		{
 			"id": "b2b_chapter1",
@@ -130,12 +146,7 @@
 			"runtime_evidence": "design/audits/b2b_final_ch5_tier_b_10_v21.json",
 			"runs_per_level": 10,
 			"clear_requirement_mode": "preserve_v5_scale",
-			"max_duration_seconds": 260.0,
-			"boss_phase_tolerance_seconds": 0.0,
-			"boss_phase_bands": [
-				{"scope": [45], "seconds": [40.0, 60.0]},
-				{"scope": [50], "seconds": [40.0, 60.0]}
-			]
+			"max_duration_seconds": 260.0
 		},
 		{
 			"id": "b1_chapter6",
@@ -152,15 +163,7 @@
 			"runtime_evidence": "design/audits/b2a_final_061_099_tier_b_10_corrected.json",
 			"runs_per_level": 10,
 			"clear_requirement_mode": "preserve_v5_scale",
-			"max_duration_seconds": 460.0,
-			"boss_phase_tolerance_seconds": 1.0,
-			"boss_phase_bands": [
-				{"scope": [61, 70], "seconds": [0.0, 60.0]},
-				{"scope": [71, 85], "seconds": [60.0, 100.0]},
-				{"scope": [86, 98], "seconds": [100.0, 170.0]},
-				{"scope": [99, 99], "seconds": [150.0, 185.0]}
-			],
-			"finale_boss_phase_band": [150.0, 185.0]
+			"max_duration_seconds": 460.0
 		}
 	],
 	"pilot_chapter6": {

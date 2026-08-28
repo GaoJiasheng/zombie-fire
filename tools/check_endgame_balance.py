@@ -256,7 +256,7 @@ def main() -> int:
         if not lower - tolerance <= seconds <= upper + tolerance:
             errors.append(
                 f"level_{level_no:03d} Boss stage {seconds:.1f}s outside "
-                f"design/35 band [{lower:.0f},{upper:.0f}]s")
+                f"design/40 section 3.7 band [{lower:.0f},{upper:.0f}]s")
 
     # Complete runtime encounter: primary Apex + every levels.json runtime Boss,
     # using the power contract's mechanic-adjusted combined effective HP.
@@ -358,7 +358,7 @@ def main() -> int:
         print(
             f"    Apex L{level_no}: hp={checkpoint_boss_hp / 1_000_000:.2f}M "
             f"counter-TTK={ttk:.1f}s skill-windows={casts}")
-    print("  Boss milestone phase audit (design/35 corridor families)")
+    print("  Boss milestone phase audit (design/40 section 3.7 chapter bands)")
     for level_no, weapon_id, effective_hp, seconds, lower, upper, source in boss_stage_rows:
         print(
             f"    L{level_no}: {weapon_id} effective={effective_hp / 1_000_000:.2f}M "

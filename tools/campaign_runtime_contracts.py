@@ -30,6 +30,14 @@ def specs() -> list[dict]:
     return [row for row in payload.get("runtime_contracts", []) if isinstance(row, dict)]
 
 
+def _boss_phase_contract() -> dict:
+    if not TARGETS_PATH.exists():
+        return {}
+    payload = json.loads(TARGETS_PATH.read_text(encoding="utf-8"))
+    contract = payload.get("boss_phase_contract", {})
+    return contract if isinstance(contract, dict) else {}
+
+
 def spec_for_level(level_no: int) -> dict:
     for spec in specs():
         if int(level_no) in _scope_numbers(spec.get("scope", [])):
@@ -42,9 +50,13 @@ def clear_requirement_mode(level_no: int) -> str:
 
 
 def boss_phase_band(level_no: int) -> tuple[float, float] | None:
-    spec = spec_for_level(level_no)
-    for row in spec.get("boss_phase_bands", []):
-        if not isinstance(row, dict) or level_no not in _scope_numbers(row.get("scope", [])):
+    contract = _boss_phase_contract()
+    override = contract.get("level_overrides", {}).get(f"level_{level_no:03d}")
+    if isinstance(override, list) and len(override) == 2:
+        return float(override[0]), float(override[1])
+    chapter = min(10, (int(level_no) - 1) // 10 + 1)
+    for row in contract.get("chapter_bands", []):
+        if not isinstance(row, dict) or chapter not in _scope_numbers(row.get("chapters", [])):
             continue
         seconds = row.get("seconds", [])
         if isinstance(seconds, list) and len(seconds) == 2:
@@ -53,7 +65,7 @@ def boss_phase_band(level_no: int) -> tuple[float, float] | None:
 
 
 def boss_phase_tolerance_seconds(level_no: int) -> float:
-    return float(spec_for_level(level_no).get("boss_phase_tolerance_seconds", 0.0))
+    return float(_boss_phase_contract().get("tolerance_seconds", 0.0))
 
 
 def preserve_v5_requirement(
