@@ -14,6 +14,7 @@ const DEFAULT_OUTPUT_PATH := "res://design/audits/frontline_runtime_probe.json"
 const BATTLE_SCENE_PATH := "res://gameplay/battle/battle.tscn"
 const DEFAULT_LEVELS := [3, 8, 13, 30, 40, 55, 62, 75, 84, 95]
 const BASE_PHYSICS_TICKS := 60
+const DEFAULT_WALL_ACCELERATION := 60.0
 const MAX_LOGICAL_SECONDS := 540.0
 const SETTLE_FRAMES := 4
 
@@ -74,8 +75,9 @@ var _seed_override: Array[int] = []
 var _ignore_level_guarantees := false
 var _ignore_offer_category_floor := false
 var _challenge_mode := false
+var _fail_fast := false
 var _results: Array[Dictionary] = []
-var _wall_acceleration := 1.0
+var _wall_acceleration := DEFAULT_WALL_ACCELERATION
 
 
 func _initialize() -> void:
@@ -121,6 +123,8 @@ func _initialize() -> void:
 					str(run.get("selected_skills", [])),
 				]
 			)
+			if _fail_fast and not bool(run.get("victory", false)):
+				break
 	Engine.physics_ticks_per_second = original_ticks
 	Engine.time_scale = 1.0
 	paused = false
@@ -161,6 +165,8 @@ func _parse_arguments() -> bool:
 			_ignore_offer_category_floor = true
 		elif text == "--challenge":
 			_challenge_mode = true
+		elif text == "--fail-fast":
+			_fail_fast = true
 	if _requested_levels.is_empty():
 		_fail("--levels must contain at least one positive level number")
 		return false
@@ -170,8 +176,8 @@ func _parse_arguments() -> bool:
 	if not ["v2", "legacy"].has(_card_policy_id):
 		_fail("--card-policy must be v2 or legacy")
 		return false
-	if _wall_acceleration < 1.0 or _wall_acceleration > 50.0:
-		_fail("--accel must be between 1 and 50")
+	if _wall_acceleration < 1.0 or _wall_acceleration > 60.0:
+		_fail("--accel must be between 1 and 60")
 		return false
 	_requested_levels.sort()
 	return true
@@ -356,7 +362,7 @@ func _drive_probe_tick(driver: ProbeTickDriver) -> void:
 			driver.boss_phase_start = driver.logical_seconds
 		driver.boss_phase_last_seen = driver.logical_seconds
 	if battle.card_offer_active:
-		var choice := _select_live_offer(battle)
+		var choice := _select_live_offer(battle, driver)
 		var selected := str(choice.get("selected", ""))
 		if selected != "":
 			driver.selected_skills.append(selected)
@@ -452,7 +458,7 @@ func _save_for_build(save_manager: Node, fixture_row: Dictionary) -> Dictionary:
 	return data
 
 
-func _select_live_offer(battle: Node) -> Dictionary:
+func _select_live_offer(battle: Node, driver: ProbeTickDriver) -> Dictionary:
 	var cards := battle.get_node_or_null("Hud/CardPanel/Cards")
 	if cards == null:
 		return {}
@@ -466,7 +472,7 @@ func _select_live_offer(battle: Node) -> Dictionary:
 		return {}
 	if _card_policy_id == "legacy":
 		return _select_legacy_offer(battle, candidates)
-	return _select_policy_offer(battle, candidates)
+	return _select_policy_offer(battle, candidates, driver)
 
 
 func _select_legacy_offer(battle: Node, candidates: Array[String]) -> Dictionary:
@@ -498,7 +504,11 @@ func _select_legacy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 	}
 
 
-func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary:
+func _select_policy_offer(
+	battle: Node,
+	candidates: Array[String],
+	driver: ProbeTickDriver
+) -> Dictionary:
 	var data_loader := root.get_node("/root/DataLoader")
 	var economy: Dictionary = data_loader.get_table("economy")
 	var policy: Dictionary = economy.get("probe_card_policy", {})
@@ -507,11 +517,6 @@ func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 		return _select_legacy_offer(battle, candidates)
 	var clear_requirement: Dictionary = battle.level.get("clear_requirement", {})
 	var boss_share := float(clear_requirement.get("boss_hp_share", 0.0))
-	# Chapter pacing can author an offer-category floor when aggregate HP share is
-	# not representative of the encounter's intended pressure axis.  The probe's
-	# deterministic player must evaluate those offers using the same axis; using
-	# boss_hp_share here made the bot ignore the authored single-target floor on
-	# 055/060 and reintroduced card-luck variance that a real player would avoid.
 	var authored_floor := str(battle.level.get("offer_category_floor", ""))
 	var boss_dominant := (
 		authored_floor == "single_target"
@@ -532,7 +537,10 @@ func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 		var skill_id := candidates[index]
 		var skill_row: Dictionary = data_loader.get_row("skills", skill_id)
 		var tags: Array = skill_row.get("card_tags", [])
-		var owned := int(battle.skills.level(skill_id)) > 0
+		# Policy upgrades are based only on cards selected during this probe run.
+		# Permanent skill levels belong to the injected build and must not make the
+		# deterministic player believe it already owns an in-run card.
+		var owned := driver.selected_skills.has(skill_id)
 		var reason := _policy_reason(
 			tags,
 			owned,
@@ -563,7 +571,6 @@ func _select_policy_offer(battle: Node, candidates: Array[String]) -> Dictionary
 		"weapon_element": weapon_element,
 		"offer": int(battle.card_director._offer_index),
 	}
-
 
 func _policy_reason(
 	tags: Array,
@@ -702,6 +709,7 @@ func _write_output() -> bool:
 		"card_policy": _card_policy_id,
 		"ignore_level_guarantees": _ignore_level_guarantees,
 		"ignore_offer_category_floor": _ignore_offer_category_floor,
+		"fail_fast": _fail_fast,
 		"seeds_per_level": _seed_override.size() if not _seed_override.is_empty() else 3,
 		"simulation_step_seconds": 1.0 / float(BASE_PHYSICS_TICKS),
 		"wall_acceleration": _wall_acceleration,

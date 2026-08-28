@@ -545,9 +545,12 @@
 		]
 	},
 	"probe_card_policy": {
-		"version": "v2",
+		"version": "v2.1",
 		"boss_hp_share_threshold": 0.5,
 		"boss_share_source": "level.clear_requirement.boss_hp_share",
+		"authored_offer_category_floor_gates_runtime_routing": true,
+		"owned_upgrade_source": "current_run_card_selections",
+		"boss_priority_persists_for_boss_dominant_level": true,
 		"element_tags": [
 			"physical",
 			"fire",
