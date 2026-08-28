@@ -133,7 +133,14 @@ def apply_solution(baseline: dict, solution: dict, clear_requirement) -> dict:
     if clear_requirement is not None:
         result["clear_requirement"] = copy.deepcopy(clear_requirement)
     result["difficulty_coef"] = float(solution["difficulty_coef"])
-    for key in ("run_xp_budget", "offer_category_floor"):
+    for key in (
+        "run_xp_budget",
+        "offer_category_floor",
+        "xp_first_offer",
+        "xp_offer_growth",
+        "xp_offer_ramp",
+        "target_card_picks",
+    ):
         if key not in solution:
             continue
         value = solution[key]

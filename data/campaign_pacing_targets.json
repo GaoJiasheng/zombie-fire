@@ -13,7 +13,7 @@
 			"unwinnable": 0
 		},
 		"chapter6_level_range": [51, 60],
-		"chapter6_levels_sha256": "d817a86a797700f12ba2de8462ea286564104f04d4570608c9096c36db9ae1d1",
+		"chapter6_levels_sha256": "96a05ab4994af52f7d9426bfa2afc5642d51de38f876b8779ea1998c005b8609",
 		"max_free_graduation": {
 			"fixture_id": "maxed_free_matchup_aware_v1",
 			"all_campaign_levels_clearable": true,
@@ -122,6 +122,20 @@
 			"runs_per_level": 10,
 			"clear_requirement_mode": "preserve_v5_scale",
 			"max_duration_seconds": 260.0
+		},
+		{
+			"id": "b2b_chapter5",
+			"scope": [41, 50],
+			"authoritative_profile": "tier_b",
+			"runtime_evidence": "design/audits/b2b_final_ch5_tier_b_10_v21.json",
+			"runs_per_level": 10,
+			"clear_requirement_mode": "preserve_v5_scale",
+			"max_duration_seconds": 260.0,
+			"boss_phase_tolerance_seconds": 0.0,
+			"boss_phase_bands": [
+				{"scope": [45], "seconds": [40.0, 60.0]},
+				{"scope": [50], "seconds": [40.0, 60.0]}
+			]
 		},
 		{
 			"id": "b1_chapter6",

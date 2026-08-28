@@ -4625,3 +4625,17 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **Wave rewards materially change later builds**: 71/99 progression builds differ from the pre-B2a fixture, including all 39 stages from 061-099. The complete slot/level/resource comparison is stored in `design/audits/b2b_fixture_build_old_to_new.csv`.
 - **Late-stage repair stays staged**: the new-fixture Tier-B three-seed scan records 26 target-band candidates, with same-seed losses at 066 and 067. No 061-099 tuning is performed until Chapters 001-050 are rebuilt and the fixture is regenerated again.
 - **Blade evidence uses a comparable definition**: `design/audits/b2b_fixture_061_099_repair_list.md` reports minimum base ratio for the same three seeds before and after fixture regeneration, rather than mixing it with the prior ten-seed blade-margin summary.
+
+## Campaign Rebuild v2 · B2b Chapter 5 Closure (2026-08-29)
+
+- **Chapter 5 is runtime-owned**: Stages 041-050 pass 100/100 Tier-B v2.1 fixed-seed runs, and the final evidence is the single source for clear requirements, stars, wave pressure and level-pressure checks.
+- **The Plague Mother family is frozen**: `450,000 HP`, `1.5` base-damage coefficient and `50%` poison resistance produce 10/10 at both home stages; Endless budget generation and simulation remain green.
+- **Stage 050 separates its three pressure axes**: an effective ≈11-second second-Mother stagger controls overlap, 15 spitters provide bounded base damage, and one trailing shambler supplies late progress. The final medians are 94.10% progress, 83.84% base and 55.37 seconds Boss phase, with 9.67% minimum base.
+- **Derived contracts preserve the v5 display scale**: the rebuilt Chapter 5 refreshes HP shares, corridor axes and runtime evidence without silently replacing the player-facing recommendation ruler before Phase C.
+
+## Campaign Rebuild v2 · B2b Process-B Merge Adjudication (2026-08-29)
+
+- **Only valid Process-B repairs were merged**: the mistaken 40-second Boss-floor changes for Stages 010 / 015 / 020 were removed. Original Stages 010 / 020 already sit at 21.03 / 30.47 seconds; Stage 015 was re-solved against the correct 20–35-second Chapter-1/2 band and now measures 29.68 seconds over ten seeds.
+- **The merged surface has fresh evidence**: all 34 affected or explicitly retained stages pass a three-seed Tier-B v2.1 spot sweep (102/102), including mandatory Stages 066 / 067 / 089.
+- **Blade safety is no longer sub-threshold**: Stage 040 receives one small durability step and passes ten seeds with a 2.06% minimum base margin. Stages 039 / 084 retain Process B's documented choice to protect seed safety when it conflicts with the strict analytical envelope.
+- **Derived pins intentionally follow in the next commit**: full clear/star/corridor/pressure regeneration, smoke re-pinning and the formal Tier-B default switch remain isolated as the contract chain.

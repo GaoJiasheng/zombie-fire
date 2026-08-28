@@ -36,6 +36,10 @@ def tail_hash(levels: list[dict]) -> str:
     return pacing.canonical_hash([pacing.authored_projection(row) for row in levels[50:99]])
 
 
+def post_chapter6_hash(levels: list[dict]) -> str:
+    return pacing.canonical_hash([pacing.authored_projection(row) for row in levels[60:99]])
+
+
 def capture_baseline(levels: list[dict]) -> dict:
     rows = [pacing.authored_projection(row) for row in levels[:50]]
     if len(rows) != 50:
@@ -80,6 +84,7 @@ def main() -> int:
     parser.add_argument("--levels", default="")
     parser.add_argument("--capture-baseline", action="store_true")
     parser.add_argument("--capture-solutions", action="store_true")
+    parser.add_argument("--include-chapter6-repairs", action="store_true")
     parser.add_argument("--check", action="store_true")
     options = parser.parse_args()
 
@@ -97,14 +102,18 @@ def main() -> int:
     solutions = pacing.load_json(SOLUTIONS_PATH)
 
     frozen_tail = str(baseline["frozen_tail_sha256"])
-    if tail_hash(levels) != frozen_tail:
-        raise AssertionError("Levels 051-099 drifted before B2b generation")
+    if tail_hash(levels) != frozen_tail and not options.include_chapter6_repairs:
+        raise AssertionError(
+            "Levels 051-099 contain the authorized Chapter 6 repair; "
+            "rerun with --include-chapter6-repairs"
+        )
     if str(solutions.get("frozen_tail_sha256", "")) != frozen_tail:
         raise AssertionError("B2b solution tail hash does not match its baseline")
 
     selected = parse_levels(options.levels)
     baseline_by_id = {row["id"]: row for row in baseline["levels"]}
     current_by_id = {row["id"]: row for row in levels}
+    frozen_post_chapter6 = post_chapter6_hash(levels)
     generated = copy.deepcopy(levels)
     for index, current in enumerate(generated):
         number = int(str(current["id"]).split("_")[-1])
@@ -118,18 +127,35 @@ def main() -> int:
             baseline_by_id[level_id], solutions["levels"][level_id], current_contract
         )
 
-    if tail_hash(generated) != frozen_tail:
-        raise AssertionError("B2b generator changed frozen Levels 051-099")
+    chapter6_repairs = solutions.get("chapter6_repairs", {}).get("levels", {})
+    if options.include_chapter6_repairs:
+        for index in range(50, 60):
+            current = generated[index]
+            level_id = current["id"]
+            repair = chapter6_repairs.get(level_id)
+            if not isinstance(repair, dict):
+                continue
+            current_contract = current_by_id[level_id].get("clear_requirement")
+            generated[index] = pacing.apply_solution(
+                pacing.authored_projection(current), repair, current_contract
+            )
+
+    if post_chapter6_hash(generated) != frozen_post_chapter6:
+        raise AssertionError("B2b generator changed frozen Levels 061-099")
     rendered = json.dumps(generated, ensure_ascii=False, indent="\t") + "\n"
     current_rendered = LEVELS_PATH.read_text(encoding="utf-8")
     if options.check:
         if rendered != current_rendered:
             print("B2b campaign pacing is stale; run tools/generate_campaign_pacing_b2b.py")
             return 1
-        print("B2b campaign pacing generator: fresh; Levels 051-099 frozen")
+        print("B2b campaign pacing generator: fresh; Levels 061-099 frozen")
         return 0
     LEVELS_PATH.write_text(rendered, encoding="utf-8")
-    print(f"Generated B2b pacing for {len(selected)} levels; Levels 051-099 unchanged")
+    repaired_chapter6 = len(chapter6_repairs) if options.include_chapter6_repairs else 0
+    print(
+        f"Generated B2b pacing for {len(selected)} levels; "
+        f"Chapter 6 repairs={repaired_chapter6}; Levels 061-099 unchanged"
+    )
     return 0
 
 

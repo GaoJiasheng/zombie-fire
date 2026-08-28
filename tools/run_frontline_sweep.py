@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GODOT = os.environ.get("GODOT_BIN", "/opt/homebrew/bin/godot")
 PROBE = "res://tools/frontline_runtime_probe.gd"
 DEFAULT_SEEDS = (1103, 2207, 3301)
+DEFAULT_ACCELERATION = 60.0
 
 
 def csv_ints(value: str) -> list[int]:
@@ -26,20 +27,27 @@ def csv_ints(value: str) -> list[int]:
     return values
 
 
-def run_one(
+def batches(values: list[int], size: int) -> list[list[int]]:
+    return [values[index : index + size] for index in range(0, len(values), size)]
+
+
+def run_batch(
     level: int,
-    seed: int,
+    seeds: list[int],
     profile: str,
     card_policy: str,
     accel: float,
     ignore_level_guarantees: bool,
     ignore_offer_category_floor: bool,
     challenge: bool,
+    fail_fast: bool,
     process_timeout: float,
     temp_dir: Path,
-) -> tuple[dict, float]:
-    output = temp_dir / f"level_{level:03d}_seed_{seed}.json"
-    home_dir = temp_dir / f"home_level_{level:03d}_seed_{seed}"
+    project_root: Path,
+) -> tuple[list[dict], float]:
+    seed_label = "_".join(str(seed) for seed in seeds)
+    output = temp_dir / f"level_{level:03d}_seeds_{seed_label}.json"
+    home_dir = temp_dir / f"home_level_{level:03d}_seeds_{seed_label}"
     home_dir.mkdir(parents=True, exist_ok=True)
     args = [
         GODOT,
@@ -47,12 +55,12 @@ def run_one(
         "--fixed-fps",
         "60",
         "--path",
-        str(ROOT),
+        str(project_root),
         "--script",
         PROBE,
         "--",
         f"--levels={level}",
-        f"--seeds={seed}",
+        f"--seeds={','.join(str(seed) for seed in seeds)}",
         f"--profile={profile}",
         f"--card-policy={card_policy}",
         f"--accel={accel:g}",
@@ -64,6 +72,8 @@ def run_one(
         args.append("--ignore-offer-category-floor")
     if challenge:
         args.append("--challenge")
+    if fail_fast:
+        args.append("--fail-fast")
     started = time.monotonic()
     environment = os.environ.copy()
     environment["HOME"] = str(home_dir)
@@ -71,7 +81,7 @@ def run_one(
     try:
         completed = subprocess.run(
             args,
-            cwd=ROOT,
+            cwd=project_root,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -84,29 +94,39 @@ def run_one(
         raw_output = error.stdout or ""
         if isinstance(raw_output, bytes):
             raw_output = raw_output.decode("utf-8", errors="replace")
-        timeout_run = {
-            "level": level,
-            "seed": seed,
-            "victory": False,
-            "timeout": True,
-            "probe_status": "process_timeout",
-            "process_timeout_seconds": process_timeout,
-            "diagnostic_tail": raw_output[-2000:],
-        }
-        return timeout_run, wall_seconds
+        timeout_runs = [
+            {
+                "level": level,
+                "seed": seed,
+                "victory": False,
+                "timeout": True,
+                "probe_status": "process_timeout",
+                "process_timeout_seconds": process_timeout,
+                "diagnostic_tail": raw_output[-2000:],
+            }
+            for seed in seeds
+        ]
+        return timeout_runs, wall_seconds
     wall_seconds = time.monotonic() - started
     if completed.returncode != 0:
         raise RuntimeError(
-            f"frontline probe failed for level {level:03d} seed {seed}:\n"
+            f"frontline probe failed for level {level:03d} seeds {seed_label}:\n"
             f"{completed.stdout[-6000:]}"
         )
     payload = json.loads(output.read_text(encoding="utf-8"))
     runs = payload.get("runs", [])
-    if len(runs) != 1:
+    if not runs or len(runs) > len(seeds) or (not fail_fast and len(runs) != len(seeds)):
         raise RuntimeError(
-            f"frontline probe returned {len(runs)} runs for level {level:03d} seed {seed}"
+            f"frontline probe returned {len(runs)} runs for level {level:03d} "
+            f"seeds {seed_label}"
         )
-    return runs[0], wall_seconds
+    returned_seeds = [int(run.get("seed", 0)) for run in runs]
+    if returned_seeds != seeds[: len(returned_seeds)]:
+        raise RuntimeError(
+            f"frontline probe returned unexpected seed order {returned_seeds} "
+            f"for requested {seeds}"
+        )
+    return runs, wall_seconds
 
 
 def main() -> int:
@@ -117,8 +137,28 @@ def main() -> int:
     )
     parser.add_argument("--profile", choices=("control", "tier_a", "tier_b"), default="tier_b")
     parser.add_argument("--card-policy", choices=("v2", "legacy"), default="v2")
-    parser.add_argument("--accel", type=float, default=1.0)
-    parser.add_argument("--jobs", type=int, default=10)
+    parser.add_argument("--accel", type=float, default=DEFAULT_ACCELERATION)
+    parser.add_argument("--jobs", type=int, default=16)
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=1,
+        help=(
+            "seeds to run per Godot process (default: 1; local benchmark showed "
+            "multi-battle batches preserve results but reduce throughput; ignored by --fail-fast)"
+        ),
+    )
+    parser.add_argument(
+        "--fail-fast",
+        action="store_true",
+        help="stop each level at its first losing seed; final evidence must omit this flag",
+    )
+    parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=ROOT,
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument(
         "--process-timeout",
         type=float,
@@ -130,10 +170,12 @@ def main() -> int:
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
     parser.add_argument("--challenge", action="store_true")
     options = parser.parse_args()
-    if not 1.0 <= options.accel <= 50.0:
-        parser.error("--accel must be between 1 and 50")
+    if not 1.0 <= options.accel <= 60.0:
+        parser.error("--accel must be between 1 and 60")
     if options.jobs < 1:
         parser.error("--jobs must be positive")
+    if options.batch_size < 1:
+        parser.error("--batch-size must be positive")
     if options.process_timeout <= 0.0:
         parser.error("--process-timeout must be positive")
 
@@ -143,26 +185,33 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="frontline_sweep_") as temp_name:
         temp_dir = Path(temp_name)
         with concurrent.futures.ThreadPoolExecutor(max_workers=options.jobs) as executor:
+            seed_batches = (
+                [list(options.seeds)]
+                if options.fail_fast
+                else batches(list(options.seeds), options.batch_size)
+            )
             futures = [
                 executor.submit(
-                    run_one,
+                    run_batch,
                     level,
-                    seed,
+                    seed_batch,
                     options.profile,
                     options.card_policy,
                     options.accel,
                     options.ignore_level_guarantees,
                     options.ignore_offer_category_floor,
                     options.challenge,
+                    options.fail_fast,
                     options.process_timeout,
                     temp_dir,
+                    options.project_root.resolve(),
                 )
                 for level in options.levels
-                for seed in options.seeds
+                for seed_batch in seed_batches
             ]
             for future in concurrent.futures.as_completed(futures):
-                run, wall_seconds = future.result()
-                runs.append(run)
+                batch_runs, wall_seconds = future.result()
+                runs.extend(batch_runs)
                 run_wall_seconds.append(wall_seconds)
 
     runs.sort(key=lambda row: (int(row.get("level", 0)), int(row.get("seed", 0))))
@@ -176,12 +225,15 @@ def main() -> int:
         "ignore_level_guarantees": options.ignore_level_guarantees,
         "ignore_offer_category_floor": options.ignore_offer_category_floor,
         "challenge": options.challenge,
+        "fail_fast": options.fail_fast,
         "seeds_per_level": len(options.seeds),
         "simulation_step_seconds": 1.0 / 60.0,
         "wall_acceleration": options.accel,
         "runs": runs,
         "sweep": {
             "jobs": options.jobs,
+            "batch_size": len(options.seeds) if options.fail_fast else options.batch_size,
+            "process_count": len(run_wall_seconds),
             "wall_seconds": round(elapsed, 3),
             "max_process_seconds": round(max(run_wall_seconds, default=0.0), 3),
         },

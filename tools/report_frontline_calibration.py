@@ -22,6 +22,7 @@ BASELINE_PATH = ROOT / "design/audits/campaign_frontline_baseline.csv"
 RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe.json"
 LEGACY_RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe_legacy.json"
 SAMPLE_V1_RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe_sample_v1.json"
+V21_RUNTIME_PATH = ROOT / "design/audits/frontline_runtime_probe_v21.json"
 FIXTURE_PATH = ROOT / "data/campaign_progression_fixture.json"
 ECONOMY_PATH = ROOT / "data/economy.json"
 REPORT_PATH = ROOT / "design/audits/frontline_calibration_report.md"
@@ -93,6 +94,7 @@ def build_report() -> str:
     runtime = json.loads(RUNTIME_PATH.read_text(encoding="utf-8"))
     legacy_runtime = json.loads(LEGACY_RUNTIME_PATH.read_text(encoding="utf-8"))
     sample_v1_runtime = json.loads(SAMPLE_V1_RUNTIME_PATH.read_text(encoding="utf-8"))
+    v21_runtime = json.loads(V21_RUNTIME_PATH.read_text(encoding="utf-8"))
     fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
     economy = json.loads(ECONOMY_PATH.read_text(encoding="utf-8"))
     grouped: dict[int, list[dict]] = defaultdict(list)
@@ -104,6 +106,9 @@ def build_report() -> str:
     sample_v1_grouped: dict[int, list[dict]] = defaultdict(list)
     for run in sample_v1_runtime["runs"]:
         sample_v1_grouped[int(run["level"])].append(run)
+    v21_grouped: dict[int, list[dict]] = defaultdict(list)
+    for run in v21_runtime["runs"]:
+        v21_grouped[int(run["level"])].append(run)
 
     rows: list[dict] = []
     for level in runtime["levels"]:
@@ -146,7 +151,7 @@ def build_report() -> str:
         "因此会同时出现两种相反误差：早期把真实推进压到接近 0%，Boss 关又把基地承伤推到极端。",
         "",
         "本轮新增 `frontline_runtime_probe.gd`，使用与 99 关审计完全相同的资源约束成长构筑，",
-        "在真实 `Battle` 场景中以固定 1/60 秒物理步、固定卡牌种子生成选项，并按公开的 v2 策略",
+        "在真实 `Battle` 场景中以固定 1/60 秒物理步、固定卡牌种子生成选项，并按公开的 v2.1 策略",
         "确定性选卡、自动施放主动技能。种子只影响出现的候选，不改变玩家如何选择。",
         "每关记录最深推进、基地剩余、通关、用时；每关三种子取中位数，并保留范围表达路线方差。",
         "",
@@ -154,7 +159,7 @@ def build_report() -> str:
         "",
         "```bash",
         "python3 tools/audit_campaign_frontline.py --write",
-        "godot --headless --fixed-fps 60 --path . --script res://tools/frontline_runtime_probe.gd -- --card-policy=v2",
+        "python3 tools/run_frontline_sweep.py --levels 3,8,13,30,40,55,62,75,84,95 --seeds 1103,2207,3301 --profile control --output design/audits/frontline_runtime_probe_v21.json",
         "python3 tools/report_frontline_calibration.py --write",
         "python3 tools/report_frontline_calibration.py --check",
         "```",
@@ -283,6 +288,27 @@ def build_report() -> str:
         "`frontline_runtime_probe_sample_v1.json`。",
         "051 的 v2/legacy、有无保底十种子前置对照归档在 `design/audits/pilot_chapter6/`；",
         "这些是推倒旧关内波形前的证据，不是最终 B1 验收数字。",
+        "",
+        "### 5.2 玩家模型 v2.1 定稿（此后冻结）",
+        "",
+        "v2.1 只修正裁判语义，不改关卡：是否 Boss 主导继续读取关卡 `clear_requirement.boss_hp_share`；“已拿单体卡”只看本局三选一记录；无显式类别池的 Boss 主导关持续优先单体；关卡若写了 `offer_category_floor`，显式池始终优先，Boss 占比不得覆盖它。保底候选仍不享有额外权重。",
+        "",
+        "| 关卡 | v2 推进/基地/胜场 | v2.1 推进/基地/胜场 | 档位变化 |",
+        "|---:|---:|---:|---|",
+    ]
+    for level in v21_runtime["levels"]:
+        old = _summarize_runtime(grouped[int(level)])
+        new = _summarize_runtime(v21_grouped[int(level)])
+        lines.append(
+            f"| {int(level):03d} | {old['progress']:.2f}%/{old['base']:.2f}%/{old['victories']}/{old['runs']} | "
+            f"{new['progress']:.2f}%/{new['base']:.2f}%/{new['victories']}/{new['runs']} | "
+            f"{GRADE_ZH[old['grade']]} → {GRADE_ZH[new['grade']]} |"
+        )
+
+    lines += [
+        "",
+        "该口径现在由 `data/economy.json.probe_card_policy` 与探针共同锁定：本局选卡记录、Boss 主导关持续单体优先、显式类别池判断门三项缺一不可。后续所有量测统一使用 v2.1，不再边量边改尺子。",
+        "原始证据：`frontline_runtime_probe_v21.json`。",
         "",
         "## 6. 资源成长样本 v2：旧样本 → 新样本",
         "",

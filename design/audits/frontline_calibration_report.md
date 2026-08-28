@@ -10,7 +10,7 @@
 因此会同时出现两种相反误差：早期把真实推进压到接近 0%，Boss 关又把基地承伤推到极端。
 
 本轮新增 `frontline_runtime_probe.gd`，使用与 99 关审计完全相同的资源约束成长构筑，
-在真实 `Battle` 场景中以固定 1/60 秒物理步、固定卡牌种子生成选项，并按公开的 v2 策略
+在真实 `Battle` 场景中以固定 1/60 秒物理步、固定卡牌种子生成选项，并按公开的 v2.1 策略
 确定性选卡、自动施放主动技能。种子只影响出现的候选，不改变玩家如何选择。
 每关记录最深推进、基地剩余、通关、用时；每关三种子取中位数，并保留范围表达路线方差。
 
@@ -18,7 +18,7 @@
 
 ```bash
 python3 tools/audit_campaign_frontline.py --write
-godot --headless --fixed-fps 60 --path . --script res://tools/frontline_runtime_probe.gd -- --card-policy=v2
+python3 tools/run_frontline_sweep.py --levels 3,8,13,30,40,55,62,75,84,95 --seeds 1103,2207,3301 --profile control --output design/audits/frontline_runtime_probe_v21.json
 python3 tools/report_frontline_calibration.py --write
 python3 tools/report_frontline_calibration.py --check
 ```
@@ -127,6 +127,28 @@ python3 tools/report_frontline_calibration.py --check
 原始证据：`frontline_runtime_probe_legacy.json` 与 `frontline_runtime_probe_sample_v1.json`。
 051 的 v2/legacy、有无保底十种子前置对照归档在 `design/audits/pilot_chapter6/`；
 这些是推倒旧关内波形前的证据，不是最终 B1 验收数字。
+
+### 5.2 玩家模型 v2.1 定稿（此后冻结）
+
+v2.1 只修正裁判语义，不改关卡：是否 Boss 主导继续读取关卡 `clear_requirement.boss_hp_share`；“已拿单体卡”只看本局三选一记录；无显式类别池的 Boss 主导关持续优先单体；关卡若写了 `offer_category_floor`，显式池始终优先，Boss 占比不得覆盖它。保底候选仍不享有额外权重。
+
+| 关卡 | v2 推进/基地/胜场 | v2.1 推进/基地/胜场 | 档位变化 |
+|---:|---:|---:|---|
+| 003 | 24.66%/100.00%/3/3 | 24.66%/100.00%/3/3 | 轻松 → 轻松 |
+| 008 | 24.62%/100.00%/3/3 | 28.20%/100.00%/3/3 | 轻松 → 轻松 |
+| 013 | 29.03%/100.00%/3/3 | 58.35%/100.00%/3/3 | 轻松 → 略有压力 |
+| 030 | 26.21%/100.00%/3/3 | 92.86%/93.35%/3/3 | 轻松 → 压力 |
+| 040 | 25.15%/100.00%/3/3 | 82.83%/92.24%/3/3 | 轻松 → 压力 |
+| 055 | 95.42%/82.68%/3/3 | 95.42%/83.32%/3/3 | 压力 → 压力 |
+| 062 | 78.39%/100.00%/3/3 | 74.42%/100.00%/3/3 | 略有压力 → 略有压力 |
+| 075 | 88.35%/72.53%/3/3 | 100.00%/73.77%/3/3 | 压力 → 难度高但可过 |
+| 084 | 84.60%/88.39%/3/3 | 69.38%/99.78%/3/3 | 压力 → 略有压力 |
+| 095 | 100.00%/45.82%/3/3 | 99.09%/97.55%/3/3 | 难度高但可过 → 压力 |
+
+该口径现在由 `data/economy.json.probe_card_policy` 与探针共同锁定：本局选卡记录、Boss 主导关持续单体优先、显式类别池判断门三项缺一不可。后续所有量测统一使用 v2.1，不再边量边改尺子。
+原始证据：`frontline_runtime_probe_v21.json`。
+
+母体家族联合解：`boss_plague_mother` 冻结为 450k / bd 1.5 / 抗毒 50%，045 与 050 在 Tier B、v2.1、十种子下均为 10/10；050 以有效约 11s 双母体错峰、15 个喷吐者与末尾 1 个基础步行者达到推进 94.10%、基地 83.84%、Boss 55.37s。
 
 ## 6. 资源成长样本 v2：旧样本 → 新样本
 
