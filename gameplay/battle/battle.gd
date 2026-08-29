@@ -769,6 +769,7 @@ func _ready() -> void:
 	$Hud/PauseOverlay.visible = false
 	$Hud/CardPanel.visible = false
 	_apply_runtime_ui_styles()
+	_install_testflight_performance_overlay()
 	_ensure_skill_hint_overlay()
 	_apply_safe_area()
 	_ensure_boss_hp_bar()
@@ -824,6 +825,14 @@ func _ready() -> void:
 	_start_next_wave()
 	call_deferred("_show_onboarding_tip")
 	call_deferred("_ensure_battle_running")
+
+func _install_testflight_performance_overlay() -> void:
+	if not OS.has_feature("testflight_speed_unlocked"):
+		return
+	var overlay_script := load("res://gameplay/hud/testflight_performance_overlay.gd")
+	var overlay: Node = overlay_script.new()
+	$Hud.add_child(overlay)
+	overlay.call("setup", $EnemyLayer, $ProjectileLayer)
 
 func _ensure_battle_running() -> void:
 	if not is_inside_tree():

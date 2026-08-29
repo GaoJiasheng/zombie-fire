@@ -1,0 +1,2994 @@
+{
+  "schema_version": 1,
+  "passed": false,
+  "rule": {
+    "head_repetitions": 3,
+    "post_repetitions": 3,
+    "outcome_iteration_exact": [
+      "victory",
+      "timeout"
+    ],
+    "head_envelope_fields": [
+      "max_progress",
+      "base_ratio",
+      "boss_phase_seconds"
+    ],
+    "damage_relative_tolerance": 0.01,
+    "envelope_relative_tolerance": 0.005,
+    "normalized_ratio_absolute_tolerance": 0.007,
+    "exempt_known_chaos": [
+      {
+        "level": 86,
+        "seed": 2207
+      },
+      {
+        "level": 95,
+        "seed": 3301
+      }
+    ]
+  },
+  "runs": [
+    {
+      "level": 78,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.665205115398378,
+            0.680793494304628
+          ],
+          "post_values": [
+            0.680793494304628,
+            0.680793494304628,
+            0.680793494304628
+          ],
+          "post_mean": 0.680793494304628,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.932409012131716,
+            0.932409012131716
+          ],
+          "post_values": [
+            0.932409012131716,
+            0.932409012131716,
+            0.932409012131716
+          ],
+          "post_mean": 0.932409012131716,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              6910895.87957821,
+              6922745.76662732,
+              6910895.87957821
+            ],
+            "head_mean": 6914845.841927913,
+            "post_mean": 6922745.76662732,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 6981865.59131284,
+                "lightning": 6164586.68145402
+              },
+              {
+                "physical": 6970652.94852086,
+                "lightning": 6176436.56850406
+              },
+              {
+                "physical": 6981865.59131284,
+                "lightning": 6164586.68145402
+              }
+            ],
+            "head_mean": {
+              "lightning": 6168536.643804033,
+              "physical": 6978128.043715513
+            },
+            "post_mean": {
+              "lightning": 6176436.568504061,
+              "physical": 6970652.948520859
+            },
+            "outside_head_envelope_relative_difference": 1.5078639022452484e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 13142893.885573,
+                "pet": 3558.38719999999
+              },
+              {
+                "weapon": 13143467.8914288,
+                "pet": 3621.62559999999
+              },
+              {
+                "weapon": 13142893.885573,
+                "pet": 3558.38719999999
+              }
+            ],
+            "head_mean": {
+              "weapon": 13143085.220858267,
+              "pet": 3579.4666666666567
+            },
+            "post_mean": {
+              "weapon": 13143467.8914288,
+              "pet": 3621.62559999999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              13146452.272773,
+              13147089.5170288,
+              13146452.272773
+            ],
+            "head_mean": 13146664.687524932,
+            "post_mean": 13147089.5170288,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              6910895.87957821,
+              6922745.76662732,
+              6910895.87957821
+            ],
+            "head_mean": 6914845.841927913,
+            "post_mean": 6922745.76662732,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            116,
+            116,
+            116
+          ],
+          "post": [
+            116,
+            116,
+            116
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          true,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          false,
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "level": 78,
+      "seed": 2207,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.740307244453721,
+            0.740307244453721
+          ],
+          "post_values": [
+            0.740307244453721,
+            0.740307244453721,
+            0.740307244453721
+          ],
+          "post_mean": 0.740307244453721,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.861351819757366,
+            0.861351819757366
+          ],
+          "post_values": [
+            0.861351819757366,
+            0.861351819757366,
+            0.861351819757366
+          ],
+          "post_mean": 0.861351819757366,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              4462816.93371687,
+              4462816.93371687,
+              4462816.93371687
+            ],
+            "head_mean": 4462816.93371687,
+            "post_mean": 4462816.93371687,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 3301347.24764492,
+                "lightning": 4615506.77317985,
+                "ice": 5227976.66132557
+              },
+              {
+                "physical": 3301347.24764492,
+                "lightning": 4615506.77317985,
+                "ice": 5227976.66132557
+              },
+              {
+                "physical": 3301347.24764492,
+                "lightning": 4615506.77317985,
+                "ice": 5227976.66132557
+              }
+            ],
+            "head_mean": {
+              "ice": 5227976.66132557,
+              "lightning": 4615506.77317985,
+              "physical": 3301347.24764492
+            },
+            "post_mean": {
+              "ice": 5228454.28459774,
+              "lightning": 4615506.77317985,
+              "physical": 3300636.5365941995
+            },
+            "outside_head_envelope_relative_difference": 0.00021527909589862722
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 13139371.3797451,
+                "pet": 5459.30239999999
+              },
+              {
+                "weapon": 13139371.3797451,
+                "pet": 5459.30239999999
+              },
+              {
+                "weapon": 13139371.3797451,
+                "pet": 5459.30239999999
+              }
+            ],
+            "head_mean": {
+              "weapon": 13139371.379745102,
+              "pet": 5459.30239999999
+            },
+            "post_mean": {
+              "weapon": 13139132.0903667,
+              "pet": 5465.50399999999
+            },
+            "outside_head_envelope_relative_difference": 0.0011346803515284844
+          },
+          "damage_total": {
+            "head_values": [
+              13144830.6821452,
+              13144830.6821452,
+              13144830.6821452
+            ],
+            "head_mean": 13144830.6821452,
+            "post_mean": 13144597.5943667,
+            "outside_head_envelope_relative_difference": 1.773227697925534e-05
+          },
+          "weak_damage": {
+            "head_values": [
+              4462816.93371687,
+              4462816.93371687,
+              4462816.93371687
+            ],
+            "head_mean": 4462816.93371687,
+            "post_mean": 4462816.93371687,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            116,
+            116,
+            116
+          ],
+          "post": [
+            116,
+            116,
+            116
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "level": 78,
+      "seed": 3301,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.73515625,
+            0.73515625
+          ],
+          "post_values": [
+            0.73515625,
+            0.73515625,
+            0.73515625
+          ],
+          "post_mean": 0.7351562499999998,
+          "nearest_head_relative_difference": 1.5101864734539856e-16,
+          "nearest_head_absolute_difference": 1.1102230246251565e-16
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.990639625585023,
+            0.990639625585023
+          ],
+          "post_values": [
+            0.990639625585023,
+            0.990639625585023,
+            0.990639625585023
+          ],
+          "post_mean": 0.990639625585023,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              7909194.51131531,
+              7909194.51131531,
+              7909194.51131531
+            ],
+            "head_mean": 7909194.511315311,
+            "post_mean": 7909194.511315311,
+            "outside_head_envelope_relative_difference": 1.1775188652688707e-16
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 5099755.80052006,
+                "lightning": 8045904.01762785
+              },
+              {
+                "physical": 5099755.80052006,
+                "lightning": 8045904.01762785
+              },
+              {
+                "physical": 5099755.80052006,
+                "lightning": 8045904.01762785
+              }
+            ],
+            "head_mean": {
+              "lightning": 8045904.01762785,
+              "physical": 5099755.80052006
+            },
+            "post_mean": {
+              "lightning": 8045904.01762785,
+              "physical": 5099755.80052006
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 13142163.0181408,
+                "pet": 3496.79999999999
+              },
+              {
+                "weapon": 13142163.0181408,
+                "pet": 3496.79999999999
+              },
+              {
+                "weapon": 13142163.0181408,
+                "pet": 3496.79999999999
+              }
+            ],
+            "head_mean": {
+              "weapon": 13142163.0181408,
+              "pet": 3496.79999999999
+            },
+            "post_mean": {
+              "weapon": 13142163.0181408,
+              "pet": 3496.79999999999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              13145659.8181408,
+              13145659.8181408,
+              13145659.8181408
+            ],
+            "head_mean": 13145659.8181408,
+            "post_mean": 13145659.8181408,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              7909194.51131531,
+              7909194.51131531,
+              7909194.51131531
+            ],
+            "head_mean": 7909194.511315311,
+            "post_mean": 7909194.511315311,
+            "outside_head_envelope_relative_difference": 1.1775188652688707e-16
+          }
+        },
+        "kills": {
+          "head": [
+            116,
+            116,
+            116
+          ],
+          "post": [
+            116,
+            116,
+            116
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 86,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.809918818583015,
+            0.809918818583015
+          ],
+          "post_values": [
+            0.809918818583015,
+            0.809918818583015,
+            0.809918818583015
+          ],
+          "post_mean": 0.809918818583015,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.991317829457364,
+            0.991317829457364
+          ],
+          "post_values": [
+            0.991317829457364,
+            0.991317829457364,
+            0.991317829457364
+          ],
+          "post_mean": 0.991317829457364,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              898200.769275656,
+              898200.769275656,
+              898200.769275656
+            ],
+            "head_mean": 898200.769275656,
+            "post_mean": 898200.769275656,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 8081861.7375393,
+                "lightning": 12190573.9527499,
+                "fire": 23678.9985072144
+              },
+              {
+                "physical": 8081861.7375393,
+                "lightning": 12190573.9527499,
+                "fire": 23678.9985072144
+              },
+              {
+                "physical": 8081861.7375393,
+                "lightning": 12190573.9527499,
+                "fire": 23678.9985072144
+              }
+            ],
+            "head_mean": {
+              "fire": 23678.9985072144,
+              "lightning": 12190573.9527499,
+              "physical": 8081861.7375393
+            },
+            "post_mean": {
+              "fire": 23678.9985072144,
+              "lightning": 12190573.9527499,
+              "physical": 8081861.7375393
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 20287406.6284338,
+                "pet": 4083.92319999999,
+                "burn": 4624.13716980989
+              },
+              {
+                "weapon": 20287406.6284338,
+                "pet": 4083.92319999999,
+                "burn": 4624.13716980989
+              },
+              {
+                "weapon": 20287406.6284338,
+                "pet": 4083.92319999999,
+                "burn": 4624.13716980989
+              }
+            ],
+            "head_mean": {
+              "weapon": 20287406.6284338,
+              "burn": 4624.13716980989,
+              "pet": 4083.92319999999
+            },
+            "post_mean": {
+              "weapon": 20287406.6284338,
+              "burn": 4624.13716980989,
+              "pet": 4083.92319999999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              20296114.6888038,
+              20296114.6888038,
+              20296114.6888038
+            ],
+            "head_mean": 20296114.6888038,
+            "post_mean": 20296114.6888038,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              898200.769275656,
+              898200.769275656,
+              898200.769275656
+            ],
+            "head_mean": 898200.769275656,
+            "post_mean": 898200.769275656,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            166,
+            166,
+            166
+          ],
+          "post": [
+            166,
+            166,
+            166
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 86,
+      "seed": 2207,
+      "exempt_known_chaos": true,
+      "passed": true,
+      "recorded_failures": [
+        {
+          "field": "battle_report.damage_by_element",
+          "outside_head_envelope_relative_difference": 0.0597603324220908
+        },
+        {
+          "field": "battle_report.damage_by_source",
+          "outside_head_envelope_relative_difference": 0.021528458477726452
+        }
+      ],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.972256865756202,
+            0.974047292461832
+          ],
+          "post_values": [
+            0.972517779401241,
+            0.972517779401241,
+            0.971995952111164
+          ],
+          "post_mean": 0.9723438369712153,
+          "nearest_head_relative_difference": 8.944491825467945e-05,
+          "nearest_head_absolute_difference": 8.697121501333172e-05
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.893520272830618,
+            0.900341038272073
+          ],
+          "post_values": [
+            0.900341038272073,
+            0.900341038272073,
+            0.89920424403183
+          ],
+          "post_mean": 0.8999621068586586,
+          "nearest_head_relative_difference": 0.0004208754208756574,
+          "nearest_head_absolute_difference": 0.0003789314134143851
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              1098981.5594491,
+              1098665.73301809,
+              1098981.5594491
+            ],
+            "head_mean": 1098876.2839720966,
+            "post_mean": 1098284.0024266802,
+            "outside_head_envelope_relative_difference": 0.0003474492558907854
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 9451678.6196551,
+                "lightning": 10034614.9013216,
+                "fire": 21480.2268771204,
+                "ice": 789388.447429647
+              },
+              {
+                "physical": 9588107.86927675,
+                "lightning": 10252226.1804053,
+                "fire": 20703.5420673181,
+                "ice": 436898.569806637
+              },
+              {
+                "physical": 9451678.6196551,
+                "lightning": 10034614.9013216,
+                "fire": 21480.2268771204,
+                "ice": 789388.447429647
+              }
+            ],
+            "head_mean": {
+              "fire": 21221.331940519634,
+              "ice": 671891.8215553103,
+              "lightning": 10107151.9943495,
+              "physical": 9497155.03619565
+            },
+            "post_mean": {
+              "fire": 20363.230671576268,
+              "ice": 410789.36604025634,
+              "lightning": 10253880.762872567,
+              "physical": 9611810.69092045
+            },
+            "outside_head_envelope_relative_difference": 0.0597603324220908
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 20289440.5284205,
+                "pet": 3848.12159999999,
+                "burn": 3873.54527213683
+              },
+              {
+                "weapon": 20290743.0522747,
+                "pet": 3780.42239999999,
+                "burn": 3412.68689334128
+              },
+              {
+                "weapon": 20289440.5284205,
+                "pet": 3848.12159999999,
+                "burn": 3873.54527213683
+              }
+            ],
+            "head_mean": {
+              "weapon": 20289874.703038566,
+              "burn": 3719.925812538313,
+              "pet": 3825.55519999999
+            },
+            "post_mean": {
+              "weapon": 20289690.908695,
+              "burn": 3454.1060890058634,
+              "pet": 3699.035733333323
+            },
+            "outside_head_envelope_relative_difference": 0.021528458477726452
+          },
+          "damage_total": {
+            "head_values": [
+              20297162.1952928,
+              20297936.1615682,
+              20297162.1952928
+            ],
+            "head_mean": 20297420.184051264,
+            "post_mean": 20296844.050517533,
+            "outside_head_envelope_relative_difference": 1.567434758645584e-05
+          },
+          "weak_damage": {
+            "head_values": [
+              1098981.5594491,
+              1098665.73301809,
+              1098981.5594491
+            ],
+            "head_mean": 1098876.2839720966,
+            "post_mean": 1098284.0024266802,
+            "outside_head_envelope_relative_difference": 0.0003474492558907854
+          }
+        },
+        "kills": {
+          "head": [
+            166,
+            166,
+            166
+          ],
+          "post": [
+            166,
+            166,
+            166
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "level": 86,
+      "seed": 3301,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.831990994751908,
+            0.831990994751908
+          ],
+          "post_values": [
+            0.831990994751908,
+            0.831990994751908,
+            0.831990994751908
+          ],
+          "post_mean": 0.8319909947519081,
+          "nearest_head_relative_difference": 1.334417117046098e-16,
+          "nearest_head_absolute_difference": 1.1102230246251565e-16
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.989768076398363,
+            0.989768076398363
+          ],
+          "post_values": [
+            0.989768076398363,
+            0.989768076398363,
+            0.989768076398363
+          ],
+          "post_mean": 0.989768076398363,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              862752.18514727,
+              862752.18514727,
+              862752.18514727
+            ],
+            "head_mean": 862752.18514727,
+            "post_mean": 862752.18514727,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 8087288.15824973,
+                "lightning": 12188001.7607699,
+                "fire": 22199.8181424599
+              },
+              {
+                "physical": 8087288.15824973,
+                "lightning": 12188001.7607699,
+                "fire": 22199.8181424599
+              },
+              {
+                "physical": 8087288.15824973,
+                "lightning": 12188001.7607699,
+                "fire": 22199.8181424599
+              }
+            ],
+            "head_mean": {
+              "fire": 22199.8181424599,
+              "lightning": 12188001.760769898,
+              "physical": 8087288.158249731
+            },
+            "post_mean": {
+              "fire": 22199.8181424599,
+              "lightning": 12188001.760769898,
+              "physical": 8087288.158249731
+            },
+            "outside_head_envelope_relative_difference": 1.5282613063171204e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 20290132.5172559,
+                "pet": 3411.14239999999,
+                "burn": 3946.07750809681
+              },
+              {
+                "weapon": 20290132.5172559,
+                "pet": 3411.14239999999,
+                "burn": 3946.07750809681
+              },
+              {
+                "weapon": 20290132.5172559,
+                "pet": 3411.14239999999,
+                "burn": 3946.07750809681
+              }
+            ],
+            "head_mean": {
+              "weapon": 20290132.5172559,
+              "burn": 3946.07750809681,
+              "pet": 3411.14239999999
+            },
+            "post_mean": {
+              "weapon": 20290132.5172559,
+              "burn": 3946.07750809681,
+              "pet": 3411.14239999999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              20297489.7371641,
+              20297489.7371641,
+              20297489.7371641
+            ],
+            "head_mean": 20297489.7371641,
+            "post_mean": 20297489.7371641,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              862752.18514727,
+              862752.18514727,
+              862752.18514727
+            ],
+            "head_mean": 862752.18514727,
+            "post_mean": 862752.18514727,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            166,
+            166,
+            166
+          ],
+          "post": [
+            166,
+            166,
+            166
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 90,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.368882019577537,
+            0.368882019577537
+          ],
+          "post_values": [
+            0.368882019577537,
+            0.368882019577537,
+            0.368882019577537
+          ],
+          "post_mean": 0.368882019577537,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            182.716666666725,
+            182.716666666725
+          ],
+          "post_values": [
+            182.716666666725,
+            182.716666666725,
+            182.716666666725
+          ],
+          "post_mean": 182.716666666725,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              1661579.01274469,
+              1661579.01274469,
+              1661579.01274469
+            ],
+            "head_mean": 1661579.01274469,
+            "post_mean": 1661579.01274469,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 10208657.8213714,
+                "lightning": 1538580.33368244,
+                "ice": 9882533.79206446
+              },
+              {
+                "physical": 10208657.8213714,
+                "lightning": 1538580.33368244,
+                "ice": 9883739.73770114
+              },
+              {
+                "physical": 10208657.8213714,
+                "lightning": 1540706.3002503,
+                "ice": 9883739.73770114
+              }
+            ],
+            "head_mean": {
+              "ice": 9883337.755822247,
+              "lightning": 1539288.9892050598,
+              "physical": 10208657.8213714
+            },
+            "post_mean": {
+              "ice": 9883739.73770114,
+              "lightning": 1539288.9892050598,
+              "physical": 10208657.8213714
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 21624047.5631181,
+                "pet": 5724.384
+              },
+              {
+                "weapon": 21625253.5087548,
+                "pet": 5724.384
+              },
+              {
+                "weapon": 21627379.4753226,
+                "pet": 5724.384
+              }
+            ],
+            "head_mean": {
+              "weapon": 21625560.1823985,
+              "pet": 5724.384000000001
+            },
+            "post_mean": {
+              "weapon": 21625962.1642774,
+              "pet": 5724.384000000001
+            },
+            "outside_head_envelope_relative_difference": 1.588807986628654e-16
+          },
+          "damage_total": {
+            "head_values": [
+              21629771.947118,
+              21630977.8927547,
+              21633103.8593225
+            ],
+            "head_mean": 21631284.5663984,
+            "post_mean": 21631686.5482773,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              1998797.0342968,
+              1998797.0342968,
+              1998797.0342968
+            ],
+            "head_mean": 1998797.0342968001,
+            "post_mean": 1998797.0342968001,
+            "outside_head_envelope_relative_difference": 1.1648538578894888e-16
+          }
+        },
+        "kills": {
+          "head": [
+            54,
+            54,
+            54
+          ],
+          "post": [
+            54,
+            54,
+            54
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 90,
+      "seed": 2207,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.20607934054611,
+            0.20607934054611
+          ],
+          "post_values": [
+            0.20607934054611,
+            0.20607934054611,
+            0.20607934054611
+          ],
+          "post_mean": 0.20607934054611,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            131.100000000019,
+            131.100000000019
+          ],
+          "post_values": [
+            131.100000000019,
+            131.100000000019,
+            131.683333333353
+          ],
+          "post_mean": 131.29444444446366,
+          "nearest_head_relative_difference": 0.001480979985614732,
+          "nearest_head_absolute_difference": 0.19444444444465603
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              8402591.42207297,
+              8402591.42207297,
+              8402591.42207297
+            ],
+            "head_mean": 8402591.42207297,
+            "post_mean": 8395315.0090518,
+            "outside_head_envelope_relative_difference": 0.0008659724905884414
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 17194703.7958375,
+                "lightning": 4327592.92462807
+              },
+              {
+                "physical": 17194703.7958375,
+                "lightning": 4327592.92462807
+              },
+              {
+                "physical": 17194703.7958375,
+                "lightning": 4327592.92462807
+              }
+            ],
+            "head_mean": {
+              "lightning": 4327592.92462807,
+              "physical": 17194703.7958375
+            },
+            "post_mean": {
+              "lightning": 4334606.54903652,
+              "physical": 17191715.444109265
+            },
+            "outside_head_envelope_relative_difference": 0.0016180532948276332
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 21518192.4068632,
+                "pet": 4104.31359999999
+              },
+              {
+                "weapon": 21518192.4068632,
+                "pet": 4104.31359999999
+              },
+              {
+                "weapon": 21518192.4068632,
+                "pet": 4104.31359999999
+              }
+            ],
+            "head_mean": {
+              "weapon": 21518192.4068632,
+              "pet": 4104.31359999999
+            },
+            "post_mean": {
+              "weapon": 21522212.9563434,
+              "pet": 4109.03679999999
+            },
+            "outside_head_envelope_relative_difference": 0.0011494664637706489
+          },
+          "damage_total": {
+            "head_values": [
+              21522296.7204631,
+              21522296.7204631,
+              21522296.7204631
+            ],
+            "head_mean": 21522296.7204631,
+            "post_mean": 21526321.9931433,
+            "outside_head_envelope_relative_difference": 0.0001869930535036497
+          },
+          "weak_damage": {
+            "head_values": [
+              8612250.83601317,
+              8612250.83601317,
+              8612250.83601317
+            ],
+            "head_mean": 8612250.83601317,
+            "post_mean": 8609262.48428494,
+            "outside_head_envelope_relative_difference": 0.0003469884685353752
+          }
+        },
+        "kills": {
+          "head": [
+            56,
+            56,
+            56
+          ],
+          "post": [
+            56,
+            56,
+            56
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "level": 90,
+      "seed": 3301,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.408037094281298,
+            0.408037094281298
+          ],
+          "post_values": [
+            0.408037094281298,
+            0.408037094281298,
+            0.408037094281298
+          ],
+          "post_mean": 0.4080370942812979,
+          "nearest_head_relative_difference": 1.3604437441902972e-16,
+          "nearest_head_absolute_difference": 5.551115123125783e-17
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            92.8833333333281,
+            92.8833333333281
+          ],
+          "post_values": [
+            92.8833333333281,
+            92.8833333333281,
+            92.8833333333281
+          ],
+          "post_mean": 92.8833333333281,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              1588122.20440992,
+              1588122.20440992,
+              1588122.20440992
+            ],
+            "head_mean": 1588122.20440992,
+            "post_mean": 1588122.20440992,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 11370689.8187262,
+                "lightning": 10060984.6372839
+              },
+              {
+                "physical": 11370689.8187262,
+                "lightning": 10060984.6372839
+              },
+              {
+                "physical": 11370689.8187262,
+                "lightning": 10061277.0773729
+              }
+            ],
+            "head_mean": {
+              "lightning": 10061082.117313566,
+              "physical": 11370689.818726202
+            },
+            "post_mean": {
+              "lightning": 10060984.6372839,
+              "physical": 11370689.818726202
+            },
+            "outside_head_envelope_relative_difference": 1.6381109492261387e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 21428782.6288097,
+                "pet": 2891.82719999999
+              },
+              {
+                "weapon": 21428782.6288097,
+                "pet": 2891.82719999999
+              },
+              {
+                "weapon": 21429075.0688987,
+                "pet": 2891.82719999999
+              }
+            ],
+            "head_mean": {
+              "weapon": 21428880.108839367,
+              "pet": 2891.82719999999
+            },
+            "post_mean": {
+              "weapon": 21428782.6288097,
+              "pet": 2891.82719999999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              21431674.4560097,
+              21431674.4560097,
+              21431966.8960987
+            ],
+            "head_mean": 21431771.93603937,
+            "post_mean": 21431674.4560097,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              1723138.7986903,
+              1723138.7986903,
+              1723138.7986903
+            ],
+            "head_mean": 1723138.7986902997,
+            "post_mean": 1723138.7986902997,
+            "outside_head_envelope_relative_difference": 1.3512007496484693e-16
+          }
+        },
+        "kills": {
+          "head": [
+            55,
+            55,
+            55
+          ],
+          "post": [
+            55,
+            55,
+            55
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 95,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.910243749254532,
+            0.910243749254532
+          ],
+          "post_values": [
+            0.910243749254532,
+            0.910243749254532,
+            0.910243749254532
+          ],
+          "post_mean": 0.910243749254532,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.99507631708518,
+            0.99507631708518
+          ],
+          "post_values": [
+            0.99507631708518,
+            0.99507631708518,
+            0.99507631708518
+          ],
+          "post_mean": 0.99507631708518,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            135.316666666706,
+            135.316666666706
+          ],
+          "post_values": [
+            135.316666666706,
+            135.316666666706,
+            135.316666666706
+          ],
+          "post_mean": 135.316666666706,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              7827685.2361864,
+              7827685.2361864,
+              7827685.2361864
+            ],
+            "head_mean": 7827685.2361864,
+            "post_mean": 7827685.2361864,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 9654579.49769077,
+                "fire": 1130.98177325305,
+                "lightning": 8225929.42914481,
+                "ice": 24337105.0850681
+              },
+              {
+                "physical": 9654579.49769077,
+                "fire": 1130.98177325305,
+                "lightning": 8225929.42914481,
+                "ice": 24337105.0850681
+              },
+              {
+                "physical": 9654579.49769077,
+                "fire": 1130.98177325305,
+                "lightning": 8225929.42914481,
+                "ice": 24337105.0850681
+              }
+            ],
+            "head_mean": {
+              "fire": 1130.98177325305,
+              "ice": 24337105.085068095,
+              "lightning": 8225929.42914481,
+              "physical": 9654579.49769077
+            },
+            "post_mean": {
+              "fire": 1130.98177325305,
+              "ice": 24337105.085068095,
+              "lightning": 8225929.42914481,
+              "physical": 9654579.49769077
+            },
+            "outside_head_envelope_relative_difference": 1.530703954081846e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 42215567.290457,
+                "pet": 3067.247072,
+                "burn": 110.456149878123
+              },
+              {
+                "weapon": 42215567.290457,
+                "pet": 3067.247072,
+                "burn": 110.456149878123
+              },
+              {
+                "weapon": 42215567.290457,
+                "pet": 3067.247072,
+                "burn": 110.456149878123
+              }
+            ],
+            "head_mean": {
+              "weapon": 42215567.290457,
+              "burn": 110.45614987812299,
+              "pet": 3067.247072
+            },
+            "post_mean": {
+              "weapon": 42215567.290457,
+              "burn": 110.45614987812299,
+              "pet": 3067.247072
+            },
+            "outside_head_envelope_relative_difference": 1.286560751110936e-16
+          },
+          "damage_total": {
+            "head_values": [
+              42218744.9936788,
+              42218744.9936788,
+              42218744.9936788
+            ],
+            "head_mean": 42218744.9936788,
+            "post_mean": 42218744.9936788,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              7920962.83186455,
+              7920962.83186455,
+              7920962.83186455
+            ],
+            "head_mean": 7920962.83186455,
+            "post_mean": 7920962.83186455,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            93,
+            93,
+            93
+          ],
+          "post": [
+            93,
+            93,
+            93
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 95,
+      "seed": 2207,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.703101920236337,
+            0.707533234859675
+          ],
+          "post_values": [
+            0.703101920236337,
+            0.703101920236337,
+            0.703101920236337
+          ],
+          "post_mean": 0.703101920236337,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            153.450000000053,
+            153.450000000053
+          ],
+          "post_values": [
+            153.450000000053,
+            153.450000000053,
+            153.450000000053
+          ],
+          "post_mean": 153.450000000053,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              13141653.4302879,
+              13141653.4302879,
+              13141860.9344528
+            ],
+            "head_mean": 13141722.598342866,
+            "post_mean": 13141653.4302879,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 12982478.6054717,
+                "fire": 866.779028534872,
+                "lightning": 29283930.2549292
+              },
+              {
+                "physical": 12982478.6054717,
+                "fire": 866.779028534872,
+                "lightning": 29283930.2549292
+              },
+              {
+                "physical": 12982478.6054717,
+                "fire": 866.779028534872,
+                "lightning": 29285119.866516
+              }
+            ],
+            "head_mean": {
+              "fire": 866.779028534872,
+              "lightning": 29284326.792124797,
+              "physical": 12982478.6054717
+            },
+            "post_mean": {
+              "fire": 866.779028534872,
+              "lightning": 29283623.1498841,
+              "physical": 12982478.6054717
+            },
+            "outside_head_envelope_relative_difference": 1.0487152592747284e-05
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 42263302.3794261,
+                "pet": 3900.22312,
+                "burn": 73.0368770210424
+              },
+              {
+                "weapon": 42263302.3794261,
+                "pet": 3900.22312,
+                "burn": 73.0368770210424
+              },
+              {
+                "weapon": 42264491.991013,
+                "pet": 3900.22312,
+                "burn": 73.0368770210424
+              }
+            ],
+            "head_mean": {
+              "weapon": 42263698.91662174,
+              "burn": 73.0368770210424,
+              "pet": 3900.22312
+            },
+            "post_mean": {
+              "weapon": 42262995.274381034,
+              "burn": 73.0368770210424,
+              "pet": 3900.22312
+            },
+            "outside_head_envelope_relative_difference": 7.266470620497072e-06
+          },
+          "damage_total": {
+            "head_values": [
+              42267275.639423,
+              42267275.639423,
+              42268465.2510099
+            ],
+            "head_mean": 42267672.17661863,
+            "post_mean": 42266968.534377895,
+            "outside_head_envelope_relative_difference": 7.265787549744454e-06
+          },
+          "weak_damage": {
+            "head_values": [
+              13255713.8502506,
+              13255713.8502506,
+              13255921.3544154
+            ],
+            "head_mean": 13255783.018305533,
+            "post_mean": 13255713.8502506,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            92,
+            92,
+            92
+          ],
+          "post": [
+            92,
+            92,
+            92
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 95,
+      "seed": 3301,
+      "exempt_known_chaos": true,
+      "passed": true,
+      "recorded_failures": [
+        {
+          "field": "boss_phase_seconds",
+          "head_envelope": [
+            137.116666666705,
+            137.116666666705
+          ],
+          "post_mean": 137.933333333372,
+          "nearest_head_relative_difference": 0.005920734654423212,
+          "nearest_head_absolute_difference": 0.8166666666670039
+        }
+      ],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.853766617429838,
+            0.853766617429838
+          ],
+          "post_values": [
+            0.853766617429838,
+            0.853766617429838,
+            0.853766617429838
+          ],
+          "post_mean": 0.8537666174298378,
+          "nearest_head_relative_difference": 1.3003823316111256e-16,
+          "nearest_head_absolute_difference": 1.1102230246251565e-16
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            137.116666666705,
+            137.116666666705
+          ],
+          "post_values": [
+            137.933333333372,
+            137.933333333372,
+            137.933333333372
+          ],
+          "post_mean": 137.933333333372,
+          "nearest_head_relative_difference": 0.005920734654423212,
+          "nearest_head_absolute_difference": 0.8166666666670039
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              14917901.3856872,
+              14917901.3856872,
+              14917901.3856872
+            ],
+            "head_mean": 14917901.3856872,
+            "post_mean": 14919268.0084788,
+            "outside_head_envelope_relative_difference": 9.160119590470619e-05
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 2193686.02044281,
+                "fire": 1017.9680097756,
+                "lightning": 40026490.4099103
+              },
+              {
+                "physical": 2193686.02044281,
+                "fire": 1017.9680097756,
+                "lightning": 40026490.4099103
+              },
+              {
+                "physical": 2193686.02044281,
+                "fire": 1017.9680097756,
+                "lightning": 40026490.4099103
+              }
+            ],
+            "head_mean": {
+              "fire": 1017.9680097756,
+              "lightning": 40026490.4099103,
+              "physical": 2193686.02044281
+            },
+            "post_mean": {
+              "fire": 1017.9680097756,
+              "lightning": 40030062.6563742,
+              "physical": 2207043.03467766
+            },
+            "outside_head_envelope_relative_difference": 0.006051995373439097
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 42217413.8139035,
+                "pet": 3707.547584,
+                "burn": 73.0368770210424
+              },
+              {
+                "weapon": 42217413.8139035,
+                "pet": 3707.547584,
+                "burn": 73.0368770210424
+              },
+              {
+                "weapon": 42217413.8139035,
+                "pet": 3707.547584,
+                "burn": 73.0368770210424
+              }
+            ],
+            "head_mean": {
+              "weapon": 42217413.8139035,
+              "burn": 73.0368770210424,
+              "pet": 3707.547584
+            },
+            "post_mean": {
+              "weapon": 42234320.6646025,
+              "burn": 73.0368770210424,
+              "pet": 3729.957584
+            },
+            "outside_head_envelope_relative_difference": 0.0060081112171704275
+          },
+          "damage_total": {
+            "head_values": [
+              42221194.3983644,
+              42221194.3983644,
+              42221194.3983644
+            ],
+            "head_mean": 42221194.3983644,
+            "post_mean": 42238123.6590634,
+            "outside_head_envelope_relative_difference": 0.00040080522600022804
+          },
+          "weak_damage": {
+            "head_values": [
+              15093407.1963995,
+              15093407.1963995,
+              15093407.1963995
+            ],
+            "head_mean": 15093407.1963995,
+            "post_mean": 15108130.833426097,
+            "outside_head_envelope_relative_difference": 0.0009745505376496604
+          }
+        },
+        "kills": {
+          "head": [
+            91,
+            91,
+            91
+          ],
+          "post": [
+            91,
+            91,
+            91
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "level": 96,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.65551496898855,
+            0.65551496898855
+          ],
+          "post_values": [
+            0.65551496898855,
+            0.65551496898855,
+            0.65551496898855
+          ],
+          "post_mean": 0.65551496898855,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.979280926264473,
+            0.979280926264473
+          ],
+          "post_values": [
+            0.979280926264473,
+            0.979280926264473,
+            0.979280926264473
+          ],
+          "post_mean": 0.9792809262644729,
+          "nearest_head_relative_difference": 1.133712497454811e-16,
+          "nearest_head_absolute_difference": 1.1102230246251565e-16
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              3523960.74827697,
+              3523960.74827697,
+              3523960.74827697
+            ],
+            "head_mean": 3523960.74827697,
+            "post_mean": 3523960.74827697,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 5610392.88406049,
+                "lightning": 8885538.3540292,
+                "fire": 20950.3912572232,
+                "ice": 14791017.5932527
+              },
+              {
+                "physical": 5610392.88406049,
+                "lightning": 8885538.3540292,
+                "fire": 20950.3912572232,
+                "ice": 14791017.5932527
+              },
+              {
+                "physical": 5610392.88406049,
+                "lightning": 8885538.3540292,
+                "fire": 20950.3912572232,
+                "ice": 14791017.5932527
+              }
+            ],
+            "head_mean": {
+              "fire": 20950.3912572232,
+              "ice": 14791017.593252698,
+              "lightning": 8885538.3540292,
+              "physical": 5610392.88406049
+            },
+            "post_mean": {
+              "fire": 20950.3912572232,
+              "ice": 14791017.593252698,
+              "lightning": 8885538.3540292,
+              "physical": 5610392.88406049
+            },
+            "outside_head_envelope_relative_difference": 1.259308318367933e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29300554.7307407,
+                "pet": 3205.3272,
+                "burn": 4139.16470653014
+              },
+              {
+                "weapon": 29300554.7307407,
+                "pet": 3205.3272,
+                "burn": 4139.16470653014
+              },
+              {
+                "weapon": 29300554.7307407,
+                "pet": 3205.3272,
+                "burn": 4139.16470653014
+              }
+            ],
+            "head_mean": {
+              "weapon": 29300554.7307407,
+              "burn": 4139.16470653014,
+              "pet": 3205.3272
+            },
+            "post_mean": {
+              "weapon": 29300554.7307407,
+              "burn": 4139.16470653014,
+              "pet": 3205.3272
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              29307899.2226475,
+              29307899.2226475,
+              29307899.2226475
+            ],
+            "head_mean": 29307899.2226475,
+            "post_mean": 29307899.2226475,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              3523960.74827697,
+              3523960.74827697,
+              3523960.74827697
+            ],
+            "head_mean": 3523960.74827697,
+            "post_mean": 3523960.74827697,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            188,
+            188,
+            188
+          ],
+          "post": [
+            188,
+            188,
+            188
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 96,
+      "seed": 2207,
+      "exempt_known_chaos": false,
+      "passed": false,
+      "recorded_failures": [
+        {
+          "field": "battle_report.crit_damage",
+          "outside_head_envelope_relative_difference": 0.017232531129796478
+        },
+        {
+          "field": "battle_report.damage_by_element",
+          "outside_head_envelope_relative_difference": 0.08846952026889225
+        },
+        {
+          "field": "battle_report.damage_by_source",
+          "outside_head_envelope_relative_difference": 0.06710756662127798
+        },
+        {
+          "field": "battle_report.weak_damage",
+          "outside_head_envelope_relative_difference": 0.017232531129796478
+        }
+      ],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.683729433272395,
+            0.683729433272395
+          ],
+          "post_values": [
+            0.68860450944546,
+            0.683729433272395,
+            0.68860450944546
+          ],
+          "post_mean": 0.6869794840544383,
+          "nearest_head_relative_difference": 0.004730928444707062,
+          "nearest_head_absolute_difference": 0.0032500507820433233
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              1996264.33907865,
+              1996264.33907865,
+              1996264.33907865
+            ],
+            "head_mean": 1996264.33907865,
+            "post_mean": 2031268.2321216532,
+            "outside_head_envelope_relative_difference": 0.017232531129796478
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 8449202.28397551,
+                "lightning": 6022417.99555726,
+                "fire": 20034.8370328706,
+                "ice": 14824233.4352148
+              },
+              {
+                "physical": 8449202.28397551,
+                "lightning": 6022417.99555726,
+                "fire": 20034.8370328706,
+                "ice": 14824233.4352148
+              },
+              {
+                "physical": 8449202.28397551,
+                "lightning": 6022417.99555726,
+                "fire": 20034.8370328706,
+                "ice": 14824233.4352148
+              }
+            ],
+            "head_mean": {
+              "fire": 20034.8370328706,
+              "ice": 14824233.4352148,
+              "lightning": 6022417.99555726,
+              "physical": 8449202.28397551
+            },
+            "post_mean": {
+              "fire": 18262.3646119071,
+              "ice": 14745634.2286534,
+              "lightning": 6018058.724426513,
+              "physical": 8533307.747328332
+            },
+            "outside_head_envelope_relative_difference": 0.08846952026889225
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29308877.6644769,
+                "pet": 3404.66,
+                "burn": 3606.22730267702
+              },
+              {
+                "weapon": 29308877.6644769,
+                "pet": 3404.66,
+                "burn": 3606.22730267702
+              },
+              {
+                "weapon": 29308877.6644769,
+                "pet": 3404.66,
+                "burn": 3606.22730267702
+              }
+            ],
+            "head_mean": {
+              "weapon": 29308877.6644769,
+              "burn": 3606.22730267702,
+              "pet": 3404.66
+            },
+            "post_mean": {
+              "weapon": 29308463.815924436,
+              "burn": 3364.22216371115,
+              "pet": 3435.026933333333
+            },
+            "outside_head_envelope_relative_difference": 0.06710756662127798
+          },
+          "damage_total": {
+            "head_values": [
+              29315888.5517798,
+              29315888.5517798,
+              29315888.5517798
+            ],
+            "head_mean": 29315888.551779795,
+            "post_mean": 29315263.0650216,
+            "outside_head_envelope_relative_difference": 2.1336100971110257e-05
+          },
+          "weak_damage": {
+            "head_values": [
+              1996264.33907865,
+              1996264.33907865,
+              1996264.33907865
+            ],
+            "head_mean": 1996264.33907865,
+            "post_mean": 2031268.2321216532,
+            "outside_head_envelope_relative_difference": 0.017232531129796478
+          }
+        },
+        "kills": {
+          "head": [
+            188,
+            188,
+            188
+          ],
+          "post": [
+            188,
+            188,
+            188
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "level": 96,
+      "seed": 3301,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.783217847984256,
+            0.793000618738072
+          ],
+          "post_values": [
+            0.783217847984256,
+            0.774843172262643,
+            0.783217847984256
+          ],
+          "post_mean": 0.7804262894103849,
+          "nearest_head_relative_difference": 0.0035642172622286166,
+          "nearest_head_absolute_difference": 0.0027915585738710336
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.668494820231566,
+            0.668494820231566
+          ],
+          "post_values": [
+            0.668494820231566,
+            0.6654478976234,
+            0.668494820231566
+          ],
+          "post_mean": 0.6674791793621774,
+          "nearest_head_relative_difference": 0.0015192950470982547,
+          "nearest_head_absolute_difference": 0.0010156408693886565
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            0.0,
+            0.0
+          ],
+          "post_values": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "post_mean": 0.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              3628758.86222748,
+              3628758.86222748,
+              3628758.86222748
+            ],
+            "head_mean": 3628758.8622274795,
+            "post_mean": 3624501.5518237264,
+            "outside_head_envelope_relative_difference": 0.0011732139184195411
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 3076792.50335706,
+                "lightning": 4598012.35348388,
+                "fire": 24395.1064345468,
+                "ice": 21612831.0645545
+              },
+              {
+                "physical": 3080443.02509144,
+                "lightning": 4598012.35348388,
+                "fire": 24395.1064345468,
+                "ice": 21606888.9337889
+              },
+              {
+                "physical": 3076792.50335706,
+                "lightning": 4598012.35348388,
+                "fire": 24395.1064345468,
+                "ice": 21612831.0645545
+              }
+            ],
+            "head_mean": {
+              "fire": 24395.1064345468,
+              "ice": 21610850.354299303,
+              "lightning": 4598012.35348388,
+              "physical": 3078009.3439351865
+            },
+            "post_mean": {
+              "fire": 24415.7996275888,
+              "ice": 21606277.679092165,
+              "lightning": 4594675.542626883,
+              "physical": 3084527.3729740833
+            },
+            "outside_head_envelope_relative_difference": 0.001324140585825062
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29302779.5170029,
+                "pet": 3508.9744,
+                "burn": 5742.53643520054
+              },
+              {
+                "weapon": 29300496.2079719,
+                "pet": 3500.6744,
+                "burn": 5742.53643520054
+              },
+              {
+                "weapon": 29302779.5170029,
+                "pet": 3508.9744,
+                "burn": 5742.53643520054
+              }
+            ],
+            "head_mean": {
+              "weapon": 29302018.413992565,
+              "burn": 5742.536435200539,
+              "pet": 3506.207733333333
+            },
+            "post_mean": {
+              "weapon": 29300613.499900833,
+              "burn": 5763.22962824255,
+              "pet": 3519.6648
+            },
+            "outside_head_envelope_relative_difference": 0.0035905550146055603
+          },
+          "damage_total": {
+            "head_values": [
+              29312031.0278383,
+              29309739.4188073,
+              29312031.0278383
+            ],
+            "head_mean": 29311267.1581613,
+            "post_mean": 29309896.3943293,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              3628758.86222748,
+              3628758.86222748,
+              3628758.86222748
+            ],
+            "head_mean": 3628758.8622274795,
+            "post_mean": 3624501.5518237264,
+            "outside_head_envelope_relative_difference": 0.0011732139184195411
+          }
+        },
+        "kills": {
+          "head": [
+            188,
+            188,
+            188
+          ],
+          "post": [
+            188,
+            188,
+            188
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          false,
+          false,
+          false
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "level": 99,
+      "seed": 1103,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            1.0,
+            1.0
+          ],
+          "post_values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "post_mean": 1.0,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.954394299287411,
+            0.954394299287411
+          ],
+          "post_values": [
+            0.954394299287411,
+            0.954394299287411,
+            0.954394299287411
+          ],
+          "post_mean": 0.954394299287411,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            155.883333333406,
+            155.883333333406
+          ],
+          "post_values": [
+            155.883333333406,
+            155.883333333406,
+            155.883333333406
+          ],
+          "post_mean": 155.883333333406,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              13337.259983575,
+              13337.259983575,
+              13337.259983575
+            ],
+            "head_mean": 13337.259983575,
+            "post_mean": 13337.259983575,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 3029331.06307954,
+                "fire": 26088257.5113846,
+                "lightning": 18339.7728060779
+              },
+              {
+                "physical": 3029331.06307954,
+                "fire": 26088257.5113846,
+                "lightning": 18339.7728060779
+              },
+              {
+                "physical": 3029331.06307954,
+                "fire": 26088257.5113846,
+                "lightning": 18339.7728060779
+              }
+            ],
+            "head_mean": {
+              "fire": 26088257.511384595,
+              "lightning": 18339.7728060779,
+              "physical": 3029331.06307954
+            },
+            "post_mean": {
+              "fire": 26088257.511384595,
+              "lightning": 18339.7728060779,
+              "physical": 3029331.06307954
+            },
+            "outside_head_envelope_relative_difference": 1.4279567337282846e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29052435.6700616,
+                "pet": 4575.20036799999,
+                "burn": 78917.4768369192
+              },
+              {
+                "weapon": 29052435.6700616,
+                "pet": 4575.20036799999,
+                "burn": 78917.4768369192
+              },
+              {
+                "weapon": 29052435.6700616,
+                "pet": 4575.20036799999,
+                "burn": 78917.4768369192
+              }
+            ],
+            "head_mean": {
+              "weapon": 29052435.6700616,
+              "burn": 78917.4768369192,
+              "pet": 4575.20036799999
+            },
+            "post_mean": {
+              "weapon": 29052435.6700616,
+              "burn": 78917.4768369192,
+              "pet": 4575.20036799999
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              29135928.3472667,
+              29135928.3472667,
+              29135928.3472667
+            ],
+            "head_mean": 29135928.3472667,
+            "post_mean": 29135928.3472667,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              285450.69501331,
+              285450.69501331,
+              285450.69501331
+            ],
+            "head_mean": 285450.69501331,
+            "post_mean": 285450.69501331,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            91,
+            91,
+            91
+          ],
+          "post": [
+            91,
+            91,
+            91
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 99,
+      "seed": 2207,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.790296994274809,
+            0.790296994274809
+          ],
+          "post_values": [
+            0.790296994274809,
+            0.790296994274809,
+            0.790296994274809
+          ],
+          "post_mean": 0.7902969942748092,
+          "nearest_head_relative_difference": 1.4048174707331606e-16,
+          "nearest_head_absolute_difference": 1.1102230246251565e-16
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.994385661844094,
+            0.994385661844094
+          ],
+          "post_values": [
+            0.994385661844094,
+            0.994385661844094,
+            0.994385661844094
+          ],
+          "post_mean": 0.994385661844094,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            150.63333333339,
+            150.63333333339
+          ],
+          "post_values": [
+            150.63333333339,
+            150.63333333339,
+            150.63333333339
+          ],
+          "post_mean": 150.63333333339,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              84488.3451745277,
+              84488.3451745277,
+              84488.3451745277
+            ],
+            "head_mean": 84488.3451745277,
+            "post_mean": 84488.3451745277,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 3535350.61773127,
+                "lightning": 25511748.2983857
+              },
+              {
+                "physical": 3535350.61773127,
+                "lightning": 25511748.2983857
+              },
+              {
+                "physical": 3535350.61773127,
+                "lightning": 25511748.2983857
+              }
+            ],
+            "head_mean": {
+              "lightning": 25511748.2983857,
+              "physical": 3535350.61773127
+            },
+            "post_mean": {
+              "lightning": 25511748.2983857,
+              "physical": 3535350.61773127
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29042927.7716949,
+                "pet": 4171.144416
+              },
+              {
+                "weapon": 29042927.7716949,
+                "pet": 4171.144416
+              },
+              {
+                "weapon": 29042927.7716949,
+                "pet": 4171.144416
+              }
+            ],
+            "head_mean": {
+              "weapon": 29042927.7716949,
+              "pet": 4171.144416
+            },
+            "post_mean": {
+              "weapon": 29042927.7716949,
+              "pet": 4171.144416
+            },
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_total": {
+            "head_values": [
+              29047098.9161109,
+              29047098.9161109,
+              29047098.9161109
+            ],
+            "head_mean": 29047098.9161109,
+            "post_mean": 29047098.9161109,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "weak_damage": {
+            "head_values": [
+              300559.441279163,
+              300559.441279163,
+              300559.441279163
+            ],
+            "head_mean": 300559.441279163,
+            "post_mean": 300559.441279163,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            91,
+            91,
+            91
+          ],
+          "post": [
+            91,
+            91,
+            91
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "level": 99,
+      "seed": 3301,
+      "exempt_known_chaos": false,
+      "passed": true,
+      "recorded_failures": [],
+      "diagnostics": {
+        "max_progress": {
+          "head_envelope": [
+            0.621406100906489,
+            0.621406100906489
+          ],
+          "post_values": [
+            0.621406100906489,
+            0.621406100906489,
+            0.621406100906489
+          ],
+          "post_mean": 0.621406100906489,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "base_ratio": {
+          "head_envelope": [
+            0.992399049881235,
+            0.992399049881235
+          ],
+          "post_values": [
+            0.992399049881235,
+            0.992399049881235,
+            0.992399049881235
+          ],
+          "post_mean": 0.992399049881235,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "boss_phase_seconds": {
+          "head_envelope": [
+            150.566666666726,
+            150.566666666726
+          ],
+          "post_values": [
+            150.566666666726,
+            150.566666666726,
+            150.566666666726
+          ],
+          "post_mean": 150.566666666726,
+          "nearest_head_relative_difference": 0.0,
+          "nearest_head_absolute_difference": 0.0
+        },
+        "damage_relative_to_nearest_head": {
+          "crit_damage": {
+            "head_values": [
+              5611807.8670141,
+              5611807.8670141,
+              5611807.8670141
+            ],
+            "head_mean": 5611807.8670141,
+            "post_mean": 5611807.8670141,
+            "outside_head_envelope_relative_difference": 0.0
+          },
+          "damage_by_element": {
+            "head_values": [
+              {
+                "physical": 17228916.5842843,
+                "lightning": 11829207.4359398
+              },
+              {
+                "physical": 17228916.5842843,
+                "lightning": 11829207.4359398
+              },
+              {
+                "physical": 17228916.5842843,
+                "lightning": 11829207.4359398
+              }
+            ],
+            "head_mean": {
+              "lightning": 11829207.435939798,
+              "physical": 17228916.5842843
+            },
+            "post_mean": {
+              "lightning": 11829207.435939798,
+              "physical": 17228916.5842843
+            },
+            "outside_head_envelope_relative_difference": 1.5746153403074334e-16
+          },
+          "damage_by_source": {
+            "head_values": [
+              {
+                "weapon": 29053780.5624881,
+                "pet": 4343.457728
+              },
+              {
+                "weapon": 29053780.5624881,
+                "pet": 4343.457728
+              },
+              {
+                "weapon": 29053780.5624881,
+                "pet": 4343.457728
+              }
+            ],
+            "head_mean": {
+              "weapon": 29053780.562488098,
+              "pet": 4343.457728
+            },
+            "post_mean": {
+              "weapon": 29053780.562488098,
+              "pet": 4343.457728
+            },
+            "outside_head_envelope_relative_difference": 1.282205009585468e-16
+          },
+          "damage_total": {
+            "head_values": [
+              29058124.0202161,
+              29058124.0202161,
+              29058124.0202161
+            ],
+            "head_mean": 29058124.020216096,
+            "post_mean": 29058124.020216096,
+            "outside_head_envelope_relative_difference": 1.2820133522281697e-16
+          },
+          "weak_damage": {
+            "head_values": [
+              5834734.44073631,
+              5834734.44073631,
+              5834734.44073631
+            ],
+            "head_mean": 5834734.44073631,
+            "post_mean": 5834734.44073631,
+            "outside_head_envelope_relative_difference": 0.0
+          }
+        },
+        "kills": {
+          "head": [
+            91,
+            91,
+            91
+          ],
+          "post": [
+            91,
+            91,
+            91
+          ]
+        },
+        "wave_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ],
+        "card_timeline_exact_matches": [
+          true,
+          true,
+          true
+        ]
+      }
+    }
+  ]
+}
