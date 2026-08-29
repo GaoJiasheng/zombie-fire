@@ -753,10 +753,10 @@
               "interval": 0.5,
               "lane": "left"
             },
-						{
-							"type": "zombie_spitter",
-							"count": 18,
-							"interval": 0.5,
+					{
+						"type": "zombie_spitter",
+						"count": 19,
+						"interval": 0.5,
 							"lane": "right"
 						},
 						{
@@ -768,20 +768,14 @@
           ]
         }
 			],
-			"runtime_bosses": [
-				{
-					"wave": 5,
-					"type": "boss_storm_caller",
-					"interval": 2.2,
-					"lane": "right"
-				},
-				{
-					"wave": 5,
-					"type": "boss_storm_caller",
-					"interval": 2.2,
-					"lane": "left"
-				}
-			]
+		"runtime_bosses": [
+			{
+				"wave": 5,
+				"type": "boss_storm_caller",
+				"interval": 2.2,
+				"lane": "right"
+			}
+		]
 		},
 		"level_041": {
 			"target_grade": "easy",
@@ -834,8 +828,9 @@
 		},
 		"level_045": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 3.5056,
+			"difficulty_coef": 2.8,
 			"offer_category_floor": "single_target",
+			"target_card_picks": 7,
 			"waves": [
 				{},
 				{},
@@ -846,7 +841,7 @@
 					"hp_coef": 0.5
 				},
 				{
-					"hp_coef": 0.7,
+					"hp_coef": 0.5,
 					"support_counts": [
 						10,
 						10
@@ -955,10 +950,26 @@
 			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},
+				{
+					"hp_coef": 1.0,
+					"spawns": [
+						{
+							"type": "zombie_shielder",
+							"count": 17,
+							"interval": 0.66,
+							"lane": "center"
+						},
+						{
+							"type": "zombie_spitter",
+							"count": 10,
+							"interval": 0.66,
+							"lane": "right"
+						}
+					]
+				},
 				{},
-				{},
-					{
-			  "hp_coef": 1.2,
+				{
+					"hp_coef": 1.0,
 					"spawns": [
 						{
 							"type": "zombie_brute",
@@ -981,7 +992,7 @@
 					]
 				},
 				{
-					"hp_coef": 2.0,
+					"hp_coef": 1.7,
 					"spawns": [
 						{
 							"type": "zombie_brute",
@@ -1018,7 +1029,7 @@
 					"hp_coef": 1.8
 				},
       {
-      "hp_coef": 6.2,
+					"hp_coef": 4.8,
         "spawns": [
           {
           "type": "zombie_brute",
@@ -1053,7 +1064,7 @@
         ]
         },
 				{
-					"hp_coef": 6.04,
+					"hp_coef": 3.5,
 					"support": [
 						{
 							"type": "zombie_brute",
