@@ -60,7 +60,7 @@
 		"level_005": {
 			"target_grade": "light_pressure",
 			"difficulty_coef": 1.25,
-			"offer_category_floor": "compatible_crowd",
+			"offer_category_floor": "crowd",
 			"waves": [
 				{},
 				{},
@@ -126,6 +126,7 @@
 				{},
 				{},
 				{
+					"hp_coef": 1.5,
 					"spawn_counts": [
 						8,
 						8
@@ -146,6 +147,7 @@
 				{
 					"wave": 5,
 					"type": "boss_tank_titan",
+					"spawn_delay": 10.0,
 					"interval": 2.2,
 					"lane": "center"
 				}

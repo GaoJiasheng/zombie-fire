@@ -701,7 +701,7 @@
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
 				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
+				"offer_category_floor": "crowd",
 				"corridor_calibration": {
 					"band": [
 						1.0,
@@ -732,7 +732,7 @@
 				}
 			}
 		},
-		"offer_category_floor": "compatible_crowd"
+		"offer_category_floor": "crowd"
 	},
 	{
 		"id": "level_006",
@@ -1372,6 +1372,7 @@
 			{
 				"wave": 5,
 				"type": "boss_tank_titan",
+				"spawn_delay": 10.0,
 				"interval": 2.2,
 				"lane": "center"
 			}
@@ -1456,7 +1457,8 @@
 						"interval": 0.74,
 						"lane": "right"
 					}
-				]
+				],
+				"hp_coef": 1.5
 			},
 			{
 				"wave": 5,
@@ -1484,8 +1486,8 @@
 		"reward_gold_mult": 0.52,
 		"clear_requirement": {
 			"min_output": 1.5922,
-			"mob_hp_share": 0.8706,
-			"boss_hp_share": 0.1294,
+			"mob_hp_share": 0.8863,
+			"boss_hp_share": 0.1137,
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
 				"model": "bottleneck_v5",
@@ -1497,8 +1499,8 @@
 				"line_base_hp": 322.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.8706,
-					"boss": 0.1294
+					"crowd": 0.8863,
+					"boss": 0.1137
 				},
 				"boss_effective_hp": 11000.0,
 				"boss_weights": {
