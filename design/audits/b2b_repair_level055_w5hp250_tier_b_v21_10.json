@@ -1,0 +1,2075 @@
+{
+  "schema_version": 1,
+  "fixture_source": "design/audits/campaign_progression_fixture_builds.json",
+  "levels": [
+    55
+  ],
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "ignore_level_guarantees": false,
+  "ignore_offer_category_floor": false,
+  "challenge": false,
+  "fail_fast": false,
+  "seeds_per_level": 10,
+  "simulation_step_seconds": 0.016666666666666666,
+  "wall_acceleration": 60.0,
+  "runs": [
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 1103,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.783410138248848,
+      "victory": true,
+      "elapsed_seconds": 132.683333333331,
+      "boss_phase_seconds": 46.3999999999974,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_salvo",
+        "skill_charge_shot",
+        "skill_salvo"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_ricochet",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.816666666667,
+          "wave": 1
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 32.2666666666661,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_tesla",
+            "skill_critical",
+            "skill_split_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 47.6833333333319,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_homing",
+            "skill_incendiary",
+            "skill_salvo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 57.6833333333313,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_tesla",
+            "skill_charge_shot",
+            "skill_salvo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 117.699999999995,
+          "wave": 5
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_multishot",
+            "skill_ricochet",
+            "skill_salvo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 130.216666666662,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.7333333333336,
+          "max_progress": 0.524584308653387,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.5999999999991,
+          "max_progress": 0.533292115189647,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 57.6833333333313,
+          "max_progress": 0.651530165344704,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 71.0666666666639,
+          "max_progress": 0.625245584968392,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 132.683333333331,
+          "max_progress": 1.0,
+          "base_ratio": 0.783410138248848
+        }
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 5,
+        "skill_critical": 3,
+        "skill_salvo": 4
+      },
+      "battle_report": {
+        "duration_seconds": 132.683333333331,
+        "damage_total": 1336698.55788375,
+        "damage_by_element": {
+          "physical": 1334637.85639485,
+          "lightning": 2060.70148890568
+        },
+        "damage_by_source": {
+          "weapon": 1334652.06297175,
+          "pet": 2046.49491200001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 235,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.35,
+        "active_skill_casts": 9,
+        "max_kill_streak": 15,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 2207,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.764055299539171,
+      "victory": true,
+      "elapsed_seconds": 114.683333333328,
+      "boss_phase_seconds": 60.4999999999966,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_critical",
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_split_shot",
+            "skill_pierce",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 13.7333333333336,
+          "wave": 1
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_multishot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 24.5333333333332,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_split_shot",
+            "skill_multishot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 36.6999999999992,
+          "wave": 3
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_salvo",
+            "skill_slow_field"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 46.383333333332,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_incendiary",
+            "skill_tesla"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 83.3499999999966,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 16.666666666667,
+          "max_progress": 0.473974376416388,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 33.4499999999994,
+          "max_progress": 0.200221939669311,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 46.383333333332,
+          "max_progress": 0.215075427339277,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 53.9499999999982,
+          "max_progress": 0.238323345621124,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 114.683333333328,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.764055299539171
+        }
+      ],
+      "final_skill_levels": {
+        "skill_pierce": 4,
+        "skill_charge_shot": 4,
+        "skill_critical": 4
+      },
+      "battle_report": {
+        "duration_seconds": 114.683333333328,
+        "damage_total": 1342141.37835545,
+        "damage_by_element": {
+          "physical": 1342141.37835545
+        },
+        "damage_by_source": {
+          "weapon": 1340392.83238745,
+          "pet": 1748.54596800001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 256,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 25,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 3301,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.987665586981155,
+      "base_ratio": 0.670967741935484,
+      "victory": true,
+      "elapsed_seconds": 133.699999999999,
+      "boss_phase_seconds": 61.9166666666667,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_critical",
+        "skill_salvo",
+        "skill_salvo",
+        "skill_pierce",
+        "skill_pierce"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_ricochet",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.4500000000003,
+          "wave": 1
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_slow_field",
+            "skill_barrier"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 30.3833333333329,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_barrier",
+            "skill_salvo",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 45.6166666666654,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_incendiary",
+            "skill_tesla",
+            "skill_salvo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 55.0666666666648,
+          "wave": 4
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_cryo",
+            "skill_pierce",
+            "skill_multishot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 120.516666666661,
+          "wave": 5
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_cryo",
+            "skill_pierce",
+            "skill_charge_shot"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 132.249999999997,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.566666666667,
+          "max_progress": 0.530529505605916,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.6499999999991,
+          "max_progress": 0.531362612192867,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 55.0666666666648,
+          "max_progress": 0.569173658531131,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 70.0999999999973,
+          "max_progress": 0.733839567927004,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 133.699999999999,
+          "max_progress": 0.987665586981155,
+          "base_ratio": 0.670967741935484
+        }
+      ],
+      "final_skill_levels": {
+        "skill_critical": 4,
+        "skill_salvo": 4,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 133.699999999999,
+        "damage_total": 1337024.76729525,
+        "damage_by_element": {
+          "physical": 1335303.168583,
+          "lightning": 1721.59871225032
+        },
+        "damage_by_source": {
+          "weapon": 1334753.84649525,
+          "pet": 2270.92080000001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 357,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.35,
+        "active_skill_casts": 9,
+        "max_kill_streak": 13,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 4409,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.825806451612903,
+      "victory": true,
+      "elapsed_seconds": 116.366666666661,
+      "boss_phase_seconds": 50.2333333333305,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_pierce",
+        "skill_pierce"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_incendiary",
+            "skill_cryo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.816666666667,
+          "wave": 1
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_cryo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 32.6166666666661,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_slow_field",
+            "skill_salvo",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 48.7833333333318,
+          "wave": 3
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_homing",
+            "skill_pierce",
+            "skill_incendiary"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 56.6499999999981,
+          "wave": 4
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_tesla",
+            "skill_critical",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 90.9833333333295,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.6666666666669,
+          "max_progress": 0.594171888045682,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 39.499999999999,
+          "max_progress": 0.538794457821446,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 56.6499999999981,
+          "max_progress": 0.592058953438096,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 65.8166666666642,
+          "max_progress": 0.489784392145754,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 116.366666666661,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.825806451612903
+        }
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 4,
+        "skill_salvo": 3,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 116.366666666661,
+        "damage_total": 1335603.01875197,
+        "damage_by_element": {
+          "physical": 1335603.01875197
+        },
+        "damage_by_source": {
+          "weapon": 1333663.46460797,
+          "pet": 1939.55414400001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 189,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 8,
+        "max_kill_streak": 17,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 5513,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.851612903225806,
+      "victory": true,
+      "elapsed_seconds": 100.466666666662,
+      "boss_phase_seconds": 47.1499999999973,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_salvo",
+        "skill_pierce",
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_barrier",
+            "skill_cryo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.4500000000003,
+          "wave": 1
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_homing",
+            "skill_slow_field",
+            "skill_pierce"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 29.6999999999996,
+          "wave": 2
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_pierce",
+            "skill_ricochet"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 38.9166666666657,
+          "wave": 3
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_slow_field",
+            "skill_ricochet",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 46.7666666666653,
+          "wave": 4
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_cryo",
+            "skill_split_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 75.849999999997,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.6166666666669,
+          "max_progress": 0.544020231989504,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 35.4833333333326,
+          "max_progress": 0.388847898526956,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 46.7666666666653,
+          "max_progress": 0.240548915717438,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 53.0833333333316,
+          "max_progress": 0.261496973401718,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 100.466666666662,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.851612903225806
+        }
+      ],
+      "final_skill_levels": {
+        "skill_salvo": 3,
+        "skill_pierce": 5,
+        "skill_charge_shot": 3,
+        "skill_critical": 3
+      },
+      "battle_report": {
+        "duration_seconds": 100.466666666662,
+        "damage_total": 1334210.38601304,
+        "damage_by_element": {
+          "physical": 1334210.38601304
+        },
+        "damage_by_source": {
+          "weapon": 1332576.05121304,
+          "pet": 1634.33480000001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 161,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 12,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 6637,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.825806451612903,
+      "victory": true,
+      "elapsed_seconds": 105.683333333329,
+      "boss_phase_seconds": 50.2499999999972,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_pierce",
+        "skill_pierce",
+        "skill_salvo",
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_critical",
+            "skill_slow_field"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.266666666667,
+          "wave": 1
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_tesla",
+            "skill_barrier",
+            "skill_pierce"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 33.7333333333327,
+          "wave": 2
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_ricochet",
+            "skill_pierce",
+            "skill_cryo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 40.7333333333323,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_split_shot",
+            "skill_salvo",
+            "skill_ricochet"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 49.8833333333318,
+          "wave": 4
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_homing",
+            "skill_charge_shot"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 81.0499999999967,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.566666666667,
+          "max_progress": 0.584310237505964,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 37.7999999999991,
+          "max_progress": 0.563726061173068,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 49.8833333333318,
+          "max_progress": 0.280682512822042,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 55.1999999999981,
+          "max_progress": 0.151460697086713,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 105.683333333329,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.825806451612903
+        }
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 4,
+        "skill_pierce": 5,
+        "skill_salvo": 3
+      },
+      "battle_report": {
+        "duration_seconds": 105.683333333329,
+        "damage_total": 1338212.5681696,
+        "damage_by_element": {
+          "physical": 1338212.5681696
+        },
+        "damage_by_source": {
+          "weapon": 1336554.1774336,
+          "pet": 1658.39073600001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 189,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 16,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 7741,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.208294930875576,
+      "victory": true,
+      "elapsed_seconds": 151.216666666679,
+      "boss_phase_seconds": 62.5166666666712,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_critical",
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_salvo"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_incendiary",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.966666666667,
+          "wave": 1
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_ricochet"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 32.7666666666661,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_multishot",
+            "skill_cryo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 47.7833333333319,
+          "wave": 3
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_incendiary",
+            "skill_charge_shot",
+            "skill_ricochet"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 56.7833333333314,
+          "wave": 4
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_barrier",
+            "skill_cryo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 137.500000000002,
+          "wave": 5
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_tesla",
+            "skill_multishot",
+            "skill_salvo"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 6,
+          "time": 142.883333333339,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 18.1166666666669,
+          "max_progress": 0.561618205063216,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 39.1666666666657,
+          "max_progress": 0.515861918908039,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 56.7833333333314,
+          "max_progress": 0.61143258364146,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 73.1166666666638,
+          "max_progress": 0.80491123345062,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 151.216666666679,
+          "max_progress": 1.0,
+          "base_ratio": 0.208294930875576
+        }
+      ],
+      "final_skill_levels": {
+        "skill_critical": 3,
+        "skill_charge_shot": 5,
+        "skill_salvo": 4
+      },
+      "battle_report": {
+        "duration_seconds": 151.216666666679,
+        "damage_total": 1338439.45778846,
+        "damage_by_element": {
+          "physical": 1336196.16249674,
+          "lightning": 2243.29529172011
+        },
+        "damage_by_source": {
+          "weapon": 1336084.09470046,
+          "pet": 2355.36308800001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 859,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.35,
+        "active_skill_casts": 10,
+        "max_kill_streak": 14,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 8849,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.731797235023042,
+      "victory": true,
+      "elapsed_seconds": 137.383333333335,
+      "boss_phase_seconds": 66.4833333333375,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_charge_shot",
+        "skill_pierce",
+        "skill_pierce"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_homing",
+            "skill_split_shot",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 16.966666666667,
+          "wave": 1
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_venom"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 33.7999999999994,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_charge_shot",
+            "skill_critical"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 49.9999999999984,
+          "wave": 3
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_homing",
+            "skill_multishot",
+            "skill_pierce"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 62.3666666666644,
+          "wave": 4
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_critical",
+            "skill_ricochet",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 102.133333333329,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 18.1166666666669,
+          "max_progress": 0.551719048187023,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 40.6333333333323,
+          "max_progress": 0.585866727173783,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 62.3666666666644,
+          "max_progress": 0.814990327558445,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 70.6666666666639,
+          "max_progress": 0.40312919325501,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 137.383333333335,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.731797235023042
+        }
+      ],
+      "final_skill_levels": {
+        "skill_charge_shot": 5,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 137.383333333335,
+        "damage_total": 1336541.58972843,
+        "damage_by_element": {
+          "physical": 1336541.58972843
+        },
+        "damage_by_source": {
+          "weapon": 1334292.13932843,
+          "pet": 2249.45040000001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 291,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 9,
+        "max_kill_streak": 16,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 9901,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.838709677419355,
+      "victory": true,
+      "elapsed_seconds": 102.883333333329,
+      "boss_phase_seconds": 50.5999999999971,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_critical",
+        "skill_salvo",
+        "skill_pierce",
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_homing",
+            "skill_ricochet",
+            "skill_pierce"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 15.8500000000004,
+          "wave": 1
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_homing",
+            "skill_barrier",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 25.3833333333332,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_ricochet",
+            "skill_barrier",
+            "skill_salvo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 36.4333333333325,
+          "wave": 3
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_venom",
+            "skill_ricochet",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 45.433333333332,
+          "wave": 4
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_critical",
+            "skill_split_shot"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 72.5499999999972,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.266666666667,
+          "max_progress": 0.531406967512524,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 33.3499999999994,
+          "max_progress": 0.327596137359852,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 45.433333333332,
+          "max_progress": 0.187867072884363,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 52.0499999999983,
+          "max_progress": 0.213039834990756,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 102.883333333329,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.838709677419355
+        }
+      ],
+      "final_skill_levels": {
+        "skill_pierce": 5,
+        "skill_critical": 4,
+        "skill_salvo": 3
+      },
+      "battle_report": {
+        "duration_seconds": 102.883333333329,
+        "damage_total": 1339541.39839742,
+        "damage_by_element": {
+          "physical": 1339541.39839742
+        },
+        "damage_by_source": {
+          "weapon": 1337824.79902142,
+          "pet": 1716.59937600001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 175,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 7,
+        "max_kill_streak": 15,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    },
+    {
+      "level": 55,
+      "level_id": "level_055",
+      "seed": 10903,
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11.0,
+        "character": "vanguard",
+        "character_level": 12.0,
+        "chip": "chip_attack",
+        "chip_level": 12.0,
+        "pet": "pet_turret_drone",
+        "pet_level": 8.0,
+        "signature_level": 3.0,
+        "skill_base_levels": {
+          "skill_barrier": 3.0,
+          "skill_charge_shot": 3.0,
+          "skill_critical": 3.0,
+          "skill_homing": 3.0,
+          "skill_multishot": 4.0,
+          "skill_pierce": 4.0,
+          "skill_ricochet": 3.0,
+          "skill_salvo": 3.0,
+          "skill_slow_field": 3.0,
+          "skill_split_shot": 3.0
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 38.0
+      },
+      "max_progress": 0.954198473282443,
+      "base_ratio": 0.767741935483871,
+      "victory": true,
+      "elapsed_seconds": 117.116666666661,
+      "boss_phase_seconds": 61.7666666666632,
+      "max_living_bosses": 1,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": false,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_pierce",
+        "skill_critical",
+        "skill_charge_shot",
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_incendiary",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 1,
+          "time": 15.9000000000004,
+          "wave": 1
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_barrier",
+            "skill_pierce"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 2,
+          "time": 26.1666666666665,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_tesla",
+            "skill_cryo",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 3,
+          "time": 36.8166666666659,
+          "wave": 3
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_homing",
+            "skill_ricochet"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 4,
+          "time": 49.0333333333318,
+          "wave": 4
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_tesla",
+            "skill_incendiary",
+            "skill_critical"
+          ],
+          "reason": "owned_single_target_upgrade",
+          "rank": 0,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.285,
+          "weapon_element": "physical",
+          "offer": 5,
+          "time": 84.3333333333298,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.5333333333336,
+          "max_progress": 0.501118527477934,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 33.3499999999994,
+          "max_progress": 0.291500970971493,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 49.0333333333318,
+          "max_progress": 0.382415538525763,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 4,
+          "end_time": 55.1166666666648,
+          "max_progress": 0.195087392093571,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 5,
+          "end_time": 117.116666666661,
+          "max_progress": 0.954198473282443,
+          "base_ratio": 0.767741935483871
+        }
+      ],
+      "final_skill_levels": {
+        "skill_pierce": 5,
+        "skill_critical": 4,
+        "skill_charge_shot": 3
+      },
+      "battle_report": {
+        "duration_seconds": 117.116666666661,
+        "damage_total": 1335621.66445685,
+        "damage_by_element": {
+          "physical": 1335621.66445685
+        },
+        "damage_by_source": {
+          "weapon": 1333788.11728885,
+          "pet": 1833.54716800001
+        },
+        "top_element": "physical",
+        "crit_damage": 0.0,
+        "weak_damage": 0.0,
+        "kills": 79,
+        "boss_kills": 1,
+        "base_damage_taken": 252,
+        "base_damage_prevented": 0,
+        "control_seconds": 0.0,
+        "active_skill_casts": 8,
+        "max_kill_streak": 15,
+        "boss_id": "boss_void_phantom",
+        "challenge_rule": {}
+      }
+    }
+  ],
+  "sweep": {
+    "jobs": 10,
+    "batch_size": 1,
+    "process_count": 10,
+    "wall_seconds": 10.999,
+    "max_process_seconds": 10.983
+  }
+}

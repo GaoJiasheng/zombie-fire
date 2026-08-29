@@ -1057,7 +1057,7 @@
         },
         {
           "type": "zombie_spitter",
-          "count": 15,
+          "count": 13,
           "interval": 0.5,
           "lane": "spread"
         },
@@ -1112,6 +1112,19 @@
 					{"hp_coef": 0.8},
 					{"hp_coef": 0.6},
 					{"hp_coef": 0.735}
+				]
+			},
+			"level_055": {
+				"target_grade": "pressure",
+				"difficulty_coef": 7.06,
+				"run_xp_budget": 1798,
+				"offer_category_floor": "single_target",
+				"waves": [
+					{},
+					{},
+					{},
+					{},
+					{"hp_coef": 2.5}
 				]
 			},
 			"level_057": {
