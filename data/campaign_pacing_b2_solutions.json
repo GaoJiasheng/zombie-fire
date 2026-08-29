@@ -2738,10 +2738,17 @@
           "support": [
             {
               "type": "zombie_charger",
-							"count": 3,
+							"count": 2,
               "interval": 1.0,
               "lane": "right",
               "spawn_delay": 12.0
+            },
+            {
+              "type": "zombie_spitter",
+              "count": 4,
+              "interval": 1.0,
+              "lane": "left",
+              "spawn_delay": 6.0
             }
           ]
         }

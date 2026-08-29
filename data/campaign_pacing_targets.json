@@ -13,7 +13,7 @@
 			"unwinnable": 0
 		},
 		"chapter6_level_range": [51, 60],
-		"chapter6_levels_sha256": "898de3deea7e8d5f19d9a54941a4ff3149fe86c88c49e26c11e2429ae02ec0cd",
+		"chapter6_levels_sha256": "17dfe2efc3a670b43b2d51501a1930232e82785676b36d112c042e52207eefde",
 		"max_free_graduation": {
 			"fixture_id": "maxed_free_matchup_aware_v1",
 			"all_campaign_levels_clearable": true,
@@ -346,6 +346,14 @@
       "center": {"progress_pct": 100.0, "base_hp_pct": 50.0}
     }
   },
+	"target_band_level_overrides": {
+		"level_095": {
+			"target_grade": "high",
+			"base_hp_pct": [35.0, 80.0],
+			"owner_approved_on": "2026-08-29",
+			"reason": "Owner-approved single-level exception after bounded equal-pressure orchestration exhausted; preserve the 10/10 safety solution with >=2% worst-seed margin."
+		}
+	},
   "unwinnable": {
     "description": "base_destroyed_or_clear_timeout",
     "is_target_grade": false
