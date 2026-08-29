@@ -385,6 +385,10 @@
 			"target_grade": "light_pressure",
 			"difficulty_coef": 3.5,
 			"offer_category_floor": "compatible_crowd",
+			"xp_first_offer": 70,
+			"xp_offer_growth": 75,
+			"xp_offer_ramp": 8,
+			"target_card_picks": 5,
 			"waves": [
 				{},
 				{},
@@ -542,7 +546,7 @@
         },
         {
           "type": "zombie_spitter",
-          "count": 5,
+          "count": 3,
           "interval": 1.05,
           "lane": "center"
         }
@@ -876,7 +880,7 @@
 		},
 		"level_047": {
 			"target_grade": "light_pressure",
-			"difficulty_coef": 14.0,
+			"difficulty_coef": 12.5,
 			"offer_category_floor": "compatible_crowd",
 			"waves": [
 				{},

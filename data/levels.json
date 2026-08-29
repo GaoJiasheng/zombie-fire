@@ -3810,10 +3810,10 @@
 			"fire": 1.35,
 			"pierce": 1.4
 		},
-		"xp_first_offer": 84,
-		"xp_offer_growth": 88,
-		"xp_offer_ramp": 9,
-		"target_card_picks": 4,
+		"xp_first_offer": 70,
+		"xp_offer_growth": 75,
+		"xp_offer_ramp": 8,
+		"target_card_picks": 5,
 		"onboarding_stage": "",
 		"next_level": "level_026",
 		"waves": [
@@ -4728,7 +4728,7 @@
 					},
 					{
 						"type": "zombie_spitter",
-						"count": 5,
+						"count": 3,
 						"interval": 1.05,
 						"lane": "center"
 					}
@@ -7415,7 +7415,7 @@
 		"env": "env_storm_substation",
 		"chapter": 5,
 		"recommend_level": 24,
-		"difficulty_coef": 14.0,
+		"difficulty_coef": 12.5,
 		"primary_weakness": "fire",
 		"base_hp_ref": 449,
 		"threat_tags": [
@@ -11019,7 +11019,7 @@
 		"env": "env_desert_refinery",
 		"chapter": 7,
 		"recommend_level": 34,
-		"difficulty_coef": 67.0,
+		"difficulty_coef": 32.0,
 		"primary_weakness": "lightning",
 		"base_hp_ref": 599,
 		"threat_tags": [
@@ -11189,7 +11189,7 @@
 		"env": "env_desert_refinery",
 		"chapter": 7,
 		"recommend_level": 35,
-		"difficulty_coef": 21.0,
+		"difficulty_coef": 13.0,
 		"primary_weakness": "poison",
 		"base_hp_ref": 606,
 		"threat_tags": [
@@ -11441,7 +11441,7 @@
 						"spawn_delay": 10.0
 					}
 				],
-				"hp_coef": 1.7
+				"hp_coef": 1.1
 			},
 			{
 				"wave": 5,

@@ -539,9 +539,9 @@
       "offer_category_floor": "compatible_crowd",
       "run_xp_budget": 1731
     },
-		"level_068": {
-      "target_grade": "pressure",
-      "difficulty_coef": 67.0,
+	"level_068": {
+		"target_grade": "pressure",
+		"difficulty_coef": 32.0,
       "waves": [
         {
           "hp_coef": 1.0,
@@ -620,9 +620,9 @@
       "offer_category_floor": "compatible_crowd",
       "run_xp_budget": 2226
     },
-    "level_069": {
-      "target_grade": "pressure",
-      "difficulty_coef": 21.0,
+	"level_069": {
+		"target_grade": "pressure",
+		"difficulty_coef": 13.0,
       "waves": [
         {
           "hp_coef": 1.0,
@@ -738,11 +738,11 @@
             }
           ]
         },
-        {
-          "hp_coef": 1.7,
-          "spawns": [
-            {
-              "type": "zombie_juggernaut",
+		{
+			"hp_coef": 1.1,
+			"spawns": [
+				{
+					"type": "zombie_juggernaut",
               "count": 3,
               "interval": 0.62,
               "lane": "spread"
