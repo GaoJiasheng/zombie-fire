@@ -353,19 +353,11 @@ func _build_store_unlock_roadmap(tiers: Array[Dictionary]) -> PanelContainer:
 	progress.max_value = maxf(float(final_level), 1.0)
 	progress.value = clampf(float(cleared_level), 0.0, progress.max_value)
 	progress.show_percentage = false
-	var progress_bg := StyleBoxFlat.new()
-	progress_bg.bg_color = Color(0.055, 0.075, 0.10, 0.92)
-	progress_bg.corner_radius_top_left = 9
-	progress_bg.corner_radius_top_right = 9
-	progress_bg.corner_radius_bottom_left = 9
-	progress_bg.corner_radius_bottom_right = 9
+	# Art-driven rail: visible UI is texture-backed, so tint the shared plate skin
+	# rather than painting solid boxes.
+	var progress_bg := UiKit.plate_style(UiKit.CYAN)
 	progress.add_theme_stylebox_override("background", progress_bg)
-	var progress_fill := StyleBoxFlat.new()
-	progress_fill.bg_color = UiKit.GOLD
-	progress_fill.corner_radius_top_left = 9
-	progress_fill.corner_radius_top_right = 9
-	progress_fill.corner_radius_bottom_left = 9
-	progress_fill.corner_radius_bottom_right = 9
+	var progress_fill := UiKit.plate_style(UiKit.GOLD)
 	progress.add_theme_stylebox_override("fill", progress_fill)
 	stack.add_child(progress)
 
@@ -392,15 +384,20 @@ func _build_store_unlock_roadmap(tiers: Array[Dictionary]) -> PanelContainer:
 		tier_box.add_child(marker_center)
 		var marker := PanelContainer.new()
 		marker.custom_minimum_size = Vector2(34, 34)
-		var marker_style := StyleBoxFlat.new()
-		marker_style.bg_color = UiKit.SUCCESS if unlocked else UiKit.GOLD if current else Color(0.12, 0.16, 0.20, 1.0)
-		marker_style.border_color = Color.WHITE if current else UiKit.CYAN if unlocked else Color(0.36, 0.42, 0.48, 0.88)
-		marker_style.set_border_width_all(3 if current else 2)
-		marker_style.corner_radius_top_left = 17
-		marker_style.corner_radius_top_right = 17
-		marker_style.corner_radius_bottom_left = 17
-		marker_style.corner_radius_bottom_right = 17
-		marker.add_theme_stylebox_override("panel", marker_style)
+		# A 34px node is far too small for the nine-patch plate skin to read, so use a
+		# tinted icon instead of a panel style: art-driven and legible at this size.
+		var marker_icon := TextureRect.new()
+		marker_icon.texture = load("res://assets/production/sprites/ui/ui_plate_skin.png")
+		marker_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		marker_icon.stretch_mode = TextureRect.STRETCH_SCALE
+		marker_icon.custom_minimum_size = Vector2(26, 26)
+		marker_icon.modulate = (
+			UiKit.SUCCESS if unlocked
+			else UiKit.GOLD if current
+			else Color(0.38, 0.45, 0.52, 0.95)
+		)
+		marker_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker.add_child(marker_icon)
 		marker_center.add_child(marker)
 
 		var level_copy := UiKit.label(LocalizationManager.text("第 %d 关") % clear_level, 15, UiKit.TEXT_MAIN, 2)

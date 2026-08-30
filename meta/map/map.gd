@@ -72,10 +72,15 @@ func _ensure_endless_button() -> void:
 	btn.texture_pressed = animated
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_SCALE
-	var veil := ColorRect.new()
+	# Texture-backed veil: visible UI must be texture-driven, so reuse the shared
+	# panel skin the way collection.gd tints its locked-card veil.
+	var veil := TextureRect.new()
 	veil.name = "ReadabilityVeil"
+	veil.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
 	veil.set_anchors_preset(Control.PRESET_FULL_RECT)
-	veil.color = Color(0.012, 0.026, 0.045, 0.42)
+	veil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	veil.stretch_mode = TextureRect.STRETCH_SCALE
+	veil.modulate = Color(0.012, 0.026, 0.045, 0.42)
 	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(veil)
 	var frame := PanelContainer.new()
@@ -649,15 +654,14 @@ func _build_chapter_progress_panel(chapter: Dictionary, unlocked: bool, accent: 
 		var segment := PanelContainer.new()
 		segment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		segment.custom_minimum_size = Vector2(10, 18)
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(accent.r, accent.g, accent.b, 0.92) if index < count and unlocked else Color(0.18, 0.23, 0.28, 0.82)
-		style.border_color = Color(accent.r, accent.g, accent.b, 0.62 if unlocked else 0.22)
-		style.set_border_width_all(1)
-		style.corner_radius_top_left = 3
-		style.corner_radius_top_right = 3
-		style.corner_radius_bottom_left = 3
-		style.corner_radius_bottom_right = 3
-		segment.add_theme_stylebox_override("panel", style)
+		# Texture-backed segment: tint the shared plate skin instead of painting a
+		# solid box, so the progress rail stays art-driven like the rest of the card.
+		segment.add_theme_stylebox_override("panel", UiKit.plate_style(accent))
+		segment.modulate = (
+			Color(accent.r, accent.g, accent.b, 0.92)
+			if index < count and unlocked
+			else Color(0.18, 0.23, 0.28, 0.82)
+		)
 		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		segments.add_child(segment)
 	return stack
