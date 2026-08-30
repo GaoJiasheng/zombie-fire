@@ -4675,3 +4675,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **The collection loop remains challenge-backed**: 30 free collection purchases cost 316 stars in total, so the expected normal table leaves a 22-star challenge requirement versus 36 previously. Premium entitlement rows remain outside the star loop.
 - **Existing saves stay additive**: stored stars are not rewritten; a replay only credits an improvement delta. The conservative progression fixture deliberately remains fixed at two stars per clear.
 - **Work stops at the approval gate**: the per-stage CSV and consumer audit are ready for Owner review; no 99×10 final sweep, Boss-band repair or build-64 packaging has started.
+# 2026-08-30 · 战斗卡牌详情弹窗字号适配
+
+- **根因**：全局 `FONT_SCALE=1.5` 后，详情弹窗仍固定为 `804×854`，并把全等级、描述、标签和关闭按钮钉在旧的硬编码纵坐标；英文长描述只能通过 `fit_label_text` 降字号才能留在面板内。
+- **实现**：详情遮罩覆盖已经由 `_card_offer_vertical_bounds()` 限制的选卡面板；内部文字栏按实际换行高度逐段排布，面板按内容高度居中，关闭按钮随标签下移。详情路径不再调用 `fit_label_text`，三处正文始终保留 `scaled_font_size(...)` 的授权字号。
+- **边界**：没有改变 `FONT_SCALE`、文案、技能数据、断言或战斗确定性审计路径；卡牌选择弹窗的既有内容驱动修复保持不变。
+- **验证**：M1 smoke 零 ERROR；`check_visual_screens.py` 的 16 技能 × 中英详情 32 路全绿；1080×1920、1320×2868、750×1334 三尺寸双语截图 6 张运行时审计与逐像素尺寸检查全绿。

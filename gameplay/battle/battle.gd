@@ -3354,8 +3354,11 @@ func _layout_card_detail_overlay() -> void:
 		return
 	var host_panel := get_node_or_null("Hud/CardPanel") as Control
 	var host_size := host_panel.size if host_panel != null else CARD_OFFER_PANEL_SIZE
-	overlay.position = Vector2(42, 112)
-	overlay.size = Vector2(host_size.x - 84.0, host_size.y - 210.0)
+	# The detail view owns the already corridor-constrained offer panel. Using the
+	# whole host gives localized copy room without extending into the hero/base
+	# lane, and avoids a second arbitrary 112px/98px inset inside the modal.
+	overlay.position = Vector2.ZERO
+	overlay.size = host_size
 	overlay.clip_contents = true
 	var dim := overlay.get_node_or_null("Dim") as TextureRect
 	if dim != null:
@@ -3364,60 +3367,62 @@ func _layout_card_detail_overlay() -> void:
 		dim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		dim.stretch_mode = TextureRect.STRETCH_SCALE
 		dim.modulate = Color(0.0, 0.0, 0.0, 0.82)
-	panel.position = Vector2(42, 42)
-	panel.size = Vector2(804, 854)
+	var panel_width := minf(888.0, maxf(804.0, overlay.size.x - 84.0))
+	var content_x := 44.0
+	var content_width := panel_width - content_x * 2.0
+	panel.size = Vector2(panel_width, 854.0)
 	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", UiKit.result_panel_texture_style())
 	var icon := panel.get_node_or_null("Icon") as TextureRect
 	if icon != null:
-		icon.position = Vector2(44, 40)
+		icon.position = Vector2(content_x, 32)
 		icon.size = Vector2(96, 96)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	var title := panel.get_node_or_null("Title") as Label
 	if title != null:
-		title.position = Vector2(166, 40)
-		title.size = Vector2(586, 54)
+		title.position = Vector2(166, 32)
+		title.size = Vector2(panel_width - 210.0, 64)
 		title.clip_text = true
 		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		UiKit.apply_label(title, 24, UiKit.TEXT_MAIN, 3)
 	var current := _ensure_card_detail_label(panel, "Body")
-	current.position = Vector2(44, 144)
-	current.size = Vector2(716, 76)
 	current.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	current.clip_text = true
 	current.add_theme_constant_override("line_spacing", 4)
 	UiKit.apply_label(current, 16, UiKit.CYAN, 2)
+	current.position = Vector2(content_x, 140)
+	current.size = Vector2(content_width, _wrapped_label_required_height(current, content_width, 70.0))
 	var levels_title := _ensure_card_detail_label(panel, "AllLevelsTitle")
-	levels_title.position = Vector2(44, 238)
-	levels_title.size = Vector2(716, 34)
-	levels_title.text = "全部等级"
+	levels_title.position = Vector2(content_x, current.position.y + current.size.y + 12.0)
+	levels_title.size = Vector2(content_width, 34)
+	levels_title.text = LocalizationManager.text("全部等级")
 	levels_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.apply_label(levels_title, 17, UiKit.GOLD, 2)
 	var levels := _ensure_card_detail_label(panel, "AllLevelsBody")
-	levels.position = Vector2(44, 278)
-	levels.size = Vector2(716, 226)
 	levels.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	levels.clip_text = true
 	levels.add_theme_constant_override("line_spacing", 7)
 	UiKit.apply_label(levels, CARD_DETAIL_LEVELS_BODY_FONT_SIZE, Color(0.86, 0.92, 0.92, 1.0), 2)
+	levels.position = Vector2(content_x, levels_title.position.y + levels_title.size.y + 8.0)
+	levels.size = Vector2(content_width, _wrapped_label_required_height(levels, content_width, 196.0))
 	var desc := _ensure_card_detail_label(panel, "DescBody")
-	desc.position = Vector2(44, 514)
-	desc.size = Vector2(716, 164)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc.clip_text = true
 	desc.add_theme_constant_override("line_spacing", 6)
 	UiKit.apply_label(desc, CARD_DETAIL_DESCRIPTION_FONT_SIZE, Color(0.84, 0.92, 0.94, 1.0), 2)
+	desc.position = Vector2(content_x, levels.position.y + levels.size.y + 12.0)
+	desc.size = Vector2(content_width, _wrapped_label_required_height(desc, content_width, 164.0))
 	var tags := _ensure_card_detail_label(panel, "TagsBody")
-	tags.position = Vector2(44, 690)
-	tags.size = Vector2(716, 52)
 	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tags.clip_text = true
 	tags.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.apply_label(tags, CARD_DETAIL_TAGS_FONT_SIZE, UiKit.TEXT_MUTED, 2)
+	tags.position = Vector2(content_x, desc.position.y + desc.size.y + 12.0)
+	tags.size = Vector2(content_width, _wrapped_label_required_height(tags, content_width, 52.0))
 	var close := panel.get_node_or_null("CloseButton") as TextureButton
 	if close != null:
-		close.position = Vector2(242, 750)
+		close.position = Vector2((panel_width - 320.0) * 0.5, tags.position.y + tags.size.y + 16.0)
 		close.size = Vector2(320, 80)
 		close.custom_minimum_size = Vector2(320, 80)
 		close.ignore_texture_size = true
@@ -3430,6 +3435,13 @@ func _layout_card_detail_overlay() -> void:
 			close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			close_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			UiKit.apply_label(close_label, 21, UiKit.TEXT_MAIN, 3)
+		var required_panel_height := close.position.y + close.size.y + 24.0
+		var max_panel_height := maxf(0.0, overlay.size.y - 84.0)
+		panel.size.y = minf(required_panel_height, max_panel_height)
+		panel.position = Vector2(
+			(overlay.size.x - panel.size.x) * 0.5,
+			maxf(42.0, (overlay.size.y - panel.size.y) * 0.5)
+		)
 
 func _ensure_card_detail_label(panel: Control, node_name: String) -> Label:
 	var label := panel.get_node_or_null(node_name) as Label
@@ -12330,30 +12342,9 @@ func _show_card_detail(skill_id: String) -> void:
 	$Hud/CardPanel/DetailOverlay/Panel/AllLevelsBody.text = SkillEffectText.format_all_levels(row, lv)
 	$Hud/CardPanel/DetailOverlay/Panel/DescBody.text = LocalizationManager.text(_skill_long_desc(skill_id, lv))
 	$Hud/CardPanel/DetailOverlay/Panel/TagsBody.text = "%s: %s" % [_loc("标签", "Tags"), LocalizationManager.text(_format_card_tags(row.get("card_tags", [])))]
-	# Use the larger mobile-first sizes whenever the copy fits. Long English
-	# variants may step down only within a floor that is never smaller than the
-	# previous released detail typography.
-	UiKit.fit_label_text(
-		$Hud/CardPanel/DetailOverlay/Panel/AllLevelsBody,
-		UiKit.scaled_font_size(CARD_DETAIL_LEVELS_BODY_FONT_SIZE),
-		UiKit.scaled_font_size(14),
-		4.0,
-		4.0
-	)
-	UiKit.fit_label_text(
-		$Hud/CardPanel/DetailOverlay/Panel/DescBody,
-		UiKit.scaled_font_size(CARD_DETAIL_DESCRIPTION_FONT_SIZE),
-		UiKit.scaled_font_size(15),
-		4.0,
-		4.0
-	)
-	UiKit.fit_label_text(
-		$Hud/CardPanel/DetailOverlay/Panel/TagsBody,
-		UiKit.scaled_font_size(CARD_DETAIL_TAGS_FONT_SIZE),
-		UiKit.scaled_font_size(14),
-		4.0,
-		4.0
-	)
+	# Localized copy determines each lane's height. Re-layout after assigning the
+	# strings so the mobile-first FONT_SCALE ruler is preserved exactly.
+	_layout_card_detail_overlay()
 
 func _hide_card_detail() -> void:
 	AudioManager.play_sfx("ui_click", -5.0)
