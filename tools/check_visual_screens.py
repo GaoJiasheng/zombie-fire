@@ -2614,17 +2614,27 @@ def check_layout_contracts() -> list[str]:
     return errors
 
 
-def analyze(path: Path, label: str) -> list[str]:
+def analyze(path: Path, label: str, expected_size: tuple[int, int] = EXPECTED_SIZE) -> list[str]:
     errors: list[str] = []
     if not path.exists():
         return [f"{label} screenshot was not written"]
     with Image.open(path) as source:
         image = source.convert("RGB")
-    if label.startswith(TALL_SCREEN_LABEL_PREFIXES):
-        if image.size[0] != EXPECTED_SIZE[0] or image.size[1] <= EXPECTED_SIZE[1]:
-            errors.append(f"{label} screenshot must exercise a viewport taller than 1920px, got {image.size}")
-    elif image.size != EXPECTED_SIZE:
-        errors.append(f"{label} screenshot size must be {EXPECTED_SIZE}, got {image.size}")
+    # Hard pixel-exact assertion: the capture pipeline renders into an offscreen
+    # SubViewport sized to exactly the requested viewport_size (see tools/_shot.gd),
+    # so nothing should ever legitimately produce a size other than what was asked
+    # for. This used to be a loose `> 1920` check for "tall" labels, which is
+    # exactly how a host-display-clamped capture (e.g. a 1080x2340 request landing
+    # at 1080x2036 on a short physical screen) silently passed as "tall enough"
+    # while quietly losing everything below row 1920 — the bottom safe area on
+    # every modern iPhone was never actually verified. Any mismatch is now fatal.
+    if image.size != tuple(expected_size):
+        errors.append(f"{label} screenshot size must be {tuple(expected_size)}, got {image.size}")
+    if label.startswith(TALL_SCREEN_LABEL_PREFIXES) and expected_size[1] <= EXPECTED_SIZE[1]:
+        errors.append(
+            f"{label} is labeled as a tall/device screen but its payload viewport_size "
+            f"{tuple(expected_size)} is not taller than the {EXPECTED_SIZE[1]}px baseline"
+        )
 
     pixels = list(image.getdata())
     count = max(1, len(pixels))
@@ -2808,7 +2818,8 @@ def main() -> int:
                     errors.append(f"{label} capture output: {output[-1200:]}")
             else:
                 errors.extend(f"{label} runtime audit: {issue}" for issue in audit_issues)
-                image_issues = analyze(out_path, label)
+                expected_size = tuple(payload.get("viewport_size", list(EXPECTED_SIZE)))
+                image_issues = analyze(out_path, label, expected_size)
                 errors.extend(image_issues)
             if visual_output and out_path.exists():
                 destination = Path(visual_output)

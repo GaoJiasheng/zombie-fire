@@ -7,6 +7,12 @@ extends SceneTree
 const StatusVfxControllerScript := preload("res://gameplay/vfx/status_vfx_controller.gd")
 const UiKit := preload("res://ui/ui_kit.gd")
 
+# Must match project.godot's window/size/viewport_width and viewport_height: the
+# design canvas that window/stretch/mode=canvas_items + window/stretch/aspect=expand
+# scale every real window into. CaptureViewport recreates that same scale/expand
+# contract manually (see _initialize), so this constant has to track project.godot.
+const DESIGN_SIZE := Vector2i(1080, 1920)
+
 func _initialize() -> void:
 	# Automated review captures must not pull the active macOS workspace away
 	# from the owner. The viewport still renders normally, but its utility window
@@ -22,11 +28,41 @@ func _initialize() -> void:
 		if parsed is Dictionary:
 			payload = parsed
 	var out_path := args[2] if args.size() > 2 else "/tmp/zf_shot_%s.png" % route
+
+	var requested_size := DESIGN_SIZE
 	if payload.has("viewport_size") and payload["viewport_size"] is Array and (payload["viewport_size"] as Array).size() >= 2:
 		var viewport_size: Array = payload["viewport_size"]
-		root.size = Vector2i(int(viewport_size[0]), int(viewport_size[1]))
-		DisplayServer.window_set_size(root.size)
-		await process_frame
+		requested_size = Vector2i(int(viewport_size[0]), int(viewport_size[1]))
+	# Render into an offscreen SubViewport sized exactly to the requested payload
+	# instead of resizing the OS window. The OS window's real pixel size is bound
+	# by the host display and can be silently clamped by it (a 1080x2340 request
+	# landed at 1080x2036 on a 1964px-tall physical screen, quietly truncating
+	# every bottom-safe-area capture below row 1920 while still reporting success).
+	# A SubViewport's render target has no such ceiling, so `viewport_size` is
+	# always honoured exactly, independent of the machine running the capture.
+	var capture_viewport := SubViewport.new()
+	capture_viewport.name = "CaptureViewport"
+	capture_viewport.size = requested_size
+	# SubViewport has no project-stretch behavior of its own, so a bare `size`
+	# assignment would anchor Controls to raw device pixels instead of the design
+	# canvas that window/stretch/mode=canvas_items + aspect=expand scales real
+	# windows into. size_2d_override + size_2d_override_stretch reproduces that
+	# same "scale = min(width_ratio, height_ratio); expand the other axis" canvas
+	# manually; verified against the real (headless, unclamped) window path to
+	# match pixel-for-pixel across the whole checked-in size matrix — see
+	# design/audits/shot_pipeline_offscreen_report.md.
+	var design_scale := minf(
+		float(requested_size.x) / float(DESIGN_SIZE.x),
+		float(requested_size.y) / float(DESIGN_SIZE.y)
+	)
+	capture_viewport.size_2d_override = Vector2i(
+		int(floor(float(requested_size.x) / design_scale)),
+		int(floor(float(requested_size.y) / design_scale))
+	)
+	capture_viewport.size_2d_override_stretch = true
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(capture_viewport)
+	await process_frame
 
 	var dl := root.get_node("/root/DataLoader")
 	dl.load_all()
@@ -45,7 +81,7 @@ func _initialize() -> void:
 	if payload.has("equipment") and payload["equipment"] is Dictionary:
 		_apply_equipment_override(sm, payload["equipment"])
 	var main = (load("res://main.tscn") as PackedScene).instantiate()
-	root.add_child(main)
+	capture_viewport.add_child(main)
 	await process_frame
 	if payload.has("save_override") and payload["save_override"] is Dictionary:
 		_apply_save_override(sm, payload["save_override"])
@@ -537,7 +573,11 @@ func _initialize() -> void:
 			for _scroll_frame in range(4):
 				await process_frame
 	_emit_final_ui_audit(main, route)
-	var image := root.get_viewport().get_texture().get_image()
+	# render_target_update_mode = ALWAYS keeps CaptureViewport rendering every
+	# frame, but the very last mutation above (UI audit, scroll, debug staging)
+	# still needs one more draw to land in its texture before it is read back.
+	await RenderingServer.frame_post_draw
+	var image := capture_viewport.get_texture().get_image()
 	if image == null:
 		print("FAIL: viewport screenshot unavailable; run without --headless for visual capture")
 		await _cleanup_scene(main)
@@ -586,7 +626,7 @@ func _emit_final_ui_audit(main: Node, route: String) -> void:
 					if grandchild is Control:
 						roots.append(grandchild as Control)
 	var issues: Array[String] = []
-	var insets := UiKit.safe_area_canvas_insets(root.get_viewport())
+	var insets := UiKit.safe_area_canvas_insets(main.get_viewport())
 	for control_root in roots:
 		for issue in UiKit.audit_ui(control_root, insets):
 			if not issues.has(issue):
