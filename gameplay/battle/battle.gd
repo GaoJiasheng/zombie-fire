@@ -1150,6 +1150,21 @@ func _bounded_aim_point(world_pos: Vector2) -> Vector2:
 func _now_seconds() -> float:
 	return Time.get_ticks_msec() / 1000.0
 
+## Deterministic clock for gameplay-affecting cooldowns (premium-set combustion/
+## shatter/verdict triggers and armor counters). Those systems store an
+## absolute "ready at" deadline and later gate real damage + base_hp repair on
+## it, so under the headless audit probe they must key off the fixed 1/60
+## simulation clock instead of wall time — real elapsed process time varies
+## with host scheduling/acceleration and previously made those triggers (and
+## the damage/base HP they apply) fire on different physics ticks between
+## byte-identical seeded runs. Production combat keeps the authored wall-clock
+## feel; only the audit probe (_audit_combat_rng != null) switches source.
+## Pure presentation throttles (screen shake, sfx/toast rate limiting, sprite
+## jitter) intentionally keep using _now_seconds()/Time directly since they
+## never feed back into combat state.
+func _gameplay_now_seconds() -> float:
+	return battle_elapsed_seconds if _audit_combat_rng != null else Time.get_ticks_msec() / 1000.0
+
 func _load_equipment() -> void:
 	character_id = SaveManager.get_selected("character")
 	if character_id == "":
@@ -1725,7 +1740,10 @@ func _process_frost_glacier(delta: float) -> void:
 	if should_tick:
 		sig_frost_glacier_tick = FROST_GLACIER_TICK_INTERVAL
 	var affected := 0
-	for enemy in $EnemyLayer.get_children():
+	var field_enemies := $EnemyLayer.get_children()
+	if _audit_combat_rng != null:
+		field_enemies.sort_custom(_audit_enemy_precedes)
+	for enemy in field_enemies:
 		if not is_instance_valid(enemy) or enemy.global_position.y < field_y:
 			continue
 		affected += 1
@@ -1777,8 +1795,27 @@ func _active_target_candidates(max_count: int) -> Array[Node2D]:
 		if bool(enemy.boss):
 			score += 95.0
 		candidates.append({"enemy": enemy as Node2D, "score": score})
+	# Active-skill target ranking (railvolley, meltdown fallback ordering, etc.)
+	# previously broke score ties on Array.sort_custom's unstable ordering of the
+	# raw, unsorted $EnemyLayer child list. That list's relative order is not
+	# guaranteed stable across otherwise-identical seeded runs once nodes have
+	# been added/removed over the battle, so two enemies with an equal score
+	# (common in a dense crowd on the same line) could each win the tie on a
+	# different run and take an extra volley hit that the other run's enemy
+	# didn't. Break ties on the deterministic spawn index in audit mode; keep
+	# production's existing highest-score-first behaviour otherwise.
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+		var score_a := float(a.get("score", 0.0))
+		var score_b := float(b.get("score", 0.0))
+		if not is_equal_approx(score_a, score_b):
+			return score_a > score_b
+		if _audit_combat_rng == null:
+			return false
+		var enemy_a := a.get("enemy") as Node
+		var enemy_b := b.get("enemy") as Node
+		if enemy_a == null or enemy_b == null:
+			return false
+		return int(enemy_a.get_meta("audit_spawn_index", 2147483647)) < int(enemy_b.get_meta("audit_spawn_index", 2147483647))
 	)
 	var result: Array[Node2D] = []
 	for item in candidates:
@@ -5118,6 +5155,13 @@ func _homing_target_assignments(origin: Vector2, shot_directions: Array[Vector2]
 		for _direction in shot_directions:
 			assignments.append(null)
 		return assignments
+	# _best_homing_candidate_index below has no explicit tie-break: on an equal
+	# score it keeps the first array entry, so the raw $EnemyLayer child order
+	# silently decided ties. That order is not guaranteed stable across
+	# byte-identical seeded runs, which could hand a homing volley to a
+	# different enemy run-to-run. Fix the order once up front instead.
+	if _audit_combat_rng != null:
+		candidates.sort_custom(_audit_enemy_precedes)
 
 	# 追踪等级限制本轮可同时覆盖的目标数：Lv1~5 最多覆盖 1~5 个目标。先按扇形中
 	# 均匀抽样的方向选出兼顾威胁与方向的不同目标，再让所有弹丸在这些目标间稳定轮转。
@@ -5335,8 +5379,17 @@ func _multi_shot_target_candidates(origin: Vector2, base_direction: Vector2) -> 
 		score -= angle_penalty * 28.0
 		score -= distance * 0.018
 		candidates.append({"enemy": enemy_node, "score": score})
+	# Multishot/homing lane assignment: break score ties deterministically (see
+	# _active_target_candidates for why raw $EnemyLayer order cannot be trusted
+	# for this on an otherwise byte-identical seeded run).
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+		var score_a := float(a.get("score", 0.0))
+		var score_b := float(b.get("score", 0.0))
+		if not is_equal_approx(score_a, score_b):
+			return score_a > score_b
+		if _audit_combat_rng == null:
+			return false
+		return _audit_enemy_precedes(a.get("enemy") as Node, b.get("enemy") as Node)
 	)
 	return candidates
 
@@ -6889,7 +6942,7 @@ func _activate_pet_golden_mark(skill: Dictionary, target: Node2D) -> void:
 	_deal_damage_with_source(target, damage, "physical", 0.18, 0.0, "skyfalcon_mark")
 	var duration := _pet_skill_linear_value("mark_duration", "level_mark_duration_growth")
 	var amp := _pet_skill_linear_value("mark_damage_amp", "level_mark_amp_growth")
-	target.set_meta("golden_law_mark_until", Time.get_ticks_msec() / 1000.0 + duration)
+	target.set_meta("golden_law_mark_until", _gameplay_now_seconds() + duration)
 	target.set_meta("golden_law_mark_amp", amp)
 	var repair_ratio := _pet_skill_linear_value("repair_ratio", "level_repair_growth")
 	var restored := maxi(1, int(round(float(base_hp_max) * repair_ratio)))
@@ -8253,7 +8306,7 @@ func _apply_apocalypse_inferno_on_hit(primary: Node, origin: Vector2, damage: fl
 			)
 			_spawn_attack_ring((primary as Node2D).global_position, 92.0, Color(1.0, 0.34, 0.05, 0.26), 0.17)
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	var ready_at := float(primary.get_meta("inferno_combustion_ready_at", 0.0))
 	if now < ready_at:
 		return
@@ -8271,7 +8324,7 @@ func _apply_apocalypse_inferno_on_hit(primary: Node, origin: Vector2, damage: fl
 		if distance <= radius:
 			candidates.append({"target": target, "distance": distance})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+		return _audit_distance_candidate_less(a, b)
 	)
 	for index in range(mini(candidates.size(), max_targets)):
 		var candidate: Dictionary = candidates[index]
@@ -8342,7 +8395,7 @@ func _apply_apocalypse_absolute_zero_on_hit(primary: Node, _origin: Vector2, dam
 			)
 			_spawn_float_text((primary as Node2D).global_position + Vector2(-64, -104), LocalizationManager.text("脆化"), Color(0.62, 0.92, 1.0, 1.0), false, 21, 180.0)
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	if now < float(primary.get_meta("absolute_zero_shatter_ready_at", 0.0)):
 		return
 	primary.set_meta("absolute_zero_brittle_stacks", 0)
@@ -8360,7 +8413,7 @@ func _apply_apocalypse_absolute_zero_on_hit(primary: Node, _origin: Vector2, dam
 		if distance <= radius:
 			candidates.append({"target": target, "distance": distance})
 	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+		return _audit_distance_candidate_less(a, b)
 	)
 	for index in range(mini(candidates.size(), max_targets)):
 		var candidate: Dictionary = candidates[index]
@@ -8415,7 +8468,7 @@ func _apply_absolute_zero_crystal_wave(primary: Node, impact: Vector2, damage: f
 		if distance <= radius:
 			targets.append({"target": candidate, "distance": distance})
 	targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("distance", 0.0)) < float(b.get("distance", 0.0))
+		return _audit_distance_candidate_less(a, b)
 	)
 	for index in range(mini(targets.size(), max_targets)):
 		var target := targets[index].get("target") as Node
@@ -8450,7 +8503,7 @@ func _apply_apocalypse_golden_law_on_hit(primary: Node, _origin: Vector2, damage
 	var set_id := str(weapon.get("premium_set", ""))
 	var set_row := DataLoader.get_row("premium_sets", set_id)
 	var special: Dictionary = weapon.get("special", {})
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	var mark_until := float(primary.get_meta("golden_law_mark_until", 0.0))
 	if now < mark_until:
 		var mark_amp := float(primary.get_meta("golden_law_mark_amp", 0.0))
@@ -8494,7 +8547,9 @@ func _apply_golden_law_decree(damage: float, set_row: Dictionary) -> void:
 		if is_instance_valid(candidate) and candidate is Node2D and candidate.has_method("take_damage"):
 			targets.append(candidate as Node2D)
 	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
-		return a.global_position.y > b.global_position.y
+		if not is_equal_approx(a.global_position.y, b.global_position.y):
+			return a.global_position.y > b.global_position.y
+		return _audit_combat_rng != null and _audit_enemy_precedes(a, b)
 	)
 	if targets.size() > max_targets:
 		targets.resize(max_targets)
@@ -8535,7 +8590,7 @@ func _apply_inferno_death_spread(enemy: Node, reward: Dictionary) -> void:
 		if (candidate as Node2D).global_position.distance_to(origin) <= radius:
 			targets.append(candidate as Node2D)
 	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
-		return a.global_position.distance_squared_to(origin) < b.global_position.distance_squared_to(origin)
+		return _audit_node2d_metric_less(a, b, a.global_position.distance_squared_to(origin), b.global_position.distance_squared_to(origin))
 	)
 	for index in range(mini(targets.size(), max_targets)):
 		var target := targets[index]
@@ -8586,7 +8641,11 @@ func _densest_apocalypse_target(fallback: Node) -> Node:
 		for peer in $EnemyLayer.get_children():
 			if is_instance_valid(peer) and peer is Node2D and (peer as Node2D).global_position.distance_to((candidate as Node2D).global_position) <= 240.0:
 				count += 1
-		if count > best_count:
+		# Break ties on the deterministic spawn index instead of raw $EnemyLayer
+		# order: two candidates with an equal local crowd count previously kept
+		# whichever the unsorted child list happened to visit first, which is
+		# not guaranteed stable across otherwise-identical seeded runs.
+		if count > best_count or (count == best_count and _audit_combat_rng != null and _audit_enemy_precedes(candidate, best)):
 			best_count = count
 			best = candidate
 	return best
@@ -8744,6 +8803,32 @@ func _audit_enemy_precedes(left: Node, right: Node) -> bool:
 	if left == null or right == null:
 		return false
 	return int(left.get_meta("audit_spawn_index", 2147483647)) < int(right.get_meta("audit_spawn_index", 2147483647))
+
+## Same tie-break as _audit_target_score_less/_audit_enemy_precedes, for the
+## premium-set AoE target rankers that sort {"target": Node, "distance": float}
+## candidates by nearest-first. Two enemies at (float-)equal distance from the
+## blast center previously fell back on Array.sort_custom's unstable order of
+## the raw $EnemyLayer child list, so which one made the max_targets cut (and
+## therefore took combustion/shatter/crystal-wave damage) could differ between
+## byte-identical seeded runs.
+func _audit_distance_candidate_less(a: Dictionary, b: Dictionary) -> bool:
+	var left_distance := float(a.get("distance", 0.0))
+	var right_distance := float(b.get("distance", 0.0))
+	if not is_equal_approx(left_distance, right_distance):
+		return left_distance < right_distance
+	if _audit_combat_rng == null:
+		return false
+	return _audit_enemy_precedes(a.get("target") as Node, b.get("target") as Node)
+
+## Same intent as _audit_distance_candidate_less, for the plain Array[Node2D]
+## AoE rankers that sort by distance-to-a-point or by line depth (global_position.y)
+## instead of a {"target":..,"distance":..} Dictionary.
+func _audit_node2d_metric_less(left: Node2D, right: Node2D, left_metric: float, right_metric: float) -> bool:
+	if not is_equal_approx(left_metric, right_metric):
+		return left_metric < right_metric
+	if _audit_combat_rng == null:
+		return false
+	return _audit_enemy_precedes(left, right)
 
 func _impact_anchor(primary: Node, fallback: Vector2, vertical_offset := -38.0) -> Vector2:
 	var pos := fallback
@@ -10564,7 +10649,7 @@ func _apply_premium_armor_counter(source: Node, final_damage: int, impact_positi
 func _apply_apocalypse_armor_counter(source: Node, final_damage: int, impact_position: Vector2) -> void:
 	if final_damage <= 0:
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	apocalypse_armor_counter_cooldown = maxf(apocalypse_armor_counter_cooldown, 0.0)
 	apocalypse_armor_charge += 1
 	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
@@ -10588,7 +10673,7 @@ func _apply_apocalypse_armor_counter(source: Node, final_damage: int, impact_pos
 func _apply_apocalypse_inferno_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
 	if final_damage <= 0:
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	apocalypse_armor_charge += 1
 	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
 	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
@@ -10606,7 +10691,7 @@ func _apply_apocalypse_inferno_armor_counter(_source: Node, final_damage: int, i
 		if (candidate as Node2D).global_position.distance_to(impact_position) <= radius:
 			targets.append(candidate as Node2D)
 	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
-		return a.global_position.distance_squared_to(impact_position) < b.global_position.distance_squared_to(impact_position)
+		return _audit_node2d_metric_less(a, b, a.global_position.distance_squared_to(impact_position), b.global_position.distance_squared_to(impact_position))
 	)
 	for index in range(mini(targets.size(), max_targets)):
 		var target := targets[index]
@@ -10637,7 +10722,7 @@ func _apply_apocalypse_inferno_armor_counter(_source: Node, final_damage: int, i
 func _apply_apocalypse_absolute_zero_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
 	if final_damage <= 0:
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	apocalypse_armor_charge += 1
 	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
 	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
@@ -10655,7 +10740,7 @@ func _apply_apocalypse_absolute_zero_armor_counter(_source: Node, final_damage: 
 		if (candidate as Node2D).global_position.distance_to(impact_position) <= radius:
 			targets.append(candidate as Node2D)
 	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
-		return a.global_position.distance_squared_to(impact_position) < b.global_position.distance_squared_to(impact_position)
+		return _audit_node2d_metric_less(a, b, a.global_position.distance_squared_to(impact_position), b.global_position.distance_squared_to(impact_position))
 	)
 	for index in range(mini(targets.size(), max_targets)):
 		var target := targets[index]
@@ -10688,7 +10773,7 @@ func _apply_apocalypse_absolute_zero_armor_counter(_source: Node, final_damage: 
 func _apply_apocalypse_golden_law_armor_counter(_source: Node, final_damage: int, impact_position: Vector2) -> void:
 	if final_damage <= 0:
 		return
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := _gameplay_now_seconds()
 	apocalypse_armor_charge += 1
 	var hits_needed := maxi(2, int(armor_data.get("counter_charge_hits", 3)))
 	if apocalypse_armor_charge < hits_needed or now < apocalypse_armor_counter_cooldown:
@@ -10704,7 +10789,9 @@ func _apply_apocalypse_golden_law_armor_counter(_source: Node, final_damage: int
 		if is_instance_valid(candidate) and candidate is Node2D and candidate.has_method("take_damage"):
 			targets.append(candidate as Node2D)
 	targets.sort_custom(func(a: Node2D, b: Node2D) -> bool:
-		return a.global_position.y > b.global_position.y
+		if not is_equal_approx(a.global_position.y, b.global_position.y):
+			return a.global_position.y > b.global_position.y
+		return _audit_combat_rng != null and _audit_enemy_precedes(a, b)
 	)
 	if targets.size() > max_targets:
 		targets.resize(max_targets)
