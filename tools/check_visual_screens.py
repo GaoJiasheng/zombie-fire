@@ -2456,6 +2456,87 @@ def _dedupe_screens(screens: list[tuple[str, dict, str]]) -> list[tuple[str, dic
     return result
 
 
+# Real device pixel sizes, in addition to the long-standing synthetic 1080x2340
+# "tall" stand-in. These are the actual iOS framebuffer resolutions (not points):
+#   iphone15_16      1170x2532  most common current form factor (iPhone 15/16)
+#   iphone16_pro      1206x2622 taller/narrower Pro screen ratio
+#   iphone16_pro_max  1320x2868 tallest, and the exact case that exposed the
+#                                capture pipeline's host-display clamp bug: a
+#                                request this tall used to silently land at
+#                                1080x2036 (a 1964px-tall physical dev screen),
+#                                losing the bottom 832px — including the entire
+#                                home-indicator safe area — without failing.
+#   iphone_se          750x1334 shortest/narrowest current device; exercises the
+#                                canvas_items+expand *downscale* path instead of
+#                                the expand path every other size exercises.
+# Only the six routes with their own persistent chrome (top bar / bottom nav /
+# safe-area padding) are covered per size, not the full per-item detail sweep
+# the existing 1080x2340 matrix already owns, to keep the added gate time
+# proportionate to what this matrix is actually checking: bottom-safe-area
+# rendering at real device pixel sizes, not per-item content.
+REAL_DEVICE_SIZES: list[tuple[str, list[int]]] = [
+    ("iphone15_16", [1170, 2532]),
+    ("iphone16_pro", [1206, 2622]),
+    ("iphone16_pro_max", [1320, 2868]),
+    ("iphone_se", [750, 1334]),
+]
+
+DEVICE_MATRIX_SCREENS: list[tuple[str, dict, str]] = []
+for _device_label, _device_size in REAL_DEVICE_SIZES:
+    DEVICE_MATRIX_SCREENS.extend(
+        [
+            (
+                "menu",
+                {"viewport_size": _device_size, "_visual_safe_insets": DEBUG_SAFE_INSETS},
+                f"device_matrix_{_device_label}_menu",
+            ),
+            (
+                "map",
+                {"viewport_size": _device_size, "_visual_safe_insets": DEBUG_SAFE_INSETS},
+                f"device_matrix_{_device_label}_map",
+            ),
+            (
+                "loadout",
+                {
+                    "level_id": "level_003",
+                    "equipment": {"selected_armor": "", "selected_chip": "", "selected_pet": ""},
+                    "viewport_size": _device_size,
+                    "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                },
+                f"device_matrix_{_device_label}_loadout",
+            ),
+            (
+                "battle",
+                {
+                    "level_id": "level_001",
+                    "viewport_size": _device_size,
+                    "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                },
+                f"device_matrix_{_device_label}_battle",
+            ),
+            (
+                "result",
+                {
+                    "level_id": "level_004",
+                    "victory": True,
+                    "challenge": True,
+                    "stars": 3,
+                    "gold": 686,
+                    "xp": 458,
+                    "viewport_size": _device_size,
+                    "_visual_safe_insets": DEBUG_SAFE_INSETS,
+                },
+                f"device_matrix_{_device_label}_result",
+            ),
+            (
+                "settings",
+                {"viewport_size": _device_size, "_visual_safe_insets": DEBUG_SAFE_INSETS},
+                f"device_matrix_{_device_label}_settings",
+            ),
+        ]
+    )
+
+
 FINAL_REGRESSION_SCREENS = _dedupe_screens(
     SCREENS
     + TYPOGRAPHY_SCREENS
@@ -2468,6 +2549,7 @@ FINAL_REGRESSION_SCREENS = _dedupe_screens(
     + SKILL_TAG_THEME_SCREENS
     + COLLECTION_TAG_THEME_SCREENS
     + APP_STORE_VFX_SCREENS
+    + DEVICE_MATRIX_SCREENS
 )
 
 # Owner-facing pre-release review pack. The final regression already owns all
@@ -2754,6 +2836,8 @@ def main() -> int:
         active_screens = COLLECTION_TAG_THEME_SCREENS
     elif "--app-store-vfx-only" in sys.argv[1:]:
         active_screens = APP_STORE_VFX_SCREENS
+    elif "--device-matrix-only" in sys.argv[1:]:
+        active_screens = DEVICE_MATRIX_SCREENS
     elif "--premium-cross-only" in sys.argv[1:]:
         active_screens = PREMIUM_CROSS_THEME_SCREENS
     elif "--inferno-only" in sys.argv[1:]:
