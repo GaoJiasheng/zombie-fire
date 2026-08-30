@@ -15,7 +15,7 @@ const LEVEL_MODE_Y := 14.0
 const LEVEL_MODE_H := 164.0
 const LEVEL_MODE_STYLE_SIZE := Vector2(286.0, 112.0)
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 360.0
+const CHAPTER_HERO_HEIGHT := 400.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -392,6 +392,8 @@ func _schedule_map_scroll_focus(control_name: String, top_inset: float) -> void:
 func _restore_map_scroll_focus(control_name: String, top_inset: float, generation: int) -> void:
 	# VBox sizing and queued removals settle over two frames. Restoring earlier
 	# can measure the previous chapter list and land on the wrong card.
+	if not is_inside_tree():
+		return
 	await get_tree().process_frame
 	await get_tree().process_frame
 	if generation != _scroll_focus_generation or not is_inside_tree():
@@ -686,8 +688,10 @@ func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -
 func _build_chapter_action_control(text: String, enabled: bool, callback: Callable, primary := true) -> TextureButton:
 	var action := TextureButton.new()
 	action.name = "EnterChapterButton"
-	action.custom_minimum_size = Vector2(220, 74)
-	UiKit.apply_armored_texture_button(action, primary, Vector2(220, 74), enabled)
+	# 280x80 is the authored primary-action ruler (m1 smoke pins it); 286x80 is the
+	# matching native button size so the frame art is never resampled.
+	action.custom_minimum_size = Vector2(286, 80)
+	UiKit.apply_armored_texture_button(action, primary, Vector2(286, 80), enabled)
 	_make_scroll_friendly_button(action)
 	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:

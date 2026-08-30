@@ -42,9 +42,9 @@ const COLLECTION_LIST_TITLE_Y := 24.0
 const COLLECTION_LIST_TITLE_HEIGHT := 60.0
 const COLLECTION_LIST_TITLE_TAG_GAP := 8.0
 const COLLECTION_LIST_TAG_Y := COLLECTION_LIST_TITLE_Y + COLLECTION_LIST_TITLE_HEIGHT + COLLECTION_LIST_TITLE_TAG_GAP
-# Semantic tag pills resolve to a 42px mobile minimum after font scaling.
+# Semantic tag pills resolve to a 45px mobile minimum at the 1.5x font scale.
 # Author the row at its real minimum so the following 6px interval is exact.
-const COLLECTION_LIST_TAG_HEIGHT := 42.0
+const COLLECTION_LIST_TAG_HEIGHT := 45.0
 const COLLECTION_LIST_TAG_DESCRIPTION_GAP := 6.0
 const COLLECTION_LIST_DESCRIPTION_Y := COLLECTION_LIST_TAG_Y + COLLECTION_LIST_TAG_HEIGHT + COLLECTION_LIST_TAG_DESCRIPTION_GAP
 const EQUIPMENT_LIST_ACTION_Y := 162.0
@@ -111,7 +111,6 @@ func setup(main: Node, payload := {}) -> void:
 			_return_challenge_mode = bool(context.get("challenge", _return_challenge_mode))
 	if _return_to != "loadout":
 		_return_to = "map"
-	_apply_safe_horizontal_margins()
 	_refresh()
 
 func _ready() -> void:
@@ -123,6 +122,8 @@ func _ready() -> void:
 	_refresh()
 
 func _apply_safe_horizontal_margins() -> void:
+	if not is_inside_tree():
+		return
 	var root := get_node_or_null("Root") as MarginContainer
 	if root == null:
 		return

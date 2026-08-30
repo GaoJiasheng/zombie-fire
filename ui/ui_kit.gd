@@ -242,7 +242,7 @@ static func apply_close_glyph(button: Button) -> void:
 
 static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 	var issues: Array[String] = []
-	if root == null or root.get_viewport() == null:
+	if root == null or not root.is_inside_tree() or root.get_viewport() == null:
 		return issues
 	var controls: Array[Control] = []
 	_collect_controls(root, controls)
@@ -251,7 +251,10 @@ static func audit_ui(root: Control, insets: Vector4) -> Array[String]:
 	var safe_rect := safe_content_rect(root.get_viewport(), insets)
 	var critical: Array[Dictionary] = []
 	for control in controls:
-		if not control.is_visible_in_tree():
+		# Rebuilt scroll lists can retain queue_free() children until the frame
+		# boundary. They are no longer renderable audit targets, and asking those
+		# detached controls for a global rect emits !is_inside_tree warnings.
+		if not control.is_inside_tree() or not control.is_visible_in_tree():
 			continue
 		if modal_surface != null and control != modal_surface and not modal_surface.is_ancestor_of(control):
 			continue
@@ -384,6 +387,8 @@ static func _visible_in_clip_ancestors(control: Control, rect: Rect2) -> bool:
 	var ancestor := control.get_parent()
 	while ancestor is Control:
 		var ancestor_control := ancestor as Control
+		if not ancestor_control.is_inside_tree():
+			return false
 		if ancestor_control is ScrollContainer or ancestor_control.clip_contents:
 			var clipped := rect.intersection(ancestor_control.get_global_rect())
 			if clipped.size.x < rect.size.x * 0.8 or clipped.size.y < rect.size.y * 0.8:
@@ -395,6 +400,8 @@ static func _clip_ancestor_result(control: Control, rect: Rect2) -> Dictionary:
 	var ancestor := control.get_parent()
 	while ancestor is Control:
 		var ancestor_control := ancestor as Control
+		if not ancestor_control.is_inside_tree():
+			return {"scroll_cropped": false, "clipped_by": ""}
 		if ancestor_control is ScrollContainer or ancestor_control.clip_contents:
 			var clipped := rect.intersection(ancestor_control.get_global_rect())
 			if clipped.size.x < rect.size.x * 0.8 or clipped.size.y < rect.size.y * 0.8:
