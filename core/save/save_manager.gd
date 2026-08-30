@@ -82,6 +82,7 @@ func _default_save() -> Dictionary:
 		"commerce": {
 			"mock_receipts": [],
 			"mock_last_transaction_unix": 0,
+			"premium_catch_up_levels": {},
 		},
 		"notices": {"power_scale_v6_seen": true},
 		"unlocks": {
@@ -365,6 +366,14 @@ func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
 	for product_id in commerce.get("mock_receipts", []):
 		if typeof(product_id) != TYPE_STRING:
 			_report_persistence_error("%s mock receipts must contain product ids" % label)
+			return false
+	var catch_up_levels_var: Variant = commerce.get("premium_catch_up_levels", {})
+	if not catch_up_levels_var is Dictionary:
+		_report_persistence_error("%s premium catch-up levels must be a dictionary" % label)
+		return false
+	for set_id_var in (catch_up_levels_var as Dictionary).keys():
+		if typeof(set_id_var) != TYPE_STRING or not _is_finite_number((catch_up_levels_var as Dictionary)[set_id_var]):
+			_report_persistence_error("%s premium catch-up levels must map set ids to numeric levels" % label)
 			return false
 	return true
 
@@ -653,6 +662,60 @@ func get_weapon_level(weapon_id: String) -> int:
 func get_item_level(item_id: String) -> int:
 	var equipment: Dictionary = save_data.get("equipment", {})
 	return int(equipment.get(item_id, 1))
+
+func get_highest_weapon_level(excluded_weapon_id := "") -> int:
+	var equipment: Dictionary = save_data.get("equipment", {})
+	var highest := 1
+	for weapon_id_var in DataLoader.get_table("weapons").keys():
+		var weapon_id := str(weapon_id_var)
+		if weapon_id == excluded_weapon_id or not equipment.has(weapon_id):
+			continue
+		var weapon_row := DataLoader.get_row("weapons", weapon_id)
+		var premium_entitlement := str(weapon_row.get("premium_entitlement", "")).strip_edges()
+		# A recorded free weapon level is sufficient evidence that the player owns
+		# it, including migrated saves whose unlock array predates the item. Paid
+		# weapons still require a live entitlement so stale test/reset data cannot
+		# inflate a later purchase's catch-up ceiling.
+		if premium_entitlement != "" and not is_item_unlocked("weapon", weapon_id):
+			continue
+		highest = maxi(highest, int(equipment.get(weapon_id, 1)))
+	return highest
+
+func ensure_premium_catch_up_level(set_id: String, set_weapon_id: String) -> int:
+	var commerce: Dictionary = save_data.get("commerce", {})
+	var levels_var: Variant = commerce.get("premium_catch_up_levels", {})
+	var levels: Dictionary = levels_var if levels_var is Dictionary else {}
+	if not levels.has(set_id):
+		# Freeze the ceiling when the entitlement first arrives. Excluding this
+		# set's own weapon prevents its later overcap levels from extending its
+		# discount forever; other previously owned weapons still count.
+		levels[set_id] = get_highest_weapon_level(set_weapon_id)
+		commerce["premium_catch_up_levels"] = levels
+		save_data["commerce"] = commerce
+	return maxi(1, int(levels.get(set_id, 1)))
+
+func clear_premium_catch_up_level(set_id: String) -> void:
+	var commerce: Dictionary = save_data.get("commerce", {})
+	var levels_var: Variant = commerce.get("premium_catch_up_levels", {})
+	var levels: Dictionary = levels_var if levels_var is Dictionary else {}
+	if levels.erase(set_id):
+		commerce["premium_catch_up_levels"] = levels
+		save_data["commerce"] = commerce
+
+func get_premium_catch_up_level(set_id: String) -> int:
+	var commerce: Dictionary = save_data.get("commerce", {})
+	var levels_var: Variant = commerce.get("premium_catch_up_levels", {})
+	var levels: Dictionary = levels_var if levels_var is Dictionary else {}
+	return maxi(1, int(levels.get(set_id, 1)))
+
+func _premium_set_id_for_item(item_id: String) -> String:
+	for set_id_var in DataLoader.get_table("premium_sets").keys():
+		var set_id := str(set_id_var)
+		var set_row := DataLoader.get_row("premium_sets", set_id)
+		for slot in ["weapon", "armor", "chip", "pet"]:
+			if str(set_row.get(slot, "")) == item_id:
+				return set_id
+	return ""
 
 func get_selected(slot: String) -> String:
 	var equipment: Dictionary = save_data.get("equipment", {})
@@ -2040,16 +2103,53 @@ func get_player_gold() -> int:
 	return int(player.get("gold", 0))
 
 func get_weapon_upgrade_cost(weapon_id: String) -> int:
-	var weapon := DataLoader.get_row("weapons", weapon_id)
-	var base_cost := int(weapon.get("cost_base_gold", 100))
-	return _scaled_upgrade_cost(base_cost, get_weapon_level(weapon_id))
+	return get_item_upgrade_cost_at_level("weapons", weapon_id, get_weapon_level(weapon_id))
 
 func get_item_upgrade_cost(table: String, item_id: String) -> int:
-	if table == "weapons":
-		return get_weapon_upgrade_cost(item_id)
+	return get_item_upgrade_cost_at_level(table, item_id, get_item_level(item_id))
+
+func get_item_upgrade_cost_at_level(
+	table: String,
+	item_id: String,
+	current_level: int,
+	catch_up_level_override := -1
+) -> int:
 	var row := DataLoader.get_row(table, item_id)
 	var base_cost := int(row.get("cost_base_gold", row.get("upgrade_cost_gold", _default_upgrade_cost(table))))
-	return _scaled_upgrade_cost(base_cost, get_item_level(item_id))
+	var full_cost := _scaled_upgrade_cost(base_cost, current_level)
+	if str(row.get("premium_entitlement", "")).strip_edges() == "":
+		return full_cost
+	var catch_up_level := catch_up_level_override
+	if catch_up_level < 1:
+		var set_id := _premium_set_id_for_item(item_id)
+		catch_up_level = get_premium_catch_up_level(set_id) if set_id != "" else 1
+	if current_level >= catch_up_level:
+		return full_cost
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var catch_up_var: Variant = economy.get("premium_equipment_catch_up", {})
+	var catch_up: Dictionary = catch_up_var if catch_up_var is Dictionary else {}
+	var multiplier := clampf(float(catch_up.get("cost_multiplier", 1.0)), 0.0, 1.0)
+	var minimum := maxi(0, int(catch_up.get("minimum_upgrade_cost", 1)))
+	return maxi(minimum, int(round(float(full_cost) * multiplier)))
+
+func get_premium_set_catch_up_cost(set_id: String, target_level: int) -> int:
+	var set_row := DataLoader.get_row("premium_sets", set_id)
+	if set_row.is_empty():
+		return 0
+	var total := 0
+	for spec in [["weapon", "weapons"], ["armor", "armors"], ["chip", "chips"], ["pet", "pets"]]:
+		var slot := str(spec[0])
+		var table := str(spec[1])
+		var item_id := str(set_row.get(slot, ""))
+		var row := DataLoader.get_row(table, item_id)
+		if row.is_empty():
+			continue
+		var level := maxi(1, get_item_level(item_id))
+		var ceiling := mini(maxi(target_level, 1), int(row.get("max_level", target_level)))
+		while level < ceiling:
+			total += get_item_upgrade_cost_at_level(table, item_id, level, target_level)
+			level += 1
+	return total
 
 func get_item_upgrade_cost_spec(table: String, item_id: String) -> Dictionary:
 	return {"kind": "gold", "amount": get_item_upgrade_cost(table, item_id)}

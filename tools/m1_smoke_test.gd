@@ -217,6 +217,7 @@ func _initialize() -> void:
 	await _verify_pet_skill_runtime(data_loader, save_manager, smoke_save_snapshot)
 	_verify_collection_star_curve(data_loader)
 	_verify_owned_store_upgrade_cost(save_manager)
+	_verify_premium_catch_up_discount(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	_verify_local_purchase_flow(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_current_warzone_store_recommendation(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
 	await _verify_quantified_premium_loadout_offer(data_loader, save_manager, root.get_node("/root/PurchaseManager"))
@@ -2176,6 +2177,39 @@ func _verify_owned_store_upgrade_cost(save_manager: Node) -> void:
 		owned_row.free()
 	store.free()
 
+func _verify_premium_catch_up_discount(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var test_save: Dictionary = save_manager._default_save()
+	var equipment: Dictionary = test_save.get("equipment", {})
+	equipment["weapon_autocannon"] = 40
+	test_save["equipment"] = equipment
+	test_save["player"]["gold"] = 999999
+	test_save["levels_progress"] = {"level_030": 3}
+	test_save["entitlements"] = {"verified": ["ent_arsenal_inferno"], "last_sync_unix": 1}
+	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
+	save_manager.save_data = test_save
+	purchase_manager._catalog = data_loader.get_table("store_products")
+	purchase_manager.reconcile_access(false)
+	_expect(save_manager.get_premium_catch_up_level("set_apocalypse_inferno") == 40, "premium catch-up ceiling must freeze at the player's highest previously earned weapon level")
+	_expect(save_manager.get_item_level("weapon_apocalypse_inferno") == 1, "premium entitlement must continue granting level-one equipment")
+	var free_at_39 := int(save_manager.get_item_upgrade_cost_at_level("weapons", "weapon_autocannon", 39, 40))
+	var free_full_at_39 := int(save_manager._scaled_upgrade_cost(int(data_loader.get_row("weapons", "weapon_autocannon").get("cost_base_gold", 100)), 39))
+	_expect(free_at_39 == free_full_at_39, "free weapon upgrade cost must remain byte-for-byte on the full-price curve inside a paid catch-up interval")
+	var paid_base_cost := int(data_loader.get_row("weapons", "weapon_apocalypse_inferno").get("cost_base_gold", 100))
+	var paid_full_at_39 := int(save_manager._scaled_upgrade_cost(paid_base_cost, 39))
+	var paid_discounted_at_39 := int(save_manager.get_item_upgrade_cost_at_level("weapons", "weapon_apocalypse_inferno", 39, 40))
+	_expect(paid_discounted_at_39 < paid_full_at_39, "paid equipment must receive the data-driven discount below its frozen catch-up ceiling")
+	_expect(int(save_manager.get_item_upgrade_cost_at_level("weapons", "weapon_apocalypse_inferno", 40, 40)) == int(save_manager._scaled_upgrade_cost(paid_base_cost, 40)), "paid equipment must return to full price exactly at the catch-up boundary")
+	equipment = save_manager.save_data.get("equipment", {})
+	equipment["weapon_apocalypse_inferno"] = 45
+	save_manager.save_data["equipment"] = equipment
+	purchase_manager.reconcile_access(false)
+	_expect(save_manager.get_premium_catch_up_level("set_apocalypse_inferno") == 40, "levelling the paid weapon must not move its frozen catch-up ceiling")
+	var catch_up_total := int(save_manager.get_premium_set_catch_up_cost("set_apocalypse_inferno", 40))
+	_expect(catch_up_total > 0, "premium catch-up quote must sum real discounted per-level costs")
+	save_manager.save_data = original
+	purchase_manager.reconcile_access(false)
+
 func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original: Dictionary = save_manager.save_data.duplicate(true)
 	var test_save: Dictionary = save_manager._default_save()
@@ -2206,8 +2240,9 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 	_expect(str(offer.get("weakness", "")) == "fire", "premium loadout recommendation must match the stage primary weakness")
 	_expect(save_manager.save_data.get("equipment", {}) == equipment_before, "premium power projection must restore the player's exact equipped build")
 	var projected_build: Dictionary = offer.get("build", {})
-	_expect(int(projected_build.get("weapon", {}).get("level", 0)) == 36, "premium weapon projection must use the current weapon level")
-	_expect(int(projected_build.get("armor", {}).get("level", 0)) == 21, "premium armor projection must use the current armor level")
+	_expect(int(projected_build.get("weapon", {}).get("level", 0)) == 36, "premium weapon projection must use the highest earned weapon level")
+	_expect(int(projected_build.get("armor", {}).get("level", 0)) == 35, "premium armor projection must use the catch-up level capped by its authored maximum")
+	_expect(int(offer.get("catch_up_level", 0)) == 36 and int(offer.get("catch_up_gold", 0)) > 0, "premium offer must quote the exact reachable catch-up level and discounted gold")
 	var cross_element_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_084", -10.0, 0.0)
 	_expect(not cross_element_offer.is_empty(), "a revealed paid weapon must remain eligible across elements through ammo override")
 	_expect(str(cross_element_offer.get("ammo_element", "")) == str(data_loader.get_row("levels", "level_084").get("primary_weakness", "")), "cross-element paid projection must use the stage weakness as its single final ammo element")
@@ -2226,6 +2261,9 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 		_expect(recommendation_text != null and recommendation_text.text.contains("有效战力"), "quantified premium line must state the effective-power premise")
 		var projected_power_text := str(loadout.call("_format_power_number", int(offer.get("projected_power", 0))))
 		_expect(recommendation_text != null and recommendation_text.text.contains(projected_power_text), "quantified premium line must render the complete projected power value")
+		var catch_up_text := premium_button.find_child("CatchUpCostText", true, false) as Label
+		var catch_up_gold_text := str(loadout.call("_format_power_number", int(offer.get("catch_up_gold", 0))))
+		_expect(catch_up_text != null and catch_up_text.text.contains(catch_up_gold_text), "premium loadout recommendation must disclose the catch-up gold quote")
 		_expect(str(loadout.call("_format_power_number", 1428)) == "1,428", "quantified premium power must retain all digits when adding thousands separators")
 		premium_button.emit_signal("pressed")
 		_expect(router.last_route == "store", "premium recommendation must route to the store")
@@ -2860,6 +2898,11 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 			if child is Control and child.has_meta("store_product_id"):
 				cards.append(child as Control)
 	_expect(cards.size() == 8, "fresh fully revealed store must render four theme and four complete-arsenal cards")
+	for card in cards:
+		var product_id := str(card.get_meta("store_product_id", ""))
+		var product_row: Dictionary = purchase_manager.product(product_id)
+		if str(product_row.get("offer_role", "")) != "theme":
+			_expect(card.find_child("CatchUpCostText", true, false) != null, "every arsenal offer card must disclose the catch-up gold quote")
 	# Reproduce the reported mobile gesture from directly on top of a purchase
 	# button. Headless synthetic touch does not run the native ScrollContainer's
 	# OS gesture recognizer, so the scroll range and PASS chain are asserted

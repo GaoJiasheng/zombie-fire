@@ -509,6 +509,10 @@
 	"first_clear_gold_per_level": 20,
 	"upgrade_cost_growth": 1.15,
 	"upgrade_cost_linear_k": 0.7,
+	"premium_equipment_catch_up": {
+		"cost_multiplier": 0.0005,
+		"minimum_upgrade_cost": 1
+	},
 	"skill_base_xp_costs": [
 		350,
 		900,
@@ -704,6 +708,10 @@
 		"line_clearance_weights": {
 			"crowd": 0.1,
 			"boss": 0.05
+		},
+		"commercial_thresholds": {
+			"loadout_uplift": 0.20973782771535587,
+			"result_ratio": 1.4281192974452555
 		},
 		"anchor_g": [
 			5.0,

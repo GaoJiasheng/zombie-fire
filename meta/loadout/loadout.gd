@@ -643,16 +643,27 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		var premium_suggest := Button.new()
 		premium_suggest.name = "PremiumCounterSuggestion"
 		var premium_name := _premium_arsenal_name(str(premium_offer.get("series_id", "")))
-		var premium_premise := LocalizationManager.text("战力方案 · %s：升级到与你现役同级后") % premium_name
+		var catch_up_level := int(premium_offer.get("catch_up_level", 1))
+		var catch_up_gold := int(premium_offer.get("catch_up_gold", 0))
+		var premium_premise := (
+			"POWER PLAN · %s · AFTER CATCH-UP TO LV%d" % [premium_name, catch_up_level]
+			if LocalizationManager.is_english()
+			else "战力方案 · %s：追赶至 Lv%d 后" % [premium_name, catch_up_level]
+		)
 		var premium_power := LocalizationManager.text("有效战力 %s → %s") % [
 			_format_power_number(int(premium_offer.get("current_power", 0))),
 			_format_power_number(int(premium_offer.get("projected_power", 0))),
 		]
+		var catch_up_copy := (
+			"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_power_number(catch_up_gold)]
+			if LocalizationManager.is_english()
+			else "整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_power_number(catch_up_gold)]
+		)
 		premium_suggest.set_meta("premium_series_id", str(premium_offer.get("series_id", "")))
 		premium_suggest.set_meta("current_power", int(premium_offer.get("current_power", 0)))
 		premium_suggest.set_meta("projected_power", int(premium_offer.get("projected_power", 0)))
 		premium_suggest.flat = true
-		premium_suggest.custom_minimum_size = Vector2(0, 72)
+		premium_suggest.custom_minimum_size = Vector2(0, 96)
 		premium_suggest.mouse_filter = Control.MOUSE_FILTER_STOP
 		premium_suggest.pressed.connect(_open_premium_store.bind(str(premium_offer.get("series_id", ""))))
 		var premium_copy := VBoxContainer.new()
@@ -672,6 +683,11 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		premium_power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		premium_power_label.clip_text = false
 		premium_copy.add_child(premium_power_label)
+		var catch_up_label := UiKit.label(catch_up_copy, 14 if LocalizationManager.is_english() else 16, UiKit.GOLD, 3)
+		catch_up_label.name = "CatchUpCostText"
+		catch_up_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		catch_up_label.clip_text = false
+		premium_copy.add_child(catch_up_label)
 		premium_suggest.add_child(premium_copy)
 		box.add_child(premium_suggest)
 

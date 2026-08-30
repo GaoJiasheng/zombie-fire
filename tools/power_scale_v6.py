@@ -616,7 +616,7 @@ class PowerScaleV6:
         Curve samples retain full JSON float precision so the GDScript mirror
         can reproduce the Python generalized inverse before final rounding.
         """
-        return {
+        config = {
             "model": "power_scale_v6",
             "fire_rate_profile": FIRE_RATE_PROFILE_ID,
             "neutral_boss_share": NEUTRAL_BOSS_SHARE,
@@ -638,6 +638,14 @@ class PowerScaleV6:
                 for axis in AXES
             },
         }
+        # Commercial gates are calibrated from the same ruler but do not
+        # participate in F(g), P(g), or contract generation. Preserve their
+        # audited economy-owned values when the generator refreshes this block.
+        authored = (self.tables["economy"].get("power_scale_v6", {}) or {}).get(
+            "commercial_thresholds", {}) or {}
+        if authored:
+            config["commercial_thresholds"] = dict(authored)
+        return config
 
     # -- 残差表(保序平滑 vs 原始值,>15% 偏差列明)--------------------------------
 
