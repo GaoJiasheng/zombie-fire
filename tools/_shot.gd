@@ -78,6 +78,12 @@ func _initialize() -> void:
 	var dl := root.get_node("/root/DataLoader")
 	dl.load_all()
 	var sm := root.get_node("/root/SaveManager")
+	# Belt-and-braces: the read-only gate is normally armed by the
+	# ZOMBIE_FIRE_CAPTURE_READONLY environment variable (set by this tool's own
+	# relaunch path) before any autoload runs, but re-assert it here so a capture
+	# started by other means still never persists its synthetic save.
+	if "suppress_persistence_for_captures" in sm:
+		sm.suppress_persistence_for_captures = true
 	sm.load_game()
 	if payload.has("language"):
 		root.get_node("/root/LocalizationManager").apply_language(str(payload.get("language", "zh")), false)

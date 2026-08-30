@@ -62,6 +62,13 @@ HUD_SKILL_REVIEW_SKILLS = [
 ]
 
 
+
+def _capture_app_name() -> str:
+    """Prefer the non-activating GodotQuiet bundle so captures never steal focus."""
+    quiet = Path.home() / "Applications" / "GodotQuiet.app"
+    return str(quiet) if quiet.exists() else "Godot"
+
+
 def _data_ids(table: str) -> list[str]:
     parsed = json.loads((ROOT / "data" / f"{table}.json").read_text(encoding="utf-8"))
     if not isinstance(parsed, dict):
@@ -2592,6 +2599,9 @@ def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], 
     ]
     env = os.environ.copy()
     env["ZOMBIE_FIRE_UI_AUDIT"] = "1"
+    # Captures replace save_data with synthetic overrides; without this the game's
+    # own persistence would write that state over the developer's real local save.
+    env["ZOMBIE_FIRE_CAPTURE_READONLY"] = "1"
     # CI/sandbox captures must never read or overwrite the developer's real
     # Godot user:// save. Keep Python's HOME intact for its installed modules,
     # but allow only the child Godot process to use an isolated home.
@@ -2617,7 +2627,9 @@ def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], 
             "-gjW",
             "-n",
             "-a",
-            "Godot",
+            # GodotQuiet is an LSUIElement copy: it never activates, so an automated
+            # capture cannot pull the owner's macOS focus. Fall back when absent.
+            _capture_app_name(),
             "-o",
             str(capture_log),
             "--stderr",
@@ -2626,6 +2638,8 @@ def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], 
             f"HOME={env.get('HOME', '')}",
             "--env",
             "ZOMBIE_FIRE_UI_AUDIT=1",
+            "--env",
+            "ZOMBIE_FIRE_CAPTURE_READONLY=1",
         ]
         if safe_insets:
             command.extend(["--env", f"ZOMBIE_FIRE_DEBUG_SAFE_INSETS={env['ZOMBIE_FIRE_DEBUG_SAFE_INSETS']}"])

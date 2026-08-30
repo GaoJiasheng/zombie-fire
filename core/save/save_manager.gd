@@ -149,7 +149,15 @@ func _merged_save(parsed: Dictionary) -> Dictionary:
 	var prepared := _prepare_save(parsed, "save payload")
 	return prepared if not prepared.is_empty() else _default_save()
 
+## Automated capture/audit runs replace save_data with a synthetic override in
+## memory. Without this gate the game's own save_game() call sites would persist
+## that synthetic state over the developer's real local save — which has already
+## corrupted a smoke run once.
+var suppress_persistence_for_captures := OS.has_environment("ZOMBIE_FIRE_CAPTURE_READONLY")
+
 func save_game() -> void:
+	if suppress_persistence_for_captures:
+		return
 	var prepared := _prepare_save(save_data, "in-memory save")
 	if prepared.is_empty():
 		return
@@ -377,6 +385,10 @@ func _merge_defaults_recursive(defaults: Dictionary, candidate: Dictionary) -> D
 	return merged
 
 func _write_save_atomically(path: String, data: Dictionary, label: String) -> bool:
+	# Single choke point for every persistence path, including the initial-save and
+	# recovery writes inside load_game() that never route through save_game().
+	if suppress_persistence_for_captures:
+		return true
 	var prepared := _prepare_save(data, label)
 	if prepared.is_empty():
 		return false
