@@ -2111,6 +2111,17 @@ func _verify_collection_star_curve(data_loader: Node) -> void:
 	_expect(total - 99 * 3 == 19, "normal campaign must leave only 19 challenge stars for full collection")
 
 func _verify_owned_store_upgrade_cost(save_manager: Node) -> void:
+	# The owned-upgrade row needs thunder to actually be owned; build that state
+	# explicitly instead of inheriting whatever the ambient local save holds.
+	var original: Dictionary = save_manager.save_data.duplicate(true)
+	var owned_save: Dictionary = save_manager._default_save()
+	var owned_entitlements: Dictionary = owned_save.get("entitlements", {}).duplicate(true)
+	var verified: Array = owned_entitlements.get("verified", []).duplicate()
+	if not verified.has("ent_arsenal_thunder"):
+		verified.append("ent_arsenal_thunder")
+	owned_entitlements["verified"] = verified
+	owned_save["entitlements"] = owned_entitlements
+	save_manager.save_data = owned_save
 	var store := _instance("res://meta/store/store.tscn")
 	var owned_row := store.call("_owned_item_row", "weapons", "weapon", "weapon_apocalypse_thunder") as PanelContainer
 	_expect(owned_row != null, "owned premium equipment must build its upgrade row")
@@ -2125,6 +2136,7 @@ func _verify_owned_store_upgrade_cost(save_manager: Node) -> void:
 		)
 		owned_row.free()
 	store.free()
+	save_manager.save_data = original
 
 func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: Node, purchase_manager: Node) -> void:
 	var original: Dictionary = save_manager.save_data.duplicate(true)
@@ -5267,6 +5279,14 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		var active: Dictionary = battle.character_data.get("active_skill", {})
 		var scaling_basis := str(active.get("scaling_basis", ""))
 		_expect(["weapon", "character"].has(scaling_basis), "%s active skill must declare weapon or character scaling" % character_key)
+		# Signature assertions below are deltas against these baselines, but the test
+		# save inherits equipment levels from the ambient local save. Pin a neutral
+		# character level so the deltas isolate signature contribution alone (frost's
+		# authored sig slow 0.015x5=0.075 vs the 0.07 threshold leaves no room for the
+		# high-level floor clamp; the volt branch re-pins 40 internally where it needs
+		# rank scaling).
+		var pinned_prior_character_level := int(battle.character_level)
+		battle.character_level = 1
 		var base_sig_power := float(battle._character_active_power_scale(active))
 		var base_sig_cooldown := float(battle._active_skill_cooldown(active))
 		var base_sig_duration := float(battle._active_skill_duration(active, float(active.get("duration", 0.0))))
@@ -5322,6 +5342,7 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._resolved_chain_count("lightning", {"chain": 9}, {"chain": 2})) == 16, "Volt pet chain bonuses must participate in the uncapped resolver")
 				battle.chain_bonus = original_pet_chain
 				battle.character_level = original_volt_level
+		battle.character_level = pinned_prior_character_level
 		var reset_sig_levels: Dictionary = save_manager.save_data.get("sig_skill_levels", {}).duplicate(true)
 		reset_sig_levels[character_key] = 0
 		save_manager.save_data["sig_skill_levels"] = reset_sig_levels
