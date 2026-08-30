@@ -3544,7 +3544,7 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 				_expect(card_copy.position.x + card_copy.size.x <= card_size.x - 24.0, "card-offer copy must retain right-frame clearance after the icon enlargement")
 		var tags := skill_card.get_node_or_null("Tags") as Control
 		if tags != null:
-			_expect(tags.position.y + tags.size.y <= card_size.y - 28.0, "card tag chips must stay inside the rendered card frame")
+			_expect(tags.position.y + tags.size.y <= card_size.y - battle.CARD_OFFER_BOTTOM_PADDING + 0.5, "card tag chips must stay inside the rendered card frame")
 		for badge_name in ["LevelBadge", "RecommendBadge"]:
 			var badge := skill_card.get_node_or_null(badge_name) as Control
 			if badge != null:
@@ -3639,7 +3639,7 @@ func _verify_all_skill_offer_copy_layouts(battle: Node) -> void:
 		if language_card_heights.size() >= 3:
 			worst_three_height += float(battle.CARD_OFFER_CARD_SEPARATION * 2)
 		var bounds: Vector2 = battle._card_offer_vertical_bounds()
-		var maximum_card_lane: float = bounds.y - bounds.x - float(battle.CARD_OFFER_CARDS_POS.y) - 62.0 - 124.0
+		var maximum_card_lane: float = bounds.y - bounds.x - float(battle.CARD_OFFER_CARDS_POS.y) - float(battle.CARD_OFFER_ACTION_GAP) - 124.0
 		_expect(worst_three_height <= maximum_card_lane + 0.5, "%s three longest skill cards must fit the live battlefield modal; need %.1f have %.1f" % [language, worst_three_height, maximum_card_lane])
 		fixture.queue_free()
 		await process_frame
