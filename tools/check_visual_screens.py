@@ -2614,48 +2614,16 @@ def capture(route: str, payload: dict, out_path: Path) -> tuple[int, list[str], 
         env.pop("ZOMBIE_FIRE_DEBUG_SAFE_INSETS", None)
     command = godot_args
     capture_log: Path | None = None
-    # Directly launching Godot activates its window on macOS. Use LaunchServices
-    # hidden/background mode instead; _shot.gd also marks the utility window as
-    # NO_FOCUS. Metal still renders the real viewport without interrupting the
-    # owner's active application.
+    # macOS focus: `open` routes through LaunchServices, which activates the app
+    # even with -g/-j, so it repeatedly stole the owner's focus. GodotQuiet is an
+    # LSUIElement bundle, and executing its binary directly never activates — so
+    # the direct path is now the quiet one. Env vars go straight into the child.
     if sys.platform == "darwin" and os.environ.get("ZOMBIE_FIRE_FOREGROUND_CAPTURE", "0") != "1":
-        handle = tempfile.NamedTemporaryFile(prefix="zf_visual_capture_", suffix=".log", delete=False)
-        handle.close()
-        capture_log = Path(handle.name)
-        command = [
-            "open",
-            "-gjW",
-            "-n",
-            "-a",
-            # GodotQuiet is an LSUIElement copy: it never activates, so an automated
-            # capture cannot pull the owner's macOS focus. Fall back when absent.
-            _capture_app_name(),
-            "-o",
-            str(capture_log),
-            "--stderr",
-            str(capture_log),
-            "--env",
-            f"HOME={env.get('HOME', '')}",
-            "--env",
-            "ZOMBIE_FIRE_UI_AUDIT=1",
-            "--env",
-            "ZOMBIE_FIRE_CAPTURE_READONLY=1",
-        ]
-        if safe_insets:
-            command.extend(["--env", f"ZOMBIE_FIRE_DEBUG_SAFE_INSETS={env['ZOMBIE_FIRE_DEBUG_SAFE_INSETS']}"])
-        command.extend(
-            [
-                "--args",
-                "--path",
-                str(ROOT),
-                "--script",
-                "res://tools/_shot.gd",
-                "--",
-                route,
-                json.dumps(runtime_payload, ensure_ascii=False),
-                str(out_path),
-            ]
-        )
+        quiet_binary = Path.home() / "Applications" / "GodotQuiet.app" / "Contents" / "MacOS" / "Godot"
+        if quiet_binary.exists():
+            command = [str(quiet_binary)] + list(godot_args[1:])
+        env["ZOMBIE_FIRE_UI_AUDIT"] = "1"
+        env["ZOMBIE_FIRE_CAPTURE_READONLY"] = "1"
     try:
         result = subprocess.run(command, cwd=ROOT, timeout=25, env=env, capture_output=True, text=True)
     except subprocess.TimeoutExpired:
