@@ -1,0 +1,40 @@
+{
+  "status": "pass",
+  "schema_version": 1,
+  "captured_at": "2026-08-30",
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "comparison": "complete run object, byte-stable canonical JSON",
+  "targets": [
+    {
+      "level": 86,
+      "seed": 2207,
+      "exact": true,
+      "run_sha256": "27f1916a86df7ae230ec4845a8b63f73ebb0537d73b39b38863fb947ce69a7c0",
+      "victory": true,
+      "timeout": false,
+      "max_progress": 1.0,
+      "base_ratio": 0.913738019169329,
+      "elapsed_seconds": 155.850000000016,
+      "boss_phase_seconds": 0.0
+    },
+    {
+      "level": 90,
+      "seed": 1103,
+      "exact": true,
+      "run_sha256": "28d8f8244202d76765da9edc67841319547e2d75d277fff802c3c1f52af00f9c",
+      "victory": true,
+      "timeout": false,
+      "max_progress": 1.0,
+      "base_ratio": 0.306565382528486,
+      "elapsed_seconds": 214.266666666729,
+      "boss_phase_seconds": 187.750000000063
+    }
+  ],
+  "matrix_all_four_exact": true,
+  "matrix_runs": 4,
+  "sources": [
+    "/tmp/zf-cphase-determinism-a.json",
+    "/tmp/zf-cphase-determinism-b.json"
+  ]
+}

@@ -15,8 +15,8 @@
     "calibration_levels": [3, 8, 13, 30, 40, 55, 62, 75, 84, 95]
   },
 	"max_free_graduation": {
-		"id": "maxed_free_matchup_aware_v1",
-		"description": "All non-premium characters and equipment are owned and maxed. Every level deterministically selects the complete free loadout with the highest matchup-aware effective power.",
+		"id": "maxed_free_pure_build_v6",
+		"description": "All non-premium characters and equipment are owned and maxed. Every level deterministically selects the complete free loadout with the highest Power Scale 6.0 neutral pure-build value.",
 		"fire_rate_profile": "tier_b",
 		"ownership": "all_rows_without_premium_entitlement",
 		"levels": "item_max_level",

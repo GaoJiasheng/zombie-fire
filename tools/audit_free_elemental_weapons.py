@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""Audit the B2 free elemental-weapon availability contract.
+"""Audit the B2 free elemental-weapon catalogue under Power Scale 6.0.
 
-The Owner contract compares each native free elemental weapon against the
-strongest fully maxed free physical weapon on an authored counter-matchup.
-Projectile conversion is part of the real build pipeline, so it is deliberately
-included rather than replaced by a hand-authored "generic" baseline.
-
-All values come from power_for_build through maxed_free_build_for_level; this
-tool has no parallel damage formula.
+The v6 player number is a pure neutral-build function: weakness/resistance may
+not be folded into it. This report records neutral display values and the
+separately quantified weakness badge instead of reviving matchup-aware power.
 """
 from __future__ import annotations
 
@@ -56,13 +52,14 @@ def render_report() -> str:
         "",
         "口径：Tier B、免费装备全满级、永久技能全满；每把武器分别调用同一套",
         "`maxed_free_build_for_level → power_for_build` 管线，在已编写的对应弱点关卡上",
-        "选择其余免费槽位的最优组合。硬门槛是原生元素枪的 matchup 感知战力必须高于",
-        "同关最强免费物理枪（包括真实技能投影产生的属性弹转化）。完整付费套的专属",
+        "选择其余免费槽位的最优组合。战力 6.0 的玩家数字是纯构筑中性值，属性克制",
+        "不再进入该数字；代表关只验证已编写弱点，实战增益单列 `伤害×1.50` 徽章。",
+        "完整付费套的专属",
         "触发、套装联动与主动技能不属于通用战力管线，因此付费对照直接引用各套装独立",
         "DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用战力数字误判。",
         "",
-        "| 元素 | 代表关 | 原生元素枪 | 有效战力 | 最强免费物理枪 | 物理战力 | 相对值 | 同元素完整付费套 DPS 合同 | 结论 |",
-        "|---|---:|---|---:|---|---:|---:|---:|---|",
+        "| 元素 | 代表关 | 原生元素枪 | 中性战力 | 最强免费物理枪 | 中性战力 | 中性比值 | 克制徽章 | 同元素完整付费套 DPS 合同 | 结论 |",
+        "|---|---:|---|---:|---|---:|---:|---:|---:|---|",
     ]
     failures: list[str] = []
     characters, weapons, armors, chips, pets, skills, bosses, economy = tables
@@ -93,7 +90,7 @@ def render_report() -> str:
             target_max = float(set_row["target_full_set_ratio_max"])
             paid_cell = f"`{premium_set_id}` {target_min:.2f}–{target_max:.2f}×"
             paid_ok = target_min >= 1.10
-        passed = native["power"] > strongest_physical["power"] and paid_ok
+        passed = native["power"] > 0 and strongest_physical["power"] > 0 and paid_ok
         if not passed:
             failures.append(
                 f"{weapon_id}@{level_id}: native={native['power']}, "
@@ -103,7 +100,7 @@ def render_report() -> str:
         lines.append(
             f"| {element} | {int(level_id[-3:])} | `{weapon_id}` | {native['power']:,} | "
             f"`{strongest_physical['weapon']}` | {strongest_physical['power']:,} | {ratio:.3f}× | "
-            f"{paid_cell} | "
+            f"伤害×{float(economy.get('weakness_mult', 1.5)):.2f} | {paid_cell} | "
             f"{'通过' if passed else '失败'} |"
         )
     lines.extend((
@@ -111,8 +108,8 @@ def render_report() -> str:
         "说明：绝对零度、雷霆、炼狱完整套分别继续由",
         "`audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、",
         "`audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个",
-        "忽略套装机制的“付费有效战力”。战役与正式运行时默认现已冻结为 Tier B；",
-        "付费套装继续沿用各自既有 control 发布合同，本链不改任何付费装备数据。",
+        "忽略套装机制的“付费有效战力”。战役与正式运行时默认冻结为 Tier B；",
+        "属性弹覆盖与元素单通道行为由 m1 smoke 验证，不能用中性显示值替代伤害审计。",
         "",
     ))
     if failures:

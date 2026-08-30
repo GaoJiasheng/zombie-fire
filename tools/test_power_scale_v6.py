@@ -284,6 +284,18 @@ def test_display_power_roundtrip() -> Failures:
     return failures
 
 
+def test_v5_comparison_snapshot(model: "psv6.PowerScaleV6") -> Failures:
+    failures: Failures = []
+    expected = {"level_001": 10, "level_050": 291, "level_099": 1437}
+    for level_id, old_value in expected.items():
+        observed = model.recommended_power_for_level(level_id).get("recommended_power_v5_current")
+        if observed != old_value:
+            failures.append(f"{level_id} frozen v5 comparison drifted: {observed} != {old_value}")
+    if model.recommended_power_for_level("level_099")["recommended_power_v6"] <= expected["level_099"]:
+        failures.append("L099 v6 recommendation must differ materially from the frozen v5 comparison")
+    return failures
+
+
 def test_runtime_config(model: "psv6.PowerScaleV6") -> Failures:
     failures: Failures = []
     config = model.runtime_config()
@@ -446,6 +458,7 @@ def main() -> int:
         ("extrapolation_grows", test_extrapolation_grows(model)),
         ("anchor_bands", test_anchor_bands()),
         ("display_power_roundtrip", test_display_power_roundtrip()),
+        ("v5_comparison_snapshot", test_v5_comparison_snapshot(model)),
         ("runtime_config", test_runtime_config(model)),
         ("axis_curve_roundtrip", test_axis_curve_roundtrip(model)),
         ("projection_repairs", test_projection_repairs(model)),

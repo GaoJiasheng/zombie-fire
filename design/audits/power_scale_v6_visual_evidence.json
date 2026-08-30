@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "captured_at": "2026-08-30",
+  "pipeline": "tools/_shot.gd offscreen SubViewport via tools/check_visual_screens.py:capture/analyze",
+  "output_directory": "/tmp/zf-cphase-power-v6-screens",
+  "summary": {
+    "screens": 12,
+    "capture_failures": 0,
+    "runtime_ui_audit_issues": 0,
+    "image_analysis_issues": 0,
+    "manual_high_screen_review": "pass"
+  },
+  "matrix": [
+    {"size": [1080, 1920], "language": "zh", "routes": ["stage", "loadout", "result"]},
+    {"size": [1080, 1920], "language": "en", "routes": ["stage", "loadout", "result"]},
+    {"size": [1320, 2868], "language": "zh", "routes": ["stage", "loadout", "result"]},
+    {"size": [1320, 2868], "language": "en", "routes": ["stage", "loadout", "result"]}
+  ],
+  "sha256": {
+    "power_v6_1080x1920_zh_stage.png": "1b845a6006e1ba4baec5fd94e292de9aac410283d933dc1bc3feb3833eb50be1",
+    "power_v6_1080x1920_zh_loadout.png": "dee00391bd3a8ca8c1edeccb7d5c0299e69a5432020a6cfe7058b6fa2730db54",
+    "power_v6_1080x1920_zh_result.png": "594992465cebd26a8cc5adfa0313e73c553203c7db106c6d7511c464e737c98c",
+    "power_v6_1080x1920_en_stage.png": "bd63a721dca316dbcbfa3de4a7cef34fcf36f9006cebfc8043655a9920d77901",
+    "power_v6_1080x1920_en_loadout.png": "68de70273dfd1375d2d698ab98cf3e1d44ef3efe549f2c1dcc624844e5c4879e",
+    "power_v6_1080x1920_en_result.png": "a733ec5ea6a6c05abc21689414b6ae0a6ba8ca65111e09d3e88830cb6a80ea73",
+    "power_v6_1320x2868_zh_stage.png": "31fe082019ba9055cc24abaccb4444115f98ce7012475d45883b401f600d1c66",
+    "power_v6_1320x2868_zh_loadout.png": "c37a345f2825ba2cc86198fb446a137ca4892c9166d51f521d0d888eac7c73aa",
+    "power_v6_1320x2868_zh_result.png": "27d5f469fb429a2f70625a81c0c732ef005c84894d779ede51fadee86e98f4e0",
+    "power_v6_1320x2868_en_stage.png": "e3bd6d87f646812db7ebcf448a6f373d4782c23f2cd219e0313b2cc61de5c963",
+    "power_v6_1320x2868_en_loadout.png": "3f73a880114552c16fefe32470273852f29a4d3b1a24e9fe36fbca0da1b8c553",
+    "power_v6_1320x2868_en_result.png": "414e6a20aa8e0cab703da5b5bb62813fed5bb2686a980e07af13713f9998212a"
+  },
+  "notes": [
+    "Every PNG matched its requested pixel dimensions exactly.",
+    "The four 1320x2868 loadout/result screens were manually reviewed in both languages.",
+    "Existing paid-store elemental-dominance localization remains unchanged pending Owner approval of the supplied draft copy."
+  ]
+}

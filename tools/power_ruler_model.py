@@ -1111,14 +1111,12 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
                                economy: dict,
                                fire_rate_profile_id: str = "tier_b",
                                allowed_weapon_ids: set[str] | None = None) -> tuple[dict, dict]:
-    """Return the exact matchup-aware best fully maxed non-premium loadout.
+    """Return the exact v6 best fully maxed non-premium loadout.
 
-    This is the permanent B2 graduation fixture.  It evaluates every free
-    character / weapon / chip / pet combination and every free armor, while
-    sharing the same formulas as :func:`power_for_build`.  Armor affects only
-    the line axis, so its six variants are scored from the already-computed
-    offensive axes instead of re-running the complete projection pipeline.
-    Ties retain authored table order.
+    Power v6 is a pure-build function, so the legacy matchup-aware shortcut is
+    no longer a valid optimizer.  Evaluate every free combination through the
+    canonical :func:`power_for_build` entry point instead.  The catalog is
+    small, and retaining authored iteration order keeps ties deterministic.
     """
     free_characters = [key for key, row in characters.items() if not row.get("premium_entitlement")]
     free_weapons = [
@@ -1133,87 +1131,38 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
         raise AssertionError("maxed free graduation fixture requires a free row in every equipment slot")
 
     base_levels = {skill_id: skill_max_level(row) for skill_id, row in skills.items()}
-    line_weights = contract.get("line_exposure_weights", {}) or {}
-    mob_weight = max(float(line_weights.get("crowd", 1.0)), 0.0)
-    boss_weight = max(float(line_weights.get("boss", 0.0)), 0.0)
-    boss_share = boss_weight / max(mob_weight + boss_weight, 0.000001)
-    weakness = str(level.get("primary_weakness", "physical"))
-    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
-    recommended = int(contract.get("recommended_power", 1))
+    global _MAXED_FREE_BUILD_V6_CACHE
+    try:
+        build_cache = _MAXED_FREE_BUILD_V6_CACHE
+    except NameError:
+        build_cache = {}
+        _MAXED_FREE_BUILD_V6_CACHE = build_cache
+    cache_key = (
+        id(characters), id(weapons), id(armors), id(chips), id(pets), id(skills),
+        fire_rate_profile_id,
+        tuple(sorted(allowed_weapon_ids)) if allowed_weapon_ids is not None else None,
+    )
+    if cache_key in build_cache:
+        cached = dict(build_cache[cache_key])
+        cached["skill_base_levels"] = dict(cached["skill_base_levels"])
+        return cached, power_for_build(
+            level, contract, cached, characters, weapons, armors, chips, pets,
+            skills, bosses, economy)
 
     best_power = -1
     best_build: dict = {}
-    for weapon_id in free_weapons:
-        weapon = weapons[weapon_id]
-        weapon_level = int(weapon.get("max_level", 1))
-        projected = projected_skill_levels(
-            max(int(level.get("target_card_picks", 4)), 1),
-            weakness, weapon_id, base_levels, skills, weapons,
-            list(contract.get("guaranteed_skill_ids", [])), economy, boss_share,
-            str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
-        )
-        axes = skill_capacity_profile(projected, skills, economy, boss_share)
-        element = effective_projectile_element(weapon_id, projected, skills, weapons)
-        mob_element = weakness_mult if element == weakness else 1.0
-        boss_factor = weighted_boss_element_factor(
-            dict(contract.get("boss_weights", {})), bosses, element, economy)
-        for character_id in free_characters:
-            character = characters[character_id]
-            character_level = int(character.get("max_level", 1))
-            for chip_id in free_chips:
-                chip = chips[chip_id]
-                chip_level = int(chip.get("max_level", 1))
-                for pet_id in free_pets:
-                    pet = pets[pet_id]
-                    pet_level = int(pet.get("max_level", 1))
-                    offense = offense_multiplier(
-                        character, weapon, character_level, weapon_level, 5,
-                        chip=chip, chip_level=chip_level,
-                        pet=pet, pet_level=pet_level,
-                        economy=economy,
-                        fire_rate_profile_id=fire_rate_profile_id,
-                    )
-                    cadence = fire_rate_profile_throughput(
-                        character, weapon, weapon_level, chip, chip_level,
-                        pet, pet_level, projected, skills, economy,
-                        fire_rate_profile_id,
-                    )
-                    crowd_capacity = (
-                        offense * axes["crowd"] * cadence["throughput"] * mob_element
-                        * weapon_axis_calibration(economy, weapon_id, "crowd")
-                    )
-                    boss_capacity = (
-                        offense * axes["boss"] * cadence["throughput"] * boss_factor
-                        * weapon_axis_calibration(economy, weapon_id, "boss")
-                    )
-                    crowd_ratio = crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01)
-                    boss_ratio = (
-                        boss_capacity / max(float(contract.get("boss_capacity", 1.0)), 0.01)
-                        if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
-                    )
-                    exposure_credit = line_exposure_credit(
-                        crowd_ratio, boss_ratio, contract, economy)
-                    for armor_id in free_armors:
-                        armor = armors[armor_id]
-                        armor_level = int(armor.get("max_level", 1))
-                        line_capacity = survival_multiplier(
-                            character, character_level, weapon,
-                            armor, armor_level, chip, chip_level, pet, pet_level,
-                        ) * axes["line"]
-                        if str(armor.get("resist", "none")) == weakness:
-                            line_capacity /= 0.88
-                        if str(character.get("passive", "")) == "breach_guard":
-                            line_capacity /= 0.82
-                            if growth_rank(character_level) >= 2:
-                                line_capacity /= 0.88
-                        raw_line_ratio = line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01)
-                        power = int(round(recommended * min(
-                            crowd_ratio, boss_ratio, raw_line_ratio * exposure_credit)))
-                        power = max(power, 1)
-                        if power <= best_power:
-                            continue
-                        best_power = power
-                        best_build = {
+    best_result: dict = {}
+    for character_id in free_characters:
+        character_level = int(characters[character_id].get("max_level", 1))
+        for weapon_id in free_weapons:
+            weapon_level = int(weapons[weapon_id].get("max_level", 1))
+            for armor_id in free_armors:
+                armor_level = int(armors[armor_id].get("max_level", 1))
+                for chip_id in free_chips:
+                    chip_level = int(chips[chip_id].get("max_level", 1))
+                    for pet_id in free_pets:
+                        pet_level = int(pets[pet_id].get("max_level", 1))
+                        build = {
                             "character": character_id,
                             "character_level": character_level,
                             "weapon": weapon_id,
@@ -1228,15 +1177,22 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
                             "skill_base_levels": dict(base_levels),
                             "fire_rate_profile": fire_rate_profile_id,
                         }
+                        result = power_for_build(
+                            level, contract, build, characters, weapons, armors,
+                            chips, pets, skills, bosses, economy)
+                        power = int(result["power"])
+                        if power <= best_power:
+                            continue
+                        best_power = power
+                        best_build = build
+                        best_result = result
     if not best_build:
         raise AssertionError("maxed free graduation fixture could not select a build")
-    exact = power_for_build(
-        level, contract, best_build, characters, weapons, armors, chips,
-        pets, skills, bosses, economy)
-    if int(exact["power"]) != best_power:
-        raise AssertionError(
-            f"maxed free optimized selector drifted: optimized={best_power}, exact={exact['power']}")
-    return best_build, exact
+    build_cache[cache_key] = {
+        **best_build,
+        "skill_base_levels": dict(best_build["skill_base_levels"]),
+    }
+    return best_build, best_result
 
 
 def corridor_calibration_fixture(level: dict, characters: dict, weapons: dict,

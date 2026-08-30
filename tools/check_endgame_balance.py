@@ -336,10 +336,15 @@ def main() -> int:
     finale_power = power_ruler.power_for_build(
         finale, final_contract, finale_build, characters, weapons,
         armors, chips, pets, skills, bosses, economy)
-    finale_ratio = min(float(value) for value in finale_power["ratios"].values())
-    if not 1.15 <= finale_ratio <= 1.19:
+    finale_ratio = float(finale_power["power"]) / max(final_recommended, 1)
+    # Power Scale 6.0 deliberately anchors the accepted pacing fixture at R=1.
+    # This synthetic all-max-skills build is stronger than that fixture and is
+    # allowed to extrapolate above the free curve.  The old v5 [1.15, 1.19]
+    # corridor coupled the player's number back to a specific stage and would
+    # reject the required pure-build/extrapolation semantics.
+    if finale_ratio < 1.25:
         errors.append(
-            "max free graduation build must remain modestly above the level-99 line, "
+            "max free all-skills build must remain above the level-99 easy line, "
             f"got R={finale_ratio:.4f}")
     contract_reference_seconds = balance.runtime_boss_contract_clear_time(
         finale, mob_hp, 1.0, economy)

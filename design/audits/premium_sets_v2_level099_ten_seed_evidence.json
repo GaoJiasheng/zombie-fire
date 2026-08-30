@@ -1,0 +1,480 @@
+{
+  "status": "pass",
+  "schema_version": 1,
+  "captured_at": "2026-08-30",
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "challenge": false,
+  "level": 99,
+  "seeds": [
+    1103,
+    2207,
+    3301,
+    4409,
+    5513,
+    6637,
+    7741,
+    8849,
+    9901,
+    10903
+  ],
+  "gate": "each paid full-set build must win 10/10 normal level_099 with zero timeout",
+  "sets": [
+    {
+      "set": "thunder",
+      "source": "/tmp/zf-paid-thunder-results.json",
+      "runs": 10,
+      "wins": 10,
+      "timeouts": 0,
+      "elapsed_seconds": {
+        "min": 173.75000000003,
+        "median": 189.1416666667095,
+        "max": 238.733333333415
+      },
+      "base_ratio": {
+        "min": 0.960569550930997,
+        "median": 0.995892661555312
+      },
+      "boss_phase_seconds": {
+        "median": 141.38333333337698,
+        "max": 190.31666666675
+      },
+      "seeds": [
+        {
+          "seed": 1103,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.26735439154938,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 173.933333333364,
+          "boss_phase_seconds": 129.766666666698
+        },
+        {
+          "seed": 2207,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.304382836727696,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 173.75000000003,
+          "boss_phase_seconds": 131.583333333365
+        },
+        {
+          "seed": 3301,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.388340933996302,
+          "base_ratio": 0.995892661555312,
+          "elapsed_seconds": 190.800000000044,
+          "boss_phase_seconds": 141.100000000045
+        },
+        {
+          "seed": 4409,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.82808297426646,
+          "base_ratio": 0.960569550930997,
+          "elapsed_seconds": 229.383333333408,
+          "boss_phase_seconds": 183.966666666743
+        },
+        {
+          "seed": 5513,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.396433683206107,
+          "base_ratio": 0.995892661555312,
+          "elapsed_seconds": 187.483333333375,
+          "boss_phase_seconds": 141.666666666709
+        },
+        {
+          "seed": 6637,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.50751212316615,
+          "base_ratio": 0.985213581599124,
+          "elapsed_seconds": 201.400000000052,
+          "boss_phase_seconds": 153.616666666721
+        },
+        {
+          "seed": 7741,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.941185032502385,
+          "base_ratio": 0.983570646221249,
+          "elapsed_seconds": 199.333333333384,
+          "boss_phase_seconds": 148.783333333386
+        },
+        {
+          "seed": 8849,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.691933481929866,
+          "base_ratio": 0.978641840087623,
+          "elapsed_seconds": 238.733333333415,
+          "boss_phase_seconds": 190.31666666675
+        },
+        {
+          "seed": 9901,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.278012387807133,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 177.550000000033,
+          "boss_phase_seconds": 130.883333333368
+        },
+        {
+          "seed": 10903,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.484280791537452,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 177.383333333367,
+          "boss_phase_seconds": 130.500000000035
+        }
+      ],
+      "raw_sha256": "e8de487c2d775965a1a42467102923ffe22b7cb4409fc4336614fc8003ef103a"
+    },
+    {
+      "set": "inferno",
+      "source": "/tmp/zf-paid-inferno-results.json",
+      "runs": 10,
+      "wins": 10,
+      "timeouts": 0,
+      "elapsed_seconds": {
+        "min": 178.900000000035,
+        "median": 217.9500000000655,
+        "max": 363.233333333332
+      },
+      "base_ratio": {
+        "min": 0.786413195415152,
+        "median": 0.989376572546827
+      },
+      "boss_phase_seconds": {
+        "median": 154.2333333334025,
+        "max": 294.383333333334
+      },
+      "seeds": [
+        {
+          "seed": 1103,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.786413195415152,
+          "elapsed_seconds": 224.600000000071,
+          "boss_phase_seconds": 156.283333333407
+        },
+        {
+          "seed": 2207,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.983785294939894,
+          "elapsed_seconds": 224.466666666737,
+          "boss_phase_seconds": 161.533333333406
+        },
+        {
+          "seed": 3301,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.579599814378578,
+          "base_ratio": 0.98993570030752,
+          "elapsed_seconds": 221.450000000068,
+          "boss_phase_seconds": 156.466666666737
+        },
+        {
+          "seed": 4409,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.341712543982586,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 183.783333333372,
+          "boss_phase_seconds": 134.35000000004
+        },
+        {
+          "seed": 5513,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.983785294939894,
+          "elapsed_seconds": 214.450000000063,
+          "boss_phase_seconds": 152.183333333398
+        },
+        {
+          "seed": 6637,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.603411259541985,
+          "base_ratio": 0.99748392507688,
+          "elapsed_seconds": 192.033333333378,
+          "boss_phase_seconds": 129.966666666714
+        },
+        {
+          "seed": 7741,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.88789488398099,
+          "elapsed_seconds": 232.683333333411,
+          "boss_phase_seconds": 177.300000000079
+        },
+        {
+          "seed": 8849,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.648783210579676,
+          "base_ratio": 0.99748392507688,
+          "elapsed_seconds": 188.600000000042,
+          "boss_phase_seconds": 131.000000000044
+        },
+        {
+          "seed": 9901,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.997976335132395,
+          "base_ratio": 0.988817444786134,
+          "elapsed_seconds": 178.900000000035,
+          "boss_phase_seconds": 131.333333333369
+        },
+        {
+          "seed": 10903,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.99412915851272,
+          "elapsed_seconds": 363.233333333332,
+          "boss_phase_seconds": 294.383333333334
+        }
+      ],
+      "raw_sha256": "fdc8c4a9c9a422f610bf636ef388eb777e818a03990c2a6396b1d0a6c58583d2"
+    },
+    {
+      "set": "absolute_zero",
+      "source": "/tmp/zf-paid-absolute_zero-results.json",
+      "runs": 10,
+      "wins": 10,
+      "timeouts": 0,
+      "elapsed_seconds": {
+        "min": 193.133333333379,
+        "median": 235.8416666667465,
+        "max": 442.983333333259
+      },
+      "base_ratio": {
+        "min": 0.982209420535412,
+        "median": 0.9895798034564549
+      },
+      "boss_phase_seconds": {
+        "median": 184.86666666674802,
+        "max": 395.433333333261
+      },
+      "seeds": [
+        {
+          "seed": 1103,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.518028946505248,
+          "base_ratio": 0.988309047780413,
+          "elapsed_seconds": 235.516666666746,
+          "boss_phase_seconds": 184.650000000081
+        },
+        {
+          "seed": 2207,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.792138299141221,
+          "base_ratio": 0.982887156895968,
+          "elapsed_seconds": 265.050000000088,
+          "boss_phase_seconds": 216.850000000089
+        },
+        {
+          "seed": 3301,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.760599057729008,
+          "base_ratio": 0.98729244323958,
+          "elapsed_seconds": 236.166666666747,
+          "boss_phase_seconds": 185.083333333415
+        },
+        {
+          "seed": 4409,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.53002990256739,
+          "base_ratio": 0.990850559132497,
+          "elapsed_seconds": 205.583333333389,
+          "boss_phase_seconds": 156.850000000057
+        },
+        {
+          "seed": 5513,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.576254901449189,
+          "base_ratio": 0.991867163673331,
+          "elapsed_seconds": 234.683333333412,
+          "boss_phase_seconds": 184.116666666747
+        },
+        {
+          "seed": 6637,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.996072088724584,
+          "elapsed_seconds": 442.983333333259,
+          "boss_phase_seconds": 395.433333333261
+        },
+        {
+          "seed": 7741,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.791307009631441,
+          "base_ratio": 0.999491697729583,
+          "elapsed_seconds": 387.449999999976,
+          "boss_phase_seconds": 337.116666666645
+        },
+        {
+          "seed": 8849,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.408273944417939,
+          "base_ratio": 0.996441884107082,
+          "elapsed_seconds": 193.133333333379,
+          "boss_phase_seconds": 141.200000000047
+        },
+        {
+          "seed": 9901,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.674733961265506,
+          "base_ratio": 0.982209420535412,
+          "elapsed_seconds": 253.000000000093,
+          "boss_phase_seconds": 205.450000000095
+        },
+        {
+          "seed": 10903,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.993884090976861,
+          "base_ratio": 0.984581497797357,
+          "elapsed_seconds": 230.116666666742,
+          "boss_phase_seconds": 178.216666666744
+        }
+      ],
+      "raw_sha256": "12f7e5157e37ed1fc2e790dc0f4c19475951c2ca9fc924eb95c2a87ad80d140f"
+    },
+    {
+      "set": "golden_law",
+      "source": "/tmp/zf-paid-golden_law-results.json",
+      "runs": 10,
+      "wins": 10,
+      "timeouts": 0,
+      "elapsed_seconds": {
+        "min": 168.400000000026,
+        "median": 185.116666666706,
+        "max": 235.716666666746
+      },
+      "base_ratio": {
+        "min": 0.99922510654785,
+        "median": 0.999718222630505
+      },
+      "boss_phase_seconds": {
+        "median": 140.12500000004098,
+        "max": 188.983333333414
+      },
+      "seeds": [
+        {
+          "seed": 1103,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 168.400000000026,
+          "boss_phase_seconds": 123.450000000027
+        },
+        {
+          "seed": 2207,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.730098159440601,
+          "base_ratio": 0.999823891987085,
+          "elapsed_seconds": 184.716666666706,
+          "boss_phase_seconds": 140.433333333374
+        },
+        {
+          "seed": 3301,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.301996595076932,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 181.88333333337,
+          "boss_phase_seconds": 138.466666666705
+        },
+        {
+          "seed": 4409,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.511709198696923,
+          "base_ratio": 0.999612553273925,
+          "elapsed_seconds": 182.783333333371,
+          "boss_phase_seconds": 136.633333333372
+        },
+        {
+          "seed": 5513,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.890110534202052,
+          "base_ratio": 0.99922510654785,
+          "elapsed_seconds": 196.266666666715,
+          "boss_phase_seconds": 153.916666666716
+        },
+        {
+          "seed": 6637,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 0.999612553273925,
+          "elapsed_seconds": 235.716666666746,
+          "boss_phase_seconds": 188.983333333414
+        },
+        {
+          "seed": 7741,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.363326164420324,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 182.283333333371,
+          "boss_phase_seconds": 136.900000000038
+        },
+        {
+          "seed": 8849,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.703399891161737,
+          "base_ratio": 0.99922510654785,
+          "elapsed_seconds": 217.933333333399,
+          "boss_phase_seconds": 172.516666666734
+        },
+        {
+          "seed": 9901,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 1.0,
+          "base_ratio": 1.0,
+          "elapsed_seconds": 214.133333333396,
+          "boss_phase_seconds": 167.550000000064
+        },
+        {
+          "seed": 10903,
+          "victory": true,
+          "timeout": false,
+          "max_progress": 0.381226005263001,
+          "base_ratio": 0.999612553273925,
+          "elapsed_seconds": 185.516666666706,
+          "boss_phase_seconds": 139.816666666708
+        }
+      ],
+      "raw_sha256": "a69418da60f965608b9929964f8b5cb3d685af9a339fb3072f9f027b51af035c"
+    }
+  ],
+  "notes": [
+    "Challenge level_099 is explicitly outside this gate.",
+    "Godot headless emitted known exit-time RID/ObjectDB cleanup warnings after result JSON was written; all probe processes exited 0."
+  ]
+}

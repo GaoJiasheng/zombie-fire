@@ -61,6 +61,7 @@ TIER_B_BASELINE_CSV = AUDITS / "campaign_frontline_tier_b.csv"
 LEVELS_PATH = DATA / "levels.json"
 B2_FINAL_PATH = AUDITS / "b2b_final_001_099_converged_tier_b_v21_10.json"
 R1_EVIDENCE_PATH = AUDITS / "power_scale_v6_r1_ten_seed_evidence.json"
+V5_RECOMMENDED_SNAPSHOT_PATH = AUDITS / "power_scale_v5_recommended_snapshot.json"
 PACING_TARGETS_PATH = DATA / "campaign_pacing_targets.json"
 
 # --- 只读口径常量（可配置，默认值见上方模块 docstring 的近似声明）---
@@ -124,6 +125,17 @@ def load_fixture_rows() -> list[dict]:
     if [int(r["level"]) for r in rows] != list(range(1, len(rows) + 1)):
         raise ValueError("campaign_progression_fixture_builds.json 的关卡序号不是连续 1..N")
     return rows
+
+
+def load_v5_recommended_snapshot() -> dict[str, int]:
+    payload = _load_json(V5_RECOMMENDED_SNAPSHOT_PATH)
+    if payload.get("source_commit") != "f8361dfb" or payload.get("model") != "bottleneck_v5":
+        raise ValueError("v5 推荐值快照来源或模型标记漂移")
+    values = {str(key): int(value) for key, value in payload.get("recommended_power_by_level", {}).items()}
+    expected = {f"level_{level:03d}" for level in range(1, 100)}
+    if set(values) != expected:
+        raise ValueError("v5 推荐值快照必须完整覆盖 level_001..level_099")
+    return values
 
 
 def load_levels_by_id() -> dict[str, dict]:
@@ -470,6 +482,7 @@ class PowerScaleV6:
     b2_outcomes: dict[int, dict]
     grade_by_level: dict[int, str]
     requirements: dict[str, dict]
+    v5_recommended: dict[str, int]
 
     @classmethod
     def build_from_fixture(cls) -> "PowerScaleV6":
@@ -501,6 +514,7 @@ class PowerScaleV6:
             b2_outcomes=load_b2_outcomes(),
             grade_by_level=load_grade_by_level(),
             requirements={},
+            v5_recommended=load_v5_recommended_snapshot(),
         )
         model.requirements = model._derive_b2_requirements()
         return model
@@ -585,16 +599,12 @@ class PowerScaleV6:
 
     def recommended_power_for_level(self, level_id: str) -> dict:
         g, q_axes = self.g_required(level_id)
-        old_recommended = (
-            (self.levels_by_id[level_id].get("clear_requirement", {}) or {})
-            .get("power_contract", {}) or {}
-        ).get("recommended_power")
         return {
             "level_id": level_id,
             "q_axes": q_axes,
             "g_required": g,
             "recommended_power_v6": int(self.requirements[level_id]["recommended_power"]),
-            "recommended_power_v5_current": old_recommended,
+            "recommended_power_v5_current": self.v5_recommended[level_id],
             "grade": self.requirements[level_id]["grade"],
             "target_r": self.requirements[level_id]["target_r"],
             "b2_outcome": self.requirements[level_id]["b2_outcome"],
@@ -674,6 +684,7 @@ def generate_report(model: PowerScaleV6, out_path: Path = AUDITS / "power_scale_
     lines.append("> 由 `tools/power_scale_v6.py` 从 B2 最终 `99×10` 确定性证据生成。")
     lines.append("> 有效战力只读构筑与永久成长；属性克制、抗性和任何关卡数据均不进入数字。")
     lines.append("> 旧 v5 合同仅用于新旧对照，不参与 v6 Q(L) 或推荐值计算。")
+    lines.append("> 对照百分比反映显示标尺整体换算，不代表关卡难度同比抬升；v6 新值只由 B2 验收结果与新标尺反解。")
     lines.append("")
 
     lines.append("## 1. 显示函数 P(g) 锚点自检")
