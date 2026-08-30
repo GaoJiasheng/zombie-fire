@@ -3653,7 +3653,7 @@ func _verify_ui_font() -> void:
 	_expect(str(ProjectSettings.get_setting("gui/theme/custom_font")) == font_path, "project must use the production CJK font as the global UI font")
 	_expect(int(ProjectSettings.get_setting("gui/theme/default_font_size")) == 34, "global inherited UI font must be two logical pixels larger for mobile readability")
 	_expect(UiKit.FONT_SIZE_STEP == 2, "all authored UI font paths must keep the global two-pixel readability step")
-	_expect(UiKit.scaled_font_size(20) == 30, "UiKit scaled labels must include the global two-pixel readability step")
+	_expect(UiKit.scaled_font_size(20) == 32, "UiKit scaled labels must include the 1.5x global scale and two-pixel readability step")
 	_expect(UiKit.bumped_font_size(20) == 22, "direct runtime labels must include the same two-pixel readability step")
 	var font := FontFile.new()
 	var err := font.load_dynamic_font(font_path)

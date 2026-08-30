@@ -15,7 +15,7 @@ const LEVEL_MODE_Y := 14.0
 const LEVEL_MODE_H := 164.0
 const LEVEL_MODE_STYLE_SIZE := Vector2(286.0, 112.0)
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 324.0
+const CHAPTER_HERO_HEIGHT := 360.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -52,19 +52,81 @@ func _ensure_endless_button() -> void:
 	var wrap := get_node_or_null("Root/VBox/ResourceBarWrap") as Control
 	var btn := TextureButton.new()
 	btn.name = "EndlessButton"
-	UiKit.apply_armored_texture_button(btn, false, Vector2(880, 96), true)
+	# Let the safe-area-owned Root decide the width. The authored 980px texture
+	# scales cleanly, while a hard 980px minimum forced the 1080 capture outside
+	# the 44px device gutters.
+	btn.custom_minimum_size = Vector2(0, 184)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	btn.focus_mode = Control.FOCUS_NONE
+	var animated := AnimatedTexture.new()
+	animated.frames = 4
+	animated.speed_scale = 1.6
+	for index in range(4):
+		var path := "res://assets/production/sprites/ui/map/endless_horde/endless_horde_frame_%02d_980x184.png" % (index + 1)
+		if ResourceLoader.exists(path):
+			animated.set_frame_texture(index, load(path))
+		animated.set_frame_duration(index, 0.20)
+	btn.texture_normal = animated
+	btn.texture_hover = animated
+	btn.texture_pressed = animated
+	btn.ignore_texture_size = true
+	btn.stretch_mode = TextureButton.STRETCH_SCALE
+	var veil := ColorRect.new()
+	veil.name = "ReadabilityVeil"
+	veil.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veil.color = Color(0.012, 0.026, 0.045, 0.42)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(veil)
+	var frame := PanelContainer.new()
+	frame.name = "EndlessFrame"
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.add_theme_stylebox_override("panel", UiKit.map_level_card_texture_style(false))
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(frame)
 	var best := SaveManager.get_endless_best_loops()
-	var label := Label.new()
+	var content := MarginContainer.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.add_theme_constant_override("margin_left", 34)
+	content.add_theme_constant_override("margin_top", 24)
+	content.add_theme_constant_override("margin_right", 26)
+	content.add_theme_constant_override("margin_bottom", 22)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(content)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 20)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(row)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	copy.add_theme_constant_override("separation", 6)
+	row.add_child(copy)
+	var label := UiKit.label("无限尸潮", 28, Color(1.0, 0.82, 0.5, 1.0), 4)
 	label.name = "Label"
-	label.text = "无限尸潮" if best <= 0 else "无限尸潮 · 最佳 %d 轮" % best
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiKit.apply_label(label, 22, Color(1.0, 0.82, 0.5, 1.0), 3)
-	btn.add_child(label)
+	copy.add_child(label)
+	var subtitle := UiKit.label("循环尸潮 · 金币结算 · 挑战最高轮数", 17, UiKit.TEXT_MAIN, 2)
+	subtitle.name = "Subtitle"
+	subtitle.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	copy.add_child(subtitle)
+	var best_badge := PanelContainer.new()
+	best_badge.name = "BestLoopBadge"
+	best_badge.custom_minimum_size = Vector2(176, 76)
+	best_badge.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
+	row.add_child(best_badge)
+	var best_label := UiKit.label("最高\n%d 轮" % best, 18, UiKit.CYAN, 3)
+	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	best_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	best_badge.add_child(best_label)
+	var cta := PanelContainer.new()
+	cta.name = "EndlessCTA"
+	cta.custom_minimum_size = Vector2(190, 80)
+	cta.add_theme_stylebox_override("panel", UiKit.armored_button_style(true, Vector2(190, 80), false))
+	row.add_child(cta)
+	var cta_label := UiKit.label("迎战", 21, UiKit.GOLD, 3)
+	cta_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cta_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	cta.add_child(cta_label)
 	btn.pressed.connect(_on_endless_pressed)
 	vbox.add_child(btn)
 	if wrap != null:
@@ -410,6 +472,23 @@ func _wrap_chapter_text(text: String, max_chars := 24) -> String:
 func _chapter_wrap_limit(chinese_limit: int) -> int:
 	return chinese_limit * 2 + 6 if LocalizationManager.is_english() else chinese_limit
 
+func _chapter_summary(chapter_id: int) -> String:
+	var summaries := [
+		"重启熔炉，切断尸潮路线",
+		"重启桥塔，封锁冰原通道",
+		"夺回工厂，恢复重弹补给",
+		"关闭生化泄漏源",
+		"重启主变压器",
+		"夺回地下换乘枢纽",
+		"夺回炼油区能源节点",
+		"封印圣堂裂隙",
+		"关闭轨道感染信号",
+		"攻入核心，终结尸潮信号",
+	]
+	if chapter_id < 1 or chapter_id > summaries.size():
+		return LocalizationManager.text("击破战区首领，推进防线")
+	return LocalizationManager.text(str(summaries[chapter_id - 1]))
+
 func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	var chapter_id := int(chapter.get("chapter", 1))
 	var env := _chapter_env(chapter)
@@ -427,62 +506,205 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
-	button.clip_contents = true
+	button.clip_contents = false
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	button.modulate = Color.WHITE if current else Color(0.90, 0.92, 0.94, 0.96) if unlocked else Color(0.84, 0.86, 0.88, 0.94)
 	# The chapter card is presentation only. Entry is deliberately bound to the
 	# explicit button below so every other point on the card remains a reliable
 	# scroll-drag surface.
-
-	_add_chapter_art(button, str(env.get("portrait", "")), unlocked)
 	_add_chapter_frame(button, accent, unlocked)
 
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23 if LocalizationManager.is_english() else 27, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
-	title.name = "ChapterTitle"
-	title.position = Vector2(CHAPTER_TEXT_X, 30)
-	title.size = Vector2(CHAPTER_TEXT_W, 54)
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = false
-	button.add_child(title)
+	var margin := MarginContainer.new()
+	margin.name = "ChapterContentMargin"
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 32)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(margin)
 
-	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 18, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 24)
+	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(columns)
+
+	var visual_column := VBoxContainer.new()
+	visual_column.custom_minimum_size = Vector2(384, 0)
+	visual_column.add_theme_constant_override("separation", 8)
+	visual_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columns.add_child(visual_column)
+	visual_column.add_child(_build_chapter_thumbnail(chapter_id, unlocked))
+
+	var range_row := HBoxContainer.new()
+	range_row.add_theme_constant_override("separation", 10)
+	range_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visual_column.add_child(range_row)
+	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 17, accent if unlocked else UiKit.TEXT_MUTED, 2)
 	range.name = "ChapterRange"
-	range.position = Vector2(CHAPTER_TEXT_X, 92)
-	range.size = Vector2(184, 32)
-	button.add_child(range)
+	range.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	range.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	range_row.add_child(range)
+	range_row.add_child(_build_chapter_status_pill(_chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED))
 
-	_add_chapter_status_pill(button, Vector2(CHAPTER_TEXT_X + 214, 92), _chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED)
+	var objective := UiKit.label(LocalizationManager.text("击破战区首领，推进防线"), 15, UiKit.TEXT_MUTED, 2)
+	objective.name = "ChapterObjective"
+	objective.custom_minimum_size = Vector2(0, 34)
+	objective.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	visual_column.add_child(objective)
+
+	var info_column := VBoxContainer.new()
+	info_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_column.add_theme_constant_override("separation", 8)
+	info_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columns.add_child(info_column)
+
+	var title_font := 18 if LocalizationManager.is_english() else 23
+	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), title_font, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
+	title.name = "ChapterTitle"
+	title.custom_minimum_size = Vector2(0, 46)
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	info_column.add_child(title)
 
 	var story_color := UiKit.TEXT_MAIN if current else UiKit.TEXT_MUTED
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "沿主防线推进，夺回下一个沦陷战区。")), _chapter_wrap_limit(18)), 16 if LocalizationManager.is_english() else 18, story_color if unlocked else UiKit.TEXT_MUTED, 2)
+	var story := UiKit.label(_chapter_summary(chapter_id), 15, story_color if unlocked else UiKit.TEXT_MUTED, 2)
 	story.name = "ChapterStory"
-	story.position = Vector2(CHAPTER_TEXT_X, 134)
-	story.size = Vector2(CHAPTER_TEXT_W, 112 if LocalizationManager.is_english() else 102)
-	story.autowrap_mode = TextServer.AUTOWRAP_OFF
-	story.clip_text = false
-	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	story.add_theme_constant_override("line_spacing", 2)
-	button.add_child(story)
+	story.custom_minimum_size = Vector2(0, 34)
+	story.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	info_column.add_child(story)
 
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "突破尸潮封锁，击破本战区大首领。")), _chapter_wrap_limit(20)), 16 if LocalizationManager.is_english() else 17, UiKit.TEXT_MUTED, 2)
-	objective.name = "ChapterObjective"
-	objective.position = Vector2(CHAPTER_TEXT_X, 252)
-	objective.size = Vector2(CHAPTER_TEXT_W, 70 if LocalizationManager.is_english() else 58)
-	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
-	objective.clip_text = false
-	objective.add_theme_constant_override("line_spacing", 3)
-	button.add_child(objective)
+	info_column.add_child(_build_chapter_progress_panel(chapter, unlocked, accent))
 
-	_add_chapter_progress(button, chapter, Vector2(CHAPTER_RIGHT_X, 40), unlocked, accent, Vector2(CHAPTER_RIGHT_W, 124))
-	var small_boss := _chapter_boss_level(chapter, false)
-	var major_boss := _chapter_boss_level(chapter, true)
-	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 8, 190), small_boss, "小首领", false, unlocked)
-	_add_chapter_boss_node(button, Vector2(CHAPTER_RIGHT_X + 156, 190), major_boss, "大首领", true, unlocked)
-
+	var bottom := HBoxContainer.new()
+	bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom.alignment = BoxContainer.ALIGNMENT_CENTER
+	bottom.add_theme_constant_override("separation", 8)
+	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_column.add_child(bottom)
+	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, false), false, unlocked))
+	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, true), true, unlocked))
 	var action_label := "继续推进" if current else "回顾战区" if completed else "进入战区" if unlocked else _chapter_next_lock_text(chapter)
-	_add_chapter_action_button(button, Vector2(CHAPTER_RIGHT_X + 8, CHAPTER_ACTION_Y), CHAPTER_ACTION_SIZE, action_label, unlocked, _open_chapter.bind(chapter_id), "EnterChapterButton")
+	bottom.add_child(_build_chapter_action_control(action_label, unlocked, _open_chapter.bind(chapter_id)))
 	return button
+
+func _chapter_thumbnail_path(chapter_id: int) -> String:
+	var names := [
+		"lava_foundry", "glacier_pass", "abandoned_factory", "toxic_biolab", "storm_substation",
+		"flooded_subway", "desert_refinery", "void_cathedral", "orbital_ruins", "apex_core",
+	]
+	if chapter_id < 1 or chapter_id > names.size():
+		return ""
+	return "res://assets/production/sprites/ui/map/warzone_thumbnails/warzone_%02d_%s_thumb_candidate_420x144.png" % [chapter_id, names[chapter_id - 1]]
+
+func _build_chapter_thumbnail(chapter_id: int, unlocked: bool) -> TextureRect:
+	var thumbnail := TextureRect.new()
+	thumbnail.name = "ChapterThumbnail"
+	thumbnail.custom_minimum_size = Vector2(384, 132)
+	var path := _chapter_thumbnail_path(chapter_id)
+	if ResourceLoader.exists(path):
+		thumbnail.texture = load(path)
+	thumbnail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	thumbnail.modulate = Color.WHITE if unlocked else Color(0.48, 0.52, 0.56, 0.72)
+	thumbnail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return thumbnail
+
+func _build_chapter_status_pill(text: String, accent: Color) -> PanelContainer:
+	var pill := PanelContainer.new()
+	pill.name = "ChapterStatus"
+	pill.custom_minimum_size = Vector2(126, 38)
+	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
+	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := UiKit.label(text, 15, accent, 2)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pill.add_child(label)
+	return pill
+
+func _build_chapter_progress_panel(chapter: Dictionary, unlocked: bool, accent: Color) -> VBoxContainer:
+	var stack := VBoxContainer.new()
+	stack.name = "ChapterProgress"
+	stack.custom_minimum_size = Vector2(0, 82)
+	stack.add_theme_constant_override("separation", 4)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var count := _chapter_cleared_count(chapter)
+	var total_levels := int((chapter.get("levels", []) as Array).size())
+	var stars := _chapter_star_count(chapter)
+	var star_total := _chapter_total_stars(chapter)
+	var summary_font := 13 if LocalizationManager.is_english() else 15
+	var summary := UiKit.label("战区进度  %d/%d    ★ %d/%d" % [count, total_levels, stars, star_total], summary_font, accent if unlocked else UiKit.TEXT_MUTED, 2)
+	summary.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	stack.add_child(summary)
+	var segments := HBoxContainer.new()
+	segments.name = "ProgressSegments"
+	segments.custom_minimum_size = Vector2(0, 22)
+	segments.add_theme_constant_override("separation", 4)
+	segments.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(segments)
+	for index in range(maxi(total_levels, 1)):
+		var segment := PanelContainer.new()
+		segment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		segment.custom_minimum_size = Vector2(10, 18)
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(accent.r, accent.g, accent.b, 0.92) if index < count and unlocked else Color(0.18, 0.23, 0.28, 0.82)
+		style.border_color = Color(accent.r, accent.g, accent.b, 0.62 if unlocked else 0.22)
+		style.set_border_width_all(1)
+		style.corner_radius_top_left = 3
+		style.corner_radius_top_right = 3
+		style.corner_radius_bottom_left = 3
+		style.corner_radius_bottom_right = 3
+		segment.add_theme_stylebox_override("panel", style)
+		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		segments.add_child(segment)
+	return stack
+
+func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -> PanelContainer:
+	var badge := PanelContainer.new()
+	badge.name = "MajorBossNode" if major else "SmallBossNode"
+	badge.custom_minimum_size = Vector2(82, 66)
+	badge.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 2)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(row)
+	var icon_path := "res://assets/production/sprites/ui/map/ui_boss_badge_major.png" if major else "res://assets/production/sprites/ui/map/ui_boss_badge_minor.png"
+	var icon := UiKit.icon(icon_path, Vector2(48, 48))
+	icon.modulate = Color.WHITE if unlocked else Color(0.54, 0.57, 0.60, 0.70)
+	row.add_child(icon)
+	var level_number := DataLoader.level_number(str(level.get("id", "")))
+	var number := UiKit.label(str(level_number), 13, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 1)
+	number.custom_minimum_size = Vector2(26, 0)
+	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	row.add_child(number)
+	badge.tooltip_text = TranslationServer.translate("大首领" if major else "小首领")
+	return badge
+
+func _build_chapter_action_control(text: String, enabled: bool, callback: Callable, primary := true) -> TextureButton:
+	var action := TextureButton.new()
+	action.name = "EnterChapterButton"
+	action.custom_minimum_size = Vector2(220, 74)
+	UiKit.apply_armored_texture_button(action, primary, Vector2(220, 74), enabled)
+	_make_scroll_friendly_button(action)
+	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
+	if enabled:
+		action.pressed.connect(callback)
+	var label_color := (UiKit.GOLD if primary else UiKit.CYAN) if enabled else UiKit.TEXT_MUTED
+	var label := UiKit.label(text, 17 if enabled else 14, label_color, 3)
+	label.name = "ActionLabel"
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	action.add_child(label)
+	var touch_target := UiKit.attach_touch_target(action)
+	if touch_target != null:
+		_make_scroll_friendly_button(touch_target)
+	return action
 
 func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) -> void:
 	if portrait_path == "" or not ResourceLoader.exists(portrait_path):
@@ -670,39 +892,64 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	header.texture_pressed = null
 	header.texture_disabled = null
 	header.ignore_texture_size = true
-	header.clip_contents = true
+	header.clip_contents = false
 	header.focus_mode = Control.FOCUS_NONE
 	header.mouse_filter = Control.MOUSE_FILTER_PASS
 	_add_chapter_art(header, str(env.get("portrait", "")), true)
 	_add_chapter_frame(header, accent, true)
 
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23 if LocalizationManager.is_english() else 26, UiKit.TEXT_MAIN, 4)
+	var margin := MarginContainer.new()
+	margin.name = "ChapterDetailContent"
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 32)
+	margin.add_theme_constant_override("margin_top", 30)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(margin)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 20)
+	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(columns)
+	var copy := VBoxContainer.new()
+	copy.custom_minimum_size = Vector2(470, 0)
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 8)
+	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columns.add_child(copy)
+	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23, UiKit.TEXT_MAIN, 4)
 	title.name = "ChapterDetailTitle"
-	title.position = Vector2(CHAPTER_TEXT_X, 32)
-	title.size = Vector2(CHAPTER_TEXT_W, 50)
+	title.custom_minimum_size = Vector2(0, 48)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = false
-	header.add_child(title)
-	var story := UiKit.label(_wrap_chapter_text(str(env.get("story", "")), _chapter_wrap_limit(18)), 16 if LocalizationManager.is_english() else 18, UiKit.TEXT_MAIN, 2)
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	copy.add_child(title)
+	var story := UiKit.label(str(env.get("story", "")), 16, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
-	story.position = Vector2(CHAPTER_TEXT_X, 94)
-	story.size = Vector2(CHAPTER_TEXT_W, 106)
-	story.autowrap_mode = TextServer.AUTOWRAP_OFF
-	story.clip_text = false
+	story.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story.max_lines_visible = 4
+	story.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 3)
-	header.add_child(story)
-	var objective := UiKit.label(_wrap_chapter_text(str(env.get("objective", "")), _chapter_wrap_limit(20)), 16, UiKit.TEXT_MUTED, 2)
-	objective.position = Vector2(CHAPTER_TEXT_X, 214)
-	objective.size = Vector2(CHAPTER_TEXT_W, 52)
-	objective.autowrap_mode = TextServer.AUTOWRAP_OFF
-	objective.clip_text = false
+	copy.add_child(story)
+	var objective := UiKit.label(str(env.get("objective", "")), 15, UiKit.TEXT_MUTED, 2)
+	objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective.max_lines_visible = 2
+	objective.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	objective.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	objective.add_theme_constant_override("line_spacing", 3)
-	header.add_child(objective)
-
-	_add_chapter_progress(header, chapter, Vector2(CHAPTER_RIGHT_X, 40), true, accent, Vector2(CHAPTER_RIGHT_W, 112))
-	_add_chapter_action_button(header, Vector2(CHAPTER_RIGHT_X + 8, 180), CHAPTER_ACTION_SIZE, "返回战区地图", true, _back_to_chapter_map, "BackToChapterMapButton")
+	copy.add_child(objective)
+	var actions := VBoxContainer.new()
+	actions.custom_minimum_size = Vector2(340, 0)
+	actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	actions.add_theme_constant_override("separation", 18)
+	actions.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columns.add_child(actions)
+	actions.add_child(_build_chapter_progress_panel(chapter, true, accent))
+	var back := _build_chapter_action_control("返回战区地图", true, _back_to_chapter_map, false)
+	back.name = "BackToChapterMapButton"
+	back.custom_minimum_size = Vector2(284, 80)
+	actions.add_child(back)
 	return header
 
 func _open_chapter(chapter_id: int) -> void:
@@ -743,6 +990,7 @@ func _build_nav() -> void:
 		bar.add_child(_make_nav_card(_nav_title(mode), mode, _nav_icon_path(mode), _nav_accent(mode), i < modes.size() - 1))
 
 func _make_nav_card(label: String, mode: String, icon_path: String, accent: Color, has_divider: bool) -> PanelContainer:
+	var is_empty := _nav_is_empty(mode)
 	var card := PanelContainer.new()
 	card.name = "%sNavCard" % mode
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -754,7 +1002,9 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 
 	var stage := Control.new()
 	stage.custom_minimum_size = Vector2(0, 142)
-	stage.clip_contents = true
+	# The label deliberately sits on the lower edge of the art stage. Clipping
+	# the stage made its glyph bounds fail even though the nav card had room.
+	stage.clip_contents = false
 	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(stage)
 
@@ -771,9 +1021,18 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 		icon.offset_top = 30
 		icon.offset_right = -12
 		icon.offset_bottom = -36
-		icon.modulate = Color(1.02, 1.02, 0.98, 1.0)
+		icon.modulate = Color(0.54, 0.78, 0.86, 0.42) if is_empty else Color(1.02, 1.02, 0.98, 1.0)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(icon)
+		if is_empty:
+			var plus := UiKit.label("+", 34, UiKit.CYAN, 3)
+			plus.name = "EmptySlotPlus"
+			plus.set_anchors_preset(Control.PRESET_FULL_RECT)
+			plus.offset_bottom = -18
+			plus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			plus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			plus.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			stage.add_child(plus)
 
 	var status_plate := PanelContainer.new()
 	status_plate.name = "StatusBadge"
@@ -787,6 +1046,7 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	# readability increase.
 	status_plate.offset_bottom = 40
 	status_plate.add_theme_stylebox_override("panel", _build_nav_status_style(accent))
+	status_plate.visible = not is_empty
 	status_plate.clip_contents = true
 	status_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(status_plate)
@@ -943,8 +1203,14 @@ func _nav_icon_path(mode: String) -> String:
 	var fallback := _nav_default_icon(mode)
 	var row := _nav_selected_row(mode)
 	if row.is_empty():
-		return fallback
+		return fallback if mode in ["characters", "skills"] else "res://assets/production/sprites/ui/ui_empty_equipment_socket.png"
 	return str(row.get("portrait", row.get("icon", fallback)))
+
+func _nav_is_empty(mode: String) -> bool:
+	if mode in ["characters", "skills"]:
+		return false
+	var slot := _nav_slot(mode)
+	return slot != "" and SaveManager.get_selected(slot) == ""
 
 func _nav_accent(mode: String) -> Color:
 	var row := _nav_selected_row(mode)
@@ -972,7 +1238,7 @@ func _nav_status_text(mode: String) -> String:
 		return ""
 	var item_id := SaveManager.get_selected(slot)
 	if item_id == "":
-		return "未装"
+		return ""
 	return "等级%d" % SaveManager.get_item_level(item_id)
 
 func _nav_status_short_text(mode: String) -> String:
@@ -983,7 +1249,7 @@ func _nav_status_short_text(mode: String) -> String:
 		return ""
 	var item_id := SaveManager.get_selected(slot)
 	if item_id == "":
-		return "未装"
+		return ""
 	return "Lv%d" % SaveManager.get_item_level(item_id)
 
 func _open_collection(mode: String) -> void:
@@ -1001,7 +1267,10 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	button.texture_disabled = null
 	button.ignore_texture_size = true
 	button.stretch_mode = TextureButton.STRETCH_SCALE
-	button.clip_contents = true
+	# The dual-mode labels sit optically into the authored frame edge. The level
+	# card has no overflowing art to mask, so ancestor clipping only cuts valid
+	# Normal/Challenge glyph bounds on completed stages.
+	button.clip_contents = false
 	button.disabled = false
 	button.focus_mode = Control.FOCUS_NONE
 	# PASS 而非默认 STOP：让触摸拖拽能穿到 ScrollContainer 去滚动(点按仍能进关，滚动时会自动取消误触)。
@@ -1186,14 +1455,17 @@ func _add_level_mode_button(parent: Control, pos: Vector2, size: Vector2, text: 
 
 	var content := VBoxContainer.new()
 	content.name = "ModeContent"
-	content.position = Vector2(20, 25)
-	content.size = Vector2(size.x - 40.0, size.y - 50.0)
+	content.position = Vector2(8, 18)
+	content.size = Vector2(size.x - 16.0, size.y - 36.0)
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_theme_constant_override("separation", 2)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action.add_child(content)
 
-	var label := UiKit.label(text, 23, accent if enabled else UiKit.TEXT_MUTED, 3)
+	var mode_font := 17 if size.x < LEVEL_MODE_SINGLE_W else 21
+	if LocalizationManager.is_english():
+		mode_font -= 1
+	var label := UiKit.label(text, mode_font, accent if enabled else UiKit.TEXT_MUTED, 3)
 	label.name = "ModeLabel"
 	label.custom_minimum_size = Vector2(0, 42)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL

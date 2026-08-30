@@ -76,7 +76,7 @@ const NATIVE_BUTTON_SIZES := [
 ]
 
 # 全局 UI 字号放大系数（移动端可读性）。所有走 apply_label/label/pill 的文字统一放大。
-const FONT_SCALE := 1.4
+const FONT_SCALE := 1.5
 # 2026-07-22 mobile readability pass: every authored/effective font grows by
 # exactly two logical pixels. Keep this additive so the hierarchy ratios above
 # remain unchanged instead of making large display titles disproportionately huge.
@@ -537,7 +537,10 @@ static func apply_armored_button(button: Button, primary := true, button_size :=
 	if button == null:
 		return
 	if button.get_parent() is HBoxContainer:
-		var sibling_count := button.get_parent().get_child_count()
+		var sibling_count := 0
+		for sibling in button.get_parent().get_children():
+			if sibling is Control and (sibling as Control).visible:
+				sibling_count += 1
 		if sibling_count >= 3:
 			button_size.x = minf(button_size.x, 236.0)
 		elif sibling_count == 2:
