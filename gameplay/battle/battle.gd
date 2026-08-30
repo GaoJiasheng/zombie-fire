@@ -412,6 +412,18 @@ var level_ordinal := 1
 var wave_formation := "standard"
 var econ_gold_base := 5.0
 var econ_gold_per := 0.6
+## Wave-clear fast-forward (`data/economy.json` -> `wave_clear_fast_forward`).
+## Default is disabled; when off none of the three fields below are read by
+## any gameplay path, so closed-switch behavior is byte-identical to before
+## this feature existed. See `_load_wave_clear_fast_forward_config`.
+var wave_clear_fast_forward_enabled := false
+var wave_clear_fast_forward_breather := 3.0
+## Gameplay-clock timestamp (see `_gameplay_now_seconds`) of the most recent
+## moment the battlefield held zero live enemies, or -1.0 if it currently
+## holds at least one (or hasn't gone empty since the last spawn). Reset to
+## -1.0 whenever a new enemy joins `$EnemyLayer` so a stale timestamp from an
+## earlier lull can never leak into a later, still-populated moment.
+var _wave_clear_fast_forward_clear_at := -1.0
 var pending_spawns: Array = []
 var boss_spawn_counts: Dictionary = {}
 var recent_spawn_positions: Array[Vector2] = []
@@ -704,6 +716,7 @@ func _ready() -> void:
 	AudioManager.apply_environment_mix(str(level.get("env", "")))
 	econ_gold_base = float(_econ.get("gold_drop_base", 5))
 	econ_gold_per = float(_econ.get("gold_drop_per_level", 0.6))
+	_load_wave_clear_fast_forward_config(_econ)
 	AudioManager.play_bgm(_battle_bgm_id())
 	primary_weakness = str(level.get("primary_weakness", "physical"))
 	onboarding_stage = str(level.get("onboarding_stage", ""))
@@ -3912,6 +3925,8 @@ func _process_spawns(delta: float) -> void:
 	if not active_spawning:
 		return
 	spawn_timer -= delta
+	if wave_clear_fast_forward_enabled and spawn_timer > 0.0 and _wave_clear_fast_forward_clear_at >= 0.0 and not pending_spawns.is_empty():
+		_apply_wave_clear_fast_forward(pending_spawns[0])
 	if spawn_timer > 0.0:
 		return
 	if pending_spawns.is_empty():
@@ -3933,6 +3948,40 @@ func _process_spawns(delta: float) -> void:
 	)
 	spawn_timer = item.get("interval", 0.8)
 
+## Loads the `wave_clear_fast_forward` switch from `data/economy.json`. The
+## key is optional (older/fixture economy tables omit it entirely) and its
+## absence must resolve to the same disabled default as an explicit
+## `{"enabled": false}`, so every read goes through `.get(...)` with the
+## documented defaults rather than assuming the key exists.
+func _load_wave_clear_fast_forward_config(economy: Dictionary) -> void:
+	var raw: Variant = economy.get("wave_clear_fast_forward", {})
+	var cfg: Dictionary = raw if raw is Dictionary else {}
+	wave_clear_fast_forward_enabled = bool(cfg.get("enabled", false))
+	wave_clear_fast_forward_breather = maxf(float(cfg.get("breather_seconds", 3.0)), 0.0)
+	_wave_clear_fast_forward_clear_at = -1.0
+
+## Owner-reported pain point: when output is high, the previous Boss dies and
+## the next authored Boss in a multi-Boss wave still waits out its full
+## `runtime_bosses[].spawn_delay` (levels author up to 65s) with nothing left
+## on screen. This only tightens that specific wait: once the battlefield has
+## been fully clear (no live enemies, so implicitly no live Boss) for at
+## least `wave_clear_fast_forward_breather` seconds, the next delayed-Boss
+## queue entry is allowed to spawn immediately instead of waiting out its
+## remaining authored delay. `minf` guarantees the result can only arrive
+## sooner than the authored schedule, never later — a slow clear (or one that
+## never fully clears) leaves `spawn_timer` completely untouched, matching
+## pre-feature behavior exactly ("only advance, never delay").
+func _apply_wave_clear_fast_forward(front_item: Dictionary) -> void:
+	if not bool(front_item.get("boss", false)) or not bool(front_item.get("_spawn_delay_consumed", false)):
+		return
+	var earliest_remaining := maxf((_wave_clear_fast_forward_clear_at + wave_clear_fast_forward_breather) - _gameplay_now_seconds(), 0.0)
+	if earliest_remaining >= spawn_timer:
+		return
+	spawn_timer = earliest_remaining
+	if not bool(front_item.get("_fast_forward_notified", false)):
+		front_item["_fast_forward_notified"] = true
+		_show_wave_toast("首领提前来袭", Color(1.0, 0.82, 0.25))
+
 func _start_next_wave() -> void:
 	var waves: Array = level.get("waves", [])
 	if wave_index >= waves.size():
@@ -3940,6 +3989,8 @@ func _start_next_wave() -> void:
 	_apply_wave_start_support()
 	var wave: Dictionary = waves[wave_index]
 	wave_index += 1
+	if wave_clear_fast_forward_enabled:
+		_wave_clear_fast_forward_clear_at = -1.0
 	pending_spawns.clear()
 	if wave_index == 1:
 		boss_spawn_counts.clear()
@@ -4421,6 +4472,10 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	if is_boss:
 		battle_last_boss_id = enemy_id
 	$EnemyLayer.add_child(enemy)
+	if wave_clear_fast_forward_enabled:
+		# A fresh live enemy invalidates any earlier "field went empty" moment
+		# recorded for this wave; see `_wave_clear_fast_forward_clear_at`.
+		_wave_clear_fast_forward_clear_at = -1.0
 	_activate_audit_physics_node(enemy)
 	$ThreatMarkerLayer.add_child(enemy.threat_marker)
 	enemy.tree_exiting.connect(_on_enemy_tree_exiting.bind(enemy))
@@ -10460,6 +10515,12 @@ func _on_enemy_died(enemy: Node, reward: Dictionary) -> void:
 	# production death-animation / deferred-free behaviour unchanged.
 	if _audit_combat_rng != null and is_instance_valid(enemy) and enemy.get_parent() == $EnemyLayer:
 		$EnemyLayer.remove_child(enemy)
+	if wave_clear_fast_forward_enabled and not _has_live_enemies(enemy):
+		# Runs after `_resolve_death_mechanic`/`_apply_inferno_death_spread`
+		# above, so a death that itself spawns something (e.g. the "split"
+		# mechanic) is already reflected in `_has_live_enemies` and does not
+		# get mistaken for a clear field.
+		_wave_clear_fast_forward_clear_at = _gameplay_now_seconds()
 
 func _normalized_run_xp_reward(raw_reward_xp: float, xp_budget_counted: bool) -> int:
 	var reward_xp := int(round(raw_reward_xp * variant_xp_mult))
