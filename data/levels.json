@@ -9492,7 +9492,7 @@
 		"env": "env_flooded_subway",
 		"chapter": 6,
 		"recommend_level": 30,
-		"difficulty_coef": 6.0,
+		"difficulty_coef": 20.0,
 		"primary_weakness": "poison",
 		"base_hp_ref": 534,
 		"threat_tags": [
@@ -9520,11 +9520,11 @@
 					{
 						"type": "zombie_shambler",
 						"count": 16,
-						"interval": 0.5,
+						"interval": 0.65,
 						"lane": "spread"
 					}
 				],
-				"hp_coef": 0.5
+				"hp_coef": 1.1
 			},
 			{
 				"wave": 2,
@@ -9532,11 +9532,11 @@
 					{
 						"type": "zombie_screamer",
 						"count": 16,
-						"interval": 0.5,
+						"interval": 0.65,
 						"lane": "spread"
 					}
 				],
-				"hp_coef": 0.8
+				"hp_coef": 1.5
 			},
 			{
 				"wave": 3,
@@ -9544,11 +9544,11 @@
 					{
 						"type": "zombie_armored",
 						"count": 6,
-						"interval": 0.5,
+						"interval": 0.65,
 						"lane": "center"
 					}
 				],
-				"hp_coef": 0.58,
+				"hp_coef": 1.15,
 				"support": [
 					{
 						"type": "zombie_shambler",
@@ -9574,7 +9574,7 @@
 						"lane": "center"
 					}
 				],
-				"hp_coef": 1.3,
+				"hp_coef": 1.9,
 				"support": [
 					{
 						"type": "zombie_shielder",
@@ -9595,7 +9595,7 @@
 				"spawns": [
 					{
 						"type": "zombie_screamer",
-						"count": 2,
+						"count": 3,
 						"interval": 0.34,
 						"lane": "spread"
 					},
@@ -9606,7 +9606,7 @@
 						"lane": "spread"
 					}
 				],
-				"hp_coef": 1.7
+				"hp_coef": 2.25
 			}
 		],
 		"star_rule": "base_hp_percent",
@@ -9617,17 +9617,17 @@
 		"run_xp_budget": 1855,
 		"offer_category_floor": "crowd",
 		"clear_requirement": {
-			"min_output": 9.213,
+			"min_output": 37.9996,
 			"mob_hp_share": 1.0,
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
 				"model": "bottleneck_v5",
-				"recommended_power": 147,
-				"crowd_capacity": 887.3115,
+				"recommended_power": 470,
+				"crowd_capacity": 935.0698,
 				"boss_capacity": 0.0,
 				"line_capacity": 0.25,
-				"line_expected_breach": 42.0,
+				"line_expected_breach": 43.5,
 				"line_base_hp": 534.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
@@ -9645,13 +9645,11 @@
 						1.0,
 						1.4
 					],
-					"raw_ratio": 5.401186,
-					"ratio": 1.38,
+					"raw_ratio": 1.309517,
+					"ratio": 1.309517,
 					"raw_bottleneck": "crowd",
 					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
+					"adjusted_axes": [],
 					"fixture": {
 						"family": "paced_free",
 						"character": "vanguard",
@@ -13111,8 +13109,8 @@
 		"reward_gold_mult": 0.27,
 		"clear_requirement": {
 			"min_output": 86.5286,
-			"mob_hp_share": 0.3917,
-			"boss_hp_share": 0.6083,
+			"mob_hp_share": 0.4167,
+			"boss_hp_share": 0.5833,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
 				"model": "bottleneck_v5",
@@ -13124,8 +13122,8 @@
 				"line_base_hp": 855.0,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.3917,
-					"boss": 0.6083
+					"crowd": 0.4167,
+					"boss": 0.5833
 				},
 				"boss_effective_hp": 5002500.0,
 				"boss_weights": {
@@ -15718,8 +15716,8 @@
 		"reward_gold_mult": 0.26,
 		"clear_requirement": {
 			"min_output": 123.1272,
-			"mob_hp_share": 0.719,
-			"boss_hp_share": 0.281,
+			"mob_hp_share": 0.7188,
+			"boss_hp_share": 0.2812,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
 				"model": "bottleneck_v5",
@@ -15731,8 +15729,8 @@
 				"line_base_hp": 988.75,
 				"line_target_hp_ratio": 0.35,
 				"line_exposure_weights": {
-					"crowd": 0.719,
-					"boss": 0.281
+					"crowd": 0.7188,
+					"boss": 0.2812
 				},
 				"boss_effective_hp": 13320000.0,
 				"boss_weights": {
