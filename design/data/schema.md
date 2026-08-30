@@ -558,11 +558,16 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
     "armor_break_effective_factor": 0.94,
     "boss_mechanic_time_mult": {"phase_shift":1.2821,"multi_phase":1.11}
   },
+  "power_scale_v6": {
+    "commercial_thresholds": {"loadout_uplift":0.20973782771535587,"result_ratio":1.4281192974452555}
+  },
   "repeat_clear_xp_mult": [1.0, 0.5, 0.25],
   "boss_level_base_hp_mult": {"base": 1.25, "early_mult": 1.75, "early_full_level": 10, "early_end_level": 25},
   "gold_drop_base": 10, "gold_drop_per_level": 2,
   "first_clear_gold_base": 100, "first_clear_gold_per_level": 20,
   "upgrade_cost_growth": 1.15,
+  "upgrade_cost_linear_k": 0.7,
+  "premium_equipment_catch_up": {"cost_multiplier":0.0005,"minimum_upgrade_cost":1},
   "card_director": {
     "base_reroll_per_run": 1,
     "pity_after_missing_core_tag": 2,
@@ -579,6 +584,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ### 局外养成成本与 UI 资源语义
 
 - 角色、武器、护甲、芯片、宠物的等级强化读取各表 `cost_base_gold`，唯一消费资源为 `gold`。
+- `premium_equipment_catch_up` 只作用于带 `premium_entitlement` 的四类装备。军械权益首次到账时冻结玩家除本套武器外的最高已记录武器等级；从 1 级追至该等级的逐级金币价格乘 `cost_multiplier`（并受 `minimum_upgrade_cost` 下限约束），恰好到达冻结等级后的下一次升级恢复完整价格。免费装备永远不读取该折扣。
 - 通用技能永久等级读取 `economy.skill_base_xp_costs`，角色专属主动技读取 `economy.sig_skill_xp_costs`，唯一消费资源为 `xp`。
 - 免费角色与装备解锁读取 `unlock_cost_star`（兼容旧 `unlock.price`），唯一消费资源为 `star`。
 - 玩家可点击的成本必须渲染为“操作文字 + 对应资源图标 + 纯数字数量”；禁止用 `★`、`金币`、`经验` 或 `Gold / XP` 文字假扮图标。关卡评分星仍使用评分星素材，不属于成本组件。

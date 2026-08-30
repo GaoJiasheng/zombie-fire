@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import statistics
 import subprocess
 import sys
 import types
@@ -42,7 +43,8 @@ def old_tables(ref: str) -> dict:
     }
 
 
-def premium_build(base: dict, set_row: dict, tables: dict) -> dict:
+def premium_build(base: dict, set_row: dict, tables: dict,
+                  catch_up_level: int | None = None) -> dict:
     result = dict(base)
     for slot, table_name in (
         ("weapon", "weapons"), ("armor", "armors"),
@@ -51,9 +53,10 @@ def premium_build(base: dict, set_row: dict, tables: dict) -> dict:
         item_id = str(set_row[slot])
         current_id = str(base.get(slot, ""))
         current_level = int(base.get(f"{slot}_level", 1)) if current_id else 1
-        maximum = int(tables[table_name][item_id].get("max_level", current_level))
+        projected_level = current_level if catch_up_level is None else catch_up_level
+        maximum = int(tables[table_name][item_id].get("max_level", projected_level))
         result[slot] = item_id
-        result[f"{slot}_level"] = min(max(current_level, 1), maximum)
+        result[f"{slot}_level"] = min(max(projected_level, 1), maximum)
     return result
 
 
@@ -83,6 +86,7 @@ def main() -> int:
     old_rows = []
     new_rows = []
     set_uplifts: dict[str, list[float]] = {}
+    known_weapon_levels: dict[str, int] = {}
     for fixture in model.fixture_rows:
         level_no = int(fixture["level"])
         level_id = str(fixture["level_id"])
@@ -90,6 +94,10 @@ def main() -> int:
         old_level = old_by_id[level_id]
         weakness = str(level.get("primary_weakness", "physical"))
         base = dict(fixture["build"])
+        weapon_id = str(base.get("weapon", ""))
+        known_weapon_levels[weapon_id] = max(
+            known_weapon_levels.get(weapon_id, 1), int(base.get("weapon_level", 1)))
+        catch_up_level = max(known_weapon_levels.values(), default=1)
         old_contract = old_level["clear_requirement"]["power_contract"]
         old_current = old.power_for_build(
             old_level, old_contract, base, historical["characters"], historical["weapons"],
@@ -125,7 +133,7 @@ def main() -> int:
             unlock = set_row.get("store_unlock", {}) or {}
             if level_no - 1 < int(unlock.get("clear_level", 0)):
                 continue
-            candidate = premium_build(base, set_row, tables)
+            candidate = premium_build(base, set_row, tables, catch_up_level)
             new_projected = model.effective_power_for_build(candidate)["effective_power"]
             new_uplift = new_projected / max(new_current, 1) - 1.0
             series_id = str(set_row.get("series_id", ""))
@@ -135,6 +143,7 @@ def main() -> int:
                 "uplift": new_uplift,
                 "ratio": new_projected / max(new_rec, 1),
                 "series": series_id,
+                "catch_up_level": catch_up_level,
             }
             if best_new is None or new_projected > best_new["power"]:
                 best_new = {**new_candidate, "power": new_projected}
@@ -165,7 +174,19 @@ def main() -> int:
     new_result_rate = new_result_count / max(len(new_rows), 1)
     loadout_delta = new_loadout_rate / max(old_loadout_rate, 1e-9) - 1.0
     result_delta = new_result_rate / max(old_result_rate, 1e-9) - 1.0
-    passed = abs(loadout_delta) <= 0.20 and abs(result_delta) <= 0.20
+    authored = ((tables["economy"].get("power_scale_v6", {}) or {}).get(
+        "commercial_thresholds", {}) or {})
+    authored_loadout = float(authored.get("loadout_uplift", -1.0))
+    authored_result = float(authored.get("result_ratio", -1.0))
+    thresholds_match = (
+        abs(authored_loadout - uplift_gate) <= 1e-9
+        and abs(authored_result - result_gate) <= 1e-9
+    )
+    passed = (
+        abs(loadout_delta) <= 0.20
+        and abs(result_delta) <= 0.20
+        and thresholds_match
+    )
 
     lines = [
         ("> 状态：通过（战力 6.0 商业化门槛等价分位重标）"
@@ -176,19 +197,24 @@ def main() -> int:
         f"- 配装页旧门槛 `+15%`：触发 {old_loadout_count}/{len(old_rows)}（{old_loadout_rate:.1%}）；新门槛 `{uplift_gate:.4f}` 触发 {new_loadout_count}/{len(new_rows)}（{new_loadout_rate:.1%}）。",
         f"- 结算页旧门槛 `R≥1.20 且提升≥0`：触发 {old_result_count}/{len(old_rows)}（{old_result_rate:.1%}）；新门槛 `R≥{result_gate:.4f} 且提升≥0` 触发 {new_result_count}/{len(new_rows)}（{new_result_rate:.1%}）。",
         f"- 触发率偏差：配装页 {loadout_delta:+.1%}；结算页 {result_delta:+.1%}（门禁 ±20%）。",
+        f"- economy 单一来源：`loadout_uplift={authored_loadout:.10f}`、`result_ratio={authored_result:.10f}`；与本轮反解值{'一致' if thresholds_match else '不一致'}。",
+        "- 新投影把四件套折算到玩家已练出的最高武器等级（各件按自身上限封顶）；购买仍授予 1 级，投影对应追赶折扣可立即达到的真实状态。",
         "- 所有推荐继续要求提升非负；属性适配来自战斗中的单通道弹药覆盖，不进入恒定战力数字。",
         "", "## 分套负提升披露", "",
-        "| 套装 | 可见样本 | 负提升 | 最差提升 |",
-        "|---|---:|---:|---:|",
+        "| 套装 | 可见样本 | 非负 | ≥15% | 最好 | 中位 | 最差 |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for series_id in sorted(set_uplifts):
         values = set_uplifts[series_id]
         lines.append(
-            f"| {series_id} | {len(values)} | {sum(value < -1e-4 for value in values)} | {min(values):+.3f} |")
+            f"| {series_id} | {len(values)} | "
+            f"{sum(value >= -1e-4 for value in values)} | "
+            f"{sum(value + 1e-4 >= 0.15 for value in values)} | "
+            f"{max(values):+.3f} | {statistics.median(values):+.3f} | {min(values):+.3f} |")
     lines.extend(["", "## 新口径逐关最优候选", "", "| L | 套装 | 提升 | R |", "|---:|---|---:|---:|"])
     for row in new_rows:
         lines.append(
-            f"| {row['level']:03d} | {row['series']} | {row['uplift']:.3f} | {row['ratio']:.3f} |")
+        f"| {row['level']:03d} | {row['series']} | {row['uplift']:.3f} | {row['ratio']:.3f} |")
     report = "\n".join(lines) + "\n"
     print(report)
     if args.write:

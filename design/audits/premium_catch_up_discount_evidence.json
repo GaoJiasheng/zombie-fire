@@ -1,0 +1,79 @@
+{
+  "status": "pass",
+  "baseline_ref": "7db4a725",
+  "config": {
+    "cost_multiplier": 0.0005,
+    "minimum_upgrade_cost": 1
+  },
+  "free_upgrade_cost_vector": {
+    "entries": 1178,
+    "baseline_sha256": "11a4f92ed0e5d68337f713dc0f3e9dc82bcf0809404c318fe9b9809fb8c26781",
+    "current_sha256": "11a4f92ed0e5d68337f713dc0f3e9dc82bcf0809404c318fe9b9809fb8c26781",
+    "exact": true
+  },
+  "sets": [
+    {
+      "set_id": "set_apocalypse_thunder",
+      "series_id": "thunder",
+      "unlock_level": 50,
+      "catch_up_level": 38,
+      "upgrade_count": 134,
+      "full_price_gold": 359917,
+      "discounted_gold": 206,
+      "retained_gold": 359711,
+      "unlock_time_gold": 5825,
+      "discounted_share_of_unlock_time_gold": 0.03536480686695279,
+      "campaign_gross_gold_through_unlock": 187325,
+      "retained_share_of_campaign_gross": 1.9202509008407846
+    },
+    {
+      "set_id": "set_apocalypse_inferno",
+      "series_id": "inferno",
+      "unlock_level": 30,
+      "catch_up_level": 20,
+      "upgrade_count": 76,
+      "full_price_gold": 115123,
+      "discounted_gold": 83,
+      "retained_gold": 115040,
+      "unlock_time_gold": 4762,
+      "discounted_share_of_unlock_time_gold": 0.01742965140697186,
+      "campaign_gross_gold_through_unlock": 69748,
+      "retained_share_of_campaign_gross": 1.6493662900728336
+    },
+    {
+      "set_id": "set_apocalypse_absolute_zero",
+      "series_id": "absolute_zero",
+      "unlock_level": 70,
+      "catch_up_level": 40,
+      "upgrade_count": 136,
+      "full_price_gold": 377357,
+      "discounted_gold": 214,
+      "retained_gold": 377143,
+      "unlock_time_gold": 4385,
+      "discounted_share_of_unlock_time_gold": 0.04880273660205245,
+      "campaign_gross_gold_through_unlock": 263201,
+      "retained_share_of_campaign_gross": 1.4329086895566505
+    },
+    {
+      "set_id": "set_apocalypse_golden_law",
+      "series_id": "golden_law",
+      "unlock_level": 90,
+      "catch_up_level": 47,
+      "upgrade_count": 143,
+      "full_price_gold": 445453,
+      "discounted_gold": 249,
+      "retained_gold": 445204,
+      "unlock_time_gold": 4940,
+      "discounted_share_of_unlock_time_gold": 0.050404858299595144,
+      "campaign_gross_gold_through_unlock": 361228,
+      "retained_share_of_campaign_gross": 1.2324736731371877
+    }
+  ],
+  "check_economy_loop": {
+    "returncode": 0,
+    "stdout": "Economy loop OK\nearly_gold=3297 starter_cost=879\ncampaign_gold=199538 core_level25_cost=110221\nstar_unlock_total=316 max_item=16 normal_campaign=297 challenge_needed=19\nxp_first_clear=152125 xp_three_clear=266258 xp_full_cost=335000 xp_coverage=79.48%\nendless_gold loop combat milestone total seconds gold/min cumulative_gold/min\n  01  1592    0  1592  100.6    949.7    949.7\n  02  1829    0  1829  106.6   1029.6    990.8\n  03  2029    0  2029  112.6   1081.4   1022.7\n  04  2265    0  2265  118.6   1146.1   1056.1\n  05  2604   30  2634  132.2   1195.6   1088.4\n  06  2856    0  2856  135.2   1267.6   1122.7\n  07  3089    0  3089  146.2   1267.9   1147.7\n  08  3306    0  3306  156.2   1270.1   1166.6\n  09  3798    0  3798  178.8   1274.6   1182.9\n  10  4081   60  4141  180.8   1374.4   1208.2\n  11  4312    0  4312  187.8   1377.8   1228.7\n  12  4548    0  4548  193.8   1408.2   1248.6\n  13  5085    0  5085  195.4   1561.6   1280.0\n  14  5484    0  5484  210.4   1564.0   1307.7\n  15  5777   90  5867  224.4   1568.9   1332.4\n  16  6032    0  6032  230.4   1571.0   1353.4\n  17  6610    0  6610  239.0   1659.6   1379.1\n  18  6882    0  6882  239.0   1727.8   1406.1\n  19  7189    0  7189  239.0   1804.9   1434.8\n  20  7496  120  7616  239.0   1912.1   1466.7\nendless_vs_campaign_repeat template=level_025 campaign_repeat=949.7/min loop1=949.7/min loop10=1374.4/min ratio=1.447 (print-only comparison)\n",
+    "gold_and_xp_contract_delta": 0,
+    "reason": "paid-only discount is absent from free campaign income, free equipment, and XP formulas"
+  },
+  "errors": []
+}
