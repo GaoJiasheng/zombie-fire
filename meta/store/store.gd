@@ -160,7 +160,7 @@ func _apply_style() -> void:
 	# Fit the final localized copy, not the longer Chinese scene placeholders.
 	# Otherwise switching to English inherits an unnecessary 18 px fallback.
 	$Root/VBox/Footer/RestoreButton.text = _loc("恢复购买", "Restore")
-	$Root/VBox/Footer/ResetButton.text = _loc("清空演示", "Reset Demo")
+	$Root/VBox/Footer/ResetButton.text = _loc("清空演示", "Reset")
 	$Root/VBox/Footer/BackButton.text = _loc("返回", "Back")
 	for spec in [
 		[$Root/VBox/Footer/RestoreButton, false],
@@ -221,13 +221,15 @@ func _locked_store_empty_state() -> PanelContainer:
 	panel.name = "LockedStoreEmptyState"
 	panel.set_meta("store_empty_state", true)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(28.0))
-	panel.custom_minimum_size = Vector2(0, 720)
+	panel.custom_minimum_size = Vector2(0, 1040)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	call_deferred("_fit_locked_store_empty_state", panel)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 56)
-	margin.add_theme_constant_override("margin_top", 58)
+	margin.add_theme_constant_override("margin_top", 42)
 	margin.add_theme_constant_override("margin_right", 56)
-	margin.add_theme_constant_override("margin_bottom", 52)
+	margin.add_theme_constant_override("margin_bottom", 42)
 	panel.add_child(margin)
 
 	var box := VBoxContainer.new()
@@ -236,13 +238,13 @@ func _locked_store_empty_state() -> PanelContainer:
 	margin.add_child(box)
 
 	var lock_center := CenterContainer.new()
-	lock_center.custom_minimum_size = Vector2(0, 126)
+	lock_center.custom_minimum_size = Vector2(0, 112)
 	box.add_child(lock_center)
-	var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(112, 112))
+	var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(96, 96))
 	lock_icon.modulate = Color(1.08, 0.92, 0.58, 1.0)
 	lock_center.add_child(lock_icon)
 
-	var title := UiKit.label(LocalizationManager.text("精品军械库尚未解密"), 34, UiKit.TEXT_MAIN, 4)
+	var title := UiKit.label(LocalizationManager.text("终焉军械库尚未解密"), 34, UiKit.TEXT_MAIN, 4)
 	title.name = "EmptyStateTitle"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
@@ -262,24 +264,7 @@ func _locked_store_empty_state() -> PanelContainer:
 		var nearest: Dictionary = tiers[0]
 		panel.set_meta("nearest_clear_level", int(nearest.get("clear_level", 0)))
 		panel.set_meta("nearest_character_level", int(nearest.get("any_character_level", 0)))
-		var nearest_panel := PanelContainer.new()
-		nearest_panel.name = "NearestUnlock"
-		nearest_panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(true))
-		nearest_panel.custom_minimum_size = Vector2(0, 104)
-		box.add_child(nearest_panel)
-		var nearest_box := VBoxContainer.new()
-		nearest_box.alignment = BoxContainer.ALIGNMENT_CENTER
-		nearest_box.add_theme_constant_override("separation", 4)
-		nearest_panel.add_child(nearest_box)
-		var nearest_heading := UiKit.label(LocalizationManager.text("最近解锁条件"), 17, UiKit.GOLD, 2)
-		nearest_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		nearest_box.add_child(nearest_heading)
-		var nearest_copy := UiKit.label(_store_unlock_condition(nearest, false), 24, UiKit.TEXT_MAIN, 3)
-		nearest_copy.name = "NearestUnlockText"
-		nearest_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		nearest_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		nearest_box.add_child(nearest_copy)
-
+		box.add_child(_build_store_unlock_roadmap(tiers))
 		var later_lines: Array[String] = []
 		var later_clear_levels: Array[int] = []
 		for index in range(1, tiers.size()):
@@ -288,14 +273,11 @@ func _locked_store_empty_state() -> PanelContainer:
 			later_clear_levels.append(int(later.get("clear_level", 0)))
 		panel.set_meta("later_clear_levels", later_clear_levels)
 		if not later_lines.is_empty():
-			var later_heading := UiKit.label(LocalizationManager.text("后续解密档位"), 17, UiKit.CYAN, 2)
-			later_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			box.add_child(later_heading)
-			var later_copy := UiKit.label("  ·  ".join(later_lines), 18, UiKit.GREY_300, 2)
+			var later_copy := UiKit.label("  ·  ".join(later_lines), 15, UiKit.GREY_300, 2)
 			later_copy.name = "LaterUnlockText"
 			later_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			later_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			later_copy.custom_minimum_size = Vector2(0, 62)
+			later_copy.custom_minimum_size = Vector2(0, 48)
 			box.add_child(later_copy)
 
 	var restore_hint := UiKit.label(
@@ -309,6 +291,145 @@ func _locked_store_empty_state() -> PanelContainer:
 	restore_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(restore_hint)
 	return panel
+
+
+func _fit_locked_store_empty_state(panel: PanelContainer) -> void:
+	# The empty state is the complete new-player store experience. Fit it to the
+	# real ScrollContainer viewport so tall phones never end in a half-screen
+	# black void. The deferred callback only measures controls after both nodes
+	# have entered the tree, avoiding Control.get_rect() warnings in headless runs.
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	var scroll := $Root/VBox/ScrollWrap/Scroll as ScrollContainer
+	if not scroll.is_inside_tree():
+		return
+	panel.custom_minimum_size.y = maxf(1040.0, scroll.size.y - 2.0)
+
+
+func _build_store_unlock_roadmap(tiers: Array[Dictionary]) -> PanelContainer:
+	var cleared_level := _store_cleared_level()
+	var final_level := int(tiers[tiers.size() - 1].get("clear_level", 1))
+	var current_target_index := tiers.size() - 1
+	for index in range(tiers.size()):
+		if cleared_level < int(tiers[index].get("clear_level", 0)):
+			current_target_index = index
+			break
+
+	var roadmap := PanelContainer.new()
+	roadmap.name = "UnlockRoadmap"
+	roadmap.set_meta("clear_level", cleared_level)
+	roadmap.set_meta("unlock_clear_levels", tiers.map(func(tier: Dictionary) -> int: return int(tier.get("clear_level", 0))))
+	roadmap.add_theme_stylebox_override("panel", UiKit.hint_texture_style(true))
+	roadmap.custom_minimum_size = Vector2(0, 286)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	roadmap.add_child(margin)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 10)
+	margin.add_child(stack)
+
+	var heading_row := HBoxContainer.new()
+	heading_row.add_theme_constant_override("separation", 16)
+	stack.add_child(heading_row)
+	var heading := UiKit.label(LocalizationManager.text("解锁路线图"), 18, UiKit.GOLD, 3)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading_row.add_child(heading)
+	var progress_text_value := LocalizationManager.text("战役进度：尚未通关") if cleared_level <= 0 else LocalizationManager.text("战役进度：已通关第 %d 关") % cleared_level
+	var progress_text := UiKit.label(progress_text_value, 15, UiKit.CYAN, 2)
+	progress_text.name = "CampaignProgressText"
+	progress_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	heading_row.add_child(progress_text)
+
+	var progress := ProgressBar.new()
+	progress.name = "UnlockProgressBar"
+	progress.custom_minimum_size = Vector2(0, 18)
+	progress.max_value = maxf(float(final_level), 1.0)
+	progress.value = clampf(float(cleared_level), 0.0, progress.max_value)
+	progress.show_percentage = false
+	var progress_bg := StyleBoxFlat.new()
+	progress_bg.bg_color = Color(0.055, 0.075, 0.10, 0.92)
+	progress_bg.corner_radius_top_left = 9
+	progress_bg.corner_radius_top_right = 9
+	progress_bg.corner_radius_bottom_left = 9
+	progress_bg.corner_radius_bottom_right = 9
+	progress.add_theme_stylebox_override("background", progress_bg)
+	var progress_fill := StyleBoxFlat.new()
+	progress_fill.bg_color = UiKit.GOLD
+	progress_fill.corner_radius_top_left = 9
+	progress_fill.corner_radius_top_right = 9
+	progress_fill.corner_radius_bottom_left = 9
+	progress_fill.corner_radius_bottom_right = 9
+	progress.add_theme_stylebox_override("fill", progress_fill)
+	stack.add_child(progress)
+
+	var tier_row := HBoxContainer.new()
+	tier_row.name = "UnlockTierRow"
+	tier_row.add_theme_constant_override("separation", 10)
+	stack.add_child(tier_row)
+	for index in range(tiers.size()):
+		var tier: Dictionary = tiers[index]
+		var clear_level := int(tier.get("clear_level", 0))
+		var unlocked := cleared_level >= clear_level
+		var current := not unlocked and index == current_target_index
+		var tier_box := VBoxContainer.new()
+		tier_box.name = "UnlockTier%02d" % (index + 1)
+		tier_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tier_box.set_meta("clear_level", clear_level)
+		tier_box.set_meta("state", "unlocked" if unlocked else "current" if current else "locked")
+		tier_box.alignment = BoxContainer.ALIGNMENT_CENTER
+		tier_box.add_theme_constant_override("separation", 3)
+		tier_row.add_child(tier_box)
+
+		var marker_center := CenterContainer.new()
+		marker_center.custom_minimum_size = Vector2(0, 42)
+		tier_box.add_child(marker_center)
+		var marker := PanelContainer.new()
+		marker.custom_minimum_size = Vector2(34, 34)
+		var marker_style := StyleBoxFlat.new()
+		marker_style.bg_color = UiKit.SUCCESS if unlocked else UiKit.GOLD if current else Color(0.12, 0.16, 0.20, 1.0)
+		marker_style.border_color = Color.WHITE if current else UiKit.CYAN if unlocked else Color(0.36, 0.42, 0.48, 0.88)
+		marker_style.set_border_width_all(3 if current else 2)
+		marker_style.corner_radius_top_left = 17
+		marker_style.corner_radius_top_right = 17
+		marker_style.corner_radius_bottom_left = 17
+		marker_style.corner_radius_bottom_right = 17
+		marker.add_theme_stylebox_override("panel", marker_style)
+		marker_center.add_child(marker)
+
+		var level_copy := UiKit.label(LocalizationManager.text("第 %d 关") % clear_level, 15, UiKit.TEXT_MAIN, 2)
+		level_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tier_box.add_child(level_copy)
+		var state_copy_value := LocalizationManager.text("已解锁") if unlocked else LocalizationManager.text("当前目标") if current else LocalizationManager.text("还差 %d 关") % maxi(0, clear_level - cleared_level)
+		var state_copy := UiKit.label(state_copy_value, 13, UiKit.SUCCESS if unlocked else UiKit.GOLD if current else UiKit.TEXT_MUTED, 2)
+		state_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		state_copy.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		tier_box.add_child(state_copy)
+
+	var nearest: Dictionary = tiers[current_target_index]
+	var nearest_copy := UiKit.label(_store_unlock_condition(nearest, false), 18, UiKit.TEXT_MAIN, 2)
+	nearest_copy.name = "NearestUnlockText"
+	nearest_copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	nearest_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	nearest_copy.custom_minimum_size = Vector2(0, 42)
+	stack.add_child(nearest_copy)
+	return roadmap
+
+
+func _store_cleared_level() -> int:
+	var highest := 0
+	for level_value in DataLoader.get_table("levels"):
+		var level: Dictionary = level_value
+		var level_id := str(level.get("id", ""))
+		if level_id != "" and SaveManager.get_level_stars(level_id) > 0:
+			highest = maxi(highest, int(DataLoader.level_number(level_id)))
+	return highest
 
 
 func _store_unlock_tiers() -> Array[Dictionary]:
@@ -397,11 +518,7 @@ func _series_header(series_id: String) -> PanelContainer:
 
 
 func _store_title() -> String:
-	var series_ids := PurchaseManager.catalog_series_ids()
-	if series_ids.size() == 1:
-		var set_row := PurchaseManager.set_for_series(series_ids[0])
-		return str(set_row.get("store_title_en" if LocalizationManager.is_english() else "store_title_zh", _loc("精品军械库", "Premium Arsenal")))
-	return _loc("精品军械库", "Premium Arsenal")
+	return LocalizationManager.text("终焉军械库")
 
 
 func _ownership_status() -> String:
