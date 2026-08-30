@@ -1,0 +1,816 @@
+{
+  "screen_count": 36,
+  "error_count": 0,
+  "screens": [
+    {
+      "label": "device_1080x1920_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_map_chapter.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_collection.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_750x1334_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    }
+  ]
+}

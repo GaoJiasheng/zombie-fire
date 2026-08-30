@@ -1,0 +1,3778 @@
+{
+  "screen_count": 60,
+  "error_count": 60,
+  "screens": [
+    {
+      "label": "device_1080x1920_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [
+        "safe-area breach: Root rect=[P: (10.0, 132.0), S: (1060.0, 1686.0)] safe=[P: (44.0, 132.0), S: (992.0, 1686.0)] min-chain=Root:1060 > VBox:980 > EndlessButton:980 > @MarginContainer@245:775 > @HBoxContainer@246:715 > @VBoxContainer@247:309 > Label:309",
+        "text clipped: Root/VBox/EndlessButton/@MarginContainer@245/@HBoxContainer@246/@VBoxContainer@247/Subtitle required=742.0 available=514.0 text=Looping Horde · Gold Payout · Highest-Loop Challenge",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/charactersNavCard/@Control@4/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/charactersNavCard/@Control@4 rect=[P: (58.0, 683.0), S: (160.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/weaponsNavCard/@Control@6/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/weaponsNavCard/@Control@6 rect=[P: (218.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/armorsNavCard/@Control@8/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/armorsNavCard/@Control@8 rect=[P: (379.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/chipsNavCard/@Control@10/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/chipsNavCard/@Control@10 rect=[P: (540.0, 683.0), S: (160.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/petsNavCard/@Control@12/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/petsNavCard/@Control@12 rect=[P: (700.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/skillsNavCard/@Control@14/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/skillsNavCard/@Control@14 rect=[P: (861.0, 683.0), S: (161.0, 48.0)]",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter01Card/ChapterContentMargin/@HBoxContainer@16/@VBoxContainer@20/ChapterStory required=1207.0 available=456.0 text=Reignited furnaces drive the horde through the old city. Retake Gate 10 and cut off the attack route.",
+        "wrapped text clipped: Root/VBox/LevelScroll/LevelList/Chapter02Card/ChapterContentMargin/@HBoxContainer@39/@VBoxContainer@40/ChapterObjective required=111.0 available=77.0 text=Cross the broken bridges and defeat the boss at the second bridge tower.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter02Card/ChapterContentMargin/@HBoxContainer@39/@VBoxContainer@43/ChapterStory required=1320.0 available=456.0 text=A polar storm froze the northern bridges, opening a path for the horde. Restart the bridge towers and seal it.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter03Card/ChapterContentMargin/@HBoxContainer@62/@VBoxContainer@66/ChapterTitle required=523.0 available=456.0 text=Zone 03 · Abandoned Factory",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter03Card/ChapterContentMargin/@HBoxContainer@62/@VBoxContainer@66/ChapterStory required=1261.0 available=456.0 text=The abandoned arms factory has become a horde nest. Retake it to restore heavy-ammunition supplies.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter04Card/ChapterContentMargin/@HBoxContainer@85/@VBoxContainer@89/ChapterStory required=1118.0 available=456.0 text=Toxic mist floods the lower city as mutants multiply in ruptured biovats. Shut down the leak.",
+        "wrapped text clipped: Root/VBox/LevelScroll/LevelList/Chapter05Card/ChapterContentMargin/@HBoxContainer@108/@VBoxContainer@109/ChapterObjective required=111.0 available=77.0 text=Cross the high-voltage corridors and defeat the boss at the transformer.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter05Card/ChapterContentMargin/@HBoxContainer@108/@VBoxContainer@112/ChapterTitle required=486.0 available=456.0 text=Zone 05 · Storm Substation",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter05Card/ChapterContentMargin/@HBoxContainer@108/@VBoxContainer@112/ChapterStory required=1256.0 available=456.0 text=Storm-charged undead control the substation and draw in more infected. Restart the main transformer.",
+        "wrapped text clipped: Root/VBox/LevelScroll/LevelList/Chapter06Card/ChapterContentMargin/@HBoxContainer@131/@VBoxContainer@132/ChapterObjective required=111.0 available=77.0 text=Advance along the submerged platforms and seal the route to the base.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter06Card/ChapterContentMargin/@HBoxContainer@131/@VBoxContainer@135/ChapterTitle required=472.0 available=456.0 text=Zone 06 · Flooded Subway",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter06Card/ChapterContentMargin/@HBoxContainer@131/@VBoxContainer@135/ChapterStory required=1224.0 available=456.0 text=Flooded tunnels let the horde strike from rivers and platforms. Retake the underground interchange.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter07Card/ChapterContentMargin/@HBoxContainer@154/@VBoxContainer@158/ChapterTitle required=527.0 available=456.0 text=Zone 07 · Sandstorm Refinery",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter07Card/ChapterContentMargin/@HBoxContainer@154/@VBoxContainer@158/ChapterStory required=1264.0 available=456.0 text=A sandstorm hides the refinery horde while exposed fuel tanks threaten the line. Retake the main pump.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter08Card/ChapterContentMargin/@HBoxContainer@177/@VBoxContainer@181/ChapterStory required=1220.0 available=456.0 text=A violet rift twists the ruined cathedral with strange energy. Seal one source of the horde's mutation.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter09Card/ChapterContentMargin/@HBoxContainer@200/@VBoxContainer@204/ChapterStory required=1355.0 available=456.0 text=The collapsed orbital facility still broadcasts infected signals. Push through the wreckage toward the Apex Core.",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter10Card/ChapterContentMargin/@HBoxContainer@223/@VBoxContainer@227/ChapterStory required=1329.0 available=456.0 text=Every mutation signal converges beneath the energy tower. Push the final defense toward the command core."
+      ],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1080x1920_en_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [
+        "safe-area breach: Root rect=[P: (10.0, 132.0), S: (1060.0, 1686.0)] safe=[P: (44.0, 132.0), S: (992.0, 1686.0)] min-chain=Root:1060 > VBox:980 > EndlessButton:980 > @MarginContainer@245:642 > @HBoxContainer@246:582 > EndlessCTA:190 > @Label@249:68",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/charactersNavCard/@Control@4/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/charactersNavCard/@Control@4 rect=[P: (58.0, 683.0), S: (160.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/weaponsNavCard/@Control@6/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/weaponsNavCard/@Control@6 rect=[P: (218.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/armorsNavCard/@Control@8/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/armorsNavCard/@Control@8 rect=[P: (379.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/chipsNavCard/@Control@10/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/chipsNavCard/@Control@10 rect=[P: (540.0, 683.0), S: (160.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/petsNavCard/@Control@12/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/petsNavCard/@Control@12 rect=[P: (700.0, 683.0), S: (161.0, 48.0)]",
+        "text control clipped by ancestor: Root/VBox/Nav/FeatureDock/FeatureBar/skillsNavCard/@Control@14/Label ancestor=/root/CaptureViewport/Main/Map/Root/VBox/Nav/FeatureDock/FeatureBar/skillsNavCard/@Control@14 rect=[P: (861.0, 683.0), S: (161.0, 48.0)]",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter01Card/ChapterContentMargin/@HBoxContainer@16/@VBoxContainer@20/ChapterStory required=1125.0 available=456.0 text=旧城熔炉重新点火，尸潮沿燃烧街区冲向中央防线。先锋队必须夺回十号闸门，切断第一条进攻通道。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter02Card/ChapterContentMargin/@HBoxContainer@39/@VBoxContainer@43/ChapterStory required=1000.0 available=456.0 text=极寒风暴冻结了北线桥群，尸群借冰面越过断裂高速。守军需要重启桥塔，封死冰层通路。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter03Card/ChapterContentMargin/@HBoxContainer@62/@VBoxContainer@66/ChapterStory required=1025.0 available=456.0 text=旧军工厂的自动线仍在运转，尸潮把废料管廊变成巢穴。夺回厂区，才能恢复重炮弹药补给。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter04Card/ChapterContentMargin/@HBoxContainer@85/@VBoxContainer@89/ChapterStory required=900.0 available=456.0 text=生化舱破裂后毒雾灌满下层城市，变异体在培养池中持续增殖。必须关闭泄漏源。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter05Card/ChapterContentMargin/@HBoxContainer@108/@VBoxContainer@112/ChapterStory required=1100.0 available=456.0 text=变电站被雷暴尸群占据，失控电弧正在吸引更多感染体。重启主变压器是恢复城区电网的唯一机会。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter06Card/ChapterContentMargin/@HBoxContainer@131/@VBoxContainer@135/ChapterStory required=875.0 available=456.0 text=地铁隧道被洪水淹没，尸群从暗河和月台夹击防线。守军要夺回地下换乘枢纽。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter07Card/ChapterContentMargin/@HBoxContainer@154/@VBoxContainer@158/ChapterStory required=875.0 available=456.0 text=沙暴掩护了炼油区尸潮，燃料罐随时可能把整条防线点燃。必须夺回能源节点。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter08Card/ChapterContentMargin/@HBoxContainer@177/@VBoxContainer@181/ChapterStory required=950.0 available=456.0 text=紫色裂隙撕开旧城中心，圣堂废墟中出现异常能量回声。这里是尸潮变异的源头之一。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter09Card/ChapterContentMargin/@HBoxContainer@200/@VBoxContainer@204/ChapterStory required=1050.0 available=456.0 text=坠毁的轨道设施压在城市边缘，残骸中仍有自动防御与感染信号。向上推进才能发现终局核心。",
+        "text clipped: Root/VBox/LevelScroll/LevelList/Chapter10Card/ChapterContentMargin/@HBoxContainer@223/@VBoxContainer@227/ChapterStory required=1050.0 available=456.0 text=尸潮的主控核心埋在能源塔底部，所有变异信号都在这里汇聚。最后一条防线必须向核心反推。"
+      ],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1080x1920_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1080x1920_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1080x1920_zh_theme_appearance.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [
+        "safe-area breach: @CanvasLayer@2/AppearanceSelectorRoot/Panel rect=[P: (88.0, 236.0), S: (988.0, 1478.0)] safe=[P: (44.0, 132.0), S: (992.0, 1686.0)] min-chain=Panel:988 > @MarginContainer@3:944 > Content:888 > Scroll:888 > ScrollContent:880 > FollowAllButton:880"
+      ],
+      "image_analysis_issues": [],
+      "output_tail": ""
+    },
+    {
+      "label": "device_1320x2868_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_1320x2868_en_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_1320x2868_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1320,
+          2868
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_1320x2868_zh_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_en_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "en"
+      },
+      "file": "device_750x1334_en_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "device_750x1334_zh_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          750,
+          1334
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh"
+      },
+      "file": "device_750x1334_zh_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_gilded_eclipse_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "gilded_eclipse",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_gilded_eclipse_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_infernal_dominion_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "infernal_dominion",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_infernal_dominion_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_neon_tempest_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "neon_tempest",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_neon_tempest_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_collection",
+      "route": "collection",
+      "payload": {
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_collection.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_map",
+      "route": "map",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_map.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_map_chapter",
+      "route": "map",
+      "payload": {
+        "chapter": 1,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "levels_progress": {
+            "level_001": 1,
+            "level_002": 1,
+            "level_003": 1,
+            "level_004": 1,
+            "level_005": 1,
+            "level_006": 1,
+            "level_007": 1,
+            "level_008": 1,
+            "level_009": 1,
+            "level_010": 1,
+            "level_011": 1,
+            "level_012": 1,
+            "level_013": 1,
+            "level_014": 1,
+            "level_015": 1,
+            "level_016": 1,
+            "level_017": 1,
+            "level_018": 1,
+            "level_019": 1,
+            "level_020": 1,
+            "level_021": 1,
+            "level_022": 1,
+            "level_023": 1,
+            "level_024": 1,
+            "level_025": 1,
+            "level_026": 1,
+            "level_027": 1,
+            "level_028": 1,
+            "level_029": 1,
+            "level_030": 1,
+            "level_031": 1,
+            "level_032": 1,
+            "level_033": 1,
+            "level_034": 1,
+            "level_035": 1,
+            "level_036": 1,
+            "level_037": 1,
+            "level_038": 1,
+            "level_039": 1,
+            "level_040": 1,
+            "level_041": 1,
+            "level_042": 1,
+            "level_043": 1,
+            "level_044": 1,
+            "level_045": 1,
+            "level_046": 1,
+            "level_047": 1,
+            "level_048": 1,
+            "level_049": 1,
+            "level_050": 1,
+            "level_051": 1,
+            "level_052": 1,
+            "level_053": 1,
+            "level_054": 1,
+            "level_055": 1,
+            "level_056": 1,
+            "level_057": 1,
+            "level_058": 1,
+            "level_059": 1,
+            "level_060": 1,
+            "level_061": 1,
+            "level_062": 1,
+            "level_063": 1,
+            "level_064": 1,
+            "level_065": 1,
+            "level_066": 1,
+            "level_067": 1,
+            "level_068": 1,
+            "level_069": 1,
+            "level_070": 1,
+            "level_071": 1,
+            "level_072": 1,
+            "level_073": 1,
+            "level_074": 1,
+            "level_075": 1,
+            "level_076": 1,
+            "level_077": 1,
+            "level_078": 1,
+            "level_079": 1,
+            "level_080": 1,
+            "level_081": 1,
+            "level_082": 1,
+            "level_083": 1,
+            "level_084": 1,
+            "level_085": 1,
+            "level_086": 1,
+            "level_087": 1,
+            "level_088": 1
+          },
+          "unlocks": {
+            "levels": [
+              "level_001",
+              "level_002",
+              "level_003",
+              "level_004",
+              "level_005",
+              "level_006",
+              "level_007",
+              "level_008",
+              "level_009",
+              "level_010",
+              "level_011",
+              "level_012",
+              "level_013",
+              "level_014",
+              "level_015",
+              "level_016",
+              "level_017",
+              "level_018",
+              "level_019",
+              "level_020",
+              "level_021",
+              "level_022",
+              "level_023",
+              "level_024",
+              "level_025",
+              "level_026",
+              "level_027",
+              "level_028",
+              "level_029",
+              "level_030",
+              "level_031",
+              "level_032",
+              "level_033",
+              "level_034",
+              "level_035",
+              "level_036",
+              "level_037",
+              "level_038",
+              "level_039",
+              "level_040",
+              "level_041",
+              "level_042",
+              "level_043",
+              "level_044",
+              "level_045",
+              "level_046",
+              "level_047",
+              "level_048",
+              "level_049",
+              "level_050",
+              "level_051",
+              "level_052",
+              "level_053",
+              "level_054",
+              "level_055",
+              "level_056",
+              "level_057",
+              "level_058",
+              "level_059",
+              "level_060",
+              "level_061",
+              "level_062",
+              "level_063",
+              "level_064",
+              "level_065",
+              "level_066",
+              "level_067",
+              "level_068",
+              "level_069",
+              "level_070",
+              "level_071",
+              "level_072",
+              "level_073",
+              "level_074",
+              "level_075",
+              "level_076",
+              "level_077",
+              "level_078",
+              "level_079",
+              "level_080",
+              "level_081",
+              "level_082",
+              "level_083",
+              "level_084",
+              "level_085",
+              "level_086",
+              "level_087",
+              "level_088",
+              "level_089"
+            ]
+          },
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_map_chapter.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_menu",
+      "route": "menu",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_menu.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_settings",
+      "route": "settings",
+      "payload": {
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_settings.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    },
+    {
+      "label": "theme_polar_aurora_theme_appearance",
+      "route": "settings",
+      "payload": {
+        "debug_theme_appearance": true,
+        "viewport_size": [
+          1080,
+          1920
+        ],
+        "_visual_safe_insets": [
+          44,
+          132,
+          44,
+          102
+        ],
+        "language": "zh",
+        "save_override": {
+          "commerce": {
+            "mock_receipts": [
+              "com.gaojiasheng.zombiefire.arsenal.thunder_complete",
+              "com.gaojiasheng.zombiefire.arsenal.inferno_complete",
+              "com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete",
+              "com.gaojiasheng.zombiefire.arsenal.golden_law_complete"
+            ],
+            "mock_last_transaction_unix": 0
+          },
+          "cosmetics": {
+            "selected_theme": "polar_aurora",
+            "character_outfits": {
+              "vanguard": "follow_theme",
+              "blaze": "follow_theme",
+              "frost": "follow_theme",
+              "volt": "follow_theme"
+            }
+          },
+          "equipment": {
+            "weapon_apocalypse_thunder": 50,
+            "armor_apocalypse_conductor": 35,
+            "chip_apocalypse_superconductive": 35,
+            "pet_apocalypse_tempest": 30,
+            "weapon_apocalypse_inferno": 50,
+            "armor_apocalypse_molten": 35,
+            "chip_apocalypse_stellar": 35,
+            "pet_apocalypse_phoenix": 30,
+            "weapon_apocalypse_absolute_zero": 50,
+            "armor_apocalypse_permafrost": 35,
+            "chip_apocalypse_entropy": 35,
+            "pet_apocalypse_aurora": 30,
+            "weapon_apocalypse_golden_law": 50,
+            "armor_apocalypse_eternal_night": 35,
+            "chip_apocalypse_golden_law": 35,
+            "pet_apocalypse_skyfalcon": 30
+          }
+        }
+      },
+      "file": "theme_polar_aurora_theme_appearance.png",
+      "capture_code": 124,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": [],
+      "output_tail": "capture timed out"
+    }
+  ]
+}

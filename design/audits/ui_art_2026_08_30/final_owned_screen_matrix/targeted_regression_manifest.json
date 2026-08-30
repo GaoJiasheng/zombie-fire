@@ -1,0 +1,36 @@
+[
+  {
+    "label": "device_1080x1920_en_map",
+    "code": 0,
+    "audit": [
+      "text clipped: Root/VBox/EndlessButton/@MarginContainer@245/@HBoxContainer@246/@VBoxContainer@247/Subtitle required=481.0 available=446.0 text=Loop Horde · Gold Only · Best Loop",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter02Card/ChapterContentMargin/@HBoxContainer@39/@VBoxContainer@43/@HBoxContainer@55/EnterChapterButton/ActionLabel required=263.0 available=220.0 text=Clear Zone 01 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter03Card/ChapterContentMargin/@HBoxContainer@62/@VBoxContainer@66/@HBoxContainer@78/EnterChapterButton/ActionLabel required=265.0 available=220.0 text=Clear Zone 02 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter04Card/ChapterContentMargin/@HBoxContainer@85/@VBoxContainer@89/@HBoxContainer@101/EnterChapterButton/ActionLabel required=265.0 available=220.0 text=Clear Zone 03 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter05Card/ChapterContentMargin/@HBoxContainer@108/@VBoxContainer@112/@HBoxContainer@124/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 04 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter06Card/ChapterContentMargin/@HBoxContainer@131/@VBoxContainer@135/@HBoxContainer@147/EnterChapterButton/ActionLabel required=265.0 available=220.0 text=Clear Zone 05 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter07Card/ChapterContentMargin/@HBoxContainer@154/@VBoxContainer@158/@HBoxContainer@170/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 06 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter08Card/ChapterContentMargin/@HBoxContainer@177/@VBoxContainer@181/@HBoxContainer@193/EnterChapterButton/ActionLabel required=264.0 available=220.0 text=Clear Zone 07 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter09Card/ChapterContentMargin/@HBoxContainer@200/@VBoxContainer@204/@HBoxContainer@216/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 08 to Unlock",
+      "text clipped: Root/VBox/LevelScroll/LevelList/Chapter10Card/ChapterContentMargin/@HBoxContainer@223/@VBoxContainer@227/@HBoxContainer@238/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 09 to Unlock"
+    ],
+    "image": [],
+    "tail": "nlock\",\"text clipped: Root/VBox/LevelScroll/LevelList/Chapter09Card/ChapterContentMargin/@HBoxContainer@200/@VBoxContainer@204/@HBoxContainer@216/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 08 to Unlock\",\"text clipped: Root/VBox/LevelScroll/LevelList/Chapter10Card/ChapterContentMargin/@HBoxContainer@223/@VBoxContainer@227/@HBoxContainer@238/EnterChapterButton/ActionLabel required=266.0 available=220.0 text=Clear Zone 09 to Unlock\"],\"route\":\"map\"}\nshot saved: design/audits/ui_art_2026_08_30/final_owned_screen_matrix/device_1080x1920_en_map.png size=(1080, 1920)"
+  },
+  {
+    "label": "device_750x1334_en_map_chapter",
+    "code": 0,
+    "audit": [
+      "text clipped: Root/VBox/EndlessButton/@MarginContainer@137/@HBoxContainer@138/@VBoxContainer@139/Subtitle required=481.0 available=446.0 text=Loop Horde · Gold Only · Best Loop"
+    ],
+    "image": [],
+    "tail": ",102.0],\"issues\":[\"text clipped: Root/VBox/EndlessButton/@MarginContainer@137/@HBoxContainer@138/@VBoxContainer@139/Subtitle required=481.0 available=446.0 text=Loop Horde · Gold Only · Best Loop\"],\"route\":\"map\"}\nUI_AUDIT_JSON:{\"final\":true,\"insets\":[44.0,132.0,44.0,102.0],\"issues\":[\"text clipped: Root/VBox/EndlessButton/@MarginContainer@137/@HBoxContainer@138/@VBoxContainer@139/Subtitle required=481.0 available=446.0 text=Loop Horde · Gold Only · Best Loop\"],\"route\":\"map\"}\nshot saved: design/audits/ui_art_2026_08_30/final_owned_screen_matrix/device_750x1334_en_map_chapter.png size=(750, 1334)"
+  },
+  {
+    "label": "device_1080x1920_zh_theme_appearance",
+    "code": 0,
+    "audit": [],
+    "image": [],
+    "tail": "0,44.0,102.0],\"issues\":[\"safe-area breach: Center rect=[P: (44.0, 123.0), S: (992.0, 1704.0)] safe=[P: (44.0, 132.0), S: (992.0, 1686.0)] min-chain=Center:992 > Panel:992 > Margin:948 > VBox:880 > SoundButton:880\",\"wrapped text clipped: Center/Panel/Margin/VBox/InfoBody required=144.0 available=136.0 text=操作说明： 自动开火；按住战场拖动可手动瞄准。 双击僵尸锁定集火，双击空地解除；长按技能查看详情。\"],\"route\":\"settings\"}\nUI_AUDIT_JSON:{\"final\":true,\"insets\":[44.0,132.0,44.0,102.0],\"issues\":[],\"route\":\"settings\"}\nshot saved: design/audits/ui_art_2026_08_30/final_owned_screen_matrix/device_1080x1920_zh_theme_appearance.png size=(1080, 1920)"
+  }
+]
