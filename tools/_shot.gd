@@ -18,7 +18,13 @@ func _initialize() -> void:
 	# from the owner. The viewport still renders normally, but its utility window
 	# is never eligible to become the focused input window.
 	if DisplayServer.get_name() != "headless":
+		# Captures render into an offscreen SubViewport, so the OS window is only a
+		# rendering context host: nothing is ever drawn into it. Keep it unfocusable
+		# AND shrink/park it offscreen so an automated review never flashes a window
+		# across the owner's workspace or steals the active display.
 		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_NO_FOCUS, true)
+		DisplayServer.window_set_size(Vector2i(1, 1))
+		DisplayServer.window_set_position(Vector2i(-32000, -32000))
 	await process_frame
 	var args := OS.get_cmdline_user_args()
 	var route := args[0] if args.size() > 0 else "menu"
