@@ -567,9 +567,11 @@ def main() -> int:
     totals = [result.total_dps for result in results]
     spread = max(totals) / min(totals)
     print(f"single-Boss max/min spread: {spread:.3f}x ({(spread - 1.0) * 100.0:.1f}%)")
-    if profile_id != fire_rate_lab.DEFAULT_PROFILE_ID:
-        print("Premium contract audit skipped: paid-set release contracts remain control-profile only.")
-        return 0
+    # The paid-set ratio band was locked against the control profile. Shipping moved
+    # to tier_b, so the band is reported under every profile but only enforced under
+    # the profile it was calibrated on; re-pinning the paid bands to the shipping
+    # profile is tracked as the design/40 stage C commercial re-anchor.
+    contract_enforced = profile_id == fire_rate_lab.DEFAULT_PROFILE_ID
     free_volt = next(result for result in results if result.character_id == "volt")
     premium = apocalypse_audit(free_volt)
     base = premium["base"]
@@ -582,6 +584,12 @@ def main() -> int:
         f"overload every {premium['hit_threshold']} confirmed hits)"
     )
     if not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
+        if not contract_enforced:
+            print(
+                f"NOTE: premium ratio outside the control-calibrated band under {profile_id}; "
+                "paid-set bands are re-pinned in the stage C commercial re-anchor."
+            )
+            return 0
         print(
             "ERROR: premium ratio outside locked "
             f"{premium['target_min']:.2f}-{premium['target_max']:.2f} band"

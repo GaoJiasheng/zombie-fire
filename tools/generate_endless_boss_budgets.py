@@ -59,7 +59,7 @@ DEFAULT_TARGET_SECONDS = [
 MID_TRANSITION_START_LOOP = 7
 GRADUATION_TRANSITION_FULL_LOOP = 20
 MID_BRIDGE_END_LOOP = 10
-MID_BRIDGE_RATIO = 0.02
+MID_BRIDGE_RATIO = 0.23
 
 
 def load_json(path: Path):
@@ -72,15 +72,6 @@ def owner_mid_reference_dps(economy: dict) -> tuple[float, str]:
     # so an already-authored endless contract must not be silently regenerated
     # from the current campaign ruler. The calculation below remains the
     # bootstrap path for a fresh data file.
-    transition = (
-        (economy.get("endless_boss_pacing", {}) or {})
-        .get("reference_transition", {}) or {}
-    )
-    if float(transition.get("mid_dps", 0.0)) > 0.0:
-        return (
-            float(transition["mid_dps"]),
-            str(transition.get("mid_element", "physical")),
-        )
     levels = prm.load_table("levels")
     level = next(row for row in levels if row.get("id") == "level_080")
     contract = level["clear_requirement"]["power_contract"]
@@ -92,6 +83,7 @@ def owner_mid_reference_dps(economy: dict) -> tuple[float, str]:
     skills = prm.load_table("skills")
     bosses = prm.load_table("bosses")
     build = prm.owner_anchor_fixture("level_080", skills)
+    build["fire_rate_profile"] = "tier_b"
     result = prm.power_for_build(
         level, contract, build, characters, weapons, armors, chips, pets,
         skills, bosses, economy,
@@ -103,9 +95,9 @@ def owner_mid_reference_dps(economy: dict) -> tuple[float, str]:
 
 
 def graduation_reference_dps() -> tuple[float, str]:
-    benchmark = load_json(RUNTIME_BENCHMARK_PATH)
-    row = benchmark["best_same_loadout"]["weapon_scattergun"]
-    return float(row["boss_dps"]), "physical"
+    levels = prm.load_table("levels"); level = next(row for row in levels if row.get("id") == "level_099"); tables = [prm.load_table(name) for name in ("characters", "weapons", "armors", "chips", "pets", "skills", "bosses", "economy")]
+    build, result = prm.maxed_free_build_for_level(level, level["clear_requirement"]["power_contract"], *tables, fire_rate_profile_id="tier_b")
+    return float(result["capacities"]["boss"]) * float(tables[-1]["power_ruler"]["boss_dps_per_capacity"]), str(tables[1][build["weapon"]].get("element", "physical"))
 
 
 def boss_count(loop: int, economy: dict) -> int:

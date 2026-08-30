@@ -1,0 +1,792 @@
+{
+  "template": "level_025",
+  "template_mob_hp": 413418.3165000001,
+  "template_spawn_seconds": 81.58,
+  "pacing_reference": [
+    {
+      "loop": 1,
+      "boss_ids": [
+        "boss_frost_warden"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 18.0,
+      "recomputed_seconds": 17.999999591981187,
+      "band": [
+        0.0,
+        30.0
+      ]
+    },
+    {
+      "loop": 2,
+      "boss_ids": [
+        "boss_frost_warden"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 24.0,
+      "recomputed_seconds": 24.00000046630722,
+      "band": [
+        0.0,
+        30.0
+      ]
+    },
+    {
+      "loop": 3,
+      "boss_ids": [
+        "boss_frost_warden"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 30.0,
+      "recomputed_seconds": 30.00000033030095,
+      "band": [
+        0.0,
+        30.0
+      ]
+    },
+    {
+      "loop": 4,
+      "boss_ids": [
+        "boss_frost_warden"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 36.0,
+      "recomputed_seconds": 36.00000019429468,
+      "band": [
+        30.0,
+        60.0
+      ]
+    },
+    {
+      "loop": 5,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 48.0,
+      "recomputed_seconds": 48.00000044687776,
+      "band": [
+        30.0,
+        60.0
+      ]
+    },
+    {
+      "loop": 6,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.0,
+      "reference_dps": 686242.86,
+      "target_seconds": 51.0,
+      "recomputed_seconds": 51.000000281727296,
+      "band": [
+        30.0,
+        60.0
+      ]
+    },
+    {
+      "loop": 7,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.23,
+      "reference_dps": 861930.48,
+      "target_seconds": 62.0,
+      "recomputed_seconds": 61.99999971441085,
+      "band": [
+        60.0,
+        100.0
+      ]
+    },
+    {
+      "loop": 8,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.23,
+      "reference_dps": 861930.48,
+      "target_seconds": 72.0,
+      "recomputed_seconds": 72.00000015191249,
+      "band": [
+        60.0,
+        100.0
+      ]
+    },
+    {
+      "loop": 9,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.23,
+      "reference_dps": 861930.48,
+      "target_seconds": 93.0,
+      "recomputed_seconds": 93.0000008192022,
+      "band": [
+        60.0,
+        100.0
+      ]
+    },
+    {
+      "loop": 10,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.23,
+      "reference_dps": 861930.48,
+      "target_seconds": 95.0,
+      "recomputed_seconds": 95.00000070025924,
+      "band": [
+        60.0,
+        100.0
+      ]
+    },
+    {
+      "loop": 11,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.1,
+      "reference_dps": 762628.78,
+      "target_seconds": 102.0,
+      "recomputed_seconds": 102.00000109506314,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 12,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.2,
+      "reference_dps": 839014.71,
+      "target_seconds": 108.0,
+      "recomputed_seconds": 107.99999940653142,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 13,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_necrotitan",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.3,
+      "reference_dps": 915400.63,
+      "target_seconds": 108.0,
+      "recomputed_seconds": 107.99999975682779,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 14,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.4,
+      "reference_dps": 991786.55,
+      "target_seconds": 123.0,
+      "recomputed_seconds": 122.9999999582958,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 15,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.5,
+      "reference_dps": 1068172.47,
+      "target_seconds": 137.0,
+      "recomputed_seconds": 136.9999999322207,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 16,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom"
+      ],
+      "reference_mix": 0.6,
+      "reference_dps": 1144558.39,
+      "target_seconds": 143.0,
+      "recomputed_seconds": 143.0000005184358,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 17,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.7,
+      "reference_dps": 1220944.31,
+      "target_seconds": 150.0,
+      "recomputed_seconds": 150.00000069972725,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 18,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.8,
+      "reference_dps": 1297330.24,
+      "target_seconds": 150.0,
+      "recomputed_seconds": 149.99999920274325,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 19,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 0.9,
+      "reference_dps": 1373716.16,
+      "target_seconds": 150.0,
+      "recomputed_seconds": 149.99999947744377,
+      "band": [
+        100.0,
+        150.0
+      ]
+    },
+    {
+      "loop": 20,
+      "boss_ids": [
+        "boss_frost_warden",
+        "boss_apex_overlord",
+        "boss_necrotitan",
+        "boss_void_phantom",
+        "boss_plague_mother"
+      ],
+      "reference_mix": 1.0,
+      "reference_dps": 1450102.08,
+      "target_seconds": 150.0,
+      "recomputed_seconds": 149.999999868184,
+      "band": [
+        100.0,
+        150.0
+      ]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "mid_owner",
+      "label": "level_080 Owner",
+      "element": "fire",
+      "crowd_dps": 5192119.266086701,
+      "boss_dps": 686242.8632750636,
+      "line_capacity": 3.910202846,
+      "terminal_loop": 13,
+      "rows": [
+        {
+          "loop": 1,
+          "mob_hp_multiplier": 1.0,
+          "mob_clear_seconds": 0.07962419492177678,
+          "mob_load": 0.0009760259245130765,
+          "boss_target_seconds": 18.0,
+          "boss_phase_seconds": 17.999999506076986,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 2,
+          "mob_hp_multiplier": 1.2,
+          "mob_clear_seconds": 0.09554903390613213,
+          "mob_load": 0.0011712311094156918,
+          "boss_target_seconds": 24.0,
+          "boss_phase_seconds": 24.000000351768286,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 3,
+          "mob_hp_multiplier": 1.44,
+          "mob_clear_seconds": 0.11465884068735856,
+          "mob_load": 0.0014054773312988302,
+          "boss_target_seconds": 30.0,
+          "boss_phase_seconds": 30.00000018712728,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 4,
+          "mob_hp_multiplier": 1.728,
+          "mob_clear_seconds": 0.13759060882483026,
+          "mob_load": 0.001686572797558596,
+          "boss_target_seconds": 36.0,
+          "boss_phase_seconds": 36.000000022486276,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 5,
+          "mob_hp_multiplier": 2.0736,
+          "mob_clear_seconds": 0.16510873058979633,
+          "mob_load": 0.0020238873570703154,
+          "boss_target_seconds": 48.0,
+          "boss_phase_seconds": 48.000000217799894,
+          "boss_approach_seconds": 74.75158084914182,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 6,
+          "mob_hp_multiplier": 2.654208,
+          "mob_clear_seconds": 0.21133917515493933,
+          "mob_load": 0.002590575817050004,
+          "boss_target_seconds": 51.0,
+          "boss_phase_seconds": 51.000000038332054,
+          "boss_approach_seconds": 74.75158084914182,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 7,
+          "mob_hp_multiplier": 3.3973862400000003,
+          "mob_clear_seconds": 0.2705141441983223,
+          "mob_load": 0.003315937045824005,
+          "boss_target_seconds": 62.0,
+          "boss_phase_seconds": 71.43506629064082,
+          "boss_approach_seconds": 59.70801643500306,
+          "loop_pressure": 0.05022926697854648,
+          "cumulative_pressure": 0.05022926697854648
+        },
+        {
+          "loop": 8,
+          "mob_hp_multiplier": 4.348654387200001,
+          "mob_clear_seconds": 0.3462581045738526,
+          "mob_load": 0.004244399418654727,
+          "boss_target_seconds": 72.0,
+          "boss_phase_seconds": 82.95685173338057,
+          "boss_approach_seconds": 59.70801643500306,
+          "loop_pressure": 0.09957934600073824,
+          "cumulative_pressure": 0.14980861297928472
+        },
+        {
+          "loop": 9,
+          "mob_hp_multiplier": 5.566277615616001,
+          "mob_clear_seconds": 0.4432103738545313,
+          "mob_load": 0.0054328312558780505,
+          "boss_target_seconds": 93.0,
+          "boss_phase_seconds": 106.50332607298716,
+          "boss_approach_seconds": 66.15282998708123,
+          "loop_pressure": 0.15599158223491408,
+          "cumulative_pressure": 0.30580019521419877
+        },
+        {
+          "loop": 10,
+          "mob_hp_multiplier": 7.124835347988482,
+          "mob_clear_seconds": 0.5673092785338001,
+          "mob_load": 0.006954024007523904,
+          "boss_target_seconds": 95.0,
+          "boss_phase_seconds": 108.76294771041808,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.14875221957736576,
+          "cumulative_pressure": 0.4545524147915645
+        },
+        {
+          "loop": 11,
+          "mob_hp_multiplier": 9.832272780224104,
+          "mob_clear_seconds": 0.782886804376644,
+          "mob_load": 0.009596553130382986,
+          "boss_target_seconds": 102.0,
+          "boss_phase_seconds": 108.76305826131883,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.148752630720257,
+          "cumulative_pressure": 0.6033050455118215
+        },
+        {
+          "loop": 12,
+          "mob_hp_multiplier": 13.568536436709262,
+          "mob_clear_seconds": 1.0803837900397688,
+          "mob_load": 0.013243243319928523,
+          "boss_target_seconds": 108.0,
+          "boss_phase_seconds": 121.76434100232002,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.19710488239824894,
+          "cumulative_pressure": 0.8004099279100705
+        },
+        {
+          "loop": 13,
+          "mob_hp_multiplier": 18.72458028265878,
+          "mob_clear_seconds": 1.490929630254881,
+          "mob_load": 0.01827567578150136,
+          "boss_target_seconds": 108.0,
+          "boss_phase_seconds": 127.32356416357794,
+          "boss_approach_seconds": 71.3346926321888,
+          "loop_pressure": 0.20072507668844536,
+          "cumulative_pressure": 1.001135004598516
+        },
+        {
+          "loop": 14,
+          "mob_hp_multiplier": 25.839920790069115,
+          "mob_clear_seconds": 2.057482889751735,
+          "mob_load": 0.025220432578471872,
+          "boss_target_seconds": 123.0,
+          "boss_phase_seconds": 182.51140499624077,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.4416300836863861,
+          "cumulative_pressure": 1.4427650882849021
+        },
+        {
+          "loop": 15,
+          "mob_hp_multiplier": 35.65909069029538,
+          "mob_clear_seconds": 2.839326387857395,
+          "mob_load": 0.034804196958291185,
+          "boss_target_seconds": 137.0,
+          "boss_phase_seconds": 220.41315591820208,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.5864516799277901,
+          "cumulative_pressure": 2.0292167682126925
+        },
+        {
+          "loop": 16,
+          "mob_hp_multiplier": 49.20954515260762,
+          "mob_clear_seconds": 3.9182704152432044,
+          "mob_load": 0.04802979180244183,
+          "boss_target_seconds": 143.0,
+          "boss_phase_seconds": 248.18644317964,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.6925726821567909,
+          "cumulative_pressure": 2.7217894503694833
+        },
+        {
+          "loop": 17,
+          "mob_hp_multiplier": 67.9091723105985,
+          "mob_clear_seconds": 5.407213173035622,
+          "mob_load": 0.06628111268736972,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 265.65295765450975,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.7238588428665195,
+          "cumulative_pressure": 3.445648293236003
+        },
+        {
+          "loop": 18,
+          "mob_hp_multiplier": 93.71465778862593,
+          "mob_clear_seconds": 7.461954178789157,
+          "mob_load": 0.0914679355085702,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 282.08834180121414,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.7844646169973938,
+          "cumulative_pressure": 4.230112910233396
+        },
+        {
+          "loop": 19,
+          "mob_hp_multiplier": 129.32622774830378,
+          "mob_clear_seconds": 10.297496766729036,
+          "mob_load": 0.12622575100182687,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 298.5022376575345,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.8449911526716645,
+          "cumulative_pressure": 5.07510406290506
+        },
+        {
+          "loop": 20,
+          "mob_hp_multiplier": 178.47019429265922,
+          "mob_clear_seconds": 14.210545538086071,
+          "mob_load": 0.1741915363825211,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 314.89468662353715,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.9054386025528192,
+          "cumulative_pressure": 5.98054266545788
+        }
+      ]
+    },
+    {
+      "id": "graduation",
+      "label": "max-free scattergun",
+      "element": "physical",
+      "crowd_dps": 22704450.374898657,
+      "boss_dps": 1450102.0790936456,
+      "line_capacity": 7.796341280000003,
+      "terminal_loop": 20,
+      "rows": [
+        {
+          "loop": 1,
+          "mob_hp_multiplier": 1.0,
+          "mob_clear_seconds": 0.01820869079293206,
+          "mob_load": 0.00022320042648850283,
+          "boss_target_seconds": 18.0,
+          "boss_phase_seconds": 12.77741551241749,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 2,
+          "mob_hp_multiplier": 1.2,
+          "mob_clear_seconds": 0.021850428951518473,
+          "mob_load": 0.0002678405117862034,
+          "boss_target_seconds": 24.0,
+          "boss_phase_seconds": 17.036554733747543,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 3,
+          "mob_hp_multiplier": 1.44,
+          "mob_clear_seconds": 0.026220514741822167,
+          "mob_load": 0.0003214086141434441,
+          "boss_target_seconds": 30.0,
+          "boss_phase_seconds": 21.295693237886706,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 4,
+          "mob_hp_multiplier": 1.728,
+          "mob_clear_seconds": 0.0314646176901866,
+          "mob_load": 0.0003856903369721329,
+          "boss_target_seconds": 36.0,
+          "boss_phase_seconds": 25.55483174202587,
+          "boss_approach_seconds": 70.46070460704607,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 5,
+          "mob_hp_multiplier": 2.0736,
+          "mob_clear_seconds": 0.037757541228223925,
+          "mob_load": 0.00046282840436655953,
+          "boss_target_seconds": 48.0,
+          "boss_phase_seconds": 34.073109122691775,
+          "boss_approach_seconds": 74.75158084914182,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 6,
+          "mob_hp_multiplier": 2.654208,
+          "mob_clear_seconds": 0.04832965277212663,
+          "mob_load": 0.0005924203575891962,
+          "boss_target_seconds": 51.0,
+          "boss_phase_seconds": 36.202678305800696,
+          "boss_approach_seconds": 74.75158084914182,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 7,
+          "mob_hp_multiplier": 3.3973862400000003,
+          "mob_clear_seconds": 0.06186195554832208,
+          "mob_load": 0.0007582980577141711,
+          "boss_target_seconds": 62.0,
+          "boss_phase_seconds": 47.05186030138812,
+          "boss_approach_seconds": 59.70801643500306,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 8,
+          "mob_hp_multiplier": 4.348654387200001,
+          "mob_clear_seconds": 0.07918330310185226,
+          "mob_load": 0.0009706215138741391,
+          "boss_target_seconds": 72.0,
+          "boss_phase_seconds": 54.640870394395954,
+          "boss_approach_seconds": 59.70801643500306,
+          "loop_pressure": 0.0,
+          "cumulative_pressure": 0.0
+        },
+        {
+          "loop": 9,
+          "mob_hp_multiplier": 5.566277615616001,
+          "mob_clear_seconds": 0.10135462797037091,
+          "mob_load": 0.0012423955377588983,
+          "boss_target_seconds": 93.0,
+          "boss_phase_seconds": 71.60644867478781,
+          "boss_approach_seconds": 66.15282998708123,
+          "loop_pressure": 0.010574150795965114,
+          "cumulative_pressure": 0.010574150795965114
+        },
+        {
+          "loop": 10,
+          "mob_hp_multiplier": 7.124835347988482,
+          "mob_clear_seconds": 0.12973392380207477,
+          "mob_load": 0.0015902662883313897,
+          "boss_target_seconds": 95.0,
+          "boss_phase_seconds": 73.19512530742867,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.00826251069287506,
+          "cumulative_pressure": 0.018836661488840174
+        },
+        {
+          "loop": 11,
+          "mob_hp_multiplier": 9.832272780224104,
+          "mob_clear_seconds": 0.17903281484686315,
+          "mob_load": 0.0021945674778973173,
+          "boss_target_seconds": 102.0,
+          "boss_phase_seconds": 73.19519970580792,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.008262649465058156,
+          "cumulative_pressure": 0.02709931095389833
+        },
+        {
+          "loop": 12,
+          "mob_hp_multiplier": 13.568536436709262,
+          "mob_clear_seconds": 0.24706528448867116,
+          "mob_load": 0.003028503119498298,
+          "boss_target_seconds": 108.0,
+          "boss_phase_seconds": 81.94478345117142,
+          "boss_approach_seconds": 68.76543781250588,
+          "loop_pressure": 0.02458288183746207,
+          "cumulative_pressure": 0.051682192791360396
+        },
+        {
+          "loop": 13,
+          "mob_hp_multiplier": 18.72458028265878,
+          "mob_clear_seconds": 0.3409500925943662,
+          "mob_load": 0.004179334304907652,
+          "boss_target_seconds": 108.0,
+          "boss_phase_seconds": 86.6625122399753,
+          "boss_approach_seconds": 71.3346926321888,
+          "loop_pressure": 0.02756060485070387,
+          "cumulative_pressure": 0.07924279764206427
+        },
+        {
+          "loop": 14,
+          "mob_hp_multiplier": 25.839920790069115,
+          "mob_clear_seconds": 0.47051112778022525,
+          "mob_load": 0.005767481340772557,
+          "boss_target_seconds": 123.0,
+          "boss_phase_seconds": 80.75544611130164,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.02649313960487246,
+          "cumulative_pressure": 0.10573593724693672
+        },
+        {
+          "loop": 15,
+          "mob_hp_multiplier": 35.65909069029538,
+          "mob_clear_seconds": 0.6493053563367109,
+          "mob_load": 0.00795912425026613,
+          "boss_target_seconds": 137.0,
+          "boss_phase_seconds": 97.52575591284781,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.05863149047973923,
+          "cumulative_pressure": 0.16436742772667595
+        },
+        {
+          "loop": 16,
+          "mob_hp_multiplier": 49.20954515260762,
+          "mob_clear_seconds": 0.8960413917446609,
+          "mob_load": 0.010983591465367258,
+          "boss_target_seconds": 143.0,
+          "boss_phase_seconds": 109.81454522341691,
+          "boss_approach_seconds": 66.93089859424843,
+          "loop_pressure": 0.08218152785913037,
+          "cumulative_pressure": 0.2465489555858063
+        },
+        {
+          "loop": 17,
+          "mob_hp_multiplier": 67.9091723105985,
+          "mob_clear_seconds": 1.2365371206076319,
+          "mob_load": 0.015157356222206814,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 126.54371550481017,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.1057709785442622,
+          "cumulative_pressure": 0.3523199341300685
+        },
+        {
+          "loop": 18,
+          "mob_hp_multiplier": 93.71465778862593,
+          "mob_clear_seconds": 1.706421226438532,
+          "mob_load": 0.0209171515866454,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 134.3727063582742,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.12025030549770419,
+          "cumulative_pressure": 0.47257023962777267
+        },
+        {
+          "loop": 19,
+          "mob_hp_multiplier": 129.32622774830378,
+          "mob_clear_seconds": 2.354861292485174,
+          "mob_load": 0.028865669189570654,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 142.19146127034674,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.13471070158957563,
+          "cumulative_pressure": 0.6072809412173483
+        },
+        {
+          "loop": 20,
+          "mob_hp_multiplier": 178.47019429265922,
+          "mob_clear_seconds": 3.2497085836295403,
+          "mob_load": 0.0398346234816075,
+          "boss_target_seconds": 150.0,
+          "boss_phase_seconds": 149.99999996193822,
+          "boss_approach_seconds": 69.35321029364626,
+          "loop_pressure": 0.14915220329271395,
+          "cumulative_pressure": 0.7564331445100623
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

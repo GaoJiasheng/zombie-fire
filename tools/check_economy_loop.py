@@ -49,9 +49,9 @@ def endless_gold_audit(economy: dict, levels: list[dict], zombies: dict,
     that would create a reward spike followed by a worse next loop.
     """
     loop_bonus = float(economy.get("endless_gold_loop_bonus", -1.0))
-    if not math.isclose(loop_bonus, 0.12, rel_tol=0.0, abs_tol=1e-9):
+    if not math.isclose(loop_bonus, 0.13, rel_tol=0.0, abs_tol=1e-9):
         errors.append(
-            f"endless_gold_loop_bonus must remain the approved linear 0.12, got {loop_bonus}"
+            f"endless_gold_loop_bonus must remain the Tier B linear 0.13, got {loop_bonus}"
         )
     milestone = economy.get("endless_gold_milestone", {})
     if not isinstance(milestone, dict):

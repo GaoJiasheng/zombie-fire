@@ -85,20 +85,9 @@ def template_spawn_seconds(level: dict, economy: dict) -> float:
 def fixture_power(level_id: str, economy: dict, tables: dict) -> dict:
     level = next(row for row in tables["levels"] if row.get("id") == level_id)
     contract = level["clear_requirement"]["power_contract"]
-    build = power_ruler.owner_anchor_fixture(level_id, tables["skills"])
-    result = power_ruler.power_for_build(
-        level,
-        contract,
-        build,
-        tables["characters"],
-        tables["weapons"],
-        tables["armors"],
-        tables["chips"],
-        tables["pets"],
-        tables["skills"],
-        tables["bosses"],
-        economy,
-    )
+    build, result = power_ruler.maxed_free_build_for_level(
+        level, contract, *(tables[name] for name in ("characters", "weapons", "armors", "chips", "pets", "skills", "bosses")),
+        economy, fire_rate_profile_id="tier_b")
     weapon = tables["weapons"][build["weapon"]]
     return {
         "build": build,
@@ -135,16 +124,6 @@ def fixtures(economy: dict, tables: dict) -> list[dict]:
     mid.update({"id": "mid_owner", "label": "level_080 Owner"})
 
     graduation = fixture_power("level_099", economy, tables)
-    runtime = json.loads(
-        (ROOT / "tools" / "physical_endgame_runtime_benchmark.json").read_text(
-            encoding="utf-8"
-        )
-    )["best_same_loadout"]["weapon_scattergun"]
-    # The endgame contract is grounded in measured Godot projectile collisions,
-    # so both attack axes use that benchmark instead of the ruler's display
-    # calibration. Line capacity still comes from the canonical build pipeline.
-    graduation["crowd_dps"] = float(runtime["crowd_dps"])
-    graduation["boss_dps"] = float(runtime["boss_dps"])
     graduation.update({"id": "graduation", "label": "max-free scattergun"})
     return [mid, graduation]
 

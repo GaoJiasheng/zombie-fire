@@ -1,0 +1,321 @@
+{
+  "schema_version": "c2_endless_tier_b_budget_v1",
+  "method": "design/37 + Tier B",
+  "hp_growth_stages": [
+    {
+      "until_loop": 5,
+      "growth": 0.2
+    },
+    {
+      "until_loop": 10,
+      "growth": 0.28
+    },
+    {
+      "growth": 0.38
+    }
+  ],
+  "boss_count_step": 4,
+  "boss_count_cap": 6,
+  "boss_pacing": {
+    "max_loop": 20,
+    "phase_time_bands": [
+      {
+        "until_loop": 3,
+        "min_seconds": 0.0,
+        "max_seconds": 30.0
+      },
+      {
+        "until_loop": 6,
+        "min_seconds": 30.0,
+        "max_seconds": 60.0
+      },
+      {
+        "until_loop": 10,
+        "min_seconds": 60.0,
+        "max_seconds": 100.0
+      },
+      {
+        "min_seconds": 100.0,
+        "max_seconds": 150.0
+      }
+    ],
+    "target_seconds_by_loop": [
+      18.0,
+      24.0,
+      30.0,
+      36.0,
+      48.0,
+      51.0,
+      62.0,
+      72.0,
+      93.0,
+      95.0,
+      102.0,
+      108.0,
+      108.0,
+      123.0,
+      137.0,
+      143.0,
+      150.0,
+      150.0,
+      150.0,
+      150.0
+    ],
+    "reference_transition": {
+      "mid_level_id": "level_080",
+      "mid_crowd_dps": 5192119.266086701,
+      "mid_dps": 686242.8632750636,
+      "mid_element": "fire",
+      "mid_line_capacity": 3.910202846,
+      "graduation_weapon": "weapon_scattergun",
+      "graduation_dps": 1450102.08,
+      "graduation_element": "physical",
+      "start_loop": 7,
+      "bridge_end_loop": 10,
+      "bridge_ratio": 0.23,
+      "full_loop": 20
+    },
+    "budgets": [
+      {
+        "loop": 1,
+        "total_hp": 17815920,
+        "target_seconds": 18.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden"
+        ]
+      },
+      {
+        "loop": 2,
+        "total_hp": 23754561,
+        "target_seconds": 24.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden"
+        ]
+      },
+      {
+        "loop": 3,
+        "total_hp": 29693201,
+        "target_seconds": 30.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden"
+        ]
+      },
+      {
+        "loop": 4,
+        "total_hp": 35631841,
+        "target_seconds": 36.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden"
+        ]
+      },
+      {
+        "loop": 5,
+        "total_hp": 46612723,
+        "target_seconds": 48.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 6,
+        "total_hp": 49526018,
+        "target_seconds": 51.0,
+        "reference_dps": 686242.86,
+        "reference_mix": 0.0,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 7,
+        "total_hp": 49631444,
+        "target_seconds": 62.0,
+        "reference_dps": 861930.48,
+        "reference_mix": 0.23,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 8,
+        "total_hp": 57636516,
+        "target_seconds": 72.0,
+        "reference_dps": 861930.48,
+        "reference_mix": 0.23,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 9,
+        "total_hp": 81345526,
+        "target_seconds": 93.0,
+        "reference_dps": 861930.48,
+        "reference_mix": 0.23,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 10,
+        "total_hp": 81657631,
+        "target_seconds": 95.0,
+        "reference_dps": 861930.48,
+        "reference_mix": 0.23,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 11,
+        "total_hp": 81657714,
+        "target_seconds": 102.0,
+        "reference_dps": 762628.78,
+        "reference_mix": 0.1,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 12,
+        "total_hp": 91418887,
+        "target_seconds": 108.0,
+        "reference_dps": 839014.71,
+        "reference_mix": 0.2,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 13,
+        "total_hp": 100950160,
+        "target_seconds": 108.0,
+        "reference_dps": 915400.63,
+        "reference_mix": 0.3,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_necrotitan",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 14,
+        "total_hp": 100963019,
+        "target_seconds": 123.0,
+        "reference_dps": 991786.55,
+        "reference_mix": 0.4,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 15,
+        "total_hp": 121929792,
+        "target_seconds": 137.0,
+        "reference_dps": 1068172.47,
+        "reference_mix": 0.5,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 16,
+        "total_hp": 137293626,
+        "target_seconds": 143.0,
+        "reference_dps": 1144558.39,
+        "reference_mix": 0.6,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom"
+        ]
+      },
+      {
+        "loop": 17,
+        "total_hp": 160418196,
+        "target_seconds": 150.0,
+        "reference_dps": 1220944.31,
+        "reference_mix": 0.7,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 18,
+        "total_hp": 170342929,
+        "target_seconds": 150.0,
+        "reference_dps": 1297330.24,
+        "reference_mix": 0.8,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 19,
+        "total_hp": 180254686,
+        "target_seconds": 150.0,
+        "reference_dps": 1373716.16,
+        "reference_mix": 0.9,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      },
+      {
+        "loop": 20,
+        "total_hp": 190153492,
+        "target_seconds": 150.0,
+        "reference_dps": 1450102.08,
+        "reference_mix": 1.0,
+        "boss_ids": [
+          "boss_frost_warden",
+          "boss_apex_overlord",
+          "boss_necrotitan",
+          "boss_void_phantom",
+          "boss_plague_mother"
+        ]
+      }
+    ]
+  }
+}

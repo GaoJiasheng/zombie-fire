@@ -192,17 +192,17 @@
 			30.0,
 			36.0,
 			48.0,
-			60.0,
-			68.0,
-			78.0,
-			89.0,
-			100.0,
+			51.0,
+			62.0,
+			72.0,
+			93.0,
+			95.0,
+			102.0,
 			108.0,
-			116.0,
-			124.0,
-			132.0,
-			140.0,
-			146.0,
+			108.0,
+			123.0,
+			137.0,
+			143.0,
 			150.0,
 			150.0,
 			150.0,
@@ -210,24 +210,24 @@
 		],
 		"reference_transition": {
 			"mid_level_id": "level_080",
-			"mid_crowd_dps": 1396371.8482227186,
-			"mid_dps": 120169.77895995848,
+			"mid_crowd_dps": 5192119.266086701,
+			"mid_dps": 686242.8632750636,
 			"mid_element": "fire",
 			"mid_line_capacity": 3.910202846,
 			"graduation_weapon": "weapon_scattergun",
-			"graduation_dps": 2044839.75,
+			"graduation_dps": 1450102.08,
 			"graduation_element": "physical",
 			"start_loop": 7,
 			"bridge_end_loop": 10,
-			"bridge_ratio": 0.02,
+			"bridge_ratio": 0.23,
 			"full_loop": 20
 		},
 		"budgets": [
 			{
 				"loop": 1,
-				"total_hp": 3119792,
+				"total_hp": 17815920,
 				"target_seconds": 18.0,
-				"reference_dps": 120169.78,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden"
@@ -235,9 +235,9 @@
 			},
 			{
 				"loop": 2,
-				"total_hp": 4159723,
+				"total_hp": 23754561,
 				"target_seconds": 24.0,
-				"reference_dps": 120169.78,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden"
@@ -245,9 +245,9 @@
 			},
 			{
 				"loop": 3,
-				"total_hp": 5199654,
+				"total_hp": 29693201,
 				"target_seconds": 30.0,
-				"reference_dps": 120169.78,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden"
@@ -255,9 +255,9 @@
 			},
 			{
 				"loop": 4,
-				"total_hp": 6239585,
+				"total_hp": 35631841,
 				"target_seconds": 36.0,
-				"reference_dps": 120169.78,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden"
@@ -265,9 +265,9 @@
 			},
 			{
 				"loop": 5,
-				"total_hp": 8162476,
+				"total_hp": 46612723,
 				"target_seconds": 48.0,
-				"reference_dps": 120169.78,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -276,9 +276,9 @@
 			},
 			{
 				"loop": 6,
-				"total_hp": 10203094,
-				"target_seconds": 60.0,
-				"reference_dps": 120169.78,
+				"total_hp": 49526018,
+				"target_seconds": 51.0,
+				"reference_dps": 686242.86,
 				"reference_mix": 0.0,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -287,10 +287,10 @@
 			},
 			{
 				"loop": 7,
-				"total_hp": 10838335,
-				"target_seconds": 68.0,
-				"reference_dps": 158663.18,
-				"reference_mix": 0.02,
+				"total_hp": 49631444,
+				"target_seconds": 62.0,
+				"reference_dps": 861930.48,
+				"reference_mix": 0.23,
 				"boss_ids": [
 					"boss_frost_warden",
 					"boss_void_phantom"
@@ -298,10 +298,10 @@
 			},
 			{
 				"loop": 8,
-				"total_hp": 12432207,
-				"target_seconds": 78.0,
-				"reference_dps": 158663.18,
-				"reference_mix": 0.02,
+				"total_hp": 57636516,
+				"target_seconds": 72.0,
+				"reference_dps": 861930.48,
+				"reference_mix": 0.23,
 				"boss_ids": [
 					"boss_frost_warden",
 					"boss_void_phantom"
@@ -309,10 +309,10 @@
 			},
 			{
 				"loop": 9,
-				"total_hp": 15585464,
-				"target_seconds": 89.0,
-				"reference_dps": 158663.18,
-				"reference_mix": 0.02,
+				"total_hp": 81345526,
+				"target_seconds": 93.0,
+				"reference_dps": 861930.48,
+				"reference_mix": 0.23,
 				"boss_ids": [
 					"boss_frost_warden",
 					"boss_void_phantom",
@@ -321,10 +321,10 @@
 			},
 			{
 				"loop": 10,
-				"total_hp": 17213272,
-				"target_seconds": 100.0,
-				"reference_dps": 158663.18,
-				"reference_mix": 0.02,
+				"total_hp": 81657631,
+				"target_seconds": 95.0,
+				"reference_dps": 861930.48,
+				"reference_mix": 0.23,
 				"boss_ids": [
 					"boss_frost_warden",
 					"boss_necrotitan",
@@ -333,9 +333,9 @@
 			},
 			{
 				"loop": 11,
-				"total_hp": 35444403,
-				"target_seconds": 108.0,
-				"reference_dps": 312636.78,
+				"total_hp": 81657714,
+				"target_seconds": 102.0,
+				"reference_dps": 762628.78,
 				"reference_mix": 0.1,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -345,9 +345,9 @@
 			},
 			{
 				"loop": 12,
-				"total_hp": 59112755,
-				"target_seconds": 116.0,
-				"reference_dps": 505103.77,
+				"total_hp": 91418887,
+				"target_seconds": 108.0,
+				"reference_dps": 839014.71,
 				"reference_mix": 0.2,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -357,9 +357,9 @@
 			},
 			{
 				"loop": 13,
-				"total_hp": 88324667,
-				"target_seconds": 124.0,
-				"reference_dps": 697570.77,
+				"total_hp": 100950160,
+				"target_seconds": 108.0,
+				"reference_dps": 915400.63,
 				"reference_mix": 0.3,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -370,9 +370,9 @@
 			},
 			{
 				"loop": 14,
-				"total_hp": 97234721,
-				"target_seconds": 132.0,
-				"reference_dps": 890037.77,
+				"total_hp": 100963019,
+				"target_seconds": 123.0,
+				"reference_dps": 991786.55,
 				"reference_mix": 0.4,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -383,9 +383,9 @@
 			},
 			{
 				"loop": 15,
-				"total_hp": 126271616,
-				"target_seconds": 140.0,
-				"reference_dps": 1082504.77,
+				"total_hp": 121929792,
+				"target_seconds": 137.0,
+				"reference_dps": 1068172.47,
 				"reference_mix": 0.5,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -396,9 +396,9 @@
 			},
 			{
 				"loop": 16,
-				"total_hp": 156145620,
-				"target_seconds": 146.0,
-				"reference_dps": 1274971.76,
+				"total_hp": 137293626,
+				"target_seconds": 143.0,
+				"reference_dps": 1144558.39,
 				"reference_mix": 0.6,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -409,9 +409,9 @@
 			},
 			{
 				"loop": 17,
-				"total_hp": 192804762,
+				"total_hp": 160418196,
 				"target_seconds": 150.0,
-				"reference_dps": 1467438.76,
+				"reference_dps": 1220944.31,
 				"reference_mix": 0.7,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -423,9 +423,9 @@
 			},
 			{
 				"loop": 18,
-				"total_hp": 217950065,
+				"total_hp": 170342929,
 				"target_seconds": 150.0,
-				"reference_dps": 1659905.76,
+				"reference_dps": 1297330.24,
 				"reference_mix": 0.8,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -437,9 +437,9 @@
 			},
 			{
 				"loop": 19,
-				"total_hp": 243062490,
+				"total_hp": 180254686,
 				"target_seconds": 150.0,
-				"reference_dps": 1852372.76,
+				"reference_dps": 1373716.16,
 				"reference_mix": 0.9,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -451,9 +451,9 @@
 			},
 			{
 				"loop": 20,
-				"total_hp": 268142102,
+				"total_hp": 190153492,
 				"target_seconds": 150.0,
-				"reference_dps": 2044839.75,
+				"reference_dps": 1450102.08,
 				"reference_mix": 1.0,
 				"boss_ids": [
 					"boss_frost_warden",
@@ -465,10 +465,10 @@
 			}
 		]
 	},
-	"endless_gold_loop_bonus": 0.12,
+	"endless_gold_loop_bonus": 0.13,
 	"endless_gold_milestone": {
 		"interval": 5,
-		"gold_per_milestone": 50
+		"gold_per_milestone": 30
 	},
 	"level_xp_coef": 50,
 	"level_xp_pow": 1.0,
@@ -524,7 +524,7 @@
 		11000
 	],
 	"skill_xp_coverage_contract": {
-		"target": 0.809,
+		"target": 0.795,
 		"tolerance": 0.01
 	},
 	"card_director": {
