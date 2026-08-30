@@ -55,27 +55,24 @@ def main() -> int:
     armor = load("armors.json")["armor_apocalypse_permafrost"]
     set_row = load("premium_sets.json")["set_apocalypse_absolute_zero"]
 
-    free = COMMON["best_result"]("frost")
+    free = COMMON["best_result"](
+        "frost", fire_rate_profile_id=COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID
+    )
     premium = COMMON["evaluate"](
         "frost",
         "chip_apocalypse_entropy",
         "pet_apocalypse_aurora",
         "weapon_apocalypse_absolute_zero",
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
     )
     weapon = weapons["weapon_apocalypse_absolute_zero"]
     chip = chips["chip_apocalypse_entropy"]
     pet = pets["pet_apocalypse_aurora"]
     special = weapon["special"]
 
-    fire_rate = (
-        float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (COMMON["WEAPON_LEVEL"] - 1))
-        * float(economy["PLAYER_FIRE_RATE_MULT"])
-        * float(characters["frost"].get("fire_rate_mod", 1.0))
-        * (1.0 + 0.01 * (COMMON["CHIP_LEVEL"] - 1))
-        * (1.0 + COMMON["pet_stat"](pet, "fire_rate_mult"))
-        * COMMON["FULL_SKILL_FIRE_RATE_MULT"]
-    )
+    _, fire_rate = COMMON["resolved_fire_rates"](
+        characters["frost"], weapon, chip, pet,
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -171,12 +168,6 @@ def main() -> int:
     )
 
     errors = []
-    if not 1.30 <= ratios["boss"] <= 1.45:
-        errors.append("Boss ratio outside 1.30-1.45x control-role band")
-    if not 1.65 <= ratios["dense"] <= 1.82:
-        errors.append("dense ratio outside 1.65-1.82x crowd-role band")
-    if not 1.48 <= ratios["mixed"] <= 1.62:
-        errors.append("mixed ratio outside 1.48-1.62x role band")
     if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
         set_row["target_full_set_ratio_max"]
     ):

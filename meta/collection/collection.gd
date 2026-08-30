@@ -948,7 +948,9 @@ func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Arra
 	var rows := []
 	match mode:
 		"weapons":
-			rows.append({"label": "伤害", "cur": "+%d%%" % int(round(0.08 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.08 * float(nxt - 1) * 100.0)), "delta": "每级 +8%"})
+			var current_damage := SaveManager.weapon_damage_multiplier_at_level(row, level)
+			var next_damage := SaveManager.weapon_damage_multiplier_at_level(row, nxt)
+			rows.append({"label": "伤害", "cur": "+%d%%" % int(round((current_damage - 1.0) * 100.0)), "next": "+%d%%" % int(round((next_damage - 1.0) * 100.0)), "delta": _loc("每级 +%.1f%%", "Per level +%.1f%%") % ((next_damage / current_damage - 1.0) * 100.0)})
 			rows.append({"label": "射速", "cur": "+%d%%" % int(round(0.025 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.025 * float(nxt - 1) * 100.0)), "delta": "每级 +2.5%"})
 		"characters":
 			var g := float(row.get("atk_growth", 0.08)) * 0.52
@@ -1013,7 +1015,9 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 		return "已满级"
 	match mode:
 		"weapons":
-			return "下级 伤害+8% · 射速+2.5%"
+			var current_damage := SaveManager.weapon_damage_multiplier_at_level(row, level)
+			var next_damage := SaveManager.weapon_damage_multiplier_at_level(row, level + 1)
+			return "下级 伤害+%.1f%% · 射速+2.5%%" % ((next_damage / current_damage - 1.0) * 100.0)
 		"characters":
 			return "下级 攻击+%d%%" % int(round(float(row.get("atk_growth", 0.08)) * 0.52 * 100.0))
 		"armors":

@@ -430,7 +430,7 @@ func _populate_hint(victory: bool) -> void:
 	var hint_text := _result_hint(victory)
 	if not _premium_offer.is_empty():
 		var premium_name := _premium_arsenal_name(str(_premium_offer.get("series_id", "")))
-		var premise := LocalizationManager.text("克制本关 · %s：升级到与你现役同级后") % premium_name
+		var premise := LocalizationManager.text("战力方案 · %s：升级到与你现役同级后") % premium_name
 		var power_line := LocalizationManager.text("有效战力 %s → %s") % [
 			_format_full_power_number(int(_premium_offer.get("current_power", 0))),
 			_format_full_power_number(int(_premium_offer.get("projected_power", 0))),
@@ -472,7 +472,9 @@ func _result_premium_offer(victory: bool) -> Dictionary:
 	if offer.is_empty():
 		return {}
 	var result_ratio := float(offer.get("projected_power", 0)) / maxf(float(recommended_power), 1.0)
-	if result_ratio + 0.0001 < 1.2:
+	var power_scale: Dictionary = DataLoader.get_table("economy").get("power_scale_v6", {})
+	var commercial: Dictionary = power_scale.get("commercial_thresholds", {})
+	if result_ratio + 0.0001 < float(commercial.get("result_ratio", 1.2)):
 		return {}
 	offer["result_ratio"] = result_ratio
 	return offer

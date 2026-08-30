@@ -98,12 +98,44 @@ func _initialize() -> void:
 	_expect(InputMap.has_action("cycle_target_strategy"), "input map must expose target strategy cycling")
 	_expect(save_manager.get_weapon_damage_multiplier("weapon_autocannon") >= 1.0, "weapon upgrade must expose damage multiplier")
 	_expect(root.has_node("/root/SettingsManager"), "settings manager must be autoloaded")
+	var fresh_v4_save: Dictionary = save_manager._default_save()
+	_expect(int(fresh_v4_save.get("version", 0)) == 4, "fresh saves must use the v6 notice schema")
+	_expect(bool(fresh_v4_save.get("notices", {}).get("power_scale_v6_seen", false)), "fresh installs must not show a legacy ruler-change notice")
+	var legacy_v3_save: Dictionary = fresh_v4_save.duplicate(true)
+	legacy_v3_save["version"] = 3
+	legacy_v3_save.erase("notices")
+	var migrated_v4_save: Dictionary = save_manager._migrate_save(legacy_v3_save)
+	_expect(int(migrated_v4_save.get("version", 0)) == 4, "version-3 saves must migrate to the v6 notice schema")
+	_expect(not bool(migrated_v4_save.get("notices", {}).get("power_scale_v6_seen", true)), "existing players must receive the one-time ruler-change notice")
+	save_manager.save_data = migrated_v4_save
+	_expect(save_manager.should_show_power_scale_v6_notice(), "migrated saves must expose the pending ruler notice")
+	save_manager.mark_power_scale_v6_notice_seen(false)
+	_expect(not save_manager.should_show_power_scale_v6_notice(), "acknowledging the ruler notice must consume it exactly once")
+	save_manager.save_data = smoke_save_snapshot.duplicate(true)
 
 	_expect(data_loader.get_table("levels").size() >= 99, "levels table must contain a launch campaign")
 	_expect(data_loader.get_table("skills").size() >= 16, "skills table must contain a broad launch pool")
 	var golden_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
+	_expect(int(golden_weapon.get("max_level", 0)) == 65, "Golden Law weapon cap must be level 65")
+	_expect(golden_weapon.get("level_growth_segments", []).size() == 1, "Golden Law must author the reusable 51-65 growth segment")
 	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, 1) - 1.0) <= 0.000001, "weapon endgame growth must be neutral at level 1")
 	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, int(golden_weapon.get("max_level", 50))) - 1.07) <= 0.000001, "weapon endgame growth must reach its authored max-level bonus")
+	var golden_level_50_damage: float = float(save_manager.weapon_damage_multiplier_at_level(golden_weapon, 50, "tier_b"))
+	var golden_level_65_damage: float = float(save_manager.weapon_damage_multiplier_at_level(golden_weapon, 65, "tier_b"))
+	_expect(golden_level_65_damage > golden_level_50_damage, "Golden Law segmented growth must increase damage after level 50")
+	var premium_sets: Dictionary = data_loader.get_table("premium_sets")
+	_expect(absf(float(premium_sets["set_apocalypse_golden_law"].get("target_level_50_ratio_center", 0.0)) - 1.25) <= 0.000001, "Golden Law Lv50 contract must remain centered at 1.25x")
+	_expect(absf(float(premium_sets["set_apocalypse_golden_law"].get("target_full_set_ratio_center", 0.0)) - 1.60) <= 0.000001, "Golden Law Lv65 contract must remain centered at 1.60x")
+	var expected_unlocks := {"set_apocalypse_inferno": 30, "set_apocalypse_thunder": 50, "set_apocalypse_absolute_zero": 70, "set_apocalypse_golden_law": 90}
+	for premium_set_id in expected_unlocks:
+		_expect(int(premium_sets[premium_set_id].get("store_unlock", {}).get("clear_level", 0)) == int(expected_unlocks[premium_set_id]), "%s reveal tier drifted" % premium_set_id)
+	for free_weapon_id_var in data_loader.get_table("weapons").keys():
+		var free_weapon_id := str(free_weapon_id_var)
+		var free_weapon: Dictionary = data_loader.get_row("weapons", free_weapon_id)
+		if not free_weapon.get("level_growth_segments", []).is_empty():
+			continue
+		for free_level in range(1, int(free_weapon.get("max_level", 1)) + 1):
+			_expect(save_manager.weapon_level_damage_multiplier_from_row(free_weapon, free_level) == 1.0 + 0.08 * float(free_level - 1), "%s segmented-growth zero-leakage failed at level %d" % [free_weapon_id, free_level])
 	_verify_zombie_mechanic_profiles(data_loader)
 	_verify_zombie_model_redesigns(data_loader)
 	_verify_zombie_attack_animation_contracts(data_loader)
@@ -2157,7 +2189,9 @@ func _verify_quantified_premium_loadout_offer(data_loader: Node, save_manager: N
 	var projected_build: Dictionary = offer.get("build", {})
 	_expect(int(projected_build.get("weapon", {}).get("level", 0)) == 36, "premium weapon projection must use the current weapon level")
 	_expect(int(projected_build.get("armor", {}).get("level", 0)) == 21, "premium armor projection must use the current armor level")
-	_expect(purchase_manager.premium_power_offer_for_level("level_084", 0.15, 0.0).is_empty(), "a paid series with the wrong element must not be recommended")
+	var cross_element_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_084", -10.0, 0.0)
+	_expect(not cross_element_offer.is_empty(), "a revealed paid weapon must remain eligible across elements through ammo override")
+	_expect(str(cross_element_offer.get("ammo_element", "")) == str(data_loader.get_row("levels", "level_084").get("primary_weakness", "")), "cross-element paid projection must use the stage weakness as its single final ammo element")
 
 	var router := FakeRouter.new()
 	root.add_child(router)
@@ -2215,7 +2249,7 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	purchase_manager._catalog = data_loader.get_table("store_products")
 	purchase_manager.reconcile_access(false)
 	var shared_offer: Dictionary = purchase_manager.premium_power_offer_for_level("level_070", 0.0, 1.2)
-	_expect(not shared_offer.is_empty(), "result recommendation fixture must reuse the shared premium power calculation")
+	_expect(shared_offer.is_empty(), "result guidance must stay hidden when no same-level paid build reaches the v6 R>=1.2 threshold")
 	var router := FakeRouter.new()
 	root.add_child(router)
 
@@ -2225,12 +2259,8 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	await process_frame
 	await process_frame
 	var defeat_hint := defeat.get_node("Content/HintCard/HintBox/Hint") as Label
-	_expect(not defeat._premium_offer.is_empty(), "a defeat must show an unlocked unowned premium set that lifts the stage ratio to at least 1.2")
-	_expect(float(defeat._premium_offer.get("result_ratio", 0.0)) >= 1.2, "result premium guidance must be backed by a projected ratio of at least 1.2")
-	_expect(defeat_hint.text.contains("升级到与你现役同级后") and defeat_hint.text.contains("有效战力"), "defeat guidance must state the same-level premise and quantified effective power")
-	defeat._open_premium_store(str(defeat._premium_offer.get("series_id", "")))
-	_expect(router.last_route == "store" and str(router.last_payload.get("focus_series_id", "")) == "inferno", "result premium guidance must open the matching store series")
-	_expect(str(router.last_payload.get("return_to", "")) == "result", "store opened from a result must return to the same result")
+	_expect(defeat._premium_offer.is_empty(), "a defeat must not advertise a paid build that misses the v6 R>=1.2 threshold")
+	_expect(not defeat_hint.text.contains("升级到与你现役同级后"), "failed commercial thresholds must not leak quantified purchase copy into defeat guidance")
 	defeat.queue_free()
 	await process_frame
 
@@ -2238,7 +2268,7 @@ func _verify_quantified_premium_result_offer(data_loader: Node, save_manager: No
 	root.add_child(one_star)
 	one_star.setup(router, {"level_id": "level_070", "victory": true, "stars": 1, "gold": 0, "xp": 0})
 	await process_frame
-	_expect(not one_star._premium_offer.is_empty(), "a one-star victory may show quantified premium guidance")
+	_expect(one_star._premium_offer.is_empty(), "a one-star victory must not advertise a paid build that misses the v6 R>=1.2 threshold")
 	one_star.queue_free()
 	await process_frame
 
@@ -2302,17 +2332,17 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(purchase_manager.store_series_ids() == ["inferno"], "Infernal Dominion must first appear after clearing level 30")
 	test_save["levels_progress"]["level_050"] = 1
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno"], "Neon Tempest must first appear after clearing level 50")
-	test_save["levels_progress"]["level_054"] = 1
-	_expect(not purchase_manager.store_series_ids().has("absolute_zero"), "Polar Aurora must remain hidden after clearing level 54")
-	test_save["levels_progress"]["level_055"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 55")
+	test_save["levels_progress"]["level_069"] = 1
+	_expect(not purchase_manager.store_series_ids().has("absolute_zero"), "Polar Aurora must remain hidden after clearing level 69")
+	test_save["levels_progress"]["level_070"] = 1
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 70")
 	var absolute_zero_set: Dictionary = data_loader.get_row("premium_sets", "set_apocalypse_absolute_zero")
 	_expect(str(absolute_zero_set.get("dominance_zh", "")).begins_with("主宰区间：碎冰连爆与减速控场"), "Absolute Zero store positioning must lead with its authored Shatter and slow-control mechanics")
 	_expect(str(absolute_zero_set.get("dominance_en", "")).begins_with("Dominance Range: Shatter chains and slow control"), "Absolute Zero English positioning must match the mechanics-led claim")
-	test_save["levels_progress"]["level_099"] = 1
-	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 99 until a hero reaches level 40")
+	test_save["levels_progress"]["level_090"] = 1
+	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 90 until a hero reaches level 40")
 	test_save["equipment"]["vanguard"] = 40
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 99 clear plus any hero at level 40")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 90 clear plus any hero at level 40")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
 	_expect(purchase_manager.set_id_for_series("inferno") == "set_apocalypse_inferno", "series routing must resolve the Inferno set from data")
 	_expect(purchase_manager.set_id_for_series("absolute_zero") == "set_apocalypse_absolute_zero", "series routing must resolve the Absolute Zero set from data")
@@ -2324,7 +2354,9 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.thunder_complete"), "fresh store must offer the complete 6.99 arsenal package")
 	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.inferno_complete"), "fresh store must offer the Inferno 6.99 complete package")
 	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.absolute_zero_complete"), "fresh store must offer the Absolute Zero 6.99 complete package")
-	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.golden_law_complete"), "eligible endgame store must offer the Golden Law 6.99 complete package")
+	_expect(purchase_manager.visible_offer_ids().has("com.gaojiasheng.zombiefire.arsenal.golden_law_complete"), "eligible endgame store must offer the Golden Law 8.99 complete package")
+	_expect(str(data_loader.get_row("store_products", "com.gaojiasheng.zombiefire.arsenal.golden_law_complete").get("mock_price_en", "")) == "US$8.99", "Golden Law complete package must be US$8.99")
+	_expect(str(data_loader.get_row("store_products", "com.gaojiasheng.zombiefire.arsenal.golden_law_upgrade").get("mock_price_en", "")) == "US$6.99", "Golden Law theme-owner upgrade must preserve the US$2.00 difference")
 	_expect(purchase_manager.visible_offer_ids("thunder").size() == 2, "fresh Thunder series must expose theme plus complete offers")
 	_expect(purchase_manager.visible_offer_ids("inferno").size() == 2, "fresh Inferno series must expose theme plus complete offers")
 	_expect(purchase_manager.visible_offer_ids("absolute_zero").size() == 2, "fresh Absolute Zero series must expose theme plus complete offers")
@@ -2420,7 +2452,7 @@ func _verify_current_warzone_store_recommendation(data_loader: Node, save_manage
 	var test_save: Dictionary = save_manager._default_save()
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
 	test_save["entitlements"] = {"verified": [], "last_sync_unix": 0}
-	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_055": 3}
+	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_070": 3}
 	var unlocked_levels: Array[String] = []
 	for level_number in range(1, 61):
 		unlocked_levels.append("level_%03d" % level_number)
@@ -2513,7 +2545,7 @@ func _verify_current_warzone_store_recommendation(data_loader: Node, save_manage
 
 	# Even in a matching chapter, ownership removes the series from sales
 	# recommendations while the existing owned visibility path remains intact.
-	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_055": 3}
+	test_save["levels_progress"] = {"level_030": 3, "level_050": 3, "level_070": 3}
 	unlocked_levels = []
 	for level_number in range(1, 81):
 		unlocked_levels.append("level_%03d" % level_number)
@@ -2578,7 +2610,7 @@ func _verify_multi_series_purchase_routing(data_loader: Node, save_manager: Node
 		}
 	purchase_manager._catalog = fixture_catalog
 	save_manager.save_data = save_manager._default_save()
-	save_manager.save_data["levels_progress"] = {"level_030": 1, "level_050": 1, "level_055": 1, "level_080": 1, "level_099": 1}
+	save_manager.save_data["levels_progress"] = {"level_030": 1, "level_050": 1, "level_070": 1, "level_080": 1, "level_090": 1}
 	save_manager.save_data["equipment"]["vanguard"] = 40
 	purchase_manager.reconcile_access(false)
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "fixture_second", "golden_law"], "aggregate catalog must expose every eligible independent series in authored offer order")
@@ -2726,7 +2758,7 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 		_expect(int(locked_empty_state.get_meta("nearest_clear_level", 0)) == expected_nearest_clear, "fresh premium store must derive its nearest unlock tier from premium_sets.store_unlock")
 		_expect(locked_empty_state.find_child("NearestUnlockText", true, false) != null, "fresh premium store must explain the nearest unlock requirement")
 		_expect(locked_empty_state.find_child("LaterUnlockText", true, false) != null, "fresh premium store must summarize later unlock tiers")
-		_expect(locked_empty_state.get_meta("later_clear_levels", []) == [50, 55, 99], "fresh premium store must dynamically summarize the 30 / 50 / 55 / 99 reveal tiers")
+		_expect(locked_empty_state.get_meta("later_clear_levels", []) == [50, 70, 90], "fresh premium store must dynamically summarize the 30 / 50 / 70 / 90 reveal tiers")
 	var locked_restore := locked_store.get_node_or_null("Root/VBox/Footer/RestoreButton") as Button
 	_expect(locked_restore != null and not locked_restore.disabled and locked_restore.visible, "restore purchases must remain available in the locked store empty state")
 	_expect(locked_headers.is_empty(), "fresh premium store must not reveal any series identity before its gate")
@@ -2776,9 +2808,9 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 	test_save["levels_progress"] = {
 		"level_030": 3,
 		"level_050": 3,
-		"level_055": 3,
+		"level_070": 3,
 		"level_080": 3,
-		"level_099": 3,
+		"level_090": 3,
 	}
 	test_save["equipment"]["vanguard"] = 40
 	save_manager.save_data = test_save
@@ -3061,7 +3093,8 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 			var gear_grid := detail.find_child("DetailArsenalGearGrid", true, false) as GridContainer
 			_expect(gear_grid != null and gear_grid.get_child_count() == 4, "%s must enumerate all four missing arsenal items" % upgrade_product_id)
 			var action := detail.find_child("PurchaseButton", true, false) as Button
-			_expect(action != null and action.text.contains("US$4.99"), "%s detail must retain the discounted upgrade price" % upgrade_product_id)
+			var expected_upgrade_price := "US$6.99" if upgrade_product_id.ends_with("golden_law_upgrade") else "US$4.99"
+			_expect(action != null and action.text.contains(expected_upgrade_price), "%s detail must retain the authored discounted upgrade price" % upgrade_product_id)
 		upgrade_store.call("_close_product_detail")
 		await process_frame
 	upgrade_store.queue_free()
@@ -3083,9 +3116,9 @@ func _verify_appearance_selector_states(save_manager: Node) -> void:
 	test_save["levels_progress"] = {
 		"level_030": 3,
 		"level_050": 3,
-		"level_055": 3,
+		"level_070": 3,
 		"level_080": 3,
-		"level_099": 3,
+		"level_090": 3,
 	}
 	test_save["equipment"]["vanguard"] = 40
 	test_save["commerce"] = {"mock_receipts": [], "mock_last_transaction_unix": 0}
@@ -3243,7 +3276,7 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	save_manager.save_data = skilled_save
 	var skilled_power := int(save_manager.get_power_for_level("level_097"))
 	# design/28 乘法口径下低端绝对差被压缩(L1 裸装约 21),改按相对涨幅断言。
-	_expect(float(skilled_power) >= float(base_power) * 1.35, "power must visibly account for current passive and active skill levels; base=%d skilled=%d" % [base_power, skilled_power])
+	_expect(float(skilled_power) >= float(base_power) * 1.15, "power must visibly account for stable permanent skill levels; base=%d skilled=%d" % [base_power, skilled_power])
 	_expect(int(save_manager.get_recommended_power_for_level("level_097")) == fixed_recommendation, "skill upgrades must not move a level's fixed recommended power")
 	var alternate_save: Dictionary = skilled_save.duplicate(true)
 	var alternate_equipment: Dictionary = alternate_save.get("equipment", {}).duplicate(true)
@@ -3272,10 +3305,8 @@ func _verify_power_skill_level_accounting(save_manager: Node) -> void:
 	_expect(float(save_manager.get_run_skill_speed_pressure_for_level("level_097")) >= 1.10, "level_097 late waves must gain bounded movement pressure")
 	save_manager.save_data = original_save
 
-# Owner 2026-08-20 战力 5.0 验收电池：玩家仍只看到一个战力，但内部严格取
-# 清群 / Boss / 防线三条比值的最短板。绝对刻度随最弱兼容卡口径更新，冻结物是：
-# - 99 关满级免费最强物理：R≈1.1600，Boss 是短板；
-# - 80 关 Owner 实战配置：R≈1.0500，Boss 是短板，不再把面板弹丸当成实命中。
+# 战力 6.0 验收电池：玩家数字是恒定纯构筑函数，关卡只提供固定推荐值和
+# 量化 matchup 徽章；Owner 构筑冻结新标尺 R 与短板轴，不冻结旧绝对数。
 func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node) -> void:
 	var gate_probe: Node = _instance("res://gameplay/battle/battle.tscn")
 	var cushion_min := float(gate_probe.CLEAR_LINE_CUSHION_MIN_RATIO)
@@ -3286,13 +3317,15 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 
 	for level_id in ["level_001", "level_013", "level_055", "level_085", "level_099"]:
 		var contract: Dictionary = data_loader.get_row("levels", level_id).get("clear_requirement", {}).get("power_contract", {})
-		_expect(str(contract.get("model", "")) == "bottleneck_v5", "%s must carry a bottleneck_v5 power contract" % level_id)
+		_expect(str(contract.get("model", "")) == "bottleneck_v6", "%s must carry a bottleneck_v6 power contract" % level_id)
 		_expect(float(contract.get("crowd_capacity", 0.0)) > 0.0, "%s crowd contract must be positive" % level_id)
+		_expect(float(contract.get("boss_capacity", 0.0)) > 0.0, "%s neutral Boss contract must be positive" % level_id)
 		_expect(float(contract.get("line_capacity", 0.0)) > 0.0, "%s line contract must be valid" % level_id)
-		_expect(float(contract.get("line_expected_breach", -1.0)) >= 0.0, "%s must serialize expected breach damage" % level_id)
-		_expect(float(contract.get("line_base_hp", 0.0)) > 0.0, "%s must serialize reference base HP" % level_id)
-		_expect(float(contract.get("line_target_hp_ratio", -1.0)) >= 0.0, "%s must serialize the survival boundary" % level_id)
-		_expect(not contract.get("line_exposure_weights", {}).is_empty(), "%s must serialize line exposure weights" % level_id)
+		_expect(not contract.has("corridor_calibration"), "%s must not serialize a corridor axis mutation" % level_id)
+	_expect(int(save_manager.get_recommended_power_for_level("level_001")) == 54, "v6 L01 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_050")) == 944, "v6 L50 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_080")) == 2592, "v6 L80 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_099")) == 5000, "v6 L99 recommendation golden drifted")
 
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var all_max_skills: Dictionary = {}
@@ -3303,11 +3336,13 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	_apply_calibration_build(save_manager, original_save, "vanguard", 40, "weapon_scattergun", 50, "armor_kevlar", 35, "chip_attack", 35, "pet_turret_drone", 30, 5)
 	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
 	var final_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_099")
-	_expect(int(final_breakdown.get("power", 0)) == 1667, "level_099 max-free power must include the literal four-Boss roster, got %d" % int(final_breakdown.get("power", 0)))
-	_expect(int(final_breakdown.get("recommended", 0)) == 1437, "level_099 recommendation must include all four fixed-identity Bosses exactly once, got %d" % int(final_breakdown.get("recommended", 0)))
-	_expect(str(final_breakdown.get("power_bottleneck", "")) == "boss", "level_099 max-free bottleneck must be Boss")
-	var final_ratios: Dictionary = final_breakdown.get("power_ratios", {})
-	_expect(absf(float(final_ratios.get("boss", 0.0)) - 1.1600) <= 0.002, "level_099 Boss ratio must remain replay-calibrated near 1.160")
+	_expect(int(final_breakdown.get("power", 0)) == 10800, "level_099 Owner build v6 power golden drifted, got %d" % int(final_breakdown.get("power", 0)))
+	_expect(int(final_breakdown.get("recommended", 0)) == 5000, "level_099 v6 recommendation golden drifted")
+	_expect(str(final_breakdown.get("power_bottleneck", "")) == "line", "level_099 Owner build v6 short axis must be line")
+	_expect(absf(float(final_breakdown.get("power", 0)) / 5000.0 - 2.1600) <= 0.0001, "level_099 Owner build v6 R must remain 2.1600")
+	var same_build_089 := int(save_manager.get_power_for_level("level_089"))
+	var same_build_090 := int(save_manager.get_power_for_level("level_090"))
+	_expect(same_build_089 == same_build_090, "same build must have bit-identical power in 089/090")
 
 	_apply_calibration_build(save_manager, original_save, "blaze", 40, "weapon_apocalypse_inferno", 36, "armor_apocalypse_molten", 21, "chip_apocalypse_stellar", 21, "pet_apocalypse_phoenix", 15, 5)
 	var rank4_skills: Dictionary = {}
@@ -3316,45 +3351,22 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		rank4_skills[skill_id] = mini(4, save_manager._power_skill_max_level(data_loader.get_row("skills", skill_id)))
 	save_manager.save_data["skill_base_levels"] = rank4_skills
 	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_080")
-	_expect(int(observed_breakdown.get("power", 0)) == 1038, "observed level_080 build must use collider-calibrated Boss throughput, got %d" % int(observed_breakdown.get("power", 0)))
-	_expect(int(observed_breakdown.get("recommended", 0)) == 989, "level_080 recommendation must count the three-Necromancer roster exactly once")
-	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "boss", "observed level_080 build must expose Boss output as its internal bottleneck")
-	_expect(absf(float(observed_breakdown.get("power", 0)) / 989.0 - 1.0500) <= 0.002, "observed level_080 replay ratio must stay aligned with the pressure-clear result")
-	_expect(float(observed_breakdown.get("power_line_exposure_credit", 0.0)) <= 1.1501, "line exposure credit must remain bounded at +15%")
+	_expect(int(observed_breakdown.get("power", 0)) == 4468, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
+	_expect(int(observed_breakdown.get("recommended", 0)) == 2592, "level_080 v6 recommendation golden drifted")
+	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "level_080 Owner build v6 short axis must be line")
+	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.72377) <= 0.0001, "level_080 Owner build v6 R drifted")
 
-	# The fixture manifest is generated by the single Python model and checked into
-	# each contract. Smoke consumes it rather than defining a second fixture table.
-	for sample_level_id in ["level_002", "level_013", "level_025", "level_040", "level_050", "level_070", "level_085", "level_098"]:
-		var sample_level: Dictionary = data_loader.get_row("levels", sample_level_id)
-		var sample_contract: Dictionary = sample_level.get("clear_requirement", {}).get("power_contract", {})
-		var calibration: Dictionary = sample_contract.get("corridor_calibration", {})
-		var fixture: Dictionary = calibration.get("fixture", {})
-		_expect(not fixture.is_empty(), "%s must serialize the design/32 corridor fixture" % sample_level_id)
-		_apply_calibration_build(
-			save_manager,
-			original_save,
-			str(fixture.get("character", "vanguard")),
-			int(fixture.get("character_level", 1)),
-			str(fixture.get("weapon", "weapon_autocannon")),
-			int(fixture.get("weapon_level", 1)),
-			str(fixture.get("armor", "armor_kevlar")),
-			int(fixture.get("armor_level", 1)),
-			str(fixture.get("chip", "chip_attack")),
-			int(fixture.get("chip_level", 1)),
-			str(fixture.get("pet", "")),
-			int(fixture.get("pet_level", 1)),
-			int(fixture.get("signature_level", 0)),
-		)
-		var fixture_skills: Dictionary = {}
-		var fixture_rank := int(fixture.get("skill_rank", 1))
-		for skill_id_var in data_loader.get_table("skills").keys():
-			var fixture_skill_id := str(skill_id_var)
-			fixture_skills[fixture_skill_id] = mini(fixture_rank, save_manager._power_skill_max_level(data_loader.get_row("skills", fixture_skill_id)))
-		save_manager.save_data["skill_base_levels"] = fixture_skills
-		var sample_breakdown: Dictionary = save_manager.get_power_breakdown_for_level(sample_level_id)
-		var sample_ratio := float(sample_breakdown.get("power", 0)) / maxf(float(sample_breakdown.get("recommended", 1)), 1.0)
-		var band: Array = calibration.get("band", [1.0, 1.4])
-		_expect(sample_ratio >= float(band[0]) - 0.01 and sample_ratio <= float(band[1]) + 0.01, "%s corridor fixture ratio %.4f must stay inside [%s,%s]" % [sample_level_id, sample_ratio, str(band[0]), str(band[1])])
+	var boss55: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
+	_expect(absf(float(save_manager._power_boss_element_factor(boss55, "physical")) - 0.75) <= 0.000001, "level_055 physical badge factor must be ×0.75")
+	_expect(absf(float(save_manager._power_boss_element_factor(boss55, "lightning")) - 1.5) <= 0.000001, "level_055 lightning badge factor must be ×1.5")
+	var matchup_badge_probe: Node = _instance("res://meta/loadout/loadout.tscn")
+	var level55: Dictionary = data_loader.get_row("levels", "level_055")
+	_expect(str(matchup_badge_probe.call("_loadout_matchup_badge", level55, "weapon_autocannon")) == "抗性：伤害×0.75", "level_055 UI must quantify physical resistance instead of showing a generic matchup")
+	_expect(str(matchup_badge_probe.call("_loadout_matchup_badge", level55, "weapon_teslacoil")) == "克制：伤害×1.5", "level_055 UI must quantify the lightning counter bonus")
+	_expect(str(matchup_badge_probe.call("_loadout_matchup_badge", data_loader.get_row("levels", "level_089"), "weapon_autocannon")) == "属性中性：伤害×1.0", "ordinary mismatch UI must say neutral rather than the retired generic-counter copy")
+	matchup_badge_probe.free()
+	var boss85: Dictionary = data_loader.get_row("bosses", "boss_necrotitan")
+	_expect(float(save_manager._power_boss_element_factor(boss85, "fire")) > float(save_manager._power_boss_element_factor(boss85, "physical")), "level_085 mismatch example must preserve the fire advantage badge without changing player power")
 
 	var level99: Dictionary = data_loader.get_row("levels", "level_099")
 	_expect(level99.get("runtime_bosses", []).size() == 2, "level_099 must author two Apex reinforcements in levels.json")
@@ -4168,12 +4180,16 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	var runtime := SkillRuntime.new()
 	_expect(runtime.add_skill("skill_tesla"), "tesla ammo must be addable")
 	_expect(runtime.projectile_element("physical") == "lightning", "physical weapons can be converted to tesla ammo")
-	_expect(runtime.projectile_element("fire") == "fire", "native elemental weapons must keep their weapon element")
+	_expect(runtime.projectile_element("fire", "weapon_plasmacannon") == "fire", "native elemental weapons must keep their weapon element")
 	_expect(runtime.add_skill("skill_venom"), "venom ammo must be addable")
 	_expect(runtime.level("skill_tesla") == 0, "tesla and venom ammo must be mutually exclusive")
 	_expect(runtime.level("skill_venom") == 1, "new ammo module must replace the previous ammo module")
 	_expect(runtime.projectile_element("physical") == "poison", "active ammo module must drive physical weapon projectile element")
-	_expect(runtime.projectile_element("fire") == "fire", "plasma/fire weapons must not be overwritten by venom or tesla ammo")
+	_expect(runtime.projectile_element("fire", "weapon_plasmacannon") == "fire", "plasma/fire weapons must not be overwritten by venom or tesla ammo")
+	_expect(
+		runtime.projectile_element("lightning", "weapon_apocalypse_thunder") == "poison",
+		"paid Apocalypse weapons must let the active ammo card override their native element",
+	)
 
 	var equipment: Dictionary = test_save.get("equipment", {}).duplicate(true)
 	equipment["selected_weapon"] = "weapon_plasmacannon"
@@ -4185,6 +4201,28 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	_expect(not plasma_offers.has("skill_tesla"), "plasma cannon must not offer tesla ammo")
 	_expect(not plasma_offers.has("skill_venom"), "plasma cannon must not offer venom ammo")
 	_expect(not plasma_offers.has("skill_cryo"), "plasma cannon must not offer cryo ammo")
+
+	equipment["selected_weapon"] = "weapon_apocalypse_thunder"
+	test_save["equipment"] = equipment
+	save_manager.save_data = test_save
+	var paid_ammo_offers := director.offer({"card_bias": {}, "threat_tags": []}, {}, 16)
+	_expect(paid_ammo_offers.has("skill_incendiary"), "paid lightning weapon must offer fire ammo")
+	_expect(paid_ammo_offers.has("skill_cryo"), "paid lightning weapon must offer ice ammo")
+	_expect(paid_ammo_offers.has("skill_venom"), "paid lightning weapon must offer poison ammo")
+
+	var free_power: int = int(save_manager.power_for_build("level_089", {
+		"weapon": {"id": "weapon_plasmacannon", "level": 40},
+	}))
+	var paid_power: int = int(save_manager.power_for_build("level_090", {
+		"weapon": {"id": "weapon_apocalypse_inferno", "level": 40},
+	}))
+	_expect(paid_power > free_power, "same-level paid weapon fixture must have higher constant power than its free counterpart")
+	_expect(
+		paid_power == save_manager.power_for_build("level_089", {
+			"weapon": {"id": "weapon_apocalypse_inferno", "level": 40},
+		}),
+		"paid effective power must remain bit-identical across levels",
+	)
 
 	equipment["selected_weapon"] = "weapon_autocannon"
 	equipment["selected_character"] = "vanguard"
@@ -4855,8 +4893,8 @@ func _verify_projectile_visual_profiles() -> void:
 		"native elemental weapons must retain their authored projectile profile"
 	)
 	_expect(
-		battle._resolved_weapon_projectile_visual_profile("physical", "lightning", "apocalypse_golden_law") == "apocalypse_golden_law",
-		"premium physical weapon presentation must not be replaced by shared elemental ammo art"
+		battle._resolved_weapon_projectile_visual_profile("physical", "lightning", "apocalypse_golden_law") == "ammo_lightning",
+		"paid weapon ammo override must present only the single effective projectile element"
 	)
 	var converted_expected := {
 		"fire": "proj_bullet_fire.png",

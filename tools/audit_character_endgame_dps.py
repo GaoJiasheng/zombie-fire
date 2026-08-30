@@ -111,6 +111,59 @@ def character_growth(character: dict, coefficient: float) -> float:
     return 1.0 + float(character["atk_growth"]) * coefficient * (CHARACTER_LEVEL - 1)
 
 
+def weapon_level_damage_multiplier(weapon: dict, weapon_level: int) -> float:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return 1.0 + 0.08 * max(weapon_level - 1, 0)
+    multiplier = 1.0
+    cursor = 2
+    for segment in segments:
+        start = int(segment.get("from_level", 2))
+        end = int(segment.get("to_level", weapon.get("max_level", weapon_level)))
+        if weapon_level < start:
+            return multiplier + 0.08 * max(weapon_level - cursor + 1, 0)
+        multiplier += 0.08 * max(start - cursor, 0)
+        segment_end = min(weapon_level, end)
+        multiplier += float(segment.get("atk_growth_per_level", 0.08)) * max(
+            segment_end - start + 1, 0)
+        cursor = end + 1
+        if weapon_level <= end:
+            return multiplier
+    multiplier += 0.08 * max(weapon_level - cursor + 1, 0)
+    return multiplier
+
+
+def resolved_fire_rates(character: dict, weapon: dict, chip: dict, pet: dict,
+                        profile_id: str, weapon_level: int = WEAPON_LEVEL) -> tuple[float, float]:
+    authored = (
+        float(weapon["fire_rate"])
+        * (1.0 + 0.025 * (weapon_level - 1))
+        * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
+    )
+    control = (
+        authored
+        * float(character.get("fire_rate_mod", 1.0))
+        * (1.0 + chip_value(chip, "fire_rate_mult"))
+        * (1.0 + 0.01 * (CHIP_LEVEL - 1))
+        * (1.0 + pet_stat(pet, "fire_rate_mult"))
+        * FULL_SKILL_FIRE_RATE_MULT
+    )
+    if profile_id == fire_rate_lab.DEFAULT_PROFILE_ID:
+        return control, control
+    raw = (
+        authored
+        * float(character.get("fire_rate_mod", 1.0))
+        * fire_rate_lab.chip_multiplier(
+            ECONOMY, profile_id, chip_value(chip, "fire_rate_mult"), CHIP_LEVEL)
+        * fire_rate_lab.pet_multiplier(
+            ECONOMY, profile_id, pet_stat(pet, "fire_rate_mult"))
+        * fire_rate_lab.salvo_multiplier(
+            ECONOMY, profile_id, 5, FULL_SKILL_FIRE_RATE_MULT)
+    )
+    return control, fire_rate_lab.capped_fire_rate(
+        ECONOMY, profile_id, raw, authored)
+
+
 def active_power_scale(active: dict) -> float:
     return (
         1.0
@@ -198,6 +251,7 @@ def evaluate(
     pet_id: str,
     weapon_override: str = "",
     fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
+    weapon_level: int = WEAPON_LEVEL,
 ) -> DpsResult:
     character = CHARACTERS[character_id]
     weapon_id = weapon_override or MATCHING_WEAPON[character_id]
@@ -208,10 +262,10 @@ def evaluate(
     affinity = character["bullet_affinity"]
     element = str(weapon["element"])
 
-    weapon_damage_mult = 1.0 + 0.08 * (WEAPON_LEVEL - 1)
-    weapon_max_level = max(2, int(weapon.get("max_level", WEAPON_LEVEL)))
+    weapon_damage_mult = weapon_level_damage_multiplier(weapon, weapon_level)
+    weapon_max_level = max(2, int(weapon.get("max_level", weapon_level)))
     weapon_growth_progress = min(
-        max(float(WEAPON_LEVEL - 1) / float(weapon_max_level - 1), 0.0),
+        max(float(weapon_level - 1) / float(weapon_max_level - 1), 0.0),
         1.0,
     )
     weapon_growth_bonus = float(weapon.get("endgame_damage_growth_bonus", 0.0))
@@ -220,7 +274,7 @@ def evaluate(
     weapon_damage_mult *= 1.0 + weapon_growth_bonus * weapon_growth_progress ** max(
         1.0, float(weapon.get("endgame_growth_curve", 1.0))
     )
-    weapon_fire_rate_mult = 1.0 + 0.025 * (WEAPON_LEVEL - 1)
+    weapon_fire_rate_mult = 1.0 + 0.025 * (weapon_level - 1)
     attack_mult = (
         float(character["base_atk"])
         / 100.0
@@ -234,49 +288,8 @@ def evaluate(
         attack_mult *= 1.0 + pet_stat(pet, "element_damage_mult")
     turret_damage_mult = weapon_damage_mult * attack_mult
 
-    authored_fire_rate = (
-        float(weapon["fire_rate"])
-        * weapon_fire_rate_mult
-        * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
-    )
-    control_fire_rate = (
-        authored_fire_rate
-        * float(character.get("fire_rate_mod", 1.0))
-        * (1.0 + chip_value(chip, "fire_rate_mult"))
-        * (1.0 + 0.01 * (CHIP_LEVEL - 1))
-        * (1.0 + pet_stat(pet, "fire_rate_mult"))
-        * FULL_SKILL_FIRE_RATE_MULT
-    )
-    if fire_rate_profile_id == fire_rate_lab.DEFAULT_PROFILE_ID:
-        fire_rate = control_fire_rate
-    else:
-        raw_fire_rate = (
-            authored_fire_rate
-            * float(character.get("fire_rate_mod", 1.0))
-            * fire_rate_lab.chip_multiplier(
-                ECONOMY,
-                fire_rate_profile_id,
-                chip_value(chip, "fire_rate_mult"),
-                CHIP_LEVEL,
-            )
-            * fire_rate_lab.pet_multiplier(
-                ECONOMY,
-                fire_rate_profile_id,
-                pet_stat(pet, "fire_rate_mult"),
-            )
-            * fire_rate_lab.salvo_multiplier(
-                ECONOMY,
-                fire_rate_profile_id,
-                5,
-                FULL_SKILL_FIRE_RATE_MULT,
-            )
-        )
-        fire_rate = fire_rate_lab.capped_fire_rate(
-            ECONOMY,
-            fire_rate_profile_id,
-            raw_fire_rate,
-            authored_fire_rate,
-        )
+    control_fire_rate, fire_rate = resolved_fire_rates(
+        character, weapon, chip, pet, fire_rate_profile_id, weapon_level)
     crit_rate = (
         float(character.get("crit_rate_base", 0.0))
         + chip_value(chip, "crit_rate")
@@ -453,7 +466,7 @@ def best_result(
     ]
     return max(candidates, key=lambda result: result.total_dps)
 
-def apocalypse_audit(baseline: DpsResult) -> dict:
+def apocalypse_audit(baseline: DpsResult, fire_rate_profile_id: str) -> dict:
     """Audit the complete paid set against the strongest free Volt ceiling.
 
     Overload is a per-confirmed-hit meter, so its long-run expectation is the
@@ -470,6 +483,7 @@ def apocalypse_audit(baseline: DpsResult) -> dict:
         "chip_apocalypse_superconductive",
         "pet_apocalypse_tempest",
         "weapon_apocalypse_thunder",
+        fire_rate_profile_id,
     )
     special = weapon["special"]
     set_row = load("premium_sets.json")["set_apocalypse_thunder"]
@@ -487,16 +501,8 @@ def apocalypse_audit(baseline: DpsResult) -> dict:
 
     # One lane-weighted crit-expected shell supplies the non-recursive terminal
     # hit every real-time cooldown. Derive it from connected weapon DPS.
-    fire_rate = (
-        float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (WEAPON_LEVEL - 1))
-        * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
-        * float(CHARACTERS["volt"].get("fire_rate_mod", 1.0))
-        * (1.0 + chip_value(chip, "fire_rate_mult"))
-        * (1.0 + 0.01 * (CHIP_LEVEL - 1))
-        * (1.0 + pet_stat(pet, "fire_rate_mult"))
-        * FULL_SKILL_FIRE_RATE_MULT
-    )
+    _, fire_rate = resolved_fire_rates(
+        CHARACTERS["volt"], weapon, chip, pet, fire_rate_profile_id)
     lane_hit_damage = premium.weapon_dps / max(
         fire_rate * CONNECTED_LANES,
         0.001,
@@ -567,13 +573,11 @@ def main() -> int:
     totals = [result.total_dps for result in results]
     spread = max(totals) / min(totals)
     print(f"single-Boss max/min spread: {spread:.3f}x ({(spread - 1.0) * 100.0:.1f}%)")
-    # The paid-set ratio band was locked against the control profile. Shipping moved
-    # to tier_b, so the band is reported under every profile but only enforced under
-    # the profile it was calibrated on; re-pinning the paid bands to the shipping
-    # profile is tracked as the design/40 stage C commercial re-anchor.
-    contract_enforced = profile_id == fire_rate_lab.DEFAULT_PROFILE_ID
+    # Stage C re-pins the paid-set contract to the shipping Tier B profile.
+    # Other laboratory profiles remain diagnostic; shipping must fail hard.
+    contract_enforced = profile_id == fire_rate_lab.SHIPPING_PROFILE_ID
     free_volt = next(result for result in results if result.character_id == "volt")
-    premium = apocalypse_audit(free_volt)
+    premium = apocalypse_audit(free_volt, profile_id)
     base = premium["base"]
     print(
         "Thunder Apocalypse complete set: "
@@ -586,8 +590,8 @@ def main() -> int:
     if not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
         if not contract_enforced:
             print(
-                f"NOTE: premium ratio outside the control-calibrated band under {profile_id}; "
-                "paid-set bands are re-pinned in the stage C commercial re-anchor."
+                f"NOTE: premium ratio outside the Tier-B-calibrated band under {profile_id}; "
+                "only the shipping profile is release-blocking."
             )
             return 0
         print(

@@ -25,6 +25,7 @@
 		"two_piece_description_zh": "2件：过载更快、连锁衰减更低\n4件：过载触发密集区终端雷柱（独立冷却，不递归）",
 		"two_piece_description_en": "2-piece: faster overload, lower chain falloff\n4-piece: overload calls a terminal pillar at the densest group",
 		"weapon": "weapon_apocalypse_thunder",
+		"ammo_cards_override_base_element": true,
 		"armor": "armor_apocalypse_conductor",
 		"chip": "chip_apocalypse_superconductive",
 		"pet": "pet_apocalypse_tempest",
@@ -36,9 +37,9 @@
 			"terminal_pillar_cooldown": 8.0,
 			"terminal_pillar_damage_mult": 2.6
 		},
-		"target_full_set_ratio_min": 1.52,
-		"target_full_set_ratio_center": 1.55,
-		"target_full_set_ratio_max": 1.60
+		"target_full_set_ratio_min": 1.22,
+		"target_full_set_ratio_center": 1.25,
+		"target_full_set_ratio_max": 1.28
 	},
 	"set_apocalypse_inferno": {
 		"series_id": "inferno",
@@ -66,6 +67,7 @@
 		"two_piece_description_zh": "2件：更快触发爆燃、持续灼烧更强\n4件：爆燃击杀扩散部分灼烧（仅1代，带衰减）",
 		"two_piece_description_en": "2-piece: faster combustion and stronger burns\n4-piece: combustion kills spread partial burn once with falloff",
 		"weapon": "weapon_apocalypse_inferno",
+		"ammo_cards_override_base_element": true,
 		"armor": "armor_apocalypse_molten",
 		"chip": "chip_apocalypse_stellar",
 		"pet": "pet_apocalypse_phoenix",
@@ -80,9 +82,9 @@
 			"death_spread_burn_ratio": 0.38,
 			"generation_limit": 1
 		},
-		"target_full_set_ratio_min": 1.52,
-		"target_full_set_ratio_center": 1.55,
-		"target_full_set_ratio_max": 1.58
+		"target_full_set_ratio_min": 1.22,
+		"target_full_set_ratio_center": 1.25,
+		"target_full_set_ratio_max": 1.28
 	},
 	"set_apocalypse_absolute_zero": {
 		"series_id": "absolute_zero",
@@ -90,7 +92,7 @@
 		"entitlement": "ent_arsenal_absolute_zero",
 		"theme": "polar_aurora",
 		"theme_entitlement": "ent_theme_polar_aurora",
-		"store_unlock": {"clear_level": 55},
+		"store_unlock": {"clear_level": 70},
 		"unlock_hint_zh": "通关第 55 关后开放",
 		"unlock_hint_en": "Opens after clearing Stage 55",
 		"unlock_cta_zh": "第 55 关后开放",
@@ -110,6 +112,7 @@
 		"two_piece_description_zh": "2件：更快叠加脆化、碎冰伤害提高\n4件：碎冰向密集区释放一次冰晶波（独立冷却，不递归）",
 		"two_piece_description_en": "2-piece: faster Brittle buildup and stronger Shatter\n4-piece: Shatter releases one crystal wave toward the densest group",
 		"weapon": "weapon_apocalypse_absolute_zero",
+		"ammo_cards_override_base_element": true,
 		"armor": "armor_apocalypse_permafrost",
 		"chip": "chip_apocalypse_entropy",
 		"pet": "pet_apocalypse_aurora",
@@ -125,9 +128,9 @@
 			"crystal_wave_falloff": 0.72,
 			"generation_limit": 1
 		},
-		"target_full_set_ratio_min": 1.52,
-		"target_full_set_ratio_center": 1.55,
-		"target_full_set_ratio_max": 1.58
+		"target_full_set_ratio_min": 1.22,
+		"target_full_set_ratio_center": 1.25,
+		"target_full_set_ratio_max": 1.28
 	},
 	"set_apocalypse_golden_law": {
 		"series_id": "golden_law",
@@ -135,7 +138,7 @@
 		"entitlement": "ent_arsenal_golden_law",
 		"theme": "gilded_eclipse",
 		"theme_entitlement": "ent_theme_gilded_eclipse",
-		"store_unlock": {"clear_level": 99, "any_character_level": 40},
+		"store_unlock": {"clear_level": 90, "any_character_level": 40},
 		"unlock_hint_zh": "通关第 99 关且任意角色达到 40 级后开放",
 		"unlock_hint_en": "Opens after Stage 99 + any hero reaches Level 40",
 		"unlock_cta_zh": "终局认证后开放",
@@ -155,6 +158,7 @@
 		"two_piece_description_zh": "2件：裁决叠层更快、黄金律爆发更强\n4件：裁决触发黄金敕令，真实锁定至多4个目标（独立冷却，不递归）",
 		"two_piece_description_en": "2-piece: faster Judgment buildup and stronger verdicts\n4-piece: verdict invokes Golden Decree on up to four true targets",
 		"weapon": "weapon_apocalypse_golden_law",
+		"ammo_cards_override_base_element": true,
 		"armor": "armor_apocalypse_eternal_night",
 		"chip": "chip_apocalypse_golden_law",
 		"pet": "pet_apocalypse_skyfalcon",
@@ -169,11 +173,11 @@
 			"decree_falloff": 0.82,
 			"generation_limit": 1
 		},
-		"target_level_one_ratio_min": 1.20,
-		"target_level_one_ratio_center": 1.25,
-		"target_level_one_ratio_max": 1.30,
-		"target_full_set_ratio_min": 1.90,
-		"target_full_set_ratio_center": 2.00,
-		"target_full_set_ratio_max": 2.05
+		"target_level_50_ratio_min": 1.22,
+		"target_level_50_ratio_center": 1.25,
+		"target_level_50_ratio_max": 1.28,
+		"target_full_set_ratio_min": 1.55,
+		"target_full_set_ratio_center": 1.60,
+		"target_full_set_ratio_max": 1.65
 	}
 }

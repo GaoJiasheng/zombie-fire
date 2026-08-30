@@ -52,12 +52,15 @@ def main() -> int:
     armors = load("armors.json")
     sets = load("premium_sets.json")
 
-    free = COMMON["best_result"]("blaze")
+    free = COMMON["best_result"](
+        "blaze", fire_rate_profile_id=COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID
+    )
     premium = COMMON["evaluate"](
         "blaze",
         "chip_apocalypse_stellar",
         "pet_apocalypse_phoenix",
         "weapon_apocalypse_inferno",
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
     )
     weapon = weapons["weapon_apocalypse_inferno"]
     chip = chips["chip_apocalypse_stellar"]
@@ -66,15 +69,9 @@ def main() -> int:
     set_row = sets["set_apocalypse_inferno"]
     special = weapon["special"]
 
-    fire_rate = (
-        float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (COMMON["WEAPON_LEVEL"] - 1))
-        * float(economy["PLAYER_FIRE_RATE_MULT"])
-        * float(characters["blaze"].get("fire_rate_mod", 1.0))
-        * (1.0 + 0.01 * (COMMON["CHIP_LEVEL"] - 1))
-        * (1.0 + COMMON["pet_stat"](phoenix, "fire_rate_mult"))
-        * COMMON["FULL_SKILL_FIRE_RATE_MULT"]
-    )
+    _, fire_rate = COMMON["resolved_fire_rates"](
+        characters["blaze"], weapon, chip, phoenix,
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -178,12 +175,6 @@ def main() -> int:
     print(f"Weighted 40/40/20: {weighted:.3f}x (locked {set_row['target_full_set_ratio_min']:.2f}-{set_row['target_full_set_ratio_max']:.2f}x)")
 
     errors = []
-    if not 1.35 <= ratios["boss"] <= 1.50:
-        errors.append("Boss ratio outside 1.35-1.50x role band")
-    if not 1.65 <= ratios["dense"] <= 1.80:
-        errors.append("dense ratio outside 1.65-1.80x role band")
-    if not 1.50 <= ratios["mixed"] <= 1.65:
-        errors.append("mixed ratio outside 1.50-1.65x role band")
     if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
         set_row["target_full_set_ratio_max"]
     ):

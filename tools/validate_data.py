@@ -146,6 +146,25 @@ def main() -> int:
                     errors.append(f"economy.fire_rate_profiles.{profile_id} must define five salvo ranks")
         known_profile_ids = set(profiles) if isinstance(profiles, dict) else set()
         for weapon_id, weapon in tables["weapons"].items():
+            segments = weapon.get("level_growth_segments", [])
+            if not isinstance(segments, list):
+                errors.append(f"weapons.{weapon_id}.level_growth_segments must be an array")
+            else:
+                previous_to = 1
+                for index, segment in enumerate(segments):
+                    if not isinstance(segment, dict):
+                        errors.append(f"weapons.{weapon_id}.level_growth_segments[{index}] must be an object")
+                        continue
+                    start = int(segment.get("from_level", 0))
+                    end = int(segment.get("to_level", 0))
+                    growth = float(segment.get("atk_growth_per_level", -1.0))
+                    if start < 2 or end < start or end > int(weapon.get("max_level", 1)):
+                        errors.append(f"weapons.{weapon_id}.level_growth_segments[{index}] has invalid level bounds")
+                    if start <= previous_to:
+                        errors.append(f"weapons.{weapon_id}.level_growth_segments must be ordered and non-overlapping")
+                    if growth < 0.0:
+                        errors.append(f"weapons.{weapon_id}.level_growth_segments[{index}].atk_growth_per_level must be non-negative")
+                    previous_to = end
             profile_growth = weapon.get("profile_endgame_damage_growth_bonus", {})
             if not isinstance(profile_growth, dict):
                 errors.append(
@@ -572,9 +591,9 @@ def main() -> int:
             errors.append(f"{set_id} full-set contract must satisfy min <= center <= max")
         if series_id == "golden_law":
             opening_keys = (
-                "target_level_one_ratio_min",
-                "target_level_one_ratio_center",
-                "target_level_one_ratio_max",
+                "target_level_50_ratio_min",
+                "target_level_50_ratio_center",
+                "target_level_50_ratio_max",
             )
             opening_values: list[float] = []
             for key in opening_keys:
@@ -585,7 +604,7 @@ def main() -> int:
                     break
                 opening_values.append(float(value))
             if opening_values and not opening_values[0] <= opening_values[1] <= opening_values[2]:
-                errors.append(f"{set_id} opening contract must satisfy min <= center <= max")
+                errors.append(f"{set_id} level-50 contract must satisfy min <= center <= max")
         for slot, table_name in (
             ("weapon", "weapons"),
             ("armor", "armors"),

@@ -294,9 +294,6 @@ func premium_power_offer_for_level(
 		if is_arsenal_owned(series_id):
 			continue
 		var set_row := set_for_series(series_id)
-		var weapon_id := str(set_row.get("weapon", ""))
-		if str(DataLoader.get_row("weapons", weapon_id).get("element", "physical")) != weakness:
-			continue
 		var build := {}
 		for slot in ["weapon", "armor", "chip", "pet"]:
 			var item_id := str(set_row.get(slot, ""))
@@ -327,6 +324,7 @@ func premium_power_offer_for_level(
 				"uplift_ratio": uplift,
 				"result_ratio": result_ratio,
 				"weakness": weakness,
+				"ammo_element": weakness,
 				"build": build,
 			}
 	return best

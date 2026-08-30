@@ -192,7 +192,7 @@
 	"weapon_apocalypse_thunder": {
 		"name_key": "weapon_apocalypse_thunder",
 		"element": "lightning",
-		"base_atk_coef": 0.584,
+		"base_atk_coef": 0.588,
 		"fire_rate": 5.0,
 		"projectile_type": "apocalypse_chain",
 		"projectile_speed": 1680,
@@ -242,7 +242,7 @@
 	"weapon_apocalypse_inferno": {
 		"name_key": "weapon_apocalypse_inferno",
 		"element": "fire",
-		"base_atk_coef": 1.145,
+		"base_atk_coef": 0.855,
 		"fire_rate": 6.2,
 		"projectile_type": "apocalypse_inferno_stream",
 		"projectile_speed": 1540,
@@ -299,7 +299,7 @@
 	"weapon_apocalypse_absolute_zero": {
 		"name_key": "weapon_apocalypse_absolute_zero",
 		"element": "ice",
-		"base_atk_coef": 1.245,
+		"base_atk_coef": 0.969,
 		"fire_rate": 4.3,
 		"projectile_type": "apocalypse_absolute_zero_bolt",
 		"projectile_speed": 1460,
@@ -354,12 +354,15 @@
 	"weapon_apocalypse_golden_law": {
 		"name_key": "weapon_apocalypse_golden_law",
 		"element": "physical",
-		"base_atk_coef": 2.22,
+		"base_atk_coef": 1.335,
 		"fire_rate": 2.4,
 		"projectile_type": "apocalypse_golden_law_verdict",
 		"projectile_speed": 2380,
 		"endgame_damage_growth_bonus": 0.07,
 		"endgame_growth_curve": 1.65,
+		"level_growth_segments": [
+			{"from_level": 51, "to_level": 65, "atk_growth_per_level": 0.0275}
+		],
 		"special": {
 			"pierce": 3,
 			"judgment_hits": 6,
@@ -370,7 +373,7 @@
 		"premium_entitlement": "ent_arsenal_golden_law",
 		"premium_set": "set_apocalypse_golden_law",
 		"rarity": "apocalypse",
-		"max_level": 50,
+		"max_level": 65,
 		"cost_base_gold": 320,
 		"unlock": {
 			"type": "premium",
