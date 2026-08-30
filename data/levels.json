@@ -102,11 +102,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 10,
-				"crowd_capacity": 5.8198,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5151,
+				"model": "bottleneck_v6",
+				"recommended_power": 54,
+				"crowd_capacity": 3.634584397961549,
+				"boss_capacity": 0.3324997306059146,
+				"line_capacity": 0.9994093019260107,
+				"g_required": -2.3088599071492437,
+				"grade": "easy",
+				"target_r": 1.203555898355991,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.24358673095703148,
+				"b2_outcome_adjustment": 0.002963248629992663,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.24358673095703148,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 53.9,
 				"line_base_hp": 161.0,
 				"line_target_hp_ratio": 0.35,
@@ -224,11 +247,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 13,
-				"crowd_capacity": 10.2361,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7305,
+				"model": "bottleneck_v6",
+				"recommended_power": 58,
+				"crowd_capacity": 4.343629428413177,
+				"boss_capacity": 0.3867453237438524,
+				"line_capacity": 1.1397270230700145,
+				"g_required": -1.1636059288869491,
+				"grade": "easy",
+				"target_r": 1.1985332980087455,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.353113608323891,
+				"b2_outcome_adjustment": -0.0012222516593787462,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.353113608323891,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 60.3,
 				"line_base_hp": 127.0,
 				"line_target_hp_ratio": 0.35,
@@ -240,35 +286,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.601562,
-					"ratio": 1.379996,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 2,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 2,
-						"armor": "armor_kevlar",
-						"armor_level": 2,
-						"chip": "chip_attack",
-						"chip_level": 2,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -375,11 +393,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 15,
-				"crowd_capacity": 10.0781,
-				"boss_capacity": 0.0,
-				"line_capacity": 1.0918,
+				"model": "bottleneck_v6",
+				"recommended_power": 61,
+				"crowd_capacity": 5.044692093335414,
+				"boss_capacity": 0.43906613336459155,
+				"line_capacity": 1.272638926543837,
+				"g_required": -0.20207245806217244,
+				"grade": "easy",
+				"target_r": 1.2017770598316437,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.2823775196803435,
+				"b2_outcome_adjustment": 0.0014808831930365096,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.2823775196803435,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 95.1,
 				"line_base_hp": 134.0,
 				"line_target_hp_ratio": 0.35,
@@ -391,33 +432,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.309935,
-					"ratio": 1.309935,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 2,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 2,
-						"armor": "armor_kevlar",
-						"armor_level": 2,
-						"chip": "chip_attack",
-						"chip_level": 2,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -522,11 +537,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 13,
-				"crowd_capacity": 9.2878,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.8587,
+				"model": "bottleneck_v6",
+				"recommended_power": 64,
+				"crowd_capacity": 5.899500102889867,
+				"boss_capacity": 0.5013923178299958,
+				"line_capacity": 1.4283023575004798,
+				"g_required": 0.8038318992301514,
+				"grade": "easy",
+				"target_r": 1.1984408711534769,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.35512914293594955,
+				"b2_outcome_adjustment": -0.0012992740387692658,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.35512914293594955,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 78.7,
 				"line_base_hp": 141.0,
 				"line_target_hp_ratio": 0.35,
@@ -538,35 +576,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.477106,
-					"ratio": 1.379998,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 2,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 2,
-						"armor": "armor_kevlar",
-						"armor_level": 2,
-						"chip": "chip_attack",
-						"chip_level": 2,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -682,11 +692,34 @@
 			"boss_hp_share": 0.0841,
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 14,
-				"crowd_capacity": 10.4198,
-				"boss_capacity": 1.0049,
-				"line_capacity": 0.6476,
+				"model": "bottleneck_v6",
+				"recommended_power": 72,
+				"crowd_capacity": 11.38121660529609,
+				"boss_capacity": 0.7788815706413242,
+				"line_capacity": 1.6272028813722474,
+				"g_required": 2.766750039705843,
+				"grade": "light_pressure",
+				"target_r": 1.1299137658710694,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6521003037642238,
+				"b2_outcome_adjustment": -7.631338843402885e-05,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.622331785245706,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 21.4333333333328
+				},
 				"line_expected_breach": 109.76,
 				"line_base_hp": 260.75,
 				"line_target_hp_ratio": 0.35,
@@ -700,36 +733,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.71477,
-					"ratio": 1.379972,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 3,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 3,
-						"armor": "armor_kevlar",
-						"armor_level": 3,
-						"chip": "chip_attack",
-						"chip_level": 3,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "crowd"
@@ -837,11 +841,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 17,
-				"crowd_capacity": 14.5121,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6701,
+				"model": "bottleneck_v6",
+				"recommended_power": 72,
+				"crowd_capacity": 11.38025965719211,
+				"boss_capacity": 0.7788499257753563,
+				"line_capacity": 1.6271790378755304,
+				"g_required": 2.7665444734729223,
+				"grade": "easy",
+				"target_r": 1.1996752892311906,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.32821042592288896,
+				"b2_outcome_adjustment": -0.0002705923073410018,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.32821042592288896,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 67.95,
 				"line_base_hp": 156.0,
 				"line_target_hp_ratio": 0.35,
@@ -853,35 +880,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.718014,
-					"ratio": 1.380002,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 4,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 4,
-						"armor": "armor_kevlar",
-						"armor_level": 4,
-						"chip": "chip_attack",
-						"chip_level": 4,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1007,11 +1006,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 19,
-				"crowd_capacity": 13.1677,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.9665,
+				"model": "bottleneck_v6",
+				"recommended_power": 76,
+				"crowd_capacity": 14.491240660372199,
+				"boss_capacity": 0.9194932191829247,
+				"line_capacity": 1.7107300804829229,
+				"g_required": 3.739115941489584,
+				"grade": "easy",
+				"target_r": 1.2023730041452085,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.26938187693821547,
+				"b2_outcome_adjustment": 0.0019775034543405416,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.26938187693821547,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 102.4,
 				"line_base_hp": 163.0,
 				"line_target_hp_ratio": 0.35,
@@ -1023,35 +1045,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.401997,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 4,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 4,
-						"armor": "armor_kevlar",
-						"armor_level": 4,
-						"chip": "chip_attack",
-						"chip_level": 4,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1157,11 +1151,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 22,
-				"crowd_capacity": 15.378,
-				"boss_capacity": 0.0,
-				"line_capacity": 1.181,
+				"model": "bottleneck_v6",
+				"recommended_power": 80,
+				"crowd_capacity": 16.486161120082784,
+				"boss_capacity": 1.0230358132170385,
+				"line_capacity": 2.003743773718705,
+				"g_required": 4.7305532117624,
+				"grade": "easy",
+				"target_r": 1.2001746852501773,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.317320193225191,
+				"b2_outcome_adjustment": 0.00014557104181450536,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.317320193225191,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 130.5,
 				"line_base_hp": 170.0,
 				"line_target_hp_ratio": 0.35,
@@ -1173,33 +1190,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.252549,
-					"ratio": 1.252549,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 4,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 4,
-						"armor": "armor_kevlar",
-						"armor_level": 4,
-						"chip": "chip_attack",
-						"chip_level": 4,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1304,11 +1295,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 19,
-				"crowd_capacity": 16.4615,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6449,
+				"model": "bottleneck_v6",
+				"recommended_power": 85,
+				"crowd_capacity": 18.878292866544435,
+				"boss_capacity": 1.1661927735076139,
+				"line_capacity": 2.18335652663826,
+				"g_required": 5.8409135230639055,
+				"grade": "easy",
+				"target_r": 1.1985800696147209,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.352093668930403,
+				"b2_outcome_adjustment": -0.0011832753210660374,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.352093668930403,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 74.2,
 				"line_base_hp": 177.0,
 				"line_target_hp_ratio": 0.35,
@@ -1320,35 +1334,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.750318,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 5,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 5,
-						"armor": "armor_kevlar",
-						"armor_level": 5,
-						"chip": "chip_attack",
-						"chip_level": 5,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1490,11 +1476,34 @@
 			"boss_hp_share": 0.1137,
 			"boss_id": "boss_tank_titan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 24,
-				"crowd_capacity": 19.7888,
-				"boss_capacity": 1.6434,
-				"line_capacity": 0.4323,
+				"model": "bottleneck_v6",
+				"recommended_power": 95,
+				"crowd_capacity": 23.693003814053842,
+				"boss_capacity": 1.5415392540434305,
+				"line_capacity": 3.008861155782963,
+				"g_required": 7.751668621559427,
+				"grade": "light_pressure",
+				"target_r": 1.1301837837387751,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6393307401070907,
+				"b2_outcome_adjustment": 0.00016264047679227374,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5945274993663525,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 32.2583333333315
+				},
 				"line_expected_breach": 90.47,
 				"line_base_hp": 322.0,
 				"line_target_hp_ratio": 0.35,
@@ -1508,36 +1517,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.598523,
-					"ratio": 1.379959,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 6,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 6,
-						"armor": "armor_kevlar",
-						"armor_level": 6,
-						"chip": "chip_attack",
-						"chip_level": 6,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -1650,11 +1630,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 24,
-				"crowd_capacity": 19.2444,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7797,
+				"model": "bottleneck_v6",
+				"recommended_power": 94,
+				"crowd_capacity": 23.376909136486283,
+				"boss_capacity": 1.5170166050956684,
+				"line_capacity": 2.8683807516727,
+				"g_required": 7.613123385106999,
+				"grade": "easy",
+				"target_r": 1.2028209334504527,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.2596139689438215,
+				"b2_outcome_adjustment": 0.0023507778753773982,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.2596139689438215,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 96.8,
 				"line_base_hp": 191.0,
 				"line_target_hp_ratio": 0.35,
@@ -1666,35 +1669,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.565603,
-					"ratio": 1.380002,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 6,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 6,
-						"armor": "armor_kevlar",
-						"armor_level": 6,
-						"chip": "chip_attack",
-						"chip_level": 6,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1808,11 +1783,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 25,
-				"crowd_capacity": 19.2684,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.9393,
+				"model": "bottleneck_v6",
+				"recommended_power": 100,
+				"crowd_capacity": 25.46458020149481,
+				"boss_capacity": 1.6642475147548905,
+				"line_capacity": 3.70237091939391,
+				"g_required": 8.703258021367036,
+				"grade": "easy",
+				"target_r": 1.2019531546824351,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.2785374532219105,
+				"b2_outcome_adjustment": 0.0016276289020293981,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.2785374532219105,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 121.5,
 				"line_base_hp": 199.0,
 				"line_target_hp_ratio": 0.35,
@@ -1824,35 +1822,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.408524,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 6,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 6,
-						"armor": "armor_kevlar",
-						"armor_level": 6,
-						"chip": "chip_attack",
-						"chip_level": 6,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -1958,11 +1928,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 33,
-				"crowd_capacity": 27.7843,
-				"boss_capacity": 0.0,
-				"line_capacity": 1.1621,
+				"model": "bottleneck_v6",
+				"recommended_power": 112,
+				"crowd_capacity": 31.822770337209185,
+				"boss_capacity": 2.0797894969109736,
+				"line_capacity": 4.182883992419227,
+				"g_required": 10.782076160651826,
+				"grade": "light_pressure",
+				"target_r": 1.132754802152727,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5177432926556536,
+				"b2_outcome_adjustment": 0.002437878011262869,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5177432926556536,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 155.6,
 				"line_base_hp": 206.0,
 				"line_target_hp_ratio": 0.35,
@@ -1974,34 +1967,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.238337,
-					"ratio": 1.238337,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 7,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 7,
-						"armor": "armor_kevlar",
-						"armor_level": 7,
-						"chip": "chip_attack",
-						"chip_level": 7,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 0,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -2107,11 +2073,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 31,
-				"crowd_capacity": 28.3263,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7692,
+				"model": "bottleneck_v6",
+				"recommended_power": 118,
+				"crowd_capacity": 40.71961839155649,
+				"boss_capacity": 2.3255744803157925,
+				"line_capacity": 4.329686452687714,
+				"g_required": 11.697906605585786,
+				"grade": "light_pressure",
+				"target_r": 1.1356499999999998,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.3808248971254775,
+				"b2_outcome_adjustment": 0.005,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.3808248971254775,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 106.5,
 				"line_base_hp": 213.0,
 				"line_target_hp_ratio": 0.35,
@@ -2123,35 +2112,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.663644,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 8,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 8,
-						"armor": "armor_kevlar",
-						"armor_level": 8,
-						"chip": "chip_attack",
-						"chip_level": 8,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -2272,11 +2233,34 @@
 			"boss_hp_share": 0.3146,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 31,
-				"crowd_capacity": 28.2911,
-				"boss_capacity": 1.8607,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 126,
+				"crowd_capacity": 49.70069556010913,
+				"boss_capacity": 2.7079550026532373,
+				"line_capacity": 4.6039077538766975,
+				"g_required": 12.825064978657387,
+				"grade": "light_pressure",
+				"target_r": 1.130094210695154,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6435667882330987,
+				"b2_outcome_adjustment": 8.337229659656183e-05,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6053491956405059,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 27.51666666666675
+				},
 				"line_expected_breach": 47.8,
 				"line_base_hp": 348.3333,
 				"line_target_hp_ratio": 0.35,
@@ -2290,36 +2274,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "defense",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.707993,
-					"ratio": 1.379998,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 8,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 8,
-						"armor": "armor_kevlar",
-						"armor_level": 8,
-						"chip": "chip_attack",
-						"chip_level": 8,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "defense",
@@ -2442,11 +2397,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 33,
-				"crowd_capacity": 30.2714,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.8279,
+				"model": "bottleneck_v6",
+				"recommended_power": 125,
+				"crowd_capacity": 48.97553005825421,
+				"boss_capacity": 2.668444176368631,
+				"line_capacity": 4.573809187923984,
+				"g_required": 12.715359942991677,
+				"grade": "easy",
+				"target_r": 1.2010910944381668,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.2973362347551885,
+				"b2_outcome_adjustment": 0.0009092453651390034,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.2973362347551885,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 122.15,
 				"line_base_hp": 227.0,
 				"line_target_hp_ratio": 0.35,
@@ -2458,35 +2436,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.594894,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 8,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 8,
-						"armor": "armor_kevlar",
-						"armor_level": 8,
-						"chip": "chip_attack",
-						"chip_level": 8,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -2594,11 +2544,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 37,
-				"crowd_capacity": 34.9319,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.8294,
+				"model": "bottleneck_v6",
+				"recommended_power": 133,
+				"crowd_capacity": 53.36431320109066,
+				"boss_capacity": 2.9075681389866315,
+				"line_capacity": 4.68547377938446,
+				"g_required": 13.838106952448326,
+				"grade": "easy",
+				"target_r": 1.195846144149423,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.4117118544250955,
+				"b2_outcome_adjustment": -0.003461546542147493,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.4117118544250955,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 126.15,
 				"line_base_hp": 234.0,
 				"line_target_hp_ratio": 0.35,
@@ -2610,35 +2583,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.584989,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 9,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 9,
-						"armor": "armor_kevlar",
-						"armor_level": 9,
-						"chip": "chip_attack",
-						"chip_level": 9,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -2746,11 +2691,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 33,
-				"crowd_capacity": 37.5478,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.4871,
+				"model": "bottleneck_v6",
+				"recommended_power": 149,
+				"crowd_capacity": 63.22165485313934,
+				"boss_capacity": 3.4277863556807913,
+				"line_capacity": 4.8732582488743805,
+				"g_required": 15.846371238294765,
+				"grade": "light_pressure",
+				"target_r": 1.129595692379359,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6671424923962306,
+				"b2_outcome_adjustment": -0.0003577943545493696,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6671424923962306,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 76.3,
 				"line_base_hp": 241.0,
 				"line_target_hp_ratio": 0.35,
@@ -2762,35 +2730,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.075734,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 10,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 10,
-						"armor": "armor_kevlar",
-						"armor_level": 10,
-						"chip": "chip_attack",
-						"chip_level": 10,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -2913,11 +2853,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 41,
-				"crowd_capacity": 37.5478,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.8066,
+				"model": "bottleneck_v6",
+				"recommended_power": 157,
+				"crowd_capacity": 67.85598813540096,
+				"boss_capacity": 3.6790531792005963,
+				"line_capacity": 5.591304679870288,
+				"g_required": 16.79252329160019,
+				"grade": "light_pressure",
+				"target_r": 1.1289111751313086,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6995143744781724,
+				"b2_outcome_adjustment": -0.0009635618307002943,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6995143744781724,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 130.55,
 				"line_base_hp": 249.0,
 				"line_target_hp_ratio": 0.35,
@@ -2929,35 +2892,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.601882,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 10,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 10,
-						"armor": "armor_kevlar",
-						"armor_level": 10,
-						"chip": "chip_attack",
-						"chip_level": 10,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -3104,11 +3039,34 @@
 			"boss_hp_share": 0.2353,
 			"boss_id": "boss_inferno_maw",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 43,
-				"crowd_capacity": 34.4055,
-				"boss_capacity": 3.1275,
-				"line_capacity": 0.6912,
+				"model": "bottleneck_v6",
+				"recommended_power": 167,
+				"crowd_capacity": 76.67695253897236,
+				"boss_capacity": 4.157313064942997,
+				"line_capacity": 6.079415165580528,
+				"g_required": 17.912683656615734,
+				"grade": "light_pressure",
+				"target_r": 1.1264204599312544,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.8173041584251455,
+				"b2_outcome_adjustment": -0.003167734574110966,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7710194362028865,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 33.3250000000265
+				},
 				"line_expected_breach": 162.95,
 				"line_base_hp": 362.6667,
 				"line_target_hp_ratio": 0.35,
@@ -3122,35 +3080,7 @@
 				},
 				"runtime_boss_pressure_mult": 5.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.596386,
-					"ratio": 1.380012,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 10,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 10,
-						"armor": "armor_kevlar",
-						"armor_level": 10,
-						"chip": "chip_attack",
-						"chip_level": 10,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -3257,11 +3187,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 43,
-				"crowd_capacity": 45.4295,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6745,
+				"model": "bottleneck_v6",
+				"recommended_power": 166,
+				"crowd_capacity": 75.63401207165629,
+				"boss_capacity": 4.100766346702897,
+				"line_capacity": 6.03854875727214,
+				"g_required": 17.7906431522191,
+				"grade": "easy",
+				"target_r": 1.1944422791516651,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.4423256677525645,
+				"b2_outcome_adjustment": -0.00463143404027911,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.4423256677525645,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 115.3,
 				"line_base_hp": 263.0,
 				"line_target_hp_ratio": 0.35,
@@ -3273,35 +3226,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.768259,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 11,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 11,
-						"armor": "armor_kevlar",
-						"armor_level": 11,
-						"chip": "chip_attack",
-						"chip_level": 11,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -3409,11 +3334,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 42,
-				"crowd_capacity": 51.7578,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5074,
+				"model": "bottleneck_v6",
+				"recommended_power": 175,
+				"crowd_capacity": 81.60434116149648,
+				"boss_capacity": 4.4244689236224275,
+				"line_capacity": 6.156714256410303,
+				"g_required": 18.76461002685326,
+				"grade": "easy",
+				"target_r": 1.1998253147498226,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.32493884836444453,
+				"b2_outcome_adjustment": -0.00014557104181450536,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.32493884836444453,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 89.05,
 				"line_base_hp": 270.0,
 				"line_target_hp_ratio": 0.35,
@@ -3425,35 +3373,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.077146,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 12,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 12,
-						"armor": "armor_kevlar",
-						"armor_level": 12,
-						"chip": "chip_attack",
-						"chip_level": 12,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		}
 	},
@@ -3578,11 +3498,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 50,
-				"crowd_capacity": 59.1518,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7251,
+				"model": "bottleneck_v6",
+				"recommended_power": 197,
+				"crowd_capacity": 114.37364042621708,
+				"boss_capacity": 6.201172762928086,
+				"line_capacity": 6.7272541419348535,
+				"g_required": 20.847930959933095,
+				"grade": "light_pressure",
+				"target_r": 1.1291937970254053,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6861487468690365,
+				"b2_outcome_adjustment": -0.0007134539598182399,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6861487468690365,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 130.55,
 				"line_base_hp": 277.0,
 				"line_target_hp_ratio": 0.35,
@@ -3594,36 +3537,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.684853,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 12,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 12,
-						"armor": "armor_kevlar",
-						"armor_level": 12,
-						"chip": "chip_attack",
-						"chip_level": 12,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -3737,11 +3651,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 47,
-				"crowd_capacity": 59.1518,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6354,
+				"model": "bottleneck_v6",
+				"recommended_power": 207,
+				"crowd_capacity": 122.29489090084343,
+				"boss_capacity": 6.630651465437973,
+				"line_capacity": 7.773847377462624,
+				"g_required": 21.774962721499673,
+				"grade": "light_pressure",
+				"target_r": 1.1302316150396203,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.637068723722269,
+				"b2_outcome_adjustment": 0.0002049690616109445,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.637068723722269,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 117.3,
 				"line_base_hp": 284.0,
 				"line_target_hp_ratio": 0.35,
@@ -3753,36 +3690,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.820875,
-					"ratio": 1.379999,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 12,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 12,
-						"armor": "armor_kevlar",
-						"armor_level": 12,
-						"chip": "chip_attack",
-						"chip_level": 12,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -3899,11 +3807,34 @@
 			"boss_hp_share": 0.1976,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 61,
-				"crowd_capacity": 76.1523,
-				"boss_capacity": 4.0348,
-				"line_capacity": 0.2722,
+				"model": "bottleneck_v6",
+				"recommended_power": 219,
+				"crowd_capacity": 130.02700346502078,
+				"boss_capacity": 7.0498753849896305,
+				"line_capacity": 8.129721393471097,
+				"g_required": 22.806249145089687,
+				"grade": "light_pressure",
+				"target_r": 1.1308709580980612,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6068331991146694,
+				"b2_outcome_adjustment": 0.0007707593788153279,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.557203569485031,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 35.7333333333396
+				},
 				"line_expected_breach": 64.35,
 				"line_base_hp": 363.75,
 				"line_target_hp_ratio": 0.35,
@@ -3917,36 +3848,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 1,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.620112,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 13,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 13,
-						"armor": "armor_kevlar",
-						"armor_level": 13,
-						"chip": "chip_attack",
-						"chip_level": 13,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 1
-					}
-				}
+				"reference_skill_rank": 1
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4069,11 +3971,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 53,
-				"crowd_capacity": 69.1111,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6012,
+				"model": "bottleneck_v6",
+				"recommended_power": 219,
+				"crowd_capacity": 129.8623954154422,
+				"boss_capacity": 7.040950575481062,
+				"line_capacity": 8.128153512522424,
+				"g_required": 22.784417841120586,
+				"grade": "light_pressure",
+				"target_r": 1.1322493216928975,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5416482474057724,
+				"b2_outcome_adjustment": 0.001990550170705848,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5416482474057724,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 116.85,
 				"line_base_hp": 299.0,
 				"line_target_hp_ratio": 0.35,
@@ -4085,36 +4010,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.04039,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 14,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 14,
-						"armor": "armor_kevlar",
-						"armor_level": 14,
-						"chip": "chip_attack",
-						"chip_level": 14,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4242,11 +4138,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 59,
-				"crowd_capacity": 69.1111,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6435,
+				"model": "bottleneck_v6",
+				"recommended_power": 246,
+				"crowd_capacity": 145.8842301423354,
+				"boss_capacity": 7.909631197609544,
+				"line_capacity": 8.271333120743535,
+				"g_required": 24.840159840590946,
+				"grade": "light_pressure",
+				"target_r": 1.1276004379832445,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7615011666567275,
+				"b2_outcome_adjustment": -0.0021235062095179107,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7615011666567275,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 128.0,
 				"line_base_hp": 306.0,
 				"line_target_hp_ratio": 0.35,
@@ -4258,36 +4177,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.785185,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 14,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 14,
-						"armor": "armor_kevlar",
-						"armor_level": 14,
-						"chip": "chip_attack",
-						"chip_level": 14,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4402,11 +4292,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 53,
-				"crowd_capacity": 69.1111,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5289,
+				"model": "bottleneck_v6",
+				"recommended_power": 259,
+				"crowd_capacity": 147.15162868286876,
+				"boss_capacity": 7.978347706763594,
+				"line_capacity": 8.282286776233349,
+				"g_required": 25.778389988715045,
+				"grade": "light_pressure",
+				"target_r": 1.1318993523867298,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.558198838561546,
+				"b2_outcome_adjustment": 0.0016808428201149637,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.558198838561546,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 107.6,
 				"line_base_hp": 313.0,
 				"line_target_hp_ratio": 0.35,
@@ -4418,36 +4331,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.039518,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 14,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 14,
-						"armor": "armor_kevlar",
-						"armor_level": 14,
-						"chip": "chip_attack",
-						"chip_level": 14,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4559,11 +4443,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 75,
-				"crowd_capacity": 90.0039,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6536,
+				"model": "bottleneck_v6",
+				"recommended_power": 274,
+				"crowd_capacity": 153.70687651204543,
+				"boss_capacity": 8.333763728681316,
+				"line_capacity": 8.336374169325644,
+				"g_required": 26.8069245894677,
+				"grade": "light_pressure",
+				"target_r": 1.1307805862491456,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6111070239816915,
+				"b2_outcome_adjustment": 0.0006907842912793691,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6111070239816915,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 135.95,
 				"line_base_hp": 320.0,
 				"line_target_hp_ratio": 0.35,
@@ -4575,36 +4482,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.756763,
-					"ratio": 1.380001,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 15,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 15,
-						"armor": "armor_kevlar",
-						"armor_level": 15,
-						"chip": "chip_attack",
-						"chip_level": 15,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 1,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4747,11 +4625,34 @@
 			"boss_hp_share": 0.0771,
 			"boss_id": "boss_frost_warden",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 87,
-				"crowd_capacity": 132.3794,
-				"boss_capacity": 6.7392,
-				"line_capacity": 0.6899,
+				"model": "bottleneck_v6",
+				"recommended_power": 310,
+				"crowd_capacity": 253.9780883502339,
+				"boss_capacity": 12.217279304764656,
+				"line_capacity": 8.934584438750878,
+				"g_required": 28.982519619444773,
+				"grade": "pressure",
+				"target_r": 1.0596715701969541,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0647032653490427,
+				"b2_outcome_adjustment": -0.00030983943683573963,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9583719268099951,
+					"median_base_ratio": 0.9101382488479265,
+					"median_boss_phase_seconds": 44.20833333336785
+				},
 				"line_expected_breach": 183.3,
 				"line_base_hp": 408.75,
 				"line_target_hp_ratio": 0.35,
@@ -4765,36 +4666,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.862854,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 16,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 16,
-						"armor": "armor_kevlar",
-						"armor_level": 16,
-						"chip": "chip_attack",
-						"chip_level": 16,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -4921,11 +4793,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 84,
-				"crowd_capacity": 113.377,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6573,
+				"model": "bottleneck_v6",
+				"recommended_power": 287,
+				"crowd_capacity": 180.66270657001792,
+				"boss_capacity": 9.019067944965705,
+				"line_capacity": 8.501495314233324,
+				"g_required": 27.653995152920757,
+				"grade": "easy",
+				"target_r": 1.2038335982232302,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.237530983495348,
+				"b2_outcome_adjustment": 0.0031946651860251976,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.237530983495348,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 142.7,
 				"line_base_hp": 334.0,
 				"line_target_hp_ratio": 0.35,
@@ -4937,35 +4832,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.883641,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 16,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 16,
-						"armor": "armor_kevlar",
-						"armor_level": 16,
-						"chip": "chip_attack",
-						"chip_level": 16,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		}
 	},
@@ -5079,11 +4946,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 78,
-				"crowd_capacity": 132.991,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5103,
+				"model": "bottleneck_v6",
+				"recommended_power": 324,
+				"crowd_capacity": 271.2474913236274,
+				"boss_capacity": 13.048001045065083,
+				"line_capacity": 9.02333863173456,
+				"g_required": 29.805065247400396,
+				"grade": "light_pressure",
+				"target_r": 1.1293967308692765,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.67655169072042,
+				"b2_outcome_adjustment": -0.0005338664873657454,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.67655169072042,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 113.1,
 				"line_base_hp": 341.0,
 				"line_target_hp_ratio": 0.35,
@@ -5095,36 +4985,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.193204,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 16,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 16,
-						"armor": "armor_kevlar",
-						"armor_level": 16,
-						"chip": "chip_attack",
-						"chip_level": 16,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -5239,11 +5100,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 86,
-				"crowd_capacity": 140.889,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5294,
+				"model": "bottleneck_v6",
+				"recommended_power": 343,
+				"crowd_capacity": 286.52899357434603,
+				"boss_capacity": 13.783097455964764,
+				"line_capacity": 9.098163770790604,
+				"g_required": 30.838375294241636,
+				"grade": "light_pressure",
+				"target_r": 1.1272938707586078,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7759992060770515,
+				"b2_outcome_adjustment": -0.0023948046383999756,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7759992060770515,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 120.1,
 				"line_base_hp": 349.0,
 				"line_target_hp_ratio": 0.35,
@@ -5255,36 +5139,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.133464,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 17,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 17,
-						"armor": "armor_kevlar",
-						"armor_level": 17,
-						"chip": "chip_attack",
-						"chip_level": 17,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -5390,11 +5245,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 107,
-				"crowd_capacity": 166.9633,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6359,
+				"model": "bottleneck_v6",
+				"recommended_power": 343,
+				"crowd_capacity": 286.30392904525746,
+				"boss_capacity": 13.772271025104796,
+				"line_capacity": 9.097076815873477,
+				"g_required": 30.82176238142738,
+				"grade": "light_pressure",
+				"target_r": 1.1283392906527152,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7265596782425943,
+				"b2_outcome_adjustment": -0.0014696542896323623,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6868771385600545,
+					"median_base_ratio": 0.9206349206349205,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 147.15,
 				"line_base_hp": 356.0,
 				"line_target_hp_ratio": 0.35,
@@ -5406,36 +5284,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.897104,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 18,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 18,
-						"armor": "armor_kevlar",
-						"armor_level": 18,
-						"chip": "chip_attack",
-						"chip_level": 18,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -5570,11 +5419,34 @@
 			"boss_hp_share": 0.5324,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 121,
-				"crowd_capacity": 204.6328,
-				"boss_capacity": 16.8745,
-				"line_capacity": 0.3835,
+				"model": "bottleneck_v6",
+				"recommended_power": 384,
+				"crowd_capacity": 322.75092598572434,
+				"boss_capacity": 15.525505504244373,
+				"line_capacity": 9.262104036230776,
+				"g_required": 32.844565698976865,
+				"grade": "light_pressure",
+				"target_r": 1.1277163943852957,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.756017408600178,
+				"b2_outcome_adjustment": -0.0020208899245169414,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6948600011927479,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 44.0333333333496
+				},
 				"line_expected_breach": 113.1,
 				"line_base_hp": 453.75,
 				"line_target_hp_ratio": 0.35,
@@ -5588,36 +5460,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.625933,
-					"ratio": 1.379998,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 18,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 18,
-						"armor": "armor_kevlar",
-						"armor_level": 18,
-						"chip": "chip_attack",
-						"chip_level": 18,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "single_target"
@@ -5731,11 +5574,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 98,
-				"crowd_capacity": 176.5573,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5324,
+				"model": "bottleneck_v6",
+				"recommended_power": 383,
+				"crowd_capacity": 321.9719320698059,
+				"boss_capacity": 15.488033034436803,
+				"line_capacity": 9.258705454497894,
+				"g_required": 32.790881112672544,
+				"grade": "light_pressure",
+				"target_r": 1.1310994305664186,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5960283818135734,
+				"b2_outcome_adjustment": 0.0009729474039103494,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5960283818135734,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 128.05,
 				"line_base_hp": 370.0,
 				"line_target_hp_ratio": 0.35,
@@ -5747,36 +5613,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.113582,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 18,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 18,
-						"armor": "armor_kevlar",
-						"armor_level": 18,
-						"chip": "chip_attack",
-						"chip_level": 18,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -5891,11 +5728,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 122,
-				"crowd_capacity": 186.3187,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6772,
+				"model": "bottleneck_v6",
+				"recommended_power": 428,
+				"crowd_capacity": 336.8145099252973,
+				"boss_capacity": 16.202015569076533,
+				"line_capacity": 10.384373149500924,
+				"g_required": 34.79706902358089,
+				"grade": "light_pressure",
+				"target_r": 1.130431176537619,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6276311510391814,
+				"b2_outcome_adjustment": 0.0003815721571848645,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6276311510391814,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 165.95,
 				"line_base_hp": 377.0,
 				"line_target_hp_ratio": 0.35,
@@ -5907,36 +5767,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.812509,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 19,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 19,
-						"armor": "armor_kevlar",
-						"armor_level": 19,
-						"chip": "chip_attack",
-						"chip_level": 19,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -6044,11 +5875,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 140,
-				"crowd_capacity": 195.8129,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7546,
+				"model": "bottleneck_v6",
+				"recommended_power": 454,
+				"crowd_capacity": 339.8208218820271,
+				"boss_capacity": 16.346630221038055,
+				"line_capacity": 10.66759369885505,
+				"g_required": 35.82961895088526,
+				"grade": "light_pressure",
+				"target_r": 1.1288802757536336,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7009756539614145,
+				"b2_outcome_adjustment": -0.000990906412713598,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7009756539614145,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 188.35,
 				"line_base_hp": 384.0,
 				"line_target_hp_ratio": 0.35,
@@ -6060,36 +5914,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.682202,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 20,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 20,
-						"armor": "armor_kevlar",
-						"armor_level": 20,
-						"chip": "chip_attack",
-						"chip_level": 20,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -6208,11 +6033,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 141,
-				"crowd_capacity": 299.4839,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.5117,
+				"model": "bottleneck_v6",
+				"recommended_power": 510,
+				"crowd_capacity": 394.95471130093523,
+				"boss_capacity": 18.99877289430654,
+				"line_capacity": 11.130374856207927,
+				"g_required": 37.92662582930512,
+				"grade": "pressure",
+				"target_r": 1.0611098191198118,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.8593112610587065,
+				"b2_outcome_adjustment": 0.0010469991696337808,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.849091135272543,
+					"median_base_ratio": 0.979559748427673,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 130.05,
 				"line_base_hp": 391.0,
 				"line_target_hp_ratio": 0.35,
@@ -6224,36 +6072,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.710201,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 20,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 20,
-						"armor": "armor_kevlar",
-						"armor_level": 20,
-						"chip": "chip_attack",
-						"chip_level": 20,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "single_target"
@@ -6397,11 +6216,34 @@
 			"boss_hp_share": 0.1446,
 			"boss_id": "boss_storm_caller",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 133,
-				"crowd_capacity": 207.3932,
-				"boss_capacity": 10.7149,
-				"line_capacity": 0.9792,
+				"model": "bottleneck_v6",
+				"recommended_power": 540,
+				"crowd_capacity": 461.28419559705833,
+				"boss_capacity": 22.189464819939307,
+				"line_capacity": 11.409660434864321,
+				"g_required": 38.94427903486821,
+				"grade": "pressure",
+				"target_r": 1.0599838168006035,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0201122667137104,
+				"b2_outcome_adjustment": -1.5267169241896913e-05,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9242219182371181,
+					"median_base_ratio": 0.9211822660098525,
+					"median_boss_phase_seconds": 40.666666666693345
+				},
 				"line_expected_breach": 317.46,
 				"line_base_hp": 498.75,
 				"line_target_hp_ratio": 0.35,
@@ -6415,36 +6257,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.825789,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 20,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 20,
-						"armor": "armor_kevlar",
-						"armor_level": 20,
-						"chip": "chip_attack",
-						"chip_level": 20,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -6558,11 +6371,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 157,
-				"crowd_capacity": 250.8141,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7427,
+				"model": "bottleneck_v6",
+				"recommended_power": 507,
+				"crowd_capacity": 391.2517197952815,
+				"boss_capacity": 18.820645396058122,
+				"line_capacity": 11.08824143684492,
+				"g_required": 37.81578586097002,
+				"grade": "easy",
+				"target_r": 1.194,
+				"grade_target_r": 1.2,
+				"b2_severity": 0.45197036393726153,
+				"b2_outcome_adjustment": -0.005,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.45197036393726153,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 196.0,
 				"line_base_hp": 406.0,
 				"line_target_hp_ratio": 0.35,
@@ -6574,35 +6410,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.685021,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 21,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 21,
-						"armor": "armor_kevlar",
-						"armor_level": 21,
-						"chip": "chip_attack",
-						"chip_level": 21,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		}
 	},
@@ -6710,11 +6518,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 167,
-				"crowd_capacity": 255.3329,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7035,
+				"model": "bottleneck_v6",
+				"recommended_power": 566,
+				"crowd_capacity": 480.44619564857675,
+				"boss_capacity": 23.111227434139646,
+				"line_capacity": 11.480239154717209,
+				"g_required": 39.79718948755949,
+				"grade": "light_pressure",
+				"target_r": 1.130877018789717,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6065465796084806,
+				"b2_outcome_adjustment": 0.0007761228227584427,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6065465796084806,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 188.85,
 				"line_base_hp": 413.0,
 				"line_target_hp_ratio": 0.35,
@@ -6726,36 +6557,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.728601,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 22,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 22,
-						"armor": "armor_kevlar",
-						"armor_level": 22,
-						"chip": "chip_attack",
-						"chip_level": 22,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -6863,11 +6665,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 155,
-				"crowd_capacity": 240.8979,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6346,
+				"model": "bottleneck_v6",
+				"recommended_power": 599,
+				"crowd_capacity": 509.8793831724814,
+				"boss_capacity": 24.527071907751,
+				"line_capacity": 12.427073681492848,
+				"g_required": 40.80025820247028,
+				"grade": "light_pressure",
+				"target_r": 1.1311432902742007,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5939541882231035,
+				"b2_outcome_adjustment": 0.001011761304602527,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5939541882231035,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 173.25,
 				"line_base_hp": 420.0,
 				"line_target_hp_ratio": 0.35,
@@ -6879,36 +6704,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.843702,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 22,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 22,
-						"armor": "armor_kevlar",
-						"armor_level": 22,
-						"chip": "chip_attack",
-						"chip_level": 22,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -7033,11 +6829,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 199,
-				"crowd_capacity": 292.4693,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.9261,
+				"model": "bottleneck_v6",
+				"recommended_power": 632,
+				"crowd_capacity": 532.2879883076912,
+				"boss_capacity": 25.605008156288758,
+				"line_capacity": 12.71788790556586,
+				"g_required": 41.781420033039915,
+				"grade": "light_pressure",
+				"target_r": 1.1309916452513467,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6011257164966818,
+				"b2_outcome_adjustment": 0.0008775621693334077,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5969648288406485,
+					"median_base_ratio": 0.9916782246879334,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 257.05,
 				"line_base_hp": 427.0,
 				"line_target_hp_ratio": 0.35,
@@ -7049,36 +6868,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.453805,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 22,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 22,
-						"armor": "armor_kevlar",
-						"armor_level": 22,
-						"chip": "chip_attack",
-						"chip_level": 22,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -7202,11 +6992,34 @@
 			"boss_hp_share": 0.477,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 192,
-				"crowd_capacity": 421.7566,
-				"boss_capacity": 37.3957,
-				"line_capacity": 0.6203,
+				"model": "bottleneck_v6",
+				"recommended_power": 672,
+				"crowd_capacity": 593.2648499352093,
+				"boss_capacity": 28.5382192630834,
+				"line_capacity": 13.102427549252349,
+				"g_required": 42.86803243953243,
+				"grade": "light_pressure",
+				"target_r": 1.1269855476780728,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7905802826454661,
+				"b2_outcome_adjustment": -0.0026676569220594132,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7133696344972565,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 55.5916666667109
+				},
 				"line_expected_breach": 218.75,
 				"line_base_hp": 542.5,
 				"line_target_hp_ratio": 0.35,
@@ -7220,36 +7033,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.748266,
-					"ratio": 1.379999,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 23,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 23,
-						"armor": "armor_kevlar",
-						"armor_level": 23,
-						"chip": "chip_attack",
-						"chip_level": 23,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 2,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "single_target"
@@ -7359,11 +7143,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 211,
-				"crowd_capacity": 406.4338,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6607,
+				"model": "bottleneck_v6",
+				"recommended_power": 707,
+				"crowd_capacity": 643.4161398812599,
+				"boss_capacity": 30.95068059289784,
+				"line_capacity": 13.515824288144671,
+				"g_required": 43.79738646372988,
+				"grade": "light_pressure",
+				"target_r": 1.1308168352727712,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.609392751446207,
+				"b2_outcome_adjustment": 0.0007228630732490643,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.609392751446207,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 189.4,
 				"line_base_hp": 441.0,
 				"line_target_hp_ratio": 0.35,
@@ -7375,36 +7182,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.833182,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 24,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 24,
-						"armor": "armor_kevlar",
-						"armor_level": 24,
-						"chip": "chip_attack",
-						"chip_level": 24,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -7514,11 +7292,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 207,
-				"crowd_capacity": 390.9352,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.6983,
+				"model": "bottleneck_v6",
+				"recommended_power": 749,
+				"crowd_capacity": 674.0145643156231,
+				"boss_capacity": 32.422577243623245,
+				"line_capacity": 13.668202262482115,
+				"g_required": 44.81930185872477,
+				"grade": "light_pressure",
+				"target_r": 1.1295605014625016,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6688067254219345,
+				"b2_outcome_adjustment": -0.0003889367588481322,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6688067254219345,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 203.8,
 				"line_base_hp": 449.0,
 				"line_target_hp_ratio": 0.35,
@@ -7530,36 +7331,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.870603,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 24,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 24,
-						"armor": "armor_kevlar",
-						"armor_level": 24,
-						"chip": "chip_attack",
-						"chip_level": 24,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -7706,11 +7478,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 216,
-				"crowd_capacity": 342.4442,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7745,
+				"model": "bottleneck_v6",
+				"recommended_power": 843,
+				"crowd_capacity": 726.903524156291,
+				"boss_capacity": 34.966730555072985,
+				"line_capacity": 13.824067236907181,
+				"g_required": 46.932259229500225,
+				"grade": "pressure",
+				"target_r": 1.0609020383603645,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.8889838065809875,
+				"b2_outcome_adjustment": 0.0008509795852494557,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.8889838065809875,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 229.55,
 				"line_base_hp": 456.0,
 				"line_target_hp_ratio": 0.35,
@@ -7722,36 +7517,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.726843,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 24,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 24,
-						"armor": "armor_kevlar",
-						"armor_level": 24,
-						"chip": "chip_attack",
-						"chip_level": 24,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -7888,11 +7654,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 192,
-				"crowd_capacity": 385.5528,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.7111,
+				"model": "bottleneck_v6",
+				"recommended_power": 892,
+				"crowd_capacity": 770.24110669075,
+				"boss_capacity": 37.051427521083085,
+				"line_capacity": 13.944617801308892,
+				"g_required": 47.95573326254991,
+				"grade": "pressure",
+				"target_r": 1.060298112679512,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9752286172402355,
+				"b2_outcome_adjustment": 0.000281238376897912,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.908732453557371,
+					"median_base_ratio": 0.867007672634271,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 214.0,
 				"line_base_hp": 463.0,
 				"line_target_hp_ratio": 0.35,
@@ -7904,36 +7693,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.254833,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 25,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 25,
-						"armor": "armor_kevlar",
-						"armor_level": 25,
-						"chip": "chip_attack",
-						"chip_level": 25,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -8079,11 +7839,34 @@
 			"boss_hp_share": 0.1832,
 			"boss_id": "boss_plague_mother",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 291,
-				"crowd_capacity": 431.4887,
-				"boss_capacity": 28.8871,
-				"line_capacity": 0.407,
+				"model": "bottleneck_v6",
+				"recommended_power": 944,
+				"crowd_capacity": 797.9108020605586,
+				"boss_capacity": 38.382441542042784,
+				"line_capacity": 14.018723181637801,
+				"g_required": 48.961645007973836,
+				"grade": "pressure",
+				"target_r": 1.05964772434034,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.068108620434789,
+				"b2_outcome_adjustment": -0.0003323355279812664,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.844632866546398,
+					"median_base_ratio": 0.7099697885196374,
+					"median_boss_phase_seconds": 56.4916666667109
+				},
 				"line_expected_breach": 155.42,
 				"line_base_hp": 587.5,
 				"line_target_hp_ratio": 0.35,
@@ -8097,36 +7880,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 2,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.527977,
-					"ratio": 1.379998,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 26,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 26,
-						"armor": "armor_kevlar",
-						"armor_level": 26,
-						"chip": "chip_attack",
-						"chip_level": 26,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 2
-					}
-				}
+				"reference_skill_rank": 2
 			}
 		},
 		"offer_category_floor": "compatible_crowd"
@@ -8258,11 +8012,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 249,
-				"crowd_capacity": 546.3031,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 914,
+				"crowd_capacity": 782.7426988916674,
+				"boss_capacity": 37.65280004366958,
+				"line_capacity": 13.978212199209763,
+				"g_required": 48.39500552008951,
+				"grade": "light_pressure",
+				"target_r": 1.1297768966116117,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.658573063275286,
+				"b2_outcome_adjustment": -0.00019743662689211325,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.658573063275286,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 41.6,
 				"line_base_hp": 477.0,
 				"line_target_hp_ratio": 0.35,
@@ -8274,36 +8051,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.872574,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 26,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 26,
-						"armor": "armor_kevlar",
-						"armor_level": 26,
-						"chip": "chip_attack",
-						"chip_level": 26,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -8420,11 +8168,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 156,
-				"crowd_capacity": 474.6551,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 944,
+				"crowd_capacity": 797.820508793107,
+				"boss_capacity": 38.378098104091265,
+				"line_capacity": 14.018482026304774,
+				"g_required": 48.958271894654494,
+				"grade": "light_pressure",
+				"target_r": 1.1319167850405558,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5573744213308085,
+				"b2_outcome_adjustment": 0.0016962699473945897,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5573744213308085,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 41.0,
 				"line_base_hp": 484.0,
 				"line_target_hp_ratio": 0.35,
@@ -8436,36 +8207,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 3.202486,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 26,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 26,
-						"armor": "armor_kevlar",
-						"armor_level": 26,
-						"chip": "chip_attack",
-						"chip_level": 26,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -8602,11 +8344,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 161,
-				"crowd_capacity": 641.6535,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 948,
+				"crowd_capacity": 811.8942857819394,
+				"boss_capacity": 39.05509849204768,
+				"line_capacity": 14.051149250561544,
+				"g_required": 49.04342846979411,
+				"grade": "light_pressure",
+				"target_r": 1.126551313881725,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.8111158722035048,
+				"b2_outcome_adjustment": -0.003051934617942401,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.810225135861462,
+					"median_base_ratio": 0.9982185273159145,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 50.35,
 				"line_base_hp": 491.0,
 				"line_target_hp_ratio": 0.35,
@@ -8618,36 +8383,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 3.499277,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 27,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 27,
-						"armor": "armor_kevlar",
-						"armor_level": 27,
-						"chip": "chip_attack",
-						"chip_level": 27,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -8769,11 +8505,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 202,
-				"crowd_capacity": 709.6665,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 944,
+				"crowd_capacity": 798.1790822067787,
+				"boss_capacity": 38.395346802884724,
+				"line_capacity": 14.019439704473143,
+				"g_required": 48.97166723177935,
+				"grade": "light_pressure",
+				"target_r": 1.1310710927135081,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.597368522818762,
+				"b2_outcome_adjustment": 0.0009478696579719297,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.597368522818762,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 52.6,
 				"line_base_hp": 499.0,
 				"line_target_hp_ratio": 0.35,
@@ -8785,36 +8544,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.938151,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 28,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 28,
-						"armor": "armor_kevlar",
-						"armor_level": 28,
-						"chip": "chip_attack",
-						"chip_level": 28,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -8923,11 +8653,34 @@
 			"boss_hp_share": 0.2883,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 146,
-				"crowd_capacity": 349.0345,
-				"boss_capacity": 68.2899,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1008,
+				"crowd_capacity": 1103.876963440861,
+				"boss_capacity": 53.10053819231394,
+				"line_capacity": 14.718098487403925,
+				"g_required": 50.25421837868055,
+				"grade": "pressure",
+				"target_r": 1.0591193565731276,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.1435632326270366,
+				"b2_outcome_adjustment": -0.0008307956857287239,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.954198473282443,
+					"median_base_ratio": 0.7755760368663596,
+					"median_boss_phase_seconds": 55.54999999999685
+				},
 				"line_expected_breach": 41.82,
 				"line_base_hp": 632.5,
 				"line_target_hp_ratio": 0.35,
@@ -8941,36 +8694,7 @@
 				},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 4.357337,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 28,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 28,
-						"armor": "armor_kevlar",
-						"armor_level": 28,
-						"chip": "chip_attack",
-						"chip_level": 28,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9101,11 +8825,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 214,
-				"crowd_capacity": 570.9628,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1078,
+				"crowd_capacity": 1231.7202299290097,
+				"boss_capacity": 56.126353308285296,
+				"line_capacity": 14.985934067787124,
+				"g_required": 52.27807235161744,
+				"grade": "light_pressure",
+				"target_r": 1.1301895395323567,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6390585397036019,
+				"b2_outcome_adjustment": 0.0001677340994309346,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6390585397036019,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 41.3,
 				"line_base_hp": 513.0,
 				"line_target_hp_ratio": 0.35,
@@ -9117,36 +8864,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.658711,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 28,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 28,
-						"armor": "armor_kevlar",
-						"armor_level": 28,
-						"chip": "chip_attack",
-						"chip_level": 28,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9263,11 +8981,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 706,
-				"crowd_capacity": 997.127,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.2997,
+				"model": "bottleneck_v6",
+				"recommended_power": 1187,
+				"crowd_capacity": 1243.7903943990425,
+				"boss_capacity": 56.676359956770085,
+				"line_capacity": 15.244056911014985,
+				"g_required": 55.21854531121138,
+				"grade": "pressure",
+				"target_r": 1.0598384939601593,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0408653846153848,
+				"b2_outcome_adjustment": -0.00015236418852898357,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.9182692307692305,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 101.3,
 				"line_base_hp": 520.0,
 				"line_target_hp_ratio": 0.35,
@@ -9279,36 +9020,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 0.721443,
-					"ratio": 1.02,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 29,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 29,
-						"armor": "armor_kevlar",
-						"armor_level": 29,
-						"chip": "chip_attack",
-						"chip_level": 29,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9437,11 +9149,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 335,
-				"crowd_capacity": 956.3486,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1228,
+				"crowd_capacity": 1294.1401763743158,
+				"boss_capacity": 58.97067126503055,
+				"line_capacity": 15.58327510261111,
+				"g_required": 56.242279547053464,
+				"grade": "pressure",
+				"target_r": 1.0598223873478043,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0431655214980557,
+				"b2_outcome_adjustment": -0.0001675591058450479,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9854106408039125,
+					"median_base_ratio": 0.8844902386117135,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 47.2,
 				"line_base_hp": 527.0,
 				"line_target_hp_ratio": 0.35,
@@ -9453,36 +9188,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.979699,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 30,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 30,
-						"armor": "armor_kevlar",
-						"armor_level": 30,
-						"chip": "chip_attack",
-						"chip_level": 30,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9622,11 +9328,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 470,
-				"crowd_capacity": 935.0698,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1262,
+				"crowd_capacity": 1319.8531242525387,
+				"boss_capacity": 60.14234480106873,
+				"line_capacity": 15.629354373498366,
+				"g_required": 57.07532470986045,
+				"grade": "pressure",
+				"target_r": 1.0653,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.260924128175692,
+				"b2_outcome_adjustment": 0.005,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.260924128175692,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 43.5,
 				"line_base_hp": 534.0,
 				"line_target_hp_ratio": 0.35,
@@ -9638,34 +9367,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.309517,
-					"ratio": 1.309517,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 30,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 30,
-						"armor": "armor_kevlar",
-						"armor_level": 30,
-						"chip": "chip_attack",
-						"chip_level": 30,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9802,11 +9504,34 @@
 			"boss_hp_share": 0.4472,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 310,
-				"crowd_capacity": 564.2041,
-				"boss_capacity": 52.3076,
-				"line_capacity": 0.5189,
+				"model": "bottleneck_v6",
+				"recommended_power": 1268,
+				"crowd_capacity": 1326.6398985489734,
+				"boss_capacity": 60.4516008177595,
+				"line_capacity": 15.641270909496013,
+				"g_required": 57.23382424228356,
+				"grade": "pressure",
+				"target_r": 1.0597684342791058,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0508703970181863,
+				"b2_outcome_adjustment": -0.00021845822725864104,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.954198473282443,
+					"median_base_ratio": 0.9286700414173955,
+					"median_boss_phase_seconds": 43.924999999997496
+				},
 				"line_expected_breach": 228.08,
 				"line_base_hp": 676.25,
 				"line_target_hp_ratio": 0.35,
@@ -9820,34 +9545,7 @@
 				},
 				"runtime_boss_pressure_mult": 4.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.064459,
-					"ratio": 1.064459,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 30,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 30,
-						"armor": "armor_kevlar",
-						"armor_level": 30,
-						"chip": "chip_attack",
-						"chip_level": 30,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		}
 	},
@@ -9965,11 +9663,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 338,
-				"crowd_capacity": 882.8331,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1192,
+				"crowd_capacity": 1250.747788152388,
+				"boss_capacity": 56.993390667492136,
+				"line_capacity": 15.296656434230504,
+				"g_required": 55.344517561781785,
+				"grade": "light_pressure",
+				"target_r": 1.1276163420964274,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.760749036483182,
+				"b2_outcome_adjustment": -0.002109431773072964,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.760749036483182,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 69.55,
 				"line_base_hp": 549.0,
 				"line_target_hp_ratio": 0.35,
@@ -9981,35 +9702,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.141354,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 31,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 31,
-						"armor": "armor_kevlar",
-						"armor_level": 31,
-						"chip": "chip_attack",
-						"chip_level": 31,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 3,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 1530
@@ -10129,11 +9822,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 458,
-				"crowd_capacity": 1163.8261,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1188,
+				"crowd_capacity": 1245.0343869772753,
+				"boss_capacity": 56.73304552972914,
+				"line_capacity": 15.253461785716409,
+				"g_required": 55.24106934108931,
+				"grade": "light_pressure",
+				"target_r": 1.1314543032221067,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.579245903655773,
+				"b2_outcome_adjustment": 0.0012869940018645624,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.579245903655773,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 69.55,
 				"line_base_hp": 556.0,
 				"line_target_hp_ratio": 0.35,
@@ -10145,36 +9861,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.788917,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 32,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 32,
-						"armor": "armor_kevlar",
-						"armor_level": 32,
-						"chip": "chip_attack",
-						"chip_level": 32,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 1676,
@@ -10287,11 +9974,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 359,
-				"crowd_capacity": 1878.8243,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1358,
+				"crowd_capacity": 1419.0763735536693,
+				"boss_capacity": 64.66369551964246,
+				"line_capacity": 16.746747543299893,
+				"g_required": 59.30975152019349,
+				"grade": "light_pressure",
+				"target_r": 1.1291233757836168,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.689479076589337,
+				"b2_outcome_adjustment": -0.0007757736428169082,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.689479076589337,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 64.3,
 				"line_base_hp": 563.0,
 				"line_target_hp_ratio": 0.35,
@@ -10303,36 +10013,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.336384,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 32,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 32,
-						"armor": "armor_kevlar",
-						"armor_level": 32,
-						"chip": "chip_attack",
-						"chip_level": 32,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 1253,
@@ -10443,11 +10124,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 496,
-				"crowd_capacity": 1055.7203,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1404,
+				"crowd_capacity": 1419.0763735536693,
+				"boss_capacity": 64.66369551964246,
+				"line_capacity": 18.137814051771986,
+				"g_required": 60.32340924393076,
+				"grade": "light_pressure",
+				"target_r": 1.1284826950911053,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.7197778599862834,
+				"b2_outcome_adjustment": -0.001342747706986326,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7197778599862834,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 63.8,
 				"line_base_hp": 570.0,
 				"line_target_hp_ratio": 0.35,
@@ -10459,36 +10163,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.614872,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 32,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 32,
-						"armor": "armor_kevlar",
-						"armor_level": 32,
-						"chip": "chip_attack",
-						"chip_level": 32,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 2022,
@@ -10628,11 +10303,34 @@
 			"boss_hp_share": 0.7547,
 			"boss_id": "boss_void_phantom",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 583,
-				"crowd_capacity": 2088.4979,
-				"boss_capacity": 122.4894,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1496,
+				"crowd_capacity": 1423.4220419858416,
+				"boss_capacity": 64.86171656034487,
+				"line_capacity": 18.146104331839936,
+				"g_required": 62.260709245359294,
+				"grade": "pressure",
+				"target_r": 1.0589121027374888,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.1731605297445102,
+				"b2_outcome_adjustment": -0.0010263181721803874,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.954198473282443,
+					"median_base_ratio": 0.738927738927739,
+					"median_boss_phase_seconds": 63.666666666674544
+				},
 				"line_expected_breach": 71.22,
 				"line_base_hp": 721.25,
 				"line_target_hp_ratio": 0.35,
@@ -10646,36 +10344,7 @@
 				},
 				"runtime_boss_pressure_mult": 4.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.458009,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 33,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 33,
-						"armor": "armor_kevlar",
-						"armor_level": 33,
-						"chip": "chip_attack",
-						"chip_level": 33,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 2230,
@@ -10800,11 +10469,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 592,
-				"crowd_capacity": 2220.0003,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1495,
+				"crowd_capacity": 1423.1539074878567,
+				"boss_capacity": 64.84949835429259,
+				"line_capacity": 18.145592808671783,
+				"g_required": 62.24462307962541,
+				"grade": "pressure",
+				"target_r": 1.0594717383402854,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0932406519654843,
+				"b2_outcome_adjustment": -0.0004983600563346377,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.8135186960690315,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 46.1,
 				"line_base_hp": 584.0,
 				"line_target_hp_ratio": 0.35,
@@ -10816,36 +10508,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.514058,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 34,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 34,
-						"armor": "armor_kevlar",
-						"armor_level": 34,
-						"chip": "chip_attack",
-						"chip_level": 34,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 2197,
@@ -10958,11 +10621,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 438,
-				"crowd_capacity": 1373.1695,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1494,
+				"crowd_capacity": 1422.6500952096249,
+				"boss_capacity": 64.82654091213811,
+				"line_capacity": 18.14463168037739,
+				"g_required": 62.21439792073198,
+				"grade": "pressure",
+				"target_r": 1.060524067756367,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9429606520936825,
+				"b2_outcome_adjustment": 0.0004944035437423154,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.8330080454586115,
+					"median_base_ratio": 0.780094786729858,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 82.6,
 				"line_base_hp": 591.0,
 				"line_target_hp_ratio": 0.35,
@@ -10974,36 +10660,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 2.261534,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 34,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 34,
-						"armor": "armor_kevlar",
-						"armor_level": 34,
-						"chip": "chip_attack",
-						"chip_level": 34,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 1731,
@@ -11128,11 +10785,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 505,
-				"crowd_capacity": 1380.4799,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1703,
+				"crowd_capacity": 1595.1005144321823,
+				"boss_capacity": 72.68466723194778,
+				"line_capacity": 20.30462500790427,
+				"g_required": 66.21129043411294,
+				"grade": "pressure",
+				"target_r": 1.0603973876190758,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9610514616110682,
+				"b2_outcome_adjustment": 0.00037489398026010096,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.916191648526956,
+					"median_base_ratio": 0.9102803738317755,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 70.35,
 				"line_base_hp": 599.0,
 				"line_target_hp_ratio": 0.35,
@@ -11144,36 +10824,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.89518,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 34,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 34,
-						"armor": "armor_kevlar",
-						"armor_level": 34,
-						"chip": "chip_attack",
-						"chip_level": 34,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 2226,
@@ -11290,11 +10941,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 597,
-				"crowd_capacity": 3132.5061,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1756,
+				"crowd_capacity": 1602.6505110267683,
+				"boss_capacity": 73.0287013446038,
+				"line_capacity": 20.318848873848538,
+				"g_required": 67.14802020541502,
+				"grade": "pressure",
+				"target_r": 1.0629994935133358,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.5894525426034709,
+				"b2_outcome_adjustment": 0.002829710861637461,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5894525426034709,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 79.3,
 				"line_base_hp": 606.0,
 				"line_target_hp_ratio": 0.35,
@@ -11306,36 +10980,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.743725,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 35,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 35,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 1856,
@@ -11465,11 +11110,34 @@
 			"boss_hp_share": 0.656,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 725,
-				"crowd_capacity": 3223.1758,
-				"boss_capacity": 210.4837,
-				"line_capacity": 0.3026,
+				"model": "bottleneck_v6",
+				"recommended_power": 1867,
+				"crowd_capacity": 2009.998048979738,
+				"boss_capacity": 91.5904910098805,
+				"line_capacity": 24.365049988106986,
+				"g_required": 69.0080711576827,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.0094070939258264,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7593559439855679,
+					"median_base_ratio": 0.653763440860215,
+					"median_boss_phase_seconds": 55.3916666666635
+				},
 				"line_expected_breach": 150.72,
 				"line_base_hp": 766.25,
 				"line_target_hp_ratio": 0.35,
@@ -11483,36 +11151,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 3,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						1.0,
-						1.4
-					],
-					"raw_ratio": 1.479023,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "paced_free",
-						"character": "vanguard",
-						"character_level": 36,
-						"weapon": "weapon_autocannon",
-						"weapon_level": 36,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "",
-						"pet_level": 1,
-						"signature_level": 4,
-						"skill_rank": 3
-					}
-				}
+				"reference_skill_rank": 3
 			}
 		},
 		"run_xp_budget": 2382,
@@ -11633,11 +11272,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 774,
-				"crowd_capacity": 14306.5581,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1652,
+				"crowd_capacity": 1595.1005144321823,
+				"boss_capacity": 72.68466723194778,
+				"line_capacity": 18.99830478150074,
+				"g_required": 65.2923029859037,
+				"grade": "light_pressure",
+				"target_r": 1.1298070900921737,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.657145166761093,
+				"b2_outcome_adjustment": -0.00017071673258946233,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.657145166761093,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 65.7,
 				"line_base_hp": 620.0,
 				"line_target_hp_ratio": 0.35,
@@ -11649,36 +11311,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.778354,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 36,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 36,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2310,
@@ -11787,11 +11420,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 749,
-				"crowd_capacity": 16519.595,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1825,
+				"crowd_capacity": 1761.0416955042522,
+				"boss_capacity": 80.24618415026774,
+				"line_capacity": 21.65284951206438,
+				"g_required": 68.31584911891723,
+				"grade": "light_pressure",
+				"target_r": 1.1287486345625715,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.707201170011331,
+				"b2_outcome_adjustment": -0.0011074030419719477,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.707201170011331,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 44.25,
 				"line_base_hp": 627.0,
 				"line_target_hp_ratio": 0.35,
@@ -11803,36 +11459,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.028983,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 36,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 36,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2246,
@@ -11945,11 +11572,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 731,
-				"crowd_capacity": 13047.5234,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1822,
+				"crowd_capacity": 1745.539817562678,
+				"boss_capacity": 79.5398030605126,
+				"line_capacity": 21.48396769745814,
+				"g_required": 68.27324878635247,
+				"grade": "light_pressure",
+				"target_r": 1.130329126376198,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.632457261413108,
+				"b2_outcome_adjustment": 0.0002912622798215675,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.632457261413108,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 66.7,
 				"line_base_hp": 634.0,
 				"line_target_hp_ratio": 0.35,
@@ -11961,36 +11611,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.343328,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 37,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 37,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2482,
@@ -12107,11 +11728,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 719,
-				"crowd_capacity": 18677.9372,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 1944,
+				"crowd_capacity": 2009.998048979738,
+				"boss_capacity": 91.5904910098805,
+				"line_capacity": 24.365049988106986,
+				"g_required": 70.24023671437187,
+				"grade": "pressure",
+				"target_r": 1.0596109504851978,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0733601841196778,
+				"b2_outcome_adjustment": -0.00036702784415302024,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.8532796317606446,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 81.25,
 				"line_base_hp": 641.0,
 				"line_target_hp_ratio": 0.35,
@@ -12123,36 +11767,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 6.034564,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 38,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 38,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2255,
@@ -12299,11 +11914,34 @@
 			"boss_hp_share": 0.478,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 783,
-				"crowd_capacity": 8560.113,
-				"boss_capacity": 2347.198,
-				"line_capacity": 0.3248,
+				"model": "bottleneck_v6",
+				"recommended_power": 2273,
+				"crowd_capacity": 2283.525405165896,
+				"boss_capacity": 104.05443587313104,
+				"line_capacity": 25.708117734970678,
+				"g_required": 74.99874421238187,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.3073316686990784,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9983568031369274,
+					"median_base_ratio": 0.5994113799869195,
+					"median_boss_phase_seconds": 78.25000000003965
+				},
 				"line_expected_breach": 171.29,
 				"line_base_hp": 811.25,
 				"line_target_hp_ratio": 0.35,
@@ -12317,36 +11955,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.406534,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 38,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 38,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2300,
@@ -12465,11 +12074,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 818,
-				"crowd_capacity": 18677.9372,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2218,
+				"crowd_capacity": 2212.63750272148,
+				"boss_capacity": 100.82425473199005,
+				"line_capacity": 25.218608079934338,
+				"g_required": 74.24987300870248,
+				"grade": "pressure",
+				"target_r": 1.0591708006884615,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.1362166531932094,
+				"b2_outcome_adjustment": -0.0007822635014513792,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.727566693613581,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 77.5,
 				"line_base_hp": 656.0,
 				"line_target_hp_ratio": 0.35,
@@ -12481,36 +12113,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.156024,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 38,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 38,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2359,
@@ -12625,11 +12228,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 871,
-				"crowd_capacity": 14725.4834,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2289,
+				"crowd_capacity": 2299.0295951703756,
+				"boss_capacity": 104.76092231770326,
+				"line_capacity": 25.734578200717987,
+				"g_required": 75.21385320708802,
+				"grade": "pressure",
+				"target_r": 1.0602343646991466,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9843322746451575,
+				"b2_outcome_adjustment": 0.00022109877277968332,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9047322746451575,
+					"median_base_ratio": 0.8408,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 89.1,
 				"line_base_hp": 663.0,
 				"line_target_hp_ratio": 0.35,
@@ -12641,36 +12267,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.914605,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 39,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 39,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 4,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2241,
@@ -12782,11 +12379,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 905,
-				"crowd_capacity": 20246.5035,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2366,
+				"crowd_capacity": 2361.7324187792724,
+				"boss_capacity": 107.61813026621839,
+				"line_capacity": 25.838888874690248,
+				"g_required": 76.22358782807459,
+				"grade": "pressure",
+				"target_r": 1.0598784869891849,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0351541003872948,
+				"b2_outcome_adjustment": -0.00011463491586343826,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9557068802928195,
+					"median_base_ratio": 0.8411055598110495,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 69.55,
 				"line_base_hp": 670.0,
 				"line_target_hp_ratio": 0.35,
@@ -12798,36 +12418,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.690492,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 40,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2371,
@@ -12937,11 +12528,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1059,
-				"crowd_capacity": 23378.3721,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2446,
+				"crowd_capacity": 2419.6044626920684,
+				"boss_capacity": 109.14962394181505,
+				"line_capacity": 25.91895350595826,
+				"g_required": 77.2265761091981,
+				"grade": "pressure",
+				"target_r": 1.0598788388014373,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0351038591373136,
+				"b2_outcome_adjustment": -0.00011430301751205244,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9748721989056535,
+					"median_base_ratio": 0.8795366795366795,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 87.3,
 				"line_base_hp": 677.0,
 				"line_target_hp_ratio": 0.35,
@@ -12953,36 +12567,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.751443,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 40,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2413,
@@ -13113,11 +12698,34 @@
 			"boss_hp_share": 0.5833,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 989,
-				"crowd_capacity": 42182.8332,
-				"boss_capacity": 2813.1052,
-				"line_capacity": 0.3541,
+				"model": "bottleneck_v6",
+				"recommended_power": 2592,
+				"crowd_capacity": 2574.006271231828,
+				"boss_capacity": 112.3544229269612,
+				"line_capacity": 26.11846197134235,
+				"g_required": 78.99711681044565,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.2513683655588457,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.982742426049618,
+					"median_base_ratio": 0.699877750611247,
+					"median_boss_phase_seconds": 85.36666666669295
+				},
 				"line_expected_breach": 196.8,
 				"line_base_hp": 855.0,
 				"line_target_hp_ratio": 0.35,
@@ -13131,68 +12739,7 @@
 				},
 				"runtime_boss_pressure_mult": 3.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.139837,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 40,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				},
-				"runtime_replay_calibration": {
-					"target_ratio": 1.05,
-					"raw_ratio": 1.005403,
-					"ratio": 1.05,
-					"adjusted_axis": "boss",
-					"fixture": "owner_inferno_midgame"
-				},
-				"post_replay_corridor_guard": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 1.441213,
-					"ratio": 1.38,
-					"protected_axis": "boss",
-					"adjusted_axis": "crowd",
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 40,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3286,
@@ -13305,11 +12852,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 915,
-				"crowd_capacity": 25334.6407,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2451,
+				"crowd_capacity": 2430.802913490055,
+				"boss_capacity": 109.32102423402111,
+				"line_capacity": 25.932790489276023,
+				"g_required": 77.29602617045009,
+				"grade": "light_pressure",
+				"target_r": 1.1292669709211138,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.6826882398765506,
+				"b2_outcome_adjustment": -0.0006486982998990973,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6826882398765506,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 70.0,
 				"line_base_hp": 691.0,
 				"line_target_hp_ratio": 0.35,
@@ -13321,36 +12891,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 6.044321,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 41,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2321,
@@ -13463,11 +13004,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 924,
-				"crowd_capacity": 26442.6644,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2450,
+				"crowd_capacity": 2427.6173165427253,
+				"boss_capacity": 109.27226639622079,
+				"line_capacity": 25.928854315191547,
+				"g_required": 77.27626987494929,
+				"grade": "light_pressure",
+				"target_r": 1.13,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.648022158091305,
+				"b2_outcome_adjustment": -0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.648022158091305,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 70.0,
 				"line_base_hp": 699.0,
 				"line_target_hp_ratio": 0.35,
@@ -13479,36 +13043,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 6.123089,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 42,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2303,
@@ -13621,11 +13156,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1080,
-				"crowd_capacity": 26116.6019,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2608,
+				"crowd_capacity": 2574.092124536633,
+				"boss_capacity": 112.35817039200258,
+				"line_capacity": 26.11859328781156,
+				"g_required": 79.18793932820853,
+				"grade": "pressure",
+				"target_r": 1.0612288886087302,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.8423073053525201,
+				"b2_outcome_adjustment": 0.0011593288761604188,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.8187052719465651,
+					"median_base_ratio": 0.95279593318809,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 88.2,
 				"line_base_hp": 706.0,
 				"line_target_hp_ratio": 0.35,
@@ -13637,36 +13195,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.095716,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 42,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2370,
@@ -13789,11 +13318,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 904,
-				"crowd_capacity": 25488.7921,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 2875,
+				"crowd_capacity": 2713.5035617752724,
+				"boss_capacity": 118.44342813027123,
+				"line_capacity": 26.38699691523552,
+				"g_required": 82.154077230056,
+				"grade": "pressure",
+				"target_r": 1.0625347516075512,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.6558209368290795,
+				"b2_outcome_adjustment": 0.002391275101463464,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.6558209368290795,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 57.3,
 				"line_base_hp": 713.0,
 				"line_target_hp_ratio": 0.35,
@@ -13805,36 +13357,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 6.091401,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 42,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2597,
@@ -13999,11 +13522,34 @@
 			"boss_hp_share": 0.4221,
 			"boss_id": "boss_necrotitan",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1109,
-				"crowd_capacity": 14533.9852,
-				"boss_capacity": 3726.6301,
-				"line_capacity": 0.4306,
+				"model": "bottleneck_v6",
+				"recommended_power": 3055,
+				"crowd_capacity": 2796.171523318363,
+				"boss_capacity": 122.05185411490461,
+				"line_capacity": 26.84216230087498,
+				"g_required": 84.00081457991317,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.2582771266143262,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.7540707467714765,
+					"median_boss_phase_seconds": 97.42500000004631
+				},
 				"line_expected_breach": 251.88,
 				"line_base_hp": 900.0,
 				"line_target_hp_ratio": 0.35,
@@ -14017,36 +13563,7 @@
 				},
 				"runtime_boss_pressure_mult": 4.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.055688,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 43,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3304,
@@ -14171,11 +13688,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1179,
-				"crowd_capacity": 27715.6684,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3078,
+				"crowd_capacity": 2796.171523318363,
+				"boss_capacity": 122.05185411490461,
+				"line_capacity": 26.84216230087498,
+				"g_required": 84.23409294110854,
+				"grade": "pressure",
+				"target_r": 1.0596076807472539,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0738271255643332,
+				"b2_outcome_adjustment": -0.00037011250259071457,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.8523457488713335,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 104.75,
 				"line_base_hp": 727.0,
 				"line_target_hp_ratio": 0.35,
@@ -14187,36 +13727,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.855698,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 44,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2605,
@@ -14330,11 +13841,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1170,
-				"crowd_capacity": 27049.4191,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3179,
+				"crowd_capacity": 2826.929570203974,
+				"boss_capacity": 123.39443149974501,
+				"line_capacity": 26.885491877290406,
+				"g_required": 85.20888331042156,
+				"grade": "pressure",
+				"target_r": 1.0605100957045384,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9449559588055507,
+				"b2_outcome_adjustment": 0.00048122236277198146,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9041966096135495,
+					"median_base_ratio": 0.9184813016159975,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 95.9,
 				"line_base_hp": 734.0,
 				"line_target_hp_ratio": 0.35,
@@ -14346,36 +13880,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.724403,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 44,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2931,
@@ -14501,11 +14006,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1091,
-				"crowd_capacity": 27715.6684,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3286,
+				"crowd_capacity": 2962.398094005586,
+				"boss_capacity": 129.30758252296042,
+				"line_capacity": 28.39260444152637,
+				"g_required": 86.21817093125178,
+				"grade": "pressure",
+				"target_r": 1.060320167838198,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9720789863415197,
+				"b2_outcome_adjustment": 0.0003020451303753546,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9146488568255005,
+					"median_base_ratio": 0.8851397409679616,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 80.9,
 				"line_base_hp": 741.0,
 				"line_target_hp_ratio": 0.35,
@@ -14517,36 +14045,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.34009,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 44,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3046,
@@ -14671,11 +14170,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1215,
-				"crowd_capacity": 28889.002,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3390,
+				"crowd_capacity": 3044.9500308877773,
+				"boss_capacity": 132.91094407400394,
+				"line_capacity": 33.22897651803818,
+				"g_required": 87.16488985724094,
+				"grade": "pressure",
+				"target_r": 1.0620787526427378,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.7209407779420447,
+				"b2_outcome_adjustment": 0.001961087398809113,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.7206340294757869,
+					"median_base_ratio": 0.9993865030674844,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 89.7,
 				"line_base_hp": 749.0,
 				"line_target_hp_ratio": 0.35,
@@ -14687,36 +14209,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.789914,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 45,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2934,
@@ -14838,11 +14331,34 @@
 			"boss_hp_share": 0.5585,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1199,
-				"crowd_capacity": 14983.9577,
-				"boss_capacity": 3423.7368,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3720,
+				"crowd_capacity": 3343.6872748510027,
+				"boss_capacity": 145.9507144224329,
+				"line_capacity": 34.34455768443387,
+				"g_required": 89.99685806370209,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.457141327490585,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.36310160427807503,
+					"median_boss_phase_seconds": 99.85833333332815
+				},
 				"line_expected_breach": 56.75,
 				"line_base_hp": 945.0,
 				"line_target_hp_ratio": 0.35,
@@ -14856,36 +14372,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.831809,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 46,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3244,
@@ -15007,11 +14494,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 854,
-				"crowd_capacity": 28655.7789,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3283,
+				"crowd_capacity": 2960.4570996184466,
+				"boss_capacity": 129.22285883494584,
+				"line_capacity": 28.25523731279116,
+				"g_required": 86.19585571097102,
+				"grade": "light_pressure",
+				"target_r": 1.132974500190981,
+				"grade_target_r": 1.13,
+				"b2_severity": 0.5073534317599,
+				"b2_outcome_adjustment": 0.002632301053965435,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.5073534317599,
+					"median_base_ratio": 1.0,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 64.9,
 				"line_base_hp": 763.0,
 				"line_target_hp_ratio": 0.35,
@@ -15023,36 +14533,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 7.340771,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 46,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2142,
@@ -15194,11 +14675,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1212,
-				"crowd_capacity": 26853.3891,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3748,
+				"crowd_capacity": 3344.114609152378,
+				"boss_capacity": 145.96936740683486,
+				"line_capacity": 34.347249840201435,
+				"g_required": 90.2214808004121,
+				"grade": "pressure",
+				"target_r": 1.0601600887943934,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9949393932775877,
+				"b2_outcome_adjustment": 0.00015102716452204532,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.95356785432073,
+					"median_base_ratio": 0.9172569220862845,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 113.5,
 				"line_base_hp": 770.0,
 				"line_target_hp_ratio": 0.35,
@@ -15210,36 +14714,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.913181,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 46,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3055,
@@ -15370,11 +14845,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1206,
-				"crowd_capacity": 33493.0453,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3874,
+				"crowd_capacity": 3375.8441193296553,
+				"boss_capacity": 147.35434880550764,
+				"line_capacity": 34.54422916089549,
+				"g_required": 91.22858023942722,
+				"grade": "pressure",
+				"target_r": 1.06,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0178011926659338,
+				"b2_outcome_adjustment": -0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.985282140833731,
+					"median_base_ratio": 0.9349618963355946,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 89.0,
 				"line_base_hp": 777.0,
 				"line_target_hp_ratio": 0.35,
@@ -15386,36 +14884,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.310597,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 47,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 1862,
@@ -15537,11 +15006,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1340,
-				"crowd_capacity": 34705.831,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 3871,
+				"crowd_capacity": 3373.4486639510037,
+				"boss_capacity": 147.24978806308687,
+				"line_capacity": 34.529357983540294,
+				"g_required": 91.21132331485038,
+				"grade": "pressure",
+				"target_r": 1.0606009945059753,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.9319749742777838,
+				"b2_outcome_adjustment": 0.0005669759490331115,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9129128492515505,
+					"median_base_ratio": 0.9618757499475334,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 98.6,
 				"line_base_hp": 784.0,
 				"line_target_hp_ratio": 0.35,
@@ -15553,36 +15045,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.622645,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 48,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3335,
@@ -15720,11 +15183,34 @@
 			"boss_hp_share": 0.2812,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1348,
-				"crowd_capacity": 17780.4861,
-				"boss_capacity": 3725.4379,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 4384,
+				"crowd_capacity": 4248.928453748993,
+				"boss_capacity": 185.46415749424483,
+				"line_capacity": 36.27470789123781,
+				"g_required": 94.99714799380638,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.3179241892344236,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 1.0,
+					"median_base_ratio": 0.7449849548645935,
+					"median_boss_phase_seconds": 137.1000000000385
+				},
 				"line_expected_breach": 112.2,
 				"line_base_hp": 988.75,
 				"line_target_hp_ratio": 0.35,
@@ -15738,36 +15224,7 @@
 				},
 				"runtime_boss_pressure_mult": 2.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 4.566378,
-					"ratio": 1.38,
-					"raw_bottleneck": "boss",
-					"bottleneck": "boss",
-					"adjusted_axes": [
-						"boss"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 48,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3000,
@@ -15908,11 +15365,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1172,
-				"crowd_capacity": 35302.5153,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.2559,
+				"model": "bottleneck_v6",
+				"recommended_power": 4275,
+				"crowd_capacity": 4160.7902891234935,
+				"boss_capacity": 181.6169591657029,
+				"line_capacity": 36.160521529450136,
+				"g_required": 94.23255369105605,
+				"grade": "pressure",
+				"target_r": 1.059815386713158,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0441652610831003,
+				"b2_outcome_adjustment": -0.00017416347815297245,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9855450579228295,
+					"median_base_ratio": 0.8827595936794586,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 132.9,
 				"line_base_hp": 799.0,
 				"line_target_hp_ratio": 0.35,
@@ -15924,36 +15404,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.610868,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 48,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2903,
@@ -16096,11 +15547,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1132,
-				"crowd_capacity": 35396.2636,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 4713,
+				"crowd_capacity": 4366.094679880018,
+				"boss_capacity": 190.57841998482584,
+				"line_capacity": 46.20273027621437,
+				"g_required": 97.19743670835324,
+				"grade": "pressure",
+				"target_r": 1.0609942095363667,
+				"grade_target_r": 1.06,
+				"b2_severity": 0.8758211180671682,
+				"b2_outcome_adjustment": 0.0009379335248742771,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.82076756135198,
+					"median_base_ratio": 0.8898928865696235,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 114.9,
 				"line_base_hp": 806.0,
 				"line_target_hp_ratio": 0.35,
@@ -16112,36 +15586,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 6.063307,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 49,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2752,
@@ -16282,11 +15727,34 @@
 			"boss_hp_share": 0.0,
 			"boss_id": null,
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1181,
-				"crowd_capacity": 36650.0266,
-				"boss_capacity": 0.0,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 4718,
+				"crowd_capacity": 4366.094679880018,
+				"boss_capacity": 190.57841998482584,
+				"line_capacity": 46.20273027621437,
+				"g_required": 97.22975530959259,
+				"grade": "pressure",
+				"target_r": 1.0598685339941825,
+				"grade_target_r": 1.06,
+				"b2_severity": 1.0365754576779198,
+				"b2_outcome_adjustment": -0.00012402453379024297,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.998565114727457,
+					"median_base_ratio": 0.9239793140990745,
+					"median_boss_phase_seconds": 0.0
+				},
 				"line_expected_breach": 114.0,
 				"line_base_hp": 813.0,
 				"line_target_hp_ratio": 0.35,
@@ -16298,36 +15766,7 @@
 				"boss_weights": {},
 				"runtime_boss_pressure_mult": 1.0,
 				"guaranteed_skill_ids": [],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "compatible_crowd",
-				"corridor_calibration": {
-					"band": [
-						0.95,
-						1.4
-					],
-					"raw_ratio": 5.69391,
-					"ratio": 1.38,
-					"raw_bottleneck": "crowd",
-					"bottleneck": "crowd",
-					"adjusted_axes": [
-						"crowd"
-					],
-					"fixture": {
-						"family": "strongest_free",
-						"character": "vanguard",
-						"character_level": 40,
-						"weapon": "weapon_scattergun",
-						"weapon_level": 50,
-						"armor": "armor_kevlar",
-						"armor_level": 35,
-						"chip": "chip_attack",
-						"chip_level": 35,
-						"pet": "pet_turret_drone",
-						"pet_level": 30,
-						"signature_level": 5,
-						"skill_rank": 4
-					}
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 2664,
@@ -16481,11 +15920,34 @@
 			"boss_hp_share": 0.6006,
 			"boss_id": "boss_apex_overlord",
 			"power_contract": {
-				"model": "bottleneck_v5",
-				"recommended_power": 1437,
-				"crowd_capacity": 18134.271,
-				"boss_capacity": 5897.1315,
-				"line_capacity": 0.25,
+				"model": "bottleneck_v6",
+				"recommended_power": 5000,
+				"crowd_capacity": 4366.094679880018,
+				"boss_capacity": 190.57841998482584,
+				"line_capacity": 46.20273027621437,
+				"g_required": 99.0,
+				"grade": "high",
+				"target_r": 1.0,
+				"grade_target_r": 1.0,
+				"b2_severity": 1.1967968525691237,
+				"b2_outcome_adjustment": 0.0,
+				"b2_outcome": {
+					"seeds": [
+						1103,
+						2207,
+						3301,
+						4409,
+						5513,
+						6637,
+						7741,
+						8849,
+						9901,
+						10903
+					],
+					"median_max_progress": 0.9793817651180821,
+					"median_base_ratio": 0.9804013065795615,
+					"median_boss_phase_seconds": 149.483333333392
+				},
 				"line_expected_breach": 84.04,
 				"line_base_hp": 1025.0,
 				"line_target_hp_ratio": 0.35,
@@ -16502,15 +15964,7 @@
 					"skill_barrier",
 					"skill_slow_field"
 				],
-				"reference_skill_rank": 4,
-				"offer_category_floor": "single_target",
-				"runtime_replay_calibration": {
-					"target_ratio": 1.16,
-					"raw_ratio": 5.78037,
-					"ratio": 1.16,
-					"adjusted_axis": "boss",
-					"fixture": "maxed_free_scattergun"
-				}
+				"reference_skill_rank": 4
 			}
 		},
 		"run_xp_budget": 3007,
