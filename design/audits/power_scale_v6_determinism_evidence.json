@@ -33,6 +33,19 @@
   ],
   "matrix_all_four_exact": true,
   "matrix_runs": 4,
+  "golden_law_second_rework_rerun": {
+    "status": "pass",
+    "targets": [
+      {"level": 86, "seed": 2207, "exact": true, "run_sha256": "27f1916a86df7ae230ec4845a8b63f73ebb0537d73b39b38863fb947ce69a7c0"},
+      {"level": 90, "seed": 1103, "exact": true, "run_sha256": "28d8f8244202d76765da9edc67841319547e2d75d277fff802c3c1f52af00f9c"}
+    ],
+    "sources": [
+      "/tmp/zf-golden-rework-det-86-a.json",
+      "/tmp/zf-golden-rework-det-86-b.json",
+      "/tmp/zf-golden-rework-det-90-a.json",
+      "/tmp/zf-golden-rework-det-90-b.json"
+    ]
+  },
   "sources": [
     "/tmp/zf-cphase-determinism-a.json",
     "/tmp/zf-cphase-determinism-b.json"

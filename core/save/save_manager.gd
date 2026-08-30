@@ -773,9 +773,31 @@ func weapon_level_damage_multiplier_from_row(weapon: Dictionary, weapon_level: i
 	multiplier += 0.08 * float(maxi(weapon_level - cursor + 1, 0))
 	return multiplier
 
+func weapon_standard_growth_cap_from_row(weapon: Dictionary) -> int:
+	var segments_var: Variant = weapon.get("level_growth_segments", [])
+	var segments: Array = segments_var if segments_var is Array else []
+	if segments.is_empty():
+		return maxi(2, int(weapon.get("max_level", 50)))
+	var first_segment: Dictionary = segments[0] if segments[0] is Dictionary else {}
+	return maxi(2, int(first_segment.get("from_level", 2)) - 1)
+
+func weapon_standard_growth_level_from_row(weapon: Dictionary, weapon_level: int) -> int:
+	var segments_var: Variant = weapon.get("level_growth_segments", [])
+	var segments: Array = segments_var if segments_var is Array else []
+	# Keep the historical input value and arithmetic path exact for every row
+	# without segments. Segmented overcap levels add only their authored attack
+	# growth; baseline cadence remains frozen at the pre-segment cap.
+	if segments.is_empty():
+		return weapon_level
+	return mini(weapon_level, weapon_standard_growth_cap_from_row(weapon))
+
+func weapon_endgame_growth_progress_from_row(weapon: Dictionary, weapon_level: int) -> float:
+	var base_cap := weapon_standard_growth_cap_from_row(weapon)
+	var growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
+	return clampf(float(growth_level - 1) / float(base_cap - 1), 0.0, 1.0)
+
 func _weapon_endgame_growth_multiplier(weapon: Dictionary, weapon_level: int, fire_rate_profile := "control") -> float:
-	var max_level := maxi(2, int(weapon.get("max_level", 50)))
-	var progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var progress := weapon_endgame_growth_progress_from_row(weapon, weapon_level)
 	var growth_bonus := maxf(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
 	var profile_bonuses_var: Variant = weapon.get("profile_endgame_damage_growth_bonus", {})
 	var profile_bonuses: Dictionary = profile_bonuses_var if profile_bonuses_var is Dictionary else {}
@@ -784,7 +806,9 @@ func _weapon_endgame_growth_multiplier(weapon: Dictionary, weapon_level: int, fi
 	return 1.0 + growth_bonus * pow(progress, growth_curve)
 
 func get_weapon_fire_rate_multiplier(weapon_id: String) -> float:
-	return 1.0 + 0.025 * float(max(get_weapon_level(weapon_id) - 1, 0))
+	var weapon := DataLoader.get_row("weapons", weapon_id)
+	var growth_level := weapon_standard_growth_level_from_row(weapon, get_weapon_level(weapon_id))
+	return 1.0 + 0.025 * float(max(growth_level - 1, 0))
 
 func get_loadout_power() -> int:
 	return get_power_for_level(get_highest_unlocked_level_id())
@@ -904,7 +928,8 @@ func _power_v6_fire_rate_throughput(projected: Dictionary, profile_id: String) -
 	var pet := DataLoader.get_row("pets", pet_id) if pet_id != "" else {}
 	var pet_level := get_item_level(pet_id) if pet_id != "" else 1
 	var authored_base := float(weapon.get("fire_rate", 4.0))
-	authored_base *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	var weapon_growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
+	authored_base *= 1.0 + 0.025 * float(maxi(weapon_growth_level - 1, 0))
 	authored_base *= float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
 	var character_mult := float(character.get("fire_rate_mod", 1.0))
 	var chip_value := _power_v6_runtime_chip_value(chip, chip_level, "fire_rate_mult")
@@ -1117,7 +1142,8 @@ func _loadout_offense_multiplier(fire_rate_profile := "control") -> float:
 	char_atk *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.45 * float(maxi(char_level - 1, 0))
 	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
 	weapon_dps *= weapon_level_damage_multiplier_from_row(weapon, weapon_level)
-	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	var weapon_growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
+	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_growth_level - 1, 0))
 	weapon_dps *= _weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile)
 	# 角色-武器元素亲和(bullet_affinity):真实战斗与模拟器都算这 10% 上下的加成,
 	# 战力不算的话跨元素配装(如先锋+雷霆)会被系统性高估。
@@ -1253,7 +1279,8 @@ func _main_output_multiplier(fire_rate_profile := "control") -> float:
 	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
 	var weapon_level := get_item_level(weapon_id)
 	weapon_dps *= weapon_level_damage_multiplier_from_row(weapon, weapon_level)
-	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_level - 1, 0))
+	var weapon_growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
+	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_growth_level - 1, 0))
 	weapon_dps *= _weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile)
 	return maxf(char_atk * weapon_dps, 0.05)
 

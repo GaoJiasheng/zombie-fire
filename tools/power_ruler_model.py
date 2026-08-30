@@ -126,6 +126,20 @@ def char_atk_multiplier(character: dict, char_level: int) -> float:
     return mult
 
 
+def weapon_standard_growth_cap(weapon: dict) -> int:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return max(int(weapon.get("max_level", 50)), 2)
+    return max(int(segments[0].get("from_level", 2)) - 1, 2)
+
+
+def weapon_standard_growth_level(weapon: dict, weapon_level: int | float) -> float:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return float(weapon_level)
+    return min(float(weapon_level), float(weapon_standard_growth_cap(weapon)))
+
+
 def weapon_endgame_growth_multiplier(
     weapon: dict,
     weapon_level: float,
@@ -137,8 +151,9 @@ def weapon_endgame_growth_multiplier(
     did not include it.  Keeping the helper here makes free elemental-weapon
     growth and premium growth share one exact, level-normalized definition.
     """
-    max_level = max(float(weapon.get("max_level", 50)), 2.0)
-    progress = min(max((float(weapon_level) - 1.0) / (max_level - 1.0), 0.0), 1.0)
+    base_cap = float(weapon_standard_growth_cap(weapon))
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
+    progress = min(max((growth_level - 1.0) / (base_cap - 1.0), 0.0), 1.0)
     bonus = max(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
     profile_bonuses = weapon.get("profile_endgame_damage_growth_bonus", {}) or {}
     bonus += max(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
@@ -153,7 +168,8 @@ def weapon_dps_multiplier(
 ) -> float:
     mult = max(weapon_effective_dps(weapon) / 4.0, 0.35)
     mult *= weapon_level_damage_multiplier(weapon, weapon_level)
-    mult *= 1.0 + 0.025 * max(weapon_level - 1, 0)
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
+    mult *= 1.0 + 0.025 * max(growth_level - 1.0, 0.0)
     mult *= weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile_id)
     return mult
 
@@ -388,9 +404,10 @@ def fire_rate_profile_throughput(
             "status_normalization": 1.0,
         }
 
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
     authored_base = (
         float(weapon.get("fire_rate", 4.0))
-        * (1.0 + 0.025 * max(weapon_level - 1, 0))
+        * (1.0 + 0.025 * max(growth_level - 1.0, 0.0))
         * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
     )
     character_mult = float(character.get("fire_rate_mod", 1.0))

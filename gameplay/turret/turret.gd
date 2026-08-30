@@ -30,10 +30,10 @@ var frame_index := 0
 
 func setup(weapon: Dictionary, weapon_level := 1) -> void:
 	weapon_id = _weapon_id_from_turret(str(weapon.get("turret", "")))
-	fire_rate = float(weapon.get("fire_rate", 4.0)) * (1.0 + 0.025 * float(max(weapon_level - 1, 0))) * _player_fire_rate_multiplier()
+	var standard_growth_level := SaveManager.weapon_standard_growth_level_from_row(weapon, weapon_level)
+	fire_rate = float(weapon.get("fire_rate", 4.0)) * (1.0 + 0.025 * float(max(standard_growth_level - 1, 0))) * _player_fire_rate_multiplier()
 	damage_mult = SaveManager.weapon_level_damage_multiplier_from_row(weapon, weapon_level)
-	var max_level := maxi(2, int(weapon.get("max_level", 50)))
-	var growth_progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var growth_progress := SaveManager.weapon_endgame_growth_progress_from_row(weapon, weapon_level)
 	damage_mult *= 1.0 + float(weapon.get("endgame_damage_growth_bonus", 0.0)) * pow(growth_progress, maxf(1.0, float(weapon.get("endgame_growth_curve", 1.0))))
 	turn_speed *= 1.0 + 0.006 * float(max(weapon_level - 1, 0))
 	$Sprite.texture = load(weapon.get("turret", "res://assets/production/sprites/weapons/weapon_autocannon_turret.png"))

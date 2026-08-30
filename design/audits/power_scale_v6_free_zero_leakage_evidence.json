@@ -49,5 +49,26 @@
       {"level": 88, "seed": 6637}
     ]
   },
+  "golden_law_second_rework_same_fixture": {
+    "status": "pass",
+    "baseline_code": "4a583104 runtime/data files in a temporary non-worktree mirror",
+    "after_code": "Golden Law Lv50 parity and standard Lv51-65 growth rework",
+    "fixture_sha256": "128fe3b8e98c7f39783ef425ba15b62a1e4c798193df1212303aa40def3b64c8",
+    "before_raw_file": "/tmp/zf-cphase-golden-rework-baseline-99x10-a60.json",
+    "after_raw_file": "/tmp/zf-cphase-golden-rework-free-99x10-a60.json",
+    "runs_per_side": 990,
+    "exact_matches": 990,
+    "mismatch_count": 0,
+    "canonical_runs_sha256_before": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "canonical_runs_sha256_after": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "victories_before": 989,
+    "victories_after": 989,
+    "timeouts_before": 0,
+    "timeouts_after": 0,
+    "inherited_non_victories": [
+      {"level": 88, "seed": 6637}
+    ],
+    "note": "The earlier raw sweep predates the 4a583104 fixture correction at level 62. This comparison reruns both code states with the same current fixture, so no input adjudication or tolerance is needed."
+  },
   "scope_note": "The comparison begins at 4be071fb so both sides use the same regenerated v6 level contracts and progression fixture. Comparing against pre-C f8361dfb would mix contract regeneration with the paid-set leakage gate. The one inherited non-victory is identical on both sides and therefore is not paid-path leakage."
 }

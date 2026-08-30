@@ -10,6 +10,7 @@ excessive single-target performance.
 
 from __future__ import annotations
 
+import argparse
 import json
 import runpy
 from pathlib import Path
@@ -46,7 +47,7 @@ def linear_equivalents(count: int, edge_scale: float) -> float:
     )
 
 
-def main() -> int:
+def run_audit(weapon_level: int) -> int:
     weapons = COMMON["WEAPONS"]
     characters = COMMON["CHARACTERS"]
     chips = COMMON["CHIPS"]
@@ -64,6 +65,7 @@ def main() -> int:
         "pet_apocalypse_aurora",
         "weapon_apocalypse_absolute_zero",
         COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
+        weapon_level,
     )
     weapon = weapons["weapon_apocalypse_absolute_zero"]
     chip = chips["chip_apocalypse_entropy"]
@@ -72,7 +74,7 @@ def main() -> int:
 
     _, fire_rate = COMMON["resolved_fire_rates"](
         characters["frost"], weapon, chip, pet,
-        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID)
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID, weapon_level)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -153,7 +155,7 @@ def main() -> int:
         + 0.20 * ratios["mixed"]
     )
 
-    print("Absolute Zero Apocalypse max-level DPS audit (all skills maxed)")
+    print(f"Absolute Zero Apocalypse Lv{weapon_level} DPS audit (all skills maxed)")
     print(
         f"Brittle trigger: normal {normal_threshold} hits / boss {boss_threshold} hits; "
         "crystal wave generation 1"
@@ -166,9 +168,10 @@ def main() -> int:
         f"(locked {set_row['target_full_set_ratio_min']:.2f}-"
         f"{set_row['target_full_set_ratio_max']:.2f}x)"
     )
+    print(f"PROGRESSION_RATIO={weighted:.9f}")
 
     errors = []
-    if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
+    if weapon_level == 50 and not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
         set_row["target_full_set_ratio_max"]
     ):
         errors.append("weighted ratio outside locked paid-set band")
@@ -179,6 +182,13 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--weapon-level", type=int, choices=(1, 25, 50, 65), default=50)
+    args = parser.parse_args()
+    return run_audit(int(args.weapon_level))
 
 
 if __name__ == "__main__":

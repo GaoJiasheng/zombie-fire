@@ -38,7 +38,7 @@ def linear_equivalents(count: int, edge_scale: float) -> float:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weapon-level", type=int, choices=(50, 65), default=65)
+    parser.add_argument("--weapon-level", type=int, choices=(1, 25, 50, 65), default=65)
     args = parser.parse_args()
     weapon_level = int(args.weapon_level)
     weapons = COMMON["WEAPONS"]
@@ -186,7 +186,7 @@ def main() -> int:
     )
     armor_hp_ratio = armor_hp / free_armor_hp
 
-    target_prefix = "target_level_50_ratio" if weapon_level == 50 else "target_full_set_ratio"
+    target_prefix = "target_level_50_ratio" if weapon_level <= 50 else "target_full_set_ratio"
     target_min = float(set_row[f"{target_prefix}_min"])
     target_max = float(set_row[f"{target_prefix}_max"])
     print(f"Golden Law Apocalypse Lv{weapon_level} progression audit (all compatible skills maxed)")
@@ -210,11 +210,12 @@ def main() -> int:
         f"Weighted 40/40/20: {weighted:.3f}x "
         f"(locked {target_min:.2f}-{target_max:.2f}x)"
     )
+    print(f"PROGRESSION_RATIO={weighted:.9f}")
 
     errors = []
     if not 1.82 <= armor_hp_ratio <= 1.96:
         errors.append("raw max defense HP outside 1.82-1.96x pre-utility band")
-    if not target_min <= weighted <= target_max:
+    if weapon_level in (50, 65) and not target_min <= weighted <= target_max:
         errors.append("weighted ratio outside locked paid-set band")
     if int(decree["generation_limit"]) != 1:
         errors.append("Golden Decree must remain one generation")

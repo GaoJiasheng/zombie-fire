@@ -153,6 +153,14 @@ def test_segmented_weapon_growth_zero_leakage(model: "psv6.PowerScaleV6") -> Fai
         failures.append("Golden Law segmented level curve must be strictly increasing through Lv65")
     if prm.weapon_level_damage_multiplier(golden, 50) != 1.0 + 0.08 * 49:
         failures.append("Golden Law Lv1-50 must remain on the standard +0.08 additive curve")
+    if prm.weapon_level_damage_multiplier(golden, 65) != 1.0 + 0.08 * 64:
+        failures.append("Golden Law Lv51-65 must continue the standard +0.08 additive curve")
+    if prm.weapon_standard_growth_cap(golden) != 50:
+        failures.append("Golden Law segmented standard-growth cap must remain Lv50")
+    if prm.weapon_standard_growth_level(golden, 65) != 50.0:
+        failures.append("Golden Law overcap levels must not extend baseline cadence past Lv50")
+    if prm.weapon_endgame_growth_multiplier(golden, 50) != 1.0 or prm.weapon_endgame_growth_multiplier(golden, 65) != 1.0:
+        failures.append("Golden Law must not retain a private endgame growth multiplier")
     return failures
 
 

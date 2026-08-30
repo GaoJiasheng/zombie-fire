@@ -2605,8 +2605,7 @@ func _weapon_profile_endgame_damage_multiplier(weapon: Dictionary) -> float:
 	var growth_bonus := maxf(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
 	if growth_bonus <= 0.0:
 		return 1.0
-	var max_level := maxi(2, int(weapon.get("max_level", 50)))
-	var progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var progress := SaveManager.weapon_endgame_growth_progress_from_row(weapon, weapon_level)
 	var curve := maxf(float(weapon.get("endgame_growth_curve", 1.0)), 1.0)
 	return 1.0 + growth_bonus * pow(progress, curve)
 

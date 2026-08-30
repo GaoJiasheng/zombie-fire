@@ -133,11 +133,32 @@ def weapon_level_damage_multiplier(weapon: dict, weapon_level: int) -> float:
     return multiplier
 
 
+def weapon_standard_growth_cap(weapon: dict) -> int:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return max(2, int(weapon.get("max_level", 50)))
+    return max(2, int(segments[0].get("from_level", 2)) - 1)
+
+
+def weapon_standard_growth_level(weapon: dict, weapon_level: int) -> int:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return weapon_level
+    return min(weapon_level, weapon_standard_growth_cap(weapon))
+
+
+def weapon_endgame_growth_progress(weapon: dict, weapon_level: int) -> float:
+    base_cap = weapon_standard_growth_cap(weapon)
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
+    return min(max(float(growth_level - 1) / float(base_cap - 1), 0.0), 1.0)
+
+
 def resolved_fire_rates(character: dict, weapon: dict, chip: dict, pet: dict,
                         profile_id: str, weapon_level: int = WEAPON_LEVEL) -> tuple[float, float]:
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
     authored = (
         float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (weapon_level - 1))
+        * (1.0 + 0.025 * (growth_level - 1))
         * float(ECONOMY["PLAYER_FIRE_RATE_MULT"])
     )
     control = (
@@ -263,18 +284,13 @@ def evaluate(
     element = str(weapon["element"])
 
     weapon_damage_mult = weapon_level_damage_multiplier(weapon, weapon_level)
-    weapon_max_level = max(2, int(weapon.get("max_level", weapon_level)))
-    weapon_growth_progress = min(
-        max(float(weapon_level - 1) / float(weapon_max_level - 1), 0.0),
-        1.0,
-    )
+    weapon_growth_progress = weapon_endgame_growth_progress(weapon, weapon_level)
     weapon_growth_bonus = float(weapon.get("endgame_damage_growth_bonus", 0.0))
     profile_growth = weapon.get("profile_endgame_damage_growth_bonus", {}) or {}
     weapon_growth_bonus += float(profile_growth.get(fire_rate_profile_id, 0.0))
     weapon_damage_mult *= 1.0 + weapon_growth_bonus * weapon_growth_progress ** max(
         1.0, float(weapon.get("endgame_growth_curve", 1.0))
     )
-    weapon_fire_rate_mult = 1.0 + 0.025 * (weapon_level - 1)
     attack_mult = (
         float(character["base_atk"])
         / 100.0
@@ -466,7 +482,11 @@ def best_result(
     ]
     return max(candidates, key=lambda result: result.total_dps)
 
-def apocalypse_audit(baseline: DpsResult, fire_rate_profile_id: str) -> dict:
+def apocalypse_audit(
+    baseline: DpsResult,
+    fire_rate_profile_id: str,
+    weapon_level: int = WEAPON_LEVEL,
+) -> dict:
     """Audit the complete paid set against the strongest free Volt ceiling.
 
     Overload is a per-confirmed-hit meter, so its long-run expectation is the
@@ -484,6 +504,7 @@ def apocalypse_audit(baseline: DpsResult, fire_rate_profile_id: str) -> dict:
         "pet_apocalypse_tempest",
         "weapon_apocalypse_thunder",
         fire_rate_profile_id,
+        weapon_level,
     )
     special = weapon["special"]
     set_row = load("premium_sets.json")["set_apocalypse_thunder"]
@@ -502,7 +523,7 @@ def apocalypse_audit(baseline: DpsResult, fire_rate_profile_id: str) -> dict:
     # One lane-weighted crit-expected shell supplies the non-recursive terminal
     # hit every real-time cooldown. Derive it from connected weapon DPS.
     _, fire_rate = resolved_fire_rates(
-        CHARACTERS["volt"], weapon, chip, pet, fire_rate_profile_id)
+        CHARACTERS["volt"], weapon, chip, pet, fire_rate_profile_id, weapon_level)
     lane_hit_damage = premium.weapon_dps / max(
         fire_rate * CONNECTED_LANES,
         0.001,
@@ -543,6 +564,12 @@ def main() -> int:
         default=fire_rate_lab.SHIPPING_PROFILE_ID,
         metavar="PROFILE",
     )
+    parser.add_argument(
+        "--weapon-level",
+        type=int,
+        choices=(1, 25, 50, 65),
+        default=WEAPON_LEVEL,
+    )
     args = parser.parse_args()
     profile_id = str(args.fire_rate_profile)
     if profile_id not in fire_rate_lab.profile_ids(ECONOMY):
@@ -577,7 +604,7 @@ def main() -> int:
     # Other laboratory profiles remain diagnostic; shipping must fail hard.
     contract_enforced = profile_id == fire_rate_lab.SHIPPING_PROFILE_ID
     free_volt = next(result for result in results if result.character_id == "volt")
-    premium = apocalypse_audit(free_volt, profile_id)
+    premium = apocalypse_audit(free_volt, profile_id, int(args.weapon_level))
     base = premium["base"]
     print(
         "Thunder Apocalypse complete set: "
@@ -587,7 +614,8 @@ def main() -> int:
         f"(locked {premium['target_min']:.2f}-{premium['target_max']:.2f}x; "
         f"overload every {premium['hit_threshold']} confirmed hits)"
     )
-    if not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
+    print(f"PROGRESSION_RATIO={premium['ratio']:.9f}")
+    if int(args.weapon_level) == 50 and not premium["target_min"] <= premium["ratio"] <= premium["target_max"]:
         if not contract_enforced:
             print(
                 f"NOTE: premium ratio outside the Tier-B-calibrated band under {profile_id}; "

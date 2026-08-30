@@ -17,6 +17,7 @@ Scenario assumptions intentionally match the locked design matrix:
 
 from __future__ import annotations
 
+import argparse
 import json
 import runpy
 from pathlib import Path
@@ -43,7 +44,7 @@ def pet_skill_dps(pet: dict, target_equivalents: float) -> float:
     return damage * target_equivalents / float(skill["cooldown"])
 
 
-def main() -> int:
+def run_audit(weapon_level: int) -> int:
     weapons = COMMON["WEAPONS"]
     characters = COMMON["CHARACTERS"]
     chips = COMMON["CHIPS"]
@@ -61,6 +62,7 @@ def main() -> int:
         "pet_apocalypse_phoenix",
         "weapon_apocalypse_inferno",
         COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
+        weapon_level,
     )
     weapon = weapons["weapon_apocalypse_inferno"]
     chip = chips["chip_apocalypse_stellar"]
@@ -71,7 +73,7 @@ def main() -> int:
 
     _, fire_rate = COMMON["resolved_fire_rates"](
         characters["blaze"], weapon, chip, phoenix,
-        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID)
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID, weapon_level)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -167,15 +169,16 @@ def main() -> int:
     }
     weighted = 0.40 * ratios["boss"] + 0.40 * ratios["dense"] + 0.20 * ratios["mixed"]
 
-    print("Inferno Apocalypse max-level DPS audit (all permanent/run skills maxed)")
+    print(f"Inferno Apocalypse Lv{weapon_level} DPS audit (all permanent/run skills maxed)")
     print(f"combustion trigger: {trigger_stacks}/{stack_cap} hits; no recursive spread")
     print(f"Boss:  free {free_boss:,.0f} -> inferno {premium_boss:,.0f} = {ratios['boss']:.3f}x")
     print(f"Dense: free {free_dense:,.0f} -> inferno {premium_dense:,.0f} = {ratios['dense']:.3f}x")
     print(f"Mixed: free {free_mixed:,.0f} -> inferno {premium_mixed:,.0f} = {ratios['mixed']:.3f}x")
     print(f"Weighted 40/40/20: {weighted:.3f}x (locked {set_row['target_full_set_ratio_min']:.2f}-{set_row['target_full_set_ratio_max']:.2f}x)")
+    print(f"PROGRESSION_RATIO={weighted:.9f}")
 
     errors = []
-    if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
+    if weapon_level == 50 and not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
         set_row["target_full_set_ratio_max"]
     ):
         errors.append("weighted ratio outside locked paid-set band")
@@ -186,6 +189,13 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--weapon-level", type=int, choices=(1, 25, 50, 65), default=50)
+    args = parser.parse_args()
+    return run_audit(int(args.weapon_level))
 
 
 if __name__ == "__main__":

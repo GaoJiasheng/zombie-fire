@@ -118,14 +118,22 @@ func _initialize() -> void:
 	var golden_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
 	_expect(int(golden_weapon.get("max_level", 0)) == 65, "Golden Law weapon cap must be level 65")
 	_expect(golden_weapon.get("level_growth_segments", []).size() == 1, "Golden Law must author the reusable 51-65 growth segment")
+	var golden_growth_segment: Dictionary = golden_weapon.get("level_growth_segments", [])[0]
+	_expect(int(golden_growth_segment.get("from_level", 0)) == 51 and int(golden_growth_segment.get("to_level", 0)) == 65, "Golden Law overcap growth must span levels 51-65")
+	_expect(absf(float(golden_growth_segment.get("atk_growth_per_level", 0.0)) - 0.08) <= 0.000001, "Golden Law overcap attack growth must use the standard +0.08 per-level step")
+	_expect(not golden_weapon.has("endgame_damage_growth_bonus") and not golden_weapon.has("endgame_growth_curve"), "Golden Law must not retain a private endgame growth layer")
+	_expect(save_manager.weapon_standard_growth_cap_from_row(golden_weapon) == 50, "Golden Law standard growth normalization must stop at level 50")
 	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, 1) - 1.0) <= 0.000001, "weapon endgame growth must be neutral at level 1")
-	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, int(golden_weapon.get("max_level", 50))) - 1.07) <= 0.000001, "weapon endgame growth must reach its authored max-level bonus")
+	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, 50) - 1.0) <= 0.000001, "Golden Law must have no private endgame multiplier at level 50")
+	_expect(absf(save_manager._weapon_endgame_growth_multiplier(golden_weapon, 65) - 1.0) <= 0.000001, "Golden Law must have no private endgame multiplier at level 65")
 	var golden_level_50_damage: float = float(save_manager.weapon_damage_multiplier_at_level(golden_weapon, 50, "tier_b"))
 	var golden_level_65_damage: float = float(save_manager.weapon_damage_multiplier_at_level(golden_weapon, 65, "tier_b"))
-	_expect(golden_level_65_damage > golden_level_50_damage, "Golden Law segmented growth must increase damage after level 50")
+	_expect(absf(golden_level_50_damage - 4.92) <= 0.000001, "Golden Law levels 1-50 must use the standard +0.08 additive curve")
+	_expect(absf(golden_level_65_damage - 6.12) <= 0.000001, "Golden Law levels 51-65 must add fifteen standard +0.08 steps")
+	_expect(save_manager.weapon_standard_growth_level_from_row(golden_weapon, 65) == 50, "segmented overcap must not extend baseline cadence past level 50")
 	var premium_sets: Dictionary = data_loader.get_table("premium_sets")
 	_expect(absf(float(premium_sets["set_apocalypse_golden_law"].get("target_level_50_ratio_center", 0.0)) - 1.25) <= 0.000001, "Golden Law Lv50 contract must remain centered at 1.25x")
-	_expect(absf(float(premium_sets["set_apocalypse_golden_law"].get("target_full_set_ratio_center", 0.0)) - 1.60) <= 0.000001, "Golden Law Lv65 contract must remain centered at 1.60x")
+	_expect(absf(float(premium_sets["set_apocalypse_golden_law"].get("target_full_set_ratio_center", 0.0)) - 1.556) <= 0.000001, "Golden Law Lv65 contract must match the measured natural-growth result")
 	var expected_unlocks := {"set_apocalypse_inferno": 30, "set_apocalypse_thunder": 50, "set_apocalypse_absolute_zero": 70, "set_apocalypse_golden_law": 90}
 	for premium_set_id in expected_unlocks:
 		_expect(int(premium_sets[premium_set_id].get("store_unlock", {}).get("clear_level", 0)) == int(expected_unlocks[premium_set_id]), "%s reveal tier drifted" % premium_set_id)
@@ -136,6 +144,17 @@ func _initialize() -> void:
 			continue
 		for free_level in range(1, int(free_weapon.get("max_level", 1)) + 1):
 			_expect(save_manager.weapon_level_damage_multiplier_from_row(free_weapon, free_level) == 1.0 + 0.08 * float(free_level - 1), "%s segmented-growth zero-leakage failed at level %d" % [free_weapon_id, free_level])
+	var paid_audit_commands := [
+		["res://tools/audit_character_endgame_dps.py", "50", "Thunder Lv50 full-set ratio must remain in 1.22-1.28"],
+		["res://tools/audit_inferno_premium_dps.py", "50", "Inferno Lv50 full-set ratio must remain in 1.22-1.28"],
+		["res://tools/audit_absolute_zero_premium_dps.py", "50", "Absolute Zero Lv50 full-set ratio must remain in 1.22-1.28"],
+		["res://tools/audit_golden_law_premium_dps.py", "50", "Golden Law Lv50 full-set ratio must remain in 1.22-1.28"],
+		["res://tools/audit_golden_law_premium_dps.py", "65", "Golden Law Lv65 full-set ratio must remain in its measured 1.53-1.58 band"],
+	]
+	for paid_audit in paid_audit_commands:
+		var audit_output: Array = []
+		var audit_exit := OS.execute("python3", PackedStringArray([ProjectSettings.globalize_path(str(paid_audit[0])), "--weapon-level", str(paid_audit[1])]), audit_output, true)
+		_expect(audit_exit == 0, "%s; exit=%d output=%s" % [str(paid_audit[2]), audit_exit, "\n".join(audit_output)])
 	_verify_zombie_mechanic_profiles(data_loader)
 	_verify_zombie_model_redesigns(data_loader)
 	_verify_zombie_attack_animation_contracts(data_loader)

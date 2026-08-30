@@ -473,6 +473,31 @@
       "raw_sha256": "a69418da60f965608b9929964f8b5cb3d685af9a339fb3072f9f027b51af035c"
     }
   ],
+  "golden_law_second_rework": {
+    "status": "pass",
+    "supersedes_original_golden_law_entry": true,
+    "source": "/tmp/zf-golden-rework-paid-level099.json",
+    "weapon_level": 65,
+    "runs": 10,
+    "wins": 10,
+    "timeouts": 0,
+    "elapsed_seconds": {"min": 167.733333333359, "median": 185.583333333373, "max": 257.016666666762},
+    "base_ratio": {"min": 0.999095957639158, "median": 0.9994188299108875},
+    "boss_phase_seconds": {"min": 124.33333333336, "median": 141.5916666667075, "max": 210.216666666763},
+    "canonical_runs_sha256": "da4cf8c2fd5a0981573b468a91ebc34000bbad58e2c37c96b16561c4afacb99e",
+    "seeds": [
+      {"seed": 1103, "victory": true, "timeout": false, "max_progress": 1.0, "base_ratio": 1.0, "elapsed_seconds": 167.733333333359, "boss_phase_seconds": 124.33333333336},
+      {"seed": 2207, "victory": true, "timeout": false, "max_progress": 0.493788764312977, "base_ratio": 0.999647783974171, "elapsed_seconds": 185.783333333373, "boss_phase_seconds": 141.950000000041},
+      {"seed": 3301, "victory": true, "timeout": false, "max_progress": 0.313928455614862, "base_ratio": 1.0, "elapsed_seconds": 185.383333333373, "boss_phase_seconds": 139.750000000041},
+      {"seed": 4409, "victory": true, "timeout": false, "max_progress": 0.398767975086474, "base_ratio": 0.999612553273925, "elapsed_seconds": 183.300000000038, "boss_phase_seconds": 139.533333333373},
+      {"seed": 5513, "victory": true, "timeout": false, "max_progress": 0.760787940571326, "base_ratio": 0.999612553273925, "elapsed_seconds": 201.633333333386, "boss_phase_seconds": 158.350000000054},
+      {"seed": 6637, "victory": true, "timeout": false, "max_progress": 1.0, "base_ratio": 0.999095957639158, "elapsed_seconds": 257.016666666762, "boss_phase_seconds": 210.216666666763},
+      {"seed": 7741, "victory": true, "timeout": false, "max_progress": 0.379649900480081, "base_ratio": 0.99922510654785, "elapsed_seconds": 182.966666666704, "boss_phase_seconds": 139.900000000039},
+      {"seed": 8849, "victory": true, "timeout": false, "max_progress": 0.7524510041448, "base_ratio": 0.99922510654785, "elapsed_seconds": 222.533333333403, "boss_phase_seconds": 177.016666666737},
+      {"seed": 9901, "victory": true, "timeout": false, "max_progress": 1.0, "base_ratio": 0.999095957639158, "elapsed_seconds": 215.56666666673, "boss_phase_seconds": 169.366666666732},
+      {"seed": 10903, "victory": true, "timeout": false, "max_progress": 0.506349147185114, "base_ratio": 0.99922510654785, "elapsed_seconds": 185.283333333373, "boss_phase_seconds": 141.233333333374}
+    ]
+  },
   "notes": [
     "Challenge level_099 is explicitly outside this gate.",
     "Godot headless emitted known exit-time RID/ObjectDB cleanup warnings after result JSON was written; all probe processes exited 0."

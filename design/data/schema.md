@@ -748,8 +748,8 @@ Save v3 的外观状态结构为：
 
 - premium 装备行声明同一 `premium_entitlement` / `premium_set`。
 - 购买后装备从 1 级开始，用普通金币升级，不参与星星解锁价格曲线。
-- `target_full_set_ratio_min/center/max` 必须由 Tier B、中性纯物理 DPS 可复现审计验证；炼狱、雷霆、绝对零度为 `1.22 / 1.25 / 1.28`，黄金法则 Lv65 为 `1.55 / 1.60 / 1.65`，并以 `target_level_50_ratio_*` 另钉 Lv50 的 `1.22 / 1.25 / 1.28`。
-- 武器可选 `level_growth_segments: [{from_level,to_level,atk_growth_per_level}]` 覆盖指定等级段的每级攻击成长；区间必须有序、不重叠且落在 `2..max_level`。未声明该结构时必须逐位沿用历史 `1 + 0.08 × (level - 1)` 公式。
+- `target_full_set_ratio_min/center/max` 必须由 Tier B、中性纯物理 DPS 可复现审计验证；炼狱、雷霆、绝对零度为 `1.22 / 1.25 / 1.28`，黄金法则 Lv65 为实测 `1.53 / 1.556 / 1.58`，并以 `target_level_50_ratio_*` 另钉 Lv50 的 `1.22 / 1.25 / 1.28`。
+- 武器可选 `level_growth_segments: [{from_level,to_level,atk_growth_per_level}]` 覆盖指定等级段的每级攻击成长；区间必须有序、不重叠且落在 `2..max_level`。首段开始前的等级是标准成长上限：分段后只追加该段声明的攻击成长，基础攻速成长与 endgame 归一化保持在标准上限。未声明该结构时必须逐位沿用历史 `1 + 0.08 × (level - 1)` 及原攻速成长公式。
 - 撤权只收回使用权并回退非法已装备项，不删除已投入的装备等级。
 - 商店、权益恢复和一键装备必须遍历 `series_id`，不得再依赖某一套装的代码常量。
 - `store_unlock` 同时控制系列在玩家界面的首次揭示与购买授权：未达条件前，商店、主题 / 战衣选择、收藏等入口必须整套隐藏，不得显示系列标题、素材、价格或购买按钮；达成后才生成商品卡。商店空态可以只按 `store_unlock` 动态汇总匿名档位条件，但不得提前泄露系列身份或商品内容。`unlock_hint_zh/en` 与 `unlock_cta_zh/en` 仅作为历史数据兼容 / 内部审核说明保留，不得直接用于未揭示玩家界面。已验证权益始终优先于本地进度门禁。

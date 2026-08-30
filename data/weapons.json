@@ -354,14 +354,12 @@
 	"weapon_apocalypse_golden_law": {
 		"name_key": "weapon_apocalypse_golden_law",
 		"element": "physical",
-		"base_atk_coef": 1.335,
-		"fire_rate": 2.4,
+		"base_atk_coef": 0.927,
+		"fire_rate": 3.74,
 		"projectile_type": "apocalypse_golden_law_verdict",
 		"projectile_speed": 2380,
-		"endgame_damage_growth_bonus": 0.07,
-		"endgame_growth_curve": 1.65,
 		"level_growth_segments": [
-			{"from_level": 51, "to_level": 65, "atk_growth_per_level": 0.0275}
+			{"from_level": 51, "to_level": 65, "atk_growth_per_level": 0.08}
 		],
 		"special": {
 			"pierce": 3,
