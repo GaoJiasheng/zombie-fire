@@ -23,8 +23,11 @@ func _ready() -> void:
 func _apply_ui_style() -> void:
 	var title := %Title as TextureRect
 	var fallback_title := MENU_TITLE_LOGO_EN_PATH if LocalizationManager.is_english() else MENU_TITLE_LOGO_PATH
-	var title_path := ThemeManager.resolve_ui_asset("menu_title", fallback_title)
-	var title_presentation := ThemeManager.active_ui_asset_presentation("menu_title")
+	var language_title_key := "menu_title_en" if LocalizationManager.is_english() else "menu_title_zh"
+	var title_path := ThemeManager.resolve_ui_asset(language_title_key, ThemeManager.resolve_ui_asset("menu_title", fallback_title))
+	var title_presentation := ThemeManager.active_ui_asset_presentation(language_title_key)
+	if title_presentation.is_empty():
+		title_presentation = ThemeManager.active_ui_asset_presentation("menu_title")
 	title.texture = _visible_logo_texture(load(title_path) as Texture2D, title_presentation)
 	title.material = _logo_key_material(title_presentation)
 	title.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -33,12 +36,12 @@ func _apply_ui_style() -> void:
 	(%Subtitle as Label).text = MENU_SUBTITLE
 	var theme_accent := ThemeManager.active_ui_accent(UiKit.GOLD)
 	UiKit.apply_label(%Subtitle, 34, theme_accent, 4)
-	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(600, 120), true)
+	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(780, 148), true)
 	UiKit.apply_armored_texture_button(%StoreButton as TextureButton, false, Vector2(600, 120), true)
 	UiKit.apply_armored_texture_button(%HelpButton as TextureButton, false, Vector2(600, 120), true)
-	UiKit.apply_label((%StartButton as Control).get_node("Label"), 44, UiKit.TEXT_MAIN, 3)
-	UiKit.apply_label((%StoreButton as Control).get_node("Label"), 38, theme_accent, 3)
-	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, UiKit.TEXT_MAIN, 3)
+	UiKit.apply_label((%StartButton as Control).get_node("Label"), 46, UiKit.TEXT_MAIN, 3)
+	UiKit.apply_label((%StoreButton as Control).get_node("Label"), 38, UiKit.CYAN, 3)
+	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, UiKit.CYAN, 3)
 	(%StartButton as Control).get_node("Label").text = LocalizationManager.text("开始")
 	(%StoreButton as Control).get_node("Label").text = LocalizationManager.text("终焉军械库")
 	(%HelpButton as Control).get_node("Label").text = LocalizationManager.text("设置")

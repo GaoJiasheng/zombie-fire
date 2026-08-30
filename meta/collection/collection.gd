@@ -17,6 +17,8 @@ const COLLECTION_CARD_WIDTH := 860.0
 # presentation while weapons / armor / chips / pets / skills share one denser
 # showcase layout.
 const CATALOG_LIST_CARD_WIDTH := 896.0
+const COLLECTION_SCROLLBAR_RESERVE := 8.0
+const COLLECTION_MIN_SAFE_GUTTER := 24.0
 const CATALOG_LIST_CARD_HEIGHT := 256.0
 const CATALOG_LIST_ICON_POSITION := Vector2(32.0, 26.0)
 const CATALOG_LIST_ICON_SIZE := Vector2(204.0, 204.0)
@@ -109,13 +111,33 @@ func setup(main: Node, payload := {}) -> void:
 			_return_challenge_mode = bool(context.get("challenge", _return_challenge_mode))
 	if _return_to != "loadout":
 		_return_to = "map"
+	_apply_safe_horizontal_margins()
 	_refresh()
 
 func _ready() -> void:
 	AudioManager.play_bgm("map")
 	(%BackButton as TextureButton).pressed.connect(_on_back_pressed)
+	_apply_safe_horizontal_margins()
+	_apply_safe_horizontal_margins.call_deferred()
 	_refresh_back_button()
 	_refresh()
+
+func _apply_safe_horizontal_margins() -> void:
+	var root := get_node_or_null("Root") as MarginContainer
+	if root == null:
+		return
+	# The app shell applies device safe-area offsets to this full-rect container.
+	# Derive the inner gutter from the resulting width so both ordinary and tall
+	# phones keep the complete card inside the safe area.
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	# setup/_ready run before Main applies the safe offsets to Root. Derive the
+	# target width from the viewport and insets directly so the first full-width
+	# layout cannot cache an oversized gutter.
+	var available_width := get_viewport_rect().size.x - safe.x - safe.z
+	var card_width := COLLECTION_CARD_WIDTH if mode == "characters" else CATALOG_LIST_CARD_WIDTH
+	var gutter := maxf(COLLECTION_MIN_SAFE_GUTTER, floor((available_width - card_width - COLLECTION_SCROLLBAR_RESERVE) * 0.5))
+	root.add_theme_constant_override("margin_left", int(gutter))
+	root.add_theme_constant_override("margin_right", int(gutter))
 
 func _on_back_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
@@ -708,10 +730,21 @@ func _data_table_name() -> String:
 		_:
 			return ""
 
+func _locked_character_teaser(item_id: String) -> String:
+	match item_id:
+		"char_blaze":
+			return _loc("专属预告：熔毁轰击 · 锁定强敌连续引爆火焰", "Signature Preview: Meltdown · Repeated firebursts on a priority target")
+		"char_frost":
+			return _loc("专属预告：冰川领域 · 全屏减速并掀起寒潮", "Signature Preview: Glacier · Field-wide Slow and frost waves")
+		"char_volt":
+			return _loc("专属预告：雷暴链击 · 连续雷击高威胁目标", "Signature Preview: Storm Chain · Repeated strikes on high-threat targets")
+		_:
+			return _loc("专属预告：钢雨齐射 · 多轮弹幕压制尸潮", "Signature Preview: Steel Rain · Multi-salvo horde suppression")
+
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if mode == "characters":
 		if not unlocked:
-			return _loc("解锁后可配置、升级并查看专属技能", "Unlock to equip, upgrade, and inspect signature skills.")
+			return _locked_character_teaser(item_id)
 		return LocalizationManager.text(_next_upgrade_hint(item_id, row))
 	if not unlocked:
 		# Price already lives in the action button; repeating it here squeezes the
@@ -1013,16 +1046,16 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 		return "已满级"
 	match mode:
 		"weapons":
-			return "下级 伤害+8% · 射速+2.5%"
+			return "下一级 伤害+8% · 射速+2.5%"
 		"characters":
-			return "下级 攻击+%d%%" % int(round(float(row.get("atk_growth", 0.08)) * 0.52 * 100.0))
+			return "下一级 攻击+%d%%" % int(round(float(row.get("atk_growth", 0.08)) * 0.52 * 100.0))
 		"armors":
-			return "下级 生命+%d%%" % int(round(float(row.get("hp_mult", 1.0)) * float(row.get("level_hp_growth", 0.0)) * 100.0))
+			return "下一级 生命+%d%%" % int(round(float(row.get("hp_mult", 1.0)) * float(row.get("level_hp_growth", 0.0)) * 100.0))
 		"chips":
-			return "下级 +%s" % _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))
+			return "下一级 +%s" % _value_text(float(row.get("value", 0)) * float(row.get("level_value_growth", 0.0)))
 		"pets":
 			if row.get("role", "") == "repair":
-				return "下级 波次+%.1f%% · 持续+%.2f%%" % [
+				return "下一级 波次+%.1f%% · 持续+%.2f%%" % [
 					float(row.get("level_wave_heal_ratio_growth", 0.0)) * 100.0,
 					float(row.get("level_repair_ratio_growth", 0.0)) * 100.0,
 				]
@@ -1030,12 +1063,12 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 			if not pet_skill.is_empty():
 				# The skill name is already printed immediately before this hint.
 				# Avoid repeating it in a narrow phone card.
-				return "下级 协战强化"
+				return "下一级 协战强化"
 			if row.has("damage"):
-				return "下级 伤害+%d" % int(round(float(row.get("damage", 0)) * float(row.get("level_damage_growth", 0.0))))
-			return "下级 效率提升"
+				return "下一级 伤害+%d" % int(round(float(row.get("damage", 0)) * float(row.get("level_damage_growth", 0.0))))
+			return "下一级 效率提升"
 		_:
-			return "下级强化"
+			return "下一级强化"
 
 func _level_tint(level: int) -> Color:
 	if level >= 25:

@@ -57,7 +57,7 @@ func _apply_layout() -> void:
 	# On shorter safe areas (large Dynamic Island + home indicator), the full
 	# settings stack needs a denser authored rhythm. This keeps the whole panel
 	# inside the safe rect without shrinking type or touch targets.
-	_vbox.add_theme_constant_override("separation", 8 if compact_safe_layout else 14)
+	_vbox.add_theme_constant_override("separation", 6 if compact_safe_layout else 14)
 	var margin := $Center/Panel/Margin as MarginContainer
 	# Twelve pixels keeps the complete settings stack four pixels below the
 	# compact safe-area ceiling. At 16px the VBox minimum height was 1690px,
@@ -69,10 +69,10 @@ func _apply_layout() -> void:
 		_button(path).custom_minimum_size = Vector2(0, 88)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 80)
-	var info_height := 132
+	var info_height := 148 if LocalizationManager.is_english() else 144
 	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(
 		0,
-		info_height if compact_safe_layout else (180 if LocalizationManager.is_english() else 136)
+		info_height if compact_safe_layout else (180 if LocalizationManager.is_english() else 144)
 	)
 	_button("BackButton").custom_minimum_size = Vector2(0, 96)
 
@@ -98,7 +98,7 @@ func _apply_style() -> void:
 		_style_button(_button(path), UiKit.CYAN, 24)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 22)
-	_style_button(_button("BackButton"), UiKit.GOLD, 28)
+	_style_button(_button("BackButton"), UiKit.CYAN, 28)
 
 func _style_slider(slider: HSlider) -> void:
 	var track := UiKit.texture_style(
@@ -127,7 +127,10 @@ func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	var button_size := Vector2(880, maxf(button.custom_minimum_size.y, 88.0))
 	var parent := button.get_parent()
 	if parent is HBoxContainer:
-		var sibling_count := (parent as HBoxContainer).get_child_count()
+		var sibling_count := 0
+		for sibling in (parent as HBoxContainer).get_children():
+			if sibling is Control and (sibling as Control).visible:
+				sibling_count += 1
 		if sibling_count >= 3:
 			button_size = Vector2(286, 80)
 		else:
@@ -202,6 +205,29 @@ func _open_theme_appearance() -> void:
 	_appearance_selector.store_requested.connect(_on_appearance_store_requested)
 	_appearance_selector.closed.connect(func() -> void: _appearance_selector = null)
 	_appearance_selector.open_global(router)
+	_fit_appearance_selector_to_safe_width.call_deferred()
+
+func _fit_appearance_selector_to_safe_width() -> void:
+	if not is_instance_valid(_appearance_selector):
+		return
+	# The selector's full-width actions are authored at 880px. Clear only their
+	# horizontal minimum here so the modal can honor the current device safe
+	# rect; height, typography, texture routing and touch targets stay intact.
+	var root := _appearance_selector.get_node_or_null("AppearanceSelectorRoot")
+	if root == null:
+		return
+	# Runtime-generated container indices are intentionally ignored. The authored
+	# control names are the stable selector contract.
+	for node in root.find_children("*", "Control", true, false):
+		if node.name in ["CloseButton", "FollowAllButton"]:
+			var control := node as Control
+			control.custom_minimum_size = Vector2(0.0, control.custom_minimum_size.y)
+	var panel := root.get_node_or_null("Panel") as Control
+	if panel != null:
+		var safe := UiKit.safe_area_canvas_insets(get_viewport())
+		# tall_modal_shift may move the selector six pixels below the home-indicator
+		# edge on very tall devices. Preserve the visual shift but clamp its bottom.
+		panel.offset_bottom = minf(panel.offset_bottom, -safe.w)
 
 func _on_global_theme_changed(_theme_id: String) -> void:
 	# Recreate Settings so every native-size button resolves against the newly
@@ -244,6 +270,20 @@ func _refresh_accessibility() -> void:
 	var lab_button := _button("AccessibilityRow/FireRateLabButton")
 	lab_button.visible = SettingsManager.has_fire_rate_lab()
 	lab_button.text = LocalizationManager.text("攻速实验：%s") % SettingsManager.fire_rate_profile_label()
+	_fit_accessibility_pair_text.call_deferred()
+
+func _fit_accessibility_pair_text() -> void:
+	var pair: Array[Button] = [
+		_button("AccessibilityRow/ReduceEffectsButton"),
+		_button("AccessibilityRow/HapticsButton"),
+	]
+	var preferred := UiKit.scaled_font_size(22)
+	var shared_size := preferred
+	for button in pair:
+		shared_size = mini(shared_size, UiKit.fit_button_text(button, preferred, 22, 24.0))
+	for button in pair:
+		button.add_theme_font_size_override("font_size", shared_size)
+		button.set_meta("accessibility_pair_shared_font_size", shared_size)
 
 func _on_backup() -> void:
 	SaveManager.backup_game()
@@ -283,7 +323,9 @@ func _show_info(mode: String) -> void:
 	var body := _vbox.get_node("InfoBody") as Label
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
-	var regular_separation := 8 if safe_height < 1840.0 else 14
+	var compact_safe_layout := safe_height < 1840.0
+	var regular_separation := 6 if compact_safe_layout else 14
+	var compact_info_height := 148.0 if LocalizationManager.is_english() else 144.0
 	_vbox.add_theme_constant_override("separation", mini(regular_separation, 12) if mode == "privacy" else regular_separation)
 	# The privacy copy is intentionally more explicit than the controls/support
 	# summaries. Give each state its authored height instead of forcing all three
@@ -292,9 +334,9 @@ func _show_info(mode: String) -> void:
 		"privacy":
 			body.custom_minimum_size.y = 204.0 if LocalizationManager.is_english() else 180.0
 		"support":
-			body.custom_minimum_size.y = 180.0 if LocalizationManager.is_english() else 136.0
+			body.custom_minimum_size.y = compact_info_height if compact_safe_layout else (180.0 if LocalizationManager.is_english() else 144.0)
 		_:
-			body.custom_minimum_size.y = 180.0 if LocalizationManager.is_english() else 136.0
+			body.custom_minimum_size.y = compact_info_height if compact_safe_layout else (180.0 if LocalizationManager.is_english() else 144.0)
 	match mode:
 		"privacy":
 			body.text = "隐私：本版本不采集个人数据，也没有广告、账号、内购、推送或第三方追踪。\n进度仅保存在本机；点击“隐私政策”查看完整政策。"
