@@ -147,6 +147,7 @@ func _initialize() -> void:
 	await _verify_feedback_budget_guards()
 	await _verify_late_wave_count_multipliers(data_loader, save_manager)
 	await _verify_endgame_pressure_ramp(data_loader, save_manager)
+	await _verify_wave_clear_fast_forward(data_loader, save_manager)
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
 	_verify_homing_pierce_frontline_cleanup()
@@ -4724,6 +4725,99 @@ func _verify_barrier_visual_runtime(battle: Node) -> void:
 	battle.breach_shields = breach_shields_before
 	battle.skill_barriers_left = skill_barriers_before
 	battle._update_barrier_visual()
+
+## Owner pain point: on high-output runs, a multi-Boss wave's next authored
+## Boss (levels.json `runtime_bosses[].spawn_delay`, up to 65s) still waits
+## out its full authored delay after the previous Boss dies, leaving the
+## player with nothing to shoot. `wave_clear_fast_forward` (data/economy.json)
+## lets that wait fast-forward once the field has been clear for
+## `breather_seconds`, but only ever *earlier* than the authored schedule.
+## This guards: (1) the switch ships disabled with a positive breather, (2) a
+## disabled switch leaves `_process_spawns`'s consumed delayed-Boss wait
+## decrementing byte-identically even with a recorded clear timestamp sitting
+## on it, (3) the same setup with the switch enabled does fast-forward, (4)
+## an occupied field (no clear recorded) leaves the enabled switch's path
+## untouched too ("only advance, never delay" for a slow/never-clearing
+## build), and (5) a live enemy spawning invalidates a stale clear timestamp.
+func _verify_wave_clear_fast_forward(data_loader: Node, save_manager: Node) -> void:
+	var economy: Dictionary = data_loader.get_table("economy")
+	_expect(economy.has("wave_clear_fast_forward"), "economy.json must define wave_clear_fast_forward")
+	var wcff_cfg: Dictionary = economy.get("wave_clear_fast_forward", {})
+	_expect(wcff_cfg.has("enabled") and bool(wcff_cfg["enabled"]) == false, "wave_clear_fast_forward must ship disabled by default")
+	_expect(wcff_cfg.has("breather_seconds") and float(wcff_cfg["breather_seconds"]) > 0.0, "wave_clear_fast_forward must author a positive breather_seconds")
+
+	var router := FakeRouter.new()
+	root.add_child(router)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	var level_row: Dictionary = data_loader.get_row("levels", "level_090")
+	_expect(level_row.get("runtime_bosses", []).size() == 1 and float((level_row.get("runtime_bosses", [])[0] as Dictionary).get("spawn_delay", 0.0)) > 0.0, "level_090 must still author a delayed second Boss for this probe")
+	battle.setup(router, {"level_id": "level_090"})
+	root.add_child(battle)
+	await process_frame
+	await physics_frame
+	_expect(battle.wave_clear_fast_forward_enabled == false, "a freshly loaded battle must resolve the shipped disabled default from economy.json")
+	_expect(absf(battle.wave_clear_fast_forward_breather - float(wcff_cfg["breather_seconds"])) <= 0.001, "a freshly loaded battle must resolve the authored breather_seconds")
+
+	for existing in (battle.get_node("EnemyLayer") as Node).get_children():
+		existing.queue_free()
+	battle.active_spawning = true
+
+	# (2) Closed switch: a recorded clear timestamp on a consumed delayed-Boss
+	# wait must not change spawn_timer's ordinary decrement at all.
+	var delayed_item := {"type": "boss_apex_overlord", "interval": 2.4, "lane": "left", "boss": true, "_spawn_delay_consumed": true}
+	battle.pending_spawns = [delayed_item.duplicate()]
+	battle.spawn_timer = 10.0
+	battle.wave_clear_fast_forward_enabled = false
+	battle._wave_clear_fast_forward_clear_at = battle._gameplay_now_seconds()
+	battle._process_spawns(0.5)
+	_expect(absf(battle.spawn_timer - 9.5) <= 0.0001, "a disabled switch must leave a consumed delayed Boss wait decrementing by exactly delta")
+	_expect(bool((battle.pending_spawns[0] as Dictionary).get("boss", false)), "a disabled switch must not spawn or otherwise touch the queued delayed Boss")
+
+	# (3) Enabled switch, field cleared just now with a 1s breather: the wait
+	# must fast-forward from its authored ~10s remainder down toward
+	# breather_seconds instead of running out the full delay (while a tiny
+	# delta keeps this frame from also reaching the clamped target and
+	# spawning early, isolating the clamp from the pop-and-spawn step it
+	# feeds into).
+	battle.pending_spawns = [delayed_item.duplicate()]
+	battle.spawn_timer = 10.0
+	battle.wave_clear_fast_forward_enabled = true
+	battle.wave_clear_fast_forward_breather = 1.0
+	battle._wave_clear_fast_forward_clear_at = battle._gameplay_now_seconds()
+	battle._process_spawns(0.01)
+	_expect(battle.pending_spawns.size() == 1, "a fast-forwarded wait must not itself trigger the spawn ahead of its clamped remaining time")
+	_expect(battle.spawn_timer > 0.0 and battle.spawn_timer <= 1.001, "a cleared field must fast-forward a consumed delayed Boss wait down to (approximately) breather_seconds instead of its authored ~10s, got %.3f" % battle.spawn_timer)
+	# Once that clamped wait elapses, the delayed Boss must actually spawn —
+	# proving the fast-forward closes the loop, not just shrinks a number.
+	battle._process_spawns(battle.spawn_timer + 0.001)
+	_expect(battle.pending_spawns.is_empty(), "once its fast-forwarded wait elapses, the delayed Boss must actually spawn")
+	for spawned in (battle.get_node("EnemyLayer") as Node).get_children():
+		spawned.queue_free()
+
+	# (4) Enabled switch, field never recorded clear (still occupied /
+	# "slow build"): the authored wait must proceed exactly as if the switch
+	# were off — only advance, never delay.
+	battle.pending_spawns = [delayed_item.duplicate()]
+	battle.spawn_timer = 10.0
+	battle.wave_clear_fast_forward_enabled = true
+	battle.wave_clear_fast_forward_breather = 3.0
+	battle._wave_clear_fast_forward_clear_at = -1.0
+	battle._process_spawns(0.5)
+	_expect(absf(battle.spawn_timer - 9.5) <= 0.0001, "an occupied field (no recorded clear) must leave a consumed delayed Boss wait untouched even with the switch enabled")
+
+	# (5) A live enemy joining the field must invalidate a stale clear
+	# timestamp, and `_has_live_enemies` must reflect the field honestly.
+	battle.wave_clear_fast_forward_enabled = true
+	battle._wave_clear_fast_forward_clear_at = 123.0
+	_expect(not battle._has_live_enemies(), "the probe's cleared EnemyLayer must report no live enemies before spawning")
+	var probe_enemy: Node = battle._spawn_enemy_instance("zombie_shambler", Vector2(540, 190), false)
+	_expect(battle._wave_clear_fast_forward_clear_at < 0.0, "a freshly spawned live enemy must invalidate any previously recorded clear timestamp")
+	_expect(battle._has_live_enemies(), "a freshly spawned enemy must count as a live enemy")
+	probe_enemy.queue_free()
+
+	battle.queue_free()
+	router.queue_free()
+	await process_frame
 
 func _verify_projectile_pierce_runtime() -> void:
 	var projectile := _instance("res://gameplay/projectile/projectile.tscn")
