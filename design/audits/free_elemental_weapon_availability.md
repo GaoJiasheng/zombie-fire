@@ -10,7 +10,7 @@ DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用�
 | 元素 | 代表关 | 原生元素枪 | 有效战力 | 最强免费物理枪 | 物理战力 | 相对值 | 同元素完整付费套 DPS 合同 | 结论 |
 |---|---:|---|---:|---|---:|---:|---:|---|
 | ice | 20 | `weapon_cryocannon` | 4,387 | `weapon_scattergun` | 2,889 | 1.519× | `set_apocalypse_absolute_zero` 1.52–1.58× | 通过 |
-| poison | 40 | `weapon_venomlauncher` | 3,608 | `weapon_scattergun` | 3,253 | 1.109× | — | 通过 |
+| poison | 40 | `weapon_venomlauncher` | 4,774 | `weapon_scattergun` | 3,812 | 1.252× | — | 通过 |
 | lightning | 65 | `weapon_teslacoil` | 19,139 | `weapon_scattergun` | 18,165 | 1.054× | `set_apocalypse_thunder` 1.52–1.60× | 通过 |
 | fire | 75 | `weapon_flamethrower` | 3,061 | `weapon_scattergun` | 2,488 | 1.230× | `set_apocalypse_inferno` 1.52–1.58× | 通过 |
 
