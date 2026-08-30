@@ -530,6 +530,35 @@
       "count": 2,
       "task": "Non-radial slow-zone V3 with full-width threshold and fixed-density area fill",
       "created_at": "2026-08-10T14:38:01+08:00"
+    },
+    {
+      "path": "sprites/themes/neon_tempest/ui/ui_button_{primary|secondary}_native_{size}.png",
+      "source": "source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/prompt_and_acceptance_log.md",
+      "derived": "source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native",
+      "reason": "Owner requested removal of segmented side rails and top tick marks. The replacement family uses a continuous graphite frame and uninterrupted cyan-to-violet recessed conductor while preserving all 36 accepted native sizes, including the 154x44 minimum.",
+      "count": 72,
+      "task": "Neon Tempest continuous-frame button rework",
+      "created_at": "2026-08-30T18:00:00+08:00"
+    },
+    {
+      "path": "sprites/themes/neon_tempest/weapons",
+      "source": "source_refs/generated/premium_neon_tempest_weapon_family_2026_08_30/prompt_and_production_log.md",
+      "derived": "source_refs/generated/premium_neon_tempest_weapon_family_2026_08_30/neon_tempest_weapon_material_master_v1.png",
+      "reason": "Owner selected the fair B1 theme-wide coating. Eight canonical weapons now receive matching icon, handheld and turret textures with exact preserved dimensions, alpha masks and silhouettes; only the material finish changes to graphite with cyan-violet conductors.",
+      "count": 24,
+      "task": "Neon Tempest free weapon B1 skin family",
+      "created_at": "2026-08-30T18:10:00+08:00"
+    },
+    {
+      "path": "sprites/themes/{neon_tempest,infernal_dominion,polar_aurora,gilded_eclipse}/ui/ui_menu_title_*.png + sprites/ui/map",
+      "source": [
+        "source_refs/generated/premium_theme_title_ornaments_2026_08_30/prompt_and_production_log.md",
+        "source_refs/generated/premium_global_ui_map_consistency_phase1_2026_08_30/prompt_and_acceptance_log.md"
+      ],
+      "reason": "Paid themes now provide language-correct menu title art using textless generated ornaments plus deterministic licensed-font typography. The approved map pack adds ten uniform environment thumbnails, two icon boss badges, and four motion frames for the independent Endless Horde entry.",
+      "count": 21,
+      "task": "Theme title localization and warzone-map visual integration",
+      "created_at": "2026-08-30T18:20:00+08:00"
     }
   ],
   "hard_rule": "Use existing production assets by default. GPT/Codex may generate owner-approved replacements and prototype revisions when quality requires it; external implementation may do the same only when explicitly authorized. Generated substitutes must preserve IDs/data references and be registered before handoff.",

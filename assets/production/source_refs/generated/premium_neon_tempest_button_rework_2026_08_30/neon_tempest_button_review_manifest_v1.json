@@ -1,0 +1,1888 @@
+{
+  "version": 1,
+  "phase": "review_only_no_runtime_replacement",
+  "sizes": [
+    [
+      154,
+      44
+    ],
+    [
+      166,
+      58
+    ],
+    [
+      170,
+      84
+    ],
+    [
+      172,
+      44
+    ],
+    [
+      174,
+      72
+    ],
+    [
+      176,
+      76
+    ],
+    [
+      236,
+      96
+    ],
+    [
+      260,
+      112
+    ],
+    [
+      268,
+      48
+    ],
+    [
+      286,
+      72
+    ],
+    [
+      286,
+      80
+    ],
+    [
+      286,
+      112
+    ],
+    [
+      320,
+      74
+    ],
+    [
+      320,
+      80
+    ],
+    [
+      412,
+      88
+    ],
+    [
+      432,
+      88
+    ],
+    [
+      440,
+      80
+    ],
+    [
+      440,
+      88
+    ],
+    [
+      444,
+      88
+    ],
+    [
+      452,
+      88
+    ],
+    [
+      484,
+      102
+    ],
+    [
+      512,
+      160
+    ],
+    [
+      560,
+      104
+    ],
+    [
+      600,
+      120
+    ],
+    [
+      760,
+      88
+    ],
+    [
+      760,
+      112
+    ],
+    [
+      780,
+      148
+    ],
+    [
+      784,
+      96
+    ],
+    [
+      840,
+      88
+    ],
+    [
+      880,
+      88
+    ],
+    [
+      880,
+      96
+    ],
+    [
+      904,
+      88
+    ],
+    [
+      920,
+      88
+    ],
+    [
+      980,
+      58
+    ],
+    [
+      980,
+      96
+    ],
+    [
+      980,
+      100
+    ]
+  ],
+  "states": [
+    "primary",
+    "secondary",
+    "ultra",
+    "disabled"
+  ],
+  "count": 144,
+  "assembly": "authored end caps plus one continuously stretched quiet center slice; no tiled modules",
+  "entries": [
+    {
+      "state": "primary",
+      "size": [
+        154,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_154x44.png",
+      "sha256": "6ee2b53bdd170f8714b933653b51192181361142e2283bcaaf9e096901a2b34d",
+      "center_luma_mean": 22.73,
+      "center_luma_p95": 45.67,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        154,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_154x44.png",
+      "sha256": "235a68fd57f6f406bd2557fb9e4a5ddad631c0183f1cc73fdff259d72f8e7274",
+      "center_luma_mean": 19.71,
+      "center_luma_p95": 44.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        154,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_154x44.png",
+      "sha256": "7ecc81b5de9cff4913df584756d68994a3453acf37e9b47bb8dd9e2f16f48ffe",
+      "center_luma_mean": 23.5,
+      "center_luma_p95": 47.6,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        154,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_154x44.png",
+      "sha256": "ecf1b59e168f6805a29757031a9a5bcc800f3dccf9b394de8053c059d9825756",
+      "center_luma_mean": 9.89,
+      "center_luma_p95": 25.09,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        166,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_166x58.png",
+      "sha256": "0c123552cf04105f88a4e4a55c603ccd6292660c264a5b8adb97c170f92d20cb",
+      "center_luma_mean": 23.4,
+      "center_luma_p95": 59.45,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        166,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_166x58.png",
+      "sha256": "0725223ad5790ca85b282f6c50329b7759c6e5304743f5ca7aaa1fa7c8982eec",
+      "center_luma_mean": 19.66,
+      "center_luma_p95": 47.6,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        166,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_166x58.png",
+      "sha256": "3bd667ae9e0ddbd26d3c385e8b858ba8183d0f5383b0495bd0304d88b78280b0",
+      "center_luma_mean": 24.26,
+      "center_luma_p95": 62.43,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        166,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_166x58.png",
+      "sha256": "a1e866fe33678054a7c6bbdbfc2273a076f4093c10bbd347704d8a09d91920e4",
+      "center_luma_mean": 9.81,
+      "center_luma_p95": 29.26,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        170,
+        84
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_170x84.png",
+      "sha256": "fc7c64e3d27460d53ce1a669450a37dccc71b5558da83722f27a1094667da958",
+      "center_luma_mean": 24.11,
+      "center_luma_p95": 39.95,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        170,
+        84
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_170x84.png",
+      "sha256": "4e0b81952b321e96b494cd0bd1e9d6d8e548530667f9d56ef3524bf46795a4e8",
+      "center_luma_mean": 20.46,
+      "center_luma_p95": 25.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        170,
+        84
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_170x84.png",
+      "sha256": "f2e0576154954970645306324a236a29865f70ee36a98b2a993427f3e028de42",
+      "center_luma_mean": 25.09,
+      "center_luma_p95": 42.23,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        170,
+        84
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_170x84.png",
+      "sha256": "ef533322793f569c0cfc5187b811e25b9cd301fda6176bbd0068a8aaabb1afc8",
+      "center_luma_mean": 10.26,
+      "center_luma_p95": 12.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        172,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_172x44.png",
+      "sha256": "7444c6d97dab90ea858e813ecdebb63b3c9a830f1228d91d2869437462f9ba25",
+      "center_luma_mean": 22.78,
+      "center_luma_p95": 45.67,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        172,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_172x44.png",
+      "sha256": "fe5b64630223ca7a7cf4ac15121fab53c7fe080799065165ab4854971232e014",
+      "center_luma_mean": 19.75,
+      "center_luma_p95": 44.57,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        172,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_172x44.png",
+      "sha256": "c8e674cd847ea1118c7b4d79e7c90a361c5d53db381ee086426007070fcb36a2",
+      "center_luma_mean": 23.54,
+      "center_luma_p95": 47.68,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        172,
+        44
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_172x44.png",
+      "sha256": "ba5dae7307e0c8b5f3103614966e4dd08a4e464dab5369e1a00f28216a4b1b1f",
+      "center_luma_mean": 9.92,
+      "center_luma_p95": 25.09,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        174,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_174x72.png",
+      "sha256": "b37fe70c5eaab5ad4294b4fa6f64e0e03d43454f7d8f686f3d8ea8402b09e48c",
+      "center_luma_mean": 23.38,
+      "center_luma_p95": 54.05,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        174,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_174x72.png",
+      "sha256": "2cce1605be00ac8d9ecd719837883d60a50f429f7a4dfe0c12a5a6bca01b348a",
+      "center_luma_mean": 19.82,
+      "center_luma_p95": 25.55,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        174,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_174x72.png",
+      "sha256": "b71cc96450ca300b5e4dfa2d908dcff919749467467bd0fc3582fa37ff035e10",
+      "center_luma_mean": 24.3,
+      "center_luma_p95": 57.74,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        174,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_174x72.png",
+      "sha256": "a00f8d0f2e1b99363fb6b0ce25b888e527f69973eece6b00eaa1b83510598147",
+      "center_luma_mean": 9.99,
+      "center_luma_p95": 12.72,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        176,
+        76
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_176x76.png",
+      "sha256": "98a98c99c3b3b0a5a810e10a6a8f1684a5913417e60c928cf8f5a0de60e0a958",
+      "center_luma_mean": 23.93,
+      "center_luma_p95": 48.82,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        176,
+        76
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_176x76.png",
+      "sha256": "484721a9735d4cdc6c388931a3a92bc5ade3f2466313e8fe81ec6eb69cb3a920",
+      "center_luma_mean": 20.55,
+      "center_luma_p95": 38.37,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        176,
+        76
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_176x76.png",
+      "sha256": "0382f39e7c2d5d25455e792413f5d55244027f346f4a2890b3b48192f099b65a",
+      "center_luma_mean": 24.89,
+      "center_luma_p95": 51.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        176,
+        76
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_176x76.png",
+      "sha256": "b8faca1819571d554c5446f2b28e51ac99d6c1c856b92a861c485adb5ebfd9a8",
+      "center_luma_mean": 10.34,
+      "center_luma_p95": 20.37,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        236,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_236x96.png",
+      "sha256": "d554670464e9102ae490da3b89ffd4f202f445b43b8c595d05bd7a1e0b79b349",
+      "center_luma_mean": 23.76,
+      "center_luma_p95": 57.82,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        236,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_236x96.png",
+      "sha256": "d2d568e57d8a849d04099f63fde465f0fa9c98015a7c1ea1d828ec57229db4ff",
+      "center_luma_mean": 20.55,
+      "center_luma_p95": 32.61,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        236,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_236x96.png",
+      "sha256": "a041aaccc93cb96b3b90e12292ec509e21b47298fb928884a249585f3ca26ead",
+      "center_luma_mean": 24.72,
+      "center_luma_p95": 60.42,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        236,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_236x96.png",
+      "sha256": "5fbb226c2c803b5cf9592aaf8aee53cfde5fb7e4d59e5861c14427ac7dfc6411",
+      "center_luma_mean": 10.31,
+      "center_luma_p95": 19.66,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        260,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_260x112.png",
+      "sha256": "7258d518864d1d079ca6c7c2944b09db26e25059ad5c89fa0a383ac6364b4ffe",
+      "center_luma_mean": 23.73,
+      "center_luma_p95": 60.81,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        260,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_260x112.png",
+      "sha256": "4e204f444e3f4d1d174b3d9117fb36c7f5700d3f7c4cc514a10a6627ffdee090",
+      "center_luma_mean": 20.28,
+      "center_luma_p95": 26.47,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        260,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_260x112.png",
+      "sha256": "c7a10a70ee088d785d4d21fe00f09e1a40a730175099567f3372437b7ba97489",
+      "center_luma_mean": 24.67,
+      "center_luma_p95": 65.01,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        260,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_260x112.png",
+      "sha256": "563936056cf30d03cbdf60cd89fa2e127cf7c154b0c3e76d5b485fc1fb95c7c5",
+      "center_luma_mean": 10.22,
+      "center_luma_p95": 14.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        268,
+        48
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_268x48.png",
+      "sha256": "47e0811d6cfa6ffa7848b026f3cef80504fb23bdc5a580cf23c2749ee280db12",
+      "center_luma_mean": 22.21,
+      "center_luma_p95": 68.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        268,
+        48
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_268x48.png",
+      "sha256": "41644fd8783e50aec0681d723381332ba99d9f7296242a0e2a8a483f85347772",
+      "center_luma_mean": 19.62,
+      "center_luma_p95": 39.29,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        268,
+        48
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_268x48.png",
+      "sha256": "44a08245a6ad6f718e30200c9a6cd1950d131f6496e6ef03a0a2a93d3f72790f",
+      "center_luma_mean": 22.89,
+      "center_luma_p95": 72.5,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        268,
+        48
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_268x48.png",
+      "sha256": "cd8db9e534e1edc00a8bb05e92ea72e930e842ba3c549cf79db90e13d19632c0",
+      "center_luma_mean": 9.89,
+      "center_luma_p95": 22.66,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        286,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_286x72.png",
+      "sha256": "778e5568df84bee9e37853925791652367f45ee9a1637dd0dfb1b727eef82aaa",
+      "center_luma_mean": 22.16,
+      "center_luma_p95": 44.47,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        286,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_286x72.png",
+      "sha256": "1e927d2a9daf4eecdc76a389a0b32a3eeaac9865d9df2d0786c364f5392e0318",
+      "center_luma_mean": 19.32,
+      "center_luma_p95": 23.47,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        286,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_286x72.png",
+      "sha256": "228bebbbdfc1fe639c23131de1691f1545f4debefd048cc63708b9e0c50d34d4",
+      "center_luma_mean": 22.9,
+      "center_luma_p95": 46.33,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        286,
+        72
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_286x72.png",
+      "sha256": "a0f669529077998bc264fd612a0b1128006433a158745a51f3b8c5cbad4499f3",
+      "center_luma_mean": 9.71,
+      "center_luma_p95": 11.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        286,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_286x80.png",
+      "sha256": "07546e4f0d8e684222865de8ffceae02381d965a27bebd5efc1440420534329d",
+      "center_luma_mean": 22.35,
+      "center_luma_p95": 64.11,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        286,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_286x80.png",
+      "sha256": "b0ddf53c6918f105ab3f35cab1d0577b614193a4f2563da45eabc23f147e1da8",
+      "center_luma_mean": 19.82,
+      "center_luma_p95": 33.53,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        286,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_286x80.png",
+      "sha256": "3d8f19d29804b9867433364086c1b3863efb4719c0e467431c74e3cac8efb0f8",
+      "center_luma_mean": 23.12,
+      "center_luma_p95": 67.62,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        286,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_286x80.png",
+      "sha256": "fc949878ee781b80cc66030d45514527b5c02feda8f706d74d0014cf842a62a4",
+      "center_luma_mean": 9.93,
+      "center_luma_p95": 19.37,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        286,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_286x112.png",
+      "sha256": "25fdc9936d2a2c6c1d8ca01759043c1cb3d21c71a90b095ccc6e6636e9b4d957",
+      "center_luma_mean": 23.07,
+      "center_luma_p95": 61.33,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        286,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_286x112.png",
+      "sha256": "84fe4dad04aaf9c045bd1ffc363a8df5e738265642c75ac7493202516c13bd96",
+      "center_luma_mean": 19.96,
+      "center_luma_p95": 25.54,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        286,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_286x112.png",
+      "sha256": "869d507449b7540cb6d60b2550989af464ee031a3a92f9442b5de06ff682b27e",
+      "center_luma_mean": 23.92,
+      "center_luma_p95": 64.96,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        286,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_286x112.png",
+      "sha256": "e9e2715680f01a59c99360b29800db9b0c7e3c6591d217f44b16254acf72ce3a",
+      "center_luma_mean": 10.06,
+      "center_luma_p95": 13.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        320,
+        74
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_320x74.png",
+      "sha256": "f85d6796556ff7b03dc86e2c4195c999fb929201c802e59e6a9ff7b636397bca",
+      "center_luma_mean": 22.32,
+      "center_luma_p95": 60.1,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        320,
+        74
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_320x74.png",
+      "sha256": "1d2bfe27256aab739d31cc845d2082e520aa58e23427fa1c0984c00990389f55",
+      "center_luma_mean": 19.9,
+      "center_luma_p95": 36.88,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        320,
+        74
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_320x74.png",
+      "sha256": "394787ab77ff6d0126fc5b617692ac3ae53ff9a299735bdfe6134898b28726dd",
+      "center_luma_mean": 23.1,
+      "center_luma_p95": 63.03,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        320,
+        74
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_320x74.png",
+      "sha256": "416767125665b4c783637f3daa1bbaf54ea580969deb235853a1d41b19a389d5",
+      "center_luma_mean": 9.97,
+      "center_luma_p95": 20.87,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        320,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_320x80.png",
+      "sha256": "231ed3679d32b53f64085a807af0cb45a73f2540f8427b30819f378541a356ed",
+      "center_luma_mean": 22.39,
+      "center_luma_p95": 64.19,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        320,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_320x80.png",
+      "sha256": "99b48e587add3ce416a2520821eb4e1066c032c86192d6996f3c3b29e258a122",
+      "center_luma_mean": 19.85,
+      "center_luma_p95": 33.57,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        320,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_320x80.png",
+      "sha256": "55ff9b59fdcf6470abf48e7f07e88017fe3c21abe70fc0f9076d65ca9579476b",
+      "center_luma_mean": 23.15,
+      "center_luma_p95": 67.67,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        320,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_320x80.png",
+      "sha256": "989bb29c64ca607d3fca68a48f8bd479884c830cf17208f8cb626f1592b0256b",
+      "center_luma_mean": 9.95,
+      "center_luma_p95": 19.42,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        412,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_412x88.png",
+      "sha256": "3e792f72f11651bcbe58d14cce74e033e87f3d223e96df377f367d30dd699db2",
+      "center_luma_mean": 22.6,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        412,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_412x88.png",
+      "sha256": "feb9652db3b44de52876a4e440b713ae504af2bf90f969b8696f223d97a83f90",
+      "center_luma_mean": 20.26,
+      "center_luma_p95": 50.79,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        412,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_412x88.png",
+      "sha256": "b3e63ccdbeffe2ce96a120730f88a0be8df73a0511450447b51c4f4ee67b27b2",
+      "center_luma_mean": 23.44,
+      "center_luma_p95": 71.78,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        412,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_412x88.png",
+      "sha256": "4619e34a07d9bcad235a8e0351ba2e5eb99df9a515f2cba3abe01ebdb8c8d133",
+      "center_luma_mean": 10.16,
+      "center_luma_p95": 28.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        432,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_432x88.png",
+      "sha256": "3d09f6cff3cc6a03b33e83f00f2a8d0573d03cbc9a5cb473588367eec66d681a",
+      "center_luma_mean": 22.61,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        432,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_432x88.png",
+      "sha256": "ba51d3ac3697eaa2fa40199ea9ba41315cf17fdb72011d77a52e305a9ca35924",
+      "center_luma_mean": 20.27,
+      "center_luma_p95": 50.77,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        432,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_432x88.png",
+      "sha256": "dddb26cfb187ba2f73282dce87c9dc9f6b6c28d1a80d13d1c828d488b9eac144",
+      "center_luma_mean": 23.45,
+      "center_luma_p95": 71.81,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        432,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_432x88.png",
+      "sha256": "abb558e0151193a5569df4e6487be0215f3f299a2a3a113b80df7f2458d0e063",
+      "center_luma_mean": 10.17,
+      "center_luma_p95": 28.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        440,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_440x80.png",
+      "sha256": "99185538995255bee7582f128bc26bb0023422fc774885810f03b4d6f4ba68e9",
+      "center_luma_mean": 22.43,
+      "center_luma_p95": 64.13,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        440,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_440x80.png",
+      "sha256": "9469e6ba2d254cad3258f60905b562db9a92c3002ca36cd7f1da010a45fed0e4",
+      "center_luma_mean": 19.92,
+      "center_luma_p95": 33.73,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        440,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_440x80.png",
+      "sha256": "4380dd7f4d55824cc5dc079a72480e9e356febbe80fe444540eb875a154d6866",
+      "center_luma_mean": 23.21,
+      "center_luma_p95": 67.62,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        440,
+        80
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_440x80.png",
+      "sha256": "0091db1f3559fe19733317a165b42ba02f5b517dc0f17b1c7eb3d24f287e0166",
+      "center_luma_mean": 9.99,
+      "center_luma_p95": 19.58,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        440,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_440x88.png",
+      "sha256": "030a6cad7df38402f9a239262de187c8d806b9a65c32e72558bfef47367b4225",
+      "center_luma_mean": 22.62,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        440,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_440x88.png",
+      "sha256": "7b30bef4ddab31531638be8a82fa737cce258f6a465593f6cadf51ba6fc5473a",
+      "center_luma_mean": 20.28,
+      "center_luma_p95": 50.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        440,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_440x88.png",
+      "sha256": "b44c21c4570c803896064ceb51e1fed8faddf179da43f8c022c623dcdae5a5c7",
+      "center_luma_mean": 23.45,
+      "center_luma_p95": 71.81,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        440,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_440x88.png",
+      "sha256": "917d67d1059e20d69e01a730a1aff9368babf690de4261d49aadeb41ae393609",
+      "center_luma_mean": 10.17,
+      "center_luma_p95": 28.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        444,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_444x88.png",
+      "sha256": "93702033050224c11f0d741bc320bd542b53cea75d740a664cc1c7e589916300",
+      "center_luma_mean": 22.62,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        444,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_444x88.png",
+      "sha256": "47152e3319f755abf6750d3262e271c10f8f89ae79047746adfd55d3560b1c9a",
+      "center_luma_mean": 20.28,
+      "center_luma_p95": 50.75,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        444,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_444x88.png",
+      "sha256": "2fba0e76ff40fb516cd0efefc5305a5db04c6b1d3aeef43bdba94d0980d2895a",
+      "center_luma_mean": 23.46,
+      "center_luma_p95": 71.84,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        444,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_444x88.png",
+      "sha256": "634cea91fc203881620db6a71c2ae4037e62aea2e3a4362a1e216215ae8d01c8",
+      "center_luma_mean": 10.17,
+      "center_luma_p95": 28.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        452,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_452x88.png",
+      "sha256": "4b7b541c37ab7be967b176717507bc72e899e914764bc2b8cd1f323c456ce116",
+      "center_luma_mean": 22.62,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        452,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_452x88.png",
+      "sha256": "c30407de194dd754c7c1ef50304d9effc78bea64a6aed3c3e98a43681bf4f959",
+      "center_luma_mean": 20.28,
+      "center_luma_p95": 50.83,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        452,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_452x88.png",
+      "sha256": "4bcfc42c355c72b12727700587c8b9a14f5cae3206cfb0ec9019437036fea16c",
+      "center_luma_mean": 23.46,
+      "center_luma_p95": 71.82,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        452,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_452x88.png",
+      "sha256": "75023e28ec42ec6dbb88c51b86719bc3a307f1021d8b2927b1e7a81db99567a1",
+      "center_luma_mean": 10.17,
+      "center_luma_p95": 28.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        484,
+        102
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_484x102.png",
+      "sha256": "9ef3b2b038fdf0956aebd4bad6ac7947097afb7584c29e68282130b790e4b736",
+      "center_luma_mean": 22.43,
+      "center_luma_p95": 64.69,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        484,
+        102
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_484x102.png",
+      "sha256": "9eb9d6d94b6cce07224d1fc3b3696ca08fb98a9572cabcb20c9991a343b2a1a4",
+      "center_luma_mean": 20.18,
+      "center_luma_p95": 52.69,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        484,
+        102
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_484x102.png",
+      "sha256": "b0661e66fb233caa07912b0061b08b505309ea0a5ac73317a7be050310fe6920",
+      "center_luma_mean": 23.19,
+      "center_luma_p95": 68.04,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        484,
+        102
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_484x102.png",
+      "sha256": "71cac5e183dd463b322802a9b73313958cbbf11f4aa62952ee1d7b3979de2146",
+      "center_luma_mean": 10.09,
+      "center_luma_p95": 30.02,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        512,
+        160
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_512x160.png",
+      "sha256": "0a17125c14ebde49266d50889fdf31e170691094322cc1ca1a36695be76ddb8e",
+      "center_luma_mean": 22.24,
+      "center_luma_p95": 39.4,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        512,
+        160
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_512x160.png",
+      "sha256": "27028f8059aff63de4b407a6ebf22ea46273e90d6e033108c6b5754d26b0345f",
+      "center_luma_mean": 19.5,
+      "center_luma_p95": 29.88,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        512,
+        160
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_512x160.png",
+      "sha256": "2f880c2448afe264a0ff127473bf14a4c1e8285170ea9e9e74fc13805a2e0d36",
+      "center_luma_mean": 22.96,
+      "center_luma_p95": 40.05,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        512,
+        160
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_512x160.png",
+      "sha256": "223d415c5613bcb7a915c4c5d583e34726dd4a0583b1329326bb593a46a22ff2",
+      "center_luma_mean": 9.78,
+      "center_luma_p95": 18.02,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        560,
+        104
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_560x104.png",
+      "sha256": "5fefc84db932b973d7c227a7e47c956a786df2df4d5e8145f5b990ab56b3c43c",
+      "center_luma_mean": 22.44,
+      "center_luma_p95": 74.47,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        560,
+        104
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_560x104.png",
+      "sha256": "34a4ba8071cb975d7e6f6c701fb7ee71d244d5eb44b13f3ba88f79eedb47eca4",
+      "center_luma_mean": 19.62,
+      "center_luma_p95": 40.03,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        560,
+        104
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_560x104.png",
+      "sha256": "21ea7ab1b0c28b6b7cd51d2e81cfed8f74b4db7d002f6f92bbd73d3dae9645d8",
+      "center_luma_mean": 23.22,
+      "center_luma_p95": 78.18,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        560,
+        104
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_560x104.png",
+      "sha256": "1ef81e3fcea5e16e2f38494e47e4d9f8c1a0777b0dbe14a76ea9c0cea24a40b9",
+      "center_luma_mean": 9.81,
+      "center_luma_p95": 22.8,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        600,
+        120
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_600x120.png",
+      "sha256": "d1fbd7f8a780796a37116a6177a6260d6d3b7fc587fbd7d28b2a923efb77d7bd",
+      "center_luma_mean": 22.45,
+      "center_luma_p95": 53.27,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        600,
+        120
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_600x120.png",
+      "sha256": "7347dff42dbd777d1e6c772662ff230e0ae8e728510bfab719376eb3caf7b8e8",
+      "center_luma_mean": 19.99,
+      "center_luma_p95": 40.34,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        600,
+        120
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_600x120.png",
+      "sha256": "9ec8fa800d6fd641c83263036a815389d4013d59fb7ba1d9b6be9a8c813e3bcb",
+      "center_luma_mean": 23.24,
+      "center_luma_p95": 55.27,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        600,
+        120
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_600x120.png",
+      "sha256": "b6b1944811e4a57e02e717c8aafe39b883054789e3b4101b8193edd56719ed48",
+      "center_luma_mean": 10.05,
+      "center_luma_p95": 23.02,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        760,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_760x88.png",
+      "sha256": "81c2ccb675bcda93fdca65223801130b238743e5fa9a8060e446f9c1e8815596",
+      "center_luma_mean": 22.59,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        760,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_760x88.png",
+      "sha256": "05c16cda1f7bf5f5881bbc958d6a4efe1b2ad344809522c7f2305b25c2397e6b",
+      "center_luma_mean": 20.24,
+      "center_luma_p95": 50.53,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        760,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_760x88.png",
+      "sha256": "6cb670a5da90df2653921d1bdb21a2215507ceebb2e1cf2582914753858d51a7",
+      "center_luma_mean": 23.43,
+      "center_luma_p95": 71.9,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        760,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_760x88.png",
+      "sha256": "87192072feaae960d86f8cbb1a8cda5264d56fcd0ab46e07fa1f2520eb4325b0",
+      "center_luma_mean": 10.15,
+      "center_luma_p95": 28.31,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        760,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_760x112.png",
+      "sha256": "91f199976c160cf3062f660a7d839fcb47a66ddf0c5df74c7a557dfbfeab0618",
+      "center_luma_mean": 22.29,
+      "center_luma_p95": 63.68,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        760,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_760x112.png",
+      "sha256": "19996573d1b2e09b1f08cfb3630ea31d394e09f7099b0cbc25822c30978f0f74",
+      "center_luma_mean": 19.76,
+      "center_luma_p95": 23.95,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        760,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_760x112.png",
+      "sha256": "8ecb1ac281be0fbf05714fe00487f51de01e54e354a8a7925b105ab4aefbefcb",
+      "center_luma_mean": 23.03,
+      "center_luma_p95": 66.4,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        760,
+        112
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_760x112.png",
+      "sha256": "496bf823cca2e6450e0ff3d5419b7571b4cbe2522ed9ef659ff1a99bfe06743f",
+      "center_luma_mean": 9.94,
+      "center_luma_p95": 13.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        780,
+        148
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_780x148.png",
+      "sha256": "4aab51b7709d93b7d96e80ab6da30580cc56e78989eac900d3d30367bc96b306",
+      "center_luma_mean": 22.27,
+      "center_luma_p95": 35.2,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        780,
+        148
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_780x148.png",
+      "sha256": "de88535bd26527acb97dbe4380df27d0807f995abc28252d49279f3878fb41f6",
+      "center_luma_mean": 19.59,
+      "center_luma_p95": 24.54,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        780,
+        148
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_780x148.png",
+      "sha256": "1c29c94d8a2adaa3d6204122c2d96ceef227423040583d7fdb4a5a9213c5d341",
+      "center_luma_mean": 23.0,
+      "center_luma_p95": 36.06,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        780,
+        148
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_780x148.png",
+      "sha256": "1f098180b92312b47f6c2d34e8033b74dfb22490bb6207d4113b45b43a5794ba",
+      "center_luma_mean": 9.82,
+      "center_luma_p95": 12.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        784,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_784x96.png",
+      "sha256": "5172db1015f0efe648729413259fed1587cded17d3da1e8bf0aa950caa2b65f5",
+      "center_luma_mean": 22.72,
+      "center_luma_p95": 57.83,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        784,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_784x96.png",
+      "sha256": "f56ed780768fa2af19f308ee0559b9983ccd16d2eef9abbfb97cad49f399f634",
+      "center_luma_mean": 20.22,
+      "center_luma_p95": 32.09,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        784,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_784x96.png",
+      "sha256": "0d203908207ff85a8780f990fc6d23782b6a2f1d8605aab8a14350dfb349a921",
+      "center_luma_mean": 23.51,
+      "center_luma_p95": 60.4,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        784,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_784x96.png",
+      "sha256": "2ebb85f763c281d098de1c8771fee814b1d0dfcd74f0463666e5b0b6c4712b0b",
+      "center_luma_mean": 10.13,
+      "center_luma_p95": 18.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        840,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_840x88.png",
+      "sha256": "f1e2af2249808e411800af7b3187aa4f3219e93e20e8454ad7934b8c4851519b",
+      "center_luma_mean": 22.6,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        840,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_840x88.png",
+      "sha256": "bf3fa6ce9aeaa07e03fc4bf27e3a0cc7dc258c8230f06f1b48268ddd3e234a9c",
+      "center_luma_mean": 20.23,
+      "center_luma_p95": 50.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        840,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_840x88.png",
+      "sha256": "617261e12f0cb54c5c3865fe129b25d0a196082d48718937e2b628efd184dcbc",
+      "center_luma_mean": 23.44,
+      "center_luma_p95": 71.9,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        840,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_840x88.png",
+      "sha256": "9fa7d6eb7da848ba945a42efe7c119b187bcd1dfd0f4f2b5085dc347b083f071",
+      "center_luma_mean": 10.15,
+      "center_luma_p95": 28.41,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        880,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_880x88.png",
+      "sha256": "c5d24b420f5ab27cf759c1453c5f4c2dd4760d0547cd401308a57091d78f0cac",
+      "center_luma_mean": 22.6,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        880,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_880x88.png",
+      "sha256": "491d8eb41dd6596a637aebd8d74c471847606fbe952c163b9a432c85402ae7ff",
+      "center_luma_mean": 20.24,
+      "center_luma_p95": 50.48,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        880,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_880x88.png",
+      "sha256": "41fdb2485e13a39b920c6de28474f15f149ffef0cd1d6c3cb2c732969183bb97",
+      "center_luma_mean": 23.44,
+      "center_luma_p95": 71.9,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        880,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_880x88.png",
+      "sha256": "1f93c62358bd5f85261ac3450cfe3fa2c0ee9a587ca374281da24b7add0ff205",
+      "center_luma_mean": 10.15,
+      "center_luma_p95": 28.21,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        880,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_880x96.png",
+      "sha256": "104a08092aedb06ea751910bae364c0502037d7f5288a533c3dcf5e7f63aeacb",
+      "center_luma_mean": 22.73,
+      "center_luma_p95": 57.83,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        880,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_880x96.png",
+      "sha256": "85f44c2eea3f955f6c711e37923f1b2010fa7b3c9763938c1adf372b54c7b48d",
+      "center_luma_mean": 20.21,
+      "center_luma_p95": 32.02,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        880,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_880x96.png",
+      "sha256": "568a75fe5a066a053a448c7769feef567d327902173e3d7cc460e9a41b17a8c5",
+      "center_luma_mean": 23.51,
+      "center_luma_p95": 60.4,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        880,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_880x96.png",
+      "sha256": "2eab87b6daf21bfe342a3370ef3363ad073b431dacc4ea964a86a93be006cb4e",
+      "center_luma_mean": 10.12,
+      "center_luma_p95": 18.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        904,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_904x88.png",
+      "sha256": "cd65b33a4b11e91f966808274952790873947c09820844c46d69ea9951517465",
+      "center_luma_mean": 22.6,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        904,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_904x88.png",
+      "sha256": "635dbeaf9a20abf2ad0fc5bd52d7eff6c12af1bffd76d784d5cd274cde3088fb",
+      "center_luma_mean": 20.23,
+      "center_luma_p95": 50.48,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        904,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_904x88.png",
+      "sha256": "23f05e8b88f643f5beddae66ad200e943bdabb510ba00ab624050f8e3b15391f",
+      "center_luma_mean": 23.44,
+      "center_luma_p95": 71.9,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        904,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_904x88.png",
+      "sha256": "a75f352ce3f0f6bd5c26aa9f8a7f7f41acd01e727e7bd268a7c6410400e4a8a7",
+      "center_luma_mean": 10.15,
+      "center_luma_p95": 28.21,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        920,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_920x88.png",
+      "sha256": "a40d338d807821bed70991c362243ccbdd21bd1d7755003051b1716fcbd5b7ef",
+      "center_luma_mean": 22.6,
+      "center_luma_p95": 68.32,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        920,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_920x88.png",
+      "sha256": "bbb88e981ad8d05c017f1b6826b4d14bc4a7313985847e0d2d5a99a44b8bd306",
+      "center_luma_mean": 20.23,
+      "center_luma_p95": 50.53,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        920,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_920x88.png",
+      "sha256": "efb602e0988a6031bba597a5680a95923b575b81f80a160d30ae7907d4101d62",
+      "center_luma_mean": 23.44,
+      "center_luma_p95": 71.9,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        920,
+        88
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_920x88.png",
+      "sha256": "23c68fcc33c612253d7e13989ca4d1ccb0cc921ecebb0ac7a7d41ae6d3e26a6a",
+      "center_luma_mean": 10.15,
+      "center_luma_p95": 28.09,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        980,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_980x58.png",
+      "sha256": "d29e25c566fb38fd77fad7805fa49edc30634824e06c7316136441dd6920fa76",
+      "center_luma_mean": 23.16,
+      "center_luma_p95": 61.1,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        980,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_980x58.png",
+      "sha256": "13a84fc62b9fb6f9e4a96873f51289d5866fdbb92b9ebe1f386f6c8eccce73ac",
+      "center_luma_mean": 19.64,
+      "center_luma_p95": 51.76,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        980,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_980x58.png",
+      "sha256": "4612df17ce987ec163d4a3f058b9457f67311452e71f23f3a2aa3ec6b0940c7a",
+      "center_luma_mean": 23.97,
+      "center_luma_p95": 64.11,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        980,
+        58
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_980x58.png",
+      "sha256": "bdd4275d2ba316eae4253170dbfd9b5a537eb5032fe27e0632bad7eb9266cdd6",
+      "center_luma_mean": 9.79,
+      "center_luma_p95": 29.23,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        980,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_980x96.png",
+      "sha256": "d4215bfb868c7bbb3f74bd43dfb06e5ab38cc0e3c869c4e5bbea2cd01469a8a7",
+      "center_luma_mean": 22.73,
+      "center_luma_p95": 57.82,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        980,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_980x96.png",
+      "sha256": "d69eb14f3abc9a64ef7641ca884be0ee543cd424799ad2dc6e287fe2f7002ff7",
+      "center_luma_mean": 20.21,
+      "center_luma_p95": 32.02,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        980,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_980x96.png",
+      "sha256": "5a5f4b05f7db515e7ce8771898e87ebae0dcf978a9c946d3ceef54a64325636d",
+      "center_luma_mean": 23.52,
+      "center_luma_p95": 60.48,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        980,
+        96
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_980x96.png",
+      "sha256": "9fd1a8d1fa447547e97c07d5ea90ced94bbdd5d0365b30eeeba3d2645c5f2b89",
+      "center_luma_mean": 10.12,
+      "center_luma_p95": 18.51,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "primary",
+      "size": [
+        980,
+        100
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_primary_native_980x100.png",
+      "sha256": "8e0601f928b2c2b9e7062e6fd8ef800eca15d0ccfc23833639d7eec10b6f5be4",
+      "center_luma_mean": 22.42,
+      "center_luma_p95": 64.69,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "secondary",
+      "size": [
+        980,
+        100
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_secondary_native_980x100.png",
+      "sha256": "310f3a591abcc744349f5053093d34ee4a9524d9caa9cb02ef65f8c18855ccaf",
+      "center_luma_mean": 20.15,
+      "center_luma_p95": 52.48,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "ultra",
+      "size": [
+        980,
+        100
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_ultra_native_980x100.png",
+      "sha256": "bb9c47f39bb7cb1e82467b81384b2618744f596f755ff8b4247fdf57816048c8",
+      "center_luma_mean": 23.18,
+      "center_luma_p95": 68.04,
+      "corner_alpha_max": 0
+    },
+    {
+      "state": "disabled",
+      "size": [
+        980,
+        100
+      ],
+      "path": "assets/production/source_refs/generated/premium_neon_tempest_button_rework_2026_08_30/staging_native/ui_button_disabled_native_980x100.png",
+      "sha256": "9dbffeb8286cebcaeb7de22ef69d09d74c808465e1b473dc20e34ad61f470286",
+      "center_luma_mean": 10.07,
+      "center_luma_p95": 30.02,
+      "corner_alpha_max": 0
+    }
+  ]
+}

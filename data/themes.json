@@ -47,6 +47,11 @@
           "text": [0.91, 0.98, 1.0, 1.0],
           "kind_text": [0.97, 0.87, 1.0, 1.0]
         },
+        "assets": {
+          "menu_title": "res://assets/production/sprites/themes/neon_tempest/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_en": "res://assets/production/sprites/themes/neon_tempest/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_zh": "res://assets/production/sprites/themes/neon_tempest/ui/ui_menu_title_shichao_fangxian.png"
+        },
         "surface_modulate": {
           "primary": [0.50, 0.53, 0.60, 1.0],
           "secondary": [0.60, 0.63, 0.70, 1.0],
@@ -56,6 +61,9 @@
       "characters": {
         "portrait_root": "res://assets/production/sprites/themes/neon_tempest/characters",
         "battle_animation_root": "res://assets/production/sprites/themes/neon_tempest/characters/animations"
+      },
+      "weapons": {
+        "asset_root": "res://assets/production/sprites/themes/neon_tempest/weapons"
       },
       "materials": {
         "character": {
@@ -117,13 +125,18 @@
           "kind_text": [1.0, 0.88, 0.63, 1.0]
         },
         "assets": {
-          "menu_title": "res://assets/production/sprites/themes/infernal_dominion/ui/ui_menu_title_zombie_fire.png"
+          "menu_title": "res://assets/production/sprites/themes/infernal_dominion/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_en": "res://assets/production/sprites/themes/infernal_dominion/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_zh": "res://assets/production/sprites/themes/infernal_dominion/ui/ui_menu_title_shichao_fangxian.png"
         },
         "asset_presentations": {
           "menu_title": {
             "region": [210, 0, 620, 340],
             "dark_key_threshold": 0.094,
             "dark_key_softness": 0.075
+          },
+          "menu_title_zh": {
+            "region": [0, 0, 1040, 340]
           }
         },
         "surface_modulate": {
@@ -181,7 +194,9 @@
           "kind_text": [0.90, 0.93, 1.0, 1.0]
         },
         "assets": {
-          "menu_title": "res://assets/production/sprites/themes/polar_aurora/ui/ui_menu_title_zombie_fire.png"
+          "menu_title": "res://assets/production/sprites/themes/polar_aurora/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_en": "res://assets/production/sprites/themes/polar_aurora/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_zh": "res://assets/production/sprites/themes/polar_aurora/ui/ui_menu_title_shichao_fangxian.png"
         },
         "surface_modulate": {
           "primary": [0.80, 0.90, 0.98, 1.0],
@@ -238,11 +253,16 @@
           "kind_text": [1.0, 0.90, 0.62, 1.0]
         },
         "assets": {
-          "menu_title": "res://assets/production/sprites/themes/gilded_eclipse/ui/ui_menu_title_zombie_fire.png"
+          "menu_title": "res://assets/production/sprites/themes/gilded_eclipse/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_en": "res://assets/production/sprites/themes/gilded_eclipse/ui/ui_menu_title_zombie_fire.png",
+          "menu_title_zh": "res://assets/production/sprites/themes/gilded_eclipse/ui/ui_menu_title_shichao_fangxian.png"
         },
         "asset_presentations": {
           "menu_title": {
             "region": [170, 0, 700, 340]
+          },
+          "menu_title_zh": {
+            "region": [0, 0, 1040, 340]
           }
         },
         "surface_modulate": {
