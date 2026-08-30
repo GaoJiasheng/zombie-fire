@@ -17,6 +17,11 @@ func _initialize() -> void:
 	# Automated review captures must not pull the active macOS workspace away
 	# from the owner. The viewport still renders normally, but its utility window
 	# is never eligible to become the focused input window.
+	# Automated captures must stay silent: the game's autoloaded AudioManager starts
+	# music before any per-route setup runs, so mute every bus up front rather than
+	# waiting for the later release_for_tests() hand-off.
+	for bus_index in range(AudioServer.bus_count):
+		AudioServer.set_bus_mute(bus_index, true)
 	if DisplayServer.get_name() != "headless":
 		# Captures render into an offscreen SubViewport, so the OS window is only a
 		# rendering context host: nothing is ever drawn into it. Keep it unfocusable
