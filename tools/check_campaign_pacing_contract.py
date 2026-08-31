@@ -20,6 +20,7 @@ DATA = ROOT / "data"
 sys.path.insert(0, str(ROOT / "tools"))
 
 import audit_campaign_frontline as frontline  # noqa: E402
+from challenge_curve import rule_for_level as challenge_rule_for_level, validate as validate_challenge_curve  # noqa: E402
 from power_ruler_model import maxed_free_build_for_level  # noqa: E402
 
 
@@ -104,6 +105,19 @@ def validate_frozen_contract(targets: dict, fixture: dict, levels: list[dict]) -
     return errors
 
 
+def validate_challenge_contract(targets: dict, challenges: dict) -> list[str]:
+    errors = validate_challenge_curve(challenges)
+    level_count = sum(len(targets["chapter_level_targets"][str(chapter)]) for chapter in range(1, 11))
+    for level_number in range(1, level_count + 1):
+        fixture = challenge_rule_for_level(level_number, challenges)["reference_fixture"]
+        expected_fixture = "paced_plus_10" if level_number <= 60 else ("maxed_free_matchup_aware_v1" if level_number <= 80 else "golden_law_tier_1_max")
+        if fixture != expected_fixture:
+            errors.append(f"challenge level_{level_number:03d} fixture route is {fixture}, expected {expected_fixture}")
+    if level_count != 99 or level_count * 3 > 297:
+        errors.append(f"challenge star supply exceeds 297★ or level coverage drifted: levels={level_count}")
+    return errors
+
+
 def graduation_results(levels: list[dict]) -> tuple[list[dict], list[dict]]:
     tables = frontline.TABLES
     rows: list[dict] = []
@@ -152,7 +166,9 @@ def main() -> int:
     targets = load("campaign_pacing_targets")
     fixture = load("campaign_progression_fixture")
     levels = load("levels")
+    challenges = load("challenges")
     errors = validate_frozen_contract(targets, fixture, levels)
+    errors.extend(validate_challenge_contract(targets, challenges))
     if errors:
         print("Campaign pacing contract failed:")
         for error in errors:

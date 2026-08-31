@@ -44,6 +44,7 @@ def run_batch(
     process_timeout: float,
     temp_dir: Path,
     project_root: Path,
+    fixture: str,
 ) -> tuple[list[dict], float]:
     seed_label = "_".join(str(seed) for seed in seeds)
     output = temp_dir / f"level_{level:03d}_seeds_{seed_label}.json"
@@ -65,6 +66,7 @@ def run_batch(
         f"--card-policy={card_policy}",
         f"--accel={accel:g}",
         f"--output={output}",
+        f"--fixture={fixture}",
     ]
     if ignore_level_guarantees:
         args.append("--ignore-level-guarantees")
@@ -169,6 +171,11 @@ def main() -> int:
     parser.add_argument("--ignore-level-guarantees", action="store_true")
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
     parser.add_argument("--challenge", action="store_true")
+    parser.add_argument(
+        "--fixture",
+        default="res://design/audits/campaign_progression_fixture_builds.json",
+        help="res:// fixture build export consumed by the Godot probe",
+    )
     options = parser.parse_args()
     if not 1.0 <= options.accel <= 60.0:
         parser.error("--accel must be between 1 and 60")
@@ -205,6 +212,7 @@ def main() -> int:
                     options.process_timeout,
                     temp_dir,
                     options.project_root.resolve(),
+                    options.fixture,
                 )
                 for level in options.levels
                 for seed_batch in seed_batches
@@ -218,7 +226,7 @@ def main() -> int:
     elapsed = time.monotonic() - started
     payload = {
         "schema_version": 1,
-        "fixture_source": "design/audits/campaign_progression_fixture_builds.json",
+        "fixture_source": options.fixture,
         "levels": options.levels,
         "profile": options.profile,
         "card_policy": options.card_policy,

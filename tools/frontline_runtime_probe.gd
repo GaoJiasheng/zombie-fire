@@ -9,7 +9,7 @@ extends SceneTree
 ## and records the deepest enemy advance, base health, outcome and elapsed
 ## one-speed battle time. It never persists the synthetic save.
 
-const BUILD_EXPORT_PATH := "res://design/audits/campaign_progression_fixture_builds.json"
+const DEFAULT_BUILD_EXPORT_PATH := "res://design/audits/campaign_progression_fixture_builds.json"
 const DEFAULT_OUTPUT_PATH := "res://design/audits/frontline_runtime_probe.json"
 const BATTLE_SCENE_PATH := "res://gameplay/battle/battle.tscn"
 const DEFAULT_LEVELS := [3, 8, 13, 30, 40, 55, 62, 75, 84, 95]
@@ -66,6 +66,7 @@ class ProbeTickDriver:
 
 
 var _snapshot: Dictionary
+var _build_export_path := DEFAULT_BUILD_EXPORT_PATH
 var _rows_by_level: Dictionary = {}
 var _requested_levels: Array[int] = []
 var _output_path := DEFAULT_OUTPUT_PATH
@@ -147,6 +148,8 @@ func _parse_arguments() -> bool:
 					_requested_levels.append(number)
 		elif text.begins_with("--output="):
 			_output_path = text.trim_prefix("--output=")
+		elif text.begins_with("--fixture="):
+			_build_export_path = text.trim_prefix("--fixture=")
 		elif text.begins_with("--profile="):
 			_profile_id = text.trim_prefix("--profile=").strip_edges()
 		elif text.begins_with("--card-policy="):
@@ -184,12 +187,12 @@ func _parse_arguments() -> bool:
 
 
 func _load_fixture_export() -> bool:
-	if not FileAccess.file_exists(BUILD_EXPORT_PATH):
-		_fail("missing fixture export: %s" % BUILD_EXPORT_PATH)
+	if not FileAccess.file_exists(_build_export_path):
+		_fail("missing fixture export: %s" % _build_export_path)
 		return false
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(BUILD_EXPORT_PATH))
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(_build_export_path))
 	if not parsed is Dictionary:
-		_fail("invalid fixture export JSON: %s" % BUILD_EXPORT_PATH)
+		_fail("invalid fixture export JSON: %s" % _build_export_path)
 		return false
 	for row_var in parsed.get("rows", []):
 		if row_var is Dictionary:
@@ -703,7 +706,7 @@ func _boss_combat_state(battle: Node) -> Dictionary:
 func _write_output() -> bool:
 	var payload := {
 		"schema_version": 1,
-		"fixture_source": BUILD_EXPORT_PATH.trim_prefix("res://"),
+		"fixture_source": _build_export_path.trim_prefix("res://"),
 		"levels": _requested_levels,
 		"profile": _profile_id,
 		"card_policy": _card_policy_id,

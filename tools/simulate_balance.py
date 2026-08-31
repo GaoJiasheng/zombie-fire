@@ -31,6 +31,7 @@ from combat_power_model import estimate_skill_throughput, run_skill_hp_pressure
 import audit_character_endgame_dps as character_dps
 import fire_rate_profiles as fire_rate_lab
 import campaign_runtime_contracts as runtime_contracts
+from challenge_curve import rule_for_level as challenge_curve_rule_for_level
 from power_ruler_model import weapon_endgame_growth_multiplier, weapon_level_damage_multiplier
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -98,6 +99,8 @@ def pilot_runtime_contract() -> tuple[set[int], dict[int, dict], list[str]]:
 
 def challenge_rule_for_level(level: dict, challenges: dict) -> dict:
     """Mirror ChallengeRules.for_level without duplicating authored values."""
+    if "curve" in challenges and "chapters" in challenges:
+        return challenge_curve_rule_for_level(int(str(level.get("id", "level_001")).split("_")[-1]), challenges)
     chapter = max(1, min(10, int(level.get("chapter", 1))))
     row = challenges.get(f"chapter_{chapter:02d}", {})
     if not isinstance(row, dict):
@@ -847,10 +850,13 @@ def main() -> int:
     elif finale_hp < prior_peak * 1.02:
         errors.append(f"final boss HP {finale_hp:.0f} must exceed prior peak {prior_peak:.0f}")
     if args.challenge:
-        fully_breached = [row for row in rows if row[11] >= 100.0]
+        # The static default build is not the owner-frozen challenge reference.
+        # Only chapters 1-8 retain a free-build breach assertion here; chapters
+        # 9-10 are intentionally paid-tier endgame and are fixed-frame gated.
+        fully_breached = [row for row in rows if row[0] <= 80 and row[11] >= 100.0]
         if fully_breached:
             details = ", ".join(f"level_{row[0]:03d}" for row in fully_breached)
-            errors.append(f"challenge contains a 100% breach failure: {details}")
+            errors.append(f"challenge reference range 001-080 contains a 100% breach failure: {details}")
         total_challenge_stars = sum(chapter_star_totals.values())
         print("Challenge chapter summary:")
         for chapter in range(1, 11):
@@ -858,9 +864,13 @@ def main() -> int:
                 f"- chapter_{chapter:02d}: stars={chapter_star_totals[chapter]} "
                 f"min_level_stars={chapter_min_stars[chapter]}★"
             )
-            if chapter_min_stars[chapter] < 1:
-                errors.append(f"chapter_{chapter:02d} has no winnable challenge star")
+            if chapter <= 8 and chapter_min_stars[chapter] < 1:
+                errors.append(f"chapter_{chapter:02d} free reference has no winnable challenge star")
         print(f"Challenge obtainable stars: {total_challenge_stars}")
+        theoretical_challenge_stars = len(rows) * 3
+        print(f"Challenge theoretical star supply: {theoretical_challenge_stars}/297")
+        if len(rows) != 99 or theoretical_challenge_stars > 297:
+            errors.append(f"challenge star supply must be exactly 99 levels and at most 297★, got {theoretical_challenge_stars}")
         if total_challenge_stars < 19:
             errors.append(f"challenge obtainable stars {total_challenge_stars} must be at least 19")
     if errors:

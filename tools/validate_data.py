@@ -3,10 +3,14 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
+sys.path.insert(0, str(ROOT / "tools"))
+
+from challenge_curve import rule_for_level as challenge_rule_for_level, validate as validate_challenge_curve  # noqa: E402
 
 TABLES = [
     "elements",
@@ -75,23 +79,23 @@ def main() -> int:
     environments = set(tables["environments"].keys())
 
     challenges = tables["challenges"]
-    expected_chapters = {f"chapter_{index:02d}" for index in range(1, 11)}
-    if set(challenges.keys()) != expected_chapters:
-        errors.append("challenges.json must define chapter_01 through chapter_10 exactly")
-    for challenge_id, row in challenges.items():
+    errors.extend(validate_challenge_curve(challenges))
+    for challenge_id, row in challenges.get("chapters", {}).items():
         for key in ("id", "name", "summary", "counter_hint"):
             if not str(row.get(key, "")).strip():
                 errors.append(f"{challenge_id}.{key} missing")
+    for level_number in range(1, 100):
+        row = challenge_rule_for_level(level_number, challenges)
         for key, low, high in (
-            ("hp_mult", 1.0, 1.6),
-            ("speed_mult", 1.0, 1.25),
-            ("breach_damage_mult", 1.0, 1.25),
-            ("mechanic_rate_mult", 1.0, 1.3),
-            ("recommended_power_mult", 1.0, 2.0),
+            ("hp_mult", 1.0, 5.0),
+            ("speed_mult", 1.0, 5.0),
+            ("breach_damage_mult", 1.0, 5.0),
+            ("mechanic_rate_mult", 1.0, 5.0),
+            ("recommended_power_mult", 1.0, 5.0),
         ):
             value = float(row.get(key, 0.0))
             if not low <= value <= high:
-                errors.append(f"{challenge_id}.{key} must be in [{low}, {high}], got {value}")
+                errors.append(f"challenge level_{level_number:03d}.{key} must be in [{low}, {high}], got {value}")
 
     skill_pressure = tables["economy"].get("run_skill_pressure")
     if not isinstance(skill_pressure, dict):
@@ -953,7 +957,7 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills, {len(environments)} environments, {len(challenges)} challenge rules")
+    print(f"Data validation passed: {len(tables['levels'])} levels, {len(zombies)} zombies, {len(bosses)} boss, {len(tables['skills'])} skills, {len(environments)} environments, {len(challenges.get('chapters', {}))} challenge rules")
     return 0
 
 

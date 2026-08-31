@@ -229,6 +229,12 @@ def main() -> int:
     max_star_unlock = max(paid_star_unlocks)
     total_star_unlock = sum(paid_star_unlocks)
     normal_campaign_stars = len(levels) * 3
+    challenge_star_supply_cap = len(levels) * 3
+    if len(levels) != 99 or challenge_star_supply_cap > 297:
+        errors.append(
+            f"challenge star supply must cover exactly 99 levels and stay <=297: "
+            f"levels={len(levels)} cap={challenge_star_supply_cap}"
+        )
     if max_star_unlock > 16:
         errors.append(f"single-item star price is too steep: max={max_star_unlock}")
     if total_star_unlock > normal_campaign_stars + 30:
@@ -290,6 +296,7 @@ def main() -> int:
         f"star_unlock_total={total_star_unlock} max_item={max_star_unlock} "
         f"normal_campaign={normal_campaign_stars} challenge_needed={total_star_unlock - normal_campaign_stars}"
     )
+    print(f"challenge_star_supply_cap={challenge_star_supply_cap}/297")
     print(
         f"xp_first_clear={sum(campaign_xp_by_level)} xp_three_clear={three_clear_xp} "
         f"xp_full_cost={total_xp_cost} xp_coverage={xp_coverage:.2%}"
