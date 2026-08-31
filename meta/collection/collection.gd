@@ -783,7 +783,7 @@ func _item_stat_summary(row: Dictionary) -> String:
 		"armors":
 			return _loc("生命倍率：%.0f%%%s", "HP: %.0f%%%s") % [float(row.get("hp_mult", 1.0)) * 100.0, _loc("\n防线屏障 +1", "\nBarrier +1") if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
-			return _loc("当前加成 +%s", "Current Bonus +%s") % _value_text(row.get("value", 0))
+			return _loc("解锁后加成 +%s", "Bonus After Unlock +%s") % _value_text(row.get("value", 0))
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
 			return _loc("协战：%s", "Support: %s") % LocalizationManager.text(str(pet_skill.get("name", "专属协战")))
