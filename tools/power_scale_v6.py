@@ -575,6 +575,23 @@ class PowerScaleV6:
                 "b2_outcome": self.b2_outcomes[level],
                 "scale_build_effective_power": effective,
             }
+        # Owner contract: the displayed recommendation must never fall as levels
+        # advance. An easier level keeps the previous requirement rather than
+        # showing a lower number, so the ladder always reads as growth (or a
+        # plateau). Lift g_required in lockstep so recommended_power stays exactly
+        # display_power(g_required) instead of drifting from its own solve.
+        running_g = float("-inf")
+        for level_id in sorted(result, key=lambda key: result[key]["level"]):
+            entry = result[level_id]
+            if entry["g_required"] < running_g:
+                entry["g_required"] = running_g
+                entry["monotonic_lift"] = True
+                entry["recommended_power"] = int(round(display_power(running_g)))
+                entry["q_axes"] = {
+                    axis: self.curves[axis].forward(running_g) for axis in AXES
+                }
+            else:
+                running_g = entry["g_required"]
         return result
 
     # -- build -> 有效战力(恒定,不含 matchup)---------------------------------
