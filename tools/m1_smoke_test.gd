@@ -2409,10 +2409,10 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	var absolute_zero_set: Dictionary = data_loader.get_row("premium_sets", "set_apocalypse_absolute_zero")
 	_expect(str(absolute_zero_set.get("dominance_zh", "")).begins_with("主宰区间：碎冰连爆与减速控场"), "Absolute Zero store positioning must lead with its authored Shatter and slow-control mechanics")
 	_expect(str(absolute_zero_set.get("dominance_en", "")).begins_with("Dominance Range: Shatter chains and slow control"), "Absolute Zero English positioning must match the mechanics-led claim")
+	test_save["levels_progress"]["level_089"] = 1
+	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden before clearing level 90")
 	test_save["levels_progress"]["level_090"] = 1
-	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden after level 90 until a hero reaches level 40")
-	test_save["equipment"]["vanguard"] = 40
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized only after level 90 clear plus any hero at level 40")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized after clearing level 90")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
 	_expect(purchase_manager.set_id_for_series("inferno") == "set_apocalypse_inferno", "series routing must resolve the Inferno set from data")
 	_expect(purchase_manager.set_id_for_series("absolute_zero") == "set_apocalypse_absolute_zero", "series routing must resolve the Absolute Zero set from data")

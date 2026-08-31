@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "date": "2026-08-31",
+  "source_branch": "codex/power-scale-v6",
+  "source_head": "f82facc2",
+  "merge_commit": "fb85764b32516bd0f9c189813b6fe926a4f65c90",
+  "fixture": "resource_constrained_free_first_clear_v2",
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "acceleration": 60,
+  "levels": {
+    "first": 1,
+    "last": 99,
+    "count": 99
+  },
+  "seeds": [1103, 2207, 3301, 4409, 5513, 6637, 7741, 8849, 9901, 10903],
+  "comparison": {
+    "scope": "runs array, canonical JSON with sorted keys and compact separators",
+    "baseline_path": "/tmp/zf-cphase-catchup-free-99x10-a60.json",
+    "merged_path": "/tmp/zf-main-merged-free-99x10-a60.json",
+    "baseline_run_count": 990,
+    "merged_run_count": 990,
+    "baseline_runs_sha256": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "merged_runs_sha256": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "exact_match": true
+  },
+  "outcome_summary": {
+    "victories": 989,
+    "timeouts": 0,
+    "inherited_non_victory": {
+      "level": 88,
+      "seed": 6637,
+      "max_progress": 1.0,
+      "base_ratio": 0.0
+    }
+  },
+  "merged_sweep_wall_seconds": 6396.04,
+  "note": "The inherited level 88 / seed 6637 non-victory is byte-for-byte identical in the baseline and merged runs; no free-fixture behavior leaked from the C-phase merge."
+}
