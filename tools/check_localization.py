@@ -65,6 +65,48 @@ def _walk_json(value: object) -> list[str]:
     return result
 
 
+def _walk_bilingual_json(value: object) -> dict[str, str]:
+    pairs: dict[str, str] = {}
+    if isinstance(value, dict):
+        for key, source in value.items():
+            if isinstance(key, str) and key.endswith("_zh") and isinstance(source, str):
+                target = value.get(f"{key[:-3]}_en")
+                if isinstance(target, str) and target.strip():
+                    pairs[source] = target
+        for child in value.values():
+            pairs.update(_walk_bilingual_json(child))
+    elif isinstance(value, list):
+        for child in value:
+            pairs.update(_walk_bilingual_json(child))
+    return pairs
+
+
+def _inline_bilingual_catalog() -> dict[str, str]:
+    """Collect authored bilingual pairs that intentionally bypass localization ids."""
+    pairs: dict[str, str] = {}
+    loc_pair = re.compile(
+        r'_loc\(\s*"((?:[^"\\]|\\.)*)"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\)'
+    )
+    conditional_pair = re.compile(
+        r'"((?:[^"\\]|\\.)*)"[^\"]{0,500}?'
+        r'if\s+LocalizationManager\.is_english\(\)\s*else\s*'
+        r'"((?:[^"\\]|\\.)*)"',
+        re.DOTALL,
+    )
+    for root_name in RUNTIME_ROOTS:
+        for path in (ROOT / root_name).rglob("*.gd"):
+            text = path.read_text(errors="ignore")
+            for match in loc_pair.finditer(text):
+                pairs[match.group(1)] = match.group(2)
+            for match in conditional_pair.finditer(text):
+                pairs[match.group(2)] = match.group(1)
+    for path in sorted((ROOT / "data").glob("*.json")):
+        if path.name in TRANSLATION_FILES:
+            continue
+        pairs.update(_walk_bilingual_json(json.loads(path.read_text())))
+    return pairs
+
+
 def collect_sources() -> dict[str, set[str]]:
     locations: dict[str, set[str]] = defaultdict(set)
     for root_name in RUNTIME_ROOTS:
@@ -116,6 +158,10 @@ def main() -> int:
         part_terms = part.pop("__terms", {})
         terms.update(part_terms)
         catalog.update(part)
+    inline_catalog = _inline_bilingual_catalog()
+    # Inline pairs are the strings actually selected by runtime code/data and
+    # therefore supersede an older reusable catalog rendering of the same source.
+    catalog.update(inline_catalog)
     if not isinstance(terms, dict):
         errors.append("localization_ui_en.json __terms must be an object")
         terms = {}
