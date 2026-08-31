@@ -575,16 +575,16 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(grid)
-	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.CYAN, ""))
-	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.element_color(weakness), UiKit.element_icon_path(weakness)))
-	grid.add_child(_summary_cell("有效战力", "%d" % power, UiKit.GREEN if power >= recommended_power else UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.GOLD, ""))
+	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.PURPLE, UiKit.element_icon_path(weakness)))
+	grid.add_child(_summary_cell("有效战力", "%d" % power, UiKit.GREEN if power >= recommended_power else UiKit.PURPLE, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
 
 	# The three-axis power contract already determines why this loadout is held
 	# back. Surface that existing result here instead of asking players to infer
 	# it from one scalar. This is explanatory UI only; it does not recalculate or
 	# alter Effective Power.
-	var bottleneck_reason := UiKit.label(_power_bottleneck_reason(display_level_id, challenge_mode), 18, UiKit.GOLD, 4)
+	var bottleneck_reason := UiKit.label(_power_bottleneck_reason(display_level_id, challenge_mode), 18, UiKit.PURPLE, 4)
 	bottleneck_reason.name = "BottleneckReason"
 	bottleneck_reason.custom_minimum_size = Vector2(0, 32)
 	bottleneck_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -781,7 +781,7 @@ func _summary_cell(label_text: String, value_text: String, accent: Color, icon_p
 	title.custom_minimum_size = Vector2(52, 0)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(title)
-	var value := UiKit.label(value_text, 16 if LocalizationManager.is_english() else 21, UiKit.TEXT_MAIN, 4)
+	var value := UiKit.label(value_text, 16 if LocalizationManager.is_english() else 21, accent, 4)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
