@@ -1,0 +1,3475 @@
+{
+  "schema_version": 3,
+  "target_semantics": "chapter_distribution_and_runtime_band",
+  "anchor": {
+    "type": "fixed_frame_win_rate",
+    "fixture": "golden_law_tier_1_max",
+    "seeds": 10,
+    "win_rate": [
+      0.6,
+      0.9
+    ],
+    "boss_phase_median_seconds": [
+      150.0,
+      220.0
+    ],
+    "K_099": 5.0
+  },
+  "chapter_runtime_summary": [
+    {
+      "chapter": 1,
+      "representative_levels": [
+        1,
+        5,
+        10
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 2,
+      "representative_levels": [
+        11,
+        15,
+        20
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 3,
+      "representative_levels": [
+        21,
+        25,
+        30
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 4,
+      "representative_levels": [
+        31,
+        35,
+        40
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 5,
+      "representative_levels": [
+        41,
+        45,
+        50
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 6,
+      "representative_levels": [
+        51,
+        55,
+        60
+      ],
+      "representative_wins": 29,
+      "representative_runs": 30,
+      "representative_win_rate": 0.9666666666666667,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 87,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.87
+    },
+    {
+      "chapter": 7,
+      "representative_levels": [
+        61,
+        65,
+        70
+      ],
+      "representative_wins": 27,
+      "representative_runs": 30,
+      "representative_win_rate": 0.9,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 57,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.57
+    },
+    {
+      "chapter": 8,
+      "representative_levels": [
+        71,
+        75,
+        80
+      ],
+      "representative_wins": 22,
+      "representative_runs": 30,
+      "representative_win_rate": 0.7333333333333333,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 42,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.42
+    },
+    {
+      "chapter": 9,
+      "representative_levels": [
+        81,
+        85,
+        90
+      ],
+      "representative_wins": 25,
+      "representative_runs": 30,
+      "representative_win_rate": 0.8333333333333334,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 94,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.94
+    },
+    {
+      "chapter": 10,
+      "representative_levels": [
+        91,
+        95,
+        99
+      ],
+      "representative_wins": 26,
+      "representative_runs": 30,
+      "representative_win_rate": 0.8666666666666667,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 57,
+      "all_level_runs": 90,
+      "all_level_win_rate": 0.6333333333333333
+    }
+  ],
+  "normal_l099_zero_impact": {
+    "runs_equal": true,
+    "before_runs_sha256": "b11d47c39700d24a8d0d679ee0749dee4bfd67781d7ba7d633a6a59a8d973a19",
+    "after_runs_sha256": "b11d47c39700d24a8d0d679ee0749dee4bfd67781d7ba7d633a6a59a8d973a19"
+  },
+  "star_supply_cap": 297,
+  "levels": [
+    {
+      "level": 1,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.25,
+        "hp": 1.25,
+        "speed": 1.0456395525912732,
+        "breach": 1.0933620739432781,
+        "mechanic": 1.0933620739432781,
+        "recommended": 1.25,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 2,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2501016105268505,
+        "hp": 1.2501016105268505,
+        "speed": 1.045656551716283,
+        "breach": 1.0933976241471874,
+        "mechanic": 1.0933976241471874,
+        "recommended": 1.2501016105268505,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 3,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2504013615810599,
+        "hp": 1.2504013615810599,
+        "speed": 1.0457066926956877,
+        "breach": 1.0935024871485535,
+        "mechanic": 1.0935024871485535,
+        "recommended": 1.2504013615810599,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 4,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2508916323731138,
+        "hp": 1.2508916323731138,
+        "speed": 1.0457886822194358,
+        "breach": 1.0936739678582639,
+        "mechanic": 1.0936739678582639,
+        "recommended": 1.2508916323731138,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 5,
+      "chapter": 1,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2515648021134989,
+        "hp": 1.2515648021134989,
+        "speed": 1.0459012166363695,
+        "breach": 1.0939093549614376,
+        "mechanic": 1.0939093549614376,
+        "recommended": 1.2515648021134989,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 6,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2524132500127014,
+        "hp": 1.2524132500127014,
+        "speed": 1.0460429835121268,
+        "breach": 1.0942059233549515,
+        "mechanic": 1.0942059233549515,
+        "recommended": 1.2524132500127014,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 7,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2534293552812072,
+        "hp": 1.2534293552812072,
+        "speed": 1.0462126631315078,
+        "breach": 1.094560936496722,
+        "mechanic": 1.094560936496722,
+        "recommended": 1.2534293552812072,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 8,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2546054971295026,
+        "hp": 1.2546054971295026,
+        "speed": 1.0464089299416837,
+        "breach": 1.0949716486616994,
+        "mechanic": 1.0949716486616994,
+        "recommended": 1.2546054971295026,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 9,
+      "chapter": 1,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.255934054768074,
+        "hp": 1.255934054768074,
+        "speed": 1.0466304539330795,
+        "breach": 1.0954353071001643,
+        "mechanic": 1.0954353071001643,
+        "recommended": 1.255934054768074,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 10,
+      "chapter": 1,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.12,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2574074074074073,
+        "hp": 1.2574074074074073,
+        "speed": 1.046875901955206,
+        "breach": 1.0959491540945263,
+        "mechanic": 1.0959491540945263,
+        "recommended": 1.2574074074074073,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 11,
+      "chapter": 2,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2590179342579892,
+        "hp": 1.2590179342579892,
+        "speed": 1.0471439389651391,
+        "breach": 1.0965104289114271,
+        "mechanic": 1.0965104289114271,
+        "recommended": 1.2590179342579892,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 12,
+      "chapter": 2,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2607580145303054,
+        "hp": 1.2607580145303054,
+        "speed": 1.047433229206768,
+        "breach": 1.0971163696465183,
+        "mechanic": 1.0971163696465183,
+        "recommended": 1.2607580145303054,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 13,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2626200274348423,
+        "hp": 1.2626200274348423,
+        "speed": 1.0477424373193236,
+        "breach": 1.097764214959837,
+        "mechanic": 1.097764214959837,
+        "recommended": 1.2626200274348423,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 14,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.264596352182086,
+        "hp": 1.264596352182086,
+        "speed": 1.0480702293740725,
+        "breach": 1.098451205700221,
+        "mechanic": 1.098451205700221,
+        "recommended": 1.264596352182086,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 15,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.266679367982523,
+        "hp": 1.266679367982523,
+        "speed": 1.0484152738384203,
+        "breach": 1.0991745864176898,
+        "mechanic": 1.0991745864176898,
+        "recommended": 1.266679367982523,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 16,
+      "chapter": 2,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2688614540466392,
+        "hp": 1.2688614540466392,
+        "speed": 1.0487762424669935,
+        "breach": 1.099931606763186,
+        "mechanic": 1.099931606763186,
+        "recommended": 1.2688614540466392,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 17,
+      "chapter": 2,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.271134989584921,
+        "hp": 1.271134989584921,
+        "speed": 1.049151811119573,
+        "breach": 1.10071952277548,
+        "mechanic": 1.10071952277548,
+        "recommended": 1.271134989584921,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 18,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2734923538078544,
+        "hp": 1.2734923538078544,
+        "speed": 1.0495406605060356,
+        "breach": 1.1015355980554455,
+        "mechanic": 1.1015355980554455,
+        "recommended": 1.2734923538078544,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 19,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.275925925925926,
+        "hp": 1.275925925925926,
+        "speed": 1.0499414768587105,
+        "breach": 1.10237710482825,
+        "mechanic": 1.10237710482825,
+        "recommended": 1.275925925925926,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 20,
+      "chapter": 2,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.42,
+        "speed": 1.02,
+        "breach": 1.08,
+        "mechanic": 1.0,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2784280851496215,
+        "hp": 1.2784280851496215,
+        "speed": 1.0503529525327835,
+        "breach": 1.1032413248943358,
+        "mechanic": 1.1032413248943358,
+        "recommended": 1.2784280851496215,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 21,
+      "chapter": 3,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2809912106894275,
+        "hp": 1.2809912106894275,
+        "speed": 1.050773786535588,
+        "breach": 1.1041255504703376,
+        "mechanic": 1.1041255504703376,
+        "recommended": 1.2809912106894275,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 22,
+      "chapter": 3,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.28360768175583,
+        "hp": 1.28360768175583,
+        "speed": 1.0512026849857927,
+        "breach": 1.10502708492134,
+        "mechanic": 1.10502708492134,
+        "recommended": 1.28360768175583,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 23,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.286269877559315,
+        "hp": 1.286269877559315,
+        "speed": 1.0516383615036489,
+        "breach": 1.1059432433860794,
+        "mechanic": 1.1059432433860794,
+        "recommended": 1.286269877559315,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 24,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2889701773103694,
+        "hp": 1.2889701773103694,
+        "speed": 1.0520795375335863,
+        "breach": 1.106871353296885,
+        "mechanic": 1.106871353296885,
+        "recommended": 1.2889701773103694,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 25,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2917009602194787,
+        "hp": 1.2917009602194787,
+        "speed": 1.0525249426005467,
+        "breach": 1.1078087547962845,
+        "mechanic": 1.1078087547962845,
+        "recommended": 1.2917009602194787,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 26,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.2944546054971295,
+        "hp": 1.2944546054971295,
+        "speed": 1.0529733145015276,
+        "breach": 1.1087528010523329,
+        "mechanic": 1.1087528010523329,
+        "recommended": 1.2944546054971295,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 27,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.297223492353808,
+        "hp": 1.297223492353808,
+        "speed": 1.053423399433859,
+        "breach": 1.1097008584747878,
+        "mechanic": 1.1097008584747878,
+        "recommended": 1.297223492353808,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 28,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3,
+        "hp": 1.3,
+        "speed": 1.0538739520617835,
+        "breach": 1.110650306834322,
+        "mechanic": 1.110650306834322,
+        "recommended": 1.3,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 29,
+      "chapter": 3,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3027765076461921,
+        "hp": 1.3027765076461921,
+        "speed": 1.0543237355229114,
+        "breach": 1.111598539286986,
+        "mechanic": 1.111598539286986,
+        "recommended": 1.3027765076461921,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 30,
+      "chapter": 3,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.36,
+        "speed": 1.06,
+        "breach": 1.16,
+        "mechanic": 1.04,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3055453945028705,
+        "hp": 1.3055453945028705,
+        "speed": 1.0547715213761382,
+        "breach": 1.1125429623061334,
+        "mechanic": 1.1125429623061334,
+        "recommended": 1.3055453945028705,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 31,
+      "chapter": 4,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3082990397805214,
+        "hp": 1.3082990397805214,
+        "speed": 1.0552160894925737,
+        "breach": 1.1134809955239995,
+        "mechanic": 1.1134809955239995,
+        "recommended": 1.3082990397805214,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 32,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3110298226896306,
+        "hp": 1.3110298226896306,
+        "speed": 1.05565622789101,
+        "breach": 1.1144100714850762,
+        "mechanic": 1.1144100714850762,
+        "recommended": 1.3110298226896306,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 33,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.313730122440685,
+        "hp": 1.313730122440685,
+        "speed": 1.0560907325193942,
+        "breach": 1.1153276353133506,
+        "mechanic": 1.1153276353133506,
+        "recommended": 1.313730122440685,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 34,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3163923182441701,
+        "hp": 1.3163923182441701,
+        "speed": 1.0565184069837072,
+        "breach": 1.1162311442953907,
+        "mechanic": 1.1162311442953907,
+        "recommended": 1.3163923182441701,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 35,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3190087893105726,
+        "hp": 1.3190087893105726,
+        "speed": 1.056938062225571,
+        "breach": 1.1171180673811452,
+        "mechanic": 1.1171180673811452,
+        "recommended": 1.3190087893105726,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 36,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3215719148503786,
+        "hp": 1.3215719148503786,
+        "speed": 1.0573485161498053,
+        "breach": 1.117985884604195,
+        "mechanic": 1.117985884604195,
+        "recommended": 1.3215719148503786,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 37,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3240740740740742,
+        "hp": 1.3240740740740742,
+        "speed": 1.0577485932030586,
+        "breach": 1.1188320864230497,
+        "mechanic": 1.1188320864230497,
+        "recommended": 1.3240740740740742,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 38,
+      "chapter": 4,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3265076461921457,
+        "hp": 1.3265076461921457,
+        "speed": 1.05813712390451,
+        "breach": 1.1196541729849088,
+        "mechanic": 1.1196541729849088,
+        "recommended": 1.3265076461921457,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 39,
+      "chapter": 4,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.328865010415079,
+        "hp": 1.328865010415079,
+        "speed": 1.0585129443295143,
+        "breach": 1.1204496533131374,
+        "mechanic": 1.1204496533131374,
+        "recommended": 1.328865010415079,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 40,
+      "chapter": 4,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.32,
+        "speed": 1.1,
+        "breach": 1.08,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.331138545953361,
+        "hp": 1.331138545953361,
+        "speed": 1.0588748955469192,
+        "breach": 1.121216044419499,
+        "mechanic": 1.121216044419499,
+        "recommended": 1.331138545953361,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 41,
+      "chapter": 5,
+      "normal_target": "easy",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.333320632017477,
+        "hp": 1.333320632017477,
+        "speed": 1.0592218230106376,
+        "breach": 1.1219508703419785,
+        "mechanic": 1.1219508703419785,
+        "recommended": 1.333320632017477,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 42,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.335403647817914,
+        "hp": 1.335403647817914,
+        "speed": 1.0595525759058888,
+        "breach": 1.1226516611088042,
+        "mechanic": 1.1226516611088042,
+        "recommended": 1.335403647817914,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 43,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3373799725651578,
+        "hp": 1.3373799725651578,
+        "speed": 1.0598660064503582,
+        "breach": 1.1233159516290308,
+        "mechanic": 1.1233159516290308,
+        "recommended": 1.3373799725651578,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 44,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3392419854696946,
+        "hp": 1.3392419854696946,
+        "speed": 1.060160969150339,
+        "breach": 1.1239412805097861,
+        "mechanic": 1.1239412805097861,
+        "recommended": 1.3392419854696946,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 45,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3409820657420108,
+        "hp": 1.3409820657420108,
+        "speed": 1.0604363200117297,
+        "breach": 1.1245251888000196,
+        "mechanic": 1.1245251888000196,
+        "recommended": 1.3409820657420108,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 46,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3425925925925926,
+        "hp": 1.3425925925925926,
+        "speed": 1.0606909157055546,
+        "breach": 1.1250652186602879,
+        "mechanic": 1.1250652186602879,
+        "recommended": 1.3425925925925926,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 47,
+      "chapter": 5,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3440659452319261,
+        "hp": 1.3440659452319261,
+        "speed": 1.060923612687465,
+        "breach": 1.1255589119578224,
+        "mechanic": 1.1255589119578224,
+        "recommended": 1.3440659452319261,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 48,
+      "chapter": 5,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3453945028704974,
+        "hp": 1.3453945028704974,
+        "speed": 1.0611332662704476,
+        "breach": 1.1260038087857887,
+        "mechanic": 1.1260038087857887,
+        "recommended": 1.3453945028704974,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 49,
+      "chapter": 5,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3465706447187928,
+        "hp": 1.3465706447187928,
+        "speed": 1.061318729649728,
+        "breach": 1.1263974459053125,
+        "mechanic": 1.1263974459053125,
+        "recommended": 1.3465706447187928,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 50,
+      "chapter": 5,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 1.0,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.08,
+        "breach": 1.1,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3475867499872989,
+        "hp": 1.3475867499872989,
+        "speed": 1.0614788528786083,
+        "breach": 1.1267373551084863,
+        "mechanic": 1.1267373551084863,
+        "recommended": 1.3475867499872989,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 51,
+      "chapter": 6,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.348435197886501,
+        "hp": 1.348435197886501,
+        "speed": 1.0616124817937012,
+        "breach": 1.1270210615001817,
+        "mechanic": 1.1270210615001817,
+        "recommended": 1.348435197886501,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 52,
+      "chapter": 6,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3491083676268862,
+        "hp": 1.3491083676268862,
+        "speed": 1.0617184568877462,
+        "breach": 1.127246081696097,
+        "mechanic": 1.127246081696097,
+        "recommended": 1.3491083676268862,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 53,
+      "chapter": 6,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3495986384189402,
+        "hp": 1.3495986384189402,
+        "speed": 1.0617956121278829,
+        "breach": 1.1274099219340254,
+        "mechanic": 1.1274099219340254,
+        "recommended": 1.3495986384189402,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 54,
+      "chapter": 6,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3498983894731496,
+        "hp": 1.3498983894731496,
+        "speed": 1.0618427737169382,
+        "breach": 1.1275100760948809,
+        "mechanic": 1.1275100760948809,
+        "recommended": 1.3498983894731496,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 55,
+      "chapter": 6,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.35,
+        "hp": 1.35,
+        "speed": 1.0618587587949346,
+        "breach": 1.1275440236295189,
+        "mechanic": 1.1275440236295189,
+        "recommended": 1.35,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 56,
+      "chapter": 6,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.3968,
+        "hp": 1.3968,
+        "speed": 1.0691209633143162,
+        "breach": 1.1430196341981314,
+        "mechanic": 1.1430196341981314,
+        "recommended": 1.3968,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 57,
+      "chapter": 6,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.5084000000000002,
+        "hp": 1.5084000000000002,
+        "speed": 1.0856836679646056,
+        "breach": 1.1787090268850802,
+        "mechanic": 1.1787090268850802,
+        "recommended": 1.5084000000000002,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 58,
+      "chapter": 6,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.6416,
+        "hp": 1.6416,
+        "speed": 1.1042145582343215,
+        "breach": 1.2192897906166178,
+        "mechanic": 1.2192897906166178,
+        "recommended": 1.6416,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 59,
+      "chapter": 6,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.7532,
+        "hp": 1.7532,
+        "speed": 1.1188356405758482,
+        "breach": 1.2517931906227688,
+        "mechanic": 1.2517931906227688,
+        "recommended": 1.7532,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 60,
+      "chapter": 6,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.7,
+        1.0
+      ],
+      "chapter_representative_win_rate_actual": 0.9666666666666667,
+      "reference_fixture": "paced_plus_10",
+      "old": {
+        "hp": 1.38,
+        "speed": 1.04,
+        "breach": 1.18,
+        "mechanic": 1.14,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.8,
+        "hp": 1.8,
+        "speed": 1.1247461131420948,
+        "breach": 1.2650538190282499,
+        "mechanic": 1.2650538190282499,
+        "recommended": 1.8,
+        "exponents": {
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        }
+      }
+    },
+    {
+      "level": 61,
+      "chapter": 7,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 1.9248,
+        "hp": 1.9248,
+        "speed": 1.1856056454402242,
+        "breach": 1.2741562113504703,
+        "mechanic": 1.2741562113504703,
+        "recommended": 1.9248,
+        "exponents": {
+          "speed": 0.26,
+          "breach": 0.37,
+          "mechanic": 0.37
+        }
+      }
+    },
+    {
+      "level": 62,
+      "chapter": 7,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 2.2224000000000004,
+        "hp": 2.2224000000000004,
+        "speed": 1.2911690673919334,
+        "breach": 1.3119568688456844,
+        "mechanic": 1.3119568688456844,
+        "recommended": 2.2224000000000004,
+        "exponents": {
+          "speed": 0.32000000000000006,
+          "breach": 0.34,
+          "mechanic": 0.34
+        }
+      }
+    },
+    {
+      "level": 63,
+      "chapter": 7,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 2.5776,
+        "hp": 2.5776,
+        "speed": 1.4330518323487405,
+        "breach": 1.34114832691545,
+        "mechanic": 1.34114832691545,
+        "recommended": 2.5776,
+        "exponents": {
+          "speed": 0.38,
+          "breach": 0.31,
+          "mechanic": 0.31
+        }
+      }
+    },
+    {
+      "level": 64,
+      "chapter": 7,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 2.8752000000000004,
+        "hp": 2.8752000000000004,
+        "speed": 1.5915267637814527,
+        "breach": 1.3440859976131172,
+        "mechanic": 1.3440859976131172,
+        "recommended": 2.8752000000000004,
+        "exponents": {
+          "speed": 0.44000000000000006,
+          "breach": 0.28,
+          "mechanic": 0.28
+        }
+      }
+    },
+    {
+      "level": 65,
+      "chapter": 7,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 3.0,
+        "hp": 3.0,
+        "speed": 1.7320508075688772,
+        "breach": 1.3160740129524924,
+        "mechanic": 1.3160740129524924,
+        "recommended": 3.0,
+        "exponents": {
+          "speed": 0.5,
+          "breach": 0.25,
+          "mechanic": 0.25
+        }
+      }
+    },
+    {
+      "level": 66,
+      "chapter": 7,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 3.104,
+        "hp": 3.104,
+        "speed": 1.8857154487529404,
+        "breach": 1.28298853885453,
+        "mechanic": 1.28298853885453,
+        "recommended": 3.104,
+        "exponents": {
+          "speed": 0.56,
+          "breach": 0.22,
+          "mechanic": 0.22
+        }
+      }
+    },
+    {
+      "level": 67,
+      "chapter": 7,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 3.3520000000000003,
+        "hp": 3.3520000000000003,
+        "speed": 2.11684220696945,
+        "breach": 1.2583682785718782,
+        "mechanic": 1.2583682785718782,
+        "recommended": 3.3520000000000003,
+        "exponents": {
+          "speed": 0.6200000000000001,
+          "breach": 0.19,
+          "mechanic": 0.19
+        }
+      }
+    },
+    {
+      "level": 68,
+      "chapter": 7,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 3.6479999999999997,
+        "hp": 3.6479999999999997,
+        "speed": 2.4110004096414333,
+        "breach": 1.230067014894159,
+        "mechanic": 1.230067014894159,
+        "recommended": 3.6479999999999997,
+        "exponents": {
+          "speed": 0.6800000000000002,
+          "breach": 0.15999999999999998,
+          "mechanic": 0.15999999999999998
+        }
+      }
+    },
+    {
+      "level": 69,
+      "chapter": 7,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 3.896,
+        "hp": 3.896,
+        "speed": 2.735634182180091,
+        "breach": 1.1933846936041705,
+        "mechanic": 1.1933846936041705,
+        "recommended": 3.896,
+        "exponents": {
+          "speed": 0.7400000000000002,
+          "breach": 0.12999999999999995,
+          "mechanic": 0.12999999999999995
+        }
+      }
+    },
+    {
+      "level": 70,
+      "chapter": 7,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.9,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.34,
+        "speed": 1.1,
+        "breach": 1.12,
+        "mechanic": 1.2,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.0,
+        "hp": 4.0,
+        "speed": 3.0314331330207964,
+        "breach": 1.1486983549970349,
+        "mechanic": 1.1486983549970349,
+        "recommended": 4.0,
+        "exponents": {
+          "speed": 0.8,
+          "breach": 0.09999999999999998,
+          "mechanic": 0.09999999999999998
+        }
+      }
+    },
+    {
+      "level": 71,
+      "chapter": 8,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.0056,
+        "hp": 4.0056,
+        "speed": 1.1488590715412814,
+        "breach": 1.8672411523557462,
+        "mechanic": 1.8672411523557462,
+        "recommended": 4.0056,
+        "exponents": {
+          "speed": 0.09999999999999998,
+          "breach": 0.44999999999999996,
+          "mechanic": 0.44999999999999996
+        }
+      }
+    },
+    {
+      "level": 72,
+      "chapter": 8,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.0208,
+        "hp": 4.0208,
+        "speed": 1.1492942849914023,
+        "breach": 1.8704263499647706,
+        "mechanic": 1.8704263499647706,
+        "recommended": 4.0208,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 73,
+      "chapter": 8,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.0432,
+        "hp": 4.0432,
+        "speed": 1.14993296085262,
+        "breach": 1.8751082778530532,
+        "mechanic": 1.8751082778530532,
+        "recommended": 4.0432,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 74,
+      "chapter": 8,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.0704,
+        "hp": 4.0704,
+        "speed": 1.1507042283988544,
+        "breach": 1.8807743373773609,
+        "mechanic": 1.8807743373773609,
+        "recommended": 4.0704,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 75,
+      "chapter": 8,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.1,
+        "hp": 4.1,
+        "speed": 1.1515382961787317,
+        "breach": 1.8869167318921574,
+        "mechanic": 1.8869167318921574,
+        "recommended": 4.1,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 76,
+      "chapter": 8,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.1296,
+        "hp": 4.1296,
+        "speed": 1.152366962052919,
+        "breach": 1.8930347846958728,
+        "mechanic": 1.8930347846958728,
+        "recommended": 4.1296,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 77,
+      "chapter": 8,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.1568000000000005,
+        "hp": 4.1568000000000005,
+        "speed": 1.1531237390615685,
+        "breach": 1.8986355495422693,
+        "mechanic": 1.8986355495422693,
+        "recommended": 4.1568000000000005,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 78,
+      "chapter": 8,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.1792,
+        "hp": 4.1792,
+        "speed": 1.153743628122939,
+        "breach": 1.9032328272293062,
+        "mechanic": 1.9032328272293062,
+        "recommended": 4.1792,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 79,
+      "chapter": 8,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.1944,
+        "hp": 4.1944,
+        "speed": 1.1541625663609882,
+        "breach": 1.9063446946548375,
+        "mechanic": 1.9063446946548375,
+        "recommended": 4.1944,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 80,
+      "chapter": 8,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.7333333333333333,
+      "reference_fixture": "maxed_free_matchup_aware_v1",
+      "old": {
+        "hp": 1.3,
+        "speed": 1.15,
+        "breach": 1.1,
+        "mechanic": 1.24,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.2,
+        "hp": 4.2,
+        "speed": 1.1543165676600577,
+        "breach": 1.9074896083569022,
+        "mechanic": 1.9074896083569022,
+        "recommended": 4.2,
+        "exponents": {
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        }
+      }
+    },
+    {
+      "level": 81,
+      "chapter": 9,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.2196,
+        "hp": 4.2196,
+        "speed": 1.0,
+        "breach": 3.1638583178443573,
+        "mechanic": 1.3336880403908082,
+        "recommended": 4.2196,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 82,
+      "chapter": 9,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.2728,
+        "hp": 4.2728,
+        "speed": 1.0,
+        "breach": 3.19572979643248,
+        "mechanic": 1.3370341900525808,
+        "recommended": 4.2728,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 83,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.3512,
+        "hp": 4.3512,
+        "speed": 1.0,
+        "breach": 3.2425541440180488,
+        "mechanic": 1.3419051176145236,
+        "recommended": 4.3512,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 84,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.446400000000001,
+        "hp": 4.446400000000001,
+        "speed": 1.0,
+        "breach": 3.2991861736240886,
+        "mechanic": 1.347726307641415,
+        "recommended": 4.446400000000001,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 85,
+      "chapter": 9,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.550000000000001,
+        "hp": 4.550000000000001,
+        "speed": 1.0,
+        "breach": 3.3605403730959678,
+        "mechanic": 1.3539489173903954,
+        "recommended": 4.550000000000001,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 86,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.6536,
+        "hp": 4.6536,
+        "speed": 1.0,
+        "breach": 3.42161578374366,
+        "mechanic": 1.3600591925340026,
+        "recommended": 4.6536,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 87,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.7488,
+        "hp": 4.7488,
+        "speed": 1.0,
+        "breach": 3.4774997177147657,
+        "mechanic": 1.365578831195612,
+        "recommended": 4.7488,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 88,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.8272,
+        "hp": 4.8272,
+        "speed": 1.0,
+        "breach": 3.5233536289336693,
+        "mechanic": 1.37005833316281,
+        "recommended": 4.8272,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 89,
+      "chapter": 9,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.8804,
+        "hp": 4.8804,
+        "speed": 1.0,
+        "breach": 3.5543839140151126,
+        "mechanic": 1.3730649581088694,
+        "recommended": 4.8804,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 90,
+      "chapter": 9,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8333333333333334,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.12,
+        "speed": 1.08,
+        "breach": 1.14,
+        "mechanic": 1.16,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.9,
+        "hp": 4.9,
+        "speed": 1.0,
+        "breach": 3.5657990424927277,
+        "mechanic": 1.3741660541180074,
+        "recommended": 4.9,
+        "exponents": {
+          "speed": 0.0,
+          "breach": 0.8,
+          "mechanic": 0.2
+        }
+      }
+    },
+    {
+      "level": 91,
+      "chapter": 10,
+      "normal_target": "light_pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.903429355281207,
+        "hp": 4.903429355281207,
+        "speed": 4.182634645182209,
+        "breach": 1.0827420313409812,
+        "mechanic": 1.082742031340981,
+        "recommended": 4.903429355281207,
+        "exponents": {
+          "speed": 0.9,
+          "breach": 0.050000000000000044,
+          "mechanic": 0.04999999999999999
+        }
+      }
+    },
+    {
+      "level": 92,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.912620027434842,
+        "hp": 4.912620027434842,
+        "speed": 4.273889324894453,
+        "breach": 1.0721238355200098,
+        "mechanic": 1.0721238355200098,
+        "recommended": 4.912620027434842,
+        "exponents": {
+          "speed": 0.9125,
+          "breach": 0.043750000000000004,
+          "mechanic": 0.043750000000000004
+        }
+      }
+    },
+    {
+      "level": 93,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.9259259259259265,
+        "hp": 4.9259259259259265,
+        "speed": 4.370702898671908,
+        "breach": 1.0616180535079127,
+        "mechanic": 1.0616180535079127,
+        "recommended": 4.9259259259259265,
+        "exponents": {
+          "speed": 0.925,
+          "breach": 0.037500000000000006,
+          "mechanic": 0.037500000000000006
+        }
+      }
+    },
+    {
+      "level": 94,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.941700960219479,
+        "hp": 4.941700960219479,
+        "speed": 4.472076070577368,
+        "breach": 1.051195854204224,
+        "mechanic": 1.051195854204224,
+        "recommended": 4.941700960219479,
+        "exponents": {
+          "speed": 0.9375,
+          "breach": 0.03125,
+          "mechanic": 0.03125
+        }
+      }
+    },
+    {
+      "level": 95,
+      "chapter": 10,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.958299039780521,
+        "hp": 4.958299039780521,
+        "speed": 4.576843686226999,
+        "breach": 1.040838427507141,
+        "mechanic": 1.040838427507141,
+        "recommended": 4.958299039780521,
+        "exponents": {
+          "speed": 0.95,
+          "breach": 0.025,
+          "mechanic": 0.025
+        }
+      }
+    },
+    {
+      "level": 96,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.974074074074074,
+        "hp": 4.974074074074074,
+        "speed": 4.683661922871555,
+        "breach": 1.0305364436124471,
+        "mechanic": 1.0305364436124471,
+        "recommended": 4.974074074074074,
+        "exponents": {
+          "speed": 0.9625,
+          "breach": 0.018750000000000003,
+          "mechanic": 0.018750000000000003
+        }
+      }
+    },
+    {
+      "level": 97,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.987379972565158,
+        "hp": 4.987379972565158,
+        "speed": 4.790994205132988,
+        "breach": 1.0202894728583898,
+        "mechanic": 1.0202894728583898,
+        "recommended": 4.987379972565158,
+        "exponents": {
+          "speed": 0.975,
+          "breach": 0.012499999999999997,
+          "mechanic": 0.012499999999999997
+        }
+      }
+    },
+    {
+      "level": 98,
+      "chapter": 10,
+      "normal_target": "pressure",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": false,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 4.996570644718793,
+        "hp": 4.996570644718793,
+        "speed": 4.897096157284102,
+        "breach": 1.010105417115046,
+        "mechanic": 1.010105417115046,
+        "recommended": 4.996570644718793,
+        "exponents": {
+          "speed": 0.9875,
+          "breach": 0.006249999999999999,
+          "mechanic": 0.006249999999999999
+        }
+      }
+    },
+    {
+      "level": 99,
+      "chapter": 10,
+      "normal_target": "high",
+      "challenge_target_semantics": "chapter_distribution_band",
+      "representative_checkpoint": true,
+      "chapter_representative_win_rate_contract": [
+        0.6,
+        0.9
+      ],
+      "chapter_representative_win_rate_actual": 0.8666666666666667,
+      "reference_fixture": "golden_law_tier_1_max",
+      "old": {
+        "hp": 1.01,
+        "speed": 1.12,
+        "breach": 1.16,
+        "mechanic": 1.21,
+        "recommended": 1.5
+      },
+      "new": {
+        "K": 5.0,
+        "hp": 5.0,
+        "speed": 5.0,
+        "breach": 1.0,
+        "mechanic": 1.0,
+        "recommended": 5.0,
+        "exponents": {
+          "speed": 1.0,
+          "breach": 0.0,
+          "mechanic": 0.0
+        }
+      }
+    }
+  ]
+}

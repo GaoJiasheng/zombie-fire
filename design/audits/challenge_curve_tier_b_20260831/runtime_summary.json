@@ -1,0 +1,235 @@
+{
+  "status": "pass",
+  "evidence": "design/audits/challenge_curve_tier_b_20260831/all99_final_10.json",
+  "evidence_sha256": "06f6ecace16333d48113c53ad174cbe788d02d1d84da4583dbb7e9067d102ca8",
+  "seeds": [
+    1103,
+    2207,
+    3301,
+    4409,
+    5513,
+    6637,
+    7741,
+    8849,
+    9901,
+    10903
+  ],
+  "chapters": [
+    {
+      "chapter": 1,
+      "representative_levels": [
+        1,
+        5,
+        10
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 2,
+      "representative_levels": [
+        11,
+        15,
+        20
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 3,
+      "representative_levels": [
+        21,
+        25,
+        30
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 4,
+      "representative_levels": [
+        31,
+        35,
+        40
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 5,
+      "representative_levels": [
+        41,
+        45,
+        50
+      ],
+      "representative_wins": 30,
+      "representative_runs": 30,
+      "representative_win_rate": 1.0,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 100,
+      "all_level_runs": 100,
+      "all_level_win_rate": 1.0
+    },
+    {
+      "chapter": 6,
+      "representative_levels": [
+        51,
+        55,
+        60
+      ],
+      "representative_wins": 29,
+      "representative_runs": 30,
+      "representative_win_rate": 0.9666666666666667,
+      "contract_band": [
+        0.7,
+        1.0
+      ],
+      "all_level_wins": 87,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.87
+    },
+    {
+      "chapter": 7,
+      "representative_levels": [
+        61,
+        65,
+        70
+      ],
+      "representative_wins": 27,
+      "representative_runs": 30,
+      "representative_win_rate": 0.9,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 57,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.57
+    },
+    {
+      "chapter": 8,
+      "representative_levels": [
+        71,
+        75,
+        80
+      ],
+      "representative_wins": 22,
+      "representative_runs": 30,
+      "representative_win_rate": 0.7333333333333333,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 42,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.42
+    },
+    {
+      "chapter": 9,
+      "representative_levels": [
+        81,
+        85,
+        90
+      ],
+      "representative_wins": 25,
+      "representative_runs": 30,
+      "representative_win_rate": 0.8333333333333334,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 94,
+      "all_level_runs": 100,
+      "all_level_win_rate": 0.94
+    },
+    {
+      "chapter": 10,
+      "representative_levels": [
+        91,
+        95,
+        99
+      ],
+      "representative_wins": 26,
+      "representative_runs": 30,
+      "representative_win_rate": 0.8666666666666667,
+      "contract_band": [
+        0.6,
+        0.9
+      ],
+      "all_level_wins": 57,
+      "all_level_runs": 90,
+      "all_level_win_rate": 0.6333333333333333
+    }
+  ],
+  "finale": {
+    "level": 99,
+    "wins": 9,
+    "runs": 10,
+    "win_rate": 0.9,
+    "win_rate_contract": [
+      0.6,
+      0.9
+    ],
+    "winning_boss_phase_median_seconds": 201.016666666753,
+    "boss_phase_median_contract_seconds": [
+      150.0,
+      220.0
+    ]
+  },
+  "normal_l099_zero_impact": {
+    "runs_equal": true,
+    "before_runs_sha256": "b11d47c39700d24a8d0d679ee0749dee4bfd67781d7ba7d633a6a59a8d973a19",
+    "after_runs_sha256": "b11d47c39700d24a8d0d679ee0749dee4bfd67781d7ba7d633a6a59a8d973a19"
+  },
+  "free_ch9_ch10_counterexample": [
+    {
+      "chapter": 9,
+      "wins": 15,
+      "runs": 30,
+      "win_rate": 0.5
+    },
+    {
+      "chapter": 10,
+      "wins": 1,
+      "runs": 30,
+      "win_rate": 0.03333333333333333
+    }
+  ],
+  "challenge_star_supply_cap": 297,
+  "errors": []
+}
