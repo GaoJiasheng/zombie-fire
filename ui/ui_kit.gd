@@ -1240,6 +1240,14 @@ static func resource_chip(icon_path: String, accent: Color, value: String, tip :
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	lbl.clip_text = false
 	group.add_child(lbl)
+	# Empty balances should remain legible without competing with actionable
+	# content. Mute only the icon/value group so the shared themed bezel and its
+	# tap target stay consistent with non-zero resource chips.
+	var is_zero_value := value.strip_edges() == "0"
+	btn.set_meta("zero_value_deemphasized", is_zero_value)
+	if is_zero_value:
+		ic.modulate = Color(0.62, 0.66, 0.70, 0.48)
+		lbl.add_theme_color_override("font_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.66))
 	return btn
 
 # 轻量提示条:点资源 chip 时在顶部中央短暂显示说明(手机没有 hover tooltip)。
