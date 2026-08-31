@@ -4,6 +4,8 @@ const UiKit := preload("res://ui/ui_kit.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const PRIVACY_POLICY_URL := "https://blog.gavingao.cn/zombie-fire/privacy.html"
 const SUPPORT_URL := "https://blog.gavingao.cn/zombie-fire/support.html"
+const SWITCH_TRACK_TEXTURE := "res://assets/production/sprites/ui/ui_switch_track.png"
+const SWITCH_KNOB_TEXTURE := "res://assets/production/sprites/ui/ui_switch_knob.png"
 
 var router: Node
 var reset_armed := false
@@ -140,12 +142,12 @@ func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	var primary := accent == UiKit.GOLD
 	UiKit.apply_armored_button(button, primary, button_size, font_size, not button.disabled)
 
-func _toggle_surface_style(border: Color, fill: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(14)
+func _toggle_surface_style(border: Color, fill: Color) -> StyleBox:
+	var style := UiKit.texture_style(SWITCH_TRACK_TEXTURE, 22.0, 14.0, border)
+	if style is StyleBoxTexture:
+		var surface_tint := fill.lerp(Color(border.r, border.g, border.b, 1.0), 0.34)
+		surface_tint.a = 1.0
+		(style as StyleBoxTexture).modulate_color = surface_tint
 	style.content_margin_left = 28.0
 	style.content_margin_right = 124.0
 	return style
@@ -171,10 +173,10 @@ func _refresh_switch_button(button: Button, label_text: String, format_key: Stri
 		track.anchor_top = 0.5
 		track.anchor_right = 1.0
 		track.anchor_bottom = 0.5
-		track.offset_left = -104.0
-		track.offset_top = -20.0
+		track.offset_left = -112.0
+		track.offset_top = -22.0
 		track.offset_right = -24.0
-		track.offset_bottom = 20.0
+		track.offset_bottom = 22.0
 		track.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(track)
 	var track_bg := track.get_node_or_null("Background") as Panel
@@ -184,11 +186,9 @@ func _refresh_switch_button(button: Button, label_text: String, format_key: Stri
 		track_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 		track_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		track.add_child(track_bg)
-	var track_style := StyleBoxFlat.new()
-	track_style.bg_color = Color(active.r, active.g, active.b, 0.78 if enabled else 0.34)
-	track_style.border_color = Color(active.r, active.g, active.b, 0.96 if enabled else 0.58)
-	track_style.set_border_width_all(2)
-	track_style.set_corner_radius_all(20)
+	var track_style := UiKit.texture_style(SWITCH_TRACK_TEXTURE, 20.0, 2.0, active)
+	if track_style is StyleBoxTexture:
+		(track_style as StyleBoxTexture).modulate_color = Color(active.r, active.g, active.b, 1.0 if enabled else 0.72)
 	track_bg.add_theme_stylebox_override("panel", track_style)
 	var knob := track.get_node_or_null("Knob") as Panel
 	if knob == null:
@@ -196,11 +196,11 @@ func _refresh_switch_button(button: Button, label_text: String, format_key: Stri
 		knob.name = "Knob"
 		knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		track.add_child(knob)
-	knob.position = Vector2(44.0 if enabled else 4.0, 4.0)
-	knob.size = Vector2(32.0, 32.0)
-	var knob_style := StyleBoxFlat.new()
-	knob_style.bg_color = Color(0.96, 0.98, 0.96, 1.0) if enabled else Color(0.70, 0.74, 0.76, 1.0)
-	knob_style.set_corner_radius_all(16)
+	knob.position = Vector2(48.0 if enabled else 4.0, 4.0)
+	knob.size = Vector2(36.0, 36.0)
+	var knob_style := UiKit.texture_style(SWITCH_KNOB_TEXTURE, 0.0, 0.0, Color.WHITE)
+	if knob_style is StyleBoxTexture:
+		(knob_style as StyleBoxTexture).modulate_color = Color(1.0, 1.0, 1.0, 1.0) if enabled else Color(0.66, 0.70, 0.72, 1.0)
 	knob.add_theme_stylebox_override("panel", knob_style)
 	button.set_meta("switch_control", true)
 	button.set_meta("switch_enabled", enabled)

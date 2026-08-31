@@ -15,6 +15,16 @@ const SURFACE := Color(0.018, 0.022, 0.028, 0.88)
 const SURFACE_ALT := Color(0.030, 0.029, 0.025, 0.86)
 const WARM_EDGE := Color(0.70, 0.53, 0.30, 0.46)
 
+# Canonical screen-background grading. These restrained texture multipliers keep
+# each meta screen identifiable without introducing one-off scene colors outside
+# the shared palette.
+const SCREEN_TINT_MENU := Color(0.46, 0.48, 0.44, 1.0)
+const SCREEN_TINT_MAP := Color(0.42, 0.39, 0.34, 1.0)
+const SCREEN_TINT_LOADOUT := Color(0.31, 0.37, 0.43, 1.0)
+const SCREEN_TINT_COLLECTION := Color(0.34, 0.42, 0.42, 1.0)
+const SCREEN_TINT_STORE := Color(0.48, 0.40, 0.30, 1.0)
+const SCREEN_TINT_SETTINGS := Color(0.31, 0.38, 0.45, 1.0)
+
 # Neutral grey ramp for backgrounds, dividers, disabled states and secondary text.
 const GREY_900 := Color(0.07, 0.08, 0.10, 1.0)
 const GREY_700 := Color(0.16, 0.18, 0.21, 1.0)

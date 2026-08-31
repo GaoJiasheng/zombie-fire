@@ -35,6 +35,18 @@
   },
   "owner_directed_generated_overrides": [
     {
+      "path": "sprites/ui/ui_switch_track.png + sprites/ui/ui_switch_knob.png",
+      "source": "source_refs/generated/ui_switch_2026_08_31/prompt_log.md",
+      "derived": [
+        "sprites/ui/ui_switch_track.png",
+        "sprites/ui/ui_switch_knob.png"
+      ],
+      "reason": "Owner approved dedicated neutral, texture-backed settings switch primitives after existing pill and health-fill assets failed at 60x40 scale. The grayscale nine-slice rail and metal knob preserve cyan-on / gray-off semantics through runtime modulation without reintroducing unreadable text labels or warning-red color semantics.",
+      "count": 2,
+      "task": "Settings accessibility switch texture-backed runtime fix",
+      "created_at": "2026-08-31T00:00:00+08:00"
+    },
+    {
       "path": "sprites/premium/neon_tempest/true_grip",
       "source": "source_refs/generated/premium_neon_tempest_thunder_true_grip_2026_07_29/prompt_log.md",
       "derived": [
