@@ -82,14 +82,19 @@ func _ready() -> void:
 	_build_equip_nav()
 
 func _apply_runtime_layout() -> void:
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
+	var compact_safe_layout := safe_height < 1800.0
 	var root := $Root as MarginContainer
-	root.add_theme_constant_override("margin_top", 38)
-	root.add_theme_constant_override("margin_bottom", 36)
+	root.add_theme_constant_override("margin_top", 8 if compact_safe_layout else 38)
+	root.add_theme_constant_override("margin_bottom", 8 if compact_safe_layout else 36)
 	var main := $Root/Main as VBoxContainer
-	main.add_theme_constant_override("separation", 13)
+	main.add_theme_constant_override("separation", 8 if compact_safe_layout else 13)
 	if has_node("Root/Main/UnitsRow"):
 		var units := $Root/Main/UnitsRow as HBoxContainer
-		units.custom_minimum_size = Vector2(0, 430)
+		units.custom_minimum_size = Vector2(0, 390 if compact_safe_layout else 430)
+	if has_node("Root/Main/GrowthBadge"):
+		(%GrowthBadge as Label).custom_minimum_size = Vector2(0, 32 if compact_safe_layout else 42)
 	if has_node("Root/Main/GearIconRow"):
 		var gear := %GearIconRow as HBoxContainer
 		gear.custom_minimum_size = Vector2(0, 176)
@@ -98,7 +103,7 @@ func _apply_runtime_layout() -> void:
 		(%DetailsPanel as Control).custom_minimum_size = Vector2(0, DETAILS_PANEL_HEIGHT)
 	if has_node("Root/Main/BottomSpacer"):
 		var spacer := $Root/Main/BottomSpacer as Control
-		spacer.custom_minimum_size = Vector2(0, BOTTOM_ACTION_SPACER_HEIGHT)
+		spacer.custom_minimum_size = Vector2(0, 12 if compact_safe_layout else BOTTOM_ACTION_SPACER_HEIGHT)
 		spacer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if has_node("Root/Main/StartButton"):
 		var start := %StartButton as TextureButton
@@ -529,10 +534,12 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	var safe_area := MarginContainer.new()
 	safe_area.name = "SummarySafeArea"
 	safe_area.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var compact_safe_layout := get_viewport_rect().size.y - safe.y - safe.w < 1800.0
 	safe_area.add_theme_constant_override("margin_left", SUMMARY_MARGIN_LEFT)
 	safe_area.add_theme_constant_override("margin_right", SUMMARY_MARGIN_RIGHT)
-	safe_area.add_theme_constant_override("margin_top", SUMMARY_MARGIN_TOP)
-	safe_area.add_theme_constant_override("margin_bottom", SUMMARY_MARGIN_BOTTOM)
+	safe_area.add_theme_constant_override("margin_top", 12 if compact_safe_layout else SUMMARY_MARGIN_TOP)
+	safe_area.add_theme_constant_override("margin_bottom", 12 if compact_safe_layout else SUMMARY_MARGIN_BOTTOM)
 	safe_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(safe_area)
 
