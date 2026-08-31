@@ -49,17 +49,17 @@ texture = ExtResource("5_title")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="MidSpacer" type="Control" parent="Layout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
 [node name="Subtitle" type="Label" parent="Layout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 38
 text = "火力封锁，寸土不让"
 horizontal_alignment = 1
-
-[node name="MidSpacer" type="Control" parent="Layout/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 2.0
 
 [node name="StartButton" type="TextureButton" parent="Layout/VBox"]
 unique_name_in_owner = true
