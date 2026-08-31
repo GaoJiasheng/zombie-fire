@@ -700,7 +700,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	call_deferred("_fit_summary_panel_to_content", panel, box)
 
 func _star_threshold_guide() -> VBoxContainer:
-	var economy := DataLoader.get_table("economy")
+	var economy: Dictionary = DataLoader.get_table("economy")
 	var two_star := int(round(StarRules.two_star_ratio(economy) * 100.0))
 	var three_star := int(round(StarRules.three_star_ratio(economy) * 100.0))
 	var guide := VBoxContainer.new()
