@@ -76,24 +76,76 @@ def main() -> int:
                 if token in literal:
                     errors.append(f"{path.relative_to(ROOT)} contains visible English UI string: {literal}")
     premium_sets = json.loads((ROOT / "data" / "premium_sets.json").read_text(encoding="utf-8"))
+    expected_unlocks = {
+        "inferno": 30,
+        "thunder": 50,
+        "absolute_zero": 70,
+        "golden_law": 90,
+    }
+    mechanism_copy = {
+        "inferno": ("燃爆扩散", "Combustion spread"),
+        "thunder": ("过载连锁", "Overload chains"),
+        "absolute_zero": ("碎冰连爆", "Shatter chains"),
+        "golden_law": ("裁决敕令", "Judgment and Golden Decree"),
+    }
+    forbidden_positioning = (
+        "元素主宰",
+        "枪械涂装",
+        "火弱关",
+        "雷弱关",
+        "主宰区间",
+        "Dominance Range",
+        "elemental dominance",
+        "weapon skin",
+        "Fire-weak",
+        "Lightning-weak",
+        "only yield to Physical",
+    )
     for set_id, row in premium_sets.items():
         for key in ("unlock_hint_zh", "unlock_hint_en", "unlock_cta_zh", "unlock_cta_en"):
             if not str(row.get(key, "")).strip():
                 errors.append(f"{set_id}.{key} must provide the locked-catalog copy")
         dominance_zh = str(row.get("dominance_zh", "")).strip()
         dominance_en = str(row.get("dominance_en", "")).strip()
-        if not dominance_zh.startswith("主宰区间："):
-            errors.append(f"{set_id}.dominance_zh must start with 主宰区间：")
-        if not dominance_en.startswith("Dominance Range:"):
-            errors.append(f"{set_id}.dominance_en must start with Dominance Range:")
-        is_endgame_set = str(row.get("series_id", "")) == "golden_law"
+        series_id = str(row.get("series_id", ""))
+        is_endgame_set = series_id == "golden_law"
+        expected_zh_prefix = "Lv65 满配优势：" if is_endgame_set else "满配优势："
+        expected_en_prefix = "Lv65 full-set edge:" if is_endgame_set else "Full-set edge:"
+        if not dominance_zh.startswith(expected_zh_prefix):
+            errors.append(f"{set_id}.dominance_zh must start with {expected_zh_prefix}")
+        if not dominance_en.startswith(expected_en_prefix):
+            errors.append(f"{set_id}.dominance_en must start with {expected_en_prefix}")
+        expected_ratio = f'{float(row.get("target_full_set_ratio_center", 0)):g}×'
+        for key, value in (("dominance_zh", dominance_zh), ("dominance_en", dominance_en)):
+            if expected_ratio not in value:
+                errors.append(f"{set_id}.{key} must disclose exact full-set ratio {expected_ratio}")
+        if "纯物理输出" not in dominance_zh or "Physical DPS" not in dominance_en:
+            errors.append(f"{set_id} must disclose stage-neutral Physical DPS positioning")
+        if "全元素弹药适配" not in dominance_zh or "Any-element ammo" not in dominance_en:
+            errors.append(f"{set_id} must disclose any-element ammo compatibility")
+        if "追赶期升级半价" not in dominance_zh or "Half-price catch-up upgrades" not in dominance_en:
+            errors.append(f"{set_id} must disclose the data-backed catch-up discount")
+        expected_mechanism = mechanism_copy.get(series_id, ("", ""))
+        if expected_mechanism[0] not in dominance_zh or expected_mechanism[1] not in dominance_en:
+            errors.append(f"{set_id} must lead with its authored exclusive mechanic")
+        store_unlock = row.get("store_unlock", {})
+        expected_unlock = expected_unlocks.get(series_id)
+        if not isinstance(store_unlock, dict) or int(store_unlock.get("clear_level", 0)) != expected_unlock:
+            errors.append(f"{set_id}.store_unlock must reveal after Stage {expected_unlock}")
+        if "any_character_level" in store_unlock:
+            errors.append(f"{set_id}.store_unlock must not add a character-level requirement")
+        authored_copy = "\n".join(
+            str(value) for key, value in row.items()
+            if isinstance(key, str) and (key.endswith("_zh") or key.endswith("_en"))
+        )
+        for token in forbidden_positioning:
+            if token.lower() in authored_copy.lower():
+                errors.append(f"{set_id} contains retired premium positioning: {token}")
         if is_endgame_set:
-            if "终局" not in dominance_zh or "物理" not in dominance_zh:
-                errors.append(f"{set_id}.dominance_zh must disclose endgame Physical positioning")
-            if "Endgame" not in dominance_en or "Physical" not in dominance_en:
-                errors.append(f"{set_id}.dominance_en must disclose endgame Physical positioning")
-        elif "终局" in dominance_zh or "endgame" in dominance_en.lower():
-            errors.append(f"{set_id} must not imply elemental arsenal endgame dominance")
+            if "Lv1–50 标准曲线" not in dominance_zh or "Lv51–65 独享超频区" not in dominance_zh:
+                errors.append(f"{set_id}.dominance_zh must disclose the standard and exclusive level ranges")
+            if "Standard Lv1–50 curve" not in dominance_en or "exclusive Lv51–65 overclock range" not in dominance_en:
+                errors.append(f"{set_id}.dominance_en must disclose the standard and exclusive level ranges")
     if errors:
         print("Release string check failed:")
         for error in errors:
