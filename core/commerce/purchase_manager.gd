@@ -275,9 +275,10 @@ func is_series_unlocked(series_id: String) -> bool:
 
 
 # Single source for every quantified premium recommendation. The four pieces
-# are projected at the levels of the player's currently equipped slots, capped
-# by each premium item's own maximum. No best-in-slot level or synergy is
-# invented, and the result comes from SaveManager.power_for_build().
+# are projected at the player's frozen catch-up ceiling (the highest weapon
+# level they have already earned), capped by each premium item's own maximum.
+# The quoted gold is the exact sum of the discounted per-level costs needed to
+# reach that honest, immediately attainable state.
 func premium_power_offer_for_level(
 	level_id: String,
 	minimum_uplift := 0.15,
@@ -290,13 +291,11 @@ func premium_power_offer_for_level(
 	var current_power := SaveManager.get_power_for_level(level_id)
 	var recommended := maxi(1, SaveManager.get_recommended_power_for_level(level_id))
 	var best: Dictionary = {}
+	var catch_up_level := SaveManager.get_highest_weapon_level()
 	for series_id in store_series_ids():
 		if is_arsenal_owned(series_id):
 			continue
 		var set_row := set_for_series(series_id)
-		var weapon_id := str(set_row.get("weapon", ""))
-		if str(DataLoader.get_row("weapons", weapon_id).get("element", "physical")) != weakness:
-			continue
 		var build := {}
 		for slot in ["weapon", "armor", "chip", "pet"]:
 			var item_id := str(set_row.get(slot, ""))
@@ -305,11 +304,9 @@ func premium_power_offer_for_level(
 			if item_id == "" or item_row.is_empty():
 				build.clear()
 				break
-			var current_id := SaveManager.get_selected(slot)
-			var current_level := SaveManager.get_item_level(current_id) if current_id != "" else 1
 			build[slot] = {
 				"id": item_id,
-				"level": mini(maxi(current_level, 1), int(item_row.get("max_level", current_level))),
+				"level": mini(catch_up_level, int(item_row.get("max_level", catch_up_level))),
 			}
 		if build.size() != 4:
 			continue
@@ -319,17 +316,33 @@ func premium_power_offer_for_level(
 		if uplift + 0.0001 < minimum_uplift or result_ratio + 0.0001 < minimum_result_ratio:
 			continue
 		if best.is_empty() or projected_power > int(best.get("projected_power", 0)):
+			var set_id := set_id_for_series(series_id)
 			best = {
 				"series_id": series_id,
-				"set_id": set_id_for_series(series_id),
+				"set_id": set_id,
 				"current_power": current_power,
 				"projected_power": projected_power,
 				"uplift_ratio": uplift,
 				"result_ratio": result_ratio,
+				"catch_up_level": catch_up_level,
+				"catch_up_gold": SaveManager.get_premium_set_catch_up_cost(set_id, catch_up_level),
 				"weakness": weakness,
+				"ammo_element": weakness,
 				"build": build,
 			}
 	return best
+
+
+func premium_catch_up_quote_for_series(series_id: String) -> Dictionary:
+	var set_id := set_id_for_series(series_id)
+	if set_id == "":
+		return {}
+	var target_level := SaveManager.get_highest_weapon_level()
+	return {
+		"set_id": set_id,
+		"catch_up_level": target_level,
+		"catch_up_gold": SaveManager.get_premium_set_catch_up_cost(set_id, target_level),
+	}
 
 
 func mock_purchase(product_id: String, persist := true) -> bool:
@@ -413,8 +426,13 @@ func reconcile_access(persist := true) -> void:
 	var unlocks: Dictionary = SaveManager.save_data.get("unlocks", {})
 	var premium_sets: Dictionary = DataLoader.get_table("premium_sets")
 	for set_id_var in premium_sets.keys():
-		var set_row := DataLoader.get_row("premium_sets", str(set_id_var))
+		var set_id := str(set_id_var)
+		var set_row := DataLoader.get_row("premium_sets", set_id)
 		var owned_arsenal := has_entitlement(str(set_row.get("entitlement", "")))
+		if owned_arsenal:
+			SaveManager.ensure_premium_catch_up_level(set_id, str(set_row.get("weapon", "")))
+		else:
+			SaveManager.clear_premium_catch_up_level(set_id)
 		for slot in ["weapon", "armor", "chip", "pet"]:
 			var item_id := str(set_row.get(slot, ""))
 			if item_id == "":

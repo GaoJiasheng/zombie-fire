@@ -39,10 +39,10 @@ FREE_AUDIT = {
     "weapon_teslacoil": (133_358.0, 198_453.0),
 }
 PREMIUM_AUDIT_RATIOS = {
-    "weapon_apocalypse_thunder": (1.579, 1.579),
-    "weapon_apocalypse_inferno": (1.482, 1.662),
-    "weapon_apocalypse_absolute_zero": (1.335, 1.746),
-    "weapon_apocalypse_golden_law": (1.997, 2.090),
+    "weapon_apocalypse_thunder": (1.249, 1.373),
+    "weapon_apocalypse_inferno": (1.085, 1.401),
+    "weapon_apocalypse_absolute_zero": (1.088, 1.412),
+    "weapon_apocalypse_golden_law": (1.562, 1.637),
 }
 
 REFERENCE_LOADOUTS = {

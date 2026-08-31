@@ -180,6 +180,12 @@ def phase_band(loop: int, pacing: dict) -> tuple[float, float]:
 
 def generate_pacing(economy: dict, bosses: dict) -> dict:
     existing = economy.get("endless_boss_pacing", {}) or {}
+    # design/37 freezes an authored endless contract independently from the
+    # campaign ruler. Power-scale rebuilds must not silently rewrite those HP
+    # budgets from a new display/capability model; only bootstrap when the table
+    # is absent. Dedicated endless work can deliberately remove/regenerate it.
+    if existing.get("budgets") and existing.get("reference_transition"):
+        return existing
     max_loop = max(int(existing.get("max_loop", DEFAULT_MAX_LOOP)), 1)
     bands = existing.get("phase_time_bands", DEFAULT_BANDS)
     targets = existing.get("target_seconds_by_loop", DEFAULT_TARGET_SECONDS)

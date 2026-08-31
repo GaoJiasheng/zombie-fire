@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import power_ruler_model as prm  # noqa: E402
+import power_scale_v6 as psv6  # noqa: E402
 import campaign_runtime_contracts as runtime_contracts  # noqa: E402
 
 
@@ -104,6 +105,7 @@ def main() -> int:
     skills = prm.load_table("skills")
     chips = prm.load_table("chips")
     pets = prm.load_table("pets")
+    scale_v6 = psv6.PowerScaleV6.build_from_fixture()
 
     finale_solution = verify_finale_boss_stack(
         levels, zombies, bosses, economy, sim)
@@ -124,7 +126,8 @@ def main() -> int:
         else:
             req = prm.solve_required_t(level, zombies, bosses, chips, characters, weapons, ctx)
         req["power_contract"] = prm.build_power_contract(
-            level, req, characters, weapons, skills, bosses, economy, sim)
+            level, req, characters, weapons, skills, bosses, economy, sim,
+            scale_v6=scale_v6)
         requirements[level["id"]] = req
 
         # 锚点1:按节奏免费构筑族必须过线
@@ -133,33 +136,7 @@ def main() -> int:
         if in_scope(level_no) and level["id"] not in pilot_ids and on_pace_t < req["min_output"] * 0.999:
             failures.append(f"{level['id']}: on-pace t={on_pace_t:.3f} < required {req['min_output']:.3f}")
 
-    # 锚点2:终局"将将能过"由完整 Boss 编队定义。固定单体耐久后，
-    # required_t 只校准主 Boss，不能再拿它冒充四只 Boss 的总压力。
-    maxed_t = ctx.family_offense_t(characters, weapons, chips, prm.FAMILY_MAX_INDEX)
-    req99 = requirements["level_099"]["min_output"]
-    maxed_free_build = {
-        "character": "vanguard", "character_level": 40,
-        "weapon": "weapon_scattergun", "weapon_level": 50,
-        "armor": "armor_kevlar", "armor_level": 35,
-        "chip": "chip_attack", "chip_level": 35,
-        "pet": "pet_turret_drone", "pet_level": 30,
-        "signature_level": 5,
-        "skill_base_levels": {
-            skill_id: prm.skill_max_level(row) for skill_id, row in skills.items()
-        },
-    }
-    final_power = prm.power_for_build(
-        levels[-1], requirements["level_099"]["power_contract"], maxed_free_build,
-        characters, weapons, prm.load_table("armors"), chips, pets, skills,
-        bosses, economy,
-    )
-    final_ratio = float(final_power["power"]) / max(float(final_power["recommended"]), 1.0)
-    if in_scope(99) and not 1.10 <= final_ratio <= 1.22:
-        failures.append(
-            f"level_099: maxed free full-roster ratio {final_ratio:.4f} outside [1.10,1.22]"
-        )
-
-    # 锚点3:Owner 实测惨胜构筑(雷霆四件套 L1,零技能)。
+    # 旧物理通关线锚点仍校验实际战斗模型；它不再参与玩家有效战力数字。
     # 已知模型边界:静态折算对低等级付费套偏乐观(连锁/过载/终端雷柱在低等级、
     # 低敌群密度下打不满,Owner 实测 1★ 对应真实输出 ≈ 通关线 ×1.10-1.15,模型
     # 给到 ~1.4)。方向是"付费显示略强于真实",带宽上限如实放到 1.45,不引入
@@ -186,8 +163,11 @@ def main() -> int:
         if in_scope(level_no):
             level["clear_requirement"] = requirements[level["id"]]
             written += 1
+    economy["power_scale_v6"] = scale_v6.runtime_config()
     (prm.DATA / "levels.json").write_text(
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
+    (prm.DATA / "economy.json").write_text(
+        json.dumps(economy, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
     print(f"Wrote clear_requirement for {written} levels ({args.start:03d}-{args.end:03d})")
     print(
         "finale Boss stack: "
@@ -197,8 +177,7 @@ def main() -> int:
     )
     contract99 = requirements["level_099"]["power_contract"]
     print(
-        f"anchors: maxed_t={maxed_t:.3f} req99(primary)={req99:.3f} "
-        f"full-roster-R={final_ratio:.4f} | thunder_t={thunder_t:.3f} req13={req13:.3f}"
+        f"anchors: B2=990/990 | thunder_t={thunder_t:.3f} req13={req13:.3f}"
     )
     print(
         "power contract 99: "

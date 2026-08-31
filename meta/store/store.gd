@@ -149,6 +149,16 @@ func _loc(zh: String, en: String) -> String:
 	return en if LocalizationManager.is_english() else zh
 
 
+func _format_store_number(value: int) -> String:
+	var digits := str(maxi(value, 0))
+	var parts: Array[String] = []
+	while digits.length() > 3:
+		parts.push_front(digits.substr(digits.length() - 3, 3))
+		digits = digits.substr(0, digits.length() - 3)
+	parts.push_front(digits)
+	return ",".join(parts)
+
+
 func _apply_style() -> void:
 	UiKit.apply_label($Root/VBox/Title, 42, UiKit.TEXT_MAIN, 4)
 	UiKit.apply_label($Root/VBox/MockNotice, 18, UiKit.WARNING, 2)
@@ -582,6 +592,21 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		dominance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		dominance.custom_minimum_size = Vector2(0, 58)
 		copy.add_child(dominance)
+		var quote := PurchaseManager.premium_catch_up_quote_for_series(str(row.get("series_id", "")))
+		var catch_up_level := int(quote.get("catch_up_level", 1))
+		var catch_up_gold := int(quote.get("catch_up_gold", 0))
+		var catch_up := UiKit.label(
+			_loc(
+				"整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_store_number(catch_up_gold)],
+				"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_store_number(catch_up_gold)]
+			),
+			15,
+			UiKit.CYAN,
+			2
+		)
+		catch_up.name = "CatchUpCostText"
+		catch_up.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.add_child(catch_up)
 	var contents := UiKit.label(
 		_loc("永久解锁 · 可恢复 · 不含消耗品", "Permanent · Restorable · No consumables"),
 		16,

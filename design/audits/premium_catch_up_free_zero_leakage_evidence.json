@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "gate": "free fixture full 99 levels x 10 seeds byte-exact across premium catch-up changes",
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "simulation_step_seconds": 0.016666666666666666,
+  "wall_acceleration": 60.0,
+  "seeds": [1103, 2207, 3301, 4409, 5513, 6637, 7741, 8849, 9901, 10903],
+  "baseline": {
+    "meaning": "Golden Law second-rework accepted free fixture using the same current fixture source",
+    "raw_file": "/tmp/zf-cphase-golden-rework-free-99x10-a60.json",
+    "runs": 990,
+    "canonical_runs_sha256": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7"
+  },
+  "current": {
+    "meaning": "premium catch-up discount, projection and UI changes present",
+    "raw_file": "/tmp/zf-cphase-catchup-free-99x10-a60.json",
+    "runs": 990,
+    "canonical_runs_sha256": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "wall_seconds": 2859.5
+  },
+  "comparison": {
+    "exact_matches": 990,
+    "mismatch_count": 0,
+    "victories": 989,
+    "timeouts": 0,
+    "inherited_non_victories": [
+      {"level": 88, "seed": 6637}
+    ]
+  }
+}

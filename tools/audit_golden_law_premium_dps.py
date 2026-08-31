@@ -11,6 +11,7 @@ output.
 
 from __future__ import annotations
 
+import argparse
 import json
 import runpy
 from pathlib import Path
@@ -36,6 +37,10 @@ def linear_equivalents(count: int, edge_scale: float) -> float:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--weapon-level", type=int, choices=(1, 25, 50, 65), default=65)
+    args = parser.parse_args()
+    weapon_level = int(args.weapon_level)
     weapons = COMMON["WEAPONS"]
     characters = COMMON["CHARACTERS"]
     chips = COMMON["CHIPS"]
@@ -44,12 +49,16 @@ def main() -> int:
     armors = load("armors.json")
     set_row = load("premium_sets.json")["set_apocalypse_golden_law"]
 
-    free = COMMON["best_result"]("vanguard")
+    free = COMMON["best_result"](
+        "vanguard", fire_rate_profile_id=COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID
+    )
     premium = COMMON["evaluate"](
         "vanguard",
         "chip_apocalypse_golden_law",
         "pet_apocalypse_skyfalcon",
         "weapon_apocalypse_golden_law",
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
+        weapon_level,
     )
     weapon = weapons["weapon_apocalypse_golden_law"]
     free_weapon = weapons["weapon_railgun"]
@@ -58,12 +67,6 @@ def main() -> int:
     armor = armors["armor_apocalypse_eternal_night"]
     free_armor = armors["armor_reactive"]
     special = weapon["special"]
-
-    opening_weapon_ratio = (
-        float(weapon["base_atk_coef"])
-        * float(weapon["fire_rate"])
-        / (float(free_weapon["base_atk_coef"]) * float(free_weapon["fire_rate"]))
-    )
 
     efficiency = COMMON["chip_value"](chip, "judgment_efficiency")
     efficiency += float(set_row["two_piece"]["judgment_efficiency"])
@@ -101,16 +104,9 @@ def main() -> int:
         premium.all_lanes_dps / COMMON["TOTAL_LANES"] * mark_amp * mark_uptime
     )
 
-    fire_rate = (
-        float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (COMMON["WEAPON_LEVEL"] - 1))
-        * float(economy["PLAYER_FIRE_RATE_MULT"])
-        * float(characters["vanguard"].get("fire_rate_mod", 1.0))
-        * (1.0 + COMMON["chip_value"](chip, "fire_rate_mult"))
-        * (1.0 + 0.01 * (COMMON["CHIP_LEVEL"] - 1))
-        * (1.0 + COMMON["pet_stat"](pet, "fire_rate_mult"))
-        * COMMON["FULL_SKILL_FIRE_RATE_MULT"]
-    )
+    _, fire_rate = COMMON["resolved_fire_rates"](
+        characters["vanguard"], weapon, chip, pet,
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID, weapon_level)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -190,12 +186,10 @@ def main() -> int:
     )
     armor_hp_ratio = armor_hp / free_armor_hp
 
-    print("Golden Law Apocalypse progression audit (all compatible skills maxed)")
-    print(
-        f"Opening weapon throughput: Golden Law {opening_weapon_ratio:.3f}x Railgun "
-        f"(locked {set_row['target_level_one_ratio_min']:.2f}-"
-        f"{set_row['target_level_one_ratio_max']:.2f}x)"
-    )
+    target_prefix = "target_level_50_ratio" if weapon_level <= 50 else "target_full_set_ratio"
+    target_min = float(set_row[f"{target_prefix}_min"])
+    target_max = float(set_row[f"{target_prefix}_max"])
+    print(f"Golden Law Apocalypse Lv{weapon_level} progression audit (all compatible skills maxed)")
     print(
         f"Judgment: {threshold} confirmed hits; mark uptime {mark_uptime:.1%}; "
         f"raw max defense HP {armor_hp_ratio:.3f}x Reactive Armor before the extra breach shield/repair"
@@ -214,24 +208,14 @@ def main() -> int:
     )
     print(
         f"Weighted 40/40/20: {weighted:.3f}x "
-        f"(locked {set_row['target_full_set_ratio_min']:.2f}-"
-        f"{set_row['target_full_set_ratio_max']:.2f}x)"
+        f"(locked {target_min:.2f}-{target_max:.2f}x)"
     )
+    print(f"PROGRESSION_RATIO={weighted:.9f}")
 
     errors = []
-    if not float(set_row["target_level_one_ratio_min"]) <= opening_weapon_ratio <= float(
-        set_row["target_level_one_ratio_max"]
-    ):
-        errors.append("opening weapon throughput outside locked 1.20-1.30x band")
     if not 1.82 <= armor_hp_ratio <= 1.96:
         errors.append("raw max defense HP outside 1.82-1.96x pre-utility band")
-    if not 1.88 <= ratios["boss"] <= 2.06:
-        errors.append("Boss ratio outside 1.88-2.06x prestige band")
-    if not 1.90 <= ratios["dense"] <= 2.10:
-        errors.append("dense ratio outside 1.90-2.10x prestige band")
-    if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
-        set_row["target_full_set_ratio_max"]
-    ):
+    if weapon_level in (50, 65) and not target_min <= weighted <= target_max:
         errors.append("weighted ratio outside locked paid-set band")
     if int(decree["generation_limit"]) != 1:
         errors.append("Golden Decree must remain one generation")

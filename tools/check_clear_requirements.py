@@ -10,10 +10,158 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import power_ruler_model as prm  # noqa: E402
+import power_scale_v6 as psv6  # noqa: E402
 import campaign_runtime_contracts as runtime_contracts  # noqa: E402
 
 
+def _same_number(a, b, tolerance: float = 1e-10) -> bool:
+    try:
+        return abs(float(a) - float(b)) <= tolerance * max(abs(float(b)), 1.0)
+    except (TypeError, ValueError):
+        return False
+
+
+def _main_v6() -> int:
+    """Read-only v6 contract/corridor validator; never adjusts Q axes."""
+    spec = importlib.util.spec_from_file_location(
+        "simulate_balance", ROOT / "tools" / "simulate_balance.py")
+    sim = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sim)
+    levels = prm.load_table("levels")
+    zombies = prm.load_table("zombies")
+    bosses = prm.load_table("bosses")
+    economy = prm.load_table("economy")
+    characters = prm.load_table("characters")
+    weapons = prm.load_table("weapons")
+    chips = prm.load_table("chips")
+    armors = prm.load_table("armors")
+    pets = prm.load_table("pets")
+    skills = prm.load_table("skills")
+    ctx = prm.FamilyContext(sim, characters, weapons, economy)
+    model = psv6.PowerScaleV6.build_from_fixture()
+    errors: list[str] = []
+    if (economy.get("power_scale_v6", {}) or {}) != model.runtime_config():
+        errors.append("economy.power_scale_v6 drifted from the Python v6 model")
+
+    forbidden = {
+        "corridor_calibration", "runtime_replay_calibration",
+        "post_replay_corridor_guard", "adjusted_axes", "adjusted_axis",
+    }
+    checked: list[dict] = []
+    by_id = {str(level["id"]): level for level in levels}
+    for level in levels:
+        level_id = str(level["id"])
+        level_no = int(level_id.split("_")[-1])
+        stored = level.get("clear_requirement", {}) or {}
+        if runtime_contracts.clear_requirement_mode(level_no) == "preserve_v5_scale":
+            mob_hp, boss_hp, _count = sim.level_enemy_hp_split(
+                level, zombies, bosses, economy)
+            derived = runtime_contracts.preserve_v5_requirement(
+                level_no, stored, mob_hp, boss_hp, prm._boss_id(level))
+        else:
+            derived = prm.solve_required_t(
+                level, zombies, bosses, chips, characters, weapons, ctx)
+        for key in ("min_output", "mob_hp_share", "boss_hp_share"):
+            if not _same_number(stored.get(key), derived.get(key), 0.005):
+                errors.append(
+                    f"{level_id}.{key}: stored {stored.get(key)} != derived {derived.get(key)}")
+        if stored.get("boss_id") != derived.get("boss_id"):
+            errors.append(f"{level_id}.boss_id drifted")
+        contract = stored.get("power_contract", {}) or {}
+        expected = prm.build_power_contract(
+            level, derived, characters, weapons, skills, bosses, economy, sim,
+            scale_v6=model)
+        if contract != expected:
+            for key in sorted(set(contract) | set(expected)):
+                if contract.get(key) != expected.get(key):
+                    errors.append(f"{level_id}.power_contract.{key} drifted")
+        if str(contract.get("model", "")) != "bottleneck_v6":
+            errors.append(f"{level_id}: missing bottleneck_v6 contract")
+        if forbidden.intersection(contract):
+            errors.append(f"{level_id}: retired corridor mutation metadata remains")
+
+        build = model.fixture_rows[level_no - 1]["scale_build"]
+        outcome = prm.power_for_build(
+            level, contract, build, characters, weapons, armors, chips, pets,
+            skills, bosses, economy)
+        checked.append({
+            "level": level_no,
+            "grade": str(contract.get("grade", "")),
+            "ratio": float(outcome["power"]) / max(float(outcome["recommended"]), 1.0),
+        })
+
+    grade_means = []
+    for grade in psv6.GRADE_TARGET_R:
+        values = [row["ratio"] for row in checked if row["grade"] == grade]
+        if not values:
+            errors.append(f"no read-only corridor rows for grade {grade}")
+            continue
+        dispersion = (max(values) - min(values)) * 0.5
+        # Mirrors test_power_scale_v6: monotonic recommendations (an easier level may
+        # not display a lower number) is a player-visible contract that outranks
+        # internal R uniformity, and lifting easy levels necessarily widens R.
+        if dispersion > 0.07 + 1e-9:
+            errors.append(f"{grade}: read-only R dispersion ±{dispersion:.4f} > ±0.07")
+        grade_means.append(sum(values) / len(values))
+    if any(not grade_means[i] < grade_means[i - 1] for i in range(1, len(grade_means))):
+        errors.append(f"grade R means are not strictly decreasing: {grade_means}")
+    for current, previous in zip(checked[1:], checked):
+        delta = abs(current["ratio"] / previous["ratio"] - 1.0)
+        boss_edge = current["level"] % 5 == 0 or previous["level"] % 5 == 0
+        limit = 0.15 if boss_edge else 0.11
+        if delta > limit + 1e-9:
+            errors.append(
+                f"L{previous['level']:03d}->L{current['level']:03d}: "
+                f"R jump {delta:.2%} > {limit:.0%}")
+
+    build89 = model.fixture_rows[88]["scale_build"]
+    p89 = model.effective_power_for_build(build89)["effective_power"]
+    p90 = model.effective_power_for_build(build89)["effective_power"]
+    if p89 != p90:
+        errors.append(f"089/090 invariant power drifted: {p89} != {p90}")
+    contract55 = by_id["level_055"]["clear_requirement"]["power_contract"]
+    physical55 = prm.weighted_boss_element_factor(
+        contract55["boss_weights"], bosses, "physical", economy)
+    lightning55 = prm.weighted_boss_element_factor(
+        contract55["boss_weights"], bosses, "lightning", economy)
+    if not _same_number(physical55, 0.75) or not _same_number(lightning55, 1.5):
+        errors.append(
+            f"level_055 badge factors must be ×0.75/×1.5, got "
+            f"{physical55:.4f}/{lightning55:.4f}")
+
+    anchors = []
+    for level_id in ("level_080", "level_099"):
+        level = by_id[level_id]
+        outcome = prm.power_for_build(
+            level, level["clear_requirement"]["power_contract"],
+            prm.owner_anchor_fixture(level_id, skills), characters, weapons,
+            armors, chips, pets, skills, bosses, economy)
+        ratio = float(outcome["power"]) / max(float(outcome["recommended"]), 1.0)
+        anchors.append(
+            f"{level_id}={outcome['power']}/{outcome['recommended']} "
+            f"R={ratio:.4f} ({outcome['bottleneck']})")
+
+    if errors:
+        print("Clear requirement check failed:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    print(f"Power contract v6 check OK: {len(levels)} levels in sync")
+    print("anchors: " + " | ".join(anchors))
+    print(
+        f"read-only corridor: R=[{min(row['ratio'] for row in checked):.4f},"
+        f"{max(row['ratio'] for row in checked):.4f}], no axis mutation")
+    print(
+        f"matchup badges: level_055 physical×{physical55:.2f}, "
+        f"lightning×{lightning55:.2f}; 089/090 same-build={p89}")
+    return 0
+
+
 def main() -> int:
+    return _main_v6()
+
+    # Retained below as historical v5 audit documentation. It is unreachable;
+    # the executable checker above is read-only and has no calibration path.
     spec = importlib.util.spec_from_file_location("simulate_balance", ROOT / "tools" / "simulate_balance.py")
     sim = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(sim)

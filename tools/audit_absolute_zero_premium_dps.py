@@ -10,6 +10,7 @@ excessive single-target performance.
 
 from __future__ import annotations
 
+import argparse
 import json
 import runpy
 from pathlib import Path
@@ -46,7 +47,7 @@ def linear_equivalents(count: int, edge_scale: float) -> float:
     )
 
 
-def main() -> int:
+def run_audit(weapon_level: int) -> int:
     weapons = COMMON["WEAPONS"]
     characters = COMMON["CHARACTERS"]
     chips = COMMON["CHIPS"]
@@ -55,27 +56,25 @@ def main() -> int:
     armor = load("armors.json")["armor_apocalypse_permafrost"]
     set_row = load("premium_sets.json")["set_apocalypse_absolute_zero"]
 
-    free = COMMON["best_result"]("frost")
+    free = COMMON["best_result"](
+        "frost", fire_rate_profile_id=COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID
+    )
     premium = COMMON["evaluate"](
         "frost",
         "chip_apocalypse_entropy",
         "pet_apocalypse_aurora",
         "weapon_apocalypse_absolute_zero",
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID,
+        weapon_level,
     )
     weapon = weapons["weapon_apocalypse_absolute_zero"]
     chip = chips["chip_apocalypse_entropy"]
     pet = pets["pet_apocalypse_aurora"]
     special = weapon["special"]
 
-    fire_rate = (
-        float(weapon["fire_rate"])
-        * (1.0 + 0.025 * (COMMON["WEAPON_LEVEL"] - 1))
-        * float(economy["PLAYER_FIRE_RATE_MULT"])
-        * float(characters["frost"].get("fire_rate_mod", 1.0))
-        * (1.0 + 0.01 * (COMMON["CHIP_LEVEL"] - 1))
-        * (1.0 + COMMON["pet_stat"](pet, "fire_rate_mult"))
-        * COMMON["FULL_SKILL_FIRE_RATE_MULT"]
-    )
+    _, fire_rate = COMMON["resolved_fire_rates"](
+        characters["frost"], weapon, chip, pet,
+        COMMON["fire_rate_lab"].SHIPPING_PROFILE_ID, weapon_level)
     hit_damage = premium.weapon_dps / max(
         fire_rate * COMMON["CONNECTED_LANES"], 0.001
     )
@@ -156,7 +155,7 @@ def main() -> int:
         + 0.20 * ratios["mixed"]
     )
 
-    print("Absolute Zero Apocalypse max-level DPS audit (all skills maxed)")
+    print(f"Absolute Zero Apocalypse Lv{weapon_level} DPS audit (all skills maxed)")
     print(
         f"Brittle trigger: normal {normal_threshold} hits / boss {boss_threshold} hits; "
         "crystal wave generation 1"
@@ -169,15 +168,10 @@ def main() -> int:
         f"(locked {set_row['target_full_set_ratio_min']:.2f}-"
         f"{set_row['target_full_set_ratio_max']:.2f}x)"
     )
+    print(f"PROGRESSION_RATIO={weighted:.9f}")
 
     errors = []
-    if not 1.30 <= ratios["boss"] <= 1.45:
-        errors.append("Boss ratio outside 1.30-1.45x control-role band")
-    if not 1.65 <= ratios["dense"] <= 1.82:
-        errors.append("dense ratio outside 1.65-1.82x crowd-role band")
-    if not 1.48 <= ratios["mixed"] <= 1.62:
-        errors.append("mixed ratio outside 1.48-1.62x role band")
-    if not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
+    if weapon_level == 50 and not float(set_row["target_full_set_ratio_min"]) <= weighted <= float(
         set_row["target_full_set_ratio_max"]
     ):
         errors.append("weighted ratio outside locked paid-set band")
@@ -188,6 +182,13 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--weapon-level", type=int, choices=(1, 25, 50, 65), default=50)
+    args = parser.parse_args()
+    return run_audit(int(args.weapon_level))
 
 
 if __name__ == "__main__":

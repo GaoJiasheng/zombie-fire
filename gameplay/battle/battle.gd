@@ -200,7 +200,6 @@ const WEAPON_VISUAL_PROFILES := {
 	"weapon_plasmacannon": "plasma",
 }
 const ELEMENTAL_AMMO_VISUAL_PROFILE_PREFIX := "ammo_"
-const PREMIUM_WEAPON_VISUAL_PROFILE_PREFIX := "apocalypse_"
 const CHARACTER_WEAPON_SCALE := {
 	"weapon_autocannon": 0.56,
 	"weapon_cryocannon": 0.57,
@@ -1639,6 +1638,11 @@ func _skill_compatible_with_weapon(skill_id: String) -> bool:
 		return true
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var weapon_element := str(weapon.get("element", "physical"))
+	var set_id := str(weapon.get("premium_set", ""))
+	if set_id != "":
+		var set_row := DataLoader.get_row("premium_sets", set_id)
+		if str(set_row.get("weapon", "")) == weapon_id and bool(set_row.get("ammo_cards_override_base_element", false)):
+			return true
 	if weapon_element == "" or weapon_element == "physical":
 		return true
 	return str(row.get("ammo_element", "")) == weapon_element
@@ -2260,7 +2264,7 @@ func _current_primary_shot_damage(element_override := "", include_barrage_bonus 
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var element := element_override
 	if element == "":
-		element = skills.projectile_element(str(weapon.get("element", "physical")))
+		element = skills.projectile_element(str(weapon.get("element", "physical")), weapon_id)
 	var damage := 28.0 * float(weapon.get("base_atk_coef", 1.0)) * _player_shot_damage_multiplier()
 	damage *= float(turret.damage_mult)
 	damage *= skills.damage_multiplier()
@@ -2623,8 +2627,7 @@ func _weapon_profile_endgame_damage_multiplier(weapon: Dictionary) -> float:
 	var growth_bonus := maxf(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
 	if growth_bonus <= 0.0:
 		return 1.0
-	var max_level := maxi(2, int(weapon.get("max_level", 50)))
-	var progress := clampf(float(weapon_level - 1) / float(max_level - 1), 0.0, 1.0)
+	var progress := SaveManager.weapon_endgame_growth_progress_from_row(weapon, weapon_level)
 	var curve := maxf(float(weapon.get("endgame_growth_curve", 1.0)), 1.0)
 	return 1.0 + growth_bonus * pow(progress, curve)
 
@@ -5094,7 +5097,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var pellet_spread := deg_to_rad(float(special.get("spread", 0.0)))
 	var homing: float = float(mods.get("homing", 0)) * 1.8
 	var base_element := str(weapon.get("element", "physical"))
-	var element: String = skills.projectile_element(base_element)
+	var element: String = skills.projectile_element(base_element, weapon_id)
 	var chain_count := _resolved_chain_count(element, mods, special)
 	var visual_profile := _resolved_weapon_projectile_visual_profile(
 		base_element,
@@ -5311,7 +5314,7 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 	_configure_audit_projectile(projectile)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var base_element := str(weapon.get("element", "physical"))
-	var element := skills.projectile_element(base_element)
+	var element := skills.projectile_element(base_element, weapon_id)
 	var base_profile := visual_profile if visual_profile != "" else _weapon_visual_profile(weapon_id)
 	var profile := _resolved_weapon_projectile_visual_profile(base_element, element, base_profile)
 	if element == "fire" and profile == "":
@@ -6646,12 +6649,11 @@ func _resolved_weapon_projectile_visual_profile(base_element: String, effective_
 	# projectile model, muzzle, trail, and impact presentation instead of retaining
 	# the original ballistic rail/scatter/autocannon shell.
 	#
-	# Apocalypse weapons are a deliberate exception: their paid, authored weapon
-	# identity remains intact and their native element is never visually flattened
-	# into the shared free-ammo family.
-	if base_element != "physical" or effective_element == "physical":
-		return base_profile
-	if base_profile.begins_with(PREMIUM_WEAPON_VISUAL_PROFILE_PREFIX):
+	# Paid Apocalypse weapons may now override their native element with an ammo
+	# card. The held weapon keeps its authored identity, while the projectile uses
+	# the single effective element so visuals, resistance and native mechanisms
+	# cannot imply a second damage channel.
+	if base_element == effective_element:
 		return base_profile
 	return "%s%s" % [ELEMENTAL_AMMO_VISUAL_PROFILE_PREFIX, effective_element]
 
@@ -8243,7 +8245,7 @@ func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float,
 	if damage_source == "weapon":
 		_apply_character_bullet_on_hit(primary, origin, damage, element)
 	if chain_depth <= 0 and damage_source == "weapon":
-		_apply_premium_weapon_on_hit(primary, origin, damage)
+		_apply_premium_weapon_on_hit(primary, origin, damage, element)
 	var radius: float = maxf(splash_radius, cloud_radius)
 	if radius <= 0.0:
 		if element == "lightning" and skills.level("skill_tesla") > 0:
@@ -8260,7 +8262,10 @@ func _on_projectile_hit_confirmed(primary: Node, origin: Vector2, damage: float,
 		var scale := 0.45 if splash_radius >= cloud_radius else 0.32
 		_deal_damage_with_source(target, damage * scale * (0.55 + falloff * 0.45), element, armor_penetration, status_strength, damage_source)
 
-func _apply_premium_weapon_on_hit(primary: Node, origin: Vector2, damage: float) -> void:
+func _apply_premium_weapon_on_hit(primary: Node, origin: Vector2, damage: float, effective_element: String) -> void:
+	var native_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	if effective_element != native_element:
+		return
 	match _weapon_visual_profile():
 		"apocalypse_thunder":
 			_apply_apocalypse_thunder_on_hit(primary, origin, damage)

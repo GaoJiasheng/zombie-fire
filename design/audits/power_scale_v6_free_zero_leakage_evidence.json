@@ -1,0 +1,74 @@
+{
+  "status": "pass",
+  "gate": "free fixture full 99 levels x 10 seeds byte-exact across paid-set changes",
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "simulation_step_seconds": 0.016666666666666666,
+  "wall_acceleration": 60.0,
+  "seeds": [1103, 2207, 3301, 4409, 5513, 6637, 7741, 8849, 9901, 10903],
+  "before": {
+    "commit": "4be071fb",
+    "meaning": "Power Scale 6.0 contracts complete, immediately before paid-set runtime/data changes",
+    "raw_file": "/tmp/zf-cphase-4be-free-99x10-a60.json"
+  },
+  "after": {
+    "runtime_commit": "b031aa41",
+    "meaning": "paid ammo override, neutral DPS retune and generic segmented growth present",
+    "raw_file": "/tmp/zf-cphase-free-99x10-a60.json"
+  },
+  "raw_sweep_comparison": {
+    "runs_per_side": 990,
+    "exact_matches": 985,
+    "non_exact_records": 5,
+    "adjudication_required": [
+      {
+        "level": 79,
+        "seed": 10903,
+        "reason": "after-side high-concurrency outlier",
+        "clean_rerun": "current worktree, low concurrency",
+        "clean_rerun_result": "byte-exact to before-side record"
+      },
+      {
+        "level": 96,
+        "seeds": [3301, 6637, 8849, 10903],
+        "reason": "before-side processes exceeded the original 600-second host timeout under machine contention",
+        "clean_rerun": "4be071fb archive, jobs=4, process_timeout=1200",
+        "clean_rerun_result": "all four byte-exact to after-side records"
+      }
+    ]
+  },
+  "adjudicated_comparison": {
+    "runs_per_side": 990,
+    "exact_matches": 990,
+    "mismatch_count": 0,
+    "canonical_runs_sha256_before": "00b7e346aaaf4699a98f0a4c25a89d1511449b990a9b6fa6042834bfb855576c",
+    "canonical_runs_sha256_after": "00b7e346aaaf4699a98f0a4c25a89d1511449b990a9b6fa6042834bfb855576c",
+    "victories": 989,
+    "timeouts": 0,
+    "inherited_non_victories": [
+      {"level": 88, "seed": 6637}
+    ]
+  },
+  "golden_law_second_rework_same_fixture": {
+    "status": "pass",
+    "baseline_code": "4a583104 runtime/data files in a temporary non-worktree mirror",
+    "after_code": "Golden Law Lv50 parity and standard Lv51-65 growth rework",
+    "fixture_sha256": "128fe3b8e98c7f39783ef425ba15b62a1e4c798193df1212303aa40def3b64c8",
+    "before_raw_file": "/tmp/zf-cphase-golden-rework-baseline-99x10-a60.json",
+    "after_raw_file": "/tmp/zf-cphase-golden-rework-free-99x10-a60.json",
+    "runs_per_side": 990,
+    "exact_matches": 990,
+    "mismatch_count": 0,
+    "canonical_runs_sha256_before": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "canonical_runs_sha256_after": "9532dc4e981f93953658b9ac7bc3db5c754a725279d582d822b0f62d312066f7",
+    "victories_before": 989,
+    "victories_after": 989,
+    "timeouts_before": 0,
+    "timeouts_after": 0,
+    "inherited_non_victories": [
+      {"level": 88, "seed": 6637}
+    ],
+    "note": "The earlier raw sweep predates the 4a583104 fixture correction at level 62. This comparison reruns both code states with the same current fixture, so no input adjudication or tolerance is needed."
+  },
+  "scope_note": "The comparison begins at 4be071fb so both sides use the same regenerated v6 level contracts and progression fixture. Comparing against pre-C f8361dfb would mix contract regeneration with the paid-set leakage gate. The one inherited non-victory is identical on both sides and therefore is not paid-path leakage."
+}

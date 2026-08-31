@@ -417,6 +417,8 @@ func _allowed_by_selected_weapon(skill_id: String, row: Dictionary, owned: Dicti
 	var weapon: Dictionary = data_loader.get_row("weapons", weapon_id)
 	var weapon_element := str(weapon.get("element", "physical"))
 	var ammo_element := str(row.get("ammo_element", ""))
+	if _weapon_allows_ammo_override(weapon_id, weapon):
+		return true
 	if weapon_element != "" and weapon_element != "physical":
 		return ammo_element == weapon_element
 	var current_level := int(owned.get(skill_id, 0))
@@ -429,6 +431,16 @@ func _allowed_by_selected_weapon(skill_id: String, row: Dictionary, owned: Dicti
 		if str(other_row.get("exclusive_group", "")) == "projectile_element" and str(other_id) != skill_id:
 			return false
 	return true
+
+func _weapon_allows_ammo_override(weapon_id: String, weapon: Dictionary) -> bool:
+	var data_loader = _data_loader()
+	if data_loader == null:
+		return false
+	var set_id := str(weapon.get("premium_set", ""))
+	if set_id == "":
+		return false
+	var set_row: Dictionary = data_loader.get_row("premium_sets", set_id)
+	return str(set_row.get("weapon", "")) == weapon_id and bool(set_row.get("ammo_cards_override_base_element", false))
 
 func _data_loader():
 	var loop := Engine.get_main_loop()

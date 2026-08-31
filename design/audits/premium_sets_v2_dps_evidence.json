@@ -1,0 +1,36 @@
+{
+  "status": "pass",
+  "profile": "tier_b",
+  "metric": "neutral_physical_full_set_dps_ratio",
+  "matchup_terms_stripped": true,
+  "results": [
+    {"series": "thunder", "weapon_level": 50, "base_atk_coef": 0.588, "fire_rate": 5.0, "ratio": 1.249, "band": [1.22, 1.28]},
+    {"series": "inferno", "weapon_level": 50, "base_atk_coef": 0.855, "fire_rate": 6.2, "ratio": 1.251, "band": [1.22, 1.28]},
+    {"series": "absolute_zero", "weapon_level": 50, "base_atk_coef": 0.969, "fire_rate": 4.3, "ratio": 1.250, "band": [1.22, 1.28]},
+    {"series": "golden_law", "weapon_level": 50, "base_atk_coef": 0.927, "fire_rate": 3.74, "ratio": 1.250957642, "band": [1.22, 1.28]},
+    {"series": "golden_law", "weapon_level": 65, "base_atk_coef": 0.927, "fire_rate": 3.74, "ratio": 1.555962651, "band": [1.53, 1.58]}
+  ],
+  "golden_law_segment": {
+    "from_level": 51,
+    "to_level": 65,
+    "atk_growth_per_level": 0.08,
+    "standard_growth_cap": 50,
+    "overcap_cadence_growth": false,
+    "private_endgame_growth_bonus": false
+  },
+  "level_progression": {
+    "definition": "paid weapon at listed level; all other paid-set pieces maxed; fixed maxed free graduation build is denominator",
+    "levels": [1, 25, 50, 65],
+    "first_tier_level_65_is_projection_only": true,
+    "ratios": {
+      "thunder": [0.149925355, 0.581538616, 1.248766032, 1.7556969],
+      "inferno": [0.166377453, 0.610348479, 1.250862734, 1.722376724],
+      "absolute_zero": [0.146395528, 0.57753202, 1.250101403, 1.763097173],
+      "golden_law": [0.123557232, 0.547377142, 1.250957642, 1.555962651]
+    }
+  },
+  "gold_cost_levels_51_65": {
+    "per_level": [11296, 11520, 11744, 11968, 12192, 12416, 12640, 12864, 13088, 13312, 13536, 13760, 13984, 14208, 14432],
+    "total": 192960
+  }
+}

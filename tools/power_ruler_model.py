@@ -126,6 +126,20 @@ def char_atk_multiplier(character: dict, char_level: int) -> float:
     return mult
 
 
+def weapon_standard_growth_cap(weapon: dict) -> int:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return max(int(weapon.get("max_level", 50)), 2)
+    return max(int(segments[0].get("from_level", 2)) - 1, 2)
+
+
+def weapon_standard_growth_level(weapon: dict, weapon_level: int | float) -> float:
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return float(weapon_level)
+    return min(float(weapon_level), float(weapon_standard_growth_cap(weapon)))
+
+
 def weapon_endgame_growth_multiplier(
     weapon: dict,
     weapon_level: float,
@@ -137,8 +151,9 @@ def weapon_endgame_growth_multiplier(
     did not include it.  Keeping the helper here makes free elemental-weapon
     growth and premium growth share one exact, level-normalized definition.
     """
-    max_level = max(float(weapon.get("max_level", 50)), 2.0)
-    progress = min(max((float(weapon_level) - 1.0) / (max_level - 1.0), 0.0), 1.0)
+    base_cap = float(weapon_standard_growth_cap(weapon))
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
+    progress = min(max((growth_level - 1.0) / (base_cap - 1.0), 0.0), 1.0)
     bonus = max(float(weapon.get("endgame_damage_growth_bonus", 0.0)), 0.0)
     profile_bonuses = weapon.get("profile_endgame_damage_growth_bonus", {}) or {}
     bonus += max(float(profile_bonuses.get(fire_rate_profile_id, 0.0)), 0.0)
@@ -152,10 +167,35 @@ def weapon_dps_multiplier(
     fire_rate_profile_id: str = fire_rate_lab.DEFAULT_PROFILE_ID,
 ) -> float:
     mult = max(weapon_effective_dps(weapon) / 4.0, 0.35)
-    mult *= 1.0 + 0.08 * max(weapon_level - 1, 0)
-    mult *= 1.0 + 0.025 * max(weapon_level - 1, 0)
+    mult *= weapon_level_damage_multiplier(weapon, weapon_level)
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
+    mult *= 1.0 + 0.025 * max(growth_level - 1.0, 0.0)
     mult *= weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile_id)
     return mult
+
+
+def weapon_level_damage_multiplier(weapon: dict, weapon_level: int | float) -> float:
+    """Data-driven level damage curve with an exact legacy fast path."""
+    level = max(int(weapon_level), 1)
+    segments = weapon.get("level_growth_segments", []) or []
+    if not segments:
+        return 1.0 + 0.08 * max(level - 1, 0)
+    multiplier = 1.0
+    cursor = 2
+    for segment in segments:
+        start = int(segment.get("from_level", 2))
+        end = int(segment.get("to_level", weapon.get("max_level", level)))
+        if level < start:
+            return multiplier + 0.08 * max(level - cursor + 1, 0)
+        multiplier += 0.08 * max(start - cursor, 0)
+        segment_end = min(level, end)
+        multiplier += float(segment.get("atk_growth_per_level", 0.08)) * max(
+            segment_end - start + 1, 0)
+        cursor = end + 1
+        if level <= end:
+            return multiplier
+    multiplier += 0.08 * max(level - cursor + 1, 0)
+    return multiplier
 
 
 def active_skill_multiplier(
@@ -364,9 +404,10 @@ def fire_rate_profile_throughput(
             "status_normalization": 1.0,
         }
 
+    growth_level = weapon_standard_growth_level(weapon, weapon_level)
     authored_base = (
         float(weapon.get("fire_rate", 4.0))
-        * (1.0 + 0.025 * max(weapon_level - 1, 0))
+        * (1.0 + 0.025 * max(growth_level - 1.0, 0.0))
         * float(economy.get("PLAYER_FIRE_RATE_MULT", 0.25))
     )
     character_mult = float(character.get("fire_rate_mod", 1.0))
@@ -605,10 +646,18 @@ def combat_skill_effect_multiplier(run_skill_levels: dict[str, int], skills: dic
 
 def _projection_score(levels: dict[str, int], skills: dict) -> float:
     profile = skill_capacity_profile(levels, skills)
-    # A normal deterministic draft values both the crowded waves and the boss.
-    # Defence is counted only when a level explicitly guarantees its offer.
+    # A normal deterministic draft values all three axes.  The former
+    # crowd/boss-only score made barrier and slow-field invisible unless a
+    # level explicitly guaranteed them, leaving the progression fixture's line
+    # capacity flat for long stretches.  Keep offence dominant while giving
+    # survival enough weight to compete in the conservative weakest-positive
+    # selection policy.
     import math
-    return math.log(profile["crowd"]) * 0.70 + math.log(profile["boss"]) * 0.30
+    return (
+        math.log(profile["crowd"]) * 0.55
+        + math.log(profile["boss"]) * 0.25
+        + math.log(profile["line"]) * 0.20
+    )
 
 
 def _conservative_guaranteed_skill(skill_ids: list[str], base_skill_levels: dict[str, int],
@@ -924,8 +973,13 @@ def line_exposure_credit(crowd_ratio: float, boss_ratio: float,
 
 def build_power_contract(level: dict, requirement: dict, characters: dict,
                          weapons: dict, skills: dict, bosses: dict,
-                         economy: dict, sim) -> dict:
-    """Build the fixed three-axis contract consumed by SaveManager."""
+                         economy: dict, sim, scale_v6=None) -> dict:
+    """Build the fixed v6 requirement and read-only matchup diagnostics.
+
+    The three Q axes come only from the accepted B2 outcome inversion in
+    :mod:`power_scale_v6`.  This function never adjusts them to force a player
+    build into a corridor; progression corridors are validation-only in v6.
+    """
     ruler = economy.get("power_ruler", {}) or {}
     card_picks = max(int(level.get("target_card_picks", 4)), 1)
     weakness = str(level.get("primary_weakness", "physical"))
@@ -987,8 +1041,14 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     line_floor = max(float(ruler.get(
         "line_requirement_floor", DEFAULT_LINE_REQUIREMENT_FLOOR)), 0.05)
     line_required = max(expected_breach / (base_line_hp * damage_budget), line_floor)
-    base_recommended = recommended_power(
-        required_t, card_picks, recommend_level, characters, weapons, skills, weakness)
+    if scale_v6 is None:
+        # Lazy import avoids the module cycle: power_scale_v6 reuses the pure
+        # build math above, while this compatibility entry point is also used
+        # by standalone validation tools.
+        from power_scale_v6 import PowerScaleV6
+        scale_v6 = PowerScaleV6.build_from_fixture()
+    scale_row = scale_v6.requirements[str(level["id"])]
+    q_axes = scale_row["q_axes"]
     omitted_boss_mult = (
         boss_effective_hp / max(primary_effective_hp, 1.0)
         if primary_effective_hp > 0.0 else 1.0
@@ -998,13 +1058,19 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
     # (most visibly level 085) even though the ratio and warning use that same
     # Boss axis. Keep one scale: the headline follows campaign progression;
     # roster quantity lives exclusively in the three-axis contract.
-    fixed_recommended = int(round(base_recommended))
     contract = {
-        "model": "bottleneck_v5",
-        "recommended_power": max(fixed_recommended, 1),
-        "crowd_capacity": round(crowd_required, 4),
-        "boss_capacity": round(boss_required, 4),
-        "line_capacity": round(line_required, 4),
+        "model": "bottleneck_v6",
+        "recommended_power": max(int(scale_row["recommended_power"]), 1),
+        "crowd_capacity": float(q_axes["crowd"]),
+        "boss_capacity": float(q_axes["boss"]),
+        "line_capacity": float(q_axes["line"]),
+        "g_required": float(scale_row["g_required"]),
+        "grade": str(scale_row["grade"]),
+        "target_r": float(scale_row["target_r"]),
+        "grade_target_r": float(scale_row["grade_target_r"]),
+        "b2_severity": float(scale_row["b2_severity"]),
+        "b2_outcome_adjustment": float(scale_row["b2_outcome_adjustment"]),
+        "b2_outcome": dict(scale_row["b2_outcome"]),
         "line_expected_breach": round(expected_breach, 4),
         "line_base_hp": round(base_line_hp, 4),
         "line_target_hp_ratio": round(target_hp_ratio, 4),
@@ -1018,129 +1084,41 @@ def build_power_contract(level: dict, requirement: dict, characters: dict,
         "guaranteed_skill_ids": guarantees,
         "reference_skill_rank": campaign_skill_rank(level),
     }
-    offer_category_floor = str(level.get("offer_category_floor", ""))
-    if offer_category_floor:
-        contract["offer_category_floor"] = offer_category_floor
-    # The corridor remains a progression sanity rail.  Individual Owner
-    # replays are deliberately no longer force-pinned: authored Boss pressure
-    # and measured weapon throughput must be allowed to move their result.
-    contract = calibrate_power_contract_corridor(
-        level, contract, characters, weapons, skills, bosses, economy)
-    contract = calibrate_runtime_replay_reference(
-        level, contract, characters, weapons, skills, bosses, economy)
-    return calibrate_post_replay_corridor_guard(
-        level, contract, characters, weapons, skills, bosses, economy)
+    return contract
 
 
 def power_for_build(level: dict, contract: dict, build: dict, characters: dict,
                     weapons: dict, armors: dict, chips: dict, pets: dict,
                     skills: dict, bosses: dict, economy: dict) -> dict:
-    """Python mirror of SaveManager's player-side bottleneck calculation."""
-    character_id = str(build.get("character", "vanguard"))
-    weapon_id = str(build.get("weapon", "weapon_autocannon"))
-    armor_id = str(build.get("armor", ""))
-    chip_id = str(build.get("chip", ""))
-    pet_id = str(build.get("pet", ""))
-    character_level = int(build.get("character_level", 1))
-    weapon_level = int(build.get("weapon_level", 1))
-    armor_level = int(build.get("armor_level", 1))
-    chip_level = int(build.get("chip_level", 1))
-    pet_level = int(build.get("pet_level", 1))
-    sig_level = int(build.get("signature_level", 0))
-    fire_rate_profile_id = str(
-        build.get("fire_rate_profile", fire_rate_lab.DEFAULT_PROFILE_ID)
-    )
-    if fire_rate_profile_id not in fire_rate_lab.profile_ids(economy):
-        fire_rate_profile_id = fire_rate_lab.DEFAULT_PROFILE_ID
-    base_levels = dict(build.get("skill_base_levels", {}) or {})
-    line_weights = contract.get("line_exposure_weights", {}) or {}
-    mob_weight = max(float(line_weights.get("crowd", 1.0)), 0.0)
-    boss_weight = max(float(line_weights.get("boss", 0.0)), 0.0)
-    boss_share = boss_weight / max(mob_weight + boss_weight, 0.000001)
-    projected = projected_skill_levels(
-        max(int(level.get("target_card_picks", 4)), 1),
-        str(level.get("primary_weakness", "physical")),
-        weapon_id, base_levels, skills, weapons,
-        list(contract.get("guaranteed_skill_ids", [])), economy, boss_share,
-        str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
-    )
-    offense = offense_multiplier(
-        characters[character_id], weapons[weapon_id], character_level, weapon_level, sig_level,
-        chip=chips.get(chip_id), chip_level=chip_level,
-        pet=pets.get(pet_id), pet_level=pet_level,
-        economy=economy,
-        fire_rate_profile_id=fire_rate_profile_id,
-    )
-    survival = survival_multiplier(
-        characters[character_id], character_level, weapons[weapon_id],
-        armors.get(armor_id), armor_level, chips.get(chip_id), chip_level,
-        pets.get(pet_id), pet_level,
-    )
-    axes = skill_capacity_profile(projected, skills, economy, boss_share)
-    cadence = fire_rate_profile_throughput(
-        characters[character_id],
-        weapons[weapon_id],
-        weapon_level,
-        chips.get(chip_id),
-        chip_level,
-        pets.get(pet_id),
-        pet_level,
-        projected,
-        skills,
-        economy,
-        fire_rate_profile_id,
-    )
-    element = effective_projectile_element(weapon_id, projected, skills, weapons)
-    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
-    mob_element = weakness_mult if element == str(level.get("primary_weakness", "physical")) else 1.0
-    crowd_capacity = (
-        offense * axes["crowd"] * cadence["throughput"] * mob_element
-        * weapon_axis_calibration(economy, weapon_id, "crowd")
-    )
-    boss_factor = weighted_boss_element_factor(
-        dict(contract.get("boss_weights", {})), bosses, element, economy)
-    boss_capacity = (
-        offense * axes["boss"] * cadence["throughput"] * boss_factor
-        * weapon_axis_calibration(economy, weapon_id, "boss")
-    )
-    line_capacity = survival * axes["line"]
-    armor = armors.get(armor_id, {})
-    if str(armor.get("resist", "none")) == str(level.get("primary_weakness", "physical")):
-        line_capacity /= 0.88
-    if str(characters[character_id].get("passive", "")) == "breach_guard":
-        line_capacity /= 0.82
-        if growth_rank(character_level) >= 2:
-            line_capacity /= 0.88
+    """Python mirror of SaveManager's invariant v6 build calculation.
 
-    crowd_ratio = crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01)
-    boss_ratio = (
-            boss_capacity / max(float(contract.get("boss_capacity", 1.0)), 0.01)
-            if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
-        )
-    raw_line_ratio = line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01)
-    exposure_credit = line_exposure_credit(crowd_ratio, boss_ratio, contract, economy)
+    ``level`` and matchup tables remain in the compatibility signature for
+    existing audit callers, but never influence player effective power.
+    """
+    from power_scale_v6 import PowerScaleV6, stable_projected_skill_levels
+    global _POWER_SCALE_V6_CACHE
+    try:
+        model = _POWER_SCALE_V6_CACHE
+    except NameError:
+        model = None
+    if model is None:
+        model = PowerScaleV6.build_from_fixture()
+        _POWER_SCALE_V6_CACHE = model
+    result = model.effective_power_for_build(build)
+    capacities = dict(result["axes"])
     ratios = {
-        "crowd": crowd_ratio,
-        "boss": boss_ratio,
-        "line": raw_line_ratio * exposure_credit,
+        axis: float(capacities[axis]) / max(float(contract.get(f"{axis}_capacity", 1.0)), 1e-12)
+        for axis in ("crowd", "boss", "line")
     }
-    bottleneck = min(ratios.values())
-    power = int(round(float(contract.get("recommended_power", 1)) * bottleneck))
     return {
-        "power": max(power, 1),
+        "power": max(int(result["effective_power"]), 1),
         "recommended": int(contract.get("recommended_power", 1)),
         "ratios": ratios,
         "bottleneck": min(ratios, key=ratios.get),
-        "projected_skills": projected,
-        "capacities": {
-            "crowd": crowd_capacity,
-            "boss": boss_capacity,
-            "line": line_capacity,
-        },
-        "line_raw_ratio": raw_line_ratio,
-        "line_exposure_credit": exposure_credit,
-        "fire_rate_profile": fire_rate_profile_id,
-        "fire_rate": cadence,
+        "projected_skills": stable_projected_skill_levels(build, model.tables),
+        "capacities": capacities,
+        "g_player": float(result["g_player"]),
+        "fire_rate_profile": "tier_b",
     }
 
 
@@ -1150,14 +1128,12 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
                                economy: dict,
                                fire_rate_profile_id: str = "tier_b",
                                allowed_weapon_ids: set[str] | None = None) -> tuple[dict, dict]:
-    """Return the exact matchup-aware best fully maxed non-premium loadout.
+    """Return the exact v6 best fully maxed non-premium loadout.
 
-    This is the permanent B2 graduation fixture.  It evaluates every free
-    character / weapon / chip / pet combination and every free armor, while
-    sharing the same formulas as :func:`power_for_build`.  Armor affects only
-    the line axis, so its six variants are scored from the already-computed
-    offensive axes instead of re-running the complete projection pipeline.
-    Ties retain authored table order.
+    Power v6 is a pure-build function, so the legacy matchup-aware shortcut is
+    no longer a valid optimizer.  Evaluate every free combination through the
+    canonical :func:`power_for_build` entry point instead.  The catalog is
+    small, and retaining authored iteration order keeps ties deterministic.
     """
     free_characters = [key for key, row in characters.items() if not row.get("premium_entitlement")]
     free_weapons = [
@@ -1172,87 +1148,38 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
         raise AssertionError("maxed free graduation fixture requires a free row in every equipment slot")
 
     base_levels = {skill_id: skill_max_level(row) for skill_id, row in skills.items()}
-    line_weights = contract.get("line_exposure_weights", {}) or {}
-    mob_weight = max(float(line_weights.get("crowd", 1.0)), 0.0)
-    boss_weight = max(float(line_weights.get("boss", 0.0)), 0.0)
-    boss_share = boss_weight / max(mob_weight + boss_weight, 0.000001)
-    weakness = str(level.get("primary_weakness", "physical"))
-    weakness_mult = max(float(economy.get("weakness_mult", 1.5)), 1.0)
-    recommended = int(contract.get("recommended_power", 1))
+    global _MAXED_FREE_BUILD_V6_CACHE
+    try:
+        build_cache = _MAXED_FREE_BUILD_V6_CACHE
+    except NameError:
+        build_cache = {}
+        _MAXED_FREE_BUILD_V6_CACHE = build_cache
+    cache_key = (
+        id(characters), id(weapons), id(armors), id(chips), id(pets), id(skills),
+        fire_rate_profile_id,
+        tuple(sorted(allowed_weapon_ids)) if allowed_weapon_ids is not None else None,
+    )
+    if cache_key in build_cache:
+        cached = dict(build_cache[cache_key])
+        cached["skill_base_levels"] = dict(cached["skill_base_levels"])
+        return cached, power_for_build(
+            level, contract, cached, characters, weapons, armors, chips, pets,
+            skills, bosses, economy)
 
     best_power = -1
     best_build: dict = {}
-    for weapon_id in free_weapons:
-        weapon = weapons[weapon_id]
-        weapon_level = int(weapon.get("max_level", 1))
-        projected = projected_skill_levels(
-            max(int(level.get("target_card_picks", 4)), 1),
-            weakness, weapon_id, base_levels, skills, weapons,
-            list(contract.get("guaranteed_skill_ids", [])), economy, boss_share,
-            str(contract.get("offer_category_floor", level.get("offer_category_floor", ""))),
-        )
-        axes = skill_capacity_profile(projected, skills, economy, boss_share)
-        element = effective_projectile_element(weapon_id, projected, skills, weapons)
-        mob_element = weakness_mult if element == weakness else 1.0
-        boss_factor = weighted_boss_element_factor(
-            dict(contract.get("boss_weights", {})), bosses, element, economy)
-        for character_id in free_characters:
-            character = characters[character_id]
-            character_level = int(character.get("max_level", 1))
-            for chip_id in free_chips:
-                chip = chips[chip_id]
-                chip_level = int(chip.get("max_level", 1))
-                for pet_id in free_pets:
-                    pet = pets[pet_id]
-                    pet_level = int(pet.get("max_level", 1))
-                    offense = offense_multiplier(
-                        character, weapon, character_level, weapon_level, 5,
-                        chip=chip, chip_level=chip_level,
-                        pet=pet, pet_level=pet_level,
-                        economy=economy,
-                        fire_rate_profile_id=fire_rate_profile_id,
-                    )
-                    cadence = fire_rate_profile_throughput(
-                        character, weapon, weapon_level, chip, chip_level,
-                        pet, pet_level, projected, skills, economy,
-                        fire_rate_profile_id,
-                    )
-                    crowd_capacity = (
-                        offense * axes["crowd"] * cadence["throughput"] * mob_element
-                        * weapon_axis_calibration(economy, weapon_id, "crowd")
-                    )
-                    boss_capacity = (
-                        offense * axes["boss"] * cadence["throughput"] * boss_factor
-                        * weapon_axis_calibration(economy, weapon_id, "boss")
-                    )
-                    crowd_ratio = crowd_capacity / max(float(contract.get("crowd_capacity", 1.0)), 0.01)
-                    boss_ratio = (
-                        boss_capacity / max(float(contract.get("boss_capacity", 1.0)), 0.01)
-                        if float(contract.get("boss_capacity", 0.0)) > 0.0 else 99.0
-                    )
-                    exposure_credit = line_exposure_credit(
-                        crowd_ratio, boss_ratio, contract, economy)
-                    for armor_id in free_armors:
-                        armor = armors[armor_id]
-                        armor_level = int(armor.get("max_level", 1))
-                        line_capacity = survival_multiplier(
-                            character, character_level, weapon,
-                            armor, armor_level, chip, chip_level, pet, pet_level,
-                        ) * axes["line"]
-                        if str(armor.get("resist", "none")) == weakness:
-                            line_capacity /= 0.88
-                        if str(character.get("passive", "")) == "breach_guard":
-                            line_capacity /= 0.82
-                            if growth_rank(character_level) >= 2:
-                                line_capacity /= 0.88
-                        raw_line_ratio = line_capacity / max(float(contract.get("line_capacity", 1.0)), 0.01)
-                        power = int(round(recommended * min(
-                            crowd_ratio, boss_ratio, raw_line_ratio * exposure_credit)))
-                        power = max(power, 1)
-                        if power <= best_power:
-                            continue
-                        best_power = power
-                        best_build = {
+    best_result: dict = {}
+    for character_id in free_characters:
+        character_level = int(characters[character_id].get("max_level", 1))
+        for weapon_id in free_weapons:
+            weapon_level = int(weapons[weapon_id].get("max_level", 1))
+            for armor_id in free_armors:
+                armor_level = int(armors[armor_id].get("max_level", 1))
+                for chip_id in free_chips:
+                    chip_level = int(chips[chip_id].get("max_level", 1))
+                    for pet_id in free_pets:
+                        pet_level = int(pets[pet_id].get("max_level", 1))
+                        build = {
                             "character": character_id,
                             "character_level": character_level,
                             "weapon": weapon_id,
@@ -1267,15 +1194,22 @@ def maxed_free_build_for_level(level: dict, contract: dict, characters: dict,
                             "skill_base_levels": dict(base_levels),
                             "fire_rate_profile": fire_rate_profile_id,
                         }
+                        result = power_for_build(
+                            level, contract, build, characters, weapons, armors,
+                            chips, pets, skills, bosses, economy)
+                        power = int(result["power"])
+                        if power <= best_power:
+                            continue
+                        best_power = power
+                        best_build = build
+                        best_result = result
     if not best_build:
         raise AssertionError("maxed free graduation fixture could not select a build")
-    exact = power_for_build(
-        level, contract, best_build, characters, weapons, armors, chips,
-        pets, skills, bosses, economy)
-    if int(exact["power"]) != best_power:
-        raise AssertionError(
-            f"maxed free optimized selector drifted: optimized={best_power}, exact={exact['power']}")
-    return best_build, exact
+    build_cache[cache_key] = {
+        **best_build,
+        "skill_base_levels": dict(best_build["skill_base_levels"]),
+    }
+    return best_build, best_result
 
 
 def corridor_calibration_fixture(level: dict, characters: dict, weapons: dict,
@@ -1330,189 +1264,6 @@ def corridor_calibration_fixture(level: dict, characters: dict, weapons: dict,
         "skill_rank": skill_rank,
     }
     return build, manifest
-
-
-def calibrate_power_contract_corridor(level: dict, contract: dict,
-                                      characters: dict, weapons: dict,
-                                      skills: dict, bosses: dict,
-                                      economy: dict) -> dict:
-    """Keep the display contract inside design/32's free-progression corridor.
-
-    Calibration adjusts only the checked-in three-axis display contract. The
-    physical clear requirement and every runtime difficulty input remain intact.
-    """
-    ordinal = campaign_ordinal(level)
-    if ordinal < 2 or ordinal > 98:
-        return contract
-
-    armors = load_table("armors")
-    chips = load_table("chips")
-    pets = load_table("pets")
-    build, manifest = corridor_calibration_fixture(
-        level, characters, weapons, armors, chips, pets, skills)
-    lower = PACE_CORRIDOR_MIN if ordinal <= 70 else LATE_CORRIDOR_MIN
-    upper = CORRIDOR_MAX
-    raw = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    raw_ratios = dict(raw["ratios"])
-    raw_ratio = min(raw_ratios.values())
-    adjusted_axes: list[str] = []
-
-    if raw_ratio < lower:
-        target = lower + CORRIDOR_MARGIN
-        for axis in ("crowd", "boss", "line"):
-            key = f"{axis}_capacity"
-            if axis == "boss" and float(contract.get(key, 0.0)) <= 0.0:
-                continue
-            if float(raw_ratios[axis]) >= target:
-                continue
-            contract[key] = round(
-                float(contract.get(key, 1.0)) * float(raw_ratios[axis]) / target,
-                4,
-            )
-            adjusted_axes.append(axis)
-    elif raw_ratio > upper:
-        target = upper - CORRIDOR_MARGIN
-        candidates = ["crowd", "boss", "line"]
-        if str(level.get("id", "")) == "level_055":
-            # The Owner replay freezes the defence-line axis and bottleneck.
-            candidates.remove("line")
-        candidates = [
-            axis for axis in candidates
-            if axis != "boss" or float(contract.get("boss_capacity", 0.0)) > 0.0
-        ]
-        axis = min(candidates, key=lambda name: float(raw_ratios[name]))
-        key = f"{axis}_capacity"
-        contract[key] = round(
-            float(contract.get(key, 1.0)) * float(raw_ratios[axis]) / target,
-            4,
-        )
-        adjusted_axes.append(axis)
-
-    calibrated = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    contract["corridor_calibration"] = {
-        "band": [lower, upper],
-        "raw_ratio": round(raw_ratio, 6),
-        "ratio": round(min(calibrated["ratios"].values()), 6),
-        "raw_bottleneck": str(raw["bottleneck"]),
-        "bottleneck": str(calibrated["bottleneck"]),
-        "adjusted_axes": adjusted_axes,
-        "fixture": manifest,
-    }
-    return contract
-
-
-def calibrate_runtime_replay_reference(level: dict, contract: dict,
-                                       characters: dict, weapons: dict,
-                                       skills: dict, bosses: dict,
-                                       economy: dict) -> dict:
-    """Align the ruler with the two checked-in, outcome-backed replay fixtures.
-
-    The targets are data, not historical display numbers: level 080 is a
-    pressure clear and the literal four-Boss finale is a measured ~180 second
-    graduation clear.  Both consume the generated collision profile first,
-    then adjust only the observed bottleneck axis to the outcome ratio.
-    """
-    level_id = str(level.get("id", ""))
-    targets = (economy.get("power_ruler", {}) or {}).get(
-        "runtime_replay_ratio_targets", {}) or {}
-    if level_id not in targets:
-        return contract
-    target = max(float(targets[level_id]), 0.1)
-    armors = load_table("armors")
-    chips = load_table("chips")
-    pets = load_table("pets")
-    build = owner_anchor_fixture(level_id, skills)
-    raw = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    axis = str(raw["bottleneck"])
-    key = f"{axis}_capacity"
-    raw_ratio = float(raw["ratios"][axis])
-    if axis == "boss" and float(contract.get(key, 0.0)) <= 0.0:
-        raise AssertionError(f"{level_id}: runtime replay calibration requires a Boss axis")
-    contract[key] = round(
-        float(contract.get(key, 1.0)) * raw_ratio / target, 4)
-    calibrated = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    contract["runtime_replay_calibration"] = {
-        "target_ratio": round(target, 6),
-        "raw_ratio": round(min(raw["ratios"].values()), 6),
-        "ratio": round(min(calibrated["ratios"].values()), 6),
-        "adjusted_axis": axis,
-        "fixture": "maxed_free_scattergun" if level_id == "level_099" else "owner_inferno_midgame",
-    }
-    return contract
-
-
-def calibrate_post_replay_corridor_guard(level: dict, contract: dict,
-                                         characters: dict, weapons: dict,
-                                         skills: dict, bosses: dict,
-                                         economy: dict) -> dict:
-    """Keep the progression corridor after an outcome replay is pinned.
-
-    Runtime replay calibration deliberately owns its observed bottleneck axis.
-    A different free-progression fixture can be materially stronger on that
-    same axis (level 080 is the concrete case), so changing the replay axis a
-    second time would silently invalidate the Owner outcome.  When the final
-    corridor would otherwise sit above its frozen band, cap it through the
-    weakest *unprotected* axis instead.  This changes display-contract scale
-    only; battle data, the replay ratio and its bottleneck remain untouched.
-    """
-    replay = contract.get("runtime_replay_calibration")
-    ordinal = campaign_ordinal(level)
-    if not isinstance(replay, dict) or ordinal < 2 or ordinal > 98:
-        return contract
-
-    armors = load_table("armors")
-    chips = load_table("chips")
-    pets = load_table("pets")
-    build, manifest = corridor_calibration_fixture(
-        level, characters, weapons, armors, chips, pets, skills)
-    before = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    before_ratio = min(float(value) for value in before["ratios"].values())
-    upper = CORRIDOR_MAX
-    target = upper - CORRIDOR_MARGIN
-    protected_axis = str(replay.get("adjusted_axis", ""))
-    adjusted_axis = ""
-
-    if before_ratio > upper:
-        candidates = [
-            axis for axis in ("crowd", "boss", "line")
-            if axis != protected_axis
-            and (axis != "boss" or float(contract.get("boss_capacity", 0.0)) > 0.0)
-            and float(before["ratios"][axis]) > target
-        ]
-        if not candidates:
-            raise AssertionError(
-                f"{level.get('id')}: replay-protected corridor has no adjustable axis"
-            )
-        adjusted_axis = min(candidates, key=lambda axis: float(before["ratios"][axis]))
-        key = f"{adjusted_axis}_capacity"
-        contract[key] = round(
-            float(contract.get(key, 1.0))
-            * float(before["ratios"][adjusted_axis]) / target,
-            4,
-        )
-
-    after = power_for_build(
-        level, contract, build, characters, weapons, armors, chips, pets,
-        skills, bosses, economy)
-    contract["post_replay_corridor_guard"] = {
-        "band": [PACE_CORRIDOR_MIN if ordinal <= 70 else LATE_CORRIDOR_MIN, upper],
-        "raw_ratio": round(before_ratio, 6),
-        "ratio": round(min(float(value) for value in after["ratios"].values()), 6),
-        "protected_axis": protected_axis,
-        "adjusted_axis": adjusted_axis,
-        "fixture": manifest,
-    }
-    return contract
 
 
 def owner_anchor_fixture(level_id: str, skills: dict) -> dict:

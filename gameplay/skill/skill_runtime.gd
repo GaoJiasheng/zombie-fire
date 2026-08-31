@@ -183,14 +183,32 @@ func barrier_gain() -> int:
 func reroll_gain() -> int:
 	return maxi(1, int(_eff("skill_recycle", "reroll")))
 
-func projectile_element(base_element: String) -> String:
-	if base_element != "" and base_element != "physical":
+func projectile_element(base_element: String, weapon_id := "") -> String:
+	var resolved_weapon_id := weapon_id if weapon_id != "" else _selected_weapon_id()
+	if base_element != "" and base_element != "physical" and not _weapon_allows_ammo_override(resolved_weapon_id):
 		return base_element
 	var active := active_ammo_skill()
 	if active == "":
 		return base_element
 	var ammo := ammo_element_for_skill(active)
 	return ammo if ammo != "" else base_element
+
+func _selected_weapon_id() -> String:
+	var save_manager := _save_manager()
+	if save_manager == null:
+		return ""
+	return str(save_manager.get_selected("weapon"))
+
+func _weapon_allows_ammo_override(weapon_id: String) -> bool:
+	var data_loader := _data_loader()
+	if data_loader == null or weapon_id == "":
+		return false
+	var weapon: Dictionary = data_loader.get_row("weapons", weapon_id)
+	var set_id := str(weapon.get("premium_set", ""))
+	if set_id == "":
+		return false
+	var set_row: Dictionary = data_loader.get_row("premium_sets", set_id)
+	return str(set_row.get("weapon", "")) == weapon_id and bool(set_row.get("ammo_cards_override_base_element", false))
 
 func active_ammo_skill() -> String:
 	for index in range(_order.size() - 1, -1, -1):

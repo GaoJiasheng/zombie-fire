@@ -23,7 +23,7 @@ const RESULT_REWARD_COPY_GAP := 16
 const RESULT_HINT_SIDE_PADDING := 28.0
 const RESULT_HINT_ICON_SIZE := Vector2(50, 50)
 const RESULT_HINT_COPY_GAP := 16
-const RESULT_HINT_PREMIUM_HEIGHT := 168.0
+const RESULT_HINT_PREMIUM_HEIGHT := 198.0
 
 var router: Node
 var level_id := "level_001"
@@ -430,12 +430,23 @@ func _populate_hint(victory: bool) -> void:
 	var hint_text := _result_hint(victory)
 	if not _premium_offer.is_empty():
 		var premium_name := _premium_arsenal_name(str(_premium_offer.get("series_id", "")))
-		var premise := LocalizationManager.text("克制本关 · %s：升级到与你现役同级后") % premium_name
+		var catch_up_level := int(_premium_offer.get("catch_up_level", 1))
+		var catch_up_gold := int(_premium_offer.get("catch_up_gold", 0))
+		var premise := (
+			"POWER PLAN · %s · AFTER CATCH-UP TO LV%d" % [premium_name, catch_up_level]
+			if LocalizationManager.is_english()
+			else "战力方案 · %s：追赶至 Lv%d 后" % [premium_name, catch_up_level]
+		)
 		var power_line := LocalizationManager.text("有效战力 %s → %s") % [
 			_format_full_power_number(int(_premium_offer.get("current_power", 0))),
 			_format_full_power_number(int(_premium_offer.get("projected_power", 0))),
 		]
-		hint_text += "\n↗ %s · %s  ›" % [premise, power_line]
+		var catch_up_line := (
+			"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_full_power_number(catch_up_gold)]
+			if LocalizationManager.is_english()
+			else "整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_full_power_number(catch_up_gold)]
+		)
+		hint_text += "\n↗ %s · %s\n%s  ›" % [premise, power_line, catch_up_line]
 	$Content/HintCard/HintBox/Hint.text = hint_text
 	$Content/HintCard.set_meta("premium_series_id", str(_premium_offer.get("series_id", "")))
 	$Content/HintCard.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not _premium_offer.is_empty() else Control.CURSOR_ARROW
@@ -462,7 +473,7 @@ func _configure_hint_layout() -> void:
 	)
 	hint_label.custom_minimum_size = Vector2(
 		_content_width - RESULT_HINT_SIDE_PADDING * 2.0 - RESULT_HINT_ICON_SIZE.x - RESULT_HINT_COPY_GAP,
-		144.0 if not _premium_offer.is_empty() else 72.0
+		176.0 if not _premium_offer.is_empty() else 72.0
 	)
 
 func _result_premium_offer(victory: bool) -> Dictionary:
@@ -472,7 +483,9 @@ func _result_premium_offer(victory: bool) -> Dictionary:
 	if offer.is_empty():
 		return {}
 	var result_ratio := float(offer.get("projected_power", 0)) / maxf(float(recommended_power), 1.0)
-	if result_ratio + 0.0001 < 1.2:
+	var power_scale: Dictionary = DataLoader.get_table("economy").get("power_scale_v6", {})
+	var commercial: Dictionary = power_scale.get("commercial_thresholds", {})
+	if result_ratio + 0.0001 < float(commercial.get("result_ratio", 1.2)):
 		return {}
 	offer["result_ratio"] = result_ratio
 	return offer

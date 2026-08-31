@@ -273,7 +273,8 @@ func _refresh() -> void:
 	var growth_tier := _tier_suffix(maxi(maxi(char_level, weapon_level), maxi(armor_level, chip_level))).strip_edges()
 	if growth_tier == "":
 		growth_tier = "基础"
-	var counter_state := "克制有效" if _loadout_counters(weakness, char_id, weapon_id, chip_id) else "克制一般"
+	var matchup_factor := _loadout_matchup_factor(level, weapon_id)
+	var counter_state := _loadout_matchup_badge(level, weapon_id)
 	(%CharacterName as Label).text = "%s  等级%d" % [character_name, char_level]
 	(%WeaponName as Label).text = "%s  等级%d" % [weapon_name, weapon_level]
 	var mode_label := "挑战模式" if is_challenge_mode else "五波尸潮"
@@ -326,13 +327,19 @@ func _refresh() -> void:
 			$Objective.text,
 		]
 	if power < recommended_power:
-		$Objective.text += "\n" + LocalizationManager.text("提示：有效战力低于推荐；该数值已计入当前永久技能等级和本关选卡预算。")
-	elif _loadout_counters(weakness, char_id, weapon_id, chip_id):
-		$Objective.text += "\n提示：当前配装命中主弱点，战斗中弱点装填更强。"
+		if matchup_factor < 1.0:
+			$Objective.text += "\n" + LocalizationManager.text("有效战力低于推荐，且属性抗性会压低实际伤害，可能吃力。")
+		else:
+			$Objective.text += "\n" + LocalizationManager.text("提示：有效战力低于推荐；该数值已计入当前永久技能等级和本关选卡预算。")
+	elif matchup_factor < 1.0:
+		$Objective.text += "\n" + LocalizationManager.text("战力足够但属性不利，实际战斗可能吃力。")
+	elif matchup_factor > 1.0:
+		$Objective.text += "\n" + LocalizationManager.text("战力足够且属性克制，实际伤害更有利。")
 	$GoldLabel.text = "金币  %d" % gold
 	var can_upgrade := SaveManager.can_upgrade_weapon(weapon_id)
 	var dmg_bonus := int(round((SaveManager.get_weapon_damage_multiplier(weapon_id) - 1.0) * 100.0))
-	var next_bonus := int(round(((1.0 + 0.08 * float(weapon_level)) - 1.0) * 100.0))
+	var next_level := mini(weapon_level + 1, int(weapon_row.get("max_level", weapon_level)))
+	var next_bonus := int(round((SaveManager.weapon_damage_multiplier_at_level(weapon_row, next_level) - 1.0) * 100.0))
 	$UpgradeInfo.text = "点击武器图标升级  |  %s +1  花费 %d\n当前伤害 +%d%%  →  +%d%%%s" % [
 		DataLoader.tr_key(DataLoader.get_row("weapons", weapon_id).get("name_key", weapon_id)),
 		upgrade_cost,
@@ -550,7 +557,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	title_row.add_child(power_pill)
 	var state := UiKit.semantic_tag_pill(counter_state, "ability", 14)
 	state.name = "CounterStatePill"
-	state.custom_minimum_size = Vector2(142, 38)
+	state.custom_minimum_size = Vector2(224, 38)
 	title_row.add_child(state)
 
 	var divider := TextureRect.new()
@@ -612,7 +619,13 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	# the collection, say so and offer one tap to go look at it. Suggest only -
 	# never swap gear behind the player's back. The 1.5 comes from economy.json.
 	var suggestion := _counter_weapon_suggestion(weakness, str(SaveManager.get_selected("weapon")))
-	var premium_offer := PurchaseManager.premium_power_offer_for_level(level_id, 0.15, 0.0)
+	var power_scale: Dictionary = DataLoader.get_table("economy").get("power_scale_v6", {})
+	var commercial: Dictionary = power_scale.get("commercial_thresholds", {})
+	var premium_offer := PurchaseManager.premium_power_offer_for_level(
+		level_id,
+		float(commercial.get("loadout_uplift", 0.15)),
+		0.0,
+	)
 	var suggestion_count := int(suggestion != "") + int(not premium_offer.is_empty())
 	panel.custom_minimum_size = Vector2(0, _summary_panel_floor(suggestion_count))
 	if suggestion != "":
@@ -630,16 +643,27 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		var premium_suggest := Button.new()
 		premium_suggest.name = "PremiumCounterSuggestion"
 		var premium_name := _premium_arsenal_name(str(premium_offer.get("series_id", "")))
-		var premium_premise := LocalizationManager.text("克制本关 · %s：升级到与你现役同级后") % premium_name
+		var catch_up_level := int(premium_offer.get("catch_up_level", 1))
+		var catch_up_gold := int(premium_offer.get("catch_up_gold", 0))
+		var premium_premise := (
+			"POWER PLAN · %s · AFTER CATCH-UP TO LV%d" % [premium_name, catch_up_level]
+			if LocalizationManager.is_english()
+			else "战力方案 · %s：追赶至 Lv%d 后" % [premium_name, catch_up_level]
+		)
 		var premium_power := LocalizationManager.text("有效战力 %s → %s") % [
 			_format_power_number(int(premium_offer.get("current_power", 0))),
 			_format_power_number(int(premium_offer.get("projected_power", 0))),
 		]
+		var catch_up_copy := (
+			"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_power_number(catch_up_gold)]
+			if LocalizationManager.is_english()
+			else "整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_power_number(catch_up_gold)]
+		)
 		premium_suggest.set_meta("premium_series_id", str(premium_offer.get("series_id", "")))
 		premium_suggest.set_meta("current_power", int(premium_offer.get("current_power", 0)))
 		premium_suggest.set_meta("projected_power", int(premium_offer.get("projected_power", 0)))
 		premium_suggest.flat = true
-		premium_suggest.custom_minimum_size = Vector2(0, 72)
+		premium_suggest.custom_minimum_size = Vector2(0, 96)
 		premium_suggest.mouse_filter = Control.MOUSE_FILTER_STOP
 		premium_suggest.pressed.connect(_open_premium_store.bind(str(premium_offer.get("series_id", ""))))
 		var premium_copy := VBoxContainer.new()
@@ -659,6 +683,11 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		premium_power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		premium_power_label.clip_text = false
 		premium_copy.add_child(premium_power_label)
+		var catch_up_label := UiKit.label(catch_up_copy, 14 if LocalizationManager.is_english() else 16, UiKit.GOLD, 3)
+		catch_up_label.name = "CatchUpCostText"
+		catch_up_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		catch_up_label.clip_text = false
+		premium_copy.add_child(catch_up_label)
 		premium_suggest.add_child(premium_copy)
 		box.add_child(premium_suggest)
 
@@ -1126,6 +1155,34 @@ func _loadout_counters(weakness: String, char_id: String, weapon_id: String, chi
 	# do not convert a mismatched main weapon. The loadout summary must describe
 	# sustained primary fire, especially for the element-locked final boss.
 	return str(weapon.get("element", "")) == weakness
+
+func _loadout_matchup_factor(level: Dictionary, weapon_id: String) -> float:
+	var weapon_element := str(DataLoader.get_row("weapons", weapon_id).get("element", "physical"))
+	var boss_factor := 1.0
+	var has_boss := false
+	for wave_value in level.get("waves", []):
+		var wave: Dictionary = wave_value
+		var boss_id := str(wave.get("boss", ""))
+		if boss_id == "":
+			continue
+		has_boss = true
+		boss_factor = minf(boss_factor, float(SaveManager._power_boss_element_factor(DataLoader.get_row("bosses", boss_id), weapon_element)))
+		if boss_factor < 1.0:
+			return boss_factor
+	if has_boss and boss_factor > 1.0:
+		return boss_factor
+	if weapon_element == str(level.get("primary_weakness", "physical")):
+		return maxf(float(DataLoader.get_table("economy").get("weakness_mult", 1.5)), 1.0)
+	return 1.0
+
+func _loadout_matchup_badge(level: Dictionary, weapon_id: String) -> String:
+	var factor := _loadout_matchup_factor(level, weapon_id)
+	var factor_text := "%.1f" % factor if is_equal_approx(factor, roundf(factor)) else String.num(factor, 2).trim_suffix("0")
+	if factor > 1.0:
+		return LocalizationManager.text("克制：伤害×%s") % factor_text
+	if factor < 1.0:
+		return LocalizationManager.text("抗性：伤害×%s") % factor_text
+	return LocalizationManager.text("属性中性：伤害×1.0")
 
 func _element_name(element: String) -> String:
 	match element:

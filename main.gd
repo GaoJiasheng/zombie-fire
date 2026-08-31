@@ -19,6 +19,7 @@ var _scene_change_pending := false
 var _pending_route := "menu"
 var _pending_payload := {}
 var _current_route := ""
+var _power_scale_notice_layer: CanvasLayer
 
 func _ready() -> void:
 	if not DataLoader.load_all():
@@ -75,6 +76,20 @@ func _apply_scene_change() -> void:
 		_apply_safe_area(current_scene as Control)
 		if OS.is_debug_build() and OS.get_environment("ZOMBIE_FIRE_UI_AUDIT") == "1":
 			call_deferred("_emit_ui_audit", route, current_scene)
+	if route == "menu":
+		call_deferred("_maybe_show_power_scale_v6_notice")
+
+func _maybe_show_power_scale_v6_notice() -> void:
+	if _current_route != "menu" or not SaveManager.should_show_power_scale_v6_notice():
+		return
+	SaveManager.mark_power_scale_v6_notice_seen()
+	_power_scale_notice_layer = UiKit.confirm_modal(self, {
+		"title": LocalizationManager.text("战力标尺已更新"),
+		"message": LocalizationManager.text("有效战力现在只反映你的角色、装备、技能与宠物成长，进入任何关卡时读数都保持一致。属性克制与抗性改为独立徽章显示，推荐战力也已按真实关卡难度重新标定。"),
+		"accent": UiKit.GOLD,
+		"confirm_text": LocalizationManager.text("我知道了"),
+		"cancel_text": LocalizationManager.text("关闭"),
+	})
 
 func _apply_safe_area(root: Control) -> void:
 	var insets := UiKit.safe_area_canvas_insets(get_viewport())

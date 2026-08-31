@@ -28,8 +28,15 @@ def load(name: str):
 
 
 def chapter6_hash(levels: list[dict]) -> str:
+    # C-stage power contracts are derived data and are explicitly allowed to be
+    # regenerated. Freeze only authored gameplay rows so a recommendation-scale
+    # rebuild cannot masquerade as a wave/Boss/economy mutation (or vice versa).
+    authored_rows = [
+        {key: value for key, value in row.items() if key != "clear_requirement"}
+        for row in levels[50:60]
+    ]
     canonical = json.dumps(
-        levels[50:60], ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        authored_rows, ensure_ascii=False, sort_keys=True, separators=(",", ":")
     ).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
 

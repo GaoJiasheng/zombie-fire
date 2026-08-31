@@ -12,9 +12,9 @@
     95
   ],
   "fixture_id": "resource_constrained_free_first_clear_v2",
-  "fixture_sha256": "cc866e53ec3799e8a1906c071e1d291a70ae3597ad70dc272d728b54cb50926f",
+  "fixture_sha256": "128fe3b8e98c7f39783ef425ba15b62a1e4c798193df1212303aa40def3b64c8",
   "fixture_source": "data/campaign_progression_fixture.json",
-  "levels_sha256": "5171f16f430346c57b85d1ca2b9afd99ec1f08dfe13494838311971f907adfb4",
+  "levels_sha256": "57b0867dd3c077d87d759425759616939cb7a727635dc05c27327fa9139a722f",
   "rows": [
     {
       "build": {
@@ -55,10 +55,7 @@
         "strategy_id": "matchup_aware_v2",
         "xp_earned": 249
       },
-      "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 1
-      },
+      "projected_skills": {},
       "resources_before": {
         "gold": 0,
         "stars": 0,
@@ -104,10 +101,7 @@
         "strategy_id": "matchup_aware_v2",
         "xp_earned": 403
       },
-      "projected_skills": {
-        "skill_homing": 1,
-        "skill_incendiary": 1
-      },
+      "projected_skills": {},
       "resources_before": {
         "gold": 59,
         "stars": 2,
@@ -156,8 +150,7 @@
         "xp_earned": 376
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 1
+        "skill_multishot": 1
       },
       "resources_before": {
         "gold": 241,
@@ -216,7 +209,8 @@
         "xp_earned": 458
       },
       "projected_skills": {
-        "skill_homing": 2
+        "skill_multishot": 1,
+        "skill_pierce": 1
       },
       "resources_before": {
         "gold": 329,
@@ -269,8 +263,10 @@
         "xp_earned": 443
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 1
+        "skill_barrier": 1,
+        "skill_homing": 1,
+        "skill_multishot": 1,
+        "skill_pierce": 1
       },
       "resources_before": {
         "gold": 349,
@@ -324,8 +320,10 @@
         "xp_earned": 516
       },
       "projected_skills": {
+        "skill_barrier": 1,
         "skill_homing": 1,
-        "skill_incendiary": 1
+        "skill_multishot": 1,
+        "skill_pierce": 1
       },
       "resources_before": {
         "gold": 33,
@@ -380,7 +378,10 @@
         "xp_earned": 468
       },
       "projected_skills": {
-        "skill_homing": 2
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_homing": 1,
+        "skill_multishot": 1
       },
       "resources_before": {
         "gold": 136,
@@ -444,8 +445,10 @@
         "xp_earned": 610
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 2
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 1,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 32,
@@ -502,8 +505,10 @@
         "xp_earned": 392
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_pierce": 1
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 1,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 306,
@@ -561,8 +566,10 @@
         "xp_earned": 410
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 2
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 1,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 259,
@@ -621,8 +628,10 @@
         "xp_earned": 596
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 2
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 1,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 43,
@@ -681,8 +690,10 @@
         "xp_earned": 665
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_pierce": 1
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 177,
@@ -749,8 +760,10 @@
         "xp_earned": 617
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_ricochet": 2
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 85,
@@ -809,8 +822,10 @@
         "xp_earned": 651
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 1
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 246,
@@ -869,9 +884,10 @@
         "xp_earned": 369
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 2,
-        "skill_ricochet": 1
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 92,
@@ -930,9 +946,10 @@
         "xp_earned": 815
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_incendiary": 1,
-        "skill_ricochet": 1
+        "skill_barrier": 1,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 237,
@@ -991,9 +1008,10 @@
         "xp_earned": 810
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_incendiary": 1,
-        "skill_ricochet": 1
+        "skill_barrier": 2,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 28,
@@ -1052,8 +1070,10 @@
         "xp_earned": 476
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 2
+        "skill_barrier": 2,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 352,
@@ -1112,8 +1132,10 @@
         "xp_earned": 803
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 2
+        "skill_barrier": 2,
+        "skill_charge_shot": 1,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 137,
@@ -1180,9 +1202,10 @@
         "xp_earned": 875
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_homing": 2,
-        "skill_ricochet": 2
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 270,
@@ -1241,8 +1264,10 @@
         "xp_earned": 701
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 3
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 1
       },
       "resources_before": {
         "gold": 397,
@@ -1301,8 +1326,10 @@
         "xp_earned": 738
       },
       "projected_skills": {
-        "skill_homing": 2,
-        "skill_ricochet": 3
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 91,
@@ -1361,7 +1388,10 @@
         "xp_earned": 870
       },
       "projected_skills": {
-        "skill_ricochet": 4
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 334,
@@ -1428,7 +1458,10 @@
         "xp_earned": 797
       },
       "projected_skills": {
-        "skill_ricochet": 4
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 665,
@@ -1487,8 +1520,10 @@
         "xp_earned": 448
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 4
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 102,
@@ -1547,7 +1582,10 @@
         "xp_earned": 1055
       },
       "projected_skills": {
-        "skill_split_shot": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 446,
@@ -1606,7 +1644,10 @@
         "xp_earned": 736
       },
       "projected_skills": {
-        "skill_split_shot": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 2,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 150,
@@ -1673,7 +1714,10 @@
         "xp_earned": 875
       },
       "projected_skills": {
-        "skill_split_shot": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 21,
@@ -1732,7 +1776,10 @@
         "xp_earned": 864
       },
       "projected_skills": {
-        "skill_split_shot": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 451,
@@ -1791,8 +1838,10 @@
         "xp_earned": 958
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_split_shot": 4
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 3,
@@ -1851,7 +1900,10 @@
         "xp_earned": 966
       },
       "projected_skills": {
-        "skill_homing": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 436,
@@ -1918,8 +1970,10 @@
         "xp_earned": 907
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 12,
@@ -1978,8 +2032,10 @@
         "xp_earned": 727
       },
       "projected_skills": {
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 102,
@@ -2038,8 +2094,10 @@
         "xp_earned": 958
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 2,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 569,
@@ -2098,9 +2156,10 @@
         "xp_earned": 648
       },
       "projected_skills": {
+        "skill_barrier": 3,
         "skill_charge_shot": 2,
-        "skill_critical": 4,
-        "skill_venom": 1
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 98,
@@ -2159,8 +2218,10 @@
         "xp_earned": 1011
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_tesla": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 370,
@@ -2219,8 +2280,10 @@
         "xp_earned": 1156
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 194,
@@ -2279,8 +2342,10 @@
         "xp_earned": 1195
       },
       "projected_skills": {
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 2,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 26,
@@ -2339,8 +2404,10 @@
         "xp_earned": 859
       },
       "projected_skills": {
-        "skill_critical": 5,
-        "skill_venom": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 335,
@@ -2407,8 +2474,10 @@
         "xp_earned": 1266
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 2
       },
       "resources_before": {
         "gold": 219,
@@ -2467,8 +2536,10 @@
         "xp_earned": 1310
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_tesla": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 84,
@@ -2527,8 +2598,10 @@
         "xp_earned": 1064
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 246,
@@ -2587,8 +2660,10 @@
         "xp_earned": 1311
       },
       "projected_skills": {
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 56,
@@ -2647,9 +2722,10 @@
         "xp_earned": 1246
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 2,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 101,
@@ -2716,9 +2792,10 @@
         "xp_earned": 1311
       },
       "projected_skills": {
-        "skill_charge_shot": 4,
-        "skill_critical": 5,
-        "skill_incendiary": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 776,
@@ -2777,9 +2854,10 @@
         "xp_earned": 1044
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 3,
-        "skill_tesla": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 692,
@@ -2838,9 +2916,10 @@
         "xp_earned": 1058
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 5,
-        "skill_split_shot": 3
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 104,
@@ -2899,8 +2978,10 @@
         "xp_earned": 1272
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 2,
@@ -2967,8 +3048,10 @@
         "xp_earned": 1304
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 58,
@@ -3027,9 +3110,10 @@
         "xp_earned": 935
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 4,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 122,
@@ -3088,8 +3172,10 @@
         "xp_earned": 948
       },
       "projected_skills": {
-        "skill_incendiary": 5,
-        "skill_split_shot": 3
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 3,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 490,
@@ -3148,8 +3234,10 @@
         "xp_earned": 1767
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 129,
@@ -3208,9 +3296,10 @@
         "xp_earned": 1336
       },
       "projected_skills": {
-        "skill_ricochet": 4,
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 213,
@@ -3269,8 +3358,10 @@
         "xp_earned": 1671
       },
       "projected_skills": {
-        "skill_split_shot": 5,
-        "skill_tesla": 3
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 758,
@@ -3329,9 +3420,10 @@
         "xp_earned": 1798
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 4,
-        "skill_tesla": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 86,
@@ -3390,8 +3482,10 @@
         "xp_earned": 1549
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 131,
@@ -3450,9 +3544,10 @@
         "xp_earned": 1530
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 105,
@@ -3511,8 +3606,10 @@
         "xp_earned": 1623
       },
       "projected_skills": {
-        "skill_incendiary": 5,
-        "skill_split_shot": 4
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 413,
@@ -3571,9 +3668,10 @@
         "xp_earned": 1855
       },
       "projected_skills": {
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 3,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 185,
@@ -3632,9 +3730,10 @@
         "xp_earned": 2145
       },
       "projected_skills": {
-        "skill_ricochet": 3,
-        "skill_split_shot": 5,
-        "skill_tesla": 3
+        "skill_barrier": 4,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 664,
@@ -3693,9 +3792,10 @@
         "xp_earned": 1530
       },
       "projected_skills": {
-        "skill_homing": 5,
-        "skill_split_shot": 5,
-        "skill_tesla": 2
+        "skill_barrier": 4,
+        "skill_charge_shot": 3,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 414,
@@ -3726,8 +3826,8 @@
           "skill_slow_field": 3,
           "skill_split_shot": 3
         },
-        "weapon": "weapon_venomlauncher",
-        "weapon_level": 14
+        "weapon": "weapon_scattergun",
+        "weapon_level": 39
       },
       "card_seeds": [
         1103,
@@ -3754,10 +3854,10 @@
         "xp_earned": 1676
       },
       "projected_skills": {
+        "skill_barrier": 4,
+        "skill_charge_shot": 3,
         "skill_multishot": 4,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 102,
@@ -3816,9 +3916,10 @@
         "xp_earned": 1253
       },
       "projected_skills": {
+        "skill_barrier": 4,
+        "skill_charge_shot": 3,
         "skill_multishot": 4,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 149,
@@ -3877,9 +3978,10 @@
         "xp_earned": 2022
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 707,
@@ -3938,10 +4040,10 @@
         "xp_earned": 2386
       },
       "projected_skills": {
+        "skill_barrier": 4,
         "skill_charge_shot": 4,
-        "skill_critical": 5,
-        "skill_pierce": 5,
-        "skill_tesla": 1
+        "skill_multishot": 4,
+        "skill_slow_field": 3
       },
       "resources_before": {
         "gold": 671,
@@ -4000,9 +4102,10 @@
         "xp_earned": 2197
       },
       "projected_skills": {
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 4,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 529,
@@ -4061,9 +4164,10 @@
         "xp_earned": 1731
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 783,
@@ -4122,10 +4226,10 @@
         "xp_earned": 2226
       },
       "projected_skills": {
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 4,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_tesla": 1
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 533,
@@ -4184,10 +4288,10 @@
         "xp_earned": 1856
       },
       "projected_skills": {
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_venom": 1
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 147,
@@ -4246,11 +4350,10 @@
         "xp_earned": 2442
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_incendiary": 1,
-        "skill_pierce": 5,
-        "skill_salvo": 4
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 90,
@@ -4309,10 +4412,10 @@
         "xp_earned": 2310
       },
       "projected_skills": {
-        "skill_cryo": 1,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 503,
@@ -4371,10 +4474,10 @@
         "xp_earned": 2246
       },
       "projected_skills": {
-        "skill_incendiary": 1,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 1,
@@ -4433,10 +4536,10 @@
         "xp_earned": 2482
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 222,
@@ -4495,10 +4598,10 @@
         "xp_earned": 2255
       },
       "projected_skills": {
-        "skill_incendiary": 2,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 91,
@@ -4557,11 +4660,10 @@
         "xp_earned": 2360
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_incendiary": 1,
-        "skill_pierce": 5,
-        "skill_salvo": 4
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 636,
@@ -4620,10 +4722,10 @@
         "xp_earned": 2359
       },
       "projected_skills": {
-        "skill_incendiary": 2,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 670,
@@ -4682,10 +4784,10 @@
         "xp_earned": 2241
       },
       "projected_skills": {
-        "skill_homing": 5,
-        "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 4,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 117,
@@ -4744,10 +4846,10 @@
         "xp_earned": 2371
       },
       "projected_skills": {
-        "skill_cryo": 3,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 35,
@@ -4806,10 +4908,10 @@
         "xp_earned": 2413
       },
       "projected_skills": {
-        "skill_incendiary": 3,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 35,
@@ -4868,11 +4970,10 @@
         "xp_earned": 3406
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_incendiary": 1,
-        "skill_pierce": 5,
-        "skill_salvo": 4
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 5,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 749,
@@ -4931,11 +5032,10 @@
         "xp_earned": 2321
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 3,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 94,
@@ -4994,11 +5094,10 @@
         "xp_earned": 2303
       },
       "projected_skills": {
-        "skill_homing": 5,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_tesla": 2
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 6,
@@ -5057,11 +5156,10 @@
         "xp_earned": 2370
       },
       "projected_skills": {
-        "skill_homing": 4,
-        "skill_incendiary": 3,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 399,
@@ -5120,11 +5218,10 @@
         "xp_earned": 2597
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_homing": 5,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 239,
@@ -5183,11 +5280,10 @@
         "xp_earned": 3484
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_incendiary": 2,
-        "skill_pierce": 5,
-        "skill_salvo": 5
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
+        "skill_multishot": 5,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 769,
@@ -5246,10 +5342,10 @@
         "xp_earned": 2605
       },
       "projected_skills": {
-        "skill_incendiary": 4,
+        "skill_barrier": 4,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 404,
@@ -5308,12 +5404,10 @@
         "xp_earned": 2931
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_homing": 5,
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 662,
@@ -5372,10 +5466,10 @@
         "xp_earned": 3046
       },
       "projected_skills": {
-        "skill_incendiary": 4,
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 629,
@@ -5434,10 +5528,10 @@
         "xp_earned": 2934
       },
       "projected_skills": {
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_tesla": 4
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 43,
@@ -5496,12 +5590,10 @@
         "xp_earned": 3314
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
-        "skill_pierce": 5,
-        "skill_salvo": 5,
-        "skill_split_shot": 5
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
+        "skill_multishot": 5,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 186,
@@ -5560,12 +5652,10 @@
         "xp_earned": 2142
       },
       "projected_skills": {
-        "skill_charge_shot": 5,
-        "skill_homing": 5,
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 296,
@@ -5624,10 +5714,10 @@
         "xp_earned": 3055
       },
       "projected_skills": {
-        "skill_cryo": 4,
+        "skill_barrier": 5,
+        "skill_charge_shot": 4,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 176,
@@ -5686,10 +5776,10 @@
         "xp_earned": 1862
       },
       "projected_skills": {
-        "skill_incendiary": 5,
+        "skill_barrier": 5,
+        "skill_charge_shot": 5,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 5,
@@ -5748,13 +5838,10 @@
         "xp_earned": 3335
       },
       "projected_skills": {
+        "skill_barrier": 5,
         "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
         "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 302,
@@ -5813,13 +5900,10 @@
         "xp_earned": 3070
       },
       "projected_skills": {
+        "skill_barrier": 5,
         "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_salvo": 5,
-        "skill_split_shot": 5
+        "skill_multishot": 5,
+        "skill_slow_field": 4
       },
       "resources_before": {
         "gold": 556,
@@ -5878,11 +5962,10 @@
         "xp_earned": 2903
       },
       "projected_skills": {
-        "skill_homing": 5,
+        "skill_barrier": 5,
+        "skill_charge_shot": 5,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5,
-        "skill_tesla": 4
+        "skill_slow_field": 5
       },
       "resources_before": {
         "gold": 212,
@@ -5941,10 +6024,10 @@
         "xp_earned": 2752
       },
       "projected_skills": {
-        "skill_incendiary": 5,
+        "skill_barrier": 5,
+        "skill_charge_shot": 5,
         "skill_multishot": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 5
       },
       "resources_before": {
         "gold": 442,
@@ -6003,13 +6086,10 @@
         "xp_earned": 2664
       },
       "projected_skills": {
+        "skill_barrier": 5,
         "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
         "skill_multishot": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_split_shot": 5
+        "skill_slow_field": 5
       },
       "resources_before": {
         "gold": 360,
@@ -6070,12 +6150,8 @@
       "projected_skills": {
         "skill_barrier": 5,
         "skill_charge_shot": 5,
-        "skill_critical": 5,
-        "skill_homing": 5,
-        "skill_pierce": 5,
-        "skill_ricochet": 5,
-        "skill_salvo": 5,
-        "skill_split_shot": 5
+        "skill_multishot": 5,
+        "skill_slow_field": 5
       },
       "resources_before": {
         "gold": 35,
