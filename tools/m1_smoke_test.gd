@@ -2407,12 +2407,33 @@ func _verify_local_purchase_flow(data_loader: Node, save_manager: Node, purchase
 	test_save["levels_progress"]["level_070"] = 1
 	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero"], "Polar Aurora must first appear after clearing level 70")
 	var absolute_zero_set: Dictionary = data_loader.get_row("premium_sets", "set_apocalypse_absolute_zero")
-	_expect(str(absolute_zero_set.get("dominance_zh", "")).begins_with("主宰区间：碎冰连爆与减速控场"), "Absolute Zero store positioning must lead with its authored Shatter and slow-control mechanics")
-	_expect(str(absolute_zero_set.get("dominance_en", "")).begins_with("Dominance Range: Shatter chains and slow control"), "Absolute Zero English positioning must match the mechanics-led claim")
-	test_save["levels_progress"]["level_089"] = 1
-	_expect(not purchase_manager.store_series_ids().has("golden_law"), "Golden Law must remain hidden before clearing level 90")
+	_expect(str(absolute_zero_set.get("dominance_zh", "")).begins_with("满配优势：1.25× 纯物理输出"), "Absolute Zero store positioning must lead with its exact full-set Physical DPS edge")
+	_expect("碎冰连爆" in str(absolute_zero_set.get("dominance_zh", "")), "Absolute Zero Chinese positioning must retain its authored Shatter mechanic")
+	_expect(str(absolute_zero_set.get("dominance_en", "")).begins_with("Full-set edge: 1.25× Physical DPS"), "Absolute Zero English positioning must match the exact output claim")
+	_expect("Shatter chains" in str(absolute_zero_set.get("dominance_en", "")), "Absolute Zero English positioning must retain its authored Shatter mechanic")
+	var premium_positioning_expectations := {
+		"set_apocalypse_inferno": ["1.25×", "燃爆扩散", "Combustion spread"],
+		"set_apocalypse_thunder": ["1.25×", "过载连锁", "Overload chains"],
+		"set_apocalypse_absolute_zero": ["1.25×", "碎冰连爆", "Shatter chains"],
+		"set_apocalypse_golden_law": ["1.556×", "裁决敕令", "Judgment and Golden Decree"],
+	}
+	for premium_set_id in premium_positioning_expectations:
+		var premium_set: Dictionary = data_loader.get_row("premium_sets", premium_set_id)
+		var positioning: Array = premium_positioning_expectations[premium_set_id]
+		var dominance_zh := str(premium_set.get("dominance_zh", ""))
+		var dominance_en := str(premium_set.get("dominance_en", ""))
+		_expect(str(positioning[0]) in dominance_zh and str(positioning[0]) in dominance_en, "%s positioning must disclose its exact full-set ratio" % premium_set_id)
+		_expect("纯物理输出" in dominance_zh and "Physical DPS" in dominance_en, "%s positioning must disclose its stage-neutral Physical DPS edge" % premium_set_id)
+		_expect("全元素弹药适配" in dominance_zh and "Any-element ammo" in dominance_en, "%s positioning must disclose any-element ammo compatibility" % premium_set_id)
+		_expect(str(positioning[1]) in dominance_zh and str(positioning[2]) in dominance_en, "%s positioning must retain its authored exclusive mechanic" % premium_set_id)
+		_expect("追赶期升级半价" in dominance_zh and "Half-price catch-up upgrades" in dominance_en, "%s positioning must disclose the data-backed catch-up discount" % premium_set_id)
 	test_save["levels_progress"]["level_090"] = 1
-	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must become purchase-authorized after clearing level 90")
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Golden Law must first appear after clearing level 90 with no hero-level requirement")
+	var golden_law_set: Dictionary = data_loader.get_row("premium_sets", "set_apocalypse_golden_law")
+	_expect(not (golden_law_set.get("store_unlock", {}) as Dictionary).has("any_character_level"), "Golden Law store unlock must not retain a hero-level requirement")
+	_expect("Lv1–50 标准曲线" in str(golden_law_set.get("dominance_zh", "")) and "Lv51–65 独享超频区" in str(golden_law_set.get("dominance_zh", "")), "Golden Law positioning must disclose its standard Lv1–50 curve and exclusive Lv51–65 range")
+	test_save["equipment"]["vanguard"] = 40
+	_expect(purchase_manager.store_series_ids() == ["thunder", "inferno", "absolute_zero", "golden_law"], "Hero level changes must not alter the Stage-90 Golden Law reveal")
 	_expect(purchase_manager.set_id_for_series("thunder") == "set_apocalypse_thunder", "series routing must resolve the Thunder set from data")
 	_expect(purchase_manager.set_id_for_series("inferno") == "set_apocalypse_inferno", "series routing must resolve the Inferno set from data")
 	_expect(purchase_manager.set_id_for_series("absolute_zero") == "set_apocalypse_absolute_zero", "series routing must resolve the Absolute Zero set from data")
