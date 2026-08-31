@@ -3310,8 +3310,18 @@ func _layout_card_offer_panel() -> void:
 	var cards := panel.get_node_or_null("Cards") as VBoxContainer
 	if cards != null:
 		cards.position = CARD_OFFER_CARDS_POS
-		cards.size = Vector2(CARD_OFFER_CARDS_SIZE.x, maxf(0.0, button_y - CARD_OFFER_CARDS_POS.y - CARD_OFFER_ACTION_GAP))
+		var measured_cards_height := float(panel.get_meta("card_offer_cards_height", 0.0))
+		var cards_lane := maxf(0.0, button_y - CARD_OFFER_CARDS_POS.y - CARD_OFFER_ACTION_GAP)
+		cards.size = Vector2(
+			CARD_OFFER_CARDS_SIZE.x,
+			minf(cards_lane, measured_cards_height) if measured_cards_height > 0.0 else cards_lane
+		)
 		cards.add_theme_constant_override("separation", CARD_OFFER_CARD_SEPARATION)
+		# Actions follow the real bottom of the collapsed card stack, so the quiet
+		# lane stays exactly CARD_OFFER_ACTION_GAP instead of inheriting whatever
+		# space the panel had left over.
+		if measured_cards_height > 0.0:
+			button_y = cards.position.y + cards.size.y + CARD_OFFER_ACTION_GAP
 	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
 	if reroll != null:
 		reroll.position = Vector2(78, button_y)
@@ -12030,6 +12040,10 @@ func _fit_card_offer_panel_to_cards() -> void:
 	# Keep a full 62px quiet lane between the final card and the primary actions.
 	# The panel may grow up to the real battlefield bounds, never over the base or
 	# the hero model. This lets translated/wrapped card copy own its actual height.
+	# Store the measured card stack too: the container must collapse to exactly the
+	# three cards, otherwise the leftover panel space becomes a blank region between
+	# the final card and the primary actions.
+	panel.set_meta("card_offer_cards_height", content_h)
 	panel.set_meta("card_offer_content_height", CARD_OFFER_CARDS_POS.y + content_h + CARD_OFFER_ACTION_GAP + CARD_OFFER_ACTION_LANE_HEIGHT)
 	_layout_card_offer_panel()
 
