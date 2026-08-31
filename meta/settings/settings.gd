@@ -140,12 +140,77 @@ func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	var primary := accent == UiKit.GOLD
 	UiKit.apply_armored_button(button, primary, button_size, font_size, not button.disabled)
 
+func _toggle_surface_style(border: Color, fill: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(14)
+	style.content_margin_left = 28.0
+	style.content_margin_right = 124.0
+	return style
+
+func _refresh_switch_button(button: Button, label_text: String, format_key: String, enabled: bool) -> void:
+	var active := UiKit.CYAN if enabled else UiKit.GREY_500
+	button.text = LocalizationManager.text(label_text)
+	button.tooltip_text = LocalizationManager.text(format_key) % LocalizationManager.text("开" if enabled else "关")
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_font_size_override("font_size", UiKit.scaled_font_size(22))
+	button.add_theme_color_override("font_color", UiKit.TEXT_MAIN)
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	button.add_theme_stylebox_override("normal", _toggle_surface_style(Color(active.r, active.g, active.b, 0.44), Color(0.018, 0.032, 0.040, 0.90)))
+	button.add_theme_stylebox_override("hover", _toggle_surface_style(Color(active.r, active.g, active.b, 0.78), Color(0.026, 0.052, 0.064, 0.94)))
+	button.add_theme_stylebox_override("pressed", _toggle_surface_style(active, Color(0.036, 0.068, 0.080, 0.98)))
+	button.add_theme_stylebox_override("focus", _toggle_surface_style(active, Color(0.026, 0.052, 0.064, 0.94)))
+	var track := button.get_node_or_null("SwitchTrack") as Control
+	if track == null:
+		track = Control.new()
+		track.name = "SwitchTrack"
+		track.anchor_left = 1.0
+		track.anchor_top = 0.5
+		track.anchor_right = 1.0
+		track.anchor_bottom = 0.5
+		track.offset_left = -104.0
+		track.offset_top = -20.0
+		track.offset_right = -24.0
+		track.offset_bottom = 20.0
+		track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(track)
+	var track_bg := track.get_node_or_null("Background") as Panel
+	if track_bg == null:
+		track_bg = Panel.new()
+		track_bg.name = "Background"
+		track_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+		track_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		track.add_child(track_bg)
+	var track_style := StyleBoxFlat.new()
+	track_style.bg_color = Color(active.r, active.g, active.b, 0.78 if enabled else 0.34)
+	track_style.border_color = Color(active.r, active.g, active.b, 0.96 if enabled else 0.58)
+	track_style.set_border_width_all(2)
+	track_style.set_corner_radius_all(20)
+	track_bg.add_theme_stylebox_override("panel", track_style)
+	var knob := track.get_node_or_null("Knob") as Panel
+	if knob == null:
+		knob = Panel.new()
+		knob.name = "Knob"
+		knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		track.add_child(knob)
+	knob.position = Vector2(44.0 if enabled else 4.0, 4.0)
+	knob.size = Vector2(32.0, 32.0)
+	var knob_style := StyleBoxFlat.new()
+	knob_style.bg_color = Color(0.96, 0.98, 0.96, 1.0) if enabled else Color(0.70, 0.74, 0.76, 1.0)
+	knob_style.set_corner_radius_all(16)
+	knob.add_theme_stylebox_override("panel", knob_style)
+	button.set_meta("switch_control", true)
+	button.set_meta("switch_enabled", enabled)
+
 func _on_sound() -> void:
 	SettingsManager.toggle_audio_enabled()
 	_refresh_audio_controls()
 
 func _refresh_audio_controls() -> void:
-	_button("SoundButton").text = "总声音：%s" % ("开" if SettingsManager.is_audio_enabled() else "关")
+	_refresh_switch_button(_button("SoundButton"), "总声音", "总声音：%s", SettingsManager.is_audio_enabled())
 	_set_slider_display("MusicRow", SettingsManager.get_bgm_volume())
 	_set_slider_display("EffectsRow", SettingsManager.get_sfx_volume())
 	_set_slider_display("UiRow", SettingsManager.get_ui_volume())
@@ -265,8 +330,8 @@ func _on_fire_rate_lab() -> void:
 	_refresh_accessibility()
 
 func _refresh_accessibility() -> void:
-	_button("AccessibilityRow/ReduceEffectsButton").text = "减弱闪烁震动：%s" % ("开" if SettingsManager.reduced_effects_enabled() else "关")
-	_button("AccessibilityRow/HapticsButton").text = "触感反馈：%s" % ("开" if SettingsManager.haptics_enabled() else "关")
+	_refresh_switch_button(_button("AccessibilityRow/ReduceEffectsButton"), "减弱闪烁震动", "减弱闪烁震动：%s", SettingsManager.reduced_effects_enabled())
+	_refresh_switch_button(_button("AccessibilityRow/HapticsButton"), "触感反馈", "触感反馈：%s", SettingsManager.haptics_enabled())
 	var lab_button := _button("AccessibilityRow/FireRateLabButton")
 	lab_button.visible = SettingsManager.has_fire_rate_lab()
 	lab_button.text = LocalizationManager.text("攻速实验：%s") % SettingsManager.fire_rate_profile_label()
