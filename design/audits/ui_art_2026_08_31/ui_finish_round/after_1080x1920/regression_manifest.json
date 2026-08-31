@@ -1,0 +1,115 @@
+{
+  "screen_count": 10,
+  "error_count": 0,
+  "screens": [
+    {
+      "label": "menu",
+      "route": "menu",
+      "payload": {},
+      "file": "menu.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "map",
+      "route": "map",
+      "payload": {},
+      "file": "map.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "loadout",
+      "route": "loadout",
+      "payload": {
+        "level_id": "level_003"
+      },
+      "file": "loadout.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "collection_chips",
+      "route": "collection",
+      "payload": {
+        "mode": "chips",
+        "equipment": {
+          "selected_chip": "chip_attack"
+        }
+      },
+      "file": "collection_chips.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "settings",
+      "route": "settings",
+      "payload": {},
+      "file": "settings.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "menu_en",
+      "route": "menu",
+      "payload": {
+        "language": "en"
+      },
+      "file": "menu_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "map_en",
+      "route": "map",
+      "payload": {
+        "language": "en"
+      },
+      "file": "map_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "loadout_en",
+      "route": "loadout",
+      "payload": {
+        "language": "en",
+        "level_id": "level_003"
+      },
+      "file": "loadout_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "collection_chips_en",
+      "route": "collection",
+      "payload": {
+        "language": "en",
+        "mode": "chips"
+      },
+      "file": "collection_chips_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "settings_en",
+      "route": "settings",
+      "payload": {
+        "language": "en"
+      },
+      "file": "settings_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    }
+  ]
+}
