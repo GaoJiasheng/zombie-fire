@@ -358,7 +358,7 @@ func _chapter_range_text(chapter: Dictionary) -> String:
 
 func _chapter_status_text(chapter: Dictionary) -> String:
 	if not _chapter_unlocked(chapter):
-		return "未展开"
+		return "未解锁"
 	if _chapter_completed(chapter):
 		return "已肃清"
 	if _chapter_is_current(chapter):
@@ -849,7 +849,7 @@ func _add_chapter_boss_node(parent: Control, pos: Vector2, level: Dictionary, la
 	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	text.clip_text = true
 	panel.add_child(text)
-	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未展开"), 14, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
+	var state := UiKit.label("已击破" if cleared else ("待挑战" if unlocked else "未解锁"), 14, UiKit.TEXT_MAIN if cleared else UiKit.TEXT_MUTED, 1)
 	state.position = Vector2(8, 29)
 	state.size = Vector2(128, 20)
 	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
