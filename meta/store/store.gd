@@ -959,7 +959,7 @@ func _add_store_arsenal_detail_sections(content: VBoxContainer, set_id: String, 
 		var table := str(slot_spec[1])
 		gear_grid.add_child(_store_detail_gear_card(table, slot, str(set_row.get(slot, "")), accent))
 
-	var synergy := _store_detail_section("SetSynergySection", _loc("套装协同与主宰区间", "Set Synergy & Dominance"), accent)
+	var synergy := _store_detail_section("SetSynergySection", _loc("套装协同与整套优势", "Set Synergy & Full-Set Edge"), accent)
 	content.add_child(synergy)
 	var synergy_body := _store_detail_section_body(synergy)
 	var bonus := UiKit.label(str(set_row.get(
