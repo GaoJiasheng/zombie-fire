@@ -820,8 +820,17 @@ func _prepare_combo_hud_showcase(battle: Node, preview_count := 2) -> void:
 					milestone_label.text = ""
 					milestone_label.modulate.a = 0.0
 			combo_hud.visible = true
-	for i in range(4):
+	# register_kill() deliberately bumps the whole HUD for 0.18s. Capturing four
+	# frames later sampled a different scale phase under load, moving the glyph
+	# ink across the optical-center threshold without any product change. Let the
+	# authored tween finish, then pin its documented resting state before capture.
+	for i in range(16):
 		await process_frame
+	if battle.has_node("Hud/ComboHud"):
+		var settled_combo_hud := battle.get_node("Hud/ComboHud") as Control
+		if settled_combo_hud != null:
+			settled_combo_hud.scale = Vector2.ONE
+	await process_frame
 
 func _prepare_store_combat(battle: Node) -> void:
 	# Deterministic marketing capture made only from live battle systems. It

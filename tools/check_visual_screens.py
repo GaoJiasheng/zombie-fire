@@ -2756,11 +2756,12 @@ def analyze(path: Path, label: str, expected_size: tuple[int, int] = EXPECTED_SI
             ink_top = min(y for _, y in glyph_pixels)
             ink_bottom = max(y for _, y in glyph_pixels)
             ink_center = (ink_top + ink_bottom) / 2.0
-            # The frame's bright upper armour carries more visual weight than
-            # its dark lower edge, so the accepted optical target is four
-            # pixels below the geometric center rather than the raw y=1468.
-            optical_center = 1472.0
-            if abs(ink_center - optical_center) > 2.0:
+            # _shot.gd now samples the documented resting state after the bump
+            # tween. On that stable frame the accepted font's visible ink center
+            # is 1465.5; keep a tight one-pixel guard around the deterministic
+            # target instead of accepting whichever animation phase was caught.
+            optical_center = 1465.5
+            if abs(ink_center - optical_center) > 1.0:
                 errors.append(
                     f"{label} combo text is not optically centered; "
                     f"ink_center={ink_center:.1f} optical_center={optical_center:.1f}"
