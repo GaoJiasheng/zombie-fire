@@ -691,20 +691,54 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		premium_suggest.add_child(premium_copy)
 		box.add_child(premium_suggest)
 
-	# design/24 Phase 1: tell the player what earns two and three stars. The
-	# numbers come from data/economy.json through StarRules, never inlined.
-	var star_rule := Label.new()
-	star_rule.name = "StarRule"
-	star_rule.text = StarRules.hint_text(DataLoader.get_table("economy"))
-	star_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	star_rule.clip_text = false
-	star_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiKit.apply_label(star_rule, 19, UiKit.TEXT_MUTED, 3)
-	box.add_child(star_rule)
+	# Turn the rating contract into a compact three-stop visual ruler. Thresholds
+	# still come exclusively from economy.json through StarRules.
+	box.add_child(_star_threshold_guide())
 	# English equipment names and the star rule can wrap to an extra line. Size
 	# the summary from its rendered minimum instead of letting the fixed floor
 	# clip into the battle button on tall iPhones.
 	call_deferred("_fit_summary_panel_to_content", panel, box)
+
+func _star_threshold_guide() -> VBoxContainer:
+	var economy := DataLoader.get_table("economy")
+	var two_star := int(round(StarRules.two_star_ratio(economy) * 100.0))
+	var three_star := int(round(StarRules.three_star_ratio(economy) * 100.0))
+	var guide := VBoxContainer.new()
+	guide.name = "StarRule"
+	guide.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	guide.add_theme_constant_override("separation", 4)
+	guide.tooltip_text = LocalizationManager.text(StarRules.hint_text(economy))
+	var title := UiKit.label("防线完整度", 15, UiKit.TEXT_MUTED, 2)
+	title.name = "Title"
+	guide.add_child(title)
+	var stops := HBoxContainer.new()
+	stops.name = "ThresholdStops"
+	stops.add_theme_constant_override("separation", 10)
+	guide.add_child(stops)
+	var entries := [
+		{"stars": 1, "threshold": "< %d%%" % two_star, "accent": UiKit.PURPLE},
+		{"stars": 2, "threshold": "≥ %d%%" % two_star, "accent": UiKit.GOLD},
+		{"stars": 3, "threshold": "≥ %d%%" % three_star, "accent": UiKit.GREEN},
+	]
+	for entry in entries:
+		var stop := PanelContainer.new()
+		stop.custom_minimum_size = Vector2(0, 42)
+		stop.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stop.add_theme_stylebox_override("panel", UiKit.pill_style(entry.accent))
+		stops.add_child(stop)
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 4)
+		stop.add_child(row)
+		for index in int(entry.stars):
+			var star := UiKit.icon(UiKit.currency_icon_path("star"), Vector2(18, 18))
+			star.name = "Star%d" % (index + 1)
+			star.modulate = entry.accent
+			row.add_child(star)
+		var threshold := UiKit.label(str(entry.threshold), 14, entry.accent, 2)
+		threshold.name = "Threshold"
+		row.add_child(threshold)
+	return guide
 
 func _power_bottleneck_reason(display_level_id: String, challenge_mode: bool) -> String:
 	var breakdown := SaveManager.get_power_breakdown_for_level(display_level_id, challenge_mode)
