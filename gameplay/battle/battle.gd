@@ -367,9 +367,10 @@ const CARD_OFFER_TEXT_X := 252.0
 const CARD_OFFER_TEXT_WIDTH := 584.0
 const CARD_OFFER_COPY_TOP_Y := 82.0
 const CARD_OFFER_COPY_GAP := 8.0
+const CARD_OFFER_DESC_TAG_GAP := 16.0
 const CARD_OFFER_CARD_SEPARATION := 10
 const CARD_OFFER_TAG_MIN_HEIGHT := 48.0
-const CARD_OFFER_BOTTOM_PADDING := 28.0
+const CARD_OFFER_BOTTOM_PADDING := 20.0
 const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
 const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
 const CARD_DETAIL_TAGS_FONT_SIZE := 15
@@ -12629,7 +12630,10 @@ func _layout_skill_offer_card(card: Panel, forced_card_height := 0.0) -> void:
 	desc.position = Vector2(CARD_OFFER_TEXT_X, stats.position.y + stats_h + CARD_OFFER_COPY_GAP)
 	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, desc_h)
 	var tag_h := maxf(CARD_OFFER_TAG_MIN_HEIGHT, tags.get_combined_minimum_size().y)
-	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_COPY_GAP)
+	# Tag chips need their own larger quiet lane. At the global 1.5 font scale the
+	# final outlined glyphs of a wrapped Chinese description otherwise visually
+	# touch the chip border even when the controls' mathematical rects do not.
+	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_DESC_TAG_GAP)
 	tags.size = Vector2(CARD_OFFER_TEXT_WIDTH, tag_h)
 	var icon_bottom := CARD_OFFER_ICON_FRAME_POS.y + CARD_OFFER_ICON_FRAME_SIZE.y + CARD_OFFER_BOTTOM_PADDING
 	var copy_bottom := tags.position.y + tag_h + CARD_OFFER_BOTTOM_PADDING

@@ -3760,7 +3760,7 @@ func _verify_all_skill_offer_copy_layouts(battle: Node) -> void:
 			_expect(_label_required_height_for_smoke(stats) <= stats.size.y + 0.5, "%s %s stats must reserve automatic wrapped lines" % [language, card.name])
 			_expect(_label_required_height_for_smoke(desc) <= desc.size.y + 0.5, "%s %s description must reserve automatic wrapped lines" % [language, card.name])
 			_expect(stats.position.y + stats.size.y + battle.CARD_OFFER_COPY_GAP <= desc.position.y + 0.5, "%s %s description must begin below the complete stats block" % [language, card.name])
-			_expect(desc.position.y + desc.size.y + battle.CARD_OFFER_COPY_GAP <= tags.position.y + 0.5, "%s %s tags must begin below the complete description block" % [language, card.name])
+			_expect(desc.position.y + desc.size.y + battle.CARD_OFFER_DESC_TAG_GAP <= tags.position.y + 0.5, "%s %s tags must keep a dedicated quiet lane below the complete description block" % [language, card.name])
 			_expect(tags.position.y + tags.size.y + battle.CARD_OFFER_BOTTOM_PADDING <= card.size.y + 0.5, "%s %s card must grow to contain every wrapped lane" % [language, card.name])
 			language_card_heights.append(card.size.y)
 		# Any possible three-card offer must still fit above the primary actions and
