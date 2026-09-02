@@ -5138,27 +5138,26 @@ func _verify_projectile_visual_profiles() -> void:
 	var plain_lanes: int = int(battle._resolved_weapon_lane_count(0, false, 1))
 	var multishot_lanes: int = int(battle._resolved_weapon_lane_count(1, false, 1))
 	var stacked_lanes: int = int(battle._resolved_weapon_lane_count(1, true, 1))
-	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, plain_lanes, deg_to_rad(7.0)), 3, deg_to_rad(18.0)).size() == 3, "level-one scattergun must produce three projectiles without modifiers")
-	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, multishot_lanes, deg_to_rad(7.0)), max_scatter_pellets, deg_to_rad(18.0)).size() == 10, "five-pellet scattergun must stack with level-one Multishot into ten projectiles")
-	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, stacked_lanes, deg_to_rad(7.0)), max_scatter_pellets, deg_to_rad(18.0)).size() == 15, "scattergun, Multishot and Vanguard Barrage must stack into fifteen projectiles")
+	# Owner 2026-09-02: multishot lanes are a rigid fixed-angle fan and every lane
+	# carries its own nested pellet fan (approved 99x10 contract). Counts compose
+	# multiplicatively; the flattened single-fan experiment was reverted.
+	var smoke_fan := func(lanes: int) -> Array[Vector2]:
+		var dirs: Array[Vector2] = []
+		var step := deg_to_rad(7.0)
+		for index in range(lanes):
+			dirs.append(Vector2.UP.rotated(-step * float(lanes - 1) * 0.5 + step * float(index)).normalized())
+		return dirs
+	_expect(battle._lane_pellet_directions(smoke_fan.call(plain_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == max_scatter_pellets, "scattergun alone must fire its authored pellet count")
+	_expect(battle._lane_pellet_directions(smoke_fan.call(multishot_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == multishot_lanes * max_scatter_pellets, "scattergun with Multishot must stack lanes x pellets")
+	_expect(battle._lane_pellet_directions(smoke_fan.call(stacked_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == stacked_lanes * max_scatter_pellets, "scattergun, Multishot and Vanguard Barrage must stack lanes x pellets")
 	var single_lane: Array[Vector2] = [Vector2.UP]
 	for final_count in [7, 9]:
-		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0), Vector2.UP)
+		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0))
 		_expect(dense_fan.size() == final_count, "%d-projectile scatter fan must preserve every authored projectile" % final_count)
 		var expected_gap := deg_to_rad(18.0) / float(final_count - 1)
 		for index in range(1, dense_fan.size()):
 			var actual_gap := absf(dense_fan[index - 1].angle_to(dense_fan[index]))
-			_expect(absf(actual_gap - expected_gap) <= 0.0001, "%d-projectile scatter fan must keep identical adjacent gaps" % final_count)
-	var composed_fan: Array[Vector2] = battle._lane_pellet_directions(
-		battle._fixed_multishot_fan(Vector2.UP, stacked_lanes, deg_to_rad(7.0)),
-		3,
-		deg_to_rad(18.0),
-		Vector2.UP,
-	)
-	var composed_gap := absf(composed_fan[0].angle_to(composed_fan[1]))
-	for index in range(2, composed_fan.size()):
-		_expect(absf(absf(composed_fan[index - 1].angle_to(composed_fan[index])) - composed_gap) <= 0.0001, "nested scatter and multishot must flatten into one evenly spaced final fan")
-	_expect(absf(composed_fan[composed_fan.size() / 2].angle_to(Vector2.UP)) <= 0.0001, "odd composed scatter fan must keep its center projectile on the aim target")
+			_expect(absf(actual_gap - expected_gap) <= 0.0001, "%d-projectile scatter fan must keep identical adjacent gaps within one lane" % final_count)
 	_expect(
 		battle._resolved_weapon_projectile_visual_profile("physical", "physical", "rail") == "rail",
 		"unmodified physical ammo must retain its authored weapon profile"
