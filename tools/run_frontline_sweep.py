@@ -20,6 +20,7 @@ GODOT = os.environ.get("GODOT_BIN", "/opt/homebrew/bin/godot")
 PROBE = "res://tools/frontline_runtime_probe.gd"
 DEFAULT_SEEDS = (1103, 2207, 3301)
 DEFAULT_ACCELERATION = 60.0
+DEFAULT_PROCESS_TIMEOUT = 360.0
 FINGERPRINT_SEGMENTS = ("levels", "weapons", "economy", "fixture")
 
 
@@ -272,8 +273,8 @@ def main() -> int:
     parser.add_argument(
         "--process-timeout",
         type=float,
-        default=240.0,
-        help="maximum wall seconds for one Godot probe process (default: 240)",
+        default=DEFAULT_PROCESS_TIMEOUT,
+        help="maximum wall seconds for one Godot probe process (default: 360)",
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ignore-level-guarantees", action="store_true")

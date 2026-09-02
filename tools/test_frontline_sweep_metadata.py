@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -114,12 +115,54 @@ def test_matching_sweep_can_be_derived() -> list[str]:
     return failures
 
 
+def test_process_timeout_metadata() -> list[str]:
+    failures: list[str] = []
+    if sweep.DEFAULT_PROCESS_TIMEOUT != 360.0:
+        failures.append(
+            f"default process timeout is {sweep.DEFAULT_PROCESS_TIMEOUT}, expected 360"
+        )
+    with tempfile.TemporaryDirectory(prefix="frontline_timeout_test_") as temp_name:
+        with mock.patch.object(
+            sweep.subprocess,
+            "run",
+            side_effect=subprocess.TimeoutExpired(
+                cmd=["godot"],
+                timeout=sweep.DEFAULT_PROCESS_TIMEOUT,
+                output="partial probe output",
+            ),
+        ):
+            runs, _wall_seconds = sweep.run_batch(
+                level=96,
+                seeds=[1103, 2207],
+                profile="tier_b",
+                card_policy="v2",
+                accel=60.0,
+                ignore_level_guarantees=False,
+                ignore_offer_category_floor=False,
+                challenge=False,
+                fail_fast=False,
+                process_timeout=sweep.DEFAULT_PROCESS_TIMEOUT,
+                temp_dir=Path(temp_name),
+                project_root=ROOT,
+                fixture="res://design/audits/campaign_progression_fixture_builds.json",
+            )
+    if len(runs) != 2:
+        failures.append(f"timeout produced {len(runs)} run records, expected 2")
+    for run in runs:
+        if run.get("probe_status") != "process_timeout":
+            failures.append(f"timeout run lacks process_timeout status: {run}")
+        if run.get("process_timeout_seconds") != 360.0:
+            failures.append(f"timeout run lacks 360-second metadata: {run}")
+    return failures
+
+
 def main() -> int:
     failures: list[str] = []
     for check in (
         test_sweep_payload_has_provenance,
         test_stale_archive_is_rejected,
         test_matching_sweep_can_be_derived,
+        test_process_timeout_metadata,
     ):
         failures.extend(check())
     if failures:
