@@ -163,6 +163,15 @@ func _initialize() -> void:
 	var starter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_autocannon")
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
 	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
+	var scatter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_scattergun")
+	var pellet_growth: Array = scatter_weapon.get("special", {}).get("pellet_growth", [])
+	_expect(pellet_growth.size() == 3, "scattergun must author the three-step 3/4/5 pellet curve")
+	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 1) == 3, "level-one scattergun must fire exactly three pellets")
+	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 24) == 3, "scattergun must remain at three pellets before level 25")
+	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 25) == 4, "scattergun level 25 must unlock its fourth pellet")
+	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 49) == 4, "scattergun must remain at four pellets before max level")
+	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 50) == 5, "max-level scattergun must fire exactly five pellets")
+	_expect(save_manager.weapon_pellet_count_from_row(starter_weapon, 1) == 1, "weapons without pellet growth must retain their authored projectile count")
 	_verify_starter_projectile_hierarchy(data_loader)
 	_expect(data_loader.level_display_name("level_002") == "002 城市突围", "level display names must hide internal ids")
 	_expect(data_loader.level_display_name("level_011") == "011 废街突围", "all launch levels must have authored display names")
@@ -202,6 +211,7 @@ func _initialize() -> void:
 	_verify_projectile_pierce_runtime()
 	_verify_projectile_pierce_sweep_runtime()
 	_verify_homing_pierce_frontline_cleanup()
+	await _verify_ricochet_primary_exclusion(save_manager, smoke_save_snapshot)
 	_verify_projectile_visual_profiles()
 	_verify_projectile_ballistics_rules()
 	await _verify_turret_muzzle_sockets(data_loader)
@@ -5048,6 +5058,54 @@ func _verify_homing_pierce_frontline_cleanup() -> void:
 	onward_target.queue_free()
 	chained_projectile.queue_free()
 
+func _verify_ricochet_primary_exclusion(save_manager: Node, snapshot: Dictionary) -> void:
+	var router := FakeRouter.new()
+	root.add_child(router)
+	save_manager.save_data = _battle_smoke_loadout(snapshot)
+	var battle := _instance("res://gameplay/battle/battle.tscn")
+	battle.setup(router, {"level_id": "level_001"})
+	root.add_child(battle)
+	await process_frame
+	battle.set_physics_process(false)
+	battle.active_spawning = false
+	battle.pending_spawns.clear()
+	battle.turret.set("fire_enabled", false)
+	battle.turret.set_physics_process(false)
+	for enemy in battle.get_node("EnemyLayer").get_children():
+		enemy.free()
+	for existing_projectile in battle.get_node("ProjectileLayer").get_children():
+		existing_projectile.free()
+	var primary := FakeDamageTarget.new()
+	var secondary := FakeDamageTarget.new()
+	primary.global_position = Vector2(540.0, 700.0)
+	secondary.global_position = Vector2(720.0, 700.0)
+	battle.get_node("EnemyLayer").add_child(primary)
+	battle.get_node("EnemyLayer").add_child(secondary)
+	# The host save may own a chain pet; isolate this regression to the Lv1 card.
+	battle.chain_bonus = 0
+	_expect(battle.skills.add_skill("skill_ricochet"), "level-one ricochet must be addable to a live battle")
+	_expect(int(battle.skills.projectile_mods().get("chain", 0)) == 1, "level-one ricochet must resolve one secondary target")
+	_expect(int(battle._resolved_chain_count("physical", battle.skills.projectile_mods(), {})) == 1, "level-one ricochet regression must isolate exactly one runtime chain")
+	battle._spawn_chain_projectiles(primary, primary.global_position, 100.0, "physical", 0.0, 0.0)
+	await process_frame
+	var projectile_layer := battle.get_node("ProjectileLayer")
+	var ricochets: Array[Node] = []
+	for child in projectile_layer.get_children():
+		if child.has_signal("hit_confirmed") and int(child.get("chain_depth")) == 1:
+			ricochets.append(child)
+	_expect(ricochets.size() == 1, "level-one ricochet must spawn exactly one child projectile when a nearby target exists, got %d" % ricochets.size())
+	if ricochets.size() == 1:
+		var ricochet := ricochets[0]
+		_expect(ricochet.hit_target_ids.has(primary.get_instance_id()), "ricochet child must inherit the confirmed primary target exclusion")
+		ricochet._hit(primary)
+		_expect(primary.hits == 0 and not ricochet.is_queued_for_deletion(), "ricochet child must not be consumed by its spawn target's overlapping collision body")
+		ricochet._hit(secondary)
+		_expect(secondary.hits == 1, "level-one ricochet must damage the selected nearby enemy")
+	battle.queue_free()
+	router.queue_free()
+	save_manager.save_data = snapshot.duplicate(true)
+	await process_frame
+
 func _verify_projectile_visual_profiles() -> void:
 	var expected := {
 		"autocannon": {"element": "physical", "texture": "proj_bullet_physical.png"},
@@ -5075,6 +5133,32 @@ func _verify_projectile_visual_profiles() -> void:
 		projectile.queue_free()
 
 	var battle = load("res://gameplay/battle/battle.gd").new()
+	var scatter_weapon: Dictionary = root.get_node("/root/DataLoader").get_row("weapons", "weapon_scattergun")
+	var max_scatter_pellets: int = int(root.get_node("/root/SaveManager").weapon_pellet_count_from_row(scatter_weapon, 50))
+	var plain_lanes: int = int(battle._resolved_weapon_lane_count(0, false, 1))
+	var multishot_lanes: int = int(battle._resolved_weapon_lane_count(1, false, 1))
+	var stacked_lanes: int = int(battle._resolved_weapon_lane_count(1, true, 1))
+	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, plain_lanes, deg_to_rad(7.0)), 3, deg_to_rad(18.0)).size() == 3, "level-one scattergun must produce three projectiles without modifiers")
+	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, multishot_lanes, deg_to_rad(7.0)), max_scatter_pellets, deg_to_rad(18.0)).size() == 10, "five-pellet scattergun must stack with level-one Multishot into ten projectiles")
+	_expect(battle._lane_pellet_directions(battle._fixed_multishot_fan(Vector2.UP, stacked_lanes, deg_to_rad(7.0)), max_scatter_pellets, deg_to_rad(18.0)).size() == 15, "scattergun, Multishot and Vanguard Barrage must stack into fifteen projectiles")
+	var single_lane: Array[Vector2] = [Vector2.UP]
+	for final_count in [7, 9]:
+		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0), Vector2.UP)
+		_expect(dense_fan.size() == final_count, "%d-projectile scatter fan must preserve every authored projectile" % final_count)
+		var expected_gap := deg_to_rad(18.0) / float(final_count - 1)
+		for index in range(1, dense_fan.size()):
+			var actual_gap := absf(dense_fan[index - 1].angle_to(dense_fan[index]))
+			_expect(absf(actual_gap - expected_gap) <= 0.0001, "%d-projectile scatter fan must keep identical adjacent gaps" % final_count)
+	var composed_fan: Array[Vector2] = battle._lane_pellet_directions(
+		battle._fixed_multishot_fan(Vector2.UP, stacked_lanes, deg_to_rad(7.0)),
+		3,
+		deg_to_rad(18.0),
+		Vector2.UP,
+	)
+	var composed_gap := absf(composed_fan[0].angle_to(composed_fan[1]))
+	for index in range(2, composed_fan.size()):
+		_expect(absf(absf(composed_fan[index - 1].angle_to(composed_fan[index])) - composed_gap) <= 0.0001, "nested scatter and multishot must flatten into one evenly spaced final fan")
+	_expect(absf(composed_fan[composed_fan.size() / 2].angle_to(Vector2.UP)) <= 0.0001, "odd composed scatter fan must keep its center projectile on the aim target")
 	_expect(
 		battle._resolved_weapon_projectile_visual_profile("physical", "physical", "rail") == "rail",
 		"unmodified physical ammo must retain its authored weapon profile"

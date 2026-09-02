@@ -27,6 +27,7 @@ var recoil_frames: Array[Texture2D] = []
 var anim_time := 0.0
 var recoil_time := 0.0
 var frame_index := 0
+var last_fire_direction := Vector2.UP
 
 func setup(weapon: Dictionary, weapon_level := 1) -> void:
 	weapon_id = _weapon_id_from_turret(str(weapon.get("turret", "")))
@@ -50,6 +51,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var aim_vector := target_point - global_position
 	if aim_vector.length_squared() > 1.0:
+		last_fire_direction = aim_vector.normalized()
 		var desired := aim_vector.angle() - muzzle_local_position.angle()
 		rotation = lerp_angle(rotation, desired, min(turn_speed * delta, 1.0))
 		# The headless frontline probe advances authored 60 Hz combat ticks
@@ -58,13 +60,19 @@ func _physics_process(delta: float) -> void:
 		force_update_transform()
 		$Muzzle.force_update_transform()
 	cooldown = maxf(cooldown - delta, 0.0)
-	if not fire_enabled or aim_vector.length_squared() <= 1.0:
+	if not fire_enabled:
 		_update_animation(delta)
 		return
 	if cooldown <= 0.0:
 		cooldown = 1.0 / fire_rate
 		_play_recoil()
-		var direction: Vector2 = (target_point - $Muzzle.global_position).normalized()
+		var direction: Vector2 = target_point - $Muzzle.global_position
+		if direction.length_squared() <= 1.0:
+			direction = aim_vector if aim_vector.length_squared() > 1.0 else last_fire_direction
+		if direction.length_squared() <= 0.01:
+			direction = Vector2.UP
+		direction = direction.normalized()
+		last_fire_direction = direction
 		fired.emit($Muzzle.global_position, direction)
 	_update_animation(delta)
 

@@ -203,7 +203,8 @@ func _rebuild() -> void:
 		_status_label = null
 		content.add_child(_locked_store_empty_state())
 
-	for series_id in revealed_series:
+	for series_index in range(revealed_series.size()):
+		var series_id: String = revealed_series[series_index]
 		content.add_child(_series_header(series_id))
 		for product_id in PurchaseManager.display_offer_ids(series_id):
 			content.add_child(_product_card(PurchaseManager.product(product_id)))
@@ -211,6 +212,8 @@ func _rebuild() -> void:
 			content.add_child(_owned_set_panel(PurchaseManager.set_id_for_series(series_id)))
 		elif PurchaseManager.is_theme_owned(series_id):
 			content.add_child(_owned_theme_panel(series_id))
+		if series_index < revealed_series.size() - 1:
+			content.add_child(_series_divider())
 	_configure_store_scroll_surface(content)
 	if _focus_series_id != "":
 		call_deferred("_focus_requested_series")
@@ -495,24 +498,40 @@ func _configure_store_scroll_surface(root: Node) -> void:
 func _series_header(series_id: String) -> PanelContainer:
 	var set_row := PurchaseManager.set_for_series(series_id)
 	var is_current_counter := series_id == _current_warzone_counter_series_id
+	var accent := _theme_preview_accent(str(set_row.get("theme", "default")))
 	var panel := PanelContainer.new()
 	panel.name = "Series_%s" % series_id
 	panel.set_meta("store_series_id", series_id)
 	panel.set_meta("current_warzone_counter", is_current_counter)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 84 if is_current_counter else 72)
+	panel.custom_minimum_size = Vector2(0, 112 if is_current_counter else 76)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
 	panel.add_child(box)
 	var title_row := HBoxContainer.new()
 	title_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	title_row.add_theme_constant_override("separation", 14)
+	title_row.add_theme_constant_override("separation", 12)
 	box.add_child(title_row)
+	var accent_rail := TextureRect.new()
+	accent_rail.name = "SeriesAccentRail"
+	accent_rail.custom_minimum_size = Vector2(7, 42)
+	accent_rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	accent_rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	accent_rail.stretch_mode = TextureRect.STRETCH_SCALE
+	accent_rail.modulate = accent
+	accent_rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_row.add_child(accent_rail)
+	var series_badge := _store_membership_badge(_loc("系列", "SERIES"), accent)
+	series_badge.name = "SeriesTypeBadge"
+	series_badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	title_row.add_child(series_badge)
 	var label := UiKit.label(str(set_row.get(
 		"store_title_en" if LocalizationManager.is_english() else "store_title_zh",
 		series_id
 	)), 24, UiKit.GOLD, 3)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_row.add_child(label)
@@ -520,8 +539,45 @@ func _series_header(series_id: String) -> PanelContainer:
 		var badge := UiKit.semantic_tag_pill(_loc("当前战区克制", "Counters Current Warzone"), "status", 14)
 		badge.name = "CurrentWarzoneCounterBadge"
 		badge.set_meta("counter_series_id", series_id)
-		title_row.add_child(badge)
+		badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		box.add_child(badge)
 	return panel
+
+
+func _series_divider() -> Control:
+	# Product cards remain direct children of Content so the established store
+	# interaction and smoke-test contracts stay intact. A deliberate inter-series
+	# gutter supplies the visual closing edge that the old uniform 18px spacing
+	# lacked, preventing the next header from reading as the previous card's footer.
+	var gutter := CenterContainer.new()
+	gutter.name = "SeriesDivider"
+	gutter.custom_minimum_size = Vector2(0, 34)
+	gutter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var line := TextureRect.new()
+	line.texture = load("res://assets/production/sprites/ui/ui_wave_progress_fill_native.png")
+	line.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	line.stretch_mode = TextureRect.STRETCH_SCALE
+	line.modulate = Color(UiKit.GOLD.r, UiKit.GOLD.g, UiKit.GOLD.b, 0.48)
+	line.custom_minimum_size = Vector2(560, 2)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gutter.add_child(line)
+	return gutter
+
+
+func _store_membership_badge(text: String, accent: Color) -> PanelContainer:
+	var badge := PanelContainer.new()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.custom_minimum_size = Vector2(0, 40)
+	var style := UiKit.semantic_tag_style(
+		Color(accent.r, accent.g, accent.b, 0.92),
+		Color(accent.r * 0.12, accent.g * 0.12, accent.b * 0.12, 0.94),
+	)
+	badge.add_theme_stylebox_override("panel", style)
+	var copy := UiKit.label(text, 13, UiKit.TEXT_MAIN, 2)
+	copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	copy.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.add_child(copy)
+	return badge
 
 
 func _store_title() -> String:
@@ -550,11 +606,12 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
 	var offer_role := str(row.get("offer_role", ""))
+	var accent := _theme_preview_accent(str(row.get("theme_id", "default")))
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
 	panel.set_meta("store_card_opens_detail", true)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
-	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
+	panel.custom_minimum_size = Vector2(0, 480 if offer_role != "theme" else 430)
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.focus_mode = Control.FOCUS_ALL
@@ -565,8 +622,18 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		margin.add_theme_constant_override("margin_%s" % side, 22)
 	panel.add_child(margin)
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 20)
+	hbox.add_theme_constant_override("separation", 16)
 	margin.add_child(hbox)
+	var membership_rail := TextureRect.new()
+	membership_rail.name = "SeriesMembershipRail"
+	membership_rail.custom_minimum_size = Vector2(7, 0)
+	membership_rail.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	membership_rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	membership_rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	membership_rail.stretch_mode = TextureRect.STRETCH_SCALE
+	membership_rail.modulate = accent
+	membership_rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(membership_rail)
 
 	var preview := _product_preview(row)
 	hbox.add_child(preview)
@@ -575,7 +642,18 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 12)
 	hbox.add_child(copy)
+	var offer_type := _loc("主题", "THEME")
+	if offer_role == "arsenal_upgrade":
+		offer_type = _loc("军械升级", "ARSENAL UPGRADE")
+	elif offer_role != "theme":
+		offer_type = _loc("完整包", "COMPLETE SET")
+	var offer_badge := _store_membership_badge(offer_type, accent)
+	offer_badge.name = "OfferTypeBadge"
+	offer_badge.set_meta("store_offer_role", offer_role)
+	offer_badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	copy.add_child(offer_badge)
 	var name := UiKit.label(str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")), 25, UiKit.TEXT_MAIN, 3)
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(name)
 	var subtitle := UiKit.label(str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")), 17, UiKit.GREY_300, 2)
@@ -1691,6 +1769,17 @@ func _show_dialog(title_text: String, body_text: String, confirm_text: String, c
 		"accent": UiKit.GOLD,
 		"confirm_text": confirm_text,
 		"cancel_text": _loc("取消", "Cancel"),
+		# Store offers carry substantially more copy than destructive/action
+		# confirmations. Keep their typography compact and widen the measure so
+		# the hierarchy stays elegant on tall phones instead of becoming a wall
+		# of display-sized text.
+		"panel_width": 700.0,
+		"margin_horizontal": 48,
+		"margin_vertical": 34,
+		"content_separation": 18,
+		"title_font_size": 30,
+		"message_font_size": 20,
+		"button_font_size": 18,
 		"on_confirm": callback,
 	})
 
@@ -1730,6 +1819,13 @@ func _show_purchase_completion(product_id: String) -> void:
 		"accent": UiKit.GOLD,
 		"confirm_text": _loc("立即应用整套", "Apply Full Look"),
 		"cancel_text": _loc("逐个角色换装", "Dress Heroes"),
+		"panel_width": 700.0,
+		"margin_horizontal": 48,
+		"margin_vertical": 34,
+		"content_separation": 18,
+		"title_font_size": 30,
+		"message_font_size": 20,
+		"button_font_size": 18,
 		"on_confirm": _apply_new_purchase.bind(product_id),
 		"on_cancel": _customize_new_purchase.bind(product_id),
 	})

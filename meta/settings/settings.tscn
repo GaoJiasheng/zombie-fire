@@ -167,9 +167,10 @@ text = "主题预览：末日防线"
 layout_mode = 2
 text = "舒适度"
 
-[node name="AccessibilityRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+[node name="AccessibilityRow" type="HFlowContainer" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
 
 [node name="ReduceEffectsButton" type="Button" parent="Center/Panel/Margin/VBox/AccessibilityRow"]
 custom_minimum_size = Vector2(0, 80)

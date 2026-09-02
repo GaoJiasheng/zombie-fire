@@ -75,6 +75,10 @@ const CHARACTER_DETAIL_SKILL_ICON_FRAME_SIZE := Vector2(148.0, 148.0)
 const CHARACTER_DETAIL_SKILL_ICON_SIZE := Vector2(128.0, 128.0)
 const CHARACTER_DETAIL_SIG_LEVEL_FONT_SIZE := 24
 const CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE := 21
+const DETAIL_CLOSE_BUTTON_SIZE := Vector2(104.0, 104.0)
+const DETAIL_CLOSE_GLYPH_FONT_SIZE := 68
+const DETAIL_SCROLL_BOTTOM_CLEARANCE := 44.0
+const DETAIL_SCROLL_DEADZONE := 12
 
 var router: Node
 var mode := "characters"
@@ -956,9 +960,18 @@ func _value_text(value: Variant) -> String:
 		return "%d%%" % int(round(numeric * 100.0))
 	return "%d" % int(round(numeric))
 
-func _weapon_special_text(row: Dictionary) -> String:
+func _weapon_special_text(row: Dictionary, item_level := -1) -> String:
 	var special: Dictionary = row.get("special", {})
 	if int(special.get("pellets", 0)) > 0:
+		var pellet_growth_var: Variant = special.get("pellet_growth", [])
+		var pellet_growth: Array = pellet_growth_var if pellet_growth_var is Array else []
+		if not pellet_growth.is_empty():
+			var base_step: Dictionary = pellet_growth[0] if pellet_growth[0] is Dictionary else {}
+			var base_pellets := int(base_step.get("pellets", special.get("pellets", 1)))
+			var max_pellets := int(special.get("pellets", base_pellets))
+			if item_level >= 1:
+				return _loc("当前 %d 弹丸 · 满级 %d", "Current %d pellets · max %d") % [SaveManager.weapon_pellet_count_from_row(row, item_level), max_pellets]
+			return _loc("%d→%d 弹丸", "%d→%d pellets") % [base_pellets, max_pellets]
 		return "%d 弹丸" % int(special.get("pellets", 1))
 	if int(special.get("pierce", 0)) > 0:
 		return "自带穿透 +%d" % int(special.get("pierce", 0))
@@ -1047,7 +1060,12 @@ func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
 		return "已满级"
 	match mode:
 		"weapons":
-			return "下一级 伤害+8% · 射速+2.5%"
+			var weapon_hint := "下一级 伤害+8% · 射速+2.5%"
+			var current_pellets := SaveManager.weapon_pellet_count_from_row(row, level)
+			var next_pellets := SaveManager.weapon_pellet_count_from_row(row, level + 1)
+			if next_pellets > current_pellets:
+				weapon_hint += " · 弹丸+%d" % (next_pellets - current_pellets)
+			return weapon_hint
 		"characters":
 			return "下一级 攻击+%d%%" % int(round(float(row.get("atk_growth", 0.08)) * 0.52 * 100.0))
 		"armors":
@@ -1298,6 +1316,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 
 	var content_scroll := ScrollContainer.new()
 	content_scroll.name = "DetailScroll"
+	content_scroll.scroll_deadzone = DETAIL_SCROLL_DEADZONE
 	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1346,14 +1365,20 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		Color(0.68, 0.82, 1.0, 0.82),
 		SKILL_DETAIL_SECTION_TITLE_FONT_SIZE if mode == "skills" else 24
 	)
+	desc_section.name = "TacticalNotesSection"
 	detail_content.add_child(desc_section)
 	var desc_label := Label.new()
 	desc_label.text = _detail_body_text(item_id, row)
 	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.clip_text = false
 	desc_label.name = "DescriptionBody"
 	UiKit.apply_label(desc_label, SKILL_DETAIL_DESCRIPTION_FONT_SIZE if mode == "skills" else 20, Color(0.9, 0.96, 1.0, 1.0), 3)
+	desc_label.add_theme_constant_override("line_spacing", 7)
 	desc_section.get_child(0).add_child(desc_label)
+	detail_content.add_child(_make_detail_scroll_bottom_clearance())
+	content_scroll.mouse_force_pass_scroll_events = true
+	_configure_detail_scroll_surface(detail_content)
 
 	var action_row := HBoxContainer.new()
 	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -1466,15 +1491,40 @@ func _compact_close_button(node_name: String) -> Button:
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.45, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(0.78, 0.9, 1.0, 1.0))
 	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.65))
-	button.add_theme_stylebox_override("normal", _compact_close_style(Color(0.02, 0.035, 0.05, 0.42), Color(0.55, 0.68, 0.78, 0.45)))
-	button.add_theme_stylebox_override("hover", _compact_close_style(Color(0.06, 0.055, 0.035, 0.72), Color(1.0, 0.76, 0.32, 0.86)))
-	button.add_theme_stylebox_override("pressed", _compact_close_style(Color(0.01, 0.02, 0.03, 0.82), Color(0.56, 0.82, 1.0, 0.9)))
-	button.add_theme_stylebox_override("disabled", _compact_close_style(Color(0.02, 0.025, 0.03, 0.30), Color(0.35, 0.4, 0.45, 0.35)))
+	# The former map-pill texture was authored as a wide horizontal capsule.
+	# Compressing it into a square made its top corners read shifted right and
+	# its bottom corners shifted left. Use the production square icon frame for
+	# one straight perimeter, with the active frame only for interaction states.
+	button.add_theme_stylebox_override("normal", _compact_close_style(false))
+	button.add_theme_stylebox_override("hover", _compact_close_style(true))
+	button.add_theme_stylebox_override("pressed", _compact_close_style(true))
+	button.add_theme_stylebox_override("disabled", _compact_close_style(false))
 	UiKit.apply_close_glyph(button)
+	button.custom_minimum_size = DETAIL_CLOSE_BUTTON_SIZE
+	button.add_theme_font_size_override("font_size", DETAIL_CLOSE_GLYPH_FONT_SIZE)
 	return button
 
-func _compact_close_style(_bg: Color, _border: Color) -> StyleBox:
-	return UiKit.map_pill_texture_style()
+func _compact_close_style(active: bool) -> StyleBox:
+	return UiKit.icon_frame_texture_style(active)
+
+func _make_detail_scroll_bottom_clearance() -> Control:
+	var clearance := Control.new()
+	clearance.name = "DetailScrollBottomClearance"
+	clearance.custom_minimum_size = Vector2(0.0, DETAIL_SCROLL_BOTTOM_CLEARANCE)
+	clearance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return clearance
+
+func _configure_detail_scroll_surface(root: Node) -> void:
+	# Detail cards contain panels and an upgrade button. STOP on any of those
+	# children prevented an iPhone drag from reaching DetailScroll, producing a
+	# visible scrollbar that felt inert. PASS retains stationary button taps but
+	# lets ScrollContainer cancel the press once the drag deadzone is crossed.
+	if root is Control and (root as Control).mouse_filter != Control.MOUSE_FILTER_IGNORE:
+		(root as Control).mouse_filter = Control.MOUSE_FILTER_PASS
+	if root is BaseButton:
+		root.set_meta("detail_scroll_drag_passthrough", true)
+	for child in root.get_children():
+		_configure_detail_scroll_surface(child)
 
 func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -> Array:
 	var stats := []
@@ -1504,7 +1554,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			stats.append({"label": "元素", "value": _element_name(row.get("element", "-")), "sub": _projectile_type_name(str(row.get("projectile_type", "bullet")))})
 			stats.append({"label": "攻击", "value": "%.0f%%" % (float(row.get("base_atk_coef", 1.0)) * 100.0), "sub": "等级伤害 %.0f%%" % ((SaveManager.get_weapon_damage_multiplier(item_id) - 1.0) * 100.0)})
 			stats.append({"label": "射速", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "等级射速 %.0f%%" % ((SaveManager.get_weapon_fire_rate_multiplier(item_id) - 1.0) * 100.0)})
-			stats.append({"label": "弹速", "value": "%d" % int(row.get("projectile_speed", 0)), "sub": _weapon_special_text(row)})
+			stats.append({"label": "弹速", "value": "%d" % int(row.get("projectile_speed", 0)), "sub": _weapon_special_text(row, item_level)})
 		"armors":
 			var armor_g := float(row.get("level_hp_growth", 0.0))
 			var armor_now := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(item_level - 1, 0)))
@@ -1678,30 +1728,362 @@ func _pet_skill_cooldown_text(skill: Dictionary) -> String:
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
 	match mode:
 		"weapons":
-			return "点击装备后进入出战配置。武器的元素、射速和弹道特性会决定局内基础手感；升级会提高伤害并少量提高射速。"
+			return _weapon_tactical_guide(item_id, row)
 		"armors":
-			return "护甲主要提高基地承伤和防线容错。高级护甲不是纯数值堆叠，抗性和屏障会影响特定关卡的防线稳定性。"
+			return _armor_tactical_guide(row)
 		"chips":
-			return "芯片是核心加成位，偏向伤害、射速、暴击、生命、收益或元素流派。当前芯片会进入有效战力和关卡克制计算。"
+			return _chip_tactical_guide(row)
 		"pets":
-			match str(row.get("role", "")):
-				"damage":
-					return "炮塔无人机持续协战，并会周期启动「过热爆发」，短时间同步提升自身射速与伤害。等级越高，爆发持续越久、火力越强。"
-				"burn":
-					return "火焰小鬼持续点燃目标，并会对当前首要威胁释放「熔火爆发」，造成范围火焰伤害并强化灼烧。"
-				"slow":
-					return "冰霜精灵持续减速敌人，并会在当前首要威胁周围展开「寒霜领域」，大范围施加冰霜伤害与控制。"
-				"chain":
-					return "电弧球持续雷击敌人，并会释放「电弧过载」连续打击多个高威胁目标；目标数会随等级持续成长。"
-				"repair":
-					return "医疗无人机会直接修复基地：波次开始前整备、战斗中持续维修，并在基地生命低于阈值时启动有冷却的应急救援。修复按最大生命计算，可随关卡与装备成长。"
-				"economy":
-					return "拾荒机器人提高常规金币收益，并在每波开始执行「战场回收」，直接结算一批等效击杀收益；等级越高，回收效率越高。"
-			return "宠物会自动协战并用专属技能补足阵容短板。"
+			return _pet_tactical_guide(row)
 		"skills":
 			return "技能图鉴只用于查看局内卡牌成长。下方会列出每一级的具体数值，便于判断加点性价比；战斗中同名技能按等级叠加，互斥弹种会以当前主弹种为准。"
 		_:
 			return _item_desc(item_id, row, true)
+
+func _weapon_tactical_guide(item_id: String, row: Dictionary) -> String:
+	var fire_rate := float(row.get("fire_rate", 0.0))
+	var projectile_type := str(row.get("projectile_type", "bullet"))
+	var item_level := SaveManager.get_item_level(item_id)
+	var position := _loc(
+		"%s属性 · %s；基础射速 %.2f 发/秒，属于%s。",
+		"%s · %s; base fire rate %.2f rounds/sec, a %s weapon."
+	) % [
+		LocalizationManager.text(_element_name(str(row.get("element", "physical")))),
+		_projectile_type_name(projectile_type),
+		fire_rate,
+		_weapon_cadence_name(fire_rate),
+	]
+	var standard_cap := SaveManager.weapon_standard_growth_cap_from_row(row)
+	var growth := _loc(
+		"1-%d级每级提高单发伤害 8%%、射速 2.5%%。",
+		"Levels 1-%d add 8%% shot damage and 2.5%% fire rate per level."
+	) % standard_cap
+	var segments: Array = row.get("level_growth_segments", [])
+	if not segments.is_empty():
+		var segment: Dictionary = segments[0] if segments[0] is Dictionary else {}
+		growth += _loc(
+			" %d-%d级为独享延伸段，每级继续增加 %.1f%% 伤害，基础射速成长停在前段上限。",
+			" Levels %d-%d are an exclusive extension, adding %.1f%% damage per level while base fire-rate growth stays capped at the earlier tier."
+		) % [int(segment.get("from_level", standard_cap + 1)), int(segment.get("to_level", row.get("max_level", standard_cap))), float(segment.get("atk_growth_per_level", 0.08)) * 100.0]
+	var special: Dictionary = row.get("special", {})
+	var pellet_growth_var: Variant = special.get("pellet_growth", [])
+	var pellet_growth: Array = pellet_growth_var if pellet_growth_var is Array else []
+	if not pellet_growth.is_empty():
+		var pellet_steps: Array[String] = []
+		for step_var in pellet_growth:
+			var step: Dictionary = step_var if step_var is Dictionary else {}
+			pellet_steps.append(_loc("Lv%d 为 %d 枚", "Lv%d: %d pellets") % [int(step.get("from_level", 1)), int(step.get("pellets", 1))])
+		growth += _loc(" 散弹阶梯：%s。", " Pellet progression: %s.") % " / ".join(pellet_steps)
+	return _tactical_guide_text(
+		_loc("属性与定位", "Role & Attribute"), position,
+		_loc("核心特性", "Core Traits"), _weapon_feature_text(row, item_level),
+		_loc("成长方式", "Growth"), growth,
+		_loc("使用建议", "How to Use"), _weapon_usage_text(projectile_type)
+	)
+
+func _weapon_cadence_name(fire_rate: float) -> String:
+	if fire_rate >= 5.0:
+		return _loc("高速持续输出", "rapid sustained-fire")
+	if fire_rate >= 4.0:
+		return _loc("偏高射速持续输出", "fast sustained-fire")
+	if fire_rate >= 3.0:
+		return _loc("均衡射速", "balanced-cadence")
+	return _loc("低射速重击", "slow, heavy-hitting")
+
+func _weapon_feature_text(row: Dictionary, item_level := 1) -> String:
+	var special: Dictionary = row.get("special", {})
+	var features: Array[String] = []
+	if int(special.get("pellets", 0)) > 0:
+		var current_pellets := SaveManager.weapon_pellet_count_from_row(row, item_level)
+		var max_pellets := int(special.get("pellets", current_pellets))
+		var pellet_text := _loc(
+			"当前每次发射 %d 枚散弹，以 %d° 扇面覆盖多个目标",
+			"Currently fires %d pellets across a %d° fan to cover multiple targets"
+		) % [current_pellets, int(special.get("spread", 0))]
+		if current_pellets < max_pellets:
+			pellet_text += _loc("；满级成长至 %d 枚", "; grows to %d at max level") % max_pellets
+		pellet_text += _loc("；可与多重射击和角色齐射叠加", "; stacks with Multishot and character barrages")
+		features.append(pellet_text)
+	elif int(special.get("chain", 0)) > 0:
+		var chain_text := _loc(
+			"命中后额外连锁 %d 个目标",
+			"Chains to %d additional targets after the first hit"
+		) % int(special.get("chain", 0))
+		if special.has("chain_falloff"):
+			chain_text += _loc(
+				"，每跳保留 %.0f%% 伤害",
+				", retaining %.0f%% damage per jump"
+			) % (float(special.get("chain_falloff", 1.0)) * 100.0)
+		features.append(chain_text)
+	if int(special.get("pellets", 0)) <= 0 and float(special.get("spread", 0.0)) > 0.0:
+		features.append(_loc("弹道具有 %d° 扩散范围", "Projectiles use a %d° spread") % int(special.get("spread", 0)))
+	if int(special.get("pierce", 0)) > 0:
+		features.append(_loc(
+			"弹体自带穿透 +%d，可沿直线贯穿敌群",
+			"Built-in +%d pierce lets each shot pass through a line of enemies"
+		) % int(special.get("pierce", 0)))
+	if float(special.get("splash", 0.0)) > 0.0:
+		features.append(_loc("命中产生 %d 范围爆炸", "Impact creates an explosion with %d radius") % int(special.get("splash", 0)))
+	if float(special.get("cloud", 0.0)) > 0.0:
+		features.append(_loc(
+			"抛射命中留下 %d 范围毒云，并施加 %.0f%% 毒素效果",
+			"Lobbed hits leave a %d-radius toxic cloud with a %.0f%% poison effect"
+		) % [int(special.get("cloud", 0)), float(special.get("poison", 0.0)) * 100.0])
+	var burn_ratio := float(special.get("burn", special.get("burn_ratio", 0.0)))
+	if burn_ratio > 0.0:
+		features.append(_loc("持续命中会施加 %.0f%% 灼烧", "Sustained hits apply a %.0f%% burn") % (burn_ratio * 100.0))
+	if float(special.get("slow", 0.0)) > 0.0:
+		features.append(_loc("命中施加 %.0f%% 减速", "Hits apply a %.0f%% slow") % (float(special.get("slow", 0.0)) * 100.0))
+	if int(special.get("overload_hits", 0)) > 0:
+		features.append(_loc(
+			"累计 %d 次命中触发 %.2f× 过载打击",
+			"Every %d accumulated hits trigger a %.2f× Overload strike"
+		) % [int(special.get("overload_hits", 0)), float(special.get("overload_damage_mult", 1.0))])
+	if int(special.get("combustion_max_stacks", 0)) > 0:
+		features.append(_loc(
+			"灼烧叠至 %d 层触发燃爆扩散，最多波及 %d 个目标",
+			"At %d burn stacks, Combustion spreads to as many as %d targets"
+		) % [int(special.get("combustion_max_stacks", 0)), int(special.get("combustion_max_targets", 0))])
+	if int(special.get("high_heat_shots", 0)) > 0:
+		features.append(_loc(
+			"每 %d 发高热射击后进入 %d 发散热节奏",
+			"Cycles through %d high-heat shots followed by %d venting shots"
+		) % [int(special.get("high_heat_shots", 0)), int(special.get("vent_shots", 0))])
+	if int(special.get("brittle_hits", 0)) > 0:
+		features.append(_loc(
+			"累计 %d 次命中触发碎冰连爆，最多波及 %d 个目标",
+			"Every %d hits trigger a Shatter burst against as many as %d targets"
+		) % [int(special.get("brittle_hits", 0)), int(special.get("shatter_max_targets", 0))])
+	if int(special.get("judgment_hits", 0)) > 0:
+		features.append(_loc(
+			"累计 %d 次命中降下裁决，造成 %.2f× 伤害并穿透 %.0f%% 护甲",
+			"Every %d hits invoke Judgment for %.2f× damage with %.0f%% armor penetration"
+		) % [int(special.get("judgment_hits", 0)), float(special.get("judgment_damage_mult", 1.0)), float(special.get("judgment_armor_penetration", 0.0)) * 100.0])
+	if features.is_empty():
+		features.append(_loc("稳定单发弹道，没有额外扩散或触发条件", "Stable single-shot ballistics with no spread or trigger condition"))
+	return _loc("；", "; ").join(features) + _loc("。", ".")
+
+func _weapon_usage_text(projectile_type: String) -> String:
+	match projectile_type:
+		"flame", "apocalypse_inferno_stream":
+			return _loc("持续压住密集尸群，让灼烧与燃爆充分叠加；频繁切换孤立目标会损失持续命中收益。", "Hold fire on dense groups so Burn and Combustion can build; frequent swaps between isolated targets waste sustained-hit value.")
+		"ice_bolt", "apocalypse_absolute_zero_bolt":
+			return _loc("优先控制最接近防线或移动最快的敌人，让减速与碎冰为整条防线争取时间。", "Prioritize the closest or fastest enemies so Slow and Shatter buy time for the entire defense.")
+		"chain", "apocalypse_chain":
+			return _loc("优先瞄准尸群前排或中央目标，让电弧向周围扩散；面对孤立目标时连锁收益较低。", "Aim at the front or center of a group so arcs can spread; chain value drops against isolated targets.")
+		"lob":
+			return _loc("把毒云落在敌群汇合处或行进路线前方，利用持续覆盖清理密集目标。", "Place toxic clouds where groups converge or along their path to maximize lingering coverage.")
+		"rail", "apocalypse_golden_law_verdict":
+			return _loc("让瞄准线穿过尽可能多的敌人；对纵向密集队列和高甲目标收益最高。", "Line up as many enemies as possible; it excels against packed columns and armored targets.")
+		"pellet":
+			return _loc("将扇面中心压在密集尸群上，使弹丸分摊到更多目标；对单体时让更多弹丸汇聚于同一目标。", "Center the fan on dense groups to spread pellets; against one target, keep the fan centered so more pellets converge.")
+		"plasma":
+			return _loc("优先射击敌群中心，利用命中爆炸同时削减周围目标；不适合把爆炸浪费在孤立边缘单位上。", "Shoot into the center of groups so each impact damages nearby enemies; avoid wasting explosions on isolated edge targets.")
+		_:
+			return _loc("作为稳定通用主武器，持续锁定最接近防线的威胁；再用弹药卡补足关卡元素克制。", "Use it as a stable general-purpose weapon, focusing the closest threat and adding ammo cards for the level's elemental matchup.")
+
+func _armor_tactical_guide(row: Dictionary) -> String:
+	var resist := str(row.get("resist", "none"))
+	var position := _loc("基地生命倍率 %.0f%%；%s。", "%.0f%% base-HP multiplier; %s.") % [float(row.get("hp_mult", 1.0)) * 100.0, _armor_resist_text(resist)]
+	var traits: Array[String] = []
+	var shield_count := int(row.get("breach_shield", 0))
+	if shield_count > 0:
+		traits.append(_loc("开局提供 %d 层防线屏障，可抵消同等次数的防线突破", "Starts with %d barrier charge(s), negating that many breaches") % shield_count)
+	if int(row.get("counter_charge_hits", 0)) > 0:
+		var counter := _loc(
+			"累计承受 %d 次防线受击后发动 %.1f× 反击，冷却 %.1f 秒",
+			"After %d defense hits, launches a %.1f× counterattack on a %.1f-second cooldown"
+		) % [int(row.get("counter_charge_hits", 0)), float(row.get("counter_damage_mult", 1.0)), float(row.get("counter_cooldown", 0.0))]
+		if float(row.get("counter_restore_ratio", 0.0)) > 0.0:
+			counter += _loc("，并修复 %.1f%% 最大生命", ", restoring %.1f%% max HP") % (float(row.get("counter_restore_ratio", 0.0)) * 100.0)
+		if float(row.get("counter_slow", 0.0)) > 0.0:
+			counter += _loc("、施加 %.0f%% 减速", " and applying a %.0f%% slow") % (float(row.get("counter_slow", 0.0)) * 100.0)
+		if int(row.get("counter_radius", 0)) > 0:
+			counter += _loc(
+				"，覆盖 %d 范围内最多 %d 个目标",
+			" within %d radius across as many as %d targets"
+			) % [int(row.get("counter_radius", 0)), int(row.get("counter_max_targets", 0))]
+		traits.append(counter)
+	if traits.is_empty():
+		traits.append(_loc("以生命与定向抗性提供稳定、常驻的防线容错", "Provides steady, always-on defense through HP and focused resistance"))
+	var growth := _loc(
+		"最高 %d 级；每级按基础生命倍率继续增加 %.1f%% 生命。",
+		"Up to level %d; each level adds %.1f%% HP from the armor's base multiplier."
+	) % [int(row.get("max_level", 35)), float(row.get("level_hp_growth", 0.0)) * 100.0]
+	if float(row.get("endgame_hp_growth_bonus", 0.0)) > 0.0:
+		growth += _loc(" 高等级还会获得额外终局生命成长。", " High levels also gain additional endgame HP growth.")
+	return _tactical_guide_text(
+		_loc("防护定位", "Defense Profile"), position,
+		_loc("核心特性", "Core Traits"), _loc("；", "; ").join(traits) + _loc("。", "."),
+		_loc("成长方式", "Growth"), growth,
+		_loc("使用建议", "How to Use"), _armor_usage_text(row)
+	)
+
+func _armor_resist_text(resist: String) -> String:
+	if resist in ["", "none"]:
+		return _loc("不限定元素抗性，侧重通用生存", "no fixed elemental resistance, focused on general survival")
+	return _loc("重点抵抗%s伤害", "focused resistance to %s damage") % LocalizationManager.text(_element_name(resist))
+
+func _armor_usage_text(row: Dictionary) -> String:
+	var resist := str(row.get("resist", "none"))
+	if float(row.get("counter_slow", 0.0)) > 0.0:
+		return _loc("用于冰霜高压关和近线尸群；反击蓄满后同时控场、反伤和修复，但屏障仍应留给真正的突破。", "Use in frost-heavy stages and close-line swarms; a charged counter controls, retaliates, and repairs, but barrier charges should still be saved for real breaches.")
+	if float(row.get("counter_restore_ratio", 0.0)) > 0.0:
+		return _loc("适合持续承压的长战斗；反击兼具清线与修复，避免把屏障浪费在可安全击杀的零散敌人上。", "Best in long fights under sustained pressure; its counter clears and repairs, so avoid wasting barriers on stragglers that can be killed safely.")
+	if int(row.get("counter_charge_hits", 0)) > 0:
+		return _loc("面对对应属性和高频防线受击时价值最高；让反击承担清线，但不要主动放任敌人突破来充能。", "Best against its matching damage type and frequent defense hits; let the counter help clear, but never allow breaches just to charge it.")
+	if int(row.get("breach_shield", 0)) > 0:
+		return _loc("适合属性混杂或未知威胁，靠通用生命与屏障兜底；用于容错，不替代及时清理近线敌人。", "Use against mixed or unknown threats for broad HP and barrier insurance; it adds forgiveness but does not replace clearing enemies near the line.")
+	return _loc(
+		"在%s敌人为主的章节使用，能把有限的护甲位转化为更稳定的有效生命；混合属性关则需权衡覆盖率。",
+		"Equip it when %s enemies dominate to turn the armor slot into more effective HP; weigh its coverage in mixed-element stages."
+	) % LocalizationManager.text(_element_name(resist))
+
+func _chip_tactical_guide(row: Dictionary) -> String:
+	var stat := str(row.get("stat", "damage_mult"))
+	var value := float(row.get("value", 0.0))
+	var position := _loc(
+		"主属性为%s，1级提供 %s；这是常驻加成，会进入实际战斗计算。",
+		"Primary stat: %s, granting %s at level 1; this always-on bonus is used in live combat."
+	) % [_tactical_stat_name(stat), _tactical_stat_value(stat, value)]
+	var secondary: Dictionary = row.get("secondary_stats", {})
+	var traits := _loc("没有附加触发条件，效果始终生效。", "No trigger condition; its effect is always active.")
+	if not secondary.is_empty():
+		var feature_parts: Array[String] = []
+		for secondary_stat in secondary.keys():
+			feature_parts.append(_chip_secondary_feature(str(secondary_stat), float(secondary.get(secondary_stat, 0.0))))
+		traits = _loc("同时强化", "Also improves ") + _loc("、", ", ").join(feature_parts) + _loc("。", ".")
+	var level_growth := float(row.get("level_value_growth", 0.0))
+	var growth := _loc("最高 %d 级；主属性每级按基础值成长 %.1f%%。", "Up to level %d; the primary stat grows by %.1f%% of its base value per level.") % [int(row.get("max_level", 35)), level_growth * 100.0]
+	if is_zero_approx(level_growth):
+		growth = _loc("最高 %d 级；主属性固定为 %s，不随等级按百分比膨胀。", "Up to level %d; the primary %s bonus is fixed rather than percentage-scaled by level.") % [int(row.get("max_level", 20)), _tactical_stat_value(stat, value)]
+	if not row.get("secondary_level_growth", {}).is_empty():
+		growth += _loc(" 附加机制也会随等级同步增强。", " Its secondary mechanics also improve with level.")
+	return _tactical_guide_text(
+		_loc("芯片定位", "Chip Profile"), position,
+		_loc("核心特性", "Core Traits"), traits,
+		_loc("成长方式", "Growth"), growth,
+		_loc("使用建议", "How to Use"), _chip_usage_text(stat, secondary)
+	)
+
+func _tactical_stat_name(stat: String) -> String:
+	match stat:
+		"damage_mult": return _loc("主炮伤害", "weapon damage")
+		"fire_rate_mult": return _loc("主炮射速", "weapon fire rate")
+		"crit_rate": return _loc("暴击率", "critical chance")
+		"pierce_bonus": return _loc("弹道穿透", "projectile pierce")
+		"base_hp_mult": return _loc("基地生命", "base HP")
+		"breach_damage_reduction": return _loc("防线突破减伤", "breach damage reduction")
+		"gold_mult": return _loc("金币收益", "gold income")
+		"element_damage_mult": return _loc("元素伤害", "elemental damage")
+		"slow_strength_mult": return _loc("减速强度", "slow strength")
+		"chain_bonus": return _loc("连锁目标", "chain targets")
+		"armor_penetration": return _loc("护甲穿透", "armor penetration")
+		_: return str(stat)
+
+func _tactical_stat_value(stat: String, value: float) -> String:
+	if stat in ["pierce_bonus", "chain_bonus"]:
+		return "+%d" % int(round(value))
+	return "+%.1f%%" % (value * 100.0)
+
+func _chip_secondary_feature(stat: String, value: float) -> String:
+	match stat:
+		"chain_retention": return _loc("连锁衰减保留 +%.0f%%", "chain retention +%.0f%%") % (value * 100.0)
+		"overload_efficiency": return _loc("过载效率 +%.0f%%", "Overload efficiency +%.0f%%") % (value * 100.0)
+		"burn_efficiency": return _loc("灼烧效率 +%.0f%%", "Burn efficiency +%.0f%%") % (value * 100.0)
+		"combustion_stack_efficiency": return _loc("燃爆叠层效率 +%.0f%%", "Combustion stack efficiency +%.0f%%") % (value * 100.0)
+		"combustion_damage_mult": return _loc("燃爆伤害 +%.0f%%", "Combustion damage +%.0f%%") % (value * 100.0)
+		"brittle_efficiency": return _loc("脆化效率 +%.0f%%", "Brittle efficiency +%.0f%%") % (value * 100.0)
+		"shatter_damage_mult": return _loc("碎冰伤害 +%.0f%%", "Shatter damage +%.0f%%") % (value * 100.0)
+		"judgment_efficiency": return _loc("裁决效率 +%.0f%%", "Judgment efficiency +%.0f%%") % (value * 100.0)
+		"verdict_damage_mult": return _loc("裁决伤害 +%.0f%%", "Verdict damage +%.0f%%") % (value * 100.0)
+		_: return "%s %s" % [_tactical_stat_name(stat), _tactical_stat_value(stat, value)]
+
+func _chip_usage_text(stat: String, secondary: Dictionary) -> String:
+	if secondary.has("overload_efficiency"):
+		return _loc("与雷霆连锁和过载机制配套，尸群越密集越能同时兑现元素、连锁和射速收益。", "Pair with Thunder chain and Overload mechanics; denser groups let its elemental, chain, and fire-rate bonuses work together.")
+	if secondary.has("combustion_stack_efficiency"):
+		return _loc("与灼烧、燃爆和持续命中配套，优先用于能稳定叠层的火焰构筑。", "Pair with Burn, Combustion, and sustained hits; use it in fire builds that can stack reliably.")
+	if secondary.has("brittle_efficiency"):
+		return _loc("与减速、脆化和碎冰配套，适合用控制换取安全时间并清理密集目标。", "Pair with Slow, Brittle, and Shatter to trade control for safety and clear packed targets.")
+	if secondary.has("judgment_efficiency"):
+		return _loc("与物理暴击、穿透和裁决配套，对高甲目标及需要直线贯穿的关卡最有效。", "Pair with physical crit, pierce, and Judgment; strongest against armored targets and stages that reward lined-up shots.")
+	match stat:
+		"damage_mult": return _loc("没有构筑门槛，适合任何依赖主炮输出的阵容，也是最直接的通用增伤选择。", "No build requirement: use it in any weapon-damage loadout as the most direct general damage option.")
+		"fire_rate_mult": return _loc("适合依赖命中次数、叠层或触发频率的武器；单发很重但射速低的武器提升体感尤其明显。", "Best for weapons that depend on hit count, stacking, or trigger frequency; it also smooths slow heavy weapons.")
+		"crit_rate": return _loc("适合已有高单发伤害或暴击联动的构筑；伤害波动会增加，不提供控制或生存。", "Best with high shot damage or crit synergies; it raises variance and adds no control or survival.")
+		"pierce_bonus": return _loc("用于纵向密集尸群，让一发弹道贯穿更多目标；对无法利用直线队列的单体战收益有限。", "Use against enemies packed in a line so each projectile hits more targets; limited value in isolated single-target fights.")
+		"base_hp_mult": return _loc("在输出够用但容易漏怪时装备，提高基地容错；不会直接加快清怪速度。", "Equip when damage is adequate but leaks are costly; it improves base forgiveness without speeding up kills.")
+		"breach_damage_reduction": return _loc("针对会频繁触线或造成高额防线伤害的章节，和高生命护甲搭配可进一步稳定防线。", "Use in stages with frequent breaches or heavy base damage; pairing it with high-HP armor further stabilizes the line.")
+		"gold_mult": return _loc("用于压力可控的刷取与成长关；若当前关卡已经守不住，应先换回输出或生存芯片。", "Use for farming and progression when pressure is controlled; switch back to damage or defense if the stage is already unsafe.")
+		"element_damage_mult": return _loc("在主武器、弹药卡或技能能稳定造成元素伤害时使用；纯物理且无元素转换时收益较低。", "Use when your weapon, ammo card, or skills reliably deal elemental damage; value is lower in a purely physical build without conversion.")
+		_: return _loc("围绕它的主属性选择阵容，让单一芯片位解决最明确的输出或生存短板。", "Build around its primary stat so the single chip slot addresses your clearest damage or survival gap.")
+
+func _pet_tactical_guide(row: Dictionary) -> String:
+	var skill: Dictionary = row.get("pet_skill", {})
+	var has_attack := row.has("damage") and row.has("fire_rate")
+	var position := ""
+	if has_attack:
+		position = _loc(
+			"%s属性 · %s协战；基础攻击频率 %.2f 次/秒，并持续自动攻击。",
+			"%s · %s support; attacks automatically at a base %.2f attacks/sec."
+		) % [LocalizationManager.text(_element_name(str(row.get("element", "physical")))), LocalizationManager.text(_role_name(str(row.get("role", "damage")))), float(row.get("fire_rate", 0.0))]
+	else:
+		position = _loc("%s型非攻击宠物，重点提供常驻支援与自动功能。", "A non-attacking %s support pet focused on passive bonuses and automatic utility.") % LocalizationManager.text(_role_name(str(row.get("role", "repair"))))
+	var skill_name := LocalizationManager.text(str(skill.get("name", _loc("专属协战", "Signature Support"))))
+	var traits := "%s：%s" % [skill_name, _pet_skill_tactical_text(row)]
+	var growth_parts: Array[String] = []
+	if row.has("damage"):
+		growth_parts.append(_loc("协战伤害每级 +%.1f%%", "support damage +%.1f%% per level") % (float(row.get("level_damage_growth", 0.0)) * 100.0))
+	if row.has("heal_per_wave"):
+		growth_parts.append(_loc("波次整备、持续维修与应急救援随等级增强", "wave prep, continuous repair, and emergency aid improve with level"))
+	if row.has("gold_mult"):
+		growth_parts.append(_loc("金币收益与战场回收效率随等级增强", "gold income and battlefield salvage improve with level"))
+	if not row.get("level_stat_growth", {}).is_empty():
+		growth_parts.append(_loc("常驻队伍加成同步成长", "passive team bonuses scale alongside it"))
+	var growth := _loc("最高 %d 级；", "Up to level %d; ") % int(row.get("max_level", 30))
+	growth += _loc("，", ", ").join(growth_parts) + _loc("。", ".")
+	return _tactical_guide_text(
+		_loc("协战定位", "Support Role"), position,
+		_loc("专属机制", "Signature Mechanic"), traits,
+		_loc("成长方式", "Growth"), growth,
+		_loc("使用建议", "How to Use"), _pet_usage_text(row)
+	)
+
+func _pet_skill_tactical_text(row: Dictionary) -> String:
+	var skill: Dictionary = row.get("pet_skill", {})
+	match str(skill.get("kind", "")):
+		"overclock":
+			return _loc("每 %.0f 秒启动一次，持续 %.1f 秒，同时提高自身射速和伤害。", "Triggers every %.0f seconds for %.1f seconds, boosting its own fire rate and damage.") % [float(skill.get("cooldown", 0.0)), float(skill.get("duration", 0.0))]
+		"area_blast":
+			return _loc("每 %.0f 秒以当前高威胁目标为中心发动 %d 范围爆发，并强化对应元素状态。", "Every %.0f seconds, blasts a %d-radius area around the current high-priority target and strengthens its elemental status.") % [float(skill.get("cooldown", 0.0)), int(skill.get("radius", 0))]
+		"multi_strike":
+			return _loc("每 %.0f 秒同时打击 %d 个高威胁目标；每提升 %d 级再增加目标数。", "Every %.0f seconds, strikes %d high-priority targets; target count rises every %d levels.") % [float(skill.get("cooldown", 0.0)), int(skill.get("target_count", 1)), int(skill.get("extra_target_every", 10))]
+		"repair":
+			return _loc("每波开始整备，战斗中定时维修；基地低于 %.0f%% 生命时还会触发有冷却的应急救援。", "Prepares at each wave, repairs periodically during combat, and triggers a cooldown-limited emergency heal below %.0f%% base HP.") % (float(row.get("emergency_threshold", 0.35)) * 100.0)
+		"wave_salvage":
+			return _loc("每波自动结算约 %.1f 只敌人的等效击杀收益，同时提高常规金币获取。", "Each wave automatically grants roughly %.1f enemies' worth of kill income while also raising normal gold gain.") % float(skill.get("kill_equivalent", 0.0))
+		"fire_flyby":
+			return _loc("每 %.1f 秒俯冲打击 %d 个目标，并留下最多 %d 片持续 %.1f 秒的燃烧轨迹。", "Every %.1f seconds, dives across %d targets and leaves up to %d burning trails for %.1f seconds.") % [float(skill.get("cooldown", 0.0)), int(skill.get("target_count", 1)), int(skill.get("trail_max_concurrent", 1)), float(skill.get("trail_duration", 0.0))]
+		"golden_mark":
+			return _loc("每 %.1f 秒标记高威胁目标 %.1f 秒，使其额外承伤 %.0f%%，并修复 %.1f%% 基地生命。", "Every %.1f seconds, marks a high-priority target for %.1f seconds, increasing damage taken by %.0f%% and repairing %.1f%% base HP.") % [float(skill.get("cooldown", 0.0)), float(skill.get("mark_duration", 0.0)), float(skill.get("mark_damage_amp", 0.0)) * 100.0, float(skill.get("repair_ratio", 0.0)) * 100.0]
+		_:
+			return _loc("自动寻找合适时机触发，补足当前阵容的输出或生存短板。", "Triggers automatically when useful to cover the loadout's damage or survival gap.")
+
+func _pet_usage_text(row: Dictionary) -> String:
+	var kind := str(row.get("pet_skill", {}).get("kind", ""))
+	match kind:
+		"repair": return _loc("适合输出已经够用、但容易在漏怪或爆发波次中失守的阵容；它不攻击，价值全部来自保线。", "Use when damage is sufficient but leaks or burst waves threaten the base; it does not attack, so all value comes from keeping the line alive.")
+		"wave_salvage": return _loc("用于压力可控的成长与刷取关；高压关若缺输出或控制，应换成对应协战宠物。", "Use in manageable farming and progression stages; swap to combat support when high-pressure stages need damage or control.")
+		"overclock": return _loc("通用持续输出选择，适合补稳定火力；与射速、主炮伤害加成组合时收益更直观。", "A general sustained-damage pick that adds reliable firepower, especially alongside fire-rate and weapon-damage bonuses.")
+		"area_blast": return _loc("让它的范围技能覆盖密集尸群；冰霜版本偏控线，火焰版本偏范围伤害与状态叠加。", "Keep its area skill centered on dense groups; frost variants favor control, while fire variants favor area damage and status buildup.")
+		"multi_strike": return _loc("适合同时出现多个高威胁目标的波次，目标越分散，自动多目标打击越能避免主炮来回切换。", "Best when several threats appear at once; its automatic multi-target strikes reduce the need for the main weapon to keep switching.")
+		"fire_flyby": return _loc("用于密集长波次，让俯冲与燃烧轨迹持续覆盖敌人行进路线；孤立单体不能充分利用轨迹。", "Use in long, dense waves so dives and burning trails cover enemy paths; isolated targets cannot fully exploit the trails.")
+		"golden_mark": return _loc("优先放大 Boss 或高甲精英承伤，同时提供少量修复；适合需要集中火力处理关键目标的阵容。", "Use to amplify damage against bosses or armored elites while adding a small repair; ideal for loadouts focused on priority targets.")
+		_: return _loc("根据它提供的常驻加成补足阵容短板，并让自动技能承担主炮不擅长的目标类型。", "Use its passive bonuses to cover a loadout gap and let its automatic skill handle targets the main weapon struggles with.")
+
+func _tactical_guide_text(label_a: String, body_a: String, label_b: String, body_b: String, label_c: String, body_c: String, label_d: String, body_d: String) -> String:
+	return "%s：%s\n%s：%s\n%s：%s\n%s：%s" % [label_a, body_a, label_b, body_b, label_c, body_c, label_d, body_d]
 
 func _make_skill_levels_section(row: Dictionary, accent: Color, current_level: int) -> PanelContainer:
 	var section := _make_section_panel("各级加成", accent, SKILL_DETAIL_SECTION_TITLE_FONT_SIZE)
@@ -1939,6 +2321,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 
 	var content_scroll := ScrollContainer.new()
 	content_scroll.name = "DetailScroll"
+	content_scroll.scroll_deadzone = DETAIL_SCROLL_DEADZONE
 	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2040,6 +2423,13 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			affinity_pill.name = "AffinityTag%d" % affinity_index
 			aff_row.add_child(affinity_pill)
 			affinity_index += 1
+
+	# Keep the final growth line clear of both the scroll viewport edge and the
+	# fixed 2x2 action row. The extra range also makes the last drag visibly move
+	# instead of ending exactly where the label's descenders meet the frame.
+	detail_content.add_child(_make_detail_scroll_bottom_clearance())
+	content_scroll.mouse_force_pass_scroll_events = true
+	_configure_detail_scroll_surface(detail_content)
 
 	# === Action buttons row ===
 	var spacer := Control.new()
@@ -2332,7 +2722,7 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	var row := VBoxContainer.new()
 	row.name = "SignatureUpgradeLayout"
 	row.add_theme_constant_override("separation", 7)
-	row.custom_minimum_size = Vector2(0, 158)
+	row.custom_minimum_size = Vector2(0, 178)
 	var lvl := SaveManager.get_sig_skill_level(character_id)
 	var maxed := lvl >= SaveManager.SIG_SKILL_MAX_LEVEL
 	var top_row := HBoxContainer.new()
@@ -2366,6 +2756,9 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	growth_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(CHARACTER_DETAIL_SIG_GROWTH_FONT_SIZE))
 	growth_label.add_theme_color_override("font_color", Color(0.66, 0.82, 0.9, 1))
 	growth_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	growth_label.custom_minimum_size = Vector2(0, 52)
+	growth_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	growth_label.clip_text = false
 	row.add_child(growth_label)
 	return row
 

@@ -822,6 +822,23 @@ func get_weapon_damage_multiplier(weapon_id: String) -> float:
 func weapon_damage_multiplier_at_level(weapon: Dictionary, weapon_level: int, fire_rate_profile := "control") -> float:
 	return weapon_level_damage_multiplier_from_row(weapon, weapon_level) * _weapon_endgame_growth_multiplier(weapon, weapon_level, fire_rate_profile)
 
+func weapon_pellet_count_from_row(weapon: Dictionary, weapon_level: int) -> int:
+	var special_var: Variant = weapon.get("special", {})
+	var special: Dictionary = special_var if special_var is Dictionary else {}
+	var authored_cap := maxi(1, int(special.get("pellets", 1)))
+	var growth_var: Variant = special.get("pellet_growth", [])
+	var growth: Array = growth_var if growth_var is Array else []
+	if growth.is_empty():
+		return authored_cap
+	var resolved := authored_cap
+	var safe_level := maxi(1, weapon_level)
+	for step_var in growth:
+		var step: Dictionary = step_var if step_var is Dictionary else {}
+		if safe_level < int(step.get("from_level", 1)):
+			break
+		resolved = int(step.get("pellets", resolved))
+	return clampi(resolved, 1, authored_cap)
+
 func weapon_level_damage_multiplier_from_row(weapon: Dictionary, weapon_level: int) -> float:
 	var level_offset := maxi(weapon_level - 1, 0)
 	var segments_var: Variant = weapon.get("level_growth_segments", [])
@@ -1215,7 +1232,7 @@ func _loadout_offense_multiplier(fire_rate_profile := "control") -> float:
 	var weapon_level := get_item_level(weapon_id)
 	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
 	char_atk *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.45 * float(maxi(char_level - 1, 0))
-	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
+	var weapon_dps := maxf(_weapon_effective_dps(weapon, weapon_level) / 4.0, 0.35)
 	weapon_dps *= weapon_level_damage_multiplier_from_row(weapon, weapon_level)
 	var weapon_growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
 	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_growth_level - 1, 0))
@@ -1351,8 +1368,8 @@ func _main_output_multiplier(fire_rate_profile := "control") -> float:
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var char_atk := float(character.get("base_atk", 100.0)) / 100.0 * float(character.get("fire_rate_mod", 1.0))
 	char_atk *= 1.0 + float(character.get("atk_growth", 0.08)) * 0.45 * float(maxi(get_item_level(character_id) - 1, 0))
-	var weapon_dps := maxf(_weapon_effective_dps(weapon) / 4.0, 0.35)
 	var weapon_level := get_item_level(weapon_id)
+	var weapon_dps := maxf(_weapon_effective_dps(weapon, weapon_level) / 4.0, 0.35)
 	weapon_dps *= weapon_level_damage_multiplier_from_row(weapon, weapon_level)
 	var weapon_growth_level := weapon_standard_growth_level_from_row(weapon, weapon_level)
 	weapon_dps *= 1.0 + 0.025 * float(maxi(weapon_growth_level - 1, 0))
@@ -1844,12 +1861,12 @@ func _power_skill_effect(skill_id: String, level: int) -> Dictionary:
 				chosen = entry.get("effect", {})
 	return chosen
 
-func _weapon_effective_dps(weapon: Dictionary) -> float:
+func _weapon_effective_dps(weapon: Dictionary, weapon_level := 1) -> float:
 	if weapon.is_empty():
 		return 4.0
 	var effective := float(weapon.get("base_atk_coef", 1.0)) * float(weapon.get("fire_rate", 4.0))
 	var special: Dictionary = weapon.get("special", {})
-	var pellets := maxi(1, int(special.get("pellets", 1)))
+	var pellets := weapon_pellet_count_from_row(weapon, weapon_level)
 	if pellets > 1:
 		effective *= 1.0 + float(pellets - 1) * 0.62
 	effective *= 1.0 + 0.18 * float(special.get("pierce", 0))

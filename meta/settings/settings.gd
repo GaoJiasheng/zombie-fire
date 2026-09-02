@@ -20,6 +20,12 @@ func setup(main: Node, payload := {}) -> void:
 	_open_theme_on_ready = payload is Dictionary and bool(payload.get("open_theme_appearance", false))
 
 func _ready() -> void:
+	# Fire-rate lab is an export-feature flag. Resolve it before sizing the row:
+	# the responsive flow keeps the two switches on the first line and gives the
+	# lab its own full-width second line. Previously the scene default stayed
+	# hidden until _refresh_accessibility(), so all three controls retained stale
+	# HBox minima and expanded the panel beyond tall-iPhone safe width.
+	_button("AccessibilityRow/FireRateLabButton").visible = SettingsManager.has_fire_rate_lab()
 	_apply_layout()
 	_apply_style()
 	_button("SoundButton").pressed.connect(_on_sound)
@@ -55,7 +61,8 @@ func _apply_layout() -> void:
 	$Center/Panel.custom_minimum_size = Vector2(880, 0)
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
-	var compact_safe_layout := safe_height < 1840.0
+	var fire_rate_lab_visible := _button("AccessibilityRow/FireRateLabButton").visible
+	var compact_safe_layout := safe_height < 1840.0 or (fire_rate_lab_visible and safe_height < 2160.0)
 	# On shorter safe areas (large Dynamic Island + home indicator), the full
 	# settings stack needs a denser authored rhythm. This keeps the whole panel
 	# inside the safe rect without shrinking type or touch targets.
@@ -70,13 +77,13 @@ func _apply_layout() -> void:
 	for path in ["SoundButton", "QualityButton", "LanguageButton", "ThemeButton", "DataRow/BackupButton", "DataRow/RestoreButton", "ResetButton"]:
 		_button(path).custom_minimum_size = Vector2(0, 88)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/HapticsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/HelpButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
-		_button(path).custom_minimum_size = Vector2(0, 80)
+		_button(path).custom_minimum_size = Vector2(0, 88 if path.begins_with("AccessibilityRow/") else 80)
 	var info_height := 148 if LocalizationManager.is_english() else 144
 	(_vbox.get_node("InfoBody") as Label).custom_minimum_size = Vector2(
 		0,
 		info_height if compact_safe_layout else (180 if LocalizationManager.is_english() else 144)
 	)
-	_button("BackButton").custom_minimum_size = Vector2(0, 96)
+	_button("BackButton").custom_minimum_size = Vector2(0, 88 if compact_safe_layout and fire_rate_lab_visible else 96)
 
 func _button(path: String) -> Button:
 	return _vbox.get_node(path) as Button
@@ -100,6 +107,7 @@ func _apply_style() -> void:
 		_style_button(_button(path), UiKit.CYAN, 24)
 	for path in ["AccessibilityRow/ReduceEffectsButton", "AccessibilityRow/FireRateLabButton", "AboutRow/PrivacyButton", "AboutRow/SupportButton"]:
 		_style_button(_button(path), UiKit.CYAN, 22)
+	_style_button(_button("AccessibilityRow/FireRateLabButton"), UiKit.CYAN, 18)
 	_style_button(_button("BackButton"), UiKit.CYAN, 28)
 
 func _style_slider(slider: HSlider) -> void:
@@ -128,7 +136,9 @@ func _style_slider(slider: HSlider) -> void:
 func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	var button_size := Vector2(880, maxf(button.custom_minimum_size.y, 88.0))
 	var parent := button.get_parent()
-	if parent is HBoxContainer:
+	if parent != null and parent.name == "AccessibilityRow":
+		button_size = Vector2(880, 88) if button.name == "FireRateLabButton" else Vector2(432, 88)
+	elif parent is HBoxContainer:
 		var sibling_count := 0
 		for sibling in (parent as HBoxContainer).get_children():
 			if sibling is Control and (sibling as Control).visible:
@@ -138,7 +148,7 @@ func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 		else:
 			button_size = Vector2(440, 88)
 	if button.name == "BackButton":
-		button_size = Vector2(880, 96)
+		button_size = Vector2(880, maxf(button.custom_minimum_size.y, 88.0))
 	var primary := accent == UiKit.GOLD
 	UiKit.apply_armored_button(button, primary, button_size, font_size, not button.disabled)
 
@@ -148,7 +158,11 @@ func _toggle_surface_style(border: Color, fill: Color) -> StyleBox:
 		var surface_tint := fill.lerp(Color(border.r, border.g, border.b, 1.0), 0.34)
 		surface_tint.a = 1.0
 		(style as StyleBoxTexture).modulate_color = surface_tint
-	style.content_margin_left = 28.0
+	# Toggle labels share the same metal surface as the switch track. The left
+	# cap carries a bright beveled corner, so the generic 28px inset made the copy
+	# look glued to that border on tall iPhones. Reserve a dedicated text-safe
+	# gutter while leaving the right-side switch and its touch target untouched.
+	style.content_margin_left = 48.0
 	style.content_margin_right = 124.0
 	return style
 
@@ -335,7 +349,21 @@ func _refresh_accessibility() -> void:
 	var lab_button := _button("AccessibilityRow/FireRateLabButton")
 	lab_button.visible = SettingsManager.has_fire_rate_lab()
 	lab_button.text = LocalizationManager.text("攻速实验：%s") % SettingsManager.fire_rate_profile_label()
+	_layout_accessibility_row()
 	_fit_accessibility_pair_text.call_deferred()
+
+func _layout_accessibility_row() -> void:
+	var row := _vbox.get_node("AccessibilityRow") as HFlowContainer
+	var visible_buttons: Array[Button] = []
+	for child in row.get_children():
+		if child is Button and (child as Button).visible:
+			visible_buttons.append(child as Button)
+	for button in visible_buttons:
+		var button_width := 880.0 if button.name == "FireRateLabButton" else 432.0
+		button.custom_minimum_size = Vector2(button_width, 88.0)
+	row.set_meta("responsive_visible_button_count", visible_buttons.size())
+	row.set_meta("responsive_switch_width", 432.0)
+	row.set_meta("responsive_lab_width", 880.0)
 
 func _fit_accessibility_pair_text() -> void:
 	var pair: Array[Button] = [
