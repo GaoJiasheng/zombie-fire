@@ -3145,6 +3145,17 @@ func _update_boss_hp_bar() -> void:
 		12.0,
 		4.0
 	)
+	_refresh_visible_wave_toast_boss_clearance()
+
+func _refresh_visible_wave_toast_boss_clearance() -> void:
+	if wave_toast_banner == null or not is_instance_valid(wave_toast_banner) or not wave_toast_banner.visible:
+		return
+	var target := _wave_toast_target_position()
+	# A weakness tip can begin before the boss reference and HP band settle on
+	# the following frame. Keep its live position below the now-authoritative
+	# band instead of leaving the original tween aimed at the pre-boss anchor.
+	if wave_toast_banner.position.y < target.y:
+		wave_toast_banner.position.y = target.y
 
 func _boss_hp_percent_text(ratio: float) -> String:
 	var clamped := clampf(ratio, 0.0, 1.0)
