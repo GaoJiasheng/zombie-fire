@@ -12167,6 +12167,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
+		badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
 		var badge_text := UiKit.label("推荐 · %s" % reason, 12, UiKit.GOLD, 2)
