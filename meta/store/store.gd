@@ -500,7 +500,7 @@ func _series_header(series_id: String) -> PanelContainer:
 	panel.set_meta("store_series_id", series_id)
 	panel.set_meta("current_warzone_counter", is_current_counter)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 84 if is_current_counter else 72)
+	panel.custom_minimum_size = Vector2(0, 124 if is_current_counter else 72)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
@@ -515,12 +515,16 @@ func _series_header(series_id: String) -> PanelContainer:
 	)), 24, UiKit.GOLD, 3)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.custom_minimum_size = Vector2(0, 54)
 	title_row.add_child(label)
 	if is_current_counter:
 		var badge := UiKit.semantic_tag_pill(_loc("当前战区克制", "Counters Current Warzone"), "status", 14)
 		badge.name = "CurrentWarzoneCounterBadge"
 		badge.set_meta("counter_series_id", series_id)
-		title_row.add_child(badge)
+		badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		box.add_child(badge)
 	return panel
 
 
