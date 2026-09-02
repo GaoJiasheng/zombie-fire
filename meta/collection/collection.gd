@@ -302,7 +302,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# Equipment cards now also share one bilingual geometry. Previously English
 	# reserved a mostly-empty two-line title block while Chinese compressed its
 	# tags against the title, so changing language visibly reflowed the catalog.
-	var card_height := 330.0 if mode == "characters" else CATALOG_LIST_CARD_HEIGHT
+	var card_height := 370.0 if mode == "characters" else CATALOG_LIST_CARD_HEIGHT
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(card_width, card_height)
@@ -413,9 +413,10 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
 	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y)
-	# The mobile font pass makes a two-line description about 80px tall. Keep a
-	# little metric headroom so the second line never disappears on iOS fonts.
-	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else CATALOG_LIST_TEXT_WIDTH, 120 if mode == "characters" else 104)
+	# Locked English signature previews need up to five lines at the fixed mobile
+	# type size. Reserve their measured 195px plus rounding headroom; the taller
+	# character card keeps this lane and the action button inside its frame.
+	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else CATALOG_LIST_TEXT_WIDTH, 200 if mode == "characters" else 104)
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -734,13 +735,13 @@ func _data_table_name() -> String:
 func _locked_character_teaser(item_id: String) -> String:
 	match item_id:
 		"blaze", "char_blaze":
-			return _loc("专属预告：熔毁轰击 · 锁定强敌连续引爆火焰", "Signature Preview: Meltdown · Repeated firebursts on a priority target")
+			return _loc("专属预告：熔毁轰击 · 锁定强敌连续引爆火焰", "Signature Preview: Meltdown\nRepeated firebursts\non a priority target")
 		"frost", "char_frost":
-			return _loc("专属预告：冰川领域 · 全屏减速并掀起寒潮", "Signature Preview: Glacier · Field-wide Slow and frost waves")
+			return _loc("专属预告：冰川领域 · 全屏减速并掀起寒潮", "Signature Preview: Glacier\nField-wide Slow\nand frost waves")
 		"volt", "char_volt":
-			return _loc("专属预告：雷暴链击 · 连续雷击高威胁目标", "Signature Preview: Storm Chain · Repeated strikes on high-threat targets")
+			return _loc("专属预告：雷暴链击 · 连续雷击高威胁目标", "Signature Preview: Storm Chain\nRepeated strikes on\nhigh-threat targets")
 		_:
-			return _loc("专属预告：钢雨齐射 · 多轮弹幕压制尸潮", "Signature Preview: Steel Rain · Multi-salvo horde suppression")
+			return _loc("专属预告：钢雨齐射 · 多轮弹幕压制尸潮", "Signature Preview: Steel Rain\nMulti-salvo\nhorde suppression")
 
 func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 	if mode == "characters":
