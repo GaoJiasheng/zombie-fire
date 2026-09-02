@@ -1062,6 +1062,12 @@ func _automatic_target_candidates(candidates: Array, origin: Vector2) -> Array[N
 	return []
 
 func _target_has_lethal_inflight_reservation(target: Node) -> bool:
+	# Owner 2026-09-02: the in-flight lethal reservation retargets before a kill is
+	# confirmed and measurably slowed every fixture level (L86/2207 base 91% -> 42%),
+	# so it ships disabled. Data-driven so it can be re-argued with fresh validation.
+	var reservation_cfg: Variant = DataLoader.get_table("economy").get("auto_aim_inflight_reservation", {})
+	if not (reservation_cfg is Dictionary and bool(reservation_cfg.get("enabled", false))):
+		return false
 	if target == null or not is_instance_valid(target):
 		return false
 	var hp_value: Variant = target.get("hp")

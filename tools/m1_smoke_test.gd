@@ -164,13 +164,13 @@ func _initialize() -> void:
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
 	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
 	var scatter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_scattergun")
+	# Owner 2026-09-02: the free scattergun ships with a flat five-pellet fan at every
+	# level. The 99x10 campaign validation was signed off on that contract; a pellet
+	# ladder is a balance change and needs its own approval + re-validation.
 	var pellet_growth: Array = scatter_weapon.get("special", {}).get("pellet_growth", [])
-	_expect(pellet_growth.size() == 3, "scattergun must author the three-step 3/4/5 pellet curve")
-	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 1) == 3, "level-one scattergun must fire exactly three pellets")
-	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 24) == 3, "scattergun must remain at three pellets before level 25")
-	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 25) == 4, "scattergun level 25 must unlock its fourth pellet")
-	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 49) == 4, "scattergun must remain at four pellets before max level")
-	_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, 50) == 5, "max-level scattergun must fire exactly five pellets")
+	_expect(pellet_growth.is_empty(), "free scattergun must not author a pellet ladder without Owner approval")
+	for pellet_level in [1, 24, 25, 49, 50]:
+		_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, pellet_level) == 5, "scattergun must fire five pellets at level %d" % pellet_level)
 	_expect(save_manager.weapon_pellet_count_from_row(starter_weapon, 1) == 1, "weapons without pellet growth must retain their authored projectile count")
 	_verify_starter_projectile_hierarchy(data_loader)
 	_expect(data_loader.level_display_name("level_002") == "002 城市突围", "level display names must hide internal ids")
