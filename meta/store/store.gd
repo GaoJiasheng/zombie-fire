@@ -1818,18 +1818,35 @@ func _english_message(message: String) -> String:
 
 func _show_toast(message: String) -> void:
 	var toast := PanelContainer.new()
+	toast.name = "StoreToast"
 	toast.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	toast.position = Vector2(160, 1500)
 	toast.size = Vector2(760, 96)
 	var label := UiKit.label(message, 18, UiKit.SUCCESS, 2)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	toast.add_child(label)
 	add_child(toast)
+	call_deferred("_position_store_toast", toast)
 	var tween := toast.create_tween()
 	tween.tween_interval(1.4)
 	tween.tween_property(toast, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(toast.queue_free)
+
+
+func _position_store_toast(toast: PanelContainer) -> void:
+	if not is_instance_valid(toast) or not toast.is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(toast) or not toast.is_inside_tree():
+		return
+	var target_y := 1500.0
+	var restore_hint := find_child("RestoreHint", true, false) as Control
+	if restore_hint != null and restore_hint.visible:
+		target_y = restore_hint.global_position.y + restore_hint.size.y + 24.0 - global_position.y
+	var footer := $Root/VBox/Footer as Control
+	var footer_safe_y := footer.global_position.y - global_position.y - toast.size.y - 24.0
+	toast.position = Vector2((size.x - toast.size.x) * 0.5, minf(target_y, footer_safe_y))
 
 
 func _back() -> void:
