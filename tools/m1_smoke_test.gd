@@ -5659,6 +5659,20 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		input_manager.skill_pressed.emit(0)
 		await process_frame
 		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from shortcut signal" % character_key)
+		var active_sequence_id := "vfx_active_%s" % str(battle.character_active_id)
+		var first_cast_sequence = null
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				first_cast_sequence = child
+		_expect(first_cast_sequence != null, "%s first active-skill cast must spawn its signature sequence" % character_key)
+		if first_cast_sequence != null:
+			_expect(bool(first_cast_sequence.use_unscaled_time), "%s active-skill signature must use real-time playback at accelerated battle speed" % character_key)
+			var elapsed_before_speed_probe := float(first_cast_sequence.elapsed)
+			var prior_time_scale := Engine.time_scale
+			Engine.time_scale = 5.0
+			first_cast_sequence._process(0.5)
+			Engine.time_scale = prior_time_scale
+			_expect(absf((float(first_cast_sequence.elapsed) - elapsed_before_speed_probe) - 0.1) <= 0.001, "%s active-skill signature must not compress fivefold at 5X" % character_key)
 		if character_key == "frost" and is_instance_valid(frost_probe):
 			_expect(float(battle.sig_frost_glacier_timer) >= 4.8, "frost glacier must run for about five seconds")
 			battle._process_frost_glacier(0.08)
@@ -5671,6 +5685,10 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 
 		battle.character_active_cd = 0.0
 		battle._update_character_skill_button()
+		var active_sequences_before_second_cast := 0
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				active_sequences_before_second_cast += 1
 		var center := button.get_global_rect().get_center()
 		var motion := InputEventMouseMotion.new()
 		motion.position = center
@@ -5693,6 +5711,11 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		await process_frame
 		_expect(root.gui_get_hovered_control() == button, "%s active skill button must be the hovered control at its visual center" % character_key)
 		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from real mouse/touch click" % character_key)
+		var active_sequences_after_second_cast := 0
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				active_sequences_after_second_cast += 1
+		_expect(active_sequences_after_second_cast > active_sequences_before_second_cast, "%s second active-skill cast must spawn a fresh signature sequence" % character_key)
 		_expect(not button.disabled, "%s cooling active skill must remain tappable for its description" % character_key)
 		var cast_count_after_ready_tap := int(battle.battle_active_skill_casts)
 		var cooldown_after_ready_tap := float(battle.character_active_cd)

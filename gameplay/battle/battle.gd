@@ -2024,13 +2024,13 @@ func _active_skill_can_continue() -> bool:
 func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> void:
 	AudioManager.play_sfx(sfx_id, -2.0, 0.02)
 	_show_wave_toast(title, color)
-	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16)
+	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16, true)
 	_active_skill_screen_shake(5.5, 0.12)
 	var cast_origin := _weapon_fire_origin()
 	_spawn_character_theme_cast_signature(cast_origin, color)
 	if sfx_id.begins_with("sig_"):
 		if character_active_id != "":
-			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true)
+			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true, true)
 		return
 	var sequence_id := "vfx_levelup_glow"
 	match sfx_id:
@@ -10779,13 +10779,13 @@ func _breach_attack_scale(kind: String) -> float:
 		_:
 			return 1.0
 
-func _spawn_vfx_sequence(sequence_id: String, position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0, priority := false) -> Node:
+func _spawn_vfx_sequence(sequence_id: String, position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0, priority := false, unscaled_playback := false) -> Node:
 	if not _can_spawn_projectile_fx(priority):
 		return null
 	var fx := SequenceVfx.new()
 	_track_transient_fx(fx, "projectile")
 	$ProjectileLayer.add_child(fx)
-	if not fx.setup(sequence_id, position, scale_mult, tint, fps_mult, rotation_rad, grow_mult, lift_vector, spin_rad):
+	if not fx.setup(sequence_id, position, scale_mult, tint, fps_mult, rotation_rad, grow_mult, lift_vector, spin_rad, unscaled_playback):
 		fx.queue_free()
 		return null
 	return fx
@@ -13394,7 +13394,7 @@ func _check_low_hp_warning() -> void:
 	_show_wave_toast("基地生命过低", Color(1.0, 0.12, 0.08))
 	_show_screen_flash(Color(1.0, 0.0, 0.0, 0.1), 0.2)
 
-func _show_screen_flash(color: Color, duration := 0.18) -> void:
+func _show_screen_flash(color: Color, duration := 0.18, unscaled_playback := false) -> void:
 	if screen_flash == null or not is_instance_valid(screen_flash):
 		screen_flash = TextureRect.new()
 		screen_flash.name = "ScreenFlash"
@@ -13412,6 +13412,7 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	var alpha := minf(maxf(color.a, current_alpha), alpha_cap)
 	screen_flash.modulate = Color(color.r, color.g, color.b, alpha)
 	screen_flash_tween = screen_flash.create_tween()
+	screen_flash_tween.set_ignore_time_scale(unscaled_playback)
 	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration * (0.62 if SettingsManager.reduced_effects_enabled() else 1.0))
 
 ## 阶段 67：离开战斗必须归零环境混音，否则菜单/地图/结算会继续挂着战场的

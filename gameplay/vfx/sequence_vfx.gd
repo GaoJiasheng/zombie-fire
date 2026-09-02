@@ -15,16 +15,20 @@ var grow := 1.0
 var fade_from := 0.72
 var lift := Vector2.ZERO
 var spin := 0.0
+var sequence_id := ""
+var use_unscaled_time := false
 
 
-func setup(sequence_id: String, world_position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0) -> bool:
-	var data := _load_sequence(sequence_id)
+func setup(sequence_key: String, world_position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0, unscaled_playback := false) -> bool:
+	var data := _load_sequence(sequence_key)
 	frames.clear()
 	for frame in data.get("frames", []):
 		if frame is Texture2D:
 			frames.append(frame)
 	if frames.is_empty():
 		return false
+	sequence_id = sequence_key
+	use_unscaled_time = unscaled_playback
 	fps = maxf(1.0, float(data.get("fps", 16.0)) * fps_mult)
 	elapsed = 0.0
 	global_position = world_position
@@ -44,7 +48,11 @@ func setup(sequence_id: String, world_position: Vector2, scale_mult := 1.0, tint
 
 
 func _process(delta: float) -> void:
-	elapsed += delta
+	var playback_delta := delta
+	if use_unscaled_time:
+		var current_time_scale := float(Engine.time_scale)
+		playback_delta = delta / current_time_scale if current_time_scale > 0.0 else 0.0
+	elapsed += playback_delta
 	var frame_index := int(floor(elapsed * fps))
 	if frame_index >= frames.size():
 		queue_free()
@@ -52,7 +60,7 @@ func _process(delta: float) -> void:
 	texture = frames[frame_index]
 	var t := clampf(float(frame_index) / maxf(float(frames.size() - 1), 1.0), 0.0, 1.0)
 	scale = base_scale * lerpf(1.0, grow, t)
-	global_position += lift * delta
+	global_position += lift * playback_delta
 	rotation = start_rotation + spin * t
 	if t >= fade_from:
 		var fade_t := inverse_lerp(fade_from, 1.0, t)
