@@ -2986,6 +2986,7 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
 	chip.custom_minimum_size = Vector2(274, PAUSE_SKILL_CHIP_HEIGHT)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
