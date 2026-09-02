@@ -12118,7 +12118,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	title.name = "Title"
 	title.text = display_name
 	title.position = Vector2(CARD_OFFER_TEXT_X, 20)
-	title.size = Vector2(538.0 - CARD_OFFER_TEXT_X, 60)
+	title.size = Vector2(292.0, 60)
 	var title_font_size := 24 if LocalizationManager.is_english() else 28
 	UiKit.apply_label(title, title_font_size, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
@@ -12137,7 +12137,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
-	level_badge.position = Vector2(548, 36)
+	level_badge.position = Vector2(552, 36)
 	level_badge.size = Vector2(110, 34)
 	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
 	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -12151,16 +12151,17 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	if reason != "":
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
-		badge.position = Vector2(660, 36)
-		badge.size = Vector2(152, 34)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
 		var badge_text := UiKit.label("推荐 · %s" % reason, 12, UiKit.GOLD, 2)
 		badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge_text.clip_text = true
+		badge_text.clip_text = false
 		badge.add_child(badge_text)
+		var badge_width := maxf(152.0, ceil(badge_text.get_combined_minimum_size().x + 28.0))
+		badge.position = Vector2(CARD_OFFER_TEXT_X + CARD_OFFER_TEXT_WIDTH - badge_width, 36)
+		badge.size = Vector2(badge_width, 34)
 
 	var stats := Label.new()
 	stats.name = "Stats"
