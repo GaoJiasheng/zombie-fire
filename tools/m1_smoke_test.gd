@@ -164,16 +164,16 @@ func _initialize() -> void:
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
 	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
 	var scatter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_scattergun")
-	# Owner 2026-09-02: distribute the free scattergun's projectile growth evenly
-	# across its 50 levels: 2 pellets at Lv1-17, 3 at Lv18-34, and 5 at Lv35-50.
+	# Owner 2026-09-02: keep the three nearly even permanent-level bands while
+	# restoring their projectile counts to 3 at Lv1-17, 4 at Lv18-34, and 5 at Lv35-50.
 	# The authored five-pellet value remains the hard runtime cap.
 	var pellet_growth: Array = scatter_weapon.get("special", {}).get("pellet_growth", [])
 	_expect(pellet_growth.size() == 3, "free scattergun must author the approved three-step pellet ladder")
 	var expected_scatter_pellets := {
-		1: 2,
-		17: 2,
-		18: 3,
-		34: 3,
+		1: 3,
+		17: 3,
+		18: 4,
+		34: 4,
 		35: 5,
 		50: 5,
 	}
