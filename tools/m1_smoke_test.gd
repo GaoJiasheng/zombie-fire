@@ -478,7 +478,16 @@ func _initialize() -> void:
 		_expect(character_text_node != null and character_text_node.position.x >= character_icon.position.x + character_icon.size.x + 24.0, "character collection %s must start to the right of the enlarged portrait lane" % text_node_name)
 	var character_rows: Array[Node] = main.current_scene.find_child("ItemList", true, false).get_children()
 	var aligned_character_count := 0
+	var locked_character_teasers: Array[String] = []
+	var default_character_teaser: String = main.current_scene._locked_character_teaser("vanguard")
 	for character_row in character_rows:
+		if str(character_row.name) in ["blaze", "frost", "volt"]:
+			var locked_description := character_row.get_node_or_null("Description") as Label
+			_expect(locked_description != null, "locked character %s must expose its signature preview" % str(character_row.name))
+			if locked_description != null:
+				var teaser := locked_description.text
+				_expect(teaser != default_character_teaser, "locked character %s must not fall back to Vanguard's default signature preview" % str(character_row.name))
+				locked_character_teasers.append(teaser)
 		var row_icon := character_row.get_node_or_null("Icon") as TextureRect
 		var row_bust := row_icon.get_node_or_null("BustImage") as TextureRect if row_icon != null else null
 		if row_bust == null or not row_bust.has_meta("aligned_visible_rect"):
@@ -491,6 +500,11 @@ func _initialize() -> void:
 		_expect(absf(row_bust.position.x + row_bust.size.x * 0.5 - character_icon.size.x * 0.5) <= 0.1, "all character collection portraits must share one authored canvas centerline")
 		aligned_character_count += 1
 	_expect(aligned_character_count == 4, "character collection must align all four hero portraits, got %d" % aligned_character_count)
+	_expect(locked_character_teasers.size() == 3, "character collection must expose three locked signature previews")
+	var unique_locked_character_teasers := {}
+	for teaser in locked_character_teasers:
+		unique_locked_character_teasers[teaser] = true
+	_expect(unique_locked_character_teasers.size() == 3, "the three locked characters must advertise distinct signature previews")
 	var character_action := character_item.find_child("CardActionButton", true, false) as TextureButton
 	var character_action_label := character_action.get_node_or_null("ActionLabel") as Label if character_action != null else null
 	_expect(character_action_label != null and character_action_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "character collection action text must use vertical centering")

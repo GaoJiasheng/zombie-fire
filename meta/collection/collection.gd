@@ -733,11 +733,11 @@ func _data_table_name() -> String:
 
 func _locked_character_teaser(item_id: String) -> String:
 	match item_id:
-		"char_blaze":
+		"blaze", "char_blaze":
 			return _loc("专属预告：熔毁轰击 · 锁定强敌连续引爆火焰", "Signature Preview: Meltdown · Repeated firebursts on a priority target")
-		"char_frost":
+		"frost", "char_frost":
 			return _loc("专属预告：冰川领域 · 全屏减速并掀起寒潮", "Signature Preview: Glacier · Field-wide Slow and frost waves")
-		"char_volt":
+		"volt", "char_volt":
 			return _loc("专属预告：雷暴链击 · 连续雷击高威胁目标", "Signature Preview: Storm Chain · Repeated strikes on high-threat targets")
 		_:
 			return _loc("专属预告：钢雨齐射 · 多轮弹幕压制尸潮", "Signature Preview: Steel Rain · Multi-salvo horde suppression")
