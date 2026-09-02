@@ -12153,7 +12153,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
 	level_badge.position = Vector2(550, 36)
-	level_badge.size = Vector2(100, 34)
+	level_badge.size = Vector2(90, 34)
 	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
 	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(level_badge)
@@ -12174,11 +12174,13 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		badge_text.clip_text = false
 		badge.add_child(badge_text)
-		var badge_width := maxf(152.0, ceil(badge_text.get_combined_minimum_size().x + 20.0))
+		var badge_width := maxf(152.0, ceil(badge.get_combined_minimum_size().x))
 		badge.position = Vector2(CARD_OFFER_CARD_WIDTH - 40.0 - badge_width, 36)
 		badge.size = Vector2(badge_width, 34)
-		level_badge.position.x = badge.position.x - 8.0 - level_badge.size.x
-		title.size.x = level_badge.position.x - 8.0 - title.position.x
+		var level_badge_width := maxf(90.0, ceil(level_badge.get_combined_minimum_size().x))
+		level_badge.size.x = level_badge_width
+		level_badge.position.x = badge.position.x - 6.0 - level_badge_width
+		title.size.x = level_badge.position.x - 6.0 - title.position.x
 
 	var stats := Label.new()
 	stats.name = "Stats"
