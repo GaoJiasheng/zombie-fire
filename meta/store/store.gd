@@ -25,6 +25,7 @@ const STORE_DETAIL_INFO_MARGIN_V := 14
 const STORE_DETAIL_GEAR_MARGIN_LEFT := 26
 const STORE_DETAIL_GEAR_MARGIN_RIGHT := 18
 const STORE_DETAIL_GEAR_MARGIN_V := 16
+const STORE_CARD_COPY_WRAP_WIDTH := 540.0
 # Match both Store ScrollContainers' 12 px deadzone exactly: once the page has
 # enough movement to scroll, the same gesture can no longer activate anything.
 const STORE_TAP_MOVE_LIMIT := 12.0
@@ -558,13 +559,11 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
 	var offer_role := str(row.get("offer_role", ""))
-	var authored_minimum_height := 430.0 if offer_role != "theme" else 390.0
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
 	panel.set_meta("store_card_opens_detail", true)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
-	panel.custom_minimum_size = Vector2(0, authored_minimum_height)
-	panel.set_meta("authored_minimum_height", authored_minimum_height)
+	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.focus_mode = Control.FOCUS_ALL
@@ -581,26 +580,16 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var preview := _product_preview(row)
 	hbox.add_child(preview)
 
-	# A plain Control is the width boundary between the HBox and localized copy.
-	# Containers propagate their children's natural one-line width; without this
-	# boundary, long English labels enlarge the entire card beyond the viewport
-	# before autowrap ever receives a usable width.
-	var copy_host := Control.new()
-	copy_host.name = "CopyLane"
-	copy_host.custom_minimum_size = Vector2(484, 0)
-	copy_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(copy_host)
 	var copy := VBoxContainer.new()
 	copy.name = "Copy"
-	copy.set_anchors_preset(Control.PRESET_FULL_RECT)
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 12)
-	copy_host.add_child(copy)
+	hbox.add_child(copy)
 	var name := UiKit.label(str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")), 25, UiKit.TEXT_MAIN, 3)
-	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(name)
 	copy.add_child(name)
 	var subtitle := UiKit.label(str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")), 17, UiKit.GREY_300, 2)
-	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_prepare_store_card_copy(subtitle)
 	copy.add_child(subtitle)
 	if offer_role != "theme":
 		var set_row := DataLoader.get_row("premium_sets", str(row.get("arsenal_set_id", "")))
@@ -609,7 +598,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 			""
 		)), 16, UiKit.GOLD, 2)
 		dominance.name = "DominanceRange"
-		dominance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_prepare_store_card_copy(dominance)
 		dominance.custom_minimum_size = Vector2(0, 58)
 		copy.add_child(dominance)
 		var quote := PurchaseManager.premium_catch_up_quote_for_series(str(row.get("series_id", "")))
@@ -625,7 +614,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 			2
 		)
 		catch_up.name = "CatchUpCostText"
-		catch_up.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_prepare_store_card_copy(catch_up)
 		copy.add_child(catch_up)
 	var contents := UiKit.label(
 		_loc("永久解锁 · 可恢复 · 不含消耗品", "Permanent · Restorable · No consumables"),
@@ -633,7 +622,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		UiKit.SUCCESS,
 		2
 	)
-	contents.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(contents)
 	copy.add_child(contents)
 	var detail_hint := UiKit.label(
 		_loc("点击商品查看全部内容", "Tap product to view everything included"),
@@ -642,7 +631,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		2
 	)
 	detail_hint.name = "DetailHint"
-	detail_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(detail_hint)
 	copy.add_child(detail_hint)
 	var buy := Button.new()
 	buy.name = "Buy_" + str(row.get("id", "")).replace(".", "_")
@@ -655,38 +644,30 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	buy.button_down.connect(_on_product_action_button_down.bind(panel))
 	buy.pressed.connect(_run_store_tap.bind(_confirm_purchase.bind(str(row.get("id", "")))))
 	copy.add_child(buy)
-	call_deferred("_fit_product_card_content", panel, copy_host, copy, preview)
 	return panel
 
 
-func _fit_product_card_content(panel: PanelContainer, copy_host: Control, copy: VBoxContainer, preview: Control) -> void:
-	# Product copy is deliberately constrained to the real card lane before its
-	# wrapped height is measured. Without that constraint, long English labels
-	# contribute their one-line width to the HBox and are clipped by the store
-	# viewport instead of wrapping inside the card.
-	if not is_instance_valid(panel) or not panel.is_inside_tree():
+func _prepare_store_card_copy(label: Label) -> void:
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if not LocalizationManager.is_english():
 		return
-	await get_tree().process_frame
-	if not is_instance_valid(panel) or not panel.is_inside_tree():
+	var font := label.get_theme_font("font")
+	var font_size := label.get_theme_font_size("font_size")
+	if font == null or font_size <= 0:
 		return
-	var scroll := $Root/VBox/ScrollWrap/Scroll as ScrollContainer
-	var copy_width := maxf(484.0, scroll.size.x - 44.0 - preview.custom_minimum_size.x - 20.0)
-	copy_host.custom_minimum_size.x = copy_width
-	copy.size.x = copy_width
-	for child in copy.get_children():
-		if child is Label:
-			var text_label := child as Label
-			text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			text_label.custom_minimum_size.x = 0.0
-	await get_tree().process_frame
-	if not is_instance_valid(panel) or not panel.is_inside_tree():
-		return
-	var authored_minimum_height := float(panel.get_meta("authored_minimum_height", 390.0))
-	copy_host.custom_minimum_size.y = copy.get_combined_minimum_size().y
-	panel.custom_minimum_size.y = maxf(
-		authored_minimum_height,
-		maxf(preview.custom_minimum_size.y, copy.get_combined_minimum_size().y) + 44.0
-	)
+	var wrapped_lines: Array[String] = []
+	for paragraph in label.text.split("\n", true):
+		var current_line := ""
+		for word in paragraph.split(" ", false):
+			var candidate := str(word) if current_line == "" else "%s %s" % [current_line, str(word)]
+			if current_line != "" and font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x > STORE_CARD_COPY_WRAP_WIDTH:
+				wrapped_lines.append(current_line)
+				current_line = str(word)
+			else:
+				current_line = candidate
+		wrapped_lines.append(current_line)
+	label.text = "\n".join(wrapped_lines)
 
 
 func _on_product_action_button_down(panel: PanelContainer) -> void:
