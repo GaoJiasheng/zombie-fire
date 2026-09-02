@@ -5372,16 +5372,58 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element, visual_profile)
 
-func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, _aim_anchor := Vector2.ZERO) -> Array[Vector2]:
-	var result: Array[Vector2] = []
+func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, aim_anchor := Vector2.ZERO) -> Array[Vector2]:
+	var normalized_lanes: Array[Vector2] = []
 	for lane_direction in lane_directions:
-		var center := lane_direction.normalized()
-		if pellet_count <= 1 or pellet_spread <= 0.0:
-			result.append(center)
-			continue
-		for pellet_index in range(pellet_count):
-			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
-			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
+		if lane_direction.length_squared() > 0.01:
+			normalized_lanes.append(lane_direction.normalized())
+	if normalized_lanes.is_empty():
+		return normalized_lanes
+	if pellet_count <= 1 or pellet_spread <= 0.0:
+		return normalized_lanes
+
+	# Multishot lanes and native scatter pellets are two count sources, but they
+	# must present as one evenly spaced rigid fan. Nesting a full pellet fan inside
+	# every lane produces near-overlapping pairs in the middle and oversized gaps
+	# at both edges (most visibly with 2 lanes x 5 pellets). Preserve the composed
+	# projectile count and the original outer envelope, then distribute every shot
+	# across that envelope with one identical angular step.
+	var center_sum := Vector2.ZERO
+	for lane_direction in normalized_lanes:
+		center_sum += lane_direction
+	var center := center_sum.normalized() if center_sum.length_squared() > 0.01 else normalized_lanes[0]
+	var lane_half_span := 0.0
+	for lane_direction in normalized_lanes:
+		lane_half_span = maxf(lane_half_span, absf(center.angle_to(lane_direction)))
+	var total_shots := normalized_lanes.size() * maxi(pellet_count, 1)
+	var total_span := lane_half_span * 2.0 + pellet_spread
+	var step := total_span / float(maxi(total_shots - 1, 1))
+	var result: Array[Vector2] = []
+	for index in range(total_shots):
+		result.append(center.rotated(-total_span * 0.5 + step * float(index)).normalized())
+
+	# _primary_shot_directions has already guaranteed a source lane through the
+	# intended target. Rotate the complete fan as one rigid body so the closest
+	# final shot retains that guarantee without disturbing equal spacing.
+	if aim_anchor.length_squared() > 0.01:
+		var safe_anchor := aim_anchor.normalized()
+		var source_anchor := normalized_lanes[0]
+		var source_angle := INF
+		for lane_direction in normalized_lanes:
+			var candidate_angle := absf(lane_direction.angle_to(safe_anchor))
+			if candidate_angle < source_angle:
+				source_angle = candidate_angle
+				source_anchor = lane_direction
+		var result_anchor_index := 0
+		var result_angle := INF
+		for index in range(result.size()):
+			var candidate_angle := absf(result[index].angle_to(source_anchor))
+			if candidate_angle < result_angle:
+				result_angle = candidate_angle
+				result_anchor_index = index
+		var correction := result[result_anchor_index].angle_to(source_anchor)
+		for index in range(result.size()):
+			result[index] = result[index].rotated(correction).normalized()
 	return result
 
 func _resolved_weapon_lane_count(extra_projectiles: int, barrage_active: bool, source_character_level: int) -> int:

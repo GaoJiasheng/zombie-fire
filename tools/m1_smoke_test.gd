@@ -5164,9 +5164,9 @@ func _verify_projectile_visual_profiles() -> void:
 	var plain_lanes: int = int(battle._resolved_weapon_lane_count(0, false, 1))
 	var multishot_lanes: int = int(battle._resolved_weapon_lane_count(1, false, 1))
 	var stacked_lanes: int = int(battle._resolved_weapon_lane_count(1, true, 1))
-	# Owner 2026-09-02: multishot lanes are a rigid fixed-angle fan and every lane
-	# carries its own nested pellet fan (approved 99x10 contract). Counts compose
-	# multiplicatively; the flattened single-fan experiment was reverted.
+	# Owner 2026-09-02: scatter pellets and outer lanes still compose
+	# multiplicatively, but the final visible fan must use one equal angular gap.
+	# Nested sub-fans create paired shots in the middle and oversized edge gaps.
 	var smoke_fan := func(lanes: int) -> Array[Vector2]:
 		var dirs: Array[Vector2] = []
 		var step := deg_to_rad(7.0)
@@ -5176,6 +5176,14 @@ func _verify_projectile_visual_profiles() -> void:
 	_expect(battle._lane_pellet_directions(smoke_fan.call(plain_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == max_scatter_pellets, "scattergun alone must fire its authored pellet count")
 	_expect(battle._lane_pellet_directions(smoke_fan.call(multishot_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == multishot_lanes * max_scatter_pellets, "scattergun with Multishot must stack lanes x pellets")
 	_expect(battle._lane_pellet_directions(smoke_fan.call(stacked_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == stacked_lanes * max_scatter_pellets, "scattergun, Multishot and Vanguard Barrage must stack lanes x pellets")
+	for lane_count in [multishot_lanes, stacked_lanes]:
+		var source_lanes: Array[Vector2] = smoke_fan.call(lane_count)
+		var composed_fan: Array[Vector2] = battle._lane_pellet_directions(source_lanes, max_scatter_pellets, deg_to_rad(18.0), Vector2.UP)
+		var composed_span := deg_to_rad(18.0) + deg_to_rad(7.0) * float(lane_count - 1)
+		var composed_gap := composed_span / float(composed_fan.size() - 1)
+		for index in range(1, composed_fan.size()):
+			var actual_gap := absf(composed_fan[index - 1].angle_to(composed_fan[index]))
+			_expect(absf(actual_gap - composed_gap) <= 0.0001, "%d-lane scatter composition must keep identical adjacent gaps" % lane_count)
 	var single_lane: Array[Vector2] = [Vector2.UP]
 	for final_count in [7, 9]:
 		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0))
