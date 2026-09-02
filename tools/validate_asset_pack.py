@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
+"""Validate runtime assets plus their audited generation/review provenance.
+
+An isolated git worktree may not contain the intentionally gitignored historical
+inputs. Point ``ZOMBIE_FIRE_SOURCE_REFS_ROOT`` at a complete repository checkout
+(for example ``/path/to/zombie-fire``); missing ``assets/production/source_refs``,
+``assets/production/contact_sheets`` and indexed temporary review artifacts are
+then resolved read-only from that checkout while every runtime asset is still
+validated in this worktree.
+"""
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections import deque
 from pathlib import Path
@@ -10,6 +20,13 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 PROD = ROOT / "assets" / "production"
+SOURCE_REFS_ROOT_ENV = "ZOMBIE_FIRE_SOURCE_REFS_ROOT"
+SOURCE_REFS_ROOT = Path(os.environ[SOURCE_REFS_ROOT_ENV]).expanduser().resolve() if os.environ.get(SOURCE_REFS_ROOT_ENV, "").strip() else None
+EXTERNAL_REVIEW_PREFIXES = (
+    Path("assets/production/source_refs"),
+    Path("assets/production/contact_sheets"),
+    Path("tmp"),
+)
 
 CHARACTERS = ["char_vanguard", "char_blaze", "char_frost", "char_volt"]
 ZOMBIES = [
@@ -153,10 +170,29 @@ def split_index_references(value: object) -> list[str]:
     return [part.strip() for part in re.split(r"\s+\+\s+|,\s*", value) if part.strip()]
 
 
-def resolve_index_reference(reference: str) -> Path:
+def index_reference_relative_path(reference: str) -> Path:
     if reference.startswith("assets/production/") or reference.startswith("tmp/"):
-        return ROOT / reference
-    return PROD / reference
+        return Path(reference)
+    return Path("assets/production") / reference
+
+
+def resolve_index_reference(reference: str) -> Path:
+    relative = index_reference_relative_path(reference)
+    local_path = (ROOT / relative).resolve()
+    try:
+        local_path.relative_to(ROOT)
+    except ValueError:
+        return local_path
+    if local_path.exists() or SOURCE_REFS_ROOT is None:
+        return local_path
+    if not any(relative == prefix or prefix in relative.parents for prefix in EXTERNAL_REVIEW_PREFIXES):
+        return local_path
+    external_path = (SOURCE_REFS_ROOT / relative).resolve()
+    try:
+        external_path.relative_to(SOURCE_REFS_ROOT)
+    except ValueError:
+        return local_path
+    return external_path
 
 
 def validate_index_references(index: object) -> tuple[list[str], list[str]]:
@@ -171,12 +207,14 @@ def validate_index_references(index: object) -> tuple[list[str], list[str]]:
                     if not isinstance(child, (str, list)):
                         errors.append(f"{child_location}: expected a path string or list")
                     for reference in split_index_references(child):
-                        path = resolve_index_reference(reference).resolve()
+                        relative_path = index_reference_relative_path(reference)
+                        repository_path = (ROOT / relative_path).resolve()
                         try:
-                            relative = path.relative_to(ROOT).as_posix()
+                            relative = repository_path.relative_to(ROOT).as_posix()
                         except ValueError:
                             errors.append(f"{child_location}: path escapes repository: {reference}")
                             continue
+                        path = resolve_index_reference(reference).resolve()
                         if path.exists():
                             continue
                         if relative in ALLOWED_MISSING_GENERATED_CACHE_REFERENCES:
