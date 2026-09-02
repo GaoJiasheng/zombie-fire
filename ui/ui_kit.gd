@@ -1342,10 +1342,24 @@ static func apply_theme_surface(item: CanvasItem) -> void:
 # opts: title, message, cost_text, cost_kind (preferred) or cost_icon, accent,
 #       confirm_text, cancel_text,
 #       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
-static func _modal_button(text: String, _accent: Color, primary: bool) -> Button:
+static func _modal_button(text: String, _accent: Color, primary: bool, font_size := 26, optical_y := 0.0) -> Button:
 	var b := Button.new()
-	b.text = text
-	apply_armored_button(b, primary, Vector2(236, 96), 26, true)
+	# The ornamental raster has a larger visual frame than its usable face. The
+	# built-in Button label is laid out against the StyleBox content margins, so
+	# it can look low/off-centre even when its alignment enum says CENTER. Keep
+	# the hit target as the Button and centre a presentation-only label over the
+	# complete face instead.
+	b.text = ""
+	b.tooltip_text = text
+	apply_armored_button(b, primary, Vector2(236, 96), font_size, true)
+	var action := label(text, font_size, TEXT_MAIN, 3)
+	action.name = "ActionLabel"
+	b.add_child(action)
+	action.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	action.offset_top = optical_y
+	action.offset_bottom = optical_y
+	action.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	action.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return b
 
 static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
@@ -1380,7 +1394,7 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	layer.add_child(center)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", panel_style(accent, PANEL_BG_DARK, 3, 20))
-	panel.custom_minimum_size = Vector2(660, 0)
+	panel.custom_minimum_size = Vector2(float(opts.get("panel_width", 660.0)), 0)
 	panel.set_meta("safe_area_content", true)
 	panel.set_meta("ui_modal_surface", true)
 	center.add_child(panel)
@@ -1395,15 +1409,17 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(backing)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 52)
-	margin.add_theme_constant_override("margin_right", 52)
-	margin.add_theme_constant_override("margin_top", 40)
-	margin.add_theme_constant_override("margin_bottom", 40)
+	var margin_horizontal := int(opts.get("margin_horizontal", 52))
+	var margin_vertical := int(opts.get("margin_vertical", 40))
+	margin.add_theme_constant_override("margin_left", margin_horizontal)
+	margin.add_theme_constant_override("margin_right", margin_horizontal)
+	margin.add_theme_constant_override("margin_top", margin_vertical)
+	margin.add_theme_constant_override("margin_bottom", margin_vertical)
 	panel.add_child(margin)
 	var vb := VBoxContainer.new()
-	vb.add_theme_constant_override("separation", 24)
+	vb.add_theme_constant_override("separation", int(opts.get("content_separation", 24)))
 	margin.add_child(vb)
-	var title := label(str(opts.get("title", "确认")), 42, accent, 4)
+	var title := label(str(opts.get("title", "确认")), int(opts.get("title_font_size", 42)), accent, 4)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(title)
 	var item_icon := str(opts.get("item_icon", ""))
@@ -1416,7 +1432,7 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 		frame.add_child(ic)
 		holder.add_child(frame)
 		vb.add_child(holder)
-	var msg := label(str(opts.get("message", "")), 31, TEXT_MAIN, 3)
+	var msg := label(str(opts.get("message", "")), int(opts.get("message_font_size", 31)), TEXT_MAIN, 3)
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vb.add_child(msg)
@@ -1435,8 +1451,10 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	btns.alignment = BoxContainer.ALIGNMENT_CENTER
 	btns.add_theme_constant_override("separation", 30)
 	vb.add_child(btns)
-	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false)
-	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true)
+	var button_font_size := int(opts.get("button_font_size", 26))
+	var button_optical_y := float(opts.get("button_optical_y", 0.0))
+	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false, button_font_size, button_optical_y)
+	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true, button_font_size, button_optical_y)
 	btns.add_child(cancel_btn)
 	btns.add_child(confirm_btn)
 	var on_confirm: Callable = opts.get("on_confirm", Callable())

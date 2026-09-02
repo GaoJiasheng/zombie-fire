@@ -713,9 +713,9 @@ func _star_threshold_guide() -> VBoxContainer:
 	var guide := VBoxContainer.new()
 	guide.name = "StarRule"
 	guide.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	guide.add_theme_constant_override("separation", 4)
+	guide.add_theme_constant_override("separation", 7)
 	guide.tooltip_text = LocalizationManager.text(StarRules.hint_text(economy))
-	var title := UiKit.label("防线完整度", 15, UiKit.TEXT_MUTED, 2)
+	var title := UiKit.label("防线完整度", 17, UiKit.TEXT_MUTED, 2)
 	title.name = "Title"
 	guide.add_child(title)
 	var stops := HBoxContainer.new()
@@ -729,20 +729,23 @@ func _star_threshold_guide() -> VBoxContainer:
 	]
 	for entry in entries:
 		var stop := PanelContainer.new()
-		stop.custom_minimum_size = Vector2(0, 42)
+		# These are the player's star-outcome ruler, not decorative chips. Give the
+		# three stops enough height and type size to remain legible on a physical
+		# iPhone while keeping the row compact enough for the summary panel.
+		stop.custom_minimum_size = Vector2(0, 58)
 		stop.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		stop.add_theme_stylebox_override("panel", UiKit.pill_style(entry.accent))
 		stops.add_child(stop)
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 4)
+		row.add_theme_constant_override("separation", 6)
 		stop.add_child(row)
 		for index in int(entry.stars):
-			var star := UiKit.icon(UiKit.currency_icon_path("star"), Vector2(18, 18))
+			var star := UiKit.icon(UiKit.currency_icon_path("star"), Vector2(22, 22))
 			star.name = "Star%d" % (index + 1)
 			star.modulate = entry.accent
 			row.add_child(star)
-		var threshold := UiKit.label(str(entry.threshold), 14, entry.accent, 2)
+		var threshold := UiKit.label(str(entry.threshold), 17, entry.accent, 2)
 		threshold.name = "Threshold"
 		row.add_child(threshold)
 	return guide

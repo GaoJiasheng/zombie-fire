@@ -277,6 +277,12 @@ DPS/难度审计；缺字段时视为 `0 / 1.0`，不得产生行为变化。
 
 `weapons.special` 的展示与运行时单位固定为：`spread` 是弹丸扇形夹角（度，运行时通过 `deg_to_rad()` 转换）；`cloud` / `splash` 是战场作用半径；`chain` / `pierce` 是额外目标数量。数值为 `0` 或字段为空表示没有对应机制，图鉴不得把它渲染成高亮标签。
 
+散射武器可选 `special.pellet_growth: [{from_level,pellets}]` 声明永久武器等级对应的弹丸阶梯；
+`special.pellets` 仍是该武器的弹丸硬上限。阶梯必须按 `from_level` 升序、弹丸数单调且不超过上限。
+运行时先解析当前等级的散射弹丸数，再与局内多重射击及角色齐射形成外层弹道叠加，任一来源不得覆盖另一来源。
+散射弹丸与外层多重弹道合成后，必须按最终总发数在完整覆盖角内一次性等角排布；不得把多个内层扇面直接重叠，
+以免 7/9 发等高密度组合出现重合、近重合或相邻间距锯齿。自动瞄准与手动锁定仍须保留至少一条真实弹道穿过目标。
+
 ## armors.json
 ```jsonc
 {
@@ -331,6 +337,8 @@ DPS/难度审计；缺字段时视为 `0 / 1.0`，不得产生行为变化。
 `role:"repair"` 的三层修复均直接作用于基地生命并受最大生命封顶：`heal_per_wave + heal_per_wave_ratio` 用于波次整备，`repair_ratio` 按 `repair_interval` 周期触发，生命不高于 `emergency_threshold` 时可按 `emergency_cooldown` 触发 `emergency_heal_ratio`。三个百分比等级成长字段均为每级加法成长，不使用乘法。
 
 所有宠物都必须定义 `pet_skill`，`kind` 当前允许：`overclock`（短时强化自身射速/伤害）、`area_blast`（目标周围范围打击）、`multi_strike`（多目标连续打击）、`repair`（基地三层修复）、`wave_salvage`（每波等效击杀收益）。战斗、收藏详情、升级预览和战力估算从同一字段读取；带冷却的主动宠物技能必须提供 `cooldown / sequence / sfx`，等级成长字段统一使用 `level_*_growth` 的每级加法口径。
+
+宠物可选 `presentation` 仅控制战斗可读性：`battle_visible_height` 按源图 alpha 实际占用高度归一化主体尺寸，`battle_aura_scale` 是不受宠物父节点缩放二次放大的世界空间光环比例，`battle_aura_offset_y` 是同口径的世界空间纵向偏移。省略时保持历史 `0.26` 主体比例与 `0.28 / -20` 光环表现；这些字段不得参与宠物属性、碰撞或技能范围计算。
 
 ## zombies.json
 ```jsonc
@@ -759,7 +767,7 @@ Save v3 的外观状态结构为：
 - 撤权只收回使用权并回退非法已装备项，不删除已投入的装备等级。
 - 商店、权益恢复和一键装备必须遍历 `series_id`，不得再依赖某一套装的代码常量。
 - `store_unlock` 同时控制系列在玩家界面的首次揭示与购买授权：未达条件前，商店、主题 / 战衣选择、收藏等入口必须整套隐藏，不得显示系列标题、素材、价格或购买按钮；达成后才生成商品卡。商店空态可以只按 `store_unlock` 动态汇总匿名档位条件，但不得提前泄露系列身份或商品内容。`unlock_hint_zh/en` 与 `unlock_cta_zh/en` 仅作为历史数据兼容 / 内部审核说明保留，不得直接用于未揭示玩家界面。已验证权益始终优先于本地进度门禁。
-- 高级武器可在 `weapons.presentation` 声明 `weapon_scale / muzzle_distance / attack_duration / prefire_lead / recoil_pose / recoil_accent / recoil_twist`。`true_grip` 进一步声明根目录、`viewpoint`（竖屏底部防线战斗固定为 `rear`）、三向文件 pattern、画布尺寸及逐角色三向枪口坐标；运行时与视觉校验器都读取同一份数据。
+- 高级武器可在 `weapons.presentation` 声明 `weapon_scale / muzzle_distance / attack_duration / prefire_lead / recoil_pose / recoil_accent / recoil_twist`。`true_grip` 进一步声明根目录、`viewpoint`（竖屏底部防线战斗固定为 `rear`）、三向文件 pattern、画布尺寸及逐角色三向枪口坐标；运行时与视觉校验器都读取同一份数据。若某一角色的单向成图与逻辑瞄准方向相反，可用 `mirror_x_by_character: {character_id: [left|center|right]}` 对该姿势做水平镜像；人物落脚锚点与枪口坐标必须按镜像后的同一空间解释。
 - premium 宠物主动 `kind: fire_flyby` 表示按当前手动锁定 / 自动优先目标执行一次有目标上限的火焰掠场；必须声明冷却、伤害倍率、目标数、衰减、轨迹持续时间与最大并发，不得生成无限地面路径。
 - 战报中的 premium 来源必须拆分记录主武器直伤、灼烧、爆燃、护甲反击、宠物与四件套传播；现有 `take_damage` 四参数调用兼容不变，新增来源通过可选上下文传递。
 

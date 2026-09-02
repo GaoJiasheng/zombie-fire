@@ -467,6 +467,32 @@ func _resolve_base_attack_sequence() -> void:
 	_base_attack_sequence_timer = 0.0
 	breached.emit(self, base_attack_damage)
 
+func forecast_direct_damage_for_targeting(amount: float, element := "physical", armor_penetration := 0.0) -> float:
+	# Read-only mirror of the direct-damage modifiers below. Auto aim uses this to
+	# reserve only damage that an airborne round is reasonably expected to deal;
+	# no HP, shield, armor, status, RNG or hit feedback is changed here.
+	if _dying or amount <= 0.0:
+		return 0.0
+	var penetration := clampf(armor_penetration, 0.0, 0.95)
+	var forecast := amount * external_damage_mult
+	var resistance_reduction := _element_resistance_reduction(element)
+	if resistance_reduction > 0.0:
+		forecast *= 1.0 - resistance_reduction * (1.0 - penetration)
+	if immune.has(element):
+		if boss:
+			forecast *= _resist_damage_multiplier()
+		else:
+			return 0.0
+	if weakness != "none" and element == weakness:
+		forecast *= _weakness_damage_multiplier()
+	if resist != "none" and element == resist:
+		forecast *= _resist_damage_multiplier()
+	# Phase units can evade the real hit. Reserve expected rather than nominal
+	# damage so one uncertain round never makes auto aim abandon a live target.
+	if mechanic == "phase" or mechanic == "phase_shift":
+		forecast *= 1.0 - (0.22 if boss else 0.32)
+	return maxf(forecast, 0.0)
+
 func take_damage(amount: float, element := "physical", armor_penetration := 0.0, status_strength := -1.0) -> void:
 	if _dying:
 		return

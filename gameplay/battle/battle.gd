@@ -296,6 +296,14 @@ const DIRECTIONAL_VFX_SOURCE_FORWARD := {
 # 多重射击每条弹道之间的固定夹角(度)。固定=不 imba；扇形中心对准敌群。
 const MULTISHOT_LANE_DEG := 7.0
 const MAX_MULTISHOT_LANES := 5
+# Every live projectile may reserve the enemy it is geometrically expected to
+# hit. Auto aim uses these tags to stop adding rounds once the target's remaining
+# durability is already covered, while manual aim / explicit lock still override.
+const PROJECTILE_FORECAST_TARGET_META := "forecast_target_id"
+const PROJECTILE_FORECAST_DAMAGE_META := "forecast_raw_damage"
+const PROJECTILE_FORECAST_ELEMENT_META := "forecast_element"
+const PROJECTILE_FORECAST_PENETRATION_META := "forecast_penetration"
+const PROJECTILE_FORECAST_RADIUS := 18.0
 # 散弹的运行时弹速较低；沿用普通弹丸 1 秒导引延迟时，外侧弹丸常在导引启动前已经
 # 命中或飞出侧边。保留约 0.3 秒原始扇形，再进入同样受 460px 转弯半径约束的追踪。
 const SCATTER_HOMING_ACTIVATION_DELAY := 0.35
@@ -306,6 +314,11 @@ const SCATTER_HOMING_ACTIVATION_DELAY := 0.35
 # body reference plus separate enter/exit thresholds instead.
 const CHARACTER_COMBO_SIDE_AIM_ENTER_X := 0.22
 const CHARACTER_COMBO_SIDE_AIM_EXIT_X := 0.12
+# Automatic fire needs at least one visible projectile-length before contact.
+# When a base-line enemy's collision body already contains the authored muzzle,
+# preferring it over equally urgent side targets creates a zero-vector aim lock:
+# the character faces centre and no readable round can leave the barrel.
+const AUTO_TARGET_PROJECTILE_CLEARANCE_PADDING := 24.0
 # 基地单次受伤上限 = 最大血量的比例。防止 Boss/技能"一下打死"，任何来源都受此限制。
 const MAX_BASE_HIT_FRACTION := 0.4
 # 第3/4/5波单独加血量(绝不加速度)：局内前两波保持开局节奏，后半段用血量拉回张力。
@@ -1006,11 +1019,95 @@ func _update_auto_target(enemies: Array = []) -> void:
 	if _manual_aim_has_priority():
 		_apply_manual_aim()
 		return
-	var target := target_manager.choose_target(candidates, _weapon_fire_origin(false))
+	var origin := _weapon_fire_origin(false)
+	var target_candidates := _automatic_target_candidates(candidates, origin)
+	var target := target_manager.choose_target(target_candidates, origin)
 	if target:
 		turret.aim_at(target.global_position)
 	else:
 		_set_turret_fire_enabled(false)
+
+func _automatic_target_candidates(candidates: Array, origin: Vector2) -> Array[Node]:
+	var valid: Array[Node] = []
+	var visible_lane: Array[Node] = []
+	var forecast_open: Array[Node] = []
+	var forecast_open_visible: Array[Node] = []
+	for candidate in candidates:
+		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion():
+			continue
+		if not candidate is Node2D or not candidate.has_method("targeting_snapshot"):
+			continue
+		var hp_value: Variant = candidate.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		valid.append(candidate)
+		var has_visible_lane := _automatic_target_has_visible_projectile_lane(candidate as Node2D, origin)
+		if has_visible_lane:
+			visible_lane.append(candidate)
+		if not _target_has_lethal_inflight_reservation(candidate):
+			forecast_open.append(candidate)
+			if has_visible_lane:
+				forecast_open_visible.append(candidate)
+	# Explicit player locks keep priority even at point-blank range; the turret's
+	# close-contact fallback below still guarantees that such a lock can fire.
+	if target_manager != null and target_manager.has_lock():
+		return valid
+	# Stop feeding an enemy once already-airborne rounds conservatively cover its
+	# remaining durability. If every live enemy is covered, pause for impact; a
+	# missed/retired projectile removes its own reservation and fire resumes.
+	if not forecast_open_visible.is_empty():
+		return forecast_open_visible
+	if not forecast_open.is_empty():
+		return forecast_open
+	return []
+
+func _target_has_lethal_inflight_reservation(target: Node) -> bool:
+	# Owner 2026-09-02: the in-flight lethal reservation retargets before a kill is
+	# confirmed and measurably slowed every fixture level (L86/2207 base 91% -> 42%),
+	# so it ships disabled. Data-driven so it can be re-argued with fresh validation.
+	var reservation_cfg: Variant = DataLoader.get_table("economy").get("auto_aim_inflight_reservation", {})
+	if not (reservation_cfg is Dictionary and bool(reservation_cfg.get("enabled", false))):
+		return false
+	if target == null or not is_instance_valid(target):
+		return false
+	var hp_value: Variant = target.get("hp")
+	if hp_value == null or float(hp_value) <= 0.0:
+		return true
+	var remaining := maxf(float(hp_value), 0.0)
+	var armor_value: Variant = target.get("armor_hp")
+	if armor_value != null:
+		remaining += maxf(float(armor_value), 0.0)
+	var shield_value: Variant = target.get("shield_hp")
+	if shield_value != null:
+		remaining += maxf(float(shield_value), 0.0)
+	if remaining <= 0.0:
+		return true
+	var target_id := target.get_instance_id()
+	var forecast_damage := 0.0
+	for child in $ProjectileLayer.get_children():
+		if not is_instance_valid(child) or child.is_queued_for_deletion():
+			continue
+		if int(child.get_meta(PROJECTILE_FORECAST_TARGET_META, 0)) != target_id:
+			continue
+		var raw_damage := maxf(float(child.get_meta(PROJECTILE_FORECAST_DAMAGE_META, 0.0)), 0.0)
+		var forecast_element := str(child.get_meta(PROJECTILE_FORECAST_ELEMENT_META, "physical"))
+		var penetration := clampf(float(child.get_meta(PROJECTILE_FORECAST_PENETRATION_META, 0.0)), 0.0, 0.95)
+		if target.has_method("forecast_direct_damage_for_targeting"):
+			forecast_damage += float(target.call("forecast_direct_damage_for_targeting", raw_damage, forecast_element, penetration))
+		else:
+			forecast_damage += raw_damage
+		if forecast_damage + 0.001 >= remaining:
+			return true
+	return false
+
+func _automatic_target_has_visible_projectile_lane(enemy: Node2D, origin: Vector2) -> bool:
+	var minimum_travel := 96.0
+	var collision := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision != null and collision.shape is CircleShape2D:
+		var body_scale := maxf(absf(enemy.global_scale.x), absf(enemy.global_scale.y))
+		minimum_travel = float((collision.shape as CircleShape2D).radius) * body_scale
+		minimum_travel += AUTO_TARGET_PROJECTILE_CLEARANCE_PADDING
+	return enemy.global_position.distance_squared_to(origin) > minimum_travel * minimum_travel
 
 func _update_combat_information_density(delta: float, force := false, enemies: Array = []) -> void:
 	combat_label_refresh_left -= delta
@@ -4709,7 +4806,8 @@ func _apply_enemy_skill_base_damage(
 	label: String,
 	color: Color,
 	target_position: Vector2,
-	impact_sfx_id := "enemy_breach"
+	impact_sfx_id := "enemy_breach",
+	force_impact_sfx := false
 ) -> void:
 	if battle_finished:
 		return
@@ -4737,7 +4835,7 @@ func _apply_enemy_skill_base_damage(
 	if final_damage <= 0:
 		return
 	if not impact_sfx_id.is_empty():
-		AudioManager.play_enemy_sfx(impact_sfx_id, -5.5, 0.025)
+		AudioManager.play_enemy_sfx(impact_sfx_id, -5.5, 0.025, force_impact_sfx)
 	base_hp = max(base_hp - final_damage, 0)
 	battle_base_damage_taken += final_damage
 	_apply_apocalypse_armor_counter(source, final_damage, impact_position)
@@ -5096,13 +5194,23 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var mods := skills.projectile_mods()
 	var weapon := DataLoader.get_row("weapons", weapon_id)
 	var special: Dictionary = weapon.get("special", {})
-	var multishot_lanes := 1 + int(mods.get("extra_projectiles", 0))
-	if sig_vanguard_barrage_timer > 0.0:
-		multishot_lanes += 1
-		if _growth_rank(character_level) >= 2:
-			multishot_lanes += 1
-	multishot_lanes = clampi(multishot_lanes, 1, MAX_MULTISHOT_LANES)
-	var pellet_count := maxi(1, int(special.get("pellets", 1)))
+	var multishot_lanes := _resolved_weapon_lane_count(
+		int(mods.get("extra_projectiles", 0)),
+		sig_vanguard_barrage_timer > 0.0,
+		character_level,
+	)
+	# Scatter count is permanent-weapon growth, then Multishot / Vanguard Barrage
+	# add outer lanes. Keeping the two axes separate means a max-level five-pellet
+	# fan still stacks into 10/15/... projectiles instead of one source replacing
+	# the other.
+	# Consume the authored cap here as part of the battle data contract as well as
+	# in SaveManager's level resolver. This keeps malformed growth data from ever
+	# producing more live projectiles than the weapon row permits.
+	var authored_pellet_cap := maxi(1, int(special.get("pellets", 1)))
+	var pellet_count := mini(
+		SaveManager.weapon_pellet_count_from_row(weapon, weapon_level),
+		authored_pellet_cap,
+	)
 	var lane_spread := deg_to_rad(float(mods.get("spread_deg", 0.0)))
 	var pellet_spread := deg_to_rad(float(special.get("spread", 0.0)))
 	var homing: float = float(mods.get("homing", 0)) * 1.8
@@ -5139,7 +5247,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	var splash: float = maxf(float(special.get("splash", 0.0)), _character_splash_bonus(element))
 	var cloud: float = float(special.get("cloud", 0.0))
 	var lane_directions := _primary_shot_directions(origin, direction, multishot_lanes, lane_spread)
-	var shot_directions := _lane_pellet_directions(lane_directions, pellet_count, pellet_spread)
+	var shot_directions := _lane_pellet_directions(lane_directions, pellet_count, pellet_spread, direction)
 	var shots := shot_directions.size()
 	var visual_scale := _projectile_visual_scale(shots, pierce, split, homing, splash, cloud)
 	var lane_damage_mult := _multishot_damage_multiplier(
@@ -5159,6 +5267,7 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 		status_strength = maxf(status_strength, float(special.get("slow", 0.30)) * (1.0 + _chip_value("slow_strength_mult") + _pet_stat_value("slow_strength_mult")))
 	status_strength *= _fire_rate_status_normalization()
 	var preferred_target: Node2D = target_manager.locked_enemy if target_manager.has_lock() else null
+	var forecast_targets := _ballistic_target_assignments(origin, shot_directions)
 	var homing_targets: Array[Node2D] = []
 	var scatter_homing_delay := -1.0
 	if homing > 0.0 and pellet_count > 1:
@@ -5174,6 +5283,9 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 		var shot_preferred_target: Node2D = preferred_target
 		if i < homing_targets.size():
 			shot_preferred_target = homing_targets[i]
+		var shot_forecast_target: Node2D = forecast_targets[i] if i < forecast_targets.size() else null
+		if homing > 0.0 and is_instance_valid(shot_preferred_target):
+			shot_forecast_target = shot_preferred_target
 		var damage: float = base_damage * float(turret.damage_mult) * skills.damage_multiplier()
 		damage *= lane_damage_mult
 		damage *= _character_bullet_damage_multiplier(element)
@@ -5201,12 +5313,13 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 			armor_penetration,
 			status_strength,
 			shot_preferred_target,
-			scatter_homing_delay
+			scatter_homing_delay,
+			shot_forecast_target
 		)
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element, visual_profile)
 
-func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float) -> Array[Vector2]:
+func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, _aim_anchor := Vector2.ZERO) -> Array[Vector2]:
 	var result: Array[Vector2] = []
 	for lane_direction in lane_directions:
 		var center := lane_direction.normalized()
@@ -5217,6 +5330,37 @@ func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int,
 			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
 			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
 	return result
+
+func _resolved_weapon_lane_count(extra_projectiles: int, barrage_active: bool, source_character_level: int) -> int:
+	var lanes := 1 + maxi(extra_projectiles, 0)
+	if barrage_active:
+		lanes += 1
+		if _growth_rank(source_character_level) >= 2:
+			lanes += 1
+	return clampi(lanes, 1, MAX_MULTISHOT_LANES)
+
+func _ballistic_target_assignments(origin: Vector2, shot_directions: Array[Vector2]) -> Array[Node2D]:
+	var assignments: Array[Node2D] = []
+	if shot_directions.is_empty():
+		return assignments
+	var average_direction := Vector2.ZERO
+	for direction in shot_directions:
+		average_direction += direction
+	if average_direction.length_squared() <= 0.01:
+		average_direction = Vector2.UP
+	var candidates := _multi_shot_target_candidates(origin, average_direction.normalized())
+	var used_ids := {}
+	for direction in shot_directions:
+		var best := _best_multishot_lane_candidate(origin, direction, candidates, used_ids)
+		if best.is_empty():
+			# Overlapping large bodies can legitimately receive more than one pellet.
+			# Prefer unique targets first, then allow a reused geometric hit.
+			best = _best_multishot_lane_candidate(origin, direction, candidates, {})
+		var target := best.get("enemy") as Node2D
+		assignments.append(target)
+		if target != null:
+			used_ids[target.get_instance_id()] = true
+	return assignments
 
 func _homing_target_assignments(origin: Vector2, shot_directions: Array[Vector2], max_unique_targets: int, forced_target: Node2D = null) -> Array[Node2D]:
 	var assignments: Array[Node2D] = []
@@ -5238,6 +5382,8 @@ func _homing_target_assignments(origin: Vector2, shot_directions: Array[Vector2]
 		if hp_value != null and float(hp_value) <= 0.0:
 			continue
 		if target.global_position.y > BREACH_Y + 40.0:
+			continue
+		if _target_has_lethal_inflight_reservation(target):
 			continue
 		candidates.append(target)
 	if candidates.is_empty():
@@ -5319,7 +5465,7 @@ func _multishot_damage_multiplier(lane_count: int, lane_damage_bonus := 0.0) -> 
 			base_multiplier = 0.70
 	return clampf(base_multiplier + float(lane_damage_bonus), 0.0, 1.0)
 
-func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0) -> void:
+func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierce: int, split: int, split_falloff: float, homing := 0.0, splash := 0.0, cloud := 0.0, visual_scale := 1.0, visual_profile := "", armor_penetration := 0.0, status_strength := -1.0, preferred_target: Node2D = null, homing_delay_override := -1.0, forecast_target: Node2D = null) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate()
 	_configure_audit_projectile(projectile)
 	var weapon := DataLoader.get_row("weapons", weapon_id)
@@ -5330,6 +5476,11 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 	if element == "fire" and profile == "":
 		profile = "fire_round"
 	projectile.setup(origin, direction, float(weapon.get("projectile_speed", 1450.0)), damage, element, pierce, split, split_falloff, homing, splash, cloud, visual_scale, 0, "", profile, armor_penetration, status_strength, preferred_target, homing_delay_override)
+	if is_instance_valid(forecast_target):
+		projectile.set_meta(PROJECTILE_FORECAST_TARGET_META, forecast_target.get_instance_id())
+		projectile.set_meta(PROJECTILE_FORECAST_DAMAGE_META, maxf(damage, 0.0))
+		projectile.set_meta(PROJECTILE_FORECAST_ELEMENT_META, element)
+		projectile.set_meta(PROJECTILE_FORECAST_PENETRATION_META, clampf(armor_penetration, 0.0, 0.95))
 	projectile.split_requested.connect(_on_projectile_split_requested)
 	projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 	$ProjectileLayer.add_child(projectile)
@@ -5374,6 +5525,28 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 		for index in range(directions.size()):
 			directions[index] = directions[index].rotated(correction).normalized()
 	return directions
+
+func _best_multishot_lane_candidate(origin: Vector2, direction: Vector2, candidates: Array, used_ids: Dictionary) -> Dictionary:
+	var best: Dictionary = {}
+	var best_score := -INF
+	var normalized := direction.normalized()
+	for item in candidates:
+		var enemy := item.get("enemy") as Node2D
+		if enemy == null or not is_instance_valid(enemy) or used_ids.has(enemy.get_instance_id()):
+			continue
+		var offset := enemy.global_position - origin
+		var forward := offset.dot(normalized)
+		if forward <= 24.0:
+			continue
+		var lateral := absf(offset.cross(normalized))
+		if lateral > _projectile_forecast_hit_radius(enemy):
+			continue
+		var lane_score := float(item.get("score", 0.0)) - lateral * 2.0 - forward * 0.002
+		if lane_score > best_score:
+			best_score = lane_score
+			best = item.duplicate()
+			best["lateral"] = lateral
+	return best
 
 func _priority_aim_direction(origin: Vector2) -> Vector2:
 	var priority_point := Vector2.ZERO
@@ -5449,10 +5622,17 @@ func _multi_shot_target_candidates(origin: Vector2, base_direction: Vector2) -> 
 			used_ids[locked.get_instance_id()] = true
 			candidates.append({"enemy": locked, "score": 999999.0})
 	for enemy in $EnemyLayer.get_children():
-		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("targeting_snapshot"):
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D or not enemy.has_method("targeting_snapshot"):
 			continue
 		var enemy_node := enemy as Node2D
 		if used_ids.has(enemy_node.get_instance_id()):
+			continue
+		var hp_value: Variant = enemy_node.get("hp")
+		if hp_value != null and float(hp_value) <= 0.0:
+			continue
+		if enemy_node.global_position.y > BREACH_Y + 40.0:
+			continue
+		if target_manager != null and not target_manager.has_lock() and _target_has_lethal_inflight_reservation(enemy_node):
 			continue
 		var to_enemy: Vector2 = enemy_node.global_position - origin
 		var distance := to_enemy.length()
@@ -5482,6 +5662,14 @@ func _multi_shot_target_candidates(origin: Vector2, base_direction: Vector2) -> 
 	)
 	return candidates
 
+func _projectile_forecast_hit_radius(enemy: Node2D) -> float:
+	var enemy_radius := 70.0
+	var collision := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision != null and collision.shape is CircleShape2D:
+		var body_scale := maxf(absf(enemy.global_scale.x), absf(enemy.global_scale.y))
+		enemy_radius = float((collision.shape as CircleShape2D).radius) * body_scale
+	return enemy_radius + PROJECTILE_FORECAST_RADIUS
+
 func _spawn_pet() -> void:
 	if pet_data.is_empty():
 		return
@@ -5490,11 +5678,16 @@ func _spawn_pet() -> void:
 	pet_sprite.process_mode = Node.PROCESS_MODE_PAUSABLE
 	pet_sprite.texture = load(pet_data.get("sprite", pet_data.get("icon", "")))
 	pet_sprite.position = _pet_anchor_position()
-	pet_sprite.scale = Vector2(0.26, 0.26) * _visual_level_scale(pet_level)
 	pet_sprite.modulate = Color.WHITE
 	pet_sprite.z_index = DEFENSE_ACTOR_Z
 	add_child(pet_sprite)
 	_load_pet_animation_frames(str(pet_data.get("sprite", "")))
+	# Premium pet sources use smaller canvases and much narrower silhouettes than
+	# the original 512px companions. A universal 0.26 scale consequently made an
+	# Apocalypse pet only 51-84px wide on the battlefield. Normalize authored
+	# premium rows by their visible alpha height; ordinary pets keep the shipped
+	# fixed scale and every combat/stat value remains unchanged.
+	pet_sprite.scale = _pet_battle_sprite_scale() * _visual_level_scale(pet_level)
 	_attach_growth_badge(pet_sprite, pet_level, Vector2(-88, -152))
 	_spawn_pet_aura()
 	var skill := _pet_skill_data()
@@ -5505,6 +5698,37 @@ func _spawn_pet() -> void:
 		pet_repair_cooldown = maxf(1.0, float(pet_data.get("repair_interval", 18.0)))
 		pet_emergency_cooldown = 0.0
 		_spawn_float_text(pet_sprite.global_position + Vector2(0, -80), "维修系统在线", Color(0.35, 1.0, 0.68))
+
+func _pet_presentation() -> Dictionary:
+	var value: Variant = pet_data.get("presentation", {})
+	return value if value is Dictionary else {}
+
+func _pet_battle_sprite_scale() -> Vector2:
+	var target_visible_height := float(_pet_presentation().get("battle_visible_height", 0.0))
+	if target_visible_height <= 0.0 or pet_sprite == null or pet_sprite.texture == null:
+		return Vector2(0.26, 0.26)
+	var image := pet_sprite.texture.get_image()
+	if image == null or image.is_empty():
+		return Vector2(0.26, 0.26)
+	var used := image.get_used_rect()
+	if used.size.y <= 0:
+		return Vector2(0.26, 0.26)
+	var normalized := target_visible_height / float(used.size.y)
+	return Vector2(normalized, normalized)
+
+func _pet_aura_local_base_scale() -> Vector2:
+	var authored_world_scale := float(_pet_presentation().get("battle_aura_scale", 0.0))
+	if authored_world_scale <= 0.0 or pet_sprite == null:
+		return Vector2(0.28, 0.28)
+	var sprite_scale := maxf(absf(pet_sprite.scale.x), 0.001)
+	return Vector2.ONE * authored_world_scale / sprite_scale
+
+func _pet_aura_local_offset() -> Vector2:
+	var authored_world_y := float(_pet_presentation().get("battle_aura_offset_y", -20.0))
+	if not _pet_presentation().has("battle_aura_scale") or pet_sprite == null:
+		return Vector2(0.0, -20.0)
+	var sprite_scale := maxf(absf(pet_sprite.scale.y), 0.001)
+	return Vector2(0.0, authored_world_y / sprite_scale)
 
 func _spawn_character() -> void:
 	character_rig = Node2D.new()
@@ -5603,6 +5827,8 @@ func _character_body_anchor_offset(pose_key: String, sprite_scale: float) -> Vec
 	if character_sprite != null and character_sprite.texture != null:
 		texture_size = character_sprite.texture.get_size()
 	var body_center_x := float(metric.get("body_center_x_px", texture_size.x * 0.5))
+	if _premium_true_grip_mirrors_pose(_character_asset_id(), pose_key):
+		body_center_x = texture_size.x - body_center_x
 	var foot_y := float(metric.get("foot_y_px", texture_size.y * 0.5))
 	return Vector2(
 		(texture_size.x * 0.5 - body_center_x) * sprite_scale,
@@ -6529,6 +6755,7 @@ func _play_character_hurt() -> void:
 
 func _update_character_body_pose(pose_key := "") -> void:
 	var resolved_pose := pose_key if pose_key != "" else _character_current_body_pose_key()
+	character_sprite.flip_h = _premium_true_grip_mirrors_pose(_character_asset_id(), resolved_pose)
 	var normalized_scale := _character_body_sprite_scale(resolved_pose)
 	var breathe := sin(Time.get_ticks_msec() / 420.0)
 	var pose_offset := _character_body_anchor_offset(resolved_pose, normalized_scale)
@@ -6646,6 +6873,14 @@ func _premium_true_grip_muzzle(asset_id: String, aim: String, fallback: Vector2)
 	if raw is Array and raw.size() >= 2:
 		return Vector2(float(raw[0]), float(raw[1]))
 	return fallback
+
+func _premium_true_grip_mirrors_pose(asset_id: String, aim: String) -> bool:
+	var grip: Dictionary = _weapon_presentation().get("true_grip", {})
+	var by_character: Variant = grip.get("mirror_x_by_character", {})
+	if not by_character is Dictionary:
+		return false
+	var mirrored_aims: Variant = (by_character as Dictionary).get(asset_id, [])
+	return mirrored_aims is Array and (mirrored_aims as Array).has(aim)
 
 func _weapon_visual_profile(id := "") -> String:
 	var resolved_id := id if id != "" else weapon_id
@@ -8002,8 +8237,8 @@ func _spawn_pet_aura() -> void:
 		return
 	pet_aura = Node2D.new()
 	pet_aura.name = "PetAura"
-	pet_aura.position = Vector2(0, -20)
-	pet_aura.scale = Vector2(0.28, 0.28) * (1.0 + 0.06 * float(_growth_rank(pet_level)))
+	pet_aura.position = _pet_aura_local_offset()
+	pet_aura.scale = _pet_aura_local_base_scale() * (1.0 + 0.06 * float(_growth_rank(pet_level)))
 	pet_aura.z_index = -1
 	var color := _element_color(str(pet_data.get("element", "physical")))
 	color.a = 0.24 + 0.04 * float(_growth_rank(pet_level))
@@ -8018,7 +8253,7 @@ func _update_pet_aura(delta: float) -> void:
 		return
 	pet_aura.rotation -= delta * 0.9
 	var pulse := 0.9 + absf(sin(Time.get_ticks_msec() / 330.0)) * 0.18
-	pet_aura.scale = Vector2(0.28, 0.28) * (1.0 + 0.06 * float(_growth_rank(pet_level))) * pulse
+	pet_aura.scale = _pet_aura_local_base_scale() * (1.0 + 0.06 * float(_growth_rank(pet_level))) * pulse
 
 func _show_loadout_intro() -> void:
 	var character_name := DataLoader.tr_key(character_data.get("name_key", character_id))
@@ -8842,6 +9077,12 @@ func _spawn_chain_projectiles(primary: Node, origin: Vector2, damage: float, ele
 		var chain_profile := "apocalypse_thunder" if weapon_profile == "apocalypse_thunder" else "split"
 		var chain_texture := "" if weapon_profile == "apocalypse_thunder" else "res://assets/production/sprites/projectiles/proj_split_mini.png"
 		projectile.setup(origin + direction * 18.0, direction, 1500.0, chain_damage, chain_element, 0, 0, 0.55, 2.8, 0.0, 0.0, 0.62 if weapon_profile == "apocalypse_thunder" else 0.52, 1, chain_texture, chain_profile, armor_penetration, status_strength, target)
+		# The ricochet is born only 18px beyond the impact center, still well
+		# inside a normal enemy's 70px collision body (and even deeper inside a
+		# Boss). Carry the confirmed primary hit into the child projectile so its
+		# first physics overlap cannot consume the ricochet on the same enemy.
+		if primary != null and is_instance_valid(primary):
+			projectile.hit_target_ids[primary.get_instance_id()] = true
 		projectile.hit_confirmed.connect(_on_projectile_hit_confirmed)
 		if _audit_combat_rng != null:
 			$ProjectileLayer.add_child(projectile)
@@ -10671,14 +10912,17 @@ func _resolve_death_mechanic(enemy: Node) -> void:
 	_spawn_death_element_vfx(enemy.global_position, death_element, bool(enemy.boss))
 	match str(enemy.mechanic):
 		"explode_on_death":
-			_enemy_death_blast(enemy, 170.0, 0.45, Color(1.0, 0.45, 0.18))
+			_enemy_death_blast(enemy, 170.0, 0.45, Color(1.0, 0.45, 0.18), _loc("爆炸波及", "Explosion Reached Base"), "enemy_attack_blast")
 		"toxic_cloud":
-			_enemy_death_blast(enemy, 220.0, 0.28, Color(0.42, 1.0, 0.28))
+			_enemy_death_blast(enemy, 220.0, 0.28, Color(0.42, 1.0, 0.28), _loc("毒云波及", "Toxic Cloud Reached Base"), "enemy_attack_corrosion")
 		"split":
 			for offset in [-46.0, 46.0]:
 				_spawn_enemy_instance("zombie_crawler", enemy.global_position + Vector2(offset, 16.0), false, 0.0)
 
-func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: Color) -> void:
+func _enemy_death_blast(enemy: Node, fallback_radius: float, damage_scale: float, color: Color, base_label: String, base_impact_sfx: String) -> void:
+	var params_var: Variant = enemy.get("mechanic_params")
+	var params: Dictionary = params_var if params_var is Dictionary else {}
+	var radius := maxf(0.0, float(params.get("radius", fallback_radius)))
 	_spawn_enemy_attack_vfx(enemy, str(enemy.mechanic), enemy.global_position)
 	_spawn_attack_ring(enemy.global_position, radius, color, 0.24)
 	for target in $EnemyLayer.get_children():
@@ -10686,9 +10930,58 @@ func _enemy_death_blast(enemy: Node, radius: float, damage_scale: float, color: 
 			continue
 		if target.global_position.distance_to(enemy.global_position) <= radius and target.has_method("take_damage"):
 			target.take_damage(18.0 * damage_scale * float(turret.damage_mult), "fire")
-	if enemy.global_position.y > 1080.0:
+	# The old y > 1080 shortcut silently gave every death blast an implicit
+	# ~420px reach on the 1500px defense line, while its authored ring was only
+	# 160-190px. Base damage now uses the exact same radius the player sees.
+	if _death_blast_reaches_base(enemy.global_position, radius):
+		_spawn_death_blast_base_reach_vfx(enemy.global_position, radius, color)
 		var base_damage := _enemy_skill_damage(enemy, damage_scale, 2.0)
-		_apply_enemy_skill_base_damage(enemy, base_damage, "爆裂", color, _base_damage_impact_position(enemy.global_position.x))
+		_apply_enemy_skill_base_damage(
+			enemy,
+			base_damage,
+			base_label,
+			color,
+			_base_damage_impact_position(enemy.global_position.x),
+			base_impact_sfx,
+			true
+		)
+
+func _death_blast_reaches_base(origin: Vector2, radius: float) -> bool:
+	return origin.y + maxf(radius, 0.0) >= _base_line_y()
+
+func _spawn_death_blast_base_reach_vfx(origin: Vector2, radius: float, color: Color) -> void:
+	var target := _base_damage_impact_position(origin.x)
+	var visible_start := Vector2(origin.x, minf(origin.y + radius * 0.28, target.y))
+	var travel := target - visible_start
+	if travel.length_squared() > 4.0 and _can_spawn_projectile_fx(true):
+		var bridge := Line2D.new()
+		_track_transient_fx(bridge, "projectile")
+		bridge.name = "DeathBlastBaseReach"
+		bridge.global_position = visible_start
+		bridge.points = PackedVector2Array([
+			Vector2.ZERO,
+			travel * 0.52 + Vector2(0.0, -12.0),
+			travel,
+		])
+		bridge.width = 34.0 if not SettingsManager.reduced_effects_enabled() else 22.0
+		bridge.default_color = Color(color.r, color.g, color.b, 0.72)
+		bridge.texture = VfxLib.STREAK_TEXTURE
+		bridge.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+		bridge.joint_mode = Line2D.LINE_JOINT_ROUND
+		bridge.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		bridge.end_cap_mode = Line2D.LINE_CAP_ROUND
+		bridge.material = _new_muzzle_additive_material()
+		bridge.z_index = 74
+		$ProjectileLayer.add_child(bridge)
+		var tween := bridge.create_tween()
+		tween.set_trans(Tween.TRANS_QUINT)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(bridge, "width", 3.0, 0.32)
+		tween.parallel().tween_property(bridge, "modulate:a", 0.0, 0.32)
+		tween.tween_callback(bridge.queue_free)
+	_spawn_impact_core_flash(target + Vector2(0, -18.0), Color(color.r, color.g, color.b, 0.94), 0.34, 0.24, 4.8, true)
+	_spawn_impact_shock_ring(target, Color(color.r, color.g, color.b, 0.76), 132.0, 9.0, 0.30, true)
+	_shake_hud(7.0, 0.16)
 
 func _on_enemy_breached(enemy: Node, damage: int) -> void:
 	var profiled_boss_attack := _boss_has_profiled_base_attack(enemy)
@@ -12018,9 +12311,20 @@ func _refresh_card_offer_dynamic_layout() -> void:
 	var cards := get_node_or_null("Hud/CardPanel/Cards") as VBoxContainer
 	if cards == null:
 		return
+	var offer_cards: Array[Panel] = []
+	var uniform_card_height := CARD_OFFER_CARD_BASE_HEIGHT
 	for child in cards.get_children():
 		if child is Panel:
-			_layout_skill_offer_card(child as Panel)
+			var offer_card := child as Panel
+			_layout_skill_offer_card(offer_card)
+			offer_cards.append(offer_card)
+			uniform_card_height = maxf(uniform_card_height, offer_card.custom_minimum_size.y)
+	# The three choices are one comparison set. Measure every localized copy first,
+	# then give the complete trio the tallest natural card height. This prevents a
+	# short card from collapsing while a long description silently loses its final
+	# line, and keeps tag chips on one shared visual baseline.
+	for offer_card in offer_cards:
+		_layout_skill_offer_card(offer_card, uniform_card_height)
 	_fit_card_offer_panel_to_cards()
 
 func _fit_card_offer_panel_to_cards() -> void:
@@ -12096,7 +12400,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	title.name = "Title"
 	title.text = display_name
 	title.position = Vector2(CARD_OFFER_TEXT_X, 20)
-	title.size = Vector2(538.0 - CARD_OFFER_TEXT_X, 60)
+	title.size = Vector2(292.0, 60)
 	var title_font_size := 24 if LocalizationManager.is_english() else 28
 	UiKit.apply_label(title, title_font_size, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
@@ -12130,7 +12434,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
 		badge.position = Vector2(660, 36)
-		badge.size = Vector2(152, 34)
+		badge.size = Vector2(164, 34)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
@@ -12171,7 +12475,10 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 			desc.text = balanced_desc
 			desc.autowrap_mode = TextServer.AUTOWRAP_OFF
 	desc.add_theme_constant_override("line_spacing", 5)
-	desc.clip_text = true
+	# The card itself still clips ornamental overflow, but authored body copy must
+	# never be ellipsized or cut at a one-line viewport. Its measured wrapped height
+	# below is authoritative for the equal-height trio.
+	desc.clip_text = false
 	desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(desc)
 
@@ -12204,7 +12511,7 @@ func _wrapped_label_required_height(label: Label, width: float, minimum_height: 
 	var required := measured.y + float(maxi(0, line_count - 1) * line_spacing) + 4.0
 	return ceil(maxf(minimum_height, required))
 
-func _layout_skill_offer_card(card: Panel) -> void:
+func _layout_skill_offer_card(card: Panel, forced_card_height := 0.0) -> void:
 	var stats := card.get_node_or_null("Stats") as Label
 	var desc := card.get_node_or_null("Desc") as Label
 	var tags := card.get_node_or_null("Tags") as HBoxContainer
@@ -12226,10 +12533,17 @@ func _layout_skill_offer_card(card: Panel) -> void:
 	var icon_bottom := CARD_OFFER_ICON_FRAME_POS.y + CARD_OFFER_ICON_FRAME_SIZE.y + CARD_OFFER_BOTTOM_PADDING
 	var copy_bottom := tags.position.y + tag_h + CARD_OFFER_BOTTOM_PADDING
 	var measured_card_h: float = ceil(maxf(CARD_OFFER_CARD_BASE_HEIGHT, maxf(icon_bottom, copy_bottom)))
-	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, measured_card_h)
+	var final_card_h := maxf(measured_card_h, forced_card_height)
+	if forced_card_height > 0.0:
+		# Equal-height cards keep the metadata chips on the same lower baseline. The
+		# description retains its complete measured lane above; only spare space is
+		# distributed between the copy and the chips.
+		tags.position.y = final_card_h - CARD_OFFER_BOTTOM_PADDING - tag_h
+	card.set_meta("card_offer_natural_height", measured_card_h)
+	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, final_card_h)
 	card.size = card.custom_minimum_size
 	if accent_bar != null:
-		accent_bar.size = Vector2(12.0, measured_card_h)
+		accent_bar.size = Vector2(12.0, final_card_h)
 
 func _balanced_card_desc_lines(value: String, font: Font, font_size: int) -> String:
 	var words := value.split(" ", false)

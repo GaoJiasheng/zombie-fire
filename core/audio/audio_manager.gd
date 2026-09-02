@@ -286,12 +286,12 @@ func release_for_tests() -> void:
 func play_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
 	_play_sfx_internal(id, volume_db, pitch_variation, "", false)
 
-func play_enemy_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04) -> void:
+func play_enemy_sfx(id: String, volume_db := 0.0, pitch_variation := 0.04, force_interrupt := false) -> void:
 	# All zombie motion, casts, attacks, deaths, defense warnings and real base
 	# contacts share one authored lane. Crowd density may choose which action is
 	# audible, but it must never turn one event into several simultaneous clips.
 	# A real contact/warning replaces the current action instead of layering over it.
-	_play_sfx_internal(id, volume_db, pitch_variation, ENEMY_FOLEY_GROUP, enemy_sfx_interrupts_current(id))
+	_play_sfx_internal(id, volume_db, pitch_variation, ENEMY_FOLEY_GROUP, force_interrupt or enemy_sfx_interrupts_current(id))
 
 func enemy_sfx_interrupts_current(id: String) -> bool:
 	return id in ["enemy_breach", "threat_warning", "hit_immune"]

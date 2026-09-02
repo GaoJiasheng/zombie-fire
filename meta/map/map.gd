@@ -20,7 +20,7 @@ const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
 const CHAPTER_RIGHT_W := 300.0
-const CHAPTER_ACTION_SIZE := Vector2(284.0, 80.0)
+const CHAPTER_ACTION_SIZE := Vector2(280.0, 80.0)
 const CHAPTER_ACTION_Y := 252.0
 
 var router: Node
@@ -72,15 +72,19 @@ func _ensure_endless_button() -> void:
 	btn.texture_pressed = animated
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_SCALE
-	# Texture-backed veil: visible UI must be texture-driven, so reuse the shared
-	# panel skin the way collection.gd tints its locked-card veil.
+	# The animated horde artwork is already the authored texture surface. The old
+	# readability veil reused a second *framed* panel texture, so its stretched
+	# corners sat on top of EndlessFrame and made the combined border look skewed.
+	# Keep this layer borderless and let the single nine-slice below own the frame.
 	var veil := TextureRect.new()
 	veil.name = "ReadabilityVeil"
-	veil.texture = load("res://assets/production/sprites/ui/ui_panel_skin.png")
 	veil.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Use the authored borderless cooldown veil as a stretched dim texture. It
+	# keeps the horde art readable without reintroducing a second framed panel.
+	veil.texture = load("res://assets/production/sprites/ui/ui_cd_overlay.png")
 	veil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	veil.stretch_mode = TextureRect.STRETCH_SCALE
-	veil.modulate = Color(0.012, 0.026, 0.045, 0.42)
+	veil.modulate = Color(0.07, 0.10, 0.14, 0.92)
 	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(veil)
 	var frame := PanelContainer.new()
@@ -525,7 +529,10 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	var margin := MarginContainer.new()
 	margin.name = "ChapterContentMargin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 32)
+	# Keep every copy block beyond the authored route rail. The old 32px inset
+	# landed exactly on the rail's right edge, so “关卡” and “击破” visually cut
+	# through the chapter frame on tall phones.
+	margin.add_theme_constant_override("margin_left", 48)
 	margin.add_theme_constant_override("margin_top", 24)
 	margin.add_theme_constant_override("margin_right", 20)
 	margin.add_theme_constant_override("margin_bottom", 20)
@@ -533,16 +540,16 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	button.add_child(margin)
 
 	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 24)
+	columns.add_theme_constant_override("separation", 12)
 	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(columns)
 
 	var visual_column := VBoxContainer.new()
-	visual_column.custom_minimum_size = Vector2(384, 0)
+	visual_column.custom_minimum_size = Vector2(300, 0)
 	visual_column.add_theme_constant_override("separation", 8)
 	visual_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	columns.add_child(visual_column)
-	visual_column.add_child(_build_chapter_thumbnail(chapter_id, unlocked))
+	visual_column.add_child(_build_chapter_thumbnail_slot(chapter_id, unlocked, accent))
 
 	var range_row := HBoxContainer.new()
 	range_row.add_theme_constant_override("separation", 10)
@@ -586,8 +593,11 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 
 	var bottom := HBoxContainer.new()
 	bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	bottom.alignment = BoxContainer.ALIGNMENT_CENTER
-	bottom.add_theme_constant_override("separation", 8)
+	# Keep the two boss badges and the primary action left-packed. Any spare width
+	# belongs on the right as a protected inset; centering the row split that
+	# safety budget and left the button skin visually touching the card frame.
+	bottom.alignment = BoxContainer.ALIGNMENT_BEGIN
+	bottom.add_theme_constant_override("separation", 4)
 	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_column.add_child(bottom)
 	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, false), false, unlocked))
@@ -605,10 +615,23 @@ func _chapter_thumbnail_path(chapter_id: int) -> String:
 		return ""
 	return "res://assets/production/sprites/ui/map/warzone_thumbnails/warzone_%02d_%s_thumb_candidate_420x144.png" % [chapter_id, names[chapter_id - 1]]
 
-func _build_chapter_thumbnail(chapter_id: int, unlocked: bool) -> TextureRect:
+func _build_chapter_thumbnail_slot(chapter_id: int, unlocked: bool, accent: Color) -> Control:
+	var slot := Control.new()
+	slot.name = "ChapterThumbnailSlot"
+	slot.custom_minimum_size = Vector2(300, 140)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var thumbnail := _build_chapter_thumbnail(chapter_id, unlocked, accent)
+	# Move the image into the unused left breathing room and slightly lower it in
+	# the card. Its narrower right edge restores separation from the title column.
+	thumbnail.position = Vector2(-12, 8)
+	thumbnail.size = Vector2(292, 132)
+	slot.add_child(thumbnail)
+	return slot
+
+func _build_chapter_thumbnail(chapter_id: int, unlocked: bool, accent: Color) -> TextureRect:
 	var thumbnail := TextureRect.new()
 	thumbnail.name = "ChapterThumbnail"
-	thumbnail.custom_minimum_size = Vector2(384, 132)
+	thumbnail.custom_minimum_size = Vector2(292, 132)
 	var path := _chapter_thumbnail_path(chapter_id)
 	if ResourceLoader.exists(path):
 		thumbnail.texture = load(path)
@@ -616,6 +639,16 @@ func _build_chapter_thumbnail(chapter_id: int, unlocked: bool) -> TextureRect:
 	thumbnail.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	thumbnail.modulate = Color.WHITE if unlocked else Color(0.48, 0.52, 0.56, 0.72)
 	thumbnail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var strip := TextureRect.new()
+	strip.name = "ChapterThumbnailAccent"
+	strip.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+	strip.offset_right = 8.0
+	strip.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
+	strip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	strip.stretch_mode = TextureRect.STRETCH_SCALE
+	strip.modulate = Color(accent.r, accent.g, accent.b, 0.96 if unlocked else 0.52)
+	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	thumbnail.add_child(strip)
 	return thumbnail
 
 func _build_chapter_status_pill(text: String, accent: Color) -> PanelContainer:
@@ -646,44 +679,73 @@ func _build_chapter_progress_panel(chapter: Dictionary, unlocked: bool, accent: 
 	stack.add_child(summary)
 	var segments := HBoxContainer.new()
 	segments.name = "ProgressSegments"
-	segments.custom_minimum_size = Vector2(0, 22)
-	segments.add_theme_constant_override("separation", 4)
+	segments.custom_minimum_size = Vector2(360, 20)
+	segments.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	segments.add_theme_constant_override("separation", 5)
 	segments.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(segments)
 	for index in range(maxi(total_levels, 1)):
 		var segment := PanelContainer.new()
+		segment.name = "LevelProgressSegment%02d" % (index + 1)
 		segment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		segment.custom_minimum_size = Vector2(10, 18)
-		# Texture-backed segment: tint the shared plate skin instead of painting a
-		# solid box, so the progress rail stays art-driven like the rest of the card.
-		segment.add_theme_stylebox_override("panel", UiKit.plate_style(accent))
-		segment.modulate = (
-			Color(accent.r, accent.g, accent.b, 0.92)
-			if index < count and unlocked
-			else Color(0.18, 0.23, 0.28, 0.82)
+		segment.custom_minimum_size = Vector2(10, 14)
+		# The armored plate texture is authored for large panels. Compressing ten
+		# copies to 18px high collapses each nine-slice into two overlapping corner
+		# ornaments, which reads as a row of clipped triangles. These are level
+		# completion segments, so use a dedicated compact pill with an intact body.
+		segment.add_theme_stylebox_override(
+			"panel",
+			_chapter_progress_segment_style(accent, index < count, unlocked)
 		)
 		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		segments.add_child(segment)
 	return stack
 
+func _chapter_progress_segment_style(accent: Color, complete: bool, unlocked: bool) -> StyleBox:
+	var active := complete and unlocked
+	var tint := (
+		Color(accent.r * 0.74, accent.g * 0.74, accent.b * 0.74, 0.96)
+		if active
+		else Color(0.075, 0.105, 0.125, 0.92)
+	)
+	var style := UiKit.texture_style(
+		"res://assets/production/sprites/ui/ui_wave_progress_fill_native.png",
+		4.0,
+		0.0,
+		tint,
+	)
+	if style is StyleBoxTexture:
+		(style as StyleBoxTexture).modulate_color = tint
+	return style
+
 func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -> PanelContainer:
 	var badge := PanelContainer.new()
 	badge.name = "MajorBossNode" if major else "SmallBossNode"
-	badge.custom_minimum_size = Vector2(82, 66)
+	badge.custom_minimum_size = Vector2(88, 68)
 	badge.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var inset := MarginContainer.new()
+	inset.add_theme_constant_override("margin_left", 7)
+	inset.add_theme_constant_override("margin_top", 5)
+	inset.add_theme_constant_override("margin_right", 7)
+	inset.add_theme_constant_override("margin_bottom", 5)
+	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(inset)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 2)
+	row.add_theme_constant_override("separation", 4)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.add_child(row)
+	inset.add_child(row)
 	var icon_path := "res://assets/production/sprites/ui/map/ui_boss_badge_major.png" if major else "res://assets/production/sprites/ui/map/ui_boss_badge_minor.png"
-	var icon := UiKit.icon(icon_path, Vector2(48, 48))
+	var icon := UiKit.icon(icon_path, Vector2(40, 40))
 	icon.modulate = Color.WHITE if unlocked else Color(0.54, 0.57, 0.60, 0.70)
 	row.add_child(icon)
-	var level_number := DataLoader.level_number(str(level.get("id", "")))
+	# The campaign ends at 99, so a display-only leading zero wastes badge width
+	# and pushes the number into the right frame. Keep IDs padded in data, but show
+	# the natural two-digit boss level to players.
+	var level_number := int(DataLoader.level_number(str(level.get("id", ""))))
 	var number := UiKit.label(str(level_number), 13, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 1)
-	number.custom_minimum_size = Vector2(26, 0)
+	number.custom_minimum_size = Vector2(24, 0)
 	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	row.add_child(number)
 	badge.tooltip_text = TranslationServer.translate("大首领" if major else "小首领")
@@ -692,10 +754,11 @@ func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -
 func _build_chapter_action_control(text: String, enabled: bool, callback: Callable, primary := true) -> TextureButton:
 	var action := TextureButton.new()
 	action.name = "EnterChapterButton"
-	# 280x80 is the authored primary-action ruler (m1 smoke pins it); 286x80 is the
-	# matching native button size so the frame art is never resampled.
-	action.custom_minimum_size = Vector2(286, 80)
-	UiKit.apply_armored_texture_button(action, primary, Vector2(286, 80), enabled)
+	# Keep the authored 280px primary-action ruler while reserving a visible right
+	# inset inside the chapter card. The native 286px skin is only downsampled by
+	# two percent and the pinned touch contract remains fully satisfied.
+	action.custom_minimum_size = CHAPTER_ACTION_SIZE
+	UiKit.apply_armored_texture_button(action, primary, CHAPTER_ACTION_SIZE, enabled)
 	_make_scroll_friendly_button(action)
 	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:
@@ -704,6 +767,9 @@ func _build_chapter_action_control(text: String, enabled: bool, callback: Callab
 	var label := UiKit.label(text, 17 if enabled else 14, label_color, 3)
 	label.name = "ActionLabel"
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# The button art carries a heavy arrow cap on the right. Center within the
+	# usable face rather than the transparent texture rectangle.
+	label.offset_right = -18
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -737,23 +803,16 @@ func _add_chapter_art(parent: Control, portrait_path: String, unlocked: bool) ->
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(dim)
 
-func _add_chapter_frame(parent: Control, accent: Color, unlocked: bool) -> void:
+func _add_chapter_frame(parent: Control, _accent: Color, unlocked: bool) -> void:
 	var frame := PanelContainer.new()
 	frame.name = "ChapterFrame"
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
 	frame.add_theme_stylebox_override("panel", UiKit.map_level_card_texture_style(not unlocked))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(frame)
-	var rail := TextureRect.new()
-	rail.name = "ChapterRouteRail"
-	rail.texture = load("res://assets/production/sprites/ui/ui_map_accent_strip.png")
-	rail.position = Vector2(20, 28)
-	rail.size = Vector2(14, maxf(72.0, parent.custom_minimum_size.y - 56.0))
-	rail.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	rail.stretch_mode = TextureRect.STRETCH_SCALE
-	rail.modulate = Color(accent.r, accent.g, accent.b, 0.95 if unlocked else 0.52)
-	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(rail)
+	# The thumbnail owns the sole short chapter accent. A second full-height rail
+	# duplicated the same signal and read as two color bars stacked on the card's
+	# left edge, so the outer card stays neutral.
 
 func _add_chapter_status_pill(parent: Control, pos: Vector2, text: String, accent: Color) -> void:
 	var pill := PanelContainer.new()
@@ -1021,14 +1080,14 @@ func _make_nav_card(label: String, mode: String, icon_path: String, accent: Colo
 	elif ResourceLoader.exists(icon_path):
 		var icon := TextureRect.new()
 		icon.name = "Icon"
-		icon.texture = load(icon_path)
+		icon.texture = _nav_focus_texture(icon_path)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.offset_left = 12
-		icon.offset_top = 30
-		icon.offset_right = -12
-		icon.offset_bottom = -36
+		icon.offset_left = 4
+		icon.offset_top = 12
+		icon.offset_right = -4
+		icon.offset_bottom = -30
 		icon.modulate = Color(0.54, 0.78, 0.86, 0.42) if is_empty else Color(1.02, 1.02, 0.98, 1.0)
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		stage.add_child(icon)
@@ -1102,10 +1161,10 @@ func _add_nav_character_bust(stage: Control) -> void:
 	var center := CenterContainer.new()
 	center.name = "IconCenter"
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.offset_left = 8
-	center.offset_top = 22
-	center.offset_right = -8
-	center.offset_bottom = -40
+	center.offset_left = 4
+	center.offset_top = 10
+	center.offset_right = -4
+	center.offset_bottom = -34
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(center)
 
@@ -1113,11 +1172,33 @@ func _add_nav_character_bust(stage: Control) -> void:
 	clip.name = "Icon"
 	clip.texture = null
 	clip.clip_contents = true
-	clip.custom_minimum_size = Vector2(124, 80)
+	clip.custom_minimum_size = Vector2(142, 98)
 	clip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(clip)
-	UiKit.add_character_bust(clip, row, Vector2(124, 80), 124.0, -10.0, Color(1.04, 1.04, 0.98, 1.0))
+	UiKit.add_character_knee_crop_aligned(clip, row, Vector2(142, 98), 118.0, 0.0, Color(1.04, 1.04, 0.98, 1.0))
+
+func _nav_focus_texture(path: String) -> Texture2D:
+	var source := load(path) as Texture2D
+	if source == null:
+		return null
+	var image := source.get_image()
+	if image == null or image.is_empty():
+		return source
+	var used := image.get_used_rect()
+	if used.size == Vector2i.ZERO:
+		return source
+	# Crop transparent design-board padding before fitting. A small retained
+	# gutter protects glows and weapon tips while allowing every free/premium set
+	# to occupy the same prominent navigation socket.
+	var region := used.grow(8).intersection(Rect2i(Vector2i.ZERO, image.get_size()))
+	if region.size == Vector2i.ZERO:
+		return source
+	var atlas := AtlasTexture.new()
+	atlas.atlas = source
+	atlas.region = Rect2(region)
+	atlas.filter_clip = true
+	return atlas
 
 func _set_nav_card_style(card: PanelContainer, style: StyleBox) -> void:
 	if not is_instance_valid(card):

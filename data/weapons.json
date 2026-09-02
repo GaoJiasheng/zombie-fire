@@ -230,10 +230,10 @@
 				"left_pattern": "{character_id}_apocalypse_attack_left.png",
 				"right_pattern": "{character_id}_apocalypse_attack_right.png",
 				"muzzle_by_character": {
-					"char_vanguard": {"center": [0, -124], "left": [-77, -97], "right": [77, -97]},
-					"char_blaze": {"center": [0, -124], "left": [-82, -101], "right": [82, -101]},
-					"char_frost": {"center": [0, -124], "left": [-68, -100], "right": [68, -100]},
-					"char_volt": {"center": [0, -124], "left": [-77, -100], "right": [77, -100]}
+					"char_vanguard": {"center": [9, -248], "left": [-132, -233], "right": [131, -233]},
+					"char_blaze": {"center": [-2, -247], "left": [-133, -237], "right": [132, -237]},
+					"char_frost": {"center": [13, -248], "left": [-131, -245], "right": [130, -245]},
+					"char_volt": {"center": [5, -248], "left": [-128, -246], "right": [127, -246]}
 				}
 			}
 		},
@@ -286,11 +286,14 @@
 				"center_pattern": "{character_id}_apocalypse_attack.png",
 				"left_pattern": "{character_id}_apocalypse_attack_left.png",
 				"right_pattern": "{character_id}_apocalypse_attack_right.png",
+				"mirror_x_by_character": {
+					"char_volt": ["left"]
+				},
 				"muzzle_by_character": {
-					"char_vanguard": {"center": [0, -123], "left": [-83, -102], "right": [83, -102]},
-					"char_blaze": {"center": [0, -123], "left": [-84, -104], "right": [84, -104]},
-					"char_frost": {"center": [0, -123], "left": [-85, -105], "right": [85, -105]},
-					"char_volt": {"center": [0, -123], "left": [-84, -104], "right": [84, -104]}
+					"char_vanguard": {"center": [-1, -243], "left": [-122, -239], "right": [120, -239]},
+					"char_blaze": {"center": [3, -242], "left": [-88, -241], "right": [89, -242]},
+					"char_frost": {"center": [0, -243], "left": [-101, -243], "right": [90, -243]},
+					"char_volt": {"center": [25, -243], "left": [-91, -243], "right": [120, -242]}
 				}
 			}
 		},
@@ -342,10 +345,10 @@
 				"left_pattern": "{character_id}_apocalypse_attack_left.png",
 				"right_pattern": "{character_id}_apocalypse_attack_right.png",
 				"muzzle_by_character": {
-					"char_vanguard": {"center": [0, -132], "left": [-84, -105], "right": [84, -105]},
-					"char_blaze": {"center": [0, -134], "left": [-86, -107], "right": [86, -107]},
-					"char_frost": {"center": [0, -136], "left": [-86, -109], "right": [86, -109]},
-					"char_volt": {"center": [0, -134], "left": [-84, -107], "right": [84, -107]}
+					"char_vanguard": {"center": [0, -243], "left": [-118, -241], "right": [116, -241]},
+					"char_blaze": {"center": [9, -243], "left": [-119, -241], "right": [106, -242]},
+					"char_frost": {"center": [-2, -243], "left": [-108, -241], "right": [96, -241]},
+					"char_volt": {"center": [-1, -243], "left": [-118, -241], "right": [105, -241]}
 				}
 			}
 		},
@@ -398,10 +401,10 @@
 				"left_pattern": "{character_id}_apocalypse_attack_left.png",
 				"right_pattern": "{character_id}_apocalypse_attack_right.png",
 				"muzzle_by_character": {
-					"char_vanguard": {"center": [0, -136], "left": [-86, -109], "right": [86, -109]},
-					"char_blaze": {"center": [0, -136], "left": [-88, -110], "right": [88, -110]},
-					"char_frost": {"center": [0, -138], "left": [-88, -112], "right": [88, -112]},
-					"char_volt": {"center": [0, -136], "left": [-86, -110], "right": [86, -110]}
+					"char_vanguard": {"center": [30, -242], "left": [-64, -242], "right": [101, -243]},
+					"char_blaze": {"center": [11, -242], "left": [-63, -243], "right": [96, -243]},
+					"char_frost": {"center": [12, -243], "left": [-123, -245], "right": [114, -245]},
+					"char_volt": {"center": [20, -244], "left": [-46, -242], "right": [90, -243]}
 				}
 			}
 		},
