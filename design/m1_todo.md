@@ -2474,3 +2474,12 @@
 - [x] 完整 RC、导出后 PCK 启动 / 存档 / M1 smoke / TestFlight 功能探针、Xcode 归档及 IPA 审计全部通过。
 - [x] `1.0.0 (67)` 上传并经 Apple 验证为 `VALID / VALID / APP_STORE_ELIGIBLE`；Delivery UUID `913ae9bc-1346-4a84-8123-cc2ee6a7314a`。
 - [x] 上传 IPA 为 930,910,000 bytes，SHA-256 `93b3fb3634ee398b317fb01e293f8c099697b8126e6f25400f325319319383e1`；发布清单记录 `source_dirty=true`，普通导出特性已恢复为 `release`。
+
+## 阶段 225 · 视觉大包余项与探针证据自描述（2026-09-02）
+
+- [x] Boss HUD 出现时隐藏 Boss 世界名牌，并将普通敌人名牌 / 小血条自动压到 HUD 排除矩形下方；M1 新增全局矩形不相交断言。
+- [x] 删除商店追赶文案的无消费者英文旧键；本地化与发行字符串检查通过，运行时文案语义不变。
+- [x] 完成 1200 张 `--full-review`：零捕获失败，自动分诊 2 类、人工补充 2 类，留待 Owner 决定第三轮，不在本轮顺手修复。
+- [x] 隔离 worktree 的资产检查支持只读 `ZOMBIE_FIRE_SOURCE_REFS_ROOT`；完整 release-candidate 聚合门禁通过。
+- [x] frontline sweep JSON 自带四段免费侧指纹、夹具 SHA-256、Git HEAD 与 Godot 版本；星表工具默认拒绝错配证据并逐段报告差异。
+- [x] frontline 进程超时保留可配置入口并将默认值从 240 秒提高到 360 秒；超时状态与秒数写入每个 run 并有回归测试。

@@ -4848,3 +4848,13 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **完整验证**：全套 release-candidate gate、Godot 导入、8951 文件 / 865.1 MiB PCK 审计、导出后战斗启动、存档完整性、M1 smoke、`testflight_premium_preview=true` 探针、Xcode archive、App Store IPA 审计全部通过。
 - **Apple 交付**：`1.0.0 (67)`、Delivery UUID `913ae9bc-1346-4a84-8123-cc2ee6a7314a`；Apple 返回 `BUILD-STATUS=VALID`、`IMPORT-STATUS=VALID`、`APP_STORE_ELIGIBLE=true`、`IS-ON-APP-STORE-CONNECT=true`。
 - **产物**：IPA 930,910,000 bytes（887.8 MiB），SHA-256 `93b3fb3634ee398b317fb01e293f8c099697b8126e6f25400f325319319383e1`；清单位于 `build/ios/release/build_67/release_manifest.json`，桌面副本哈希一致。发布源包含未提交的 Owner 验收改动，清单如实记录 `tracked_changes_present=true`；临时 TestFlight 功能已恢复为普通 `release`。
+
+# 2026-09-02 · F-L–F-Q 视觉余项、全量分诊与探针溯源
+
+- **Boss HUD 排除区**：战斗层把权威 Boss HUD 全局矩形同步给敌人世界覆盖层；Boss 自身世界名牌在 HUD 存在时隐藏，普通敌人名牌、状态与小血条相交时整体下压。新增 M1 矩形合同，中英 1080×1920 / 2340 的出场与阶段切换共 8 张截图通过。
+- **死文案清理**：删除无运行时消费者的商店追赶折扣旧翻译键，保留 `store.gd` 当前已审核的内联中英文；未引入文案改写。
+- **Owner 全量复核**：`--full-review` 产出 1200/1200 张、零捕获失败。自动门禁定位英文隐私正文少 11px 与极光终焉武器名 37→31 缩字；人工补充角色详情固定底栏首屏闭合感、英文配装摘要换行节奏两项。完整原图留在桌面，仓库保存 manifest、7 张 contact sheet 与关键原图。
+- **隔离资产源**：资产包、僵尸轮廓和攻击动画检查统一支持 `ZOMBIE_FIRE_SOURCE_REFS_ROOT`，只在本 worktree 缺失 gitignored 历史源图时从显式只读根补查；运行时素材仍从当前仓库验证。
+- **证据自描述**：frontline sweep 顶层记录 `combat_input_fingerprint` 四段哈希、完整夹具 SHA-256、Git HEAD 与 Godot 版本。新增星表推导 / 比对入口，默认拒绝旧归档或当前仓库错配，并支持仅供取证的显式放行。
+- **超时合同**：`--process-timeout` 默认由 240 秒提高到 360 秒；Godot 子进程超时时每个种子继续记录 `probe_status=process_timeout` 与 `process_timeout_seconds`。回归测试覆盖四个元数据键、旧归档拒绝、匹配证据推导和超时记录。
+- **最终验证**：M1 smoke、运行时 UI 基元门禁、frontline 元数据回归和完整 `check_release_candidate.py` 均通过；隔离 worktree 与主线的 levels / weapons / economy / fixture 四段免费侧指纹逐字一致。
