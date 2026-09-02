@@ -11598,7 +11598,7 @@ func _layout_wave_toast(text: String) -> void:
 		band.size = size
 	wave_toast_label.position = Vector2(34, 2)
 	wave_toast_label.size = size - Vector2(68, 22)
-	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY if long_text else TextServer.AUTOWRAP_OFF
+	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if long_text else TextServer.AUTOWRAP_OFF
 	wave_toast_label.clip_text = true
 	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
 	if accent_line != null:
