@@ -1525,7 +1525,7 @@ func _fit_skill_hint_overlay_content(overlay: PanelContainer, title: Label, body
 	if text_box != null:
 		text_box.custom_minimum_size = Vector2(text_width, title_height + 8.0 + body_height)
 	var content_height := maxf(104.0, title_height + 8.0 + body_height) + 32.0
-	var overlay_height := ceil(maxf(270.0, content_height))
+	var overlay_height := ceilf(maxf(270.0, content_height))
 	overlay.offset_top = overlay.offset_bottom - overlay_height
 
 func _hide_skill_hint(clear_press_state := true) -> void:
