@@ -1,0 +1,34 @@
+{
+  "screen_count": 2,
+  "error_count": 0,
+  "screens": [
+    {
+      "label": "collection_characters_en",
+      "route": "collection",
+      "payload": {
+        "language": "en",
+        "mode": "characters"
+      },
+      "file": "collection_characters_en.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    },
+    {
+      "label": "typography_tall_en_collection_characters",
+      "route": "collection",
+      "payload": {
+        "language": "en",
+        "mode": "characters",
+        "viewport_size": [
+          1080,
+          2340
+        ]
+      },
+      "file": "typography_tall_en_collection_characters.png",
+      "capture_code": 0,
+      "runtime_audit_issues": [],
+      "image_analysis_issues": []
+    }
+  ]
+}
