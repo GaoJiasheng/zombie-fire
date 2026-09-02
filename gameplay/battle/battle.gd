@@ -5319,57 +5319,16 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element, visual_profile)
 
-func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, aim_anchor := Vector2.ZERO) -> Array[Vector2]:
-	var normalized_lanes: Array[Vector2] = []
+func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, _aim_anchor := Vector2.ZERO) -> Array[Vector2]:
+	var result: Array[Vector2] = []
 	for lane_direction in lane_directions:
-		if lane_direction.length_squared() > 0.01:
-			normalized_lanes.append(lane_direction.normalized())
-	if normalized_lanes.is_empty():
-		return normalized_lanes
-	# A non-scatter weapon already receives a rigid, evenly spaced multishot fan.
-	# Preserve it verbatim, including the lane placed through the selected target.
-	if pellet_count <= 1 or pellet_spread <= 0.0:
-		return normalized_lanes
-
-	# Do not nest one pellet fan inside every multishot lane. Nested fans create
-	# coincident or near-coincident angles whenever the lane step and pellet step
-	# share offsets (especially at 7/9/10/15 projectiles). Flatten the complete
-	# composition into one rigid fan: same projectile count and outer envelope,
-	# but one equal angular gap between every adjacent projectile.
-	var center_sum := Vector2.ZERO
-	for lane_direction in normalized_lanes:
-		center_sum += lane_direction
-	var center := center_sum.normalized() if center_sum.length_squared() > 0.01 else normalized_lanes[0]
-	var lane_half_span := 0.0
-	for lane_direction in normalized_lanes:
-		lane_half_span = maxf(lane_half_span, absf(center.angle_to(lane_direction)))
-	var total_shots := normalized_lanes.size() * maxi(pellet_count, 1)
-	var total_span := lane_half_span * 2.0 + pellet_spread
-	var step := total_span / float(maxi(total_shots - 1, 1))
-	var result := _fixed_multishot_fan(center, total_shots, step)
-
-	# Target correction happens before scatter composition. Re-anchor the nearest
-	# final trajectory to that corrected source lane so flattening never sacrifices
-	# the guaranteed projectile through the automatic/manual aim target.
-	if aim_anchor.length_squared() > 0.01:
-		var safe_anchor := aim_anchor.normalized()
-		var source_anchor := normalized_lanes[0]
-		var source_angle := INF
-		for lane_direction in normalized_lanes:
-			var candidate_angle := absf(lane_direction.angle_to(safe_anchor))
-			if candidate_angle < source_angle:
-				source_angle = candidate_angle
-				source_anchor = lane_direction
-		var result_anchor_index := 0
-		var result_angle := INF
-		for index in range(result.size()):
-			var candidate_angle := absf(result[index].angle_to(source_anchor))
-			if candidate_angle < result_angle:
-				result_angle = candidate_angle
-				result_anchor_index = index
-		var correction := result[result_anchor_index].angle_to(source_anchor)
-		for index in range(result.size()):
-			result[index] = result[index].rotated(correction).normalized()
+		var center := lane_direction.normalized()
+		if pellet_count <= 1 or pellet_spread <= 0.0:
+			result.append(center)
+			continue
+		for pellet_index in range(pellet_count):
+			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
+			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
 	return result
 
 func _resolved_weapon_lane_count(extra_projectiles: int, barrage_active: bool, source_character_level: int) -> int:
@@ -5532,9 +5491,10 @@ func _spawn_projectile(origin: Vector2, direction: Vector2, damage: float, pierc
 		_spawn_homing_line_vfx(origin, direction, element)
 
 func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: int, spread: float) -> Array[Vector2]:
-	# 多重射击仍是固定夹角的刚性扇形，不允许每条弹道自由转弯。自动模式会在“必有
-	# 一条弹道穿过当前目标”的多个合法扇形中，选择能覆盖最多不同敌人的朝向；手动
-	# 瞄准和点名锁定继续把玩家指定方向放在首位。
+	# 多重射击 = “固定夹角”的对称扇形：每条弹道之间角度固定、不各自变道锁敌（避免 imba）。
+	# 无点名时扇形整体仍参考敌群质心，但会整体旋转到至少一条真实弹道精确穿过当前自动目标；
+	# 锁定/手动瞄准时同样让一条主弹道精确命中优先方向。整个扇形只做刚体旋转，
+	# 因此偶数弹道不会从目标两侧跨过，所有相邻弹道也继续保持固定夹角。
 	# 每条弹道的固定夹角取自 MULTISHOT_LANE_DEG（不再用武器随机 spread——那会在 spread=0 时把所有
 	# 弹道叠成一条线，稍微偏一点就整组打空）；散射类武器额外的 spread 只做“下限加宽”。
 	var directions: Array[Vector2] = []
@@ -5542,14 +5502,15 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 		directions.append(base_direction.normalized())
 		return directions
 	var priority_dir := _priority_aim_direction(origin)
+	var center_dir := priority_dir if priority_dir.length_squared() > 0.01 else _multishot_center_direction(origin, base_direction)
 	var lane_step: float = maxf(deg_to_rad(MULTISHOT_LANE_DEG), spread / float(shots - 1))
+	var total: float = lane_step * float(shots - 1)
+	for index in range(shots):
+		var offset: float = -total * 0.5 + lane_step * float(index)
+		directions.append(center_dir.rotated(offset).normalized())
 	var hit_direction := priority_dir
 	if hit_direction.length_squared() <= 0.01:
 		hit_direction = _automatic_multishot_hit_direction(origin, base_direction)
-	if priority_dir.length_squared() <= 0.01 and hit_direction.length_squared() > 0.01:
-		return _optimized_automatic_multishot_fan(origin, hit_direction, shots, lane_step)
-	var center_dir := priority_dir if priority_dir.length_squared() > 0.01 else _multishot_center_direction(origin, base_direction)
-	directions = _fixed_multishot_fan(center_dir, shots, lane_step)
 	if hit_direction.length_squared() > 0.01:
 		var hit_lane := 0
 		var hit_angle := INF
@@ -5564,48 +5525,6 @@ func _primary_shot_directions(origin: Vector2, base_direction: Vector2, shots: i
 		for index in range(directions.size()):
 			directions[index] = directions[index].rotated(correction).normalized()
 	return directions
-
-func _fixed_multishot_fan(center_direction: Vector2, shots: int, lane_step: float) -> Array[Vector2]:
-	var directions: Array[Vector2] = []
-	var safe_center := center_direction.normalized() if center_direction.length_squared() > 0.01 else Vector2.UP
-	var total := lane_step * float(maxi(shots - 1, 0))
-	for index in range(shots):
-		var offset := -total * 0.5 + lane_step * float(index)
-		directions.append(safe_center.rotated(offset).normalized())
-	return directions
-
-func _optimized_automatic_multishot_fan(origin: Vector2, hit_direction: Vector2, shots: int, lane_step: float) -> Array[Vector2]:
-	var safe_hit := hit_direction.normalized()
-	var total := lane_step * float(maxi(shots - 1, 0))
-	var candidates := _multi_shot_target_candidates(origin, safe_hit)
-	var best_directions: Array[Vector2] = []
-	var best_score := -INF
-	for hit_lane in range(shots):
-		var hit_offset := -total * 0.5 + lane_step * float(hit_lane)
-		var center := safe_hit.rotated(-hit_offset)
-		var candidate_directions := _fixed_multishot_fan(center, shots, lane_step)
-		var score := _multishot_fan_coverage_score(origin, candidate_directions, candidates)
-		# When two fans cover the same enemies, keep the aimed lane nearer the visual
-		# centre so the character pose remains calm instead of oscillating per volley.
-		score -= absf(float(hit_lane) - float(shots - 1) * 0.5) * 0.01
-		if score > best_score:
-			best_score = score
-			best_directions = candidate_directions
-	return best_directions if not best_directions.is_empty() else _fixed_multishot_fan(safe_hit, shots, lane_step)
-
-func _multishot_fan_coverage_score(origin: Vector2, directions: Array[Vector2], candidates: Array) -> float:
-	var used_ids := {}
-	var score := 0.0
-	for direction in directions:
-		var best := _best_multishot_lane_candidate(origin, direction, candidates, used_ids)
-		if best.is_empty():
-			continue
-		var enemy := best.get("enemy") as Node2D
-		if enemy == null:
-			continue
-		used_ids[enemy.get_instance_id()] = true
-		score += 100000.0 + float(best.get("score", 0.0)) - float(best.get("lateral", 0.0)) * 2.0
-	return score
 
 func _best_multishot_lane_candidate(origin: Vector2, direction: Vector2, candidates: Array, used_ids: Dictionary) -> Dictionary:
 	var best: Dictionary = {}
