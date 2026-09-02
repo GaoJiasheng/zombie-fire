@@ -26,8 +26,8 @@ const PAUSE_ACTION_BUTTON_SIZE := Vector2(276.0, 154.0)
 # The deepest premium-theme corners reach farther into a compact three-column
 # action than the default skin. Keep both the larger icon and the short verb in
 # one horizontal row, inside a shared inset that is safe for all five themes.
-const PAUSE_ACTION_ICON_RECT := Rect2(38.0, 39.0, 76.0, 76.0)
-const PAUSE_ACTION_TITLE_RECT := Rect2(120.0, 38.0, 118.0, 78.0)
+const PAUSE_ACTION_ICON_RECT := Rect2(32.0, 39.0, 72.0, 76.0)
+const PAUSE_ACTION_TITLE_RECT := Rect2(106.0, 38.0, 138.0, 78.0)
 const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(32.0, 30.0, 212.0, 94.0)
 const PAUSE_CONTENT_ORIGIN := Vector2(44.0, 124.0)
 const PAUSE_CONTENT_WIDTH := 884.0
@@ -1537,14 +1537,15 @@ func _ensure_skill_hint_overlay() -> void:
 	var title := UiKit.label("", 26, UiKit.TEXT_MAIN, 3)
 	title.name = "Title"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	title.clip_text = true
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.clip_text = false
 	title.custom_minimum_size = Vector2(550, 34)
 	text_box.add_child(title)
 
 	var body := UiKit.label("", 19, Color(0.78, 0.9, 0.94, 1.0), 2)
 	body.name = "Body"
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.clip_text = true
+	body.clip_text = false
 	body.custom_minimum_size = Vector2(550, 176)
 	text_box.add_child(body)
 
@@ -1603,12 +1604,26 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 	var title := overlay.get_node_or_null("Margin/Row/TextBox/Title") as Label
 	if title != null:
 		title.text = title_text
-		title.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86, 1.0))
-		UiKit.fit_label_text(title, UiKit.scaled_font_size(26), 20, 2.0, 2.0)
+		UiKit.apply_label(title, 26, Color(0.96, 0.94, 0.86, 1.0), 3)
 	var body := overlay.get_node_or_null("Margin/Row/TextBox/Body") as Label
 	if body != null:
 		body.text = body_text
-		UiKit.fit_label_text(body, UiKit.scaled_font_size(19), 17, 2.0, 4.0)
+		UiKit.apply_label(body, 19, Color(0.78, 0.9, 0.94, 1.0), 2)
+	if title != null and body != null:
+		_fit_skill_hint_overlay_content(overlay, title, body)
+
+func _fit_skill_hint_overlay_content(overlay: PanelContainer, title: Label, body: Label) -> void:
+	var text_width := 550.0
+	var title_height := _wrapped_label_required_height(title, text_width, 34.0)
+	var body_height := _wrapped_label_required_height(body, text_width, 176.0)
+	title.custom_minimum_size = Vector2(text_width, title_height)
+	body.custom_minimum_size = Vector2(text_width, body_height)
+	var text_box := overlay.get_node_or_null("Margin/Row/TextBox") as VBoxContainer
+	if text_box != null:
+		text_box.custom_minimum_size = Vector2(text_width, title_height + 8.0 + body_height)
+	var content_height := maxf(104.0, title_height + 8.0 + body_height) + 32.0
+	var overlay_height := ceilf(maxf(270.0, content_height))
+	overlay.offset_top = overlay.offset_bottom - overlay_height
 
 func _hide_skill_hint(clear_press_state := true) -> void:
 	if has_node("Hud/SkillHintOverlay"):
@@ -2921,7 +2936,7 @@ func _pause_status_card() -> PanelContainer:
 		header.add_child(lab_button)
 		UiKit.apply_armored_button(lab_button, false, Vector2(224, 60), 19, true)
 	var grid := GridContainer.new()
-	grid.columns = 2
+	grid.columns = 1 if LocalizationManager.is_english() else 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2942,7 +2957,7 @@ func _pause_loadout_card() -> PanelContainer:
 	var card := _pause_section("出战配置", UiKit.CYAN, PAUSE_LOADOUT_CARD_HEIGHT)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
-	grid.columns = 2
+	grid.columns = 1 if LocalizationManager.is_english() else 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2965,7 +2980,7 @@ func _pause_skill_card() -> PanelContainer:
 	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
-	grid.columns = 3
+	grid.columns = _pause_skill_columns()
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2981,7 +2996,10 @@ func _pause_skill_card() -> PanelContainer:
 	return card
 
 func _pause_skill_row_count() -> int:
-	return maxi(1, int(ceil(float(maxi(skill_slot_ids.size(), 1)) / 3.0)))
+	return maxi(1, int(ceil(float(maxi(skill_slot_ids.size(), 1)) / float(_pause_skill_columns()))))
+
+func _pause_skill_columns() -> int:
+	return 2 if LocalizationManager.is_english() else 3
 
 func _pause_skill_card_height() -> float:
 	var rows := _pause_skill_row_count()
@@ -3065,6 +3083,7 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	var accent := UiKit.element_color(str(row.get("element", row.get("ammo_element", "physical"))))
 	var chip := PanelContainer.new()
 	chip.custom_minimum_size = Vector2(274, PAUSE_SKILL_CHIP_HEIGHT)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.clip_contents = true
 	chip.add_theme_stylebox_override("panel", UiKit.pill_style(accent, Color(0.012, 0.018, 0.026, 0.82)))
@@ -3087,6 +3106,7 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	name.custom_minimum_size = Vector2(0, 24)
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name.clip_text = true
+	name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	col.add_child(name)
 	var level := UiKit.label("Lv%d" % skills.level(skill_id), 15, UiKit.GOLD, 2)
 	level.name = "SkillLevel"
@@ -3217,10 +3237,10 @@ func _update_boss_hp_bar() -> void:
 	var armor_percent_text := _boss_hp_percent_text(armor_ratio)
 	if LocalizationManager.is_english():
 		boss_hp_label.text = (
-			"%s%s · Weak: %s +%d%% · AR %s / HP %s"
+			"%s%s · %s +%d%% · %s / %s"
 			% [boss_name, count_suffix, weakness, weakness_bonus, armor_percent_text, hp_percent_text]
 			if has_armor_layer
-			else "%s%s · Weak: %s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
+			else "%s%s · %s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
 		)
 	else:
 		boss_hp_label.text = (
@@ -3238,6 +3258,17 @@ func _update_boss_hp_bar() -> void:
 		12.0,
 		4.0
 	)
+	_refresh_visible_wave_toast_boss_clearance()
+
+func _refresh_visible_wave_toast_boss_clearance() -> void:
+	if wave_toast_banner == null or not is_instance_valid(wave_toast_banner) or not wave_toast_banner.visible:
+		return
+	var target := _wave_toast_target_position()
+	# A weakness tip can begin before the boss reference and HP band settle on
+	# the following frame. Keep its live position below the now-authoritative
+	# band instead of leaving the original tween aimed at the pre-boss anchor.
+	if wave_toast_banner.position.y < target.y:
+		wave_toast_banner.position.y = target.y
 
 func _boss_hp_percent_text(ratio: float) -> String:
 	var clamped := clampf(ratio, 0.0, 1.0)
@@ -3903,6 +3934,13 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path:
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.clip_text = true
+	UiKit.fit_label_text(
+		title,
+		UiKit.scaled_font_size(title_size),
+		UiKit.scaled_font_size(20 if LocalizationManager.is_english() else 23),
+		2.0,
+		2.0
+	)
 	button.add_child(title)
 	button.set_meta("pause_action_layout", "three_column_compact")
 	button.set_meta("pause_action_safe_rect", PAUSE_ACTION_FRAME_SAFE_RECT)
@@ -11854,7 +11892,7 @@ func _layout_wave_toast(text: String) -> void:
 		band.size = size
 	wave_toast_label.position = Vector2(34, 2)
 	wave_toast_label.size = size - Vector2(68, 22)
-	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY if long_text else TextServer.AUTOWRAP_OFF
+	wave_toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if long_text else TextServer.AUTOWRAP_OFF
 	wave_toast_label.clip_text = true
 	var accent_line := wave_toast_banner.get_node_or_null("AccentLine") as TextureRect
 	if accent_line != null:
@@ -12400,7 +12438,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	title.name = "Title"
 	title.text = display_name
 	title.position = Vector2(CARD_OFFER_TEXT_X, 20)
-	title.size = Vector2(292.0, 60)
+	title.size = Vector2(290.0, 60)
 	var title_font_size := 24 if LocalizationManager.is_english() else 28
 	UiKit.apply_label(title, title_font_size, Color(0.96, 0.99, 1.0, 1.0), 3)
 	title.clip_text = true
@@ -12419,8 +12457,8 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
-	level_badge.position = Vector2(548, 36)
-	level_badge.size = Vector2(110, 34)
+	level_badge.position = Vector2(550, 36)
+	level_badge.size = Vector2(90, 34)
 	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
 	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(level_badge)
@@ -12433,16 +12471,22 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	if reason != "":
 		var badge := PanelContainer.new()
 		badge.name = "RecommendBadge"
-		badge.position = Vector2(660, 36)
-		badge.size = Vector2(164, 34)
 		badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD, Color(0.14, 0.09, 0.015, 0.9)))
+		badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(badge)
 		var badge_text := UiKit.label("推荐 · %s" % reason, 12, UiKit.GOLD, 2)
 		badge_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge_text.clip_text = true
+		badge_text.clip_text = false
 		badge.add_child(badge_text)
+		var badge_width := maxf(152.0, ceil(badge.get_combined_minimum_size().x))
+		badge.position = Vector2(CARD_OFFER_CARD_WIDTH - 40.0 - badge_width, 36)
+		badge.size = Vector2(badge_width, 34)
+		var level_badge_width := maxf(90.0, ceil(level_badge.get_combined_minimum_size().x))
+		level_badge.size.x = level_badge_width
+		level_badge.position.x = badge.position.x - 6.0 - level_badge_width
+		title.size.x = level_badge.position.x - 6.0 - title.position.x
 
 	var stats := Label.new()
 	stats.name = "Stats"

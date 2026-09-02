@@ -195,6 +195,10 @@ func _rebuild() -> void:
 		revealed_series.push_front(_current_warzone_counter_series_id)
 	if not revealed_series.is_empty():
 		_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
+		if LocalizationManager.is_english():
+			# The ownership sentence has two semantic clauses. Give each clause its
+			# own centered line so the label never establishes a 1242 px minimum.
+			_status_label.text = _status_label.text.replace(" · ", "\n")
 		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_status_label.custom_minimum_size = Vector2(0, 54)
@@ -504,7 +508,7 @@ func _series_header(series_id: String) -> PanelContainer:
 	panel.set_meta("store_series_id", series_id)
 	panel.set_meta("current_warzone_counter", is_current_counter)
 	panel.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	panel.custom_minimum_size = Vector2(0, 112 if is_current_counter else 76)
+	panel.custom_minimum_size = Vector2(0, 124 if is_current_counter else 72)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
@@ -534,6 +538,9 @@ func _series_header(series_id: String) -> PanelContainer:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.custom_minimum_size = Vector2(0, 54)
 	title_row.add_child(label)
 	if is_current_counter:
 		var badge := UiKit.semantic_tag_pill(_loc("当前战区克制", "Counters Current Warzone"), "status", 14)
@@ -639,6 +646,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	hbox.add_child(preview)
 
 	var copy := VBoxContainer.new()
+	copy.name = "Copy"
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 12)
 	hbox.add_child(copy)
@@ -653,12 +661,10 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	offer_badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	copy.add_child(offer_badge)
 	var name := UiKit.label(str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")), 25, UiKit.TEXT_MAIN, 3)
-	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(name)
 	copy.add_child(name)
 	var subtitle := UiKit.label(str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")), 17, UiKit.GREY_300, 2)
-	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_prepare_store_card_copy(subtitle)
 	copy.add_child(subtitle)
 	if offer_role != "theme":
 		var set_row := DataLoader.get_row("premium_sets", str(row.get("arsenal_set_id", "")))
@@ -667,7 +673,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 			""
 		)), 16, UiKit.GOLD, 2)
 		dominance.name = "DominanceRange"
-		dominance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_prepare_store_card_copy(dominance)
 		dominance.custom_minimum_size = Vector2(0, 58)
 		copy.add_child(dominance)
 		var quote := PurchaseManager.premium_catch_up_quote_for_series(str(row.get("series_id", "")))
@@ -676,14 +682,14 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		var catch_up := UiKit.label(
 			_loc(
 				"整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_store_number(catch_up_gold)],
-				"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_store_number(catch_up_gold)]
+				"Catch up to Lv%d · %s Gold" % [catch_up_level, _format_store_number(catch_up_gold)]
 			),
 			15,
 			UiKit.CYAN,
 			2
 		)
 		catch_up.name = "CatchUpCostText"
-		catch_up.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_prepare_store_card_copy(catch_up)
 		copy.add_child(catch_up)
 	var contents := UiKit.label(
 		_loc("永久解锁 · 可恢复 · 不含消耗品", "Permanent · Restorable · No consumables"),
@@ -691,7 +697,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		UiKit.SUCCESS,
 		2
 	)
-	contents.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(contents)
 	copy.add_child(contents)
 	var detail_hint := UiKit.label(
 		_loc("点击商品查看全部内容", "Tap product to view everything included"),
@@ -700,7 +706,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		2
 	)
 	detail_hint.name = "DetailHint"
-	detail_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prepare_store_card_copy(detail_hint)
 	copy.add_child(detail_hint)
 	var buy := Button.new()
 	buy.name = "Buy_" + str(row.get("id", "")).replace(".", "_")
@@ -714,6 +720,11 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	buy.pressed.connect(_run_store_tap.bind(_confirm_purchase.bind(str(row.get("id", "")))))
 	copy.add_child(buy)
 	return panel
+
+
+func _prepare_store_card_copy(label: Label) -> void:
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 
 func _on_product_action_button_down(panel: PanelContainer) -> void:
@@ -1825,7 +1836,7 @@ func _show_purchase_completion(product_id: String) -> void:
 		"content_separation": 18,
 		"title_font_size": 30,
 		"message_font_size": 20,
-		"button_font_size": 18,
+		"stack_actions": true,
 		"on_confirm": _apply_new_purchase.bind(product_id),
 		"on_cancel": _customize_new_purchase.bind(product_id),
 	})
@@ -1880,18 +1891,35 @@ func _english_message(message: String) -> String:
 
 func _show_toast(message: String) -> void:
 	var toast := PanelContainer.new()
+	toast.name = "StoreToast"
 	toast.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
-	toast.position = Vector2(160, 1500)
 	toast.size = Vector2(760, 96)
 	var label := UiKit.label(message, 18, UiKit.SUCCESS, 2)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	toast.add_child(label)
 	add_child(toast)
+	call_deferred("_position_store_toast", toast)
 	var tween := toast.create_tween()
 	tween.tween_interval(1.4)
 	tween.tween_property(toast, "modulate:a", 0.0, 0.3)
 	tween.tween_callback(toast.queue_free)
+
+
+func _position_store_toast(toast: PanelContainer) -> void:
+	if not is_instance_valid(toast) or not toast.is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(toast) or not toast.is_inside_tree():
+		return
+	var target_y := 1500.0
+	var restore_hint := find_child("RestoreHint", true, false) as Control
+	if restore_hint != null and restore_hint.visible:
+		target_y = restore_hint.global_position.y + restore_hint.size.y + 24.0 - global_position.y
+	var footer := $Root/VBox/Footer as Control
+	var footer_safe_y := footer.global_position.y - global_position.y - toast.size.y - 24.0
+	toast.position = Vector2((size.x - toast.size.x) * 0.5, minf(target_y, footer_safe_y))
 
 
 func _back() -> void:

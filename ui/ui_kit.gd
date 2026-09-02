@@ -1342,7 +1342,7 @@ static func apply_theme_surface(item: CanvasItem) -> void:
 # opts: title, message, cost_text, cost_kind (preferred) or cost_icon, accent,
 #       confirm_text, cancel_text,
 #       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
-static func _modal_button(text: String, _accent: Color, primary: bool, font_size := 26, optical_y := 0.0) -> Button:
+static func _modal_button(text: String, _accent: Color, primary: bool, font_size := 26, optical_y := 0.0, minimum_size := Vector2(236, 96)) -> Button:
 	var b := Button.new()
 	# The ornamental raster has a larger visual frame than its usable face. The
 	# built-in Button label is laid out against the StyleBox content margins, so
@@ -1351,7 +1351,7 @@ static func _modal_button(text: String, _accent: Color, primary: bool, font_size
 	# complete face instead.
 	b.text = ""
 	b.tooltip_text = text
-	apply_armored_button(b, primary, Vector2(236, 96), font_size, true)
+	apply_armored_button(b, primary, minimum_size, font_size, true)
 	var action := label(text, font_size, TEXT_MAIN, 3)
 	action.name = "ActionLabel"
 	b.add_child(action)
@@ -1447,14 +1447,16 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 			cost_row.add_child(icon(cicon, Vector2(46, 46)))
 		cost_row.add_child(label(cost_text, 44, accent, 4))
 		vb.add_child(cost_row)
-	var btns := HBoxContainer.new()
+	var stack_actions := bool(opts.get("stack_actions", false))
+	var btns: BoxContainer = VBoxContainer.new() if stack_actions else HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_CENTER
-	btns.add_theme_constant_override("separation", 30)
+	btns.add_theme_constant_override("separation", 18 if stack_actions else 30)
 	vb.add_child(btns)
 	var button_font_size := int(opts.get("button_font_size", 26))
 	var button_optical_y := float(opts.get("button_optical_y", 0.0))
-	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false, button_font_size, button_optical_y)
-	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true, button_font_size, button_optical_y)
+	var action_size := Vector2(484, 96) if stack_actions else Vector2(236, 96)
+	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false, button_font_size, button_optical_y, action_size)
+	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true, button_font_size, button_optical_y, action_size)
 	btns.add_child(cancel_btn)
 	btns.add_child(confirm_btn)
 	var on_confirm: Callable = opts.get("on_confirm", Callable())
