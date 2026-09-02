@@ -4858,3 +4858,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - **证据自描述**：frontline sweep 顶层记录 `combat_input_fingerprint` 四段哈希、完整夹具 SHA-256、Git HEAD 与 Godot 版本。新增星表推导 / 比对入口，默认拒绝旧归档或当前仓库错配，并支持仅供取证的显式放行。
 - **超时合同**：`--process-timeout` 默认由 240 秒提高到 360 秒；Godot 子进程超时时每个种子继续记录 `probe_status=process_timeout` 与 `process_timeout_seconds`。回归测试覆盖四个元数据键、旧归档拒绝、匹配证据推导和超时记录。
 - **最终验证**：M1 smoke、运行时 UI 基元门禁、frontline 元数据回归和完整 `check_release_candidate.py` 均通过；隔离 worktree 与主线的 levels / weapons / economy / fixture 四段免费侧指纹逐字一致。
+
+# 2026-09-02 · 散弹炮 2→3→5 弹丸成长裁决
+
+- **Owner 裁决**：取代先前 3→4→5 方案及随后短暂恢复的全等级五弹合同；50 级按三段尽量等分为 Lv1–17 两枚、Lv18–34 三枚、Lv35–50 五枚。
+- **单一数据源**：`special.pellets = 5` 继续充当运行时硬上限，`pellet_growth` 只声明三个生效节点。收藏卡、详情、升级临界提示、战术说明和战斗生成均通过既有解析器自动同步，没有另建平行常量。
+- **边界合同**：M1 smoke 覆盖 Lv1/17=2、Lv18/34=3、Lv35/50=5，并继续确认没有成长表的武器保持作者弹丸数。
+- **验证范围**：`validate_data` 与完整 M1 smoke 通过；按 Owner 指示未重算战力尺子，也未把既有 99×10 归档改写为新合同证据。

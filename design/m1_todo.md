@@ -2483,3 +2483,10 @@
 - [x] 隔离 worktree 的资产检查支持只读 `ZOMBIE_FIRE_SOURCE_REFS_ROOT`；完整 release-candidate 聚合门禁通过。
 - [x] frontline sweep JSON 自带四段免费侧指纹、夹具 SHA-256、Git HEAD 与 Godot 版本；星表工具默认拒绝错配证据并逐段报告差异。
 - [x] frontline 进程超时保留可配置入口并将默认值从 240 秒提高到 360 秒；超时状态与秒数写入每个 run 并有回归测试。
+
+## 阶段 226 · 散弹炮弹丸成长改为 2→3→5（2026-09-02）
+
+- [x] 按 Owner 最新裁决，将 50 个永久武器等级尽量等分为三段：Lv1–17 两枚、Lv18–34 三枚、Lv35–50 五枚。
+- [x] 保留 `special.pellets = 5` 为作者硬上限；既有通用等级解析、收藏展示、升级预览、战术说明与战斗生成继续读取同一 `pellet_growth` 数据。
+- [x] M1 smoke 钉住 1/17、18/34、35/50 六个边界；`validate_data` 与完整 M1 smoke 通过。
+- [x] 遵照 Owner 指示不重算战力尺子；既有历史跑分不据此重新认证。
