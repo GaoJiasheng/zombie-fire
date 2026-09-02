@@ -195,6 +195,10 @@ func _rebuild() -> void:
 		revealed_series.push_front(_current_warzone_counter_series_id)
 	if not revealed_series.is_empty():
 		_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
+		if LocalizationManager.is_english():
+			# The ownership sentence has two semantic clauses. Give each clause its
+			# own centered line so the label never establishes a 1242 px minimum.
+			_status_label.text = _status_label.text.replace(" · ", "\n")
 		_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_status_label.custom_minimum_size = Vector2(0, 54)
