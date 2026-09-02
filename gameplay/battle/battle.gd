@@ -1440,14 +1440,15 @@ func _ensure_skill_hint_overlay() -> void:
 	var title := UiKit.label("", 26, UiKit.TEXT_MAIN, 3)
 	title.name = "Title"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	title.clip_text = true
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.clip_text = false
 	title.custom_minimum_size = Vector2(550, 34)
 	text_box.add_child(title)
 
 	var body := UiKit.label("", 19, Color(0.78, 0.9, 0.94, 1.0), 2)
 	body.name = "Body"
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.clip_text = true
+	body.clip_text = false
 	body.custom_minimum_size = Vector2(550, 176)
 	text_box.add_child(body)
 
@@ -1506,12 +1507,26 @@ func _show_skill_hint(title_text: String, body_text: String, icon_path: String, 
 	var title := overlay.get_node_or_null("Margin/Row/TextBox/Title") as Label
 	if title != null:
 		title.text = title_text
-		title.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86, 1.0))
-		UiKit.fit_label_text(title, UiKit.scaled_font_size(26), 20, 2.0, 2.0)
+		UiKit.apply_label(title, 26, Color(0.96, 0.94, 0.86, 1.0), 3)
 	var body := overlay.get_node_or_null("Margin/Row/TextBox/Body") as Label
 	if body != null:
 		body.text = body_text
-		UiKit.fit_label_text(body, UiKit.scaled_font_size(19), 17, 2.0, 4.0)
+		UiKit.apply_label(body, 19, Color(0.78, 0.9, 0.94, 1.0), 2)
+	if title != null and body != null:
+		_fit_skill_hint_overlay_content(overlay, title, body)
+
+func _fit_skill_hint_overlay_content(overlay: PanelContainer, title: Label, body: Label) -> void:
+	var text_width := 550.0
+	var title_height := _wrapped_label_required_height(title, text_width, 34.0)
+	var body_height := _wrapped_label_required_height(body, text_width, 176.0)
+	title.custom_minimum_size = Vector2(text_width, title_height)
+	body.custom_minimum_size = Vector2(text_width, body_height)
+	var text_box := overlay.get_node_or_null("Margin/Row/TextBox") as VBoxContainer
+	if text_box != null:
+		text_box.custom_minimum_size = Vector2(text_width, title_height + 8.0 + body_height)
+	var content_height := maxf(104.0, title_height + 8.0 + body_height) + 32.0
+	var overlay_height := ceil(maxf(270.0, content_height))
+	overlay.offset_top = overlay.offset_bottom - overlay_height
 
 func _hide_skill_hint(clear_press_state := true) -> void:
 	if has_node("Hud/SkillHintOverlay"):
