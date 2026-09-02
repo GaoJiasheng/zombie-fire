@@ -26,8 +26,8 @@ const PAUSE_ACTION_BUTTON_SIZE := Vector2(276.0, 154.0)
 # The deepest premium-theme corners reach farther into a compact three-column
 # action than the default skin. Keep both the larger icon and the short verb in
 # one horizontal row, inside a shared inset that is safe for all five themes.
-const PAUSE_ACTION_ICON_RECT := Rect2(38.0, 39.0, 76.0, 76.0)
-const PAUSE_ACTION_TITLE_RECT := Rect2(120.0, 38.0, 118.0, 78.0)
+const PAUSE_ACTION_ICON_RECT := Rect2(32.0, 39.0, 72.0, 76.0)
+const PAUSE_ACTION_TITLE_RECT := Rect2(106.0, 38.0, 138.0, 78.0)
 const PAUSE_ACTION_FRAME_SAFE_RECT := Rect2(32.0, 30.0, 212.0, 94.0)
 const PAUSE_CONTENT_ORIGIN := Vector2(44.0, 124.0)
 const PAUSE_CONTENT_WIDTH := 884.0
@@ -2824,7 +2824,7 @@ func _pause_status_card() -> PanelContainer:
 		header.add_child(lab_button)
 		UiKit.apply_armored_button(lab_button, false, Vector2(224, 60), 19, true)
 	var grid := GridContainer.new()
-	grid.columns = 2
+	grid.columns = 1 if LocalizationManager.is_english() else 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2845,7 +2845,7 @@ func _pause_loadout_card() -> PanelContainer:
 	var card := _pause_section("出战配置", UiKit.CYAN, PAUSE_LOADOUT_CARD_HEIGHT)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
-	grid.columns = 2
+	grid.columns = 1 if LocalizationManager.is_english() else 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2868,7 +2868,7 @@ func _pause_skill_card() -> PanelContainer:
 	var card := _pause_section("已带技能", UiKit.PURPLE, card_height)
 	var body := card.get_child(0) as VBoxContainer
 	var grid := GridContainer.new()
-	grid.columns = 3
+	grid.columns = _pause_skill_columns()
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 8)
@@ -2884,7 +2884,10 @@ func _pause_skill_card() -> PanelContainer:
 	return card
 
 func _pause_skill_row_count() -> int:
-	return maxi(1, int(ceil(float(maxi(skill_slot_ids.size(), 1)) / 3.0)))
+	return maxi(1, int(ceil(float(maxi(skill_slot_ids.size(), 1)) / float(_pause_skill_columns()))))
+
+func _pause_skill_columns() -> int:
+	return 2 if LocalizationManager.is_english() else 3
 
 func _pause_skill_card_height() -> float:
 	var rows := _pause_skill_row_count()
@@ -2990,6 +2993,7 @@ func _pause_skill_chip(skill_id: String) -> PanelContainer:
 	name.custom_minimum_size = Vector2(0, 24)
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name.clip_text = true
+	name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	col.add_child(name)
 	var level := UiKit.label("Lv%d" % skills.level(skill_id), 15, UiKit.GOLD, 2)
 	level.name = "SkillLevel"
@@ -3806,6 +3810,13 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path:
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.clip_text = true
+	UiKit.fit_label_text(
+		title,
+		UiKit.scaled_font_size(title_size),
+		UiKit.scaled_font_size(20 if LocalizationManager.is_english() else 23),
+		2.0,
+		2.0
+	)
 	button.add_child(title)
 	button.set_meta("pause_action_layout", "three_column_compact")
 	button.set_meta("pause_action_safe_rect", PAUSE_ACTION_FRAME_SAFE_RECT)
