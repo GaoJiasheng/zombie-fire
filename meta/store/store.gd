@@ -25,7 +25,6 @@ const STORE_DETAIL_INFO_MARGIN_V := 14
 const STORE_DETAIL_GEAR_MARGIN_LEFT := 26
 const STORE_DETAIL_GEAR_MARGIN_RIGHT := 18
 const STORE_DETAIL_GEAR_MARGIN_V := 16
-const STORE_CARD_COPY_WRAP_WIDTH := 540.0
 # Match both Store ScrollContainers' 12 px deadzone exactly: once the page has
 # enough movement to scroll, the same gesture can no longer activate anything.
 const STORE_TAP_MOVE_LIMIT := 12.0
@@ -650,24 +649,6 @@ func _product_card(row: Dictionary) -> PanelContainer:
 func _prepare_store_card_copy(label: Label) -> void:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if not LocalizationManager.is_english():
-		return
-	var font := label.get_theme_font("font")
-	var font_size := label.get_theme_font_size("font_size")
-	if font == null or font_size <= 0:
-		return
-	var wrapped_lines: Array[String] = []
-	for paragraph in label.text.split("\n", true):
-		var current_line := ""
-		for word in paragraph.split(" ", false):
-			var candidate := str(word) if current_line == "" else "%s %s" % [current_line, str(word)]
-			if current_line != "" and font.get_string_size(candidate, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x > STORE_CARD_COPY_WRAP_WIDTH:
-				wrapped_lines.append(current_line)
-				current_line = str(word)
-			else:
-				current_line = candidate
-		wrapped_lines.append(current_line)
-	label.text = "\n".join(wrapped_lines)
 
 
 func _on_product_action_button_down(panel: PanelContainer) -> void:
