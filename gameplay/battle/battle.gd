@@ -3120,10 +3120,10 @@ func _update_boss_hp_bar() -> void:
 	var armor_percent_text := _boss_hp_percent_text(armor_ratio)
 	if LocalizationManager.is_english():
 		boss_hp_label.text = (
-			"%s%s · Weak: %s +%d%% · AR %s / HP %s"
+			"%s%s · %s +%d%% · %s / %s"
 			% [boss_name, count_suffix, weakness, weakness_bonus, armor_percent_text, hp_percent_text]
 			if has_armor_layer
-			else "%s%s · Weak: %s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
+			else "%s%s · %s +%d%% · %s" % [boss_name, count_suffix, weakness, weakness_bonus, hp_percent_text]
 		)
 	else:
 		boss_hp_label.text = (
