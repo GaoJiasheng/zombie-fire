@@ -3211,6 +3211,7 @@ func _update_boss_hp_bar() -> void:
 		_refresh_active_boss()
 	if active_boss == null or not is_instance_valid(active_boss):
 		boss_hp_bar.visible = false
+		_sync_enemy_world_overlay_clearance()
 		return
 	var ratio := clampf(float(active_boss.hp) / maxf(float(active_boss.max_hp), 1.0), 0.0, 1.0)
 	var armor_max := maxf(float(active_boss.get("armor_hp_max")), 0.0)
@@ -3218,6 +3219,7 @@ func _update_boss_hp_bar() -> void:
 	var has_armor_layer := armor_max > 0.0
 	if paused:
 		boss_hp_bar.visible = false
+		_sync_enemy_world_overlay_clearance()
 		return
 	boss_hp_bar.visible = true
 	boss_hp_bar.size.y = BOSS_HP_HUD_SIZE.y if has_armor_layer else 96.0
@@ -3258,7 +3260,20 @@ func _update_boss_hp_bar() -> void:
 		12.0,
 		4.0
 	)
+	_sync_enemy_world_overlay_clearance()
 	_refresh_visible_wave_toast_boss_clearance()
+
+func _sync_enemy_world_overlay_clearance(enemies: Array = []) -> void:
+	var exclusion_active := (
+		boss_hp_bar != null
+		and is_instance_valid(boss_hp_bar)
+		and boss_hp_bar.visible
+	)
+	var exclusion_rect := boss_hp_bar.get_global_rect().grow(10.0) if exclusion_active else Rect2()
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	for enemy in candidates:
+		if is_instance_valid(enemy) and enemy.has_method("set_hud_exclusion_rect"):
+			enemy.call("set_hud_exclusion_rect", exclusion_rect, exclusion_active)
 
 func _refresh_visible_wave_toast_boss_clearance() -> void:
 	if wave_toast_banner == null or not is_instance_valid(wave_toast_banner) or not wave_toast_banner.visible:

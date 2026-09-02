@@ -222,6 +222,7 @@ func _initialize() -> void:
 	await _verify_endless_mode(save_manager)
 	await _verify_boss_resistance_and_regeneration(data_loader)
 	await _verify_enemy_hit_flash_scope(data_loader)
+	await _verify_enemy_hud_exclusion_layout(data_loader)
 	_verify_ice_slow_visual_tint(data_loader)
 	await _verify_status_vfx_layers(data_loader)
 	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
@@ -6112,6 +6113,36 @@ func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 	await process_frame
 	var normal_canvas := normal_enemy as CanvasItem
 	_expect(_color_close(normal_canvas.modulate, Color.WHITE), "enemy hit feedback must keep HP/status children out of the flash tint")
+	normal_enemy.queue_free()
+	await process_frame
+
+func _verify_enemy_hud_exclusion_layout(data_loader: Node) -> void:
+	var exclusion := Rect2(150.0, 120.0, 780.0, 150.0)
+	var boss_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(boss_enemy)
+	boss_enemy.call("setup", data_loader.get_row("bosses", "boss_tank_titan").duplicate(true), 1.0, true)
+	root.add_child(boss_enemy.threat_marker)
+	boss_enemy.position = Vector2(540.0, 330.0)
+	boss_enemy.call("set_hud_exclusion_rect", exclusion, true)
+	_expect(not boss_enemy.threat_marker.visible, "Boss world nameplate must hide while the authoritative HUD Boss band is visible")
+	_expect(not (boss_enemy.get_node("HpBar") as Control).visible, "Boss world HP rail must hide while the authoritative HUD Boss band is visible")
+	if boss_enemy.has_node("ArmorBar"):
+		_expect(not (boss_enemy.get_node("ArmorBar") as Control).visible, "Boss world armor rail must hide while the authoritative HUD Boss band is visible")
+	boss_enemy.queue_free()
+	await process_frame
+
+	var normal_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(normal_enemy)
+	var normal_row: Dictionary = data_loader.get_row("zombies", "zombie_runner").duplicate(true)
+	normal_row["threat_tags"] = ["breach"]
+	normal_enemy.call("setup", normal_row, 1.0, false)
+	root.add_child(normal_enemy.threat_marker)
+	normal_enemy.position = Vector2(540.0, 240.0)
+	normal_enemy.call("set_hud_exclusion_rect", exclusion, true)
+	var marker := normal_enemy.threat_marker as Label
+	_expect(marker.visible, "normal world nameplates must remain visible after HUD collision avoidance")
+	_expect(not marker.get_global_rect().intersects(exclusion), "HUD Boss band must not intersect any visible world nameplate Label")
+	_expect(marker.get_global_rect().position.y >= exclusion.end.y, "world nameplate collision avoidance must push labels below the complete Boss HUD group")
 	normal_enemy.queue_free()
 	await process_frame
 
