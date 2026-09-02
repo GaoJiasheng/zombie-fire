@@ -581,10 +581,20 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var preview := _product_preview(row)
 	hbox.add_child(preview)
 
+	# A plain Control is the width boundary between the HBox and localized copy.
+	# Containers propagate their children's natural one-line width; without this
+	# boundary, long English labels enlarge the entire card beyond the viewport
+	# before autowrap ever receives a usable width.
+	var copy_host := Control.new()
+	copy_host.name = "CopyLane"
+	copy_host.custom_minimum_size = Vector2(484, 0)
+	copy_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(copy_host)
 	var copy := VBoxContainer.new()
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.name = "Copy"
+	copy.set_anchors_preset(Control.PRESET_FULL_RECT)
 	copy.add_theme_constant_override("separation", 12)
-	hbox.add_child(copy)
+	copy_host.add_child(copy)
 	var name := UiKit.label(str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")), 25, UiKit.TEXT_MAIN, 3)
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(name)
@@ -645,11 +655,11 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	buy.button_down.connect(_on_product_action_button_down.bind(panel))
 	buy.pressed.connect(_run_store_tap.bind(_confirm_purchase.bind(str(row.get("id", "")))))
 	copy.add_child(buy)
-	call_deferred("_fit_product_card_content", panel, copy, preview)
+	call_deferred("_fit_product_card_content", panel, copy_host, copy, preview)
 	return panel
 
 
-func _fit_product_card_content(panel: PanelContainer, copy: VBoxContainer, preview: Control) -> void:
+func _fit_product_card_content(panel: PanelContainer, copy_host: Control, copy: VBoxContainer, preview: Control) -> void:
 	# Product copy is deliberately constrained to the real card lane before its
 	# wrapped height is measured. Without that constraint, long English labels
 	# contribute their one-line width to the HBox and are clipped by the store
@@ -659,17 +669,20 @@ func _fit_product_card_content(panel: PanelContainer, copy: VBoxContainer, previ
 	await get_tree().process_frame
 	if not is_instance_valid(panel) or not panel.is_inside_tree():
 		return
-	var copy_width := maxf(484.0, panel.size.x - 44.0 - preview.custom_minimum_size.x - 20.0)
-	copy.custom_minimum_size.x = copy_width
+	var scroll := $Root/VBox/ScrollWrap/Scroll as ScrollContainer
+	var copy_width := maxf(484.0, scroll.size.x - 44.0 - preview.custom_minimum_size.x - 20.0)
+	copy_host.custom_minimum_size.x = copy_width
+	copy.size.x = copy_width
 	for child in copy.get_children():
 		if child is Label:
 			var text_label := child as Label
 			text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			text_label.custom_minimum_size.x = copy_width
+			text_label.custom_minimum_size.x = 0.0
 	await get_tree().process_frame
 	if not is_instance_valid(panel) or not panel.is_inside_tree():
 		return
 	var authored_minimum_height := float(panel.get_meta("authored_minimum_height", 390.0))
+	copy_host.custom_minimum_size.y = copy.get_combined_minimum_size().y
 	panel.custom_minimum_size.y = maxf(
 		authored_minimum_height,
 		maxf(preview.custom_minimum_size.y, copy.get_combined_minimum_size().y) + 44.0
