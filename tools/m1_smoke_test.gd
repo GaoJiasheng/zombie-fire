@@ -4343,6 +4343,11 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	_expect(paid_ammo_offers.has("skill_incendiary"), "paid lightning weapon must offer fire ammo")
 	_expect(paid_ammo_offers.has("skill_cryo"), "paid lightning weapon must offer ice ammo")
 	_expect(paid_ammo_offers.has("skill_venom"), "paid lightning weapon must offer poison ammo")
+	var paid_locked_ammo_offers := director.offer({"card_bias": {}, "threat_tags": []}, {"skill_cryo": 1}, 16)
+	_expect(paid_locked_ammo_offers.has("skill_cryo"), "chosen paid-weapon ammo must remain eligible for upgrades")
+	_expect(not paid_locked_ammo_offers.has("skill_incendiary"), "paid weapon must not offer fire ammo after ice ammo is chosen")
+	_expect(not paid_locked_ammo_offers.has("skill_tesla"), "paid weapon must not offer lightning ammo after ice ammo is chosen")
+	_expect(not paid_locked_ammo_offers.has("skill_venom"), "paid weapon must not offer poison ammo after ice ammo is chosen")
 
 	var free_power: int = int(save_manager.power_for_build("level_089", {
 		"weapon": {"id": "weapon_plasmacannon", "level": 40},

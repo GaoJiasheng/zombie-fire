@@ -417,19 +417,24 @@ func _allowed_by_selected_weapon(skill_id: String, row: Dictionary, owned: Dicti
 	var weapon: Dictionary = data_loader.get_row("weapons", weapon_id)
 	var weapon_element := str(weapon.get("element", "physical"))
 	var ammo_element := str(row.get("ammo_element", ""))
-	if _weapon_allows_ammo_override(weapon_id, weapon):
-		return true
-	if weapon_element != "" and weapon_element != "physical":
-		return ammo_element == weapon_element
 	var current_level := int(owned.get(skill_id, 0))
 	if current_level > 0:
 		return true
+	# The first ammo card remains a flexible in-run conversion choice. Once one
+	# projectile element has been selected, that choice is locked for the rest of
+	# the battle: only the chosen ammo's own upgrades may return to the offer pool.
+	# Resolve this before the paid-weapon override branch so Apocalypse weapons do
+	# not keep cycling through every element after the player has committed.
 	for other_id in owned.keys():
 		if int(owned.get(other_id, 0)) <= 0:
 			continue
 		var other_row: Dictionary = data_loader.get_row("skills", str(other_id))
 		if str(other_row.get("exclusive_group", "")) == "projectile_element" and str(other_id) != skill_id:
 			return false
+	if _weapon_allows_ammo_override(weapon_id, weapon):
+		return true
+	if weapon_element != "" and weapon_element != "physical":
+		return ammo_element == weapon_element
 	return true
 
 func _weapon_allows_ammo_override(weapon_id: String, weapon: Dictionary) -> bool:
