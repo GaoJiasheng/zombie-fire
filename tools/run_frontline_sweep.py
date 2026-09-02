@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -18,6 +20,112 @@ GODOT = os.environ.get("GODOT_BIN", "/opt/homebrew/bin/godot")
 PROBE = "res://tools/frontline_runtime_probe.gd"
 DEFAULT_SEEDS = (1103, 2207, 3301)
 DEFAULT_ACCELERATION = 60.0
+FINGERPRINT_SEGMENTS = ("levels", "weapons", "economy", "fixture")
+
+
+def resolve_fixture_path(project_root: Path, fixture: str) -> Path:
+    if fixture.startswith("res://"):
+        return project_root / fixture.removeprefix("res://")
+    path = Path(fixture)
+    return path if path.is_absolute() else project_root / path
+
+
+def combat_input_fingerprint(project_root: Path) -> dict[str, str]:
+    command = [
+        sys.executable,
+        str(project_root / "tools" / "free_side_fingerprint.py"),
+        str(project_root),
+    ]
+    completed = subprocess.run(
+        command,
+        cwd=project_root,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "free-side fingerprint failed:\n"
+            f"{completed.stdout}{completed.stderr}"
+        )
+    parsed: dict[str, str] = {}
+    for token in completed.stdout.strip().split():
+        if "=" not in token:
+            continue
+        key, value = token.split("=", 1)
+        if key in FINGERPRINT_SEGMENTS:
+            parsed[key] = value
+    missing = [key for key in FINGERPRINT_SEGMENTS if not parsed.get(key)]
+    if missing:
+        raise RuntimeError(
+            "free-side fingerprint output is missing segments "
+            f"{', '.join(missing)}: {completed.stdout.strip()!r}"
+        )
+    return {key: parsed[key] for key in FINGERPRINT_SEGMENTS}
+
+
+def collect_run_provenance(
+    project_root: Path,
+    fixture: str,
+    godot_bin: str = GODOT,
+) -> dict[str, object]:
+    fixture_path = resolve_fixture_path(project_root, fixture)
+    if not fixture_path.is_file():
+        raise RuntimeError(f"frontline fixture does not exist: {fixture_path}")
+    fixture_sha256 = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
+    git_head = subprocess.run(
+        ["git", "-C", str(project_root), "rev-parse", "HEAD"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+    ).stdout.strip()
+    godot_version = subprocess.run(
+        [godot_bin, "--version"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=True,
+    ).stdout.strip()
+    return {
+        "combat_input_fingerprint": combat_input_fingerprint(project_root),
+        "fixture_sha256": fixture_sha256,
+        "git_head": git_head,
+        "godot_version": godot_version,
+    }
+
+
+def build_payload(
+    options: argparse.Namespace,
+    runs: list[dict],
+    elapsed: float,
+    run_wall_seconds: list[float],
+    provenance: dict[str, object],
+) -> dict[str, object]:
+    return {
+        "schema_version": 1,
+        **provenance,
+        "fixture_source": options.fixture,
+        "levels": options.levels,
+        "profile": options.profile,
+        "card_policy": options.card_policy,
+        "ignore_level_guarantees": options.ignore_level_guarantees,
+        "ignore_offer_category_floor": options.ignore_offer_category_floor,
+        "challenge": options.challenge,
+        "fail_fast": options.fail_fast,
+        "seeds_per_level": len(options.seeds),
+        "simulation_step_seconds": 1.0 / 60.0,
+        "wall_acceleration": options.accel,
+        "runs": runs,
+        "sweep": {
+            "jobs": options.jobs,
+            "batch_size": len(options.seeds) if options.fail_fast else options.batch_size,
+            "process_count": len(run_wall_seconds),
+            "wall_seconds": round(elapsed, 3),
+            "max_process_seconds": round(max(run_wall_seconds, default=0.0), 3),
+        },
+    }
 
 
 def csv_ints(value: str) -> list[int]:
@@ -186,6 +294,8 @@ def main() -> int:
     if options.process_timeout <= 0.0:
         parser.error("--process-timeout must be positive")
 
+    project_root = options.project_root.resolve()
+    provenance = collect_run_provenance(project_root, options.fixture)
     started = time.monotonic()
     runs: list[dict] = []
     run_wall_seconds: list[float] = []
@@ -211,7 +321,7 @@ def main() -> int:
                     options.fail_fast,
                     options.process_timeout,
                     temp_dir,
-                    options.project_root.resolve(),
+                    project_root,
                     options.fixture,
                 )
                 for level in options.levels
@@ -224,28 +334,7 @@ def main() -> int:
 
     runs.sort(key=lambda row: (int(row.get("level", 0)), int(row.get("seed", 0))))
     elapsed = time.monotonic() - started
-    payload = {
-        "schema_version": 1,
-        "fixture_source": options.fixture,
-        "levels": options.levels,
-        "profile": options.profile,
-        "card_policy": options.card_policy,
-        "ignore_level_guarantees": options.ignore_level_guarantees,
-        "ignore_offer_category_floor": options.ignore_offer_category_floor,
-        "challenge": options.challenge,
-        "fail_fast": options.fail_fast,
-        "seeds_per_level": len(options.seeds),
-        "simulation_step_seconds": 1.0 / 60.0,
-        "wall_acceleration": options.accel,
-        "runs": runs,
-        "sweep": {
-            "jobs": options.jobs,
-            "batch_size": len(options.seeds) if options.fail_fast else options.batch_size,
-            "process_count": len(run_wall_seconds),
-            "wall_seconds": round(elapsed, 3),
-            "max_process_seconds": round(max(run_wall_seconds, default=0.0), 3),
-        },
-    }
+    payload = build_payload(options, runs, elapsed, run_wall_seconds, provenance)
     output = options.output if options.output.is_absolute() else ROOT / options.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
