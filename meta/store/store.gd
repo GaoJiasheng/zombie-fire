@@ -550,11 +550,13 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	var product_id := str(row.get("id", ""))
 	var offer_role := str(row.get("offer_role", ""))
+	var authored_minimum_height := 430.0 if offer_role != "theme" else 390.0
 	panel.name = "Product_%s" % product_id.replace(".", "_")
 	panel.set_meta("store_product_id", product_id)
 	panel.set_meta("store_card_opens_detail", true)
 	panel.add_theme_stylebox_override("panel", UiKit.panel_texture_style(22.0))
-	panel.custom_minimum_size = Vector2(0, 430 if offer_role != "theme" else 390)
+	panel.custom_minimum_size = Vector2(0, authored_minimum_height)
+	panel.set_meta("authored_minimum_height", authored_minimum_height)
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.focus_mode = Control.FOCUS_ALL
@@ -635,7 +637,35 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	buy.button_down.connect(_on_product_action_button_down.bind(panel))
 	buy.pressed.connect(_run_store_tap.bind(_confirm_purchase.bind(str(row.get("id", "")))))
 	copy.add_child(buy)
+	call_deferred("_fit_product_card_content", panel, copy, preview)
 	return panel
+
+
+func _fit_product_card_content(panel: PanelContainer, copy: VBoxContainer, preview: Control) -> void:
+	# Product copy is deliberately constrained to the real card lane before its
+	# wrapped height is measured. Without that constraint, long English labels
+	# contribute their one-line width to the HBox and are clipped by the store
+	# viewport instead of wrapping inside the card.
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	var copy_width := maxf(484.0, panel.size.x - 44.0 - preview.custom_minimum_size.x - 20.0)
+	copy.custom_minimum_size.x = copy_width
+	for child in copy.get_children():
+		if child is Label:
+			var text_label := child as Label
+			text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			text_label.custom_minimum_size.x = copy_width
+	await get_tree().process_frame
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	var authored_minimum_height := float(panel.get_meta("authored_minimum_height", 390.0))
+	panel.custom_minimum_size.y = maxf(
+		authored_minimum_height,
+		maxf(preview.custom_minimum_size.y, copy.get_combined_minimum_size().y) + 44.0
+	)
 
 
 func _on_product_action_button_down(panel: PanelContainer) -> void:
