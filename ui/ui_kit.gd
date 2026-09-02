@@ -1342,10 +1342,10 @@ static func apply_theme_surface(item: CanvasItem) -> void:
 # opts: title, message, cost_text, cost_kind (preferred) or cost_icon, accent,
 #       confirm_text, cancel_text,
 #       item_icon(可选立绘/图标), on_confirm(Callable), on_cancel(Callable)
-static func _modal_button(text: String, _accent: Color, primary: bool) -> Button:
+static func _modal_button(text: String, _accent: Color, primary: bool, minimum_size := Vector2(236, 96)) -> Button:
 	var b := Button.new()
 	b.text = text
-	apply_armored_button(b, primary, Vector2(236, 96), 26, true)
+	apply_armored_button(b, primary, minimum_size, 26, true)
 	return b
 
 static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
@@ -1431,12 +1431,14 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 			cost_row.add_child(icon(cicon, Vector2(46, 46)))
 		cost_row.add_child(label(cost_text, 44, accent, 4))
 		vb.add_child(cost_row)
-	var btns := HBoxContainer.new()
+	var stack_actions := bool(opts.get("stack_actions", false))
+	var btns: BoxContainer = VBoxContainer.new() if stack_actions else HBoxContainer.new()
 	btns.alignment = BoxContainer.ALIGNMENT_CENTER
-	btns.add_theme_constant_override("separation", 30)
+	btns.add_theme_constant_override("separation", 18 if stack_actions else 30)
 	vb.add_child(btns)
-	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false)
-	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true)
+	var action_size := Vector2(484, 96) if stack_actions else Vector2(236, 96)
+	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false, action_size)
+	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true, action_size)
 	btns.add_child(cancel_btn)
 	btns.add_child(confirm_btn)
 	var on_confirm: Callable = opts.get("on_confirm", Callable())

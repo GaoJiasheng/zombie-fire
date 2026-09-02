@@ -1743,6 +1743,7 @@ func _show_purchase_completion(product_id: String) -> void:
 		"accent": UiKit.GOLD,
 		"confirm_text": _loc("立即应用整套", "Apply Full Look"),
 		"cancel_text": _loc("逐个角色换装", "Dress Heroes"),
+		"stack_actions": true,
 		"on_confirm": _apply_new_purchase.bind(product_id),
 		"on_cancel": _customize_new_purchase.bind(product_id),
 	})
