@@ -598,7 +598,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 		var catch_up := UiKit.label(
 			_loc(
 				"整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_store_number(catch_up_gold)],
-				"Full set to Lv%d · %s Gold (catch-up discount included)" % [catch_up_level, _format_store_number(catch_up_gold)]
+				"Catch up to Lv%d · %s Gold" % [catch_up_level, _format_store_number(catch_up_gold)]
 			),
 			15,
 			UiKit.CYAN,
