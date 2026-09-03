@@ -2467,6 +2467,16 @@
 - [x] 最终扇面重新锚定到已校正的目标弹道，自动瞄准与手动锁定继续保证至少一发穿过指定目标。
 - [x] M1 smoke 新增 7 发、9 发及散弹 × 多重组合的逐相邻角度一致性断言，并钉住奇数扇面中央弹道。
 
+## 阶段 226 · TestFlight Build 69(2026-09-03)
+
+- [x] Owner 拍板:散弹枪弹丸阶梯 3/4/5(Lv1/18/35)保留;拍平扇保留并改为以瞄准方向为锚刚体旋转(fe5911fa);L020 第 3 波盾墙不压。
+- [x] 合入 `codex/visual-fixes` b147b510(F-L Boss 横幅避让、F-M、F-N 全量复核分诊 F-X1~X4、F-O/F-P/F-Q 工具、付费弹药元素锁定、高速 VFX 保真、卡牌文案/标签分离)。
+- [x] 全 99×10(指纹绑定)942/990;星表按推导替换,`report_b2b_star_table.py --check-approved` 通过;对账与待复核(L038~L044 掉 1★)见 `design/audits/b2c_pellet_tiers_reconciliation_2026_09_03.md`。
+- [x] m1 新合同:三段阶梯数据、3/4/5 × 1/2/3 弹道一颗弹丸在瞄准线、Boss HUD 与世界名牌不相交、付费弹药锁定。
+- [x] `1.0.0 (69)` 上传并经 Apple 验证 `VALID / VALID / APP_STORE_ELIGIBLE`,Delivery UUID `e3b82f45-7724-43a9-b3e2-682a472e150d`, SHA-256 `87dc481774f7d93f23c4cd753a4f3b1cf51dc9410af4df036b02e3324c25c91c`。
+- [ ] Owner 复核 L038~L044(4 弹丸段 Lv26~32)是否接受 1★;若不接受,第三段起点 Lv35→~Lv25 并复验 L35~L48。
+- [ ] Owner 拍板 F-N 分诊 F-X1~F-X4。
+
 ## 阶段 225 · TestFlight Build 68(2026-09-02)
 
 - [x] 合入 `wip/sessions-2026-09-01`(3a40277b:跳弹首目标重撞修复、付费武器 true_grip 呈现、宠物光环尺寸、卡牌/商店弹窗布局;在途致死预留按 `economy.auto_aim_inflight_reservation` 关闭,拍平弹丸扇与覆盖优化扇按主线恢复,未批准的散弹枪 3/4/5 弹丸阶梯剥离)。
