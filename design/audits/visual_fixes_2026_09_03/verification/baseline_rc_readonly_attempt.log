@@ -1,0 +1,1280 @@
+Skipping windowed screenshot matrices by explicit no-focus release policy; all static and headless gates remain enabled.
+$ python3 tools/validate_asset_pack.py
+Recorded generated-cache reference exceptions: 26
+- assets/production/contact_sheets/contact_character_active_vfx_2026_07_02.png
+- assets/production/contact_sheets/contact_enemy_skill_vfx_2026_07_02.png
+- assets/production/contact_sheets/contact_hit_vfx_polish_2026_07_02.png
+- assets/production/contact_sheets/contact_level_backgrounds_v2.png
+- assets/production/contact_sheets/contact_map_ui_line_polish_2026_07_02.png
+- assets/production/contact_sheets/contact_non_shooting_animation_polish_2026_07_01.png
+- assets/production/contact_sheets/contact_skeletal_parts_polish_2026_07_01.png
+- assets/production/contact_sheets/contact_top_tier_backgrounds_2026_07_01.png
+- assets/production/source_refs/generated/app_icon_1024_v2_generated_source.png
+- assets/production/source_refs/generated/app_icon_1024_v2_prompt.txt
+- assets/production/source_refs/generated/final_p0_launch_source_2026_07_01.png
+- assets/production/source_refs/generated/hero_battle_weaponless_sheet.png
+- assets/production/source_refs/generated/hero_battle_weaponless_sheet_chroma.png
+- assets/production/source_refs/generated/high_end_prototype_asset_spec.json
+- assets/production/source_refs/generated/high_end_prototype_contact_sheet.png
+- assets/production/source_refs/generated/level_backgrounds_v2_spec.json
+- assets/production/source_refs/generated/map_ui_line_polish_spec_2026_07_02.json
+- assets/production/source_refs/generated/non_shooting_animation_polish_spec_2026_07_01.json
+- assets/production/source_refs/generated/runtime_top_tier_polish_contact_sheet_2026_07_01.png
+- assets/production/source_refs/generated/runtime_top_tier_polish_spec_2026_07_01.json
+- assets/production/source_refs/generated/skeletal_parts_polish_spec_2026_07_01.json
+- assets/production/source_refs/generated/top_tier_background_render_spec_2026_07_01.json
+- assets/production/source_refs/generated/top_tier_ui_motion_second_pass_spec_2026_07_02.json
+- assets/production/source_refs/generated/user_combat_vfx_reference_sheet_2026_07_02.png
+- assets/production/source_refs/generated/user_ui_vfx_reference_sheet_2026_07_02.png
+- assets/production/source_refs/generated/weapon_autocannon_machinegun_cutout.png
+Recorded generated-sequence metadata exceptions: 8
+- assets/production/sprites/animations/character_weapon_combos/char_blaze: generated fused character/weapon frames are selected by runtime filename convention
+- assets/production/sprites/animations/character_weapon_combos/char_frost: generated fused character/weapon frames are selected by runtime filename convention
+- assets/production/sprites/animations/character_weapon_combos/char_vanguard: generated fused character/weapon frames are selected by runtime filename convention
+- assets/production/sprites/animations/character_weapon_combos/char_volt: generated fused character/weapon frames are selected by runtime filename convention
+- assets/production/sprites/animations/characters_weaponless/char_blaze: generated weaponless frames are selected by runtime filename convention
+- assets/production/sprites/animations/characters_weaponless/char_frost: generated weaponless frames are selected by runtime filename convention
+- assets/production/sprites/animations/characters_weaponless/char_vanguard: generated weaponless frames are selected by runtime filename convention
+- assets/production/sprites/animations/characters_weaponless/char_volt: generated weaponless frames are selected by runtime filename convention
+Recorded generated VFX tail-cache exceptions: 38
+- assets/production/sprites/vfx_sequences/vfx_boss_phase: generated trailing frame cache 05-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_death_dissolve: generated trailing frame cache 09-10 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_armor: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_blast: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_buff_aura: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_charge: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_corrosion: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_explode_on_death: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_juggernaut: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_leap_strike: generated trailing frame cache 05-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_mutate: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_phase: generated trailing frame cache 05-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_ranged_spit: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_regen: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_runner_dash: generated trailing frame cache 05-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_shield_aura: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_summon: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_support_strike: generated trailing frame cache 06-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_toxic_cloud: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_enemy_skill_ward: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_barrier: generated trailing frame cache 09-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_charge_shot: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_critical: generated trailing frame cache 06-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_cryo: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_gold_rush: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_homing: generated trailing frame cache 06-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_incendiary: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_multishot: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_pierce: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_recycle: generated trailing frame cache 06-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_ricochet: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_salvo: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_slow_field: generated trailing frame cache 08-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_split_shot: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_tesla: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_skill_cast_venom: generated trailing frame cache 07-12 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_target_lock: generated trailing frame cache 06-08 is intentionally outside the runtime manifest
+- assets/production/sprites/vfx_sequences/vfx_threat_warning: generated trailing frame cache 06-08 is intentionally outside the runtime manifest
+Asset pack validation passed: 11001 files
+$ python3 tools/check_font_license.py
+Font license check passed: Glow Sans SC Normal Medium v0.93 / SIL OFL 1.1
+$ python3 tools/validate_data.py
+Data validation passed: 99 levels, 20 zombies, 8 boss, 16 skills, 14 environments, 10 challenge rules
+$ python3 tools/check_res_refs.py
+checked 443 res:// references
+res:// references OK
+$ python3 tools/sync_release_export_excludes.py
+iOS release excludes already synchronized: 232 rules, 211 unused VFX tail frames, 65.5 MiB source kept outside the package
+$ bash -n tools/ship_testflight.sh
+$ python3 tools/release_delivery_record.py self-test
+Release delivery record self-test OK
+$ python3 tools/check_release_package.py --preset-only
+iOS export preset passed: build=69, version=1.0.0, minimum_iOS=15.0, excludes=232
+$ python3 tools/generate_wave_pressure.py --check
+Wave-pressure check OK: full=0 partial=0 unchanged=0 pilot=0
+partial: 
+stars: 94x3-star / 5x2-star / 0x1-star; per-level regressions=0
+$ python3 tools/generate_weapon_power_profiles.py --check
+Weapon power profiles OK: 12 weapons
+$ python3 tools/generate_endless_boss_budgets.py --check
+Endless Boss budget table is current
+$ python3 tools/simulate_endless.py
+Endless template level_025: mob_hp=446726.7 spawn_schedule=81.6s
+
+Cross-faded Boss pacing reference
+loop mix reference_dps target recomputed band
+   1 0.00      686242.9   18.0s       18.0s [0,30]
+   2 0.00      686242.9   24.0s       24.0s [0,30]
+   3 0.00      686242.9   30.0s       30.0s [0,30]
+   4 0.00      686242.9   36.0s       36.0s [30,60]
+   5 0.00      686242.9   48.0s       48.0s [30,60]
+   6 0.00      686242.9   51.0s       51.0s [30,60]
+   7 0.23      861930.5   62.0s       62.0s [60,100]
+   8 0.23      861930.5   72.0s       72.0s [60,100]
+   9 0.23      861930.5   93.0s       93.0s [60,100]
+  10 0.23      861930.5   95.0s       95.0s [60,100]
+  11 0.10      762628.8  102.0s      102.0s [100,150]
+  12 0.20      839014.7  108.0s      108.0s [100,150]
+  13 0.30      915400.6  108.0s      108.0s [100,150]
+  14 0.40      991786.6  123.0s      123.0s [100,150]
+  15 0.50     1068172.5  137.0s      137.0s [100,150]
+  16 0.60     1144558.4  143.0s      143.0s [100,150]
+  17 0.70     1220944.3  150.0s      150.0s [100,150]
+  18 0.80     1297330.2  150.0s      150.0s [100,150]
+  19 0.90     1373716.2  150.0s      150.0s [100,150]
+  20 1.00     1450102.1  150.0s      150.0s [100,150]
+
+level_080 Owner (fire): crowd_dps=5192119.3 boss_dps=686242.9 line=3.910 terminal_loop=13
+loop mob_x mob_load boss_target boss_fixture pressure cumulative
+   1  1.00    0.001        18.0s        18.0s    0.000      0.000
+   2  1.20    0.001        24.0s        24.0s    0.000      0.000
+   3  1.44    0.002        30.0s        30.0s    0.000      0.000
+   4  1.73    0.002        36.0s        36.0s    0.000      0.000
+   5  2.07    0.002        48.0s        48.0s    0.000      0.000
+   6  2.65    0.003        51.0s        51.0s    0.000      0.000
+   7  3.40    0.004        62.0s        71.4s    0.050      0.050
+   8  4.35    0.005        72.0s        83.0s    0.100      0.150
+   9  5.57    0.006        93.0s       106.5s    0.156      0.306
+  10  7.12    0.008        95.0s       108.8s    0.149      0.455
+  11  9.83    0.010       102.0s       108.8s    0.149      0.603
+  12 13.57    0.014       108.0s       121.8s    0.197      0.800
+  13 18.72    0.020       108.0s       127.3s    0.201      1.001
+  14 25.84    0.027       123.0s       182.5s    0.442      1.443
+  15 35.66    0.038       137.0s       220.4s    0.586      2.029
+  16 49.21    0.052       143.0s       248.2s    0.693      2.722
+  17 67.91    0.072       150.0s       265.7s    0.724      3.446
+  18 93.71    0.099       150.0s       282.1s    0.784      4.230
+  19 129.33    0.136       150.0s       298.5s    0.845      5.075
+  20 178.47    0.188       150.0s       314.9s    0.905      5.981
+
+max-free scattergun (poison): crowd_dps=1384840.2 boss_dps=139405.5 line=146.262 terminal_loop=16
+loop mob_x mob_load boss_target boss_fixture pressure cumulative
+   1  1.00    0.004        18.0s       132.9s    0.006      0.006
+   2  1.20    0.005        24.0s       177.2s    0.010      0.016
+   3  1.44    0.006        30.0s       221.5s    0.015      0.031
+   4  1.73    0.007        36.0s       265.8s    0.019      0.050
+   5  2.07    0.008        48.0s       535.0s    0.042      0.092
+   6  2.65    0.010        51.0s       568.4s    0.045      0.137
+   7  3.40    0.013        62.0s       413.4s    0.040      0.178
+   8  4.35    0.017        72.0s       480.0s    0.048      0.226
+   9  5.57    0.022        93.0s       871.8s    0.083      0.309
+  10  7.12    0.028        95.0s       902.5s    0.083      0.392
+  11  9.83    0.039       102.0s       902.5s    0.083      0.475
+  12 13.57    0.054       108.0s      1010.4s    0.094      0.569
+  13 18.72    0.074       108.0s      1227.8s    0.111      0.679
+  14 25.84    0.102       123.0s      1238.8s    0.120      0.799
+  15 35.66    0.141       137.0s      1496.1s    0.146      0.945
+  16 49.21    0.195       143.0s      1684.6s    0.165      1.110
+  17 67.91    0.269       150.0s      2071.8s    0.197      1.308
+  18 93.71    0.371       150.0s      2200.0s    0.210      1.518
+  19 129.33    0.511       150.0s      2328.0s    0.223      1.740
+  20 178.47    0.706       150.0s      2455.8s    0.235      1.976
+
+Survival bands: mid=(10, 14) got=13; graduation=(16, 20) got=16
+Endless simulation checks passed
+$ python3 tools/check_level_pressure.py
+Level pressure estimate
+level_001: pressure=233.6, spawn_time=87.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=92.4s wins=10/10
+level_002: pressure=285.1, spawn_time=91.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=102.2s wins=10/10
+level_003: pressure=412.9, spawn_time=94.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=108.4s wins=10/10
+level_004: pressure=1048.2, spawn_time=91.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=113.3s wins=10/10
+level_005: pressure=1432.0, spawn_time=120.2s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=144.1s wins=10/10
+level_006: pressure=679.7, spawn_time=127.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=132.7s wins=10/10
+level_007: pressure=683.1, spawn_time=106.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=111.8s wins=10/10
+level_008: pressure=1390.2, spawn_time=127.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=144.8s wins=10/10
+level_009: pressure=1509.9, spawn_time=113.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=128.6s wins=10/10
+level_010: pressure=2212.7, spawn_time=83.4s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=125.1s wins=10/10
+level_011: pressure=1405.9, spawn_time=142.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=155.7s wins=10/10
+level_012: pressure=2514.5, spawn_time=119.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=140.4s wins=10/10
+level_013: pressure=4554.2, spawn_time=146.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=178.6s wins=10/10
+level_014: pressure=3900.8, spawn_time=140.9s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=165.9s wins=10/10
+level_015: pressure=1152.2, spawn_time=60.4s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=136.1s wins=10/10
+level_016: pressure=1940.6, spawn_time=153.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=170.4s wins=10/10
+level_017: pressure=1403.6, spawn_time=138.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=164.4s wins=10/10
+level_018: pressure=4032.7, spawn_time=131.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=165.4s wins=10/10
+level_019: pressure=4382.7, spawn_time=143.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=173.3s wins=10/10
+level_020: pressure=4270.2, spawn_time=124.5s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=223.5s wins=10/10
+level_021: pressure=3213.3, spawn_time=138.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=168.5s wins=10/10
+level_022: pressure=3880.9, spawn_time=149.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=158.3s wins=10/10
+level_023: pressure=5239.7, spawn_time=144.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=170.3s wins=10/10
+level_024: pressure=3453.2, spawn_time=128.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=168.2s wins=10/10
+level_025: pressure=12656.6, spawn_time=81.6s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=143.1s wins=10/10
+level_026: pressure=14549.6, spawn_time=159.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=159.3s wins=10/10
+level_027: pressure=6625.5, spawn_time=147.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=184.3s wins=10/10
+level_028: pressure=12981.2, spawn_time=132.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=157.8s wins=10/10
+level_029: pressure=8233.8, spawn_time=133.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=169.4s wins=10/10
+level_030: pressure=31825.4, spawn_time=228.6s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=184.8s wins=10/10
+level_031: pressure=5595.7, spawn_time=150.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=156.5s wins=10/10
+level_032: pressure=6780.0, spawn_time=133.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=188.3s wins=10/10
+level_033: pressure=12765.3, spawn_time=119.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=164.3s wins=10/10
+level_034: pressure=29567.8, spawn_time=146.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=195.4s wins=10/10
+level_035: pressure=4640.0, spawn_time=98.1s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=151.2s wins=10/10
+level_036: pressure=12073.9, spawn_time=119.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=151.0s wins=10/10
+level_037: pressure=13777.6, spawn_time=138.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=173.5s wins=10/10
+level_038: pressure=26596.2, spawn_time=149.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=186.8s wins=10/10
+level_039: pressure=21637.3, spawn_time=146.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=170.0s wins=10/10
+level_040: pressure=43312.9, spawn_time=164.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=190.2s wins=10/10
+level_041: pressure=7888.6, spawn_time=141.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=173.0s wins=10/10
+level_042: pressure=32524.0, spawn_time=152.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=198.0s wins=10/10
+level_043: pressure=30833.3, spawn_time=159.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=175.8s wins=10/10
+level_044: pressure=35679.6, spawn_time=157.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=216.0s wins=10/10
+level_045: pressure=15468.1, spawn_time=147.9s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=199.7s wins=10/10
+level_046: pressure=24438.2, spawn_time=128.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=155.7s wins=10/10
+level_047: pressure=90502.9, spawn_time=160.9s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=210.7s wins=10/10
+level_048: pressure=86355.7, spawn_time=162.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=194.9s wins=10/10
+level_049: pressure=83228.3, spawn_time=151.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=217.7s wins=10/10
+level_050: pressure=91872.6, spawn_time=115.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=191.0s wins=10/10
+level_051: pressure=32636.0, spawn_time=32.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=82.3s wins=10/10
+level_052: pressure=21334.3, spawn_time=28.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=97.3s wins=10/10
+level_053: pressure=21413.7, spawn_time=25.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=93.7s wins=10/10
+level_054: pressure=26480.3, spawn_time=26.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=96.8s wins=10/10
+level_055: pressure=78448.8, spawn_time=36.4s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=116.7s wins=10/10
+level_056: pressure=28655.7, spawn_time=26.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=68.6s wins=10/10
+level_057: pressure=101541.3, spawn_time=67.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=166.0s wins=10/10
+level_058: pressure=50844.8, spawn_time=30.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=142.8s wins=10/10
+level_059: pressure=69623.0, spawn_time=35.8s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=127.1s wins=10/10
+level_060: pressure=206773.1, spawn_time=58.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=139.9s wins=10/10
+level_061: pressure=63945.9, spawn_time=48.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=111.3s wins=10/10
+level_062: pressure=12027.1, spawn_time=48.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=92.8s wins=10/10
+level_063: pressure=61350.7, spawn_time=32.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=115.9s wins=10/10
+level_064: pressure=83138.1, spawn_time=31.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=140.3s wins=10/10
+level_065: pressure=123072.6, spawn_time=25.6s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=142.2s wins=10/10
+level_066: pressure=81292.1, spawn_time=29.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=175.7s wins=10/10
+level_067: pressure=78986.7, spawn_time=47.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=161.8s wins=10/10
+level_068: pressure=159591.3, spawn_time=42.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=219.4s wins=10/10
+level_069: pressure=77929.8, spawn_time=38.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=171.3s wins=10/10
+level_070: pressure=877221.0, spawn_time=40.2s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=136.3s wins=10/10
+level_071: pressure=133553.8, spawn_time=32.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=120.9s wins=10/10
+level_072: pressure=151060.0, spawn_time=37.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=81.5s wins=10/10
+level_073: pressure=99418.4, spawn_time=32.9s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=106.7s wins=10/10
+level_074: pressure=169098.2, spawn_time=53.4s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=156.0s wins=10/10
+level_075: pressure=1543650.8, spawn_time=71.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=182.7s wins=10/10
+level_076: pressure=371341.1, spawn_time=38.9s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=191.0s wins=10/10
+level_077: pressure=230668.6, spawn_time=47.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=158.7s wins=10/10
+level_078: pressure=248863.2, spawn_time=47.2s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=198.3s wins=10/10
+level_079: pressure=197683.0, spawn_time=46.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=143.8s wins=10/10
+level_080: pressure=2562452.7, spawn_time=46.2s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=152.6s wins=10/10
+level_081: pressure=149852.0, spawn_time=34.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=112.0s wins=10/10
+level_082: pressure=197833.9, spawn_time=34.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=115.5s wins=10/10
+level_083: pressure=236189.4, spawn_time=46.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=135.6s wins=10/10
+level_084: pressure=242689.2, spawn_time=34.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=113.7s wins=10/10
+level_085: pressure=6623540.4, spawn_time=62.8s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=200.4s wins=10/10
+level_086: pressure=395064.8, spawn_time=60.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=158.1s wins=10/10
+level_087: pressure=316311.0, spawn_time=49.9s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=145.1s wins=10/10
+level_088: pressure=332795.5, spawn_time=38.1s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=131.5s wins=10/10
+level_089: pressure=344459.4, spawn_time=57.0s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=125.0s wins=10/10
+level_090: pressure=3853511.0, spawn_time=28.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=117.5s wins=10/10
+level_091: pressure=248597.3, spawn_time=33.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=81.2s wins=10/10
+level_092: pressure=406256.8, spawn_time=72.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=134.7s wins=10/10
+level_093: pressure=362215.6, spawn_time=43.7s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=151.6s wins=10/10
+level_094: pressure=329965.6, spawn_time=54.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=122.1s wins=10/10
+level_095: pressure=7998012.0, spawn_time=53.4s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=182.0s wins=10/10
+level_096: pressure=583791.5, spawn_time=85.6s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=178.1s wins=10/10
+level_097: pressure=368096.5, spawn_time=79.3s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=116.1s wins=10/10
+level_098: pressure=391371.7, spawn_time=72.5s, boss=0
+  fixed-frame runtime probe owns the clear-time contract: median=168.7s wins=10/10
+level_099: pressure=11018332.1, spawn_time=44.0s, boss=1
+  fixed-frame runtime probe owns the clear-time contract: median=212.9s wins=10/10
+  pilot runtime-authoritative topology: level_006 < level_004 (679.7 < 1048.2)
+  pilot runtime-authoritative topology: level_011 < level_009 (1405.9 < 1509.9)
+  pilot runtime-authoritative topology: level_014 < level_013 (3900.8 < 4554.2)
+  pilot runtime-authoritative topology: level_016 < level_014 (1940.6 < 3900.8)
+  pilot runtime-authoritative topology: level_017 < level_016 (1403.6 < 1940.6)
+  pilot runtime-authoritative topology: level_021 < level_019 (3213.3 < 4382.7)
+  pilot runtime-authoritative topology: level_024 < level_023 (3453.2 < 5239.7)
+  pilot runtime-authoritative topology: level_027 < level_026 (6625.5 < 14549.6)
+  pilot runtime-authoritative topology: level_029 < level_028 (8233.8 < 12981.2)
+  pilot runtime-authoritative topology: level_031 < level_029 (5595.7 < 8233.8)
+  pilot runtime-authoritative topology: level_036 < level_034 (12073.9 < 29567.8)
+  pilot runtime-authoritative topology: level_039 < level_038 (21637.3 < 26596.2)
+  pilot runtime-authoritative topology: level_041 < level_039 (7888.6 < 21637.3)
+  pilot runtime-authoritative topology: level_043 < level_042 (30833.3 < 32524.0)
+  pilot runtime-authoritative topology: level_046 < level_044 (24438.2 < 35679.6)
+  pilot runtime-authoritative topology: level_048 < level_047 (86355.7 < 90502.9)
+  pilot runtime-authoritative topology: level_049 < level_048 (83228.3 < 86355.7)
+  pilot runtime-authoritative topology: level_051 < level_049 (32636.0 < 83228.3)
+  pilot runtime-authoritative topology: level_052 < level_051 (21334.3 < 32636.0)
+  pilot runtime-authoritative topology: level_058 < level_057 (50844.8 < 101541.3)
+  pilot runtime-authoritative topology: level_061 < level_059 (63945.9 < 69623.0)
+  pilot runtime-authoritative topology: level_062 < level_061 (12027.1 < 63945.9)
+  pilot runtime-authoritative topology: level_066 < level_064 (81292.1 < 83138.1)
+  pilot runtime-authoritative topology: level_067 < level_066 (78986.7 < 81292.1)
+  pilot runtime-authoritative topology: level_069 < level_068 (77929.8 < 159591.3)
+  pilot runtime-authoritative topology: level_073 < level_072 (99418.4 < 151060.0)
+  pilot runtime-authoritative topology: level_077 < level_076 (230668.6 < 371341.1)
+  pilot runtime-authoritative topology: level_079 < level_078 (197683.0 < 248863.2)
+  pilot runtime-authoritative topology: level_081 < level_079 (149852.0 < 197683.0)
+  pilot runtime-authoritative topology: level_087 < level_086 (316311.0 < 395064.8)
+  pilot runtime-authoritative topology: level_091 < level_089 (248597.3 < 344459.4)
+  pilot runtime-authoritative topology: level_093 < level_092 (362215.6 < 406256.8)
+  pilot runtime-authoritative topology: level_094 < level_093 (329965.6 < 362215.6)
+  pilot runtime-authoritative topology: level_097 < level_096 (368096.5 < 583791.5)
+  pilot runtime-authoritative topology: level_015 < level_010 (1152.2 < 2212.7)
+  pilot runtime-authoritative topology: level_035 < level_030 (4640.0 < 31825.4)
+  pilot runtime-authoritative topology: level_045 < level_040 (15468.1 < 43312.9)
+  pilot runtime-authoritative topology: level_055 < level_050 (78448.8 < 91872.6)
+  pilot runtime-authoritative topology: level_065 < level_060 (123072.6 < 206773.1)
+  pilot runtime-authoritative topology: level_090 < level_085 (3853511.0 < 6623540.4)
+$ python3 tools/check_balance_profile.py
+Balance profile OK
+pressure range: 288.9 -> 86648486.0
+paid unlock star range: 8 -> 16; total=316
+weapon effective DPS (relative):
+    7.15  [legendary] weapon_plasmacannon
+    6.81  [legendary] weapon_railgun
+    5.79  [epic     ] weapon_teslacoil
+    5.61  [epic     ] weapon_venomlauncher
+    4.86  [rare     ] weapon_scattergun
+    4.76  [rare     ] weapon_flamethrower
+    4.59  [rare     ] weapon_cryocannon
+    4.00  [common   ] weapon_autocannon
+$ python3 tools/simulate_balance.py
+Simulation mode: normal
+Fire-rate profile: tier_b
+level       ch  recom coef   cards  spawn  hp_total dps_ns dps_ws   t_ns   t_ws  leak%  notes
+--------------------------------------------------------------------------------------------------------------
+level_001  ch1  1     0.44       2   87.8     11678    131    283   89.3   41.3    28%  3★
+level_002  ch1  2     0.62       2   91.6     14253    154    333   92.5   42.8    40%  2★
+level_003  ch1  2     0.57       2   94.5     20644    154    333  134.0   62.0    59%  BUILD_CHECK 2★
+level_004  ch1  2     1.29       2   91.6     52409    154    333  340.2  157.5    47%  BUILD_CHECK HARD 2★
+level_005  ch1  3     1.25       2  120.2     65365    180    389  363.2  168.2    35%  BOSS BUILD_CHECK HARD 2★
+level_006  ch1  4     0.95       2  127.2     33987    209    451  162.8   75.4    36%  BUILD_CHECK 2★
+level_007  ch1  4     0.63       2  106.5     34157    209    451  163.7   75.8    52%  BUILD_CHECK 2★
+level_008  ch1  4     1.26       3  127.0     69510    209    622  333.0  111.8    64%  BUILD_CHECK HARD 2★
+level_009  ch1  5     1.38       3  113.1     75496    241    717  313.9  105.3    35%  BUILD_CHECK HARD 2★
+level_010  ch1  6     2.15       3   83.4     96711    276    821  350.9  117.8    23%  BOSS BUILD_CHECK HARD 3★
+level_011  ch2  6     1.08       3  142.2     70295    276    821  255.1   85.6    42%  BUILD_CHECK 2★
+level_012  ch2  6     1.42       3  119.4    125725    276    821  456.2  153.1    51%  BUILD_CHECK HARD 2★
+level_013  ch2  7     2.88       3  146.7    227708    314    936  724.9  243.3    63%  BUILD_CHECK HARD 2★
+level_014  ch2  8     2.03       3  140.9    195042    356   1062  547.4  183.7    42%  BUILD_CHECK HARD 2★
+level_015  ch2  8     0.96       3   60.4     60399    356   1062  169.5   56.9    11%  BOSS BUILD_CHECK HARD 3★
+level_016  ch2  8     1.19       3  153.1     97030    356   1062  272.3   91.4    45%  BUILD_CHECK 2★
+level_017  ch2  9     0.72       3  138.7     70181    402   1199  174.4   58.5    45%  BUILD_CHECK 2★
+level_018  ch2  10    3.22       3  131.3    201636    453   1349  445.5  149.5    26%  BUILD_CHECK HARD 3★
+level_019  ch2  10    2.44       3  143.2    219133    453   1349  484.1  162.5    44%  BUILD_CHECK HARD 2★
+level_020  ch2  10    1.50       4  124.5    201876    453   1792  446.0  112.6    37%  BOSS BUILD_CHECK HARD 2★
+level_021  ch3  11    1.70       4  138.1    160663    507   2008  316.8   80.0    37%  BUILD_CHECK 2★
+level_022  ch3  12    2.23       4  149.2    194044    566   2242  342.7   86.5    27%  BUILD_CHECK 3★
+level_023  ch3  12    2.47       4  144.7    261983    566   2242  462.6  116.8    39%  BUILD_CHECK 2★
+level_024  ch3  12    1.50       4  128.6    172660    566   2242  304.9   77.0    34%  BUILD_CHECK 2★
+level_025  ch3  13    3.50       5   81.6    556727    630   3214  883.4  173.2    15%  BOSS BUILD_CHECK HARD 3★
+level_026  ch3  14    7.51       4  159.4    727479    699   2769 1040.4  262.7    33%  BUILD_CHECK HARD 2★
+level_027  ch3  14    2.75       4  147.1    331276    699   2769  473.8  119.6    35%  BUILD_CHECK 2★
+level_028  ch3  14    4.60       4  132.1    649059    699   2769  928.3  234.4    29%  BUILD_CHECK HARD 3★
+level_029  ch3  15    3.30       4  133.4    411692    774   3063  532.2  134.4    35%  BUILD_CHECK HARD 2★
+level_030  ch3  16    5.00       4  228.6   1426590    853   3379 1671.7  422.1    37%  BOSS BUILD_CHECK HARD 2★
+level_031  ch4  16    1.95       4  150.3    279784    853   3379  327.8   82.8    36%  BUILD_CHECK 2★
+level_032  ch4  16    1.99       5  133.0    338998    853   4352  397.2   77.9    28%  BUILD_CHECK 3★
+level_033  ch4  17    4.35       5  119.0    638264    939   4789  679.6  133.3    29%  BUILD_CHECK HARD 3★
+level_034  ch4  18    8.78       5  146.5   1478391   1031   5258 1434.0  281.2    34%  BUILD_CHECK HARD 2★
+level_035  ch4  18    1.50       5   98.1    309940   1031   5258  300.6   58.9    21%  BOSS BUILD_CHECK 3★
+level_036  ch4  18    3.58       5  119.2    603696   1031   5258  585.6  114.8    29%  BUILD_CHECK HARD 3★
+level_037  ch4  19    2.52       5  138.4    688882   1129   5759  610.1  119.6    37%  BUILD_CHECK HARD 2★
+level_038  ch4  20    5.60       5  149.6   1329809   1234   6294 1077.6  211.3    41%  BUILD_CHECK HARD 2★
+level_039  ch4  20    6.29       5  146.5   1081864   1234   6294  876.7  171.9    28%  BUILD_CHECK HARD 3★
+level_040  ch4  20    3.34       5  164.0   2282457   1234   6294 1849.6  362.7    53%  BOSS BUILD_CHECK HARD 2★
+level_041  ch5  21    1.70       5  141.8    394428   1346   6864  293.1   57.5    40%  BUILD_CHECK 2★
+level_042  ch5  22    5.33       5  152.1   1626202   1465   7472 1110.0  217.7    38%  BUILD_CHECK HARD 2★
+level_043  ch5  22    5.80       5  159.4   1541667   1465   7472 1052.3  206.3    34%  BUILD_CHECK HARD 2★
+level_044  ch5  22    4.94       6  157.0   1783982   1465   9376 1217.7  190.3    50%  BUILD_CHECK HARD 2★
+level_045  ch5  23    2.80       7  147.9    943463   1592  12511  592.8   75.4    34%  BOSS BUILD_CHECK 2★
+level_046  ch5  24    4.80       6  128.8   1221912   1726  11048  707.9  110.6    36%  BUILD_CHECK HARD 2★
+level_047  ch5  24    12.50      6  160.9   4525147   1726  11048 2621.5  409.6    38%  BUILD_CHECK HARD 2★
+level_048  ch5  24    8.00       6  162.5   4317783   1726  11048 2501.3  390.8    42%  BUILD_CHECK HARD 2★
+level_049  ch5  25    6.30       6  151.6   4161413   1869  11961 2226.7  347.9    39%  BUILD_CHECK HARD 2★
+level_050  ch5  26    5.78       6  115.0   4911594   2020  12929 2431.4  315.9    22%  BOSS BUILD_CHECK HARD 3★
+level_051  ch6  26    14.70      6   32.8   1631800   2020  12929  807.8  126.2     7%  BUILD_CHECK HARD 3★
+level_052  ch6  26    14.00      6   28.5   1066716   2020  12929  528.1   82.5     7%  BUILD_CHECK HARD 3★
+level_053  ch6  27    10.30      6   25.1   1070687   2180  13953  491.1   76.7     9%  BUILD_CHECK HARD 3★
+level_054  ch6  28    21.00      6   26.2   1324013   2349  15035  563.6   88.1     9%  BUILD_CHECK HARD 3★
+level_055  ch6  28    7.06       6   36.4   1317939   2349  15035  561.0   64.5     6%  BOSS BUILD_CHECK HARD 3★
+level_056  ch6  28    12.45      6   26.8   1432785   2349  15035  609.9   95.3     7%  BUILD_CHECK HARD 3★
+level_057  ch6  29    10.30      7   67.5   5077063   2528  19870 2008.4  255.5    16%  BUILD_CHECK HARD 3★
+level_058  ch6  30    14.30      7   30.0   2542241   2716  21351  935.9  119.1     7%  BUILD_CHECK HARD 3★
+level_059  ch6  30    20.00      7   35.8   3481148   2716  21351 1281.5  163.0     7%  BUILD_CHECK HARD 3★
+level_060  ch6  30    8.00       7   58.0   3399154   2716  21351 1251.3   94.2    28%  BOSS BUILD_CHECK HARD 3★
+level_061  ch7  31    11.50      7   48.1   3197294   2915  22913 1096.8  139.5    11%  BUILD_CHECK HARD 3★
+level_062  ch7  32    2.10       7   48.1    601356   3124  24557  192.5   24.5    10%  BUILD_CHECK 3★
+level_063  ch7  32    9.40       7   32.2   3067536   3124  24557  981.8  124.9    10%  BUILD_CHECK HARD 3★
+level_064  ch7  32    13.00      7   31.7   4156905   3124  24557 1330.5  169.3     9%  BUILD_CHECK HARD 3★
+level_065  ch7  33    3.00       7   25.6   2014062   3344  26287  602.2   24.0     8%  BOSS BUILD_CHECK HARD 3★
+level_066  ch7  34    26.00      7   29.3   4064607   3576  28106 1136.7  144.6     7%  BUILD_CHECK HARD 3★
+level_067  ch7  34    27.00      7   47.5   3949336   3576  28106 1104.5  140.5    12%  BUILD_CHECK HARD 3★
+level_068  ch7  34    32.00      7   42.3   7979564   3576  28106 2231.6  283.9    10%  BUILD_CHECK HARD 3★
+level_069  ch7  35    13.00      8   38.7   3896489   3819  36202 1020.3  107.6    11%  BUILD_CHECK HARD 3★
+level_070  ch7  36    7.50       8   40.2   4420933   4074  38620 1085.2   46.4    16%  BOSS BUILD_CHECK HARD 3★
+level_071  ch8  36    15.00      8   32.4   6677689   4074  38620 1639.2  172.9     9%  BUILD_CHECK HARD 3★
+level_072  ch8  36    15.00      8   37.7   7553000   4074  38620 1854.0  195.6     6%  BUILD_CHECK HARD 3★
+level_073  ch8  37    10.12      8   32.9   4970918   4341  41155 1145.0  120.8     9%  BUILD_CHECK HARD 3★
+level_074  ch8  38    23.00      8   53.4   8454908   4622  43812 1829.5  193.0    11%  BUILD_CHECK HARD 3★
+level_075  ch8  38    9.00       8   71.0   6066316   4622  43812 1312.6   75.5    18%  BOSS BUILD_CHECK HARD 3★
+level_076  ch8  38    38.00      8   38.9  18567054   4622  43812 4017.5  423.8    10%  BUILD_CHECK HARD 3★
+level_077  ch8  39    31.00      8   47.3  11533432   4915  46594 2346.6  247.5    11%  BUILD_CHECK HARD 3★
+level_078  ch8  40    42.00      8   47.2  12443162   5222  49505 2382.8  251.4     9%  BUILD_CHECK HARD 3★
+level_079  ch8  40    24.00      8   46.3   9884148   5222  49505 1892.8  199.7    11%  BUILD_CHECK HARD 3★
+level_080  ch8  40    11.00      8   46.2   7457761   5222  49505 1428.1   67.2    19%  BOSS BUILD_CHECK HARD 3★
+level_081  ch9  40    11.64      9   34.5   7492600   5391  60700 1389.9  123.4     8%  BUILD_CHECK HARD 3★
+level_082  ch9  40    15.00      9   34.5   9891697   5562  62630 1778.4  157.9     8%  BUILD_CHECK HARD 3★
+level_083  ch9  40    26.00      9   46.6  11809472   5562  62630 2123.2  188.6    10%  BUILD_CHECK HARD 3★
+level_084  ch9  40    35.00      9   34.3  12134460   5562  62630 2181.6  193.7     7%  BUILD_CHECK HARD 3★
+level_085  ch9  40    20.00      9   62.8  13742326   5736  64588 2395.8  127.5    23%  BOSS BUILD_CHECK HARD 3★
+level_086  ch9  40    29.00      9   60.1  19753241   5913  66575 3340.9  296.7    12%  BUILD_CHECK HARD 3★
+level_087  ch9  40    29.00      9   49.9  15815549   5913  66575 2674.9  237.6    11%  BUILD_CHECK HARD 3★
+level_088  ch9  40    32.00      9   38.1  16639775   5913  66575 2814.3  249.9     9%  BUILD_CHECK HARD 3★
+level_089  ch9  40    22.20      9   57.0  17222971   6092  68591 2827.3  251.1    10%  BUILD_CHECK HARD 3★
+level_090  ch9  40    7.00       9   28.0  21485940   6273  70636 3425.0  142.8     5%  BOSS BUILD_CHECK HARD 3★
+level_091  ch10 40    15.00      9   33.3  12429863   6273  70636 1981.4  176.0     7%  BUILD_CHECK HARD 3★
+level_092  ch10 40    23.00      9   72.5  20312840   6273  70636 3238.0  287.6    12%  BUILD_CHECK HARD 3★
+level_093  ch10 40    28.00     10   43.7  18110782   6457  85238 2804.7  212.5    10%  BUILD_CHECK HARD 3★
+level_094  ch10 40    23.50     10   54.3  16498282   6644  87703 2483.1  188.1    10%  BUILD_CHECK HARD 3★
+level_095  ch10 40    10.50     10   53.4  42669878   6644  87703 6422.2  356.6     9%  BOSS BUILD_CHECK HARD 3★
+level_096  ch10 40    28.50     10   85.6  29189577   6644  87703 4393.3  332.8    14%  BUILD_CHECK HARD 3★
+level_097  ch10 40    18.00     10   79.3  18404827   6833  90202 2693.3  204.0    12%  BUILD_CHECK HARD 3★
+level_098  ch10 40    22.00     10   72.5  19568587   7025  92735 2785.4  211.0    12%  BUILD_CHECK HARD 3★
+level_099  ch10 40    11.00     10   44.0  29969144   7025  92735 4265.9  138.8     7%  BOSS BUILD_CHECK HARD 3★
+
+With-skill avg clear time: 164.6s
+With-skill min/max: 24.0s / 423.8s
+Levels < 30s (with skill): 2
+Levels above phase-specific clear-time cap: 0
+Pilot fixed-frame clear-time authority: level_001=92.4s 10/10, level_002=102.2s 10/10, level_003=108.4s 10/10, level_004=113.3s 10/10, level_005=144.1s 10/10, level_006=132.7s 10/10, level_007=111.8s 10/10, level_008=144.8s 10/10, level_009=128.6s 10/10, level_010=125.1s 10/10, level_011=155.7s 10/10, level_012=140.4s 10/10, level_013=178.6s 10/10, level_014=165.9s 10/10, level_015=136.1s 10/10, level_016=170.4s 10/10, level_017=164.4s 10/10, level_018=165.4s 10/10, level_019=173.3s 10/10, level_020=223.5s 10/10, level_021=168.5s 10/10, level_022=158.3s 10/10, level_023=170.3s 10/10, level_024=168.2s 10/10, level_025=143.1s 10/10, level_026=159.3s 10/10, level_027=184.3s 10/10, level_028=157.8s 10/10, level_029=169.4s 10/10, level_030=184.8s 10/10, level_031=156.5s 10/10, level_032=188.3s 10/10, level_033=164.3s 10/10, level_034=195.4s 10/10, level_035=151.2s 10/10, level_036=151.0s 10/10, level_037=173.5s 10/10, level_038=186.8s 10/10, level_039=170.0s 10/10, level_040=190.2s 10/10, level_041=173.0s 10/10, level_042=198.0s 10/10, level_043=175.8s 10/10, level_044=216.0s 10/10, level_045=199.7s 10/10, level_046=155.7s 10/10, level_047=210.7s 10/10, level_048=194.9s 10/10, level_049=217.7s 10/10, level_050=191.0s 10/10, level_051=82.3s 10/10, level_052=97.3s 10/10, level_053=93.7s 10/10, level_054=96.8s 10/10, level_055=116.7s 10/10, level_056=68.6s 10/10, level_057=166.0s 10/10, level_058=142.8s 10/10, level_059=127.1s 10/10, level_060=139.9s 10/10, level_061=111.3s 10/10, level_062=92.8s 10/10, level_063=115.9s 10/10, level_064=140.3s 10/10, level_065=142.2s 10/10, level_066=175.7s 10/10, level_067=161.8s 10/10, level_068=219.4s 10/10, level_069=171.3s 10/10, level_070=136.3s 10/10, level_071=120.9s 10/10, level_072=81.5s 10/10, level_073=106.7s 10/10, level_074=156.0s 10/10, level_075=182.7s 10/10, level_076=191.0s 10/10, level_077=158.7s 10/10, level_078=198.3s 10/10, level_079=143.8s 10/10, level_080=152.6s 10/10, level_081=112.0s 10/10, level_082=115.5s 10/10, level_083=135.6s 10/10, level_084=113.7s 10/10, level_085=200.4s 10/10, level_086=158.1s 10/10, level_087=145.1s 10/10, level_088=131.5s 10/10, level_089=125.0s 10/10, level_090=117.5s 10/10, level_091=81.2s 10/10, level_092=134.7s 10/10, level_093=151.6s 10/10, level_094=122.1s 10/10, level_095=182.0s 10/10, level_096=178.1s 10/10, level_097=116.1s 10/10, level_098=168.7s 10/10, level_099=212.9s 10/10
+Finale static-HP peak is report-only; fixed-frame runtime owns level_099 (10/10).
+Balance simulation OK
+$ python3 tools/simulate_balance.py --challenge
+Simulation mode: challenge
+Fire-rate profile: tier_b
+level       ch  recom coef   cards  spawn  hp_total dps_ns dps_ws   t_ns   t_ws  leak%  notes
+--------------------------------------------------------------------------------------------------------------
+level_001  ch1  1     0.44       2   87.8     14598    131    283  111.6   51.7    35%  BUILD_CHECK 2★
+level_002  ch1  2     0.62       2   91.6     17818    154    333  115.7   53.5    49%  BUILD_CHECK 2★
+level_003  ch1  2     0.57       2   94.5     25813    154    333  167.6   77.6    74%  BUILD_CHECK 1★
+level_004  ch1  2     1.29       2   91.6     65558    154    333  425.6  197.0    58%  BUILD_CHECK HARD 2★
+level_005  ch1  3     1.25       2  120.2     81808    180    389  454.6  210.5    44%  BOSS BUILD_CHECK HARD 2★
+level_006  ch1  4     0.95       2  127.2     42565    209    451  203.9   94.4    45%  BUILD_CHECK 2★
+level_007  ch1  4     0.63       2  106.5     42813    209    451  205.1   95.0    66%  BUILD_CHECK HARD 1★
+level_008  ch1  4     1.26       3  127.0     87207    209    622  417.8  140.2    80%  BUILD_CHECK HARD 1★
+level_009  ch1  5     1.38       3  113.1     94817    241    717  394.2  132.3    44%  BUILD_CHECK HARD 2★
+level_010  ch1  6     2.15       3   83.4    121605    276    821  441.2  148.1    29%  BOSS BUILD_CHECK HARD 3★
+level_011  ch2  6     1.08       3  142.2     88502    276    821  321.1  107.8    53%  BUILD_CHECK 2★
+level_012  ch2  6     1.42       3  119.4    158508    276    821  575.1  193.0    64%  BUILD_CHECK HARD 2★
+level_013  ch2  7     2.88       3  146.7    287509    314    936  915.3  307.1    79%  BUILD_CHECK HARD 1★
+level_014  ch2  8     2.03       3  140.9    246650    356   1062  692.2  232.3    53%  BUILD_CHECK HARD 2★
+level_015  ch2  8     0.96       3   60.4     76506    356   1062  214.7   72.0    14%  BOSS BUILD_CHECK HARD 3★
+level_016  ch2  8     1.19       3  153.1    123118    356   1062  345.5  115.9    57%  BUILD_CHECK 2★
+level_017  ch2  9     0.72       3  138.7     89210    402   1199  221.7   74.4    57%  BUILD_CHECK 2★
+level_018  ch2  10    3.22       3  131.3    256781    453   1349  567.3  190.4    34%  BUILD_CHECK HARD 2★
+level_019  ch2  10    2.44       3  143.2    279597    453   1349  617.7  207.3    56%  BUILD_CHECK HARD 2★
+level_020  ch2  10    1.50       4  124.5    258084    453   1792  570.2  144.0    48%  BOSS BUILD_CHECK HARD 2★
+level_021  ch3  11    1.70       4  138.1    205807    507   2008  405.8  102.5    47%  BUILD_CHECK 2★
+level_022  ch3  12    2.23       4  149.2    249076    566   2242  439.8  111.1    35%  BUILD_CHECK 2★
+level_023  ch3  12    2.47       4  144.7    336980    566   2242  595.1  150.3    51%  BUILD_CHECK HARD 2★
+level_024  ch3  12    1.50       4  128.6    222554    566   2242  393.0   99.2    44%  BUILD_CHECK 2★
+level_025  ch3  13    3.50       5   81.6    719124    630   3214 1141.1  223.7    19%  BOSS BUILD_CHECK HARD 3★
+level_026  ch3  14    7.51       4  159.4    941689    699   2769 1346.8  340.1    42%  BUILD_CHECK HARD 2★
+level_027  ch3  14    2.75       4  147.1    429739    699   2769  614.6  155.2    45%  BUILD_CHECK HARD 2★
+level_028  ch3  14    4.60       4  132.1    843777    699   2769 1206.8  304.7    37%  BUILD_CHECK HARD 2★
+level_029  ch3  15    3.30       4  133.4    536343    774   3063  693.4  175.1    46%  BUILD_CHECK HARD 2★
+level_030  ch3  16    5.00       4  228.6   1862478    853   3379 2182.4  551.1    49%  BOSS BUILD_CHECK HARD 2★
+level_031  ch4  16    1.95       4  150.3    366041    853   3379  428.9  108.3    47%  BUILD_CHECK 2★
+level_032  ch4  16    1.99       5  133.0    444436    853   4352  520.8  102.1    36%  BUILD_CHECK 2★
+level_033  ch4  17    4.35       5  119.0    838506    939   4789  892.9  175.1    38%  BUILD_CHECK HARD 2★
+level_034  ch4  18    8.78       5  146.5   1946143   1031   5258 1887.7  370.1    45%  BUILD_CHECK HARD 2★
+level_035  ch4  18    1.50       5   98.1    408814   1031   5258  396.5   77.8    27%  BOSS BUILD_CHECK 3★
+level_036  ch4  18    3.58       5  119.2    797828   1031   5258  773.9  151.7    38%  BUILD_CHECK HARD 2★
+level_037  ch4  19    2.52       5  138.4    912131   1129   5759  807.8  158.4    49%  BUILD_CHECK HARD 2★
+level_038  ch4  20    5.60       5  149.6   1764002   1234   6294 1429.4  280.3    54%  BUILD_CHECK HARD 2★
+level_039  ch4  20    6.29       5  146.5   1437652   1234   6294 1165.0  228.4    37%  BUILD_CHECK HARD 2★
+level_040  ch4  20    3.34       5  164.0   3038266   1234   6294 2462.0  482.7    71%  BOSS BUILD_CHECK HARD 1★
+level_041  ch5  21    1.70       5  141.8    525899   1346   6864  390.7   76.6    54%  BUILD_CHECK 2★
+level_042  ch5  22    5.33       5  152.1   2171636   1465   7472 1482.3  290.7    51%  BUILD_CHECK HARD 2★
+level_043  ch5  22    5.80       5  159.4   2061795   1465   7472 1407.4  276.0    46%  BUILD_CHECK HARD 2★
+level_044  ch5  22    4.94       6  157.0   2389184   1465   9376 1630.8  254.8    67%  BUILD_CHECK HARD 1★
+level_045  ch5  23    2.80       7  147.9   1265167   1592  12511  794.9  101.1    45%  BOSS BUILD_CHECK 2★
+level_046  ch5  24    4.80       6  128.8   1640530   1726  11048  950.4  148.5    48%  BUILD_CHECK HARD 2★
+level_047  ch5  24    12.50      6  160.9   6082096   1726  11048 3523.4  550.5    51%  BUILD_CHECK HARD 2★
+level_048  ch5  24    8.00       6  162.5   5809122   1726  11048 3365.3  525.8    56%  BUILD_CHECK HARD 2★
+level_049  ch5  25    6.30       6  151.6   5603636   1869  11961 2998.4  468.5    52%  BUILD_CHECK HARD 2★
+level_050  ch5  26    5.78       6  115.0   6618799   2020  12929 3276.5  425.7    30%  BOSS BUILD_CHECK HARD 3★
+level_051  ch6  26    14.70      6   32.8   2200376   2020  12929 1089.2  170.2    10%  BUILD_CHECK HARD 3★
+level_052  ch6  26    14.00      6   28.5   1439116   2020  12929  712.4  111.3    10%  BUILD_CHECK HARD 3★
+level_053  ch6  27    10.30      6   25.1   1444998   2180  13953  662.8  103.6    12%  BUILD_CHECK HARD 3★
+level_054  ch6  28    21.00      6   26.2   1787284   2349  15035  760.8  118.9    12%  BUILD_CHECK HARD 3★
+level_055  ch6  28    7.06       6   36.4   1779218   2349  15035  757.3   87.1     7%  BOSS BUILD_CHECK HARD 3★
+level_056  ch6  28    12.45      6   26.8   2001314   2349  15035  851.9  133.1     9%  BUILD_CHECK HARD 3★
+level_057  ch6  29    10.30      7   67.5   7658242   2528  19870 3029.5  385.4    24%  BUILD_CHECK HARD 3★
+level_058  ch6  30    14.30      7   30.0   4173343   2716  21351 1536.3  195.5    12%  BUILD_CHECK HARD 3★
+level_059  ch6  30    20.00      7   35.8   6103148   2716  21351 2246.8  285.8    12%  BUILD_CHECK HARD 3★
+level_060  ch6  30    8.00       7   58.0   6118478   2716  21351 2252.4  169.5    51%  BOSS BUILD_CHECK HARD 2★
+level_061  ch7  31    11.50      7   48.1   6154151   2915  22913 2111.1  268.6    20%  BUILD_CHECK HARD 3★
+level_062  ch7  32    2.10       7   48.1   1336455   3124  24557  427.8   54.4    23%  BUILD_CHECK HARD 3★
+level_063  ch7  32    9.40       7   32.2   7906881   3124  24557 2530.8  322.0    25%  BUILD_CHECK HARD 3★
+level_064  ch7  32    13.00      7   31.7  11951933   3124  24557 3825.5  486.7    27%  BUILD_CHECK HARD 3★
+level_065  ch7  33    3.00       7   25.6   6042187   3344  26287 1806.7   72.0    25%  BOSS BUILD_CHECK HARD 3★
+level_066  ch7  34    26.00      7   29.3  12616540   3576  28106 3528.3  448.9    20%  BUILD_CHECK HARD 3★
+level_067  ch7  34    27.00      7   47.5  13238174   3576  28106 3702.2  471.0    39%  BUILD_CHECK HARD 2★
+level_068  ch7  34    32.00      7   42.3  29109449   3576  28106 8140.7 1035.7    36%  BUILD_CHECK HARD 2★
+level_069  ch7  35    13.00      8   38.7  15180723   3819  36202 3975.3  419.3    42%  BUILD_CHECK HARD 2★
+level_070  ch7  36    7.50       8   40.2  17683731   4074  38620 4340.8  185.8    66%  BOSS BUILD_CHECK HARD 1★
+level_071  ch8  36    15.00      8   32.4  26748149   4074  38620 6565.8  692.6    35%  BUILD_CHECK HARD 2★
+level_072  ch8  36    15.00      8   37.7  30369103   4074  38620 7454.6  786.4    24%  BUILD_CHECK HARD 3★
+level_073  ch8  37    10.12      8   32.9  20098417   4341  41155 4629.6  488.4    35%  BUILD_CHECK HARD 2★
+level_074  ch8  38    23.00      8   53.4  34414858   4622  43812 7446.6  785.5    43%  BUILD_CHECK HARD 2★
+level_075  ch8  38    9.00       8   71.0  24871897   4622  43812 5381.7  309.6    72%  BOSS BUILD_CHECK HARD 1★
+level_076  ch8  38    38.00      8   38.9  76674508   4622  43812 16590.7 1750.1    41%  BUILD_CHECK HARD 2★
+level_077  ch8  39    31.00      8   47.3  47942169   4915  46594 9754.3 1028.9    47%  BUILD_CHECK HARD 2★
+level_078  ch8  40    42.00      8   47.2  52002464   5222  49505 9958.3 1050.5    36%  BUILD_CHECK HARD 2★
+level_079  ch8  40    24.00      8   46.3  41458069   5222  49505 7939.1  837.5    45%  BUILD_CHECK HARD 2★
+level_080  ch8  40    11.00      8   46.2  31322594   5222  49505 5998.2  282.2    81%  BOSS BUILD_CHECK HARD 1★
+level_081  ch9  40    11.64      9   34.5  31615775   5391  60700 5864.8  520.9    36%  BUILD_CHECK HARD 2★
+level_082  ch9  40    15.00      9   34.5  42265245   5562  62630 7598.7  674.8    36%  BUILD_CHECK HARD 2★
+level_083  ch9  40    26.00      9   46.6  51385373   5562  62630 9238.4  820.5    45%  BUILD_CHECK HARD 2★
+level_084  ch9  40    35.00      9   34.3  53954664   5562  62630 9700.3  861.5    30%  BUILD_CHECK HARD 3★
+level_085  ch9  40    20.00      9   62.8  62527581   5736  64588 10900.8  580.1   100%  BOSS BUILD_CHECK HARD 1★
+level_086  ch9  40    29.00      9   60.1  91923681   5913  66575 15547.2 1380.7    56%  BUILD_CHECK HARD 2★
+level_087  ch9  40    29.00      9   49.9  75104879   5913  66575 12702.6 1128.1    52%  BUILD_CHECK HARD 2★
+level_088  ch9  40    32.00      9   38.1  80323522   5913  66575 13585.3 1206.5    44%  BUILD_CHECK HARD 2★
+level_089  ch9  40    22.20      9   57.0  84054987   6092  68591 13798.5 1225.4    49%  BUILD_CHECK HARD 2★
+level_090  ch9  40    7.00       9   28.0 105281105   6273  70636 16782.6  699.9    25%  BOSS BUILD_CHECK HARD 3★
+level_091  ch10 40    15.00      9   33.3  60948954   6273  70636 9715.7  862.9    35%  BUILD_CHECK HARD 2★
+level_092  ch10 40    23.00      9   72.5  99789264   6273  70636 15907.2 1412.7    60%  BUILD_CHECK HARD 2★
+level_093  ch10 40    28.00     10   43.7  89212369   6457  85238 13815.5 1046.6    47%  BUILD_CHECK HARD 2★
+level_094  ch10 40    23.50     10   54.3  81529575   6644  87703 12270.9  929.6    52%  BUILD_CHECK HARD 2★
+level_095  ch10 40    10.50     10   53.4 211570016   6644  87703 31843.0 1768.1    47%  BOSS BUILD_CHECK HARD 2★
+level_096  ch10 40    28.50     10   85.6 145191119   6644  87703 21852.5 1655.5    69%  BUILD_CHECK HARD 1★
+level_097  ch10 40    18.00     10   79.3  91791865   6833  90202 13432.7 1017.6    59%  BUILD_CHECK HARD 2★
+level_098  ch10 40    22.00     10   72.5  97775829   7025  92735 13917.6 1054.4    58%  BUILD_CHECK HARD 2★
+level_099  ch10 40    11.00     10   44.0 149845718   7025  92735 21329.3  694.2    34%  BOSS BUILD_CHECK HARD 2★
+
+With-skill avg clear time: 438.3s
+With-skill min/max: 51.7s / 1768.1s
+Levels < 30s (with skill): 0
+Levels above phase-specific clear-time cap: 0
+Pilot fixed-frame clear-time authority at challenge recommended power: level_001=92.4s 10/10, level_002=102.2s 10/10, level_003=108.4s 10/10, level_004=113.3s 10/10, level_005=144.1s 10/10, level_006=132.7s 10/10, level_007=111.8s 10/10, level_008=144.8s 10/10, level_009=128.6s 10/10, level_010=125.1s 10/10, level_011=155.7s 10/10, level_012=140.4s 10/10, level_013=178.6s 10/10, level_014=165.9s 10/10, level_015=136.1s 10/10, level_016=170.4s 10/10, level_017=164.4s 10/10, level_018=165.4s 10/10, level_019=173.3s 10/10, level_020=223.5s 10/10, level_021=168.5s 10/10, level_022=158.3s 10/10, level_023=170.3s 10/10, level_024=168.2s 10/10, level_025=143.1s 10/10, level_026=159.3s 10/10, level_027=184.3s 10/10, level_028=157.8s 10/10, level_029=169.4s 10/10, level_030=184.8s 10/10, level_031=156.5s 10/10, level_032=188.3s 10/10, level_033=164.3s 10/10, level_034=195.4s 10/10, level_035=151.2s 10/10, level_036=151.0s 10/10, level_037=173.5s 10/10, level_038=186.8s 10/10, level_039=170.0s 10/10, level_040=190.2s 10/10, level_041=173.0s 10/10, level_042=198.0s 10/10, level_043=175.8s 10/10, level_044=216.0s 10/10, level_045=199.7s 10/10, level_046=155.7s 10/10, level_047=210.7s 10/10, level_048=194.9s 10/10, level_049=217.7s 10/10, level_050=191.0s 10/10, level_051=82.3s 10/10, level_052=97.3s 10/10, level_053=93.7s 10/10, level_054=96.8s 10/10, level_055=116.7s 10/10, level_056=68.6s 10/10, level_057=166.0s 10/10, level_058=142.8s 10/10, level_059=127.1s 10/10, level_060=139.9s 10/10, level_061=111.3s 10/10, level_062=92.8s 10/10, level_063=115.9s 10/10, level_064=140.3s 10/10, level_065=142.2s 10/10, level_066=175.7s 10/10, level_067=161.8s 10/10, level_068=219.4s 10/10, level_069=171.3s 10/10, level_070=136.3s 10/10, level_071=120.9s 10/10, level_072=81.5s 10/10, level_073=106.7s 10/10, level_074=156.0s 10/10, level_075=182.7s 10/10, level_076=191.0s 10/10, level_077=158.7s 10/10, level_078=198.3s 10/10, level_079=143.8s 10/10, level_080=152.6s 10/10, level_081=112.0s 10/10, level_082=115.5s 10/10, level_083=135.6s 10/10, level_084=113.7s 10/10, level_085=200.4s 10/10, level_086=158.1s 10/10, level_087=145.1s 10/10, level_088=131.5s 10/10, level_089=125.0s 10/10, level_090=117.5s 10/10, level_091=81.2s 10/10, level_092=134.7s 10/10, level_093=151.6s 10/10, level_094=122.1s 10/10, level_095=182.0s 10/10, level_096=178.1s 10/10, level_097=116.1s 10/10, level_098=168.7s 10/10, level_099=212.9s 10/10
+Finale static-HP peak is report-only; fixed-frame runtime owns level_099 (10/10).
+Challenge chapter summary:
+- chapter_01: stars=18 min_level_stars=1★
+- chapter_02: stars=20 min_level_stars=1★
+- chapter_03: stars=21 min_level_stars=2★
+- chapter_04: stars=20 min_level_stars=1★
+- chapter_05: stars=20 min_level_stars=1★
+- chapter_06: stars=29 min_level_stars=2★
+- chapter_07: stars=25 min_level_stars=1★
+- chapter_08: stars=19 min_level_stars=1★
+- chapter_09: stars=21 min_level_stars=1★
+- chapter_10: stars=17 min_level_stars=1★
+Challenge obtainable stars: 210
+Challenge theoretical star supply: 297/297
+Balance simulation OK
+$ python3 tools/check_campaign_pacing_contract.py
+Campaign pacing contract: frozen tier_b, target distribution 16/43/33/7/0, chapter 6 hash 239cec206848
+Max-free graduation slowest cap ratios:
+  L030 164.372/180s base=100.00% power=14671 weapon_venomlauncher easy
+  L047 130.632/180s base=100.00% power=14671 weapon_venomlauncher easy
+  L043 129.014/180s base=100.00% power=14671 weapon_venomlauncher easy
+  L016 125.212/180s base=100.00% power=14671 weapon_venomlauncher easy
+  L042 121.134/180s base=100.00% power=14671 weapon_venomlauncher easy
+Max-free graduation: 99/99 clearable within authored time caps
+$ python3 tools/audit_campaign_frontline.py --check
+Campaign growth/front-line baseline (no level or power mutation)
+levels.json sha256=5c95e196daa3823fed207c77b82957be6ba6724c3a0e56faf0944b9c60ea2dc8
+targets frozen=True; deltas are report-only
+轻松=74 略有压力=11 压力=0 难度高=9 不可胜=5
+level_001 轻松    front=  1.89% base=100.00% weapon_autocannon L1
+level_002 轻松    front=  1.72% base=100.00% weapon_autocannon L3
+level_003 轻松    front=  1.09% base=100.00% weapon_autocannon L4
+level_004 轻松    front=  2.05% base=100.00% weapon_autocannon L5
+level_005 难度高   front=100.00% base= 57.43% weapon_autocannon L6
+level_006 轻松    front=  1.03% base=100.00% weapon_autocannon L7
+level_007 轻松    front=  1.19% base=100.00% weapon_autocannon L8
+level_008 轻松    front=  1.32% base=100.00% weapon_autocannon L9
+level_009 轻松    front=  1.54% base=100.00% weapon_autocannon L10
+level_010 略有压力  front= 63.43% base=100.00% weapon_autocannon L11
+level_011 轻松    front=  1.45% base=100.00% weapon_autocannon L12
+level_012 轻松    front=  1.09% base=100.00% weapon_autocannon L13
+level_013 轻松    front=  1.64% base=100.00% weapon_autocannon L14
+level_014 轻松    front=  0.99% base=100.00% weapon_autocannon L15
+level_015 轻松    front= 33.72% base=100.00% weapon_scattergun L6
+level_016 轻松    front=  0.72% base=100.00% weapon_scattergun L7
+level_017 轻松    front=  0.38% base=100.00% weapon_scattergun L8
+level_018 轻松    front=  1.10% base=100.00% weapon_scattergun L9
+level_019 轻松    front=  1.45% base=100.00% weapon_scattergun L10
+level_020 略有压力  front= 71.66% base=100.00% weapon_scattergun L11
+level_021 轻松    front=  0.54% base=100.00% weapon_scattergun L12
+level_022 轻松    front=  0.75% base=100.00% weapon_scattergun L13
+level_023 轻松    front=  1.03% base=100.00% weapon_scattergun L14
+level_024 轻松    front=  0.39% base=100.00% weapon_scattergun L15
+level_025 略有压力  front= 57.50% base=100.00% weapon_scattergun L16
+level_026 轻松    front= 17.46% base=100.00% weapon_scattergun L16
+level_027 轻松    front=  1.23% base=100.00% weapon_scattergun L17
+level_028 轻松    front=  1.49% base=100.00% weapon_scattergun L18
+level_029 轻松    front=  0.62% base=100.00% weapon_scattergun L19
+level_030 不可胜   front= 88.58% base=100.00% weapon_scattergun L20
+level_031 轻松    front=  0.39% base=100.00% weapon_scattergun L21
+level_032 轻松    front=  0.33% base=100.00% weapon_scattergun L22
+level_033 轻松    front=  0.76% base=100.00% weapon_scattergun L23
+level_034 轻松    front=  1.37% base=100.00% weapon_scattergun L23
+level_035 略有压力  front= 58.93% base=100.00% weapon_scattergun L24
+level_036 轻松    front=  0.83% base=100.00% weapon_scattergun L24
+level_037 轻松    front=  0.52% base=100.00% weapon_scattergun L25
+level_038 轻松    front=  1.15% base=100.00% weapon_scattergun L26
+level_039 轻松    front=  1.49% base=100.00% weapon_scattergun L27
+level_040 难度高   front=100.00% base= 80.13% weapon_scattergun L28
+level_041 轻松    front=  0.16% base=100.00% weapon_scattergun L29
+level_042 轻松    front=  0.46% base=100.00% weapon_scattergun L30
+level_043 轻松    front=  0.80% base=100.00% weapon_scattergun L31
+level_044 轻松    front=  0.55% base=100.00% weapon_scattergun L32
+level_045 难度高   front=100.00% base= 99.25% weapon_scattergun L33
+level_046 轻松    front=  0.34% base=100.00% weapon_scattergun L34
+level_047 轻松    front=  1.29% base=100.00% weapon_scattergun L35
+level_048 略有压力  front= 90.29% base=100.00% weapon_scattergun L36
+level_049 略有压力  front= 72.07% base=100.00% weapon_scattergun L37
+level_050 难度高   front=100.00% base= 96.60% weapon_scattergun L38
+level_051 轻松    front= 18.82% base=100.00% weapon_scattergun L38
+level_052 轻松    front=  0.64% base=100.00% weapon_scattergun L38
+level_053 轻松    front=  7.71% base=100.00% weapon_scattergun L38
+level_054 轻松    front= 11.86% base=100.00% weapon_scattergun L38
+level_055 轻松    front= 41.35% base=100.00% weapon_scattergun L38
+level_056 轻松    front= 10.75% base=100.00% weapon_scattergun L38
+level_057 轻松    front= 11.92% base=100.00% weapon_scattergun L38
+level_058 轻松    front= 15.01% base=100.00% weapon_scattergun L39
+level_059 轻松    front= 28.71% base=100.00% weapon_scattergun L39
+level_060 难度高   front=100.00% base= 75.80% weapon_scattergun L39
+level_061 轻松    front= 23.62% base=100.00% weapon_scattergun L39
+level_062 轻松    front=  0.40% base=100.00% weapon_scattergun L39
+level_063 轻松    front= 14.74% base=100.00% weapon_scattergun L39
+level_064 轻松    front= 22.70% base=100.00% weapon_scattergun L39
+level_065 难度高   front=100.00% base= 84.64% weapon_scattergun L39
+level_066 轻松    front= 15.75% base=100.00% weapon_scattergun L39
+level_067 轻松    front=  4.10% base=100.00% weapon_scattergun L39
+level_068 轻松    front= 39.91% base=100.00% weapon_scattergun L40
+level_069 轻松    front=  5.56% base=100.00% weapon_scattergun L40
+level_070 不可胜   front=100.00% base=  0.00% weapon_scattergun L40
+level_071 轻松    front= 23.73% base=100.00% weapon_scattergun L40
+level_072 轻松    front= 47.59% base=100.00% weapon_scattergun L40
+level_073 轻松    front= 12.98% base=100.00% weapon_scattergun L40
+level_074 轻松    front= 16.60% base=100.00% weapon_scattergun L40
+level_075 不可胜   front=100.00% base=  0.00% weapon_scattergun L40
+level_076 略有压力  front= 98.76% base=100.00% weapon_scattergun L41
+level_077 轻松    front= 31.89% base=100.00% weapon_scattergun L41
+level_078 轻松    front= 36.52% base=100.00% weapon_scattergun L41
+level_079 轻松    front= 23.72% base=100.00% weapon_scattergun L41
+level_080 不可胜   front= 83.21% base=  0.00% weapon_scattergun L41
+level_081 轻松    front= 17.38% base=100.00% weapon_scattergun L42
+level_082 轻松    front= 26.68% base=100.00% weapon_scattergun L42
+level_083 轻松    front= 31.84% base=100.00% weapon_scattergun L42
+level_084 轻松    front= 35.15% base=100.00% weapon_scattergun L43
+level_085 不可胜   front=100.00% base=  0.00% weapon_scattergun L43
+level_086 略有压力  front= 69.92% base=100.00% weapon_scattergun L44
+level_087 轻松    front= 38.46% base=100.00% weapon_scattergun L45
+level_088 略有压力  front= 52.08% base=100.00% weapon_scattergun L46
+level_089 轻松    front= 49.33% base=100.00% weapon_scattergun L47
+level_090 难度高   front=100.00% base= 49.22% weapon_scattergun L47
+level_091 轻松    front= 30.07% base=100.00% weapon_scattergun L47
+level_092 略有压力  front= 64.37% base=100.00% weapon_scattergun L47
+level_093 略有压力  front= 68.70% base=100.00% weapon_scattergun L48
+level_094 轻松    front= 33.43% base=100.00% weapon_scattergun L48
+level_095 难度高   front=100.00% base= 65.48% weapon_scattergun L49
+level_096 轻松    front= 26.56% base=100.00% weapon_scattergun L50
+level_097 轻松    front= 15.32% base=100.00% weapon_scattergun L50
+level_098 轻松    front= 19.91% base=100.00% weapon_scattergun L50
+level_099 难度高   front=100.00% base= 34.60% weapon_scattergun L50
+$ python3 tools/report_fire_rate_tier_comparison.py --check
+{"control": {"easy": 74, "high": 9, "light_pressure": 11, "unwinnable": 5}, "tier_a": {"easy": 74, "high": 9, "light_pressure": 11, "unwinnable": 5}, "tier_b": {"easy": 74, "high": 9, "light_pressure": 11, "unwinnable": 5}}
+$ python3 tools/report_frontline_calibration.py --check
+OK: design/audits/frontline_calibration_report.md
+$ python3 tools/check_endgame_balance.py
+Endgame balance matrix
+  HP ramp:     L50=1.000x, L60=1.219x, L70=1.438x, L80=1.656x, L90=1.875x, L97=2.028x, L98=2.050x, L99=2.296x
+  damage ramp: L50=1.000x, L60=1.000x, L70=1.000x, L80=1.000x, L90=1.000x, L97=1.000x, L98=1.000x, L99=1.000x
+  count ramp:  L50=1.000x, L60=1.036x, L70=1.107x, L80=1.179x, L90=1.250x, L97=1.250x, L98=1.250x, L99=1.350x
+  level_099 HP: mobs=11.97M bosses=18.00M (boss_apex_overlord=18.00M)
+  modern DPS calibration: 2.446x (vanguard rail=122945)
+  physical throughput: Godot runtime benchmark (all 8 max offensive skills)
+  Apex single-phase audit (design/25 116.6s theoretical contract)
+    Apex L90: hp=105.07M counter-TTK=57.1s skill-windows=8
+    Apex L95: hp=165.97M counter-TTK=90.2s skill-windows=15
+    Apex L99: hp=214.55M counter-TTK=116.6s skill-windows=21
+  Boss milestone phase audit (design/40 section 3.7 chapter bands)
+    L45: weapon_autocannon effective=0.49M phase=55.6s band=[40,60]s source=fixed-frame
+    L50: weapon_autocannon effective=0.97M phase=55.5s band=[40,60]s source=fixed-frame
+    L55: weapon_autocannon effective=0.49M phase=55.5s band=[40,60]s source=fixed-frame
+    L60: weapon_autocannon effective=1.95M phase=43.9s band=[40,60]s source=fixed-frame
+    L65: weapon_autocannon effective=1.95M phase=66.6s band=[55,80]s source=fixed-frame
+    L70: weapon_autocannon effective=3.33M phase=64.6s band=[55,80]s source=fixed-frame
+    L75: weapon_autocannon effective=3.33M phase=78.0s band=[70,100]s source=fixed-frame
+    L80: weapon_autocannon effective=5.00M phase=85.5s band=[70,100]s source=fixed-frame
+    L85: weapon_scattergun effective=6.67M phase=97.2s band=[90,130]s source=fixed-frame
+    L90: weapon_scattergun effective=13.32M phase=90.3s band=[90,130]s source=fixed-frame
+    L95: weapon_scattergun effective=13.32M phase=136.9s band=[120,185]s source=fixed-frame
+  Four-Boss full-encounter audit (authored=boss_apex_overlord; effective=19.98M; cap=460s)
+    weapon_autocannon: 19.9s (within cap)
+    weapon_railgun: 17.1s (within cap)
+    weapon_scattergun: 10.1s (within cap; graduation family)
+    authoritative fixed-frame Boss phase=151.9s band=[150,185]s
+    decision: graduation build = scattergun family; autocannon remains inside cap
+  mismatched plasma L41 estimated=530.8s
+  level_099 power=10800 recommended=5000 R=2.1600
+  level_099 equal-recommendation contract=missing
+Endgame balance check OK
+$ python3 tools/check_clear_requirements.py
+Power contract v6 check OK: 99 levels in sync
+anchors: level_080=4468/2592 R=1.7238 (line) | level_099=10800/5000 R=2.1600 (line)
+read-only corridor: R=[1.0000,1.2037], no axis mutation
+matchup badges: level_055 physical×0.75, lightning×1.50; 089/090 same-build=3600
+$ python3 tools/audit_character_endgame_dps.py
+Endgame single-Boss DPS audit (Lv40/W50/A35/C35/P30/Sig5, 3/5 multishot lanes connect, fire-rate profile=tier_b)
+character  weapon                chip           pet                    weapon    status    active     pet      total    5 lanes  chain
+vanguard   weapon_railgun        chip_attack    pet_turret_drone        81588         0     20925      33     102546     156938      5
+blaze      weapon_plasmacannon   chip_element   pet_fire_imp           114749     10612      2089      28     127478     203978      5
+frost      weapon_cryocannon     chip_element   pet_fire_imp            94989         0     26887      35     121911     185238      5
+volt       weapon_teslacoil      chip_element   pet_fire_imp            98241         0     42310      35     140587     206081     13
+single-Boss max/min spread: 1.371x (37.1%)
+Thunder Apocalypse complete set: base 132099 + overload 41772 + terminal 1681 + pet skill 9 = 175560; 1.249x free Volt (locked 1.22-1.28x; overload every 5 confirmed hits)
+PROGRESSION_RATIO=1.248766032
+$ python3 tools/audit_inferno_premium_dps.py
+Inferno Apocalypse Lv50 DPS audit (all permanent/run skills maxed)
+combustion trigger: 4/5 hits; no recursive spread
+Boss:  free 127,484 -> inferno 138,373 = 1.085x
+Dense: free 309,183 -> inferno 433,292 = 1.401x
+Mixed: free 200,163 -> inferno 256,341 = 1.281x
+Weighted 40/40/20: 1.251x (locked 1.22-1.28x)
+PROGRESSION_RATIO=1.250862734
+$ python3 tools/audit_absolute_zero_premium_dps.py
+Absolute Zero Apocalypse Lv50 DPS audit (all skills maxed)
+Brittle trigger: normal 4 hits / boss 5 hits; crystal wave generation 1
+Boss:  free 121,917 -> absolute zero 132,607 = 1.088x
+Dense: free 185,256 -> absolute zero 261,600 = 1.412x
+Mixed: free 147,252 -> absolute zero 184,204 = 1.251x
+Weighted 40/40/20: 1.250x (locked 1.22-1.28x)
+PROGRESSION_RATIO=1.250101403
+$ python3 tools/audit_golden_law_premium_dps.py
+Golden Law Apocalypse Lv65 progression audit (all compatible skills maxed)
+Judgment: 4 confirmed hits; mark uptime 61.4%; raw max defense HP 1.888x Reactive Armor before the extra breach shield/repair
+Boss:  free 102,548 -> Golden Law 156,378 = 1.525x
+Dense: free 156,938 -> Golden Law 249,042 = 1.587x
+Mixed: free 124,304 -> Golden Law 193,443 = 1.556x
+Weighted 40/40/20: 1.556x (locked 1.53-1.58x)
+PROGRESSION_RATIO=1.555962651
+$ python3 tools/audit_free_elemental_weapons.py --check
+# B2 免费元素武器可用性审计
+
+口径：Tier B、免费装备全满级、永久技能全满；每把武器分别调用同一套
+`maxed_free_build_for_level → power_for_build` 管线，在已编写的对应弱点关卡上
+选择其余免费槽位的最优组合。战力 6.0 的玩家数字是纯构筑中性值，属性克制
+不再进入该数字；代表关只验证已编写弱点，实战增益单列 `伤害×1.50` 徽章。
+完整付费套的专属
+触发、套装联动与主动技能不属于通用战力管线，因此付费对照直接引用各套装独立
+DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用战力数字误判。
+
+| 元素 | 代表关 | 原生元素枪 | 中性战力 | 最强免费物理枪 | 中性战力 | 中性比值 | 克制徽章 | 同元素完整付费套 DPS 合同 | 结论 |
+|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| ice | 20 | `weapon_cryocannon` | 13,964 | `weapon_scattergun` | 13,587 | 1.028× | 伤害×1.50 | `set_apocalypse_absolute_zero` 1.22–1.28× | 通过 |
+| poison | 40 | `weapon_venomlauncher` | 14,671 | `weapon_scattergun` | 13,587 | 1.080× | 伤害×1.50 | — | 通过 |
+| lightning | 65 | `weapon_teslacoil` | 14,251 | `weapon_scattergun` | 13,587 | 1.049× | 伤害×1.50 | `set_apocalypse_thunder` 1.22–1.28× | 通过 |
+| fire | 75 | `weapon_flamethrower` | 12,665 | `weapon_scattergun` | 13,587 | 0.932× | 伤害×1.50 | `set_apocalypse_inferno` 1.22–1.28× | 通过 |
+
+说明：绝对零度、雷霆、炼狱完整套分别继续由
+`audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、
+`audit_inferno_premium_dps.py` 实算并守住数据源里的发布合同。本表不再伪造一个
+忽略套装机制的“付费有效战力”。战役与正式运行时默认冻结为 Tier B；
+属性弹覆盖与元素单通道行为由 m1 smoke 验证，不能用中性显示值替代伤害审计。
+
+$ python3 tools/check_economy_loop.py
+Economy loop OK
+early_gold=3297 starter_cost=879
+campaign_gold=199538 core_level25_cost=110221
+star_unlock_total=316 max_item=16 normal_campaign=297 challenge_needed=19
+challenge_star_supply_cap=297/297
+xp_first_clear=152125 xp_three_clear=266258 xp_full_cost=335000 xp_coverage=79.48%
+endless_gold loop combat milestone total seconds gold/min cumulative_gold/min
+  01  1592    0  1592  100.6    949.7    949.7
+  02  1829    0  1829  106.6   1029.6    990.8
+  03  2029    0  2029  112.6   1081.4   1022.7
+  04  2265    0  2265  118.6   1146.1   1056.1
+  05  2604   30  2634  132.2   1195.6   1088.4
+  06  2856    0  2856  135.2   1267.6   1122.7
+  07  3089    0  3089  146.2   1267.9   1147.7
+  08  3306    0  3306  156.2   1270.1   1166.6
+  09  3798    0  3798  178.8   1274.6   1182.9
+  10  4081   60  4141  180.8   1374.4   1208.2
+  11  4312    0  4312  187.8   1377.8   1228.7
+  12  4548    0  4548  193.8   1408.2   1248.6
+  13  5085    0  5085  195.4   1561.6   1280.0
+  14  5484    0  5484  210.4   1564.0   1307.7
+  15  5777   90  5867  224.4   1568.9   1332.4
+  16  6032    0  6032  230.4   1571.0   1353.4
+  17  6610    0  6610  239.0   1659.6   1379.1
+  18  6882    0  6882  239.0   1727.8   1406.1
+  19  7189    0  7189  239.0   1804.9   1434.8
+  20  7496  120  7616  239.0   1912.1   1466.7
+endless_vs_campaign_repeat template=level_025 campaign_repeat=949.7/min loop1=949.7/min loop10=1374.4/min ratio=1.447 (print-only comparison)
+$ python3 tools/check_hardcoded_colors.py
+Scene colors off palette: 20 (baseline allows 38)
+Color palette guardrail OK
+$ python3 tools/check_contrast.py
+Text contrast vs dark panels (worst case over GREY_900):
+  [ok] 17.54:1  TEXT_MAIN / PANEL_BG  (need 4.5)
+  [ok] 17.85:1  TEXT_MAIN / PANEL_BG_DARK  (need 4.5)
+  [ok] 10.24:1  TEXT_MUTED / PANEL_BG  (need 4.5)
+  [ok] 10.42:1  TEXT_MUTED / PANEL_BG_DARK  (need 4.5)
+  [ok]  9.64:1  CYAN / PANEL_BG  (need 4.5)
+  [ok]  9.81:1  CYAN / PANEL_BG_DARK  (need 4.5)
+  [ok]  9.14:1  GOLD / PANEL_BG  (need 4.5)
+  [ok]  9.30:1  GOLD / PANEL_BG_DARK  (need 4.5)
+  [ok]  8.99:1  GREEN / PANEL_BG  (need 4.5)
+  [ok]  9.15:1  GREEN / PANEL_BG_DARK  (need 4.5)
+  [ok]  7.98:1  PURPLE / PANEL_BG  (need 4.5)
+  [ok]  8.12:1  PURPLE / PANEL_BG_DARK  (need 4.5)
+  [ok]  9.94:1  GREY_300 / PANEL_BG  (need 4.5)
+  [ok] 10.11:1  GREY_300 / PANEL_BG_DARK  (need 4.5)
+  [ok] 10.06:1  SUCCESS / PANEL_BG  (need 4.5)
+  [ok] 10.24:1  SUCCESS / PANEL_BG_DARK  (need 4.5)
+  [ok] 11.29:1  WARNING / PANEL_BG  (need 4.5)
+  [ok] 11.49:1  WARNING / PANEL_BG_DARK  (need 4.5)
+  [ok]  5.43:1  DANGER / PANEL_BG  (need 4.5)
+  [ok]  5.52:1  DANGER / PANEL_BG_DARK  (need 4.5)
+  [ok] 10.93:1  INFO / PANEL_BG  (need 4.5)
+  [ok] 11.12:1  INFO / PANEL_BG_DARK  (need 4.5)
+  [ok]  4.30:1  GREY_500 / PANEL_BG  (need 3.0)
+  [ok]  4.38:1  GREY_500 / PANEL_BG_DARK  (need 3.0)
+  [ok]  6.65:1  element_fire / PANEL_BG  (need 4.5)
+  [ok]  6.77:1  element_fire / PANEL_BG_DARK  (need 4.5)
+  [ok] 10.78:1  element_ice / PANEL_BG  (need 4.5)
+  [ok] 10.97:1  element_ice / PANEL_BG_DARK  (need 4.5)
+  [ok] 12.56:1  element_lightning / PANEL_BG  (need 4.5)
+  [ok] 12.78:1  element_lightning / PANEL_BG_DARK  (need 4.5)
+  [ok]  9.75:1  element_poison / PANEL_BG  (need 4.5)
+  [ok]  9.92:1  element_poison / PANEL_BG_DARK  (need 4.5)
+  [ok] 12.92:1  element_physical / PANEL_BG  (need 4.5)
+  [ok] 13.14:1  element_physical / PANEL_BG_DARK  (need 4.5)
+
+Contrast guardrail OK
+$ python3 tools/check_runtime_ui_primitives.py
+Runtime UI primitive check passed: no ColorRect/StyleBoxFlat in gameplay/meta/ui.
+$ python3 tools/check_upgrade_resource_icons.py
+Upgrade resource icon check passed: gold, XP, star and extensible resource costs use matching logos.
+$ python3 tools/check_visual_assets.py
+Visual asset check OK: 1092 battle sprite files
+$ python3 tools/check_app_store_ui_polish.py
+App Store UI polish check OK: 32 deeply rendered replacements
+$ python3 tools/check_zombie_model_silhouettes.py
+Zombie model silhouette check passed: 8 redesigned families, 264 animation frames, phone-scale silhouette separation guarded
+$ python3 tools/check_combat_vfx_safe_margins.py
+Combat VFX safe-margin check passed: 689 non-empty frames across 79 sequences
+$ python3 tools/check_combat_vfx_semantics.py
+Combat VFX semantic check passed: 101 sequences / 850 non-empty frames / 6 movement contracts / 11 projectiles / 8 boss attack profiles / 4 actives / 16 card casts / 1 visual distinctness groups
+$ python3 tools/check_status_vfx.py
+Status VFX check passed: 5 independent states, 54 authored frames, stack brightness + dense-wave LOD guarded
+$ python3 tools/check_slow_field_assets.py
+Slow-field assets OK: full-width non-radial threshold, fixed 1080x240 boundary, and seamless 512x512 area tile
+$ python3 tools/check_attack_animation_motion.py
+Attack animation motion OK: 144 sequences; weakest adjacent motion char_frost/weapon_autocannon/attack (4040 px)
+$ python3 tools/check_zombie_attack_animations.py
+Zombie attack animation OK: 20 identities, 160 frames, 8-frame contact-timed state machine; tightest key-pose IoU zombie_crawler 0.318
+$ python3 tools/check_gameplay_polish.py
+Gameplay polish OK: 16 skills, 12 weapons, 28 enemies covered
+$ python3 tools/check_audio_overlap.py
+Audio overlap OK: BGM/stingers are single-owned and all zombie action/contact cues share one exclusive foley lane
+$ python3 tools/check_weapon_sfx_quality.py
+Weapon SFX quality OK: shot/muzzle files are short, broadband, and not low-frequency croak dominated
+$ python3 tools/check_hit_sfx_quality.py
+Hit SFX quality OK: projectile impacts are short, mono, and element-distinct
+$ python3 tools/check_combat_foley_sfx_quality.py
+Combat foley SFX quality OK: one exclusive zombie lifecycle lane, realistic base impact, isolated phase/charger wind routing, and 7 distinct attack families
+$ python3 tools/check_active_skill_media.py
+Active skill media OK: fire VFX centered, alpha edges clean, active SFX bounded
+$ python3 tools/check_tall_battle_layout.py
+Tall battle layout OK: 99 levels, 10 campaign envs, 14 total env rows, heights=1920,2046,2337,2340,2348,2622
+$ python3 tools/check_battle_line_alignment.py
+Battle line alignment OK: attack line, base impact, barrier, and slow field all derive from BREACH_Y
+$ python3 tools/check_battle_hud_overlap.py
+Battle HUD overlap OK: 944 character/weapon frames, hero presentation=1.20x, normalized body=420px source ruler, min skill gap=95.7px, min bottom-resource gap=22.1px
+$ python3 tools/check_app_store_assets.py
+App Store asset check OK
+$ python3 tools/check_release_strings.py
+Release string check OK
+$ python3 tools/check_localization.py
+Localization check OK: 112 content ids, 872 exact messages, 549 reusable terms, 1276 runtime Chinese sources
+$ python3 tools/simulate_card_director.py
+Card offer simulation: 1000 runs per level
+level_001: skill_pierce:31.6%, skill_ricochet:23.7%, skill_critical:23.6%, skill_tesla:23.5%, skill_homing:21.6%, skill_salvo:21.5%, skill_charge_shot:21.4%, skill_split_shot:20.6%, skill_incendiary:20.0%, skill_multishot:18.2%, skill_barrier:16.0%, skill_venom:13.4%, skill_cryo:13.1%, skill_recycle:12.3%, skill_slow_field:10.1%, skill_gold_rush:9.4%
+level_002: skill_pierce:29.9%, skill_ricochet:26.4%, skill_tesla:25.2%, skill_critical:23.6%, skill_multishot:22.6%, skill_charge_shot:22.2%, skill_homing:21.0%, skill_split_shot:20.8%, skill_salvo:20.0%, skill_incendiary:19.4%, skill_cryo:14.5%, skill_venom:13.1%, skill_barrier:12.9%, skill_recycle:11.6%, skill_slow_field:10.3%, skill_gold_rush:6.5%
+level_003: skill_pierce:26.1%, skill_homing:24.1%, skill_tesla:23.9%, skill_charge_shot:23.6%, skill_critical:22.2%, skill_ricochet:22.0%, skill_salvo:21.7%, skill_cryo:19.7%, skill_incendiary:18.5%, skill_split_shot:17.8%, skill_multishot:17.5%, skill_slow_field:17.4%, skill_venom:13.1%, skill_recycle:13.0%, skill_barrier:12.8%, skill_gold_rush:6.6%
+level_004: skill_pierce:35.3%, skill_charge_shot:30.4%, skill_critical:26.4%, skill_tesla:23.5%, skill_ricochet:23.1%, skill_salvo:20.7%, skill_multishot:18.7%, skill_homing:18.6%, skill_split_shot:17.7%, skill_venom:16.2%, skill_incendiary:14.9%, skill_cryo:14.0%, skill_slow_field:10.9%, skill_recycle:10.3%, skill_barrier:10.2%, skill_gold_rush:9.1%
+level_005: skill_pierce:29.6%, skill_charge_shot:24.1%, skill_tesla:23.9%, skill_critical:23.4%, skill_homing:21.1%, skill_multishot:20.6%, skill_salvo:20.6%, skill_ricochet:19.8%, skill_split_shot:18.8%, skill_incendiary:15.7%, skill_slow_field:15.7%, skill_cryo:14.8%, skill_recycle:14.6%, skill_venom:14.6%, skill_barrier:13.2%, skill_gold_rush:9.5%
+level_006: skill_pierce:31.1%, skill_homing:24.7%, skill_tesla:23.4%, skill_critical:23.1%, skill_ricochet:21.0%, skill_salvo:20.9%, skill_split_shot:20.7%, skill_charge_shot:19.9%, skill_multishot:19.3%, skill_cryo:16.9%, skill_incendiary:16.9%, skill_barrier:15.7%, skill_slow_field:13.6%, skill_venom:12.6%, skill_recycle:12.5%, skill_gold_rush:7.7%
+level_007: skill_pierce:30.9%, skill_charge_shot:28.7%, skill_critical:28.4%, skill_tesla:26.3%, skill_homing:23.4%, skill_ricochet:23.2%, skill_multishot:19.8%, skill_salvo:19.6%, skill_incendiary:16.5%, skill_split_shot:15.9%, skill_cryo:14.6%, skill_venom:14.0%, skill_barrier:11.6%, skill_recycle:9.8%, skill_slow_field:9.0%, skill_gold_rush:8.3%
+level_008: skill_pierce:25.7%, skill_homing:23.9%, skill_critical:23.5%, skill_tesla:22.6%, skill_multishot:21.6%, skill_charge_shot:21.0%, skill_salvo:20.9%, skill_ricochet:20.1%, skill_split_shot:18.9%, skill_cryo:18.5%, skill_slow_field:18.4%, skill_incendiary:15.3%, skill_recycle:15.0%, skill_barrier:14.0%, skill_venom:12.8%, skill_gold_rush:7.8%
+level_009: skill_pierce:35.9%, skill_charge_shot:28.0%, skill_critical:25.4%, skill_tesla:22.5%, skill_ricochet:20.8%, skill_salvo:20.5%, skill_homing:20.3%, skill_multishot:20.1%, skill_split_shot:19.8%, skill_incendiary:17.4%, skill_cryo:14.9%, skill_venom:14.2%, skill_recycle:10.9%, skill_slow_field:10.9%, skill_barrier:10.8%, skill_gold_rush:7.6%
+level_010: skill_pierce:30.8%, skill_critical:25.0%, skill_charge_shot:24.7%, skill_tesla:24.4%, skill_salvo:22.1%, skill_split_shot:20.3%, skill_homing:19.6%, skill_ricochet:19.4%, skill_multishot:18.9%, skill_incendiary:17.3%, skill_recycle:15.7%, skill_barrier:14.0%, skill_cryo:13.7%, skill_slow_field:13.6%, skill_venom:12.7%, skill_gold_rush:7.8%
+level_011: skill_pierce:30.1%, skill_homing:24.5%, skill_charge_shot:23.6%, skill_tesla:22.2%, skill_critical:21.8%, skill_salvo:21.6%, skill_multishot:21.1%, skill_ricochet:20.8%, skill_split_shot:20.5%, skill_cryo:19.1%, skill_incendiary:16.6%, skill_slow_field:14.6%, skill_barrier:13.0%, skill_recycle:11.1%, skill_venom:10.3%, skill_gold_rush:9.1%
+level_012: skill_pierce:32.3%, skill_charge_shot:26.8%, skill_critical:25.5%, skill_tesla:25.0%, skill_homing:24.7%, skill_split_shot:21.3%, skill_ricochet:20.3%, skill_salvo:19.8%, skill_multishot:18.3%, skill_incendiary:15.1%, skill_venom:14.5%, skill_cryo:13.9%, skill_barrier:11.9%, skill_recycle:11.0%, skill_slow_field:10.5%, skill_gold_rush:9.1%
+level_013: skill_pierce:29.8%, skill_homing:24.4%, skill_tesla:21.6%, skill_critical:21.3%, skill_charge_shot:20.7%, skill_cryo:20.3%, skill_ricochet:19.8%, skill_salvo:19.3%, skill_split_shot:18.5%, skill_slow_field:17.9%, skill_barrier:17.3%, skill_multishot:16.7%, skill_incendiary:16.1%, skill_recycle:14.3%, skill_venom:13.8%, skill_gold_rush:8.2%
+level_014: skill_pierce:33.9%, skill_charge_shot:27.6%, skill_critical:26.2%, skill_tesla:23.7%, skill_salvo:21.1%, skill_ricochet:20.5%, skill_multishot:18.2%, skill_homing:17.9%, skill_split_shot:17.9%, skill_venom:16.8%, skill_incendiary:15.3%, skill_cryo:14.4%, skill_slow_field:12.9%, skill_recycle:12.2%, skill_barrier:11.9%, skill_gold_rush:9.5%
+level_015: skill_pierce:28.0%, skill_charge_shot:26.2%, skill_critical:25.8%, skill_tesla:22.1%, skill_ricochet:22.0%, skill_homing:21.9%, skill_salvo:20.0%, skill_split_shot:18.2%, skill_cryo:15.9%, skill_recycle:15.8%, skill_barrier:15.7%, skill_slow_field:15.3%, skill_multishot:15.3%, skill_incendiary:15.1%, skill_venom:14.3%, skill_gold_rush:8.4%
+level_016: skill_pierce:28.0%, skill_tesla:23.3%, skill_homing:23.1%, skill_ricochet:23.1%, skill_split_shot:21.7%, skill_salvo:21.4%, skill_critical:20.6%, skill_charge_shot:19.5%, skill_incendiary:19.3%, skill_cryo:19.3%, skill_multishot:18.6%, skill_slow_field:15.4%, skill_venom:15.0%, skill_barrier:13.5%, skill_recycle:9.9%, skill_gold_rush:8.3%
+level_017: skill_pierce:32.5%, skill_charge_shot:30.1%, skill_critical:27.1%, skill_tesla:25.1%, skill_ricochet:22.2%, skill_salvo:22.2%, skill_homing:20.9%, skill_multishot:19.4%, skill_split_shot:17.3%, skill_incendiary:16.7%, skill_venom:14.2%, skill_recycle:12.2%, skill_cryo:11.5%, skill_barrier:10.5%, skill_slow_field:10.3%, skill_gold_rush:7.8%
+level_018: skill_pierce:25.8%, skill_tesla:24.5%, skill_homing:24.2%, skill_critical:23.3%, skill_charge_shot:22.5%, skill_salvo:21.4%, skill_slow_field:19.8%, skill_ricochet:19.7%, skill_split_shot:18.1%, skill_cryo:17.5%, skill_multishot:16.2%, skill_barrier:16.0%, skill_recycle:14.9%, skill_incendiary:14.7%, skill_venom:12.5%, skill_gold_rush:8.9%
+level_019: skill_pierce:35.0%, skill_critical:28.4%, skill_charge_shot:27.1%, skill_tesla:24.9%, skill_ricochet:21.6%, skill_salvo:21.0%, skill_homing:20.9%, skill_multishot:18.8%, skill_split_shot:18.4%, skill_incendiary:16.3%, skill_venom:13.7%, skill_cryo:13.3%, skill_recycle:11.7%, skill_slow_field:11.0%, skill_barrier:9.3%, skill_gold_rush:8.6%
+level_020: skill_pierce:27.4%, skill_critical:24.9%, skill_charge_shot:24.8%, skill_salvo:22.1%, skill_ricochet:21.5%, skill_homing:21.4%, skill_tesla:20.4%, skill_multishot:19.8%, skill_split_shot:18.9%, skill_barrier:18.2%, skill_incendiary:16.4%, skill_slow_field:15.1%, skill_venom:14.8%, skill_cryo:13.7%, skill_recycle:13.2%, skill_gold_rush:7.4%
+level_021: skill_ricochet:26.1%, skill_pierce:25.5%, skill_critical:23.7%, skill_tesla:23.6%, skill_charge_shot:22.7%, skill_homing:22.3%, skill_salvo:21.6%, skill_incendiary:19.2%, skill_split_shot:19.1%, skill_multishot:18.1%, skill_cryo:17.6%, skill_venom:14.8%, skill_barrier:14.4%, skill_slow_field:14.2%, skill_recycle:9.7%, skill_gold_rush:7.4%
+level_022: skill_pierce:35.1%, skill_charge_shot:28.2%, skill_critical:25.6%, skill_tesla:24.0%, skill_ricochet:23.9%, skill_homing:23.0%, skill_salvo:22.0%, skill_split_shot:20.9%, skill_multishot:16.7%, skill_incendiary:14.7%, skill_venom:13.6%, skill_cryo:12.2%, skill_recycle:11.7%, skill_slow_field:10.4%, skill_barrier:10.2%, skill_gold_rush:7.8%
+level_023: skill_pierce:27.1%, skill_homing:22.7%, skill_charge_shot:22.6%, skill_salvo:21.6%, skill_critical:21.2%, skill_tesla:21.0%, skill_ricochet:20.6%, skill_cryo:19.3%, skill_split_shot:19.3%, skill_multishot:17.7%, skill_slow_field:17.3%, skill_barrier:16.6%, skill_recycle:15.6%, skill_incendiary:15.6%, skill_venom:13.9%, skill_gold_rush:7.9%
+level_024: skill_pierce:31.8%, skill_charge_shot:27.5%, skill_critical:25.8%, skill_salvo:23.7%, skill_tesla:23.3%, skill_homing:21.9%, skill_ricochet:21.3%, skill_split_shot:19.5%, skill_cryo:16.7%, skill_multishot:16.6%, skill_incendiary:15.6%, skill_venom:15.3%, skill_barrier:11.5%, skill_slow_field:11.3%, skill_recycle:10.4%, skill_gold_rush:7.8%
+level_025: skill_pierce:31.4%, skill_charge_shot:27.1%, skill_critical:24.3%, skill_tesla:23.9%, skill_homing:21.4%, skill_split_shot:19.6%, skill_ricochet:19.3%, skill_multishot:18.5%, skill_salvo:18.1%, skill_incendiary:16.9%, skill_barrier:16.0%, skill_venom:14.9%, skill_slow_field:13.5%, skill_cryo:13.3%, skill_recycle:12.9%, skill_gold_rush:8.9%
+level_026: skill_pierce:28.3%, skill_homing:24.4%, skill_critical:23.9%, skill_tesla:23.6%, skill_multishot:21.9%, skill_ricochet:21.4%, skill_charge_shot:20.9%, skill_cryo:20.7%, skill_salvo:19.4%, skill_split_shot:19.3%, skill_incendiary:17.6%, skill_slow_field:13.5%, skill_venom:12.6%, skill_barrier:12.3%, skill_recycle:11.4%, skill_gold_rush:8.8%
+level_027: skill_pierce:34.1%, skill_critical:25.7%, skill_charge_shot:25.3%, skill_ricochet:24.8%, skill_tesla:23.8%, skill_homing:22.9%, skill_salvo:19.4%, skill_multishot:17.9%, skill_incendiary:16.6%, skill_split_shot:15.6%, skill_cryo:15.2%, skill_venom:14.8%, skill_recycle:12.5%, skill_slow_field:12.1%, skill_barrier:10.3%, skill_gold_rush:9.0%
+level_028: skill_pierce:30.1%, skill_critical:24.8%, skill_salvo:22.4%, skill_tesla:22.1%, skill_homing:20.7%, skill_charge_shot:19.9%, skill_cryo:19.5%, skill_ricochet:19.0%, skill_slow_field:19.0%, skill_multishot:18.3%, skill_split_shot:17.9%, skill_incendiary:15.8%, skill_barrier:15.0%, skill_recycle:14.3%, skill_venom:13.1%, skill_gold_rush:8.1%
+level_029: skill_pierce:33.6%, skill_charge_shot:27.1%, skill_critical:26.5%, skill_tesla:24.4%, skill_ricochet:22.0%, skill_homing:21.6%, skill_salvo:21.0%, skill_split_shot:18.5%, skill_incendiary:17.6%, skill_multishot:16.6%, skill_venom:16.1%, skill_cryo:13.2%, skill_slow_field:11.5%, skill_barrier:11.3%, skill_recycle:11.0%, skill_gold_rush:8.0%
+level_030: skill_pierce:29.9%, skill_charge_shot:26.9%, skill_tesla:24.9%, skill_critical:24.2%, skill_homing:22.4%, skill_ricochet:21.5%, skill_multishot:19.6%, skill_salvo:19.6%, skill_split_shot:17.8%, skill_incendiary:17.7%, skill_slow_field:15.1%, skill_barrier:14.4%, skill_recycle:13.6%, skill_cryo:12.6%, skill_venom:12.4%, skill_gold_rush:7.4%
+level_031: skill_pierce:29.9%, skill_homing:26.3%, skill_tesla:23.8%, skill_charge_shot:23.4%, skill_ricochet:23.1%, skill_critical:23.0%, skill_split_shot:19.9%, skill_salvo:19.4%, skill_multishot:19.1%, skill_cryo:19.0%, skill_incendiary:16.7%, skill_venom:13.8%, skill_slow_field:13.3%, skill_barrier:12.0%, skill_recycle:9.6%, skill_gold_rush:7.7%
+level_032: skill_pierce:34.2%, skill_charge_shot:26.6%, skill_critical:26.3%, skill_ricochet:25.3%, skill_tesla:24.1%, skill_homing:23.7%, skill_salvo:19.6%, skill_split_shot:18.4%, skill_multishot:17.6%, skill_incendiary:17.0%, skill_venom:14.9%, skill_cryo:13.8%, skill_barrier:10.7%, skill_slow_field:10.3%, skill_recycle:10.1%, skill_gold_rush:7.4%
+level_033: skill_pierce:30.0%, skill_homing:25.9%, skill_critical:23.6%, skill_tesla:22.6%, skill_charge_shot:22.3%, skill_salvo:21.0%, skill_ricochet:20.6%, skill_cryo:18.7%, skill_split_shot:18.2%, skill_multishot:18.1%, skill_slow_field:16.3%, skill_barrier:14.5%, skill_recycle:14.1%, skill_incendiary:14.0%, skill_venom:12.0%, skill_gold_rush:8.1%
+level_034: skill_pierce:31.4%, skill_charge_shot:28.2%, skill_critical:26.9%, skill_tesla:24.8%, skill_salvo:20.3%, skill_homing:19.9%, skill_venom:19.3%, skill_ricochet:19.0%, skill_split_shot:18.7%, skill_multishot:18.6%, skill_incendiary:16.5%, skill_cryo:14.4%, skill_barrier:11.7%, skill_slow_field:11.1%, skill_recycle:10.1%, skill_gold_rush:9.1%
+level_035: skill_pierce:34.3%, skill_charge_shot:24.0%, skill_critical:23.1%, skill_salvo:22.6%, skill_ricochet:21.4%, skill_tesla:21.2%, skill_homing:20.6%, skill_multishot:18.6%, skill_split_shot:18.5%, skill_incendiary:17.6%, skill_slow_field:14.9%, skill_barrier:14.2%, skill_cryo:13.7%, skill_venom:13.4%, skill_recycle:13.3%, skill_gold_rush:8.6%
+level_036: skill_pierce:31.1%, skill_tesla:23.9%, skill_ricochet:23.5%, skill_homing:22.4%, skill_critical:22.1%, skill_charge_shot:21.9%, skill_salvo:20.4%, skill_split_shot:19.8%, skill_multishot:19.2%, skill_cryo:17.3%, skill_incendiary:17.1%, skill_barrier:13.9%, skill_slow_field:13.6%, skill_venom:13.0%, skill_recycle:11.9%, skill_gold_rush:8.9%
+level_037: skill_pierce:35.3%, skill_charge_shot:26.7%, skill_tesla:26.2%, skill_critical:24.8%, skill_ricochet:22.8%, skill_salvo:22.5%, skill_homing:21.1%, skill_split_shot:19.5%, skill_multishot:17.7%, skill_venom:16.0%, skill_incendiary:15.8%, skill_cryo:12.4%, skill_slow_field:11.9%, skill_barrier:10.2%, skill_recycle:8.7%, skill_gold_rush:8.4%
+level_038: skill_pierce:28.7%, skill_tesla:24.7%, skill_charge_shot:23.1%, skill_ricochet:22.9%, skill_homing:22.4%, skill_critical:21.5%, skill_cryo:20.8%, skill_salvo:20.4%, skill_multishot:18.6%, skill_split_shot:17.3%, skill_incendiary:17.2%, skill_slow_field:16.2%, skill_recycle:13.7%, skill_barrier:13.4%, skill_venom:11.2%, skill_gold_rush:7.9%
+level_039: skill_pierce:35.1%, skill_charge_shot:29.1%, skill_critical:27.0%, skill_homing:23.5%, skill_tesla:23.0%, skill_ricochet:20.5%, skill_salvo:19.6%, skill_split_shot:19.0%, skill_multishot:17.6%, skill_incendiary:16.3%, skill_venom:13.9%, skill_cryo:13.3%, skill_slow_field:12.5%, skill_recycle:11.2%, skill_barrier:10.8%, skill_gold_rush:7.6%
+level_040: skill_pierce:29.2%, skill_critical:24.9%, skill_charge_shot:24.8%, skill_ricochet:22.3%, skill_tesla:21.9%, skill_salvo:20.6%, skill_split_shot:20.4%, skill_homing:19.8%, skill_multishot:19.7%, skill_incendiary:17.7%, skill_cryo:15.1%, skill_barrier:14.8%, skill_slow_field:13.6%, skill_venom:13.5%, skill_recycle:13.1%, skill_gold_rush:8.6%
+level_041: skill_pierce:28.6%, skill_homing:23.5%, skill_tesla:22.4%, skill_ricochet:22.4%, skill_multishot:21.9%, skill_charge_shot:21.8%, skill_split_shot:21.3%, skill_salvo:21.0%, skill_cryo:20.8%, skill_critical:19.7%, skill_incendiary:17.8%, skill_venom:15.0%, skill_slow_field:13.1%, skill_barrier:12.5%, skill_recycle:11.0%, skill_gold_rush:7.2%
+level_042: skill_pierce:34.4%, skill_critical:26.1%, skill_charge_shot:25.4%, skill_ricochet:24.3%, skill_tesla:24.1%, skill_homing:22.2%, skill_salvo:20.0%, skill_split_shot:19.7%, skill_multishot:17.3%, skill_incendiary:16.7%, skill_cryo:14.9%, skill_venom:14.9%, skill_barrier:11.1%, skill_recycle:10.6%, skill_slow_field:10.4%, skill_gold_rush:7.9%
+level_043: skill_pierce:29.9%, skill_homing:23.4%, skill_tesla:23.2%, skill_critical:21.9%, skill_salvo:21.4%, skill_ricochet:21.1%, skill_charge_shot:20.9%, skill_multishot:19.3%, skill_slow_field:18.6%, skill_cryo:17.6%, skill_split_shot:17.0%, skill_incendiary:16.7%, skill_recycle:14.2%, skill_barrier:14.0%, skill_venom:13.2%, skill_gold_rush:7.6%
+level_044: skill_pierce:33.7%, skill_charge_shot:27.1%, skill_critical:26.4%, skill_tesla:24.6%, skill_ricochet:24.6%, skill_salvo:22.4%, skill_homing:20.3%, skill_multishot:18.5%, skill_split_shot:17.7%, skill_incendiary:17.6%, skill_venom:16.9%, skill_cryo:12.9%, skill_slow_field:10.8%, skill_recycle:10.0%, skill_barrier:9.2%, skill_gold_rush:7.3%
+level_045: skill_pierce:29.9%, skill_critical:24.2%, skill_charge_shot:23.8%, skill_tesla:23.5%, skill_homing:21.9%, skill_salvo:21.9%, skill_multishot:20.4%, skill_ricochet:19.9%, skill_incendiary:18.2%, skill_split_shot:15.6%, skill_recycle:15.4%, skill_venom:14.7%, skill_barrier:14.6%, skill_slow_field:14.1%, skill_cryo:13.9%, skill_gold_rush:8.0%
+level_046: skill_pierce:26.9%, skill_tesla:23.8%, skill_charge_shot:23.6%, skill_ricochet:23.6%, skill_critical:23.0%, skill_homing:22.4%, skill_salvo:21.3%, skill_multishot:20.7%, skill_cryo:20.0%, skill_incendiary:18.8%, skill_split_shot:18.4%, skill_barrier:14.2%, skill_slow_field:12.9%, skill_recycle:11.3%, skill_venom:11.3%, skill_gold_rush:7.8%
+level_047: skill_pierce:30.7%, skill_charge_shot:28.5%, skill_critical:28.0%, skill_ricochet:23.8%, skill_tesla:23.7%, skill_salvo:21.0%, skill_homing:20.9%, skill_incendiary:18.4%, skill_multishot:18.2%, skill_split_shot:17.7%, skill_cryo:15.1%, skill_venom:13.9%, skill_slow_field:11.1%, skill_recycle:10.7%, skill_barrier:9.6%, skill_gold_rush:8.7%
+level_048: skill_pierce:27.3%, skill_homing:26.3%, skill_critical:24.7%, skill_charge_shot:21.2%, skill_tesla:21.2%, skill_cryo:20.6%, skill_salvo:19.5%, skill_ricochet:19.2%, skill_split_shot:18.9%, skill_slow_field:17.7%, skill_incendiary:16.3%, skill_multishot:16.1%, skill_barrier:14.8%, skill_recycle:14.3%, skill_venom:14.1%, skill_gold_rush:7.8%
+level_049: skill_pierce:33.0%, skill_charge_shot:27.4%, skill_critical:26.8%, skill_homing:23.5%, skill_tesla:22.7%, skill_salvo:22.3%, skill_ricochet:21.6%, skill_split_shot:18.6%, skill_multishot:18.3%, skill_incendiary:15.7%, skill_venom:15.3%, skill_cryo:12.5%, skill_recycle:12.0%, skill_barrier:11.4%, skill_slow_field:10.0%, skill_gold_rush:8.9%
+level_050: skill_pierce:29.8%, skill_critical:26.3%, skill_tesla:23.3%, skill_ricochet:23.1%, skill_charge_shot:23.0%, skill_salvo:20.7%, skill_homing:19.7%, skill_multishot:18.7%, skill_split_shot:18.1%, skill_slow_field:15.9%, skill_incendiary:15.7%, skill_recycle:15.1%, skill_cryo:14.8%, skill_venom:13.0%, skill_barrier:13.0%, skill_gold_rush:9.8%
+level_051: skill_pierce:29.5%, skill_homing:25.8%, skill_critical:24.3%, skill_tesla:22.9%, skill_ricochet:22.5%, skill_multishot:21.7%, skill_charge_shot:21.3%, skill_split_shot:20.7%, skill_salvo:19.7%, skill_incendiary:18.2%, skill_cryo:17.3%, skill_slow_field:13.9%, skill_venom:13.4%, skill_barrier:11.7%, skill_recycle:9.2%, skill_gold_rush:7.9%
+level_052: skill_pierce:35.9%, skill_critical:25.8%, skill_charge_shot:25.0%, skill_ricochet:24.4%, skill_homing:23.4%, skill_salvo:22.9%, skill_tesla:21.8%, skill_multishot:19.4%, skill_split_shot:17.7%, skill_incendiary:15.7%, skill_venom:15.7%, skill_recycle:11.9%, skill_cryo:11.9%, skill_slow_field:10.1%, skill_barrier:9.7%, skill_gold_rush:8.7%
+level_053: skill_pierce:28.0%, skill_charge_shot:24.6%, skill_tesla:24.4%, skill_critical:22.9%, skill_homing:21.1%, skill_ricochet:19.1%, skill_salvo:19.0%, skill_cryo:18.8%, skill_slow_field:18.6%, skill_multishot:18.0%, skill_incendiary:16.8%, skill_split_shot:16.6%, skill_venom:16.1%, skill_recycle:14.4%, skill_barrier:13.5%, skill_gold_rush:8.1%
+level_054: skill_pierce:35.6%, skill_charge_shot:29.8%, skill_critical:25.6%, skill_tesla:24.3%, skill_salvo:21.7%, skill_homing:21.6%, skill_ricochet:20.1%, skill_multishot:19.8%, skill_split_shot:18.5%, skill_venom:17.2%, skill_incendiary:14.9%, skill_cryo:12.5%, skill_slow_field:11.1%, skill_barrier:11.0%, skill_recycle:9.6%, skill_gold_rush:6.7%
+level_055: skill_pierce:30.2%, skill_tesla:27.5%, skill_charge_shot:27.0%, skill_critical:22.7%, skill_salvo:22.1%, skill_homing:21.7%, skill_ricochet:21.2%, skill_multishot:18.3%, skill_split_shot:17.4%, skill_slow_field:15.7%, skill_incendiary:15.2%, skill_barrier:14.1%, skill_cryo:13.5%, skill_recycle:13.0%, skill_venom:12.4%, skill_gold_rush:8.0%
+level_056: skill_pierce:29.9%, skill_charge_shot:23.0%, skill_homing:22.8%, skill_tesla:22.2%, skill_ricochet:22.0%, skill_critical:21.7%, skill_multishot:21.6%, skill_salvo:21.5%, skill_split_shot:19.8%, skill_cryo:18.7%, skill_incendiary:16.8%, skill_barrier:13.5%, skill_slow_field:13.4%, skill_recycle:11.6%, skill_venom:11.6%, skill_gold_rush:9.9%
+level_057: skill_pierce:36.1%, skill_ricochet:26.6%, skill_tesla:25.9%, skill_charge_shot:25.2%, skill_critical:24.5%, skill_homing:23.8%, skill_salvo:20.5%, skill_multishot:18.7%, skill_split_shot:18.5%, skill_incendiary:14.8%, skill_cryo:13.5%, skill_venom:12.8%, skill_recycle:11.1%, skill_barrier:11.0%, skill_slow_field:10.1%, skill_gold_rush:6.9%
+level_058: skill_pierce:29.4%, skill_homing:24.2%, skill_tesla:23.0%, skill_charge_shot:22.6%, skill_critical:21.7%, skill_ricochet:21.6%, skill_salvo:19.4%, skill_cryo:19.2%, skill_multishot:18.0%, skill_slow_field:17.7%, skill_incendiary:16.8%, skill_split_shot:16.2%, skill_barrier:15.4%, skill_recycle:14.4%, skill_venom:11.7%, skill_gold_rush:8.7%
+level_059: skill_pierce:34.8%, skill_charge_shot:27.5%, skill_critical:26.0%, skill_homing:23.5%, skill_tesla:22.6%, skill_salvo:21.7%, skill_ricochet:20.8%, skill_split_shot:19.8%, skill_multishot:18.0%, skill_incendiary:16.9%, skill_cryo:15.3%, skill_venom:14.0%, skill_recycle:11.0%, skill_slow_field:10.6%, skill_barrier:10.5%, skill_gold_rush:7.0%
+level_060: skill_pierce:30.9%, skill_critical:24.7%, skill_homing:23.4%, skill_charge_shot:23.3%, skill_tesla:23.0%, skill_ricochet:21.1%, skill_multishot:19.8%, skill_salvo:19.3%, skill_split_shot:18.6%, skill_recycle:15.6%, skill_slow_field:15.2%, skill_incendiary:15.2%, skill_barrier:14.8%, skill_cryo:13.9%, skill_venom:12.3%, skill_gold_rush:8.9%
+level_061: skill_pierce:29.6%, skill_ricochet:24.2%, skill_tesla:24.2%, skill_critical:22.8%, skill_homing:22.5%, skill_salvo:21.7%, skill_charge_shot:21.7%, skill_multishot:20.9%, skill_cryo:19.1%, skill_incendiary:18.4%, skill_split_shot:17.9%, skill_slow_field:13.3%, skill_barrier:12.7%, skill_venom:12.4%, skill_gold_rush:9.6%, skill_recycle:9.0%
+level_062: skill_pierce:33.7%, skill_critical:27.5%, skill_tesla:25.9%, skill_charge_shot:25.0%, skill_homing:24.9%, skill_ricochet:22.1%, skill_salvo:21.6%, skill_split_shot:18.5%, skill_multishot:18.3%, skill_incendiary:16.5%, skill_cryo:14.3%, skill_venom:13.3%, skill_recycle:11.0%, skill_slow_field:9.5%, skill_barrier:9.3%, skill_gold_rush:8.6%
+level_063: skill_pierce:27.0%, skill_homing:25.2%, skill_tesla:24.9%, skill_charge_shot:24.0%, skill_critical:23.9%, skill_salvo:19.4%, skill_cryo:18.6%, skill_ricochet:18.6%, skill_slow_field:18.2%, skill_multishot:18.1%, skill_split_shot:17.5%, skill_barrier:15.4%, skill_recycle:14.7%, skill_incendiary:14.0%, skill_venom:13.0%, skill_gold_rush:7.5%
+level_064: skill_pierce:37.1%, skill_charge_shot:29.6%, skill_critical:26.2%, skill_tesla:21.7%, skill_homing:21.6%, skill_salvo:21.0%, skill_ricochet:20.9%, skill_multishot:18.3%, skill_split_shot:17.4%, skill_venom:16.0%, skill_cryo:15.8%, skill_incendiary:14.4%, skill_recycle:11.5%, skill_slow_field:11.0%, skill_barrier:9.2%, skill_gold_rush:8.3%
+level_065: skill_pierce:31.2%, skill_critical:27.0%, skill_charge_shot:25.5%, skill_tesla:23.9%, skill_homing:22.1%, skill_salvo:22.1%, skill_ricochet:19.2%, skill_split_shot:17.4%, skill_recycle:16.6%, skill_slow_field:16.0%, skill_multishot:15.6%, skill_incendiary:15.4%, skill_barrier:14.6%, skill_cryo:12.8%, skill_venom:12.3%, skill_gold_rush:8.3%
+level_066: skill_pierce:30.7%, skill_ricochet:26.0%, skill_homing:24.2%, skill_critical:23.3%, skill_tesla:22.9%, skill_charge_shot:22.4%, skill_salvo:20.6%, skill_split_shot:20.0%, skill_multishot:19.5%, skill_cryo:18.0%, skill_incendiary:16.7%, skill_slow_field:12.9%, skill_venom:12.7%, skill_barrier:12.5%, skill_recycle:10.4%, skill_gold_rush:7.2%
+level_067: skill_pierce:30.7%, skill_charge_shot:28.3%, skill_homing:24.8%, skill_ricochet:24.5%, skill_tesla:23.5%, skill_critical:23.1%, skill_salvo:22.5%, skill_split_shot:20.1%, skill_multishot:18.4%, skill_incendiary:16.9%, skill_venom:14.2%, skill_cryo:13.8%, skill_slow_field:12.0%, skill_barrier:11.0%, skill_recycle:9.3%, skill_gold_rush:6.9%
+level_068: skill_pierce:30.3%, skill_critical:24.2%, skill_charge_shot:23.3%, skill_tesla:22.5%, skill_salvo:22.5%, skill_homing:22.1%, skill_ricochet:20.5%, skill_slow_field:18.4%, skill_cryo:17.4%, skill_split_shot:17.1%, skill_multishot:16.9%, skill_incendiary:16.5%, skill_barrier:14.7%, skill_recycle:13.4%, skill_venom:11.4%, skill_gold_rush:8.8%
+level_069: skill_pierce:34.2%, skill_critical:28.3%, skill_charge_shot:27.5%, skill_tesla:22.6%, skill_ricochet:22.3%, skill_salvo:22.2%, skill_homing:21.5%, skill_multishot:18.3%, skill_split_shot:17.1%, skill_incendiary:16.8%, skill_venom:16.0%, skill_cryo:12.3%, skill_recycle:11.4%, skill_barrier:10.6%, skill_slow_field:10.2%, skill_gold_rush:8.7%
+level_070: skill_pierce:29.6%, skill_critical:26.5%, skill_charge_shot:24.8%, skill_ricochet:23.1%, skill_tesla:22.5%, skill_homing:20.0%, skill_salvo:19.5%, skill_multishot:18.3%, skill_split_shot:18.1%, skill_incendiary:17.4%, skill_recycle:16.1%, skill_barrier:14.3%, skill_venom:14.0%, skill_cryo:13.9%, skill_slow_field:13.3%, skill_gold_rush:8.6%
+level_071: skill_pierce:26.8%, skill_charge_shot:24.8%, skill_critical:24.0%, skill_tesla:23.6%, skill_ricochet:22.6%, skill_homing:22.6%, skill_salvo:21.6%, skill_multishot:19.6%, skill_split_shot:19.4%, skill_incendiary:17.3%, skill_cryo:16.8%, skill_slow_field:14.4%, skill_barrier:13.8%, skill_venom:12.9%, skill_recycle:10.8%, skill_gold_rush:9.0%
+level_072: skill_pierce:32.2%, skill_charge_shot:27.1%, skill_tesla:26.1%, skill_critical:24.8%, skill_ricochet:24.4%, skill_homing:24.3%, skill_salvo:21.5%, skill_multishot:18.7%, skill_split_shot:18.0%, skill_incendiary:16.7%, skill_venom:14.8%, skill_cryo:13.7%, skill_recycle:11.0%, skill_slow_field:10.6%, skill_barrier:9.2%, skill_gold_rush:6.9%
+level_073: skill_pierce:29.0%, skill_charge_shot:24.3%, skill_homing:24.0%, skill_cryo:22.0%, skill_critical:21.5%, skill_tesla:21.0%, skill_salvo:21.0%, skill_ricochet:20.1%, skill_multishot:19.5%, skill_split_shot:18.0%, skill_slow_field:17.7%, skill_recycle:14.3%, skill_incendiary:14.2%, skill_barrier:13.9%, skill_venom:11.6%, skill_gold_rush:7.9%
+level_074: skill_pierce:33.3%, skill_charge_shot:27.0%, skill_critical:26.2%, skill_tesla:24.8%, skill_ricochet:21.4%, skill_salvo:20.7%, skill_homing:19.9%, skill_split_shot:19.2%, skill_multishot:18.2%, skill_incendiary:15.6%, skill_venom:15.4%, skill_recycle:14.1%, skill_cryo:12.3%, skill_slow_field:11.8%, skill_barrier:10.9%, skill_gold_rush:9.2%
+level_075: skill_pierce:28.7%, skill_charge_shot:25.9%, skill_critical:23.8%, skill_tesla:23.0%, skill_salvo:21.1%, skill_ricochet:20.5%, skill_homing:20.3%, skill_multishot:20.0%, skill_split_shot:19.6%, skill_incendiary:17.9%, skill_recycle:16.0%, skill_barrier:15.5%, skill_cryo:13.8%, skill_venom:13.8%, skill_slow_field:11.6%, skill_gold_rush:8.5%
+level_076: skill_pierce:26.2%, skill_homing:25.1%, skill_charge_shot:23.8%, skill_critical:22.9%, skill_tesla:22.5%, skill_ricochet:21.4%, skill_multishot:20.3%, skill_cryo:20.1%, skill_salvo:20.0%, skill_split_shot:19.4%, skill_incendiary:17.9%, skill_barrier:13.7%, skill_venom:13.6%, skill_slow_field:13.1%, skill_recycle:11.0%, skill_gold_rush:9.0%
+level_077: skill_pierce:32.5%, skill_charge_shot:27.3%, skill_critical:24.9%, skill_homing:23.7%, skill_tesla:23.3%, skill_ricochet:21.8%, skill_salvo:21.5%, skill_split_shot:18.7%, skill_multishot:17.7%, skill_incendiary:15.0%, skill_venom:14.5%, skill_slow_field:14.2%, skill_cryo:13.8%, skill_barrier:11.5%, skill_recycle:11.2%, skill_gold_rush:8.4%
+level_078: skill_pierce:28.9%, skill_homing:25.0%, skill_tesla:22.7%, skill_charge_shot:22.5%, skill_ricochet:20.8%, skill_critical:20.6%, skill_salvo:20.4%, skill_cryo:19.6%, skill_split_shot:17.1%, skill_multishot:17.1%, skill_slow_field:16.6%, skill_recycle:16.1%, skill_barrier:15.3%, skill_venom:13.9%, skill_incendiary:13.9%, skill_gold_rush:9.5%
+level_079: skill_pierce:37.3%, skill_critical:27.9%, skill_charge_shot:25.6%, skill_tesla:21.4%, skill_ricochet:20.6%, skill_homing:20.4%, skill_incendiary:20.1%, skill_salvo:19.6%, skill_multishot:19.3%, skill_split_shot:18.8%, skill_venom:14.4%, skill_cryo:14.1%, skill_slow_field:11.3%, skill_recycle:10.7%, skill_barrier:10.6%, skill_gold_rush:7.9%
+level_080: skill_pierce:29.0%, skill_critical:26.3%, skill_charge_shot:24.1%, skill_tesla:22.9%, skill_salvo:22.1%, skill_multishot:20.1%, skill_ricochet:19.3%, skill_homing:18.9%, skill_split_shot:18.4%, skill_incendiary:17.0%, skill_recycle:16.3%, skill_cryo:15.4%, skill_barrier:14.8%, skill_slow_field:14.5%, skill_venom:12.8%, skill_gold_rush:8.1%
+level_081: skill_pierce:29.0%, skill_charge_shot:23.8%, skill_tesla:23.4%, skill_ricochet:23.1%, skill_critical:22.7%, skill_split_shot:21.6%, skill_homing:20.8%, skill_incendiary:19.7%, skill_multishot:19.3%, skill_salvo:19.1%, skill_cryo:18.0%, skill_slow_field:14.6%, skill_venom:13.6%, skill_barrier:12.5%, skill_recycle:11.4%, skill_gold_rush:7.4%
+level_082: skill_pierce:33.6%, skill_tesla:27.0%, skill_charge_shot:26.9%, skill_critical:25.7%, skill_ricochet:22.7%, skill_homing:21.6%, skill_salvo:20.7%, skill_multishot:19.4%, skill_split_shot:17.6%, skill_incendiary:15.0%, skill_venom:14.3%, skill_cryo:14.0%, skill_recycle:11.7%, skill_slow_field:10.9%, skill_barrier:10.9%, skill_gold_rush:8.0%
+level_083: skill_pierce:27.7%, skill_homing:24.3%, skill_tesla:24.0%, skill_charge_shot:23.2%, skill_critical:21.7%, skill_cryo:19.9%, skill_multishot:19.8%, skill_ricochet:19.7%, skill_salvo:19.2%, skill_slow_field:17.3%, skill_split_shot:17.1%, skill_incendiary:16.6%, skill_recycle:13.9%, skill_venom:13.9%, skill_barrier:13.5%, skill_gold_rush:8.2%
+level_084: skill_pierce:35.0%, skill_critical:30.3%, skill_charge_shot:24.8%, skill_tesla:21.7%, skill_ricochet:21.5%, skill_salvo:21.5%, skill_homing:21.2%, skill_split_shot:20.3%, skill_multishot:17.1%, skill_incendiary:17.0%, skill_venom:15.4%, skill_barrier:12.7%, skill_cryo:11.9%, skill_recycle:11.1%, skill_slow_field:11.1%, skill_gold_rush:7.4%
+level_085: skill_pierce:28.3%, skill_critical:25.8%, skill_charge_shot:25.5%, skill_tesla:22.5%, skill_homing:21.1%, skill_salvo:20.3%, skill_ricochet:20.1%, skill_split_shot:19.1%, skill_multishot:17.8%, skill_incendiary:16.9%, skill_recycle:15.0%, skill_venom:14.9%, skill_slow_field:14.9%, skill_barrier:14.8%, skill_cryo:12.7%, skill_gold_rush:10.3%
+level_086: skill_pierce:29.4%, skill_homing:23.7%, skill_ricochet:23.4%, skill_critical:22.4%, skill_tesla:21.7%, skill_charge_shot:21.4%, skill_multishot:21.1%, skill_split_shot:21.1%, skill_incendiary:20.6%, skill_salvo:18.8%, skill_cryo:18.3%, skill_slow_field:14.6%, skill_venom:14.3%, skill_barrier:11.9%, skill_recycle:9.3%, skill_gold_rush:8.0%
+level_087: skill_pierce:33.7%, skill_critical:27.5%, skill_charge_shot:26.5%, skill_homing:25.1%, skill_tesla:22.4%, skill_ricochet:20.9%, skill_salvo:20.6%, skill_split_shot:20.1%, skill_multishot:18.0%, skill_incendiary:16.0%, skill_venom:15.7%, skill_cryo:15.3%, skill_barrier:10.6%, skill_recycle:10.5%, skill_slow_field:10.0%, skill_gold_rush:7.1%
+level_088: skill_pierce:29.0%, skill_salvo:23.1%, skill_critical:22.6%, skill_homing:22.3%, skill_charge_shot:21.9%, skill_tesla:21.6%, skill_multishot:19.9%, skill_ricochet:19.6%, skill_cryo:18.9%, skill_split_shot:17.3%, skill_incendiary:17.2%, skill_slow_field:16.3%, skill_recycle:15.5%, skill_barrier:15.4%, skill_venom:12.2%, skill_gold_rush:7.2%
+level_089: skill_pierce:37.3%, skill_charge_shot:27.2%, skill_critical:26.1%, skill_tesla:24.4%, skill_multishot:19.7%, skill_salvo:19.5%, skill_ricochet:18.6%, skill_homing:18.5%, skill_split_shot:18.4%, skill_incendiary:17.0%, skill_venom:14.4%, skill_cryo:14.0%, skill_barrier:13.3%, skill_recycle:11.9%, skill_slow_field:11.0%, skill_gold_rush:8.7%
+level_090: skill_pierce:31.2%, skill_charge_shot:24.7%, skill_tesla:24.0%, skill_critical:23.6%, skill_split_shot:20.7%, skill_homing:20.2%, skill_salvo:19.8%, skill_ricochet:17.4%, skill_multishot:17.1%, skill_recycle:16.4%, skill_barrier:16.0%, skill_incendiary:15.9%, skill_slow_field:15.6%, skill_venom:14.9%, skill_cryo:13.4%, skill_gold_rush:9.1%
+level_091: skill_pierce:27.2%, skill_tesla:25.0%, skill_critical:24.9%, skill_homing:23.0%, skill_ricochet:22.3%, skill_charge_shot:21.7%, skill_multishot:20.5%, skill_incendiary:20.0%, skill_split_shot:18.8%, skill_cryo:18.6%, skill_salvo:18.0%, skill_slow_field:15.9%, skill_venom:12.9%, skill_barrier:12.2%, skill_recycle:10.6%, skill_gold_rush:8.4%
+level_092: skill_pierce:32.9%, skill_charge_shot:28.4%, skill_critical:25.0%, skill_tesla:24.0%, skill_homing:22.8%, skill_salvo:22.2%, skill_split_shot:21.5%, skill_ricochet:21.1%, skill_multishot:17.4%, skill_incendiary:16.4%, skill_cryo:14.7%, skill_venom:12.2%, skill_recycle:11.3%, skill_slow_field:10.9%, skill_barrier:10.0%, skill_gold_rush:9.2%
+level_093: skill_critical:24.9%, skill_pierce:24.4%, skill_homing:24.2%, skill_charge_shot:22.2%, skill_tesla:21.9%, skill_salvo:20.6%, skill_ricochet:20.6%, skill_split_shot:19.7%, skill_cryo:19.1%, skill_multishot:17.9%, skill_incendiary:17.5%, skill_slow_field:15.7%, skill_recycle:15.7%, skill_barrier:14.1%, skill_venom:13.2%, skill_gold_rush:8.3%
+level_094: skill_pierce:33.9%, skill_charge_shot:25.9%, skill_critical:25.1%, skill_tesla:24.3%, skill_salvo:22.6%, skill_homing:21.2%, skill_ricochet:20.0%, skill_multishot:19.4%, skill_split_shot:19.3%, skill_venom:16.9%, skill_incendiary:16.9%, skill_cryo:15.0%, skill_recycle:11.3%, skill_slow_field:9.9%, skill_barrier:9.7%, skill_gold_rush:8.6%
+level_095: skill_pierce:30.0%, skill_tesla:25.2%, skill_critical:24.6%, skill_charge_shot:22.8%, skill_ricochet:22.5%, skill_salvo:22.4%, skill_homing:21.8%, skill_multishot:20.1%, skill_split_shot:16.8%, skill_incendiary:16.0%, skill_venom:15.7%, skill_barrier:14.0%, skill_recycle:13.8%, skill_slow_field:13.4%, skill_cryo:13.1%, skill_gold_rush:7.8%
+level_096: skill_pierce:28.3%, skill_homing:25.8%, skill_critical:25.5%, skill_ricochet:22.4%, skill_split_shot:22.1%, skill_tesla:21.7%, skill_charge_shot:21.2%, skill_multishot:21.0%, skill_salvo:19.4%, skill_incendiary:17.5%, skill_cryo:16.6%, skill_barrier:13.6%, skill_venom:13.2%, skill_slow_field:13.1%, skill_recycle:9.9%, skill_gold_rush:8.7%
+level_097: skill_pierce:36.4%, skill_tesla:27.6%, skill_critical:27.4%, skill_charge_shot:24.9%, skill_homing:24.1%, skill_salvo:21.8%, skill_ricochet:21.8%, skill_split_shot:17.5%, skill_multishot:17.2%, skill_incendiary:17.0%, skill_venom:13.9%, skill_cryo:13.1%, skill_barrier:10.9%, skill_slow_field:10.5%, skill_recycle:8.3%, skill_gold_rush:7.6%
+level_098: skill_pierce:29.4%, skill_critical:23.5%, skill_cryo:23.2%, skill_salvo:23.0%, skill_charge_shot:22.3%, skill_tesla:22.2%, skill_ricochet:21.2%, skill_homing:19.6%, skill_split_shot:18.5%, skill_slow_field:17.9%, skill_multishot:16.8%, skill_incendiary:14.9%, skill_barrier:13.2%, skill_venom:12.8%, skill_recycle:12.6%, skill_gold_rush:8.9%
+level_099: skill_pierce:29.5%, skill_charge_shot:29.4%, skill_critical:27.5%, skill_tesla:25.4%, skill_homing:22.5%, skill_salvo:21.9%, skill_ricochet:20.0%, skill_split_shot:18.5%, skill_incendiary:17.2%, skill_cryo:15.4%, skill_multishot:14.9%, skill_venom:14.7%, skill_slow_field:12.5%, skill_barrier:11.3%, skill_recycle:11.1%, skill_gold_rush:8.2%
+$ /opt/homebrew/bin/godot --headless --path . --quit
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+$ /opt/homebrew/bin/godot --headless --path . --script res://tools/_battle_boot_probe.gd
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+BATTLE_BOOT_PROBE_OK level=level_001 scene=res://gameplay/battle/battle.tscn wave=1/5 enemies=1 speed=1.0X
+$ /opt/homebrew/bin/godot --headless --path . --script res://tools/save_integrity_test.gd
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_normal_save_and_rotation (res://tools/save_integrity_test.gd:53)
+       [3] _initialize (res://tools/save_integrity_test.gd:23)
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_normal_save_and_rotation (res://tools/save_integrity_test.gd:59)
+       [3] _initialize (res://tools/save_integrity_test.gd:23)
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_normal_save_and_rotation (res://tools/save_integrity_test.gd:60)
+       [3] _initialize (res://tools/save_integrity_test.gd:23)
+SaveManager expected test failure: cannot parse main save at user://save_integrity_test/save_main.json (line 0): Expected key
+SaveManager: preserved invalid save at user://save_integrity_test/save_main.corrupt.1788416939.json
+ERROR: Parse JSON failed. Error at line 0: Expected key
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_corrupt_main_fallback (res://tools/save_integrity_test.gd:68)
+       [3] _initialize (res://tools/save_integrity_test.gd:24)
+SaveManager expected test failure: main save contains a known field with an invalid type
+SaveManager: preserved invalid save at user://save_integrity_test/save_main.corrupt.1788416939.1.json
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_missing_main_fallback (res://tools/save_integrity_test.gd:128)
+       [3] _initialize (res://tools/save_integrity_test.gd:27)
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:629)
+   GDScript backtrace (most recent call first):
+       [0] _read_json (res://tools/save_integrity_test.gd:177)
+       [1] _gold_at (res://tools/save_integrity_test.gd:174)
+       [2] _test_application_pause_persistence (res://tools/save_integrity_test.gd:144)
+       [3] _initialize (res://tools/save_integrity_test.gd:28)
+ERROR: SAVE INTEGRITY TEST: normal save must create the main file
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_main.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: main file must contain the first committed save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_main.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: second save must atomically replace the main file
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_backup.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_backup.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: backup rotation must retain the previously verified main file
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: corrupt main must recover the verified backup
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_main.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: backup recovery must rebuild a valid main file
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: schema-invalid main must also recover the verified backup
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: schema fallback must leave a valid rebuilt main file
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: migrated version must be persisted
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: persisted migration must include merged defaults
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: manual backup must produce a verified backup record
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: manual backup must be restorable
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: restore must replace in-memory data with the backed-up value
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: a missing main save must recover the verified backup
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_main.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: missing-main recovery must rebuild a valid main save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: user://save_integrity_test/save_main.json must contain valid JSON save data
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: application pause must persist the latest in-memory save
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_backup.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_main.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: test fixture must open user://save_integrity_test/save_backup.json for reading
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+ERROR: SAVE INTEGRITY TEST: write failure must expose a diagnostic
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tools/save_integrity_test.gd:43)
+Release candidate check failed: /opt/homebrew/bin/godot --headless --path . --script res://tools/save_integrity_test.gd

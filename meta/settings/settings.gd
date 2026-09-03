@@ -414,18 +414,19 @@ func _on_reset() -> void:
 func _show_info(mode: String) -> void:
 	AudioManager.play_sfx("ui_click")
 	var body := _vbox.get_node("InfoBody") as Label
+	# Wrapped copy supplies its natural minimum height to the VBox. Clipping
+	# suppressed that minimum and silently removed the last English privacy line.
+	body.clip_text = false
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
 	var compact_safe_layout := safe_height < 1840.0
 	var regular_separation := 6 if compact_safe_layout else 14
 	var compact_info_height := 148.0 if LocalizationManager.is_english() else 144.0
 	_vbox.add_theme_constant_override("separation", mini(regular_separation, 12) if mode == "privacy" else regular_separation)
-	# The privacy copy is intentionally more explicit than the controls/support
-	# summaries. Give each state its authored height instead of forcing all three
-	# through the short default box (which clipped both locales on device).
+	# Help/support retain their visual floor; privacy grows entirely from content.
 	match mode:
 		"privacy":
-			body.custom_minimum_size.y = 204.0 if LocalizationManager.is_english() else 180.0
+			body.custom_minimum_size.y = 0.0
 		"support":
 			body.custom_minimum_size.y = compact_info_height if compact_safe_layout else (180.0 if LocalizationManager.is_english() else 144.0)
 		_:
@@ -437,6 +438,26 @@ func _show_info(mode: String) -> void:
 			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击上方“支持”查看联系方式。"
 		_:
 			body.text = "操作说明：\n自动开火；按住战场拖动可手动瞄准。\n双击僵尸锁定集火，双击空地解除；长按技能查看详情。"
+	_fit_info_spacing.call_deferred()
+
+func _fit_info_spacing() -> void:
+	# Wait for localized wrapping and container minima, then spend only the
+	# excess inter-row whitespace. Never reduce the body font or touch targets.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var available := get_viewport_rect().size.y - safe.y - safe.w
+	var overflow := ($Center/Panel as Control).get_combined_minimum_size().y - available
+	if overflow <= 0.0:
+		return
+	var visible_rows := 0
+	for child in _vbox.get_children():
+		if child is Control and child.visible:
+			visible_rows += 1
+	var separation := _vbox.get_theme_constant("separation")
+	_vbox.add_theme_constant_override("separation", maxi(6, separation - ceili(overflow / maxi(1, visible_rows - 1))))
 
 func _on_open_privacy() -> void:
 	_show_info("privacy")

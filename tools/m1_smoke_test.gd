@@ -1597,6 +1597,7 @@ func _initialize() -> void:
 	_expect(recovered_result.next_level == "level_004", "result must not default missing level_id to level_001")
 	recovered_result.queue_free()
 	router.queue_free()
+	await _verify_settings_info_content_layout()
 	audio_manager.release_for_tests()
 	for tween in get_processed_tweens():
 		tween.kill()
@@ -1612,6 +1613,37 @@ func _initialize() -> void:
 
 func _quit_success() -> void:
 	quit(0)
+
+func _verify_settings_info_content_layout() -> void:
+	var localization := root.get_node("/root/LocalizationManager")
+	var previous_language := str(localization.current_language)
+	for native_size in [Vector2i(1080, 1920), Vector2i(1080, 2340), Vector2i(1320, 2868)]:
+		for language in ["zh", "en"]:
+			localization.apply_language(language, false)
+			var viewport := SubViewport.new()
+			# canvas_items + expand keeps 1080 equivalent horizontal pixels.
+			viewport.size = Vector2i(1080, roundi(float(native_size.y) * 1080.0 / float(native_size.x)))
+			root.add_child(viewport)
+			var settings := _instance("res://meta/settings/settings.tscn")
+			viewport.add_child(settings)
+			for mode in ["privacy", "support", "help"]:
+				settings._show_info(mode)
+				for frame in range(6):
+					await process_frame
+				var body := settings.get_node("Center/Panel/Margin/VBox/InfoBody") as Label
+				var panel := settings.get_node("Center/Panel") as Control
+				var text := str(TranslationServer.translate(body.text))
+				var needed := body.get_theme_font("font").get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, body.size.x, body.get_theme_font_size("font_size")).y
+				var context := "%s %s %s" % [str(native_size), language, mode]
+				_expect(not body.clip_text and needed <= body.size.y, context + " settings information must retain every wrapped line")
+				_expect((body.get_parent() as Control).get_global_rect().encloses(body.get_global_rect()), context + " information body must stay inside its content container")
+				_expect(panel.get_global_rect().encloses(body.get_global_rect()), context + " information body must stay inside its panel")
+				_expect(Rect2(Vector2.ZERO, Vector2(viewport.size)).encloses(panel.get_global_rect()), context + " settings panel must stay inside the viewport")
+				_expect(body.get_theme_font_size("font_size") == UiKit.scaled_font_size(18 if language == "en" else 20), context + " settings body must retain its authorized font")
+				print("ROUND3_SETTINGS ", context, " needed=", needed, " available=", body.size.y)
+			viewport.queue_free()
+			await process_frame
+	localization.apply_language(previous_language, false)
 
 func _instance(path: String) -> Node:
 	var packed := load(path) as PackedScene
