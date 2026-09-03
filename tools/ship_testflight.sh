@@ -204,6 +204,17 @@ if [[ "$TESTFLIGHT_CUSTOM_FEATURES" != "$ORIGINAL_CUSTOM_FEATURES" ]]; then
     log "iOS custom features: $ORIGINAL_CUSTOM_FEATURES -> $TESTFLIGHT_CUSTOM_FEATURES (temporary)"
 fi
 
+# The StoreKit plugin is a compiled artifact: without it the export silently ships
+# a build whose store falls back to the local demo path, which must never reach
+# TestFlight or App Review.
+STOREKIT_LIB="$PROJ/ios/plugins/zombiefire_storekit/lib/libzombiefire_storekit.a"
+if [[ "$(awk -F= '/^plugins\/ZombieFireStoreKit=/{print $2}' "$PROJ/export_presets.cfg" | head -1)" == "true" ]]; then
+    [[ -f "$STOREKIT_LIB" ]] || die "StoreKit plugin library missing; run GODOT_SRC=<godot source> tools/build_ios_storekit_plugin.sh"
+    xcrun nm -g "$STOREKIT_LIB" 2>/dev/null | grep -q "T __Z24zombiefire_storekit_initv" \
+        || die "StoreKit plugin library does not export the expected entry point"
+    log "StoreKit plugin present: $(du -h "$STOREKIT_LIB" | cut -f1)"
+fi
+
 log "Synchronizing release-only asset exclusions"
 python3 tools/sync_release_export_excludes.py --write
 

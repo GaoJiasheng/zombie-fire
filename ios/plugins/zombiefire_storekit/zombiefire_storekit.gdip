@@ -1,0 +1,21 @@
+; Zombie Fire StoreKit 2 plugin for the Godot iOS export.
+;
+; The static library is not committed: build it with
+;   GODOT_SRC=/path/to/godot-4.7 tools/build_ios_storekit_plugin.sh
+; A Godot iOS plugin links against the engine's own headers, so the library must
+; be rebuilt whenever the shipped engine version changes.
+
+[config]
+name="ZombieFireStoreKit"
+binary="lib/libzombiefire_storekit.a"
+initialization="zombiefire_storekit_init"
+deinitialization="zombiefire_storekit_deinit"
+
+[dependencies]
+system=["StoreKit.framework"]
+linked=[]
+embedded=[]
+capabilities=[]
+files=[]
+
+[plist]

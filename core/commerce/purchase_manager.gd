@@ -43,6 +43,25 @@ func _start_store_backend() -> void:
 
 # True once Apple commerce is answering. The store uses this to decide between
 # real prices plus "Buy" and the local demo-store presentation.
+# App Review cannot clear 30 campaign levels to reach a purchasable storefront,
+# so a disclosed gesture on the locked store page opens the shelves for this
+# session. It grants nothing: no entitlement, no campaign progress, no currency.
+# The reviewer still pays through the sandbox exactly like a player does, and the
+# flag is deliberately not persisted, so a relaunch returns to the shipped gating.
+var _review_access := false
+
+
+func review_access_enabled() -> bool:
+	return _review_access
+
+
+func enable_review_access() -> void:
+	if _review_access:
+		return
+	_review_access = true
+	commerce_changed.emit()
+
+
 func store_is_live() -> bool:
 	return _backend != null and _backend.is_live()
 
@@ -581,6 +600,8 @@ func _series_is_visible(series_id: String) -> bool:
 	if is_theme_owned(series_id) or is_arsenal_owned(series_id):
 		return true
 	if OS.is_debug_build() and OS.get_environment("ZOMBIE_FIRE_STORE_GATE_BYPASS") == "1":
+		return true
+	if _review_access:
 		return true
 	var unlock: Dictionary = set_for_series(series_id).get("store_unlock", {})
 	var clear_level := int(unlock.get("clear_level", 0))

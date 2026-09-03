@@ -5278,6 +5278,12 @@ func _verify_projectile_visual_profiles() -> void:
 		projectile.queue_free()
 
 	var battle = load("res://gameplay/battle/battle.gd").new()
+	# Owner 2026-09-03: the App Review store gesture must never ship enabled, must
+	# grant nothing, and must not be reachable from a save file.
+	var purchase_manager_node = root.get_node("/root/PurchaseManager")
+	_expect(not bool(purchase_manager_node.review_access_enabled()), "App Review store access must default to off")
+	_expect(purchase_manager_node.get("_review_access") != null, "App Review store access must stay an in-memory flag")
+	_expect(not str(JSON.stringify(root.get_node("/root/SaveManager").save_data)).contains("review_access"), "App Review store access must never be persisted to the save file")
 	var scatter_weapon: Dictionary = root.get_node("/root/DataLoader").get_row("weapons", "weapon_scattergun")
 	var max_scatter_pellets: int = int(root.get_node("/root/SaveManager").weapon_pellet_count_from_row(scatter_weapon, 50))
 	var plain_lanes: int = int(battle._resolved_weapon_lane_count(0, false, 1))

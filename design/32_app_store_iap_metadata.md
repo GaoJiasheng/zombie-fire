@@ -2,6 +2,33 @@
 
 Source: all 12 products come directly from `data/store_products.json` (verified — no more, no fewer). Item names/grants cross-checked against `data/premium_sets.json`, `data/weapons.json`, `data/localization_zh.json`, `data/localization_en.json`.
 
+## 为什么是 12 个商品(Owner 2026-09-03 决定按 12 个首发)
+
+**只有 4 套内容,但每套卖 3 个 SKU,所以 ASC 里是 4 × 3 = 12 个商品。**
+
+| 每套的三个 SKU | 价格(雷霆/烈焰/极光 · 黄金律) | 买到什么 |
+|---|---|---|
+| 主题 Theme | $1.99 · $1.99 | 仅外观:四名角色战衣、界面皮肤、枪械配色 |
+| 完整包 Complete | $6.99 · $8.99 | 主题 **加上** 军械(武器/护甲/芯片/宠物) |
+| 升级包 Upgrade | $4.99 · $6.99 | 已买主题的玩家补差价,拿到该套军械 |
+
+**升级包为什么必须单独建一个商品**:Apple 的非消耗型内购没有原生的"补差价升级"机制
+(那只存在于订阅的 Subscription Group 里)。要让"先买了 $1.99 主题的玩家"再花差价拿到完整
+军械,只能另卖一个 SKU。定价是对齐的,两条路花一样的钱:
+
+- 雷霆/烈焰/极光:$1.99 + $4.99 = $6.98 ≈ 完整包 $6.99
+- 黄金律:$1.99 + $6.99 = $8.98 ≈ 完整包 $8.99
+
+**给审核员的一句话解释**(建议原样放进每个 upgrade 商品的 Review Notes):
+> This is an upgrade SKU. Players who already bought the theme pay the difference
+> to receive the full arsenal for the same series. Buyers who have not bought the
+> theme buy the "Complete" product instead. Both paths cost the same in total.
+
+**运行时如何保证不重复收费**:商店只对"已拥有主题、未拥有军械"的玩家展示升级包
+(`PurchaseManager.display_offer_ids`),已拥有完整军械的玩家两个都不再展示。
+
+---
+
 ## Type verification
 
 Every product in `data/store_products.json` is a **Non-Consumable**:

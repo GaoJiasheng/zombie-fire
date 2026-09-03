@@ -261,6 +261,12 @@ func _locked_store_empty_state() -> PanelContainer:
 	box.add_child(lock_center)
 	var lock_icon := UiKit.icon("res://assets/production/sprites/ui/icon_lock.png", Vector2(96, 96))
 	lock_icon.modulate = Color(1.08, 0.92, 0.58, 1.0)
+	lock_icon.name = "LockedStoreIcon"
+	# Disclosed in the App Review notes: seven taps here open the shelves so a
+	# reviewer can exercise the sandbox purchase flow without clearing 30 levels.
+	# It unlocks visibility only, never content, and never survives a relaunch.
+	lock_icon.mouse_filter = Control.MOUSE_FILTER_STOP
+	lock_icon.gui_input.connect(_on_locked_store_icon_input)
 	lock_center.add_child(lock_icon)
 
 	var title := UiKit.label(LocalizationManager.text("终焉军械库尚未解密"), 34, UiKit.TEXT_MAIN, 4)
@@ -1697,6 +1703,23 @@ func _buy_button_text(product_id: String) -> String:
 	if _store_live():
 		return _loc("购买  ", "Buy  ") + price
 	return _loc("演示购买  ", "Demo Buy  ") + price
+
+
+var _review_taps := 0
+
+
+func _on_locked_store_icon_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton) or not (event as InputEventMouseButton).pressed:
+		return
+	if PurchaseManager.review_access_enabled():
+		return
+	_review_taps += 1
+	if _review_taps < 7:
+		return
+	_review_taps = 0
+	PurchaseManager.enable_review_access()
+	_show_toast(LocalizationManager.text("审核模式：商店已开放，购买仍走 App Store 沙盒"))
+	_rebuild()
 
 
 func _series_reset_button(series_id: String) -> Button:
