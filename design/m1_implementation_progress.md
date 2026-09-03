@@ -4934,3 +4934,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 
 - 聚合门禁发现等级徽章直接包含英文等级格式，不符合发布文案检查；改为复用已有“等级%d”本地化模板，未修改检查器或任何翻译文案。
 - 文案 / 本地化门禁通过，四主题双语 16 张武器卡重新实拍仍全部 issues=[]；最终聚合门禁重新执行，首次失败日志保留供追溯。
+
+# 2026-09-03 · 视觉第三轮最终验收
+
+- 最终 `check_release_candidate.py` 全部非窗口检查通过，完整 M1 包含本轮新增断言且零 ERROR；运行时纹理样式门禁通过。
+- 112 张原生截图 / 54 张前后对照 / 8 张总览；58 张改后 / 弹窗复核图全部 issues=[]。中文看图说明、报告、命令日志与桌面副本核验工具齐备。
+- 四段免费侧指纹与本地 main 相同；gameplay / core / data / ui 相对 648b040e 零差异。共享测试存档已清理；未 push，交 Fable 合并。
