@@ -4,12 +4,122 @@ signal commerce_changed
 signal purchase_finished(product_id: String, success: bool, message: String)
 
 const SOURCE_LOCAL_MOCK := "local_mock"
+const SOURCE_APP_STORE := "app_store"
+# preload rather than class_name: headless tooling and export probes read scripts
+# without an editor pass, and the global class cache is not guaranteed there.
+const StoreBackend := preload("res://core/commerce/store_backend.gd")
 
 var _catalog: Dictionary = {}
+# Live Apple commerce when the iOS StoreKit plugin is present, otherwise a
+# backend whose is_live() is false and which is never called. Every entitlement
+# write still happens in this file so the demo and the App Store paths converge
+# on one reconciliation.
+var _backend: RefCounted = null
 
 
 func _ready() -> void:
 	call_deferred("_refresh_catalog_and_access")
+	call_deferred("_start_store_backend")
+
+
+func _start_store_backend() -> void:
+	if _backend != null:
+		return
+	_backend = StoreBackend.new()
+	if not _backend.is_live():
+		return
+	_backend.transaction_updated.connect(_on_backend_transaction)
+	_backend.entitlements_synced.connect(_on_backend_entitlements_synced)
+	_backend.products_loaded.connect(_on_backend_products_loaded)
+	_backend.store_error.connect(_on_backend_store_error)
+	var ids := PackedStringArray()
+	for product_id_var in _catalog.keys():
+		ids.append(str(product_id_var))
+	_backend.initialize(ids)
+	# Apple is the source of truth for what this Apple ID owns, including refunds
+	# and family sharing revocations granted since the last launch.
+	_backend.refresh_entitlements()
+
+
+# True once Apple commerce is answering. The store uses this to decide between
+# real prices plus "Buy" and the local demo-store presentation.
+func store_is_live() -> bool:
+	return _backend != null and _backend.is_live()
+
+
+func commerce_source() -> String:
+	return SOURCE_APP_STORE if store_is_live() else SOURCE_LOCAL_MOCK
+
+
+# Localized App Store price, falling back to the authored demo string while
+# StoreKit's product query is still in flight or has failed.
+func price_text(product_id: String, english: bool) -> String:
+	if store_is_live():
+		var live_text := str(_backend.price_text(product_id))
+		if live_text != "":
+			return live_text
+	var row := product(product_id)
+	return str(row.get("mock_price_en" if english else "mock_price_zh", ""))
+
+
+# Single entry point for the store UI. Routes to Apple when commerce is live and
+# to the local demo purchase everywhere else.
+func purchase(product_id: String) -> bool:
+	if not store_is_live():
+		return mock_purchase(product_id)
+	var row := product(product_id)
+	if row.is_empty() or not visible_offer_ids().has(product_id):
+		purchase_finished.emit(product_id, false, "商品当前不可购买")
+		return false
+	_backend.purchase(product_id)
+	return true
+
+
+func restore_purchases() -> int:
+	if not store_is_live():
+		return restore_mock_purchases()
+	_backend.restore()
+	return 0
+
+
+func _on_backend_products_loaded(_products: Array) -> void:
+	commerce_changed.emit()
+
+
+func _on_backend_transaction(product_id: String, state: String, message: String) -> void:
+	match state:
+		StoreBackend.STATE_PURCHASED, StoreBackend.STATE_RESTORED:
+			# Never grant from the transaction alone: ask StoreKit for the
+			# complete verified entitlement set so one authority stays in charge.
+			_backend.refresh_entitlements()
+			purchase_finished.emit(product_id, true, message)
+		StoreBackend.STATE_PENDING:
+			purchase_finished.emit(product_id, false, message)
+		StoreBackend.STATE_CANCELLED:
+			purchase_finished.emit(product_id, false, message)
+		StoreBackend.STATE_REVOKED:
+			_backend.refresh_entitlements()
+			purchase_finished.emit(product_id, false, message)
+		_:
+			purchase_finished.emit(product_id, false, message)
+
+
+func _on_backend_entitlements_synced(product_ids: Array) -> void:
+	var granted: Array[String] = []
+	for product_id in product_ids:
+		var row := product(str(product_id))
+		for entitlement in row.get("grants", []):
+			var clean := str(entitlement).strip_edges()
+			if clean != "" and not granted.has(clean):
+				granted.append(clean)
+	# A replace, not a merge: a refunded or revoked purchase disappears from
+	# Apple's set and must disappear here too.
+	SaveManager.replace_verified_entitlements(granted, int(Time.get_unix_time_from_system()), false)
+	reconcile_access(true)
+
+
+func _on_backend_store_error(message: String) -> void:
+	purchase_finished.emit("", false, message)
 
 
 func _refresh_catalog_and_access() -> void:

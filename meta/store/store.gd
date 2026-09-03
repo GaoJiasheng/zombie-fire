@@ -164,13 +164,15 @@ func _apply_style() -> void:
 	UiKit.apply_label($Root/VBox/MockNotice, 18, UiKit.WARNING, 2)
 	$Root/VBox/Title.text = _store_title()
 	$Root/VBox/MockNotice.text = _loc(
-		"本地演示商店 · 不连接 Apple · 不会扣款",
-		"LOCAL DEMO STORE · No Apple connection · No charge"
+		"由 App Store 结算 · 永久解锁 · 可恢复" if _store_live() else "本地演示商店 · 不连接 Apple · 不会扣款",
+		"Billed by the App Store · Permanent · Restorable" if _store_live() else "LOCAL DEMO STORE · No Apple connection · No charge"
 	)
 	# Fit the final localized copy, not the longer Chinese scene placeholders.
 	# Otherwise switching to English inherits an unnecessary 18 px fallback.
 	$Root/VBox/Footer/RestoreButton.text = _loc("恢复购买", "Restore")
 	$Root/VBox/Footer/ResetButton.text = _loc("清空演示", "Reset")
+	# Real purchases are Apple's to reverse; only the demo receipts are ours.
+	$Root/VBox/Footer/ResetButton.visible = not _store_live()
 	$Root/VBox/Footer/BackButton.text = _loc("返回", "Back")
 	for spec in [
 		[$Root/VBox/Footer/RestoreButton, false],
@@ -711,7 +713,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var buy := Button.new()
 	buy.name = "Buy_" + str(row.get("id", "")).replace(".", "_")
 	buy.focus_mode = Control.FOCUS_NONE
-	buy.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
+	buy.text = _buy_button_text(str(row.get("id", "")))
 	UiKit.apply_armored_button(buy, true, Vector2(484, 102), 20, true)
 	# button_down is emitted before the event bubbles to the card. Mark that
 	# origin explicitly because a bubbled touch position remains relative to its
@@ -944,8 +946,8 @@ func _populate_store_product_detail(content: VBoxContainer, row: Dictionary, acc
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary_body.add_child(subtitle)
 	var promise_text := _loc(
-		"永久解锁 · 可恢复 · 不含消耗品 · 本页为本地演示，不连接 Apple、不会扣款",
-		"Permanent · Restorable · No consumables · Local demo only; Apple is not connected and no charge occurs"
+		"永久解锁 · 可恢复 · 不含消耗品 · 由 App Store 结算" if _store_live() else "永久解锁 · 可恢复 · 不含消耗品 · 本页为本地演示，不连接 Apple、不会扣款",
+		"Permanent · Restorable · No consumables · Billed by the App Store" if _store_live() else "Permanent · Restorable · No consumables · Local demo only; Apple is not connected and no charge occurs"
 	)
 	var promise := UiKit.label(promise_text, 15, UiKit.SUCCESS, 2)
 	promise.name = "PermanentPromise"
@@ -1260,7 +1262,7 @@ func _store_detail_actions(row: Dictionary, is_current_offer: bool) -> Control:
 	purchase.set_meta("store_detail_product_id", product_id)
 	var owned := PurchaseManager.is_product_owned(product_id)
 	if is_current_offer:
-		purchase.text = _loc("演示购买  ", "Demo Buy  ") + str(row.get("mock_price_en" if LocalizationManager.is_english() else "mock_price_zh", ""))
+		purchase.text = _buy_button_text(product_id)
 		purchase.set_meta("store_detail_action_state", "purchase")
 		purchase.pressed.connect(_run_store_tap.bind(_purchase_from_product_detail.bind(product_id)))
 	elif owned:
@@ -1679,10 +1681,29 @@ func _owned_set_panel(set_id: String) -> Control:
 	return root
 
 
+# Apple commerce replaces every demo-only affordance: the notice line, the buy
+# label and price source, the confirmation wording, and the reset buttons that
+# only make sense against local mock receipts.
+func _store_live() -> bool:
+	return PurchaseManager.store_is_live()
+
+
+func _price_text(product_id: String) -> String:
+	return PurchaseManager.price_text(product_id, LocalizationManager.is_english())
+
+
+func _buy_button_text(product_id: String) -> String:
+	var price := _price_text(product_id)
+	if _store_live():
+		return _loc("购买  ", "Buy  ") + price
+	return _loc("演示购买  ", "Demo Buy  ") + price
+
+
 func _series_reset_button(series_id: String) -> Button:
 	var reset := Button.new()
 	reset.focus_mode = Control.FOCUS_NONE
 	reset.text = _loc("撤销本系列演示购买", "Reset This Series")
+	reset.visible = not _store_live()
 	UiKit.apply_armored_button(reset, false, Vector2(520, 78), 17, true)
 	reset.pressed.connect(_run_store_tap.bind(_confirm_series_reset.bind(series_id)))
 	return reset
@@ -1734,14 +1755,29 @@ func _confirm_purchase(product_id: String) -> void:
 	if str(row.get("offer_role", "")) != "theme":
 		var set_row := DataLoader.get_row("premium_sets", str(row.get("arsenal_set_id", "")))
 		dominance = str(set_row.get("dominance_en" if LocalizationManager.is_english() else "dominance_zh", ""))
+	var suffix := "\n" + dominance if dominance != "" else ""
+	var price := _price_text(product_id)
+	# The live sheet states who charges and that the unlock is permanent; the demo
+	# sheet keeps saying plainly that nothing is billed.
+	var body := ""
+	if _store_live():
+		body = _loc(
+			"%s\n%s%s\n\n由 App Store 结算，永久解锁，换设备可恢复。" % [row.get("name_zh", ""), price, suffix],
+			"%s\n%s%s\n\nBilled by the App Store. Permanent, and restorable on your other devices." % [row.get("name_en", ""), price, suffix]
+		)
+	else:
+		body = _loc(
+			"%s\n%s%s\n\n这是本地流程验证，不连接 Apple，也不会扣款。" % [row.get("name_zh", ""), price, suffix],
+			"%s\n%s%s\n\nThis is a local flow test. Apple is not connected and no charge occurs." % [row.get("name_en", ""), price, suffix]
+		)
 	_show_dialog(
-		_loc("确认演示购买", "Confirm Demo Purchase"),
 		_loc(
-			"%s\n%s%s\n\n这是本地流程验证，不连接 Apple，也不会扣款。" % [row.get("name_zh", ""), row.get("mock_price_zh", ""), "\n" + dominance if dominance != "" else ""],
-			"%s\n%s%s\n\nThis is a local flow test. Apple is not connected and no charge occurs." % [row.get("name_en", ""), row.get("mock_price_en", ""), "\n" + dominance if dominance != "" else ""]
+			"确认购买" if _store_live() else "确认演示购买",
+			"Confirm Purchase" if _store_live() else "Confirm Demo Purchase"
 		),
+		body,
 		_loc("确认购买", "Confirm"),
-		func() -> void: PurchaseManager.mock_purchase(product_id)
+		func() -> void: PurchaseManager.purchase(product_id)
 	)
 
 
@@ -1796,7 +1832,9 @@ func _show_dialog(title_text: String, body_text: String, confirm_text: String, c
 
 
 func _restore() -> void:
-	PurchaseManager.restore_mock_purchases()
+	# Live restore is asynchronous: Apple may prompt for the account password and
+	# the result arrives on purchase_finished, which already drives the toast.
+	PurchaseManager.restore_purchases()
 
 
 func _equip_set(set_id: String) -> void:
