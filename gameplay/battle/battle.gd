@@ -5403,26 +5403,21 @@ func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int,
 	for index in range(total_shots):
 		result.append(center.rotated(-total_span * 0.5 + step * float(index)).normalized())
 
-	# _primary_shot_directions has already guaranteed a source lane through the
-	# intended target. Rotate the complete fan as one rigid body so the closest
-	# final shot retains that guarantee without disturbing equal spacing.
+	# Owner 2026-09-03: anchor the composed fan to the aim direction itself, not to
+	# the nearest source lane. With even lane or pellet counts a centred layout has
+	# no shot on the aim line; rotating the whole fan as one rigid body so the
+	# closest final shot lands exactly on the aim keeps equal spacing and always
+	# leaves one projectile on the intended target regardless of parity.
 	if aim_anchor.length_squared() > 0.01:
 		var safe_anchor := aim_anchor.normalized()
-		var source_anchor := normalized_lanes[0]
-		var source_angle := INF
-		for lane_direction in normalized_lanes:
-			var candidate_angle := absf(lane_direction.angle_to(safe_anchor))
-			if candidate_angle < source_angle:
-				source_angle = candidate_angle
-				source_anchor = lane_direction
 		var result_anchor_index := 0
 		var result_angle := INF
 		for index in range(result.size()):
-			var candidate_angle := absf(result[index].angle_to(source_anchor))
+			var candidate_angle := absf(result[index].angle_to(safe_anchor))
 			if candidate_angle < result_angle:
 				result_angle = candidate_angle
 				result_anchor_index = index
-		var correction := result[result_anchor_index].angle_to(source_anchor)
+		var correction := result[result_anchor_index].angle_to(safe_anchor)
 		for index in range(result.size()):
 			result[index] = result[index].rotated(correction).normalized()
 	return result

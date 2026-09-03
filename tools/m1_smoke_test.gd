@@ -5189,6 +5189,22 @@ func _verify_projectile_visual_profiles() -> void:
 		for index in range(1, composed_fan.size()):
 			var actual_gap := absf(composed_fan[index - 1].angle_to(composed_fan[index]))
 			_expect(absf(actual_gap - composed_gap) <= 0.0001, "%d-lane scatter composition must keep identical adjacent gaps" % lane_count)
+	# Owner 2026-09-03: the pellet tiers are 3/4/5, so even pellet counts exist.
+	# Whatever the composition (tier x lanes), exactly one final shot must sit on the
+	# aimed direction: the fan is rotated as a rigid body, never bent per pellet.
+	var aim_probe := Vector2.UP.rotated(deg_to_rad(11.0)).normalized()
+	for tier_pellets in [3, 4, 5]:
+		for lane_count in [plain_lanes, multishot_lanes, stacked_lanes]:
+			var aimed_lanes: Array[Vector2] = []
+			for lane_dir in smoke_fan.call(lane_count):
+				aimed_lanes.append((lane_dir as Vector2).rotated(deg_to_rad(11.0)).normalized())
+			var aimed_fan: Array[Vector2] = battle._lane_pellet_directions(aimed_lanes, tier_pellets, deg_to_rad(18.0), aim_probe)
+			var on_aim := 0
+			for shot in aimed_fan:
+				if absf(shot.angle_to(aim_probe)) <= 0.0005:
+					on_aim += 1
+			_expect(on_aim >= 1, "%d-pellet x %d-lane scatter fan must place one shot exactly on the aim direction" % [tier_pellets, lane_count])
+			_expect(aimed_fan.size() == tier_pellets * lane_count, "%d-pellet x %d-lane scatter fan must keep the composed shot count" % [tier_pellets, lane_count])
 	var single_lane: Array[Vector2] = [Vector2.UP]
 	for final_count in [7, 9]:
 		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0))
