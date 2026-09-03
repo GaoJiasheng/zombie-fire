@@ -1603,6 +1603,7 @@ func _initialize() -> void:
 	recovered_result.queue_free()
 	router.queue_free()
 	await _verify_settings_info_content_layout()
+	await _verify_character_detail_first_page_layout()
 	audio_manager.release_for_tests()
 	for tween in get_processed_tweens():
 		tween.kill()
@@ -1648,6 +1649,50 @@ func _verify_settings_info_content_layout() -> void:
 				print("ROUND3_SETTINGS ", context, " needed=", needed, " available=", body.size.y)
 			viewport.queue_free()
 			await process_frame
+	localization.apply_language(previous_language, false)
+
+func _verify_character_detail_first_page_layout() -> void:
+	var localization := root.get_node("/root/LocalizationManager")
+	var save_manager := root.get_node("/root/SaveManager")
+	var previous_language := str(localization.current_language)
+	var saved: Dictionary = save_manager.save_data.duplicate(true)
+	save_manager.save_data = save_manager._default_save()
+	for native_size in [Vector2i(1080, 1920), Vector2i(1080, 2340), Vector2i(1320, 2868), Vector2i(1080, 2046)]:
+		for language in ["zh", "en"]:
+			localization.apply_language(language, false)
+			for character in ["vanguard", "blaze", "frost", "volt"]:
+				var viewport := SubViewport.new()
+				viewport.size = Vector2i(1080, floori(float(native_size.y) * 1080.0 / float(native_size.x)))
+				root.add_child(viewport)
+				var collection := _instance("res://meta/collection/collection.tscn")
+				viewport.add_child(collection)
+				collection._show_character_detail(character, root.get_node("/root/DataLoader").get_row("characters", character))
+				for frame in range(12):
+					await process_frame
+				var modal := collection.get_node("CharacterDetail") as Control
+				var scroll := modal.find_child("DetailScroll", true, false) as ScrollContainer
+				var actions := modal.find_child("DetailActions", true, false) as Control
+				var clearance := modal.find_child("DetailScrollBottomClearance", true, false) as Control
+				var context := "%s %s %s" % [str(native_size), language, character]
+				_expect(scroll.get_global_rect().end.y < actions.get_global_rect().position.y, context + " character reading viewport must stay above fixed actions")
+				_expect(clearance.size.y >= actions.size.y, context + " character scroll tail must reserve at least the complete fixed footer height")
+				for pattern in ["SkillRow*", "SignatureUpgradeLayout"]:
+					for block_node in modal.find_children(pattern, "Control", true, false):
+						var block := block_node as Control
+						var block_rect := block.get_global_rect()
+						var page := scroll.get_global_rect()
+						if block_rect.position.y < page.end.y and block_rect.end.y > page.position.y:
+							_expect(page.encloses(block_rect), context + " first-page skill information must end at a complete block boundary: " + str(block.name))
+				print("ROUND3_CHARACTER ", context, " viewport=", scroll.size.y, " footer=", actions.size.y, " tail=", clearance.size.y)
+				scroll.scroll_vertical = 100000
+				for frame in range(3):
+					await process_frame
+				var content := scroll.get_child(0) as Control
+				var last_section := content.get_child(clearance.get_index() - 1) as Control
+				_expect(scroll.get_global_rect().encloses(last_section.get_global_rect()), context + " final character information block must be fully reachable above the footer")
+				viewport.queue_free()
+				await process_frame
+	save_manager.save_data = saved
 	localization.apply_language(previous_language, false)
 
 func _instance(path: String) -> Node:

@@ -2398,8 +2398,10 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 
 	# === 升级预览：本级 → 下级(角色此前一直缺失，只有武器/护甲/芯片/宠物有) ===
 	var char_preview := _upgrade_preview_rows(item_id, row, item_level)
+	var upgrade_preview_section: PanelContainer
 	if not char_preview.is_empty():
 		var up_section := _make_section_panel("升级预览  (等级%d → %d)" % [item_level, item_level + 1], UiKit.GREEN, CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
+		upgrade_preview_section = up_section
 		detail_content.add_child(up_section)
 		var up_grid := GridContainer.new()
 		up_grid.columns = 1
@@ -2425,6 +2427,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 
 	# === SIGNATURE SKILLS section (gold accent) ===
 	var sig_section := _make_section_panel("专属技能", Color(0.92, 0.68, 0.34, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
+	sig_section.name = "SignatureSection"
 	detail_content.add_child(sig_section)
 	var sig_ids: Array = row.get("signature_skills", [])
 	if sig_ids.is_empty():
@@ -2454,6 +2457,10 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			# 专属主动技独立经验升级(此前只能被动跟着角色等级涨，玩家没法针对性投资)。
 			if is_active_skill:
 				sig_section.get_child(0).add_child(_make_sig_skill_upgrade_row(item_id, active_skill_id))
+	# Read the character's passive and signature before the optional level-up
+	# comparison. This leaves complete skill information on the initial page.
+	if upgrade_preview_section != null:
+		detail_content.move_child(upgrade_preview_section, sig_section.get_index())
 
 	# === AFFINITY TAGS section ===
 	var card_affinity: Array = row.get("card_affinity_tags", [])
@@ -2487,6 +2494,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# at their native size and use a centered 2x2 grid instead of shrinking or
 	# stretching them.
 	var action_row := GridContainer.new()
+	action_row.name = "DetailActions"
 	action_row.columns = 2
 	action_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	action_row.add_theme_constant_override("h_separation", 12)
@@ -2526,9 +2534,50 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	cancel_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	cancel_btn.pressed.connect(_close_character_detail)
 	action_row.add_child(cancel_btn)
+	_align_character_detail_first_page.call_deferred(content_scroll, detail_content, action_row)
 
 	_detail_modal.modulate.a = 1.0
 	panel.scale = Vector2.ONE
+
+func _align_character_detail_first_page(scroll: ScrollContainer, content: VBoxContainer, actions: Control) -> void:
+	# Wait for localized line wrapping, section minima and the fixed footer.
+	for frame in range(4):
+		await get_tree().process_frame
+		if not is_instance_valid(scroll) or not scroll.is_inside_tree():
+			return
+	var clearance := content.get_node("DetailScrollBottomClearance") as Control
+	clearance.custom_minimum_size.y = actions.get_combined_minimum_size().y + DETAIL_SCROLL_BOTTOM_CLEARANCE
+	if scroll.scroll_vertical != 0:
+		return # Never reposition content after the player has started reading.
+	var page_bottom := scroll.get_global_rect().end.y
+	for section in content.get_children():
+		if not section is PanelContainer:
+			continue
+		var rect := (section as Control).get_global_rect()
+		if rect.position.y >= page_bottom or rect.end.y <= page_bottom:
+			continue
+		var next_block := section as Control
+		if section.name == "SignatureSection":
+			# The signature frame contains several independent blocks. Keep its
+			# heading with the first skill, but don't hide an already complete skill
+			# merely because the following upgrade/growth row doesn't fit.
+			var inner := section.get_child(0) as VBoxContainer
+			for index in range(1, inner.get_child_count()):
+				var block := inner.get_child(index) as Control
+				if block.get_global_rect().end.y > page_bottom:
+					if index > 1:
+						next_block = block
+					break
+		var remaining := page_bottom - next_block.get_global_rect().position.y
+		if remaining > 0.0:
+			var page_gap := Control.new()
+			page_gap.name = "FirstPageBlockClearance"
+			page_gap.custom_minimum_size.y = ceilf(remaining)
+			page_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var parent := next_block.get_parent()
+			parent.add_child(page_gap)
+			parent.move_child(page_gap, next_block.get_index())
+		break
 
 func _open_character_appearance(character_id: String) -> void:
 	if is_instance_valid(_appearance_selector):

@@ -6,6 +6,7 @@ func _initialize() -> void:
 	root.size = Vector2i(1080, 1920)
 	root.get_node("/root/DataLoader").load_all()
 	await _verify_settings_info_content_layout()
+	await _verify_character_detail_first_page_layout()
 	root.get_node("/root/AudioManager").release_for_tests()
 	print("ROUND3_SMOKE_OK")
 	quit(0)
