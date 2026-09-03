@@ -246,8 +246,8 @@ func _refresh_resource_bar() -> void:
 func _uses_spacious_collection_cards() -> bool:
 	return mode in ["weapons", "armors", "chips", "pets"]
 
-func _weapon_level_text(level: int, english: bool) -> String:
-	return (("Lv.%d" if english else "等级%d") % level) + _tier_suffix(level)
+func _weapon_level_text(level: int) -> String:
+	return (LocalizationManager.text("等级%d") % level) + _tier_suffix(level)
 
 func _measure_weapon_title_geometry(table: Dictionary) -> Vector2:
 	# Preserve the bilingual shared-card ruler, but derive it from the longest
@@ -257,7 +257,11 @@ func _measure_weapon_title_geometry(table: Dictionary) -> Vector2:
 	for item_id in table:
 		for english in [false, true]:
 			var font_size := UiKit.scaled_font_size(WEAPON_LIST_TITLE_FONT_SIZE_EN if english else WEAPON_LIST_TITLE_FONT_SIZE_ZH)
-			badge_width = maxf(badge_width, font.get_string_size(_weapon_level_text(SaveManager.get_item_level(item_id), english), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x + 22.0)
+			var level := SaveManager.get_item_level(item_id)
+			# The Chinese source is the wider bilingual baseline. Also include the
+			# active translation, sourced from the existing localization catalog.
+			for badge_text in [("等级%d" % level) + _tier_suffix(level), _weapon_level_text(level)]:
+				badge_width = maxf(badge_width, font.get_string_size(badge_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x + 22.0)
 	var title_width := CATALOG_LIST_TITLE_WIDTH - ceilf(badge_width) - WEAPON_LIST_LEVEL_GAP
 	var title_height := COLLECTION_LIST_TITLE_HEIGHT
 	for language in ["zh", "en"]:
@@ -430,7 +434,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	button.add_child(title)
 	title.z_index = 2
 	if mode == "weapons":
-		var level_badge := UiKit.semantic_tag_pill(_weapon_level_text(item_level, english_layout), "status", title_font_size)
+		var level_badge := UiKit.semantic_tag_pill(_weapon_level_text(item_level), "status", title_font_size)
 		level_badge.name = "LevelBadge"
 		button.add_child(level_badge)
 		level_badge.position = Vector2(text_x + _weapon_title_geometry.x + WEAPON_LIST_LEVEL_GAP, COLLECTION_LIST_TITLE_Y)

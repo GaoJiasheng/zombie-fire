@@ -4929,3 +4929,8 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 使用 store 路由、debug_complete_store_purchase 与 FULL_STORE_SAVE_OVERRIDE，四张中英标准 / 高屏截图均 issues=[]。
 - 确认“立即应用整套 / Apply Full Look”在上、“逐个角色换装 / Dress Heroes”在下，无裁切；未修改 UiKit 或商店实现。
 - 第三轮统一看图说明及原生前后对照在 `design/audits/visual_fixes_2026_09_03/`。
+
+# 2026-09-03 · F-X2 发布本地化接入补验
+
+- 聚合门禁发现等级徽章直接包含英文等级格式，不符合发布文案检查；改为复用已有“等级%d”本地化模板，未修改检查器或任何翻译文案。
+- 文案 / 本地化门禁通过，四主题双语 16 张武器卡重新实拍仍全部 issues=[]；最终聚合门禁重新执行，首次失败日志保留供追溯。
