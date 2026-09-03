@@ -842,6 +842,11 @@ func _initialize() -> void:
 							weapon_ability_tag_count += 1
 							_expect(not tag_copy.ends_with(" 0") and not tag_copy.ends_with(" 0°") and not tag_copy.ends_with("+0"), "%s weapon %s must suppress zero-value mechanism pills" % [semantic_language, semantic_row.name])
 				if semantic_mode == "weapons":
+					var authorized_title_size := UiKit.scaled_font_size(main.current_scene.WEAPON_LIST_TITLE_FONT_SIZE_EN if semantic_language == "en" else main.current_scene.WEAPON_LIST_TITLE_FONT_SIZE_ZH)
+					_expect(semantic_title.get_theme_font_size("font_size") >= authorized_title_size, "weapon catalog titles must retain their full authorized bilingual font")
+					_expect(semantic_title.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART and not semantic_title.clip_text, "weapon catalog titles must wrap naturally without clipping")
+					_expect(semantic_row.has_node("LevelBadge"), "weapon catalog levels must use a separate badge")
+					_expect(_label_required_height_for_smoke(semantic_title) <= semantic_title.size.y, "weapon catalog title height must contain all name lines")
 					var expected_mechanism := ""
 					match semantic_row.name:
 						"weapon_autocannon":

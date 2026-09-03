@@ -28,6 +28,9 @@ const CATALOG_LIST_TEXT_X := 272.0
 const CATALOG_LIST_ACTION_X := 686.0
 const CATALOG_LIST_TEXT_WIDTH := 382.0
 const CATALOG_LIST_TITLE_WIDTH := 588.0
+const WEAPON_LIST_TITLE_FONT_SIZE_EN := 23
+const WEAPON_LIST_TITLE_FONT_SIZE_ZH := 27
+const WEAPON_LIST_LEVEL_GAP := 12.0
 const CATALOG_LIST_SKILL_INFO_X := 782.0
 const CATALOG_LIST_SKILL_LEVEL_X := 652.0
 const SKILL_CARD_TEXT_WIDTH := 498.0
@@ -90,6 +93,7 @@ var _loadout_return_payload := {}
 var _detail_modal: Control = null
 var _appearance_selector: CanvasLayer = null
 var _refresh_generation := 0
+var _weapon_title_geometry := Vector2(CATALOG_LIST_TITLE_WIDTH, COLLECTION_LIST_TITLE_HEIGHT)
 
 func _loc(zh: String, en: String) -> String:
 	return en if LocalizationManager.is_english() else zh
@@ -200,6 +204,8 @@ func _refresh() -> void:
 		item_list.remove_child(child)
 		child.queue_free()
 	var table_data: Dictionary = _table()
+	if mode == "weapons":
+		_weapon_title_geometry = _measure_weapon_title_geometry(table_data)
 	for item_id: String in table_data.keys():
 		var row: Dictionary = table_data[item_id]
 		var premium_entitlement := str(row.get("premium_entitlement", "")).strip_edges()
@@ -239,6 +245,30 @@ func _refresh_resource_bar() -> void:
 
 func _uses_spacious_collection_cards() -> bool:
 	return mode in ["weapons", "armors", "chips", "pets"]
+
+func _weapon_level_text(level: int, english: bool) -> String:
+	return (("Lv.%d" if english else "等级%d") % level) + _tier_suffix(level)
+
+func _measure_weapon_title_geometry(table: Dictionary) -> Vector2:
+	# Preserve the bilingual shared-card ruler, but derive it from the longest
+	# real name / level badge instead of forcing text into a fixed one-line lane.
+	var font := get_theme_default_font()
+	var badge_width := 0.0
+	for item_id in table:
+		for english in [false, true]:
+			var font_size := UiKit.scaled_font_size(WEAPON_LIST_TITLE_FONT_SIZE_EN if english else WEAPON_LIST_TITLE_FONT_SIZE_ZH)
+			badge_width = maxf(badge_width, font.get_string_size(_weapon_level_text(SaveManager.get_item_level(item_id), english), HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x + 22.0)
+	var title_width := CATALOG_LIST_TITLE_WIDTH - ceilf(badge_width) - WEAPON_LIST_LEVEL_GAP
+	var title_height := COLLECTION_LIST_TITLE_HEIGHT
+	for language in ["zh", "en"]:
+		var names: Dictionary = DataLoader.get_table("localization_" + language)
+		var font_size := UiKit.scaled_font_size(WEAPON_LIST_TITLE_FONT_SIZE_EN if language == "en" else WEAPON_LIST_TITLE_FONT_SIZE_ZH)
+		for row: Dictionary in table.values():
+			var key := str(row.get("name_key", ""))
+			var measured := font.get_multiline_string_size(str(names.get(key, key)), HORIZONTAL_ALIGNMENT_LEFT, title_width - 4.0, font_size)
+			var lines := maxi(1, ceili(measured.y / font.get_height(font_size)))
+			title_height = maxf(title_height, ceilf(measured.y + (lines - 1) * get_theme_constant("line_spacing", "Label") + 4.0))
+	return Vector2(title_width, title_height)
 
 func _title() -> String:
 	match mode:
@@ -307,6 +337,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# reserved a mostly-empty two-line title block while Chinese compressed its
 	# tags against the title, so changing language visibly reflowed the catalog.
 	var card_height := 370.0 if mode == "characters" else CATALOG_LIST_CARD_HEIGHT
+	var title_extra_height := _weapon_title_geometry.y - COLLECTION_LIST_TITLE_HEIGHT if mode == "weapons" else 0.0
+	card_height += title_extra_height
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(card_width, card_height)
@@ -369,6 +401,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var title := Label.new()
 	title.name = "Title"
 	title.text = "%s  等级%d%s" % [DataLoader.tr_key(row.get("name_key", item_id)), item_level, _tier_suffix(item_level)]
+	if mode == "weapons":
+		title.text = DataLoader.tr_key(row.get("name_key", item_id))
 	var text_x := CHARACTER_LIST_TEXT_X if mode == "characters" else CATALOG_LIST_TEXT_X
 	title.position = Vector2(text_x, COLLECTION_LIST_TITLE_Y)
 	# The title occupies the otherwise-empty upper-right of the card.  Keep the
@@ -385,15 +419,26 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# Keep every catalog title on the same one-line baseline. Only genuinely long
 	# localized names shrink to fit; ordinary Chinese and English names retain the
 	# full mobile-readable size and the exact same interval before metadata tags.
-	UiKit.fit_label_text(title, UiKit.scaled_font_size(title_font_size), UiKit.scaled_font_size(18), 2.0, 2.0)
-	title.clip_text = true
+	if mode == "weapons":
+		title.size = _weapon_title_geometry
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		title.clip_text = false
+	else:
+		UiKit.fit_label_text(title, UiKit.scaled_font_size(title_font_size), UiKit.scaled_font_size(18), 2.0, 2.0)
+		title.clip_text = true
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 	title.z_index = 2
+	if mode == "weapons":
+		var level_badge := UiKit.semantic_tag_pill(_weapon_level_text(item_level, english_layout), "status", title_font_size)
+		level_badge.name = "LevelBadge"
+		button.add_child(level_badge)
+		level_badge.position = Vector2(text_x + _weapon_title_geometry.x + WEAPON_LIST_LEVEL_GAP, COLLECTION_LIST_TITLE_Y)
+		level_badge.z_index = 2
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
-	tag_row.position = Vector2(text_x, COLLECTION_LIST_TAG_Y)
+	tag_row.position = Vector2(text_x, COLLECTION_LIST_TAG_Y + title_extra_height)
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
@@ -416,7 +461,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var desc := Label.new()
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
-	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y)
+	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y + title_extra_height)
 	# Locked English signature previews need up to five lines at the fixed mobile
 	# type size. Reserve their measured 195px plus rounding headroom; the taller
 	# character card keeps this lane and the action button inside its frame.
@@ -462,6 +507,7 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 				action_callback = _purchase_item_flow.bind(item_id, row)
 		var action_size := Vector2(176, 76) if spacious else Vector2(174, 72)
 		var action_pos := Vector2(CHARACTER_LIST_ACTION_X if mode == "characters" else CATALOG_LIST_ACTION_X, 238.0 if mode == "characters" else EQUIPMENT_LIST_ACTION_Y)
+		action_pos.y += title_extra_height
 		var action_btn := _card_action_button("CardActionButton", action_text, action_enabled, action_primary, action_pos, action_size)
 		if not action_cost_spec.is_empty():
 			UiKit.apply_resource_cost(

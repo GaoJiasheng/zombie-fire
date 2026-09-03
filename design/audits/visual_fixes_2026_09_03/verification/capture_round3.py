@@ -69,6 +69,8 @@ def main():
         rows.append({"route": route, "label": label, "payload": payload, "capture_exit": code, "issues": issues, "png": path.name})
         (output / "manifest.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"[{index}/{len(screens)}] {label}: exit={code} issues={issues}", flush=True)
+        if code:
+            return code
     return int(any(row["capture_exit"] or row["issues"] for row in rows))
 
 
