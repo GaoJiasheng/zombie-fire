@@ -4923,3 +4923,9 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 将关卡 / 弱点行从等宽网格拆为内容驱动横排，弱点使用自然最小宽度、关卡使用其余空间；战力 / 推荐行仍沿用原布局。
 - 英文关卡值需 369px、实得 491px；挑战模式需 392px、实得 492px。三个尺寸、双语均保持授权字号，原文完整，不改任何战力、推荐值或星级尺子。
 - 六张复拍 issues=[]，12 组 M1 专项断言通过。证据：`design/audits/visual_fixes_2026_09_03/x4/`。
+
+# 2026-09-03 · A5 购买完成弹窗只读复核
+
+- 使用 store 路由、debug_complete_store_purchase 与 FULL_STORE_SAVE_OVERRIDE，四张中英标准 / 高屏截图均 issues=[]。
+- 确认“立即应用整套 / Apply Full Look”在上、“逐个角色换装 / Dress Heroes”在下，无裁切；未修改 UiKit 或商店实现。
+- 第三轮统一看图说明及原生前后对照在 `design/audits/visual_fixes_2026_09_03/`。
