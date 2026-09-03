@@ -1457,8 +1457,14 @@ static func confirm_modal(host: Node, opts: Dictionary) -> CanvasLayer:
 	var action_size := Vector2(484, 96) if stack_actions else Vector2(236, 96)
 	var cancel_btn := _modal_button(str(opts.get("cancel_text", "取消")), GREY_500, false, button_font_size, button_optical_y, action_size)
 	var confirm_btn := _modal_button(str(opts.get("confirm_text", "购买")), accent, true, button_font_size, button_optical_y, action_size)
-	btns.add_child(cancel_btn)
-	btns.add_child(confirm_btn)
+	# Owner 2026-09-03: when the actions stack vertically the primary action reads
+	# first; the side-by-side layout keeps cancel on the left as before.
+	if stack_actions:
+		btns.add_child(confirm_btn)
+		btns.add_child(cancel_btn)
+	else:
+		btns.add_child(cancel_btn)
+		btns.add_child(confirm_btn)
 	var on_confirm: Callable = opts.get("on_confirm", Callable())
 	var on_cancel: Callable = opts.get("on_cancel", Callable())
 	var closed := [false]
