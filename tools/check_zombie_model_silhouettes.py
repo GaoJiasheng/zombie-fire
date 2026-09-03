@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +12,8 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 PROD = ROOT / "assets" / "production"
-SOURCE_DIR = PROD / "source_refs" / "generated" / "zombie_model_redo_2026_07_26"
+SOURCE_REFS_ROOT = Path(os.environ["ZOMBIE_FIRE_SOURCE_REFS_ROOT"]).expanduser().resolve() if os.environ.get("ZOMBIE_FIRE_SOURCE_REFS_ROOT", "").strip() else ROOT
+SOURCE_DIR = SOURCE_REFS_ROOT / "assets" / "production" / "source_refs" / "generated" / "zombie_model_redo_2026_07_26"
 ANIM_DIR = PROD / "sprites" / "animations" / "zombies"
 ZOMBIE_DIR = PROD / "sprites" / "zombies"
 
@@ -53,7 +55,11 @@ def fail(message: str) -> None:
 
 def load_rgba(path: Path) -> Image.Image:
     if not path.exists():
-        fail(f"missing {path.relative_to(ROOT)}")
+        try:
+            display_path = path.relative_to(ROOT)
+        except ValueError:
+            display_path = path
+        fail(f"missing {display_path}")
     return Image.open(path).convert("RGBA")
 
 

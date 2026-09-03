@@ -164,13 +164,24 @@ func _initialize() -> void:
 	_expect(data_loader.tr_key(starter_weapon.get("name_key", "")) == "自动机枪", "starter weapon must be displayed as 自动机枪, not a cannon")
 	_expect(str(starter_weapon.get("turret", "")) == "res://assets/production/sprites/weapons/weapon_autocannon_turret.png", "starter weapon prototype must use the production machine-gun fallback asset")
 	var scatter_weapon: Dictionary = data_loader.get_row("weapons", "weapon_scattergun")
-	# Owner 2026-09-02: the free scattergun ships with a flat five-pellet fan at every
-	# level. The 99x10 campaign validation was signed off on that contract; a pellet
-	# ladder is a balance change and needs its own approval + re-validation.
+	# Owner 2026-09-02: keep the three nearly even permanent-level bands while
+	# restoring their projectile counts to 3 at Lv1-17, 4 at Lv18-34, and 5 at Lv35-50.
+	# The authored five-pellet value remains the hard runtime cap.
 	var pellet_growth: Array = scatter_weapon.get("special", {}).get("pellet_growth", [])
-	_expect(pellet_growth.is_empty(), "free scattergun must not author a pellet ladder without Owner approval")
-	for pellet_level in [1, 24, 25, 49, 50]:
-		_expect(save_manager.weapon_pellet_count_from_row(scatter_weapon, pellet_level) == 5, "scattergun must fire five pellets at level %d" % pellet_level)
+	_expect(pellet_growth.size() == 3, "free scattergun must author the approved three-step pellet ladder")
+	var expected_scatter_pellets := {
+		1: 3,
+		17: 3,
+		18: 4,
+		34: 4,
+		35: 5,
+		50: 5,
+	}
+	for pellet_level in expected_scatter_pellets:
+		_expect(
+			save_manager.weapon_pellet_count_from_row(scatter_weapon, pellet_level) == int(expected_scatter_pellets[pellet_level]),
+			"scattergun must fire %d pellets at level %d" % [int(expected_scatter_pellets[pellet_level]), pellet_level],
+		)
 	_expect(save_manager.weapon_pellet_count_from_row(starter_weapon, 1) == 1, "weapons without pellet growth must retain their authored projectile count")
 	_verify_starter_projectile_hierarchy(data_loader)
 	_expect(data_loader.level_display_name("level_002") == "002 城市突围", "level display names must hide internal ids")
@@ -222,6 +233,7 @@ func _initialize() -> void:
 	await _verify_endless_mode(save_manager)
 	await _verify_boss_resistance_and_regeneration(data_loader)
 	await _verify_enemy_hit_flash_scope(data_loader)
+	await _verify_enemy_hud_exclusion_layout(data_loader)
 	_verify_ice_slow_visual_tint(data_loader)
 	await _verify_status_vfx_layers(data_loader)
 	await _verify_medic_pet_repair_runtime(data_loader, save_manager, smoke_save_snapshot)
@@ -3748,7 +3760,7 @@ func _verify_all_skill_offer_copy_layouts(battle: Node) -> void:
 			_expect(_label_required_height_for_smoke(stats) <= stats.size.y + 0.5, "%s %s stats must reserve automatic wrapped lines" % [language, card.name])
 			_expect(_label_required_height_for_smoke(desc) <= desc.size.y + 0.5, "%s %s description must reserve automatic wrapped lines" % [language, card.name])
 			_expect(stats.position.y + stats.size.y + battle.CARD_OFFER_COPY_GAP <= desc.position.y + 0.5, "%s %s description must begin below the complete stats block" % [language, card.name])
-			_expect(desc.position.y + desc.size.y + battle.CARD_OFFER_COPY_GAP <= tags.position.y + 0.5, "%s %s tags must begin below the complete description block" % [language, card.name])
+			_expect(desc.position.y + desc.size.y + battle.CARD_OFFER_DESC_TAG_GAP <= tags.position.y + 0.5, "%s %s tags must keep a dedicated quiet lane below the complete description block" % [language, card.name])
 			_expect(tags.position.y + tags.size.y + battle.CARD_OFFER_BOTTOM_PADDING <= card.size.y + 0.5, "%s %s card must grow to contain every wrapped lane" % [language, card.name])
 			language_card_heights.append(card.size.y)
 		# Any possible three-card offer must still fit above the primary actions and
@@ -4331,6 +4343,11 @@ func _verify_ammo_element_rules(save_manager: Node) -> void:
 	_expect(paid_ammo_offers.has("skill_incendiary"), "paid lightning weapon must offer fire ammo")
 	_expect(paid_ammo_offers.has("skill_cryo"), "paid lightning weapon must offer ice ammo")
 	_expect(paid_ammo_offers.has("skill_venom"), "paid lightning weapon must offer poison ammo")
+	var paid_locked_ammo_offers := director.offer({"card_bias": {}, "threat_tags": []}, {"skill_cryo": 1}, 16)
+	_expect(paid_locked_ammo_offers.has("skill_cryo"), "chosen paid-weapon ammo must remain eligible for upgrades")
+	_expect(not paid_locked_ammo_offers.has("skill_incendiary"), "paid weapon must not offer fire ammo after ice ammo is chosen")
+	_expect(not paid_locked_ammo_offers.has("skill_tesla"), "paid weapon must not offer lightning ammo after ice ammo is chosen")
+	_expect(not paid_locked_ammo_offers.has("skill_venom"), "paid weapon must not offer poison ammo after ice ammo is chosen")
 
 	var free_power: int = int(save_manager.power_for_build("level_089", {
 		"weapon": {"id": "weapon_plasmacannon", "level": 40},
@@ -5152,9 +5169,9 @@ func _verify_projectile_visual_profiles() -> void:
 	var plain_lanes: int = int(battle._resolved_weapon_lane_count(0, false, 1))
 	var multishot_lanes: int = int(battle._resolved_weapon_lane_count(1, false, 1))
 	var stacked_lanes: int = int(battle._resolved_weapon_lane_count(1, true, 1))
-	# Owner 2026-09-02: multishot lanes are a rigid fixed-angle fan and every lane
-	# carries its own nested pellet fan (approved 99x10 contract). Counts compose
-	# multiplicatively; the flattened single-fan experiment was reverted.
+	# Owner 2026-09-02: scatter pellets and outer lanes still compose
+	# multiplicatively, but the final visible fan must use one equal angular gap.
+	# Nested sub-fans create paired shots in the middle and oversized edge gaps.
 	var smoke_fan := func(lanes: int) -> Array[Vector2]:
 		var dirs: Array[Vector2] = []
 		var step := deg_to_rad(7.0)
@@ -5164,6 +5181,14 @@ func _verify_projectile_visual_profiles() -> void:
 	_expect(battle._lane_pellet_directions(smoke_fan.call(plain_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == max_scatter_pellets, "scattergun alone must fire its authored pellet count")
 	_expect(battle._lane_pellet_directions(smoke_fan.call(multishot_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == multishot_lanes * max_scatter_pellets, "scattergun with Multishot must stack lanes x pellets")
 	_expect(battle._lane_pellet_directions(smoke_fan.call(stacked_lanes), max_scatter_pellets, deg_to_rad(18.0)).size() == stacked_lanes * max_scatter_pellets, "scattergun, Multishot and Vanguard Barrage must stack lanes x pellets")
+	for lane_count in [multishot_lanes, stacked_lanes]:
+		var source_lanes: Array[Vector2] = smoke_fan.call(lane_count)
+		var composed_fan: Array[Vector2] = battle._lane_pellet_directions(source_lanes, max_scatter_pellets, deg_to_rad(18.0), Vector2.UP)
+		var composed_span := deg_to_rad(18.0) + deg_to_rad(7.0) * float(lane_count - 1)
+		var composed_gap := composed_span / float(composed_fan.size() - 1)
+		for index in range(1, composed_fan.size()):
+			var actual_gap := absf(composed_fan[index - 1].angle_to(composed_fan[index]))
+			_expect(absf(actual_gap - composed_gap) <= 0.0001, "%d-lane scatter composition must keep identical adjacent gaps" % lane_count)
 	var single_lane: Array[Vector2] = [Vector2.UP]
 	for final_count in [7, 9]:
 		var dense_fan: Array[Vector2] = battle._lane_pellet_directions(single_lane, final_count, deg_to_rad(18.0))
@@ -5634,6 +5659,20 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		input_manager.skill_pressed.emit(0)
 		await process_frame
 		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from shortcut signal" % character_key)
+		var active_sequence_id := "vfx_active_%s" % str(battle.character_active_id)
+		var first_cast_sequence = null
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				first_cast_sequence = child
+		_expect(first_cast_sequence != null, "%s first active-skill cast must spawn its signature sequence" % character_key)
+		if first_cast_sequence != null:
+			_expect(bool(first_cast_sequence.use_unscaled_time), "%s active-skill signature must use real-time playback at accelerated battle speed" % character_key)
+			var elapsed_before_speed_probe := float(first_cast_sequence.elapsed)
+			var prior_time_scale := Engine.time_scale
+			Engine.time_scale = 5.0
+			first_cast_sequence._process(0.5)
+			Engine.time_scale = prior_time_scale
+			_expect(absf((float(first_cast_sequence.elapsed) - elapsed_before_speed_probe) - 0.1) <= 0.001, "%s active-skill signature must not compress fivefold at 5X" % character_key)
 		if character_key == "frost" and is_instance_valid(frost_probe):
 			_expect(float(battle.sig_frost_glacier_timer) >= 4.8, "frost glacier must run for about five seconds")
 			battle._process_frost_glacier(0.08)
@@ -5646,6 +5685,10 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 
 		battle.character_active_cd = 0.0
 		battle._update_character_skill_button()
+		var active_sequences_before_second_cast := 0
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				active_sequences_before_second_cast += 1
 		var center := button.get_global_rect().get_center()
 		var motion := InputEventMouseMotion.new()
 		motion.position = center
@@ -5668,6 +5711,11 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 		await process_frame
 		_expect(root.gui_get_hovered_control() == button, "%s active skill button must be the hovered control at its visual center" % character_key)
 		_expect(float(battle.character_active_cd) > 0.0, "%s active skill must trigger from real mouse/touch click" % character_key)
+		var active_sequences_after_second_cast := 0
+		for child in battle.get_node("ProjectileLayer").get_children():
+			if child is SequenceVfx and str(child.sequence_id) == active_sequence_id:
+				active_sequences_after_second_cast += 1
+		_expect(active_sequences_after_second_cast > active_sequences_before_second_cast, "%s second active-skill cast must spawn a fresh signature sequence" % character_key)
 		_expect(not button.disabled, "%s cooling active skill must remain tappable for its description" % character_key)
 		var cast_count_after_ready_tap := int(battle.battle_active_skill_casts)
 		var cooldown_after_ready_tap := float(battle.character_active_cd)
@@ -6112,6 +6160,36 @@ func _verify_enemy_hit_flash_scope(data_loader: Node) -> void:
 	await process_frame
 	var normal_canvas := normal_enemy as CanvasItem
 	_expect(_color_close(normal_canvas.modulate, Color.WHITE), "enemy hit feedback must keep HP/status children out of the flash tint")
+	normal_enemy.queue_free()
+	await process_frame
+
+func _verify_enemy_hud_exclusion_layout(data_loader: Node) -> void:
+	var exclusion := Rect2(150.0, 120.0, 780.0, 150.0)
+	var boss_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(boss_enemy)
+	boss_enemy.call("setup", data_loader.get_row("bosses", "boss_tank_titan").duplicate(true), 1.0, true)
+	root.add_child(boss_enemy.threat_marker)
+	boss_enemy.position = Vector2(540.0, 330.0)
+	boss_enemy.call("set_hud_exclusion_rect", exclusion, true)
+	_expect(not boss_enemy.threat_marker.visible, "Boss world nameplate must hide while the authoritative HUD Boss band is visible")
+	_expect(not (boss_enemy.get_node("HpBar") as Control).visible, "Boss world HP rail must hide while the authoritative HUD Boss band is visible")
+	if boss_enemy.has_node("ArmorBar"):
+		_expect(not (boss_enemy.get_node("ArmorBar") as Control).visible, "Boss world armor rail must hide while the authoritative HUD Boss band is visible")
+	boss_enemy.queue_free()
+	await process_frame
+
+	var normal_enemy: Node = _instance("res://gameplay/enemy/enemy.tscn")
+	root.add_child(normal_enemy)
+	var normal_row: Dictionary = data_loader.get_row("zombies", "zombie_runner").duplicate(true)
+	normal_row["threat_tags"] = ["breach"]
+	normal_enemy.call("setup", normal_row, 1.0, false)
+	root.add_child(normal_enemy.threat_marker)
+	normal_enemy.position = Vector2(540.0, 240.0)
+	normal_enemy.call("set_hud_exclusion_rect", exclusion, true)
+	var marker := normal_enemy.threat_marker as Label
+	_expect(marker.visible, "normal world nameplates must remain visible after HUD collision avoidance")
+	_expect(not marker.get_global_rect().intersects(exclusion), "HUD Boss band must not intersect any visible world nameplate Label")
+	_expect(marker.get_global_rect().position.y >= exclusion.end.y, "world nameplate collision avoidance must push labels below the complete Boss HUD group")
 	normal_enemy.queue_free()
 	await process_frame
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -11,10 +12,11 @@ from PIL import Image, ImageChops
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SOURCE_REFS_ROOT = Path(os.environ["ZOMBIE_FIRE_SOURCE_REFS_ROOT"]).expanduser().resolve() if os.environ.get("ZOMBIE_FIRE_SOURCE_REFS_ROOT", "").strip() else ROOT
 COMBO_ROOT = ROOT / "assets" / "production" / "sprites" / "animations" / "character_weapon_combos"
 BATTLE_SCRIPT = ROOT / "gameplay" / "battle" / "battle.gd"
 MANIFEST_PATH = (
-    ROOT
+    SOURCE_REFS_ROOT
     / "assets"
     / "production"
     / "source_refs"

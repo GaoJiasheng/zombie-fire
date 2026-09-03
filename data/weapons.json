@@ -151,7 +151,21 @@
 		"projectile_speed": 1250,
 		"special": {
 			"pellets": 5,
-			"spread": 18
+			"spread": 18,
+			"pellet_growth": [
+				{
+					"from_level": 1,
+					"pellets": 3
+				},
+				{
+					"from_level": 18,
+					"pellets": 4
+				},
+				{
+					"from_level": 35,
+					"pellets": 5
+				}
+			]
 		},
 		"rarity": "rare",
 		"max_level": 50,

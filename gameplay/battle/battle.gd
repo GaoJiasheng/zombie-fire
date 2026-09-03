@@ -367,9 +367,10 @@ const CARD_OFFER_TEXT_X := 252.0
 const CARD_OFFER_TEXT_WIDTH := 584.0
 const CARD_OFFER_COPY_TOP_Y := 82.0
 const CARD_OFFER_COPY_GAP := 8.0
+const CARD_OFFER_DESC_TAG_GAP := 16.0
 const CARD_OFFER_CARD_SEPARATION := 10
 const CARD_OFFER_TAG_MIN_HEIGHT := 48.0
-const CARD_OFFER_BOTTOM_PADDING := 28.0
+const CARD_OFFER_BOTTOM_PADDING := 20.0
 const CARD_DETAIL_LEVELS_BODY_FONT_SIZE := 15
 const CARD_DETAIL_DESCRIPTION_FONT_SIZE := 17
 const CARD_DETAIL_TAGS_FONT_SIZE := 15
@@ -2023,13 +2024,13 @@ func _active_skill_can_continue() -> bool:
 func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> void:
 	AudioManager.play_sfx(sfx_id, -2.0, 0.02)
 	_show_wave_toast(title, color)
-	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16)
+	_show_screen_flash(Color(color.r, color.g, color.b, 0.08), 0.16, true)
 	_active_skill_screen_shake(5.5, 0.12)
 	var cast_origin := _weapon_fire_origin()
 	_spawn_character_theme_cast_signature(cast_origin, color)
 	if sfx_id.begins_with("sig_"):
 		if character_active_id != "":
-			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true)
+			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true, true)
 		return
 	var sequence_id := "vfx_levelup_glow"
 	match sfx_id:
@@ -3211,6 +3212,7 @@ func _update_boss_hp_bar() -> void:
 		_refresh_active_boss()
 	if active_boss == null or not is_instance_valid(active_boss):
 		boss_hp_bar.visible = false
+		_sync_enemy_world_overlay_clearance()
 		return
 	var ratio := clampf(float(active_boss.hp) / maxf(float(active_boss.max_hp), 1.0), 0.0, 1.0)
 	var armor_max := maxf(float(active_boss.get("armor_hp_max")), 0.0)
@@ -3218,6 +3220,7 @@ func _update_boss_hp_bar() -> void:
 	var has_armor_layer := armor_max > 0.0
 	if paused:
 		boss_hp_bar.visible = false
+		_sync_enemy_world_overlay_clearance()
 		return
 	boss_hp_bar.visible = true
 	boss_hp_bar.size.y = BOSS_HP_HUD_SIZE.y if has_armor_layer else 96.0
@@ -3258,7 +3261,20 @@ func _update_boss_hp_bar() -> void:
 		12.0,
 		4.0
 	)
+	_sync_enemy_world_overlay_clearance()
 	_refresh_visible_wave_toast_boss_clearance()
+
+func _sync_enemy_world_overlay_clearance(enemies: Array = []) -> void:
+	var exclusion_active := (
+		boss_hp_bar != null
+		and is_instance_valid(boss_hp_bar)
+		and boss_hp_bar.visible
+	)
+	var exclusion_rect := boss_hp_bar.get_global_rect().grow(10.0) if exclusion_active else Rect2()
+	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
+	for enemy in candidates:
+		if is_instance_valid(enemy) and enemy.has_method("set_hud_exclusion_rect"):
+			enemy.call("set_hud_exclusion_rect", exclusion_rect, exclusion_active)
 
 func _refresh_visible_wave_toast_boss_clearance() -> void:
 	if wave_toast_banner == null or not is_instance_valid(wave_toast_banner) or not wave_toast_banner.visible:
@@ -5357,16 +5373,58 @@ func _on_turret_fired(origin: Vector2, direction: Vector2) -> void:
 	if shots >= 3:
 		_spawn_salvo_fan_vfx(origin, direction, maxf(lane_spread, pellet_spread), shots, element, visual_profile)
 
-func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, _aim_anchor := Vector2.ZERO) -> Array[Vector2]:
-	var result: Array[Vector2] = []
+func _lane_pellet_directions(lane_directions: Array[Vector2], pellet_count: int, pellet_spread: float, aim_anchor := Vector2.ZERO) -> Array[Vector2]:
+	var normalized_lanes: Array[Vector2] = []
 	for lane_direction in lane_directions:
-		var center := lane_direction.normalized()
-		if pellet_count <= 1 or pellet_spread <= 0.0:
-			result.append(center)
-			continue
-		for pellet_index in range(pellet_count):
-			var t := 0.5 if pellet_count == 1 else float(pellet_index) / float(pellet_count - 1)
-			result.append(center.rotated(lerpf(-pellet_spread * 0.5, pellet_spread * 0.5, t)).normalized())
+		if lane_direction.length_squared() > 0.01:
+			normalized_lanes.append(lane_direction.normalized())
+	if normalized_lanes.is_empty():
+		return normalized_lanes
+	if pellet_count <= 1 or pellet_spread <= 0.0:
+		return normalized_lanes
+
+	# Multishot lanes and native scatter pellets are two count sources, but they
+	# must present as one evenly spaced rigid fan. Nesting a full pellet fan inside
+	# every lane produces near-overlapping pairs in the middle and oversized gaps
+	# at both edges (most visibly with 2 lanes x 5 pellets). Preserve the composed
+	# projectile count and the original outer envelope, then distribute every shot
+	# across that envelope with one identical angular step.
+	var center_sum := Vector2.ZERO
+	for lane_direction in normalized_lanes:
+		center_sum += lane_direction
+	var center := center_sum.normalized() if center_sum.length_squared() > 0.01 else normalized_lanes[0]
+	var lane_half_span := 0.0
+	for lane_direction in normalized_lanes:
+		lane_half_span = maxf(lane_half_span, absf(center.angle_to(lane_direction)))
+	var total_shots := normalized_lanes.size() * maxi(pellet_count, 1)
+	var total_span := lane_half_span * 2.0 + pellet_spread
+	var step := total_span / float(maxi(total_shots - 1, 1))
+	var result: Array[Vector2] = []
+	for index in range(total_shots):
+		result.append(center.rotated(-total_span * 0.5 + step * float(index)).normalized())
+
+	# _primary_shot_directions has already guaranteed a source lane through the
+	# intended target. Rotate the complete fan as one rigid body so the closest
+	# final shot retains that guarantee without disturbing equal spacing.
+	if aim_anchor.length_squared() > 0.01:
+		var safe_anchor := aim_anchor.normalized()
+		var source_anchor := normalized_lanes[0]
+		var source_angle := INF
+		for lane_direction in normalized_lanes:
+			var candidate_angle := absf(lane_direction.angle_to(safe_anchor))
+			if candidate_angle < source_angle:
+				source_angle = candidate_angle
+				source_anchor = lane_direction
+		var result_anchor_index := 0
+		var result_angle := INF
+		for index in range(result.size()):
+			var candidate_angle := absf(result[index].angle_to(source_anchor))
+			if candidate_angle < result_angle:
+				result_angle = candidate_angle
+				result_anchor_index = index
+		var correction := result[result_anchor_index].angle_to(source_anchor)
+		for index in range(result.size()):
+			result[index] = result[index].rotated(correction).normalized()
 	return result
 
 func _resolved_weapon_lane_count(extra_projectiles: int, barrage_active: bool, source_character_level: int) -> int:
@@ -10721,13 +10779,13 @@ func _breach_attack_scale(kind: String) -> float:
 		_:
 			return 1.0
 
-func _spawn_vfx_sequence(sequence_id: String, position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0, priority := false) -> Node:
+func _spawn_vfx_sequence(sequence_id: String, position: Vector2, scale_mult := 1.0, tint := Color.WHITE, fps_mult := 1.0, rotation_rad := 0.0, grow_mult := 1.0, lift_vector := Vector2.ZERO, spin_rad := 0.0, priority := false, unscaled_playback := false) -> Node:
 	if not _can_spawn_projectile_fx(priority):
 		return null
 	var fx := SequenceVfx.new()
 	_track_transient_fx(fx, "projectile")
 	$ProjectileLayer.add_child(fx)
-	if not fx.setup(sequence_id, position, scale_mult, tint, fps_mult, rotation_rad, grow_mult, lift_vector, spin_rad):
+	if not fx.setup(sequence_id, position, scale_mult, tint, fps_mult, rotation_rad, grow_mult, lift_vector, spin_rad, unscaled_playback):
 		fx.queue_free()
 		return null
 	return fx
@@ -12572,7 +12630,10 @@ func _layout_skill_offer_card(card: Panel, forced_card_height := 0.0) -> void:
 	desc.position = Vector2(CARD_OFFER_TEXT_X, stats.position.y + stats_h + CARD_OFFER_COPY_GAP)
 	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, desc_h)
 	var tag_h := maxf(CARD_OFFER_TAG_MIN_HEIGHT, tags.get_combined_minimum_size().y)
-	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_COPY_GAP)
+	# Tag chips need their own larger quiet lane. At the global 1.5 font scale the
+	# final outlined glyphs of a wrapped Chinese description otherwise visually
+	# touch the chip border even when the controls' mathematical rects do not.
+	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_DESC_TAG_GAP)
 	tags.size = Vector2(CARD_OFFER_TEXT_WIDTH, tag_h)
 	var icon_bottom := CARD_OFFER_ICON_FRAME_POS.y + CARD_OFFER_ICON_FRAME_SIZE.y + CARD_OFFER_BOTTOM_PADDING
 	var copy_bottom := tags.position.y + tag_h + CARD_OFFER_BOTTOM_PADDING
@@ -13333,7 +13394,7 @@ func _check_low_hp_warning() -> void:
 	_show_wave_toast("基地生命过低", Color(1.0, 0.12, 0.08))
 	_show_screen_flash(Color(1.0, 0.0, 0.0, 0.1), 0.2)
 
-func _show_screen_flash(color: Color, duration := 0.18) -> void:
+func _show_screen_flash(color: Color, duration := 0.18, unscaled_playback := false) -> void:
 	if screen_flash == null or not is_instance_valid(screen_flash):
 		screen_flash = TextureRect.new()
 		screen_flash.name = "ScreenFlash"
@@ -13351,6 +13412,7 @@ func _show_screen_flash(color: Color, duration := 0.18) -> void:
 	var alpha := minf(maxf(color.a, current_alpha), alpha_cap)
 	screen_flash.modulate = Color(color.r, color.g, color.b, alpha)
 	screen_flash_tween = screen_flash.create_tween()
+	screen_flash_tween.set_ignore_time_scale(unscaled_playback)
 	screen_flash_tween.tween_property(screen_flash, "modulate:a", 0.0, duration * (0.62 if SettingsManager.reduced_effects_enabled() else 1.0))
 
 ## 阶段 67：离开战斗必须归零环境混音，否则菜单/地图/结算会继续挂着战场的

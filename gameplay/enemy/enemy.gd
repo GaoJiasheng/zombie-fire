@@ -21,6 +21,7 @@ const NORMAL_SPRITE_SCALE := 0.32
 const BOSS_SPRITE_SCALE := 0.50
 const BURN_RISE_BLEND := 0.46
 const BURN_FALL_BLEND := 0.28
+const HUD_WORLD_OVERLAY_CLEARANCE := 10.0
 
 var data := {}
 var max_hp := 100.0
@@ -116,6 +117,8 @@ var _rank_aura: Sprite2D
 var _status_label: Label
 var _threat_marker_allowed := true
 var _status_label_allowed := true
+var _hud_exclusion_active := false
+var _hud_exclusion_rect := Rect2()
 ## Probe-only RNG isolation. Runtime keeps this null, preserving the legacy
 ## global RNG path exactly.
 var _audit_combat_rng: RandomNumberGenerator
@@ -221,6 +224,15 @@ func set_combat_label_visibility(show_threat: bool, show_status: bool) -> void:
 	_status_label_allowed = show_status
 	_sync_threat_marker_visibility()
 	_update_status_label()
+	_sync_world_overlay_clearance()
+
+func set_hud_exclusion_rect(exclusion_rect: Rect2, active: bool) -> void:
+	# The fixed HUD owns this screen-space band. World-space labels and local
+	# health rails must yield when an enemy enters beneath it, otherwise the
+	# two information layers become unreadable at the spawn edge.
+	_hud_exclusion_rect = exclusion_rect
+	_hud_exclusion_active = active and exclusion_rect.size.x > 0.0 and exclusion_rect.size.y > 0.0
+	_sync_world_overlay_clearance()
 
 func set_combat_effect_density(lod: String, priority := false) -> void:
 	if _status_vfx != null:
@@ -229,7 +241,13 @@ func set_combat_effect_density(lod: String, priority := false) -> void:
 func _sync_threat_marker_visibility() -> void:
 	if threat_marker == null or not is_instance_valid(threat_marker):
 		return
-	threat_marker.visible = _threat_marker_allowed and not threat_marker.text.is_empty()
+	# The HUD already carries the Boss identity, weakness and durability. Hide
+	# the duplicate world name while that authoritative band is visible.
+	threat_marker.visible = (
+		_threat_marker_allowed
+		and not threat_marker.text.is_empty()
+		and not (boss and _hud_exclusion_active)
+	)
 
 func _exit_tree() -> void:
 	if threat_marker == null or not is_instance_valid(threat_marker):
@@ -307,8 +325,7 @@ func _physics_process(delta: float) -> void:
 		if position.y >= attack_line_y:
 			_enter_base_attack()
 	if threat_marker and is_instance_valid(threat_marker):
-		var offset_y := -110.0 if not boss else -190.0
-		threat_marker.position = global_position + Vector2(-110.0, offset_y)
+		_sync_world_overlay_clearance()
 
 func _configure_base_attack() -> void:
 	base_attack_damage = breach_damage
@@ -945,6 +962,54 @@ func _update_hp_bar_position() -> void:
 	_hp_bg.position = Vector2(-width / 2.0, y)
 	if _armor_bg != null:
 		_armor_bg.position = Vector2(-width / 2.0, y - (26.0 if boss else 20.0))
+
+func _sync_world_overlay_clearance() -> void:
+	var marker_offset_y := -110.0 if not boss else -190.0
+	if threat_marker != null and is_instance_valid(threat_marker):
+		var marker_position := global_position + Vector2(-110.0, marker_offset_y)
+		if _hud_exclusion_active and not boss:
+			var marker_rect := Rect2(marker_position, threat_marker.size)
+			if marker_rect.intersects(_hud_exclusion_rect):
+				marker_position.y = _hud_exclusion_rect.end.y + HUD_WORLD_OVERLAY_CLEARANCE
+		threat_marker.position = marker_position
+	_sync_threat_marker_visibility()
+
+	if _hp_bg == null or not is_instance_valid(_hp_bg):
+		return
+	var width := _hp_bg.size.x
+	var hp_y := -118.0 if not boss else -206.0
+	_hp_bg.position = Vector2(-width / 2.0, hp_y)
+	if _armor_bg != null and is_instance_valid(_armor_bg):
+		_armor_bg.position = Vector2(-width / 2.0, hp_y - (26.0 if boss else 20.0))
+	if _status_label != null and is_instance_valid(_status_label):
+		_status_label.position = Vector2(-170.0, -154.0 if not boss else -254.0)
+
+	if not _hud_exclusion_active:
+		return
+	var rail_top := _armor_bg.position.y if _armor_bg != null and is_instance_valid(_armor_bg) and _armor_bg.visible else _hp_bg.position.y
+	var rail_bottom := _hp_bg.position.y + _hp_bg.size.y
+	var rail_rect := Rect2(global_position + Vector2(-width / 2.0, rail_top), Vector2(width, rail_bottom - rail_top))
+	if boss:
+		# Hide duplicate Boss rails only while they physically occupy the HUD band;
+		# once the model clears the spawn edge, the local readout may return.
+		if rail_rect.intersects(_hud_exclusion_rect):
+			_hp_bg.visible = false
+			if _armor_bg != null and is_instance_valid(_armor_bg):
+				_armor_bg.visible = false
+		if _status_label != null and is_instance_valid(_status_label) and _status_label.visible:
+			var boss_status_rect := Rect2(global_position + _status_label.position, _status_label.size)
+			if boss_status_rect.intersects(_hud_exclusion_rect):
+				_status_label.visible = false
+		return
+	if rail_rect.intersects(_hud_exclusion_rect):
+		var rail_shift := _hud_exclusion_rect.end.y + HUD_WORLD_OVERLAY_CLEARANCE - rail_rect.position.y
+		_hp_bg.position.y += rail_shift
+		if _armor_bg != null and is_instance_valid(_armor_bg):
+			_armor_bg.position.y += rail_shift
+	if _status_label != null and is_instance_valid(_status_label) and _status_label.visible:
+		var status_rect := Rect2(global_position + _status_label.position, _status_label.size)
+		if status_rect.intersects(_hud_exclusion_rect):
+			_status_label.position.y += _hud_exclusion_rect.end.y + HUD_WORLD_OVERLAY_CLEARANCE - status_rect.position.y
 
 func _update_hp_bar() -> void:
 	if _hp_bg == null or _hp_fill == null:
