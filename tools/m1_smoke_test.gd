@@ -1604,6 +1604,7 @@ func _initialize() -> void:
 	router.queue_free()
 	await _verify_settings_info_content_layout()
 	await _verify_character_detail_first_page_layout()
+	await _verify_loadout_stage_summary_layout()
 	audio_manager.release_for_tests()
 	for tween in get_processed_tweens():
 		tween.kill()
@@ -1693,6 +1694,37 @@ func _verify_character_detail_first_page_layout() -> void:
 				viewport.queue_free()
 				await process_frame
 	save_manager.save_data = saved
+	localization.apply_language(previous_language, false)
+
+func _verify_loadout_stage_summary_layout() -> void:
+	var localization := root.get_node("/root/LocalizationManager")
+	var previous_language := str(localization.current_language)
+	for native_size in [Vector2i(1080, 1920), Vector2i(1080, 2340), Vector2i(1320, 2868)]:
+		for language in ["zh", "en"]:
+			localization.apply_language(language, false)
+			for challenge in [false, true]:
+				var viewport := SubViewport.new()
+				viewport.size = Vector2i(1080, floori(float(native_size.y) * 1080.0 / float(native_size.x)))
+				root.add_child(viewport)
+				var loadout := _instance("res://meta/loadout/loadout.tscn")
+				loadout.setup(null, {"level_id": "level_099", "challenge": challenge})
+				viewport.add_child(loadout)
+				for frame in range(6):
+					await process_frame
+				var row := loadout.find_child("StageSummaryRow", true, false) as Control
+				var stage := row.get_node("StageMetric") as Control
+				var weakness := row.get_node("WeaknessMetric") as Control
+				var value := stage.get_node("Value") as Label
+				var text := str(TranslationServer.translate(value.text))
+				var required := value.get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, value.get_theme_font_size("font_size")).x
+				var context := "%s %s challenge=%s" % [str(native_size), language, str(challenge)]
+				_expect(required <= value.size.x, context + " full Stage 099 name and wave count must fit in one line")
+				_expect(value.get_theme_font_size("font_size") == UiKit.scaled_font_size(16 if language == "en" else 21), context + " stage value must retain its authorized font")
+				_expect(row.get_global_rect().encloses(stage.get_global_rect()) and row.get_global_rect().encloses(weakness.get_global_rect()), context + " stage and weakness must stay inside their content-driven row")
+				_expect(not stage.get_global_rect().intersects(weakness.get_global_rect()), context + " stage and weakness must remain separated")
+				print("ROUND3_LOADOUT ", context, " needed=", required, " available=", value.size.x)
+				viewport.queue_free()
+				await process_frame
 	localization.apply_language(previous_language, false)
 
 func _instance(path: String) -> Node:

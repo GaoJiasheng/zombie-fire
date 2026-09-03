@@ -576,14 +576,27 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(divider)
 
+	# Weakness takes its natural width; Stage receives the remainder instead of
+	# being forced into half a row beside a much shorter value.
+	var stage_row := HBoxContainer.new()
+	stage_row.name = "StageSummaryRow"
+	stage_row.add_theme_constant_override("separation", 28)
+	box.add_child(stage_row)
+	var stage := _summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.GOLD, "")
+	stage.name = "StageMetric"
+	stage_row.add_child(stage)
+	var weakness_cell := _summary_cell("弱点", _element_name(weakness), UiKit.PURPLE, UiKit.element_icon_path(weakness))
+	weakness_cell.name = "WeaknessMetric"
+	weakness_cell.custom_minimum_size.x = 0.0
+	weakness_cell.size_flags_horizontal = Control.SIZE_SHRINK_END
+	(weakness_cell.get_node("Value") as Label).autowrap_mode = TextServer.AUTOWRAP_OFF
+	stage_row.add_child(weakness_cell)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(grid)
-	grid.add_child(_summary_cell("关卡", "%s / %s" % [DataLoader.level_display_name(display_level_id), "挑战" if challenge_mode else "五波"], UiKit.GOLD, ""))
-	grid.add_child(_summary_cell("弱点", _element_name(weakness), UiKit.PURPLE, UiKit.element_icon_path(weakness)))
 	grid.add_child(_summary_cell("有效战力", "%d" % power, UiKit.GREEN if power >= recommended_power else UiKit.PURPLE, ""))
 	grid.add_child(_summary_cell("推荐", "%d" % recommended_power, UiKit.GOLD, ""))
 
@@ -792,6 +805,7 @@ func _summary_cell(label_text: String, value_text: String, accent: Color, icon_p
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(title)
 	var value := UiKit.label(value_text, 16 if LocalizationManager.is_english() else 21, accent, 4)
+	value.name = "Value"
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
