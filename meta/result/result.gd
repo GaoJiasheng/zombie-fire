@@ -280,10 +280,16 @@ func _populate_outcome_showcase(victory: bool) -> void:
 	var english_layout := LocalizationManager.is_english() or TranslationServer.get_locale().begins_with("en")
 	if english_layout:
 		hero_line_size = 24
+		# Keep the complete outcome together; clipping protection must not trim
+		# its last word before the automatic line break is resolved.
+		hero_name.text = "%s\n%s" % [character_name, outcome_text]
 		hero_name.custom_minimum_size.y = RESULT_OUTCOME_HERO_WRAPPED_HEIGHT
 	else:
 		hero_name.custom_minimum_size.y = RESULT_OUTCOME_HERO_LINE_HEIGHT
 	UiKit.apply_label(hero_name, hero_line_size, UiKit.TEXT_MAIN, 3)
+	if english_layout:
+		var line_height := hero_name.get_theme_font("font").get_height(hero_name.get_theme_font_size("font_size"))
+		hero_name.custom_minimum_size.y = maxf(RESULT_OUTCOME_HERO_WRAPPED_HEIGHT, ceilf(line_height * 2.0) + hero_name.get_theme_constant("line_spacing") + 8.0)
 	hero_name.add_theme_color_override("font_color", UiKit.GOLD if victory else Color(1.0, 0.62, 0.52, 1.0))
 	var duration := int(round(float(battle_report.get("duration_seconds", 0.0))))
 	var minutes := int(duration / 60)
