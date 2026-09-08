@@ -1658,6 +1658,8 @@ func _owned_set_panel(set_id: String) -> Control:
 		_loc("完整套装 · 已拥有", "Complete Set · Owned")
 	)), 28, UiKit.GOLD, 3)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_box.add_child(title)
 	var equip := Button.new()
 	equip.focus_mode = Control.FOCUS_NONE
@@ -1745,6 +1747,8 @@ func _owned_item_row(table: String, slot: String, item_id: String) -> PanelConta
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(copy)
 	var title := UiKit.label(DataLoader.tr_key(str(row.get("name_key", item_id))), 22, UiKit.TEXT_MAIN, 2)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_child(title)
 	var level := SaveManager.get_item_level(item_id)
 	copy.add_child(UiKit.label(
