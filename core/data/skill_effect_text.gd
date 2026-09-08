@@ -39,6 +39,9 @@ static func _value_text_for_key(key: String, value: Variant) -> String:
 			return " / ".join(parts)
 		return str(value)
 	var numeric := float(value)
+	# Units are defined by the effect, not whether its value is below one.
+	if key in ["falloff", "lane_damage_bonus", "slow", "burn", "poison", "dmg_mult", "fire_rate_mult", "crit_add", "crit_dmg", "base_hp_mult", "armor_penetration", "gold_mult"]:
+		return "%d%%" % int(round(numeric * 100.0))
 	if key == "y_min":
 		var coverage := clampf((1500.0 - numeric) / 1500.0, 0.0, 1.0)
 		return "%d%%" % int(round(coverage * 100.0))
