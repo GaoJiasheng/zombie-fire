@@ -1,0 +1,62 @@
+[
+  {
+    "head": "03f741806640e782e4e8c52ac78eb82bbb1898cd",
+    "message": "fix(UI-01): wrap owned-store names within their content column",
+    "file": "meta/store/store.gd"
+  },
+  {
+    "head": "4b52a37d16bebbe4301dcae181701dc431ea2787",
+    "message": "fix(UI-02): keep native chapter actions inside narrow cards",
+    "file": "meta/map/map.gd"
+  },
+  {
+    "head": "efd49f285801763e1a7b5885baa6a7b0283dcbf4",
+    "message": "fix(UI-03): separate recommendation and weakness badges",
+    "file": "meta/map/map.gd"
+  },
+  {
+    "head": "c7d7e6cc511c08194904b7d523b7243b6a97e1ea",
+    "message": "fix(UI-04): reflow pause text and action layout after wrapping",
+    "file": "gameplay/battle/battle.gd"
+  },
+  {
+    "head": "8c37df977c39e719c8af3a1e37cc2263036a9263",
+    "message": "fix(UI-05): use neutral textured volume tracks and visible knobs",
+    "file": "meta/settings/settings.gd"
+  },
+  {
+    "head": "8814dd23a66590ed307fc783bbd47f29fea0d775",
+    "message": "fix(UI-24): reserve full three-line armor descriptions",
+    "file": "meta/collection/collection.gd"
+  },
+  {
+    "head": "0292ab5051b76689a67d6675713aeb4943fbeba0",
+    "message": "fix(UI-23): retain nonzero sub-percent chip upgrade precision",
+    "file": "meta/collection/collection.gd"
+  },
+  {
+    "head": "97d7159cce5d69af35ef86d23d7da6abc4be2ee4",
+    "message": "fix(UI-27): share level-aware equipment display values",
+    "file": "meta/collection/collection.gd"
+  },
+  {
+    "head": "094fbb4495cfebd7fa69aee62059e2fbb0bd99f4",
+    "message": "fix(UI-16): use character element focus for passive icons",
+    "file": "meta/collection/collection.gd"
+  },
+  {
+    "head": "07aa427f047b80073fca4bd5e89d695b800d1a92",
+    "message": "fix(UI-17): distinguish locked previews from active equipment",
+    "file": "meta/collection/collection.gd"
+  },
+  {
+    "head": "5c8ee846e5ff5aa79159b129b034046408c56509",
+    "message": "fix(UI-19): preserve percentage units above one hundred percent",
+    "file": "core/data/skill_effect_text.gd"
+  },
+  {
+    "head": "01a5ee2578fc8e3a5ecccb29c59a6ac31f5b36d8",
+    "message": "fix(UI-25): keep complete outcome text on its own measured line",
+    "file": "meta/result/result.gd"
+  }
+]
