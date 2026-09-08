@@ -1017,6 +1017,8 @@ func _value_text(value: Variant) -> String:
 	if absf(numeric) < 1.0:
 		return "%d%%" % int(round(numeric * 100.0))
 	return "%d" % int(round(numeric))
+		if not is_zero_approx(numeric) and absf(numeric) < 0.01:
+			return "%.2f%%" % (numeric * 100.0)
 
 func _weapon_special_text(row: Dictionary, item_level := -1) -> String:
 	var special: Dictionary = row.get("special", {})
