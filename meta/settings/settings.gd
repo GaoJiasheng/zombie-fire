@@ -9,7 +9,6 @@ const SWITCH_KNOB_TEXTURE := "res://assets/production/sprites/ui/ui_switch_knob.
 
 var router: Node
 var reset_armed := false
-var _transparent_slider_grabber: Texture2D
 var _appearance_selector: CanvasLayer
 var _open_theme_on_ready := false
 
@@ -111,27 +110,21 @@ func _apply_style() -> void:
 	_style_button(_button("BackButton"), UiKit.CYAN, 28)
 
 func _style_slider(slider: HSlider) -> void:
-	var track := UiKit.texture_style(
-		"res://assets/production/sprites/ui/ui_wave_progress.png",
-		24.0,
-		14.0,
-		UiKit.CYAN
-	)
-	var fill := UiKit.texture_style(
-		"res://assets/production/sprites/ui/ui_bar_fill_xp.png",
-		20.0,
-		14.0,
-		UiKit.CYAN
-	)
+	# Use the neutral capsule at a real track height. The old 48px nine-slice
+	# caps were taller than Slider's draw rectangle and lost their lower half.
+	var track := UiKit.texture_style(SWITCH_TRACK_TEXTURE, 10.0, 12.0, UiKit.CYAN) as StyleBoxTexture
+	track.texture_margin_left = 24.0
+	track.texture_margin_right = 24.0
+	track.modulate_color = Color(0.32, 0.40, 0.44, 1.0)
+	var fill := track.duplicate() as StyleBoxTexture
+	fill.modulate_color = UiKit.CYAN
+	slider.custom_minimum_size.y = maxf(slider.custom_minimum_size.y, 48.0)
 	slider.add_theme_stylebox_override("slider", track)
 	slider.add_theme_stylebox_override("grabber_area", fill)
 	slider.add_theme_stylebox_override("grabber_area_highlight", fill)
-	if _transparent_slider_grabber == null:
-		var image := Image.create_empty(1, 1, false, Image.FORMAT_RGBA8)
-		image.fill(Color.TRANSPARENT)
-		_transparent_slider_grabber = ImageTexture.create_from_image(image)
+	var knob := (UiKit.texture_style(SWITCH_KNOB_TEXTURE, 0.0, 0.0) as StyleBoxTexture).texture
 	for state in ["grabber", "grabber_highlight", "grabber_disabled"]:
-		slider.add_theme_icon_override(state, _transparent_slider_grabber)
+		slider.add_theme_icon_override(state, knob)
 
 func _style_button(button: Button, accent: Color, font_size := 30) -> void:
 	var button_size := Vector2(880, maxf(button.custom_minimum_size.y, 88.0))
