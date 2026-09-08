@@ -343,6 +343,11 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	var card_height := 370.0 if mode == "characters" else CATALOG_LIST_CARD_HEIGHT
 	var title_extra_height := _weapon_title_geometry.y - COLLECTION_LIST_TITLE_HEIGHT if mode == "weapons" else 0.0
 	card_height += title_extra_height
+	# Every armor row keeps the shared bilingual ruler, including the optional
+	# third (barrier) line. Derive it from the authorized largest body type.
+	var armor_description_height := ceilf(get_theme_font("font").get_height(UiKit.scaled_font_size(18)) * 3.0) + 12.0
+	if mode == "armors":
+		card_height += maxf(0.0, armor_description_height - 104.0)
 	var button := TextureButton.new()
 	button.name = item_id
 	button.custom_minimum_size = Vector2(card_width, card_height)
@@ -470,6 +475,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# type size. Reserve their measured 195px plus rounding headroom; the taller
 	# character card keeps this lane and the action button inside its frame.
 	desc.size = Vector2(CHARACTER_LIST_TEXT_WIDTH if mode == "characters" else CATALOG_LIST_TEXT_WIDTH, 200 if mode == "characters" else 104)
+	if mode == "armors":
+		desc.size.y = maxf(104.0, armor_description_height)
 	var desc_font_size := 16 if LocalizationManager.is_english() else (17 if spacious else 18)
 	UiKit.apply_label(desc, desc_font_size, Color(0.72, 0.9, 1.0) if unlocked else Color(0.78, 0.78, 0.78), 2)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
