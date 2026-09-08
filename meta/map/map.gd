@@ -20,7 +20,7 @@ const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
 const CHAPTER_RIGHT_W := 300.0
-const CHAPTER_ACTION_SIZE := Vector2(280.0, 80.0)
+const CHAPTER_ACTION_SIZE := Vector2(286.0, 80.0)
 const CHAPTER_ACTION_Y := 252.0
 
 var router: Node
@@ -551,8 +551,9 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	columns.add_child(visual_column)
 	visual_column.add_child(_build_chapter_thumbnail_slot(chapter_id, unlocked, accent))
 
-	var range_row := HBoxContainer.new()
-	range_row.add_theme_constant_override("separation", 10)
+	# A long status must not widen the thumbnail column and push out the CTA.
+	var range_row := VBoxContainer.new()
+	range_row.add_theme_constant_override("separation", 2)
 	range_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visual_column.add_child(range_row)
 	var range := UiKit.label("关卡 %s" % _chapter_range_text(chapter), 17, accent if unlocked else UiKit.TEXT_MUTED, 2)
@@ -577,7 +578,8 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	var title_font := 18 if LocalizationManager.is_english() else 23
 	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), title_font, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 4)
 	title.name = "ChapterTitle"
-	title.custom_minimum_size = Vector2(0, 46)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.custom_minimum_size = Vector2(0, maxf(46.0, ceilf(title.get_theme_font("font").get_height(title.get_theme_font_size("font_size"))) + 8.0))
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info_column.add_child(title)
@@ -585,6 +587,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	var story_color := UiKit.TEXT_MAIN if current else UiKit.TEXT_MUTED
 	var story := UiKit.label(_chapter_summary(chapter_id), 15, story_color if unlocked else UiKit.TEXT_MUTED, 2)
 	story.name = "ChapterStory"
+	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	story.custom_minimum_size = Vector2(0, 34)
 	story.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	info_column.add_child(story)
@@ -604,6 +607,10 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, true), true, unlocked))
 	var action_label := "继续推进" if current else "回顾战区" if completed else "进入战区" if unlocked else _chapter_next_lock_text(chapter)
 	bottom.add_child(_build_chapter_action_control(action_label, unlocked, _open_chapter.bind(chapter_id)))
+	margin.minimum_size_changed.connect(func():
+		if is_instance_valid(button):
+			button.custom_minimum_size.y = maxf(CHAPTER_CARD_HEIGHT, margin.get_combined_minimum_size().y)
+	)
 	return button
 
 func _chapter_thumbnail_path(chapter_id: int) -> String:
@@ -754,11 +761,11 @@ func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -
 func _build_chapter_action_control(text: String, enabled: bool, callback: Callable, primary := true) -> TextureButton:
 	var action := TextureButton.new()
 	action.name = "EnterChapterButton"
-	# Keep the authored 280px primary-action ruler while reserving a visible right
-	# inset inside the chapter card. The native 286px skin is only downsampled by
-	# two percent and the pinned touch contract remains fully satisfied.
+	# Keep the Owner-approved native 286x80 action; surrounding content yields.
 	action.custom_minimum_size = CHAPTER_ACTION_SIZE
 	UiKit.apply_armored_texture_button(action, primary, CHAPTER_ACTION_SIZE, enabled)
+	action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	action.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_make_scroll_friendly_button(action)
 	action.modulate = Color.WHITE if enabled else Color(0.54, 0.57, 0.60, 0.88)
 	if enabled:
@@ -1467,8 +1474,24 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 			"challenge"
 		)
 	return button
+	button.resized.connect(_layout_level_action_lane.bind(button))
+	_layout_level_action_lane.call_deferred(button)
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
+func _layout_level_action_lane(card: Control) -> void:
+	if not is_instance_valid(card) or not card.is_inside_tree() or card.size.x <= 0.0:
+		return
+	var narrow := card.size.x < LEVEL_MODE_AREA_X + LEVEL_MODE_AREA_W + 18.0
+	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if narrow else LEVEL_MODE_AREA_X
+	var lane_y := LEVEL_CARD_HEIGHT + 8.0 if narrow else LEVEL_MODE_Y
+	var normal := card.get_node_or_null("NormalModeButton") as Control
+	var challenge := card.get_node_or_null("ChallengeModeButton") as Control
+	if normal != null:
+		normal.position = Vector2(lane_x if challenge != null else lane_x + (LEVEL_MODE_AREA_W - LEVEL_MODE_SINGLE_W) * 0.5, lane_y)
+	if challenge != null:
+		challenge.position = Vector2(lane_x + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, lane_y)
+	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else LEVEL_CARD_HEIGHT
+
 	return UiKit.map_level_card_texture_style(not unlocked)
 
 func _level_index_style(_accent: Color, _unlocked: bool) -> StyleBox:
