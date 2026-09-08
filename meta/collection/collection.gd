@@ -1017,8 +1017,8 @@ func _format_tags(tags: Array) -> String:
 func _value_text(value: Variant) -> String:
 	var numeric := float(value)
 	if absf(numeric) < 1.0:
-		return "%d%%" % int(round(numeric * 100.0))
-	return "%d" % int(round(numeric))
+		if not is_zero_approx(numeric) and absf(numeric) < 0.01:
+			return "%.2f%%" % (numeric * 100.0)
 		return "%d%%" % int(round(numeric * 100.0))
 	return "%d" % int(round(numeric))
 
@@ -1027,8 +1027,6 @@ func _armor_display_multiplier(row: Dictionary, item_level: int) -> float:
 
 func _chip_display_value(row: Dictionary, item_level: int) -> float:
 	return float(row.get("value", 0.0)) * (1.0 + float(row.get("level_value_growth", 0.0)) * float(maxi(item_level - 1, 0)))
-		if not is_zero_approx(numeric) and absf(numeric) < 0.01:
-			return "%.2f%%" % (numeric * 100.0)
 
 func _weapon_special_text(row: Dictionary, item_level := -1) -> String:
 	var special: Dictionary = row.get("special", {})
@@ -1374,7 +1372,8 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 		detail_tag_index += 1
 
 	var summary := Label.new()
-	summary.text = _item_desc(item_id, row, true)
+	summary.name = "ItemSummary"
+	summary.text = _item_desc(item_id, row, mode == "skills" or SaveManager.is_item_unlocked(_slot(), item_id))
 	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiKit.apply_label(summary, SKILL_DETAIL_SUMMARY_FONT_SIZE if mode == "skills" else 21, Color(0.78, 0.91, 1.0, 1.0), 3)
@@ -2433,14 +2432,18 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# === PASSIVE section (green accent) ===
 	var passive_id := str(row.get("passive", ""))
 	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
+	var character_unlocked := SaveManager.is_item_unlocked("character", item_id)
 	var passive_icon_path := "res://assets/production/sprites/ui/icon_element_%s.png" % str(row.get("element_focus", "physical"))
+	var passive_description := LocalizationManager.text(str(passive_info["desc"]))
+	if not character_unlocked:
+		passive_description = _loc("解锁后：", "After unlock: ") + passive_description.trim_prefix("Active: " if LocalizationManager.is_english() else "已生效：")
 	var passive_section := _make_section_panel("被  动", Color(0.48, 0.74, 0.50, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(passive_section)
 	passive_section.get_child(0).add_child(_make_skill_row(
 		passive_icon_path,
 		passive_info["name"],
 		"被动天赋",
-		passive_info["desc"],
+		passive_description,
 		UiKit.GREEN,
 		passive_section
 	))
@@ -2542,8 +2545,10 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	action_row.add_child(upgrade_btn)
 	var select_btn := _armored_action_button("SelectButton", "已装备" if selected else "选  定", true, true, Vector2(236, 96), 20)
 	select_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	select_btn.disabled = selected
-	select_btn.modulate = ACTION_DISABLED_MODULATE if selected else ACTION_ACTIVE_MODULATE
+	select_btn.disabled = selected or not character_unlocked
+	select_btn.modulate = ACTION_DISABLED_MODULATE if select_btn.disabled else ACTION_ACTIVE_MODULATE
+	if not character_unlocked:
+		select_btn.tooltip_text = LocalizationManager.text("尚未解锁")
 	select_btn.pressed.connect(_select_character_and_close.bind(item_id))
 	action_row.add_child(select_btn)
 	var appearance_btn := _armored_action_button("AppearanceButton", "外  观", true, false, Vector2(236, 96), 20)
@@ -2906,4 +2911,4 @@ func _select_character_and_close(item_id: String) -> void:
 	if SaveManager.select_item("character", item_id):
 		AudioManager.play_sfx("ui_confirm")
 		_refresh()
-	_close_character_detail()
+		_close_character_detail()
