@@ -2988,7 +2988,10 @@ func _pause_skill_card() -> PanelContainer:
 	body.add_child(grid)
 	if skill_slot_ids.is_empty():
 		var empty := UiKit.label("暂无技能，局内首次三选一会自动加入。", 20, UiKit.TEXT_MUTED, 2)
-		empty.custom_minimum_size = Vector2(780, 74)
+		empty.name = "EmptySkillDescription"
+		empty.custom_minimum_size = Vector2(0, 74)
+		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		body.add_child(empty)
 		return card
@@ -3064,7 +3067,8 @@ func _pause_metric(label_text: String, value_text: String, accent: Color) -> Pan
 	var english := LocalizationManager.is_english()
 	var key := UiKit.label(label_text, 17 if english else 19, Color(0.62, 0.78, 0.82, 1.0), 2)
 	key.name = "MetricKey"
-	key.custom_minimum_size = Vector2(174 if english else 122, 0)
+	var key_width := key.get_theme_font("font").get_string_size(LocalizationManager.text(label_text), HORIZONTAL_ALIGNMENT_LEFT, -1, key.get_theme_font_size("font_size")).x
+	key.custom_minimum_size = Vector2(maxf(174.0 if english else 122.0, ceilf(key_width) + 8.0), 0)
 	key.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	key.clip_text = true
 	key.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -3897,6 +3901,9 @@ func _setup_pause_overlay_layout() -> void:
 		content.name = "PauseContent"
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(content)
+		# Wrapping needs the assigned column width before its minimum height is
+		# reliable. Reflow again when the containers finish resolving that width.
+		content.minimum_size_changed.connect(func() -> void: _setup_pause_overlay_layout.call_deferred())
 	content.z_index = 0
 	content.add_theme_constant_override("separation", 16)
 	content.position = PAUSE_CONTENT_ORIGIN
