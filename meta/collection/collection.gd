@@ -819,14 +819,16 @@ func _item_desc(item_id: String, row: Dictionary, unlocked: bool) -> String:
 			# Keep prose for the numeric value that is not represented there.
 			return _loc("射速：%s", "Fire Rate: %s") % row.get("fire_rate", "-")
 		"armors":
-			var barrier_zh := "\n防线屏障 +1" if int(row.get("breach_shield", 0)) > 0 else ""
-			var barrier_en := "\nBarrier +1" if int(row.get("breach_shield", 0)) > 0 else ""
+			var shields := int(row.get("breach_shield", 0))
+			var barrier_zh := "\n防线屏障 +%d" % shields if shields > 0 else ""
+			var barrier_en := "\nBarrier +%d" % shields if shields > 0 else ""
+			var hp := _armor_display_multiplier(row, SaveManager.get_item_level(item_id))
 			return _loc(
-				"生命倍率：%.0f%%\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, _next_upgrade_hint(item_id, row), barrier_zh],
-				"HP: %.0f%%\n%s%s" % [float(row.get("hp_mult", 1.0)) * 100.0, LocalizationManager.text(_next_upgrade_hint(item_id, row)), barrier_en]
+				"生命倍率：%.0f%%\n%s%s" % [hp * 100.0, _next_upgrade_hint(item_id, row), barrier_zh],
+				"HP: %.0f%%\n%s%s" % [hp * 100.0, LocalizationManager.text(_next_upgrade_hint(item_id, row)), barrier_en]
 			)
 		"chips":
-			return _loc("当前加成 +%s", "Current Bonus +%s") % _value_text(row.get("value", 0))
+			return _loc("当前加成 +%s", "Current Bonus +%s") % _value_text(_chip_display_value(row, SaveManager.get_item_level(item_id)))
 		"pets":
 			var pet_skill: Dictionary = row.get("pet_skill", {})
 			return "%s · %s" % [LocalizationManager.text(str(pet_skill.get("name", "专属协战"))), LocalizationManager.text(_next_upgrade_hint(item_id, row))]
@@ -843,7 +845,7 @@ func _item_stat_summary(row: Dictionary) -> String:
 		"weapons":
 			return _loc("射速：%s", "Fire Rate: %s") % str(row.get("fire_rate", "-"))
 		"armors":
-			return _loc("生命倍率：%.0f%%%s", "HP: %.0f%%%s") % [float(row.get("hp_mult", 1.0)) * 100.0, _loc("\n防线屏障 +1", "\nBarrier +1") if int(row.get("breach_shield", 0)) > 0 else ""]
+			return _loc("生命倍率：%.0f%%%s", "HP: %.0f%%%s") % [float(row.get("hp_mult", 1.0)) * 100.0, _loc("\n防线屏障 +%d", "\nBarrier +%d") % int(row.get("breach_shield", 0)) if int(row.get("breach_shield", 0)) > 0 else ""]
 		"chips":
 			return _loc("解锁后加成 +%s", "Bonus After Unlock +%s") % _value_text(row.get("value", 0))
 		"pets":
@@ -1017,6 +1019,14 @@ func _value_text(value: Variant) -> String:
 	if absf(numeric) < 1.0:
 		return "%d%%" % int(round(numeric * 100.0))
 	return "%d" % int(round(numeric))
+		return "%d%%" % int(round(numeric * 100.0))
+	return "%d" % int(round(numeric))
+
+func _armor_display_multiplier(row: Dictionary, item_level: int) -> float:
+	return float(row.get("hp_mult", 1.0)) * (1.0 + float(row.get("level_hp_growth", 0.0)) * float(maxi(item_level - 1, 0)))
+
+func _chip_display_value(row: Dictionary, item_level: int) -> float:
+	return float(row.get("value", 0.0)) * (1.0 + float(row.get("level_value_growth", 0.0)) * float(maxi(item_level - 1, 0)))
 		if not is_zero_approx(numeric) and absf(numeric) < 0.01:
 			return "%.2f%%" % (numeric * 100.0)
 
@@ -1616,17 +1626,14 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 			stats.append({"label": "射速", "value": "%.1f / 秒" % float(row.get("fire_rate", 0.0)), "sub": "等级射速 %.0f%%" % ((SaveManager.get_weapon_fire_rate_multiplier(item_id) - 1.0) * 100.0)})
 			stats.append({"label": "弹速", "value": "%d" % int(row.get("projectile_speed", 0)), "sub": _weapon_special_text(row, item_level)})
 		"armors":
-			var armor_g := float(row.get("level_hp_growth", 0.0))
-			var armor_now := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(item_level - 1, 0)))
-			var armor_max := float(row.get("hp_mult", 1.0)) * (1.0 + armor_g * float(max(max_level - 1, 0)))
+			var armor_now := _armor_display_multiplier(row, item_level)
+			var armor_max := _armor_display_multiplier(row, max_level)
 			stats.append({"label": "生命", "value": "+%d%%" % int(round((armor_now - 1.0) * 100.0)), "sub": "等级%d · 满级 +%d%%" % [item_level, int(round((armor_max - 1.0) * 100.0))]})
 			stats.append({"label": "抗性", "value": _element_name(row.get("resist", "none")), "sub": "防线承压"})
 			stats.append({"label": "屏障", "value": "+%d" % int(row.get("breach_shield", 0)), "sub": "防线容错"})
 		"chips":
-			var chip_g := float(row.get("level_value_growth", 0.0))
-			var chip_base := float(row.get("value", 0))
-			var chip_now := chip_base * (1.0 + chip_g * float(max(item_level - 1, 0)))
-			var chip_max := chip_base * (1.0 + chip_g * float(max(max_level - 1, 0)))
+			var chip_now := _chip_display_value(row, item_level)
+			var chip_max := _chip_display_value(row, max_level)
 			stats.append({"label": "属性", "value": _stat_name(row.get("stat", "stat")), "sub": "核心芯片"})
 			stats.append({"label": "增幅", "value": _value_text(chip_now), "sub": "等级%d · 满级 %s" % [item_level, _value_text(chip_max)]})
 		"pets":
