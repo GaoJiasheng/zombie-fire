@@ -1429,8 +1429,9 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	_add_card_pill(button, Vector2(148, 108), Vector2(154, 34), "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_element_pill(button, Vector2(318, 108), Vector2(210, 34), weakness)
+	# The translated badges each get their own row in the information lane.
+	_add_card_pill(button, Vector2(148, 82), Vector2(154, 34), "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_element_pill(button, Vector2(148, 134), Vector2(210, 34), weakness)
 	if level_id == _campaign_focus_level_id():
 		# Keep the translated Current badge in the index lane. The information
 		# lane then has enough width for every localized weakness name without
@@ -1473,11 +1474,10 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 			"ChallengeModeButton",
 			"challenge"
 		)
-	return button
 	button.resized.connect(_layout_level_action_lane.bind(button))
 	_layout_level_action_lane.call_deferred(button)
+	return button
 
-func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
 func _layout_level_action_lane(card: Control) -> void:
 	if not is_instance_valid(card) or not card.is_inside_tree() or card.size.x <= 0.0:
 		return
@@ -1492,6 +1492,7 @@ func _layout_level_action_lane(card: Control) -> void:
 		challenge.position = Vector2(lane_x + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, lane_y)
 	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else LEVEL_CARD_HEIGHT
 
+func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
 	return UiKit.map_level_card_texture_style(not unlocked)
 
 func _level_index_style(_accent: Color, _unlocked: bool) -> StyleBox:
