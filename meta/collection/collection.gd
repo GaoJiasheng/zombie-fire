@@ -2433,7 +2433,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	# === PASSIVE section (green accent) ===
 	var passive_id := str(row.get("passive", ""))
 	var passive_info: Dictionary = CharacterSkillText.passive_info(passive_id)
-	var passive_icon_path := "res://assets/production/sprites/ui/icon_element_%s.png" % str(row.get("element", "physical"))
+	var passive_icon_path := "res://assets/production/sprites/ui/icon_element_%s.png" % str(row.get("element_focus", "physical"))
 	var passive_section := _make_section_panel("被  动", Color(0.48, 0.74, 0.50, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(passive_section)
 	passive_section.get_child(0).add_child(_make_skill_row(
