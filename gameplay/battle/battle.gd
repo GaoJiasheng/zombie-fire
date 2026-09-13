@@ -3275,6 +3275,11 @@ func _sync_enemy_world_overlay_clearance(enemies: Array = []) -> void:
 		and boss_hp_bar.visible
 	)
 	var exclusion_rect := boss_hp_bar.get_global_rect().grow(10.0) if exclusion_active else Rect2()
+	var wave_bar := get_node_or_null(HUD_WAVE_BAR_PATH) as Control
+	if wave_bar != null and wave_bar.is_inside_tree() and wave_bar.is_visible_in_tree():
+		var wave_rect := wave_bar.get_global_rect().grow(10.0)
+		exclusion_rect = exclusion_rect.merge(wave_rect) if exclusion_active else wave_rect
+		exclusion_active = true
 	var candidates := enemies if not enemies.is_empty() else $EnemyLayer.get_children()
 	for enemy in candidates:
 		if is_instance_valid(enemy) and enemy.has_method("set_hud_exclusion_rect"):
