@@ -1756,7 +1756,10 @@ func _series_reset_button(series_id: String) -> Button:
 func _owned_item_row(table: String, slot: String, item_id: String) -> PanelContainer:
 	var row := DataLoader.get_row(table, item_id)
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(false))
+	var card_style := UiKit.collection_card_texture_style(false)
+	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		card_style.set_content_margin(side, 18.0)
+	panel.add_theme_stylebox_override("panel", card_style)
 	panel.custom_minimum_size = Vector2(0, 158)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 18)
@@ -1786,6 +1789,7 @@ func _owned_item_row(table: String, slot: String, item_id: String) -> PanelConta
 	upgrade.text = _loc("已满级", "MAX") if maxed else _loc("升级", "Upgrade")
 	upgrade.disabled = maxed or not SaveManager.can_upgrade_item(table, item_id)
 	UiKit.apply_armored_button(upgrade, false, Vector2(320, 80), 17, not upgrade.disabled)
+	upgrade.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if not maxed:
 		UiKit.apply_resource_cost(upgrade, _loc("升级", "Upgrade"), str(cost_spec.get("kind", "gold")), cost, 16, 24.0, -2.0)
 		if upgrade.disabled:
