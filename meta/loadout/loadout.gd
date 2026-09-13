@@ -643,7 +643,9 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	loadout.custom_minimum_size = Vector2(0, 68)
 	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	loadout.clip_text = false
-	UiKit.apply_label(loadout, 21, UiKit.TEXT_MAIN, 4)
+	loadout.name = "EquipmentRecap"
+	loadout.text = LocalizationManager.text(loadout.text).replace(" Lv", "\u00a0Lv")
+	UiKit.apply_label(loadout, 21, UiKit.TEXT_MUTED, 4)
 	box.add_child(loadout)
 
 	# design/24 Phase 5: elemental counter is a 3x difficulty swing that the
@@ -663,7 +665,6 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	if suggestion != "":
 		var suggest := Button.new()
 		suggest.name = "CounterSuggestion"
-		suggest.text = suggestion
 		suggest.flat = true
 		suggest.custom_minimum_size = Vector2(0, 44)
 		suggest.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -671,6 +672,21 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		suggest.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
 		suggest.pressed.connect(_open_collection.bind("weapons"))
 		box.add_child(suggest)
+		var suggestion_label := Label.new()
+		suggestion_label.name = "SuggestionText"
+		suggestion_label.text = suggestion
+		suggestion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		suggestion_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		suggestion_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		suggestion_label.add_theme_color_override("font_color", UiKit.GREEN)
+		suggestion_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
+		suggestion_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		suggest.add_child(suggestion_label)
+		suggestion_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		suggestion_label.offset_left = 12.0
+		suggestion_label.offset_right = -12.0
+		suggest.resized.connect(_fit_counter_suggestion.bind(suggest, suggestion_label, panel, box))
+		_fit_counter_suggestion.call_deferred(suggest, suggestion_label, panel, box)
 	if not premium_offer.is_empty():
 		var premium_suggest := Button.new()
 		premium_suggest.name = "PremiumCounterSuggestion"
@@ -723,6 +739,8 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		premium_suggest.add_child(premium_copy)
 		box.add_child(premium_suggest)
 
+	# Repeated equipment names remain available, after the actionable advice.
+	box.move_child(loadout, box.get_child_count() - 1)
 	# Turn the rating contract into a compact three-stop visual ruler. Thresholds
 	# still come exclusively from economy.json through StarRules.
 	box.add_child(_star_threshold_guide())
@@ -788,6 +806,16 @@ func _power_bottleneck_reason(display_level_id: String, challenge_mode: bool) ->
 			return LocalizationManager.text("短板：防线维持")
 		_:
 			return LocalizationManager.text("短板：清群火力")
+
+func _fit_counter_suggestion(button: Button, label: Label, panel: Control, content: Control) -> void:
+	if not is_instance_valid(button) or not is_instance_valid(label) or button.size.x <= 24.0:
+		return
+	var font := label.get_theme_font("font")
+	var size := label.get_theme_font_size("font_size")
+	var measured := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_CENTER, button.size.x - 32.0, size)
+	var lines := maxi(1, ceili(measured.y / font.get_height(size)))
+	button.custom_minimum_size.y = maxf(44.0, ceilf(measured.y + (lines - 1) * label.get_theme_constant("line_spacing") + 12.0))
+	_fit_summary_panel_to_content.call_deferred(panel, content)
 
 func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
 	if not is_instance_valid(panel) or not is_instance_valid(content):
