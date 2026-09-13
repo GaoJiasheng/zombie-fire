@@ -1,0 +1,32 @@
+{
+  "base_head": "722fedc67d1325a8ae1325df659b6b6024766054",
+  "supplement_head": "b32841b7ed7aaf52aa1970e80bed28ec844ab0ef",
+  "base_completed": 1007,
+  "base_accepted": 793,
+  "continuation_captures": 1441,
+  "store_cases": 203,
+  "pet_cases": 92,
+  "loadout_cases": 200,
+  "final_unique_cases": 2234,
+  "changed_runtime_files": [
+    "meta/collection/collection.gd",
+    "meta/loadout/loadout.gd",
+    "meta/store/store.gd",
+    "tools/check_res_refs.py",
+    "ui/weapon_showcase_theme.gdshader",
+    "ui/weapon_showcase_theme.gdshader.uid"
+  ],
+  "changed_functions": {
+    "meta/store/store.gd": [
+      "_owned_item_row"
+    ],
+    "meta/collection/collection.gd": [
+      "_pet_skill_cooldown_text"
+    ],
+    "meta/loadout/loadout.gd": [
+      "_loadout_weapon_source_path",
+      "_refresh"
+    ]
+  },
+  "unaffected_route_and_mode_source_equivalence": true
+}

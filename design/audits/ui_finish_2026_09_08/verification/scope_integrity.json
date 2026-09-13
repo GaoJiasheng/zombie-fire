@@ -1,0 +1,29 @@
+{
+  "baseline": "02505b24a7ecffa8dd726eec1163e31ac09be807",
+  "head": "b32841b7ed7aaf52aa1970e80bed28ec844ab0ef",
+  "battle_functions": [
+    "_build_skill_card",
+    "_fit_card_offer_panel_to_cards",
+    "_layout_card_offer_panel",
+    "_layout_pause_action_button",
+    "_skill_long_desc",
+    "_skill_short_desc",
+    "_spawn_character",
+    "_sync_enemy_world_overlay_clearance"
+  ],
+  "ui_constants": [
+    "CARD_OFFER_CARDS_POS",
+    "CARD_OFFER_CARDS_SIZE",
+    "CARD_OFFER_CARD_WIDTH",
+    "CARD_OFFER_COPY_TOP_Y",
+    "CARD_OFFER_TEXT_WIDTH"
+  ],
+  "deterministic_functions_unchanged": 44,
+  "fingerprint": "levels=2669c4acdca69fbf weapons=bdd10432c49bebed economy=2a027b2ed076bebd fixture=bc313dff5d8b033d",
+  "main_fingerprint": "levels=2669c4acdca69fbf weapons=bdd10432c49bebed economy=2a027b2ed076bebd fixture=bc313dff5d8b033d",
+  "shared_skill_copy": "verbatim",
+  "archived_original_icons": {
+    "chip_apocalypse_golden_law_icon": "55f7a53b436d1c58db5d8a1e0e9954246057ac085d7820143d885c221a43eaf0",
+    "pet_apocalypse_skyfalcon_icon": "6c75eec0fc2db341ec943a5c1bc6b51e9623b7b5a89eff562459f2a45338492e"
+  }
+}

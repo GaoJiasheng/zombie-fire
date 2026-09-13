@@ -1,0 +1,214 @@
+[
+  {
+    "id": "UI-06",
+    "head": "33b347f4ca10ca5e1c78ed6dec6fc4fecf213a32",
+    "message": "fix(UI-06): remove obsolete no-IAP statement in both privacy languages",
+    "files": [
+      "data/localization_ui_en.json",
+      "meta/settings/settings.gd"
+    ]
+  },
+  {
+    "id": "UI-safe-area",
+    "head": "5013369979bacf2b08654983581312371573f180",
+    "message": "fix(UI-safe-area): let settings spacing yield before safe-area bounds",
+    "files": [
+      "meta/settings/settings.gd"
+    ]
+  },
+  {
+    "id": "UI-07",
+    "head": "95632b4fe818461ae466916eb21fd11ed8505456",
+    "message": "fix(UI-07): use detailed weapon showcases with data-driven theme accents",
+    "files": [
+      "meta/loadout/loadout.gd",
+      "ui/weapon_showcase_theme.gdshader"
+    ]
+  },
+  {
+    "id": "UI-08",
+    "head": "bfe4da74ac1d012cf9fbb9d40313f24fcd9ab31e",
+    "message": "fix(UI-08): align actual weapon names and level badges as one group",
+    "files": [
+      "meta/collection/collection.gd"
+    ]
+  },
+  {
+    "id": "UI-09",
+    "head": "08392116ec1d7045a4dee35cde2263468375e785",
+    "message": "fix(UI-09): wrap counter advice and subordinate repeated equipment copy",
+    "files": [
+      "meta/loadout/loadout.gd"
+    ]
+  },
+  {
+    "id": "UI-10",
+    "head": "a944b90381b94b9bb74be1ad429db025ecc95d08",
+    "message": "fix(UI-10): group ownership status with its own store series",
+    "files": [
+      "meta/store/store.gd"
+    ]
+  },
+  {
+    "id": "DEVICE-01",
+    "head": "2f59da91c8303ff300de4d31a87b3ec59788f6dc",
+    "message": "fix(DEVICE-01): preserve native purchase status instead of inventing demo errors",
+    "files": [
+      "meta/store/store.gd"
+    ]
+  },
+  {
+    "id": "UI-11",
+    "head": "326962c03ea608866ac8da86dd82ca1535ed7c48",
+    "message": "fix(UI-11): present neon texture faces at usable height including disabled states",
+    "files": [
+      "ui/ui_kit.gd"
+    ]
+  },
+  {
+    "id": "UI-12",
+    "head": "00981560f016e20a129a8a5797990d15edd4c9f2",
+    "message": "fix(UI-12): separate result metrics into readable lines",
+    "files": [
+      "meta/result/result.gd"
+    ]
+  },
+  {
+    "id": "UI-13",
+    "head": "e7d6c32b3d624831ffdbe0357a699ee278c5e042",
+    "message": "fix(UI-13): keep world labels clear of the wave progress strip",
+    "files": [
+      "gameplay/battle/battle.gd"
+    ]
+  },
+  {
+    "id": "UI-14",
+    "head": "c4089088f4efd988329dd197a4b1bad7d9681388",
+    "message": "fix(UI-14): center composite actions and reserve ornamental text clearances",
+    "files": [
+      "gameplay/battle/battle.gd",
+      "meta/map/map.gd",
+      "meta/menu/menu.gd",
+      "tools/m1_smoke_test.gd",
+      "ui/appearance_selector.gd",
+      "ui/ui_kit.gd"
+    ]
+  },
+  {
+    "id": "UI-15",
+    "head": "2411ca2a31128cb6975232e5c35a06fa7cbddb8b",
+    "message": "fix(UI-15): measure visible menu logo artwork instead of faint canvas residue",
+    "files": [
+      "meta/menu/menu.gd"
+    ]
+  },
+  {
+    "id": "UI-18",
+    "head": "2722e2f2b0b1cf15419cb41818d665f4eba96684",
+    "message": "fix(UI-18): fit short equipment details to their real content",
+    "files": [
+      "meta/collection/collection.gd"
+    ]
+  },
+  {
+    "id": "UI-20",
+    "head": "4b3c39455cf4dd74f4994b4bce3901133d1f5052",
+    "message": "fix(UI-20): raise English offer body type with wider content-driven cards",
+    "files": [
+      "gameplay/battle/battle.gd"
+    ]
+  },
+  {
+    "id": "UI-21",
+    "head": "a622bab414314b1814c506e92afe98b4840b6491",
+    "message": "fix(UI-21): describe current skills without obsolete development history",
+    "files": [
+      "data/localization_gameplay_en.json",
+      "gameplay/battle/battle.gd"
+    ]
+  },
+  {
+    "id": "UI-22",
+    "head": "7e1d70fc465fe3fd68d1a0622874fa42bec3e201",
+    "message": "fix(UI-22): despill original hero cutout edges without changing geometry or alpha",
+    "files": [
+      "gameplay/battle/battle.gd",
+      "ui/character_edge_cleanup.gdshader"
+    ]
+  },
+  {
+    "id": "UI-26",
+    "head": "64bf32cd07afe7cec8d3f45a8d8bbf3568490bc2",
+    "message": "fix(UI-26): replace preview-contaminated Golden Law icons with native RGBA art",
+    "files": [
+      "assets/production/OUTSOURCER_ASSET_INDEX.json",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/.gdignore",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/chip_apocalypse_golden_law_icon.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/chip_apocalypse_golden_law_icon_imagegen_source.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/chip_apocalypse_golden_law_icon_rgba_master.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/native_dark_light_review.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/pet_apocalypse_skyfalcon_icon.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/pet_apocalypse_skyfalcon_icon_imagegen_source.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/pet_apocalypse_skyfalcon_icon_rgba_master.png",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/processing_manifest.json",
+      "assets/production/source_refs/generated/ui_finish_2026_09_08/prompt_log.md",
+      "assets/production/source_refs/rejected_ui26_2026_09_13/.gdignore",
+      "assets/production/source_refs/rejected_ui26_2026_09_13/chip_apocalypse_golden_law_icon.png",
+      "assets/production/source_refs/rejected_ui26_2026_09_13/pet_apocalypse_skyfalcon_icon.png",
+      "assets/production/sprites/premium/gilded_eclipse/chip_apocalypse_golden_law_icon.png",
+      "assets/production/sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_icon.png"
+    ]
+  },
+  {
+    "id": "UI-28",
+    "head": "52a9e2d40461de996f5ae5334c2ea1493a8f5f95",
+    "message": "fix(UI-28): share actual skill explanations with the collection codex",
+    "files": [
+      "gameplay/battle/battle.gd",
+      "meta/collection/collection.gd",
+      "ui/skill_description.gd"
+    ]
+  },
+  {
+    "id": "UI-11",
+    "head": "722fedc67d1325a8ae1325df659b6b6024766054",
+    "message": "fix(UI-11): align visible neon rims and draw each button surface once",
+    "files": [
+      "ui/armored_face_owner.gdshader",
+      "ui/ui_kit.gd"
+    ]
+  },
+  {
+    "id": "UI-07",
+    "head": "1feaaa498700b8ada267da85578eb9c25d036538",
+    "message": "fix(UI-07): retain original weapon art without added theme recoloring",
+    "files": [
+      "meta/loadout/loadout.gd",
+      "ui/weapon_showcase_theme.gdshader"
+    ]
+  },
+  {
+    "id": "UI-01",
+    "head": "0525d3b188148fa3dcca8cee6f4c5b319c32daa0",
+    "message": "fix(UI-01): keep owned equipment copy inside padded texture frames",
+    "files": [
+      "meta/store/store.gd"
+    ]
+  },
+  {
+    "id": "UI-27",
+    "head": "c944da99005f63a1937e927fe2100e0baa1c6592",
+    "message": "fix(UI-27): preserve fractional pet cooldowns in both languages",
+    "files": [
+      "meta/collection/collection.gd"
+    ]
+  },
+  {
+    "id": "validation",
+    "head": "b32841b7ed7aaf52aa1970e80bed28ec844ab0ef",
+    "message": "fix(validation): check resource references in the current worktree",
+    "files": [
+      "tools/check_res_refs.py"
+    ]
+  }
+]
