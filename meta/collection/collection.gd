@@ -1371,6 +1371,7 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	name_row.add_child(name_label)
 	var level_badge := _make_pill("等级%d%s" % [item_level, _tier_suffix(item_level)], _level_tint(item_level), Color(0.08, 0.11, 0.16, 0.92))
 	level_badge.custom_minimum_size = Vector2(128, 44)
+	level_badge.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	if mode == "skills":
 		(level_badge.get_child(0) as Label).add_theme_font_size_override("font_size", UiKit.bumped_font_size(20))
 	name_row.add_child(level_badge)
@@ -1538,6 +1539,8 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	_detail_modal.modulate.a = 0.0
 	panel.scale = Vector2(0.95, 0.95)
 	var tween := _detail_modal.create_tween()
+	if mode != "skills":
+		_fit_item_detail_height.call_deferred(panel, header, content_scroll, detail_content, action_row, vbox)
 	tween.parallel().tween_property(_detail_modal, "modulate:a", 1.0, 0.18)
 	tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
@@ -1545,6 +1548,25 @@ func _detail_button(node_name: String, text: String, primary: bool) -> TextureBu
 	return _armored_action_button(node_name, text, true, primary, Vector2(286, 112), 24)
 
 func _armored_action_button(node_name: String, text: String, enabled: bool, primary: bool, button_size: Vector2, font_size: int) -> TextureButton:
+func _fit_item_detail_height(panel: PanelContainer, header: Control, scroll: ScrollContainer, content: Control, actions: Control, stack: VBoxContainer) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_instance_valid(panel) or not panel.is_inside_tree():
+		return
+	# Keep the existing safe-area ceiling. Short gear sheets use their actual
+	# content height; long sheets retain their scroll viewport and fixed actions.
+	var maximum := panel.size.y
+	var chrome := panel.get_theme_stylebox("panel").get_minimum_size().y
+	var desired := header.get_combined_minimum_size().y + content.get_combined_minimum_size().y + actions.get_combined_minimum_size().y + stack.get_theme_constant("separation") * 2.0 + chrome
+	var height := minf(maximum, ceilf(desired))
+	if height < maximum:
+		var top := panel.position.y + (maximum - height) * 0.5
+		panel.anchor_top = 0.0
+		panel.anchor_bottom = 0.0
+		panel.offset_top = top
+		panel.offset_bottom = top + height
+		scroll.custom_minimum_size.y = 0.0
+
 	var button := TextureButton.new()
 	button.name = node_name
 	UiKit.apply_armored_texture_button(button, primary, button_size, enabled)
