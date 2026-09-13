@@ -69,6 +69,22 @@ func _visible_logo_texture(source: Texture2D, presentation := {}) -> Texture2D:
 	# Crop that space at presentation time so KEEP_ASPECT measures the authored
 	# logo itself, while retaining a small glow-safe gutter on every side.
 	var use_authored_region: bool = authored_region is Array and authored_region.size() >= 4
+	# A full-canvas region is staging, not an optical ruler. Ignore nearly
+	# transparent export residue when measuring its visible subject. Preserve
+	# deliberately cropped regions (including the reviewed Infernal EN master).
+	if not use_authored_region or used == Rect2i(0, 0, image.get_width(), image.get_height()):
+		var ink := Rect2i()
+		var found := false
+		for y in range(0, image.get_height(), 2):
+			for x in range(0, image.get_width(), 2):
+				var pixel := image.get_pixel(x, y)
+				if pixel.a >= 0.25 and maxf(pixel.r, maxf(pixel.g, pixel.b)) >= 0.18:
+					var dot := Rect2i(x, y, 2, 2)
+					ink = ink.merge(dot) if found else dot
+					found = true
+		if found:
+			used = ink.grow(12).intersection(Rect2i(0, 0, image.get_width(), image.get_height()))
+			use_authored_region = false
 	var pad_x := 0 if use_authored_region else maxi(8, int(round(float(used.size.x) * MENU_TITLE_ALPHA_PADDING_RATIO)))
 	var pad_y := 0 if use_authored_region else maxi(8, int(round(float(used.size.y) * MENU_TITLE_ALPHA_PADDING_RATIO)))
 	var left := maxi(0, used.position.x - pad_x)
