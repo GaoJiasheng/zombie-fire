@@ -538,6 +538,33 @@ static func apply_armored_texture_button(button: TextureButton, primary := true,
 	# problem the owner reported.
 	button.self_modulate = _button_surface_modulate(normal_path, primary, enabled)
 	button.modulate = Color.WHITE if enabled else Color(0.72, 0.76, 0.80, 0.92)
+	# Neon masters include large transparent vertical staging. Aspect-fitting
+	# that staging turns tall actions into hairline faces. Present the same
+	# native art as a nine-slice face without changing the touch target or PNG.
+	var face := button.get_node_or_null("ArmoredFace") as Panel
+	if normal_path.contains("/themes/neon_tempest/"):
+		if face == null:
+			face = Panel.new()
+			face.name = "ArmoredFace"
+			face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			button.add_child(face)
+			button.move_child(face, 0)
+			button.draw.connect(_sync_armored_face.bind(button, face))
+		face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		face.set_meta("normal_style", armored_button_style(primary, button_size, false))
+		face.set_meta("disabled_style", armored_button_style(primary, button_size, true))
+		face.set_meta("last_disabled", not button.disabled)
+		_sync_armored_face(button, face)
+	elif face != null:
+		button.remove_child(face)
+		face.queue_free()
+
+static func _sync_armored_face(button: TextureButton, face: Panel) -> void:
+	if not is_instance_valid(face) or face.is_queued_for_deletion():
+		return
+	if bool(face.get_meta("last_disabled", not button.disabled)) != button.disabled:
+		face.add_theme_stylebox_override("panel", face.get_meta("disabled_style" if button.disabled else "normal_style") as StyleBox)
+		face.set_meta("last_disabled", button.disabled)
 
 static func armored_button_style(primary := true, button_size := Vector2(512, 160), disabled := false) -> StyleBox:
 	var native_size := _native_button_size(button_size)
@@ -548,6 +575,14 @@ static func armored_button_style(primary := true, button_size := Vector2(512, 16
 	var style := texture_style(path, margin, content, GOLD if primary else CYAN)
 	if style is StyleBoxTexture:
 		(style as StyleBoxTexture).modulate_color = _button_surface_modulate(path, primary, not disabled)
+		if path.contains("/themes/neon_tempest/"):
+			var source_image := (style as StyleBoxTexture).texture.get_image()
+			if source_image != null and not source_image.is_empty():
+				var face_rect := source_image.get_used_rect()
+				(style as StyleBoxTexture).region_rect = Rect2(face_rect)
+				var rim := minf(12.0, float(face_rect.size.y) * 0.2)
+				(style as StyleBoxTexture).texture_margin_top = rim
+				(style as StyleBoxTexture).texture_margin_bottom = rim
 	return style
 
 static func apply_armored_button(button: Button, primary := true, button_size := Vector2(512, 96), font_size := 24, enabled := true) -> void:
