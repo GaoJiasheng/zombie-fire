@@ -1396,6 +1396,10 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	var summary := Label.new()
 	summary.name = "ItemSummary"
 	summary.text = _item_desc(item_id, row, mode == "skills" or SaveManager.is_item_unlocked(_slot(), item_id))
+	if mode == "skills":
+		# Keep metadata once in the chips; use the existing battle explanation
+		# here so the codex first tells the player what this skill actually does.
+		summary.text = LocalizationManager.text(preload("res://ui/skill_description.gd").short_description(item_id, item_level))
 	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiKit.apply_label(summary, SKILL_DETAIL_SUMMARY_FONT_SIZE if mode == "skills" else 21, Color(0.78, 0.91, 1.0, 1.0), 3)
@@ -1535,19 +1539,15 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	close_bottom.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_bottom.pressed.connect(_close_character_detail)
 	action_row.add_child(close_bottom)
+	if mode != "skills":
+		_fit_item_detail_height.call_deferred(panel, header, content_scroll, detail_content, action_row, vbox)
 
 	_detail_modal.modulate.a = 0.0
 	panel.scale = Vector2(0.95, 0.95)
 	var tween := _detail_modal.create_tween()
-	if mode != "skills":
-		_fit_item_detail_height.call_deferred(panel, header, content_scroll, detail_content, action_row, vbox)
 	tween.parallel().tween_property(_detail_modal, "modulate:a", 1.0, 0.18)
 	tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func _detail_button(node_name: String, text: String, primary: bool) -> TextureButton:
-	return _armored_action_button(node_name, text, true, primary, Vector2(286, 112), 24)
-
-func _armored_action_button(node_name: String, text: String, enabled: bool, primary: bool, button_size: Vector2, font_size: int) -> TextureButton:
 func _fit_item_detail_height(panel: PanelContainer, header: Control, scroll: ScrollContainer, content: Control, actions: Control, stack: VBoxContainer) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -1567,6 +1567,10 @@ func _fit_item_detail_height(panel: PanelContainer, header: Control, scroll: Scr
 		panel.offset_bottom = top + height
 		scroll.custom_minimum_size.y = 0.0
 
+func _detail_button(node_name: String, text: String, primary: bool) -> TextureButton:
+	return _armored_action_button(node_name, text, true, primary, Vector2(286, 112), 24)
+
+func _armored_action_button(node_name: String, text: String, enabled: bool, primary: bool, button_size: Vector2, font_size: int) -> TextureButton:
 	var button := TextureButton.new()
 	button.name = node_name
 	UiKit.apply_armored_texture_button(button, primary, button_size, enabled)
@@ -1714,7 +1718,7 @@ func _detail_stats_for_item(item_id: String, row: Dictionary, item_level: int) -
 				stats.append(bonus)
 		"skills":
 			var levels: Array = row.get("levels", [])
-			stats.append({"label": "类型", "value": _kind_name(str(row.get("kind", "passive"))), "sub": _format_tags(row.get("card_tags", []))})
+			stats.append({"label": "类型", "value": _kind_name(str(row.get("kind", "passive"))), "sub": ""})
 			stats.append({"label": "当前", "value": "%d / %d" % [item_level, levels.size()], "sub": "永久技能等级"})
 			stats.append({"label": "上限", "value": "等级%d" % levels.size(), "sub": "逐级叠加"})
 	return stats
