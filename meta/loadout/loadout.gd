@@ -310,15 +310,6 @@ func _refresh() -> void:
 	weapon_icon.modulate = Color.WHITE
 	weapon_icon.scale = Vector2.ONE
 	UiKit.apply_theme_surface(weapon_icon)
-	if ThemeManager.active_theme_id() != "default" and str(weapon_row.get("premium_set", "")) == "":
-		# Use the accepted detailed showcase geometry, with the theme's own
-		# material accents. Never replace the battle's dedicated weapon skin.
-		var showcase_material := ShaderMaterial.new()
-		showcase_material.shader = preload("res://ui/weapon_showcase_theme.gdshader")
-		var palette := ThemeManager.active_tag_palette()
-		showcase_material.set_shader_parameter("accent_a", palette.border)
-		showcase_material.set_shader_parameter("accent_b", palette.kind_border)
-		weapon_icon.material = showcase_material
 	_refresh_character_bust(DataLoader.get_row("characters", char_id))
 	var growth_badge := %GrowthBadge as Label
 	growth_badge.text = "护甲  /  芯片  /  宠物"
@@ -478,14 +469,11 @@ func _loadout_bust_layout(texture: Texture2D) -> Dictionary:
 
 
 func _loadout_weapon_source_path(weapon_id: String, row: Dictionary) -> String:
-	# Loadout cards are product showcases, not inventory icons. Prefer a clean,
-	# unframed weapon render and let the active cosmetic theme resolve its matching
-	# skin. A per-item loadout_art override handles authored exceptions without
-	# leaking UI presentation rules into combat assets.
+	# Owner keeps the original weapon identity: reuse the accepted, unframed
+	# loadout render without generating or recoloring a prototype for each theme.
+	# This UI-only source choice never changes dedicated battle weapon skins.
 	var fallback := str(row.get("loadout_art", row.get("handheld", row.get("icon", ""))))
-	# Showcase renders and in-battle handheld sprites serve different scales.
-	# Keep the detailed authored showcase under each theme's existing surface
-	# material; never upscale a small flat handheld in the product presentation.
+	# "loadout" deliberately falls back to detailed art, not the small handheld.
 	return ThemeManager.resolve_weapon_asset(weapon_id, "loadout", fallback)
 
 
