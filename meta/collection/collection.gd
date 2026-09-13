@@ -1836,7 +1836,7 @@ func _pet_skill_cooldown_text(skill: Dictionary) -> String:
 		return "每波触发"
 	if kind == "repair":
 		return "分层自动触发"
-	return "%.0f秒冷却" % float(skill.get("cooldown", 0.0))
+	return _loc("%s秒冷却", "%ss Cooldown") % String.num(float(skill.get("cooldown", 0.0))).trim_suffix(".0")
 
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
 	match mode:
