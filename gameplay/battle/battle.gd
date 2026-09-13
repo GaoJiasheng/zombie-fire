@@ -352,20 +352,20 @@ const PREFINAL_CARD_OFFER_XP_RATIO := 0.85
 const CARD_OFFER_PANEL_X := 54.0
 const CARD_OFFER_CENTER_TOP_Y := 100.0
 const CARD_OFFER_PANEL_SIZE := Vector2(972.0, 1154.0)
-const CARD_OFFER_CARDS_POS := Vector2(54.0, 108.0)
-const CARD_OFFER_CARDS_SIZE := Vector2(864.0, 842.0)
+const CARD_OFFER_CARDS_POS := Vector2(24.0, 108.0)
+const CARD_OFFER_CARDS_SIZE := Vector2(924.0, 842.0)
 const CARD_OFFER_BUTTON_SIZE := Vector2(412.0, 88.0)
 const CARD_OFFER_ACTION_GAP := 50.0
 const CARD_OFFER_ACTION_LANE_HEIGHT := 124.0
-const CARD_OFFER_CARD_WIDTH := 864.0
+const CARD_OFFER_CARD_WIDTH := 924.0
 const CARD_OFFER_CARD_BASE_HEIGHT := 270.0
 const CARD_OFFER_ICON_FRAME_POS := Vector2(32.0, 48.0)
 const CARD_OFFER_ICON_FRAME_SIZE := Vector2(196.0, 196.0)
 const CARD_OFFER_ICON_POS := Vector2(41.0, 57.0)
 const CARD_OFFER_ICON_SIZE := Vector2(178.0, 178.0)
 const CARD_OFFER_TEXT_X := 252.0
-const CARD_OFFER_TEXT_WIDTH := 584.0
-const CARD_OFFER_COPY_TOP_Y := 82.0
+const CARD_OFFER_TEXT_WIDTH := 644.0
+const CARD_OFFER_COPY_TOP_Y := 76.0
 const CARD_OFFER_COPY_GAP := 8.0
 const CARD_OFFER_DESC_TAG_GAP := 16.0
 const CARD_OFFER_CARD_SEPARATION := 10
@@ -12484,7 +12484,6 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
 	var card_h := CARD_OFFER_CARD_BASE_HEIGHT
 	var card := Panel.new()
-	panel.set_meta("card_offer_header_extra", 0.0)
 	# Runtime audits select from the exact cards rendered by the live director.
 	# The metadata is inert in player builds, but keeps headless probes from
 	# duplicating the offer/filtering rules in a second implementation.
@@ -12529,7 +12528,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var title := Label.new()
 	title.name = "Title"
 	title.text = display_name
-	title.position = Vector2(CARD_OFFER_TEXT_X, 20)
+	title.position = Vector2(CARD_OFFER_TEXT_X, 10)
 	title.size = Vector2(290.0, 60)
 	var title_font_size := 24 if LocalizationManager.is_english() else 28
 	UiKit.apply_label(title, title_font_size, Color(0.96, 0.99, 1.0, 1.0), 3)
@@ -12549,7 +12548,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 
 	var level_badge := PanelContainer.new()
 	level_badge.name = "LevelBadge"
-	level_badge.position = Vector2(550, 36)
+	level_badge.position = Vector2(610, 26)
 	level_badge.size = Vector2(90, 34)
 	level_badge.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.CYAN, Color(0.02, 0.045, 0.065, 0.86)))
 	level_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -12573,7 +12572,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 		badge_text.clip_text = false
 		badge.add_child(badge_text)
 		var badge_width := maxf(152.0, ceil(badge.get_combined_minimum_size().x))
-		badge.position = Vector2(CARD_OFFER_CARD_WIDTH - 40.0 - badge_width, 36)
+		badge.position = Vector2(CARD_OFFER_CARD_WIDTH - 40.0 - badge_width, 26)
 		badge.size = Vector2(badge_width, 34)
 		var level_badge_width := maxf(90.0, ceil(level_badge.get_combined_minimum_size().x))
 		level_badge.size.x = level_badge_width
@@ -12601,10 +12600,9 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	desc.text = LocalizationManager.text(_skill_short_desc(skill_id, lv))
 	desc.position = Vector2(CARD_OFFER_TEXT_X, 150)
 	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, 76)
-	# English short descriptions are materially longer than their Chinese peers.
-	# A 12 pt authored size still renders at the mobile UI scale while keeping the
-	# longest description in the intended two-line lane beside the enlarged icon.
-	UiKit.apply_label(desc, 12 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
+	# Content-driven height provides room for readable English copy too. Do not
+	# preserve the old 20px fallback merely because sentences are longer.
+	UiKit.apply_label(desc, 16 if LocalizationManager.is_english() else 17, Color(0.78, 0.9, 0.96, 1.0), 2)
 	if LocalizationManager.is_english():
 		var balanced_desc := _balanced_card_desc_lines(desc.text, desc.get_theme_font("font"), desc.get_theme_font_size("font_size"))
 		if balanced_desc.contains("\n"):
