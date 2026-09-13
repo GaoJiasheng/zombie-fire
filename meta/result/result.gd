@@ -453,7 +453,9 @@ func _populate_hint(victory: bool) -> void:
 			else "整套追平至 Lv%d · 需 %s 金币（已含追赶折扣）" % [catch_up_level, _format_full_power_number(catch_up_gold)]
 		)
 		hint_text += "\n↗ %s · %s\n%s  ›" % [premise, power_line, catch_up_line]
-	$Content/HintCard/HintBox/Hint.text = hint_text
+	# Keep label/value clauses together rather than wrapping a recommendation
+	# number into the following Cards Selected clause. Text and units unchanged.
+	$Content/HintCard/HintBox/Hint.text = hint_text.replace(" · ", "\n").replace(" / ", "\n")
 	$Content/HintCard.set_meta("premium_series_id", str(_premium_offer.get("series_id", "")))
 	$Content/HintCard.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not _premium_offer.is_empty() else Control.CURSOR_ARROW
 	$Content/HintCard.mouse_filter = Control.MOUSE_FILTER_STOP if not _premium_offer.is_empty() else Control.MOUSE_FILTER_PASS
