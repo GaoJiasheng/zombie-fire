@@ -35,6 +35,18 @@
   },
   "owner_directed_generated_overrides": [
     {
+      "path": "sprites/premium/gilded_eclipse/chip_apocalypse_golden_law_icon.png + sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_icon.png",
+      "source": "source_refs/generated/ui_finish_2026_09_08/prompt_log.md",
+      "derived": [
+        "sprites/premium/gilded_eclipse/chip_apocalypse_golden_law_icon.png",
+        "sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_icon.png"
+      ],
+      "reason": "UI-26: Owner approved removing embedded preview copies and incomplete text, repairing the falcon framing, and finishing the reviewed imagegen candidates with genuine alpha and native 384x384 sizing. Accepted black-gold identities preserved; previous runtime icons archived under source_refs/rejected_ui26_2026_09_13. No gameplay sprites or numeric data changed.",
+      "count": 2,
+      "task": "UI audit completion: Golden Law inventory icon cleanup",
+      "created_at": "2026-09-13T00:00:00+08:00"
+    },
+    {
       "path": "sprites/ui/ui_switch_track.png + sprites/ui/ui_switch_knob.png",
       "source": "source_refs/generated/ui_switch_2026_08_31/prompt_log.md",
       "derived": [
