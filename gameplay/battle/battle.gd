@@ -5882,6 +5882,12 @@ func _spawn_character() -> void:
 	_apply_character_body_normalization("center" if _character_uses_true_grip() else "idle")
 	_apply_character_presentation_scale()
 	character_sprite.material = ThemeManager.create_character_material(_character_asset_id())
+	if character_sprite.material == null and _character_asset_id() in ["char_vanguard", "char_frost"]:
+		# Remove only green-screen spill at transparent edges of the original
+		# neutral/ice cutouts. Paid costumes keep their authored shader untouched.
+		var edge_material := ShaderMaterial.new()
+		edge_material.shader = preload("res://ui/character_edge_cleanup.gdshader")
+		character_sprite.material = edge_material
 	_attach_growth_badge(character_sprite, character_level, Vector2(-98, -190))
 	_spawn_character_weapon_visual()
 	_spawn_character_aura()
