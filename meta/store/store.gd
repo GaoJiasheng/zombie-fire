@@ -1900,7 +1900,7 @@ func _on_purchase_finished(_product_id: String, success: bool, message: String) 
 	if success and _product_id != "":
 		_show_purchase_completion(_product_id)
 	else:
-		_show_toast(_loc(message, _english_message(message)))
+		_show_toast(_loc(message, _english_message(message, _store_live())))
 
 
 func _show_purchase_completion(product_id: String) -> void:
@@ -1961,7 +1961,12 @@ func _store_payload(open_appearance: bool) -> Dictionary:
 	}
 
 
-func _english_message(message: String) -> String:
+func _english_message(message: String, live := false) -> String:
+	# The native bridge owns the transaction status and localized explanation.
+	# Never turn cancellation, approval-pending, restore or a native error into
+	# an unrelated demo failure. This does not change any entitlement handling.
+	if live:
+		return message
 	if message.begins_with("本地演示购买成功"):
 		return "Demo purchase complete. No charge occurred."
 	if message.begins_with("已恢复"):
