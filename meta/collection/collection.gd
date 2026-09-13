@@ -274,6 +274,12 @@ func _measure_weapon_title_geometry(table: Dictionary) -> Vector2:
 			title_height = maxf(title_height, ceilf(measured.y + (lines - 1) * get_theme_constant("line_spacing", "Label") + 4.0))
 	return Vector2(title_width, title_height)
 
+func _align_weapon_level_badge(badge: Control, title: Label) -> void:
+	if not is_instance_valid(badge) or not is_instance_valid(title):
+		return
+	var line_height := title.get_theme_font("font").get_height(title.get_theme_font_size("font_size"))
+	badge.position.y = title.position.y + title.size.y - line_height * 0.5 - badge.size.y * 0.5
+
 func _title() -> String:
 	match mode:
 		"characters":
@@ -430,6 +436,13 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	# full mobile-readable size and the exact same interval before metadata tags.
 	if mode == "weapons":
 		title.size = _weapon_title_geometry
+		# Reserve the longest bilingual name for the shared card height only.
+		# Each copy group starts at the same top edge and takes its actual height.
+		var font := title.get_theme_font("font")
+		var actual_font_size := title.get_theme_font_size("font_size")
+		var measured := font.get_multiline_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, title.size.x - 4.0, actual_font_size)
+		var lines := maxi(1, ceili(measured.y / font.get_height(actual_font_size)))
+		title.size.y = maxf(COLLECTION_LIST_TITLE_HEIGHT, ceilf(measured.y + (lines - 1) * title.get_theme_constant("line_spacing") + 4.0))
 		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		title.clip_text = false
 	else:
@@ -442,12 +455,18 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 		var level_badge := UiKit.semantic_tag_pill(_weapon_level_text(item_level), "status", title_font_size)
 		level_badge.name = "LevelBadge"
 		button.add_child(level_badge)
-		level_badge.position = Vector2(text_x + _weapon_title_geometry.x + WEAPON_LIST_LEVEL_GAP, COLLECTION_LIST_TITLE_Y)
+		# Align the badge with the visible bottom-aligned title, not the top of
+		# the bilingual tallest-title reservation. Shared card geometry is intact.
+		level_badge.position = Vector2(text_x + _weapon_title_geometry.x + WEAPON_LIST_LEVEL_GAP, COLLECTION_LIST_TITLE_Y + _weapon_title_geometry.y - level_badge.get_combined_minimum_size().y)
+		level_badge.resized.connect(_align_weapon_level_badge.bind(level_badge, title))
+		_align_weapon_level_badge.call_deferred(level_badge, title)
 		level_badge.z_index = 2
 
 	var tag_row := HBoxContainer.new()
 	tag_row.name = "Tags"
 	tag_row.position = Vector2(text_x, COLLECTION_LIST_TAG_Y + title_extra_height)
+	if mode == "weapons":
+		tag_row.position.y = title.position.y + title.size.y + COLLECTION_LIST_TITLE_TAG_GAP
 	# Three bilingual metadata chips (unlock/role/element) need a wider lane than
 	# prose. They live above the action button, so using the full card width here
 	# does not steal any description space.
@@ -471,6 +490,8 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	desc.name = "Description"
 	desc.text = _item_desc(item_id, row, unlocked)
 	desc.position = Vector2(text_x, COLLECTION_LIST_DESCRIPTION_Y + title_extra_height)
+	if mode == "weapons":
+		desc.position.y = tag_row.position.y + COLLECTION_LIST_TAG_HEIGHT + 6.0
 	# Locked English signature previews need up to five lines at the fixed mobile
 	# type size. Reserve their measured 195px plus rounding headroom; the taller
 	# character card keeps this lane and the action button inside its frame.
