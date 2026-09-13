@@ -450,7 +450,9 @@ func _fit_info_spacing() -> void:
 		if child is Control and child.visible:
 			visible_rows += 1
 	var separation := _vbox.get_theme_constant("separation")
-	_vbox.add_theme_constant_override("separation", maxi(6, separation - ceili(overflow / maxi(1, visible_rows - 1))))
+	# Compact safe areas may need the final few inter-row pixels too. Content,
+	# font sizes and touch targets keep their minima; only empty gaps yield.
+	_vbox.add_theme_constant_override("separation", maxi(0, separation - ceili(overflow / maxi(1, visible_rows - 1))))
 
 func _on_open_privacy() -> void:
 	_show_info("privacy")
