@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 import sys
 
-root = Path('/Users/gavin/work/zombie-fire').resolve()
+root = Path(__file__).resolve().parents[1]
 missing = []
 checked = 0
 for path in list(root.rglob('*.gd')) + list(root.rglob('*.tscn')) + list(root.rglob('project.godot')):
