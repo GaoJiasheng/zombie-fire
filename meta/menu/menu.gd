@@ -37,8 +37,10 @@ func _apply_ui_style() -> void:
 	var theme_accent := ThemeManager.active_ui_accent(UiKit.GOLD)
 	UiKit.apply_label(%Subtitle, 34, theme_accent, 4)
 	UiKit.apply_armored_texture_button(%StartButton as TextureButton, true, Vector2(780, 148), true)
-	UiKit.apply_armored_texture_button(%StoreButton as TextureButton, false, Vector2(600, 120), true)
-	UiKit.apply_armored_texture_button(%HelpButton as TextureButton, false, Vector2(600, 120), true)
+	# Give the full English arsenal name a real text-safe face. Navigation keeps
+	# less area and visual weight than the larger primary Start action.
+	UiKit.apply_armored_texture_button(%StoreButton as TextureButton, false, Vector2(760, 112), true)
+	UiKit.apply_armored_texture_button(%HelpButton as TextureButton, false, Vector2(760, 112), true)
 	UiKit.apply_label((%StartButton as Control).get_node("Label"), 46, UiKit.TEXT_MAIN, 3)
 	UiKit.apply_label((%StoreButton as Control).get_node("Label"), 38, UiKit.CYAN, 3)
 	UiKit.apply_label((%HelpButton as Control).get_node("Label"), 40, UiKit.CYAN, 3)

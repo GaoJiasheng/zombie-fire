@@ -3447,6 +3447,25 @@ func _layout_card_offer_panel() -> void:
 	var bounds := _card_offer_vertical_bounds()
 	var max_panel_height := maxf(0.0, bounds.y - bounds.x)
 	var content_height := float(panel.get_meta("card_offer_content_height", 0.0))
+	var title := panel.get_node_or_null("CardTitle") as Label
+	var cards_top := CARD_OFFER_CARDS_POS.y
+	if title != null:
+		title.text = LocalizationManager.text(title.text)
+		var width := title.get_theme_font("font").get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title.get_theme_font_size("font_size")).x
+		if width > 844.0:
+			title.text = title.text.replace(" · ", "\n")
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		title.clip_text = false
+		var title_height := _wrapped_label_required_height(title, 864.0, 70.0)
+		title.position = Vector2(54, 18)
+		title.size = Vector2(864, title_height)
+		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		cards_top = maxf(cards_top, title.position.y + title_height + 12.0)
+	var header_extra := cards_top - CARD_OFFER_CARDS_POS.y
+	content_height += header_extra - float(panel.get_meta("card_offer_header_extra", 0.0))
+	panel.set_meta("card_offer_header_extra", header_extra)
+	panel.set_meta("card_offer_content_height", content_height)
 	# Wrapped card copy owns the modal height. Tall screens only move the finished
 	# modal to the battlefield center; they must not stretch an empty lane between
 	# the third card and the primary actions.
@@ -3454,17 +3473,11 @@ func _layout_card_offer_panel() -> void:
 	panel.size = Vector2(CARD_OFFER_PANEL_SIZE.x, panel_height)
 	panel.position = Vector2(CARD_OFFER_PANEL_X, _card_offer_centered_y(panel.size.y))
 	var button_y := panel.size.y - CARD_OFFER_ACTION_LANE_HEIGHT
-	var title := panel.get_node_or_null("CardTitle") as Label
-	if title != null:
-		title.position = Vector2(54, 26)
-		title.size = Vector2(864, 70)
-		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var cards := panel.get_node_or_null("Cards") as VBoxContainer
 	if cards != null:
-		cards.position = CARD_OFFER_CARDS_POS
+		cards.position = Vector2(CARD_OFFER_CARDS_POS.x, cards_top)
 		var measured_cards_height := float(panel.get_meta("card_offer_cards_height", 0.0))
-		var cards_lane := maxf(0.0, button_y - CARD_OFFER_CARDS_POS.y - CARD_OFFER_ACTION_GAP)
+		var cards_lane := maxf(0.0, button_y - cards_top - CARD_OFFER_ACTION_GAP)
 		cards.size = Vector2(
 			CARD_OFFER_CARDS_SIZE.x,
 			minf(cards_lane, measured_cards_height) if measured_cards_height > 0.0 else cards_lane
@@ -3949,7 +3962,12 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path:
 	icon_plate.position = PAUSE_ACTION_ICON_RECT.position
 	icon_plate.size = PAUSE_ACTION_ICON_RECT.size
 	icon_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_plate.add_theme_stylebox_override("panel", UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78)))
+	var icon_style := UiKit.pill_style(UiKit.GOLD if primary else UiKit.BORDER_SOFT, Color(0.018, 0.022, 0.028, 0.78))
+	icon_style.content_margin_left = 4.0
+	icon_style.content_margin_right = 4.0
+	icon_style.content_margin_top = 4.0
+	icon_style.content_margin_bottom = 4.0
+	icon_plate.add_theme_stylebox_override("panel", icon_style)
 	button.add_child(icon_plate)
 	var icon := UiKit.icon(icon_path, Vector2(48, 48))
 	icon.modulate = Color(1.0, 0.9, 0.62, 1.0) if primary else Color(0.82, 0.92, 1.0, 0.92)
@@ -3957,8 +3975,16 @@ func _layout_pause_action_button(button: TextureButton, pos: Vector2, icon_path:
 	var title_size := 21 if LocalizationManager.is_english() else 24
 	var title := UiKit.label(LocalizationManager.text(title_text), title_size, Color.WHITE, 3)
 	title.name = "ActionTitle"
-	title.position = PAUSE_ACTION_TITLE_RECT.position
-	title.size = PAUSE_ACTION_TITLE_RECT.size
+	# Center the visible icon + verb as one group. Fixed independent boxes make
+	# short Exit drift right and long Restart collide with the ornamental cap.
+	var text_width := ceilf(title.get_theme_font("font").get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title.get_theme_font_size("font_size")).x) + 6.0
+	var icon_width := 56.0
+	var group_width := icon_width + 10.0 + text_width
+	var group_left := (button_size.x - group_width) * 0.5
+	icon_plate.position = Vector2(group_left, (button_size.y - 56.0) * 0.5)
+	icon_plate.size = Vector2(icon_width, 56.0)
+	title.position = Vector2(group_left + icon_width + 10.0, PAUSE_ACTION_TITLE_RECT.position.y)
+	title.size = Vector2(text_width, PAUSE_ACTION_TITLE_RECT.size.y)
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.clip_text = true
@@ -12458,6 +12484,7 @@ func _build_skill_card(skill_id: String, row: Dictionary, display_name: String, 
 	var stats_text := SkillEffectText.format_offer_block(row, lv, skills.level(skill_id))
 	var card_h := CARD_OFFER_CARD_BASE_HEIGHT
 	var card := Panel.new()
+	panel.set_meta("card_offer_header_extra", 0.0)
 	# Runtime audits select from the exact cards rendered by the live director.
 	# The metadata is inert in player builds, but keeps headless probes from
 	# duplicating the offer/filtering rules in a second implementation.

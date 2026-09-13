@@ -774,8 +774,9 @@ func _build_chapter_action_control(text: String, enabled: bool, callback: Callab
 	var label := UiKit.label(text, 17 if enabled else 14, label_color, 3)
 	label.name = "ActionLabel"
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# The button art carries a heavy arrow cap on the right. Center within the
-	# usable face rather than the transparent texture rectangle.
+	# Theme-specific arrow caps differ. A one-sided universal offset shifts the
+	# actual action left in every theme; keep symmetrical content margins.
+	label.offset_left = 18
 	label.offset_right = -18
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

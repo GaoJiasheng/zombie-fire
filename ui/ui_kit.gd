@@ -1155,7 +1155,7 @@ static func apply_resource_cost(
 	amount: int,
 	font_size := 20,
 	icon_size := 28.0,
-	optical_y := -4.0
+	optical_y := 0.0
 ) -> void:
 	if button == null:
 		return

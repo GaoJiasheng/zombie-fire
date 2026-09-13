@@ -3760,7 +3760,14 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 		visible_card_count += 1
 	if visible_card_count > 1:
 		visible_card_height += float(cards.get_theme_constant("separation")) * float(visible_card_count - 1)
-	var expected_content_height: float = battle.CARD_OFFER_CARDS_POS.y + visible_card_height + battle.CARD_OFFER_ACTION_GAP + battle.CARD_OFFER_ACTION_LANE_HEIGHT
+	# The header now wraps at the authorized font size. Measure that real content
+	# instead of assuming the previous fixed one-line 108px reservation. Keep
+	# the exact same 1px tolerance, action gap and battlefield corridor limits.
+	var offer_header := card_panel.get_node("CardTitle") as Label
+	var expected_cards_top: float = maxf(battle.CARD_OFFER_CARDS_POS.y, offer_header.position.y + offer_header.size.y + 12.0)
+	_expect(absf(cards.position.y - expected_cards_top) <= 1.0, "card stack must follow the measured header with exactly the authored clearance")
+	_expect(offer_header.get_visible_line_count() >= offer_header.get_line_count(), "card offer header must retain every localized line")
+	var expected_content_height: float = expected_cards_top + visible_card_height + battle.CARD_OFFER_ACTION_GAP + battle.CARD_OFFER_ACTION_LANE_HEIGHT
 	var expected_panel_height: float = minf(card_bounds.y - card_bounds.x, maxf(battle.CARD_OFFER_PANEL_SIZE.y, expected_content_height))
 	_expect(absf(card_panel.size.y - expected_panel_height) <= 1.0, "card offer panel height must follow measured card content instead of stretching an empty tall-screen lane")
 	var card_center_y := card_panel.position.y + card_panel.size.y * 0.5

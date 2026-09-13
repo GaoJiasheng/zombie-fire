@@ -306,7 +306,10 @@ func _outfit_card(outfit_mode: String) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = "Outfit_" + outfit_mode
 	panel.custom_minimum_size = Vector2(0, 188)
-	panel.add_theme_stylebox_override("panel", UiKit.collection_card_texture_style(selected))
+	var card_style := UiKit.collection_card_texture_style(selected)
+	card_style.content_margin_top = maxf(card_style.content_margin_top, 18.0)
+	card_style.content_margin_bottom = maxf(card_style.content_margin_bottom, 18.0)
+	panel.add_theme_stylebox_override("panel", card_style)
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 18)
 	panel.add_child(hbox)
