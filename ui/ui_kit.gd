@@ -38,6 +38,7 @@ const WARNING := Color(0.96, 0.72, 0.30, 1.0)
 const DANGER := Color(0.94, 0.28, 0.24, 1.0)
 const INFO := Color(0.46, 0.80, 0.86, 1.0)
 const UI_TEXTURE_ROOT := "res://assets/production/sprites/ui/"
+const ARMORED_FACE_OWNER := preload("res://ui/armored_face_owner.gdshader")
 const DESIGN_HEIGHT := 1920.0
 const MIN_TOUCH_TARGET := Vector2(88.0, 88.0)
 # Icon-only modal dismiss actions share one deliberately larger visual contract.
@@ -92,6 +93,7 @@ const FONT_SCALE := 1.5
 # remain unchanged instead of making large display titles disproportionately huge.
 const FONT_SIZE_STEP := 2
 static var _TEXTURE_CACHE: Dictionary = {}
+static var _ARMORED_FACE_BOUNDS_CACHE: Dictionary = {}
 static var _CHARACTER_FOCUS_BOUNDS_CACHE: Dictionary = {}
 
 static func scaled_font_size(size: float) -> int:
@@ -544,6 +546,10 @@ static func apply_armored_texture_button(button: TextureButton, primary := true,
 	var face := button.get_node_or_null("ArmoredFace") as Panel
 	if normal_path.contains("/themes/neon_tempest/"):
 		if face == null:
+			button.set_meta("armored_original_material", button.material)
+			var surface_owner := ShaderMaterial.new()
+			surface_owner.shader = ARMORED_FACE_OWNER
+			button.material = surface_owner
 			face = Panel.new()
 			face.name = "ArmoredFace"
 			face.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -556,6 +562,8 @@ static func apply_armored_texture_button(button: TextureButton, primary := true,
 		face.set_meta("last_disabled", not button.disabled)
 		_sync_armored_face(button, face)
 	elif face != null:
+		button.material = button.get_meta("armored_original_material", null) as Material
+		button.remove_meta("armored_original_material")
 		button.remove_child(face)
 		face.queue_free()
 
@@ -576,14 +584,38 @@ static func armored_button_style(primary := true, button_size := Vector2(512, 16
 	if style is StyleBoxTexture:
 		(style as StyleBoxTexture).modulate_color = _button_surface_modulate(path, primary, not disabled)
 		if path.contains("/themes/neon_tempest/"):
-			var source_image := (style as StyleBoxTexture).texture.get_image()
-			if source_image != null and not source_image.is_empty():
-				var face_rect := source_image.get_used_rect()
+			var face_rect := _armored_face_bounds((style as StyleBoxTexture).texture)
+			if face_rect.has_area():
 				(style as StyleBoxTexture).region_rect = Rect2(face_rect)
 				var rim := minf(12.0, float(face_rect.size.y) * 0.2)
 				(style as StyleBoxTexture).texture_margin_top = rim
 				(style as StyleBoxTexture).texture_margin_bottom = rim
 	return style
+
+static func _armored_face_bounds(texture: Texture2D) -> Rect2i:
+	var key := texture.resource_path
+	if _ARMORED_FACE_BOUNDS_CACHE.has(key):
+		return _ARMORED_FACE_BOUNDS_CACHE[key]
+	var source := texture.get_image()
+	if source == null or source.is_empty():
+		return Rect2i()
+	# A few almost-transparent export pixels sit well outside the actual rim.
+	# Alpha!=0 bounds retain that staging and shift the visible face downwards.
+	# Measure visible ink, keep two source pixels of glow, and cache per asset.
+	var first := source.get_size()
+	var last := Vector2i(-1, -1)
+	for y in range(source.get_height()):
+		for x in range(source.get_width()):
+			if source.get_pixel(x, y).a >= 0.04:
+				first.x = mini(first.x, x)
+				first.y = mini(first.y, y)
+				last.x = maxi(last.x, x)
+				last.y = maxi(last.y, y)
+	var bounds := source.get_used_rect()
+	if last.x >= first.x and last.y >= first.y:
+		bounds = Rect2i(first, last - first + Vector2i.ONE).grow(2).intersection(Rect2i(Vector2i.ZERO, source.get_size()))
+	_ARMORED_FACE_BOUNDS_CACHE[key] = bounds
+	return bounds
 
 static func apply_armored_button(button: Button, primary := true, button_size := Vector2(512, 96), font_size := 24, enabled := true) -> void:
 	if button == null:
