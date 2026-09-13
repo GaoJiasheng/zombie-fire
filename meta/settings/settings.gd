@@ -426,7 +426,7 @@ func _show_info(mode: String) -> void:
 			body.custom_minimum_size.y = compact_info_height if compact_safe_layout else (180.0 if LocalizationManager.is_english() else 144.0)
 	match mode:
 		"privacy":
-			body.text = "隐私：本版本不采集个人数据，也没有广告、账号、内购、推送或第三方追踪。\n进度仅保存在本机；点击“隐私政策”查看完整政策。"
+			body.text = "隐私：本版本不采集个人数据，也没有广告、账号、推送或第三方追踪。\n进度仅保存在本机；点击“隐私政策”查看完整政策。"
 		"support":
 			body.text = "支持：当前为本地离线游戏。\n如遇问题，请记录设备型号、系统版本、关卡和复现步骤；点击上方“支持”查看联系方式。"
 		_:
