@@ -196,7 +196,7 @@ func _rebuild() -> void:
 		revealed_series.erase(_current_warzone_counter_series_id)
 		revealed_series.push_front(_current_warzone_counter_series_id)
 	if not revealed_series.is_empty():
-		_status_label = UiKit.label(_ownership_status(), 18, UiKit.CYAN, 2)
+		_status_label = UiKit.label(_loc("已解密系列可永久购买与恢复", "Revealed series are permanent and restorable"), 18, UiKit.CYAN, 2)
 		if LocalizationManager.is_english():
 			# The ownership sentence has two semantic clauses. Give each clause its
 			# own centered line so the label never establishes a 1242 px minimum.
@@ -212,6 +212,16 @@ func _rebuild() -> void:
 	for series_index in range(revealed_series.size()):
 		var series_id: String = revealed_series[series_index]
 		content.add_child(_series_header(series_id))
+		# Preserve each series' full ownership statement next to its own items,
+		# instead of putting four repetitive paragraphs above the first product.
+		var ownership := _series_ownership_status(series_id)
+		if ownership != "":
+			var series_status := UiKit.label(ownership, 18, UiKit.TEXT_MUTED, 2)
+			series_status.name = "SeriesOwnershipStatus"
+			series_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			series_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			series_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			content.add_child(series_status)
 		for product_id in PurchaseManager.display_offer_ids(series_id):
 			content.add_child(_product_card(PurchaseManager.product(product_id)))
 		if PurchaseManager.is_arsenal_owned(series_id):
@@ -615,6 +625,15 @@ func _ownership_status() -> String:
 		"已解密系列可永久购买与恢复",
 		"Revealed series are permanent and restorable"
 	)
+
+
+func _series_ownership_status(series_id: String) -> String:
+	var set_row := PurchaseManager.set_for_series(series_id)
+	if PurchaseManager.is_arsenal_owned(series_id):
+		return str(set_row.get("owned_status_en" if LocalizationManager.is_english() else "owned_status_zh", ""))
+	if PurchaseManager.is_theme_owned(series_id):
+		return str(set_row.get("theme_status_en" if LocalizationManager.is_english() else "theme_status_zh", ""))
+	return ""
 
 
 func _product_card(row: Dictionary) -> PanelContainer:
