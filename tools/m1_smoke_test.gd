@@ -3731,6 +3731,7 @@ func _apply_calibration_build(save_manager: Node, original_save: Dictionary, cha
 func _dismiss_card_offer_for_smoke(battle: Node) -> void:
 	if battle.has_method("_close_card_offer"):
 		battle._close_card_offer(false)
+		_expect(battle.get_node("ThreatMarkerLayer").visible, "dismissing card offer must restore the world nameplate layer")
 	else:
 		if battle.has_node("Hud/CardPanel"):
 			battle.get_node("Hud/CardPanel").visible = false
@@ -3747,6 +3748,12 @@ func _verify_card_offer_full_pause(battle: Node) -> void:
 	var card_panel := battle.get_node("Hud/CardPanel") as Control
 	_expect(card_panel.process_mode == Node.PROCESS_MODE_ALWAYS, "card panel must remain interactive during card offer pause")
 	_expect(not battle.wave_toast_banner.visible, "card offer must clear any wave or onboarding toast behind the modal")
+	_expect(not battle.get_node("ThreatMarkerLayer").visible, "card offer must hide the whole world nameplate layer, not only labels behind the wave bar")
+	for marker in battle.get_node("ThreatMarkerLayer").get_children():
+		if marker is CanvasItem:
+			_expect(not marker.is_visible_in_tree(), "no world nameplate may read through the card modal border")
+	var wave_bar := battle.get_node(battle.HUD_WAVE_BAR_PATH) as Control
+	_expect(card_panel.get_global_rect().position.y - wave_bar.get_global_rect().end.y >= 47.5, "card offer must reserve 48 canvas px below the wave progress band")
 	_expect(battle.pending_wave_toast.is_empty(), "card offer must clear queued wave toasts so they do not reappear under the modal")
 	var card_bounds: Vector2 = battle._card_offer_vertical_bounds()
 	var cards := card_panel.get_node("Cards") as VBoxContainer

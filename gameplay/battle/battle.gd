@@ -914,6 +914,9 @@ func _set_subtree_process_mode(node: Node, mode_value: int) -> void:
 
 func _set_card_offer_pause_active(active: bool) -> void:
 	card_offer_active = active
+	# Hide the complete world-name layer, including labels added on this frame.
+	# Child visibility/LOD decisions stay intact and are restored on dismissal.
+	$ThreatMarkerLayer.visible = not active
 	_refresh_runtime_pause_modes()
 	if active:
 		_set_turret_fire_enabled(false)
@@ -3447,18 +3450,23 @@ func _layout_card_offer_panel() -> void:
 	var bounds := _card_offer_vertical_bounds()
 	var max_panel_height := maxf(0.0, bounds.y - bounds.x)
 	var content_height := float(panel.get_meta("card_offer_content_height", 0.0))
+	var compact := bool(panel.get_meta("card_offer_compact", false))
+	var panel_width := minf(1020.0, get_viewport_rect().size.x - 32.0) if compact else CARD_OFFER_PANEL_SIZE.x
+	var width_extra := panel_width - CARD_OFFER_PANEL_SIZE.x
+	var title_width := panel_width - 48.0 if compact else 864.0
 	var title := panel.get_node_or_null("CardTitle") as Label
 	var cards_top := CARD_OFFER_CARDS_POS.y
 	if title != null:
 		title.text = LocalizationManager.text(title.text)
+		title.text = title.text.replace("\n", " · ")
 		var width := title.get_theme_font("font").get_string_size(title.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title.get_theme_font_size("font_size")).x
-		if width > 844.0:
+		if width > title_width - 20.0:
 			title.text = title.text.replace(" · ", "\n")
 		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		title.clip_text = false
-		var title_height := _wrapped_label_required_height(title, 864.0, 70.0)
-		title.position = Vector2(54, 18)
-		title.size = Vector2(864, title_height)
+		var title_height := _wrapped_label_required_height(title, title_width, 70.0)
+		title.position = Vector2((panel_width - title_width) * 0.5, 18)
+		title.size = Vector2(title_width, title_height)
 		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		cards_top = maxf(cards_top, title.position.y + title_height + 12.0)
@@ -3470,8 +3478,8 @@ func _layout_card_offer_panel() -> void:
 	# modal to the battlefield center; they must not stretch an empty lane between
 	# the third card and the primary actions.
 	var panel_height := minf(max_panel_height, maxf(CARD_OFFER_PANEL_SIZE.y, content_height))
-	panel.size = Vector2(CARD_OFFER_PANEL_SIZE.x, panel_height)
-	panel.position = Vector2(CARD_OFFER_PANEL_X, _card_offer_centered_y(panel.size.y))
+	panel.size = Vector2(panel_width, panel_height)
+	panel.position = Vector2((get_viewport_rect().size.x - panel_width) * 0.5, _card_offer_centered_y(panel.size.y))
 	var button_y := panel.size.y - CARD_OFFER_ACTION_LANE_HEIGHT
 	var cards := panel.get_node_or_null("Cards") as VBoxContainer
 	if cards != null:
@@ -3479,7 +3487,7 @@ func _layout_card_offer_panel() -> void:
 		var measured_cards_height := float(panel.get_meta("card_offer_cards_height", 0.0))
 		var cards_lane := maxf(0.0, button_y - cards_top - CARD_OFFER_ACTION_GAP)
 		cards.size = Vector2(
-			CARD_OFFER_CARDS_SIZE.x,
+			CARD_OFFER_CARDS_SIZE.x + width_extra,
 			minf(cards_lane, measured_cards_height) if measured_cards_height > 0.0 else cards_lane
 		)
 		cards.add_theme_constant_override("separation", CARD_OFFER_CARD_SEPARATION)
@@ -3490,7 +3498,7 @@ func _layout_card_offer_panel() -> void:
 			button_y = cards.position.y + cards.size.y + CARD_OFFER_ACTION_GAP
 	var reroll := panel.get_node_or_null("RerollButton") as TextureButton
 	if reroll != null:
-		reroll.position = Vector2(78, button_y)
+		reroll.position = Vector2(78 + width_extra * 0.5, button_y)
 		reroll.size = CARD_OFFER_BUTTON_SIZE
 		reroll.custom_minimum_size = CARD_OFFER_BUTTON_SIZE
 		var label := reroll.get_node_or_null("RerollLabel") as Label
@@ -3501,7 +3509,7 @@ func _layout_card_offer_panel() -> void:
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	var skip := panel.get_node_or_null("SkipButton") as TextureButton
 	if skip != null:
-		skip.position = Vector2(522, button_y)
+		skip.position = Vector2(522 + width_extra * 0.5, button_y)
 		skip.size = CARD_OFFER_BUTTON_SIZE
 		skip.custom_minimum_size = CARD_OFFER_BUTTON_SIZE
 		var label := skip.get_node_or_null("SkipLabel") as Label
@@ -3517,6 +3525,9 @@ func _card_offer_vertical_bounds() -> Vector2:
 	# line so tall phones do not push the enlarged cards down onto the hero/base.
 	var insets := _viewport_safe_insets()
 	var top_y := CARD_OFFER_CENTER_TOP_Y + float(insets.get("top", 0.0))
+	var wave_bar := get_node_or_null(HUD_WAVE_BAR_PATH) as Control
+	if wave_bar != null and wave_bar.is_inside_tree():
+		top_y = maxf(top_y, wave_bar.get_global_rect().end.y + 48.0)
 	var viewport_bottom := get_viewport_rect().size.y - float(insets.get("bottom", 0.0))
 	var bottom_y := minf(BREACH_Y, viewport_bottom)
 	return Vector2(top_y, maxf(top_y, bottom_y))
@@ -12448,18 +12459,40 @@ func _refresh_card_offer_dynamic_layout() -> void:
 		return
 	var offer_cards: Array[Panel] = []
 	var uniform_card_height := CARD_OFFER_CARD_BASE_HEIGHT
+	var panel := cards.get_parent() as Panel
+	panel.set_meta("card_offer_compact", false)
+	_layout_card_offer_panel()
 	for child in cards.get_children():
 		if child is Panel:
 			var offer_card := child as Panel
+			offer_card.set_meta("card_offer_width_extra", 0.0)
 			_layout_skill_offer_card(offer_card)
 			offer_cards.append(offer_card)
 			uniform_card_height = maxf(uniform_card_height, offer_card.custom_minimum_size.y)
+	var bounds := _card_offer_vertical_bounds()
+	var available := bounds.y - bounds.x - cards.position.y - CARD_OFFER_ACTION_GAP - CARD_OFFER_ACTION_LANE_HEIGHT
+	var separators := float(maxi(0, offer_cards.size() - 1) * CARD_OFFER_CARD_SEPARATION)
+	var compact := uniform_card_height * offer_cards.size() + separators > available
+	if compact:
+		# Under vertical pressure, use the spare horizontal corridor first. Keep
+		# every font, icon and copy/tag/action gap; do not inflate shorter cards to
+		# the tallest one's height when that would push actions out of the modal.
+		panel.set_meta("card_offer_compact", true)
+		_layout_card_offer_panel()
+		var extra := panel.size.x - CARD_OFFER_PANEL_SIZE.x
+		uniform_card_height = 0.0
+		for offer_card in offer_cards:
+			offer_card.set_meta("card_offer_width_extra", extra)
+			_layout_skill_offer_card(offer_card)
+			uniform_card_height = maxf(uniform_card_height, offer_card.custom_minimum_size.y)
+		available = bounds.y - bounds.x - cards.position.y - CARD_OFFER_ACTION_GAP - CARD_OFFER_ACTION_LANE_HEIGHT
+	var equal_height_fits := uniform_card_height * offer_cards.size() + separators <= available
 	# The three choices are one comparison set. Measure every localized copy first,
 	# then give the complete trio the tallest natural card height. This prevents a
 	# short card from collapsing while a long description silently loses its final
 	# line, and keeps tag chips on one shared visual baseline.
 	for offer_card in offer_cards:
-		_layout_skill_offer_card(offer_card, uniform_card_height)
+		_layout_skill_offer_card(offer_card, uniform_card_height if equal_height_fits else 0.0)
 	_fit_card_offer_panel_to_cards()
 
 func _fit_card_offer_panel_to_cards() -> void:
@@ -12659,21 +12692,34 @@ func _layout_skill_offer_card(card: Panel, forced_card_height := 0.0) -> void:
 	var accent_bar := card.get_child(0) as TextureRect if card.get_child_count() > 0 else null
 	if stats == null or desc == null or tags == null:
 		return
+	var width_extra := float(card.get_meta("card_offer_width_extra", 0.0))
+	var previous_extra := float(card.get_meta("card_offer_previous_width_extra", 0.0))
+	for badge_name in ["LevelBadge", "RecommendBadge"]:
+		var badge := card.get_node_or_null(badge_name) as Control
+		if badge != null:
+			badge.position.x += width_extra - previous_extra
+	var title := card.get_node_or_null("Title") as Label
+	if title != null:
+		title.size.x += width_extra - previous_extra
+	card.set_meta("card_offer_previous_width_extra", width_extra)
+	var text_width := CARD_OFFER_TEXT_WIDTH + width_extra
 	# Every vertical lane is derived from the measured lane above it. Explicit
 	# newlines and automatic wrapping therefore follow the same path, so no skill,
 	# level or locale needs a one-off y offset.
-	var stats_h := _wrapped_label_required_height(stats, CARD_OFFER_TEXT_WIDTH, 54.0)
+	stats.size.x = text_width
+	var stats_h := maxf(_wrapped_label_required_height(stats, text_width, 54.0), stats.get_minimum_size().y)
 	stats.position = Vector2(CARD_OFFER_TEXT_X, CARD_OFFER_COPY_TOP_Y)
-	stats.size = Vector2(CARD_OFFER_TEXT_WIDTH, stats_h)
-	var desc_h := _wrapped_label_required_height(desc, CARD_OFFER_TEXT_WIDTH, 48.0)
+	stats.size = Vector2(text_width, stats_h)
+	desc.size.x = text_width
+	var desc_h := maxf(_wrapped_label_required_height(desc, text_width, 48.0), desc.get_minimum_size().y)
 	desc.position = Vector2(CARD_OFFER_TEXT_X, stats.position.y + stats_h + CARD_OFFER_COPY_GAP)
-	desc.size = Vector2(CARD_OFFER_TEXT_WIDTH, desc_h)
+	desc.size = Vector2(text_width, desc_h)
 	var tag_h := maxf(CARD_OFFER_TAG_MIN_HEIGHT, tags.get_combined_minimum_size().y)
 	# Tag chips need their own larger quiet lane. At the global 1.5 font scale the
 	# final outlined glyphs of a wrapped Chinese description otherwise visually
 	# touch the chip border even when the controls' mathematical rects do not.
 	tags.position = Vector2(CARD_OFFER_TEXT_X, desc.position.y + desc_h + CARD_OFFER_DESC_TAG_GAP)
-	tags.size = Vector2(CARD_OFFER_TEXT_WIDTH, tag_h)
+	tags.size = Vector2(text_width, tag_h)
 	var icon_bottom := CARD_OFFER_ICON_FRAME_POS.y + CARD_OFFER_ICON_FRAME_SIZE.y + CARD_OFFER_BOTTOM_PADDING
 	var copy_bottom := tags.position.y + tag_h + CARD_OFFER_BOTTOM_PADDING
 	var measured_card_h: float = ceil(maxf(CARD_OFFER_CARD_BASE_HEIGHT, maxf(icon_bottom, copy_bottom)))
@@ -12684,7 +12730,7 @@ func _layout_skill_offer_card(card: Panel, forced_card_height := 0.0) -> void:
 		# distributed between the copy and the chips.
 		tags.position.y = final_card_h - CARD_OFFER_BOTTOM_PADDING - tag_h
 	card.set_meta("card_offer_natural_height", measured_card_h)
-	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH, final_card_h)
+	card.custom_minimum_size = Vector2(CARD_OFFER_CARD_WIDTH + width_extra, final_card_h)
 	card.size = card.custom_minimum_size
 	if accent_bar != null:
 		accent_bar.size = Vector2(12.0, final_card_h)
