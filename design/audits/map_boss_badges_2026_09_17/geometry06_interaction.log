@@ -1,0 +1,16 @@
+$ godot --headless --path . --script res://design/audits/map_boss_badges_2026_09_17/verify_badges.gd
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+HINT_RECT [P: (182.0, 721.0), S: (620.0, 242.0)] min=(81.0, 242.0) viewport=[P: (0.0, 0.0), S: (1080.0, 1920.0)]
+BADGE_CHECK (750, 1334) zh button=[P: (672.0, -1508.0), S: (286.0, 80.0)] badge=[P: (436.0, -1508.0), S: (112.0, 80.0)]
+HINT_RECT [P: (182.0, 606.0), S: (620.0, 352.0)] min=(81.0, 352.0) viewport=[P: (0.0, 0.0), S: (1080.0, 1920.0)]
+BADGE_CHECK (750, 1334) en button=[P: (672.0, -1508.0), S: (286.0, 80.0)] badge=[P: (436.0, -1508.0), S: (112.0, 80.0)]
+HINT_RECT [P: (182.0, 721.0), S: (620.0, 242.0)] min=(81.0, 242.0) viewport=[P: (0.0, 0.0), S: (1080.0, 1920.0)]
+BADGE_CHECK (1080, 1920) zh button=[P: (672.0, -1508.0), S: (286.0, 80.0)] badge=[P: (436.0, -1508.0), S: (112.0, 80.0)]
+HINT_RECT [P: (182.0, 606.0), S: (620.0, 352.0)] min=(81.0, 352.0) viewport=[P: (0.0, 0.0), S: (1080.0, 1920.0)]
+BADGE_CHECK (1080, 1920) en button=[P: (672.0, -1508.0), S: (286.0, 80.0)] badge=[P: (436.0, -1508.0), S: (112.0, 80.0)]
+HINT_RECT [P: (182.0, 721.0), S: (620.0, 242.0)] min=(81.0, 242.0) viewport=[P: (0.0, 0.0), S: (1080.0, 2346.0)]
+BADGE_CHECK (1320, 2868) zh button=[P: (672.0, -1082.0), S: (286.0, 80.0)] badge=[P: (436.0, -1082.0), S: (112.0, 80.0)]
+HINT_RECT [P: (182.0, 606.0), S: (620.0, 352.0)] min=(81.0, 352.0) viewport=[P: (0.0, 0.0), S: (1080.0, 2346.0)]
+BADGE_CHECK (1320, 2868) en button=[P: (672.0, -1082.0), S: (286.0, 80.0)] badge=[P: (436.0, -1082.0), S: (112.0, 80.0)]
+Boss badge regression: 0 failures

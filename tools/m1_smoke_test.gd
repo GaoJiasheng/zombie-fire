@@ -362,9 +362,15 @@ func _initialize() -> void:
 	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
 	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
+	for badge_name in ["SmallBossNode", "MajorBossNode"]:
+		var boss_badge := first_chapter.find_child(badge_name, true, false) as PanelContainer
+		_expect(boss_badge.size.x >= 112.0, "chapter boss badges must retain icon/number breathing room")
+		_expect(boss_badge.mouse_filter == Control.MOUSE_FILTER_PASS, "boss long press must preserve map scrolling")
+		_expect(boss_badge.has_signal("hint_requested") and not boss_badge.get_signal_connection_list("hint_requested").is_empty(), "both boss badges must expose connected long-press explanations")
 	var enter_chapter_button := first_chapter.find_child("EnterChapterButton", true, false) as TextureButton
 	_expect(enter_chapter_button != null, "map chapter cards must expose an explicit chapter entry button")
 	_expect(enter_chapter_button.size.x >= 280.0 and enter_chapter_button.size.y >= 80.0, "chapter Continue/Review entry must use the enlarged primary-action ruler")
+	_expect(enter_chapter_button.size == Vector2(286, 80), "chapter actions must retain the Owner-approved native 286x80 size")
 	_expect(enter_chapter_button.position.y + enter_chapter_button.size.y <= first_chapter.size.y - 10.0, "enlarged chapter action must retain a protected bottom edge")
 	var enter_chapter_label := enter_chapter_button.find_child("ActionLabel", false, false) as Label
 	_expect(enter_chapter_label != null and enter_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "chapter primary-action copy must stay vertically centered inside the taller button")

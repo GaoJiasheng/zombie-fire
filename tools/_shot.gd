@@ -589,6 +589,20 @@ func _initialize() -> void:
 			debug_scroll.scroll_vertical = maxi(0, int(payload.get("debug_scroll_y", 0)))
 			for _scroll_frame in range(4):
 				await process_frame
+	if route == "map" and payload.has("debug_map_boss_hint"):
+		var chapter: Node = main.current_scene.find_child("Chapter%02dCard" % int(payload.get("debug_map_boss_chapter", 1)), true, false)
+		if chapter != null:
+			var badge := chapter.find_child("MajorBossNode" if str(payload["debug_map_boss_hint"]) == "major" else "SmallBossNode", true, false) as Control
+			var scroll := main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+			scroll.ensure_control_visible(badge)
+			for i in range(6):
+				await process_frame
+			var press := InputEventScreenTouch.new()
+			press.index = 0
+			press.pressed = true
+			press.position = badge.get_global_rect().get_center()
+			capture_viewport.push_input(press, true)
+			await create_timer(0.65).timeout
 	_emit_final_ui_audit(main, route)
 	# render_target_update_mode = ALWAYS keeps CaptureViewport rendering every
 	# frame, but the very last mutation above (UI audit, scroll, debug staging)
