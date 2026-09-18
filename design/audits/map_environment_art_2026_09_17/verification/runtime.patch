@@ -1,0 +1,81 @@
+diff --git a/meta/map/map.gd b/meta/map/map.gd
+index 7645ba33..664852ff 100644
+--- a/meta/map/map.gd
++++ b/meta/map/map.gd
+@@ -534,7 +534,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
+ 	margin.name = "ChapterContentMargin"
+ 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+ 	# Keep every copy block beyond the authored route rail. The old 32px inset
+-	# landed exactly on the rail's right edge, so “关卡” and “击破” visually cut
++	# landed exactly on the rail's right edge, so the stage range visually cut
+ 	# through the chapter frame on tall phones.
+ 	margin.add_theme_constant_override("margin_left", 48)
+ 	margin.add_theme_constant_override("margin_top", 24)
+@@ -568,12 +568,6 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
+ 	range_row.add_child(range)
+ 	range_row.add_child(_build_chapter_status_pill(_chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED))
+ 
+-	var objective := UiKit.label(LocalizationManager.text("击破战区首领，推进防线"), 15, UiKit.TEXT_MUTED, 2)
+-	objective.name = "ChapterObjective"
+-	objective.custom_minimum_size = Vector2(0, 34)
+-	objective.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+-	visual_column.add_child(objective)
+-
+ 	var info_column := VBoxContainer.new()
+ 	info_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+ 	info_column.add_theme_constant_override("separation", 8)
+@@ -634,20 +628,22 @@ func _chapter_thumbnail_path(chapter_id: int) -> String:
+ func _build_chapter_thumbnail_slot(chapter_id: int, unlocked: bool, accent: Color) -> Control:
+ 	var slot := Control.new()
+ 	slot.name = "ChapterThumbnailSlot"
+-	slot.custom_minimum_size = Vector2(288, 140)
++	# Reuse the removed 34px generic objective + 8px gap for environment art.
++	# Chapter height and the neighboring primary-action ruler stay unchanged.
++	slot.custom_minimum_size = Vector2(288, 182)
+ 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	var thumbnail := _build_chapter_thumbnail(chapter_id, unlocked, accent)
+ 	# Move the image into the unused left breathing room and slightly lower it in
+ 	# the card. Its narrower right edge restores separation from the title column.
+ 	thumbnail.position = Vector2(-12, 8)
+-	thumbnail.size = Vector2(292, 132)
++	thumbnail.size = Vector2(292, 174)
+ 	slot.add_child(thumbnail)
+ 	return slot
+ 
+ func _build_chapter_thumbnail(chapter_id: int, unlocked: bool, accent: Color) -> TextureRect:
+ 	var thumbnail := TextureRect.new()
+ 	thumbnail.name = "ChapterThumbnail"
+-	thumbnail.custom_minimum_size = Vector2(292, 132)
++	thumbnail.custom_minimum_size = Vector2(292, 174)
+ 	var path := _chapter_thumbnail_path(chapter_id)
+ 	if ResourceLoader.exists(path):
+ 		thumbnail.texture = load(path)
+diff --git a/tools/_shot.gd b/tools/_shot.gd
+index 6b0f4436..ebb3acc5 100644
+--- a/tools/_shot.gd
++++ b/tools/_shot.gd
+@@ -585,6 +585,8 @@ func _initialize() -> void:
+ 			debug_scroll = main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
+ 		if debug_scroll == null:
+ 			debug_scroll = main.current_scene.find_child("Scroll", true, false) as ScrollContainer
++		if debug_scroll == null and route == "map":
++			debug_scroll = main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
+ 		if debug_scroll != null:
+ 			debug_scroll.scroll_vertical = maxi(0, int(payload.get("debug_scroll_y", 0)))
+ 			for _scroll_frame in range(4):
+diff --git a/tools/m1_smoke_test.gd b/tools/m1_smoke_test.gd
+index 5144260c..79afc81f 100644
+--- a/tools/m1_smoke_test.gd
++++ b/tools/m1_smoke_test.gd
+@@ -360,6 +360,11 @@ func _initialize() -> void:
+ 	_expect((first_chapter as TextureButton).mouse_filter == Control.MOUSE_FILTER_PASS, "chapter card surfaces must pass drag gestures to the map scroll container")
+ 	_expect((first_chapter as TextureButton).get_signal_connection_list("pressed").is_empty(), "chapter entry must only be bound to its explicit button, not the full card surface")
+ 	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
++	for chapter_card in level_list.get_children():
++		_expect(chapter_card.find_child("ChapterObjective", true, false) == null, "chapter cards must omit the repeated generic boss objective")
++		var chapter_thumbnail := chapter_card.find_child("ChapterThumbnail", true, false) as TextureRect
++		_expect(chapter_thumbnail != null and chapter_thumbnail.size == Vector2(292, 174), "environment thumbnails must reuse the removed objective height")
++		_expect(chapter_thumbnail.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "taller environment thumbnails must crop without distorting the source art")
+ 	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
+ 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
+ 	for badge_name in ["SmallBossNode", "MajorBossNode"]:

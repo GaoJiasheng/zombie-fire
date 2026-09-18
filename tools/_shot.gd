@@ -585,6 +585,8 @@ func _initialize() -> void:
 			debug_scroll = main.current_scene.find_child("ItemScroll", true, false) as ScrollContainer
 		if debug_scroll == null:
 			debug_scroll = main.current_scene.find_child("Scroll", true, false) as ScrollContainer
+		if debug_scroll == null and route == "map":
+			debug_scroll = main.current_scene.find_child("LevelScroll", true, false) as ScrollContainer
 		if debug_scroll != null:
 			debug_scroll.scroll_vertical = maxi(0, int(payload.get("debug_scroll_y", 0)))
 			for _scroll_frame in range(4):

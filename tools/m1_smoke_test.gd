@@ -360,6 +360,11 @@ func _initialize() -> void:
 	_expect((first_chapter as TextureButton).mouse_filter == Control.MOUSE_FILTER_PASS, "chapter card surfaces must pass drag gestures to the map scroll container")
 	_expect((first_chapter as TextureButton).get_signal_connection_list("pressed").is_empty(), "chapter entry must only be bound to its explicit button, not the full card surface")
 	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
+	for chapter_card in level_list.get_children():
+		_expect(chapter_card.find_child("ChapterObjective", true, false) == null, "chapter cards must omit the repeated generic boss objective")
+		var chapter_thumbnail := chapter_card.find_child("ChapterThumbnail", true, false) as TextureRect
+		_expect(chapter_thumbnail != null and chapter_thumbnail.size == Vector2(292, 174), "environment thumbnails must reuse the removed objective height")
+		_expect(chapter_thumbnail.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "taller environment thumbnails must crop without distorting the source art")
 	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
 	for badge_name in ["SmallBossNode", "MajorBossNode"]:

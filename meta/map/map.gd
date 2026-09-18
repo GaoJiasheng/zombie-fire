@@ -534,7 +534,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	margin.name = "ChapterContentMargin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	# Keep every copy block beyond the authored route rail. The old 32px inset
-	# landed exactly on the rail's right edge, so “关卡” and “击破” visually cut
+	# landed exactly on the rail's right edge, so the stage range visually cut
 	# through the chapter frame on tall phones.
 	margin.add_theme_constant_override("margin_left", 48)
 	margin.add_theme_constant_override("margin_top", 24)
@@ -567,12 +567,6 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	range.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	range_row.add_child(range)
 	range_row.add_child(_build_chapter_status_pill(_chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED))
-
-	var objective := UiKit.label(LocalizationManager.text("击破战区首领，推进防线"), 15, UiKit.TEXT_MUTED, 2)
-	objective.name = "ChapterObjective"
-	objective.custom_minimum_size = Vector2(0, 34)
-	objective.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	visual_column.add_child(objective)
 
 	var info_column := VBoxContainer.new()
 	info_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -634,20 +628,22 @@ func _chapter_thumbnail_path(chapter_id: int) -> String:
 func _build_chapter_thumbnail_slot(chapter_id: int, unlocked: bool, accent: Color) -> Control:
 	var slot := Control.new()
 	slot.name = "ChapterThumbnailSlot"
-	slot.custom_minimum_size = Vector2(288, 140)
+	# Reuse the removed 34px generic objective + 8px gap for environment art.
+	# Chapter height and the neighboring primary-action ruler stay unchanged.
+	slot.custom_minimum_size = Vector2(288, 182)
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var thumbnail := _build_chapter_thumbnail(chapter_id, unlocked, accent)
 	# Move the image into the unused left breathing room and slightly lower it in
 	# the card. Its narrower right edge restores separation from the title column.
 	thumbnail.position = Vector2(-12, 8)
-	thumbnail.size = Vector2(292, 132)
+	thumbnail.size = Vector2(292, 174)
 	slot.add_child(thumbnail)
 	return slot
 
 func _build_chapter_thumbnail(chapter_id: int, unlocked: bool, accent: Color) -> TextureRect:
 	var thumbnail := TextureRect.new()
 	thumbnail.name = "ChapterThumbnail"
-	thumbnail.custom_minimum_size = Vector2(292, 132)
+	thumbnail.custom_minimum_size = Vector2(292, 174)
 	var path := _chapter_thumbnail_path(chapter_id)
 	if ResourceLoader.exists(path):
 		thumbnail.texture = load(path)
