@@ -3302,7 +3302,13 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 			var gear_grid := detail.find_child("DetailArsenalGearGrid", true, false) as GridContainer
 			if role in ["theme", "arsenal_complete"]:
 				_expect(hero_grid != null and hero_grid.get_child_count() == 4, "%s detail must enumerate all four themed hero outfits" % product_id)
-				_expect(weapon_skin_grid != null and weapon_skin_grid.get_child_count() == 8, "%s detail must enumerate all eight free-weapon theme looks" % product_id)
+				_expect(weapon_skin_grid != null and weapon_skin_grid.get_child_count() == 8, "%s detail must show the eight original weapons, not theme coatings" % product_id)
+				if weapon_skin_grid != null:
+					for weapon_card in weapon_skin_grid.get_children():
+						var weapon_icon := weapon_card.find_child("WeaponIcon", true, false) as TextureRect
+						var weapon_row: Dictionary = data_loader.get_row("weapons", str(weapon_card.get_meta("store_detail_weapon_id", "")))
+						_expect(weapon_icon != null and weapon_icon.texture != null and weapon_icon.texture.resource_path == str(weapon_row.get("icon", "")), "%s store preview must use original weapon art" % product_id)
+						_expect(weapon_icon != null and weapon_icon.material == null and weapon_icon.modulate == Color.WHITE, "%s store weapons must not inherit theme tint" % product_id)
 			else:
 				_expect(hero_grid == null and weapon_skin_grid == null, "%s upgrade must not charge for or re-grant owned theme contents" % product_id)
 			if role != "theme":

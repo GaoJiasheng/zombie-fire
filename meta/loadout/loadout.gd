@@ -309,7 +309,7 @@ func _refresh() -> void:
 	weapon_icon.texture = _loadout_weapon_texture(weapon_source, weapon_icon)
 	weapon_icon.modulate = Color.WHITE
 	weapon_icon.scale = Vector2.ONE
-	UiKit.apply_theme_surface(weapon_icon)
+	weapon_icon.material = null
 	_refresh_character_bust(DataLoader.get_row("characters", char_id))
 	var growth_badge := %GrowthBadge as Label
 	growth_badge.text = "护甲  /  芯片  /  宠物"
@@ -471,7 +471,7 @@ func _loadout_bust_layout(texture: Texture2D) -> Dictionary:
 func _loadout_weapon_source_path(weapon_id: String, row: Dictionary) -> String:
 	# Owner keeps the original weapon identity: reuse the accepted, unframed
 	# loadout render without generating or recoloring a prototype for each theme.
-	# This UI-only source choice never changes dedicated battle weapon skins.
+	# The same original identity is used by icons and battle weapon resources.
 	var fallback := str(row.get("loadout_art", row.get("handheld", row.get("icon", ""))))
 	# "loadout" deliberately falls back to detailed art, not the small handheld.
 	return ThemeManager.resolve_weapon_asset(weapon_id, "loadout", fallback)

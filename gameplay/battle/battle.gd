@@ -6435,7 +6435,7 @@ func _spawn_character_weapon_visual() -> void:
 			var fallback := str(weapon.get("turret", weapon.get("icon", "")))
 			character_weapon_sprite.texture = load(ThemeManager.resolve_weapon_asset(weapon_id, "turret", fallback))
 	character_weapon_sprite.modulate = Color.WHITE
-	character_weapon_sprite.material = ThemeManager.create_surface_material()
+	character_weapon_sprite.material = null
 	_attach_growth_badge(character_weapon_sprite, weapon_level, Vector2(-82, -126))
 
 

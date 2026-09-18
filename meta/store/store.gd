@@ -690,7 +690,7 @@ func _product_card(row: Dictionary) -> PanelContainer:
 	var name := UiKit.label(str(row.get("name_en" if LocalizationManager.is_english() else "name_zh", "")), 25, UiKit.TEXT_MAIN, 3)
 	_prepare_store_card_copy(name)
 	copy.add_child(name)
-	var subtitle := UiKit.label(str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")), 17, UiKit.GREY_300, 2)
+	var subtitle := UiKit.label(_product_summary(row), 17, UiKit.GREY_300, 2)
 	_prepare_store_card_copy(subtitle)
 	copy.add_child(subtitle)
 	if offer_role != "theme":
@@ -952,6 +952,14 @@ func _store_detail_header(row: Dictionary, accent: Color) -> Control:
 	return header
 
 
+func _product_summary(row: Dictionary) -> String:
+	# Theme copy follows the current cosmetic catalog, not historical coating
+	# promises in the frozen commerce SKU data. Prices and grants are untouched.
+	if str(row.get("offer_role", "")) == "theme":
+		return ThemeManager.theme_description(str(row.get("theme_id", "default")))
+	return str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", ""))
+
+
 func _populate_store_product_detail(content: VBoxContainer, row: Dictionary, accent: Color) -> void:
 	var theme_id := str(row.get("theme_id", "default"))
 	var set_id := str(row.get("arsenal_set_id", ""))
@@ -962,7 +970,7 @@ func _populate_store_product_detail(content: VBoxContainer, row: Dictionary, acc
 	content.add_child(summary)
 	var summary_body := _store_detail_section_body(summary)
 	var subtitle := UiKit.label(
-		str(row.get("subtitle_en" if LocalizationManager.is_english() else "subtitle_zh", "")),
+		_product_summary(row),
 		18,
 		UiKit.TEXT_MAIN,
 		2
@@ -1012,7 +1020,7 @@ func _add_store_theme_detail_sections(content: VBoxContainer, theme_id: String, 
 	for spec in [
 		[_loc("全局界面", "Global UI"), _loc("菜单、面板、按钮与资源栏", "Menus, panels, buttons and resource HUD")],
 		[_loc("基地防线", "Base Defense"), _loc("主题边框、战斗 HUD 与结算外观", "Themed frames, battle HUD and results")],
-		[_loc("八把免费武器", "8 Free Weapons"), _loc("主题枪械配色与弹体战斗色彩", "Theme colorways and projectile palette")],
+		[_loc("武器外观", "Weapon Appearance"), _loc("保持原始造型，不随主题换色", "Original weapon designs; no theme recoloring")],
 		[_loc("专属开火特征", "Fire Signature"), _loc("角色背挂特征与战斗光效", "Rear character signature and combat effects")],
 	]:
 		coverage.add_child(_store_detail_info_card(str(spec[0]), str(spec[1]), accent))
@@ -1040,7 +1048,7 @@ func _add_store_theme_detail_sections(content: VBoxContainer, theme_id: String, 
 	for character_id in character_ids:
 		hero_grid.add_child(_store_detail_hero_card(character_id, theme_id, accent))
 
-	var weapons_section := _store_detail_section("WeaponSkinsSection", _loc("8 把免费武器主题外观", "Theme Looks for 8 Free Weapons"), accent)
+	var weapons_section := _store_detail_section("WeaponSkinsSection", _loc("武器原貌 · 所有主题通用", "Original Weapons · Shared Across Themes"), accent)
 	content.add_child(weapons_section)
 	var weapon_grid := GridContainer.new()
 	weapon_grid.name = "DetailWeaponSkinGrid"
@@ -1207,7 +1215,7 @@ func _store_detail_hero_card(character_id: String, theme_id: String, accent: Col
 	return card
 
 
-func _store_detail_weapon_skin_card(weapon_id: String, theme_id: String, accent: Color) -> PanelContainer:
+func _store_detail_weapon_skin_card(weapon_id: String, _theme_id: String, accent: Color) -> PanelContainer:
 	var row := DataLoader.get_row("weapons", weapon_id)
 	var card := PanelContainer.new()
 	card.name = "WeaponSkin_%s" % weapon_id
@@ -1218,10 +1226,10 @@ func _store_detail_weapon_skin_card(weapon_id: String, theme_id: String, accent:
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 4)
 	card.add_child(box)
-	var icon_path := _store_theme_weapon_icon_path(theme_id, weapon_id, str(row.get("icon", "")))
+	var icon_path := str(row.get("icon", ""))
 	var icon := UiKit.icon(icon_path, Vector2(134, 122))
 	icon.name = "WeaponIcon"
-	icon.modulate = Color.WHITE.lerp(accent, 0.10)
+	icon.modulate = Color.WHITE
 	box.add_child(icon)
 	var label := UiKit.label(DataLoader.tr_key(str(row.get("name_key", weapon_id))), 13, UiKit.TEXT_MAIN, 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1337,18 +1345,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _product_grants_entitlement(row: Dictionary, entitlement_id: String) -> bool:
 	return entitlement_id != "" and row.get("grants", []).has(entitlement_id)
-
-
-func _store_theme_weapon_icon_path(theme_id: String, weapon_id: String, fallback_path: String) -> String:
-	for theme in ThemeManager.catalog_themes():
-		if str(theme.get("id", "")) != theme_id:
-			continue
-		var root_path := str(theme.get("weapons", {}).get("asset_root", "")).trim_suffix("/")
-		var candidate := "%s/%s_icon.png" % [root_path, weapon_id]
-		if root_path != "" and (ResourceLoader.exists(candidate) or FileAccess.file_exists(ProjectSettings.globalize_path(candidate))):
-			return candidate
-		break
-	return fallback_path
 
 
 func _store_slot_name(slot: String) -> String:

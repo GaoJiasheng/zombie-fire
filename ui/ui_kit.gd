@@ -1379,7 +1379,6 @@ static func standard_resource_bar(gold: int, star: int, xp: int, chip_size := Ve
 static func weapon_icon(row: Dictionary, size := Vector2(88, 88)) -> TextureRect:
 	var weapon_id := str(row.get("name_key", ""))
 	var result := icon(item_icon_path("weapons", weapon_id, row), size)
-	apply_theme_surface(result)
 	return result
 
 

@@ -206,7 +206,7 @@ func _run() -> void:
 			_expect(infernal_button.contains("/themes/infernal_dominion/ui/"), "missing native Infernal %s button at %s" % [kind, str(native_size)])
 	var autocannon_fallback := str(data_loader.get_row("weapons", "weapon_autocannon").get("icon", ""))
 	var infernal_autocannon: String = str(theme_manager.resolve_weapon_asset("weapon_autocannon", "icon", autocannon_fallback))
-	_expect(infernal_autocannon.contains("/themes/infernal_dominion/weapons/"), "free weapons must resolve the active Infernal coating")
+	_expect(infernal_autocannon == autocannon_fallback, "Infernal must preserve the original free weapon")
 	var inferno_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_inferno")
 	var inferno_icon := str(inferno_weapon.get("icon", ""))
 	_expect(theme_manager.resolve_weapon_asset("weapon_apocalypse_inferno", "icon", inferno_icon) == inferno_icon, "premium weapon identity must not be overwritten by a cosmetic coating")
@@ -246,7 +246,7 @@ func _run() -> void:
 			var polar_button: String = str(theme_manager.resolve_button_path(kind, native_size, kind == "secondary"))
 			_expect(polar_button.contains("/themes/polar_aurora/ui/"), "missing native Polar Aurora %s button at %s" % [kind, str(native_size)])
 	var polar_autocannon: String = str(theme_manager.resolve_weapon_asset("weapon_autocannon", "icon", autocannon_fallback))
-	_expect(polar_autocannon.contains("/themes/polar_aurora/weapons/"), "free weapons must resolve the active Polar Aurora coating")
+	_expect(polar_autocannon == autocannon_fallback, "Polar must preserve the original free weapon")
 	var absolute_zero_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_absolute_zero")
 	var absolute_zero_icon := str(absolute_zero_weapon.get("icon", ""))
 	_expect(theme_manager.resolve_weapon_asset("weapon_apocalypse_absolute_zero", "icon", absolute_zero_icon) == absolute_zero_icon, "Absolute Zero identity must not be overwritten by a cosmetic coating")
@@ -295,7 +295,7 @@ func _run() -> void:
 			var gilded_button: String = str(theme_manager.resolve_button_path(kind, native_size, kind == "secondary"))
 			_expect(gilded_button.contains("/themes/gilded_eclipse/ui/"), "missing native Gilded Eclipse %s button at %s" % [kind, str(native_size)])
 	var gilded_autocannon: String = str(theme_manager.resolve_weapon_asset("weapon_autocannon", "icon", autocannon_fallback))
-	_expect(gilded_autocannon.contains("/themes/gilded_eclipse/weapons/"), "free weapons must resolve the active Gilded Eclipse coating")
+	_expect(gilded_autocannon == autocannon_fallback, "Gilded must preserve the original free weapon")
 	var golden_law_weapon: Dictionary = data_loader.get_row("weapons", "weapon_apocalypse_golden_law")
 	var golden_law_icon := str(golden_law_weapon.get("icon", ""))
 	_expect(theme_manager.resolve_weapon_asset("weapon_apocalypse_golden_law", "icon", golden_law_icon) == golden_law_icon, "Golden Law identity must not be overwritten by a cosmetic coating")
@@ -316,6 +316,20 @@ func _run() -> void:
 			"explicit Gilded Eclipse outfit must resolve per hero for %s" % character_id
 		)
 
+	# Owner's original-weapon contract covers every catalog theme and weapon,
+	# including paid identities, not just one representative free icon.
+	for theme_row in theme_manager.catalog_themes():
+		theme_manager._set_active_without_persist(str(theme_row.get("id", "default")))
+		for weapon_id in data_loader.get_table("weapons"):
+			var weapon_row: Dictionary = data_loader.get_row("weapons", weapon_id)
+			for kind in ["icon", "handheld", "turret", "loadout_art"]:
+				var original_path := str(weapon_row.get(kind, ""))
+				_expect(theme_manager.resolve_weapon_asset(weapon_id, kind, original_path) == original_path, "%s/%s/%s must keep its original resource" % [theme_row.get("id"), weapon_id, kind])
+			_expect(UiKit.item_icon_path("weapons", weapon_id, weapon_row) == str(weapon_row.get("icon", "")), "shared icons must use original weapon art")
+			var original_icon := UiKit.weapon_icon(weapon_row)
+			_expect(original_icon.material == null and original_icon.modulate == Color.WHITE, "shared weapon icons must not be theme-tinted")
+			original_icon.free()
+
 	theme_manager.select_character_outfit("volt", "neon_tempest", false)
 	var no_verified_entitlements: Array[String] = []
 	save_manager.replace_verified_entitlements(no_verified_entitlements, 0, false)
@@ -332,7 +346,7 @@ func _run() -> void:
 	save_manager.save_data = save_snapshot
 	settings_manager.settings = settings_snapshot
 	if failures.is_empty():
-		print("Theme manager test passed: four gated themes, independent outfits, revoke fallback, Neon/Infernal/Polar/Gilded hero frames, four-hero three-direction rear premium true-grip, rendered firing auras, native buttons, weapon coatings, and reduced VFX.")
+		print("Theme manager test passed: four gated themes, independent outfits, revoke fallback, Neon/Infernal/Polar/Gilded hero frames, four-hero three-direction rear premium true-grip, rendered firing auras, native buttons, original weapons across themes, and reduced VFX.")
 		quit(0)
 	else:
 		for failure in failures:

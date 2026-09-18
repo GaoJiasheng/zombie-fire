@@ -406,8 +406,6 @@ func _build_item_button(item_id: String, row: Dictionary) -> TextureButton:
 	else:
 		icon.texture = load(UiKit.item_icon_path(_data_table_name(), item_id, row))
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		if mode == "weapons":
-			UiKit.apply_theme_surface(icon)
 	button.add_child(icon)
 	icon.z_index = 2
 	icon.set_deferred("position", icon.position)
