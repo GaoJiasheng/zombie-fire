@@ -1,11 +1,13 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const ChapterBossBadge := preload("res://meta/map/chapter_boss_badge.gd")
 const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
 const LEVEL_CARD_HEIGHT := 192.0
+const LEVEL_TITLE_FONT_SIZE := 30
 const LEVEL_MODE_AREA_X := 540.0
 const LEVEL_MODE_AREA_W := 422.0
 const LEVEL_MODE_SINGLE_W := 286.0
@@ -15,7 +17,7 @@ const LEVEL_MODE_Y := 14.0
 const LEVEL_MODE_H := 164.0
 const LEVEL_MODE_STYLE_SIZE := Vector2(286.0, 112.0)
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 400.0
+const CHAPTER_HERO_HEIGHT := 310.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -28,6 +30,8 @@ var resource_tip_tween: Tween = null
 var selected_chapter := 0
 var _scroll_focus_generation := 0
 var _overview_focus_chapter := 0
+var _boss_hint: PanelContainer
+var _boss_hint_timer: Timer
 
 func setup(main: Node, payload := {}) -> void:
 	router = main
@@ -159,7 +163,7 @@ func _apply_page_title_style(size: int) -> void:
 	UiKit.apply_label(title, size, UiKit.TEXT_MAIN, 5)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = true
+	title.clip_text = false
 
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 6
@@ -247,6 +251,7 @@ func _show_resource_tip(title: String, tip: String, accent: Color) -> void:
 	)
 
 func _build_levels() -> void:
+	_hide_chapter_boss_hint()
 	var level_list := %LevelList as VBoxContainer
 	for child in level_list.get_children():
 		child.queue_free()
@@ -262,6 +267,7 @@ func _build_levels() -> void:
 				_schedule_map_scroll_focus("", 0.0)
 			return
 	selected_chapter = 0
+	_set_chapter_back_navigation(false)
 	_apply_page_title_style(44)
 	(%Title as Label).text = "战区地图"
 	for chapter in chapters:
@@ -273,6 +279,7 @@ func _build_levels() -> void:
 	_schedule_map_scroll_focus("Chapter%02dCard" % focus_chapter, 28.0)
 
 func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> void:
+	_set_chapter_back_navigation(true)
 	var env := _chapter_env(chapter)
 	var chapter_id := int(chapter.get("chapter", 1))
 	var title := str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")]))
@@ -285,6 +292,41 @@ func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> vo
 		var stars := SaveManager.get_level_stars(level_id)
 		var challenge_stars := SaveManager.get_challenge_stars(level_id)
 		level_list.add_child(_build_level_card(level_id, level, unlocked, stars, challenge_stars))
+
+func _set_chapter_back_navigation(show_back: bool) -> void:
+	var row := get_node_or_null("Root/VBox/MapTitleRow") as HBoxContainer
+	if row == null:
+		var vbox := $Root/VBox as VBoxContainer
+		var title := %Title as Label
+		var index := title.get_index()
+		row = HBoxContainer.new()
+		row.name = "MapTitleRow"
+		row.add_theme_constant_override("separation", 16)
+		vbox.add_child(row)
+		vbox.move_child(row, index)
+		var back := Button.new()
+		back.name = "ChapterBackButton"
+		back.text = "‹"
+		back.tooltip_text = LocalizationManager.text("返回战区地图")
+		back.custom_minimum_size = Vector2(96, 96)
+		back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		back.focus_mode = Control.FOCUS_NONE
+		back.add_theme_font_size_override("font_size", UiKit.scaled_font_size(38))
+		back.add_theme_color_override("font_color", UiKit.CYAN)
+		for state in ["normal", "hover", "pressed", "focus"]:
+			back.add_theme_stylebox_override(state, UiKit.map_nav_card_texture_style())
+		back.pressed.connect(_back_to_chapter_map)
+		row.add_child(back)
+		title.reparent(row)
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var balance := Control.new()
+		balance.name = "BackButtonBalance"
+		balance.custom_minimum_size = Vector2(96, 0)
+		balance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(balance)
+	(row.get_node("ChapterBackButton") as Control).visible = show_back
+	(row.get_node("BackButtonBalance") as Control).visible = show_back
 
 func _chapter_groups() -> Array:
 	var groups := {}
@@ -530,7 +572,7 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	margin.name = "ChapterContentMargin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	# Keep every copy block beyond the authored route rail. The old 32px inset
-	# landed exactly on the rail's right edge, so “关卡” and “击破” visually cut
+	# landed exactly on the rail's right edge, so the stage range visually cut
 	# through the chapter frame on tall phones.
 	margin.add_theme_constant_override("margin_left", 48)
 	margin.add_theme_constant_override("margin_top", 24)
@@ -545,7 +587,8 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	margin.add_child(columns)
 
 	var visual_column := VBoxContainer.new()
-	visual_column.custom_minimum_size = Vector2(300, 0)
+	# The inset thumbnail ends at x=280; reclaim only its unused right gutter.
+	visual_column.custom_minimum_size = Vector2(288, 0)
 	visual_column.add_theme_constant_override("separation", 8)
 	visual_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	columns.add_child(visual_column)
@@ -562,12 +605,6 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 	range.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	range_row.add_child(range)
 	range_row.add_child(_build_chapter_status_pill(_chapter_status_text(chapter), accent if unlocked else UiKit.TEXT_MUTED))
-
-	var objective := UiKit.label(LocalizationManager.text("击破战区首领，推进防线"), 15, UiKit.TEXT_MUTED, 2)
-	objective.name = "ChapterObjective"
-	objective.custom_minimum_size = Vector2(0, 34)
-	objective.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	visual_column.add_child(objective)
 
 	var info_column := VBoxContainer.new()
 	info_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -594,15 +631,19 @@ func _build_chapter_card(chapter: Dictionary) -> TextureButton:
 
 	info_column.add_child(_build_chapter_progress_panel(chapter, unlocked, accent))
 
+	var bottom_margin := MarginContainer.new()
+	bottom_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom_margin.add_theme_constant_override("margin_right", 10)
+	bottom_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_column.add_child(bottom_margin)
 	var bottom := HBoxContainer.new()
 	bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	# Keep the two boss badges and the primary action left-packed. Any spare width
-	# belongs on the right as a protected inset; centering the row split that
-	# safety budget and left the button skin visually touching the card frame.
-	bottom.alignment = BoxContainer.ALIGNMENT_BEGIN
-	bottom.add_theme_constant_override("separation", 4)
+	# Wider boss badges own their icon/number padding. Move the native-size CTA
+	# right, while retaining an explicit inset from the chapter frame.
+	bottom.alignment = BoxContainer.ALIGNMENT_END
+	bottom.add_theme_constant_override("separation", 6)
 	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	info_column.add_child(bottom)
+	bottom_margin.add_child(bottom)
 	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, false), false, unlocked))
 	bottom.add_child(_build_chapter_boss_badge(_chapter_boss_level(chapter, true), true, unlocked))
 	var action_label := "继续推进" if current else "回顾战区" if completed else "进入战区" if unlocked else _chapter_next_lock_text(chapter)
@@ -625,20 +666,22 @@ func _chapter_thumbnail_path(chapter_id: int) -> String:
 func _build_chapter_thumbnail_slot(chapter_id: int, unlocked: bool, accent: Color) -> Control:
 	var slot := Control.new()
 	slot.name = "ChapterThumbnailSlot"
-	slot.custom_minimum_size = Vector2(300, 140)
+	# Reuse the removed 34px generic objective + 8px gap for environment art.
+	# Chapter height and the neighboring primary-action ruler stay unchanged.
+	slot.custom_minimum_size = Vector2(288, 182)
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var thumbnail := _build_chapter_thumbnail(chapter_id, unlocked, accent)
 	# Move the image into the unused left breathing room and slightly lower it in
 	# the card. Its narrower right edge restores separation from the title column.
 	thumbnail.position = Vector2(-12, 8)
-	thumbnail.size = Vector2(292, 132)
+	thumbnail.size = Vector2(292, 174)
 	slot.add_child(thumbnail)
 	return slot
 
 func _build_chapter_thumbnail(chapter_id: int, unlocked: bool, accent: Color) -> TextureRect:
 	var thumbnail := TextureRect.new()
 	thumbnail.name = "ChapterThumbnail"
-	thumbnail.custom_minimum_size = Vector2(292, 132)
+	thumbnail.custom_minimum_size = Vector2(292, 174)
 	var path := _chapter_thumbnail_path(chapter_id)
 	if ResourceLoader.exists(path):
 		thumbnail.texture = load(path)
@@ -726,11 +769,12 @@ func _chapter_progress_segment_style(accent: Color, complete: bool, unlocked: bo
 	return style
 
 func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -> PanelContainer:
-	var badge := PanelContainer.new()
+	var badge := ChapterBossBadge.new()
 	badge.name = "MajorBossNode" if major else "SmallBossNode"
-	badge.custom_minimum_size = Vector2(88, 68)
+	badge.custom_minimum_size = Vector2(112, 80)
+	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	badge.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.mouse_filter = Control.MOUSE_FILTER_PASS
 	var inset := MarginContainer.new()
 	inset.add_theme_constant_override("margin_left", 7)
 	inset.add_theme_constant_override("margin_top", 5)
@@ -740,11 +784,13 @@ func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -
 	badge.add_child(inset)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 4)
+	row.add_theme_constant_override("separation", 8)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inset.add_child(row)
 	var icon_path := "res://assets/production/sprites/ui/map/ui_boss_badge_major.png" if major else "res://assets/production/sprites/ui/map/ui_boss_badge_minor.png"
-	var icon := UiKit.icon(icon_path, Vector2(40, 40))
+	# These skins have substantial transparent side gutters. A compact icon leaves
+	# both digits inside the visible inner frame, not merely inside Control bounds.
+	var icon := UiKit.icon(icon_path, Vector2(32, 40))
 	icon.modulate = Color.WHITE if unlocked else Color(0.54, 0.57, 0.60, 0.70)
 	row.add_child(icon)
 	# The campaign ends at 99, so a display-only leading zero wastes badge width
@@ -752,11 +798,71 @@ func _build_chapter_boss_badge(level: Dictionary, major: bool, unlocked: bool) -
 	# the natural two-digit boss level to players.
 	var level_number := int(DataLoader.level_number(str(level.get("id", ""))))
 	var number := UiKit.label(str(level_number), 13, UiKit.TEXT_MAIN if unlocked else UiKit.TEXT_MUTED, 1)
+	number.name = "BossLevelNumber"
 	number.custom_minimum_size = Vector2(24, 0)
 	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	row.add_child(number)
-	badge.tooltip_text = TranslationServer.translate("大首领" if major else "小首领")
+	badge.hint_requested.connect(_show_chapter_boss_hint.bind(badge, level_number, major))
+	badge.hint_dismissed.connect(_hide_chapter_boss_hint)
 	return badge
+
+func _hide_chapter_boss_hint() -> void:
+	if is_instance_valid(_boss_hint):
+		_boss_hint.hide()
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch and event.pressed:
+		_hide_chapter_boss_hint()
+	elif event is InputEventMouseButton and event.pressed:
+		_hide_chapter_boss_hint()
+
+func _show_chapter_boss_hint(badge: Control, level_number: int, major: bool) -> void:
+	if not is_instance_valid(_boss_hint):
+		_boss_hint = PanelContainer.new()
+		_boss_hint.name = "ChapterBossHint"
+		_boss_hint.z_index = 100
+		_boss_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_boss_hint.add_theme_stylebox_override("panel", UiKit.hint_texture_style(false))
+		add_child(_boss_hint)
+		var margin := MarginContainer.new()
+		for edge in ["left", "right", "top", "bottom"]:
+			margin.add_theme_constant_override("margin_" + edge, 24)
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_boss_hint.add_child(margin)
+		var copy := UiKit.label("", 22, UiKit.TEXT_MAIN, 2)
+		copy.name = "BossHintText"
+		copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		margin.add_child(copy)
+		_boss_hint_timer = Timer.new()
+		_boss_hint_timer.one_shot = true
+		_boss_hint_timer.wait_time = 4.0
+		_boss_hint_timer.timeout.connect(_hide_chapter_boss_hint)
+		add_child(_boss_hint_timer)
+	var kind := LocalizationManager.text("大首领" if major else "小首领")
+	var message := LocalizationManager.text("%s · 第 %d 关\n标记本战区的首领关卡，数字表示关卡编号。")
+	(_boss_hint.find_child("BossHintText", true, false) as Label).text = message % [kind, level_number]
+	var safe := UiKit.safe_area_canvas_insets(get_viewport())
+	var bounds := get_viewport_rect()
+	var width := minf(620.0, bounds.size.x - safe.x - safe.z - 32.0)
+	_boss_hint.size = Vector2(width, 0)
+	# Measure invisibly so the first press never flashes an unpositioned panel.
+	_boss_hint.modulate.a = 0.0
+	_boss_hint.show()
+	# Wrapped text minimum height settles on the next container layout pass.
+	for i in range(3):
+		await get_tree().process_frame
+	if not is_instance_valid(badge) or not is_instance_valid(_boss_hint) or not _boss_hint.visible:
+		return
+	_boss_hint.size.y = _boss_hint.get_combined_minimum_size().y
+	var rect := badge.get_global_rect()
+	_boss_hint.global_position = Vector2(
+		clampf(rect.get_center().x - width * 0.5, safe.x + 16.0, bounds.end.x - safe.z - width - 16.0),
+		clampf(rect.position.y - _boss_hint.size.y - 18.0, safe.y + 16.0, bounds.end.y - safe.w - _boss_hint.size.y - 16.0)
+	)
+	_boss_hint.modulate.a = 1.0
+	_boss_hint_timer.start()
 
 func _build_chapter_action_control(text: String, enabled: bool, callback: Callable, primary := true) -> TextureButton:
 	var action := TextureButton.new()
@@ -955,7 +1061,6 @@ func _make_scroll_friendly_button(button: BaseButton) -> void:
 	button.set_meta("scroll_drag_passthrough", true)
 
 func _build_chapter_header(chapter: Dictionary) -> TextureButton:
-	var chapter_id := int(chapter.get("chapter", 1))
 	var env := _chapter_env(chapter)
 	var accent := _chapter_accent(chapter)
 	var header := TextureButton.new()
@@ -973,59 +1078,51 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	_add_chapter_art(header, str(env.get("portrait", "")), true)
 	_add_chapter_frame(header, accent, true)
 
-	var margin := MarginContainer.new()
-	margin.name = "ChapterDetailContent"
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 32)
-	margin.add_theme_constant_override("margin_top", 30)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(margin)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 20)
-	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(columns)
+	# The page already names the zone. Keep its story and objective together at
+	# full width, rather than repeating the title above a stretched half-column.
 	var copy := VBoxContainer.new()
-	copy.custom_minimum_size = Vector2(470, 0)
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	copy.add_theme_constant_override("separation", 8)
+	copy.name = "ChapterDetailContent"
+	copy.add_theme_constant_override("separation", 12)
 	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	columns.add_child(copy)
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23, UiKit.TEXT_MAIN, 4)
-	title.name = "ChapterDetailTitle"
-	title.custom_minimum_size = Vector2(0, 48)
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	copy.add_child(title)
+	header.add_child(copy)
 	var story := UiKit.label(str(env.get("story", "")), 16, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
-	story.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	story.max_lines_visible = 4
-	story.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 3)
 	copy.add_child(story)
 	var objective := UiKit.label(str(env.get("objective", "")), 15, UiKit.TEXT_MUTED, 2)
+	objective.name = "ChapterDetailObjective"
 	objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective.max_lines_visible = 2
-	objective.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	objective.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	objective.add_theme_constant_override("line_spacing", 3)
 	copy.add_child(objective)
-	var actions := VBoxContainer.new()
-	actions.custom_minimum_size = Vector2(340, 0)
-	actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	actions.add_theme_constant_override("separation", 18)
-	actions.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	columns.add_child(actions)
-	actions.add_child(_build_chapter_progress_panel(chapter, true, accent))
+	header.add_child(_build_chapter_progress_panel(chapter, true, accent))
 	var back := _build_chapter_action_control("返回战区地图", true, _back_to_chapter_map, false)
 	back.name = "BackToChapterMapButton"
-	back.custom_minimum_size = Vector2(284, 80)
-	actions.add_child(back)
+	header.add_child(back)
+	header.resized.connect(_layout_chapter_header.bind(header))
+	copy.minimum_size_changed.connect(_layout_chapter_header.bind(header), CONNECT_DEFERRED)
+	_layout_chapter_header.call_deferred(header)
 	return header
+
+func _layout_chapter_header(header: Control) -> void:
+	if not is_instance_valid(header) or not header.is_inside_tree() or header.size.x <= 0.0:
+		return
+	var copy := header.get_node("ChapterDetailContent") as VBoxContainer
+	var progress := header.get_node("ChapterProgress") as VBoxContainer
+	var back := header.get_node("BackToChapterMapButton") as TextureButton
+	copy.position = Vector2(32, 24)
+	copy.size.x = maxf(1.0, header.size.x - 56.0)
+	copy.size.y = copy.get_combined_minimum_size().y
+	# Retain the established >=172 top / >=56 bottom navigation clearance.
+	# Longer translations grow the card instead of clipping or shrinking text.
+	var footer_y := maxf(172.0, copy.get_rect().end.y + 16.0)
+	progress.position = Vector2(32, footer_y)
+	progress.size = progress.get_combined_minimum_size()
+	back.position = Vector2(header.size.x - 24.0 - CHAPTER_ACTION_SIZE.x, footer_y)
+	back.size = CHAPTER_ACTION_SIZE
+	header.custom_minimum_size.y = maxf(CHAPTER_HERO_HEIGHT, footer_y + maxf(progress.size.y, back.size.y) + 56.0)
 
 func _open_chapter(chapter_id: int) -> void:
 	var chapter := _chapter_by_index(_chapter_groups(), chapter_id)
@@ -1418,21 +1515,22 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	index_plate.add_child(index_label)
 
 	var title := Label.new()
+	title.name = "LevelTitle"
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
 	title.position = Vector2(148, 24)
-	var title_width := 264.0 if variant in ["elite", "treasure", "boss", "boss_rush"] else 360.0
-	title.size = Vector2(title_width, 44)
-	var title_font_size := 24 if title.text.length() > 10 else 28
-	UiKit.apply_label(title, title_font_size, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
-	# English level names are much wider than their Chinese counterparts. Keep
-	# the complete name inside its reserved lane and out of the variant badge.
-	UiKit.fit_label_text(title, title_font_size, 18, 2.0, 2.0)
+	title.size = Vector2(374, 72)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiKit.apply_label(title, LEVEL_TITLE_FONT_SIZE, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	# The translated badges each get their own row in the information lane.
-	_add_card_pill(button, Vector2(148, 82), Vector2(154, 34), "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_element_pill(button, Vector2(148, 134), Vector2(210, 34), weakness)
+	var summary := HBoxContainer.new()
+	summary.name = "LevelSummaryRow"
+	summary.add_theme_constant_override("separation", 10)
+	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(summary)
+	_add_card_pill(summary, Vector2.ZERO, Vector2.ZERO, "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_element_pill(summary, Vector2.ZERO, Vector2.ZERO, weakness)
 	if level_id == _campaign_focus_level_id():
 		# Keep the translated Current badge in the index lane. The information
 		# lane then has enough width for every localized weakness name without
@@ -1476,22 +1574,46 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 			"challenge"
 		)
 	button.resized.connect(_layout_level_action_lane.bind(button))
+	title.minimum_size_changed.connect(_layout_level_action_lane.bind(button))
+	summary.minimum_size_changed.connect(_layout_level_action_lane.bind(button))
 	_layout_level_action_lane.call_deferred(button)
 	return button
 
 func _layout_level_action_lane(card: Control) -> void:
 	if not is_instance_valid(card) or not card.is_inside_tree() or card.size.x <= 0.0:
 		return
-	var narrow := card.size.x < LEVEL_MODE_AREA_X + LEVEL_MODE_AREA_W + 18.0
-	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if narrow else LEVEL_MODE_AREA_X
-	var lane_y := LEVEL_CARD_HEIGHT + 8.0 if narrow else LEVEL_MODE_Y
+	var title := card.get_node("LevelTitle") as Label
+	var summary := card.get_node("LevelSummaryRow") as HBoxContainer
+	var variant := card.get_node_or_null("VariantMarker") as Control
+	# A long metadata row does not require moving both actions to an empty lower
+	# half. Keep the title and actions alongside; let metadata span a footer row.
+	var compact_lane_x := minf(LEVEL_MODE_AREA_X, card.size.x - 18.0 - LEVEL_MODE_AREA_W)
+	var compact_width := compact_lane_x - 148.0 - 18.0
+	var stack_actions := compact_width < 220.0
+	var footer_summary := not stack_actions and summary.get_combined_minimum_size().x > compact_width
+	var info_width := card.size.x - 148.0 - 24.0 if stack_actions else compact_width
+	var marker_width := variant.get_combined_minimum_size().x if variant != null else 0.0
+	title.size.x = maxf(160.0, info_width - (marker_width + 12.0 if variant != null and not footer_summary else 0.0))
+	title.size.y = maxf(64.0, title.get_minimum_size().y)
+	var copy_bottom := title.get_rect().end.y
+	if variant != null:
+		variant.size = variant.get_combined_minimum_size()
+		variant.position = Vector2(148.0, copy_bottom + 8.0) if footer_summary else Vector2(148.0 + info_width - marker_width, 28.0)
+		if footer_summary:
+			copy_bottom = variant.get_rect().end.y
+	var summary_y := maxf(copy_bottom + 10.0, LEVEL_MODE_Y + LEVEL_MODE_H + 16.0) if footer_summary else copy_bottom + 10.0
+	summary.position = Vector2(148, summary_y)
+	summary.size = summary.get_combined_minimum_size()
+	var content_bottom := summary.position.y + summary.size.y + 18.0
+	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if stack_actions else compact_lane_x
+	var lane_y := content_bottom + 8.0 if stack_actions else LEVEL_MODE_Y
 	var normal := card.get_node_or_null("NormalModeButton") as Control
 	var challenge := card.get_node_or_null("ChallengeModeButton") as Control
 	if normal != null:
 		normal.position = Vector2(lane_x if challenge != null else lane_x + (LEVEL_MODE_AREA_W - LEVEL_MODE_SINGLE_W) * 0.5, lane_y)
 	if challenge != null:
 		challenge.position = Vector2(lane_x + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, lane_y)
-	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else LEVEL_CARD_HEIGHT
+	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if stack_actions else maxf(LEVEL_CARD_HEIGHT, content_bottom)
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
 	return UiKit.map_level_card_texture_style(not unlocked)
@@ -1533,6 +1655,7 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 		_:
 			return
 	var pill := PanelContainer.new()
+	pill.name = "VariantMarker"
 	pill.position = Vector2(424, 28)
 	pill.size = Vector2(78 if label.length() <= 2 else 110, 34)
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())

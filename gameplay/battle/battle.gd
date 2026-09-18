@@ -520,6 +520,7 @@ var character_weapon_recoil_time := 0.0
 var character_weapon_recoil_offset := 0.0
 var character_weapon_direction := CHARACTER_WEAPON_DEFAULT_DIRECTION
 var character_weapon_combo_active := false
+var character_armed_rest_pose := false
 var character_weapon_combo_muzzle := CHARACTER_WEAPON_SOCKET
 var character_weapon_combo_aim := "center"
 var character_weapon_combo_locked_aim := ""
@@ -5932,6 +5933,10 @@ func _character_body_metric(pose_key := "") -> Dictionary:
 	var resolved_pose := pose_key
 	if resolved_pose == "":
 		resolved_pose = _character_current_body_pose_key()
+	if character_armed_rest_pose and resolved_pose in ["idle", "hurt"]:
+		# Armed rest reuses the centre preparation master, including its boots
+		# and body centre. Never anchor it with the old open-handed idle metrics.
+		resolved_pose = "center"
 	var profiles: Dictionary = _character_body_metrics_table().get("profiles", {})
 	var profile: Dictionary = profiles.get(_character_body_profile_id(), {})
 	var character_profile: Dictionary = profile.get(_character_asset_id(), {})
@@ -6430,7 +6435,7 @@ func _spawn_character_weapon_visual() -> void:
 			var fallback := str(weapon.get("turret", weapon.get("icon", "")))
 			character_weapon_sprite.texture = load(ThemeManager.resolve_weapon_asset(weapon_id, "turret", fallback))
 	character_weapon_sprite.modulate = Color.WHITE
-	character_weapon_sprite.material = ThemeManager.create_surface_material()
+	character_weapon_sprite.material = null
 	_attach_growth_badge(character_weapon_sprite, weapon_level, Vector2(-82, -126))
 
 
@@ -6694,6 +6699,7 @@ func _spawn_gilded_eclipse_cast_signature(origin: Vector2, base_color: Color) ->
 func _load_character_animation_frames() -> void:
 	var asset_id := _character_asset_id()
 	character_weapon_combo_active = false
+	character_armed_rest_pose = false
 	character_weapon_combo_muzzle = CHARACTER_WEAPON_SOCKET
 	character_weapon_combo_aim = "center"
 	character_weapon_combo_locked_aim = ""
@@ -6722,6 +6728,13 @@ func _load_character_animation_frames() -> void:
 			character_attack_frames = character_idle_frames.duplicate()
 		if character_hurt_frames.is_empty():
 			character_hurt_frames = character_idle_frames.duplicate()
+		if not character_attack_frames.is_empty():
+			# The legacy idle/hurt strips leave every hero's hands off the gun.
+			# Keep the equipped weapon in both hands between shots using the authored
+			# F1 preparation beat (no muzzle flash); the rig still breathes/reacts.
+			character_idle_frames = _repeat_character_texture(character_attack_frames[0], 4)
+			character_hurt_frames = _repeat_character_texture(character_attack_frames[0], 3)
+			character_armed_rest_pose = true
 		character_weapon_combo_active = true
 		var combo_key := "%s/%s" % [asset_id, weapon_id]
 		character_weapon_combo_muzzle = CHARACTER_WEAPON_COMBO_MUZZLE.get(combo_key, Vector2(104, -82))

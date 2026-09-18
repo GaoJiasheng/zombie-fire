@@ -1,0 +1,62 @@
+diff --git a/gameplay/battle/battle.gd b/gameplay/battle/battle.gd
+index 28dc5b08..32494477 100644
+--- a/gameplay/battle/battle.gd
++++ b/gameplay/battle/battle.gd
+@@ -520,6 +520,7 @@ var character_weapon_recoil_time := 0.0
+ var character_weapon_recoil_offset := 0.0
+ var character_weapon_direction := CHARACTER_WEAPON_DEFAULT_DIRECTION
+ var character_weapon_combo_active := false
++var character_armed_rest_pose := false
+ var character_weapon_combo_muzzle := CHARACTER_WEAPON_SOCKET
+ var character_weapon_combo_aim := "center"
+ var character_weapon_combo_locked_aim := ""
+@@ -5932,6 +5933,10 @@ func _character_body_metric(pose_key := "") -> Dictionary:
+ 	var resolved_pose := pose_key
+ 	if resolved_pose == "":
+ 		resolved_pose = _character_current_body_pose_key()
++	if character_armed_rest_pose and resolved_pose in ["idle", "hurt"]:
++		# Armed rest reuses the centre preparation master, including its boots
++		# and body centre. Never anchor it with the old open-handed idle metrics.
++		resolved_pose = "center"
+ 	var profiles: Dictionary = _character_body_metrics_table().get("profiles", {})
+ 	var profile: Dictionary = profiles.get(_character_body_profile_id(), {})
+ 	var character_profile: Dictionary = profile.get(_character_asset_id(), {})
+@@ -6694,6 +6699,7 @@ func _spawn_gilded_eclipse_cast_signature(origin: Vector2, base_color: Color) ->
+ func _load_character_animation_frames() -> void:
+ 	var asset_id := _character_asset_id()
+ 	character_weapon_combo_active = false
++	character_armed_rest_pose = false
+ 	character_weapon_combo_muzzle = CHARACTER_WEAPON_SOCKET
+ 	character_weapon_combo_aim = "center"
+ 	character_weapon_combo_locked_aim = ""
+@@ -6722,6 +6728,13 @@ func _load_character_animation_frames() -> void:
+ 			character_attack_frames = character_idle_frames.duplicate()
+ 		if character_hurt_frames.is_empty():
+ 			character_hurt_frames = character_idle_frames.duplicate()
++		if asset_id == "char_volt" and not character_attack_frames.is_empty():
++			# Volt's legacy idle/hurt strips depict empty-handed electrical casting.
++			# Keep the equipped weapon in both hands between shots using the authored
++			# F1 preparation beat (no muzzle flash); the rig still breathes/reacts.
++			character_idle_frames = _repeat_character_texture(character_attack_frames[0], 4)
++			character_hurt_frames = _repeat_character_texture(character_attack_frames[0], 3)
++			character_armed_rest_pose = true
+ 		character_weapon_combo_active = true
+ 		var combo_key := "%s/%s" % [asset_id, weapon_id]
+ 		character_weapon_combo_muzzle = CHARACTER_WEAPON_COMBO_MUZZLE.get(combo_key, Vector2(104, -82))
+diff --git a/tools/m1_smoke_test.gd b/tools/m1_smoke_test.gd
+index b0daac2c..3a85468e 100644
+--- a/tools/m1_smoke_test.gd
++++ b/tools/m1_smoke_test.gd
+@@ -5608,6 +5608,12 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
+ 				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
+ 				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
+ 				_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
++				if character_key == "volt":
++					_expect(battle.character_armed_rest_pose, "Volt must keep an armed rest pose for %s" % weapon_key)
++					for rest_frame in battle.character_idle_frames + battle.character_hurt_frames:
++						_expect(rest_frame == battle.character_attack_frames[0], "Volt idle/hurt must retain the equipped gun without a muzzle flash: %s" % weapon_key)
++					for rest_pose in ["idle", "hurt"]:
++						_expect(battle._character_body_metric(rest_pose) == battle._character_body_metric("center"), "Volt armed rest must use the matching centre-body anchor: %s/%s" % [weapon_key, rest_pose])
+ 				var standard_reference_scale := float(battle._character_body_sprite_scale("center"))
+ 				for body_pose in ["idle", "hurt", "left", "center", "right"]:
+ 					var body_metric: Dictionary = battle._character_body_metric(body_pose)

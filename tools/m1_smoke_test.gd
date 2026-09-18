@@ -360,11 +360,22 @@ func _initialize() -> void:
 	_expect((first_chapter as TextureButton).mouse_filter == Control.MOUSE_FILTER_PASS, "chapter card surfaces must pass drag gestures to the map scroll container")
 	_expect((first_chapter as TextureButton).get_signal_connection_list("pressed").is_empty(), "chapter entry must only be bound to its explicit button, not the full card surface")
 	_expect(first_chapter.find_child("ChapterStory", true, false) != null, "map chapter cards must show authored chapter story")
+	for chapter_card in level_list.get_children():
+		_expect(chapter_card.find_child("ChapterObjective", true, false) == null, "chapter cards must omit the repeated generic boss objective")
+		var chapter_thumbnail := chapter_card.find_child("ChapterThumbnail", true, false) as TextureRect
+		_expect(chapter_thumbnail != null and chapter_thumbnail.size == Vector2(292, 174), "environment thumbnails must reuse the removed objective height")
+		_expect(chapter_thumbnail.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "taller environment thumbnails must crop without distorting the source art")
 	_expect(first_chapter.find_child("SmallBossNode", true, false) != null, "map chapter cards must mark the level-5 small boss")
 	_expect(first_chapter.find_child("MajorBossNode", true, false) != null, "map chapter cards must mark the level-10 major boss")
+	for badge_name in ["SmallBossNode", "MajorBossNode"]:
+		var boss_badge := first_chapter.find_child(badge_name, true, false) as PanelContainer
+		_expect(boss_badge.size.x >= 112.0, "chapter boss badges must retain icon/number breathing room")
+		_expect(boss_badge.mouse_filter == Control.MOUSE_FILTER_PASS, "boss long press must preserve map scrolling")
+		_expect(boss_badge.has_signal("hint_requested") and not boss_badge.get_signal_connection_list("hint_requested").is_empty(), "both boss badges must expose connected long-press explanations")
 	var enter_chapter_button := first_chapter.find_child("EnterChapterButton", true, false) as TextureButton
 	_expect(enter_chapter_button != null, "map chapter cards must expose an explicit chapter entry button")
 	_expect(enter_chapter_button.size.x >= 280.0 and enter_chapter_button.size.y >= 80.0, "chapter Continue/Review entry must use the enlarged primary-action ruler")
+	_expect(enter_chapter_button.size == Vector2(286, 80), "chapter actions must retain the Owner-approved native 286x80 size")
 	_expect(enter_chapter_button.position.y + enter_chapter_button.size.y <= first_chapter.size.y - 10.0, "enlarged chapter action must retain a protected bottom edge")
 	var enter_chapter_label := enter_chapter_button.find_child("ActionLabel", false, false) as Label
 	_expect(enter_chapter_label != null and enter_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "chapter primary-action copy must stay vertically centered inside the taller button")
@@ -373,12 +384,22 @@ func _initialize() -> void:
 	_expect(enter_chapter_touch_target == null or enter_chapter_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded chapter touch target must not swallow drag-to-scroll gestures")
 	main.current_scene._open_chapter(1)
 	await process_frame
+	# Full-width wrapped story/objective containers settle before measuring the
+	# content-driven footer (including translations with an extra line).
+	await process_frame
+	await process_frame
 	level_list = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null and level_list.get_child_count() >= 11, "chapter detail must render a header plus its ten sub-level cards")
 	var back_to_chapter_map := level_list.get_child(0).find_child("BackToChapterMapButton", true, false) as TextureButton
 	_expect(back_to_chapter_map != null, "chapter detail must expose a back-to-chapter-map button")
 	_expect(back_to_chapter_map.size.x >= 280.0 and back_to_chapter_map.size.y >= 80.0, "Back to Zone Map must share the enlarged primary-navigation ruler")
 	_expect(back_to_chapter_map.position.y >= 172.0 and back_to_chapter_map.position.y + back_to_chapter_map.size.y <= level_list.get_child(0).size.y - 56.0, "Back to Zone Map must keep clear separation from progress and the chapter-card bottom edge")
+	var chapter_copy := level_list.get_child(0).find_child("ChapterDetailContent", true, false) as Control
+	var chapter_progress := level_list.get_child(0).find_child("ChapterProgress", true, false) as Control
+	_expect(chapter_copy != null and chapter_progress != null, "chapter detail must keep complete copy above a progress/navigation footer")
+	_expect(chapter_copy.get_global_rect().end.y + 16.0 <= chapter_progress.get_global_rect().position.y, "chapter footer must follow the full story/objective without clipping")
+	_expect(not chapter_progress.get_global_rect().intersects(back_to_chapter_map.get_global_rect()), "chapter progress and back action must not overlap")
+	_expect(is_equal_approx(chapter_progress.get_global_rect().position.y, back_to_chapter_map.get_global_rect().position.y), "chapter progress and navigation must share the footer row")
 	var back_to_chapter_label := back_to_chapter_map.find_child("ActionLabel", false, false) as Label
 	_expect(back_to_chapter_label != null and back_to_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Back to Zone Map copy must stay vertically centered inside the enlarged button")
 	_expect(back_to_chapter_map.mouse_filter == Control.MOUSE_FILTER_PASS and bool(back_to_chapter_map.get_meta("scroll_drag_passthrough", false)), "back-to-chapter-map button must preserve drag-to-scroll gestures")
@@ -386,6 +407,15 @@ func _initialize() -> void:
 	_expect(back_touch_target == null or back_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded back-button touch target must not swallow drag-to-scroll gestures")
 	var first_level: Node = level_list.get_child(1)
 	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
+	var fixed_chapter_back := main.current_scene.find_child("ChapterBackButton", true, false) as Button
+	_expect(fixed_chapter_back != null and fixed_chapter_back.is_visible_in_tree(), "chapter detail must expose a fixed upper-left back button")
+	_expect(not (main.current_scene.find_child("LevelScroll", true, false) as Node).is_ancestor_of(fixed_chapter_back), "upper-left back button must remain outside the scrolling list")
+	_expect(fixed_chapter_back.size.x >= 96.0 and fixed_chapter_back.size.y >= 96.0, "upper-left back button must retain its mobile touch target")
+	var stage_title := first_level.get_node("LevelTitle") as Label
+	_expect(stage_title.get_theme_font_size("font_size") == UiKit.scaled_font_size(30), "level titles must retain the enlarged 30-point ruler without shrinking")
+	var stage_summary := first_level.get_node("LevelSummaryRow") as HBoxContainer
+	_expect(stage_summary.get_child_count() == 2, "recommended power and weakness must share a content-sized summary row")
+	_expect(stage_summary.get_child(0).position.y == stage_summary.get_child(1).position.y, "recommended power and weakness must align on one line")
 	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
 	var first_normal := first_level.find_child("NormalModeButton", true, false) as Button
 	var first_challenge := first_level.find_child("ChallengeModeButton", true, false) as Button
@@ -3282,7 +3312,13 @@ func _verify_store_product_preview_contract(data_loader: Node, save_manager: Nod
 			var gear_grid := detail.find_child("DetailArsenalGearGrid", true, false) as GridContainer
 			if role in ["theme", "arsenal_complete"]:
 				_expect(hero_grid != null and hero_grid.get_child_count() == 4, "%s detail must enumerate all four themed hero outfits" % product_id)
-				_expect(weapon_skin_grid != null and weapon_skin_grid.get_child_count() == 8, "%s detail must enumerate all eight free-weapon theme looks" % product_id)
+				_expect(weapon_skin_grid != null and weapon_skin_grid.get_child_count() == 8, "%s detail must show the eight original weapons, not theme coatings" % product_id)
+				if weapon_skin_grid != null:
+					for weapon_card in weapon_skin_grid.get_children():
+						var weapon_icon := weapon_card.find_child("WeaponIcon", true, false) as TextureRect
+						var weapon_row: Dictionary = data_loader.get_row("weapons", str(weapon_card.get_meta("store_detail_weapon_id", "")))
+						_expect(weapon_icon != null and weapon_icon.texture != null and weapon_icon.texture.resource_path == str(weapon_row.get("icon", "")), "%s store preview must use original weapon art" % product_id)
+						_expect(weapon_icon != null and weapon_icon.material == null and weapon_icon.modulate == Color.WHITE, "%s store weapons must not inherit theme tint" % product_id)
 			else:
 				_expect(hero_grid == null and weapon_skin_grid == null, "%s upgrade must not charge for or re-grant owned theme contents" % product_id)
 			if role != "theme":
@@ -5588,6 +5624,11 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
 				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
 				_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
+				_expect(battle.character_armed_rest_pose, "%s must keep an armed rest pose for %s" % [character_key, weapon_key])
+				for rest_frame in battle.character_idle_frames + battle.character_hurt_frames:
+					_expect(rest_frame == battle.character_attack_frames[0], "%s idle/hurt must retain the equipped gun without a muzzle flash: %s" % [character_key, weapon_key])
+				for rest_pose in ["idle", "hurt"]:
+					_expect(battle._character_body_metric(rest_pose) == battle._character_body_metric("center"), "%s armed rest must use the matching centre-body anchor: %s/%s" % [character_key, weapon_key, rest_pose])
 				var standard_reference_scale := float(battle._character_body_sprite_scale("center"))
 				for body_pose in ["idle", "hurt", "left", "center", "right"]:
 					var body_metric: Dictionary = battle._character_body_metric(body_pose)

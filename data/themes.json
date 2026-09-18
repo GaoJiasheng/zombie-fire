@@ -32,8 +32,8 @@
       "id": "neon_tempest",
       "name_zh": "霓虹雷暴",
       "name_en": "Neon Tempest",
-      "description_zh": "青紫朋克界面、四人霓虹战衣、枪械配色与专属战斗光效",
-			"description_en": "Cyberpunk UI, four neon outfits, weapon colorways, and signature combat effects",
+      "description_zh": "青紫朋克界面、四人霓虹战衣与专属战斗光效",
+			"description_en": "Cyberpunk UI, four neon outfits, and signature combat effects",
       "premium": true,
       "entitlement": "ent_theme_neon_tempest",
       "ui": {
@@ -109,8 +109,8 @@
       "id": "infernal_dominion",
       "name_zh": "炼狱赤焰",
       "name_en": "Infernal Dominion",
-      "description_zh": "黑曜熔铜界面、四人熔炉战衣、枪械赤焰涂装与机械火翼开火特效",
-			"description_en": "Obsidian-and-copper UI, four forge outfits, infernal weapon skins, and mechanical fire-wing firing effects",
+      "description_zh": "黑曜熔铜界面、四人熔炉战衣与机械火翼开火特效",
+			"description_en": "Obsidian-and-copper UI, four forge outfits, and mechanical fire-wing firing effects",
       "premium": true,
       "entitlement": "ent_theme_infernal_dominion",
       "ui": {
@@ -178,8 +178,8 @@
       "id": "polar_aurora",
       "name_zh": "极地极光",
       "name_en": "Polar Aurora",
-      "description_zh": "银白冰晶界面、四人极地战衣、枪械寒光涂装与背挂极光冰翼",
-			"description_en": "Crystal-silver UI, four polar outfits, frost weapon skins, and rear aurora ice wings",
+      "description_zh": "银白冰晶界面、四人极地战衣与背挂极光冰翼",
+			"description_en": "Crystal-silver UI, four polar outfits, and rear aurora ice wings",
       "premium": true,
       "entitlement": "ent_theme_polar_aurora",
       "ui": {
@@ -237,8 +237,8 @@
       "id": "gilded_eclipse",
       "name_zh": "鎏金永夜",
       "name_en": "Gilded Eclipse",
-      "description_zh": "镜黑王权界面、四人鎏金战衣、黄金律枪械涂装与背挂流金开火特效",
-			"description_en": "Mirror-black royal UI, four gilded outfits, Golden Law weapon skins, and rear flowing-gold firing effects",
+      "description_zh": "镜黑王权界面、四人鎏金战衣与背挂流金开火特效",
+			"description_en": "Mirror-black royal UI, four gilded outfits, and rear flowing-gold firing effects",
       "premium": true,
       "entitlement": "ent_theme_gilded_eclipse",
       "ui": {
@@ -259,10 +259,10 @@
         },
         "asset_presentations": {
           "menu_title": {
-            "region": [170, 0, 700, 340]
+            "region": [0, 0, 1536, 1024]
           },
           "menu_title_zh": {
-            "region": [0, 0, 1040, 340]
+            "region": [0, 0, 1536, 1024]
           }
         },
         "surface_modulate": {

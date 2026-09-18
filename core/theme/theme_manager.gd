@@ -231,20 +231,10 @@ func resolve_character_animation_base(character_id: String) -> String:
 	return candidate if _resource_or_file_exists("%s_idle_01.png" % candidate) else ""
 
 
-func resolve_weapon_asset(weapon_id: String, kind: String, fallback_path: String) -> String:
-	if _active_theme_id == DEFAULT_THEME_ID:
-		return fallback_path
-	var theme: Dictionary = _themes.get(_active_theme_id, {})
-	var weapons: Dictionary = theme.get("weapons", {})
-	var asset_root := str(weapons.get("asset_root", "")).trim_suffix("/")
-	if asset_root == "" or not kind in ["icon", "handheld", "turret"]:
-		return fallback_path
-	# Premium weapons carry their own authored identity. A cosmetic theme only
-	# recolors the eight free weapons; it never overwrites another paid set.
-	if weapon_id.begins_with("weapon_apocalypse_"):
-		return fallback_path
-	var candidate := "%s/%s_%s.png" % [asset_root, weapon_id, kind]
-	return candidate if _resource_or_file_exists(candidate) else fallback_path
+func resolve_weapon_asset(_weapon_id: String, _kind: String, fallback_path: String) -> String:
+	# Owner decision 2026-09-18: every weapon keeps its authored identity across
+	# themes. Retain the resolver API and old assets, but never select a coating.
+	return fallback_path
 
 
 func resolve_ui_asset(asset_id: String, fallback_path := "") -> String:
