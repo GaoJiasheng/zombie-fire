@@ -1,0 +1,28 @@
+$ godot --headless --path . --script res://design/audits/volt_armed_idle_2026_09_18/verify_transitions.gd
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+ARMED_REST weapon_autocannon aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_autocannon aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_autocannon aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_flamethrower aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_flamethrower aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_flamethrower aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_cryocannon aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_cryocannon aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_cryocannon aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_teslacoil aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_teslacoil aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_teslacoil aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_venomlauncher aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_venomlauncher aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_venomlauncher aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_railgun aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_railgun aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_railgun aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_scattergun aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_scattergun aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_scattergun aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_plasmacannon aim=(0.0, -1.0) three fire/rest/hurt cycles passed
+ARMED_REST weapon_plasmacannon aim=(-0.75, -0.66) three fire/rest/hurt cycles passed
+ARMED_REST weapon_plasmacannon aim=(0.75, -0.66) three fire/rest/hurt cycles passed
+Volt armed-rest transition regression: 0 failures
