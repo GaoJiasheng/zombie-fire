@@ -50,10 +50,10 @@ Display Name limit is 30 characters; Description limit is 45 characters (both co
 | Type | Non-Consumable |
 | Display Name zh-Hans | 霓虹雷暴主题 (6) |
 | Display Name en-US | Neon Tempest Theme (18) |
-| Description zh-Hans | 4英雄战衣+界面+枪械涂装，纯外观 (17) |
-| Description en-US | 4 hero skins, UI theme, gun colorway (36) |
+| Description zh-Hans | 4英雄战衣+霓虹界面+战斗光效，纯外观 (19) |
+| Description en-US | 4 hero skins, neon UI, combat aura effects (42) |
 | Price tier suggestion | mock_price $1.99 → ASC Price Point ≈2 (verify against the current USD price schedule in ASC) |
-| Grants | Cosmetic only: reskins all 4 heroes, the full UI, combat aura effects, and weapon colorway to the Neon Tempest look; no stat change. |
+| Grants | Cosmetic only: reskins all 4 heroes, the full UI, and combat aura effects to the Neon Tempest look (weapons keep their original designs); no stat change. |
 | Kind | Theme |
 
 | Field | Value |
@@ -93,10 +93,10 @@ Display Name limit is 30 characters; Description limit is 45 characters (both co
 | Type | Non-Consumable |
 | Display Name zh-Hans | 炼狱赤焰主题 (6) |
 | Display Name en-US | Infernal Dominion Theme (23) |
-| Description zh-Hans | 4英雄战衣+熔铜界面+赤焰涂装 (15) |
-| Description en-US | 4 hero skins, molten UI, fire colorway (38) |
+| Description zh-Hans | 4英雄战衣+熔铜界面+火翼开火特效 (17) |
+| Description en-US | 4 hero skins, molten UI, fire-wing effects (42) |
 | Price tier suggestion | mock_price $1.99 → ASC Price Point ≈2 |
-| Grants | Cosmetic only: reskins all 4 heroes, the molten-copper UI, weapon skins, and mechanical fire-wing firing signature; no stat change. |
+| Grants | Cosmetic only: reskins all 4 heroes, the molten-copper UI, and mechanical fire-wing firing signature; no stat change. |
 | Kind | Theme |
 
 | Field | Value |
@@ -139,7 +139,7 @@ Display Name limit is 30 characters; Description limit is 45 characters (both co
 | Description zh-Hans | 4英雄战衣+冰晶界面+极光冰翼 (15) |
 | Description en-US | 4 hero skins, crystal UI, aurora-ice look (41) |
 | Price tier suggestion | mock_price $1.99 → ASC Price Point ≈2 |
-| Grants | Cosmetic only: reskins all 4 heroes, the crystalline UI, weapon skins, and rear aurora-ice firing signature; no stat change. |
+| Grants | Cosmetic only: reskins all 4 heroes, the crystalline UI, and rear aurora-ice firing signature; no stat change. |
 | Kind | Theme |
 
 | Field | Value |
@@ -182,7 +182,7 @@ Display Name limit is 30 characters; Description limit is 45 characters (both co
 | Description zh-Hans | 4英雄战衣+镜黑鎏金界面+流金特效 (17) |
 | Description en-US | 4 hero skins, black-gold UI, gilded look (40) |
 | Price tier suggestion | mock_price $1.99 → ASC Price Point ≈2 |
-| Grants | Cosmetic only: reskins all 4 heroes, the mirror-black-and-gold UI, gilded weapon skins, and rear flowing-gold firing signature; no stat change. |
+| Grants | Cosmetic only: reskins all 4 heroes, the mirror-black-and-gold UI, and rear flowing-gold firing signature; no stat change. |
 | Kind | Theme |
 
 | Field | Value |
@@ -228,7 +228,7 @@ Note: `design/21_premium_themes_and_apocalypse_arsenal_plan.md` §13.3 records a
 
 ## Checklist: what else App Store Connect needs per IAP
 
-- [ ] **Review screenshot** — one image per product showing the actual purchase screen/preview as it appears in the app (design doc requires: theme cards show all 4 hero costume thumbnails, weapon colorway, and UI/base preview; arsenal cards show all 4 equipment pieces plus level-1 and max-level stats). Must match real in-app rendering — no mocked-up or pre-rendered art that doesn't match what ships (`design/21` §11.3: "商品卡不能播放与实机不一致的预渲染假效果").
+- [ ] **Review screenshot** — one image per product showing the actual purchase screen/preview as it appears in the app (design doc requires: theme cards show all 4 hero costume thumbnails and UI/base preview; arsenal cards show all 4 equipment pieces plus level-1 and max-level stats). Must match real in-app rendering — no mocked-up or pre-rendered art that doesn't match what ships (`design/21` §11.3: "商品卡不能播放与实机不一致的预渲染假效果").
 - [ ] **Review Notes per product** (or one shared note referencing all 12) — state the entry point (Settings → Store, or the in-game prompts listed in `design/21` §11.1: forced first-launch modal, battle-in-progress entry, defeat popup, base-critical-HP popup), confirm no test account is needed, and explain the complete/upgrade relationship (see paragraph below) so the reviewer doesn't flag the upgrade product as a duplicate or as pay-to-win escalation.
 - [ ] **Cleared for Sale** toggle set to on, with territory/pricing availability chosen.
 - [ ] **Family Sharing** toggle decision (on/off) — should be consistent across all 12 (likely on, since these are non-consumable cosmetic/equipment content with no live-service dependency).
@@ -239,4 +239,4 @@ Note: `design/21_premium_themes_and_apocalypse_arsenal_plan.md` §13.3 records a
 
 ### On the "upgrade" products, in reviewer-friendly terms
 
-Each series sells three things, not two independent products plus a discount coupon: a **theme** (cosmetic-only reskin of the 4 heroes, UI, and weapon colorway, no gameplay effect), a **complete arsenal** (theme + a full weapon/armor/chip/pet equipment set with a real stat bonus and unique set effects), and an **upgrade** (equipment set only, no theme). The upgrade exists purely for players who already bought the theme on its own and later decide they also want the equipment: instead of forcing them to buy the $6.99–$8.99 complete bundle and get a theme they already own for free a second time, the upgrade sells just the missing equipment piece at a lower price (e.g. Thunder: theme $1.99 + upgrade $4.99 ≈ complete $6.99, so there's no punishing "pay twice for the same theme" gap). It's the same pattern retailers use for "already own the base, buy the expansion" pricing — not a separate content track, not a subscription, and not required to progress the 99-level campaign.
+Each series sells three things, not two independent products plus a discount coupon: a **theme** (cosmetic-only reskin of the 4 heroes, UI and firing effects; weapons keep their original designs; no gameplay effect), a **complete arsenal** (theme + a full weapon/armor/chip/pet equipment set with a real stat bonus and unique set effects), and an **upgrade** (equipment set only, no theme). The upgrade exists purely for players who already bought the theme on its own and later decide they also want the equipment: instead of forcing them to buy the $6.99–$8.99 complete bundle and get a theme they already own for free a second time, the upgrade sells just the missing equipment piece at a lower price (e.g. Thunder: theme $1.99 + upgrade $4.99 ≈ complete $6.99, so there's no punishing "pay twice for the same theme" gap). It's the same pattern retailers use for "already own the base, buy the expansion" pricing — not a separate content track, not a subscription, and not required to progress the 99-level campaign.
