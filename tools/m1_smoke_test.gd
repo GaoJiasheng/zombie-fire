@@ -397,6 +397,15 @@ func _initialize() -> void:
 	_expect(back_touch_target == null or back_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded back-button touch target must not swallow drag-to-scroll gestures")
 	var first_level: Node = level_list.get_child(1)
 	_expect(first_level is TextureButton, "chapter levels must use styled texture buttons")
+	var fixed_chapter_back := main.current_scene.find_child("ChapterBackButton", true, false) as Button
+	_expect(fixed_chapter_back != null and fixed_chapter_back.is_visible_in_tree(), "chapter detail must expose a fixed upper-left back button")
+	_expect(not (main.current_scene.find_child("LevelScroll", true, false) as Node).is_ancestor_of(fixed_chapter_back), "upper-left back button must remain outside the scrolling list")
+	_expect(fixed_chapter_back.size.x >= 96.0 and fixed_chapter_back.size.y >= 96.0, "upper-left back button must retain its mobile touch target")
+	var stage_title := first_level.get_node("LevelTitle") as Label
+	_expect(stage_title.get_theme_font_size("font_size") == UiKit.scaled_font_size(30), "level titles must retain the enlarged 30-point ruler without shrinking")
+	var stage_summary := first_level.get_node("LevelSummaryRow") as HBoxContainer
+	_expect(stage_summary.get_child_count() == 2, "recommended power and weakness must share a content-sized summary row")
+	_expect(stage_summary.get_child(0).position.y == stage_summary.get_child(1).position.y, "recommended power and weakness must align on one line")
 	_expect((first_level.get_child(0) as Label).text == "001 城市缺口", "chapter detail must show three-digit level number and display name")
 	var first_normal := first_level.find_child("NormalModeButton", true, false) as Button
 	var first_challenge := first_level.find_child("ChallengeModeButton", true, false) as Button

@@ -7,6 +7,7 @@ const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondar
 const RESOURCE_POWER_ICON := "res://assets/production/sprites/ui/icon_talent_point.png"
 const RESOURCE_TIP_DURATION := 1.8
 const LEVEL_CARD_HEIGHT := 192.0
+const LEVEL_TITLE_FONT_SIZE := 30
 const LEVEL_MODE_AREA_X := 540.0
 const LEVEL_MODE_AREA_W := 422.0
 const LEVEL_MODE_SINGLE_W := 286.0
@@ -162,7 +163,7 @@ func _apply_page_title_style(size: int) -> void:
 	UiKit.apply_label(title, size, UiKit.TEXT_MAIN, 5)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.clip_text = true
+	title.clip_text = false
 
 func _refresh_header() -> void:
 	var total_stars: int = DataLoader.get_table("levels").size() * 6
@@ -266,6 +267,7 @@ func _build_levels() -> void:
 				_schedule_map_scroll_focus("", 0.0)
 			return
 	selected_chapter = 0
+	_set_chapter_back_navigation(false)
 	_apply_page_title_style(44)
 	(%Title as Label).text = "战区地图"
 	for chapter in chapters:
@@ -277,6 +279,7 @@ func _build_levels() -> void:
 	_schedule_map_scroll_focus("Chapter%02dCard" % focus_chapter, 28.0)
 
 func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> void:
+	_set_chapter_back_navigation(true)
 	var env := _chapter_env(chapter)
 	var chapter_id := int(chapter.get("chapter", 1))
 	var title := str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")]))
@@ -289,6 +292,41 @@ func _build_chapter_levels(level_list: VBoxContainer, chapter: Dictionary) -> vo
 		var stars := SaveManager.get_level_stars(level_id)
 		var challenge_stars := SaveManager.get_challenge_stars(level_id)
 		level_list.add_child(_build_level_card(level_id, level, unlocked, stars, challenge_stars))
+
+func _set_chapter_back_navigation(show_back: bool) -> void:
+	var row := get_node_or_null("Root/VBox/MapTitleRow") as HBoxContainer
+	if row == null:
+		var vbox := $Root/VBox as VBoxContainer
+		var title := %Title as Label
+		var index := title.get_index()
+		row = HBoxContainer.new()
+		row.name = "MapTitleRow"
+		row.add_theme_constant_override("separation", 16)
+		vbox.add_child(row)
+		vbox.move_child(row, index)
+		var back := Button.new()
+		back.name = "ChapterBackButton"
+		back.text = "‹"
+		back.tooltip_text = LocalizationManager.text("返回战区地图")
+		back.custom_minimum_size = Vector2(96, 96)
+		back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		back.focus_mode = Control.FOCUS_NONE
+		back.add_theme_font_size_override("font_size", UiKit.scaled_font_size(38))
+		back.add_theme_color_override("font_color", UiKit.CYAN)
+		for state in ["normal", "hover", "pressed", "focus"]:
+			back.add_theme_stylebox_override(state, UiKit.map_nav_card_texture_style())
+		back.pressed.connect(_back_to_chapter_map)
+		row.add_child(back)
+		title.reparent(row)
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var balance := Control.new()
+		balance.name = "BackButtonBalance"
+		balance.custom_minimum_size = Vector2(96, 0)
+		balance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(balance)
+	(row.get_node("ChapterBackButton") as Control).visible = show_back
+	(row.get_node("BackButtonBalance") as Control).visible = show_back
 
 func _chapter_groups() -> Array:
 	var groups := {}
@@ -1486,21 +1524,22 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 	index_plate.add_child(index_label)
 
 	var title := Label.new()
+	title.name = "LevelTitle"
 	title.text = DataLoader.level_display_name(level_id).replace("%s " % level_num, "")
 	title.position = Vector2(148, 24)
-	var title_width := 264.0 if variant in ["elite", "treasure", "boss", "boss_rush"] else 360.0
-	title.size = Vector2(title_width, 44)
-	var title_font_size := 24 if title.text.length() > 10 else 28
-	UiKit.apply_label(title, title_font_size, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
-	# English level names are much wider than their Chinese counterparts. Keep
-	# the complete name inside its reserved lane and out of the variant badge.
-	UiKit.fit_label_text(title, title_font_size, 18, 2.0, 2.0)
+	title.size = Vector2(374, 72)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiKit.apply_label(title, LEVEL_TITLE_FONT_SIZE, UiKit.TEXT_MAIN if unlocked else Color(0.80, 0.84, 0.86, 1.0), 3)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 
-	# The translated badges each get their own row in the information lane.
-	_add_card_pill(button, Vector2(148, 82), Vector2(154, 34), "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
-	_add_element_pill(button, Vector2(148, 134), Vector2(210, 34), weakness)
+	var summary := HBoxContainer.new()
+	summary.name = "LevelSummaryRow"
+	summary.add_theme_constant_override("separation", 10)
+	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(summary)
+	_add_card_pill(summary, Vector2.ZERO, Vector2.ZERO, "推荐 %d" % SaveManager.get_recommended_power_for_level(level_id), UiKit.CYAN)
+	_add_element_pill(summary, Vector2.ZERO, Vector2.ZERO, weakness)
 	if level_id == _campaign_focus_level_id():
 		# Keep the translated Current badge in the index lane. The information
 		# lane then has enough width for every localized weakness name without
@@ -1544,22 +1583,41 @@ func _build_level_card(level_id: String, level: Dictionary, unlocked: bool, star
 			"challenge"
 		)
 	button.resized.connect(_layout_level_action_lane.bind(button))
+	title.minimum_size_changed.connect(_layout_level_action_lane.bind(button))
+	summary.minimum_size_changed.connect(_layout_level_action_lane.bind(button))
 	_layout_level_action_lane.call_deferred(button)
 	return button
 
 func _layout_level_action_lane(card: Control) -> void:
 	if not is_instance_valid(card) or not card.is_inside_tree() or card.size.x <= 0.0:
 		return
-	var narrow := card.size.x < LEVEL_MODE_AREA_X + LEVEL_MODE_AREA_W + 18.0
-	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if narrow else LEVEL_MODE_AREA_X
-	var lane_y := LEVEL_CARD_HEIGHT + 8.0 if narrow else LEVEL_MODE_Y
+	var title := card.get_node("LevelTitle") as Label
+	var summary := card.get_node("LevelSummaryRow") as HBoxContainer
+	var variant := card.get_node_or_null("VariantMarker") as Control
+	# Keep both metadata chips on one row at their authored fonts. If translated
+	# text needs more space, use the full information width and put actions below.
+	var compact_lane_x := minf(LEVEL_MODE_AREA_X, card.size.x - 18.0 - LEVEL_MODE_AREA_W)
+	var compact_width := compact_lane_x - 148.0 - 18.0
+	var narrow := compact_width < 220.0 or summary.get_combined_minimum_size().x > compact_width
+	var info_width := card.size.x - 148.0 - 24.0 if narrow else compact_width
+	var marker_width := variant.get_combined_minimum_size().x if variant != null else 0.0
+	title.size.x = maxf(160.0, info_width - (marker_width + 12.0 if variant != null else 0.0))
+	title.size.y = maxf(64.0, title.get_minimum_size().y)
+	if variant != null:
+		variant.position = Vector2(148.0 + info_width - marker_width, 28.0)
+		variant.size = variant.get_combined_minimum_size()
+	summary.position = Vector2(148, title.position.y + title.size.y + 10.0)
+	summary.size = summary.get_combined_minimum_size()
+	var content_bottom := summary.position.y + summary.size.y + 18.0
+	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if narrow else compact_lane_x
+	var lane_y := content_bottom + 8.0 if narrow else LEVEL_MODE_Y
 	var normal := card.get_node_or_null("NormalModeButton") as Control
 	var challenge := card.get_node_or_null("ChallengeModeButton") as Control
 	if normal != null:
 		normal.position = Vector2(lane_x if challenge != null else lane_x + (LEVEL_MODE_AREA_W - LEVEL_MODE_SINGLE_W) * 0.5, lane_y)
 	if challenge != null:
 		challenge.position = Vector2(lane_x + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, lane_y)
-	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else LEVEL_CARD_HEIGHT
+	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else maxf(LEVEL_CARD_HEIGHT, content_bottom)
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
 	return UiKit.map_level_card_texture_style(not unlocked)
@@ -1601,6 +1659,7 @@ func _add_variant_marker(parent: Control, variant: String) -> void:
 		_:
 			return
 	var pill := PanelContainer.new()
+	pill.name = "VariantMarker"
 	pill.position = Vector2(424, 28)
 	pill.size = Vector2(78 if label.length() <= 2 else 110, 34)
 	pill.add_theme_stylebox_override("panel", UiKit.map_pill_texture_style())
