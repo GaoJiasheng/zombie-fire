@@ -384,12 +384,22 @@ func _initialize() -> void:
 	_expect(enter_chapter_touch_target == null or enter_chapter_touch_target.mouse_filter == Control.MOUSE_FILTER_PASS, "expanded chapter touch target must not swallow drag-to-scroll gestures")
 	main.current_scene._open_chapter(1)
 	await process_frame
+	# Full-width wrapped story/objective containers settle before measuring the
+	# content-driven footer (including translations with an extra line).
+	await process_frame
+	await process_frame
 	level_list = main.current_scene.find_child("LevelList", true, false)
 	_expect(level_list != null and level_list.get_child_count() >= 11, "chapter detail must render a header plus its ten sub-level cards")
 	var back_to_chapter_map := level_list.get_child(0).find_child("BackToChapterMapButton", true, false) as TextureButton
 	_expect(back_to_chapter_map != null, "chapter detail must expose a back-to-chapter-map button")
 	_expect(back_to_chapter_map.size.x >= 280.0 and back_to_chapter_map.size.y >= 80.0, "Back to Zone Map must share the enlarged primary-navigation ruler")
 	_expect(back_to_chapter_map.position.y >= 172.0 and back_to_chapter_map.position.y + back_to_chapter_map.size.y <= level_list.get_child(0).size.y - 56.0, "Back to Zone Map must keep clear separation from progress and the chapter-card bottom edge")
+	var chapter_copy := level_list.get_child(0).find_child("ChapterDetailContent", true, false) as Control
+	var chapter_progress := level_list.get_child(0).find_child("ChapterProgress", true, false) as Control
+	_expect(chapter_copy != null and chapter_progress != null, "chapter detail must keep complete copy above a progress/navigation footer")
+	_expect(chapter_copy.get_global_rect().end.y + 16.0 <= chapter_progress.get_global_rect().position.y, "chapter footer must follow the full story/objective without clipping")
+	_expect(not chapter_progress.get_global_rect().intersects(back_to_chapter_map.get_global_rect()), "chapter progress and back action must not overlap")
+	_expect(is_equal_approx(chapter_progress.get_global_rect().position.y, back_to_chapter_map.get_global_rect().position.y), "chapter progress and navigation must share the footer row")
 	var back_to_chapter_label := back_to_chapter_map.find_child("ActionLabel", false, false) as Label
 	_expect(back_to_chapter_label != null and back_to_chapter_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Back to Zone Map copy must stay vertically centered inside the enlarged button")
 	_expect(back_to_chapter_map.mouse_filter == Control.MOUSE_FILTER_PASS and bool(back_to_chapter_map.get_meta("scroll_drag_passthrough", false)), "back-to-chapter-map button must preserve drag-to-scroll gestures")

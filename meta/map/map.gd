@@ -17,7 +17,7 @@ const LEVEL_MODE_Y := 14.0
 const LEVEL_MODE_H := 164.0
 const LEVEL_MODE_STYLE_SIZE := Vector2(286.0, 112.0)
 const CHAPTER_CARD_HEIGHT := 344.0
-const CHAPTER_HERO_HEIGHT := 400.0
+const CHAPTER_HERO_HEIGHT := 310.0
 const CHAPTER_TEXT_X := 64.0
 const CHAPTER_TEXT_W := 510.0
 const CHAPTER_RIGHT_X := 626.0
@@ -1061,7 +1061,6 @@ func _make_scroll_friendly_button(button: BaseButton) -> void:
 	button.set_meta("scroll_drag_passthrough", true)
 
 func _build_chapter_header(chapter: Dictionary) -> TextureButton:
-	var chapter_id := int(chapter.get("chapter", 1))
 	var env := _chapter_env(chapter)
 	var accent := _chapter_accent(chapter)
 	var header := TextureButton.new()
@@ -1079,59 +1078,51 @@ func _build_chapter_header(chapter: Dictionary) -> TextureButton:
 	_add_chapter_art(header, str(env.get("portrait", "")), true)
 	_add_chapter_frame(header, accent, true)
 
-	var margin := MarginContainer.new()
-	margin.name = "ChapterDetailContent"
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 32)
-	margin.add_theme_constant_override("margin_top", 30)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(margin)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 20)
-	columns.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(columns)
+	# The page already names the zone. Keep its story and objective together at
+	# full width, rather than repeating the title above a stretched half-column.
 	var copy := VBoxContainer.new()
-	copy.custom_minimum_size = Vector2(470, 0)
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	copy.add_theme_constant_override("separation", 8)
+	copy.name = "ChapterDetailContent"
+	copy.add_theme_constant_override("separation", 12)
 	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	columns.add_child(copy)
-	var title := UiKit.label(str(env.get("chapter_title", "第%02d战区 · %s" % [chapter_id, env.get("name", "未知战区")])), 23, UiKit.TEXT_MAIN, 4)
-	title.name = "ChapterDetailTitle"
-	title.custom_minimum_size = Vector2(0, 48)
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	copy.add_child(title)
+	header.add_child(copy)
 	var story := UiKit.label(str(env.get("story", "")), 16, UiKit.TEXT_MAIN, 2)
 	story.name = "ChapterDetailStory"
-	story.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	story.max_lines_visible = 4
-	story.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	story.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	story.add_theme_constant_override("line_spacing", 3)
 	copy.add_child(story)
 	var objective := UiKit.label(str(env.get("objective", "")), 15, UiKit.TEXT_MUTED, 2)
+	objective.name = "ChapterDetailObjective"
 	objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective.max_lines_visible = 2
-	objective.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	objective.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	objective.add_theme_constant_override("line_spacing", 3)
 	copy.add_child(objective)
-	var actions := VBoxContainer.new()
-	actions.custom_minimum_size = Vector2(340, 0)
-	actions.alignment = BoxContainer.ALIGNMENT_CENTER
-	actions.add_theme_constant_override("separation", 18)
-	actions.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	columns.add_child(actions)
-	actions.add_child(_build_chapter_progress_panel(chapter, true, accent))
+	header.add_child(_build_chapter_progress_panel(chapter, true, accent))
 	var back := _build_chapter_action_control("返回战区地图", true, _back_to_chapter_map, false)
 	back.name = "BackToChapterMapButton"
-	back.custom_minimum_size = Vector2(284, 80)
-	actions.add_child(back)
+	header.add_child(back)
+	header.resized.connect(_layout_chapter_header.bind(header))
+	copy.minimum_size_changed.connect(_layout_chapter_header.bind(header), CONNECT_DEFERRED)
+	_layout_chapter_header.call_deferred(header)
 	return header
+
+func _layout_chapter_header(header: Control) -> void:
+	if not is_instance_valid(header) or not header.is_inside_tree() or header.size.x <= 0.0:
+		return
+	var copy := header.get_node("ChapterDetailContent") as VBoxContainer
+	var progress := header.get_node("ChapterProgress") as VBoxContainer
+	var back := header.get_node("BackToChapterMapButton") as TextureButton
+	copy.position = Vector2(32, 24)
+	copy.size.x = maxf(1.0, header.size.x - 56.0)
+	copy.size.y = copy.get_combined_minimum_size().y
+	# Retain the established >=172 top / >=56 bottom navigation clearance.
+	# Longer translations grow the card instead of clipping or shrinking text.
+	var footer_y := maxf(172.0, copy.get_rect().end.y + 16.0)
+	progress.position = Vector2(32, footer_y)
+	progress.size = progress.get_combined_minimum_size()
+	back.position = Vector2(header.size.x - 24.0 - CHAPTER_ACTION_SIZE.x, footer_y)
+	back.size = CHAPTER_ACTION_SIZE
+	header.custom_minimum_size.y = maxf(CHAPTER_HERO_HEIGHT, footer_y + maxf(progress.size.y, back.size.y) + 56.0)
 
 func _open_chapter(chapter_id: int) -> void:
 	var chapter := _chapter_by_index(_chapter_groups(), chapter_id)
@@ -1594,30 +1585,35 @@ func _layout_level_action_lane(card: Control) -> void:
 	var title := card.get_node("LevelTitle") as Label
 	var summary := card.get_node("LevelSummaryRow") as HBoxContainer
 	var variant := card.get_node_or_null("VariantMarker") as Control
-	# Keep both metadata chips on one row at their authored fonts. If translated
-	# text needs more space, use the full information width and put actions below.
+	# A long metadata row does not require moving both actions to an empty lower
+	# half. Keep the title and actions alongside; let metadata span a footer row.
 	var compact_lane_x := minf(LEVEL_MODE_AREA_X, card.size.x - 18.0 - LEVEL_MODE_AREA_W)
 	var compact_width := compact_lane_x - 148.0 - 18.0
-	var narrow := compact_width < 220.0 or summary.get_combined_minimum_size().x > compact_width
-	var info_width := card.size.x - 148.0 - 24.0 if narrow else compact_width
+	var stack_actions := compact_width < 220.0
+	var footer_summary := not stack_actions and summary.get_combined_minimum_size().x > compact_width
+	var info_width := card.size.x - 148.0 - 24.0 if stack_actions else compact_width
 	var marker_width := variant.get_combined_minimum_size().x if variant != null else 0.0
-	title.size.x = maxf(160.0, info_width - (marker_width + 12.0 if variant != null else 0.0))
+	title.size.x = maxf(160.0, info_width - (marker_width + 12.0 if variant != null and not footer_summary else 0.0))
 	title.size.y = maxf(64.0, title.get_minimum_size().y)
+	var copy_bottom := title.get_rect().end.y
 	if variant != null:
-		variant.position = Vector2(148.0 + info_width - marker_width, 28.0)
 		variant.size = variant.get_combined_minimum_size()
-	summary.position = Vector2(148, title.position.y + title.size.y + 10.0)
+		variant.position = Vector2(148.0, copy_bottom + 8.0) if footer_summary else Vector2(148.0 + info_width - marker_width, 28.0)
+		if footer_summary:
+			copy_bottom = variant.get_rect().end.y
+	var summary_y := maxf(copy_bottom + 10.0, LEVEL_MODE_Y + LEVEL_MODE_H + 16.0) if footer_summary else copy_bottom + 10.0
+	summary.position = Vector2(148, summary_y)
 	summary.size = summary.get_combined_minimum_size()
 	var content_bottom := summary.position.y + summary.size.y + 18.0
-	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if narrow else compact_lane_x
-	var lane_y := content_bottom + 8.0 if narrow else LEVEL_MODE_Y
+	var lane_x := maxf(18.0, card.size.x - 18.0 - LEVEL_MODE_AREA_W) if stack_actions else compact_lane_x
+	var lane_y := content_bottom + 8.0 if stack_actions else LEVEL_MODE_Y
 	var normal := card.get_node_or_null("NormalModeButton") as Control
 	var challenge := card.get_node_or_null("ChallengeModeButton") as Control
 	if normal != null:
 		normal.position = Vector2(lane_x if challenge != null else lane_x + (LEVEL_MODE_AREA_W - LEVEL_MODE_SINGLE_W) * 0.5, lane_y)
 	if challenge != null:
 		challenge.position = Vector2(lane_x + LEVEL_MODE_DUAL_W + LEVEL_MODE_DUAL_GAP, lane_y)
-	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if narrow else maxf(LEVEL_CARD_HEIGHT, content_bottom)
+	card.custom_minimum_size.y = lane_y + LEVEL_MODE_H + 14.0 if stack_actions else maxf(LEVEL_CARD_HEIGHT, content_bottom)
 
 func _level_card_style(_accent: Color, unlocked: bool, _stars: int, _variant: String) -> StyleBox:
 	return UiKit.map_level_card_texture_style(not unlocked)
