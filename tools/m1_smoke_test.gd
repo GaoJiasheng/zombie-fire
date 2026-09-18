@@ -5608,12 +5608,11 @@ func _verify_character_weapon_skins(data_loader: Node, save_manager: Node) -> vo
 				_expect(battle.character_attack_frames.size() == 8, "%s + %s must provide the full 8-frame firing strip" % [character_key, weapon_key])
 				_expect(battle.character_attack_right_frames.size() == 8, "%s + %s must provide the full 8-frame right-aim firing strip" % [character_key, weapon_key])
 				_expect(battle.character_hurt_frames.size() >= 3, "%s + %s must provide hurt fused frames" % [character_key, weapon_key])
-				if character_key == "volt":
-					_expect(battle.character_armed_rest_pose, "Volt must keep an armed rest pose for %s" % weapon_key)
-					for rest_frame in battle.character_idle_frames + battle.character_hurt_frames:
-						_expect(rest_frame == battle.character_attack_frames[0], "Volt idle/hurt must retain the equipped gun without a muzzle flash: %s" % weapon_key)
-					for rest_pose in ["idle", "hurt"]:
-						_expect(battle._character_body_metric(rest_pose) == battle._character_body_metric("center"), "Volt armed rest must use the matching centre-body anchor: %s/%s" % [weapon_key, rest_pose])
+				_expect(battle.character_armed_rest_pose, "%s must keep an armed rest pose for %s" % [character_key, weapon_key])
+				for rest_frame in battle.character_idle_frames + battle.character_hurt_frames:
+					_expect(rest_frame == battle.character_attack_frames[0], "%s idle/hurt must retain the equipped gun without a muzzle flash: %s" % [character_key, weapon_key])
+				for rest_pose in ["idle", "hurt"]:
+					_expect(battle._character_body_metric(rest_pose) == battle._character_body_metric("center"), "%s armed rest must use the matching centre-body anchor: %s/%s" % [character_key, weapon_key, rest_pose])
 				var standard_reference_scale := float(battle._character_body_sprite_scale("center"))
 				for body_pose in ["idle", "hurt", "left", "center", "right"]:
 					var body_metric: Dictionary = battle._character_body_metric(body_pose)

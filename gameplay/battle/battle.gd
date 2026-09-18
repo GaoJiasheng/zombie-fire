@@ -6728,8 +6728,8 @@ func _load_character_animation_frames() -> void:
 			character_attack_frames = character_idle_frames.duplicate()
 		if character_hurt_frames.is_empty():
 			character_hurt_frames = character_idle_frames.duplicate()
-		if asset_id == "char_volt" and not character_attack_frames.is_empty():
-			# Volt's legacy idle/hurt strips depict empty-handed electrical casting.
+		if not character_attack_frames.is_empty():
+			# The legacy idle/hurt strips leave every hero's hands off the gun.
 			# Keep the equipped weapon in both hands between shots using the authored
 			# F1 preparation beat (no muzzle flash); the rig still breathes/reacts.
 			character_idle_frames = _repeat_character_texture(character_attack_frames[0], 4)
