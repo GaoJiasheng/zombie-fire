@@ -499,6 +499,14 @@ func _initialize() -> void:
 			main.current_scene.call("_show_item_detail", detail_item, table_data[detail_item])
 			for i in range(18):
 				await process_frame
+			if bool(payload.get("portrait_preview", false)) and main.current_scene.has_method("_show_character_portrait"):
+				main.current_scene.call("_show_character_portrait", detail_item, table_data[detail_item])
+				for frame in range(6):
+					await process_frame
+				if bool(payload.get("portrait_zoom", false)):
+					var viewer: Node = main.current_scene.find_child("CharacterPortraitViewer", true, false)
+					if viewer != null:
+						viewer.toggle_zoom()
 	if payload.has("purchase_item") and main.current_scene != null and main.current_scene.has_method("_purchase_item_flow"):
 		var purchase_item := str(payload.get("purchase_item", ""))
 		var purchase_table: Dictionary = _current_collection_table(str(payload.get("mode", "")))

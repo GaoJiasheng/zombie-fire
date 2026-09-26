@@ -450,6 +450,17 @@ func _initialize() -> void:
 	_expect(absf(second_normal.position.y - second_challenge.position.y) <= 0.1, "paired mode buttons must align on the same row")
 	_expect(second_normal.find_child("ModeStars", true, false) != null and second_challenge.find_child("ModeStars", true, false) != null, "paired mode buttons must carry stacked three-star progress")
 	_expect(second_challenge.find_child("UnlockRequirement", true, false) != null, "visible but locked challenge mode must show an in-button unlock marker")
+	var earned_star := second_normal.find_child("Star1", true, false) as TextureRect
+	var empty_star := second_normal.find_child("Star3", true, false) as TextureRect
+	var locked_empty_star := second_challenge.find_child("Star1", true, false) as TextureRect
+	_expect(earned_star.custom_minimum_size == Vector2(44, 44) and empty_star.custom_minimum_size == earned_star.custom_minimum_size, "mode progress stars must share a phone-readable 44-pixel ruler")
+	_expect(earned_star.texture.resource_path == UiKit.star_icon_path(true) and empty_star.texture.resource_path == UiKit.star_icon_path(false), "partial clears must show the actual earned and empty star assets")
+	_expect(earned_star.modulate == Color.WHITE and empty_star.modulate.v <= 0.40, "earned gold stars must stay bright while unearned silver highlights remain clearly dimmed")
+	_expect(locked_empty_star.modulate == empty_star.modulate, "unearned star styling must not depend on whether the mode is unlocked")
+	for mode_button in [second_normal, second_challenge]:
+		var mode_star_row := mode_button.find_child("ModeStars", true, false) as HBoxContainer
+		_expect(mode_star_row.get_theme_constant("separation") >= 6, "mode stars must remain visually separated")
+		_expect(mode_star_row.get_combined_minimum_size().x <= mode_button.size.x - 16.0, "three larger stars plus the challenge lock must fit inside the dual-mode button")
 	second_challenge.emit_signal("pressed")
 	await process_frame
 	_expect(main.current_scene.name == "Map", "disabled challenge button must not route to loadout when pressed")
@@ -662,6 +673,7 @@ func _initialize() -> void:
 	var collection_back := main.current_scene.find_child("BackButton", true, false) as TextureButton
 	_expect(collection_back != null, "collection must expose a context-aware back button")
 	_expect(collection_scroll.visible and collection_back.visible, "closing character detail must restore collection list and back action")
+	await _verify_character_ownership_and_portrait(main, save_manager)
 	var collection_back_label := collection_back.get_node("Label") as Label
 	_expect(collection_back_label.text == "返回地图", "collection opened from map must return to map")
 	_expect(collection_back_label.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "collection back text must use vertical centering")
@@ -6965,6 +6977,67 @@ func _verify_fire_rate_profiles(economy: Dictionary) -> void:
 		var drift := absf(normalized_triggers_per_second / control_rate - 1.0)
 		_expect(drift <= 0.05, "%s slow coverage must stay within 5%% of control after per-shot normalization" % profile_id)
 		_expect(drift <= 0.05, "%s ignite uptime must stay within 5%% of control after per-shot normalization" % profile_id)
+
+func _verify_character_ownership_and_portrait(main: Node, save_manager: Node) -> void:
+	var saved: Dictionary = save_manager.save_data.duplicate(true)
+	var theme_manager := root.get_node("ThemeManager")
+	var purchase_manager := root.get_node("PurchaseManager")
+	var fixture: Dictionary = save_manager._default_save()
+	fixture["player"]["gold"] = 100000
+	fixture["player"]["xp"] = 100000
+	fixture["player"]["star"] = 1000
+	fixture["entitlements"] = {"verified": ["ent_theme_neon_tempest"], "last_sync_unix": 1}
+	save_manager.save_data = fixture
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
+	for character_id in ["blaze", "frost", "volt"]:
+		var row: Dictionary = root.get_node("DataLoader").get_row("characters", character_id)
+		var before: Dictionary = save_manager.save_data.duplicate(true)
+		_expect(not save_manager.can_upgrade_item("characters", character_id), "unowned hero level upgrades must be unavailable even with sufficient gold")
+		_expect(not save_manager.can_upgrade_sig_skill(character_id), "unowned hero signature upgrades must be unavailable even with sufficient XP")
+		_expect(not save_manager.upgrade_item("characters", character_id) and not save_manager.upgrade_sig_skill(character_id), "direct upgrade calls must reject an unowned hero")
+		_expect(save_manager.save_data == before, "rejected upgrades must not spend currency or change levels")
+		main.current_scene._show_character_detail(character_id, row)
+		await process_frame
+		var detail: Node = main.current_scene.get_node("CharacterDetail")
+		_expect((detail.find_child("UpgradeButton", true, false) as BaseButton).disabled, "unowned hero level button must be disabled")
+		_expect((detail.find_child("SigSkillUpgradeButton", true, false) as BaseButton).disabled, "unowned hero signature button must be disabled")
+		var appearance := detail.find_child("AppearanceButton", true, false) as BaseButton
+		_expect(not appearance.disabled, "unowned hero outfit browsing must remain available")
+		_expect(theme_manager.select_character_outfit(character_id, "neon_tempest", false), "an owned theme must be selectable before buying its hero")
+		_expect(not save_manager.can_upgrade_sig_skill(character_id), "owning an outfit must not unlock the hero's signature upgrades")
+		(detail.find_child("PortraitPreviewButton", true, false) as Button).emit_signal("pressed")
+		for frame in range(4):
+			await process_frame
+		var viewer: Node = detail.get_node("CharacterPortraitViewer")
+		var image := viewer.find_child("FullBodyImage", true, false) as TextureRect
+		var canvas := viewer.find_child("PortraitCanvas", true, false) as Control
+		_expect(image.texture.resource_path.contains("themes/neon_tempest/characters"), "full portrait must honor the selected purchased outfit")
+		_expect(image.position.x >= -0.1 and image.position.y >= -0.1 and image.get_rect().end.x <= canvas.size.x + 0.1 and image.get_rect().end.y <= canvas.size.y + 0.1, "fit mode must include the complete source portrait without cutting off head or feet")
+		var fit_size := image.size
+		viewer.toggle_zoom()
+		_expect(image.size.is_equal_approx(fit_size * 2.0), "portrait detail mode must enlarge the original source by 2x")
+		viewer.pan = Vector2(100000, -100000)
+		viewer._layout_image()
+		var limit := (image.size - canvas.size).max(Vector2.ZERO) * 0.5
+		_expect(absf(viewer.pan.x) <= limit.x + 0.1 and absf(viewer.pan.y) <= limit.y + 0.1, "portrait panning must remain clamped to the image")
+		viewer.toggle_zoom()
+		_expect(image.size.is_equal_approx(fit_size) and viewer.pan == Vector2.ZERO, "fit action must restore the full-body framing")
+		(viewer.find_child("PortraitAppearanceButton", true, false) as Button).emit_signal("pressed")
+		await process_frame
+		_expect(is_instance_valid(main.current_scene._appearance_selector), "portrait outfits action must open the existing selector for an unowned hero")
+		main.current_scene._appearance_selector._close()
+		for frame in range(3):
+			await process_frame
+		main.current_scene._close_character_detail()
+		await process_frame
+		_expect(save_manager.purchase_item("characters", character_id) == save_manager.PurchaseResult.OK, "test hero must be purchasable with enough stars")
+		_expect(save_manager.can_upgrade_item("characters", character_id) and save_manager.can_upgrade_sig_skill(character_id), "hero ownership must enable both upgrade paths")
+		_expect(save_manager.upgrade_item("characters", character_id) and save_manager.upgrade_sig_skill(character_id), "purchased hero upgrades must still succeed")
+	_expect(not save_manager.can_upgrade_sig_skill("") and not save_manager.can_upgrade_sig_skill("missing_hero"), "invalid heroes must never consume upgrade XP")
+	save_manager.save_data = saved
+	purchase_manager.refresh_catalog_and_access()
+	theme_manager.refresh_from_save()
 
 func _expect(condition: bool, message: String) -> void:
 	if condition:

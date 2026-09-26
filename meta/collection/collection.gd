@@ -10,6 +10,7 @@ const LOCKED_CARD_VEIL_TEXTURE := "res://assets/production/sprites/ui/ui_panel_s
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const SkillEffectText := preload("res://core/data/skill_effect_text.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
+const CharacterPortraitViewer := preload("res://ui/character_portrait_viewer.gd")
 const COLLECTION_CARD_WIDTH := 860.0
 # Non-character catalogs own the full collection safe width after reserving the
 # ScrollContainer's 8px vertical bar. Keeping characters on their separate
@@ -2357,6 +2358,21 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	portrait.custom_minimum_size = Vector2(230, 230)
 	portrait_frame.add_child(portrait)
 	UiKit.add_character_bust(portrait, row, Vector2(230, 230), 320.0, CHARACTER_DETAIL_BUST_Y)
+	var portrait_action := Button.new()
+	portrait_action.name = "PortraitPreviewButton"
+	portrait_action.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	portrait_action.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	portrait_action.tooltip_text = _loc("查看全身立绘", "View full portrait")
+	for state in ["normal", "hover", "pressed", "focus"]:
+		portrait_action.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	portrait_action.pressed.connect(_show_character_portrait.bind(item_id, row))
+	portrait.add_child(portrait_action)
+	var preview_hint := UiKit.label(_loc("查看大图 ⤢", "Enlarge ⤢"), 15, UiKit.TEXT_MAIN, 3)
+	preview_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	preview_hint.offset_top = -36.0
+	preview_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	preview_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_action.add_child(preview_hint)
 	# Name + role + tags column
 	var name_col := VBoxContainer.new()
 	name_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2575,17 +2591,19 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var char_max_level := int(row.get("max_level", 30))
 	var upgrade_btn := _armored_action_button(
 		"UpgradeButton",
-		("已满级" if item_level >= char_max_level else _loc("升级", "Upgrade")),
+		(_loc("未解锁", "Locked") if not character_unlocked else ("已满级" if item_level >= char_max_level else _loc("升级", "Upgrade"))),
 		true,
 		false,
 		Vector2(236, 96),
 		20
 	)
-	if item_level < char_max_level:
+	if character_unlocked and item_level < char_max_level:
 		UiKit.apply_resource_cost(upgrade_btn, _loc("升级", "Upgrade"), str(char_upgrade_cost_spec.get("kind", "gold")), char_upgrade_cost, 17, 26.0)
 	upgrade_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	upgrade_btn.disabled = not char_can_upgrade
 	upgrade_btn.modulate = ACTION_SECONDARY_MODULATE if char_can_upgrade else ACTION_DISABLED_MODULATE
+	if not character_unlocked:
+		upgrade_btn.tooltip_text = _loc("拥有角色后才能升级；外观不受影响。", "Unlock this hero to upgrade. Outfits remain available.")
 	upgrade_btn.pressed.connect(_upgrade_item_from_detail.bind(item_id, row))
 	action_row.add_child(upgrade_btn)
 	var select_btn := _armored_action_button("SelectButton", "已装备" if selected else "选  定", true, true, Vector2(236, 96), 20)
@@ -2648,6 +2666,18 @@ func _align_character_detail_first_page(scroll: ScrollContainer, content: VBoxCo
 			parent.add_child(page_gap)
 			parent.move_child(page_gap, next_block.get_index())
 		break
+
+func _show_character_portrait(character_id: String, row: Dictionary) -> void:
+	if not is_instance_valid(_detail_modal) or _detail_modal.has_node("CharacterPortraitViewer"):
+		return
+	var viewer := CharacterPortraitViewer.new()
+	viewer.character_row = row
+	viewer.safe_insets = _safe_area_canvas_insets()
+	viewer.appearance_requested.connect(_open_character_appearance.bind(character_id))
+	var detail_panel := _detail_modal.get_node("Panel") as Control
+	detail_panel.hide()
+	viewer.closed.connect(detail_panel.show)
+	_detail_modal.add_child(viewer)
 
 func _open_character_appearance(character_id: String) -> void:
 	if is_instance_valid(_appearance_selector):
@@ -2905,14 +2935,17 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	level_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.62, 1))
 	top_row.add_child(level_label)
 	var can_up := SaveManager.can_upgrade_sig_skill(character_id)
+	var hero_owned := SaveManager.is_item_unlocked("character", character_id)
 	var cost_spec := SaveManager.get_sig_skill_upgrade_cost_spec(character_id)
 	var cost := int(cost_spec.get("amount", -1))
-	var btn := _armored_action_button("SigSkillUpgradeButton", "已精通" if maxed else _loc("升级", "Upgrade"), true, true, Vector2(286, 112), 20)
-	if not maxed:
+	var btn := _armored_action_button("SigSkillUpgradeButton", _loc("未解锁", "Locked") if not hero_owned else ("已精通" if maxed else _loc("升级", "Upgrade")), true, true, Vector2(286, 112), 20)
+	if hero_owned and not maxed:
 		UiKit.apply_resource_cost(btn, _loc("升级", "Upgrade"), str(cost_spec.get("kind", "xp")), cost, 17, 26.0)
 	btn.custom_minimum_size = Vector2(286, 112)
 	btn.disabled = not can_up
 	btn.modulate = ACTION_ACTIVE_MODULATE if can_up else ACTION_DISABLED_MODULATE
+	if not hero_owned:
+		btn.tooltip_text = _loc("拥有角色后才能升级；外观不受影响。", "Unlock this hero to upgrade. Outfits remain available.")
 	btn.pressed.connect(_upgrade_sig_skill_from_detail.bind(character_id))
 	top_row.add_child(btn)
 	var growth_label := Label.new()

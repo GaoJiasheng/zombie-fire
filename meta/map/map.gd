@@ -1713,10 +1713,10 @@ func _add_level_mode_button(parent: Control, pos: Vector2, size: Vector2, text: 
 
 	var star_row := HBoxContainer.new()
 	star_row.name = "ModeStars"
-	star_row.custom_minimum_size = Vector2(0, 38)
+	star_row.custom_minimum_size = Vector2(0, 44)
 	star_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	star_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	star_row.add_theme_constant_override("separation", 2)
+	star_row.add_theme_constant_override("separation", 6)
 	star_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(star_row)
 
@@ -1726,9 +1726,14 @@ func _add_level_mode_button(parent: Control, pos: Vector2, size: Vector2, text: 
 		lock_icon.modulate = Color(0.72, 0.76, 0.80, 0.86)
 		star_row.add_child(lock_icon)
 	for i in range(3):
-		var star := UiKit.icon(UiKit.star_icon_path(i < stars), Vector2(30, 30))
+		var earned := i < stars
+		var star := UiKit.icon(UiKit.star_icon_path(earned), Vector2(44, 44))
 		star.name = "Star%d" % (i + 1)
-		star.modulate = Color.WHITE if enabled else Color(0.66, 0.69, 0.72, 0.82)
+		# Progress is independent of entry availability. The silver empty asset
+		# has bright metal highlights: suppress them so it cannot read as earned
+		# at phone scale, while earned stars keep their full warm gold surface.
+		star.modulate = Color.WHITE if earned else Color(0.30, 0.34, 0.39, 1.0)
+		star.set_meta("earned", earned)
 		star_row.add_child(star)
 	var touch_target := UiKit.attach_touch_target(action)
 	if touch_target != null:

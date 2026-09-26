@@ -2400,6 +2400,9 @@ func get_sig_skill_upgrade_cost_spec(character_id: String) -> Dictionary:
 	return {"kind": "xp", "amount": get_sig_skill_upgrade_cost(character_id)}
 
 func can_upgrade_sig_skill(character_id: String) -> bool:
+	# Viewing a hero (or owning its outfit) does not grant the hero itself.
+	if DataLoader.get_row("characters", character_id).is_empty() or not is_item_unlocked("character", character_id):
+		return false
 	if get_sig_skill_level(character_id) >= SIG_SKILL_MAX_LEVEL:
 		return false
 	var cost := get_sig_skill_upgrade_cost(character_id)
