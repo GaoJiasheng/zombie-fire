@@ -1,6 +1,7 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const ProgressionResult := preload("res://ui/progression_result.gd")
 const AppearanceSelector := preload("res://ui/appearance_selector.gd")
 const STORE_PREVIEW_SIZE := Vector2(330, 330)
 const STORE_PREVIEW_INSET := 10
@@ -1890,9 +1891,7 @@ func _equip_set(set_id: String) -> void:
 
 
 func _upgrade_item(table: String, item_id: String) -> void:
-	if SaveManager.upgrade_item(table, item_id):
-		AudioManager.play_sfx("ui_confirm")
-		_rebuild()
+	ProgressionResult.upgrade(self, table, item_id, _rebuild)
 
 
 func _on_purchase_finished(_product_id: String, success: bool, message: String) -> void:
@@ -1904,26 +1903,7 @@ func _on_purchase_finished(_product_id: String, success: bool, message: String) 
 
 
 func _show_purchase_completion(product_id: String) -> void:
-	var row := PurchaseManager.product(product_id)
-	_dialog_layer = UiKit.confirm_modal(self, {
-		"title": _loc("购买完成", "Purchase Complete"),
-		"message": _loc(
-			"%s 已解锁。\n现在应用整套，或逐个角色选择战衣。" % str(row.get("name_zh", "")),
-			"%s is unlocked.\nApply the complete look now, or dress each hero individually." % str(row.get("name_en", ""))
-		),
-		"accent": UiKit.GOLD,
-		"confirm_text": _loc("立即应用整套", "Apply Full Look"),
-		"cancel_text": _loc("逐个角色换装", "Dress Heroes"),
-		"panel_width": 700.0,
-		"margin_horizontal": 48,
-		"margin_vertical": 34,
-		"content_separation": 18,
-		"title_font_size": 30,
-		"message_font_size": 20,
-		"stack_actions": true,
-		"on_confirm": _apply_new_purchase.bind(product_id),
-		"on_cancel": _customize_new_purchase.bind(product_id),
-	})
+	_dialog_layer = ProgressionResult.premium(self, product_id, _apply_new_purchase.bind(product_id), _customize_new_purchase.bind(product_id))
 
 
 func _apply_new_purchase(product_id: String) -> void:

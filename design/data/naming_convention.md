@@ -1,5 +1,7 @@
 # 命名规范（唯一真源）
 
+2026-09-27：`data/tactical_guides.json` 复用原收藏 ID（角色仍为 `vanguard/blaze/frost/volt`）及 passive/signature ID，字段固定 `guide_zh/guide_en`。仅五个共享解释键使用 `rules_` 前缀：characters、skills、weapons、armors、ammo；不新增物品、机制或资产 ID。
+
 > 任何地方出现文件名、资源 ID、数据键，**一律以本表为准**。素材、数据、代码三处必须一致。
 > 这份文档就是你说的「文件定义」——美术按这里的文件名出图，程序按这里的 ID 读数据，工具按这里连接两端。
 
@@ -157,6 +159,8 @@ Legacy compatibility env IDs remain accepted in `environments.json` as fallbacks
 卡牌标签：`projectile`, `element`, `control`, `defense`, `economy`, `tempo`, `boss`, `anti_swarm`, `anti_armor`, `execute`
 
 ## 7. 代码命名（GDScript）
+
+角色主动技能分段参数使用 `field_tick_damage_scale`、`opening_wave_damage_scale`、`repeat_target_falloff`、`repeat_target_min_mult`；仅增加数值字段，不新增或重命名角色 / 技能 ID。
 
 - 文件：`snake_case.gd`，与场景同名（`enemy.tscn` ↔ `enemy.gd`）。
 - 类名 `class_name`：`PascalCase`（`class_name EnemySpawner`）。

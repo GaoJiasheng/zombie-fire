@@ -1,0 +1,48 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+CAMPAIGN vanguard 1 1103 win=true hp=1.0 seconds=92.799999999996
+CAMPAIGN vanguard 1 2207 win=true hp=1.0 seconds=91.7499999999961
+CAMPAIGN vanguard 5 1103 win=true hp=1.0 seconds=132.716666666664
+CAMPAIGN vanguard 5 2207 win=true hp=1.0 seconds=133.066666666665
+CAMPAIGN vanguard 10 1103 win=true hp=1.0 seconds=132.666666666664
+CAMPAIGN vanguard 10 2207 win=true hp=1.0 seconds=119.433333333328
+CAMPAIGN vanguard 99 1103 win=true hp=0.80986937590711 seconds=230.100000000075
+CAMPAIGN vanguard 99 2207 win=true hp=0.99296239278645 seconds=217.733333333399
+CAMPAIGN blaze 1 1103 win=true hp=1.0 seconds=106.816666666662
+CAMPAIGN blaze 1 2207 win=true hp=1.0 seconds=104.616666666662
+CAMPAIGN blaze 5 1103 win=false hp=0.0 seconds=115.816666666661
+CAMPAIGN blaze 5 2207 win=false hp=0.0 seconds=123.249999999994
+CAMPAIGN blaze 10 1103 win=false hp=0.0 seconds=129.899999999996
+CAMPAIGN blaze 10 2207 win=true hp=0.47826086956522 seconds=163.383333333355
+CAMPAIGN blaze 99 1103 win=true hp=0.89677804295943 seconds=282.833333333405
+CAMPAIGN blaze 99 2207 win=true hp=0.96599045346062 seconds=266.08333333342
+CAMPAIGN frost 1 1103 win=true hp=1.0 seconds=94.8833333333292
+CAMPAIGN frost 1 2207 win=true hp=1.0 seconds=94.9833333333292
+CAMPAIGN frost 5 1103 win=true hp=1.0 seconds=144.683333333341
+CAMPAIGN frost 5 2207 win=true hp=1.0 seconds=144.683333333341
+CAMPAIGN frost 10 1103 win=true hp=1.0 seconds=110.549999999995
+CAMPAIGN frost 10 2207 win=true hp=1.0 seconds=109.683333333328
+CAMPAIGN frost 99 1103 win=true hp=0.79921819474058 seconds=365.716666666663
+CAMPAIGN frost 99 2207 win=true hp=0.93549648162627 seconds=327.366666666698
+CAMPAIGN volt 1 1103 win=true hp=1.0 seconds=113.133333333328
+CAMPAIGN volt 1 2207 win=true hp=1.0 seconds=96.3166666666625
+CAMPAIGN volt 5 1103 win=false hp=0.0 seconds=124.816666666661
+CAMPAIGN volt 5 2207 win=false hp=0.0 seconds=124.966666666661
+CAMPAIGN volt 10 1103 win=true hp=1.0 seconds=137.650000000002
+CAMPAIGN volt 10 2207 win=true hp=0.95886889460154 seconds=146.433333333342
+CAMPAIGN volt 99 1103 win=true hp=0.96559378468368 seconds=253.466666666761
+CAMPAIGN volt 99 2207 win=true hp=0.84905660377358 seconds=291.250000000064
+SIGNATURE_AUDIT_PASS rows=32
+WARNING: 39573 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 62095 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2535)
+ERROR: 465 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+ERROR: 3144 RID allocations of type 'P11GodotArea2D' were leaked at exit.
+ERROR: 3144 RID allocations of type 'P12GodotShape2D' were leaked at exit.
+ERROR: 5679 RID allocations of type 'N13RendererDummy15MaterialStorage13DummyMaterialE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+ERROR: 476 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.
+ERROR: 6343 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

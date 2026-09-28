@@ -92,6 +92,19 @@ func _initialize() -> void:
 	var input_manager := root.get_node("/root/InputManager")
 	var settings_manager := root.get_node("/root/SettingsManager")
 	data_loader.load_all()
+	# Every actual item and hero ability must have authored bilingual guidance.
+	for guide_table in ["characters", "skills", "weapons", "armors", "chips", "pets"]:
+		for guide_id in data_loader.get_table(guide_table):
+			var guide: Dictionary = data_loader.get_row("tactical_guides", str(guide_id))
+			for language in ["zh", "en"]:
+				_expect(str(guide.get("guide_" + language, "")).split("\n").size() >= 3, "%s/%s needs mechanic, growth and pairing guidance" % [guide_id, language])
+			if guide_table == "characters":
+				var hero_guide_row: Dictionary = data_loader.get_row("characters", str(guide_id))
+				var ability_ids: Array = hero_guide_row.get("signature_skills", []).duplicate()
+				ability_ids.append(hero_guide_row.get("passive", ""))
+				for ability_id in ability_ids:
+					var ability_guide: Dictionary = data_loader.get_row("tactical_guides", str(ability_id))
+					_expect(not str(ability_guide.get("guide_zh", "")).is_empty() and not str(ability_guide.get("guide_en", "")).is_empty(), "%s needs bilingual usage advice" % ability_id)
 	save_manager.load_game()
 	var smoke_save_snapshot: Dictionary = save_manager.save_data.duplicate(true)
 	var smoke_settings_snapshot: Dictionary = settings_manager.settings.duplicate(true)
@@ -808,6 +821,8 @@ func _initialize() -> void:
 	_expect(skill_level_one.custom_minimum_size.y >= 64.0, "larger skill detail copy must retain comfortable row height")
 	var skill_description := skill_detail.find_child("DescriptionBody", true, false) as Label
 	_expect(skill_description != null and skill_description.get_theme_font_size("font_size") == UiKit.scaled_font_size(22), "skill tactical notes must use the larger mobile body size")
+	_expect(skill_description != null and skill_description.text.contains("主弹命中后") and skill_description.text.contains("搭配"), "Split Shot detail must explain its own mechanism and pairing, not just how the codex works")
+	_expect(skill_description != null and not skill_description.clip_text and skill_description.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "authored tactical copy must wrap without clipping")
 	var skill_upgrade_button := skill_detail.find_child("SkillUpgradeButton", true, false) as TextureButton
 	var expected_skill_cost: int = int(save_manager.get_skill_base_upgrade_cost("skill_split_shot"))
 	_assert_resource_cost(skill_upgrade_button, "xp", expected_skill_cost, "generic skill upgrade")
@@ -3647,10 +3662,13 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		rank4_skills[skill_id] = mini(4, save_manager._power_skill_max_level(data_loader.get_row("skills", skill_id)))
 	save_manager.save_data["skill_base_levels"] = rank4_skills
 	var observed_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_080")
-	_expect(int(observed_breakdown.get("power", 0)) == 4468, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
+	# 2026-09-26 approved Blaze active 2.4 -> 1.8: the existing ruler reads
+	# that input directly. Keep the model/recommendation frozen, update this
+	# affected build golden only (4468 -> 4448, independently checked in Python).
+	_expect(int(observed_breakdown.get("power", 0)) == 4448, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
 	_expect(int(observed_breakdown.get("recommended", 0)) == 2592, "level_080 v6 recommendation golden drifted")
 	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "level_080 Owner build v6 short axis must be line")
-	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.72377) <= 0.0001, "level_080 Owner build v6 R drifted")
+	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.71605) <= 0.0001, "level_080 Owner build v6 R drifted")
 
 	var boss55: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
 	_expect(absf(float(save_manager._power_boss_element_factor(boss55, "physical")) - 0.75) <= 0.000001, "level_055 physical badge factor must be ×0.75")
@@ -5757,6 +5775,7 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._vanguard_railvolley_count(active)) >= base_vanguard_volleys + 2, "vanguard signature levels must add volleys")
 				_expect(int(battle._vanguard_railvolley_target_count(active)) >= base_vanguard_targets + 2, "vanguard signature levels must add targets")
 			"blaze":
+				_expect(is_equal_approx(float(active.get("damage_mult", 0.0)), 1.8), "Blaze must retain the reviewed 1.8 active damage multiplier")
 				_expect(str(active.get("coverage_mode", "local")) == "local", "blaze meltdown must use a target-centred area instead of unconditional battlefield coverage")
 				_expect(not battle._blaze_meltdown_uses_battlefield(active), "blaze meltdown runtime must not resolve as battlefield-wide")
 				_expect(float(active.get("radius", 0.0)) >= 340.0, "blaze meltdown must keep a generous base blast area after removing full-screen coverage")
@@ -5772,10 +5791,16 @@ func _verify_character_active_skill_controls(data_loader: Node, save_manager: No
 				_expect(int(battle._blaze_meltdown_pulse_count(active)) >= base_blaze_pulses + 2, "blaze signature levels must add pulse stages")
 				_expect(float(battle._active_skill_status_scale(active)) >= 1.39, "blaze signature levels must strengthen burn status")
 			"frost":
+				_expect(is_equal_approx(float(active.get("field_tick_damage_scale", 0.0)), 0.18), "Frost sustained damage must use the reviewed control-first scale")
+				_expect(is_equal_approx(float(active.get("opening_wave_damage_scale", 0.0)), 0.5), "Frost opening waves must use their separate reviewed scale")
 				_expect(float(battle._frost_glacier_duration(active)) >= base_sig_duration + 2.4, "frost signature levels must extend full-screen field duration")
 				_expect(int(battle._frost_glacier_wave_count(active)) >= base_frost_waves + 2, "frost signature levels must add cold waves")
 				_expect(float(battle._frost_glacier_speed_factor(active, false)) <= base_frost_speed - 0.07, "frost signature levels must strengthen slow")
 			"volt":
+				_expect(is_equal_approx(float(battle._volt_repeat_target_multiplier(0)), 1.0), "Volt first hit must retain full damage")
+				_expect(is_equal_approx(float(battle._volt_repeat_target_multiplier(1)), 0.72), "Volt second hit on one target must decay")
+				_expect(is_equal_approx(float(battle._volt_repeat_target_multiplier(2)), 0.5184), "Volt repeats must compound within a cast")
+				_expect(is_equal_approx(float(battle._volt_repeat_target_multiplier(20)), 0.25), "Volt repeated hits must retain their 25 percent floor")
 				var original_volt_level := int(battle.character_level)
 				var original_pet_chain := int(battle.chain_bonus)
 				battle.character_level = 40

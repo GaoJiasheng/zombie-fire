@@ -1,6 +1,8 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const ProgressionResult := preload("res://ui/progression_result.gd")
+const ProgressionValues := preload("res://ui/progression_values.gd")
 const BUTTON_PRIMARY := "res://assets/production/sprites/ui/ui_button_primary.png"
 const BUTTON_SECONDARY := "res://assets/production/sprites/ui/ui_button_secondary.png"
 const ACTION_ACTIVE_MODULATE := Color(1.0, 0.86, 0.54, 1.0)
@@ -1076,69 +1078,13 @@ func _weapon_special_text(row: Dictionary, item_level := -1) -> String:
 
 # 升级预览：返回 [{label, cur, next, delta}]，直观展示本级 → 下级各属性变化。
 func _upgrade_preview_rows(item_id: String, row: Dictionary, level: int) -> Array:
-	var max_level := int(row.get("max_level", 30))
-	if level >= max_level:
+	if level >= int(row.get("max_level", 30)):
 		return []
-	var nxt := level + 1
+	var before := ProgressionValues.snapshot(mode, item_id, level)
+	var after := ProgressionValues.snapshot(mode, item_id, level + 1)
 	var rows := []
-	match mode:
-		"weapons":
-			rows.append({"label": "伤害", "cur": "+%d%%" % int(round(0.08 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.08 * float(nxt - 1) * 100.0)), "delta": "每级 +8%"})
-			rows.append({"label": "射速", "cur": "+%d%%" % int(round(0.025 * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(0.025 * float(nxt - 1) * 100.0)), "delta": "每级 +2.5%"})
-		"characters":
-			var g := float(row.get("atk_growth", 0.08)) * 0.52
-			rows.append({"label": "攻击", "cur": "+%d%%" % int(round(g * float(level - 1) * 100.0)), "next": "+%d%%" % int(round(g * float(nxt - 1) * 100.0)), "delta": "每级 +%d%%" % int(round(g * 100.0))})
-			rows.append({"label": "主动/专属技能", "cur": "等级%d" % level, "next": "等级%d" % nxt, "delta": "威力随等级成长"})
-		"armors":
-			var ag := float(row.get("level_hp_growth", 0.0))
-			var hp := float(row.get("hp_mult", 1.0))
-			rows.append({"label": "基地生命", "cur": "+%d%%" % int(round((hp * (1.0 + ag * float(level - 1)) - 1.0) * 100.0)), "next": "+%d%%" % int(round((hp * (1.0 + ag * float(nxt - 1)) - 1.0) * 100.0)), "delta": "每级 +%d%%" % int(round(hp * ag * 100.0))})
-		"chips":
-			var cg := float(row.get("level_value_growth", 0.0))
-			var base := float(row.get("value", 0))
-			rows.append({"label": _stat_name(row.get("stat", "增幅")), "cur": _value_text(base * (1.0 + cg * float(level - 1))), "next": _value_text(base * (1.0 + cg * float(nxt - 1))), "delta": "每级 +%s" % _value_text(base * cg)})
-		"pets":
-			if row.has("damage"):
-				var pg := float(row.get("level_damage_growth", 0.0))
-				var pbase := float(row.get("damage", 0))
-				rows.append({"label": "伤害", "cur": "%d" % int(round(pbase * (1.0 + pg * float(level - 1)))), "next": "%d" % int(round(pbase * (1.0 + pg * float(nxt - 1)))), "delta": "每级 +%d" % int(round(pbase * pg))})
-			var pet_skill: Dictionary = row.get("pet_skill", {})
-			if str(pet_skill.get("kind", "")) not in ["", "repair"]:
-				rows.append({
-					"label": str(pet_skill.get("name", "专属技能")),
-					"cur": _pet_skill_summary(row, level),
-					"next": _pet_skill_summary(row, nxt),
-					"delta": "专属效果随等级成长"
-				})
-			if row.has("heal_per_wave"):
-				var hg := float(row.get("level_heal_growth", 0.0))
-				var hbase := float(row.get("heal_per_wave", 0))
-				var wave_ratio := float(row.get("heal_per_wave_ratio", 0.0))
-				var wave_ratio_growth := float(row.get("level_wave_heal_ratio_growth", 0.0))
-				rows.append({
-					"label": "波次整备",
-					"cur": "%d + %.1f%%" % [int(round(hbase * (1.0 + hg * float(level - 1)))), (wave_ratio + wave_ratio_growth * float(level - 1)) * 100.0],
-					"next": "%d + %.1f%%" % [int(round(hbase * (1.0 + hg * float(nxt - 1)))), (wave_ratio + wave_ratio_growth * float(nxt - 1)) * 100.0],
-					"delta": "固定值 + 最大生命"
-				})
-			if row.has("repair_ratio"):
-				var repair_ratio := float(row.get("repair_ratio", 0.0))
-				var repair_growth := float(row.get("level_repair_ratio_growth", 0.0))
-				rows.append({
-					"label": "持续维修",
-					"cur": "%.2f%%" % ((repair_ratio + repair_growth * float(level - 1)) * 100.0),
-					"next": "%.2f%%" % ((repair_ratio + repair_growth * float(nxt - 1)) * 100.0),
-					"delta": "每 %.0f 秒" % float(row.get("repair_interval", 18.0))
-				})
-			if row.has("emergency_heal_ratio"):
-				var emergency_ratio := float(row.get("emergency_heal_ratio", 0.0))
-				var emergency_growth := float(row.get("level_emergency_heal_growth", 0.0))
-				rows.append({
-					"label": "应急救援",
-					"cur": "%.1f%%" % ((emergency_ratio + emergency_growth * float(level - 1)) * 100.0),
-					"next": "%.1f%%" % ((emergency_ratio + emergency_growth * float(nxt - 1)) * 100.0),
-					"delta": "低血量触发"
-				})
+	for change in ProgressionValues.changes(before, after):
+		rows.append({"label": change.label, "cur": change.before, "next": change.after, "delta": ""})
 	return rows
 
 func _next_upgrade_hint(item_id: String, row: Dictionary) -> String:
@@ -1205,12 +1151,7 @@ func _growth_badge_text(level: int) -> String:
 	return "基础型"
 
 func _upgrade_item(item_id: String) -> void:
-	if SaveManager.upgrade_item(_data_table_name(), item_id):
-		AudioManager.play_sfx("upgrade")
-		_refresh()
-		_pulse_selected_item(item_id)
-	else:
-		AudioManager.play_sfx("ui_click", -6.0)
+	ProgressionResult.upgrade(self, _data_table_name(), item_id, _refresh)
 
 func _select_item(slot: String, item_id: String) -> void:
 	if SaveManager.select_item(slot, item_id):
@@ -1251,6 +1192,7 @@ func _open_premium_store() -> void:
 		router.change_scene("store")
 
 func _do_purchase(table: String, item_id: String) -> void:
+	var cost := SaveManager.get_unlock_cost_spec(table, item_id)
 	var res := SaveManager.purchase_item(table, item_id)
 	if res == SaveManager.PurchaseResult.OK:
 		AudioManager.play_sfx("star_gain")
@@ -1259,6 +1201,8 @@ func _do_purchase(table: String, item_id: String) -> void:
 			SaveManager.select_item(slot, item_id)
 		_refresh()
 		_pulse_selected_item(item_id)
+		_close_character_detail()
+		ProgressionResult.acquired(self, table, item_id, cost)
 	else:
 		AudioManager.play_sfx("ui_click", -6.0)
 
@@ -1451,9 +1395,6 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 			up_section.get_child(0).add_child(up_grid)
 			for pr in preview:
 				up_grid.add_child(_make_stat_pill(str(pr.get("label", "")), "%s → %s" % [str(pr.get("cur", "")), str(pr.get("next", ""))], str(pr.get("delta", ""))))
-	if mode == "skills":
-		detail_content.add_child(_make_skill_levels_section(row, accent, item_level))
-
 	var desc_section := _make_section_panel(
 		"战术说明",
 		Color(0.68, 0.82, 1.0, 0.82),
@@ -1469,7 +1410,9 @@ func _show_item_detail(item_id: String, row: Dictionary) -> void:
 	desc_label.name = "DescriptionBody"
 	UiKit.apply_label(desc_label, SKILL_DETAIL_DESCRIPTION_FONT_SIZE if mode == "skills" else 20, Color(0.9, 0.96, 1.0, 1.0), 3)
 	desc_label.add_theme_constant_override("line_spacing", 7)
-	desc_section.get_child(0).add_child(desc_label)
+	_add_tactical_body(desc_section, desc_label)
+	if mode == "skills":
+		detail_content.add_child(_make_skill_levels_section(row, accent, item_level))
 	detail_content.add_child(_make_detail_scroll_bottom_clearance())
 	content_scroll.mouse_force_pass_scroll_events = true
 	_configure_detail_scroll_surface(detail_content)
@@ -1838,6 +1781,14 @@ func _pet_skill_cooldown_text(skill: Dictionary) -> String:
 	return _loc("%s秒冷却", "%ss Cooldown") % String.num(float(skill.get("cooldown", 0.0))).trim_suffix(".0")
 
 func _detail_body_text(item_id: String, row: Dictionary) -> String:
+	var authored := _authored_tactical_text(item_id)
+	if not authored.is_empty():
+		var rules := _authored_tactical_text("rules_%s" % mode)
+		if not rules.is_empty():
+			authored += "\n\n" + rules
+		if mode == "skills" and str(row.get("exclusive_group", "")) == "projectile_element":
+			authored += "\n\n" + _authored_tactical_text("rules_ammo")
+		return authored
 	match mode:
 		"weapons":
 			return _weapon_tactical_guide(item_id, row)
@@ -1851,6 +1802,20 @@ func _detail_body_text(item_id: String, row: Dictionary) -> String:
 			return "技能图鉴只用于查看局内卡牌成长。下方会列出每一级的具体数值，便于判断加点性价比；战斗中同名技能按等级叠加，互斥弹种会以当前主弹种为准。"
 		_:
 			return _item_desc(item_id, row, true)
+
+func _authored_tactical_text(item_id: String) -> String:
+	var guide := DataLoader.get_row("tactical_guides", item_id)
+	return str(guide.get("guide_en" if LocalizationManager.is_english() else "guide_zh", ""))
+
+func _add_tactical_body(section: Control, body: Label) -> void:
+	var inset := MarginContainer.new()
+	inset.name = "TacticalTextInset"
+	inset.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inset.add_theme_constant_override("margin_left", 12)
+	inset.add_theme_constant_override("margin_right", 12)
+	inset.add_theme_constant_override("margin_bottom", 20)
+	section.get_child(0).add_child(inset)
+	inset.add_child(body)
 
 func _weapon_tactical_guide(item_id: String, row: Dictionary) -> String:
 	var fire_rate := float(row.get("fire_rate", 0.0))
@@ -2254,23 +2219,12 @@ func _select_item_and_close(slot: String, item_id: String) -> void:
 
 func _upgrade_item_from_detail(item_id: String, row: Dictionary) -> void:
 	var table := _data_table_name()
-	if table != "" and SaveManager.upgrade_item(table, item_id):
-		AudioManager.play_sfx("upgrade")
-		_refresh()
-		var fresh_row := DataLoader.get_row(table, item_id)
+	if ProgressionResult.upgrade(self, table, item_id, _refresh, func(): _show_item_detail(item_id, row)):
 		_close_character_detail()
-		call_deferred("_show_item_detail", item_id, fresh_row if not fresh_row.is_empty() else row)
-	else:
-		AudioManager.play_sfx("ui_click", -6.0)
 
 func _upgrade_skill_from_detail(item_id: String, row: Dictionary) -> void:
-	if SaveManager.upgrade_skill_base(item_id):
-		AudioManager.play_sfx("upgrade")
-		_refresh()
+	if ProgressionResult.upgrade(self, "skills", item_id, _refresh, func(): _show_item_detail(item_id, row)):
 		_close_character_detail()
-		call_deferred("_show_item_detail", item_id, row)
-	else:
-		AudioManager.play_sfx("ui_click", -6.0)
 
 # ========== Character detail modal ==========
 
@@ -2466,8 +2420,8 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	stats_grid.add_theme_constant_override("h_separation", 14)
 	stats_grid.add_theme_constant_override("v_separation", 10)
 	stats_section.get_child(0).add_child(stats_grid)
-	stats_grid.add_child(_make_stat_pill("攻  击", str(int(row.get("base_atk", 0))), "+%.1f%% / 级" % (float(row.get("atk_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
-	stats_grid.add_child(_make_stat_pill("血  量", str(int(row.get("base_hp", 0))), "+%.1f%% / 级" % (float(row.get("hp_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("攻  击", "%.2f" % ProgressionValues.hero_attribute(row, item_level, "attack"), "+%.1f%% / 级" % (float(row.get("atk_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
+	stats_grid.add_child(_make_stat_pill("血  量", "%.2f" % ProgressionValues.hero_attribute(row, item_level, "hp"), "+%.1f%% / 级" % (float(row.get("hp_growth", 0)) * 45.0), CHARACTER_DETAIL_SECOND_PASS_DELTA))
 	stats_grid.add_child(_make_stat_pill("暴  击", "%.0f%%" % (float(row.get("crit_rate_base", 0)) * 100.0), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
 	stats_grid.add_child(_make_stat_pill("射  速", "%.2f×" % float(row.get("fire_rate_mod", 1.0)), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
 	stats_grid.add_child(_make_stat_pill("瞄  准", "%.2f×" % float(row.get("aim_turn_speed", 1.0)), "", CHARACTER_DETAIL_SECOND_PASS_DELTA))
@@ -2498,6 +2452,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 	var passive_description := LocalizationManager.text(str(passive_info["desc"]))
 	if not character_unlocked:
 		passive_description = _loc("解锁后：", "After unlock: ") + passive_description.trim_prefix("Active: " if LocalizationManager.is_english() else "已生效：")
+	passive_description += "\n\n" + _authored_tactical_text(passive_id)
 	var passive_section := _make_section_panel("被  动", Color(0.48, 0.74, 0.50, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
 	detail_content.add_child(passive_section)
 	passive_section.get_child(0).add_child(_make_skill_row(
@@ -2525,7 +2480,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 		for sig_id in sig_ids:
 			var info: Dictionary = CharacterSkillText.signature_info(sig_id)
 			var is_active_skill: bool = (str(sig_id) == active_skill_id)
-			var kind: String = "主动" if is_active_skill else "弹种"
+			var kind: String = "主动" if is_active_skill else ("自动" if str(sig_id) == "sig_vanguard_overload" else "弹种")
 			# Map sig id to icon
 			var icon_path := "res://assets/production/sprites/ui/%s_icon.png" % sig_id
 			if not ResourceLoader.exists(icon_path):
@@ -2534,7 +2489,7 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 				icon_path,
 				info["name"],
 				kind,
-				info["desc"],
+				LocalizationManager.text(str(info["desc"])) + "\n\n" + _authored_tactical_text(str(sig_id)),
 				UiKit.GOLD,
 				sig_section
 			))
@@ -2561,6 +2516,26 @@ func _show_character_detail(item_id: String, row: Dictionary) -> void:
 			affinity_pill.name = "AffinityTag%d" % affinity_index
 			aff_row.add_child(affinity_pill)
 			affinity_index += 1
+
+	var tactics_section := _make_section_panel("战术说明", Color(0.58, 0.72, 0.82, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
+	tactics_section.name = "CharacterTacticalNotes"
+	detail_content.add_child(tactics_section)
+	var tactics_body := Label.new()
+	tactics_body.name = "CharacterTacticalBody"
+	tactics_body.text = _authored_tactical_text(item_id)
+	tactics_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tactics_body.clip_text = false
+	tactics_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tactics_body.add_theme_font_size_override("font_size", UiKit.scaled_font_size(22))
+	tactics_body.add_theme_constant_override("line_spacing", 7)
+	_add_tactical_body(tactics_section, tactics_body)
+	var model_section := _make_section_panel(_loc("属性与伤害模型", "Stats and damage model"), Color(0.58, 0.72, 0.82, 0.85), CHARACTER_DETAIL_SECTION_TITLE_FONT_SIZE)
+	model_section.name = "CharacterModelNotes"
+	detail_content.add_child(model_section)
+	var model_body := tactics_body.duplicate() as Label
+	model_body.name = "CharacterModelBody"
+	model_body.text = _authored_tactical_text("rules_characters")
+	_add_tactical_body(model_section, model_body)
 
 	# Keep the final growth line clear of both the scroll viewport edge and the
 	# fixed 2x2 action row. The extra range also makes the last drag visibly move
@@ -2962,14 +2937,8 @@ func _make_sig_skill_upgrade_row(character_id: String, signature_id: String) -> 
 	return row
 
 func _upgrade_sig_skill_from_detail(character_id: String) -> void:
-	if SaveManager.upgrade_sig_skill(character_id):
-		AudioManager.play_sfx("upgrade")
-		_refresh()
-		var fresh_row := DataLoader.get_row("characters", character_id)
+	if ProgressionResult.upgrade(self, "signature", character_id, _refresh, func(): _show_character_detail(character_id, DataLoader.get_row("characters", character_id))):
 		_close_character_detail()
-		call_deferred("_show_character_detail", character_id, fresh_row)
-	else:
-		AudioManager.play_sfx("ui_click", -6.0)
 
 func _element_color(element: String) -> Color:
 	# Single source of truth: never diverge from UiKit element coding.

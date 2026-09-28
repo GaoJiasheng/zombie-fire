@@ -1,0 +1,326 @@
+{
+  "skill_split_shot": {
+    "guide_zh": "机制：主弹命中后分出小弹，把一次命中扩展为对周围尸群的追击；分裂小弹不会继续无限分裂。\n成长：升级增加小弹数量，但每颗小弹保留的伤害比例会降低。它提升的是覆盖与总命中机会，不是让每颗小弹越来越重。\n搭配：配合多重子弹增加分裂起点，配合减速让敌人聚在火力区。周围只有一只敌人时收益有限，打孤立首领优先考虑伤害穿透或蓄能重击。",
+    "guide_en": "Mechanic: A main-round impact releases smaller rounds toward nearby enemies. These children cannot split again indefinitely.\nGrowth: Higher ranks produce more children, but each keeps a smaller share of the parent round's damage. The gain is coverage and more chances to hit, not stronger individual fragments.\nPairing: Multishot creates more launch points; slowing enemies keeps crowds within reach. With no nearby secondary targets, Armor Bypass or Charged Strike is usually a better investment."
+  },
+  "skill_pierce": {
+    "guide_zh": "机制：让一颗主弹穿过前排，继续攻击后面的敌人，适合处理纵向排成串的尸潮。这里的穿透是穿过目标，不等于绕过护甲。\n成长：前两级增加可穿过的目标数，后续等级还加入主弹伤害加成。\n搭配：磁轨炮可进一步延长贯穿链；减速有助于保持敌人队形。面对单只厚甲首领，伤害穿透比单纯增加穿过目标数更直接。",
+    "guide_en": "Mechanic: A main round passes through the front enemy and continues into enemies behind it. This is target piercing, not armor bypass.\nGrowth: Early ranks add pass-throughs; later ranks also increase main-round damage.\nPairing: Extend a Railgun's piercing line, or slow a column to keep it aligned. Against one armored boss, Armor Bypass addresses the armor layer more directly."
+  },
+  "skill_multishot": {
+    "guide_zh": "机制：每次开火增加弹丸，扩大正面覆盖；散弹枪自身弹丸和角色弹幕可以继续叠加。\n成长：等级提高会增加弹丸或调整散布与弹道伤害。额外弹丸有单发伤害修正，不能把发数直接当作总伤害倍数。\n搭配：分裂弹适合把覆盖扩大到密集尸群，追踪适合减少侧边漏枪。散布越宽越擅长横向清群，但不保证所有弹丸都命中同一目标。",
+    "guide_en": "Mechanic: Adds rounds to each shot, widening coverage. These stack with the Scattergun's own pellets and character barrage bonuses.\nGrowth: Ranks add projectiles or adjust spread and lane damage. Extra rounds carry per-round damage scaling, so pellet count is not a direct damage multiplier.\nPairing: Split Shot spreads pressure through crowds; Homing helps with edge targets. A wider fan covers more lanes but will not put every pellet into one enemy."
+  },
+  "skill_slow_field": {
+    "guide_zh": "机制：在防线前建立减速区域，敌人走入后移动变慢，为主武器争取更多开火时间；它本身不造成伤害。\n成长：升级同时提高减速强度并把覆盖向战场前方延伸，让尸潮更早进入压制区。\n搭配：毒云、灼烧和持续射击都能利用多出来的时间。首领有独立的减速上限，叠加冰霜效果不能把首领永久定住。",
+    "guide_en": "Mechanic: Slows enemies inside a zone ahead of the defense line, buying more firing time without dealing damage itself.\nGrowth: Ranks strengthen the slow and extend the zone farther up the battlefield.\nPairing: Poison, burns and sustained fire all benefit from the extra time. Bosses have a separate slow cap; stacking ice effects does not create a permanent boss lock."
+  },
+  "skill_homing": {
+    "guide_zh": "机制：让飞行中的子弹修正方向，追赶斜向或移动中的目标，减少看得见却打不着的浪费。\n成长：升级提高转向能力，后段等级还增加穿过目标的次数。它不直接增加面板伤害。\n搭配：适合多重子弹与散弹枪；散弹会先展开再追踪，仍保留扇形手感。转向有速度和距离限制，不是必中的瞬间伤害。",
+    "guide_en": "Mechanic: Steers rounds in flight toward moving or off-axis targets, reducing wasted shots.\nGrowth: Higher ranks improve steering and later add target pass-throughs, rather than a direct damage bonus.\nPairing: Useful with Multishot and Scatterguns. Pellets fan out before homing begins, preserving the spread. Turning is limited by flight and steering constraints; it is not an instant guaranteed hit."
+  },
+  "skill_critical": {
+    "guide_zh": "机制：强化主弹伤害和暴击概率，把持续开火中的一部分命中变为重击；名称里的蓄能不要求停火等待。\n成长：每级增强伤害与暴击率，较高等级再提高暴击伤害。\n搭配：高频武器让暴击收益更稳定，高单发武器让暴击更有分量。它不能绕过元素免疫；面对护甲还需要克制或伤害穿透。",
+    "guide_en": "Mechanic: Boosts main-round damage and critical chance. Despite the charged-strike theme, you do not need to stop firing to charge it.\nGrowth: Every rank adds damage and critical chance; later ranks also improve critical damage.\nPairing: Fast weapons smooth out critical variance, while heavy rounds make each crit count. Critical hits do not bypass elemental immunity; armor still calls for a suitable element or penetration."
+  },
+  "skill_barrier": {
+    "guide_zh": "机制：扩大基地生命上限，并补入这次新增的生命，是给防线增加容错，不是生成几次无敌护盾。\n成长：升级继续提高生命加成；已损失的旧生命不会因为加点而全部回满。\n搭配：与生命芯片、护甲和维修宠物组成耐久构筑。压力临近时可以救急，但输出不足仍会不断漏怪，不能只靠堆血解决。",
+    "guide_en": "Mechanic: Raises the base's maximum HP and adds the newly gained HP immediately. It provides durability, not charges of invulnerability.\nGrowth: Each rank increases the HP bonus; it does not fully restore damage already taken.\nPairing: Combine with health chips, armor or a repair pet. It can buy breathing room, but more HP alone cannot solve a persistent damage shortage."
+  },
+  "skill_gold_rush": {
+    "guide_zh": "机制：提高本局金币收益，把一场能稳定打赢的战斗变成更有效率的养成。\n成长：升级提高收益加成，不直接增加子弹伤害、经验或星星。\n搭配：与回收宠物、金币芯片组成刷金币配置。前线已经吃紧时先补火力或防御；经济加成只有活着完成击杀才有价值。",
+    "guide_en": "Mechanic: Increases gold income during the run, turning reliable clears into more efficient progression.\nGrowth: Ranks improve the gold bonus, not bullet damage, XP or stars.\nPairing: Combine with the Scavenger Bot and a gold chip for farming. If the line is already failing, stabilize damage or defense first; income bonuses need kills to pay off."
+  },
+  "skill_ricochet": {
+    "guide_zh": "机制：主弹命中后向附近其他敌人发出追加弹射，不需要第一只敌人死亡。追加命中的伤害低于主弹，且不会无限连锁。\n成长：升级增加可寻找的后续目标，收益取决于命中点附近是否还有敌人。\n搭配：适合密集尸潮，也能与武器自带连锁叠加。只有一个目标或敌人间距太远时，弹射次数不会凭空转成对单体的额外命中。",
+    "guide_en": "Mechanic: A main-round hit sends follow-up shots toward other nearby enemies; the first enemy need not die. Follow-ups deal less damage and do not recurse endlessly.\nGrowth: Ranks add secondary targets, provided enemies are actually within reach.\nPairing: Strong in packed waves and compatible with native weapon chains. With one isolated target or a widely scattered wave, unused bounces do not become extra hits on the same enemy."
+  },
+  "skill_salvo": {
+    "guide_zh": "机制：缩短主武器两次开火之间的间隔，让火力更连续，而不是增加每一发的伤害。\n成长：升级提高攻速加成；实际开火节奏还会合并角色、武器等级和装备的影响。\n搭配：适合命中积累型武器，如炼狱爆燃、绝对零度碎冰与黄金律裁决。它不直接缩短角色主动技能或宠物技能的冷却。",
+    "guide_en": "Mechanic: Shortens the interval between main-weapon shots instead of increasing damage per round.\nGrowth: Ranks raise the attack-speed bonus; the final cadence also depends on character, weapon level and equipment.\nPairing: Helps hit-driven mechanics such as Inferno combustion, Absolute Zero shatter and Golden Law verdicts. It does not directly reduce character-active or pet-skill cooldowns."
+  },
+  "skill_incendiary": {
+    "guide_zh": "机制：启用火焰弹药，以命中和后续灼烧持续消耗敌人，适合有时间燃烧的厚实尸群。\n成长：升级提高火焰状态强度和主弹伤害加成，不会让所有伤害来源都变为火焰。\n搭配：火焰少年能强化火弹，减速可延长敌人留在火力区的时间。优先针对弱火目标；遇到火抗或免疫，继续堆灼烧并不划算。",
+    "guide_en": "Mechanic: Enables fire ammunition, wearing enemies down through impact damage and subsequent burns. Durable crowds give the burn time to work.\nGrowth: Ranks improve burn strength and main-round damage; they do not convert every damage source to fire.\nPairing: Blaze reinforces fire rounds, while slows buy time for sustained pressure. Favor fire-weak targets rather than trying to burn through fire resistance or immunity."
+  },
+  "skill_cryo": {
+    "guide_zh": "机制：启用冰霜弹药，以命中减速和防线前压制拖慢敌人，给主武器争取更多补枪机会。\n成长：升级提高减速强度和主弹伤害；控制与伤害同时成长，但减速仍受上限限制。\n搭配：冰霜少女能利用受控目标追加碎冰。也适合搭配慢速重炮，弥补两次开火之间的空档；不要把减速理解为必定冻结。",
+    "guide_en": "Mechanic: Enables ice ammunition, slowing enemies on impact and near the defense line to create more follow-up opportunities.\nGrowth: Ranks increase slow strength and main-round damage, while control remains capped.\nPairing: Frost can shatter controlled targets. Slow heavy weapons also appreciate the extra time between shots. A slow is not a guarantee of a full freeze."
+  },
+  "skill_tesla": {
+    "guide_zh": "机制：启用闪电弹药，增加命中后的连锁目标，把单点射击扩展到附近尸群。\n成长：升级提高主弹伤害，并在指定等级增加连锁目标；没有第二目标时，连锁覆盖无法兑现。\n搭配：电弧少女、特斯拉线圈和连锁宠物可继续扩展目标数。与弹射能叠加，但后续命中不是每次都复制完整主弹伤害。",
+    "guide_en": "Mechanic: Enables lightning ammunition and adds follow-up chain targets around the point of impact.\nGrowth: Ranks improve main-round damage and add chain targets at specific milestones. Chains need secondary enemies to deliver their coverage.\nPairing: Volt, Tesla Coil and chain pets extend the target budget. Ricochet stacks with it, but follow-ups do not each duplicate full main-round damage."
+  },
+  "skill_venom": {
+    "guide_zh": "机制：启用毒素弹药，命中后通过中毒持续消耗目标；适合提前给高血量敌人挂上状态。\n成长：升级提高中毒强度和主弹伤害。持续伤害需要时间，不会在命中瞬间结算全部收益。\n搭配：与减速区域或冰霜角色的控场主动技配合。接近防线的残血目标应及时补枪，不能指望毒伤总能赶在漏怪前生效。",
+    "guide_en": "Mechanic: Enables poison ammunition, applying damage over time. Tag durable targets early so the status has time to work.\nGrowth: Ranks strengthen poison and main-round damage; the full poison contribution is not paid out on impact.\nPairing: Use Slow Field or Frost's active control to buy time. Finish low-health enemies near the line rather than assuming poison will tick before they breach."
+  },
+  "skill_charge_shot": {
+    "guide_zh": "机制：让主弹的一部分伤害越过外层护甲，直接进入本体生命，针对的是厚甲，不是增加可穿过的敌人数。\n成长：升级同时提高主弹伤害和护甲穿透比例，对仍有护甲的目标尤其有价值。\n搭配：高单发武器、蓄能重击与集火首领很合适。护甲穿透不等于无视元素免疫；无甲小怪也不会凭空受到一份额外伤害。",
+    "guide_en": "Mechanic: Routes part of a main round's damage past outer armor into body HP. It counters armor rather than adding target pass-throughs.\nGrowth: Ranks improve both main-round damage and the bypass fraction, especially valuable while armor remains.\nPairing: Works well with heavy rounds, Charged Strike and boss focus fire. Armor bypass does not ignore elemental immunity or create a second damage packet against unarmored enemies."
+  },
+  "skill_recycle": {
+    "guide_zh": "机制：获得一次局内重抽机会，用来重新选择不合适的强化牌，而不是直接提高战斗属性。\n成长：这是单级功能卡，没有后续五级伤害曲线。\n搭配：当构筑缺少关键弹种、控场或清群能力时保留重抽。它改变的是选牌机会，不能保证下一组一定出现指定技能。",
+    "guide_en": "Mechanic: Grants one in-run reroll to replace an unsuitable upgrade offer rather than directly raising combat stats.\nGrowth: This is a single-rank utility card, not a five-rank damage upgrade.\nPairing: Save the reroll for a missing ammo type, control tool or crowd-clear option. It provides another choice, not a guarantee that a particular skill will appear."
+  },
+  "weapon_autocannon": {
+    "guide_zh": "定位：物理自动机炮，稳定单发、节奏均衡，是最容易围绕局内卡牌塑形的基础武器。\n成长：升级提高伤害和射速，但不会自动变成散弹或爆炸武器。\n搭配：先锋强化物理弹；多重子弹、分裂或弹射补清群，伤害穿透补打甲。也可用弹药卡转元素，针对关卡弱点重新配装。",
+    "guide_en": "Role: A physical autocannon with steady single-round fire and a balanced cadence. Its simple baseline is easy to reshape through upgrade cards.\nGrowth: Levels improve damage and fire rate without automatically adding pellets or explosions.\nPairing: Vanguard favors physical rounds. Multishot, Split Shot or Ricochet add crowd coverage; Armor Bypass handles armor. Ammo cards can instead adapt it to a stage's weakness."
+  },
+  "weapon_flamethrower": {
+    "guide_zh": "定位：高频火焰喷射，以连续命中和灼烧磨掉血量。单发较轻，优势在持续压制，不是一次大爆炸。\n成长：升级提高单发与开火节奏，让火焰压力更稳定。\n搭配：火焰少年的火弹亲和与减速控场能发挥它的长处。它自带灼烧，但不自带炼狱武器的叠层爆燃；火抗关应考虑换武器。",
+    "guide_en": "Role: Rapid fire damage and burns wear enemies down. Individual hits are light; sustained pressure is the point, not one large detonation.\nGrowth: Levels strengthen rounds and firing cadence.\nPairing: Blaze's fire affinity and crowd control suit it well. Native burns do not include the Inferno weapon's stacked combustion mechanic. Consider a different weapon against fire resistance."
+  },
+  "weapon_cryocannon": {
+    "guide_zh": "定位：冰霜直射炮，以较稳重的节奏打出较重冰弹，并用减速争取后续输出时间。\n成长：升级强化伤害与射速；控制让这些新增火力更容易兑现。\n搭配：冰霜少女可对受控目标追加碎冰，多重子弹扩大控制覆盖。武器自带减速，不等于自带绝对零度的脆化叠层与群体碎冰。",
+    "guide_en": "Role: A measured ice cannon that combines weightier rounds with slows, buying time for follow-up fire.\nGrowth: Levels improve damage and cadence; control helps the extra firepower connect.\nPairing: Frost adds shatter against controlled targets, while Multishot spreads the control. Its native slow is not Absolute Zero's brittle-stack and area-shatter system."
+  },
+  "weapon_teslacoil": {
+    "guide_zh": "定位：闪电连锁武器，较快命中后向附近敌人追加攻击。它把输出分给多个目标，擅长清理聚集尸群。\n成长：升级提高基础输出和节奏；连锁目标不足时，清群优势不会自动变成等量单体伤害。\n搭配：电弧少女、弹射和连锁宠物可扩大覆盖。孤立首领战应补主弹伤害或护甲穿透，不能只追求更多连锁数。",
+    "guide_en": "Role: A fast lightning weapon that follows a hit with attacks on nearby enemies. It spreads pressure across clustered waves.\nGrowth: Levels raise output and cadence. Unused chain targets do not automatically become equivalent single-target damage.\nPairing: Volt, Ricochet and chain pets expand coverage. For an isolated boss, invest in direct damage or armor penetration instead of chain count alone."
+  },
+  "weapon_venomlauncher": {
+    "guide_zh": "定位：毒素发射器，命中点的毒性扩散与中毒状态共同消耗敌人，适合提前处理成群的高血量目标。\n成长：升级提高弹体伤害和射速，毒性伤害仍需要留出结算时间。\n搭配：减速区域能让敌人更久停留在有效火力范围。临近防线的急迫威胁要优先补枪；毒云不是覆盖全场的永久伤害区。",
+    "guide_en": "Role: A poison launcher whose impact spread and poison status wear down durable groups. Start applying pressure before they reach the line.\nGrowth: Levels increase projectile damage and cadence; poison still needs time to tick.\nPairing: Slow Field keeps enemies in useful firing positions longer. Finish urgent threats directly; the poison cloud is not a permanent battlefield-wide damage zone."
+  },
+  "weapon_railgun": {
+    "guide_zh": "定位：物理磁轨重炮，射速慢、单发重、弹速快，自带直线贯穿，适合把排成一列的敌人一起打穿。\n成长：升级提高单发和射速，减少重炮两枪之间的火力空窗。\n搭配：减速帮助保持队形，蓄能重击增强重弹，伤害穿透用于外层护甲。贯穿敌人和穿透护甲是两件事；物理免疫目标仍需换弹种或利用破甲路径。",
+    "guide_en": "Role: A slow-firing physical railgun with heavy, fast rounds and native pass-through. Line up enemies to make one shot work several times.\nGrowth: Levels strengthen rounds and reduce the gaps between shots.\nPairing: Slows preserve columns, Charged Strike strengthens heavy hits, and Armor Bypass addresses outer armor. Target piercing does not bypass armor or physical immunity."
+  },
+  "weapon_scattergun": {
+    "guide_zh": "定位：物理散弹枪，一次打出均匀扇形弹丸，擅长覆盖横向尸潮；远距离打单个小目标容易有弹丸落空。\n成长：自带弹丸从一级三发成长为四发、五发，具体门槛见升级预览；伤害与射速也随等级成长。\n搭配：多重子弹与角色弹幕可继续叠加弹丸，追踪减少侧翼漏枪。总发数不等于对单体命中数，也不等于无折损的伤害倍数。",
+    "guide_en": "Role: A physical shotgun with an evenly spaced fan, built for wide waves. Pellets can miss small isolated targets at long range.\nGrowth: Native pellets progress from three to four and then five; upgrade previews show the thresholds. Damage and cadence also grow.\nPairing: Multishot and character barrages add more rounds; Homing helps edge shots connect. Pellet count is neither guaranteed hits on one target nor a lossless damage multiplier."
+  },
+  "weapon_plasmacannon": {
+    "guide_zh": "定位：火属性等离子重炮，低频重击伴随命中点溅射，适合把伤害集中在密集敌群。\n成长：升级加强弹体与射速，让相邻敌人承受更多范围压力。\n搭配：减速帮助敌人聚集，火焰少年强化火弹，多重子弹增加爆点。溅射有范围与距离衰减，不能把同一发的全部伤害复制给全场。",
+    "guide_en": "Role: A heavy fire-element plasma cannon with splash around impact points, suited to dense groups.\nGrowth: Levels strengthen the projectile and firing cadence, increasing pressure on neighboring enemies.\nPairing: Slows keep groups compact, Blaze reinforces fire rounds, and Multishot creates more impact points. Splash has range and distance falloff; it does not copy full damage across the battlefield."
+  },
+  "weapon_apocalypse_thunder": {
+    "guide_zh": "定位：闪电连锁军械，连续命中积累过载，达到条件后释放强化雷击；它把高频射击与多目标连锁结合起来。\n成长：升级提高基础输出，同系芯片能改善连锁保留伤害并提高过载效率。\n搭配：电弧少女、超导芯片和雷系宠物构成连锁核心。换用其他元素弹药可以吃克制，但原生过载只在闪电弹命中时触发。",
+    "guide_en": "Role: Lightning chain equipment that builds overload through repeated hits, then releases a stronger strike. Rapid fire supports its multi-target identity.\nGrowth: Levels improve baseline output; the matching chip supports chain retention and overload efficiency.\nPairing: Volt, the superconductive chip and a lightning pet form a chain-focused core. Off-element ammo can exploit weaknesses, but native overload requires lightning hits."
+  },
+  "weapon_apocalypse_inferno": {
+    "guide_zh": "定位：火焰持续输出军械，对目标积累爆燃层数，再向附近敌人扩散伤害；高热射击与泄压交替，形成持续压制的节奏。\n成长：升级强化基础火力，攻速和燃烧芯片帮助更快建立爆燃压力。\n搭配：火焰少年、恒星燃烧核心与余烬凤凰适合密集尸潮。爆燃有目标范围和触发冷却；切换非火弹药后，不再触发这套原生爆燃。",
+    "guide_en": "Role: Sustained fire equipment that builds combustion on a target before spreading damage nearby. High-heat firing alternates with vent shots.\nGrowth: Levels strengthen baseline output; attack speed and the combustion chip help build pressure.\nPairing: Blaze, Stellar Combustion Core and Ember Phoenix favor dense waves. Combustion has range and cooldown limits and does not trigger on off-element rounds."
+  },
+  "weapon_apocalypse_absolute_zero": {
+    "guide_zh": "定位：冰霜控场军械，以减速和连续命中的脆化积累引出范围碎冰，适合让尸潮慢下来再逐步击碎。\n成长：升级提高基础输出，熵减核心改善脆化效率与碎冰伤害。\n搭配：冰霜少女与极光冰灵可延长压制。首领需要更多命中才触发脆化，且减速受限；换成其他元素后不会保留原生碎冰触发。",
+    "guide_en": "Role: Ice control equipment that slows enemies and builds brittle stacks through repeated hits, then shatters an area.\nGrowth: Levels improve baseline output; Entropy Reduction Core supports brittle efficiency and shatter damage.\nPairing: Frost and Aurora Wisp reinforce control. Bosses require more brittle hits and have limited slow susceptibility. Off-element ammo does not retain the native shatter trigger."
+  },
+  "weapon_apocalypse_golden_law": {
+    "guide_zh": "定位：物理贯穿军械，持续命中同一目标积累裁决，触发带护甲穿透的追加打击，适合集中处理顽固目标。\n成长：前五十级沿用标准成长，后续独享等级继续增加伤害；延伸段不额外加速射速。整套倍率不是这把武器的单件伤害倍率。\n搭配：黄金律核心提高裁决效率，天隼敕印服务于黄金律命中。改用元素弹药可适配弱点，但原生裁决只在物理弹命中时触发。",
+    "guide_en": "Role: Physical piercing equipment that builds judgment on a target and triggers an additional armor-penetrating verdict. Focus stubborn threats to build its payoff.\nGrowth: The first fifty levels use standard growth; exclusive later levels continue damage growth without extra fire-rate growth. A full-set ratio is not this weapon's standalone multiplier.\nPairing: Golden Law Core improves judgment efficiency, and the Skyfalcon's mark supports native Golden Law hits. Elemental ammo adapts to weaknesses but disables native verdict triggers."
+  },
+  "armor_kevlar": {
+    "guide_zh": "定位：以基地生命和物理匹配防护为主的基础护甲，给普通漏怪留出缓冲。\n成长：升级继续提高生命倍率，不增加子弹伤害，也不会生成反伤。\n搭配：适合先锋的稳健防线，或与维修宠物配合保住血线。防护是否匹配要看本关主弱点标识，而不是仅凭敌人的外观判断。",
+    "guide_en": "Role: Basic armor combining base HP with physical-matching breach protection. It provides room to absorb mistakes.\nGrowth: Levels improve its HP multiplier, not weapon damage or retaliation.\nPairing: A steady choice for Vanguard or a repair-pet build. Matching protection follows the stage's primary weakness marker, not an enemy's visual appearance."
+  },
+  "armor_thermal": {
+    "guide_zh": "定位：生命加成加火系匹配防护，用来补足弱火关卡的防线容错；不是让角色的火焰攻击更强。\n成长：升级扩大生命储备，匹配防护与生命提升分别发挥作用。\n搭配：用火焰武器吃克制时，可同时用这件护甲补防守。持续漏怪仍需提高击杀效率，不要把防护理解成火焰免疫。",
+    "guide_en": "Role: Adds HP and fire-matching breach protection for stages marked fire-weak. It does not buff the character's fire attacks.\nGrowth: Levels enlarge the HP reserve; matching protection and HP are separate benefits.\nPairing: Support a fire-counter loadout with a defensive slot. Persistent breaches still need better kill speed; protection is not fire immunity."
+  },
+  "armor_cryo": {
+    "guide_zh": "定位：提供生命与冰系匹配防护，为弱冰关的防线增加容错，但不会自动冻结靠近基地的敌人。\n成长：升级提高生命倍率，保留偏防守的定位。\n搭配：配合冰霜控场，把减速争取的时间转成更多击杀；若要主动维修，仍需维修宠物而不是只升级护甲。",
+    "guide_en": "Role: HP and ice-matching breach protection for ice-weak stages. It does not automatically freeze enemies near the base.\nGrowth: Levels increase the HP multiplier, preserving its defensive role.\nPairing: Combine with ice control so extra firing time produces more kills. For active repairs, bring a repair pet rather than expecting armor levels to heal the base."
+  },
+  "armor_faraday": {
+    "guide_zh": "定位：生命与雷系匹配防护，服务于弱雷关的稳健推进；名字里的电磁防护不代表自带连锁反击。\n成长：升级增加可承受的总压力，攻击节奏仍由角色和武器决定。\n搭配：适合雷电清群构筑补生存短板。想要受击后的雷霆反击，需要具备对应机制的终焉护甲。",
+    "guide_en": "Role: HP and lightning-matching breach protection for lightning-weak stages. Its electromagnetic theme does not grant a chain counterattack.\nGrowth: Levels increase durability; firing cadence still comes from character and weapon choices.\nPairing: Covers the survival gap in a lightning crowd-clear build. A lightning retaliation requires armor that actually carries that mechanic."
+  },
+  "armor_hazmat": {
+    "guide_zh": "定位：生命与毒系匹配防护，帮助弱毒关卡的防线承受失误，不会替主武器施加中毒。\n成长：升级增加生命倍率，适合需要较长交战时间的构筑。\n搭配：毒素输出、减速与维修宠物可形成稳步消耗组合；护甲不是持续回血，也不是毒素伤害加成。",
+    "guide_en": "Role: HP and poison-matching breach protection for poison-weak stages. It does not apply poison for your main weapon.\nGrowth: Levels increase the HP multiplier, useful for builds that need longer engagements.\nPairing: Poison damage, slows and repairs support gradual attrition. The armor itself supplies neither regeneration nor a poison damage bonus."
+  },
+  "armor_reactive": {
+    "guide_zh": "定位：不挑元素的生命护甲，并提供有限次数的漏怪护盾，为突发漏怪留一手。\n成长：升级提高生命倍率，护盾次数不会因为每升一级就不断增加。\n搭配：适合威胁混杂的关卡，与减伤芯片或维修宠物配合。护盾耗尽后仍会掉血，它不是整场持续免伤。",
+    "guide_en": "Role: Element-neutral HP armor with a limited breach-shield charge for an unexpected breakthrough.\nGrowth: Levels raise HP; they do not add a new shield charge every level.\nPairing: Useful against mixed pressure with damage reduction or repair support. Once the charge is spent, breaches still hurt; this is not permanent immunity."
+  },
+  "armor_apocalypse_conductor": {
+    "guide_zh": "定位：生命、雷系匹配防护与漏怪护盾之外，还会积累受击反击条件，释放雷霆打击。\n成长：升级优先扩大生命储备；反击由受击条件和冷却约束，不是每次受击都全屏清场。\n搭配：给雷霆清群构筑加一层保险。反击用于挽回压力，不建议故意放怪进线来换伤害。",
+    "guide_en": "Role: Combines HP, lightning-matching protection and a breach shield with a hit-driven lightning retaliation.\nGrowth: Levels primarily expand the HP reserve. Retaliation is gated by its hit condition and cooldown, not a screen clear on every hit.\nPairing: Adds insurance to a lightning build. Treat the counter as recovery under pressure, not a reason to let enemies breach deliberately."
+  },
+  "armor_apocalypse_molten": {
+    "guide_zh": "定位：火系匹配的生命护甲，受压达到条件后以熔火反击附近敌人，并回补部分基地生命。\n成长：升级提高生命储备，修复按生命比例发挥作用；反击范围与冷却限制了救场频率。\n搭配：适合炼狱持续输出，需要时间叠爆燃时能增加容错。修复只是一部分回补，不能抵消无休止的漏怪。",
+    "guide_en": "Role: Fire-matching HP armor that retaliates against nearby enemies and restores some base HP when its pressure condition is met.\nGrowth: Levels enlarge the HP pool; repairs use a fraction of that pool. Range and cooldown limit how often it can rescue a run.\nPairing: Gives Inferno time to build combustion. Partial repair does not cancel an endless stream of breaches."
+  },
+  "armor_apocalypse_permafrost": {
+    "guide_zh": "定位：冰系匹配的防守护甲，条件满足时以近线反击、减速和少量修复缓解压力。\n成长：升级增加生命储备，控制与修复仍受反击触发条件及冷却限制。\n搭配：适合冰霜少女和绝对零度的控场推进。它的防守反击不是永久冰冻，首领也不会因此失去控制抗性。",
+    "guide_en": "Role: Ice-matching defensive armor whose conditional near-line retaliation adds slowing and a small repair.\nGrowth: Levels expand HP; control and healing remain subject to the retaliation trigger and cooldown.\nPairing: Supports Frost and Absolute Zero's measured advance. This defensive counter is not permanent freezing and does not remove boss control resistance."
+  },
+  "armor_apocalypse_eternal_night": {
+    "guide_zh": "定位：不绑定元素的高生命护甲，配有限次漏怪护盾，以及受压后的范围反击和修复，偏向终局容错。\n成长：除常规生命成长外，还有后段生命成长加成；并非把整套输出倍率加到血量上。\n搭配：可保护黄金律的持续集火，也适合混搭防御。护盾次数、反击冷却和修复比例都有限，仍要及时清理近线威胁。",
+    "guide_en": "Role: Element-neutral, high-HP armor with limited breach shields plus a pressure-triggered area counter and repair. It emphasizes endgame resilience.\nGrowth: Additional late-level HP growth supplements normal growth; full-set damage ratios are not HP multipliers.\nPairing: Protects Golden Law focus fire or a mixed defensive build. Shields, counter cooldowns and repair amounts remain finite, so near-line threats still need attention."
+  },
+  "chip_attack": {
+    "guide_zh": "定位：直接加强主武器基础火力，适合还没决定走哪一种元素或弹道的通用输出配置。\n成长：升级放大芯片自身的伤害加成，不是每级都把整套伤害再次乘一遍。\n搭配：稳定射击、多重子弹和高单发武器都能受益。它不增加弹丸数、射速或控制，缺清群时仍需补对应机制。",
+    "guide_en": "Role: A straightforward boost to main-weapon firepower, useful before committing to a particular element or projectile build.\nGrowth: Levels scale the chip's own damage bonus, not the whole loadout multiplicatively every level.\nPairing: Works with steady fire, Multishot or heavy rounds. It does not add projectiles, attack speed or control; fill those gaps separately."
+  },
+  "chip_haste": {
+    "guide_zh": "定位：让主武器开火更频繁，适合需要连续命中或不喜欢长射击间隔的构筑。\n成长：升级提高这枚芯片提供的射速加成，最终节奏还会合并其他来源。\n搭配：与命中叠层型武器配合可更快积累触发条件。它不降低主动技能冷却，也不直接增加单发威力。",
+    "guide_en": "Role: Makes the main weapon fire more often, supporting repeated-hit mechanics and smoothing long firing gaps.\nGrowth: Levels increase this chip's attack-speed contribution; other sources still affect final cadence.\nPairing: Helps hit-stack weapons reach their triggers sooner. It does not reduce active-skill cooldowns or directly increase damage per round."
+  },
+  "chip_crit": {
+    "guide_zh": "定位：增加主弹暴击机会，让同一套火力更常打出高伤害命中。\n成长：升级提高芯片的暴击率贡献；暴击概率不是暴击伤害倍率。\n搭配：蓄能重击的高等级暴伤可以放大收益，高频武器能减少波动。它仍然依赖命中与概率，不保证每次都暴击。",
+    "guide_en": "Role: Adds critical chance to main rounds, making high-damage hits more frequent.\nGrowth: Levels increase its contribution to critical chance, not the critical damage multiplier.\nPairing: Higher-rank Charged Strike adds critical damage, and fast weapons smooth out variance. Hits and chance still matter; this is not guaranteed critical damage on every shot."
+  },
+  "chip_pierce": {
+    "guide_zh": "定位：给主弹增加穿过敌人的能力，把一次射击延伸到后排，适合直线尸潮。\n成长：按成长档位增加穿过目标数，不是每一级都有连续百分比提升；具体变化看升级预览。\n搭配：磁轨炮或穿透技能可叠加这项能力。它不提供护甲穿透，单个目标面前多出来的穿过次数没有额外伤害。",
+    "guide_en": "Role: Adds target pass-throughs so a main round can continue into the back of a column.\nGrowth: Gains arrive at growth-rank milestones rather than as a percentage every level; check the upgrade preview.\nPairing: Stacks with Railgun piercing or the Pierce skill. It does not grant armor bypass, and unused pass-throughs add no damage against one isolated target."
+  },
+  "chip_health": {
+    "guide_zh": "定位：提高基地生命储备，给漏怪和突发伤害留出缓冲。\n成长：升级提高芯片的生命倍率贡献，不是即时治疗技能。\n搭配：护甲、屏障和按生命比例修复的宠物能形成厚实防线。若问题是杀不动敌人，还应同步补火力。",
+    "guide_en": "Role: Expands the base's HP reserve to cushion breaches and sudden damage.\nGrowth: Levels increase its HP bonus; this is not an instant healing skill.\nPairing: Armor, Barrier and percentage-based repairs support a durable defense. If enemies are surviving too long, improve firepower as well."
+  },
+  "chip_guardian": {
+    "guide_zh": "定位：降低漏怪对防线造成的伤害，与单纯加血不同，是让相同失误消耗更少生命。\n成长：升级提高漏怪减伤贡献，不会让所有受伤来源都自动归零。\n搭配：先锋的防守被动与维修宠物适合持久战。面对缺少输出导致的连续漏怪，减伤只能缓冲，不能代替击杀。",
+    "guide_en": "Role: Reduces breach damage so the same mistake costs less HP, rather than simply enlarging the HP pool.\nGrowth: Levels improve its breach-damage reduction; they do not nullify every source of damage.\nPairing: Vanguard's defense and a repair pet suit longer fights. Damage reduction cushions persistent leaks but cannot replace killing enemies."
+  },
+  "chip_greed": {
+    "guide_zh": "定位：以装备槽换取更多金币收益，适合已经能稳定通关的刷取配置。\n成长：升级提高金币加成，不增加经验收益或关卡星数。\n搭配：与金币技能和回收宠物叠加经济收益。挑战新关时要考虑机会成本：这一个芯片槽也可以用来补伤害或生存。",
+    "guide_en": "Role: Trades an equipment slot for better gold income, best when clears are already reliable.\nGrowth: Levels raise the gold bonus, not XP income or stage stars.\nPairing: Combine with Golden Barrage and the Scavenger Bot. On a difficult new stage, remember the opportunity cost: the same slot could improve damage or survival."
+  },
+  "chip_element": {
+    "guide_zh": "定位：面向原生元素武器的输出芯片，适合火、冰、雷、毒军械；纯物理武器不是它的默认受益对象。\n成长：升级提高元素伤害加成，但不会给武器附加一个额外元素通道。\n搭配：与能利用关卡弱点的元素武器组合。当前主炮的这项加成按武器原生属性接入，不能只给物理枪装弹药卡就假定获得同样收益。",
+    "guide_en": "Role: An offensive chip for natively elemental weapons: fire, ice, lightning or poison. A physical weapon is not its default beneficiary.\nGrowth: Levels raise the elemental damage bonus without adding a second damage element.\nPairing: Use it with a native elemental weapon suited to the stage. Main-weapon eligibility currently follows the weapon's native element; converting a physical gun with ammo alone does not imply the same bonus."
+  },
+  "chip_apocalypse_superconductive": {
+    "guide_zh": "定位：兼顾元素火力、射速、连锁保留伤害和过载效率的雷霆配套核心。\n成长：主属性按基础值成长，副属性各自增加；不能把所有词条都理解成同一份总伤害乘区。\n搭配：与终焉雷霆配合最完整。换装没有过载机制的武器时，过载效率不会凭空创造雷击；原生连锁的收益还取决于附近目标数。",
+    "guide_en": "Role: Thunder's supporting core combines elemental damage, attack speed, chain retention and overload efficiency.\nGrowth: The primary bonus scales from its base value while secondary stats grow separately; these are not one shared total-damage multiplier.\nPairing: Most complete with Apocalypse Thunder. Overload efficiency cannot create an overload mechanic on a weapon without one, and chain value still depends on nearby targets."
+  },
+  "chip_apocalypse_stellar": {
+    "guide_zh": "定位：围绕灼烧、爆燃积累与爆燃伤害的火系核心，同时提供元素输出加成。\n成长：升级分别增强主属性与燃烧相关副属性，让持续命中更容易兑现爆燃收益。\n搭配：终焉炼狱能利用全部机制，火焰少年能加强火弹表现。普通火焰武器不会因为装上芯片就自动拥有炼狱爆燃。",
+    "guide_en": "Role: A fire-focused core supporting burns, combustion buildup and combustion damage, alongside elemental output.\nGrowth: Levels improve the primary stat and fire-related secondary bonuses separately.\nPairing: Apocalypse Inferno can use the full package, with Blaze reinforcing fire rounds. Equipping the chip does not give an ordinary fire weapon Inferno's combustion mechanic."
+  },
+  "chip_apocalypse_entropy": {
+    "guide_zh": "定位：为冰霜构筑提供元素火力、减速强化、脆化效率和碎冰伤害，核心是控制后再打碎。\n成长：升级提升主属性与各副属性，但控制仍受敌人减速上限约束。\n搭配：绝对零度炮能完整利用脆化与碎冰词条。没有原生脆化机制的武器，不会仅凭芯片自动获得叠层碎冰。",
+    "guide_en": "Role: Supports an ice build with elemental output, stronger slowing, brittle efficiency and shatter damage: control first, break the crowd next.\nGrowth: Primary and secondary bonuses grow, but enemy slow caps still apply.\nPairing: Absolute Zero uses the full brittle-and-shatter package. The chip does not invent brittle stacks on a weapon that lacks that mechanic."
+  },
+  "chip_apocalypse_golden_law": {
+    "guide_zh": "定位：结合伤害、暴击、护甲穿透与裁决强化的集火核心，擅长帮助黄金律处理顽固目标。\n成长：升级分别提高基础伤害贡献和副属性；裁决效率影响触发条件，不等于每次射击都裁决。\n搭配：与天衡裁决炮、天隼敕印形成持续命中组合。混搭时普通伤害词条仍有用途，但没有裁决的武器用不到裁决专属强化。",
+    "guide_en": "Role: A focus-fire core combining damage, critical chance, armor penetration and verdict support for stubborn targets.\nGrowth: Levels improve primary and secondary bonuses separately. Judgment efficiency changes trigger buildup, not every shot into a verdict.\nPairing: Works with Sovereign Verdict Cannon and the Skyfalcon's mark. Generic damage stats can serve mixed builds, but verdict-specific bonuses need a weapon with verdicts."
+  },
+  "pet_turret_drone": {
+    "guide_zh": "定位：独立进行物理射击的支援无人机，周期性进入过热爆发，提高它自身的射速和伤害。\n成长：升级增强宠物攻击、过热表现与提供给构筑的常驻加成。\n搭配：适合需要稳定补枪的配置。过热不是替主炮开启一段同倍率爆发，宠物的独立攻击也不等于复制主武器。",
+    "guide_en": "Role: A support drone with independent physical fire. Its periodic overheat boosts its own attack speed and damage.\nGrowth: Levels improve pet attacks, overheat performance and persistent loadout bonuses.\nPairing: Useful for steady follow-up fire. Overheat is not the same burst multiplier on your main gun, and pet attacks do not copy the equipped weapon."
+  },
+  "pet_fire_imp": {
+    "guide_zh": "定位：以独立火焰攻击和周期性熔火爆发补充范围压力，同时提供元素伤害与暴击方面的常驻加成。\n成长：升级提高宠物伤害、爆发范围与状态强度，并增强常驻词条。\n搭配：适合火系清群与持续灼烧。它有自己的攻击节奏和冷却，不会跟随主武器每一发同时爆炸。",
+    "guide_en": "Role: Adds independent fire attacks and periodic Molten Bursts, plus persistent elemental-damage and critical-chance support.\nGrowth: Levels improve pet damage, burst radius, status strength and passive bonuses.\nPairing: Suits fire crowd clear and sustained burning. It has its own cadence and cooldown; it does not explode alongside every main-weapon shot."
+  },
+  "pet_frost_wisp": {
+    "guide_zh": "定位：冰霜支援宠物，以独立攻击和周期性寒霜领域拖慢附近敌群，并提供减速与生命方面的辅助。\n成长：升级增强攻击、领域范围及状态强度，让控场更稳定。\n搭配：适合慢射速重炮或需要时间消耗敌人的构筑。它不是永久全屏冰冻，首领的减速上限依然有效。",
+    "guide_en": "Role: Ice support with independent attacks and a periodic Frost Domain, plus slowing and HP support.\nGrowth: Levels strengthen attacks, area coverage and status effects.\nPairing: Helps slow heavy weapons or attrition builds buy time. It is not permanent full-screen freezing, and boss slow caps still apply."
+  },
+  "pet_volt_orb": {
+    "guide_zh": "定位：雷电支援宠物，周期性多目标电弧补清群，并为构筑增加连锁与射速。\n成长：升级提高攻击与常驻加成，达到门槛还会增加技能目标数。\n搭配：电弧少女与连锁武器更容易利用多目标优势。连锁要有附近敌人，孤立首领面前不能把所有目标数都折算成伤害。",
+    "guide_en": "Role: Lightning support with periodic multi-target arcs, plus chain and attack-speed bonuses.\nGrowth: Levels improve attacks and persistent bonuses; milestones add skill targets.\nPairing: Volt and chain weapons make good use of its crowd coverage. Chains need nearby enemies; an isolated boss does not receive damage equal to every unused target slot."
+  },
+  "pet_medic_drone": {
+    "guide_zh": "定位：不以攻击为主的维修支援，波次修复、定时维修和低血量应急回补共同守住防线。\n成长：升级提高修复能力及生命、漏怪减伤辅助，适合承受零星伤害的持久战。\n搭配：高生命护甲和减伤芯片能放大生存价值。应急修复有触发阈值与冷却，不是残血后无限回血，也不会替你解决输出不足。",
+    "guide_en": "Role: A repair-focused support rather than an attacker, combining wave repairs, periodic maintenance and low-HP emergency healing.\nGrowth: Levels improve repair capacity, HP support and breach reduction, useful for surviving intermittent damage.\nPairing: High-HP armor and reduction chips reinforce it. Emergency healing has a threshold and cooldown; it cannot regenerate indefinitely or solve insufficient damage."
+  },
+  "pet_collector": {
+    "guide_zh": "定位：偏经济的回收伙伴，增加金币收益并在波次结算时回收额外资源；不是战斗主力宠物。\n成长：升级提高金币与回收收益，也增加少量辅助火力加成。\n搭配：适合稳刷关卡，与金币芯片和金币技能配合。开荒时若需要救场、控场或维修，应优先考虑对应的战斗宠物。",
+    "guide_en": "Role: An economy companion that boosts gold income and salvages extra gold at wave resolution, not a primary combat pet.\nGrowth: Levels improve income and salvage with a small supporting damage bonus.\nPairing: Suits reliable farming alongside a gold chip and Golden Barrage. On progression attempts, a combat, control or repair pet may be more valuable."
+  },
+  "pet_apocalypse_tempest": {
+    "guide_zh": "定位：雷霆清群伙伴，独立闪电攻击配合周期性多目标终端雷柱，并提供连锁、射速与元素火力辅助。\n成长：升级加强宠物输出，技能目标数按门槛增加。\n搭配：适合终焉雷霆与电弧少女。雷柱有独立冷却，后续目标存在伤害衰减，不是持续覆盖全场的雷暴。",
+    "guide_en": "Role: A lightning crowd-clear companion with independent attacks and periodic multi-target Terminal strikes, supporting chains, attack speed and elemental output.\nGrowth: Levels strengthen pet damage, with skill targets gained at milestones.\nPairing: Suits Apocalypse Thunder and Volt. The strike has its own cooldown and target falloff; it is not a continuous battlefield-wide storm."
+  },
+  "pet_apocalypse_phoenix": {
+    "guide_zh": "定位：独立火焰攻击与熔炉俯冲结合的清群伙伴，飞掠多个目标并留下短暂火迹，同时提供常驻输出辅助。\n成长：升级提高攻击、俯冲强度和目标覆盖。\n搭配：适合炼狱与火焰少年，帮助持续施压。火迹有持续时间与并发限制，不能靠重复施放堆出永久火海。",
+    "guide_en": "Role: A fire companion whose Furnace Flyby crosses multiple targets and leaves brief trails, alongside independent attacks and persistent offensive support.\nGrowth: Levels improve attack strength, flyby damage and target coverage.\nPairing: Supports Inferno and Blaze's sustained pressure. Trails have lifetime and concurrency limits, so repeated casts cannot create a permanent carpet of fire."
+  },
+  "pet_apocalypse_aurora": {
+    "guide_zh": "定位：以冰霜攻击和周期性极光冻原补充范围控场，给主武器争取收割时间，并提供减速与输出加成。\n成长：升级增强伤害、范围和状态强度，持续完善控制型构筑。\n搭配：绝对零度与冰霜少女能利用受控敌群。不要把领域动画理解成敌人必定冻结，实际控制仍受目标规则与上限约束。",
+    "guide_en": "Role: Ice attacks and periodic Aurora Permafrost areas buy time for the main weapon, supported by slowing and offensive bonuses.\nGrowth: Levels improve damage, radius and status strength.\nPairing: Absolute Zero and Frost can exploit controlled crowds. The field animation does not promise a full freeze; actual control follows target rules and caps."
+  },
+  "pet_apocalypse_skyfalcon": {
+    "guide_zh": "定位：物理支援与天隼敕印相结合，标记目标并提供小额修复，同时辅助伤害、暴击和穿过目标数。\n成长：升级提高宠物攻击、敕印持续时间与强度，以及辅助词条。\n搭配：敕印的追加伤害由黄金律原生命中利用，最适合天衡裁决炮持续集火；不能把标记理解为所有武器通用的全伤害增幅。",
+    "guide_en": "Role: Physical support with a target mark and a small repair, plus damage, critical-chance and pass-through support.\nGrowth: Levels improve attacks, mark duration and strength, and supporting stats.\nPairing: Native Golden Law hits use the mark's extra damage, making Sovereign Verdict Cannon the natural partner. The mark is not a universal all-damage amplifier for every weapon."
+  },
+  "vanguard": {
+    "guide_zh": "定位：稳定防守与物理火力兼顾的入门角色，用漏怪减伤保住容错，再以弹幕齐射集中压制。\n成长：角色升级增强攻击与生命，并在成长档位改善亲和能力；主动技能有独立等级，不能把两种等级当成同一条成长。\n搭配：机炮、磁轨炮与散弹枪都能利用物理弹亲和。换成元素弹后，不再享受物理亲和的全部收益；面临免疫时仍应以克制和破甲为先。",
+    "guide_en": "Role: A steady defensive starter who combines physical firepower with breach reduction, then applies pressure through Barrage Salvo.\nGrowth: Character levels improve attack and HP, with affinity milestones. The active skill has its own upgrade level; these are separate progression tracks.\nPairing: Autocannon, Railgun and Scattergun benefit from physical affinity. Elemental conversion gives up physical-affinity benefits, but counters and armor solutions still take priority when needed."
+  },
+  "blaze": {
+    "guide_zh": "定位：偏进攻的火焰角色，基础攻击较高、生命较薄，以火弹亲和、爆燃范围和局部主动爆发处理聚集威胁。\n成长：角色等级提高攻击、生命和专属表现，主动技独立升级再强化伤害、范围与爆发段数。\n搭配：火焰喷射器、等离子炮或炼狱军械适合持续燃烧。把主动技留给聚集的高威胁敌人，并用减速或防御装备补容错；它不是全屏无条件清场。",
+    "guide_en": "Role: An offensive fire specialist with higher base attack but less HP, combining fire affinity, splash support and a localized active burst.\nGrowth: Character levels improve stats and signature performance; separate active upgrades add damage, radius and pulses.\nPairing: Flamethrower, Plasma Cannon or Inferno support sustained burning. Save the active for clustered threats and cover his fragility with control or defensive equipment. It is not an unconditional screen clear."
+  },
+  "frost": {
+    "guide_zh": "定位：以控制换输出时间的冰霜角色，基础生命更厚，主动领域压制尸潮，冰弹对受控目标追加碎冰。\n成长：角色升级加强生存与亲和，主动技独立升级延长领域并增加寒潮波次。领域持续伤害偏轻，主要价值仍是控场。\n搭配：冰霜炮、绝对零度或冰霜弹药可以衔接碎冰；再用主武器完成击杀。首领有控制上限，不能依靠领域永久停住敌人。",
+    "guide_en": "Role: A durable controller who buys firing time with an ice field and adds shatter when ice rounds hit controlled targets.\nGrowth: Character levels improve survivability and affinity; active upgrades extend the field and add waves. Field ticks are light damage, with control as the main value.\nPairing: Cryo Cannon, Absolute Zero or ice ammo enable shatter, while the main weapon finishes the job. Boss control caps prevent permanent lockdown."
+  },
+  "volt": {
+    "guide_zh": "定位：射击与瞄准节奏更快的雷电角色，借闪电亲和扩大连锁，再用雷暴优先分配到不同高威胁目标。\n成长：角色升级增强基础输出与连锁亲和，主动技独立升级增加目标与雷击次数。\n搭配：特斯拉线圈、终焉雷霆与连锁宠物适合分散清群。雷暴同次施法重复打同一目标会递减，打孤立首领要补主武器伤害，不能照搬群怪收益。",
+    "guide_en": "Role: A quicker-firing, faster-aiming lightning specialist. Affinity expands chains while her storm spreads strikes across distinct high-threat targets.\nGrowth: Character levels improve output and chain affinity; separate active upgrades add targets and strikes.\nPairing: Tesla Coil, Apocalypse Thunder and chain pets support multi-target clear. Repeated storm hits on one enemy diminish within a cast, so isolated bosses need main-weapon damage too."
+  },
+  "breach_guard": {
+    "guide_zh": "使用建议：这是常驻漏怪减伤，不是赠送一次免伤护盾。物理弹亲和另行强化主弹，适合用护甲和维修宠物构成稳定防线。",
+    "guide_en": "Use: This is persistent breach-damage reduction, not a free shield charge. Physical affinity separately reinforces main rounds; armor and a repair pet make a steady defense."
+  },
+  "flame_overdrive": {
+    "guide_zh": "使用建议：让最终弹种保持火焰才能利用火弹亲和。灼烧需要时间结算，配合减速持续压制，不要把火焰外观当成所有攻击都吃加成。",
+    "guide_en": "Use: Keep the effective ammo element on fire to use fire affinity. Burns need time, so support them with slows; a fiery appearance does not mean every attack receives the bonus."
+  },
+  "frost_command": {
+    "guide_zh": "使用建议：减速为主武器争取时间，冰弹命中受控目标可追加碎冰。控制与伤害各有作用，首领的减速限制不会被这个天赋取消。",
+    "guide_en": "Use: Slowing buys firing time, and ice hits can shatter controlled targets. Control and damage serve different purposes; the talent does not remove boss slow limits."
+  },
+  "volt_chain": {
+    "guide_zh": "使用建议：保持闪电弹种才能发挥角色连锁亲和。附近目标越充足越能发挥覆盖价值，但后续连锁不是完整复制主弹伤害。",
+    "guide_en": "Use: Keep lightning ammo to use the character's chain affinity. Nearby enemies make the coverage valuable, but follow-up chains do not copy full main-round damage."
+  },
+  "sig_vanguard_railvolley": {
+    "guide_zh": "战术：以当前主武器伤害为基础的主动压制，武器培养也会影响弹幕收益。适合密集接敌时开启，配合多重子弹或贯穿扩大覆盖；升级增加轮数不等于每轮命中所有敌人。",
+    "guide_en": "Tactic: An active pressure tool based on current main-weapon damage, so weapon investment matters. Use during heavy contact with Multishot or piercing for coverage; extra volleys do not mean every enemy is hit each time."
+  },
+  "sig_vanguard_overload": {
+    "guide_zh": "战术：低血量时自动触发的每关一次保险，不是可主动循环施放的技能。不要为触发它故意丢血，应利用短暂强攻赶快清理近线敌人。",
+    "guide_en": "Tactic: An automatic, once-per-stage low-HP safety net, not a repeatable manual cast. Do not lose HP deliberately; use the brief offensive window to remove near-line threats."
+  },
+  "sig_blaze_meltdown": {
+    "guide_zh": "战术：围绕高威胁目标连续爆发，靠近爆心的密集尸群最容易吃满收益。减速有助于敌人留在范围内；落单或分散敌人不会受到等量的全屏伤害。",
+    "guide_en": "Tactic: Repeated blasts around a high-threat target reward dense groups near the center. Slows keep enemies inside the area; scattered enemies do not receive equivalent screen-wide damage."
+  },
+  "sig_blaze_napalm": {
+    "guide_zh": "战术：这是火弹的伴随机制，不是额外的主动按钮。火焰武器或适配的火焰弹药可利用它，把持续射击转成爆点与灼烧压力。",
+    "guide_en": "Tactic: A companion mechanic for fire rounds, not another active button. Native fire weapons or compatible fire ammo turn sustained shooting into splash and burn pressure."
+  },
+  "sig_frost_glacier": {
+    "guide_zh": "战术：用于尸潮推进时争取时间，以减速为主、轻持续伤害为辅。趁控制期间让主武器补枪；独立技能升级延长领域与增加波次，不会解除首领减速上限。",
+    "guide_en": "Tactic: Buy time as a wave advances, with slowing as the main benefit and light sustained damage as support. Let the main weapon finish targets during control. Upgrades extend the field and add waves without removing boss slow caps."
+  },
+  "sig_frost_shatter": {
+    "guide_zh": "战术：冰弹命中已经受控的目标时追加伤害，适合先控再打。它是角色的命中机制，不等同于绝对零度武器的脆化叠层群爆。",
+    "guide_en": "Tactic: Ice hits add damage against controlled targets, rewarding control before follow-up fire. This character hit effect is distinct from Absolute Zero's stacked brittle area burst."
+  },
+  "sig_volt_chain": {
+    "guide_zh": "战术：闪电弹命中后扩展到附近敌人，与武器和卡牌连锁共同构成清群。目标稀少时不要只堆连锁次数，主弹伤害仍决定集火效率。",
+    "guide_en": "Tactic: Extends lightning hits into nearby enemies alongside weapon and card chains. When targets are scarce, invest beyond chain count; direct damage still determines focus-fire efficiency."
+  },
+  "sig_volt_storm": {
+    "guide_zh": "战术：优先让不同威胁各吃到雷击，适合分散清群。单次施法内对同一目标越打越轻，下一次施法重新计算；这是避免群攻在孤立首领身上变成全额连续爆发的限制。",
+    "guide_en": "Tactic: Distributes strikes across threats for multi-target clear. Repeated hits on the same enemy diminish within one cast and reset on the next. This prevents a crowd-clear skill from concentrating all strikes into full-strength boss burst."
+  },
+  "rules_skills": {
+    "guide_zh": "成长规则：永久技能等级决定本局首次选到这张牌时的起点，并非进场自动拥有。局内再次选同名牌升一级，使用该等级效果，不把各级数值逐行相加。",
+    "guide_en": "Progression: Permanent skill levels set the starting rank when the card is first chosen in a run; they do not grant it automatically on entry. Choosing it again raises its rank and uses that rank's effects, rather than summing every level row."
+  },
+  "rules_ammo": {
+    "guide_zh": "弹药规则：物理武器与已开放适配的付费武器可以换元素；免费原生元素武器保持自身元素。四种弹药互斥，切换会替换旧弹药效果，不会同时叠出四种主弹元素。",
+    "guide_en": "Ammo rules: Physical weapons and supported premium weapons can change element; free native-element weapons keep their own element. The four ammo cards are mutually exclusive: switching replaces the previous ammo effects rather than stacking four main-round elements."
+  },
+  "rules_weapons": {
+    "guide_zh": "数据怎么读：核心数据的基础射速是武器原始参数，实战还会经过角色、等级、攻速档与局内技能修正。攻击系数不是最终伤害；具体成长看升级预览，克制、护甲和命中情况决定收益能兑现多少。",
+    "guide_en": "Reading the numbers: Base fire rate is the weapon's raw parameter. Actual cadence also uses character, level, attack-speed profile and in-run modifiers. The attack coefficient is not final damage. Upgrade previews show growth; counters, armor and successful hits determine realized output."
+  },
+  "rules_armors": {
+    "guide_zh": "防护规则：当前模型把护甲防护属性与关卡主弱点匹配，匹配时减少漏怪伤害；它不是按每次攻击的颜色逐次判抗性。生命上限、漏怪护盾、反击与修复是不同机制。",
+    "guide_en": "Protection rules: The current model matches armor protection to the stage's primary weakness to reduce breach damage; it does not check each incoming attack's color. Maximum HP, breach shields, retaliation and repairs are distinct mechanics."
+  },
+  "rules_characters": {
+    "guide_zh": "属性怎么读：攻击是主炮计算的基础，不是每颗子弹的最终伤害；武器系数、等级、暴击、敌人护甲与克制还会参与结算。血量参与基地生命计算，射速与瞄准是节奏倍率。主动技能另按其伤害基准成长；外观切换不改战斗数值。",
+    "guide_en": "Reading the stats: Attack feeds the main-weapon calculation, not final damage per bullet; weapon coefficients, levels, critical hits, armor and counters still matter. HP feeds base health, while firing and aiming stats are cadence multipliers. Active skills grow from their own damage basis. Appearance changes do not change combat stats."
+  }
+}

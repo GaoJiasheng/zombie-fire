@@ -1853,7 +1853,8 @@ func _cast_blaze_meltdown() -> bool:
 	var opening_visual_origin := _blaze_meltdown_battlefield_visual_origin(0) if battlefield_coverage else origin
 	_active_skill_cast_intro("熔毁爆发", Color(1.0, 0.42, 0.14), "sig_blaze_meltdown")
 	_spawn_vfx_sequence("vfx_muzzle_fire", _weapon_fire_origin() + Vector2(0, -38), 0.92, Color(1.0, 0.58, 0.2, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_explosion_fire", opening_visual_origin + Vector2(0, -44), maxf(radius / 300.0, 0.72), Color(1.0, 0.48, 0.16, 0.86), 0.92, randf_range(-0.24, 0.24), 1.16, Vector2(0, -12), randf_range(-0.25, 0.25), true)
+	# Ignition is a tell, not a full-sized blast before the first damage pulse.
+	_spawn_vfx_sequence("vfx_hit_fire", opening_visual_origin + Vector2(0, -36), 0.42, Color(1.0, 0.48, 0.16, 0.62), 1.2, 0.0, 1.08, Vector2.ZERO, 0.0, true)
 	for i in range(_blaze_meltdown_pulse_count(active)):
 		_active_skill_after(0.16 + float(i) * 0.22, Callable(self, "_blaze_meltdown_pulse").bind(origin, radius, damage, i, battlefield_coverage))
 	return true
@@ -1866,11 +1867,11 @@ func _cast_frost_glacier() -> bool:
 	var tick_damage := _character_active_damage("ice", float(active.get("damage_mult", 0.34)))
 	_active_skill_cast_intro("冰川领域", Color(0.55, 0.9, 1.0), "sig_frost_glacier")
 	_spawn_vfx_sequence("vfx_muzzle_ice", _weapon_fire_origin() + Vector2(0, -42), 0.9, Color(0.66, 0.94, 1.0, 0.86), 1.35, _weapon_fire_direction().angle(), 1.08, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1180.0 + bottom_dock_shift), 2.05, Color(0.6, 0.92, 1.0, 0.46), 0.86, 0.0, 1.05, Vector2(0, -8), 0.0, true)
+	_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1180.0 + bottom_dock_shift), 0.95, Color(0.6, 0.92, 1.0, 0.24), 1.1, 0.0, 1.04, Vector2(0, -8), 0.0, true)
 	var wave_count := _frost_glacier_wave_count(active)
 	for i in range(wave_count):
 		var wave_y := lerpf(1220.0, field_y, float(i) / float(maxi(wave_count - 1, 1)))
-		_active_skill_after(0.08 + float(i) * 0.2, Callable(self, "_frost_glacier_wave").bind(wave_y, tick_damage, i))
+		_active_skill_after(0.08 + float(i) * 0.2, Callable(self, "_frost_glacier_wave").bind(wave_y, tick_damage * float(active.get("opening_wave_damage_scale", 1.0)), i))
 	_active_skill_after(0.92, Callable(self, "_process_frost_glacier").bind(0.0))
 	return true
 
@@ -1891,11 +1892,15 @@ func _process_frost_glacier(delta: float) -> void:
 			continue
 		affected += 1
 		_apply_frost_glacier_status(enemy, tick_damage, FROST_GLACIER_STATUS_REFRESH)
+		if should_tick and affected <= 2:
+			# Existing enemy auras carry field duration; no giant crystal repeatedly
+			# erupts in empty space near the defense line.
+			_spawn_vfx_sequence("vfx_hit_ice", enemy.global_position + Vector2(0, -32), 0.34, Color(0.56, 0.92, 1.0, 0.4), 1.15, 0.0, 1.04)
 		if should_tick and enemy.has_method("take_damage"):
-			enemy.take_damage(tick_damage, "ice")
-	if should_tick:
-		var alpha := 0.34 + minf(float(affected), 7.0) * 0.018
-		_spawn_vfx_sequence("vfx_freeze", Vector2(540, 1135.0 + bottom_dock_shift), 1.8, Color(0.56, 0.92, 1.0, alpha), 0.9, 0.0, 1.04, Vector2(0, -8), 0.0, true)
+			# Enemy-local ice sparks/status aura already show the tick. Reuse the
+			# normal-hit deduplication path to avoid a second full-sized burst.
+			enemy.set_meta("_recent_impact_vfx_ms", Time.get_ticks_msec())
+			enemy.take_damage(tick_damage * float(active.get("field_tick_damage_scale", 1.0)), "ice")
 
 func _apply_frost_glacier_status(enemy: Node, tick_damage: float, status_duration: float) -> void:
 	var active: Dictionary = character_data.get("active_skill", {})
@@ -1914,12 +1919,15 @@ func _cast_volt_storm() -> bool:
 	var max_targets := _volt_storm_max_targets(active)
 	var damage := _character_active_damage("lightning", float(active.get("damage_mult", 2.1)))
 	var strike_count := _volt_storm_strike_count(active, max_targets)
+	# Shared only by this cast's callbacks: another cast always starts fresh.
+	var cast_state := {"hits": {}, "previous_position": _weapon_fire_origin()}
 	_active_skill_cast_intro("雷暴领域", Color(0.62, 0.94, 1.0), "sig_volt_storm")
 	_spawn_vfx_sequence("vfx_muzzle_lightning", _weapon_fire_origin() + Vector2(0, -40), 1.0, Color(0.72, 0.96, 1.0, 0.9), 1.45, _weapon_fire_direction().angle(), 1.1, Vector2.ZERO, 0.0, true)
-	_spawn_vfx_sequence("vfx_chain_lightning", _active_skill_fallback_point(0.38) + Vector2(0, -52), 1.2, Color(0.68, 0.94, 1.0, 0.72), 1.1, randf_range(-0.3, 0.3), 1.1, Vector2(0, -18), randf_range(-0.45, 0.45), true)
+	# Actual target-to-target arcs carry the storm; do not fire an unrelated
+	# giant bolt into empty space before the first strike.
 	for i in range(strike_count):
-		_active_skill_after(0.08 + float(i) * 0.17, Callable(self, "_volt_storm_strike").bind(i, max_targets, damage))
-	_active_skill_after(0.12 + float(strike_count) * 0.17, Callable(self, "_active_skill_finish_flash").bind(Color(0.56, 0.92, 1.0, 0.12), 0.2))
+		_active_skill_after(0.08 + float(i) * 0.17, Callable(self, "_volt_storm_strike").bind(i, max_targets, damage, cast_state))
+	_active_skill_after(0.12 + float(strike_count) * 0.17, Callable(self, "_active_skill_finish_flash").bind(Color(0.56, 0.92, 1.0, 0.045), 0.14))
 	return true
 
 func _best_active_target() -> Node2D:
@@ -2034,7 +2042,10 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 	_spawn_character_theme_cast_signature(cast_origin, color)
 	if sfx_id.begins_with("sig_"):
 		if character_active_id != "":
-			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), 1.2, Color(color.r, color.g, color.b, 0.92), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true, true)
+			var elemental_cast := str(character_data.get("element_focus", "physical")) != "physical"
+			var cast_scale := 0.78 if elemental_cast else 1.2
+			var cast_alpha := 0.65 if elemental_cast else 0.92
+			_spawn_vfx_sequence("vfx_active_%s" % character_active_id, cast_origin + Vector2(0, -74), cast_scale, Color(color.r, color.g, color.b, cast_alpha), 0.95, randf_range(-0.06, 0.06), 1.08, Vector2(0, -8), randf_range(-0.12, 0.12), true, true)
 		return
 	var sequence_id := "vfx_levelup_glow"
 	match sfx_id:
@@ -2054,19 +2065,22 @@ func _active_skill_cast_intro(title: String, color: Color, sfx_id: String) -> vo
 
 func _active_skill_finish_flash(color: Color, duration: float) -> void:
 	_show_screen_flash(color, duration)
-	_active_skill_screen_shake(6.0, 0.12)
+	_active_skill_screen_shake(2.5, 0.1)
 
 func _active_skill_screen_shake(amount: float, duration: float) -> void:
 	if screen_shake_node != null:
 		screen_shake_node.shake(amount, duration)
 
-func _active_skill_apply_hit(target: Node, amount: float, element: String, status_scale := 1.0) -> void:
+func _active_skill_apply_hit(target: Node, amount: float, element: String, status_scale := 1.0, restrained_impact := false) -> void:
 	if target == null or not is_instance_valid(target) or not target is Node2D:
 		return
 	var target_position := (target as Node2D).global_position
 	if target.has_method("play_special"):
 		target.play_special(0.28)
-	_spawn_element_impact_vfx(target, target_position, element)
+	if not restrained_impact:
+		_spawn_element_impact_vfx(target, target_position, element)
+	else:
+		target.set_meta("_recent_impact_vfx_ms", Time.get_ticks_msec())
 	if target.has_method("amplify_character_status") and element != "physical":
 		var bonus_key := "slow_bonus" if element == "ice" else "status_bonus"
 		target.amplify_character_status(element, amount * status_scale, _growth_rank(character_level), _affinity_float(bonus_key))
@@ -2120,9 +2134,10 @@ func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_
 	if reference_distance <= local_radius:
 		pulse_factor = weights[mini(pulse_index, weights.size() - 1)] * (0.58 + reference_falloff * 0.42)
 	AudioManager.play_sfx("skill_incendiary", -9.0, randf_range(-0.03, 0.04))
-	_spawn_vfx_sequence("vfx_explosion_fire", visual_origin + Vector2(0, -44), 0.9 + 0.18 * float(pulse_index), Color(1.0, 0.42, 0.12, 0.9), 1.0, randf_range(-0.22, 0.22), 1.18, Vector2(0, -20), randf_range(-0.3, 0.3), true)
-	for spark_index in range(3):
-		var angle := TAU * (float(spark_index) / 3.0) + float(pulse_index) * 0.42
+	var blast_scale := local_radius * 2.0 / 512.0
+	_spawn_vfx_sequence("vfx_explosion_fire", visual_origin + Vector2(0, -32), blast_scale, Color(1.0, 0.42, 0.12, 0.72), 1.1, randf_range(-0.12, 0.12), 1.05, Vector2(0, -8), 0.0, true)
+	for spark_index in range(2):
+		var angle := TAU * (float(spark_index) / 2.0) + float(pulse_index) * 0.42
 		var burst_pos := visual_origin + Vector2(cos(angle), sin(angle)) * minf(local_radius, 310.0) * randf_range(0.22, 0.48) + Vector2(0, -38)
 		_spawn_vfx_sequence("vfx_hit_fire", burst_pos, 0.56 + 0.08 * float(pulse_index), Color(1.0, 0.48, 0.16, 0.72), 1.2, randf_range(-0.35, 0.35), 1.12, Vector2(0, -16), randf_range(-0.4, 0.4))
 	for enemy in $EnemyLayer.get_children():
@@ -2136,9 +2151,9 @@ func _blaze_meltdown_pulse(origin: Vector2, radius: float, damage: float, pulse_
 			var falloff := 1.0 - clampf(dist / local_radius, 0.0, 1.0)
 			hit_factor = weights[mini(pulse_index, weights.size() - 1)] * (0.58 + falloff * 0.42)
 		_active_skill_apply_hit(enemy, damage * hit_factor, "fire", _active_skill_status_scale(character_data.get("active_skill", {})))
-	_active_skill_screen_shake(5.0 + float(pulse_index) * 1.8, 0.12)
+	_active_skill_screen_shake(2.0 + minf(float(pulse_index), 3.0) * 0.4, 0.1)
 	if pulse_index == 3:
-		_show_screen_flash(Color(1.0, 0.38, 0.12, 0.12), 0.2)
+		_show_screen_flash(Color(1.0, 0.38, 0.12, 0.05), 0.14)
 
 func _blaze_meltdown_reference_origin(origin: Vector2, radius: float, pulse_index: int) -> Vector2:
 	var offsets := [
@@ -2174,11 +2189,10 @@ func _frost_glacier_wave(wave_y: float, tick_damage: float, wave_index: int) -> 
 	var center := Vector2(540, wave_y)
 	var radius := 390.0 + float(wave_index) * 48.0
 	AudioManager.play_sfx("skill_cryo", -9.5, randf_range(-0.03, 0.03))
-	for i in range(5):
-		var x := lerpf(210.0, 870.0, float(i) / 4.0) + randf_range(-18.0, 18.0)
+	for i in range(3):
+		var x := lerpf(240.0, 840.0, float(i) / 2.0) + randf_range(-10.0, 10.0)
 		var pos := Vector2(x, wave_y + randf_range(-20.0, 18.0))
-		_spawn_vfx_sequence("vfx_freeze", pos, 0.78 + 0.12 * float(wave_index), Color(0.6, 0.94, 1.0, 0.54), 1.05, randf_range(-0.18, 0.18), 1.08, Vector2(0, -12), randf_range(-0.2, 0.2), i == 2)
-	_spawn_vfx_sequence("vfx_hit_ice", center + Vector2(0, -34), 0.9 + 0.12 * float(wave_index), Color(0.62, 0.95, 1.0, 0.72), 1.2, 0.0, 1.12, Vector2(0, -14), 0.0, true)
+		_spawn_vfx_sequence("vfx_freeze", pos, 0.65 + 0.06 * float(wave_index), Color(0.6, 0.94, 1.0, 0.34), 1.12, randf_range(-0.1, 0.1), 1.04, Vector2(0, -8), 0.0, i == 1)
 	for enemy in $EnemyLayer.get_children():
 		if not is_instance_valid(enemy) or not enemy is Node2D or not enemy.has_method("take_damage"):
 			continue
@@ -2187,17 +2201,19 @@ func _frost_glacier_wave(wave_y: float, tick_damage: float, wave_index: int) -> 
 		if field_distance > radius:
 			continue
 		_apply_frost_glacier_status(enemy, tick_damage, 1.15)
-		_active_skill_apply_hit(enemy, tick_damage * (0.9 + float(wave_index) * 0.08), "ice")
-	_active_skill_screen_shake(3.2 + float(wave_index), 0.09)
+		_active_skill_apply_hit(enemy, tick_damage * (0.9 + float(wave_index) * 0.08), "ice", 1.0, true)
+	_active_skill_screen_shake(1.8, 0.08)
 	if wave_index == 3:
-		_show_screen_flash(Color(0.5, 0.9, 1.0, 0.1), 0.18)
+		_show_screen_flash(Color(0.5, 0.9, 1.0, 0.035), 0.14)
 
-func _volt_storm_strike(strike_index: int, max_targets: int, damage: float) -> void:
+func _volt_storm_strike(strike_index: int, max_targets: int, damage: float, cast_state: Dictionary = {}) -> void:
 	if not _active_skill_can_continue():
 		return
 	var start := _weapon_fire_origin()
 	var hit_position := _active_skill_fallback_point(0.38)
 	var target: Node2D = null
+	var hits: Dictionary = cast_state.get("hits", {})
+	var repeat_mult := 1.0
 	var targets := _active_target_candidates(max_targets)
 	if targets.is_empty():
 		var points := _active_skill_fallback_chain_points(maxi(3, mini(max_targets, 5)))
@@ -2205,20 +2221,30 @@ func _volt_storm_strike(strike_index: int, max_targets: int, damage: float) -> v
 		if strike_index > 0:
 			start = points[(strike_index - 1) % points.size()]
 	else:
-		target = targets[strike_index % targets.size()]
+		# Prefer fresh targets, then the least-hit target in threat-score order.
+		# Never recover full damage by shuffling a shrinking candidate list.
+		target = targets[0]
+		for candidate in targets:
+			if int(hits.get(candidate.get_instance_id(), 0)) < int(hits.get(target.get_instance_id(), 0)):
+				target = candidate
 		if target != null and is_instance_valid(target):
 			hit_position = target.global_position
-		if strike_index > 0 and targets.size() > 1:
-			var previous := targets[(strike_index - 1) % targets.size()]
-			if previous != null and is_instance_valid(previous):
-				start = previous.global_position
+			var target_id := target.get_instance_id()
+			var previous_hits := int(hits.get(target_id, 0))
+			repeat_mult = _volt_repeat_target_multiplier(previous_hits)
+			hits[target_id] = previous_hits + 1
+			cast_state["hits"] = hits
+		if strike_index > 0:
+			start = cast_state.get("previous_position", start)
+	cast_state["previous_position"] = hit_position
 	AudioManager.play_sfx("skill_tesla", -9.0, randf_range(-0.025, 0.035))
-	var strike_angle := (hit_position - start).angle()
-	_spawn_vfx_sequence("vfx_chain_lightning", hit_position + Vector2(0, -54), 0.86, Color(0.72, 0.96, 1.0, 0.96), 1.55, strike_angle + randf_range(-0.28, 0.28), 1.08, Vector2(0, -20), randf_range(-0.5, 0.5), true)
-	_spawn_vfx_sequence("vfx_hit_lightning", hit_position + Vector2(randf_range(-12.0, 12.0), -42.0), 0.7, Color(0.78, 0.98, 1.0, 0.9), 1.35, randf_range(-0.35, 0.35), 1.16, Vector2(0, -18), randf_range(-0.45, 0.45))
+	var visual_strength := lerpf(0.55, 1.0, repeat_mult)
+	_spawn_chain_arc(start + Vector2(0, -32), hit_position + Vector2(0, -32), "lightning")
+	_spawn_vfx_sequence("vfx_hit_lightning", hit_position + Vector2(0, -32), 0.42 * visual_strength, Color(0.78, 0.98, 1.0, 0.7 * visual_strength), 1.35, 0.0, 1.06, Vector2(0, -6), 0.0)
 	if target != null and is_instance_valid(target):
-		_active_skill_apply_hit(target, damage * 0.62, "lightning")
-	_active_skill_screen_shake(4.2, 0.08)
+		_active_skill_apply_hit(target, damage * 0.62 * repeat_mult, "lightning", 1.0, true)
+	if strike_index % 3 == 0:
+		_active_skill_screen_shake(2.2 * visual_strength, 0.08)
 
 func _refresh_character_fire_rate_buff() -> void:
 	if turret == null:
@@ -2506,6 +2532,12 @@ func _volt_storm_strike_count(active: Dictionary, max_targets: int) -> int:
 	var rank_bonus := int(active.get("rank_extra_strikes", 0)) * _growth_rank(character_level)
 	var sig_bonus := _sig_level_steps(active, "sig_level_extra_strike_every")
 	return maxi(max_targets + 2 + rank_bonus + sig_bonus, max_targets + 2)
+
+func _volt_repeat_target_multiplier(previous_hits: int) -> float:
+	var active: Dictionary = character_data.get("active_skill", {})
+	var falloff := clampf(float(active.get("repeat_target_falloff", 1.0)), 0.0, 1.0)
+	var floor_mult := clampf(float(active.get("repeat_target_min_mult", 1.0)), 0.0, 1.0)
+	return maxf(floor_mult, pow(falloff, maxi(previous_hits, 0)))
 
 func _player_shot_damage_multiplier() -> float:
 	var economy: Dictionary = DataLoader.get_table("economy")

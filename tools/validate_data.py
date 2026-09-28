@@ -284,6 +284,9 @@ def main() -> int:
                 errors.append(f"{char_id}.active_skill.weapon_level_inherit must be in [0, 1]")
             if basis == "weapon" and weapon_level_inherit > 0.0:
                 errors.append(f"{char_id}.weapon-scaling active skill cannot also inherit weapon level")
+            for scale_key in ("field_tick_damage_scale", "opening_wave_damage_scale", "repeat_target_falloff", "repeat_target_min_mult"):
+                if scale_key in active and not 0.0 < float(active[scale_key]) <= 1.0:
+                    errors.append(f"{char_id}.active_skill.{scale_key} must be in (0, 1]")
             sig_damage = float(active.get("sig_level_damage_bonus", 0.0))
             sig_cooldown = float(active.get("sig_level_cooldown_reduction", 0.0))
             if not 0.0 < sig_damage <= 0.25:

@@ -15,6 +15,7 @@ const TABLES := [
 	"zombies",
 	"bosses",
 	"skills",
+	"tactical_guides",
 	"status_vfx",
 	"environments",
 	"levels",

@@ -9,6 +9,14 @@
 - 内容名称不写死在表里，用 `name_key` 同时指向 `localization_zh.json` / `localization_en.json`（见末节）；历史运行时句子由英文目录覆盖。
 - 数值留空旋钮（如 coef/base）便于平衡（见 `09`）。
 
+### tactical_guides.json（2026-09-27，展示文案）
+
+映射键复用 characters / skills / weapons / armors / chips / pets 的真实 ID，以及角色 passive / signature_skills ID。每项含 `guide_zh`、`guide_en` 两个字符串；收藏条目必须分别包含机制/定位、成长、搭配与限制三段（以换行分隔），角色能力补充使用建议。`rules_characters`、`rules_skills`、`rules_weapons`、`rules_armors`、`rules_ammo` 为共享模型说明。
+
+DataLoader 加载此表；collection 按当前语言读取，长段落自动换行并位于可滚动内容区。该表只负责解释，不参与伤害、成长、掉落、解锁或付费计算。不得在此捏造机制或覆盖数值表；`check_tactical_guides.py` 和 M1 smoke 检查全目录覆盖，`audit_tactical_guides.gd` 检查双语真实布局。
+
+分裂字段 `falloff` 的运行时语义是**每颗小弹保留的主弹伤害比例**：`child_damage = parent_damage * falloff`。UI 显示“小弹伤害比例”，不是“损失比例”。升级增加数量而降低每颗的保留比例，文案不得把二者都写成单发增强。
+
 ---
 
 ## elements.json  （映射）
@@ -774,6 +782,11 @@ Save v3 的外观状态结构为：
 ---
 
 ## 校验工具（见 13）
+
+角色 `active_skill` 的可选分段伤害字段（缺省均为 `1.0`，合法范围 `(0,1]`）：
+- `field_tick_damage_scale` / `opening_wave_damage_scale`：领域周期伤害与开场寒潮分别乘以基础技能伤害，不改变控场持续时间或波数。
+- `repeat_target_falloff` / `repeat_target_min_mult`：同次施法、同一存活目标的第 n 次雷击采用 `max(min_mult, falloff^(n-1))`；首击全额，新施法重新计数。
+
 - 启动时校验：所有 `*.json` 引用的 ID/资源文件是否存在、是否有孤儿引用。
 - 配表自检脚本：跑 `09 §6` 可过性矩阵。
 - CI（可选）：JSON schema 校验 + 资源存在性检查。

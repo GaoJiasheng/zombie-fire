@@ -1,6 +1,7 @@
 extends Control
 
 const UiKit := preload("res://ui/ui_kit.gd")
+const ProgressionResult := preload("res://ui/progression_result.gd")
 const CharacterSkillText := preload("res://core/data/character_skill_text.gd")
 const ChallengeRules := preload("res://core/data/challenge_rules.gd")
 const FREE_WEAPON_SHOWCASE_SIZE := Vector2(388, 252)
@@ -922,12 +923,8 @@ func _try_upgrade_weapon() -> void:
 	var selected_weapon := SaveManager.get_selected("weapon")
 	if selected_weapon == "":
 		selected_weapon = "weapon_autocannon"
-	if SaveManager.upgrade_weapon(selected_weapon):
-		AudioManager.play_sfx("upgrade")
-		_refresh()
+	if ProgressionResult.upgrade(self, "weapons", selected_weapon, _refresh):
 		_pulse_weapon_icon()
-	else:
-		AudioManager.play_sfx("ui_click", -6.0)
 
 func _rebuild_character_bar(selected_character: String) -> void:
 	for child in $CharacterSelectBar.get_children():

@@ -66,7 +66,7 @@ static func key_name(key: String) -> String:
 		"split":
 			return "分裂"
 		"falloff":
-			return "衰减"
+			return "小弹伤害比例"
 		"pierce":
 			return "穿透"
 		"dmg_mult":
