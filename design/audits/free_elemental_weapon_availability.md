@@ -10,10 +10,10 @@ DPS 审计锁定的完整套装倍率带，避免用缺少套装机制的通用�
 
 | 元素 | 代表关 | 原生元素枪 | 中性战力 | 最强免费物理枪 | 中性战力 | 中性比值 | 克制徽章 | 同元素完整付费套 DPS 合同 | 结论 |
 |---|---:|---|---:|---|---:|---:|---:|---:|---|
-| ice | 20 | `weapon_cryocannon` | 13,964 | `weapon_scattergun` | 13,587 | 1.028× | 伤害×1.50 | `set_apocalypse_absolute_zero` 1.22–1.28× | 通过 |
+| ice | 20 | `weapon_cryocannon` | 13,952 | `weapon_scattergun` | 13,587 | 1.027× | 伤害×1.50 | `set_apocalypse_absolute_zero` 1.22–1.28× | 通过 |
 | poison | 40 | `weapon_venomlauncher` | 14,671 | `weapon_scattergun` | 13,587 | 1.080× | 伤害×1.50 | — | 通过 |
 | lightning | 65 | `weapon_teslacoil` | 14,251 | `weapon_scattergun` | 13,587 | 1.049× | 伤害×1.50 | `set_apocalypse_thunder` 1.22–1.28× | 通过 |
-| fire | 75 | `weapon_flamethrower` | 12,665 | `weapon_scattergun` | 13,587 | 0.932× | 伤害×1.50 | `set_apocalypse_inferno` 1.22–1.28× | 通过 |
+| fire | 75 | `weapon_flamethrower` | 13,417 | `weapon_scattergun` | 13,587 | 0.987× | 伤害×1.50 | `set_apocalypse_inferno` 1.22–1.28× | 通过 |
 
 说明：绝对零度、雷霆、炼狱完整套分别继续由
 `audit_absolute_zero_premium_dps.py`、`audit_character_endgame_dps.py`、

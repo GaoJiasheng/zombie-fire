@@ -3665,10 +3665,12 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	# 2026-09-26 approved Blaze active 2.4 -> 1.8: the existing ruler reads
 	# that input directly. Keep the model/recommendation frozen, update this
 	# affected build golden only (4468 -> 4448, independently checked in Python).
-	_expect(int(observed_breakdown.get("power", 0)) == 4448, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
+	# 2026-09-30 Frost cooldown 18 -> 20 and the regenerated weapon power
+	# profiles (economy.json) move the same build to 4467; model unchanged.
+	_expect(int(observed_breakdown.get("power", 0)) == 4467, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
 	_expect(int(observed_breakdown.get("recommended", 0)) == 2592, "level_080 v6 recommendation golden drifted")
 	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "level_080 Owner build v6 short axis must be line")
-	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.71605) <= 0.0001, "level_080 Owner build v6 R drifted")
+	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.72338) <= 0.0001, "level_080 Owner build v6 R drifted")
 
 	var boss55: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
 	_expect(absf(float(save_manager._power_boss_element_factor(boss55, "physical")) - 0.75) <= 0.000001, "level_055 physical badge factor must be ×0.75")
