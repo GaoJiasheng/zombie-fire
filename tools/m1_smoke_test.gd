@@ -105,6 +105,13 @@ func _initialize() -> void:
 				for ability_id in ability_ids:
 					var ability_guide: Dictionary = data_loader.get_row("tactical_guides", str(ability_id))
 					_expect(not str(ability_guide.get("guide_zh", "")).is_empty() and not str(ability_guide.get("guide_en", "")).is_empty(), "%s needs bilingual usage advice" % ability_id)
+	# Test isolation: the encounter codex now persists mid-run (record_enemy_encounter ->
+	# deferred save_game), so a previous smoke run leaves a save on disk that a later
+	# section loads instead of the fresh default. Start every smoke from no save file,
+	# exactly like a first launch; the desktop user dir is a test scratch area.
+	for stale_save_path in [save_manager.SAVE_PATH, save_manager.BACKUP_PATH]:
+		if FileAccess.file_exists(stale_save_path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(stale_save_path))
 	save_manager.load_game()
 	var smoke_save_snapshot: Dictionary = save_manager.save_data.duplicate(true)
 	var smoke_settings_snapshot: Dictionary = settings_manager.settings.duplicate(true)
