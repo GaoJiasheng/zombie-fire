@@ -16,8 +16,24 @@ GODOT_BIN="${GODOT_BIN:-/opt/homebrew/bin/godot}"
 # 1X / 2X / 5X control from stage 1 and all four premium series through the local
 # no-charge demo flow. Keep the ordinary export preset clean and omit both
 # temporary features when selecting an App Review build.
-TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release,testflight_speed_unlocked,testflight_premium_preview,testflight_firerate_lab}"
-TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-testflight_premium_preview}"
+# SHIP_TARGET=testflight (default): internal conveniences on, verified present.
+# SHIP_TARGET=app_review: plain "release" only, verified ABSENT. Lesson from
+# 1.0.0 (72), which was uploaded with the default target and then submitted to
+# App Review with the conveniences still inside.
+SHIP_TARGET="${SHIP_TARGET:-testflight}"
+TESTFLIGHT_ONLY_FEATURES="testflight_speed_unlocked,testflight_premium_preview,testflight_firerate_lab"
+if [[ "$SHIP_TARGET" == "app_review" ]]; then
+    TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release}"
+    TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-}"
+    FORBID_EXPORT_FEATURES="$TESTFLIGHT_ONLY_FEATURES"
+elif [[ "$SHIP_TARGET" == "testflight" ]]; then
+    TESTFLIGHT_CUSTOM_FEATURES="${TESTFLIGHT_CUSTOM_FEATURES:-release,$TESTFLIGHT_ONLY_FEATURES}"
+    TESTFLIGHT_EXPECT_FEATURE="${TESTFLIGHT_EXPECT_FEATURE:-testflight_premium_preview}"
+    FORBID_EXPORT_FEATURES=""
+else
+    printf '\n[release] ERROR: SHIP_TARGET must be testflight or app_review, got %s\n' "$SHIP_TARGET" >&2
+    exit 1
+fi
 # Godot's macOS viewport windows can activate even when launched hidden. A
 # TestFlight build therefore runs only static + true --headless gates unless
 # the owner separately schedules an interactive visual-capture window.
@@ -260,9 +276,10 @@ run_godot_logged "$WORK_DIR/pck_save_integrity.log" \
 run_godot_logged "$WORK_DIR/pck_m1_smoke.log" \
     "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
     --script "$PROJ/tools/m1_smoke_test.gd"
-if [[ -n "$TESTFLIGHT_EXPECT_FEATURE" ]]; then
-    log "Verifying exported TestFlight feature: $TESTFLIGHT_EXPECT_FEATURE"
+if [[ -n "$TESTFLIGHT_EXPECT_FEATURE" || -n "$FORBID_EXPORT_FEATURES" ]]; then
+    log "Verifying exported features (target=$SHIP_TARGET expect='$TESTFLIGHT_EXPECT_FEATURE' forbid='$FORBID_EXPORT_FEATURES')"
     ZOMBIE_FIRE_EXPECT_EXPORT_FEATURE="$TESTFLIGHT_EXPECT_FEATURE" \
+    ZOMBIE_FIRE_FORBID_EXPORT_FEATURES="$FORBID_EXPORT_FEATURES" \
         run_godot_logged "$WORK_DIR/pck_feature_probe.log" \
         "$GODOT_BIN" --headless --main-pack build/ios/ZombieFire.pck \
         --script "$PROJ/tools/export_feature_probe.gd"
