@@ -5018,8 +5018,8 @@ func _verify_boss_base_attack_profiles(data_loader: Node) -> void:
 	var siege_budgets := {
 		"boss_tank_titan": [12, 3.5], "boss_inferno_maw": [26, 4.0],
 		"boss_frost_warden": [28, 4.0], "boss_storm_caller": [30, 3.0],
-		"boss_plague_mother": [24, 4.0], "boss_void_phantom": [26, 2.5],
-		"boss_necrotitan": [120, 5.0], "boss_apex_overlord": [16, 4.0],
+		"boss_plague_mother": [24, 4.0], "boss_void_phantom": [18, 2.5],
+		"boss_necrotitan": [120, 5.0], "boss_apex_overlord": [24, 4.0],
 	}
 	var expected := {
 		"boss_tank_titan": {"mode": "melee_heavy", "hits": 1},
