@@ -2524,7 +2524,7 @@
 - [x] Owner 同意调整:幽影 26→18/2.5s、霸主 16→24/4s(f20b73e9)。六关复测:065 回到 74.9% 3★,055/060 恢复 79.1%/90.8%,090/095/099 不变(38.1/73.1/97.4%)。
 - [x] 流程补洞:指纹新增 `enemies` 段(bosses+zombies 战斗字段),`validate_data` 拒绝每轮基地伤害 <5 的首领,design/40 §13 记录“结果合同外必须查逐敌威胁”;`m1_smoke_test` 启动前清掉上次遗留存档(图鉴中途落盘导致连续两次运行第二次失败,即 Build 75 首次打包 PCK 冒烟失败的原因,Codex 曾用独立 HOME 绕过)。
 - [x] 聚合发布门禁 OK(派生报表随首领值重刷两轮);`1.0.1 (75)` 上传成功,Delivery UUID `d4331de3-c191-46c3-95a3-98d1adfa7594`,IPA 938,484,300 bytes,SHA-256 `81217cf11ccb72abc97cbb27ea21439876d6757affbbf2b98d4f0854a5a80cb1`。
-- [ ] 99×10 全量星表按 5 段指纹重新归档(进行中);替换 `b2b_star_table_old_to_new.csv` 并写对账说明。
+- [x] 99×10 全量星表按 5 段指纹重新归档:941/990,0 超时;仅 **L040 1★→0★**(胜 6→5/10,召唤者 30/3s 贴线),其余 98 关不变,`--check-approved` 通过。对账:`b2c_boss_siege_reconciliation_2026_10_01.md`。L040 是否回调召唤者待 Owner。
 - [ ] Owner 真机(Build 75):015–040 首领贴线压力、图鉴解锁、成长结果弹框;正式版真实购买/恢复;DSA。
 - [ ] 桌面残留测试存档已挪至 `~/Library/Application Support/Godot/app_userdata_backup_zombiefire_1001_0042/`,确认无用后可删。
 
