@@ -13,6 +13,7 @@ var _save_path := SAVE_PATH
 var _backup_path := BACKUP_PATH
 var _last_persistence_error := ""
 var _suppress_expected_persistence_errors_for_tests := false
+var _encounter_save_pending := false
 
 var save_data := {
 	"version": CURRENT_SAVE_VERSION,
@@ -23,6 +24,7 @@ var save_data := {
 	"challenge_clear_counts": {},
 	"skill_base_levels": {},
 	"sig_skill_levels": {},
+	"enemy_encounters": {},
 	"endless_best_loops": 0,
 	"cosmetics": {
 		"selected_theme": "default",
@@ -68,6 +70,7 @@ func _default_save() -> Dictionary:
 		"challenge_clear_counts": {},
 		"skill_base_levels": {},
 		"sig_skill_levels": {},
+		"enemy_encounters": {},
 		"endless_best_loops": 0,
 		"cosmetics": {
 			"selected_theme": "default",
@@ -103,6 +106,28 @@ func _default_save() -> Dictionary:
 			"selected_pet": ""
 		}
 	}
+
+func has_encountered_enemy(enemy_id: String) -> bool:
+	return bool(save_data.get("enemy_encounters", {}).get(enemy_id, false))
+
+func record_enemy_encounter(enemy_id: String, persist := true) -> bool:
+	if DataLoader.get_row("zombies", enemy_id).is_empty() and DataLoader.get_row("bosses", enemy_id).is_empty():
+		return false
+	if has_encountered_enemy(enemy_id):
+		return false
+	if not save_data.has("enemy_encounters"):
+		save_data["enemy_encounters"] = {}
+	save_data.enemy_encounters[enemy_id] = true
+	# Save once for a newly encountered type, coalescing same-frame spawns.
+	# This survives defeat/retreat and never writes once per individual enemy.
+	if persist and not _encounter_save_pending:
+		_encounter_save_pending = true
+		_flush_enemy_encounters.call_deferred()
+	return true
+
+func _flush_enemy_encounters() -> void:
+	_encounter_save_pending = false
+	save_game()
 
 func reset_game() -> void:
 	backup_game()
@@ -341,6 +366,10 @@ func _validate_save_shape(candidate: Dictionary, label: String) -> bool:
 				_report_persistence_error("%s field '%s' contains a non-numeric value" % [label, progress_key])
 				return false
 	var unlocks: Dictionary = candidate["unlocks"]
+	for enemy_id in candidate.get("enemy_encounters", {}):
+		if typeof(enemy_id) != TYPE_STRING or typeof(candidate.enemy_encounters[enemy_id]) != TYPE_BOOL:
+			_report_persistence_error("%s enemy encounters must map string ids to booleans" % label)
+			return false
 	for unlock_key in ["levels", "characters", "weapons", "armors", "chips", "pets"]:
 		for item_id in unlocks.get(unlock_key, []):
 			if typeof(item_id) != TYPE_STRING:

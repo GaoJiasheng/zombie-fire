@@ -211,8 +211,9 @@ func _build_threat_marker() -> void:
 	threat_marker.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	threat_marker.add_theme_constant_override("outline_size", 4)
 	threat_marker.horizontal_alignment = 1
-	threat_marker.size = Vector2(220, 32)
-	threat_marker.position = Vector2(-110, 0)
+	var name_width := threat_marker.get_theme_font("font").get_string_size(threat_marker.text, HORIZONTAL_ALIGNMENT_LEFT, -1, threat_marker.get_theme_font_size("font_size")).x
+	threat_marker.size = Vector2(maxf(220.0, ceilf(name_width) + 8.0), 32)
+	threat_marker.position = Vector2(-threat_marker.size.x / 2.0, 0)
 	threat_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sync_threat_marker_visibility()
 
@@ -258,44 +259,9 @@ func _exit_tree() -> void:
 		threat_marker.free()
 
 func _threat_text() -> String:
-	var tags: Array = data.get("threat_tags", [])
-	var weak := _weakness_hint()
-	if boss:
-		var boss_name := DataLoader.tr_key(str(data.get("name_key", "")))
-		return boss_name if not boss_name.is_empty() else "首领"
-	if tags.has("breach"):
-		return "近线%s" % weak
-	if tags.has("elite"):
-		return "精英%s" % weak
-	if tags.has("support"):
-		return "支援%s" % weak
-	if tags.has("burst"):
-		return "爆裂%s" % weak
-	if tags.has("tank"):
-		return "重甲%s" % weak
-	if tags.has("fast"):
-		return "高速%s" % weak
-	return ""
-
-func _weakness_hint() -> String:
-	if weakness == "none" or weakness == "":
-		return ""
-	return "·%s" % _element_label(weakness)
-
-func _element_label(element: String) -> String:
-	match element:
-		"physical":
-			return "物"
-		"fire":
-			return "火"
-		"ice":
-			return "冰"
-		"lightning":
-			return "电"
-		"poison":
-			return "毒"
-		_:
-			return element
+	# Names identify enemies. Permanent weakness/armor education lives in the
+	# encounter codex; transient status labels and threat visibility stay intact.
+	return DataLoader.tr_key(str(data.get("name_key", "")))
 
 func _threat_color() -> Color:
 	if boss:
@@ -966,7 +932,7 @@ func _update_hp_bar_position() -> void:
 func _sync_world_overlay_clearance() -> void:
 	var marker_offset_y := -110.0 if not boss else -190.0
 	if threat_marker != null and is_instance_valid(threat_marker):
-		var marker_position := global_position + Vector2(-110.0, marker_offset_y)
+		var marker_position := global_position + Vector2(-threat_marker.size.x / 2.0, marker_offset_y)
 		if _hud_exclusion_active and not boss:
 			var marker_rect := Rect2(marker_position, threat_marker.size)
 			if marker_rect.intersects(_hud_exclusion_rect):

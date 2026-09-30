@@ -14,6 +14,7 @@ const TABLES := [
 	"premium_sets",
 	"zombies",
 	"bosses",
+	"enemy_codex",
 	"skills",
 	"tactical_guides",
 	"status_vfx",

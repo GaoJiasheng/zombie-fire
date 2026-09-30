@@ -46,6 +46,23 @@ func _ready() -> void:
 	_build_nav()
 	_build_levels()
 	_ensure_endless_button()
+	_ensure_bestiary_button()
+
+func _ensure_bestiary_button() -> void:
+	var row := HBoxContainer.new()
+	row.name = "BestiaryEntryRow"
+	row.alignment = BoxContainer.ALIGNMENT_END
+	var button := Button.new()
+	button.name = "BestiaryButton"
+	button.text = str(DataLoader.get_table("enemy_codex").labels.title["text_en" if LocalizationManager.is_english() else "text_zh"])
+	UiKit.apply_armored_button(button, false, Vector2(280, 72), 22, true)
+	button.pressed.connect(func():
+		AudioManager.play_sfx("ui_click")
+		router.change_scene("bestiary", {"chapter": selected_chapter}))
+	row.add_child(button)
+	var vbox := $Root/VBox as VBoxContainer
+	vbox.add_child(row)
+	vbox.move_child(row, (%LevelScroll as Control).get_index())
 
 # 无限尸潮入口：复用玩家当前解锁到的最高一关作为难度种子，波次打完循环继续、每轮血量递增，
 # 直到漏怪耗尽基地生命结束。奖励按撑过的轮数发放(不影响正常关卡进度/解锁)。

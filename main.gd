@@ -7,6 +7,7 @@ const ROUTES := {
 	"map": "res://meta/map/map.tscn",
 	"loadout": "res://meta/loadout/loadout.tscn",
 	"collection": "res://meta/collection/collection.tscn",
+	"bestiary": "res://meta/bestiary/bestiary.tscn",
 	"store": "res://meta/store/store.tscn",
 	"settings": "res://meta/settings/settings.tscn",
 	"battle": "res://gameplay/battle/battle.tscn",

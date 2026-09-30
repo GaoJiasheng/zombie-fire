@@ -7,6 +7,7 @@
 - Eight upgradeable weapons.
 - Armor, chip, and pet collection/equipment systems.
 - 20 zombie types and 8 bosses.
+- Encounter-unlocked enemy codex for all 20 zombies and 8 bosses: hidden unseen entries, bilingual tactics/lore, data-backed defenses, and name-only battlefield labels.
 - 16 in-run skill cards with icon/text/tag/detail presentation.
 - Loadout-aware opening card offers that establish a damage/control/survival identity without adding cards.
 - Accurate first-battle control coaching for automatic fire, hold-and-drag manual aim, and double-tap target lock.

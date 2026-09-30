@@ -1,0 +1,9 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: same-level paid weapon fixture must have higher constant power than its free counterpart
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tools/m1_smoke_test.gd:7072)
+       [1] _verify_ammo_element_rules (res://tools/m1_smoke_test.gd:4554)
+       [2] _initialize (res://tools/m1_smoke_test.gd:230)
+       [3] _verify_turret_fire_gate (res://tools/m1_smoke_test.gd:4099)

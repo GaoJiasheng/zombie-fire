@@ -1,0 +1,17 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+FRONTLINE_RUNTIME profile=tier_b level=090 seed=1103 progress=1.0000 base=0.3418 victory=true elapsed=196.97 boss=172.17 cards=["skill_salvo", "skill_critical", "skill_critical", "skill_charge_shot", "skill_charge_shot", "skill_pierce", "skill_ricochet", "skill_cryo", "skill_ricochet"]
+FRONTLINE_RUNTIME profile=tier_b level=099 seed=1103 progress=1.0000 base=0.8099 victory=true elapsed=230.10 boss=159.77 cards=["skill_charge_shot", "skill_critical", "skill_salvo", "skill_critical", "skill_pierce", "skill_incendiary", "skill_split_shot", "skill_incendiary", "skill_ricochet", "skill_incendiary"]
+WARNING: 1474 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 3100 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2535)
+ERROR: 347 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+ERROR: 145 RID allocations of type 'P11GodotArea2D' were leaked at exit.
+ERROR: 145 RID allocations of type 'P12GodotShape2D' were leaked at exit.
+ERROR: 83 RID allocations of type 'N13RendererDummy15MaterialStorage13DummyMaterialE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+ERROR: 358 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.
+ERROR: 352 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.

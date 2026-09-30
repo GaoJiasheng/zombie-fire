@@ -9,6 +9,14 @@
 - 内容名称不写死在表里，用 `name_key` 同时指向 `localization_zh.json` / `localization_en.json`（见末节）；历史运行时句子由英文目录覆盖。
 - 数值留空旋钮（如 coef/base）便于平衡（见 `09`）。
 
+### enemy_codex.json（2026-09-30，遭遇图鉴）
+
+首领 entries 额外必须有 `siege_zh/siege_en`：描述当前实际攻城方式与应对，不把数值提案写为已落地功能。首领分页有独立 title/intro，遭遇规则与普通僵尸相同。
+
+`labels` 为界面键到 `{text_zh, text_en}` 的映射；`entries` 为全部 zombies / bosses 既有 ID 到 `{guide_zh, guide_en, story_zh, story_en}` 的映射。每种敌人拥有独立战术说明和明确标记为虚构背景的故事。名称、图片、弱点倍率、抗性减伤、护甲/护盾与基础参数仍读权威敌人和 economy 数据，文案不参与计算。`check_bestiary.py` 检查精确覆盖、双语、唯一内容及既有画像引用。
+
+存档新增可选兼容字段 `enemy_encounters: {enemy_id: bool}`，默认空映射。仅真实生成、且 ID 存在于 zombies/bosses 时置 true；首次遭遇按帧合并保存，失败/撤退保留。未记录者隐藏名称、画像和详情；浏览不解锁。v4 存档通过现有默认值递归合并兼容，不按关卡进度回填历史。备份恢复保留该字段，重置清空。
+
 ### tactical_guides.json（2026-09-27，展示文案）
 
 映射键复用 characters / skills / weapons / armors / chips / pets 的真实 ID，以及角色 passive / signature_skills ID。每项含 `guide_zh`、`guide_en` 两个字符串；收藏条目必须分别包含机制/定位、成长、搭配与限制三段（以换行分隔），角色能力补充使用建议。`rules_characters`、`rules_skills`、`rules_weapons`、`rules_armors`、`rules_ammo` 为共享模型说明。
@@ -439,6 +447,8 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 ```
 
 `hits` 只决定一次攻城动作中可见的段数；一次完整动作仍只发出一次 `breached`，并以既有 `base_attack_damage` 结算总伤害。这样多段连击不会绕过单次伤害上限，也不会额外消耗多层屏障。`cast_sequence` / `impact_sequence` 必须引用 `assets/production/sprites/vfx_sequences/<id>/<id>_sequence.json`。
+
+2026-09-30 Owner 批准八位首领显式填写 `mechanic_params.base_attack_damage`（减伤前整轮总伤害）和 `base_attack_interval`（秒，起手至下次起手的名义间隔，保留既有随机浮动与控制延迟）。只覆盖近线攻城，不改 `bd_coef` 驱动的远程机制。首领图鉴直接展示字段预算，禁止按 profile.hits 重复乘伤害。
 
 `channel` 模式还必须提供 `beam_texture` 与 `impact_texture` 两个 `res://` 路径：前者沿施法者到基地的矢量实时缩放，后者只负责基地接触冠。两张资源必须是透明、无矩形底板的独立特效；`impact_sequence` 继续作为资源降级回退。
 

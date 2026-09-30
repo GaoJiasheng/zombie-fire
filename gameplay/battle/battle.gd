@@ -4730,6 +4730,7 @@ func _spawn_enemy_instance(enemy_id: String, spawn_position: Vector2, is_boss :=
 	if is_boss:
 		battle_last_boss_id = enemy_id
 	$EnemyLayer.add_child(enemy)
+	SaveManager.record_enemy_encounter(enemy_id)
 	if wave_clear_fast_forward_enabled:
 		# A fresh live enemy invalidates any earlier "field went empty" moment
 		# recorded for this wave; see `_wave_clear_fast_forward_clear_at`.

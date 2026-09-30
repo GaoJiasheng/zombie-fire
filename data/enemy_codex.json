@@ -1,0 +1,228 @@
+{
+  "labels": {
+    "title": {"text_zh":"僵尸图鉴","text_en":"Enemy Codex"},
+    "zombies": {"text_zh":"僵尸","text_en":"Zombies"},
+    "bosses": {"text_zh":"首领图鉴","text_en":"Bosses"},
+    "boss_title": {"text_zh":"首领图鉴","text_en":"Boss Codex"},
+    "boss_intro": {"text_zh":"记录已遭遇的首领，了解它的防护、攻城方式与破局办法。","text_en":"Discover each boss's defenses, siege pattern and counterplay through encounters."},
+    "siege": {"text_zh":"攻城方式与应对","text_en":"Siege pattern & response"},
+    "siege_budget": {"text_zh":"每轮基础伤害 %d · 起手间隔约 %.1f 秒。多段演出合计结算一次；实际损血受减伤与屏障影响，控制可延后攻击。","text_en":"Base damage per cycle: %d · roughly %.1f seconds between starts. Visual hits resolve as one damage event. Mitigation and barriers reduce damage; control can delay attacks."},
+    "intro": {"text_zh":"每一次遭遇，都会让迷雾散去一点。","text_en":"Every encounter brings another threat into focus."},
+    "progress": {"text_zh":"已发现 %d / %d","text_en":"Discovered %d / %d"},
+    "unknown": {"text_zh":"迷雾中的身影","text_en":"Hidden in the fog"},
+    "locked": {"text_zh":"尚未遭遇 · 情报未明","text_en":"Not encountered · Intel unknown"},
+    "discovered": {"text_zh":"已遭遇 · 查看档案","text_en":"Encountered · Open dossier"},
+    "back": {"text_zh":"返回战区","text_en":"Back to map"},
+    "back_list": {"text_zh":"返回图鉴","text_en":"Back to codex"},
+    "analysis": {"text_zh":"特性与应对","text_en":"Behavior & counterplay"},
+    "defenses": {"text_zh":"弱点与防护","text_en":"Weakness & defenses"},
+    "stats": {"text_zh":"基础档案","text_en":"Base profile"},
+    "story": {"text_zh":"废土逸闻","text_en":"Wasteland story"},
+    "story_note": {"text_zh":"背景故事不代表额外战斗机制。","text_en":"Lore does not grant additional combat abilities."},
+    "model": {"text_zh":"这里展示基础模型，不是某一关的实时面板。生命、速度与防线伤害还会受到关卡、波次、挑战和无尽模式影响。弱点与抗性是两个独立概念，元素弹药可用于调整攻击属性。","text_en":"This is the base model, not a live stage readout. Stage, wave, challenge and endless modifiers affect health, speed and base damage. Weakness and resistance are separate; ammo cards can change your attack element."},
+    "weakness": {"text_zh":"弱点：%s · 对应属性伤害 ×%.2f","text_en":"Weakness: %s · matching damage ×%.2f"},
+    "resist": {"text_zh":"抗性：%s · 对应属性伤害 ×%.2f","text_en":"Resistance: %s · matching damage ×%.2f"},
+    "reduction": {"text_zh":"%s抗性：减伤 %.0f%%（未计穿透）","text_en":"%s resistance: %.0f%% reduction before penetration"},
+    "no_weakness": {"text_zh":"无固定属性弱点。","text_en":"No fixed elemental weakness."},
+    "no_resist": {"text_zh":"无固定属性抗性；仍可能受到其他敌人的光环保护。","text_en":"No fixed elemental resistance; nearby enemies may still protect it with auras."},
+    "armor": {"text_zh":"装甲层占基础总耐久 %.0f%%；伤害穿透可绕过部分装甲直击本体。","text_en":"Armor holds %.0f%% of base durability. Damage penetration can bypass part of it to reach the body."},
+    "shield": {"text_zh":"出生护盾：本体生命的 %.0f%%；弱点属性可绕过此护盾。","text_en":"Spawn shield: %.0f%% of body health. Weakness damage bypasses this shield."},
+    "no_armor": {"text_zh":"没有独立装甲层或出生护盾；体型厚重不等于具有装甲条。","text_en":"No separate armor layer or spawn shield. A bulky body does not necessarily mean an armor bar."},
+    "armor_break": {"text_zh":"破甲后，装甲提供的临时属性抗性解除。","text_en":"Breaking the armor removes its temporary elemental resistance."},
+    "hp_coef": {"text_zh":"基础生命系数  ×%.2f","text_en":"Base health coefficient  ×%.2f"},
+    "fixed_hp": {"text_zh":"战役基础总耐久  %.0f","text_en":"Base campaign durability  %.0f"},
+    "speed": {"text_zh":"基础移动速度  %.0f（逻辑单位/秒）","text_en":"Base movement speed  %.0f logical units/s"},
+    "damage": {"text_zh":"防线伤害系数  ×%.2f（非每秒伤害）","text_en":"Base-attack coefficient  ×%.2f (not DPS)"},
+    "physical": {"text_zh":"物理","text_en":"Physical"},
+    "fire": {"text_zh":"火焰","text_en":"Fire"},
+    "ice": {"text_zh":"冰霜","text_en":"Frost"},
+    "lightning": {"text_zh":"闪电","text_en":"Lightning"},
+    "poison": {"text_zh":"毒素","text_en":"Poison"}
+  },
+  "entries": {
+    "zombie_shambler": {
+      "guide_zh":"最普通的步行尸，靠数量挤压防线，没有额外冲刺或护盾。用火焰处理成群目标；局面拥挤时，分裂和连锁能清掉它身后的同伴。不要为追逐远处残血而放过门前的一只。",
+      "guide_en":"A basic walker with no special dash or shield. Its strength is numbers. Fire handles clustered walkers; split shots and chains reach the pack behind them. Do not chase a distant straggler while one is already at your gate.",
+      "story_zh":"它胸口还挂着一张褪色的通勤卡。城市停运的那天，它似乎没有收到通知，至今仍沿着那条回家的路行走。",
+      "story_en":"A faded transit pass still hangs from its chest. No one told it the city had stopped running. It keeps following the route it once took home."
+    },
+    "zombie_runner": {
+      "guide_zh":"生命较薄，但移动快，进入战场中段后会间歇突进。冰霜既命中弱点又能拖慢推进；优先解决逼近防线的奔跑者，不要只盯住后方的大块头。",
+      "guide_en":"Fragile but fast, with intermittent lunges once it reaches mid-field. Frost exploits its weakness and slows the advance. Deal with runners approaching the line before pouring every shot into a distant tank.",
+      "story_zh":"曾经送遍全城的快递员，变异后仍在赶时间。包裹早已不知去向，只有那双磨穿的鞋从未停下。",
+      "story_en":"It once delivered parcels across the city and still seems to be running late. The parcels are gone; the worn-out shoes never stopped."
+    },
+    "zombie_brute": {
+      "guide_zh":"用厚实生命换取缓慢推进，并没有独立装甲层。物理攻击克制它，毒素则会被抵抗。单体集中火力适合削掉它的生命，穿透弹道可顺便处理后排；不要把弹道贯穿和护甲穿透混为一谈。",
+      "guide_en":"A slow wall of health, not a separate layer of armor. Physical damage is effective; poison is resisted. Focused fire brings it down, while piercing projectiles can reach enemies behind it. Projectile pierce and armor penetration are different tools.",
+      "story_zh":"炼厂搬运工的制服已经被撑裂，肩上却还保留着扛重物的旧茧。现在，它把整道防线当成了下一件货物。",
+      "story_en":"Its refinery uniform has split at the seams, but old carrying calluses remain on its shoulders. The defense line is simply the next heavy load in its way."
+    },
+    "zombie_bomber": {
+      "guide_zh":"死亡时会爆炸，只有爆炸范围真正触及防线才造成死亡爆炸伤害。尽量在远处击杀，以冰霜减速争取距离；它抗火，靠燃烧慢慢磨到门前并不稳妥。",
+      "guide_en":"Explodes on death. That blast hurts the base only when its radius actually reaches the line. Kill it at range and use frost to keep that distance. It resists fire, so slowly burning one down beside the gate is risky.",
+      "story_zh":"应急供能装置本来是用来救人的。感染把开关和心脏缠在了一起，胸口每一次发亮，都像一次无人回应的求救。",
+      "story_en":"The emergency power unit was meant to save lives. Infection fused its switch to a beating heart; every glow from the chest now resembles an unanswered distress signal."
+    },
+    "zombie_screamer": {
+      "guide_zh":"以光环加速附近同伴，危险不只在自身。优先点掉它能减轻整群推进压力；物理攻击克制，闪电伤害会受抗性影响。多个加速光环不会无限相乘。",
+      "guide_en":"Accelerates nearby allies with an aura. Removing it can relieve pressure from the whole pack. Physical damage is effective; lightning is resisted. Multiple speed auras do not multiply without limit.",
+      "story_zh":"它曾负责广播疏散路线。喇叭失灵之后，它用自己的喉咙继续播报，只是如今响应广播的已不是幸存者。",
+      "story_en":"It once broadcast evacuation routes. When the loudspeaker failed, it kept calling with its own throat. Those answering the broadcast are no longer survivors."
+    },
+    "zombie_spitter": {
+      "guide_zh":"进入施法距离便会远程压迫基地，不必贴住防线才有威胁。闪电命中其弱点；优先锁定正在吐酸的目标，再清理普通步行尸。不要把远程攻击误判为死亡爆炸。",
+      "guide_en":"Can pressure the base from casting range without reaching the barricade. Lightning exploits its weakness. Prioritize a spitter preparing to attack over ordinary walkers; its ranged strike is not a death explosion.",
+      "story_zh":"污水站的面罩已经溶成了半张脸。它还在做过去的工作：把体内堆积的污物，排向城市的另一端。",
+      "story_en":"Its treatment-plant respirator has melted into half a face. It still performs its old job, pumping accumulated waste toward another part of the city."
+    },
+    "zombie_crawler": {
+      "guide_zh":"贴地快行并带有轻度固有减伤，不能只凭瘦小外形判断它容易击杀。火焰克制，减速配合范围伤害能减少漏掉低矮目标的风险。它没有独立装甲条。",
+      "guide_en":"Moves quickly close to the ground and has a small innate damage reduction. Its thin silhouette can be deceptive. Fire and area attacks, supported by slows, help keep it from slipping through. It has no separate armor bar.",
+      "story_zh":"城市管道里留下了成排爪痕。维修工说，那些弯道原本只够一个人爬过；现在，里面再没有脚步声。",
+      "story_en":"Rows of claw marks line the city's pipes. Maintenance workers remember bends barely wide enough to crawl through. No footsteps come from those tunnels anymore."
+    },
+    "zombie_armored": {
+      "guide_zh":"带出生护盾，并抵抗物理伤害。闪电既是弱点属性，也可越过这层护盾伤及本体。护盾不是首领的独立装甲层，盲目用物理火力硬磨往往浪费输出。",
+      "guide_en":"Spawns with a shield and resists physical damage. Lightning both exploits its weakness and bypasses that shield to hit the body. Its shield is not the same as a boss armor layer; brute-force physical fire can waste valuable time.",
+      "story_zh":"防暴队最后一道撤离命令停在了头盔耳机里。厚重护具保护了身体，却没能保护里面的人。",
+      "story_en":"The riot squad's final evacuation order remains trapped in its helmet radio. Heavy protection saved the body, but not the person inside."
+    },
+    "zombie_shielder": {
+      "guide_zh":"自身带护盾，同时降低附近同伴所受伤害。火焰克制并绕过它的出生护盾；先拆掉保护源，再用范围技能清群。减伤光环取最强效果，不会按同类数量连乘。",
+      "guide_en":"Carries its own shield and reduces damage taken by nearby allies. Fire exploits its weakness and bypasses the spawn shield. Remove the protector before spending area damage on the pack. Overlapping protection uses the strongest aura, not an endless multiplier.",
+      "story_zh":"它的盾牌背面刻着几个孩子的名字。即使失去了记忆，那条举盾的手臂仍然先于身体行动。",
+      "story_en":"Several children's names are scratched into the back of its shield. Even without memory, the shield arm still moves before the rest of its body."
+    },
+    "zombie_hopper": {
+      "guide_zh":"靠跳跃缩短与防线的距离，推进速度不均匀。冰霜克制，提前控制比等它落到门前再追着打更稳。保留一点即时爆发应对突然越过前排的跃行者。",
+      "guide_en":"Closes distance in jumps rather than at a steady pace. Frost is effective, and early control is safer than chasing it after it lands near the gate. Keep some immediate damage ready for a hopper that skips past the front rank.",
+      "story_zh":"游乐园弹跳表演的支架长进了膝盖。灯光熄灭之后，它仍在重复那场永不谢幕的演出。",
+      "story_en":"The braces from an amusement-park acrobatics act have grown into its knees. Long after the lights went out, it continues a performance with no final bow."
+    },
+    "zombie_juggernaut": {
+      "guide_zh":"生命厚、推进慢，固有减伤配合物理抗性使其难以硬吃。靠近后还会震地压迫基地。用火焰克制并提前削血，不要因它移动慢就把它留到最后。",
+      "guide_en":"Slow, durable and protected by innate reduction plus physical resistance. Closer in, ground shocks pressure the base. Use fire and start wearing it down early; slow movement is not a reason to leave it until last.",
+      "story_zh":"拆楼机械的残骸与它融成一体。它不认得门，也不认得墙，只知道前方所有阻碍都应该倒下。",
+      "story_en":"Demolition machinery has fused with its body. It recognizes neither doors nor walls, only obstacles that ought to fall."
+    },
+    "zombie_phantom": {
+      "guide_zh":"会相位前移，且能闪避部分非闪电命中。闪电克制并避开这种闪避判定；追踪有助于追上位移，但不等于取消闪避。避免把高额单发全押在不稳定命中上。",
+      "guide_en":"Shifts forward and can evade some non-lightning hits. Lightning exploits its weakness and bypasses that evasion check. Homing helps follow movement but does not itself cancel evasion. Do not rely entirely on a few uncertain heavy shots.",
+      "story_zh":"监控里总是先出现空白，再出现它。有人说它来自一次失败的撤离实验，至今还在尝试抵达出口。",
+      "story_en":"Security footage always shows a blank patch before it appears. Some say it came from a failed evacuation experiment and is still trying to reach the exit."
+    },
+    "zombie_necromancer": {
+      "guide_zh":"持续召唤步行尸，拖延会把一只支援怪变成整群压力。火焰克制；手动锁住召唤源，用分裂或范围伤害兼顾杂兵。只清新生小怪而不处理它，会陷入消耗。",
+      "guide_en":"Keeps summoning walkers, turning one support unit into growing pressure. Fire is effective. Lock onto the summoner and let split shots or area damage handle its minions. Clearing only the newest walkers leaves the source untouched.",
+      "story_zh":"停尸房管理员的钥匙仍系在腰上。没有人知道它究竟在召唤什么，还是那些被遗忘的人一直跟着它。",
+      "story_en":"The morgue attendant's keys still hang at its waist. No one knows whether it calls the dead, or whether the forgotten simply keep following it."
+    },
+    "zombie_toxic": {
+      "guide_zh":"既能在施法距离释放毒雾压迫，也有死亡毒爆。死亡范围只有触及防线才扣基地生命，不能把两种攻击混为一谈。火焰克制、毒素被抵抗，远处优先处理更安全。",
+      "guide_en":"Can cast toxic pressure from range and release a toxic blast on death. Only a death blast reaching the line damages the base; its ranged cast is a separate attack. Fire is effective, poison is resisted, and early removal is safest.",
+      "story_zh":"化工区的泄漏警报响了三天。第四天警报停了，街上却多了一团会行走、会呼吸的黄色雾影。",
+      "story_en":"The chemical district's leak alarm sounded for three days. On the fourth it stopped, replaced by a yellow shape that walked and breathed through the streets."
+    },
+    "zombie_charger": {
+      "guide_zh":"进入突进区后会长距离冲锋，防线压力来得比外观位置更快。冰霜克制，提前减速并集中火力；不要等冲锋结束才开始处理。",
+      "guide_en":"Makes long rushes after reaching its charge zone. Pressure arrives sooner than its current position suggests. Use frost and focused fire before the charge; waiting for it to finish leaves little room to react.",
+      "story_zh":"旧赛场的起跑枪再也没有响过。它却像一直听得见发令，低着头，冲向每一条看起来像终点的线。",
+      "story_en":"The old stadium's starting pistol has been silent for years. It still seems to hear the signal, lowering its head toward every line that resembles a finish."
+    },
+    "zombie_regenerator": {
+      "guide_zh":"会持续回复生命，零散磨血容易被抹平。火焰克制，集中火力与持续伤害配合更适合击杀；毒素虽可持续造成伤害，却会受到它的抗性削弱。不要把首领的再生抑制规则套到它身上。",
+      "guide_en":"Continuously restores health, undoing scattered chip damage. Combine focused fire with damage over time; fire is its weakness, while poison is resisted. Do not assume the regeneration-suppression rules of a boss also apply to this creature.",
+      "story_zh":"试验病房里的输液管还插在背上。药物确实让伤口闭合了，只是再也没有让病人醒来。",
+      "story_en":"Drip tubes still trail from its back. The experimental treatment really did close its wounds. It simply never brought the patient back."
+    },
+    "zombie_splitter": {
+      "guide_zh":"死亡后分裂出爬行者，击杀本体不代表这片区域已经安全。火焰克制，范围或分裂火力适合接住后续小怪；门前击杀时要尤其留意新目标。",
+      "guide_en":"Releases crawlers on death. Killing the body does not clear the area. Fire is effective, and area attacks or split shots can catch the new enemies. Watch especially closely when killing one beside the barricade.",
+      "story_zh":"研究员曾把它标成一份样本。后来样本瓶里的影子变成了两份，接着，整间实验室都开始蠕动。",
+      "story_en":"Researchers once labeled it as a single specimen. Then the jar held two shadows, and soon the whole laboratory seemed to move."
+    },
+    "zombie_warden": {
+      "guide_zh":"带护盾并提供大范围减伤光环，护住它身边的尸群。闪电克制并可绕过出生护盾，冰霜伤害会被抵抗。先打守护源，比把范围爆发倾泻到受保护的群体更有效。",
+      "guide_en":"Carries a shield and protects a broad area with a damage-reduction aura. Lightning exploits its weakness and bypasses the spawn shield; frost damage is resisted. Remove the source before committing area burst to its protected allies.",
+      "story_zh":"它站在废弃避难所门前时，姿势与生前一模一样。可惜它守护的那一边，早已没有活人。",
+      "story_en":"It stands exactly as it once did outside the shelter. The side it protects simply has no living people left."
+    },
+    "zombie_mutant": {
+      "guide_zh":"生命降低后会触发一次突变，回复部分生命并加强推进与攻击。物理克制，毒素被抵抗。尽量留爆发跨过突变后的危险阶段，不要把第一次残血当成即将结束。",
+      "guide_en":"Mutates once when wounded, recovering some health and strengthening its advance and attacks. Physical damage is effective; poison is resisted. Save burst for the dangerous post-mutation stage rather than assuming low health means it is finished.",
+      "story_zh":"档案上的照片每隔一天就认不出同一个人。最后一次记录只有一句话：不要再按昨天的轮廓寻找它。",
+      "story_en":"Each day's photograph looked like a different person. The final note reads: do not search for yesterday's silhouette."
+    },
+    "zombie_berserker": {
+      "guide_zh":"受伤到一定程度后狂暴，移动与攻击都会变强。冰霜克制、火焰被抵抗；集中处理一个比把整排都打进狂暴更稳，控制技能适合留给残血加速段。",
+      "guide_en":"Enrages when sufficiently wounded, increasing movement and attack strength. Frost is effective and fire is resisted. Finishing one target is safer than enraging an entire row. Save control for its wounded sprint.",
+      "story_zh":"地下拳场的绷带已经和皮肤长在一起。它听不见终场铃，只会把每一道伤口当成下一回合的开始。",
+      "story_en":"The underground fighter's wraps have grown into its skin. It cannot hear the final bell; every wound is the start of another round."
+    },
+    "boss_tank_titan": {
+      "siege_zh":"贴近防线后蓄力重砸，攻击前有抬手窗口。尽早破掉装甲并集中输出；减速能延后接触，但不能代替破甲。攻城不是瞬间撞击后消失，它会留在门前继续攻击。",
+      "siege_en":"Winds up for heavy blows near the barricade. Break its armor and focus fire before contact. Slow delays its arrival, but cannot replace armor breaking. It remains at the gate and attacks repeatedly rather than vanishing after a breach.",
+      "guide_zh":"有独立装甲层，装甲尚在时物理抗性明显。火焰克制；先破甲或用伤害穿透直击本体，破甲后临时抗性解除。靠近防线会重击，不能只看它缓慢的脚步。",
+      "guide_en":"Protected by a separate armor layer and substantial physical resistance while armored. Fire is effective. Break the armor or use damage penetration to reach the body; breaking it removes the temporary resistance. Its slow approach ends in heavy blows.",
+      "story_zh":"旧城区最后一辆救援装甲车失联后，街道上开始出现履带形的足迹。人们终于明白，车没有回来，是因为它学会了行走。",
+      "story_en":"After the last rescue vehicle vanished, tread-shaped footprints appeared in the streets. The vehicle never returned because it had learned to walk."
+    },
+    "boss_inferno_maw": {
+      "siege_zh":"到达攻城位置后，以三连熔火弹幕覆盖防线，整轮结算一次伤害。优先用冰霜压制本体、清掉门前杂兵。远处阶段熔火不直接扣基地生命，与门前攻城不同；不要等连续弹幕压上防线才开始集火。",
+      "siege_en":"At siege range, launches a three-shot molten volley that deals damage once per cycle. Use frost against the boss and clear enemies at the gate. Distant phase-burn effects do not directly damage the base; siege volleys do. Focus fire before repeated volleys build pressure.",
+      "guide_zh":"以熔火和连续弹幕为战斗特征。冰霜克制，火焰被抵抗；不要用它抗性的弹种长时间磨血。提前清理近线杂兵，留出集中输出本体的窗口；当前基地伤害的限制见下方攻城说明。",
+      "guide_en":"Recognizable by molten effects and repeated volleys. Frost is effective; fire is resisted. Avoid a long damage slog with the element it resists. Clear nearby minions to create a window for focused fire; see the siege section for the current base-damage limitations.",
+      "story_zh":"熔炉停火之后，深处仍传来吸气声。工人以为是风箱，直到整座炉门从里面张开。",
+      "story_en":"Something kept breathing after the furnace shut down. Workers blamed the bellows, until the entire furnace door opened from within."
+    },
+    "boss_frost_warden": {
+      "siege_zh":"会在防线前方停下，以两段冰牢坠击攻城，整轮结算一次伤害。火焰适合削血，冰霜控制可拖慢攻击节奏，但冰霜伤害会被抵抗。远处寒霜领域不直接扣基地生命；进入攻城距离后，不能靠低输出长期拖住它。",
+      "siege_en":"Stops short of the barricade and attacks with a two-part Ice Prison, resolving damage once per cycle. Fire deals effective damage; frost control delays attacks, but frost damage is resisted. The distant frost field does not directly damage the base. At siege range, weak sustained fire will not hold it indefinitely.",
+      "guide_zh":"以寒霜领域与冰牢坠击为战斗特征。火焰命中弱点，冰霜伤害受到抗性削弱；控制与有效输出不是同一回事。清掉周围敌群再集中削血，当前基地伤害的限制见下方攻城说明。",
+      "guide_en":"Combines a frost field with falling ice attacks. Fire exploits its weakness; frost damage is resisted. Control and effective damage are not the same thing. Clear the nearby pack and focus the boss; see the siege section for the current base-damage limitations.",
+      "story_zh":"冷库里保存的本该是城市过冬的食物。如今它把所有温暖的东西都视作一次需要修补的温控故障。",
+      "story_en":"The cold store was meant to preserve food for winter. Its keeper now treats every warm thing as a fault in the temperature system."
+    },
+    "boss_storm_caller": {
+      "siege_zh":"在攻城位置以五段雷链引导覆盖防线，整轮结算一次伤害，节奏快于重型首领。优先用毒素攻击，别把闪电特效误当成应该选雷电弹。远处雷暴不直接扣基地生命，门前的持续攻城则需要及时控制或击杀。",
+      "siege_en":"At siege range, channels five lightning strikes with one damage resolution per cycle, attacking faster than heavy bosses. Choose poison rather than lightning against its defenses. Distant storm effects do not directly damage the base; repeated siege channels demand control or a quick kill.",
+      "guide_zh":"多次雷击与引导演出是它的识别特征。毒素克制，闪电被抵抗；不要因为它的外观就继续堆雷电输出。清理杂兵后集中攻击本体，当前基地伤害的限制见下方攻城说明。",
+      "guide_en":"Recognizable by repeated lightning strikes and channeled attacks. Poison is effective; lightning is resisted. Its appearance is not a reason to bring more lightning. Clear minions and focus the body; see the siege section for the current base-damage limitations.",
+      "story_zh":"它曾在最高的信号塔抢修线路。最后一道闪电没有离开，反而把整座塔的回声留在了它体内。",
+      "story_en":"It was repairing the city's tallest signal tower when the last lightning strike stayed inside, along with every echo carried by the wires."
+    },
+    "boss_plague_mother": {
+      "siege_zh":"母体的腐卵攻城和召唤小怪是两种不同压力。只清小怪会不断续上新敌人，只盯母体又容易漏怪；用分裂或连锁兼顾清群，并把集中输出留给母体。召唤物接触防线会独立造成伤害。",
+      "siege_en":"Siege eggs and summoned minions create separate sources of pressure. Clearing only the brood lets it refill; attacking only the mother lets minions through. Split shots or chains help clear the pack while focused damage stays on the mother. Summoned enemies deal their own base damage.",
+      "guide_zh":"召唤小怪并发射腐卵，拖长战斗会增加清场负担。火焰克制、毒素被抵抗；用清群火力处理衍生单位，同时手动锁定母体，不要让小怪不断吸走全部火力。",
+      "guide_en":"Spawns minions and fires corrupted eggs, making long fights harder to manage. Fire is effective; poison is resisted. Use crowd-clearing damage for the brood while locking onto the mother, rather than letting every new minion distract all your fire.",
+      "story_zh":"地下温室的灌溉灯还在按时亮起。它照料的幼苗已经长出牙齿，却依然被温柔地护在身后。",
+      "story_en":"The underground greenhouse lights still follow their schedule. Its seedlings have grown teeth, but it continues to shelter them with care."
+    },
+    "boss_void_phantom": {
+      "siege_zh":"相位突进后以连斩攻击防线，节奏比重型首领快。雷电可以绕开它对非雷电攻击的闪避判定；在它反复接近时保留控制，避免持续漏枪。连斩演出目前按整轮结算，而非每道残影各扣一次血。",
+      "siege_en":"Follows phase movement with quick siege slashes. Lightning bypasses its evasion of non-lightning attacks. Save control for repeated approaches to avoid wasting shots. The slash sequence currently resolves as one attack, not one damage event per afterimage.",
+      "guide_zh":"相位移动与连斩令输出窗口不稳定，还会闪避部分非闪电攻击。闪电克制并规避此闪避判定；追踪帮助覆盖位移，连续突进时保留控制与爆发。",
+      "guide_en":"Phase movement, evasion and slash combos make damage windows unreliable. Lightning exploits its weakness and bypasses its non-lightning evasion check. Homing helps cover movement; keep control and burst for repeated advances.",
+      "story_zh":"裂隙关闭的瞬间，实验室里少了一名观察员，多了一道不肯与影子重合的人形。它一直在寻找自己的另一半。",
+      "story_en":"When the rift closed, the lab lost an observer and gained a figure that would not align with its shadow. It is still searching for the missing half."
+    },
+    "boss_necrotitan": {
+      "siege_zh":"有装甲和再生，近线整轮攻城伤害也很高。火焰与持续命中用于压住再生，别让输出中断后又从头磨血。尽量在到达攻击位置前削掉大量耐久；护盾可挡一次结算，但不能长期替代击杀。",
+      "siege_en":"Combines armor and regeneration with a very damaging siege cycle. Fire and sustained hits suppress recovery; long interruptions give it time to heal. Remove much of its durability before it reaches attack range. A shield can block one resolution, not replace killing it.",
+      "guide_zh":"装甲与再生共同拖长战斗。火焰既克制本体，也比普通伤害提供更长的再生抑制窗口；配合伤害穿透或先破甲，持续集中输出。不要把毒抗性误认为完全免疫。",
+      "guide_en":"Armor and regeneration both prolong the fight. Fire exploits its weakness and suppresses regeneration for longer than ordinary damage. Combine penetration or armor breaking with sustained focused fire. Its poison resistance is not complete immunity.",
+      "story_zh":"墓园的纪念碑一夜之间全部倾斜。巡逻队后来发现，不是地基塌了，而是下面的东西正把石头披在身上。",
+      "story_en":"Every monument in the cemetery tilted overnight. The patrol later learned the foundations had not collapsed; something below was wearing the stones."
+    },
+    "boss_apex_overlord": {
+      "siege_zh":"终局威胁来自阶段机制、支援敌群与长时间作战的叠加，不只看单轮门前伤害。物理命中弱点；保持本体输出，同时清理近线敌群。有多个首领时，各自的攻击会独立结算，不能把单体安全窗口当成整场安全。",
+      "siege_en":"Its threat comes from phase mechanics, supporting enemies and a prolonged fight, not just one siege hit. Physical attacks exploit its weakness. Keep damage on the boss while clearing enemies near the gate. Multiple bosses resolve attacks independently; one boss's recovery window is not a safe window for the whole encounter.",
+      "guide_zh":"独立装甲层、多属性攻击与阶段强化共同构成终局考验。物理是弱点，其余四种属性均有抗性。穿透可提前伤及本体，但仍需稳定物理输出跨过后期减伤阶段，不能只依赖一次清屏技能。",
+      "guide_en":"Separate armor, multi-element attacks and phase escalation form the final test. Physical is its weakness; all four other elements are resisted. Penetration reaches the body earlier, but sustained physical damage is still needed through later damage-reduction phases.",
+      "story_zh":"终局核心没有留下设计者的签名，只有无数被覆盖的指令。它醒来时，把“守住城市”理解成了“让城市里再没有变化”。",
+      "story_en":"The final core bears no designer's signature, only layers of overwritten orders. When it woke, it interpreted 'preserve the city' as 'allow nothing in the city to change.'"
+    }
+  }
+}

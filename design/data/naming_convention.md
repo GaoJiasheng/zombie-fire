@@ -1,5 +1,9 @@
 # 命名规范（唯一真源）
 
+首领图鉴的独立攻城说明字段为 `siege_zh/siege_en`，只用于既有 `boss_*` 条目；分页仍复用 `bestiary` 路由与 `bosses` 数据表分类，不复制敌人 ID。
+
+2026-09-30：`data/enemy_codex.json` 的 `entries` 复用 `zombie_*` / `boss_*` 既有 ID，不新增敌人或画像资产 ID；字段为 `guide_zh/guide_en/story_zh/story_en`，`labels` 使用 `text_zh/text_en`。存档遭遇映射名为 `enemy_encounters`，场景路由为 `bestiary`。
+
 2026-09-27：`data/tactical_guides.json` 复用原收藏 ID（角色仍为 `vanguard/blaze/frost/volt`）及 passive/signature ID，字段固定 `guide_zh/guide_en`。仅五个共享解释键使用 `rules_` 前缀：characters、skills、weapons、armors、ammo；不新增物品、机制或资产 ID。
 
 > 任何地方出现文件名、资源 ID、数据键，**一律以本表为准**。素材、数据、代码三处必须一致。
