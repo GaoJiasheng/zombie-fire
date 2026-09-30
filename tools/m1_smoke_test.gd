@@ -5015,6 +5015,12 @@ func _verify_base_attack_runtime(battle: Node) -> void:
 	_expect(int(battle.base_hp) < hp_before, "base attack state must tick damage over time")
 
 func _verify_boss_base_attack_profiles(data_loader: Node) -> void:
+	var siege_budgets := {
+		"boss_tank_titan": [12, 3.5], "boss_inferno_maw": [26, 4.0],
+		"boss_frost_warden": [28, 4.0], "boss_storm_caller": [30, 3.0],
+		"boss_plague_mother": [24, 4.0], "boss_void_phantom": [26, 2.5],
+		"boss_necrotitan": [120, 5.0], "boss_apex_overlord": [16, 4.0],
+	}
 	var expected := {
 		"boss_tank_titan": {"mode": "melee_heavy", "hits": 1},
 		"boss_inferno_maw": {"mode": "ranged_volley", "hits": 3},
@@ -5034,6 +5040,9 @@ func _verify_boss_base_attack_profiles(data_loader: Node) -> void:
 		enemy.configure_attack_line(1500.0)
 		var profile: Dictionary = enemy.get("base_attack_profile")
 		var contract: Dictionary = expected[boss_id]
+		_expect(int(enemy.get("base_attack_damage")) == int(siege_budgets[boss_id][0]), "%s siege cycle must use its approved total damage" % boss_id)
+		_expect(is_equal_approx(float(enemy.get("base_attack_interval")), float(siege_budgets[boss_id][1])), "%s siege interval must use its approved cadence" % boss_id)
+		_expect(int(enemy.get("breach_damage")) == int(10 * float(row.get("bd_coef", 1))), "%s remote skill damage must remain independent of siege overrides" % boss_id)
 		_expect(not profile.is_empty(), "%s must expose a data-driven base attack profile" % boss_id)
 		_expect(str(profile.get("mode", "")) == str(contract["mode"]), "%s base attack mode must remain distinct" % boss_id)
 		_expect(int(profile.get("hits", 0)) == int(contract["hits"]), "%s base attack hit cadence must remain authored" % boss_id)

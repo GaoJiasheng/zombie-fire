@@ -19,6 +19,8 @@
 		"mechanic_params": {
 			"resistance_until_armor_break": true,
 			"base_attack_kind": "boss_titan_ram_slam",
+			"base_attack_damage": 12,
+			"base_attack_interval": 3.5,
 			"base_attack_profile": {
 				"id": "titan_ram_slam",
 				"mode": "melee_heavy",
@@ -60,6 +62,8 @@
 		"mechanic": "phase_burn",
 		"mechanic_params": {
 			"base_attack_kind": "boss_inferno_barrage",
+			"base_attack_damage": 26,
+			"base_attack_interval": 4.0,
 			"base_attack_profile": {
 				"id": "inferno_barrage",
 				"mode": "ranged_volley",
@@ -101,6 +105,8 @@
 		"mechanic": "freeze_field",
 		"mechanic_params": {
 			"base_attack_kind": "boss_frost_prison",
+			"base_attack_damage": 28,
+			"base_attack_interval": 4.0,
 			"base_attack_profile": {
 				"id": "frost_prison",
 				"mode": "ranged_volley",
@@ -142,6 +148,8 @@
 		"mechanic": "storm_chain",
 		"mechanic_params": {
 			"base_attack_kind": "boss_storm_channel",
+			"base_attack_damage": 30,
+			"base_attack_interval": 3.0,
 			"base_attack_profile": {
 				"id": "storm_channel",
 				"mode": "channel",
@@ -192,6 +200,8 @@
 		"mechanic": "spawn_minions",
 		"mechanic_params": {
 			"base_attack_kind": "boss_plague_brood_volley",
+			"base_attack_damage": 24,
+			"base_attack_interval": 4.0,
 			"base_attack_profile": {
 				"id": "plague_brood_volley",
 				"mode": "ranged_volley",
@@ -233,6 +243,8 @@
 		"mechanic": "phase_shift",
 		"mechanic_params": {
 			"base_attack_kind": "boss_void_combo",
+			"base_attack_damage": 26,
+			"base_attack_interval": 2.5,
 			"base_attack_profile": {
 				"id": "void_combo",
 				"mode": "dash_combo",
@@ -284,6 +296,8 @@
 			"damage_regen_suppress_seconds": 0.8,
 			"weakness_regen_suppress_seconds": 3.0,
 			"base_attack_kind": "boss_necro_crush",
+			"base_attack_damage": 120,
+			"base_attack_interval": 5.0,
 			"base_attack_profile": {
 				"id": "necro_crush",
 				"mode": "melee_heavy",
@@ -330,6 +344,8 @@
 		"mechanic": "multi_phase",
 		"mechanic_params": {
 			"base_attack_kind": "boss_apex_cataclysm",
+			"base_attack_damage": 16,
+			"base_attack_interval": 4.0,
 			"base_attack_profile": {
 				"id": "apex_cataclysm",
 				"mode": "ranged_volley",
