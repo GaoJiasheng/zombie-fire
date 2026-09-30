@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """免费侧战斗输入指纹。用法: free_fingerprint.py <repo_dir> [<git_ref>]
 覆盖 levels(波次/系数/Boss)、weapons(数值+整个 special 子表+成长段)、economy(非付费键)、fixture(99 关免费夹具构筑)。
+2026-09-30 教训:bosses.json 的基地攻城伤害改了 8 位首领而指纹未变;敌方(bosses+zombies)战斗字段并入 enemies 段。
 2026-09-02 教训:归档 99×10 曾在夹具被重生成前跑完、之后才连同新夹具一起提交,导致已批星表不可复现;夹具必须进指纹。"""
 import json, hashlib, subprocess, sys
 repo=sys.argv[1]; ref=sys.argv[2] if len(sys.argv)>2 else None
@@ -16,4 +17,8 @@ wp=[(r.get('name_key'),{k:r.get(k) for k in ['base_atk_coef','fire_interval','ma
 ec={k:v for k,v in load('data/economy.json').items() if 'premium' not in k.lower()}
 fxd=load('design/audits/campaign_progression_fixture_builds.json')
 fx=sorted((str(r.get('level',r.get('level_id'))),r.get('build')) for r in (fxd['rows'] if isinstance(fxd,dict) else fxd) if isinstance(r,dict))
-print(f"levels={h(sorted(lv))} weapons={h(sorted(wp))} economy={h(ec)} fixture={h(fx)}")
+def enemy_rows(rel):
+    d=load(rel); items=d.items() if isinstance(d,dict) else [(r.get('id'),r) for r in d if isinstance(r,dict)]
+    return sorted((str(k),{kk:vv for kk,vv in v.items() if not str(kk).startswith(('name','desc','portrait','sprite','icon','story','siege','tactic','codex'))}) for k,v in items if isinstance(v,dict))
+en=enemy_rows('data/bosses.json')+enemy_rows('data/zombies.json')
+print(f"levels={h(sorted(lv))} weapons={h(sorted(wp))} economy={h(ec)} fixture={h(fx)} enemies={h(en)}")

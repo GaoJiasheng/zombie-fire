@@ -21,7 +21,7 @@ PROBE = "res://tools/frontline_runtime_probe.gd"
 DEFAULT_SEEDS = (1103, 2207, 3301)
 DEFAULT_ACCELERATION = 60.0
 DEFAULT_PROCESS_TIMEOUT = 360.0
-FINGERPRINT_SEGMENTS = ("levels", "weapons", "economy", "fixture")
+FINGERPRINT_SEGMENTS = ("levels", "weapons", "economy", "fixture", "enemies")
 
 
 def resolve_fixture_path(project_root: Path, fixture: str) -> Path:

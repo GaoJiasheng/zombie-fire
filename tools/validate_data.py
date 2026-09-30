@@ -759,6 +759,23 @@ def main() -> int:
             ):
                 if not isinstance(mechanic_params, dict) or float(mechanic_params.get(field, 0.0)) <= 0.0:
                     errors.append(f"{boss_id}.mechanic_params.{field} must be explicit and positive")
+        # 2026-09-30 lesson: three bosses shipped with bd_coef 0 and dealt the clamped
+        # 1 point per breach round, invisible to outcome-based probes. Every boss must
+        # carry real base pressure: an explicit per-round budget, or a bd_coef that
+        # yields one through the generic formula (10 * bd_coef * 1.35 boss factor).
+        params = mechanic_params if isinstance(mechanic_params, dict) else {}
+        if "base_attack_damage" in params:
+            round_damage = float(params.get("base_attack_damage", 0))
+            interval = float(params.get("base_attack_interval", 0.0))
+            if not 1.0 <= interval <= 8.0:
+                errors.append(f"{boss_id}.mechanic_params.base_attack_interval must be in [1, 8] seconds")
+        else:
+            round_damage = float(int(10 * float(row.get("bd_coef", 0.0))) * 1.35)
+        if round_damage < 5.0:
+            errors.append(
+                f"{boss_id} base pressure too low: {round_damage:.1f} per breach round; "
+                "set mechanic_params.base_attack_damage/base_attack_interval or a real bd_coef"
+            )
         profile = mechanic_params.get("base_attack_profile", {}) if isinstance(mechanic_params, dict) else {}
         if not isinstance(profile, dict) or not profile:
             errors.append(f"{boss_id}.mechanic_params.base_attack_profile missing")
