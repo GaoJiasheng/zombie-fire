@@ -11435,14 +11435,56 @@ func _compute_level_raw_run_xp() -> int:
 			total += int(DataLoader.get_row("bosses", str(w.get("boss", ""))).get("run_xp", 0))
 		for s in w.get("spawns", []):
 			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
-		for s in w.get("support", []):
-			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+		# Mirror _start_next_wave: `support` groups are only queued on Boss waves.
+		# Counting them elsewhere inflated the ladder with XP nobody could earn
+		# (level_030 lost 38% of its budget that way).
+		if w.has("boss"):
+			for s in w.get("support", []):
+				total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
 	return total
 
 func _compute_level_total_run_xp() -> int:
+	var raw_total := level_raw_run_xp_total if level_raw_run_xp_total > 0 else _compute_level_raw_run_xp()
+	if not is_endless_mode and _card_offer_pacing_mode() == "pre_final_wave":
+		var pacing_xp := _compute_pre_final_wave_run_xp()
+		if pacing_xp > 0 and raw_total > 0:
+			if level_run_xp_budget > 0:
+				# Budgeted chapters award XP as budget * (raw earned / raw total), so
+				# the pre-final share of the budget is what can be earned before the
+				# final wave.
+				return maxi(1, int(round(float(level_run_xp_budget) * float(pacing_xp) / float(raw_total))))
+			return pacing_xp
 	if level_run_xp_budget > 0:
 		return level_run_xp_budget
-	return level_raw_run_xp_total if level_raw_run_xp_total > 0 else _compute_level_raw_run_xp()
+	return raw_total
+
+func _card_offer_pacing_mode() -> String:
+	var pacing_var: Variant = DataLoader.get_table("economy").get("card_offer_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	return str(pacing.get("mode", "total"))
+
+## Owner 2026-10-01: the run build should be complete when the final wave (the
+## Boss wave on every fifth level) arrives, so card offers are paced over the XP
+## a player can actually earn before it. This mirrors what the spawner really
+## queues: `support` groups only enter on Boss waves, so they are excluded from
+## ordinary waves here, and the final wave is excluded entirely. The Boss wave's
+## own XP still accrues (run summary, permanent skill XP) but no longer stretches
+## the offer ladder into the fight.
+func _compute_pre_final_wave_run_xp() -> int:
+	var total := 0
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var waves: Array = level.get("waves", [])
+	for i in range(maxi(waves.size() - 1, 0)):
+		var w: Dictionary = waves[i]
+		var wave_no := int(w.get("wave", i + 1))
+		var count_mult := _late_wave_count_mult(wave_no, economy)
+		for s in w.get("spawns", []):
+			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+		if w.has("boss"):
+			total += int(DataLoader.get_row("bosses", str(w.get("boss", ""))).get("run_xp", 0))
+			for s in w.get("support", []):
+				total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+	return total
 
 func _pick_threshold(k: int) -> int:
 	if k > target_card_picks and not is_endless_mode:

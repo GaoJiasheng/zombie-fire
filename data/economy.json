@@ -1350,5 +1350,9 @@
 	"wave_clear_fast_forward": {
 		"enabled": false,
 		"breather_seconds": 3.0
+	},
+	"card_offer_pacing": {
+		"mode": "pre_final_wave",
+		"note": "offers paced over XP earnable before the final wave; mirrors runtime support spawning"
 	}
 }
