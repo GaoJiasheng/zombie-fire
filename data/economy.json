@@ -1352,7 +1352,8 @@
 		"breather_seconds": 3.0
 	},
 	"card_offer_pacing": {
-		"mode": "pre_final_wave",
-		"note": "offers paced over XP earnable before the final wave; mirrors runtime support spawning"
+		"mode": "pre_final_wave_hold_last",
+		"final_wave_fraction": 0.35,
+		"note": "target-1 offers paced over XP earnable before the final wave; the last offer is released 35% into the final wave's mob XP"
 	}
 }

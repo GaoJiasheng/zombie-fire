@@ -461,6 +461,9 @@ var reroll_charges := 1
 var cards_picked := 0
 var cards_selected := 0
 var level_total_run_xp := 0
+## XP of the final wave's mobs (no Boss run_xp) in the same units as level_total_run_xp;
+## used to place the held-back last card inside the final wave.
+var level_final_wave_mob_xp := 0
 var level_raw_run_xp_total := 0
 var level_run_xp_budget := 0
 var level_run_xp_raw_earned := 0.0
@@ -756,6 +759,7 @@ func _ready() -> void:
 	level_run_xp_raw_earned = 0.0
 	level_run_xp_budget_awarded = 0
 	level_total_run_xp = _compute_level_total_run_xp()
+	level_final_wave_mob_xp = _compute_final_wave_mob_pacing_xp()
 	next_xp_offer = _pick_threshold(1)
 	reroll_charges = 1
 	battle_finished = false
@@ -11445,7 +11449,7 @@ func _compute_level_raw_run_xp() -> int:
 
 func _compute_level_total_run_xp() -> int:
 	var raw_total := level_raw_run_xp_total if level_raw_run_xp_total > 0 else _compute_level_raw_run_xp()
-	if not is_endless_mode and _card_offer_pacing_mode() == "pre_final_wave":
+	if not is_endless_mode and _card_offer_pacing_mode() in ["pre_final_wave", "pre_final_wave_hold_last"]:
 		var pacing_xp := _compute_pre_final_wave_run_xp()
 		if pacing_xp > 0 and raw_total > 0:
 			if level_run_xp_budget > 0:
@@ -11486,12 +11490,45 @@ func _compute_pre_final_wave_run_xp() -> int:
 				total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
 	return total
 
+## Final-wave mob XP in pacing units (Boss run_xp excluded: it lands on the kill
+## that ends the level). Budgeted chapters scale by their run_xp_budget share.
+func _compute_final_wave_mob_pacing_xp() -> int:
+	var waves: Array = level.get("waves", [])
+	if waves.is_empty() or is_endless_mode:
+		return 0
+	var w: Dictionary = waves[waves.size() - 1]
+	var economy: Dictionary = DataLoader.get_table("economy")
+	var count_mult := _late_wave_count_mult(int(w.get("wave", waves.size())), economy)
+	var total := 0
+	for s in w.get("spawns", []):
+		total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+	if w.has("boss"):
+		for s in w.get("support", []):
+			total += int(round(float(int(s.get("count", 0))) * count_mult)) * int(DataLoader.get_row("zombies", str(s.get("type", ""))).get("run_xp", 0))
+	var raw_total := level_raw_run_xp_total if level_raw_run_xp_total > 0 else _compute_level_raw_run_xp()
+	if level_run_xp_budget > 0 and raw_total > 0:
+		return int(round(float(level_run_xp_budget) * float(total) / float(raw_total)))
+	return total
+
 func _pick_threshold(k: int) -> int:
 	if k > target_card_picks and not is_endless_mode:
 		return 1000000000
 	if level_total_run_xp <= 0:
 		return int(level.get("xp_first_offer", 16)) * k
+	if not is_endless_mode and _card_offer_pacing_mode() == "pre_final_wave_hold_last" and target_card_picks >= 2:
+		# Owner 2026-10-02: target-1 picks are spread over the waves before the
+		# final one (last of them at (T-1)/T of that XP); the final pick is held
+		# back and released part-way into the final wave so the Boss fight still
+		# carries one build decision.
+		if k < target_card_picks:
+			return int(round(float(level_total_run_xp) * float(k) / float(target_card_picks)))
+		return level_total_run_xp + int(round(float(level_final_wave_mob_xp) * _card_offer_final_wave_fraction()))
 	return int(round(float(level_total_run_xp) * float(k) / float(target_card_picks + 1)))
+
+func _card_offer_final_wave_fraction() -> float:
+	var pacing_var: Variant = DataLoader.get_table("economy").get("card_offer_pacing", {})
+	var pacing: Dictionary = pacing_var if pacing_var is Dictionary else {}
+	return clampf(float(pacing.get("final_wave_fraction", 0.35)), 0.0, 1.0)
 
 func _next_pick_threshold() -> int:
 	return _pick_threshold(cards_picked + 1)
