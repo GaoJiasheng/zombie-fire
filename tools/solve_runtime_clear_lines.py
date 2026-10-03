@@ -201,12 +201,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--levels", type=sweep.csv_ints, default=list(range(1, 100)))
     parser.add_argument("--resume", action="store_true", help="reuse completed levels and valid completed steps; frozen input hashes must match")
-    parser.add_argument("--jobs", type=int, default=6, help="1..6 concurrent Godot probes; no per-level parallelism")
+    parser.add_argument("--jobs", type=int, default=6, help="1..6 concurrent Godot probes by default; no per-level parallelism")
+    parser.add_argument("--allow-concurrency-trial", action="store_true",
+                        help="explicit Owner-approved trial only: permit --jobs 7 or 8; default cap remains 6")
     parser.add_argument("--output", type=Path, default=ROOT / f"design/audits/runtime_clear_lines_{DATE}.json")
     parser.add_argument("--evidence-dir", type=Path, default=Path(f"/tmp/zf_linear_t1_{DATE}"))
     options = parser.parse_args()
-    if not 1 <= options.jobs <= 6 or any(number > 99 for number in options.levels):
-        parser.error("--jobs must be 1..6; --levels must be 1..99")
+    job_limit = 8 if options.allow_concurrency_trial else 6
+    if not 1 <= options.jobs <= job_limit or any(number > 99 for number in options.levels):
+        parser.error(f"--jobs must be 1..{job_limit}; --levels must be 1..99")
     options.output = options.output.resolve()
     options.evidence_dir = options.evidence_dir.resolve()
     if not options.output.is_relative_to(ROOT / "design/audits"):

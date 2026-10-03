@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import copy
+import contextlib
+import io
 import json
 import math
 from pathlib import Path
@@ -19,6 +21,13 @@ import run_frontline_sweep as sweep
 
 
 class LinearProgramTests(unittest.TestCase):
+    def test_concurrency_trial_requires_explicit_opt_in(self):
+        for arguments in (["--jobs", "8"], ["--jobs", "9", "--allow-concurrency-trial"]):
+            with mock.patch.object(solver.sys, "argv", ["solver", *arguments]), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    solver.main()
+                self.assertEqual(raised.exception.code, 2)
+
     def exercise_solver(self, threshold, interrupt_after=None, resume=False):
         """Fake probe runner checks the real binary-search/checkpoint path."""
         with tempfile.TemporaryDirectory(prefix="zf_linear_solver_test_") as folder:
