@@ -217,6 +217,7 @@ def solve_level(row: dict, state: dict, payload: dict, options, tables: dict, ch
                  bracket=[lo["R"], hi["R"]], scale_bracket=[lo["scale"], hi["scale"]],
                  stop_reason="R_width" if hi["R"] - lo["R"] <= R_TOLERANCE else "seven_bisections",
                  precision_met=hi["R"] - lo["R"] <= R_TOLERANCE)
+    state.pop("reason", None)  # remove the obsolete stage-one upper-censor reason
 
 
 def sweep_level_number(level: dict) -> int:
@@ -279,6 +280,11 @@ def main() -> int:
             extend_wall = (options.wall_extension and state and state.get("status") == "upper_bound_fails"
                            and state.get("extension_method", {}).get("scale_bounds") != [1.0, 1.8])
             if state and state.get("status") in {"complete", "lower_bound_passes", "upper_bound_fails"} and not extend_wall:
+                if options.wall_extension and state["status"] == "complete" and "reason" in state:
+                    # Metadata-only migration for resumed extension checkpoints;
+                    # no completed sample is rerun or rewritten.
+                    state.pop("reason")
+                    atomic_write(options.output, payload)
                 print(f"L{number:03d} resume skip: {state['status']}", flush=True)
                 continue
             if state is None:
