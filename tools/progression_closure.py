@@ -14,10 +14,20 @@ from pathlib import Path
 
 import audit_campaign_frontline as campaign
 import simulate_balance as sim
+import runtime_power_contracts
 
 ROOT = campaign.ROOT
 DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 MAX_FARM_RUNS = 2000
+
+
+def g1_bounds(level: dict, direction_a: bool) -> tuple[float, float | None]:
+    """2026-10 runtime_solved 方向 A: Boss/x7-x9 corridor, global floor."""
+    if not direction_a:
+        return .95, 1.10
+    constrained = sim.level_number(level) % 10 in (7, 8, 9) or any(
+        sim.runtime_boss_entries(level, wave) for wave in level.get("waves", []))
+    return (1.00, 1.10) if constrained else (.95, None)
 
 
 def runtime_groups(wave: dict) -> list[dict]:
@@ -133,22 +143,27 @@ def generate() -> dict:
     cumulative = {"gold": 0, "xp": 0, "stars": 0}
     first_below = None
     levels = campaign.TABLES["levels"]
+    direction_a = runtime_power_contracts.enabled()
     for index, level in enumerate(levels):
         build, result = campaign.build_for(account, level)
         ratio = result["power"] / result["recommended"]
         if ratio < .95 and first_below is None:
             first_below = sim.level_number(level)
         recovery = farming_recovery(account, level, levels[index - 1] if index else None)
+        minimum, maximum = g1_bounds(level, direction_a)
         row = {"level": sim.level_number(level), "build": build, "power": result["power"],
                "recommended": result["recommended"], "R": ratio, "cumulative_earned_before": dict(cumulative),
                "account_before": account_state(account), "recovery_counterfactual": recovery,
-               "within_G1_corridor": .95 <= ratio <= 1.10}
+               "G1_min_R": minimum, "G1_max_R": maximum,
+               "G1_constrained_level": maximum is not None,
+               "within_G1_corridor": ratio >= minimum and (maximum is None or ratio <= maximum)}
         income = rewards(level)
         row["progression_after_clear"] = advance(account, level, levels[min(index + 1, len(levels) - 1)], income)
         for key in cumulative:
             cumulative[key] += income[key]
         rows.append(row)
-    return {"schema_version": 1, "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": False,
+    return {"schema_version": 2, "G1_definition": "design/41 section 8 direction A: Boss/x7-x9 R in [1,1.10]; all R>=.95" if direction_a else "legacy all-level R in [.95,1.10]",
+            "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": False,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
             "conditional": "all 99 first clears assumed 3-star; no runtime win claim; farming is counterfactual on a copy of the account",
@@ -163,6 +178,7 @@ def render(payload: dict) -> str:
              "主路径不刷关；恢复次数是独立副本反事实，不向后续99关注入刷取资源。",
              "不计动态召唤、金币卡、付费助推；按现有购买/升级优先级和技能经验成本。",
              "重复3★没有新增星星，只有金币与递减经验。R是显示战力比，不等于已验证胜率。", "",
+             payload["G1_definition"], "",
              f"首次R<0.95：{payload['first_R_below_0_95']}；G1走廊不满足关数：{len(payload['failures'])}/99。", "",
              "|关卡|累计金币(入场前)|当前战力|推荐|R|首通金币|当关购入/升级|回刷至R≥1|", "|---|---:|---:|---:|---:|---:|---|---:|"]
     for row in payload["rows"]:

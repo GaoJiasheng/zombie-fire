@@ -19,7 +19,7 @@ class TableBTests(unittest.TestCase):
 
     def test_formula_uses_measured_passing_endpoint_and_floor(self):
         self.assertEqual(table.recommendation({"status": "complete", "p_star": 100}, 144), 120)
-        self.assertEqual(table.recommendation({"status": "complete", "p_star": 60}, 40), 50)
+        self.assertEqual(table.recommendation({"status": "complete", "p_star": 60}, 40), 60)
         self.assertEqual(table.recommendation({"status": "lower_bound_passes"}, 26), 50)
         self.assertEqual(table.recommendation({"status": "lower_bound_passes"}, 63.2), 63)
 
@@ -28,6 +28,12 @@ class TableBTests(unittest.TestCase):
             table.recommendation({"status": "upper_bound_fails", "level": 15, "steps": []}, 100)
         row = {"status": "upper_bound_fails", "level": 15, "steps": [{"scale": 1.8, "power": 231}], "extension_method": {"scale_bounds": [1, 1.8]}}
         self.assertEqual(table.recommendation(row, 1000), 231)
+
+    def test_gate_B_clamps_headroom_without_lowering_measured_line(self):
+        self.assertEqual(table.recommendation({"status": "complete", "p_star": 606}, 1172.141825), 818)
+        self.assertEqual(table.recommendation({"status": "complete", "p_star": 147}, 114), 147)
+        self.assertEqual(table.recommendation({"status": "complete", "p_star": 100}, 144), 120)
+        self.assertEqual(table.recommendation({"status": "complete", "p_star": 101}, 10000), round(1.35 * 101))
 
     def test_chapter_design_has_ten_distinct_offsets(self):
         self.assertEqual(len(table.features(99, 1e7, .5)), 12)

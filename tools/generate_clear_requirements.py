@@ -148,7 +148,9 @@ def main() -> int:
     )
     thunder_t = thunder_o / baseline_o
     req13 = requirements["level_013"]["min_output"]
-    if in_scope(13) and not (0.95 * req13 <= thunder_t <= 1.45 * req13):
+    # 2026-10 runtime_solved 方向 A: the v5 analytical min_output anchor is
+    # retired; approved measured Table B is the authoritative display contract.
+    if runtime_contracts.clear_requirement_mode(13) != 'runtime_solved' and in_scope(13) and not (0.95 * req13 <= thunder_t <= 1.45 * req13):
         failures.append(f"level_013: thunder-L1 t={thunder_t:.3f} outside [0.95,1.45]x required {req13:.3f}")
 
     if failures:
@@ -163,11 +165,13 @@ def main() -> int:
         if in_scope(level_no):
             level["clear_requirement"] = requirements[level["id"]]
             written += 1
+    config_changed = economy.get('power_scale_v6') != scale_v6.runtime_config()
     economy["power_scale_v6"] = scale_v6.runtime_config()
     (prm.DATA / "levels.json").write_text(
         json.dumps(levels, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
-    (prm.DATA / "economy.json").write_text(
-        json.dumps(economy, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
+    if config_changed:
+        (prm.DATA / "economy.json").write_text(
+            json.dumps(economy, ensure_ascii=False, indent="\t") + "\n", encoding="utf-8")
     print(f"Wrote clear_requirement for {written} levels ({args.start:03d}-{args.end:03d})")
     print(
         "finale Boss stack: "

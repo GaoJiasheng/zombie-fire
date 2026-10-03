@@ -3,7 +3,8 @@
 
 OLS log P* ~ intercept + log enemy HP + Boss HP share + chapter dummies.
 All measured passing endpoints participate equally; no midpoint, monotonic
-repair, adjacent-growth constraint, clipping-to-truth, or hand-tuned anchors.
+repair, adjacent-growth constraint, or hand-tuned anchors. Gate B's approved
+clamp adds headroom only after fitting; it does not alter OLS observations.
 """
 from __future__ import annotations
 
@@ -11,6 +12,7 @@ import argparse
 import csv
 import datetime as dt
 import io
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -24,7 +26,7 @@ DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 TRUTH_TOLERANCE = .35
 MINIMUM_RECOMMENDED = 50
 BASELINE_COMMIT = "f055c7b4073aa5e45a916f3f4c49929d3fb2877a"
-V0 = ROOT / "design/audits/recommended_power_table_v0_fable_2026_10_03.csv"
+FIXED_REFERENCE = ROOT / "design/audits/recommended_power_table_fixed_fable_2026_10_04.json"
 
 
 def least_squares(xs: list[list[float]], ys: list[float]) -> list[float]:
@@ -80,7 +82,9 @@ def prediction(model: dict, level: int, hp_row: dict) -> float:
 
 def recommendation(row: dict, model_power: float) -> int:
     if row["status"] == "complete":
-        return max(MINIMUM_RECOMMENDED, round(math.sqrt(model_power * row["p_star"])))
+        # 2026-10-04 停工点 B 核定: the model adds headroom only.
+        p_star = int(row["p_star"])
+        return max(MINIMUM_RECOMMENDED, min(max(round(math.sqrt(model_power * p_star)), p_star), round(1.35 * p_star)))
     if row["status"] == "lower_bound_passes":
         return max(MINIMUM_RECOMMENDED, round(model_power))
     if row["status"] == "upper_bound_fails":
@@ -91,7 +95,7 @@ def recommendation(row: dict, model_power: float) -> int:
     raise ValueError(f"L{row['level']:03d}: unfinished status {row['status']}")
 
 
-def derive(runtime: dict, baseline: dict, v0: dict[int, dict], tables: dict) -> dict:
+def derive(runtime: dict, fixed: dict[int, dict], tables: dict) -> dict:
     if sorted(row["level"] for row in runtime["rows"]) != list(range(1, 100)):
         raise ValueError("Table B requires exactly levels 001..099")
     if runtime.get("errors"):
@@ -101,69 +105,46 @@ def derive(runtime: dict, baseline: dict, v0: dict[int, dict], tables: dict) -> 
         mob_hp, boss_hp, _ = sim.level_enemy_hp_split(level, tables["zombies"], tables["bosses"], tables["economy"])
         hp_rows[solver.sweep_level_number(level)] = {"enemy_total_hp": mob_hp + boss_hp, "boss_hp_share": boss_hp / (mob_hp + boss_hp)}
     model = fit(runtime["rows"], hp_rows)
-    old_model = fit(baseline["rows"], hp_rows)
-    old_rows = {row["level"]: row for row in baseline["rows"]}
-    v0_design = [features(n, hp_rows[n]["enemy_total_hp"], hp_rows[n]["boss_hp_share"]) for n in range(1, 100)]
-    v0_coefficients = least_squares(v0_design, [math.log(int(v0[n]["hp_model"])) for n in range(1, 100)])
-    v0_diagnostic = {"coefficients": v0_coefficients, "purpose": "reverse fit rounded CSV model only; NOT the approved production fit",
-                     "maximum_model_integer_residual": max(abs(round(math.exp(math.fsum(a * b for a, b in zip(x, v0_coefficients)))) - int(v0[n]["hp_model"])) for n, x in enumerate(v0_design, 1)),
-                     "interpretation": "v0 CSV is consistent with HP exponent about .6 and negligible Boss-share coefficient; inference from rounded CSV, not Fable source code"}
-    result_rows, violations, v0_mismatches = [], [], []
+    rows, violations, mismatches = [], [], []
     for row in runtime["rows"]:
         number = row["level"]
         estimate = prediction(model, number, hp_rows[number])
-        old_estimate = prediction(old_model, number, hp_rows[number])
         rec = recommendation(row, estimate)
-        reference = v0[number]
         p_star = row.get("p_star")
-        fail_endpoint, endpoint = solver.derive_bracket(row["steps"])
-        edge = bool(endpoint and endpoint["wins"] == 9)
+        raw = round(math.sqrt(estimate * p_star)) if p_star is not None else None
+        direction = "lower" if raw is not None and raw < p_star else ("upper" if raw is not None and raw > round(1.35 * p_star) else "none")
+        lo, hi = solver.derive_bracket(row["steps"])
         error = rec / p_star - 1 if p_star is not None else None
-        if error is not None and abs(error) > TRUTH_TOLERANCE:
-            violations.append({"level": number, "kind": "truth_deviation", "value": error, "maximum": TRUTH_TOLERANCE})
+        # Integer-rounded upper bound is the explicit gate-B contract.
+        if p_star is not None and not p_star <= rec <= round(1.35 * p_star):
+            violations.append({"level": number, "kind": "clamped_truth_bounds", "recommended": rec, "p_star": p_star})
         if rec < MINIMUM_RECOMMENDED:
             violations.append({"level": number, "kind": "display_floor", "value": rec})
-        old_rec = recommendation(old_rows[number], old_estimate) if old_rows[number]["status"] != "upper_bound_fails" else None
-        old_model_round_delta = round(old_estimate) - int(reference["hp_model"])
-        old_rec_delta = old_rec - int(reference["rec_v0"]) if old_rec is not None else None
-        # Fable published rounded model values; <=1 rec difference is rounding,
-        # not permission to silently replace the published full precision fit.
-        if abs(old_model_round_delta) > 1 or (old_rec_delta is not None and abs(old_rec_delta) > 1):
-            v0_mismatches.append({"level": number, "model_round_delta": old_model_round_delta, "rec_delta": old_rec_delta})
-        explanations = []
-        if number in solver.WALL_LEVELS:
-            explanations.append("新增[1,1.8]墙关补测；v0未包含该数值P*" if p_star else "s=1.8仍上界删失，按批准规则取封顶构筑战力，不外推P*")
-        if abs(estimate - old_estimate) > 1e-9:
-            explanations.append(f"全部数值P*重新OLS拟合（{old_model['sample_count']}→{model['sample_count']}点），HP模型{old_estimate:.6f}→{estimate:.6f}")
-        if abs(old_model_round_delta) > 1 or (old_rec_delta is not None and abs(old_rec_delta) > 1):
-            explanations.append(f"v0方法不一致：原84点按明文同时OLS拟合与v0模型差{old_model_round_delta:+d}、推荐差{old_rec_delta}；v0 CSV反拟合显示HP指数≈0.6、Boss份额系数≈0（推断，待Fable核源代码）")
-        elif old_rec_delta:
-            explanations.append(f"原84点复算与v0差{old_rec_delta:+d}，在整数取整误差内")
-        if not explanations:
-            explanations.append("与v0一致，原通过端P*不变" if rec == int(reference["rec_v0"]) else "最终整数取整差异")
-        result_rows.append({"level": number, "level_id": f"level_{number:03d}", "old_recommended": row["recommended"],
-                            "p_star": p_star, "model": estimate, "recommended_power": rec,
-                            "edge_9_of_10": edge, "passing_wins": endpoint["wins"] if endpoint else None,
-                            "measured_fail_power": fail_endpoint["power"] if fail_endpoint else None,
-                            "rec_below_measured_passing_power": bool(p_star is not None and rec < p_star),
-                            "rec_at_or_below_measured_fail_power": bool(p_star is not None and fail_endpoint and rec <= fail_endpoint["power"]),
-                            "censored": row["status"] != "complete", "censor_status": row["status"] if row["status"] != "complete" else None,
-                            "truth_deviation": error, "truth_check": "unverifiable_censored" if error is None else ("pass" if abs(error) <= TRUTH_TOLERANCE else "fail"),
-                            "bracket": row["bracket"], **hp_rows[number],
-                            "fable_v0_model": int(reference["hp_model"]), "fable_v0_rec": int(reference["rec_v0"]),
-                            "delta_vs_fable_v0": rec - int(reference["rec_v0"]),
-                            "baseline_84_model": old_estimate, "baseline_84_rec": old_rec,
-                            "baseline_rec_delta_vs_v0": old_rec_delta, "difference_explanation": "；".join(explanations)})
-    return {"schema_version": 1, "status": "candidate_pending_Fable_gate_B", "contract": "design/41 section 8 direction A",
-            "method": "round(sqrt(model * measured passing P*)); lower-censored round(model), min50; upper-censored power(s=1.8); no monotonic constraints",
-            "fit": model, "baseline_84_fit": old_model, "v0_reverse_model_diagnostic": v0_diagnostic,
-            "v0_reproduction_mismatches_over_rounding": v0_mismatches,
-            "truth_tolerance": TRUTH_TOLERANCE, "minimum_recommended": MINIMUM_RECOMMENDED,
-            "violations": violations, "rows": result_rows,
-            "G3_R1_risk_levels_below_observed_passing_power": [row["level"] for row in result_rows if row["rec_below_measured_passing_power"]],
-            "G3_R1_risk_levels_at_or_below_observed_fail_power": [row["level"] for row in result_rows if row["rec_at_or_below_measured_fail_power"]],
-            "censored_note": "no numeric P*: truth tolerance cannot be verified; endpoint fallback is explicitly authorized, not a pass claim",
-            "prediction_note": "G3 needs fresh R=.85/1/1.15 runtime probes after gate B; ±35% does not prove ≥9/10 at R=1"}
+        reference = fixed[number]
+        if reference["p_star"] != p_star or int(reference["fixed"]) != rec:
+            mismatches.append({"level": number, "reference": reference["fixed"], "recommended": rec, "p_star_match": reference["p_star"] == p_star})
+        rows.append({"level": number, "level_id": f"level_{number:03d}", "old_recommended": row["recommended"],
+                     "p_star": p_star, "model": estimate, "raw_geometric_recommendation": raw,
+                     "recommended_power": rec, "clamp_direction": direction,
+                     "clamp_lower": p_star, "clamp_upper": round(1.35 * p_star) if p_star is not None else None,
+                     "edge_9_of_10": bool(hi and hi["wins"] == 9), "passing_wins": hi["wins"] if hi else None,
+                     "measured_fail_power": lo["power"] if lo else None,
+                     "rec_below_measured_passing_power": bool(p_star is not None and rec < p_star),
+                     "rec_at_or_below_measured_fail_power": bool(p_star is not None and lo and rec <= lo["power"]),
+                     "censored": p_star is None, "censor_status": row["status"] if p_star is None else None,
+                     "truth_deviation": error, "truth_check": "unverifiable_censored" if error is None else "pass",
+                     "bracket": row["bracket"], **hp_rows[number],
+                     "fable_fixed_rec": reference["fixed"], "delta_vs_fable_fixed": rec - int(reference["fixed"]),
+                     "difference_explanation": f"2026-10-04 停工点 B 核定；clamp={direction}；v0作废，不再对照"})
+    return {"schema_version": 2, "status": "gate_B_ratified_2026_10_04", "contract": "design/41 section 8 direction A; 2026-10-04 gate B ratification",
+            "method": "clamp(round(sqrt(model * passing P*)), P*, round(1.35 * P*)); lower-censored round(model), min50; upper-censored power(s=1.8)",
+            "fit": model, "truth_tolerance": TRUTH_TOLERANCE, "minimum_recommended": MINIMUM_RECOMMENDED,
+            "violations": violations, "fable_fixed_mismatches": mismatches, "rows": rows,
+            "clamp_counts": {direction: sum(row["clamp_direction"] == direction for row in rows) for direction in ("lower", "upper", "none")},
+            "G3_R1_risk_levels_below_observed_passing_power": [row["level"] for row in rows if row["rec_below_measured_passing_power"]],
+            "G3_R1_risk_levels_at_or_below_observed_fail_power": [row["level"] for row in rows if row["rec_at_or_below_measured_fail_power"]],
+            "censored_note": "No numeric P*: authorized model fallback, not a measured truth pass.",
+            "prediction_note": "G3 still requires new runtime tests. R=.85 may yield 0-2/10 on cliffs; report without changing enemy data or thresholds."}
 
 
 def csv_text(payload: dict) -> str:
@@ -180,21 +161,36 @@ def main() -> int:
     parser.add_argument("--runtime-lines", type=Path, default=ROOT / "design/audits/runtime_clear_lines_2026_10_03.json")
     parser.add_argument("--output", type=Path, default=ROOT / f"design/audits/recommended_power_table_{DATE}")
     parser.add_argument("--check", action="store_true", help="compare saved JSON/CSV with deterministic regeneration; no writes")
+    parser.add_argument("--source-commit", help="reproduce from immutable T1 source commit after authorized requirement-side regeneration; every frozen hash must match")
     options = parser.parse_args()
     if not options.output.resolve().is_relative_to(ROOT / "design/audits"):
         parser.error("output must remain inside this worktree's design/audits")
     runtime = json.loads(options.runtime_lines.read_text())
-    tables = solver.load_tables()
-    if runtime["frozen_input_sha256"] != solver.input_hashes() or runtime["fixture_sha256"] != solver.sha(solver.FIXTURE):
-        raise ValueError("T1 frozen inputs/fixture changed; refusing stale table")
-    baseline = json.loads(subprocess.check_output(["git", "show", f"{BASELINE_COMMIT}:design/audits/runtime_clear_lines_2026_10_03.json"], cwd=ROOT))
-    v0 = {int(row["level"]): row for row in csv.DictReader(V0.open())}
-    payload = derive(runtime, baseline, v0, tables)
+    source_commit = None
+    if options.source_commit:
+        source_commit = subprocess.check_output(["git", "rev-parse", "--verify", options.source_commit + "^{commit}"], cwd=ROOT, text=True).strip()
+        source = {}
+        expected = {**runtime["frozen_input_sha256"], str(solver.FIXTURE.relative_to(ROOT)): runtime["fixture_sha256"]}
+        for path, digest in expected.items():
+            data = subprocess.check_output(["git", "show", f"{source_commit}:{path}"], cwd=ROOT)
+            if hashlib.sha256(data).hexdigest() != digest:
+                raise ValueError(f"historical T1 source hash mismatch: {path}")
+            source[path] = data
+        tables = {name: json.loads(source[f"data/{name}.json"]) for name in solver.load_tables()}
+    else:
+        tables = solver.load_tables()
+        if runtime["frozen_input_sha256"] != solver.input_hashes() or runtime["fixture_sha256"] != solver.sha(solver.FIXTURE):
+            raise ValueError("T1 frozen inputs/fixture changed; refusing stale table; use a hash-verified --source-commit for historical reproduction")
+    fixed = {int(row["level"]): row for row in json.loads(FIXED_REFERENCE.read_text())}
+    if set(fixed) != set(range(1, 100)):
+        raise ValueError("Fable fixed reference must contain exactly 99 levels")
+    payload = derive(runtime, fixed, tables)
     payload["provenance"] = {"runtime_lines": str(options.runtime_lines.resolve().relative_to(ROOT)),
                              "runtime_sha256": solver.sha(options.runtime_lines), "fixture_sha256": runtime["fixture_sha256"],
                              "combat_input_fingerprint": runtime["combat_input_fingerprint"], "frozen_input_sha256": runtime["frozen_input_sha256"],
-                             "v0_sha256": solver.sha(V0), "baseline_commit": BASELINE_COMMIT,
+                             "fable_fixed_sha256": solver.sha(FIXED_REFERENCE), "baseline_commit": BASELINE_COMMIT,
                              "tool_sha256": solver.sha(Path(__file__))}
+    payload["provenance"]["source_commit"] = source_commit
     json_path, csv_path = options.output.with_suffix(".json"), options.output.with_suffix(".csv")
     if options.check:
         if json.loads(json_path.read_text()) != payload or csv_path.read_text() != csv_text(payload):
@@ -203,9 +199,9 @@ def main() -> int:
     else:
         solver.atomic_write(json_path, payload)
         csv_path.write_text(csv_text(payload))
-    print(json.dumps({key: payload[key] for key in ("status", "violations", "v0_reproduction_mismatches_over_rounding")}, ensure_ascii=False))
+    print(json.dumps({key: payload[key] for key in ("status", "violations", "fable_fixed_mismatches", "clamp_counts")}, ensure_ascii=False))
     print(f"rows=99 numeric_P*={payload['fit']['sample_count']} fit_R2={payload['fit']['log_R_squared']:.8f} output={json_path}")
-    return int(bool(payload["violations"] or payload["v0_reproduction_mismatches_over_rounding"]))
+    return int(bool(payload["violations"] or payload["fable_fixed_mismatches"]))
 
 
 if __name__ == "__main__":

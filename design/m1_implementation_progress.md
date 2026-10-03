@@ -5185,3 +5185,14 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 22项离线回归通过，原七项项目检查除已知历史源素材缺失外通过，独立HOME启动/冒烟零ERROR。首轮空槽测试、/tmp别名核验、CSV CRLF检查与提前读取尚运行smoke的失败均保留并重验；没有探针失败或完成组重跑。
 - 仅tools/audits/m1进度改动；所有产品数据、gameplay/core、翻卡、显示战力函数、付费价格权益、export preset均不变。未push/打包，交Owner转Fable核表B。
 - Owner要求另出完整Fable交接稿，已存`design/audits/linear_power_p2_2026_10_04/Fable完整交接报告.md`，明确工具/数据基准commit39dfe1f0、拟合方法/073/G3三项核决与后续放行边界。只读交付复核PASS（日志`/tmp/zf_linear_p2b_fable_handoff_readcheck_2026_10_04.log`）；未新增探针、未改候选/游戏数据，仍停B。
+
+# 2026-10-04 · B核定后2C静态管线与G1硬冲突停工
+
+- Owner转交Fable核定：全部92数值P*同时OLS；v0废止；推荐采用已签字clamp。新表99行精确匹配`/tmp/wip_gate/tableB_fixed.json`，073=818，clamp lower48/upper1/none50；低于通过端48项/不高于失败端29项风险归零，但不是新G3通过。
+- 全章runtime_solved，需求侧读取核定B写99关推荐/派生字段，玩家P(g)/F(g)/三轴换算不变；旧路径保留。表B工具支持逐文件冻结SHA验证的历史commit复现，默认拒绝过期当前输入。
+- 新锚点001/050/080/099=50/868/2067/3094；Owner战力仍4467/10800，R仅因推荐分母改为2.161103/3.490627。参考夹具构筑rows不变，仅来源元数据刷新。
+- 生成器最终连续两次字节一致；levels除clear_requirement外逐字段一致，其他全部data（含economy/敌方/翻卡/付费权益）逐字节不变；gameplay/core/export设置未改。design/40只追加§14，design/41只追加B核定行，schema同步。
+- B单测7项、T1/T2/T3离线17项、静态合同与全部指定派生--check、数据/引用/压力/翻卡/语言、独立HOME启动/M1通过；历史素材缺失及正式RC第一项FAIL保留，不补造、不跳过称全绿。
+- **G1合同不可行并停工**：未调资源的方向A T3为49约束关、40/99失败；必要条件21处矛盾。005 Boss要求战力≥76，007 x7要求≤58.3，且固定初始战力65已超后者；057≥990→058≤553.3也冲突，非仅删失问题。资源单调成长和最强已拥有武器策略不能减少既有战力。
+- 只整理停工证据，不擅自改变G1/推荐表/敌方/初始角色或降装策略；资源候选优化工具和表C未实施，资源游戏数据零写入。2C新990局、G3及阶段四未运行；本轮没有新增真实对局，历史6640局不冒充新验收。
+- 报告`design/audits/linear_power_p2_2026_10_04/2C报告.md`及`design/audits/linear_power_p3_2026_10_04/报告.md`，交Owner转Fable核G1；不push、不打包、不上传TestFlight。

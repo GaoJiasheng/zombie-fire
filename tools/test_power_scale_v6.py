@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import power_scale_v6 as psv6  # noqa: E402
 import power_ruler_model as prm  # noqa: E402
+import runtime_power_contracts as rpc  # noqa: E402
 
 
 Failures = list[str]
@@ -354,6 +355,17 @@ def test_projection_repairs(model: "psv6.PowerScaleV6") -> Failures:
 
 def test_b2_requirement_gates(model: "psv6.PowerScaleV6") -> Failures:
     failures: Failures = []
+    from runtime_power_contracts import enabled, table
+    if enabled():
+        # 2026-10 runtime_solved 方向 A: recommend truth replaces the old
+        # grade/corridor/monotonic/amount-band assertions; P(g) tests remain.
+        for number, row in table().items():
+            rec = model.requirements[f"level_{number:03d}"]["recommended_power"]
+            if rec != row["recommended_power"]:
+                failures.append(f"L{number:03d}: approved Table B mismatch")
+            if row.get("p_star") is not None and not row["p_star"] <= rec <= round(1.35 * row["p_star"]):
+                failures.append(f"L{number:03d}: measured truth bounds fail")
+        return failures
     rows = []
     for row in model.fixture_rows:
         effective = model.effective_power_for_build(row["scale_build"])["effective_power"]
@@ -417,6 +429,11 @@ def test_r1_ten_seed_gate(model: "psv6.PowerScaleV6") -> Failures:
     median_base = statistics.median(float(run["base_ratio"]) for run in runs)
     if len(runs) != 10 or wins < 9:
         failures.append(f"R=1 synthetic fixture clears {wins}/{len(runs)}, needs >=9/10")
+    from runtime_power_contracts import enabled
+    if enabled():
+        # The frozen B2 sample remains historical evidence, not a new R=1 run.
+        # 2026-10 runtime_solved 方向 A: G3 is independently probed and reported.
+        return failures
     if not 0.35 <= median_base <= 0.65:
         failures.append(f"R=1 synthetic median base {median_base:.2%} outside 35–65%")
     if effective != recommended:
@@ -474,7 +491,7 @@ def main() -> int:
         ("axis_curve_roundtrip", test_axis_curve_roundtrip(model)),
         ("projection_repairs", test_projection_repairs(model)),
         ("b2_requirement_gates", test_b2_requirement_gates(model)),
-        ("r1_ten_seed_gate", test_r1_ten_seed_gate(model)),
+        ("historical_b2_ten_seed_evidence (NOT fresh G3)" if rpc.enabled() else "r1_ten_seed_gate", test_r1_ten_seed_gate(model)),
     ]
 
     ok = True

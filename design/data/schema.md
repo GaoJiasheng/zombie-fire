@@ -478,6 +478,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `max_free_graduation` 引用 `campaign_progression_fixture.json` 中同 ID 毕业族，要求全 99 关可过且不超时。
 - `chapter_level_targets / chapter_quotas / grade_bands` 分别是逐关序列、逐章配额与运行时战线档位带。冻结后只能由 Owner 新决策变更。
 - `pacing_rules` 是生成与审计的单一约束源；关卡局部试点数据不能替代冻结合同。
+- 2026-10 runtime_solved 方向 A：根字段及每章 `clear_requirement_mode = "runtime_solved"`，`runtime_recommended_power_table` 引用经停工点B核定的99行审计JSON。推荐值使用通过端P*与同时OLS模型的几何平均，钳到 `[P*, round(1.35×P*)]`；下界删失取模型并保证50下限。不得单调化。生成器刷新 `clear_requirement` 的兼容分析量和Q(L)门槛；玩家F(g)、P(g)与三轴构筑换算不变。旧preserve_v5_scale/analytical_v5路径保留。
 
 ## campaign_progression_fixture.json（主线成长样本）
 

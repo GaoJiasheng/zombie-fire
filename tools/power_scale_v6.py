@@ -527,6 +527,29 @@ class PowerScaleV6:
         residual (at most ±0.5%) so Q(L) genuinely consumes the accepted
         99×10 results without allowing measurement noise to rewrite pacing.
         """
+        from runtime_power_contracts import enabled, table
+        if enabled():
+            # 2026-10 runtime_solved 方向 A: only Q(L) changes; F(g), P(g),
+            # neutral capacities and build->power remain byte-for-byte unchanged.
+            approved = table()
+            result = {}
+            for row in self.fixture_rows:
+                level = int(row['level'])
+                source = approved[level]
+                rec = int(source['recommended_power'])
+                g = display_power_inverse(rec)
+                effective = self.effective_power_for_build(row['scale_build'])['effective_power']
+                result[row['level_id']] = {
+                    'level': level, 'grade': self.grade_by_level[level],
+                    'target_r': effective / rec, 'grade_target_r': GRADE_TARGET_R[self.grade_by_level[level]],
+                    'b2_severity': 0.0, 'b2_outcome_adjustment': 0.0,
+                    'g_required': g, 'recommended_power': rec,
+                    'q_axes': {axis: self.curves[axis].forward(g) for axis in AXES},
+                    'b2_outcome': self.b2_outcomes[level],
+                    'scale_build_effective_power': effective,
+                    'clear_requirement_mode': 'runtime_solved',
+                }
+            return result
         severities: dict[int, float] = {}
         for level, outcome in self.b2_outcomes.items():
             severities[level] = (

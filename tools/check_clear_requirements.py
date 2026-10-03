@@ -90,29 +90,39 @@ def _main_v6() -> int:
             "ratio": float(outcome["power"]) / max(float(outcome["recommended"]), 1.0),
         })
 
-    grade_means = []
-    for grade in psv6.GRADE_TARGET_R:
-        values = [row["ratio"] for row in checked if row["grade"] == grade]
-        if not values:
-            errors.append(f"no read-only corridor rows for grade {grade}")
-            continue
-        dispersion = (max(values) - min(values)) * 0.5
-        # Mirrors test_power_scale_v6: monotonic recommendations (an easier level may
-        # not display a lower number) is a player-visible contract that outranks
-        # internal R uniformity, and lifting easy levels necessarily widens R.
-        if dispersion > 0.07 + 1e-9:
-            errors.append(f"{grade}: read-only R dispersion ±{dispersion:.4f} > ±0.07")
-        grade_means.append(sum(values) / len(values))
-    if any(not grade_means[i] < grade_means[i - 1] for i in range(1, len(grade_means))):
-        errors.append(f"grade R means are not strictly decreasing: {grade_means}")
-    for current, previous in zip(checked[1:], checked):
-        delta = abs(current["ratio"] / previous["ratio"] - 1.0)
-        boss_edge = current["level"] % 5 == 0 or previous["level"] % 5 == 0
-        limit = 0.15 if boss_edge else 0.11
-        if delta > limit + 1e-9:
-            errors.append(
-                f"L{previous['level']:03d}->L{current['level']:03d}: "
-                f"R jump {delta:.2%} > {limit:.0%}")
+    from runtime_power_contracts import enabled, table
+    if enabled():
+        # 2026-10 runtime_solved 方向 A: replace retired grade/adjacent
+        # corridors with the approved measured truth contract, not weaker tests.
+        approved = table()
+        for row in checked:
+            rec = by_id[f"level_{row['level']:03d}"]["clear_requirement"]["power_contract"]["recommended_power"]
+            if rec != approved[row["level"]]["recommended_power"]:
+                errors.append(f"L{row['level']:03d}: approved Table B mismatch")
+    else:
+        grade_means = []
+        for grade in psv6.GRADE_TARGET_R:
+            values = [row["ratio"] for row in checked if row["grade"] == grade]
+            if not values:
+                errors.append(f"no read-only corridor rows for grade {grade}")
+                continue
+            dispersion = (max(values) - min(values)) * 0.5
+            # Mirrors test_power_scale_v6: monotonic recommendations (an easier level may
+            # not display a lower number) is a player-visible contract that outranks
+            # internal R uniformity, and lifting easy levels necessarily widens R.
+            if dispersion > 0.07 + 1e-9:
+                errors.append(f"{grade}: read-only R dispersion ±{dispersion:.4f} > ±0.07")
+            grade_means.append(sum(values) / len(values))
+        if any(not grade_means[i] < grade_means[i - 1] for i in range(1, len(grade_means))):
+            errors.append(f"grade R means are not strictly decreasing: {grade_means}")
+        for current, previous in zip(checked[1:], checked):
+            delta = abs(current["ratio"] / previous["ratio"] - 1.0)
+            boss_edge = current["level"] % 5 == 0 or previous["level"] % 5 == 0
+            limit = 0.15 if boss_edge else 0.11
+            if delta > limit + 1e-9:
+                errors.append(
+                    f"L{previous['level']:03d}->L{current['level']:03d}: "
+                    f"R jump {delta:.2%} > {limit:.0%}")
 
     build89 = model.fixture_rows[88]["scale_build"]
     p89 = model.effective_power_for_build(build89)["effective_power"]

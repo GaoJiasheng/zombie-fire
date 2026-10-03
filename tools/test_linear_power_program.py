@@ -21,6 +21,14 @@ import run_frontline_sweep as sweep
 
 
 class LinearProgramTests(unittest.TestCase):
+    def test_direction_a_g1_bounds(self):
+        def level(n, boss=False):
+            return {"id": f"level_{n:03d}", "waves": [{"wave": 1, **({"boss": "boss_tank_titan"} if boss else {})}]}
+        self.assertEqual(closure.g1_bounds(level(1), True), (.95, None))
+        self.assertEqual(closure.g1_bounds(level(7), True), (1, 1.1))
+        self.assertEqual(closure.g1_bounds(level(5, True), True), (1, 1.1))
+        self.assertEqual(closure.g1_bounds(level(1), False), (.95, 1.1))
+
     def test_concurrency_trial_requires_explicit_opt_in(self):
         for arguments in (["--jobs", "8"], ["--jobs", "9", "--allow-concurrency-trial"]):
             with mock.patch.object(solver.sys, "argv", ["solver", *arguments]), contextlib.redirect_stderr(io.StringIO()):

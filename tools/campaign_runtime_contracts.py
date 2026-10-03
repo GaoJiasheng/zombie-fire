@@ -46,6 +46,10 @@ def spec_for_level(level_no: int) -> dict:
 
 
 def clear_requirement_mode(level_no: int) -> str:
+    # 2026-10 runtime_solved 方向 A. Preserve all legacy per-range paths.
+    payload = json.loads(TARGETS_PATH.read_text(encoding='utf-8'))
+    if payload.get('clear_requirement_mode') == 'runtime_solved':
+        return 'runtime_solved'
     return str(spec_for_level(level_no).get("clear_requirement_mode", "analytical_v5"))
 
 
