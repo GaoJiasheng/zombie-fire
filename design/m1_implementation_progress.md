@@ -5146,3 +5146,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 四个默认角色、四主题代表、小屏英文与放大模式共10张预览，加未购详情1张，最终布局审计无问题。素材保持原分辨率，2倍查看不是新生成高清素材；未在iPhone真机验证手势。
 - 必需七项验证及check_localization/check_release_strings/check_runtime_ui_primitives/check_app_store_ui_polish通过。最终头部定位微调后专项再次通过；完整m1在此前已通过。截图工具退出仍有资源清理提示，独立记录，不能将其说成日志零ERROR。
 - 证据见design/audits/character_ownership_preview_2026_09_26/report.md；测试使用独立存档目录，无真实存档或权益改写，不push、不打包。
+
+# 2026-10-03 · design/41阶段一工具与前置探底（独立worktree）
+
+- 仅在`/Users/gavin/work/zf-linear`、`codex/linear-power`实现T1真实运行时二分、T2章节线性/资源/预测审计、T3三星首通闭环报告；不动主工作树文件，不修改任何数据或战斗实现。
+- T1四点固定十种子270局完成：005/030/065/099的R*为1.055556/0.922581/0.677807/0.544000。065永久技能离散升4级后出现更低9/10通过端，超出手工0.82的±0.1验收带，因此全量过夜跑暂不启动，待Fable／Owner判定；不自行改数或放宽条件。
+- T3为条件模拟，G1走廊失败62/99、首次低于0.95在047；T2只有4/99实测点，不能宣称全量合同通过。工具产出与数据结论、命令日志和源素材缺失风险分开列于`design/audits/linear_power_p1_2026_10_03/报告.md`。
+- 工具回归12项、语法、旧夹具一致性及数据/引用/压力/翻卡只读检查、独立HOME启动与M1冒烟通过；270份探针日志与冒烟SCRIPT ERROR均为0。资产包检查因基线历史源文件缺失失败，未补造素材。阶段一未签收，后续阶段未开工；不push、不打包。
