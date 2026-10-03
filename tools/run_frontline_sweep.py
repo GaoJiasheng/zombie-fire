@@ -154,6 +154,7 @@ def run_batch(
     temp_dir: Path,
     project_root: Path,
     fixture: str,
+    log_dir: Path | None = None,
 ) -> tuple[list[dict], float]:
     seed_label = "_".join(str(seed) for seed in seeds)
     output = temp_dir / f"level_{level:03d}_seeds_{seed_label}.json"
@@ -205,6 +206,9 @@ def run_batch(
         raw_output = error.stdout or ""
         if isinstance(raw_output, bytes):
             raw_output = raw_output.decode("utf-8", errors="replace")
+        if log_dir is not None:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            (log_dir / f"level_{level:03d}_seeds_{seed_label}.log").write_text(raw_output, encoding="utf-8")
         timeout_runs = [
             {
                 "level": level,
@@ -219,6 +223,13 @@ def run_batch(
         ]
         return timeout_runs, wall_seconds
     wall_seconds = time.monotonic() - started
+    if log_dir is not None:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        (log_dir / f"level_{level:03d}_seeds_{seed_label}.log").write_text(completed.stdout, encoding="utf-8")
+        if output.is_file():
+            (log_dir / output.name).write_bytes(output.read_bytes())
+    if "SCRIPT ERROR" in completed.stdout:
+        raise RuntimeError(f"Godot SCRIPT ERROR for level {level:03d} seeds {seed_label}; raw log directory={log_dir}")
     if completed.returncode != 0:
         raise RuntimeError(
             f"frontline probe failed for level {level:03d} seeds {seed_label}:\n"
@@ -277,6 +288,7 @@ def main() -> int:
         help="maximum wall seconds for one Godot probe process (default: 360)",
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--log-dir", type=Path, help="persist each raw Godot log/result, including errors, outside temporary HOME")
     parser.add_argument("--ignore-level-guarantees", action="store_true")
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
     parser.add_argument("--challenge", action="store_true")
@@ -324,6 +336,7 @@ def main() -> int:
                     temp_dir,
                     project_root,
                     options.fixture,
+                    options.log_dir,
                 )
                 for level in options.levels
                 for seed_batch in seed_batches
