@@ -30,9 +30,10 @@ R_TOLERANCE = 0.02
 LEVEL_FIELDS = ("character_level", "weapon_level", "armor_level", "chip_level", "pet_level")
 DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 FIXTURE = ROOT / "design/audits/campaign_progression_fixture_builds.json"
+WALL_LEVELS = {15, 17, 18, 19, 20, 40, 44, 76}
 
 
-def scaled_build(build: dict, scale: float) -> dict:
+def scaled_build(build: dict, scale: float, tables: dict | None = None) -> dict:
     result = copy.deepcopy(build)
     for key in LEVEL_FIELDS:
         result[key] = max(1, round(float(build.get(key, 1)) * scale))
@@ -41,6 +42,26 @@ def scaled_build(build: dict, scale: float) -> dict:
         key: max(0, round(float(value) * scale))
         for key, value in build.get("skill_base_levels", {}).items()
     }
+    if tables is not None:
+        # 2026-10 direction A: extension follows the same build ray, but never
+        # creates unattainable item/skill ranks. All caps come from live data.
+        for field, table, identity in (
+                ("character_level", "characters", "character"),
+                ("weapon_level", "weapons", "weapon"),
+                ("armor_level", "armors", "armor"),
+                ("chip_level", "chips", "chip"),
+                ("pet_level", "pets", "pet")):
+            if not build.get(identity):
+                result[field] = 1  # an empty slot stays empty; no item is created
+                continue
+            item = tables[table].get(build[identity])
+            if item is None:
+                raise ValueError(f"unknown {identity}: {build.get(identity)}")
+            result[field] = min(result[field], int(item["max_level"]))
+        result["signature_level"] = min(result["signature_level"], len(tables["economy"]["sig_skill_xp_costs"]))
+        for identity in result["skill_base_levels"]:
+            result["skill_base_levels"][identity] = min(
+                result["skill_base_levels"][identity], ruler.skill_max_level(tables["skills"][identity]))
     return result
 
 
@@ -113,9 +134,14 @@ def solve_level(row: dict, state: dict, payload: dict, options, tables: dict, ch
     recommended = int(level["clear_requirement"]["power_contract"]["recommended_power"])
     state.setdefault("steps", [])
     state.update(level=number, recommended=recommended, status="running")
+    wall_extension = getattr(options, "wall_extension", False)
+    lower_scale, upper_scale = (1.0, 1.8) if wall_extension else (0.3, 1.0)
+    if wall_extension:
+        state["extension_method"] = {"scale_bounds": [1.0, 1.8], "max_bisections": MAX_BISECTIONS,
+                                     "R_tolerance": R_TOLERANCE, "level_caps": "data max_level / skill levels / signature XP ranks"}
 
     def evaluate(scale: float) -> dict:
-        build = scaled_build(row["build"], scale)
+        build = scaled_build(row["build"], scale, tables if wall_extension else None)
         model = power(level, build, tables)
         # Rounded plateaus reuse identical ten-seed evidence rather than rerun it.
         for previous in state["steps"]:
@@ -171,18 +197,18 @@ def solve_level(row: dict, state: dict, payload: dict, options, tables: dict, ch
             atomic_write(checkpoint, payload)
         return result
 
-    upper = next((step for step in state["steps"] if step["scale"] == 1.0), None) or sample(1.0)
+    upper = next((step for step in state["steps"] if step["scale"] == upper_scale), None) or sample(upper_scale)
     if upper["wins"] < 9:
         state.update(status="upper_bound_fails", p_star=None, r_star=None, build_star=None,
-                     bracket=[upper["R"], None], reason="reference at scale 1.0 does not clear >=9/10; no extrapolation authorized")
+                     bracket=[upper["R"], None], reason=f"capped reference at scale {upper_scale} does not clear >=9/10; no extrapolation")
         return
-    lower = next((step for step in state["steps"] if step["scale"] == 0.3), None) or sample(0.3)
+    lower = next((step for step in state["steps"] if step["scale"] == lower_scale), None) or sample(lower_scale)
     if lower["wins"] >= 9:
         state.update(status="lower_bound_passes", p_star=None, r_star=None, build_star=None,
                      bracket=[None, lower["R"]], reason="transition lies below search interval; passing bound is not P*")
         return
     lo, hi = derive_bracket(state["steps"])
-    bisections = sum(0.3 < step["scale"] < 1 for step in state["steps"])
+    bisections = sum(lower_scale < step["scale"] < upper_scale for step in state["steps"])
     while hi["R"] - lo["R"] > R_TOLERANCE and bisections < MAX_BISECTIONS:
         sample((lo["scale"] + hi["scale"]) / 2)
         bisections += 1
@@ -201,6 +227,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--levels", type=sweep.csv_ints, default=list(range(1, 100)))
     parser.add_argument("--resume", action="store_true", help="reuse completed levels and valid completed steps; frozen input hashes must match")
+    parser.add_argument("--wall-extension", action="store_true", help="Owner-approved eight wall levels only: resume with capped scale bounds [1.0, 1.8]")
     parser.add_argument("--jobs", type=int, default=6, help="1..6 concurrent Godot probes by default; no per-level parallelism")
     parser.add_argument("--allow-concurrency-trial", action="store_true",
                         help="explicit Owner-approved trial only: permit --jobs 7 or 8; default cap remains 6")
@@ -208,8 +235,10 @@ def main() -> int:
     parser.add_argument("--evidence-dir", type=Path, default=Path(f"/tmp/zf_linear_t1_{DATE}"))
     options = parser.parse_args()
     job_limit = 8 if options.allow_concurrency_trial else 6
-    if not 1 <= options.jobs <= job_limit or any(number > 99 for number in options.levels):
+    if not 1 <= options.jobs <= job_limit or any(not 1 <= number <= 99 for number in options.levels):
         parser.error(f"--jobs must be 1..{job_limit}; --levels must be 1..99")
+    if options.wall_extension and (not options.resume or not set(options.levels) <= WALL_LEVELS or options.jobs > 6):
+        parser.error("--wall-extension requires --resume, only 015/017/018/019/020/040/044/076 and --jobs <=6")
     options.output = options.output.resolve()
     options.evidence_dir = options.evidence_dir.resolve()
     if not options.output.is_relative_to(ROOT / "design/audits"):
@@ -247,7 +276,9 @@ def main() -> int:
         by_level = {row["level"]: row for row in payload["rows"]}
         for number in options.levels:
             state = by_level.get(number)
-            if state and state.get("status") in {"complete", "lower_bound_passes", "upper_bound_fails"}:
+            extend_wall = (options.wall_extension and state and state.get("status") == "upper_bound_fails"
+                           and state.get("extension_method", {}).get("scale_bounds") != [1.0, 1.8])
+            if state and state.get("status") in {"complete", "lower_bound_passes", "upper_bound_fails"} and not extend_wall:
                 print(f"L{number:03d} resume skip: {state['status']}", flush=True)
                 continue
             if state is None:

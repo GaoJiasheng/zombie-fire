@@ -28,15 +28,20 @@ class LinearProgramTests(unittest.TestCase):
                     solver.main()
                 self.assertEqual(raised.exception.code, 2)
 
-    def exercise_solver(self, threshold, interrupt_after=None, resume=False):
+    def exercise_solver(self, threshold, interrupt_after=None, resume=False, wall_extension=False):
         """Fake probe runner checks the real binary-search/checkpoint path."""
         with tempfile.TemporaryDirectory(prefix="zf_linear_solver_test_") as folder:
             root = Path(folder)
             row = {"level": 1, "level_id": "level_001", "build": {"weapon_level": 100}}
             tables = {"levels": [{"id": "level_001", "clear_requirement": {"power_contract": {"recommended_power": 100}}}]}
+            if wall_extension:
+                for identity, table in (("character", "characters"), ("weapon", "weapons"), ("armor", "armors"), ("chip", "chips"), ("pet", "pets")):
+                    row["build"][identity] = identity
+                    tables[table] = {identity: {"max_level": 180}}
+                tables.update(economy={"sig_skill_xp_costs": [1] * 5}, skills={})
             state = {"level": 1, "steps": []}
             payload = {"rows": [state], "combat_input_fingerprint": {"test": "fixture"}}
-            options = SimpleNamespace(evidence_dir=root / "evidence", jobs=6)
+            options = SimpleNamespace(evidence_dir=root / "evidence", jobs=6, wall_extension=wall_extension)
             calls = []
             def run(command, **kwargs):
                 if interrupt_after is not None and len(calls) == interrupt_after:
@@ -94,6 +99,43 @@ class LinearProgramTests(unittest.TestCase):
         self.assertEqual(scaled["signature_level"], 0)
         self.assertEqual(scaled["skill_base_levels"], {"skill_multishot": 2, "skill_homing": 0})
         self.assertEqual(build, original)
+
+    def test_wall_extension_resume_and_upper_censor(self):
+        state, calls = self.exercise_solver(145, interrupt_after=2, resume=True, wall_extension=True)
+        self.assertEqual(state["status"], "complete")
+        self.assertEqual(state["extension_method"]["scale_bounds"], [1.0, 1.8])
+        self.assertEqual(sum(b["weapon_level"] == 180 for b in calls), 1)
+        self.assertTrue(all(100 <= b["weapon_level"] <= 180 for b in calls))
+        state, _ = self.exercise_solver(181, wall_extension=True)
+        self.assertEqual(state["status"], "upper_bound_fails")
+        self.assertIsNone(state["p_star"])
+        self.assertEqual(state["steps"][0]["scale"], 1.8)
+
+    def test_real_catalog_caps_and_golden_law_65(self):
+        tables = solver.load_tables()
+        fixture = json.loads(solver.FIXTURE.read_text())
+        for row in fixture["rows"]:
+            for scale in (1.0, 1.8):
+                build = solver.scaled_build(row["build"], scale, tables)
+                for field, table, identity in (("character_level", "characters", "character"), ("weapon_level", "weapons", "weapon"), ("armor_level", "armors", "armor"), ("chip_level", "chips", "chip"), ("pet_level", "pets", "pet")):
+                    if build.get(identity):
+                        self.assertLessEqual(build[field], tables[table][build[identity]]["max_level"])
+                    else:
+                        self.assertEqual(build[field], 1)
+                self.assertLessEqual(build["signature_level"], 5)
+                self.assertTrue(all(v <= solver.ruler.skill_max_level(tables["skills"][k]) for k, v in build["skill_base_levels"].items()))
+                if scale == 1.0:
+                    self.assertEqual(build, solver.scaled_build(row["build"], scale))
+        golden = next(key for key, value in tables["weapons"].items() if value["max_level"] == 65)
+        build = dict(fixture["rows"][-1]["build"], weapon=golden, weapon_level=65)
+        self.assertEqual(solver.scaled_build(build, 1.8, tables)["weapon_level"], 65)
+
+    def test_wall_extension_is_guarded(self):
+        for arguments in (["--wall-extension", "--levels", "15"], ["--wall-extension", "--resume", "--levels", "5"], ["--wall-extension", "--resume", "--levels", "15", "--jobs", "8", "--allow-concurrency-trial"]):
+            with mock.patch.object(solver.sys, "argv", ["solver", *arguments]), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    solver.main()
+                self.assertEqual(raised.exception.code, 2)
 
     def test_bracket_non_monotonic_rejected(self):
         lo, hi = solver.derive_bracket([{"scale": .3, "wins": 0, "R": .4}, {"scale": 1, "wins": 9, "R": 1.1}])

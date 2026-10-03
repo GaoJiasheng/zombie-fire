@@ -5168,3 +5168,10 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 完跑后13项离线、编译、旧夹具、元数据、数据/引用/压力/翻卡、独立HOME启动及M1通过；Godot SCRIPT ERROR/ERROR0。资产历史源缺失FAIL保留，冻结输入/fixture SHA及受保护路径git diff零漂移。
 - 完整/tmp证据加审计日志桌面保全：/Users/gavin/Desktop/zombiefire_evidence/runtime_clear_lines_2026_10_03.tar.gz，13717文件逐SHA核验。首轮macOS tar附加元数据FAIL未发布，COPYFILE_DISABLE重试PASS，失败日志保留；不进Git。报告及归档认证摘要在design/audits/linear_power_p1_2026_10_03/。
 - 仅提交汇总JSON/报告/本worktree进度，清理退出后0字节锁。主仓/data/gameplay/core/冻结正文/export设置未改，无push、无游戏包/上传。阶段一工具和证据已交付，数据合同及B/C签字待Fable/Owner；阶段二至四不开工，交付后暂停跟进。
+# 2026-10-03 · design/41 阶段二 A/B 启动（方向A）
+
+- Owner/Fable已验收阶段一，授权二至四，但推荐值表B与资源表C各有写入前停工核验。先完成A/B，不提前写数据。
+- `zf-linear`分支合并main到`7c59ff55`，§8明确废止推荐值单调合同，拟合真实P*与HP/首领份额/章节偏移；G1改为Boss/章尾约束关与全程下限。
+- T1只对015/017/018/019/020/040/044/076启用[1,1.8]扩区，物品和技能等级使用现行数据上限；其余91关与原完整采样不重跑。默认6并发，长跑nohup并保持宿主。
+- 离线16项回归通过：扩区/上界删失/断点复用/免费武器50与黄金律65/永久技能与专属技能上限/显式八关授权守卫。首轮暴露空槽识别失败，修补后重验；日志`/tmp/zf_linear_p2a_unit_2026_10_03.log`(FAIL)与`/tmp/zf_linear_p2a_unit_retry_2026_10_03.log`(PASS)。
+- 补测与表B仍待完成；不改敌方、翻卡、gameplay/core、付费权益或显示战力函数，未push/打包。
