@@ -5184,3 +5184,4 @@ This pass resolves the P0 asset replacements and legacy visible refs. A deeper U
 - 48关rec低于通过端，其中29关不高于已测失败端；不把真实性带当G3通过。不先写配置，也不启动2C/资源表C/阶段四。
 - 22项离线回归通过，原七项项目检查除已知历史源素材缺失外通过，独立HOME启动/冒烟零ERROR。首轮空槽测试、/tmp别名核验、CSV CRLF检查与提前读取尚运行smoke的失败均保留并重验；没有探针失败或完成组重跑。
 - 仅tools/audits/m1进度改动；所有产品数据、gameplay/core、翻卡、显示战力函数、付费价格权益、export preset均不变。未push/打包，交Owner转Fable核表B。
+- Owner要求另出完整Fable交接稿，已存`design/audits/linear_power_p2_2026_10_04/Fable完整交接报告.md`，明确工具/数据基准commit39dfe1f0、拟合方法/073/G3三项核决与后续放行边界。只读交付复核PASS（日志`/tmp/zf_linear_p2b_fable_handoff_readcheck_2026_10_04.log`）；未新增探针、未改候选/游戏数据，仍停B。
