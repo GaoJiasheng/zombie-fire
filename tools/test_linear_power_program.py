@@ -224,9 +224,12 @@ class LinearProgramTests(unittest.TestCase):
         self.assertEqual(payload["rows"][0]["cumulative_earned_before"], {"gold": 0, "xp": 0, "stars": 0})
         for previous, current in zip(payload["rows"], payload["rows"][1:]):
             after = previous["progression_after_clear"]["resources_after"]
+            if current['farming']['events']:
+                after = current['farming']['events'][-1]['resources_after']
             self.assertEqual(after, current["account_before"])
             income = previous["progression_after_clear"]["income"]
-            self.assertEqual(current["cumulative_earned_before"]["gold"], previous["cumulative_earned_before"]["gold"] + income["gold"])
+            farm_gold = sum(e['income']['gold'] for e in current['farming']['events'])
+            self.assertEqual(current["cumulative_earned_before"]["gold"], previous["cumulative_earned_before"]["gold"] + income["gold"] + farm_gold)
             self.assertEqual(current["cumulative_earned_before"]["stars"], (current["level"] - 1) * 3)
         self.assertTrue(all(row["build"]["weapon_level"] <= 50 for row in payload["rows"]))
         self.assertEqual(before, solver.input_hashes())

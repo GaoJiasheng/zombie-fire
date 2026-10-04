@@ -4,6 +4,7 @@ import copy
 import json
 import math
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import audit_campaign_frontline as campaign
@@ -17,7 +18,7 @@ from solve_runtime_clear_lines import input_hashes
 
 class ResourceTests(unittest.TestCase):
     def constant_vector(self, specs, value):
-        return [0 if s['name'].endswith('.log_slope') else value for s in specs]
+        return [value for s in specs]
 
     def test_knots_keep_five_tiers_and_zero_vector_identity(self):
         base = copy.deepcopy(campaign.TABLES)
@@ -38,13 +39,62 @@ class ResourceTests(unittest.TestCase):
             resource.candidate(base,specs,values[:-1])
 
     def replay_payload(self):
-        baseline = closure.generate(include_recovery=False)
+        baseline = closure.generate(include_recovery=True)
         return {'game_data_written': False, 'frozen_input_sha256': input_hashes(),
                 'changes': [], 'curves': [], 'before': baseline, 'after': baseline}
 
     def test_exact_candidate_replay(self):
         payload = self.replay_payload()
-        self.assertEqual(checker.replay(payload), payload['after'])
+        self.assertEqual(checker.replay(json.loads(json.dumps(payload))), payload['after'])
+
+    def test_bounded_farming_copy_budget_rewards_and_chapter_reset(self):
+        account = campaign.Account.from_fixture()
+        before = closure.account_state(account)
+        level = campaign.TABLES['levels'][19]
+        copied, farm = closure.bounded_farm(account,level,campaign.TABLES['levels'][18],2)
+        self.assertEqual(before,closure.account_state(account))
+        self.assertLessEqual(farm['runs'],2)
+        for i,event in enumerate(farm['events'],1):
+            self.assertEqual(event['xp_multiplier'],.5 if i==1 else .25)
+            self.assertEqual(event['income']['stars'],0)
+            self.assertEqual(event['income']['first_clear_gold'],0)
+        payload = closure.generate(False)
+        checker.verify_farming(payload,campaign.TABLES)
+        self.assertTrue(all(v<=6 for v in payload['chapter_farm_runs'].values()))
+        self.assertEqual(payload['rows'][10]['farming']['budget_available'],6)
+
+    def test_factors_outside_half_to_double_rejected(self):
+        base=campaign.TABLES
+        specs=resource.parameters(base)
+        for value in (-.7,.7):
+            with self.assertRaises(ValueError):
+                resource.candidate(base,specs,[value]*len(specs))
+        vector=[0]*len(specs)
+        vector[0],vector[1]=.1,-math.log(2)
+        _,_,curves=resource.candidate(base,specs,vector)
+        self.assertTrue(all(.5<=v<=2 for v in curves[0]['factors']))
+
+    def test_farm_budget_shared_between_gates_and_never_mints_first_clear(self):
+        # Force an unreachable threshold while retaining the actual account and
+        # resource ledger. All six farms must be spent at the first gate only.
+        original=campaign.build_for
+        def unreachable(account,level,*args,**kwargs):
+            build,result=original(account,level,*args,**kwargs)
+            return build,{**result,'recommended':10**9}
+        with mock.patch.object(campaign,'build_for',side_effect=unreachable):
+            payload=closure.generate(False)
+        for start in range(0,99,10):
+            rows=payload['rows'][start:start+10]
+            farmable=next(r for r in rows if r['level']>1)
+            self.assertEqual(farmable['farming']['runs'],6)
+            self.assertTrue(all(r['farming']['runs']==0 for r in rows if r is not farmable))
+        self.assertEqual(payload['total_farm_runs'],60)
+
+    def test_extra_diagnostic_keeps_25_percent_after_first_repeat(self):
+        account=campaign.Account.from_fixture()
+        _,farm=closure.bounded_farm(account,campaign.TABLES['levels'][19],campaign.TABLES['levels'][18],1,repeat_offset=6)
+        self.assertEqual(farm['events'][0]['repeat_index'],7)
+        self.assertEqual(farm['events'][0]['xp_multiplier'],.25)
 
     def test_replay_rejects_stale_or_enemy_changes(self):
         payload = self.replay_payload()

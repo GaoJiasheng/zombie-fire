@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only §8.1 monotone-envelope feasibility; NOT resource sufficiency."""
+"""§8.2: separate abstract envelope consistency from a real resource witness."""
 import argparse
 import hashlib
 import json
@@ -10,16 +10,29 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tools"))
 import audit_campaign_frontline as campaign
 import progression_closure as closure
+import check_resource_curve_candidate as checker
+from solve_runtime_clear_lines import input_hashes
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_envelope_before_2026_10_04.json")
+    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_bounded_before_2026_10_04.json")
+    parser.add_argument("--candidate", type=Path, help="independently replay an actual bounded resource witness")
     options = parser.parse_args()
+    for name in ('closure','candidate'):
+        path = getattr(options,name)
+        if path:
+            path = (path if path.is_absolute() else ROOT / path).resolve()
+            if not path.is_relative_to(ROOT / 'design/audits'):
+                parser.error('feasibility inputs must stay in this worktree audits')
+            setattr(options,name,path)
     table_path = ROOT / "design/audits/recommended_power_table_2026_10_04.json"
     closure_path = options.closure
     table = json.loads(table_path.read_text())
     baseline = json.loads(closure_path.read_text())
+    assert baseline['frozen_input_sha256'] == input_hashes(), 'baseline inputs stale'
+    assert {k:v for k,v in baseline.items() if k != 'frozen_input_sha256'} == closure.generate(), 'current-resource witness differs from fresh replay'
+    candidate = checker.replay(json.loads(options.candidate.read_text())) if options.candidate else None
     levels = campaign.TABLES["levels"]
     assert len(levels) == len(table["rows"]) == len(baseline["rows"]) == 99
     account = campaign.Account.from_fixture()
@@ -57,7 +70,15 @@ def main():
             conflicts.append(result)
         if not current["within_G1_corridor"]:
             failures.append(n)
-    result = {"status": "FEASIBLE_MONOTONE_ENVELOPE" if not conflicts else "CONTRACT_CONFLICT", "schema_version": 2,
+    witness = candidate or baseline
+    feasible = not conflicts and not witness['failures']
+    result = {"status": "FEASIBLE_BOUNDED_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 3,
+              "abstract_envelope_consistent": not conflicts,
+              "bounded_resource_witness_proven": feasible,
+              "current_resource_farms": baseline['farm_gates'],
+              "current_total_farms": baseline['total_farm_runs'],
+              "current_walls_too_high": baseline['walls_too_high'],
+              "witness_failure_levels": witness['failures'],
               "assumptions": ["existing strongest-owned-weapon policy; owned equipment is not lost",
                               "authorized monotone growth/cost/reward scaling cannot reduce acquired power",
                               "unchanged P(g), F(g), starter Lv1 attributes and account policy",
@@ -66,11 +87,11 @@ def main():
               "constrained_levels": [r["level"] for r in rows if r["constrained"]],
               "current_G1_failure_levels": failures,
               "infeasible_levels": [r["level"] for r in conflicts],
-              "resources_changed": False, "resource_table_C": None,
+              "resources_changed": False, "resource_table_C": str(options.candidate) if options.candidate else None,
               "input_sha256": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-                               for p in (table_path, closure_path)}, "rows": rows}
+                               for p in (table_path, closure_path, *([options.candidate] if options.candidate else []))}, "rows": rows}
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 1 if conflicts else 0
+    return 0 if feasible else 1
 
 
 if __name__ == "__main__":

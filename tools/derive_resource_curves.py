@@ -28,6 +28,7 @@ from solve_runtime_clear_lines import atomic_write, input_hashes
 
 ROOT = campaign.ROOT
 DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime('%Y_%m_%d')
+LOG_FACTOR_BOUNDS = [-math.log(2), math.log(2)]
 
 
 def smooth_factors(length: int, log_scale: float, log_slope: float) -> list[float]:
@@ -36,21 +37,21 @@ def smooth_factors(length: int, log_scale: float, log_slope: float) -> list[floa
 
 def parameters(tables: dict, xp_directions: dict | None = None) -> list[dict]:
     specs = [
-        {'name': 'first_clear_gold.log_scale', 'bounds': [-3, 2]},
-        {'name': 'first_clear_gold.log_slope', 'bounds': [-3, 3]},
-        {'name': 'kill_gold_mult.log_scale', 'bounds': [-3, 2]},
-        {'name': 'kill_gold_mult.log_slope', 'bounds': [-3, 3]},
-        {'name': 'free_unlock_star.log_scale', 'bounds': [-1, 1]},
-        {'name': 'skill_base_xp_costs.log_scale', 'bounds': [-2, 2]},
-        {'name': 'skill_base_xp_costs.log_slope', 'bounds': [-2, 3]},
-        {'name': 'sig_skill_xp_costs.log_scale', 'bounds': [-2, 2]},
-        {'name': 'sig_skill_xp_costs.log_slope', 'bounds': [-2, 3]},
+        {'name': 'first_clear_gold.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'first_clear_gold.log_end', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'kill_gold_mult.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'kill_gold_mult.log_end', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'free_unlock_star.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'skill_base_xp_costs.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'skill_base_xp_costs.log_end', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'sig_skill_xp_costs.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
+        {'name': 'sig_skill_xp_costs.log_end', 'bounds': LOG_FACTOR_BOUNDS},
     ]
-    specs += [{'name': f'weapon_cost.{key}.log_scale', 'bounds': [-3, 3]}
+    specs += [{'name': f'weapon_cost.{key}.log_scale', 'bounds': LOG_FACTOR_BOUNDS}
               for key, row in tables['weapons'].items() if not row.get('premium_set') and not row.get('premium_entitlement')]
     if xp_directions:
         specs = [s for s in specs if not s['name'].startswith(('skill_base_xp_costs.', 'sig_skill_xp_costs.'))]
-        specs += [{'name': f'{f}.knot_{i}', 'bounds': [-4, 3], 'direction': direction}
+        specs += [{'name': f'{f}.knot_{i}', 'bounds': LOG_FACTOR_BOUNDS, 'direction': direction}
                   for f, direction in xp_directions.items() for i in range(5)]
     return specs
 
@@ -65,8 +66,12 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
         if old != new:
             changes.append({'file': file, 'pointer': pointer, 'old': old, 'new': new, 'factor': factor})
     for family, field in [('first_clear_gold', 'gold'), ('kill_gold_mult', 'reward_gold_mult')]:
-        a, b = values[family+'.log_scale'], values[family+'.log_slope']
+        a = values[family+'.log_scale']
+        b = values[family+'.log_end'] - a
         factors = smooth_factors(len(tables['levels']), a, b)
+        # Validated log endpoints already prove [.5,2]. Snap floating-point
+        # endpoint roundoff (e.g. .49999999999999994), not a wider search range.
+        factors = [min(2.0,max(.5,f)) for f in factors]
         curves.append({'name': family, 'shape': 'existing authored per-level values × exp(a+b*(L-1)/98)',
                        'log_scale': a, 'log_slope': b, 'factors': factors,
                        'factor_direction': 'nondecreasing' if b >= 0 else 'nonincreasing'})
@@ -99,8 +104,10 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
                      'interpolation':'five rank knots admit C1 monotone log-factor interpolation; runtime still directly indexes the same five tiers',
                      'factors':factors, 'direction':direction}
         else:
-            a, b = values[field+'.log_scale'], values[field+'.log_slope']
+            a = values[field+'.log_scale']
+            b = values[field+'.log_end'] - a
             factors = smooth_factors(len(base['economy'][field]), a, b)
+            factors = [min(2.0,max(.5,f)) for f in factors]
             curve = {'name': field, 'shape': 'existing 5 cost tiers × exp(a+b*(rank-1)/4)',
                      'log_scale': a, 'log_slope': b, 'factors': factors}
         costs = [max(1, round(cost * factor)) for cost, factor in zip(base['economy'][field], factors)]
@@ -128,6 +135,8 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
             raise ValueError('scaled reward curve reverses authored increasing direction')
         if all(b <= a for a,b in zip(old,old[1:])) and any(b > a for a,b in zip(new,new[1:])):
             raise ValueError('scaled reward curve reverses authored decreasing direction')
+    if any(not .5 - 1e-12 <= f <= 2 + 1e-12 for c in curves for f in c.get('factors',[c.get('factor')])):
+        raise ValueError('§8.2 all resource factors must be in [0.5,2.0]')
     return tables, changes, curves
 
 
@@ -138,7 +147,7 @@ def metrics(payload: dict) -> dict:
         residual = max(lo-power, power-hi, 0) / envelope
         if residual:
             violations.append({'level': row['level'], 'power': power, 'lower': lo, 'upper': hi, 'residual': residual})
-    return {'objective': payload['envelope_objective'], 'violation_count': len(violations),
+    return {'objective': payload['envelope_objective'], 'total_farm_runs': payload['total_farm_runs'], 'violation_count': len(violations),
             'violation_l1': sum(v['residual'] for v in violations),
             'violation_l2_squared': sum(v['residual']**2 for v in violations),
             'max_violation': max((v['residual'] for v in violations), default=0), 'violations': violations}
@@ -150,7 +159,7 @@ class Search:
         self.evaluations = 0
         self.best = None
         self.started = time.monotonic()
-        self.fingerprint = hashlib.sha256(json.dumps({'inputs':input_hashes(),'parameters':specs},sort_keys=True).encode()).hexdigest()
+        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.2 bounded farm 6/chapter','inputs':input_hashes(),'parameters':specs},sort_keys=True).encode()).hexdigest()
         # Resource-price changes cannot alter pure-build axes. Cache the exact
         # frozen model calculation, not a regression or surrogate prediction.
         model = PowerScaleV6.build_from_fixture()
@@ -171,13 +180,16 @@ class Search:
         except ValueError:
             return 1e12
         # Constraints dominate objective; both are reported separately.
-        score = (1e5 * result['violation_l2_squared'] + 1e4 * result['max_violation']
-                 + 100 * result['violation_l1'] + result['violation_count'] + .01 * result['objective'])
+        # A feasible candidate ALWAYS beats an infeasible one. Once feasible,
+        # integer farm counts dominate the bounded secondary envelope objective.
+        score = (1e6 + 1e5 * result['violation_l2_squared'] + 1e4 * result['max_violation']
+                 + 100 * result['violation_l1'] + result['violation_count']) if result['violation_count'] else (
+                     result['total_farm_runs'] + result['objective'] / (1 + result['objective']))
         if self.best is None or score < self.best['score']:
             self.best = {'score': score, 'vector': list(map(float, vector)), 'metrics': result,
                          'evaluation': self.evaluations, 'fingerprint':self.fingerprint}
             atomic_write(self.checkpoint, self.best)
-            print(f"best eval={self.evaluations} violations={result['violation_count']} l1={result['violation_l1']:.6f} objective={result['objective']:.6f} wall={time.monotonic()-self.started:.1f}s", flush=True)
+            print(f"best eval={self.evaluations} violations={result['violation_count']} farms={result['total_farm_runs']} l1={result['violation_l1']:.6f} objective={result['objective']:.6f} wall={time.monotonic()-self.started:.1f}s", flush=True)
         return score
 
     def polish(self, rounds):
@@ -193,7 +205,7 @@ class Search:
 
 def render(payload):
     lines = [f"状态：{payload['status']}；待Fable签字，游戏数据未写入。", '', '# 资源表 C 候选', '',
-             '离线假定3★首通、不刷关；不是新运行时胜率。既有账户策略与P(g)/F(g)冻结。',
+             '离线假定3★首通与上一关回刷，每章最多6次；不是新运行时胜率。既有账户策略与P(g)/F(g)冻结。所有因子限定[0.5,2.0]。',
              f"优化前：{len(payload['before']['failures'])}/99失败，目标{payload['before_metrics']['objective']:.6f}。",
              f"优化后：{len(payload['after']['failures'])}/99失败，目标{payload['after_metrics']['objective']:.6f}。", '',
              '缩放系数与逐字段旧/新对照完整列于同名JSON；所有候选仅在内存模拟。', '',
@@ -207,7 +219,9 @@ def render(payload):
     lines += ['', '|关卡|rec|E|旧P|新P|新R|新P/E|下限|上限|达标|', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|']
     for old, new in zip(payload['before']['rows'], payload['after']['rows']):
         lines.append(f"|{new['level']:03d}|{new['recommended']}|{new['E']}|{old['power']}|{new['power']}|{new['R']:.4f}|{new['power_over_E']:.4f}|{new['G1_power_lower']}|{new['G1_power_upper']}|{new['within_G1_corridor']}|")
-    return '\n'.join(lines)+'\n'
+    lines += ['', '## 优化前回刷门与预算', '', closure.render(payload['before']),
+              '## 优化后回刷门与预算', '', closure.render(payload['after'])]
+    return '\n'.join(lines).rstrip()+'\n'
 
 
 def main():
@@ -233,7 +247,7 @@ def main():
     directions = {'skill_base_xp_costs':1 if args.xp_base_direction=='up' else -1,
                   'sig_skill_xp_costs':1 if args.xp_sig_direction=='up' else -1} if args.xp_base_direction else None
     specs = parameters(base,directions)
-    before = closure.generate(include_recovery=False)
+    before = closure.generate(include_recovery=True)
     search = Search(base, specs, args.checkpoint)
     initial = np.zeros(len(specs))
     if args.vector or (args.resume and args.checkpoint.exists()):
@@ -254,11 +268,11 @@ def main():
         search.polish(args.polish_rounds)
     tables, changes, curves = candidate(base, specs, search.best['vector'])
     with closure.candidate_tables(tables):
-        after = closure.generate(include_recovery=False)
+        after = closure.generate(include_recovery=True)
     after_metrics = metrics(after)
     assert frozen == input_hashes(), 'candidate evaluation changed frozen disk inputs'
     payload = {'schema_version': 1, 'status': 'CANDIDATE_FEASIBLE_AWAITING_GATE_C' if not after_metrics['violation_count'] else 'SEARCH_CANDIDATE_NOT_YET_FEASIBLE',
-               'contract': 'design/41 section 8.1', 'game_data_written': False,
+               'contract': 'design/41 section 8.2', 'game_data_written': False,
                'before_metrics': metrics(before), 'after_metrics': after_metrics,
                'before': before, 'after': after, 'curves': curves, 'changes': changes,
                'parameters': specs, 'vector': search.best['vector'],

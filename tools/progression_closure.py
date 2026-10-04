@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only three-star/no-farm closure using the existing account policy.
+"""Report-only §8.2 bounded-farm closure using the existing account policy.
 
 Rewards are authored full-clear budgets, not a claim that this account actually
 earns 3 stars. Dynamic summons, gold-rush cards and premium bonuses are excluded.
@@ -20,6 +20,39 @@ import runtime_power_contracts
 ROOT = campaign.ROOT
 DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 MAX_FARM_RUNS = 2000
+CHAPTER_FARM_BUDGET = 6
+WALL_LEVELS = (15, 17, 18, 19, 20, 40, 44, 76)
+
+
+def bounded_farm(account, level: dict, previous: dict | None, remaining: int, repeat_offset: int = 0) -> tuple[object, dict]:
+    """§8.2: adopt only a copied reference account; never touch saved game data.
+
+    A gate always replays its immediate predecessor. Each predecessor is used
+    at only one gate, so count 1 is its second clear (50%), later clears 25%.
+    The chapter budget is shared by all gates, not renewed at each gate.
+    """
+    sandbox = copy.deepcopy(account)
+    _, result = campaign.build_for(sandbox, level)
+    lower = (result['recommended'] if g1_constrained(level)
+             else (95 * result['recommended'] + 99) // 100)
+    initial_power = result['power']
+    events = []
+    while result['power'] < lower and previous is not None and len(events) < remaining:
+        count = repeat_offset + len(events) + 1
+        full = rewards(previous, first_clear=False)
+        multipliers = campaign.TABLES['economy']['repeat_clear_xp_mult']
+        multiplier = float(multipliers[min(count, len(multipliers)-1)])
+        income = {**full, 'xp': math.floor(full['xp'] * multiplier + .5)}
+        event = advance(sandbox, previous, level, income)
+        _, result = campaign.build_for(sandbox, level)
+        events.append({'repeat_index': count, 'xp_multiplier': multiplier,
+                       'power_after': result['power'], **event})
+    return sandbox, {'required': initial_power < lower, 'power_before': initial_power,
+                     'power_after': result['power'], 'lower': lower,
+                     'farm_level': sim.level_number(previous) if previous else None,
+                     'runs': len(events), 'budget_available': remaining,
+                     'lower_met': result['power'] >= lower, 'events': events,
+                     'eight_wall': sim.level_number(level) in WALL_LEVELS}
 
 
 def g1_constrained(level: dict) -> bool:
@@ -179,17 +212,40 @@ def generate(include_recovery: bool = True) -> dict:
     levels = campaign.TABLES["levels"]
     direction_a = runtime_power_contracts.enabled()
     envelopes = g1_envelopes(levels)
+    chapter_used = {}
     for index, level in enumerate(levels):
+        number = sim.level_number(level)
+        chapter = (number - 1) // 10 + 1
+        used = chapter_used.get(chapter, 0)
+        if direction_a:
+            account, farm = bounded_farm(account, level, levels[index-1] if index else None,
+                                         CHAPTER_FARM_BUDGET-used)
+            chapter_used[chapter] = used + farm['runs']
+            farm['chapter_runs_after'] = chapter_used[chapter]
+            # Extra runs are diagnostic only, never adopted into the main path.
+            if not farm['lower_met'] and include_recovery:
+                _, extra = bounded_farm(account, level, levels[index-1] if index else None, 100, farm['runs'])
+                farm['additional_runs_counterfactual'] = extra['runs'] if extra['lower_met'] else None
+                farm['gate_runs_needed_counterfactual'] = (farm['runs'] + extra['runs']) if extra['lower_met'] else None
+                farm['chapter_runs_needed_counterfactual'] = (chapter_used[chapter] + extra['runs']) if extra['lower_met'] else None
+                farm['diagnostic_limit'] = 100
+            for event in farm['events']:
+                for key in cumulative:
+                    cumulative[key] += event['income'][key]
+        else:
+            farm = {'required': False, 'runs': 0, 'chapter_runs_after': 0, 'events': []}
         build, result = campaign.build_for(account, level)
         ratio = result["power"] / result["recommended"]
         if ratio < .95 and first_below is None:
             first_below = sim.level_number(level)
-        recovery = farming_recovery(account, level, levels[index - 1] if index else None) if include_recovery else {"not_run": "optimizer excludes recovery; main path never farms"}
+        recovery = (farming_recovery(account, level, levels[index-1] if index else None)
+                    if not direction_a and include_recovery else
+                    {"not_run": "§8.2 bounded farming is in the reference main path; extra recovery is diagnostic only"})
         envelope = envelopes[sim.level_number(level)]
         minimum, maximum = g1_bounds(level, direction_a, envelope)
         row = {"level": sim.level_number(level), "build": build, "power": result["power"],
                "recommended": result["recommended"], "R": ratio, "cumulative_earned_before": dict(cumulative),
-               "account_before": account_state(account), "recovery_counterfactual": recovery,
+               "account_before": account_state(account), "recovery_counterfactual": recovery, "farming": farm,
                "G1_min_R": minimum, "G1_max_R": maximum,
                "G1_constrained_level": g1_constrained(level) if direction_a else True,
                "E": envelope, "power_over_E": result["power"] / envelope,
@@ -201,13 +257,16 @@ def generate(include_recovery: bool = True) -> dict:
         for key in cumulative:
             cumulative[key] += income[key]
         rows.append(row)
-    return {"schema_version": 3, "G1_definition": "design/41 section 8.1: all P>=.95rec; Boss/x7-x9 P>=rec; all P<=1.10E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
-            "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": False,
+    return {"schema_version": 4, "G1_definition": "design/41 section 8.2: all P>=.95rec; Boss/x7-x9 P>=rec; all P<=1.10E; <=6 predecessor farms/chapter; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
+            "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": direction_a,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
-            "conditional": "all 99 first clears assumed 3-star; no runtime win claim; farming is counterfactual on a copy of the account",
+            "conditional": "all 99 first clears and predecessor farms assumed 3-star; after any failed gate later rows are conditional diagnostics, NOT reachable or runtime wins",
             "repeat_stars": "zero after an already 3-star clear", "repeat_xp": "existing repeat_clear_xp_mult, no first-clear bonus"},
             "first_R_below_0_95": first_below, "rows": rows,
+            "total_farm_runs": sum(chapter_used.values()), "chapter_farm_runs": {str(k):v for k,v in chapter_used.items()},
+            "farm_gates": [{"level":r['level'], **r['farming']} for r in rows if r['farming']['required']],
+            "walls_too_high": [r['level'] for r in rows if direction_a and not r['farming']['lower_met']],
             "envelope_objective": sum(abs(row["power"] - row["E"]) / row["E"] for row in rows),
             "failures": [row["level"] for row in rows if not row["within_G1_corridor"]]}
 
@@ -215,19 +274,25 @@ def generate(include_recovery: bool = True) -> dict:
 def render(payload: dict) -> str:
     lines = ["状态：离线条件模拟，不代表实际3★通关；未改数据。", "", "# T3 进度闭环", "",
              "只用假定3★首通，金币按逐敌四舍五入；非Boss波support不计。", 
-             "主路径不刷关；恢复次数是独立副本反事实，不向后续99关注入刷取资源。",
+             "§8.2主路径在账户副本内回刷上一关，每章累计最多6次；未达门槛后的行仅为条件诊断。",
              "不计动态召唤、金币卡、付费助推；按现有购买/升级优先级和技能经验成本。",
              "重复3★没有新增星星，只有金币与递减经验。R是显示战力比，不等于已验证胜率。", "",
              payload["G1_definition"], "",
              f"首次R<0.95：{payload['first_R_below_0_95']}；G1走廊不满足关数：{len(payload['failures'])}/99。", "",
              f"包络目标Σ|P−E|/E：{payload['envelope_objective']:.6f}。", "",
-             "|关卡|累计金币(入场前)|当前战力|推荐|R|E|P/E|首通金币|当关购入/升级|回刷至R≥1|", "|---|---:|---:|---:|---:|---:|---:|---:|---|---:|"]
+             f"回刷总数：{payload['total_farm_runs']}；各章：{payload['chapter_farm_runs']}；墙过高/预算内未满足下限：{payload['walls_too_high']}。", "",
+             "|回刷门|前一关|入门P|回刷后P|次数|章累计|下限满足|八墙关|达到下限所需章次数(反事实)|", "|---|---:|---:|---:|---:|---:|---|---|---|"]
+    for gate in payload['farm_gates']:
+        needed = gate['chapter_runs_after'] if gate['lower_met'] else gate.get('chapter_runs_needed_counterfactual','未运行')
+        lines.append(f"|{gate['level']:03d}|{gate['farm_level']}|{gate['power_before']}|{gate['power_after']}|{gate['runs']}|{gate['chapter_runs_after']}|{gate['lower_met']}|{gate['eight_wall']}|{needed}|")
+    lines += ["",
+             "|关卡|累计金币(入场前)|当前战力|推荐|R|E|P/E|首通金币|当关购入/升级|当关/章累计回刷|", "|---|---:|---:|---:|---:|---:|---:|---:|---|---|"]
     for row in payload["rows"]:
         progression = row["progression_after_clear"]
         events = [entry["item_id"] for entry in progression["purchases"]]
         events += [f"{entry.get('item', entry.get('skill'))} {entry['from']}→{entry['to']}" for entry in progression["upgrades"]]
-        recovery = row["recovery_counterfactual"]
-        lines.append(f"|{row['level']:03d}|{row['cumulative_earned_before']['gold']}|{row['power']}|{row['recommended']}|{row['R']:.4f}|{row['E']}|{row['power_over_E']:.4f}|{progression['income']['gold']}|{'; '.join(events) or '无'}|{recovery.get('repeat_3star_runs') if recovery.get('recovered') else '不可恢复/未收敛'}|")
+        farm = row['farming']
+        lines.append(f"|{row['level']:03d}|{row['cumulative_earned_before']['gold']}|{row['power']}|{row['recommended']}|{row['R']:.4f}|{row['E']}|{row['power_over_E']:.4f}|{progression['income']['gold']}|{'; '.join(events) or '无'}|{farm['runs']}/{farm['chapter_runs_after']}|")
     return "\n".join(lines) + "\n"
 
 
