@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only §8.3 challenge-first/gate closure using the existing account policy.
+"""Report-only §8.4 challenge-first/gate closure using the existing account policy.
 
 Rewards are authored full-clear budgets, not a claim that this account actually
 earns 3 stars. Dynamic summons, gold-rush cards and premium bonuses are excluded.
@@ -23,6 +23,7 @@ MAX_FARM_RUNS = 2000
 CHAPTER_FARM_BUDGET = 6
 WALL_LEVELS = (15, 17, 18, 19, 20, 40, 44, 76)
 FIXED_GATE_LEVELS = (20, 76, 95)
+G1_UPPER_PERCENT = 120
 
 
 def farm_route_state() -> dict:
@@ -53,6 +54,8 @@ def route_farm(account, level: dict, cleared: list[dict], remaining: int, route:
     lower = result['recommended'] if g1_constrained(level) else (95*result['recommended']+99)//100
     number, initial = sim.level_number(level), result['power']
     gate = number in FIXED_GATE_LEVELS
+    if gate:
+        lower = result['recommended']
     reason = 'Owner fixed gate' if gate else None
     events, unresolved = [], None
     while result['power'] < lower:
@@ -62,6 +65,7 @@ def route_farm(account, level: dict, cleared: list[dict], remaining: int, route:
             break
         if not gate and len(events) >= remaining:
             gate, reason = True, 'challenge-first route still exceeds chapter remaining budget'
+            lower = result['recommended']  # §8.4: every gate must reach R>=1.
         if len(events) >= MAX_FARM_RUNS:
             unresolved = 'diagnostic guard reached; NOT cleared'
             break
@@ -150,7 +154,7 @@ def g1_bounds(level: dict, direction_a: bool, envelope: int | None = None) -> tu
     if envelope is None:
         raise ValueError("direction-A G1 requires the cumulative E envelope")
     rec = int(level["clear_requirement"]["power_contract"]["recommended_power"])
-    return (1.00 if g1_constrained(level) else .95), 1.10 * envelope / rec
+    return (1.00 if g1_constrained(level) else .95), G1_UPPER_PERCENT * envelope / (100 * rec)
 
 
 @contextmanager
@@ -311,7 +315,7 @@ def generate(include_recovery: bool = True) -> dict:
             first_below = sim.level_number(level)
         recovery = (farming_recovery(account, level, levels[index-1] if index else None)
                     if not direction_a and include_recovery else
-                    {"not_run": "§8.3 challenge-first and unlimited gate farming adopted into copied main path"})
+                    {"not_run": "§8.4 challenge-first and unlimited gate farming adopted into copied main path"})
         envelope = envelopes[sim.level_number(level)]
         minimum, maximum = g1_bounds(level, direction_a, envelope)
         is_gate = direction_a and farm['is_gate']
@@ -324,10 +328,10 @@ def generate(include_recovery: bool = True) -> dict:
                "G1_min_R": minimum, "G1_max_R": maximum,
                "G1_constrained_level": g1_constrained(level) if direction_a else True,
                "E": envelope, "power_over_E": result["power"] / envelope,
-               "G1_power_lower": effective_lower, "clear_target_power_lower": raw_lower,
+               "G1_power_lower": effective_lower, "clear_target_power_lower": farm['lower'] if direction_a else raw_lower,
                "G1_lower_exempt": is_gate, "conditional_on_passed_gates": list(passed_gates),
                "farm_route_before_clear": copy.deepcopy(route),
-               "G1_power_upper": (110 * envelope) // 100 if direction_a else math.floor(maximum * result["recommended"] + 1e-9),
+               "G1_power_upper": (G1_UPPER_PERCENT * envelope) // 100 if direction_a else math.floor(maximum * result["recommended"] + 1e-9),
                "within_G1_corridor": resolved and result['power'] >= effective_lower and ratio <= maximum + 1e-12}
         income = rewards(level)
         row["progression_after_clear"] = advance(account, level, levels[min(index + 1, len(levels) - 1)], income)
@@ -336,13 +340,14 @@ def generate(include_recovery: bool = True) -> dict:
         rows.append(row)
         if is_gate and resolved:
             passed_gates.append(number)
-    return {"schema_version": 5, "G1_definition": "design/41 section 8.3: non-gates P>=.95rec (Boss/x7-x9 >=rec), <=6 farms/chapter; gate lower exempt, farm until clear; all P<=1.10E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
+    return {"schema_version": 6, "G1_definition": "design/41 section 8.4: non-gates P>=.95rec (Boss/x7-x9 >=rec), <=6 farms/chapter; gate lower exempt, farm until P>=rec; all P<=1.20E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
             "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": direction_a,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
             "conditional": "all normal/challenge clears assumed 3-star, NOT runtime wins; post-gate path conditional on having passed each gate; unresolved gate cannot be called feasible",
             "route": "latest previously 3-star-cleared unclaimed challenge first; else immediate predecessor normal repeat",
             "gate_budget": "gate runs separately counted, including all runs at a dynamically promoted gate; do not consume non-gate chapter budget",
+            "gate_target": "P>=rec(gate), R>=1; post-gate path conditional on meeting this target",
             "gate_promotion": "any level still below lower bound after chapter remaining budget; 017/074 are candidates, not a whitelist",
             "repeat_stars": "challenge first +3 once; normal repeat zero", "repeat_xp": "runtime independent mode counts: challenge first 100%; normal/challenge second 50%, later 25%; no repeat first-clear gold",
             "challenge_rewards": "same authored enemy count and per-enemy gold/XP; current challenge rules change combat, not these rewards",
@@ -364,7 +369,7 @@ def generate(include_recovery: bool = True) -> dict:
 def render(payload: dict) -> str:
     lines = ["状态：离线条件模拟，不代表实际3★通关；未改数据。", "", "# T3 进度闭环", "",
              "只用假定3★首通，金币按逐敌四舍五入；非Boss波support不计。", 
-             "§8.3主路径在账户副本内优先挑战首通；非门关每章累计最多6次，门关刷到够为止、另记高度。",
+             "§8.4主路径在账户副本内优先挑战首通；非门关每章累计最多6次，门关刷到P≥rec、另记高度；全关上限1.20E。",
              "不计动态召唤、金币卡、付费助推；按现有购买/升级优先级和技能经验成本。",
              "挑战首通+3星一次，无普通首通金币；经验独立计数：挑战首通100%，重复50%/25%。R不是已验证胜率。", "",
              payload["G1_definition"], "",

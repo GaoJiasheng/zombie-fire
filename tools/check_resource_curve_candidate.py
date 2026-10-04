@@ -13,6 +13,7 @@ from solve_runtime_clear_lines import input_hashes
 
 def replay(payload):
     assert payload['game_data_written'] is False
+    assert payload['contract'] == 'design/41 section 8.4', 'stale resource contract'
     assert payload['frozen_input_sha256'] == input_hashes(), 'candidate inputs are stale'
     tables = copy.deepcopy(campaign.TABLES)
     seen = set()
@@ -42,7 +43,7 @@ def replay(payload):
         key = int(parts[-1]) if isinstance(parent, list) else parts[-1]
         assert parent[key] == change['old'], f'old value mismatch: {change}'
         assert math.isfinite(change['new']) and change['new'] >= 0
-        assert .5 <= change['factor'] <= 2, '§8.3 factor out of bounds'
+        assert .5 <= change['factor'] <= 2, '§8.4 factor out of bounds'
         expected = (round(change['old']*change['factor'],8) if parts[-1] == 'reward_gold_mult'
                     else max(0 if parts[-1] == 'gold' else 1,round(change['old']*change['factor'])))
         assert change['new'] == expected, 'declared scale factor does not derive proposed value'
@@ -59,6 +60,7 @@ def replay(payload):
         factors = curve.get('factors', [curve.get('factor')])
         assert all(isinstance(x, (int, float)) and math.isfinite(x) and .5 <= x <= 2 for x in factors)
         assert all(b >= a - 1e-12 for a, b in zip(factors, factors[1:])) or all(b <= a + 1e-12 for a, b in zip(factors, factors[1:]))
+    verify_curve_application(payload, tables)
     assert closure.generate(include_recovery=True) == payload['before'], 'baseline replay differs'
     with closure.candidate_tables(tables):
         after = closure.generate(include_recovery=True)
@@ -69,11 +71,61 @@ def replay(payload):
     return after
 
 
+def verify_curve_application(payload, tables):
+    """Independently reconstruct every allowed field, including unchanged rows.
+
+    A declared common factor must actually apply to ALL eight free weapons.
+    The price ratio can differ slightly due to integer rounding, not because
+    separate factors were smuggled into field changes.
+    """
+    curves = {c['name']: c for c in payload['curves']}
+    assert len(curves) == len(payload['curves']) == 6
+    assert set(curves) == {'first_clear_gold', 'kill_gold_mult', 'free_unlock_star',
+                           'skill_base_xp_costs', 'sig_skill_xp_costs', 'free_weapon_cost'}
+    base = campaign.TABLES
+    weapons = [key for key, row in base['weapons'].items()
+               if not row.get('premium_set') and not row.get('premium_entitlement')]
+    common = curves['free_weapon_cost']
+    assert common['members'] == weapons and len(weapons) == 8
+    expected_factors = {}
+    for key in weapons:
+        assert tables['weapons'][key]['cost_base_gold'] == max(1, round(base['weapons'][key]['cost_base_gold'] * common['factor']))
+        expected_factors[('data/weapons.json', '/'+key+'/cost_base_gold')] = common['factor']
+    star = curves['free_unlock_star']['factor']
+    for slot in ('weapons', 'armors', 'chips', 'pets'):
+        for key, original in base[slot].items():
+            if original.get('premium_set') or original.get('premium_entitlement'):
+                assert tables[slot][key] == original
+                continue
+            cost = original.get('unlock_cost_star', 0)
+            assert tables[slot][key].get('unlock_cost_star', 0) == (max(1, round(cost*star)) if cost else cost)
+            expected_factors[(f'data/{slot}.json', '/'+key+'/unlock_cost_star')] = star
+    for field in ('skill_base_xp_costs', 'sig_skill_xp_costs'):
+        factors = curves[field]['factors']
+        assert len(factors) == 5
+        assert tables['economy'][field] == [max(1, round(old*f)) for old, f in zip(base['economy'][field], factors)]
+        for i, factor in enumerate(factors):
+            expected_factors[('data/economy.json', f'/{field}/{i}')] = factor
+    for name, field in (('first_clear_gold', 'first_clear_reward/gold'), ('kill_gold_mult', 'reward_gold_mult')):
+        curve, factors = curves[name], curves[name]['factors']
+        assert len(factors) == 99
+        assert all(abs(f-math.exp(curve['log_scale']+curve['log_slope']*i/98)) < 1e-12 for i, f in enumerate(factors))
+        for i, (old, new, factor) in enumerate(zip(base['levels'], tables['levels'], factors)):
+            if name == 'first_clear_gold':
+                assert new['first_clear_reward']['gold'] == max(0, round(old['first_clear_reward']['gold']*factor))
+            else:
+                assert new[field] == round(old[field]*factor, 8)
+            expected_factors[('data/levels.json', f'/{i}/{field}')] = factor
+    for change in payload['changes']:
+        assert change['factor'] == expected_factors[(change['file'], change['pointer'])], 'individual field factor differs from its ONE curve'
+
+
 def verify_farming(after, tables):
     """Independent ledger checks, not just equality with generator output."""
     chapter_runs, claimed, normal_counts = {}, set(), {}
     gates, heights, total_gate_runs, total_runs = [], [], 0, 0
     earned = {'gold':0, 'xp':0, 'stars':0}
+    envelope, passed_gates = 65, []
     account = campaign.Account.from_fixture()
     with closure.candidate_tables(tables):
         for row in after['rows']:
@@ -82,6 +134,14 @@ def verify_farming(after, tables):
             farm = row['farming']
             level = tables['levels'][row['level']-1]
             _, pre = campaign.build_for(account,level)
+            rec = int(level['clear_requirement']['power_contract']['recommended_power'])
+            envelope = max(envelope, rec)
+            # Integer independent proof of the 2026-10-04 1.20E contract.
+            assert row['E'] == envelope and row['recommended'] == rec
+            assert row['G1_power_upper'] == (120*envelope)//100
+            target = rec if farm['is_gate'] or closure.g1_constrained(level) else (95*rec+99)//100
+            assert farm['lower'] == row['clear_target_power_lower'] == target
+            assert row['conditional_on_passed_gates'] == passed_gates
             assert pre['power'] == farm['power_before']
             assert farm['budget_available'] == 6-used
             assert farm['runs'] == len(farm['events'])
@@ -128,6 +188,9 @@ def verify_farming(after, tables):
                 gates.append(row['level'])
                 assert farm['gate_height'] == (farm['runs'] if lower_met else None)
                 assert farm['gate_resolved'] == lower_met
+                if lower_met:
+                    assert row['power'] >= rec, 'passed gate must reach R>=1'
+                    passed_gates.append(row['level'])
             assert row['cumulative_earned_before'] == earned
             assert closure.account_state(account) == row['account_before']
             assert campaign.build_for(account,level)[1]['power'] == row['power']

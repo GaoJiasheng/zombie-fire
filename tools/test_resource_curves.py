@@ -23,7 +23,7 @@ class ResourceTests(unittest.TestCase):
     def test_knots_keep_five_tiers_and_zero_vector_identity(self):
         base = copy.deepcopy(campaign.TABLES)
         specs = resource.parameters(base, {'skill_base_xp_costs':-1, 'sig_skill_xp_costs':1})
-        self.assertEqual(len(specs),23)
+        self.assertEqual(len(specs),16)
         tables, changes, _ = resource.candidate(base,specs,[0]*len(specs))
         self.assertEqual(tables,base)
         self.assertEqual(changes,[])
@@ -40,8 +40,56 @@ class ResourceTests(unittest.TestCase):
 
     def replay_payload(self):
         baseline = closure.generate(include_recovery=True)
+        specs = resource.parameters(campaign.TABLES)
+        _, changes, curves = resource.candidate(campaign.TABLES, specs, [0]*len(specs))
         return {'game_data_written': False, 'frozen_input_sha256': input_hashes(),
-                'changes': [], 'curves': [], 'before': baseline, 'after': baseline}
+                'contract': 'design/41 section 8.4',
+                'changes': changes, 'curves': curves, 'before': baseline, 'after': baseline}
+
+    def test_common_weapon_factor_preserves_all_eight_base_price_ratios(self):
+        specs = resource.parameters(campaign.TABLES)
+        self.assertEqual(len(specs), 10)
+        vector = [0]*len(specs)
+        vector[-1] = math.log(1.37)
+        tables, changes, curves = resource.candidate(campaign.TABLES, specs, vector)
+        checker.verify_curve_application({'changes': changes, 'curves': curves}, tables)
+        members = curves[-1]['members']
+        self.assertEqual(len(members), 8)
+        self.assertTrue(all(tables['weapons'][key]['cost_base_gold'] == round(campaign.TABLES['weapons'][key]['cost_base_gold']*1.37) for key in members))
+        self.assertEqual(len({c['factor'] for c in changes if c['pointer'].endswith('/cost_base_gold')}), 1)
+        legacy = copy.deepcopy(specs)
+        legacy[-1]['name'] = 'weapon_cost.'+members[0]+'.log_scale'
+        with self.assertRaises(ValueError):
+            resource.candidate(campaign.TABLES, legacy, vector)
+
+    def test_checker_rejects_individual_weapon_factor_and_partial_application(self):
+        payload = self.replay_payload()
+        member = payload['curves'][-1]['members'][0]
+        old = campaign.TABLES['weapons'][member]['cost_base_gold']
+        payload['changes'] = [{'file':'data/weapons.json', 'pointer':'/'+member+'/cost_base_gold',
+                               'old':old, 'new':round(old*1.5), 'factor':1.5}]
+        with self.assertRaises(AssertionError):
+            checker.replay(payload)
+
+    def test_non_gate_farming_is_second_objective_not_total_farming(self):
+        a = {'violation_count':0, 'non_gate_farm_runs':0, 'total_farm_runs':200, 'objective':10}
+        b = {'violation_count':0, 'non_gate_farm_runs':1, 'total_farm_runs':1, 'objective':0}
+        self.assertLess(resource.candidate_score(a), resource.candidate_score(b))
+        c = {**a, 'total_farm_runs':300}
+        self.assertEqual(resource.candidate_score(a), resource.candidate_score(c))
+
+    def test_dynamic_nonboss_gate_does_not_stop_at_95_percent(self):
+        account = campaign.Account.from_fixture()
+        target = copy.deepcopy(campaign.TABLES['levels'][15])
+        target['waves'] = []  # L016, non-Boss and not x7-x9.
+        self.assertFalse(closure.g1_constrained(target))
+        outputs = [({}, {'power': p, 'recommended':100}) for p in (90,96,101)]
+        with mock.patch.object(campaign, 'build_for', side_effect=outputs), mock.patch.object(closure, 'advance', return_value={}):
+            _, _, farm = closure.route_farm(account, target, campaign.TABLES['levels'][:1], 0, closure.farm_route_state())
+        self.assertTrue(farm['is_gate'])
+        self.assertEqual(farm['lower'],100)
+        self.assertEqual(farm['gate_height'],2)
+        self.assertEqual(farm['power_after'],101)
 
     def test_exact_candidate_replay(self):
         payload = self.replay_payload()
@@ -117,9 +165,20 @@ class ResourceTests(unittest.TestCase):
         self.assertTrue(row['G1_lower_exempt'])
         self.assertEqual(row['G1_power_lower'],0)
         self.assertGreater(row['clear_target_power_lower'],0)
+        self.assertEqual(row['clear_target_power_lower'], row['recommended'])
+        self.assertGreaterEqual(row['power'], row['recommended'])
         modified=copy.deepcopy(payload)
         modified['rows'][19]['power']=row['G1_power_upper']+1
         self.assertIn(20,[v['level'] for v in resource.metrics(modified)['violations']])
+
+    def test_checker_rejects_gate_below_rec_and_wrong_upper(self):
+        result = closure.generate(False)
+        for pointer, value in (('clear_target_power_lower', result['rows'][19]['recommended']-1),
+                               ('G1_power_upper', result['rows'][19]['G1_power_upper']-1)):
+            modified = copy.deepcopy(result)
+            modified['rows'][19][pointer] = value
+            with self.assertRaises(AssertionError):
+                checker.verify_farming(modified, campaign.TABLES)
 
     def test_route_latest_unclaimed_and_normal_counter_survives_gate(self):
         route={'challenge_cleared':[1,2], 'normal_repeats':{'2':4}}

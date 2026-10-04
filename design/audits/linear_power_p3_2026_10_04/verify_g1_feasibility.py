@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""§8.3: separate abstract envelope consistency from a real resource witness."""
+"""§8.4: separate abstract envelope consistency from a real resource witness."""
 import argparse
 import hashlib
 import json
@@ -16,7 +16,7 @@ from solve_runtime_clear_lines import input_hashes
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_gates_before_2026_10_04.json")
+    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_c3_before_2026_10_04.json")
     parser.add_argument("--candidate", type=Path, help="independently replay an actual bounded resource witness")
     options = parser.parse_args()
     for name in ('closure','candidate'):
@@ -54,7 +54,7 @@ def main():
         rec = row["recommended_power"]
         # Exact integer arithmetic: displayed effective power is integer.
         lower = current['G1_power_lower']
-        upper = (110 * envelope) // 100
+        upper = (closure.G1_UPPER_PERCENT * envelope) // 100
         if lower > running:
             running, origin = lower, n
         conflict = running > upper

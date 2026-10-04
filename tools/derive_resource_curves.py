@@ -47,8 +47,7 @@ def parameters(tables: dict, xp_directions: dict | None = None) -> list[dict]:
         {'name': 'sig_skill_xp_costs.log_scale', 'bounds': LOG_FACTOR_BOUNDS},
         {'name': 'sig_skill_xp_costs.log_end', 'bounds': LOG_FACTOR_BOUNDS},
     ]
-    specs += [{'name': f'weapon_cost.{key}.log_scale', 'bounds': LOG_FACTOR_BOUNDS}
-              for key, row in tables['weapons'].items() if not row.get('premium_set') and not row.get('premium_entitlement')]
+    specs += [{'name': 'free_weapon_cost.log_scale', 'bounds': LOG_FACTOR_BOUNDS}]
     if xp_directions:
         specs = [s for s in specs if not s['name'].startswith(('skill_base_xp_costs.', 'sig_skill_xp_costs.'))]
         specs += [{'name': f'{f}.knot_{i}', 'bounds': LOG_FACTOR_BOUNDS, 'direction': direction}
@@ -58,6 +57,10 @@ def parameters(tables: dict, xp_directions: dict | None = None) -> list[dict]:
 
 def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], list[dict]]:
     tables = copy.deepcopy(base)
+    directions = {f: next(s['direction'] for s in specs if s['name'] == f+'.knot_0')
+                  for f in ('skill_base_xp_costs', 'sig_skill_xp_costs') if any(s['name'] == f+'.knot_0' for s in specs)}
+    if specs != parameters(base, directions or None):
+        raise ValueError('§8.4 parameter family requires one common free-weapon price factor')
     if len(vector) != len(specs) or any(not math.isfinite(float(v)) or not s['bounds'][0] <= float(v) <= s['bounds'][1] for s,v in zip(specs,vector)):
         raise ValueError('vector must match this curve family and its finite bounds')
     values = dict(zip((s['name'] for s in specs), map(float, vector)))
@@ -117,14 +120,15 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
         for i, (old, new, factor) in enumerate(zip(base['economy'][field], costs, factors)):
             patch('data/economy.json', f'/{field}/{i}', old, new, factor)
         tables['economy'][field] = costs
-    for key, old in base['weapons'].items():
-        name = f'weapon_cost.{key}.log_scale'
-        if name not in values:
-            continue
-        factor = math.exp(values[name])
+    factor = math.exp(values['free_weapon_cost.log_scale'])
+    free_weapons = [key for key, row in base['weapons'].items()
+                    if not row.get('premium_set') and not row.get('premium_entitlement')]
+    curves.append({'name': 'free_weapon_cost', 'shape': 'all existing free linear upgrade formulas × ONE common base-price factor',
+                   'factor': factor, 'members': free_weapons})
+    for key in free_weapons:
+        old = base['weapons'][key]
         cost = max(1, round(old['cost_base_gold'] * factor))
         tables['weapons'][key]['cost_base_gold'] = cost
-        curves.append({'name': 'weapon_cost.'+key, 'shape': 'same existing linear upgrade formula × constant base cost', 'factor': factor})
         patch('data/weapons.json', '/'+key+'/cost_base_gold', old['cost_base_gold'], cost, factor)
     # Preserve the authored monotone direction after scaling as well as the
     # factor's own monotonicity. Rounding may create plateaus, not reversals.
@@ -136,7 +140,7 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
         if all(b <= a for a,b in zip(old,old[1:])) and any(b > a for a,b in zip(new,new[1:])):
             raise ValueError('scaled reward curve reverses authored decreasing direction')
     if any(not .5 - 1e-12 <= f <= 2 + 1e-12 for c in curves for f in c.get('factors',[c.get('factor')])):
-        raise ValueError('§8.3 all resource factors must be in [0.5,2.0]')
+        raise ValueError('§8.4 all resource factors must be in [0.5,2.0]')
     return tables, changes, curves
 
 
@@ -158,13 +162,25 @@ def metrics(payload: dict) -> dict:
             'max_violation': max((v['residual'] for v in violations), default=0), 'violations': violations}
 
 
+def candidate_score(result: dict) -> float:
+    """Owner priority: zero hard failures, NON-GATE farms, then envelope error.
+
+    Gate heights are reported, never hidden, but do not participate in the
+    second objective (Owner's 2026-10-04 C third-round direct instruction).
+    """
+    if result['violation_count']:
+        return (1e6 + 1e5 * result['violation_l2_squared'] + 1e4 * result['max_violation']
+                + 100 * result['violation_l1'] + result['violation_count'])
+    return result['non_gate_farm_runs'] + result['objective'] / (1 + result['objective'])
+
+
 class Search:
     def __init__(self, base, specs, checkpoint):
         self.base, self.specs, self.checkpoint = base, specs, checkpoint
         self.evaluations = 0
         self.best = None
         self.started = time.monotonic()
-        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.3 challenge-first, independent runtime counts, fixed/dynamic gates outside 6/chapter','inputs':input_hashes(),'parameters':specs,
+        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.4: 1.20E, gate target rec, independent XP counts, common free-weapon price; zero failures/non-gate farms/envelope error','inputs':input_hashes(),'parameters':specs,
             'closure_sha256':hashlib.sha256(Path(closure.__file__).read_bytes()).hexdigest()},sort_keys=True).encode()).hexdigest()
         # Resource-price changes cannot alter pure-build axes. Cache the exact
         # frozen model calculation, not a regression or surrogate prediction.
@@ -188,14 +204,12 @@ class Search:
         # Constraints dominate objective; both are reported separately.
         # A feasible candidate ALWAYS beats an infeasible one. Once feasible,
         # integer farm counts dominate the bounded secondary envelope objective.
-        score = (1e6 + 1e5 * result['violation_l2_squared'] + 1e4 * result['max_violation']
-                 + 100 * result['violation_l1'] + result['violation_count']) if result['violation_count'] else (
-                     result['total_farm_runs'] + result['objective'] / (1 + result['objective']))
+        score = candidate_score(result)
         if self.best is None or score < self.best['score']:
             self.best = {'score': score, 'vector': list(map(float, vector)), 'metrics': result,
                          'evaluation': self.evaluations, 'fingerprint':self.fingerprint}
             atomic_write(self.checkpoint, self.best)
-            print(f"best eval={self.evaluations} violations={result['violation_count']} farms={result['total_farm_runs']} l1={result['violation_l1']:.6f} objective={result['objective']:.6f} wall={time.monotonic()-self.started:.1f}s", flush=True)
+            print(f"best eval={self.evaluations} violations={result['violation_count']} non_gate_farms={result['non_gate_farm_runs']} gate_farms={result['gate_farm_runs']} l1={result['violation_l1']:.6f} objective={result['objective']:.6f} wall={time.monotonic()-self.started:.1f}s", flush=True)
         return score
 
     def polish(self, rounds):
@@ -211,7 +225,8 @@ class Search:
 
 def render(payload):
     lines = [f"状态：{payload['status']}；待Fable签字，游戏数据未写入。", '', '# 资源表 C 候选', '',
-             '§8.3离线假定3★首通，挑战首通优先；非门关每章最多6次，门关不限次数、照实列高度。不是运行时胜率。P(g)/F(g)与消费策略冻结，因子[0.5,2.0]。',
+             '§8.4离线假定3★首通，挑战首通优先；非门关每章最多6次，门关刷到R≥1、不限次数、照实列高度；全关P≤1.20E。不是运行时胜率。P(g)/F(g)与消费策略冻结，因子[0.5,2.0]；八把免费武器共用一个升级基价系数。',
+             '优化顺序：零硬约束失败 → 非门回刷次数 → Σ|P−E|/E。门次数完整披露，不参与第二目标。',
              f"优化前：{len(payload['before']['failures'])}/99失败，目标{payload['before_metrics']['objective']:.6f}。",
              f"优化后：{len(payload['after']['failures'])}/99失败，目标{payload['after_metrics']['objective']:.6f}。", '',
              '缩放系数与逐字段旧/新对照完整列于同名JSON；所有候选仅在内存模拟。', '',
@@ -278,12 +293,13 @@ def main():
     after_metrics = metrics(after)
     assert frozen == input_hashes(), 'candidate evaluation changed frozen disk inputs'
     payload = {'schema_version': 1, 'status': 'CANDIDATE_FEASIBLE_AWAITING_GATE_C' if not after_metrics['violation_count'] else 'SEARCH_CANDIDATE_NOT_YET_FEASIBLE',
-               'contract': 'design/41 section 8.3', 'game_data_written': False,
+               'contract': 'design/41 section 8.4', 'game_data_written': False,
+               'objective_priority': ['zero hard failures', 'non_gate_farm_runs', 'envelope_objective'],
                'before_metrics': metrics(before), 'after_metrics': after_metrics,
                'before': before, 'after': after, 'curves': curves, 'changes': changes,
                'parameters': specs, 'vector': search.best['vector'],
                'search': {'seed': args.seed if not args.vector else None, 'iterations': args.iterations if not args.vector else 0, 'population_multiplier': args.population if not args.vector else 0,
-                          'evaluations': search.evaluations, 'method': 'explicit vector replay and optional coordinate refinement' if args.vector else 'serial deterministic differential evolution; constraints first, then envelope L1 objective',
+                          'evaluations': search.evaluations, 'method': 'explicit vector replay and optional coordinate refinement' if args.vector else 'serial deterministic differential evolution; constraints, non-gate farm count, then envelope L1 objective',
                           'vector_origin':str(args.vector) if args.vector else None,
                           'vector_origin_sha256':hashlib.sha256(args.vector.read_bytes()).hexdigest() if args.vector else None,
                           'source_search_provenance':saved.get('search') if args.vector else None,

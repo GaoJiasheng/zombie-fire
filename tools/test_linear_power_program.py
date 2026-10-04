@@ -24,9 +24,9 @@ class LinearProgramTests(unittest.TestCase):
     def test_direction_a_g1_bounds(self):
         def level(n, boss=False):
             return {"id": f"level_{n:03d}", "clear_requirement": {"power_contract": {"recommended_power": 50}}, "waves": [{"wave": 1, **({"boss": "boss_tank_titan"} if boss else {})}]}
-        self.assertEqual(closure.g1_bounds(level(1), True, 65), (.95, 1.43))
-        self.assertEqual(closure.g1_bounds(level(7), True, 76), (1, 1.6720000000000002))
-        self.assertEqual(closure.g1_bounds(level(5, True), True, 50), (1, 1.1))
+        self.assertEqual(closure.g1_bounds(level(1), True, 65), (.95, 1.56))
+        self.assertEqual(closure.g1_bounds(level(7), True, 76), (1, 1.824))
+        self.assertEqual(closure.g1_bounds(level(5, True), True, 50), (1, 1.2))
         self.assertEqual(closure.g1_bounds(level(1), False), (.95, 1.1))
         with self.assertRaises(ValueError):
             closure.g1_bounds(level(1), True)
