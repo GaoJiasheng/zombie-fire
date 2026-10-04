@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only §8.2 bounded-farm closure using the existing account policy.
+"""Report-only §8.3 challenge-first/gate closure using the existing account policy.
 
 Rewards are authored full-clear budgets, not a claim that this account actually
 earns 3 stars. Dynamic summons, gold-rush cards and premium bonuses are excluded.
@@ -22,6 +22,80 @@ DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 MAX_FARM_RUNS = 2000
 CHAPTER_FARM_BUDGET = 6
 WALL_LEVELS = (15, 17, 18, 19, 20, 40, 44, 76)
+FIXED_GATE_LEVELS = (20, 76, 95)
+
+
+def farm_route_state() -> dict:
+    return {'challenge_cleared': [], 'normal_repeats': {}}
+
+
+def choose_farm(levels: list[dict], route: dict) -> tuple[dict | None, bool]:
+    """Latest unclaimed eligible challenge first, then immediate normal predecessor.
+
+    All prior normal clears are assumed 3-star, which is the runtime unlock rule.
+    Choice is deterministic and disclosed, not a claim of challenge win ability.
+    """
+    claimed = set(route['challenge_cleared'])
+    for level in reversed(levels):
+        if sim.level_number(level) not in claimed:
+            return level, True
+    return (levels[-1] if levels else None), False
+
+
+def route_farm(account, level: dict, cleared: list[dict], remaining: int, route: dict) -> tuple[object, dict, dict]:
+    """Gate farms do not consume the non-gate budget; dynamic gates are disclosed.
+
+    An over-budget gate is promoted under §8.3 and its ENTIRE farming cost is
+    accounted separately. MAX_FARM_RUNS is a diagnostic guard, never a success.
+    """
+    sandbox, ledger = copy.deepcopy(account), copy.deepcopy(route)
+    _, result = campaign.build_for(sandbox, level)
+    lower = result['recommended'] if g1_constrained(level) else (95*result['recommended']+99)//100
+    number, initial = sim.level_number(level), result['power']
+    gate = number in FIXED_GATE_LEVELS
+    reason = 'Owner fixed gate' if gate else None
+    events, unresolved = [], None
+    while result['power'] < lower:
+        source, challenge = choose_farm(cleared, ledger)
+        if source is None:
+            unresolved = 'no previously cleared 3-star level'
+            break
+        if not gate and len(events) >= remaining:
+            gate, reason = True, 'challenge-first route still exceeds chapter remaining budget'
+        if len(events) >= MAX_FARM_RUNS:
+            unresolved = 'diagnostic guard reached; NOT cleared'
+            break
+        source_number = sim.level_number(source)
+        key = str(source_number)
+        # Runtime SaveManager keeps normal/challenge clear counts independent.
+        # A challenge first clear uses count 0 (100%); normal repeat count >=1
+        # uses 50%, then 25%. Challenge first clears award +3 stars only once.
+        count = 0 if challenge else ledger['normal_repeats'].get(key, 0)+1
+        mults = campaign.TABLES['economy']['repeat_clear_xp_mult']
+        multiplier = float(mults[min(count, len(mults)-1)])
+        income = rewards(source, first_clear=False)
+        income = {**income, 'xp': math.floor(income['xp']*multiplier+.5),
+                  'stars': 3 if challenge else 0}
+        event = advance(sandbox, source, level, income)
+        if challenge:
+            ledger['challenge_cleared'].append(source_number)
+        else:
+            ledger['normal_repeats'][key] = count
+        _, result = campaign.build_for(sandbox, level)
+        events.append({'mode': 'challenge_first_clear' if challenge else 'normal_repeat',
+                       'farm_level': source_number, 'clear_count_before': count,
+                       'xp_multiplier': multiplier, 'power_after': result['power'], **event})
+    return sandbox, ledger, {'required': initial < lower, 'power_before': initial,
+            'power_after': result['power'], 'lower': lower, 'runs': len(events),
+            'budget_available': remaining, 'lower_met': result['power'] >= lower,
+            'events': events, 'eight_wall': number in WALL_LEVELS,
+            'is_gate': gate, 'gate_reason': reason,
+            'gate_height': len(events) if gate and result['power'] >= lower else None,
+            'gate_resolved': result['power'] >= lower if gate else None,
+            'unresolved_reason': unresolved,
+            'non_gate_runs': 0 if gate else len(events),
+            'gate_runs': len(events) if gate else 0,
+            'route_annotation': ('仅挑战' if number <= 30 else '可付费（未做运行时验证）') if gate else None}
 
 
 def bounded_farm(account, level: dict, previous: dict | None, remaining: int, repeat_offset: int = 0) -> tuple[object, dict]:
@@ -213,22 +287,19 @@ def generate(include_recovery: bool = True) -> dict:
     direction_a = runtime_power_contracts.enabled()
     envelopes = g1_envelopes(levels)
     chapter_used = {}
+    route = farm_route_state()
+    gate_runs = 0
+    passed_gates = []
     for index, level in enumerate(levels):
         number = sim.level_number(level)
         chapter = (number - 1) // 10 + 1
         used = chapter_used.get(chapter, 0)
         if direction_a:
-            account, farm = bounded_farm(account, level, levels[index-1] if index else None,
-                                         CHAPTER_FARM_BUDGET-used)
-            chapter_used[chapter] = used + farm['runs']
+            account, route, farm = route_farm(account, level, levels[:index],
+                                             CHAPTER_FARM_BUDGET-used, route)
+            chapter_used[chapter] = used + farm['non_gate_runs']
+            gate_runs += farm['gate_runs']
             farm['chapter_runs_after'] = chapter_used[chapter]
-            # Extra runs are diagnostic only, never adopted into the main path.
-            if not farm['lower_met'] and include_recovery:
-                _, extra = bounded_farm(account, level, levels[index-1] if index else None, 100, farm['runs'])
-                farm['additional_runs_counterfactual'] = extra['runs'] if extra['lower_met'] else None
-                farm['gate_runs_needed_counterfactual'] = (farm['runs'] + extra['runs']) if extra['lower_met'] else None
-                farm['chapter_runs_needed_counterfactual'] = (chapter_used[chapter] + extra['runs']) if extra['lower_met'] else None
-                farm['diagnostic_limit'] = 100
             for event in farm['events']:
                 for key in cumulative:
                     cumulative[key] += event['income'][key]
@@ -240,33 +311,52 @@ def generate(include_recovery: bool = True) -> dict:
             first_below = sim.level_number(level)
         recovery = (farming_recovery(account, level, levels[index-1] if index else None)
                     if not direction_a and include_recovery else
-                    {"not_run": "§8.2 bounded farming is in the reference main path; extra recovery is diagnostic only"})
+                    {"not_run": "§8.3 challenge-first and unlimited gate farming adopted into copied main path"})
         envelope = envelopes[sim.level_number(level)]
         minimum, maximum = g1_bounds(level, direction_a, envelope)
+        is_gate = direction_a and farm['is_gate']
+        raw_lower = math.ceil(minimum * result['recommended'] - 1e-9)
+        effective_lower = 0 if is_gate else raw_lower
+        resolved = not is_gate or farm['gate_resolved']
         row = {"level": sim.level_number(level), "build": build, "power": result["power"],
                "recommended": result["recommended"], "R": ratio, "cumulative_earned_before": dict(cumulative),
                "account_before": account_state(account), "recovery_counterfactual": recovery, "farming": farm,
                "G1_min_R": minimum, "G1_max_R": maximum,
                "G1_constrained_level": g1_constrained(level) if direction_a else True,
                "E": envelope, "power_over_E": result["power"] / envelope,
-               "G1_power_lower": math.ceil(minimum * result["recommended"] - 1e-9),
+               "G1_power_lower": effective_lower, "clear_target_power_lower": raw_lower,
+               "G1_lower_exempt": is_gate, "conditional_on_passed_gates": list(passed_gates),
+               "farm_route_before_clear": copy.deepcopy(route),
                "G1_power_upper": (110 * envelope) // 100 if direction_a else math.floor(maximum * result["recommended"] + 1e-9),
-               "within_G1_corridor": ratio >= minimum - 1e-12 and ratio <= maximum + 1e-12}
+               "within_G1_corridor": resolved and result['power'] >= effective_lower and ratio <= maximum + 1e-12}
         income = rewards(level)
         row["progression_after_clear"] = advance(account, level, levels[min(index + 1, len(levels) - 1)], income)
         for key in cumulative:
             cumulative[key] += income[key]
         rows.append(row)
-    return {"schema_version": 4, "G1_definition": "design/41 section 8.2: all P>=.95rec; Boss/x7-x9 P>=rec; all P<=1.10E; <=6 predecessor farms/chapter; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
+        if is_gate and resolved:
+            passed_gates.append(number)
+    return {"schema_version": 5, "G1_definition": "design/41 section 8.3: non-gates P>=.95rec (Boss/x7-x9 >=rec), <=6 farms/chapter; gate lower exempt, farm until clear; all P<=1.10E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
             "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": direction_a,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
-            "conditional": "all 99 first clears and predecessor farms assumed 3-star; after any failed gate later rows are conditional diagnostics, NOT reachable or runtime wins",
-            "repeat_stars": "zero after an already 3-star clear", "repeat_xp": "existing repeat_clear_xp_mult, no first-clear bonus"},
+            "conditional": "all normal/challenge clears assumed 3-star, NOT runtime wins; post-gate path conditional on having passed each gate; unresolved gate cannot be called feasible",
+            "route": "latest previously 3-star-cleared unclaimed challenge first; else immediate predecessor normal repeat",
+            "gate_budget": "gate runs separately counted, including all runs at a dynamically promoted gate; do not consume non-gate chapter budget",
+            "gate_promotion": "any level still below lower bound after chapter remaining budget; 017/074 are candidates, not a whitelist",
+            "repeat_stars": "challenge first +3 once; normal repeat zero", "repeat_xp": "runtime independent mode counts: challenge first 100%; normal/challenge second 50%, later 25%; no repeat first-clear gold",
+            "challenge_rewards": "same authored enemy count and per-enemy gold/XP; current challenge rules change combat, not these rewards",
+            "diagnostic_guard": MAX_FARM_RUNS},
             "first_R_below_0_95": first_below, "rows": rows,
-            "total_farm_runs": sum(chapter_used.values()), "chapter_farm_runs": {str(k):v for k,v in chapter_used.items()},
+            "total_farm_runs": sum(chapter_used.values()) + gate_runs, "non_gate_farm_runs": sum(chapter_used.values()),
+            "gate_farm_runs": gate_runs, "chapter_farm_runs": {str(k):v for k,v in chapter_used.items()},
+            "gate_levels": [r['level'] for r in rows if r['G1_lower_exempt']],
+            "gate_heights": [{"level":r['level'], **r['farming']} for r in rows if r['G1_lower_exempt']],
+            "challenge_first_clears": route['challenge_cleared'],
+            "non_gate_failure_levels": [r['level'] for r in rows if not r['G1_lower_exempt'] and not r['within_G1_corridor']],
+            "unresolved_gate_levels": [r['level'] for r in rows if r['G1_lower_exempt'] and not r['farming']['gate_resolved']],
             "farm_gates": [{"level":r['level'], **r['farming']} for r in rows if r['farming']['required']],
-            "walls_too_high": [r['level'] for r in rows if direction_a and not r['farming']['lower_met']],
+            "walls_too_high": [r['level'] for r in rows if direction_a and r['G1_lower_exempt'] and r['level'] not in FIXED_GATE_LEVELS],
             "envelope_objective": sum(abs(row["power"] - row["E"]) / row["E"] for row in rows),
             "failures": [row["level"] for row in rows if not row["within_G1_corridor"]]}
 
@@ -274,17 +364,22 @@ def generate(include_recovery: bool = True) -> dict:
 def render(payload: dict) -> str:
     lines = ["状态：离线条件模拟，不代表实际3★通关；未改数据。", "", "# T3 进度闭环", "",
              "只用假定3★首通，金币按逐敌四舍五入；非Boss波support不计。", 
-             "§8.2主路径在账户副本内回刷上一关，每章累计最多6次；未达门槛后的行仅为条件诊断。",
+             "§8.3主路径在账户副本内优先挑战首通；非门关每章累计最多6次，门关刷到够为止、另记高度。",
              "不计动态召唤、金币卡、付费助推；按现有购买/升级优先级和技能经验成本。",
-             "重复3★没有新增星星，只有金币与递减经验。R是显示战力比，不等于已验证胜率。", "",
+             "挑战首通+3星一次，无普通首通金币；经验独立计数：挑战首通100%，重复50%/25%。R不是已验证胜率。", "",
              payload["G1_definition"], "",
              f"首次R<0.95：{payload['first_R_below_0_95']}；G1走廊不满足关数：{len(payload['failures'])}/99。", "",
              f"包络目标Σ|P−E|/E：{payload['envelope_objective']:.6f}。", "",
-             f"回刷总数：{payload['total_farm_runs']}；各章：{payload['chapter_farm_runs']}；墙过高/预算内未满足下限：{payload['walls_too_high']}。", "",
-             "|回刷门|前一关|入门P|回刷后P|次数|章累计|下限满足|八墙关|达到下限所需章次数(反事实)|", "|---|---:|---:|---:|---:|---:|---|---|---|"]
+             f"回刷总数：{payload['total_farm_runs']}（非门{payload['non_gate_farm_runs']}，门{payload['gate_farm_runs']}）；各章非门：{payload['chapter_farm_runs']}。",
+             f"门关：{payload['gate_levels']}；预算后新增门：{payload['walls_too_high']}；未刷够门：{payload['unresolved_gate_levels']}；非门失败：{payload['non_gate_failure_levels']}。", "",
+             "|回刷位置|路线(挑战/普通)|入场P|回刷后P|次数|非门章累计|刷够|八墙关|门高度/路线注记|", "|---|---|---:|---:|---:|---:|---|---|---|"]
     for gate in payload['farm_gates']:
-        needed = gate['chapter_runs_after'] if gate['lower_met'] else gate.get('chapter_runs_needed_counterfactual','未运行')
-        lines.append(f"|{gate['level']:03d}|{gate['farm_level']}|{gate['power_before']}|{gate['power_after']}|{gate['runs']}|{gate['chapter_runs_after']}|{gate['lower_met']}|{gate['eight_wall']}|{needed}|")
+        route = ', '.join(f"{e['farm_level']:03d}{'挑' if e['mode']=='challenge_first_clear' else '普'}" for e in gate['events'])
+        note = f"{gate['gate_height']} / {gate['route_annotation']} / {gate['gate_reason']}" if gate['is_gate'] else '非门'
+        lines.append(f"|{gate['level']:03d}|{route}|{gate['power_before']}|{gate['power_after']}|{gate['runs']}|{gate['chapter_runs_after']}|{gate['lower_met']}|{gate['eight_wall']}|{note}|")
+    lines += ['', '## 门关高度（含无需回刷的固定门）', '', '|门|高度|已刷够|路径|原因|', '|---|---:|---|---|---|']
+    for gate in payload['gate_heights']:
+        lines.append(f"|{gate['level']:03d}|{gate['gate_height']}|{gate['gate_resolved']}|{gate['route_annotation']}|{gate['gate_reason']}|")
     lines += ["",
              "|关卡|累计金币(入场前)|当前战力|推荐|R|E|P/E|首通金币|当关购入/升级|当关/章累计回刷|", "|---|---:|---:|---:|---:|---:|---:|---:|---|---|"]
     for row in payload["rows"]:

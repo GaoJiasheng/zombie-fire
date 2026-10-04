@@ -136,7 +136,7 @@ def candidate(base: dict, specs: list[dict], vector) -> tuple[dict, list[dict], 
         if all(b <= a for a,b in zip(old,old[1:])) and any(b > a for a,b in zip(new,new[1:])):
             raise ValueError('scaled reward curve reverses authored decreasing direction')
     if any(not .5 - 1e-12 <= f <= 2 + 1e-12 for c in curves for f in c.get('factors',[c.get('factor')])):
-        raise ValueError('§8.2 all resource factors must be in [0.5,2.0]')
+        raise ValueError('§8.3 all resource factors must be in [0.5,2.0]')
     return tables, changes, curves
 
 
@@ -145,9 +145,14 @@ def metrics(payload: dict) -> dict:
     for row in payload['rows']:
         lo, hi, power, envelope = row['G1_power_lower'], row['G1_power_upper'], row['power'], row['E']
         residual = max(lo-power, power-hi, 0) / envelope
+        if row['G1_lower_exempt'] and not row['farming']['gate_resolved']:
+            residual = max(residual, (row['clear_target_power_lower']-power)/envelope, 1e-9)
         if residual:
             violations.append({'level': row['level'], 'power': power, 'lower': lo, 'upper': hi, 'residual': residual})
-    return {'objective': payload['envelope_objective'], 'total_farm_runs': payload['total_farm_runs'], 'violation_count': len(violations),
+    return {'objective': payload['envelope_objective'], 'total_farm_runs': payload['total_farm_runs'],
+            'gate_levels':payload['gate_levels'], 'gate_farm_runs':payload['gate_farm_runs'],
+            'non_gate_farm_runs':payload['non_gate_farm_runs'],
+            'unresolved_gate_levels':payload['unresolved_gate_levels'], 'violation_count': len(violations),
             'violation_l1': sum(v['residual'] for v in violations),
             'violation_l2_squared': sum(v['residual']**2 for v in violations),
             'max_violation': max((v['residual'] for v in violations), default=0), 'violations': violations}
@@ -159,7 +164,8 @@ class Search:
         self.evaluations = 0
         self.best = None
         self.started = time.monotonic()
-        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.2 bounded farm 6/chapter','inputs':input_hashes(),'parameters':specs},sort_keys=True).encode()).hexdigest()
+        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.3 challenge-first, independent runtime counts, fixed/dynamic gates outside 6/chapter','inputs':input_hashes(),'parameters':specs,
+            'closure_sha256':hashlib.sha256(Path(closure.__file__).read_bytes()).hexdigest()},sort_keys=True).encode()).hexdigest()
         # Resource-price changes cannot alter pure-build axes. Cache the exact
         # frozen model calculation, not a regression or surrogate prediction.
         model = PowerScaleV6.build_from_fixture()
@@ -205,7 +211,7 @@ class Search:
 
 def render(payload):
     lines = [f"状态：{payload['status']}；待Fable签字，游戏数据未写入。", '', '# 资源表 C 候选', '',
-             '离线假定3★首通与上一关回刷，每章最多6次；不是新运行时胜率。既有账户策略与P(g)/F(g)冻结。所有因子限定[0.5,2.0]。',
+             '§8.3离线假定3★首通，挑战首通优先；非门关每章最多6次，门关不限次数、照实列高度。不是运行时胜率。P(g)/F(g)与消费策略冻结，因子[0.5,2.0]。',
              f"优化前：{len(payload['before']['failures'])}/99失败，目标{payload['before_metrics']['objective']:.6f}。",
              f"优化后：{len(payload['after']['failures'])}/99失败，目标{payload['after_metrics']['objective']:.6f}。", '',
              '缩放系数与逐字段旧/新对照完整列于同名JSON；所有候选仅在内存模拟。', '',
@@ -272,7 +278,7 @@ def main():
     after_metrics = metrics(after)
     assert frozen == input_hashes(), 'candidate evaluation changed frozen disk inputs'
     payload = {'schema_version': 1, 'status': 'CANDIDATE_FEASIBLE_AWAITING_GATE_C' if not after_metrics['violation_count'] else 'SEARCH_CANDIDATE_NOT_YET_FEASIBLE',
-               'contract': 'design/41 section 8.2', 'game_data_written': False,
+               'contract': 'design/41 section 8.3', 'game_data_written': False,
                'before_metrics': metrics(before), 'after_metrics': after_metrics,
                'before': before, 'after': after, 'curves': curves, 'changes': changes,
                'parameters': specs, 'vector': search.best['vector'],

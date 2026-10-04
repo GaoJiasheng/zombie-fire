@@ -42,7 +42,7 @@ def replay(payload):
         key = int(parts[-1]) if isinstance(parent, list) else parts[-1]
         assert parent[key] == change['old'], f'old value mismatch: {change}'
         assert math.isfinite(change['new']) and change['new'] >= 0
-        assert .5 <= change['factor'] <= 2, '§8.2 factor out of bounds'
+        assert .5 <= change['factor'] <= 2, '§8.3 factor out of bounds'
         expected = (round(change['old']*change['factor'],8) if parts[-1] == 'reward_gold_mult'
                     else max(0 if parts[-1] == 'gold' else 1,round(change['old']*change['factor'])))
         assert change['new'] == expected, 'declared scale factor does not derive proposed value'
@@ -71,7 +71,8 @@ def replay(payload):
 
 def verify_farming(after, tables):
     """Independent ledger checks, not just equality with generator output."""
-    chapter_runs = {}
+    chapter_runs, claimed, normal_counts = {}, set(), {}
+    gates, heights, total_gate_runs, total_runs = [], [], 0, 0
     earned = {'gold':0, 'xp':0, 'stars':0}
     account = campaign.Account.from_fixture()
     with closure.candidate_tables(tables):
@@ -84,32 +85,70 @@ def verify_farming(after, tables):
             assert pre['power'] == farm['power_before']
             assert farm['budget_available'] == 6-used
             assert farm['runs'] == len(farm['events'])
-            for i,event in enumerate(farm['events'],1):
-                assert campaign.build_for(account,level)[1]['power'] < row['G1_power_lower'], 'farming continued after threshold met'
-                expected = closure.rewards(tables['levels'][row['level']-2],first_clear=False)
-                assert event['repeat_index'] == i
-                multiplier = .5 if i == 1 else .25
+            for event in farm['events']:
+                assert campaign.build_for(account,level)[1]['power'] < row['clear_target_power_lower'], 'farming continued after threshold met'
+                eligible = [n for n in range(1,row['level']) if n not in claimed]
+                source = max(eligible) if eligible else row['level']-1
+                challenge = bool(eligible)
+                assert source >= 1 and event['farm_level'] == source
+                assert event['mode'] == ('challenge_first_clear' if challenge else 'normal_repeat')
+                count = 0 if challenge else normal_counts.get(source,0)+1
+                assert event['clear_count_before'] == count
+                full = closure.rewards(tables['levels'][source-1],first_clear=False)
+                expected = {**full, 'stars':3 if challenge else 0}
+                multipliers = tables['economy']['repeat_clear_xp_mult']
+                multiplier = float(multipliers[min(count,len(multipliers)-1)])
                 expected['xp'] = math.floor(expected['xp']*multiplier+.5)
                 assert event['income'] == expected and event['xp_multiplier'] == multiplier
-                assert event['income']['first_clear_gold'] == event['income']['stars'] == 0
-                advanced = closure.advance(account,tables['levels'][row['level']-2],level,expected)
-                assert advanced == {k:v for k,v in event.items() if k not in ('repeat_index','xp_multiplier','power_after')}
+                assert event['income']['first_clear_gold'] == 0
+                if challenge:
+                    assert source not in claimed
+                    claimed.add(source)
+                else:
+                    normal_counts[source] = count
+                advanced = closure.advance(account,tables['levels'][source-1],level,expected)
+                assert advanced == {k:v for k,v in event.items() if k not in ('mode','farm_level','clear_count_before','xp_multiplier','power_after')}
                 assert campaign.build_for(account,level)[1]['power'] == event['power_after']
                 for key in earned:
                     earned[key] += expected[key]
-            chapter_runs[chapter] = used+farm['runs']
+            lower_met = campaign.build_for(account,level)[1]['power'] >= row['clear_target_power_lower']
+            assert farm['lower_met'] == lower_met
+            promoted = row['level'] not in closure.FIXED_GATE_LEVELS and farm['is_gate']
+            if promoted:
+                assert farm['runs'] > 6-used or (not lower_met and farm['runs'] == 6-used)
+            assert farm['is_gate'] == (row['level'] in closure.FIXED_GATE_LEVELS or promoted)
+            assert row['G1_lower_exempt'] == farm['is_gate']
+            assert farm['non_gate_runs'] == (0 if farm['is_gate'] else farm['runs'])
+            assert farm['gate_runs'] == (farm['runs'] if farm['is_gate'] else 0)
+            chapter_runs[chapter] = used+farm['non_gate_runs']
             assert chapter_runs[chapter] == farm['chapter_runs_after'] <= 6
+            total_runs += farm['runs']
+            total_gate_runs += farm['gate_runs']
+            if farm['is_gate']:
+                gates.append(row['level'])
+                assert farm['gate_height'] == (farm['runs'] if lower_met else None)
+                assert farm['gate_resolved'] == lower_met
             assert row['cumulative_earned_before'] == earned
             assert closure.account_state(account) == row['account_before']
             assert campaign.build_for(account,level)[1]['power'] == row['power']
-            assert farm['lower_met'] or chapter_runs[chapter] == 6 or row['level'] == 1
+            assert farm['lower_met'] or farm['unresolved_reason'] is not None
+            assert row['farm_route_before_clear']['challenge_cleared'] == [e['farm_level'] for r in after['rows'][:row['level']] for e in r['farming']['events'] if e['mode']=='challenge_first_clear']
+            assert row['farm_route_before_clear']['normal_repeats'] == {str(k):v for k,v in normal_counts.items()}
+            assert row['G1_power_lower'] == (0 if farm['is_gate'] else row['clear_target_power_lower'])
+            assert row['within_G1_corridor'] == (lower_met and row['power'] <= row['G1_power_upper'])
             advanced = closure.advance(account,level,tables['levels'][min(row['level'],98)],closure.rewards(level))
             assert advanced == row['progression_after_clear']
             for key in earned:
                 earned[key] += row['progression_after_clear']['income'][key]
-    assert sum(chapter_runs.values()) == after['total_farm_runs']
+    assert total_runs == after['total_farm_runs']
+    assert total_gate_runs == after['gate_farm_runs']
+    assert sum(chapter_runs.values()) == after['non_gate_farm_runs']
     assert {str(k):v for k,v in chapter_runs.items()} == after['chapter_farm_runs']
-    assert after['walls_too_high'] == [r['level'] for r in after['rows'] if r['power'] < r['G1_power_lower']]
+    assert gates == after['gate_levels']
+    assert sorted(claimed) == sorted(after['challenge_first_clears'])
+    assert after['walls_too_high'] == [n for n in gates if n not in closure.FIXED_GATE_LEVELS]
+    assert after['unresolved_gate_levels'] == [r['level'] for r in after['rows'] if r['G1_lower_exempt'] and not r['farming']['gate_resolved']]
+    assert after['non_gate_failure_levels'] == [r['level'] for r in after['rows'] if not r['G1_lower_exempt'] and not r['within_G1_corridor']]
 
 
 def main():

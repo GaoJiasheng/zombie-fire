@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""§8.2: separate abstract envelope consistency from a real resource witness."""
+"""§8.3: separate abstract envelope consistency from a real resource witness."""
 import argparse
 import hashlib
 import json
@@ -16,7 +16,7 @@ from solve_runtime_clear_lines import input_hashes
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_bounded_before_2026_10_04.json")
+    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_gates_before_2026_10_04.json")
     parser.add_argument("--candidate", type=Path, help="independently replay an actual bounded resource witness")
     options = parser.parse_args()
     for name in ('closure','candidate'):
@@ -53,7 +53,7 @@ def main():
         minimum, maximum = closure.g1_bounds(level, True, envelope)
         rec = row["recommended_power"]
         # Exact integer arithmetic: displayed effective power is integer.
-        lower = rec if constrained else (95 * rec + 99) // 100
+        lower = current['G1_power_lower']
         upper = (110 * envelope) // 100
         if lower > running:
             running, origin = lower, n
@@ -62,7 +62,7 @@ def main():
         assert n == 1 or envelope >= rows[-1]["E"]
         result = {"level": n, "recommended": rec, "min_R": minimum, "max_R": maximum,
                   "E": envelope, "monotone_witness_power": envelope, "constrained": constrained,
-                  "power_lower": lower, "power_upper": upper,
+                  "power_lower": lower, "power_upper": upper, "is_gate":current['G1_lower_exempt'],
                   "monotonic_required_power": running, "origin": origin,
                   "infeasible": conflict, "current_power": current["power"], "current_R": current["R"]}
         rows.append(result)
@@ -72,12 +72,20 @@ def main():
             failures.append(n)
     witness = candidate or baseline
     feasible = not conflicts and not witness['failures']
-    result = {"status": "FEASIBLE_BOUNDED_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 3,
+    result = {"status": "FEASIBLE_GATE_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 4,
               "abstract_envelope_consistent": not conflicts,
               "bounded_resource_witness_proven": feasible,
               "current_resource_farms": baseline['farm_gates'],
               "current_total_farms": baseline['total_farm_runs'],
               "current_walls_too_high": baseline['walls_too_high'],
+              "current_gate_levels": baseline['gate_levels'],
+              "current_gate_heights": baseline['gate_heights'],
+              "current_non_gate_failure_levels": baseline['non_gate_failure_levels'],
+              "current_non_gate_failure_count": len(baseline['non_gate_failure_levels']),
+              "candidate_gate_levels": candidate['gate_levels'] if candidate else None,
+              "candidate_gate_heights": candidate['gate_heights'] if candidate else None,
+              "witness_non_gate_failure_count":len(witness['non_gate_failure_levels']),
+              "witness_unresolved_gate_levels":witness['unresolved_gate_levels'],
               "witness_failure_levels": witness['failures'],
               "assumptions": ["existing strongest-owned-weapon policy; owned equipment is not lost",
                               "authorized monotone growth/cost/reward scaling cannot reduce acquired power",

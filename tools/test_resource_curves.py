@@ -74,21 +74,83 @@ class ResourceTests(unittest.TestCase):
         _,_,curves=resource.candidate(base,specs,vector)
         self.assertTrue(all(.5<=v<=2 for v in curves[0]['factors']))
 
-    def test_farm_budget_shared_between_gates_and_never_mints_first_clear(self):
-        # Force an unreachable threshold while retaining the actual account and
-        # resource ledger. All six farms must be spent at the first gate only.
+    def test_unresolved_gates_cannot_be_reported_feasible(self):
+        # The guard is a diagnostic failure, never a passed/waived gate.
         original=campaign.build_for
         def unreachable(account,level,*args,**kwargs):
             build,result=original(account,level,*args,**kwargs)
             return build,{**result,'recommended':10**9}
-        with mock.patch.object(campaign,'build_for',side_effect=unreachable):
+        with mock.patch.object(campaign,'build_for',side_effect=unreachable), mock.patch.object(closure,'MAX_FARM_RUNS',8):
             payload=closure.generate(False)
-        for start in range(0,99,10):
-            rows=payload['rows'][start:start+10]
-            farmable=next(r for r in rows if r['level']>1)
-            self.assertEqual(farmable['farming']['runs'],6)
-            self.assertTrue(all(r['farming']['runs']==0 for r in rows if r is not farmable))
-        self.assertEqual(payload['total_farm_runs'],60)
+        self.assertEqual(payload['unresolved_gate_levels'],list(range(2,100)))
+        self.assertEqual(payload['failures'],list(range(1,100)))
+        self.assertEqual(resource.metrics(payload)['violation_count'],99)
+        self.assertTrue(all(v<=6 for v in payload['chapter_farm_runs'].values()))
+
+    def test_challenge_first_once_then_independent_normal_xp_and_gate_budget(self):
+        account = campaign.Account.from_fixture()
+        original = closure.account_state(account)
+        target = copy.deepcopy(campaign.TABLES['levels'][19])
+        real = campaign.build_for
+        calls = 0
+        def threshold(a,level,*args,**kwargs):
+            nonlocal calls
+            build,result=real(a,level,*args,**kwargs)
+            if level is target:
+                calls += 1
+                result={**result,'power':10 if calls < 9 else 100,'recommended':50}
+            return build,result
+        with mock.patch.object(campaign,'build_for',side_effect=threshold):
+            _,route,farm=closure.route_farm(account,target,campaign.TABLES['levels'][:1],0,closure.farm_route_state())
+        self.assertEqual(original,closure.account_state(account))
+        self.assertTrue(farm['is_gate'])
+        self.assertEqual(farm['non_gate_runs'],0)
+        self.assertEqual(farm['gate_runs'],farm['runs'])
+        self.assertEqual(route['challenge_cleared'],[1])
+        self.assertEqual(sum(e['income']['stars'] for e in farm['events']),3)
+        self.assertEqual([e['xp_multiplier'] for e in farm['events']],[1,.5,.25,.25])
+        self.assertTrue(all(e['income']['first_clear_gold']==0 for e in farm['events']))
+
+    def test_gate_lower_exemption_does_not_waive_upper(self):
+        payload=closure.generate(False)
+        row=payload['rows'][19]
+        self.assertTrue(row['G1_lower_exempt'])
+        self.assertEqual(row['G1_power_lower'],0)
+        self.assertGreater(row['clear_target_power_lower'],0)
+        modified=copy.deepcopy(payload)
+        modified['rows'][19]['power']=row['G1_power_upper']+1
+        self.assertIn(20,[v['level'] for v in resource.metrics(modified)['violations']])
+
+    def test_route_latest_unclaimed_and_normal_counter_survives_gate(self):
+        route={'challenge_cleared':[1,2], 'normal_repeats':{'2':4}}
+        source, challenge = closure.choose_farm(campaign.TABLES['levels'][:3],route)
+        self.assertEqual(closure.sim.level_number(source),3)
+        self.assertTrue(challenge)
+        source, challenge = closure.choose_farm(campaign.TABLES['levels'][:2],route)
+        self.assertEqual(closure.sim.level_number(source),2)
+        self.assertFalse(challenge)
+        self.assertEqual(route['normal_repeats']['2'],4)
+
+    def test_dynamic_gate_height_is_separate_and_post_gate_path_conditional(self):
+        account = campaign.Account.from_fixture()
+        target = campaign.TABLES['levels'][16]  # candidate 017, not a fixed gate
+        real, calls = campaign.build_for, 0
+        def threshold(a,level,*args,**kwargs):
+            nonlocal calls
+            build,result=real(a,level,*args,**kwargs)
+            if level is target:
+                calls += 1
+                result={**result,'power':10 if calls < 9 else 100,'recommended':50}
+            return build,result
+        with mock.patch.object(campaign,'build_for',side_effect=threshold):
+            _,_,farm=closure.route_farm(account,target,campaign.TABLES['levels'][:1],1,closure.farm_route_state())
+        self.assertTrue(farm['is_gate'])
+        self.assertEqual(farm['gate_height'],4)
+        self.assertEqual(farm['non_gate_runs'],0)
+        self.assertIn('exceeds',farm['gate_reason'])
+        result=closure.generate(False)
+        self.assertEqual(result['rows'][20]['conditional_on_passed_gates'],[20])
+        self.assertEqual(result['rows'][95]['conditional_on_passed_gates'],[20,76,95])
 
     def test_extra_diagnostic_keeps_25_percent_after_first_repeat(self):
         account=campaign.Account.from_fixture()

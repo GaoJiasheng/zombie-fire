@@ -230,7 +230,8 @@ class LinearProgramTests(unittest.TestCase):
             income = previous["progression_after_clear"]["income"]
             farm_gold = sum(e['income']['gold'] for e in current['farming']['events'])
             self.assertEqual(current["cumulative_earned_before"]["gold"], previous["cumulative_earned_before"]["gold"] + income["gold"] + farm_gold)
-            self.assertEqual(current["cumulative_earned_before"]["stars"], (current["level"] - 1) * 3)
+            challenge_stars = sum(e['income']['stars'] for r in payload['rows'][:current['level']] for e in r['farming']['events'])
+            self.assertEqual(current["cumulative_earned_before"]["stars"], (current["level"] - 1) * 3 + challenge_stars)
         self.assertTrue(all(row["build"]["weapon_level"] <= 50 for row in payload["rows"]))
         self.assertEqual(before, solver.input_hashes())
 
