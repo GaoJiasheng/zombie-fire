@@ -75969,26 +75969,15 @@
     -0.1904020889026608
   ],
   "search": {
-    "seed": null,
-    "iterations": 0,
-    "population_multiplier": 0,
-    "evaluations": 553,
-    "method": "explicit vector replay and optional coordinate refinement",
-    "vector_origin": "design/audits/resource_curve_table_gates_search_2026_10_04.json",
-    "vector_origin_sha256": "7daa03d5ee4530015c1b00030b386c4f6ad59bcb2094776564a1dd05baf1569c",
-    "source_search_provenance": {
-      "seed": 410043,
-      "iterations": 100,
-      "population_multiplier": 4,
-      "evaluations": 9661,
-      "method": "serial deterministic differential evolution; constraints first, then envelope L1 objective",
-      "vector_origin": null,
-      "vector_origin_sha256": null,
-      "source_search_provenance": null,
-      "coordinate_polish_rounds": 2,
-      "optimality": "best found candidate; no claim of global optimum"
-    },
-    "coordinate_polish_rounds": 3,
+    "seed": 410043,
+    "iterations": 100,
+    "population_multiplier": 4,
+    "evaluations": 9661,
+    "method": "serial deterministic differential evolution; constraints first, then envelope L1 objective",
+    "vector_origin": null,
+    "vector_origin_sha256": null,
+    "source_search_provenance": null,
+    "coordinate_polish_rounds": 2,
     "optimality": "best found candidate; no claim of global optimum"
   },
   "frozen_input_sha256": {

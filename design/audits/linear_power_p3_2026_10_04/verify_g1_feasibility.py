@@ -75,6 +75,7 @@ def main():
     result = {"status": "FEASIBLE_GATE_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 4,
               "abstract_envelope_consistent": not conflicts,
               "bounded_resource_witness_proven": feasible,
+              "gate_resource_witness_proven": feasible,
               "current_resource_farms": baseline['farm_gates'],
               "current_total_farms": baseline['total_farm_runs'],
               "current_walls_too_high": baseline['walls_too_high'],

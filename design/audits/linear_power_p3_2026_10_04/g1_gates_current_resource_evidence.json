@@ -1,0 +1,3611 @@
+{
+  "status": "RESOURCE_WITNESS_NOT_YET_FEASIBLE",
+  "schema_version": 4,
+  "abstract_envelope_consistent": true,
+  "bounded_resource_witness_proven": false,
+  "gate_resource_witness_proven": false,
+  "current_resource_farms": [
+    {
+      "level": 18,
+      "required": true,
+      "power_before": 169,
+      "power_after": 207,
+      "lower": 185,
+      "runs": 2,
+      "budget_available": 6,
+      "lower_met": true,
+      "events": [
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 17,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 180,
+          "income": {
+            "gold": 2200,
+            "kill_gold": 2200,
+            "first_clear_gold": 0,
+            "xp": 810,
+            "stars": 3,
+            "authored_units": 177
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_cryocannon",
+              "from": 7,
+              "to": 8
+            },
+            {
+              "item": "weapon_scattergun",
+              "from": 10,
+              "to": 11
+            },
+            {
+              "skill": "skill_charge_shot",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 2250,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 172,
+            "xp": 308,
+            "stars": 7,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": []
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "vanguard": 8,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 5,
+              "weapon_scattergun": 11
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 1,
+              "skill_split_shot": 1
+            },
+            "signature_level": 1
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1314,
+          "priority_upgrades": 1
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 16,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 207,
+          "income": {
+            "gold": 2249,
+            "kill_gold": 2249,
+            "first_clear_gold": 0,
+            "xp": 815,
+            "stars": 3,
+            "authored_units": 192
+          },
+          "purchases": [
+            {
+              "slot": "pet",
+              "item_id": "pet_turret_drone",
+              "star_cost": 8,
+              "target_chapter": 3,
+              "target_weakness": "physical"
+            }
+          ],
+          "upgrades": [
+            {
+              "item": "pet_turret_drone",
+              "from": 1,
+              "to": 4
+            },
+            {
+              "item": "weapon_scattergun",
+              "from": 11,
+              "to": 12
+            },
+            {
+              "skill": "skill_slow_field",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 2103,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 318,
+            "xp": 223,
+            "stars": 2,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 4,
+              "vanguard": 8,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 5,
+              "weapon_scattergun": 12
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 1
+            },
+            "signature_level": 1
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1440,
+          "priority_upgrades": 1
+        }
+      ],
+      "eight_wall": true,
+      "is_gate": false,
+      "gate_reason": null,
+      "gate_height": null,
+      "gate_resolved": null,
+      "unresolved_reason": null,
+      "non_gate_runs": 2,
+      "gate_runs": 0,
+      "route_annotation": null,
+      "chapter_runs_after": 2
+    },
+    {
+      "level": 20,
+      "required": true,
+      "power_before": 234,
+      "power_after": 291,
+      "lower": 291,
+      "runs": 8,
+      "budget_available": 4,
+      "lower_met": true,
+      "events": [
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 19,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 2406,
+            "kill_gold": 2406,
+            "first_clear_gold": 0,
+            "xp": 803,
+            "stars": 3,
+            "authored_units": 184
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "pet_turret_drone",
+              "from": 4,
+              "to": 5
+            },
+            {
+              "item": "weapon_scattergun",
+              "from": 14,
+              "to": 15
+            },
+            {
+              "skill": "skill_split_shot",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 2221,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 312,
+            "xp": 205,
+            "stars": 11,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 6,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1818,
+          "priority_upgrades": 1
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 18,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 1616,
+            "kill_gold": 1616,
+            "first_clear_gold": 0,
+            "xp": 476,
+            "stars": 3,
+            "authored_units": 166
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 6,
+              "to": 7
+            }
+          ],
+          "gold_spent": 1440,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 488,
+            "xp": 681,
+            "stars": 14,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 15,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 926,
+            "kill_gold": 926,
+            "first_clear_gold": 0,
+            "xp": 369,
+            "stars": 3,
+            "authored_units": 69
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_cryocannon",
+              "from": 8,
+              "to": 9
+            },
+            {
+              "skill": "skill_critical",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 1062,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 352,
+            "xp": 150,
+            "stars": 17,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 14,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1701,
+            "kill_gold": 1701,
+            "first_clear_gold": 0,
+            "xp": 651,
+            "stars": 3,
+            "authored_units": 174
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_scattergun",
+              "from": 15,
+              "to": 16
+            }
+          ],
+          "gold_spent": 1944,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 109,
+            "xp": 801,
+            "stars": 20,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1944,
+          "priority_upgrades": 1
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 13,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1655,
+            "kill_gold": 1655,
+            "first_clear_gold": 0,
+            "xp": 617,
+            "stars": 3,
+            "authored_units": 181
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 7,
+              "to": 8
+            },
+            {
+              "skill": "skill_ricochet",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 1664,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 100,
+            "xp": 518,
+            "stars": 23,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 8,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 12,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1535,
+            "kill_gold": 1535,
+            "first_clear_gold": 0,
+            "xp": 665,
+            "stars": 3,
+            "authored_units": 145
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_cryocannon",
+              "from": 9,
+              "to": 10
+            }
+          ],
+          "gold_spent": 1188,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 447,
+            "xp": 1183,
+            "stars": 26,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 8,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 11,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1460,
+            "kill_gold": 1460,
+            "first_clear_gold": 0,
+            "xp": 596,
+            "stars": 3,
+            "authored_units": 172
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 8,
+              "to": 9
+            }
+          ],
+          "gold_spent": 1888,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 19,
+            "xp": 1779,
+            "stars": 29,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 9,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 10,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 291,
+          "income": {
+            "gold": 905,
+            "kill_gold": 905,
+            "first_clear_gold": 0,
+            "xp": 410,
+            "stars": 3,
+            "authored_units": 96
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "chip_attack",
+              "from": 7,
+              "to": 8
+            },
+            {
+              "skill": "skill_multishot",
+              "from": 2,
+              "to": 3
+            }
+          ],
+          "gold_spent": 546,
+          "xp_spent": 2000,
+          "resources_after": {
+            "gold": 378,
+            "xp": 189,
+            "stars": 32,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 8,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 9,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 3,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_cryocannon",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        }
+      ],
+      "eight_wall": true,
+      "is_gate": true,
+      "gate_reason": "Owner fixed gate",
+      "gate_height": 8,
+      "gate_resolved": true,
+      "unresolved_reason": null,
+      "non_gate_runs": 0,
+      "gate_runs": 8,
+      "route_annotation": "仅挑战",
+      "chapter_runs_after": 2
+    }
+  ],
+  "current_total_farms": 10,
+  "current_walls_too_high": [],
+  "current_gate_levels": [
+    20,
+    76,
+    95
+  ],
+  "current_gate_heights": [
+    {
+      "level": 20,
+      "required": true,
+      "power_before": 234,
+      "power_after": 291,
+      "lower": 291,
+      "runs": 8,
+      "budget_available": 4,
+      "lower_met": true,
+      "events": [
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 19,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 2406,
+            "kill_gold": 2406,
+            "first_clear_gold": 0,
+            "xp": 803,
+            "stars": 3,
+            "authored_units": 184
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "pet_turret_drone",
+              "from": 4,
+              "to": 5
+            },
+            {
+              "item": "weapon_scattergun",
+              "from": 14,
+              "to": 15
+            },
+            {
+              "skill": "skill_split_shot",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 2221,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 312,
+            "xp": 205,
+            "stars": 11,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 6,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1818,
+          "priority_upgrades": 1
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 18,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 1616,
+            "kill_gold": 1616,
+            "first_clear_gold": 0,
+            "xp": 476,
+            "stars": 3,
+            "authored_units": 166
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 6,
+              "to": 7
+            }
+          ],
+          "gold_spent": 1440,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 488,
+            "xp": 681,
+            "stars": 14,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 8,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 1,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 15,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 264,
+          "income": {
+            "gold": 926,
+            "kill_gold": 926,
+            "first_clear_gold": 0,
+            "xp": 369,
+            "stars": 3,
+            "authored_units": 69
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_cryocannon",
+              "from": 8,
+              "to": 9
+            },
+            {
+              "skill": "skill_critical",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 1062,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 352,
+            "xp": 150,
+            "stars": 17,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 15
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 14,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1701,
+            "kill_gold": 1701,
+            "first_clear_gold": 0,
+            "xp": 651,
+            "stars": 3,
+            "authored_units": 174
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_scattergun",
+              "from": 15,
+              "to": 16
+            }
+          ],
+          "gold_spent": 1944,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 109,
+            "xp": 801,
+            "stars": 20,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 7,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 1,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 1944,
+          "priority_upgrades": 1
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 13,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1655,
+            "kill_gold": 1655,
+            "first_clear_gold": 0,
+            "xp": 617,
+            "stars": 3,
+            "authored_units": 181
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 7,
+              "to": 8
+            },
+            {
+              "skill": "skill_ricochet",
+              "from": 1,
+              "to": 2
+            }
+          ],
+          "gold_spent": 1664,
+          "xp_spent": 900,
+          "resources_after": {
+            "gold": 100,
+            "xp": 518,
+            "stars": 23,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 9,
+              "weapon_railgun": 8,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 12,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1535,
+            "kill_gold": 1535,
+            "first_clear_gold": 0,
+            "xp": 665,
+            "stars": 3,
+            "authored_units": 145
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_cryocannon",
+              "from": 9,
+              "to": 10
+            }
+          ],
+          "gold_spent": 1188,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 447,
+            "xp": 1183,
+            "stars": 26,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 8,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 11,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 278,
+          "income": {
+            "gold": 1460,
+            "kill_gold": 1460,
+            "first_clear_gold": 0,
+            "xp": 596,
+            "stars": 3,
+            "authored_units": 172
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "weapon_railgun",
+              "from": 8,
+              "to": 9
+            }
+          ],
+          "gold_spent": 1888,
+          "xp_spent": 0,
+          "resources_after": {
+            "gold": 19,
+            "xp": 1779,
+            "stars": 29,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 7,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 9,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 2,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_scattergun",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        },
+        {
+          "mode": "challenge_first_clear",
+          "farm_level": 10,
+          "clear_count_before": 0,
+          "xp_multiplier": 1.0,
+          "power_after": 291,
+          "income": {
+            "gold": 905,
+            "kill_gold": 905,
+            "first_clear_gold": 0,
+            "xp": 410,
+            "stars": 3,
+            "authored_units": 96
+          },
+          "purchases": [],
+          "upgrades": [
+            {
+              "item": "chip_attack",
+              "from": 7,
+              "to": 8
+            },
+            {
+              "skill": "skill_multishot",
+              "from": 2,
+              "to": 3
+            }
+          ],
+          "gold_spent": 546,
+          "xp_spent": 2000,
+          "resources_after": {
+            "gold": 378,
+            "xp": 189,
+            "stars": 32,
+            "owned": {
+              "character": [
+                "vanguard"
+              ],
+              "weapon": [
+                "weapon_autocannon",
+                "weapon_cryocannon",
+                "weapon_railgun",
+                "weapon_scattergun"
+              ],
+              "armor": [
+                "armor_kevlar"
+              ],
+              "chip": [
+                "chip_attack"
+              ],
+              "pet": [
+                "pet_turret_drone"
+              ]
+            },
+            "levels": {
+              "armor_kevlar": 6,
+              "chip_attack": 8,
+              "pet_turret_drone": 5,
+              "vanguard": 9,
+              "weapon_autocannon": 14,
+              "weapon_cryocannon": 10,
+              "weapon_railgun": 9,
+              "weapon_scattergun": 16
+            },
+            "skills": {
+              "skill_barrier": 2,
+              "skill_charge_shot": 2,
+              "skill_critical": 2,
+              "skill_homing": 2,
+              "skill_multishot": 3,
+              "skill_pierce": 2,
+              "skill_ricochet": 2,
+              "skill_salvo": 2,
+              "skill_slow_field": 2,
+              "skill_split_shot": 2
+            },
+            "signature_level": 2
+          },
+          "preferred_next_weapon": "weapon_scattergun",
+          "catch_up_target_weapon": "weapon_cryocannon",
+          "priority_gold_spent": 0,
+          "priority_upgrades": 0
+        }
+      ],
+      "eight_wall": true,
+      "is_gate": true,
+      "gate_reason": "Owner fixed gate",
+      "gate_height": 8,
+      "gate_resolved": true,
+      "unresolved_reason": null,
+      "non_gate_runs": 0,
+      "gate_runs": 8,
+      "route_annotation": "仅挑战",
+      "chapter_runs_after": 2
+    },
+    {
+      "level": 76,
+      "required": false,
+      "power_before": 2989,
+      "power_after": 2989,
+      "lower": 2621,
+      "runs": 0,
+      "budget_available": 6,
+      "lower_met": true,
+      "events": [],
+      "eight_wall": true,
+      "is_gate": true,
+      "gate_reason": "Owner fixed gate",
+      "gate_height": 0,
+      "gate_resolved": true,
+      "unresolved_reason": null,
+      "non_gate_runs": 0,
+      "gate_runs": 0,
+      "route_annotation": "可付费（未做运行时验证）",
+      "chapter_runs_after": 0
+    },
+    {
+      "level": 95,
+      "required": false,
+      "power_before": 4415,
+      "power_after": 4415,
+      "lower": 3370,
+      "runs": 0,
+      "budget_available": 6,
+      "lower_met": true,
+      "events": [],
+      "eight_wall": false,
+      "is_gate": true,
+      "gate_reason": "Owner fixed gate",
+      "gate_height": 0,
+      "gate_resolved": true,
+      "unresolved_reason": null,
+      "non_gate_runs": 0,
+      "gate_runs": 0,
+      "route_annotation": "可付费（未做运行时验证）",
+      "chapter_runs_after": 0
+    }
+  ],
+  "current_non_gate_failure_levels": [
+    3,
+    4,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    96,
+    97,
+    98,
+    99
+  ],
+  "current_non_gate_failure_count": 87,
+  "candidate_gate_levels": null,
+  "candidate_gate_heights": null,
+  "witness_non_gate_failure_count": 87,
+  "witness_unresolved_gate_levels": [],
+  "witness_failure_levels": [
+    3,
+    4,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99
+  ],
+  "assumptions": [
+    "existing strongest-owned-weapon policy; owned equipment is not lost",
+    "authorized monotone growth/cost/reward scaling cannot reduce acquired power",
+    "unchanged P(g), F(g), starter Lv1 attributes and account policy",
+    "T3 assumes 3-star clears; these are not runtime win results"
+  ],
+  "starter_power": 65,
+  "constrained_levels": [
+    5,
+    7,
+    8,
+    9,
+    10,
+    15,
+    17,
+    18,
+    19,
+    20,
+    25,
+    27,
+    28,
+    29,
+    30,
+    35,
+    37,
+    38,
+    39,
+    40,
+    45,
+    47,
+    48,
+    49,
+    50,
+    55,
+    57,
+    58,
+    59,
+    60,
+    65,
+    67,
+    68,
+    69,
+    70,
+    75,
+    77,
+    78,
+    79,
+    80,
+    85,
+    87,
+    88,
+    89,
+    90,
+    95,
+    97,
+    98,
+    99
+  ],
+  "current_G1_failure_levels": [
+    3,
+    4,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99
+  ],
+  "infeasible_levels": [],
+  "resources_changed": false,
+  "resource_table_C": null,
+  "input_sha256": {
+    "design/audits/recommended_power_table_2026_10_04.json": "6eff9952f249a6fa4bd8bb98378cbcbde0b33ea0d684986db2905c3f83d001c2",
+    "design/audits/progression_closure_gates_before_2026_10_04.json": "a4ef05ee7848fbf4d9ed11134ef011a5e14b0b8e4cb9cb08d57ef189304ffe30"
+  },
+  "rows": [
+    {
+      "level": 1,
+      "recommended": 50,
+      "min_R": 0.95,
+      "max_R": 1.43,
+      "E": 65,
+      "monotone_witness_power": 65,
+      "constrained": false,
+      "power_lower": 48,
+      "power_upper": 71,
+      "is_gate": false,
+      "monotonic_required_power": 65,
+      "origin": "starter",
+      "infeasible": false,
+      "current_power": 65,
+      "current_R": 1.3
+    },
+    {
+      "level": 2,
+      "recommended": 50,
+      "min_R": 0.95,
+      "max_R": 1.43,
+      "E": 65,
+      "monotone_witness_power": 65,
+      "constrained": false,
+      "power_lower": 48,
+      "power_upper": 71,
+      "is_gate": false,
+      "monotonic_required_power": 65,
+      "origin": "starter",
+      "infeasible": false,
+      "current_power": 69,
+      "current_R": 1.38
+    },
+    {
+      "level": 3,
+      "recommended": 50,
+      "min_R": 0.95,
+      "max_R": 1.43,
+      "E": 65,
+      "monotone_witness_power": 65,
+      "constrained": false,
+      "power_lower": 48,
+      "power_upper": 71,
+      "is_gate": false,
+      "monotonic_required_power": 65,
+      "origin": "starter",
+      "infeasible": false,
+      "current_power": 73,
+      "current_R": 1.46
+    },
+    {
+      "level": 4,
+      "recommended": 64,
+      "min_R": 0.95,
+      "max_R": 1.1171875,
+      "E": 65,
+      "monotone_witness_power": 65,
+      "constrained": false,
+      "power_lower": 61,
+      "power_upper": 71,
+      "is_gate": false,
+      "monotonic_required_power": 65,
+      "origin": "starter",
+      "infeasible": false,
+      "current_power": 74,
+      "current_R": 1.15625
+    },
+    {
+      "level": 5,
+      "recommended": 76,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 76,
+      "monotone_witness_power": 76,
+      "constrained": true,
+      "power_lower": 76,
+      "power_upper": 83,
+      "is_gate": false,
+      "monotonic_required_power": 76,
+      "origin": 5,
+      "infeasible": false,
+      "current_power": 81,
+      "current_R": 1.0657894736842106
+    },
+    {
+      "level": 6,
+      "recommended": 53,
+      "min_R": 0.95,
+      "max_R": 1.5773584905660378,
+      "E": 76,
+      "monotone_witness_power": 76,
+      "constrained": false,
+      "power_lower": 51,
+      "power_upper": 83,
+      "is_gate": false,
+      "monotonic_required_power": 76,
+      "origin": 5,
+      "infeasible": false,
+      "current_power": 82,
+      "current_R": 1.5471698113207548
+    },
+    {
+      "level": 7,
+      "recommended": 53,
+      "min_R": 1.0,
+      "max_R": 1.5773584905660378,
+      "E": 76,
+      "monotone_witness_power": 76,
+      "constrained": true,
+      "power_lower": 53,
+      "power_upper": 83,
+      "is_gate": false,
+      "monotonic_required_power": 76,
+      "origin": 5,
+      "infeasible": false,
+      "current_power": 89,
+      "current_R": 1.679245283018868
+    },
+    {
+      "level": 8,
+      "recommended": 79,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 79,
+      "monotone_witness_power": 79,
+      "constrained": true,
+      "power_lower": 79,
+      "power_upper": 86,
+      "is_gate": false,
+      "monotonic_required_power": 79,
+      "origin": 8,
+      "infeasible": false,
+      "current_power": 96,
+      "current_R": 1.2151898734177216
+    },
+    {
+      "level": 9,
+      "recommended": 79,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 79,
+      "monotone_witness_power": 79,
+      "constrained": true,
+      "power_lower": 79,
+      "power_upper": 86,
+      "is_gate": false,
+      "monotonic_required_power": 79,
+      "origin": 8,
+      "infeasible": false,
+      "current_power": 106,
+      "current_R": 1.3417721518987342
+    },
+    {
+      "level": 10,
+      "recommended": 87,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 87,
+      "monotone_witness_power": 87,
+      "constrained": true,
+      "power_lower": 87,
+      "power_upper": 95,
+      "is_gate": false,
+      "monotonic_required_power": 87,
+      "origin": 10,
+      "infeasible": false,
+      "current_power": 112,
+      "current_R": 1.2873563218390804
+    },
+    {
+      "level": 11,
+      "recommended": 99,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 99,
+      "monotone_witness_power": 99,
+      "constrained": false,
+      "power_lower": 95,
+      "power_upper": 108,
+      "is_gate": false,
+      "monotonic_required_power": 95,
+      "origin": 11,
+      "infeasible": false,
+      "current_power": 116,
+      "current_R": 1.1717171717171717
+    },
+    {
+      "level": 12,
+      "recommended": 108,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 108,
+      "monotone_witness_power": 108,
+      "constrained": false,
+      "power_lower": 103,
+      "power_upper": 118,
+      "is_gate": false,
+      "monotonic_required_power": 103,
+      "origin": 12,
+      "infeasible": false,
+      "current_power": 122,
+      "current_R": 1.1296296296296295
+    },
+    {
+      "level": 13,
+      "recommended": 131,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 131,
+      "monotone_witness_power": 131,
+      "constrained": false,
+      "power_lower": 125,
+      "power_upper": 144,
+      "is_gate": false,
+      "monotonic_required_power": 125,
+      "origin": 13,
+      "infeasible": false,
+      "current_power": 131,
+      "current_R": 1.0
+    },
+    {
+      "level": 14,
+      "recommended": 138,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 138,
+      "monotone_witness_power": 138,
+      "constrained": false,
+      "power_lower": 132,
+      "power_upper": 151,
+      "is_gate": false,
+      "monotonic_required_power": 132,
+      "origin": 14,
+      "infeasible": false,
+      "current_power": 141,
+      "current_R": 1.0217391304347827
+    },
+    {
+      "level": 15,
+      "recommended": 147,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 147,
+      "monotone_witness_power": 147,
+      "constrained": true,
+      "power_lower": 147,
+      "power_upper": 161,
+      "is_gate": false,
+      "monotonic_required_power": 147,
+      "origin": 15,
+      "infeasible": false,
+      "current_power": 151,
+      "current_R": 1.0272108843537415
+    },
+    {
+      "level": 16,
+      "recommended": 98,
+      "min_R": 0.95,
+      "max_R": 1.6500000000000001,
+      "E": 147,
+      "monotone_witness_power": 147,
+      "constrained": false,
+      "power_lower": 94,
+      "power_upper": 161,
+      "is_gate": false,
+      "monotonic_required_power": 147,
+      "origin": 15,
+      "infeasible": false,
+      "current_power": 152,
+      "current_R": 1.5510204081632653
+    },
+    {
+      "level": 17,
+      "recommended": 165,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 165,
+      "monotone_witness_power": 165,
+      "constrained": true,
+      "power_lower": 165,
+      "power_upper": 181,
+      "is_gate": false,
+      "monotonic_required_power": 165,
+      "origin": 17,
+      "infeasible": false,
+      "current_power": 166,
+      "current_R": 1.006060606060606
+    },
+    {
+      "level": 18,
+      "recommended": 185,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 185,
+      "monotone_witness_power": 185,
+      "constrained": true,
+      "power_lower": 185,
+      "power_upper": 203,
+      "is_gate": false,
+      "monotonic_required_power": 185,
+      "origin": 18,
+      "infeasible": false,
+      "current_power": 207,
+      "current_R": 1.1189189189189188
+    },
+    {
+      "level": 19,
+      "recommended": 188,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 188,
+      "monotone_witness_power": 188,
+      "constrained": true,
+      "power_lower": 188,
+      "power_upper": 206,
+      "is_gate": false,
+      "monotonic_required_power": 188,
+      "origin": 19,
+      "infeasible": false,
+      "current_power": 210,
+      "current_R": 1.1170212765957446
+    },
+    {
+      "level": 20,
+      "recommended": 291,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": true,
+      "power_lower": 0,
+      "power_upper": 320,
+      "is_gate": true,
+      "monotonic_required_power": 188,
+      "origin": 19,
+      "infeasible": false,
+      "current_power": 291,
+      "current_R": 1.0
+    },
+    {
+      "level": 21,
+      "recommended": 164,
+      "min_R": 0.95,
+      "max_R": 1.951829268292683,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": false,
+      "power_lower": 156,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 188,
+      "origin": 19,
+      "infeasible": false,
+      "current_power": 323,
+      "current_R": 1.9695121951219512
+    },
+    {
+      "level": 22,
+      "recommended": 183,
+      "min_R": 0.95,
+      "max_R": 1.7491803278688527,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": false,
+      "power_lower": 174,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 188,
+      "origin": 19,
+      "infeasible": false,
+      "current_power": 339,
+      "current_R": 1.8524590163934427
+    },
+    {
+      "level": 23,
+      "recommended": 186,
+      "min_R": 0.95,
+      "max_R": 1.720967741935484,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": false,
+      "power_lower": 177,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 188,
+      "origin": 19,
+      "infeasible": false,
+      "current_power": 355,
+      "current_R": 1.9086021505376345
+    },
+    {
+      "level": 24,
+      "recommended": 201,
+      "min_R": 0.95,
+      "max_R": 1.592537313432836,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": false,
+      "power_lower": 191,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 191,
+      "origin": 24,
+      "infeasible": false,
+      "current_power": 374,
+      "current_R": 1.8606965174129353
+    },
+    {
+      "level": 25,
+      "recommended": 260,
+      "min_R": 1.0,
+      "max_R": 1.2311538461538463,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": true,
+      "power_lower": 260,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 260,
+      "origin": 25,
+      "infeasible": false,
+      "current_power": 410,
+      "current_R": 1.5769230769230769
+    },
+    {
+      "level": 26,
+      "recommended": 226,
+      "min_R": 0.95,
+      "max_R": 1.4163716814159293,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": false,
+      "power_lower": 215,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 260,
+      "origin": 25,
+      "infeasible": false,
+      "current_power": 410,
+      "current_R": 1.8141592920353982
+    },
+    {
+      "level": 27,
+      "recommended": 195,
+      "min_R": 1.0,
+      "max_R": 1.6415384615384616,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": true,
+      "power_lower": 195,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 260,
+      "origin": 25,
+      "infeasible": false,
+      "current_power": 410,
+      "current_R": 2.1025641025641026
+    },
+    {
+      "level": 28,
+      "recommended": 231,
+      "min_R": 1.0,
+      "max_R": 1.385714285714286,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": true,
+      "power_lower": 231,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 260,
+      "origin": 25,
+      "infeasible": false,
+      "current_power": 474,
+      "current_R": 2.051948051948052
+    },
+    {
+      "level": 29,
+      "recommended": 206,
+      "min_R": 1.0,
+      "max_R": 1.5538834951456313,
+      "E": 291,
+      "monotone_witness_power": 291,
+      "constrained": true,
+      "power_lower": 206,
+      "power_upper": 320,
+      "is_gate": false,
+      "monotonic_required_power": 260,
+      "origin": 25,
+      "infeasible": false,
+      "current_power": 509,
+      "current_R": 2.470873786407767
+    },
+    {
+      "level": 30,
+      "recommended": 332,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": true,
+      "power_lower": 332,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 515,
+      "current_R": 1.5512048192771084
+    },
+    {
+      "level": 31,
+      "recommended": 159,
+      "min_R": 0.95,
+      "max_R": 2.29685534591195,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": false,
+      "power_lower": 152,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 522,
+      "current_R": 3.2830188679245285
+    },
+    {
+      "level": 32,
+      "recommended": 245,
+      "min_R": 0.95,
+      "max_R": 1.4906122448979593,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": false,
+      "power_lower": 233,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 530,
+      "current_R": 2.163265306122449
+    },
+    {
+      "level": 33,
+      "recommended": 228,
+      "min_R": 0.95,
+      "max_R": 1.6017543859649124,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": false,
+      "power_lower": 217,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 573,
+      "current_R": 2.513157894736842
+    },
+    {
+      "level": 34,
+      "recommended": 330,
+      "min_R": 0.95,
+      "max_R": 1.106666666666667,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": false,
+      "power_lower": 314,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 573,
+      "current_R": 1.7363636363636363
+    },
+    {
+      "level": 35,
+      "recommended": 219,
+      "min_R": 1.0,
+      "max_R": 1.6675799086757992,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": true,
+      "power_lower": 219,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 648,
+      "current_R": 2.958904109589041
+    },
+    {
+      "level": 36,
+      "recommended": 225,
+      "min_R": 0.95,
+      "max_R": 1.6231111111111114,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": false,
+      "power_lower": 214,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 679,
+      "current_R": 3.017777777777778
+    },
+    {
+      "level": 37,
+      "recommended": 232,
+      "min_R": 1.0,
+      "max_R": 1.574137931034483,
+      "E": 332,
+      "monotone_witness_power": 332,
+      "constrained": true,
+      "power_lower": 232,
+      "power_upper": 365,
+      "is_gate": false,
+      "monotonic_required_power": 332,
+      "origin": 30,
+      "infeasible": false,
+      "current_power": 685,
+      "current_R": 2.9525862068965516
+    },
+    {
+      "level": 38,
+      "recommended": 484,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 484,
+      "monotone_witness_power": 484,
+      "constrained": true,
+      "power_lower": 484,
+      "power_upper": 532,
+      "is_gate": false,
+      "monotonic_required_power": 484,
+      "origin": 38,
+      "infeasible": false,
+      "current_power": 710,
+      "current_R": 1.4669421487603307
+    },
+    {
+      "level": 39,
+      "recommended": 533,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 533,
+      "monotone_witness_power": 533,
+      "constrained": true,
+      "power_lower": 533,
+      "power_upper": 586,
+      "is_gate": false,
+      "monotonic_required_power": 533,
+      "origin": 39,
+      "infeasible": false,
+      "current_power": 849,
+      "current_R": 1.5928705440900564
+    },
+    {
+      "level": 40,
+      "recommended": 574,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 574,
+      "monotone_witness_power": 574,
+      "constrained": true,
+      "power_lower": 574,
+      "power_upper": 631,
+      "is_gate": false,
+      "monotonic_required_power": 574,
+      "origin": 40,
+      "infeasible": false,
+      "current_power": 849,
+      "current_R": 1.4790940766550522
+    },
+    {
+      "level": 41,
+      "recommended": 236,
+      "min_R": 0.95,
+      "max_R": 2.6754237288135596,
+      "E": 574,
+      "monotone_witness_power": 574,
+      "constrained": false,
+      "power_lower": 225,
+      "power_upper": 631,
+      "is_gate": false,
+      "monotonic_required_power": 574,
+      "origin": 40,
+      "infeasible": false,
+      "current_power": 880,
+      "current_R": 3.7288135593220337
+    },
+    {
+      "level": 42,
+      "recommended": 375,
+      "min_R": 0.95,
+      "max_R": 1.6837333333333335,
+      "E": 574,
+      "monotone_witness_power": 574,
+      "constrained": false,
+      "power_lower": 357,
+      "power_upper": 631,
+      "is_gate": false,
+      "monotonic_required_power": 574,
+      "origin": 40,
+      "infeasible": false,
+      "current_power": 942,
+      "current_R": 2.512
+    },
+    {
+      "level": 43,
+      "recommended": 587,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 587,
+      "monotone_witness_power": 587,
+      "constrained": false,
+      "power_lower": 558,
+      "power_upper": 645,
+      "is_gate": false,
+      "monotonic_required_power": 574,
+      "origin": 40,
+      "infeasible": false,
+      "current_power": 951,
+      "current_R": 1.6201022146507666
+    },
+    {
+      "level": 44,
+      "recommended": 757,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": false,
+      "power_lower": 720,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 957,
+      "current_R": 1.2642007926023777
+    },
+    {
+      "level": 45,
+      "recommended": 655,
+      "min_R": 1.0,
+      "max_R": 1.2712977099236642,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": true,
+      "power_lower": 655,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 963,
+      "current_R": 1.4702290076335878
+    },
+    {
+      "level": 46,
+      "recommended": 600,
+      "min_R": 0.95,
+      "max_R": 1.3878333333333335,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": false,
+      "power_lower": 570,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 972,
+      "current_R": 1.62
+    },
+    {
+      "level": 47,
+      "recommended": 670,
+      "min_R": 1.0,
+      "max_R": 1.2428358208955224,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": true,
+      "power_lower": 670,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 983,
+      "current_R": 1.4671641791044776
+    },
+    {
+      "level": 48,
+      "recommended": 663,
+      "min_R": 1.0,
+      "max_R": 1.2559577677224736,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": true,
+      "power_lower": 663,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 983,
+      "current_R": 1.4826546003016592
+    },
+    {
+      "level": 49,
+      "recommended": 658,
+      "min_R": 1.0,
+      "max_R": 1.2655015197568389,
+      "E": 757,
+      "monotone_witness_power": 757,
+      "constrained": true,
+      "power_lower": 658,
+      "power_upper": 832,
+      "is_gate": false,
+      "monotonic_required_power": 720,
+      "origin": 44,
+      "infeasible": false,
+      "current_power": 1008,
+      "current_R": 1.5319148936170213
+    },
+    {
+      "level": 50,
+      "recommended": 868,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 868,
+      "monotone_witness_power": 868,
+      "constrained": true,
+      "power_lower": 868,
+      "power_upper": 954,
+      "is_gate": false,
+      "monotonic_required_power": 868,
+      "origin": 50,
+      "infeasible": false,
+      "current_power": 1068,
+      "current_R": 1.2304147465437787
+    },
+    {
+      "level": 51,
+      "recommended": 431,
+      "min_R": 0.95,
+      "max_R": 2.2153132250580048,
+      "E": 868,
+      "monotone_witness_power": 868,
+      "constrained": false,
+      "power_lower": 410,
+      "power_upper": 954,
+      "is_gate": false,
+      "monotonic_required_power": 868,
+      "origin": 50,
+      "infeasible": false,
+      "current_power": 1185,
+      "current_R": 2.7494199535962878
+    },
+    {
+      "level": 52,
+      "recommended": 349,
+      "min_R": 0.95,
+      "max_R": 2.735816618911175,
+      "E": 868,
+      "monotone_witness_power": 868,
+      "constrained": false,
+      "power_lower": 332,
+      "power_upper": 954,
+      "is_gate": false,
+      "monotonic_required_power": 868,
+      "origin": 50,
+      "infeasible": false,
+      "current_power": 1185,
+      "current_R": 3.3954154727793697
+    },
+    {
+      "level": 53,
+      "recommended": 427,
+      "min_R": 0.95,
+      "max_R": 2.236065573770492,
+      "E": 868,
+      "monotone_witness_power": 868,
+      "constrained": false,
+      "power_lower": 406,
+      "power_upper": 954,
+      "is_gate": false,
+      "monotonic_required_power": 868,
+      "origin": 50,
+      "infeasible": false,
+      "current_power": 1185,
+      "current_R": 2.7751756440281032
+    },
+    {
+      "level": 54,
+      "recommended": 359,
+      "min_R": 0.95,
+      "max_R": 2.6596100278551535,
+      "E": 868,
+      "monotone_witness_power": 868,
+      "constrained": false,
+      "power_lower": 342,
+      "power_upper": 954,
+      "is_gate": false,
+      "monotonic_required_power": 868,
+      "origin": 50,
+      "infeasible": false,
+      "current_power": 1185,
+      "current_R": 3.3008356545961
+    },
+    {
+      "level": 55,
+      "recommended": 950,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 950,
+      "monotone_witness_power": 950,
+      "constrained": true,
+      "power_lower": 950,
+      "power_upper": 1045,
+      "is_gate": false,
+      "monotonic_required_power": 950,
+      "origin": 55,
+      "infeasible": false,
+      "current_power": 1185,
+      "current_R": 1.2473684210526317
+    },
+    {
+      "level": 56,
+      "recommended": 354,
+      "min_R": 0.95,
+      "max_R": 2.9519774011299433,
+      "E": 950,
+      "monotone_witness_power": 950,
+      "constrained": false,
+      "power_lower": 337,
+      "power_upper": 1045,
+      "is_gate": false,
+      "monotonic_required_power": 950,
+      "origin": 55,
+      "infeasible": false,
+      "current_power": 1237,
+      "current_R": 3.494350282485876
+    },
+    {
+      "level": 57,
+      "recommended": 990,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": true,
+      "power_lower": 990,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1237,
+      "current_R": 1.2494949494949494
+    },
+    {
+      "level": 58,
+      "recommended": 503,
+      "min_R": 1.0,
+      "max_R": 2.165009940357853,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": true,
+      "power_lower": 503,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1284,
+      "current_R": 2.5526838966202785
+    },
+    {
+      "level": 59,
+      "recommended": 562,
+      "min_R": 1.0,
+      "max_R": 1.9377224199288257,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": true,
+      "power_lower": 562,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1284,
+      "current_R": 2.284697508896797
+    },
+    {
+      "level": 60,
+      "recommended": 990,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": true,
+      "power_lower": 990,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1300,
+      "current_R": 1.3131313131313131
+    },
+    {
+      "level": 61,
+      "recommended": 990,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": false,
+      "power_lower": 941,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1491,
+      "current_R": 1.506060606060606
+    },
+    {
+      "level": 62,
+      "recommended": 250,
+      "min_R": 0.95,
+      "max_R": 4.356,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": false,
+      "power_lower": 238,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1577,
+      "current_R": 6.308
+    },
+    {
+      "level": 63,
+      "recommended": 576,
+      "min_R": 0.95,
+      "max_R": 1.890625,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": false,
+      "power_lower": 548,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1763,
+      "current_R": 3.060763888888889
+    },
+    {
+      "level": 64,
+      "recommended": 955,
+      "min_R": 0.95,
+      "max_R": 1.1403141361256544,
+      "E": 990,
+      "monotone_witness_power": 990,
+      "constrained": false,
+      "power_lower": 908,
+      "power_upper": 1089,
+      "is_gate": false,
+      "monotonic_required_power": 990,
+      "origin": 57,
+      "infeasible": false,
+      "current_power": 1763,
+      "current_R": 1.8460732984293193
+    },
+    {
+      "level": 65,
+      "recommended": 1014,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 1014,
+      "monotone_witness_power": 1014,
+      "constrained": true,
+      "power_lower": 1014,
+      "power_upper": 1115,
+      "is_gate": false,
+      "monotonic_required_power": 1014,
+      "origin": 65,
+      "infeasible": false,
+      "current_power": 1813,
+      "current_R": 1.7879684418145956
+    },
+    {
+      "level": 66,
+      "recommended": 1184,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 1184,
+      "monotone_witness_power": 1184,
+      "constrained": false,
+      "power_lower": 1125,
+      "power_upper": 1302,
+      "is_gate": false,
+      "monotonic_required_power": 1125,
+      "origin": 66,
+      "infeasible": false,
+      "current_power": 1813,
+      "current_R": 1.53125
+    },
+    {
+      "level": 67,
+      "recommended": 955,
+      "min_R": 1.0,
+      "max_R": 1.3637696335078535,
+      "E": 1184,
+      "monotone_witness_power": 1184,
+      "constrained": true,
+      "power_lower": 955,
+      "power_upper": 1302,
+      "is_gate": false,
+      "monotonic_required_power": 1125,
+      "origin": 66,
+      "infeasible": false,
+      "current_power": 1813,
+      "current_R": 1.8984293193717277
+    },
+    {
+      "level": 68,
+      "recommended": 1042,
+      "min_R": 1.0,
+      "max_R": 1.2499040307101728,
+      "E": 1184,
+      "monotone_witness_power": 1184,
+      "constrained": true,
+      "power_lower": 1042,
+      "power_upper": 1302,
+      "is_gate": false,
+      "monotonic_required_power": 1125,
+      "origin": 66,
+      "infeasible": false,
+      "current_power": 1814,
+      "current_R": 1.7408829174664107
+    },
+    {
+      "level": 69,
+      "recommended": 978,
+      "min_R": 1.0,
+      "max_R": 1.3316973415132924,
+      "E": 1184,
+      "monotone_witness_power": 1184,
+      "constrained": true,
+      "power_lower": 978,
+      "power_upper": 1302,
+      "is_gate": false,
+      "monotonic_required_power": 1125,
+      "origin": 66,
+      "infeasible": false,
+      "current_power": 2043,
+      "current_R": 2.088957055214724
+    },
+    {
+      "level": 70,
+      "recommended": 1286,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 1286,
+      "monotone_witness_power": 1286,
+      "constrained": true,
+      "power_lower": 1286,
+      "power_upper": 1414,
+      "is_gate": false,
+      "monotonic_required_power": 1286,
+      "origin": 70,
+      "infeasible": false,
+      "current_power": 2043,
+      "current_R": 1.588646967340591
+    },
+    {
+      "level": 71,
+      "recommended": 1146,
+      "min_R": 0.95,
+      "max_R": 1.2343804537521816,
+      "E": 1286,
+      "monotone_witness_power": 1286,
+      "constrained": false,
+      "power_lower": 1089,
+      "power_upper": 1414,
+      "is_gate": false,
+      "monotonic_required_power": 1286,
+      "origin": 70,
+      "infeasible": false,
+      "current_power": 2202,
+      "current_R": 1.9214659685863875
+    },
+    {
+      "level": 72,
+      "recommended": 1576,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 1576,
+      "monotone_witness_power": 1576,
+      "constrained": false,
+      "power_lower": 1498,
+      "power_upper": 1733,
+      "is_gate": false,
+      "monotonic_required_power": 1498,
+      "origin": 72,
+      "infeasible": false,
+      "current_power": 2308,
+      "current_R": 1.4644670050761421
+    },
+    {
+      "level": 73,
+      "recommended": 818,
+      "min_R": 0.95,
+      "max_R": 2.119315403422983,
+      "E": 1576,
+      "monotone_witness_power": 1576,
+      "constrained": false,
+      "power_lower": 778,
+      "power_upper": 1733,
+      "is_gate": false,
+      "monotonic_required_power": 1498,
+      "origin": 72,
+      "infeasible": false,
+      "current_power": 2308,
+      "current_R": 2.8215158924205377
+    },
+    {
+      "level": 74,
+      "recommended": 2034,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 2034,
+      "monotone_witness_power": 2034,
+      "constrained": false,
+      "power_lower": 1933,
+      "power_upper": 2237,
+      "is_gate": false,
+      "monotonic_required_power": 1933,
+      "origin": 74,
+      "infeasible": false,
+      "current_power": 2429,
+      "current_R": 1.1941986234021633
+    },
+    {
+      "level": 75,
+      "recommended": 1841,
+      "min_R": 1.0,
+      "max_R": 1.2153177620858229,
+      "E": 2034,
+      "monotone_witness_power": 2034,
+      "constrained": true,
+      "power_lower": 1841,
+      "power_upper": 2237,
+      "is_gate": false,
+      "monotonic_required_power": 1933,
+      "origin": 74,
+      "infeasible": false,
+      "current_power": 2733,
+      "current_R": 1.4845192829983704
+    },
+    {
+      "level": 76,
+      "recommended": 2758,
+      "min_R": 0.95,
+      "max_R": 1.1,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 0,
+      "power_upper": 3033,
+      "is_gate": true,
+      "monotonic_required_power": 1933,
+      "origin": 74,
+      "infeasible": false,
+      "current_power": 2989,
+      "current_R": 1.083756345177665
+    },
+    {
+      "level": 77,
+      "recommended": 1652,
+      "min_R": 1.0,
+      "max_R": 1.8364406779661018,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 1652,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 1933,
+      "origin": 74,
+      "infeasible": false,
+      "current_power": 3160,
+      "current_R": 1.9128329297820823
+    },
+    {
+      "level": 78,
+      "recommended": 2226,
+      "min_R": 1.0,
+      "max_R": 1.3628930817610063,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 2226,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3160,
+      "current_R": 1.4195867026055706
+    },
+    {
+      "level": 79,
+      "recommended": 2030,
+      "min_R": 1.0,
+      "max_R": 1.4944827586206897,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 2030,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3160,
+      "current_R": 1.5566502463054188
+    },
+    {
+      "level": 80,
+      "recommended": 2067,
+      "min_R": 1.0,
+      "max_R": 1.4677310111272377,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 2067,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3220,
+      "current_R": 1.5578132559264635
+    },
+    {
+      "level": 81,
+      "recommended": 1096,
+      "min_R": 0.95,
+      "max_R": 2.768065693430657,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1042,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3270,
+      "current_R": 2.9835766423357666
+    },
+    {
+      "level": 82,
+      "recommended": 1762,
+      "min_R": 0.95,
+      "max_R": 1.7217934165720772,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1674,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3270,
+      "current_R": 1.8558456299659478
+    },
+    {
+      "level": 83,
+      "recommended": 1815,
+      "min_R": 0.95,
+      "max_R": 1.6715151515151516,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1725,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3270,
+      "current_R": 1.8016528925619835
+    },
+    {
+      "level": 84,
+      "recommended": 1265,
+      "min_R": 0.95,
+      "max_R": 2.3982608695652177,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1202,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3271,
+      "current_R": 2.5857707509881425
+    },
+    {
+      "level": 85,
+      "recommended": 2204,
+      "min_R": 1.0,
+      "max_R": 1.376497277676951,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 2204,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3271,
+      "current_R": 1.484119782214156
+    },
+    {
+      "level": 86,
+      "recommended": 1855,
+      "min_R": 0.95,
+      "max_R": 1.6354716981132076,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1763,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3538,
+      "current_R": 1.907277628032345
+    },
+    {
+      "level": 87,
+      "recommended": 1857,
+      "min_R": 1.0,
+      "max_R": 1.63371028540657,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 1857,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3639,
+      "current_R": 1.9596122778675282
+    },
+    {
+      "level": 88,
+      "recommended": 1857,
+      "min_R": 1.0,
+      "max_R": 1.63371028540657,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 1857,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3700,
+      "current_R": 1.992460958535272
+    },
+    {
+      "level": 89,
+      "recommended": 1994,
+      "min_R": 1.0,
+      "max_R": 1.5214643931795386,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 1994,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2226,
+      "origin": 78,
+      "infeasible": false,
+      "current_power": 3974,
+      "current_R": 1.9929789368104314
+    },
+    {
+      "level": 90,
+      "recommended": 2751,
+      "min_R": 1.0,
+      "max_R": 1.1027989821882953,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": true,
+      "power_lower": 2751,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 3994,
+      "current_R": 1.4518356961105052
+    },
+    {
+      "level": 91,
+      "recommended": 1234,
+      "min_R": 0.95,
+      "max_R": 2.4585089141004866,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1173,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4401,
+      "current_R": 3.56645056726094
+    },
+    {
+      "level": 92,
+      "recommended": 1862,
+      "min_R": 0.95,
+      "max_R": 1.6293233082706768,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1769,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4401,
+      "current_R": 2.3635875402792696
+    },
+    {
+      "level": 93,
+      "recommended": 2266,
+      "min_R": 0.95,
+      "max_R": 1.3388349514563107,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 2153,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4404,
+      "current_R": 1.94351279788173
+    },
+    {
+      "level": 94,
+      "recommended": 1830,
+      "min_R": 0.95,
+      "max_R": 1.6578142076502733,
+      "E": 2758,
+      "monotone_witness_power": 2758,
+      "constrained": false,
+      "power_lower": 1739,
+      "power_upper": 3033,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4406,
+      "current_R": 2.4076502732240437
+    },
+    {
+      "level": 95,
+      "recommended": 3370,
+      "min_R": 1.0,
+      "max_R": 1.1,
+      "E": 3370,
+      "monotone_witness_power": 3370,
+      "constrained": true,
+      "power_lower": 0,
+      "power_upper": 3707,
+      "is_gate": true,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4415,
+      "current_R": 1.3100890207715135
+    },
+    {
+      "level": 96,
+      "recommended": 2429,
+      "min_R": 0.95,
+      "max_R": 1.526142445450803,
+      "E": 3370,
+      "monotone_witness_power": 3370,
+      "constrained": false,
+      "power_lower": 2308,
+      "power_upper": 3707,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4415,
+      "current_R": 1.8176204199258954
+    },
+    {
+      "level": 97,
+      "recommended": 1863,
+      "min_R": 1.0,
+      "max_R": 1.9898013955984972,
+      "E": 3370,
+      "monotone_witness_power": 3370,
+      "constrained": true,
+      "power_lower": 1863,
+      "power_upper": 3707,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 4415,
+      "current_R": 2.3698336017176596
+    },
+    {
+      "level": 98,
+      "recommended": 2720,
+      "min_R": 1.0,
+      "max_R": 1.3628676470588237,
+      "E": 3370,
+      "monotone_witness_power": 3370,
+      "constrained": true,
+      "power_lower": 2720,
+      "power_upper": 3707,
+      "is_gate": false,
+      "monotonic_required_power": 2751,
+      "origin": 90,
+      "infeasible": false,
+      "current_power": 5163,
+      "current_R": 1.8981617647058824
+    },
+    {
+      "level": 99,
+      "recommended": 3094,
+      "min_R": 1.0,
+      "max_R": 1.1981254040077571,
+      "E": 3370,
+      "monotone_witness_power": 3370,
+      "constrained": true,
+      "power_lower": 3094,
+      "power_upper": 3707,
+      "is_gate": false,
+      "monotonic_required_power": 3094,
+      "origin": 99,
+      "infeasible": false,
+      "current_power": 5283,
+      "current_R": 1.7074983839689721
+    }
+  ]
+}
