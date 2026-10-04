@@ -1,0 +1,15 @@
+[
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_release_candidate.py"
+    ],
+    "exit": 1,
+    "log": "/tmp/zf_linear_acceptance_final_release_candidate_dependencies_2026_10_05.log",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_final_rc_dependencies_home_2026_10_05_azu_785j",
+    "existing_dependency_path": "/Users/gavin/Library/Python/3.9/lib/python/site-packages",
+    "installed_dependencies": false,
+    "asset_gate_skipped": false,
+    "note": "Earlier isolated-HOME missing-Pillow failure retained. Only existing read-only Python dependency lookup restored; RC result is the actual exit code, not a waiver."
+  }
+]

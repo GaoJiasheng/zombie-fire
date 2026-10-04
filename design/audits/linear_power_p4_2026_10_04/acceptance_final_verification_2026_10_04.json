@@ -1,0 +1,48 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/bin/godot",
+      "--headless",
+      "--path",
+      ".",
+      "--quit"
+    ],
+    "exit": 0,
+    "process_exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_final_boot_2026_10_04.log",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_acceptance_final_boot_home_2026_10_04_6yu8hwam",
+    "godot_log_issues": [],
+    "script_error_count": 0
+  },
+  {
+    "command": [
+      "/opt/homebrew/bin/godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tools/m1_smoke_test.gd"
+    ],
+    "exit": 0,
+    "process_exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_final_m1_smoke_2026_10_04.log",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_acceptance_final_m1_smoke_home_2026_10_04_vuoekgcy",
+    "godot_log_issues": [],
+    "script_error_count": 0
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_release_candidate.py"
+    ],
+    "exit": 1,
+    "process_exit": 1,
+    "result": "FAIL",
+    "log": "/tmp/zf_linear_acceptance_final_release_candidate_2026_10_04.log",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_acceptance_final_release_candidate_home_2026_10_04_25_p0_xg",
+    "godot_log_issues": [],
+    "script_error_count": 0
+  }
+]

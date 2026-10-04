@@ -1,0 +1,2589 @@
+{
+  "method": "Nominal contact threat: 20 seconds uninterrupted, before mitigation.\n\n    This is explicitly not a full combat loss forecast (shield/control/deaths\n    and random timing matter). Include a reference base HP denominator per\n    authored appearance, keeping 100%-HP boss clears explainable, not ignored.\n    ",
+  "rows": [
+    {
+      "enemy": "boss_tank_titan",
+      "kind": "boss",
+      "mechanic": "armor_break",
+      "damage_per_round": 12,
+      "nominal_interval": 3.5,
+      "effective_nominal_interval": 3.5,
+      "first_contact_delay": 0.96,
+      "contact_damage_20s": 72,
+      "appearances": [
+        {
+          "level": 5,
+          "reference_base_hp": 338.2449,
+          "nominal_contact_loss_20s_pct": 21.286351989342638
+        },
+        {
+          "level": 10,
+          "reference_base_hp": 517.71603072,
+          "nominal_contact_loss_20s_pct": 13.907237892531137
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_inferno_maw",
+      "kind": "boss",
+      "mechanic": "phase_burn",
+      "damage_per_round": 26,
+      "nominal_interval": 4.0,
+      "effective_nominal_interval": 4.0,
+      "first_contact_delay": 2.75,
+      "contact_damage_20s": 130,
+      "appearances": [
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 21.785744595382823
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 16.333532994512137
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_frost_warden",
+      "kind": "boss",
+      "mechanic": "freeze_field",
+      "damage_per_round": 28,
+      "nominal_interval": 4.0,
+      "effective_nominal_interval": 4.0,
+      "first_contact_delay": 2.99,
+      "contact_damage_20s": 140,
+      "appearances": [
+        {
+          "level": 25,
+          "reference_base_hp": 811.0473571199998,
+          "nominal_contact_loss_20s_pct": 17.261630750778227
+        },
+        {
+          "level": 30,
+          "reference_base_hp": 911.3831126399999,
+          "nominal_contact_loss_20s_pct": 15.361267732343926
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_storm_caller",
+      "kind": "boss",
+      "mechanic": "storm_chain",
+      "damage_per_round": 30,
+      "nominal_interval": 3.0,
+      "effective_nominal_interval": 3.0,
+      "first_contact_delay": 2.33,
+      "contact_damage_20s": 180,
+      "appearances": [
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 15.567565749410525
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 13.861870767915407
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_plague_mother",
+      "kind": "boss",
+      "mechanic": "spawn_minions",
+      "damage_per_round": 24,
+      "nominal_interval": 4.0,
+      "effective_nominal_interval": 4.0,
+      "first_contact_delay": 2.8600000000000003,
+      "contact_damage_20s": 120,
+      "appearances": [
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 8.190254444105664
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 7.5629158058337405
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_void_phantom",
+      "kind": "boss",
+      "mechanic": "phase_shift",
+      "damage_per_round": 18,
+      "nominal_interval": 2.5,
+      "effective_nominal_interval": 2.5,
+      "first_contact_delay": 0.76,
+      "contact_damage_20s": 144,
+      "appearances": [
+        {
+          "level": 55,
+          "reference_base_hp": 1734.6845824000002,
+          "nominal_contact_loss_20s_pct": 8.301220951694324
+        },
+        {
+          "level": 60,
+          "reference_base_hp": 2173.3774776,
+          "nominal_contact_loss_20s_pct": 6.625632292785843
+        },
+        {
+          "level": 65,
+          "reference_base_hp": 2318.0014872,
+          "nominal_contact_loss_20s_pct": 6.212247955627627
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_necrotitan",
+      "kind": "boss",
+      "mechanic": "regenerate",
+      "damage_per_round": 120,
+      "nominal_interval": 5.0,
+      "effective_nominal_interval": 5.0,
+      "first_contact_delay": 1.24,
+      "contact_damage_20s": 480,
+      "appearances": [
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 19.109485625140728
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 17.436642263532203
+        },
+        {
+          "level": 80,
+          "reference_base_hp": 2901.2809392000004,
+          "nominal_contact_loss_20s_pct": 16.544416416714036
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 15.484539740018294
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "boss_apex_overlord",
+      "kind": "boss",
+      "mechanic": "multi_phase",
+      "damage_per_round": 24,
+      "nominal_interval": 4.0,
+      "effective_nominal_interval": 4.0,
+      "first_contact_delay": 2.87,
+      "contact_damage_20s": 120,
+      "appearances": [
+        {
+          "level": 90,
+          "reference_base_hp": 4054.610165760001,
+          "nominal_contact_loss_20s_pct": 2.959594019996422
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 2.776292240148524
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 2.6390415354985755
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_shambler",
+      "kind": "ordinary/elite",
+      "mechanic": "basic",
+      "damage_per_round": 10,
+      "nominal_interval": 1.35,
+      "effective_nominal_interval": 1.35,
+      "first_contact_delay": 0.5348,
+      "contact_damage_20s": 150,
+      "appearances": [
+        {
+          "level": 2,
+          "reference_base_hp": 130.429,
+          "nominal_contact_loss_20s_pct": 115.00509855936947
+        },
+        {
+          "level": 6,
+          "reference_base_hp": 207.41760000000002,
+          "nominal_contact_loss_20s_pct": 72.31787466444506
+        },
+        {
+          "level": 10,
+          "reference_base_hp": 517.71603072,
+          "nominal_contact_loss_20s_pct": 28.97341227610654
+        },
+        {
+          "level": 14,
+          "reference_base_hp": 364.8845813760001,
+          "nominal_contact_loss_20s_pct": 41.108889675289
+        },
+        {
+          "level": 18,
+          "reference_base_hp": 509.139083264,
+          "nominal_contact_loss_20s_pct": 29.46149783638229
+        },
+        {
+          "level": 23,
+          "reference_base_hp": 617.622317312,
+          "nominal_contact_loss_20s_pct": 24.286687154186097
+        },
+        {
+          "level": 28,
+          "reference_base_hp": 697.8909217279999,
+          "nominal_contact_loss_20s_pct": 21.49333016520623
+        },
+        {
+          "level": 33,
+          "reference_base_hp": 778.1595261439999,
+          "nominal_contact_loss_20s_pct": 19.276253128107594
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 11.55155897326284
+        },
+        {
+          "level": 46,
+          "reference_base_hp": 1191.029995008,
+          "nominal_contact_loss_20s_pct": 12.5941412582974
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 9.453644757292176
+        },
+        {
+          "level": 54,
+          "reference_base_hp": 1368.54957568,
+          "nominal_contact_loss_20s_pct": 10.960509042974824
+        },
+        {
+          "level": 56,
+          "reference_base_hp": 1436.2345267200003,
+          "nominal_contact_loss_20s_pct": 10.443976746789566
+        },
+        {
+          "level": 58,
+          "reference_base_hp": 1475.4300108800003,
+          "nominal_contact_loss_20s_pct": 10.166527649151892
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 9.832741919760414
+        },
+        {
+          "level": 63,
+          "reference_base_hp": 1809.40705344,
+          "nominal_contact_loss_20s_pct": 8.290008581254488
+        },
+        {
+          "level": 64,
+          "reference_base_hp": 1831.9041216,
+          "nominal_contact_loss_20s_pct": 8.188201458326802
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 7.9919089576134885
+        },
+        {
+          "level": 67,
+          "reference_base_hp": 1899.39532608,
+          "nominal_contact_loss_20s_pct": 7.897250137472551
+        },
+        {
+          "level": 68,
+          "reference_base_hp": 1925.10626112,
+          "nominal_contact_loss_20s_pct": 7.791777681546373
+        },
+        {
+          "level": 69,
+          "reference_base_hp": 1986.5265638400006,
+          "nominal_contact_loss_20s_pct": 7.55086806944311
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 5.971714257856477
+        },
+        {
+          "level": 71,
+          "reference_base_hp": 2032.4199168000002,
+          "nominal_contact_loss_20s_pct": 7.380364596907299
+        },
+        {
+          "level": 73,
+          "reference_base_hp": 2110.016353536,
+          "nominal_contact_loss_20s_pct": 7.10894964148631
+        },
+        {
+          "level": 74,
+          "reference_base_hp": 2133.3130640640006,
+          "nominal_contact_loss_20s_pct": 7.031316806087862
+        },
+        {
+          "level": 76,
+          "reference_base_hp": 2226.01204224,
+          "nominal_contact_loss_20s_pct": 6.738508020336558
+        },
+        {
+          "level": 77,
+          "reference_base_hp": 2249.7652195200003,
+          "nominal_contact_loss_20s_pct": 6.667362385129383
+        },
+        {
+          "level": 78,
+          "reference_base_hp": 2273.5183968,
+          "nominal_contact_loss_20s_pct": 6.597703375135495
+        },
+        {
+          "level": 79,
+          "reference_base_hp": 2297.2715740800004,
+          "nominal_contact_loss_20s_pct": 6.52948487642656
+        },
+        {
+          "level": 81,
+          "reference_base_hp": 2344.77792864,
+          "nominal_contact_loss_20s_pct": 6.397194300059018
+        },
+        {
+          "level": 82,
+          "reference_base_hp": 2371.92441696,
+          "nominal_contact_loss_20s_pct": 6.323978914650617
+        },
+        {
+          "level": 83,
+          "reference_base_hp": 2431.6727500800002,
+          "nominal_contact_loss_20s_pct": 6.168593203796239
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 6.108031980196556
+        },
+        {
+          "level": 86,
+          "reference_base_hp": 2504.00295936,
+          "nominal_contact_loss_20s_pct": 5.990408255681079
+        },
+        {
+          "level": 87,
+          "reference_base_hp": 3089.9159244800003,
+          "nominal_contact_loss_20s_pct": 4.854501017701425
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 4.808642033728536
+        },
+        {
+          "level": 89,
+          "reference_base_hp": 3153.0613452800008,
+          "nominal_contact_loss_20s_pct": 4.757281371151996
+        },
+        {
+          "level": 91,
+          "reference_base_hp": 3273.7222819840003,
+          "nominal_contact_loss_20s_pct": 4.581940283251342
+        },
+        {
+          "level": 92,
+          "reference_base_hp": 3366.0479283200007,
+          "nominal_contact_loss_20s_pct": 4.456264533192942
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 4.41611800586688
+        },
+        {
+          "level": 94,
+          "reference_base_hp": 3427.2487997440007,
+          "nominal_contact_loss_20s_pct": 4.376688380814498
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 4.294522766656528
+        },
+        {
+          "level": 97,
+          "reference_base_hp": 3575.5775095040003,
+          "nominal_contact_loss_20s_pct": 4.195126510369169
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 4.1590061099108855
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_runner",
+      "kind": "ordinary/elite",
+      "mechanic": "runner",
+      "damage_per_round": 6,
+      "nominal_interval": 0.82,
+      "effective_nominal_interval": 0.82,
+      "first_contact_delay": 0.39,
+      "contact_damage_20s": 144,
+      "appearances": [
+        {
+          "level": 1,
+          "reference_base_hp": 161.0,
+          "nominal_contact_loss_20s_pct": 89.44099378881988
+        },
+        {
+          "level": 3,
+          "reference_base_hp": 141.23600000000002,
+          "nominal_contact_loss_20s_pct": 101.95700812823925
+        },
+        {
+          "level": 5,
+          "reference_base_hp": 338.2449,
+          "nominal_contact_loss_20s_pct": 42.572703978685276
+        },
+        {
+          "level": 7,
+          "reference_base_hp": 216.72480000000002,
+          "nominal_contact_loss_20s_pct": 66.44371110274412
+        },
+        {
+          "level": 9,
+          "reference_base_hp": 277.8132188160001,
+          "nominal_contact_loss_20s_pct": 51.833386695459374
+        },
+        {
+          "level": 11,
+          "reference_base_hp": 314.397710592,
+          "nominal_contact_loss_20s_pct": 45.801860239011596
+        },
+        {
+          "level": 13,
+          "reference_base_hp": 352.893069312,
+          "nominal_contact_loss_20s_pct": 40.805561945646105
+        },
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 24.131901705654823
+        },
+        {
+          "level": 17,
+          "reference_base_hp": 475.5216211200001,
+          "nominal_contact_loss_20s_pct": 30.282534716473165
+        },
+        {
+          "level": 18,
+          "reference_base_hp": 509.139083264,
+          "nominal_contact_loss_20s_pct": 28.283037922927
+        },
+        {
+          "level": 21,
+          "reference_base_hp": 577.1800693119999,
+          "nominal_contact_loss_20s_pct": 24.948886431863173
+        },
+        {
+          "level": 22,
+          "reference_base_hp": 602.0145331199999,
+          "nominal_contact_loss_20s_pct": 23.9196883260784
+        },
+        {
+          "level": 25,
+          "reference_base_hp": 811.0473571199998,
+          "nominal_contact_loss_20s_pct": 17.754820200800463
+        },
+        {
+          "level": 27,
+          "reference_base_hp": 682.2831375359999,
+          "nominal_contact_loss_20s_pct": 21.105607346539763
+        },
+        {
+          "level": 30,
+          "reference_base_hp": 911.3831126399999,
+          "nominal_contact_loss_20s_pct": 15.800161096125182
+        },
+        {
+          "level": 32,
+          "reference_base_hp": 760.3220584959998,
+          "nominal_contact_loss_20s_pct": 18.939342662877326
+        },
+        {
+          "level": 33,
+          "reference_base_hp": 778.1595261439999,
+          "nominal_contact_loss_20s_pct": 18.50520300298329
+        },
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 12.45405259952842
+        },
+        {
+          "level": 37,
+          "reference_base_hp": 960.675043328,
+          "nominal_contact_loss_20s_pct": 14.989459859511992
+        },
+        {
+          "level": 39,
+          "reference_base_hp": 1017.9923353600002,
+          "nominal_contact_loss_20s_pct": 14.145489607156641
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 11.089496614332326
+        },
+        {
+          "level": 42,
+          "reference_base_hp": 1075.2706764800002,
+          "nominal_contact_loss_20s_pct": 13.39197684357929
+        },
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 9.828305332926798
+        },
+        {
+          "level": 47,
+          "reference_base_hp": 1212.6359813120002,
+          "nominal_contact_loss_20s_pct": 11.87495688889262
+        },
+        {
+          "level": 48,
+          "reference_base_hp": 1231.5412193280001,
+          "nominal_contact_loss_20s_pct": 11.69266588401927
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 11.515886918170168
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 9.075498967000488
+        },
+        {
+          "level": 51,
+          "reference_base_hp": 1288.2569333760002,
+          "nominal_contact_loss_20s_pct": 11.177894430005841
+        },
+        {
+          "level": 55,
+          "reference_base_hp": 1734.6845824000002,
+          "nominal_contact_loss_20s_pct": 8.301220951694324
+        },
+        {
+          "level": 61,
+          "reference_base_hp": 1764.4129171200002,
+          "nominal_contact_loss_20s_pct": 8.161354896168353
+        },
+        {
+          "level": 62,
+          "reference_base_hp": 1786.90998528,
+          "nominal_contact_loss_20s_pct": 8.058604025173429
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 5.732845687542217
+        },
+        {
+          "level": 72,
+          "reference_base_hp": 2086.7196430080007,
+          "nominal_contact_loss_20s_pct": 6.900783269209293
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 5.230992679059661
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 4.645361922005488
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 3.1668498425982907
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_brute",
+      "kind": "ordinary/elite",
+      "mechanic": "tank",
+      "damage_per_round": 25,
+      "nominal_interval": 1.72,
+      "effective_nominal_interval": 1.72,
+      "first_contact_delay": 0.644,
+      "contact_damage_20s": 300,
+      "appearances": [
+        {
+          "level": 1,
+          "reference_base_hp": 161.0,
+          "nominal_contact_loss_20s_pct": 186.33540372670808
+        },
+        {
+          "level": 2,
+          "reference_base_hp": 130.429,
+          "nominal_contact_loss_20s_pct": 230.01019711873894
+        },
+        {
+          "level": 3,
+          "reference_base_hp": 141.23600000000002,
+          "nominal_contact_loss_20s_pct": 212.41043360049844
+        },
+        {
+          "level": 4,
+          "reference_base_hp": 152.421,
+          "nominal_contact_loss_20s_pct": 196.82327238372665
+        },
+        {
+          "level": 5,
+          "reference_base_hp": 338.2449,
+          "nominal_contact_loss_20s_pct": 88.69313328892765
+        },
+        {
+          "level": 7,
+          "reference_base_hp": 216.72480000000002,
+          "nominal_contact_loss_20s_pct": 138.42439813071692
+        },
+        {
+          "level": 8,
+          "reference_base_hp": 226.032,
+          "nominal_contact_loss_20s_pct": 132.72456997239328
+        },
+        {
+          "level": 9,
+          "reference_base_hp": 277.8132188160001,
+          "nominal_contact_loss_20s_pct": 107.98622228220702
+        },
+        {
+          "level": 10,
+          "reference_base_hp": 517.71603072,
+          "nominal_contact_loss_20s_pct": 57.94682455221308
+        },
+        {
+          "level": 11,
+          "reference_base_hp": 314.397710592,
+          "nominal_contact_loss_20s_pct": 95.4205421646075
+        },
+        {
+          "level": 12,
+          "reference_base_hp": 327.56620108799996,
+          "nominal_contact_loss_20s_pct": 91.5845404695479
+        },
+        {
+          "level": 13,
+          "reference_base_hp": 352.893069312,
+          "nominal_contact_loss_20s_pct": 85.01158738676271
+        },
+        {
+          "level": 14,
+          "reference_base_hp": 364.8845813760001,
+          "nominal_contact_loss_20s_pct": 82.217779350578
+        },
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 50.27479522011421
+        },
+        {
+          "level": 16,
+          "reference_base_hp": 395.39709888000004,
+          "nominal_contact_loss_20s_pct": 75.87309083697846
+        },
+        {
+          "level": 19,
+          "reference_base_hp": 526.0399656960001,
+          "nominal_contact_loss_20s_pct": 57.029887378057275
+        },
+        {
+          "level": 25,
+          "reference_base_hp": 811.0473571199998,
+          "nominal_contact_loss_20s_pct": 36.98920875166763
+        },
+        {
+          "level": 28,
+          "reference_base_hp": 697.8909217279999,
+          "nominal_contact_loss_20s_pct": 42.98666033041246
+        },
+        {
+          "level": 30,
+          "reference_base_hp": 911.3831126399999,
+          "nominal_contact_loss_20s_pct": 32.91700228359413
+        },
+        {
+          "level": 31,
+          "reference_base_hp": 744.7142743039999,
+          "nominal_contact_loss_20s_pct": 40.283906237781736
+        },
+        {
+          "level": 34,
+          "reference_base_hp": 793.7673103359998,
+          "nominal_contact_loss_20s_pct": 37.794451357918824
+        },
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 25.94594291568421
+        },
+        {
+          "level": 39,
+          "reference_base_hp": 1017.9923353600002,
+          "nominal_contact_loss_20s_pct": 29.46977001490967
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 23.10311794652568
+        },
+        {
+          "level": 46,
+          "reference_base_hp": 1191.029995008,
+          "nominal_contact_loss_20s_pct": 25.1882825165948
+        },
+        {
+          "level": 48,
+          "reference_base_hp": 1231.5412193280001,
+          "nominal_contact_loss_20s_pct": 24.35972059170681
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 23.991431079521185
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 18.907289514584352
+        },
+        {
+          "level": 51,
+          "reference_base_hp": 1288.2569333760002,
+          "nominal_contact_loss_20s_pct": 23.28728006251217
+        },
+        {
+          "level": 52,
+          "reference_base_hp": 1307.1621713920001,
+          "nominal_contact_loss_20s_pct": 22.95048055747584
+        },
+        {
+          "level": 56,
+          "reference_base_hp": 1436.2345267200003,
+          "nominal_contact_loss_20s_pct": 20.887953493579133
+        },
+        {
+          "level": 57,
+          "reference_base_hp": 1455.8322688000003,
+          "nominal_contact_loss_20s_pct": 20.60676950424249
+        },
+        {
+          "level": 63,
+          "reference_base_hp": 1809.40705344,
+          "nominal_contact_loss_20s_pct": 16.580017162508977
+        },
+        {
+          "level": 64,
+          "reference_base_hp": 1831.9041216,
+          "nominal_contact_loss_20s_pct": 16.376402916653603
+        },
+        {
+          "level": 68,
+          "reference_base_hp": 1925.10626112,
+          "nominal_contact_loss_20s_pct": 15.583555363092746
+        },
+        {
+          "level": 69,
+          "reference_base_hp": 1986.5265638400006,
+          "nominal_contact_loss_20s_pct": 15.10173613888622
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 11.943428515712954
+        },
+        {
+          "level": 71,
+          "reference_base_hp": 2032.4199168000002,
+          "nominal_contact_loss_20s_pct": 14.760729193814598
+        },
+        {
+          "level": 73,
+          "reference_base_hp": 2110.016353536,
+          "nominal_contact_loss_20s_pct": 14.21789928297262
+        },
+        {
+          "level": 74,
+          "reference_base_hp": 2133.3130640640006,
+          "nominal_contact_loss_20s_pct": 14.062633612175723
+        },
+        {
+          "level": 76,
+          "reference_base_hp": 2226.01204224,
+          "nominal_contact_loss_20s_pct": 13.477016040673115
+        },
+        {
+          "level": 77,
+          "reference_base_hp": 2249.7652195200003,
+          "nominal_contact_loss_20s_pct": 13.334724770258767
+        },
+        {
+          "level": 78,
+          "reference_base_hp": 2273.5183968,
+          "nominal_contact_loss_20s_pct": 13.19540675027099
+        },
+        {
+          "level": 79,
+          "reference_base_hp": 2297.2715740800004,
+          "nominal_contact_loss_20s_pct": 13.05896975285312
+        },
+        {
+          "level": 81,
+          "reference_base_hp": 2344.77792864,
+          "nominal_contact_loss_20s_pct": 12.794388600118037
+        },
+        {
+          "level": 82,
+          "reference_base_hp": 2371.92441696,
+          "nominal_contact_loss_20s_pct": 12.647957829301234
+        },
+        {
+          "level": 83,
+          "reference_base_hp": 2431.6727500800002,
+          "nominal_contact_loss_20s_pct": 12.337186407592478
+        },
+        {
+          "level": 86,
+          "reference_base_hp": 2504.00295936,
+          "nominal_contact_loss_20s_pct": 11.980816511362159
+        },
+        {
+          "level": 87,
+          "reference_base_hp": 3089.9159244800003,
+          "nominal_contact_loss_20s_pct": 9.70900203540285
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 9.617284067457073
+        },
+        {
+          "level": 89,
+          "reference_base_hp": 3153.0613452800008,
+          "nominal_contact_loss_20s_pct": 9.514562742303992
+        },
+        {
+          "level": 91,
+          "reference_base_hp": 3273.7222819840003,
+          "nominal_contact_loss_20s_pct": 9.163880566502684
+        },
+        {
+          "level": 92,
+          "reference_base_hp": 3366.0479283200007,
+          "nominal_contact_loss_20s_pct": 8.912529066385884
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 8.83223601173376
+        },
+        {
+          "level": 94,
+          "reference_base_hp": 3427.2487997440007,
+          "nominal_contact_loss_20s_pct": 8.753376761628996
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 8.589045533313056
+        },
+        {
+          "level": 97,
+          "reference_base_hp": 3575.5775095040003,
+          "nominal_contact_loss_20s_pct": 8.390253020738339
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 8.318012219821771
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_bomber",
+      "kind": "ordinary/elite",
+      "mechanic": "explode_on_death",
+      "damage_per_round": 26,
+      "nominal_interval": 1.46,
+      "effective_nominal_interval": 1.46,
+      "first_contact_delay": 0.594,
+      "contact_damage_20s": 364,
+      "appearances": [
+        {
+          "level": 1,
+          "reference_base_hp": 161.0,
+          "nominal_contact_loss_20s_pct": 226.08695652173913
+        },
+        {
+          "level": 2,
+          "reference_base_hp": 130.429,
+          "nominal_contact_loss_20s_pct": 279.07903917073656
+        },
+        {
+          "level": 3,
+          "reference_base_hp": 141.23600000000002,
+          "nominal_contact_loss_20s_pct": 257.7246594352714
+        },
+        {
+          "level": 4,
+          "reference_base_hp": 152.421,
+          "nominal_contact_loss_20s_pct": 238.81223715892168
+        },
+        {
+          "level": 5,
+          "reference_base_hp": 338.2449,
+          "nominal_contact_loss_20s_pct": 107.61433505723221
+        },
+        {
+          "level": 7,
+          "reference_base_hp": 216.72480000000002,
+          "nominal_contact_loss_20s_pct": 167.9549363986032
+        },
+        {
+          "level": 8,
+          "reference_base_hp": 226.032,
+          "nominal_contact_loss_20s_pct": 161.0391448998372
+        },
+        {
+          "level": 10,
+          "reference_base_hp": 517.71603072,
+          "nominal_contact_loss_20s_pct": 70.30881379001853
+        },
+        {
+          "level": 11,
+          "reference_base_hp": 314.397710592,
+          "nominal_contact_loss_20s_pct": 115.7769244930571
+        },
+        {
+          "level": 12,
+          "reference_base_hp": 327.56620108799996,
+          "nominal_contact_loss_20s_pct": 111.12257576971814
+        },
+        {
+          "level": 13,
+          "reference_base_hp": 352.893069312,
+          "nominal_contact_loss_20s_pct": 103.14739269593875
+        },
+        {
+          "level": 16,
+          "reference_base_hp": 395.39709888000004,
+          "nominal_contact_loss_20s_pct": 92.05935021553387
+        },
+        {
+          "level": 17,
+          "reference_base_hp": 475.5216211200001,
+          "nominal_contact_loss_20s_pct": 76.54751831108494
+        },
+        {
+          "level": 19,
+          "reference_base_hp": 526.0399656960001,
+          "nominal_contact_loss_20s_pct": 69.19626335204283
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 45.73389238463399
+        },
+        {
+          "level": 21,
+          "reference_base_hp": 577.1800693119999,
+          "nominal_contact_loss_20s_pct": 63.065240702765244
+        },
+        {
+          "level": 23,
+          "reference_base_hp": 617.622317312,
+          "nominal_contact_loss_20s_pct": 58.93569416082494
+        },
+        {
+          "level": 24,
+          "reference_base_hp": 633.2301015039999,
+          "nominal_contact_loss_20s_pct": 57.48305381179052
+        },
+        {
+          "level": 27,
+          "reference_base_hp": 682.2831375359999,
+          "nominal_contact_loss_20s_pct": 53.350285237086624
+        },
+        {
+          "level": 29,
+          "reference_base_hp": 713.4987059199999,
+          "nominal_contact_loss_20s_pct": 51.01621025796409
+        },
+        {
+          "level": 31,
+          "reference_base_hp": 744.7142743039999,
+          "nominal_contact_loss_20s_pct": 48.87780623517517
+        },
+        {
+          "level": 33,
+          "reference_base_hp": 778.1595261439999,
+          "nominal_contact_loss_20s_pct": 46.77704092420776
+        },
+        {
+          "level": 34,
+          "reference_base_hp": 793.7673103359998,
+          "nominal_contact_loss_20s_pct": 45.857267647608175
+        },
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 31.481077404363507
+        },
+        {
+          "level": 38,
+          "reference_base_hp": 999.7674086400001,
+          "nominal_contact_loss_20s_pct": 36.40846829515628
+        },
+        {
+          "level": 41,
+          "reference_base_hp": 1057.04574976,
+          "nominal_contact_loss_20s_pct": 34.43559562891629
+        },
+        {
+          "level": 42,
+          "reference_base_hp": 1075.2706764800002,
+          "nominal_contact_loss_20s_pct": 33.85194146571431
+        },
+        {
+          "level": 44,
+          "reference_base_hp": 1153.2195189760002,
+          "nominal_contact_loss_20s_pct": 31.563808451942727
+        },
+        {
+          "level": 46,
+          "reference_base_hp": 1191.029995008,
+          "nominal_contact_loss_20s_pct": 30.561782786801693
+        },
+        {
+          "level": 47,
+          "reference_base_hp": 1212.6359813120002,
+          "nominal_contact_loss_20s_pct": 30.0172521358119
+        },
+        {
+          "level": 48,
+          "reference_base_hp": 1231.5412193280001,
+          "nominal_contact_loss_20s_pct": 29.556460984604264
+        },
+        {
+          "level": 61,
+          "reference_base_hp": 1764.4129171200002,
+          "nominal_contact_loss_20s_pct": 20.630091543092224
+        },
+        {
+          "level": 62,
+          "reference_base_hp": 1786.90998528,
+          "nominal_contact_loss_20s_pct": 20.370360174743947
+        },
+        {
+          "level": 65,
+          "reference_base_hp": 2318.0014872,
+          "nominal_contact_loss_20s_pct": 15.703182332280946
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 8.42141979511719
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_screamer",
+      "kind": "ordinary/elite",
+      "mechanic": "buff_aura",
+      "damage_per_round": 8,
+      "nominal_interval": 1.05,
+      "effective_nominal_interval": 1.05,
+      "first_contact_delay": 0.5572,
+      "contact_damage_20s": 152,
+      "appearances": [
+        {
+          "level": 5,
+          "reference_base_hp": 338.2449,
+          "nominal_contact_loss_20s_pct": 44.93785419972334
+        },
+        {
+          "level": 11,
+          "reference_base_hp": 314.397710592,
+          "nominal_contact_loss_20s_pct": 48.34640803006779
+        },
+        {
+          "level": 12,
+          "reference_base_hp": 327.56620108799996,
+          "nominal_contact_loss_20s_pct": 46.402833837904275
+        },
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 25.472562911524534
+        },
+        {
+          "level": 16,
+          "reference_base_hp": 395.39709888000004,
+          "nominal_contact_loss_20s_pct": 38.44236602406909
+        },
+        {
+          "level": 18,
+          "reference_base_hp": 509.139083264,
+          "nominal_contact_loss_20s_pct": 29.854317807534052
+        },
+        {
+          "level": 19,
+          "reference_base_hp": 526.0399656960001,
+          "nominal_contact_loss_20s_pct": 28.89514293821569
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 19.097669347429576
+        },
+        {
+          "level": 21,
+          "reference_base_hp": 577.1800693119999,
+          "nominal_contact_loss_20s_pct": 26.33493567807779
+        },
+        {
+          "level": 22,
+          "reference_base_hp": 602.0145331199999,
+          "nominal_contact_loss_20s_pct": 25.248559899749424
+        },
+        {
+          "level": 23,
+          "reference_base_hp": 617.622317312,
+          "nominal_contact_loss_20s_pct": 24.610509649575246
+        },
+        {
+          "level": 24,
+          "reference_base_hp": 633.2301015039999,
+          "nominal_contact_loss_20s_pct": 24.00391258074769
+        },
+        {
+          "level": 25,
+          "reference_base_hp": 811.0473571199998,
+          "nominal_contact_loss_20s_pct": 18.741199100844934
+        },
+        {
+          "level": 26,
+          "reference_base_hp": 666.675353344,
+          "nominal_contact_loss_20s_pct": 22.799702919506164
+        },
+        {
+          "level": 27,
+          "reference_base_hp": 682.2831375359999,
+          "nominal_contact_loss_20s_pct": 22.278141088014195
+        },
+        {
+          "level": 28,
+          "reference_base_hp": 697.8909217279999,
+          "nominal_contact_loss_20s_pct": 21.779907900742316
+        },
+        {
+          "level": 29,
+          "reference_base_hp": 713.4987059199999,
+          "nominal_contact_loss_20s_pct": 21.303472415413573
+        },
+        {
+          "level": 31,
+          "reference_base_hp": 744.7142743039999,
+          "nominal_contact_loss_20s_pct": 20.410512493809414
+        },
+        {
+          "level": 32,
+          "reference_base_hp": 760.3220584959998,
+          "nominal_contact_loss_20s_pct": 19.991528366370513
+        },
+        {
+          "level": 33,
+          "reference_base_hp": 778.1595261439999,
+          "nominal_contact_loss_20s_pct": 19.53326983648236
+        },
+        {
+          "level": 34,
+          "reference_base_hp": 793.7673103359998,
+          "nominal_contact_loss_20s_pct": 19.149188688012202
+        },
+        {
+          "level": 36,
+          "reference_base_hp": 942.8375756800001,
+          "nominal_contact_loss_20s_pct": 16.121546692745405
+        },
+        {
+          "level": 38,
+          "reference_base_hp": 999.7674086400001,
+          "nominal_contact_loss_20s_pct": 15.203536211164161
+        },
+        {
+          "level": 43,
+          "reference_base_hp": 1110.7009536,
+          "nominal_contact_loss_20s_pct": 13.685051724079116
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 12.155658413624066
+        },
+        {
+          "level": 52,
+          "reference_base_hp": 1307.1621713920001,
+          "nominal_contact_loss_20s_pct": 11.628243482454426
+        },
+        {
+          "level": 53,
+          "reference_base_hp": 1346.6089011200002,
+          "nominal_contact_loss_20s_pct": 11.287612897373448
+        },
+        {
+          "level": 56,
+          "reference_base_hp": 1436.2345267200003,
+          "nominal_contact_loss_20s_pct": 10.583229770080093
+        },
+        {
+          "level": 57,
+          "reference_base_hp": 1455.8322688000003,
+          "nominal_contact_loss_20s_pct": 10.44076321548286
+        },
+        {
+          "level": 58,
+          "reference_base_hp": 1475.4300108800003,
+          "nominal_contact_loss_20s_pct": 10.302081351140584
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 9.963845145357219
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 8.098467743715004
+        },
+        {
+          "level": 67,
+          "reference_base_hp": 1899.39532608,
+          "nominal_contact_loss_20s_pct": 8.002546805972186
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 6.189472406599177
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_spitter",
+      "kind": "ordinary/elite",
+      "mechanic": "ranged_spit",
+      "damage_per_round": 10,
+      "nominal_interval": 1.12,
+      "effective_nominal_interval": 1.12,
+      "first_contact_delay": 0.529,
+      "contact_damage_20s": 180,
+      "appearances": [
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 30.16487713206853
+        },
+        {
+          "level": 24,
+          "reference_base_hp": 633.2301015039999,
+          "nominal_contact_loss_20s_pct": 28.42568595088542
+        },
+        {
+          "level": 30,
+          "reference_base_hp": 911.3831126399999,
+          "nominal_contact_loss_20s_pct": 19.750201370156475
+        },
+        {
+          "level": 39,
+          "reference_base_hp": 1017.9923353600002,
+          "nominal_contact_loss_20s_pct": 17.6818620089458
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 13.861870767915407
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 14.394858647712711
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 11.34437370875061
+        },
+        {
+          "level": 57,
+          "reference_base_hp": 1455.8322688000003,
+          "nominal_contact_loss_20s_pct": 12.364061702545493
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 11.799290303712498
+        },
+        {
+          "level": 68,
+          "reference_base_hp": 1925.10626112,
+          "nominal_contact_loss_20s_pct": 9.350133217855648
+        },
+        {
+          "level": 74,
+          "reference_base_hp": 2133.3130640640006,
+          "nominal_contact_loss_20s_pct": 8.437580167305434
+        },
+        {
+          "level": 78,
+          "reference_base_hp": 2273.5183968,
+          "nominal_contact_loss_20s_pct": 7.917244050162593
+        },
+        {
+          "level": 89,
+          "reference_base_hp": 3153.0613452800008,
+          "nominal_contact_loss_20s_pct": 5.708737645382396
+        },
+        {
+          "level": 92,
+          "reference_base_hp": 3366.0479283200007,
+          "nominal_contact_loss_20s_pct": 5.347517439831531
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 5.299341607040256
+        },
+        {
+          "level": 94,
+          "reference_base_hp": 3427.2487997440007,
+          "nominal_contact_loss_20s_pct": 5.252026056977397
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 4.1644383602227855
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 5.153427319987834
+        },
+        {
+          "level": 97,
+          "reference_base_hp": 3575.5775095040003,
+          "nominal_contact_loss_20s_pct": 5.034151812443002
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 4.990807331893063
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_crawler",
+      "kind": "ordinary/elite",
+      "mechanic": "low_profile",
+      "damage_per_round": 6,
+      "nominal_interval": 0.82,
+      "effective_nominal_interval": 0.82,
+      "first_contact_delay": 0.4124,
+      "contact_damage_20s": 144,
+      "appearances": [
+        {
+          "level": 2,
+          "reference_base_hp": 130.429,
+          "nominal_contact_loss_20s_pct": 110.40489461699468
+        },
+        {
+          "level": 4,
+          "reference_base_hp": 152.421,
+          "nominal_contact_loss_20s_pct": 94.4751707441888
+        },
+        {
+          "level": 6,
+          "reference_base_hp": 207.41760000000002,
+          "nominal_contact_loss_20s_pct": 69.42515967786726
+        },
+        {
+          "level": 8,
+          "reference_base_hp": 226.032,
+          "nominal_contact_loss_20s_pct": 63.70779358674877
+        },
+        {
+          "level": 10,
+          "reference_base_hp": 517.71603072,
+          "nominal_contact_loss_20s_pct": 27.814475785062275
+        },
+        {
+          "level": 12,
+          "reference_base_hp": 327.56620108799996,
+          "nominal_contact_loss_20s_pct": 43.960579425382996
+        },
+        {
+          "level": 14,
+          "reference_base_hp": 364.8845813760001,
+          "nominal_contact_loss_20s_pct": 39.46453408827744
+        },
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 24.131901705654823
+        },
+        {
+          "level": 16,
+          "reference_base_hp": 395.39709888000004,
+          "nominal_contact_loss_20s_pct": 36.41908360174966
+        },
+        {
+          "level": 19,
+          "reference_base_hp": 526.0399656960001,
+          "nominal_contact_loss_20s_pct": 27.374345941467492
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 18.092528855459598
+        },
+        {
+          "level": 22,
+          "reference_base_hp": 602.0145331199999,
+          "nominal_contact_loss_20s_pct": 23.9196883260784
+        },
+        {
+          "level": 25,
+          "reference_base_hp": 811.0473571199998,
+          "nominal_contact_loss_20s_pct": 17.754820200800463
+        },
+        {
+          "level": 30,
+          "reference_base_hp": 911.3831126399999,
+          "nominal_contact_loss_20s_pct": 15.800161096125182
+        },
+        {
+          "level": 31,
+          "reference_base_hp": 744.7142743039999,
+          "nominal_contact_loss_20s_pct": 19.336274994135234
+        },
+        {
+          "level": 34,
+          "reference_base_hp": 793.7673103359998,
+          "nominal_contact_loss_20s_pct": 18.141336651801033
+        },
+        {
+          "level": 37,
+          "reference_base_hp": 960.675043328,
+          "nominal_contact_loss_20s_pct": 14.989459859511992
+        },
+        {
+          "level": 39,
+          "reference_base_hp": 1017.9923353600002,
+          "nominal_contact_loss_20s_pct": 14.145489607156641
+        },
+        {
+          "level": 43,
+          "reference_base_hp": 1110.7009536,
+          "nominal_contact_loss_20s_pct": 12.964785843864426
+        },
+        {
+          "level": 44,
+          "reference_base_hp": 1153.2195189760002,
+          "nominal_contact_loss_20s_pct": 12.486781365603715
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 11.515886918170168
+        },
+        {
+          "level": 72,
+          "reference_base_hp": 2086.7196430080007,
+          "nominal_contact_loss_20s_pct": 6.900783269209293
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 4.645361922005488
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_armored",
+      "kind": "ordinary/elite",
+      "mechanic": "armor",
+      "damage_per_round": 28,
+      "nominal_interval": 1.72,
+      "effective_nominal_interval": 1.72,
+      "first_contact_delay": 0.54,
+      "contact_damage_20s": 336,
+      "appearances": [
+        {
+          "level": 15,
+          "reference_base_hp": 596.7204812800001,
+          "nominal_contact_loss_20s_pct": 56.30777064652792
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 42.21590066273907
+        },
+        {
+          "level": 21,
+          "reference_base_hp": 577.1800693119999,
+          "nominal_contact_loss_20s_pct": 58.21406834101407
+        },
+        {
+          "level": 24,
+          "reference_base_hp": 633.2301015039999,
+          "nominal_contact_loss_20s_pct": 53.06128044165279
+        },
+        {
+          "level": 27,
+          "reference_base_hp": 682.2831375359999,
+          "nominal_contact_loss_20s_pct": 49.246417141926116
+        },
+        {
+          "level": 33,
+          "reference_base_hp": 778.1595261439999,
+          "nominal_contact_loss_20s_pct": 43.17880700696101
+        },
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 22.93271244349586
+        },
+        {
+          "level": 46,
+          "reference_base_hp": 1191.029995008,
+          "nominal_contact_loss_20s_pct": 28.210876418586178
+        },
+        {
+          "level": 52,
+          "reference_base_hp": 1307.1621713920001,
+          "nominal_contact_loss_20s_pct": 25.704538224372943
+        },
+        {
+          "level": 53,
+          "reference_base_hp": 1346.6089011200002,
+          "nominal_contact_loss_20s_pct": 24.951565352088675
+        },
+        {
+          "level": 54,
+          "reference_base_hp": 1368.54957568,
+          "nominal_contact_loss_20s_pct": 24.551540256263607
+        },
+        {
+          "level": 58,
+          "reference_base_hp": 1475.4300108800003,
+          "nominal_contact_loss_20s_pct": 22.77302193410024
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 22.025341900263328
+        },
+        {
+          "level": 63,
+          "reference_base_hp": 1809.40705344,
+          "nominal_contact_loss_20s_pct": 18.569619222010054
+        },
+        {
+          "level": 64,
+          "reference_base_hp": 1831.9041216,
+          "nominal_contact_loss_20s_pct": 18.34157126665204
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 17.901876065054214
+        },
+        {
+          "level": 68,
+          "reference_base_hp": 1925.10626112,
+          "nominal_contact_loss_20s_pct": 17.453582006663876
+        },
+        {
+          "level": 69,
+          "reference_base_hp": 1986.5265638400006,
+          "nominal_contact_loss_20s_pct": 16.91394447555257
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 13.376639937598508
+        },
+        {
+          "level": 71,
+          "reference_base_hp": 2032.4199168000002,
+          "nominal_contact_loss_20s_pct": 16.53201669707235
+        },
+        {
+          "level": 73,
+          "reference_base_hp": 2110.016353536,
+          "nominal_contact_loss_20s_pct": 15.924047196929333
+        },
+        {
+          "level": 74,
+          "reference_base_hp": 2133.3130640640006,
+          "nominal_contact_loss_20s_pct": 15.750149645636814
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 12.205649584472543
+        },
+        {
+          "level": 81,
+          "reference_base_hp": 2344.77792864,
+          "nominal_contact_loss_20s_pct": 14.329715232132202
+        },
+        {
+          "level": 82,
+          "reference_base_hp": 2371.92441696,
+          "nominal_contact_loss_20s_pct": 14.165712768817382
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 13.681991635640287
+        },
+        {
+          "level": 89,
+          "reference_base_hp": 3153.0613452800008,
+          "nominal_contact_loss_20s_pct": 10.656310271380471
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 9.892104333141813
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 9.619730997310624
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 9.316173686200385
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 7.389316299396011
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_shielder",
+      "kind": "ordinary/elite",
+      "mechanic": "shield_aura",
+      "damage_per_round": 19,
+      "nominal_interval": 1.72,
+      "effective_nominal_interval": 1.72,
+      "first_contact_delay": 0.5634,
+      "contact_damage_20s": 228,
+      "appearances": [
+        {
+          "level": 17,
+          "reference_base_hp": 475.5216211200001,
+          "nominal_contact_loss_20s_pct": 47.94734663441584
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 28.646504021144363
+        },
+        {
+          "level": 23,
+          "reference_base_hp": 617.622317312,
+          "nominal_contact_loss_20s_pct": 36.915764474362874
+        },
+        {
+          "level": 29,
+          "reference_base_hp": 713.4987059199999,
+          "nominal_contact_loss_20s_pct": 31.955208623120363
+        },
+        {
+          "level": 32,
+          "reference_base_hp": 760.3220584959998,
+          "nominal_contact_loss_20s_pct": 29.987292549555768
+        },
+        {
+          "level": 37,
+          "reference_base_hp": 960.675043328,
+          "nominal_contact_loss_20s_pct": 23.73331144422732
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 18.233487620436097
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 12.147701615572505
+        },
+        {
+          "level": 67,
+          "reference_base_hp": 1899.39532608,
+          "nominal_contact_loss_20s_pct": 12.003820208958278
+        },
+        {
+          "level": 69,
+          "reference_base_hp": 1986.5265638400006,
+          "nominal_contact_loss_20s_pct": 11.477319465553528
+        },
+        {
+          "level": 76,
+          "reference_base_hp": 2226.01204224,
+          "nominal_contact_loss_20s_pct": 10.242532190911566
+        },
+        {
+          "level": 77,
+          "reference_base_hp": 2249.7652195200003,
+          "nominal_contact_loss_20s_pct": 10.134390825396663
+        },
+        {
+          "level": 79,
+          "reference_base_hp": 2297.2715740800004,
+          "nominal_contact_loss_20s_pct": 9.924817012168372
+        },
+        {
+          "level": 83,
+          "reference_base_hp": 2431.6727500800002,
+          "nominal_contact_loss_20s_pct": 9.376261669770283
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 9.284208609898766
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 7.35515637650869
+        },
+        {
+          "level": 87,
+          "reference_base_hp": 3089.9159244800003,
+          "nominal_contact_loss_20s_pct": 7.378841546906166
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 7.309135891267375
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 6.712499368917658
+        },
+        {
+          "level": 94,
+          "reference_base_hp": 3427.2487997440007,
+          "nominal_contact_loss_20s_pct": 6.652566338838035
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_hopper",
+      "kind": "ordinary/elite",
+      "mechanic": "leap",
+      "damage_per_round": 8,
+      "nominal_interval": 0.82,
+      "effective_nominal_interval": 0.82,
+      "first_contact_delay": 0.4404,
+      "contact_damage_20s": 192,
+      "appearances": [
+        {
+          "level": 16,
+          "reference_base_hp": 395.39709888000004,
+          "nominal_contact_loss_20s_pct": 48.558778135666216
+        },
+        {
+          "level": 17,
+          "reference_base_hp": 475.5216211200001,
+          "nominal_contact_loss_20s_pct": 40.37671295529755
+        },
+        {
+          "level": 20,
+          "reference_base_hp": 795.9086380373332,
+          "nominal_contact_loss_20s_pct": 24.12337180727947
+        },
+        {
+          "level": 21,
+          "reference_base_hp": 577.1800693119999,
+          "nominal_contact_loss_20s_pct": 33.2651819091509
+        },
+        {
+          "level": 23,
+          "reference_base_hp": 617.622317312,
+          "nominal_contact_loss_20s_pct": 31.086959557358206
+        },
+        {
+          "level": 26,
+          "reference_base_hp": 666.675353344,
+          "nominal_contact_loss_20s_pct": 28.799624740428843
+        },
+        {
+          "level": 29,
+          "reference_base_hp": 713.4987059199999,
+          "nominal_contact_loss_20s_pct": 26.909649366838202
+        },
+        {
+          "level": 31,
+          "reference_base_hp": 744.7142743039999,
+          "nominal_contact_loss_20s_pct": 25.78169999218031
+        },
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 16.60540346603789
+        },
+        {
+          "level": 38,
+          "reference_base_hp": 999.7674086400001,
+          "nominal_contact_loss_20s_pct": 19.20446679304947
+        },
+        {
+          "level": 44,
+          "reference_base_hp": 1153.2195189760002,
+          "nominal_contact_loss_20s_pct": 16.649041820804953
+        },
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 13.104407110569063
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 12.100665289333985
+        },
+        {
+          "level": 61,
+          "reference_base_hp": 1764.4129171200002,
+          "nominal_contact_loss_20s_pct": 10.881806528224471
+        },
+        {
+          "level": 62,
+          "reference_base_hp": 1786.90998528,
+          "nominal_contact_loss_20s_pct": 10.744805366897905
+        },
+        {
+          "level": 80,
+          "reference_base_hp": 2901.2809392000004,
+          "nominal_contact_loss_20s_pct": 6.617766566685614
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 6.193815896007317
+        },
+        {
+          "level": 97,
+          "reference_base_hp": 3575.5775095040003,
+          "nominal_contact_loss_20s_pct": 5.369761933272535
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_juggernaut",
+      "kind": "ordinary/elite",
+      "mechanic": "juggernaut",
+      "damage_per_round": 41,
+      "nominal_interval": 1.72,
+      "effective_nominal_interval": 1.72,
+      "first_contact_delay": 0.6636,
+      "contact_damage_20s": 492,
+      "appearances": [
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 42.551346381722105
+        },
+        {
+          "level": 41,
+          "reference_base_hp": 1057.04574976,
+          "nominal_contact_loss_20s_pct": 46.54481606985389
+        },
+        {
+          "level": 44,
+          "reference_base_hp": 1153.2195189760002,
+          "nominal_contact_loss_20s_pct": 42.663169665812696
+        },
+        {
+          "level": 55,
+          "reference_base_hp": 1734.6845824000002,
+          "nominal_contact_loss_20s_pct": 28.362504918288938
+        },
+        {
+          "level": 60,
+          "reference_base_hp": 2173.3774776,
+          "nominal_contact_loss_20s_pct": 22.63757700035163
+        },
+        {
+          "level": 65,
+          "reference_base_hp": 2318.0014872,
+          "nominal_contact_loss_20s_pct": 21.22518051506106
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 19.587222765769244
+        },
+        {
+          "level": 72,
+          "reference_base_hp": 2086.7196430080007,
+          "nominal_contact_loss_20s_pct": 23.577676169798416
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 17.87255832012051
+        },
+        {
+          "level": 76,
+          "reference_base_hp": 2226.01204224,
+          "nominal_contact_loss_20s_pct": 22.10230630670391
+        },
+        {
+          "level": 80,
+          "reference_base_hp": 2901.2809392000004,
+          "nominal_contact_loss_20s_pct": 16.958026827131885
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 15.871653233518751
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 11.382798184608948
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_phantom",
+      "kind": "ordinary/elite",
+      "mechanic": "phase",
+      "damage_per_round": 11,
+      "nominal_interval": 0.82,
+      "effective_nominal_interval": 0.82,
+      "first_contact_delay": 0.3949,
+      "contact_damage_20s": 264,
+      "appearances": [
+        {
+          "level": 36,
+          "reference_base_hp": 942.8375756800001,
+          "nominal_contact_loss_20s_pct": 28.00058109792623
+        },
+        {
+          "level": 41,
+          "reference_base_hp": 1057.04574976,
+          "nominal_contact_loss_20s_pct": 24.97526715943379
+        },
+        {
+          "level": 46,
+          "reference_base_hp": 1191.029995008,
+          "nominal_contact_loss_20s_pct": 22.165688614603425
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 16.638414772834228
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 17.30562577877833
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 9.590153244942712
+        },
+        {
+          "level": 80,
+          "reference_base_hp": 2901.2809392000004,
+          "nominal_contact_loss_20s_pct": 9.09942902919272
+        },
+        {
+          "level": 92,
+          "reference_base_hp": 3366.0479283200007,
+          "nominal_contact_loss_20s_pct": 7.84302557841958
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 7.55836006931549
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 7.319850753443159
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_necromancer",
+      "kind": "ordinary/elite",
+      "mechanic": "summon",
+      "damage_per_round": 9,
+      "nominal_interval": 1.05,
+      "effective_nominal_interval": 1.05,
+      "first_contact_delay": 0.644,
+      "contact_damage_20s": 171,
+      "appearances": [
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 13.168777229519637
+        },
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 11.671112582850572
+        },
+        {
+          "level": 65,
+          "reference_base_hp": 2318.0014872,
+          "nominal_contact_loss_20s_pct": 7.3770444473078065
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 5.4818519184505305
+        },
+        {
+          "level": 90,
+          "reference_base_hp": 4054.610165760001,
+          "nominal_contact_loss_20s_pct": 4.217421478494901
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 3.9562164422116464
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_toxic",
+      "kind": "ordinary/elite",
+      "mechanic": "toxic_cloud",
+      "damage_per_round": 15,
+      "nominal_interval": 1.12,
+      "effective_nominal_interval": 1.12,
+      "first_contact_delay": 0.5696,
+      "contact_damage_20s": 270,
+      "appearances": [
+        {
+          "level": 35,
+          "reference_base_hp": 1156.25013504,
+          "nominal_contact_loss_20s_pct": 23.35134862411579
+        },
+        {
+          "level": 37,
+          "reference_base_hp": 960.675043328,
+          "nominal_contact_loss_20s_pct": 28.105237236584983
+        },
+        {
+          "level": 41,
+          "reference_base_hp": 1057.04574976,
+          "nominal_contact_loss_20s_pct": 25.542886867602743
+        },
+        {
+          "level": 45,
+          "reference_base_hp": 1465.15594624,
+          "nominal_contact_loss_20s_pct": 18.428072499237743
+        },
+        {
+          "level": 58,
+          "reference_base_hp": 1475.4300108800003,
+          "nominal_contact_loss_20s_pct": 18.299749768473404
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 14.385436123704281
+        },
+        {
+          "level": 67,
+          "reference_base_hp": 1899.39532608,
+          "nominal_contact_loss_20s_pct": 14.215050247450591
+        },
+        {
+          "level": 69,
+          "reference_base_hp": 1986.5265638400006,
+          "nominal_contact_loss_20s_pct": 13.591562524997597
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 10.749085664141658
+        },
+        {
+          "level": 76,
+          "reference_base_hp": 2226.01204224,
+          "nominal_contact_loss_20s_pct": 12.129314436605803
+        },
+        {
+          "level": 77,
+          "reference_base_hp": 2249.7652195200003,
+          "nominal_contact_loss_20s_pct": 12.001252293232891
+        },
+        {
+          "level": 79,
+          "reference_base_hp": 2297.2715740800004,
+          "nominal_contact_loss_20s_pct": 11.753072777567809
+        },
+        {
+          "level": 83,
+          "reference_base_hp": 2431.6727500800002,
+          "nominal_contact_loss_20s_pct": 11.10346776683323
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 10.994457564353802
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 8.71005360376029
+        },
+        {
+          "level": 86,
+          "reference_base_hp": 2504.00295936,
+          "nominal_contact_loss_20s_pct": 10.782734860225943
+        },
+        {
+          "level": 87,
+          "reference_base_hp": 3089.9159244800003,
+          "nominal_contact_loss_20s_pct": 8.738101831862565
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 8.655555660711366
+        },
+        {
+          "level": 89,
+          "reference_base_hp": 3153.0613452800008,
+          "nominal_contact_loss_20s_pct": 8.563106468073594
+        },
+        {
+          "level": 92,
+          "reference_base_hp": 3366.0479283200007,
+          "nominal_contact_loss_20s_pct": 8.021276159747297
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 7.949012410560385
+        },
+        {
+          "level": 94,
+          "reference_base_hp": 3427.2487997440007,
+          "nominal_contact_loss_20s_pct": 7.878039085466096
+        },
+        {
+          "level": 96,
+          "reference_base_hp": 3492.8211619840004,
+          "nominal_contact_loss_20s_pct": 7.730140979981752
+        },
+        {
+          "level": 97,
+          "reference_base_hp": 3575.5775095040003,
+          "nominal_contact_loss_20s_pct": 7.551227718664504
+        },
+        {
+          "level": 98,
+          "reference_base_hp": 3606.6309121920003,
+          "nominal_contact_loss_20s_pct": 7.486210997839595
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_charger",
+      "kind": "ordinary/elite",
+      "mechanic": "charge",
+      "damage_per_round": 14,
+      "nominal_interval": 0.82,
+      "effective_nominal_interval": 0.82,
+      "first_contact_delay": 0.4262,
+      "contact_damage_20s": 336,
+      "appearances": [
+        {
+          "level": 36,
+          "reference_base_hp": 942.8375756800001,
+          "nominal_contact_loss_20s_pct": 35.63710321554247
+        },
+        {
+          "level": 38,
+          "reference_base_hp": 999.7674086400001,
+          "nominal_contact_loss_20s_pct": 33.60781688783657
+        },
+        {
+          "level": 40,
+          "reference_base_hp": 1298.5260288,
+          "nominal_contact_loss_20s_pct": 25.87549210010876
+        },
+        {
+          "level": 42,
+          "reference_base_hp": 1075.2706764800002,
+          "nominal_contact_loss_20s_pct": 31.247945968351676
+        },
+        {
+          "level": 43,
+          "reference_base_hp": 1110.7009536,
+          "nominal_contact_loss_20s_pct": 30.251166969016996
+        },
+        {
+          "level": 48,
+          "reference_base_hp": 1231.5412193280001,
+          "nominal_contact_loss_20s_pct": 27.28288706271163
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 26.870402809063727
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 21.176164256334474
+        },
+        {
+          "level": 51,
+          "reference_base_hp": 1288.2569333760002,
+          "nominal_contact_loss_20s_pct": 26.08175367001363
+        },
+        {
+          "level": 53,
+          "reference_base_hp": 1346.6089011200002,
+          "nominal_contact_loss_20s_pct": 24.951565352088675
+        },
+        {
+          "level": 54,
+          "reference_base_hp": 1368.54957568,
+          "nominal_contact_loss_20s_pct": 24.551540256263607
+        },
+        {
+          "level": 56,
+          "reference_base_hp": 1436.2345267200003,
+          "nominal_contact_loss_20s_pct": 23.394507912808628
+        },
+        {
+          "level": 57,
+          "reference_base_hp": 1455.8322688000003,
+          "nominal_contact_loss_20s_pct": 23.079581844751587
+        },
+        {
+          "level": 58,
+          "reference_base_hp": 1475.4300108800003,
+          "nominal_contact_loss_20s_pct": 22.77302193410024
+        },
+        {
+          "level": 59,
+          "reference_base_hp": 1525.5154790400002,
+          "nominal_contact_loss_20s_pct": 22.025341900263328
+        },
+        {
+          "level": 66,
+          "reference_base_hp": 1876.8982579199999,
+          "nominal_contact_loss_20s_pct": 17.901876065054214
+        },
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 13.376639937598508
+        },
+        {
+          "level": 75,
+          "reference_base_hp": 2752.8235812000003,
+          "nominal_contact_loss_20s_pct": 12.205649584472543
+        },
+        {
+          "level": 80,
+          "reference_base_hp": 2901.2809392000004,
+          "nominal_contact_loss_20s_pct": 11.581091491699825
+        },
+        {
+          "level": 84,
+          "reference_base_hp": 2455.7828198400002,
+          "nominal_contact_loss_20s_pct": 13.681991635640287
+        },
+        {
+          "level": 85,
+          "reference_base_hp": 3099.866112,
+          "nominal_contact_loss_20s_pct": 10.839177818012805
+        },
+        {
+          "level": 90,
+          "reference_base_hp": 4054.610165760001,
+          "nominal_contact_loss_20s_pct": 8.28686325598998
+        },
+        {
+          "level": 95,
+          "reference_base_hp": 4322.31154432,
+          "nominal_contact_loss_20s_pct": 7.773618272415867
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 7.389316299396011
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_regenerator",
+      "kind": "ordinary/elite",
+      "mechanic": "regen",
+      "damage_per_round": 17,
+      "nominal_interval": 1.35,
+      "effective_nominal_interval": 1.35,
+      "first_contact_delay": 0.5115999999999999,
+      "contact_damage_20s": 255,
+      "appearances": [
+        {
+          "level": 36,
+          "reference_base_hp": 942.8375756800001,
+          "nominal_contact_loss_20s_pct": 27.046015833224196
+        },
+        {
+          "level": 37,
+          "reference_base_hp": 960.675043328,
+          "nominal_contact_loss_20s_pct": 26.54383516788582
+        },
+        {
+          "level": 42,
+          "reference_base_hp": 1075.2706764800002,
+          "nominal_contact_loss_20s_pct": 23.714958993838323
+        },
+        {
+          "level": 47,
+          "reference_base_hp": 1212.6359813120002,
+          "nominal_contact_loss_20s_pct": 21.028569490747348
+        },
+        {
+          "level": 48,
+          "reference_base_hp": 1231.5412193280001,
+          "nominal_contact_loss_20s_pct": 20.70576250295079
+        },
+        {
+          "level": 61,
+          "reference_base_hp": 1764.4129171200002,
+          "nominal_contact_loss_20s_pct": 14.452399295298124
+        },
+        {
+          "level": 62,
+          "reference_base_hp": 1786.90998528,
+          "nominal_contact_loss_20s_pct": 14.27044462791128
+        },
+        {
+          "level": 90,
+          "reference_base_hp": 4054.610165760001,
+          "nominal_contact_loss_20s_pct": 6.289137292492396
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_splitter",
+      "kind": "ordinary/elite",
+      "mechanic": "split",
+      "damage_per_round": 13,
+      "nominal_interval": 1.35,
+      "effective_nominal_interval": 1.35,
+      "first_contact_delay": 0.49,
+      "contact_damage_20s": 195,
+      "appearances": [
+        {
+          "level": 86,
+          "reference_base_hp": 2504.00295936,
+          "nominal_contact_loss_20s_pct": 7.787530732385403
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_warden",
+      "kind": "ordinary/elite",
+      "mechanic": "ward",
+      "damage_per_round": 26,
+      "nominal_interval": 1.72,
+      "effective_nominal_interval": 1.72,
+      "first_contact_delay": 0.606,
+      "contact_damage_20s": 312,
+      "appearances": [
+        {
+          "level": 38,
+          "reference_base_hp": 999.7674086400001,
+          "nominal_contact_loss_20s_pct": 31.207258538705386
+        },
+        {
+          "level": 44,
+          "reference_base_hp": 1153.2195189760002,
+          "nominal_contact_loss_20s_pct": 27.05469295880805
+        },
+        {
+          "level": 49,
+          "reference_base_hp": 1250.446457344,
+          "nominal_contact_loss_20s_pct": 24.95108832270203
+        },
+        {
+          "level": 50,
+          "reference_base_hp": 1586.6896192000002,
+          "nominal_contact_loss_20s_pct": 19.663581095167725
+        },
+        {
+          "level": 53,
+          "reference_base_hp": 1346.6089011200002,
+          "nominal_contact_loss_20s_pct": 23.16931068408234
+        },
+        {
+          "level": 54,
+          "reference_base_hp": 1368.54957568,
+          "nominal_contact_loss_20s_pct": 22.797858809387638
+        },
+        {
+          "level": 61,
+          "reference_base_hp": 1764.4129171200002,
+          "nominal_contact_loss_20s_pct": 17.682935608364765
+        },
+        {
+          "level": 62,
+          "reference_base_hp": 1786.90998528,
+          "nominal_contact_loss_20s_pct": 17.460308721209095
+        },
+        {
+          "level": 68,
+          "reference_base_hp": 1925.10626112,
+          "nominal_contact_loss_20s_pct": 16.206897577616456
+        },
+        {
+          "level": 74,
+          "reference_base_hp": 2133.3130640640006,
+          "nominal_contact_loss_20s_pct": 14.625138956662752
+        },
+        {
+          "level": 78,
+          "reference_base_hp": 2273.5183968,
+          "nominal_contact_loss_20s_pct": 13.72322302028183
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 6.861507992296296
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_mutant",
+      "kind": "ordinary/elite",
+      "mechanic": "mutate",
+      "damage_per_round": 24,
+      "nominal_interval": 1.35,
+      "effective_nominal_interval": 1.35,
+      "first_contact_delay": 0.5448000000000001,
+      "contact_damage_20s": 360,
+      "appearances": [
+        {
+          "level": 51,
+          "reference_base_hp": 1288.2569333760002,
+          "nominal_contact_loss_20s_pct": 27.944736075014603
+        },
+        {
+          "level": 60,
+          "reference_base_hp": 2173.3774776,
+          "nominal_contact_loss_20s_pct": 16.564080731964605
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    },
+    {
+      "enemy": "zombie_berserker",
+      "kind": "ordinary/elite",
+      "mechanic": "enrage",
+      "damage_per_round": 22,
+      "nominal_interval": 1.35,
+      "effective_nominal_interval": 1.35,
+      "first_contact_delay": 0.378,
+      "contact_damage_20s": 330,
+      "appearances": [
+        {
+          "level": 70,
+          "reference_base_hp": 2511.8415504000004,
+          "nominal_contact_loss_20s_pct": 13.137771367284248
+        },
+        {
+          "level": 88,
+          "reference_base_hp": 3119.3837875200006,
+          "nominal_contact_loss_20s_pct": 10.57901247420278
+        },
+        {
+          "level": 93,
+          "reference_base_hp": 3396.6483640320002,
+          "nominal_contact_loss_20s_pct": 9.715459612907138
+        },
+        {
+          "level": 99,
+          "reference_base_hp": 4547.105393600001,
+          "nominal_contact_loss_20s_pct": 7.257364222621082
+        }
+      ],
+      "limitations": "pre-mitigation contact budget; no random interval, shield, control, regen, death, remote or spawned-enemy damage; denominator is shared analytical base-HP estimate"
+    }
+  ]
+}

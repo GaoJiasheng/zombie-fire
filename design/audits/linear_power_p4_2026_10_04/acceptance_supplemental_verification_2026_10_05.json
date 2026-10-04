@@ -1,0 +1,136 @@
+[
+  {
+    "command": [
+      "cmp",
+      "design/audits/linear_power_p2_2026_10_04/报告.md",
+      "design/audits/linear_power_p2_2026_10_04/报告_2AB历史.md"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_p2_historical_report_preservation_2026_10_05.log",
+    "note": "Before replacing current report; exact historical preservation."
+  },
+  {
+    "command": [
+      "python3",
+      "tools/verify_challenge_finale_pin_conflict.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_challenge_finale_pin_conflict_2026_10_05.log",
+    "evidence": "design/audits/linear_power_p4_2026_10_04/challenge_finale_pin_conflict_2026_10_05.json",
+    "note": "In-memory diagnostic proof PASS; authority pending, no candidate runtime validation."
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tools/report_linear_power_acceptance.py",
+      "tools/verify_challenge_finale_pin_conflict.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_pin_report_compile_2026_10_05.log",
+    "environment": {
+      "PYTHONPYCACHEPREFIX": "/tmp/zf_linear_acceptance_pycache_2026_10_04"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tools/report_linear_power_acceptance.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_full_handoff_compile_2026_10_05.log",
+    "environment": {
+      "PYTHONPYCACHEPREFIX": "/tmp/zf_linear_acceptance_pycache_2026_10_04"
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tools/report_linear_power_acceptance.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_paid_report_compile_2026_10_05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/verify_linear_power_delivery.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_delivery_guard_2026_10_05.log",
+    "note": "64 inputs/F(g)/protected paths/table preservation/native integrity PASS, not win-rate approval."
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tools/report_linear_power_acceptance.py",
+      "tools/verify_linear_power_delivery.py",
+      "tools/verify_challenge_finale_pin_conflict.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_final_tools_compile_2026_10_05.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_precommit_diff_2026_10_05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/report_linear_power_acceptance.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_contract_report_2026_10_04.log",
+    "note": "First complete native report, naturally completed final host exit0."
+  },
+  {
+    "command": [
+      "python3",
+      "tools/recheck_linear_release_environment.py"
+    ],
+    "exit": 1,
+    "log": "/tmp/zf_linear_acceptance_rc_dependency_recheck_command_2026_10_05.log",
+    "note": "Actual RC FAIL at historical asset validation after existing dependency lookup restoration."
+  },
+  {
+    "command": [
+      "python3",
+      "tools/verify_linear_power_delivery.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_delivery_guard_final_2026_10_05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tools/report_linear_power_acceptance.py",
+      "tools/verify_linear_power_delivery.py",
+      "tools/verify_challenge_finale_pin_conflict.py",
+      "tools/recheck_linear_release_environment.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_delivery_final_compile_2026_10_05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/report_linear_power_acceptance.py"
+    ],
+    "exit": 0,
+    "log": "/tmp/zf_linear_acceptance_final_report_refresh_2026_10_05.log"
+  }
+]

@@ -17,7 +17,9 @@ P2, P4 = follow.P2, follow.P4
 
 def commands_table():
     sources = [P2/f'acceptance_main_command_{DATE}.json', P2/f'acceptance_static_verification_{DATE}.json', follow.JOURNAL,
-               P4/f'acceptance_final_verification_{DATE}.json']
+               P4/f'acceptance_final_verification_{DATE}.json',
+               P4/'acceptance_release_environment_recheck_2026_10_05.json',
+               P4/'acceptance_supplemental_verification_2026_10_05.json']
     lines = ['|实际命令|结果|日志|', '|---|---|---|']
     for source in sources:
         if source.exists():
@@ -39,6 +41,7 @@ def main():
     constructs = {(r['level'], r['target_R']): r for r in rays}
     fixture = json.loads(t1.FIXTURE.read_text())
     tables = t1.load_tables()
+    b_rows = {r['level']: r for r in json.loads((AUDIT/f'recommended_power_table_{DATE}.json').read_text())['rows']}
     main_rows = []
     for r, s in zip(evidence['main']['rows'], star['rows']):
         assert r['level'] == s['level']
@@ -51,7 +54,12 @@ def main():
         low, high = linear.PREDICTION_CONTRACT[target]
         for r in evidence['g3_'+label]['rows']:
             construction = constructs[(r['level'], target)]
+            b_row = b_rows[r['level']]
             prediction.append({**r, 'target_R': target, 'actual_R': construction['actual_R'],
+                               'actual_power': construction['power'], 'recommended': construction['recommended'],
+                               'p_star': b_row['p_star'], 'measured_p_star_wins': b_row['passing_wins'],
+                               'recommendation_margin_vs_p_star': construction['recommended']/b_row['p_star']-1 if b_row['p_star'] else None,
+                               'actual_power_vs_p_star': construction['power']/b_row['p_star'] if b_row['p_star'] else None,
                                'overshoot': construction['R_overshoot'],
                                'target_exact': abs(construction['R_overshoot']) < 1e-12,
                                'contract_wins': [low, high],
@@ -75,7 +83,26 @@ def main():
     finale = {'ordinary_free_max': {**regular, 'contract_pass': regular['wins']>=9},
               'challenge_free_max': {**free, 'contract_pass': free['wins']<=3},
               'challenge_golden_law_max': {**golden, 'contract_pass': 6<=golden['wins']<=9}}
-    paid = [{**r, 'at_least_9_wins': r['wins']>=9} for r in evidence['paid_gates']['rows']]
+    paid_builds = {r['level']: r for r in json.loads((P4/f'paid_gate_construction_{DATE}.json').read_text())['rows']}
+    paid = [{**r, 'at_least_9_wins': r['wins']>=9,
+             'set': paid_builds[r['level']]['set'],
+             'revealed_after_clear': paid_builds[r['level']]['revealed_after_clear'],
+             'power_before': paid_builds[r['level']]['power_before'],
+             'power_after': paid_builds[r['level']]['power_after'],
+             'actual_build': paid_builds[r['level']]['after']}
+            for r in evidence['paid_gates']['rows']]
+    fixture_reconciliation = []
+    for stem in ('challenge_reference', 'challenge_free'):
+        backup = P4/f'{stem}_before_refresh_{DATE}.json'
+        source = AUDIT/('challenge_reference_fixture_builds.json' if stem == 'challenge_reference'
+                        else 'challenge_free_counterexample_fixture_builds.json')
+        old, new = json.loads(backup.read_text()), json.loads(source.read_text())
+        assert old == new, 'challenge fixture refresh unexpectedly changed rows/metadata'
+        fixture_reconciliation.append({'fixture': str(source), 'backup': str(backup),
+                                       'all_rows_and_metadata_equal': True,
+                                       'byte_equal': backup.read_bytes() == source.read_bytes(),
+                                       'sha256': hashlib.sha256(source.read_bytes()).hexdigest()})
+    t1.atomic_write(P4/f'challenge_fixture_refresh_reconciliation_{DATE}.json', fixture_reconciliation)
     conclusions = {'native_runs': state['runs'], 'native_integrity_pass': True,
                    'script_errors': 0, 'timeouts': 0, 'incomplete_seed_sets': [],
                    'main': main_rows, 'star_changed_levels': star['changed_levels'],
@@ -87,20 +114,24 @@ def main():
           '# 阶段二剩余验收 · runtime_solved', '', '## Completed', '',
           f"实际新对局{state['runs']}局（全部组），主夹具990局；固定十种子、tier_b/v2、1/60帧，最多6并发。SCRIPT ERROR/超时/不完整种子集均0。历史T1 6640局不计入本轮。",
           '参考夹具刷新后99行及元数据均未变；F(g)、P(g)、敌方、翻卡与当前资源均未变。',
+          '主线夹具没有加入T3的回刷补资源过程。T3是假定普通/挑战3★收入可获得的账户条件模型；其下限0失败不等于本夹具逐关≥9/10，也不证明挑战收入实际可获得。',
           f"已批星表差异关：{star['changed_levels']}；新表仅供Fable核验，不自动采用。", '',
+          '星表沿用现行汇总规则：十种子过半获胜后，按基地余量中位数定星；星级不能代替≥9/10的通关率合同。下面同时列出胜数与失败种子，不把高星低胜率隐藏。', '',
           '### 新旧星表全99行', '', '|关|旧星|新星|胜/10|基地中位%|P/rec|R|失败种子|', '|---|---:|---:|---:|---:|---|---:|---|']
     for r in main_rows:
         p2.append(f"|{r['level']:03d}|{r['approved_star']}|{r['derived_star']}|{r['wins']}|{r['base_median_pct']:.4f}|{r['power']}/{r['recommended']}|{r['R']:.4f}|{r['failed_seeds']}|")
     p2 += ['', '### G3：目标与实际R必须分开', '',
-           '按统一缩放参考构筑的T1射线，枚举整数台阶，选最小达到目标的档位；不发明半级，不改技能上限。未精确命中R的样本不能作为精确R合同通过证据。',
+           '按统一缩放参考构筑的T1射线，枚举整数台阶，选最小达到目标的档位；不发明半级，不改技能上限。实际R、档位超额与胜率带偏差分列：微小整数误差不自动判为胜率FAIL，大幅跳跃也不冒充目标点通过；G3覆盖是否充分交Fable核，不自行新增容差。',
            '0.85的原3–7/10阈值不变；悬崖0–2/10按B点决议照实记录。', '',
-           '|关|目标R|实际R|档位超额|胜/10|请求带|胜数偏差|精确命中|失败种子|', '|---|---:|---:|---:|---:|---|---:|---|---|']
+           '|关|目标R|实际R|P/rec/P*|档位超额|胜/10|请求带|胜数偏差|精确命中|失败种子|', '|---|---:|---:|---|---:|---:|---|---:|---|---|']
     for r in prediction:
-        p2.append(f"|{r['level']:03d}|{r['target_R']:.2f}|{r['actual_R']:.6f}|{r['overshoot']:.6f}|{r['wins']}|{r['contract_wins']}|{r['deviation_wins']}|{r['target_exact']}|{r['failed_seeds']}|")
-    p2 += ['', '## Changed files', '', '仅tools审计工具/审计构筑/结果JSON、新旧星表对照和报告。data、gameplay/core、玩家尺子、export均未改。当前资源表没有写入，已批星CSV没有替换。', '',
+        p2.append(f"|{r['level']:03d}|{r['target_R']:.2f}|{r['actual_R']:.6f}|{r['actual_power']}/{r['recommended']}/{r['p_star']}|{r['overshoot']:.6f}|{r['wins']}|{r['contract_wins']}|{r['deviation_wins']}|{r['target_exact']}|{r['failed_seeds']}|")
+    p2 += ['', '## Changed files', '', '仅tools审计工具/审计构筑/结果JSON、新旧星表对照和报告。data、gameplay/core、玩家尺子、export均未改。当前资源表没有写入，已批星CSV没有替换。',
+           '本收尾工具：report_linear_power_acceptance.py、verify_challenge_finale_pin_conflict.py、verify_linear_power_delivery.py、recheck_linear_release_environment.py；m1_todo/m1_implementation_progress同步真实结论。先前2C工具及批准数据写入逐字段依据见2C报告.md；本块没有再次写入。', '',
            '## Verification', '', *commands_table(), '',
-           '每个native组的完整性与每关失败种子见acceptance_runtime_integrity及contract_conclusions；native完整性PASS不等于胜率合同PASS。', '',
-           '## Risks', '', '方向A保留锯齿，原单调/G2偏差不以改敌方解决。T1射线存在同战力异构筑、离散技能台阶；未命中精确R的点是覆盖缺口而非通过。星级变化须Fable/Owner另核。',
+           '每个native组的完整性与每关失败种子见acceptance_runtime_integrity及contract_conclusions；native完整性PASS不等于胜率合同PASS。',
+           '最终RC首轮FAIL为隔离HOME后找不到既有Pillow，保留原日志；随后保留HOME隔离、显式加入已安装依赖的只读PYTHONPATH重验，实际仍FAIL于历史素材缺失。未安装依赖、未跳素材门禁，两个退出码都保留；RC后续子门禁未执行，不称全绿。', '',
+           '## Risks', '', '方向A保留锯齿，原单调/G2偏差不以改敌方解决。T1射线存在同战力异构筑、离散技能台阶；大幅跳跃未验证请求的目标R，微小取整误差与胜率偏差分别列明，覆盖口径交Fable核。星级变化须Fable/Owner另核。',
            'validate_asset_pack历史源素材缺失仍FAIL，聚合门禁不得称全绿。不push、不打包、不上传TestFlight。']
     (P2/'运行时验收报告.md').write_text('\n'.join(p2)+'\n')
     p4 = ['状态：阶段四首轮实测完成；原曲线尚未调整，合同结论如下。', '', '# 终局与挑战复验', '',
@@ -114,17 +145,63 @@ def main():
         p4.append(f"|{r['chapter']}|{r['levels']}|{r['wins']}|{r['band']}|{r['contract_pass']}|")
     p4 += ['', '### 076/095付费路线', '',
            '参考构筑的角色/技能/槽位等级保持不变，仅换已揭示的对应完整军械（物品max_level约束）；不是买到手就自动满级，也不是所有付费组合都保证过门。',
-           '|关|胜/10|至少9胜|失败种子|', '|---|---:|---|---|']
+           '|关|套装/揭示关|角色/武器/护甲/芯片/宠物/专属等级|换装前→后P|胜/10|至少9胜|失败种子|', '|---|---|---|---|---:|---|---|']
     for r in paid:
-        p4.append(f"|{r['level']:03d}|{r['wins']}|{r['at_least_9_wins']}|{r['failed_seeds']}|")
+        b = r['actual_build']
+        ranks = '/'.join(str(b[k]) for k in ('character_level', 'weapon_level', 'armor_level', 'chip_level', 'pet_level', 'signature_level'))
+        p4.append(f"|{r['level']:03d}|{r['set']}/{r['revealed_after_clear']}|{ranks}|{r['power_before']}→{r['power_after']}|{r['wins']}|{r['at_least_9_wins']}|{r['failed_seeds']}|")
+    p4 += ['', '076预设为第70关揭示的绝对零度套，095为第90关揭示的黄金律套；选择在任何付费组实战之前固定。'
+           '不是只换一把武器，也不是新购Lv1或补足追赶成本的账户路线。076关卡主弱火，绝对零度不是属性最优匹配；'
+           '单一固定路线的结果不证明所有已揭示军械或所有玩家构筑都能/不能过门。未用更换种子掩盖失败，未改付费属性。']
     p4 += ['', '### 全部代表关失败种子', '', '|关|胜/10|失败种子|', '|---|---:|---|']
     for r in reps:
         p4.append(f"|{r['level']:03d}|{r['wins']}|{r['failed_seeds']}|")
     p4 += ['', '## Changed files', '', '审计构筑/原始结果汇总/报告；没有更改资源或付费价格权益。挑战推荐值仍为普通×1.5；推荐重标只改显示分母，不推导实际胜率。', '',
-           '## Verification', '', *commands_table(), '', '## Risks', '',
+           '## Verification', '', *commands_table(), '',
+           '独立HOME boot/M1均PASS；RC首轮因Pillow不可见FAIL，显式恢复已有只读依赖路径后重验仍因历史素材缺失FAIL。保留两次日志，不安装依赖、不补造素材、不改索引、不跳过门禁；RC后续子门禁未执行。', '', '## Risks', '',
            '若本首轮挑战带失败，仅允许按Owner授权调整challenges.json.curve并复验；本报告没有称未执行的调参与复验已通过。付费路线若失败不私改军械属性。',
            'T3挑战收入是条件假设，不由满级参考路线的胜率直接证明。Boss100%余血不说明无威胁，逐敌20秒损血预算与完整探针战报需一并看。']
+    pin_path = P4/'challenge_finale_pin_conflict_2026_10_05.json'
+    if pin_path.exists() and not finale['challenge_free_max']['contract_pass']:
+        p4 += ['', '### 调参停工：终点数值锁定待核', '',
+               '099免费挑战实测未满足≤3/10；现行challenge_curve.py同时锁死K(99)=5与压力指数1/0/0，validate_data倍率上限也为5。'
+               '只改曲线内部节点不会改变099运行倍率。内存诊断说明改终点会触发旧门禁，但不是已实测或采用的候选。',
+               'Owner已授权只调curve；是否同步解冻旧终点数值门禁仍待Owner/Fable核清。未改挑战数据、未改胜率阈值、未启动挑种子复验。',
+               f'证据：{pin_path}。其余已授权只读验收完整执行，不把这个停工点称为阶段四验收通过。']
     (P4/'首轮运行时验收报告.md').write_text('\n'.join(p4)+'\n')
+    current_p2 = ['状态：表B已核定、2C管线完成、新运行时采样完成；G3/星表偏差如实列出，未宣称全部合同通过。', '',
+                  '# 阶段二最新报告 · 2026-10-05', '',
+                  'B点原始FAIL报告已逐字保全为报告_2AB历史.md，不再作为当前批准状态。核定后的clamp与2C管线历史见2C报告.md；其中旧G1停工状态已由§8.5及阶段三报告替代。', '',
+                  '批准表B采用92个数值P*的同时OLS，推荐为clamp(round(sqrt(model×P*)), P*, round(1.35×P*))；7个下界删失按模型下限规则。99行与Fable核定修正表一致，v0已作废。',
+                  '2C先前仅写批准推荐及生成器派生字段，本轮§8.5之后没有改任何游戏数据。F(g)/P(g)/敌方/翻卡/资源保持冻结。', '',
+                  *p2[2:]]
+    (P2/'报告.md').write_text('\n'.join(current_p2)+'\n')
+    (P4/'报告.md').write_text('\n'.join(p4)+'\n')
+    main_under = [r['level'] for r in main_rows if r['wins'] < 9]
+    g3_out = [r for r in prediction if not r['rate_in_requested_band']]
+    phase4_fail = [key for key, r in finale.items() if not r['contract_pass']]
+    chapter_fail = [r['chapter'] for r in chapter_rows if not r['contract_pass']]
+    handoff = ['状态：全部授权首轮实测已收齐；工具完成不等于验收全绿；挑战终点旧锁定待核，不擅自调整资源/敌方/胜率阈值。', '',
+               '# Fable 最终完整交接报告 · 2026-10-05', '',
+               '工作树/分支：/Users/gavin/work/zf-linear · codex/linear-power。未push、未打包、未上传TestFlight；未修改主工作树。运行输入版本1777945e293e4fa0bf8882ba7137ffd1989753fb，阶段三结案a93ba61081f404235311244e614e9c39b9d7a24b；最终交付提交见同目录commit记录与chat回复。', '',
+               '## 总结：工具产出与数据结论分开', '',
+               f'- 首轮新增原生对局{state["runs"]}局；990主线+300 G3+20普通/免费挑战099+300挑战代表点+20付费门。SCRIPT ERROR=0、超时=0、完整种子集缺口=0。',
+               f'- 主线961/990获胜，低于9/10的关：{main_under}。没有加入T3回刷资源，不能把这条夹具路线等同G1条件账户路线。',
+               '- 当前资源G1下限99/99通过，回刷10次（018非门2次、020门8次）；上限69关仅诊断。未采用资源表数值原样保留，JSON SHA de4e27b79bcbae4b17cd317475092295a5dc31df43e2b105a626db97f5141355。',
+               '- 已批星表294星；新候选292星，仅019/025从3降2。逐关新旧对照保留，未替换已批CSV；check-approved实际FAIL不是脚本故障。',
+               f'- G3原请求胜率带越界点数{len(g3_out)}；实际R与整数台阶超额逐点列出，不新增容差。R1样本均≥9/10，R1.15的096为9/10（失败种子6637），未满足原10/10要求；不能宣称G3整体通过。',
+               f'- 终局未达标路线：{phase4_fail}；章节聚合带未达标章：{chapter_fail}。详见阶段四，不用旧8月结果充当本轮通过。',
+               f'- 099普通免费满级{regular["wins"]}/10（合同≥9），挑战免费满级{free["wins"]}/10（合同≤3），挑战黄金律满级{golden["wins"]}/10（合同6–9）；黄金律胜局Boss中位{golden["victory_boss_phase_median_seconds"]:.3f}秒，旧150–220秒时间带符合，但胜率仍FAIL。',
+               '- 付费门固定同等级换装结果：' + '；'.join(f'{r["level"]:03d} {r["set"]} {r["wins"]}/10' for r in paid) + '。076路线不构成稳定过门见证，不概括为所有已揭示付费军械都失败；未另换属性或种子追结果。',
+               '- 静态与独立HOME检查逐条附真实退出码；历史资产缺失及聚合RC的失败保留，RC未运行的后续子门禁不称已通过。', '',
+               '## 交接/停工边界', '',
+               '资源方案不写入；已批星表候选交Fable，不自行采用。099挑战≤3/10与旧K=5/指数1/0/0的数值锁定需要核清：是否同时授权同步旧数字校验？内存诊断示例非正式候选、未实测、未写入。',
+               '本文收齐其余已授权只读实测；不将阶段四标成验收通过，不选择有利种子、不以改普通敌方/付费属性掩盖失败。', '',
+               '---', '', '## 阶段二完整结果与逐关对照', '', *current_p2, '',
+               '---', '', '## 阶段三结案（当前资源，不写入）', '',
+               (AUDIT/f'linear_power_p3_{DATE}'/'报告.md').read_text(), '',
+               '---', '', '## 阶段四完整首轮结果', '', *p4]
+    (P2/'Fable最终完整报告_2026_10_05.md').write_text('\n'.join(handoff)+'\n')
     threats = linear.threat_inventory()
     t1.atomic_write(P4/f'enemy_contact_threats_{DATE}.json', {'method': linear.threat_inventory.__doc__, 'rows': threats})
     full = []

@@ -1,0 +1,61 @@
+{
+  "status": "PROOF_PASS_AUTHORITY_DECISION_PENDING",
+  "product_data_written": false,
+  "challenge_sha256": "055c0b664e6d8a5003e87cffeeea86f2b3b86c68fe7a1594f8131c8f81cd9640",
+  "current_L099_rule": {
+    "id": "challenge_chapter_10",
+    "name": "复合灾变",
+    "summary": "速度、机制与突破全面升级",
+    "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+    "hp_mult": 5.0,
+    "speed_mult": 5.0,
+    "breach_damage_mult": 1.0,
+    "mechanic_rate_mult": 1.0,
+    "recommended_power_mult": 5.0,
+    "reference_fixture": "golden_law_tier_1_max"
+  },
+  "interior_changes_leave_L099_identical": true,
+  "diagnostic_examples": [
+    {
+      "label": "K_5_2",
+      "runtime_rule": {
+        "id": "challenge_chapter_10",
+        "name": "复合灾变",
+        "summary": "速度、机制与突破全面升级",
+        "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+        "hp_mult": 5.2,
+        "speed_mult": 5.2,
+        "breach_damage_mult": 1.0,
+        "mechanic_rate_mult": 1.0,
+        "recommended_power_mult": 5.2,
+        "reference_fixture": "golden_law_tier_1_max"
+      },
+      "legacy_validation_errors": [
+        "challenge K(99) runtime anchor must be 5.0, got 5.2"
+      ],
+      "runtime_tested": false,
+      "adopted": false
+    },
+    {
+      "label": "split_098_001_001",
+      "runtime_rule": {
+        "id": "challenge_chapter_10",
+        "name": "复合灾变",
+        "summary": "速度、机制与突破全面升级",
+        "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+        "hp_mult": 5.0,
+        "speed_mult": 4.841618928628149,
+        "breach_damage_mult": 1.0162245912673256,
+        "mechanic_rate_mult": 1.0162245912673256,
+        "recommended_power_mult": 5.0,
+        "reference_fixture": "golden_law_tier_1_max"
+      },
+      "legacy_validation_errors": [
+        "challenge L099 line-pressure split must remain 1/0/0"
+      ],
+      "runtime_tested": false,
+      "adopted": false
+    }
+  ],
+  "note": "No proposed K/split is validated as a replacement. Current fixed endpoint plus unchanged fixture/probe cannot be retuned by interior knots; Owner/Fable must resolve legacy numeric pins versus the authorized curve-only retune before adoption."
+}

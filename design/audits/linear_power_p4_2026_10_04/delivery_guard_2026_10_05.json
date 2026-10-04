@@ -1,0 +1,57 @@
+{
+  "status": "PROVENANCE_AND_FREEZE_PASS_NOT_ALL_CONTRACTS_PASS",
+  "branch": "codex/linear-power",
+  "input_checkpoint": "1777945e293e4fa0bf8882ba7137ffd1989753fb",
+  "frozen_inputs": 64,
+  "F_g_equal": true,
+  "protected_product_diff": [],
+  "unadopted_resource_md_only_prefix": true,
+  "native_runs": 1630,
+  "native_script_errors": 0,
+  "native_timeouts": 0,
+  "native_incomplete_seed_sets": [],
+  "historical_report_exactly_preserved": true,
+  "current_report_structure_verified": true,
+  "final_verification": [
+    {
+      "command": [
+        "/opt/homebrew/bin/godot",
+        "--headless",
+        "--path",
+        ".",
+        "--quit"
+      ],
+      "exit": 0,
+      "log": "/tmp/zf_linear_acceptance_final_boot_2026_10_04.log"
+    },
+    {
+      "command": [
+        "/opt/homebrew/bin/godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "res://tools/m1_smoke_test.gd"
+      ],
+      "exit": 0,
+      "log": "/tmp/zf_linear_acceptance_final_m1_smoke_2026_10_04.log"
+    },
+    {
+      "command": [
+        "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+        "tools/check_release_candidate.py"
+      ],
+      "exit": 1,
+      "log": "/tmp/zf_linear_acceptance_final_release_candidate_2026_10_04.log"
+    },
+    {
+      "command": [
+        "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+        "tools/check_release_candidate.py"
+      ],
+      "exit": 1,
+      "log": "/tmp/zf_linear_acceptance_final_release_candidate_dependencies_2026_10_05.log"
+    }
+  ],
+  "note": "Asset/RC failures and win-rate deviations stay failures/diagnostics. This guard does not approve stars or a curve, and does not claim phase-four completion."
+}
