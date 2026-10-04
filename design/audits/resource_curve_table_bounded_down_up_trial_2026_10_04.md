@@ -649,4 +649,3 @@ design/41 section 8.2: all P>=.95rec; Boss/x7-x9 P>=rec; all P<=1.10E; <=6 prede
 |097|407427|3389|1863|1.8191|3370|1.0056|5382|weapon_teslacoil 19→20|不可恢复/未收敛|
 |098|412809|3389|2720|1.2460|3370|1.0056|5364|weapon_railgun 21→22; weapon_scattergun 17→18|不可恢复/未收敛|
 |099|418173|3389|3094|1.0953|3370|1.0056|4744|vanguard 21→22; weapon_plasmacannon 20→21|不可恢复/未收敛|
-
