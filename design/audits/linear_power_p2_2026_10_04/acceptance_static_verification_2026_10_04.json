@@ -1,0 +1,196 @@
+[
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_resource_curves.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_resource_curves_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_linear_power_program.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_linear_power_program_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_derive_recommended_power.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_derive_recommended_power_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_linear_power_acceptance.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_linear_power_acceptance_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_frontline_sweep_metadata.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_frontline_sweep_metadata_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/validate_asset_pack.py"
+    ],
+    "exit": 1,
+    "result": "FAIL",
+    "log": "/tmp/zf_linear_acceptance_static_validate_asset_pack_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/validate_data.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_validate_data_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_res_refs.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_res_refs_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_level_pressure.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_level_pressure_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/simulate_card_director.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_simulate_card_director_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_clear_requirements.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_clear_requirements_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/test_power_scale_v6.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_test_power_scale_v6_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_campaign_pacing_contract.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_campaign_pacing_contract_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/audit_campaign_frontline.py",
+      "--check"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_audit_campaign_frontline_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/report_fire_rate_tier_comparison.py",
+      "--check"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_report_fire_rate_tier_comparison_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/report_frontline_calibration.py",
+      "--check"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_report_frontline_calibration_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/generate_weapon_power_profiles.py",
+      "--check"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_generate_weapon_power_profiles_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/audit_free_elemental_weapons.py",
+      "--check"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_audit_free_elemental_weapons_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_localization.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_localization_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_endgame_balance.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_endgame_balance_2026_10_04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_economy_loop.py"
+    ],
+    "exit": 0,
+    "result": "PASS",
+    "log": "/tmp/zf_linear_acceptance_static_check_economy_loop_2026_10_04.log"
+  }
+]

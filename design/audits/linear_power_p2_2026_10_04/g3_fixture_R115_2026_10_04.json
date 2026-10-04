@@ -1,0 +1,484 @@
+{
+  "schema_version": 1,
+  "fire_rate_profile": "tier_b",
+  "card_policy": "v2",
+  "seeds": [
+    1103,
+    2207,
+    3301,
+    4409,
+    5513,
+    6637,
+    7741,
+    8849,
+    9901,
+    10903
+  ],
+  "rows": [
+    {
+      "level": 5,
+      "level_id": "level_005",
+      "build": {
+        "armor": "",
+        "armor_level": 1,
+        "character": "vanguard",
+        "character_level": 5,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 0,
+        "skill_base_levels": {
+          "skill_barrier": 1,
+          "skill_homing": 1,
+          "skill_multishot": 1,
+          "skill_pierce": 1
+        },
+        "weapon": "weapon_autocannon",
+        "weapon_level": 8
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 15,
+      "level_id": "level_015",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 8,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "",
+        "chip_level": 1,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 9
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 30,
+      "level_id": "level_030",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 11,
+        "chip": "chip_attack",
+        "chip_level": 8,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 22
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 40,
+      "level_id": "level_040",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 11,
+        "character": "vanguard",
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 2,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 2,
+          "skill_salvo": 4,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 33
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 44,
+      "level_id": "level_044",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 13,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "",
+        "pet_level": 1,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 3,
+          "skill_charge_shot": 3,
+          "skill_critical": 2,
+          "skill_homing": 3,
+          "skill_multishot": 3,
+          "skill_pierce": 3,
+          "skill_ricochet": 2,
+          "skill_salvo": 3,
+          "skill_slow_field": 3,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 34
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 54,
+      "level_id": "level_054",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 8,
+        "character": "vanguard",
+        "character_level": 9,
+        "chip": "chip_attack",
+        "chip_level": 9,
+        "pet": "pet_turret_drone",
+        "pet_level": 6,
+        "signature_level": 2,
+        "skill_base_levels": {
+          "skill_barrier": 2,
+          "skill_charge_shot": 2,
+          "skill_critical": 2,
+          "skill_homing": 2,
+          "skill_multishot": 3,
+          "skill_pierce": 2,
+          "skill_ricochet": 2,
+          "skill_salvo": 2,
+          "skill_slow_field": 2,
+          "skill_split_shot": 2
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 27
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 68,
+      "level_id": "level_068",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 10,
+        "character": "vanguard",
+        "character_level": 12,
+        "chip": "chip_attack",
+        "chip_level": 12,
+        "pet": "pet_turret_drone",
+        "pet_level": 8,
+        "signature_level": 3,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 3,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 3,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 36
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 74,
+      "level_id": "level_074",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 41
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 90,
+      "level_id": "level_090",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 14,
+        "pet": "pet_turret_drone",
+        "pet_level": 10,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 44
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 96,
+      "level_id": "level_096",
+      "build": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 11,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 45
+      },
+      "fixture_source": "capped T1 reference ray; first attainable P>=target",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    }
+  ],
+  "target_R": 1.15
+}

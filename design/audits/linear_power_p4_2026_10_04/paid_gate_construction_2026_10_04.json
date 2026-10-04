@@ -1,0 +1,170 @@
+{
+  "rows": [
+    {
+      "level": 76,
+      "set": "set_apocalypse_absolute_zero",
+      "revealed_after_clear": 70,
+      "before": {
+        "armor": "armor_kevlar",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_attack",
+        "chip_level": 13,
+        "pet": "pet_turret_drone",
+        "pet_level": 9,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 41
+      },
+      "after": {
+        "armor": "armor_apocalypse_permafrost",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_apocalypse_entropy",
+        "chip_level": 13,
+        "pet": "pet_apocalypse_aurora",
+        "pet_level": 9,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_apocalypse_absolute_zero",
+        "weapon_level": 41
+      },
+      "swaps": [
+        {
+          "slot": "weapon",
+          "old": "weapon_scattergun",
+          "new": "weapon_apocalypse_absolute_zero",
+          "rank": 41
+        },
+        {
+          "slot": "armor",
+          "old": "armor_kevlar",
+          "new": "armor_apocalypse_permafrost",
+          "rank": 12
+        },
+        {
+          "slot": "chip",
+          "old": "chip_attack",
+          "new": "chip_apocalypse_entropy",
+          "rank": 13
+        },
+        {
+          "slot": "pet",
+          "old": "pet_turret_drone",
+          "new": "pet_apocalypse_aurora",
+          "rank": 9
+        }
+      ],
+      "power_before": 2349,
+      "power_after": 692
+    },
+    {
+      "level": 95,
+      "set": "set_apocalypse_golden_law",
+      "revealed_after_clear": 90,
+      "before": {
+        "armor": "armor_kevlar",
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 18,
+        "chip": "chip_attack",
+        "chip_level": 15,
+        "pet": "pet_turret_drone",
+        "pet_level": 12,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_scattergun",
+        "weapon_level": 49
+      },
+      "after": {
+        "armor": "armor_apocalypse_eternal_night",
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 18,
+        "chip": "chip_apocalypse_golden_law",
+        "chip_level": 15,
+        "pet": "pet_apocalypse_skyfalcon",
+        "pet_level": 12,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_apocalypse_golden_law",
+        "weapon_level": 49
+      },
+      "swaps": [
+        {
+          "slot": "weapon",
+          "old": "weapon_scattergun",
+          "new": "weapon_apocalypse_golden_law",
+          "rank": 49
+        },
+        {
+          "slot": "armor",
+          "old": "armor_kevlar",
+          "new": "armor_apocalypse_eternal_night",
+          "rank": 13
+        },
+        {
+          "slot": "chip",
+          "old": "chip_attack",
+          "new": "chip_apocalypse_golden_law",
+          "rank": 15
+        },
+        {
+          "slot": "pet",
+          "old": "pet_turret_drone",
+          "new": "pet_apocalypse_skyfalcon",
+          "rank": 12
+        }
+      ],
+      "power_before": 4384,
+      "power_after": 3587
+    }
+  ]
+}
