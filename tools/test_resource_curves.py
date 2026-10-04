@@ -43,7 +43,7 @@ class ResourceTests(unittest.TestCase):
         specs = resource.parameters(campaign.TABLES)
         _, changes, curves = resource.candidate(campaign.TABLES, specs, [0]*len(specs))
         return {'game_data_written': False, 'frozen_input_sha256': input_hashes(),
-                'contract': 'design/41 section 8.4',
+                'contract': 'design/41 section 8.5',
                 'changes': changes, 'curves': curves, 'before': baseline, 'after': baseline}
 
     def test_common_weapon_factor_preserves_all_eight_base_price_ratios(self):
@@ -159,7 +159,7 @@ class ResourceTests(unittest.TestCase):
         self.assertEqual([e['xp_multiplier'] for e in farm['events']],[1,.5,.25,.25])
         self.assertTrue(all(e['income']['first_clear_gold']==0 for e in farm['events']))
 
-    def test_gate_lower_exemption_does_not_waive_upper(self):
+    def test_upper_is_diagnostic_but_gate_target_remains_hard(self):
         payload=closure.generate(False)
         row=payload['rows'][19]
         self.assertTrue(row['G1_lower_exempt'])
@@ -169,7 +169,23 @@ class ResourceTests(unittest.TestCase):
         self.assertGreaterEqual(row['power'], row['recommended'])
         modified=copy.deepcopy(payload)
         modified['rows'][19]['power']=row['G1_power_upper']+1
+        self.assertNotIn(20,[v['level'] for v in resource.metrics(modified)['violations']])
+        modified['G1_upper_is_diagnostic'] = False  # Archived §8.4 remains reproducible.
         self.assertIn(20,[v['level'] for v in resource.metrics(modified)['violations']])
+
+    def test_current_resources_lower_pass_and_upper_diagnostics_are_separate(self):
+        payload = closure.generate(False)
+        self.assertEqual(payload['failures'], [])
+        self.assertEqual(payload['total_farm_runs'], 10)
+        self.assertEqual(len(payload['upper_diagnostic_levels']), 69)
+        self.assertEqual(resource.metrics(payload)['violation_count'], 0)
+        self.assertTrue(all(r['power'] >= r['clear_target_power_lower'] for r in payload['rows']))
+
+    def test_archived_resource_table_is_not_relabelled_current(self):
+        payload = self.replay_payload()
+        payload['contract'] = 'design/41 section 8.4'
+        with self.assertRaisesRegex(AssertionError, 'not adopted'):
+            checker.replay(payload)
 
     def test_checker_rejects_gate_below_rec_and_wrong_upper(self):
         result = closure.generate(False)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""§8.4: separate abstract envelope consistency from a real resource witness."""
+"""§8.5: hard lower feasibility; upper envelope is diagnostic only."""
 import argparse
 import hashlib
 import json
@@ -16,7 +16,7 @@ from solve_runtime_clear_lines import input_hashes
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_c3_before_2026_10_04.json")
+    parser.add_argument("--closure", type=Path, default=ROOT / "design/audits/progression_closure_current_resources_2026_10_04.json")
     parser.add_argument("--candidate", type=Path, help="independently replay an actual bounded resource witness")
     options = parser.parse_args()
     for name in ('closure','candidate'):
@@ -72,7 +72,10 @@ def main():
             failures.append(n)
     witness = candidate or baseline
     feasible = not conflicts and not witness['failures']
-    result = {"status": "FEASIBLE_GATE_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 4,
+    result = {"status": "FEASIBLE_GATE_RESOURCE_WITNESS" if feasible else "RESOURCE_WITNESS_NOT_YET_FEASIBLE", "schema_version": 5,
+              "contract": "design/41 section 8.5: hard lower; upper diagnostic only",
+              "current_upper_diagnostic_levels": baseline['upper_diagnostic_levels'],
+              "current_upper_diagnostic_count": len(baseline['upper_diagnostic_levels']),
               "abstract_envelope_consistent": not conflicts,
               "bounded_resource_witness_proven": feasible,
               "gate_resource_witness_proven": feasible,

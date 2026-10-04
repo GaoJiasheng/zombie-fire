@@ -1,3 +1,4 @@
+未采用(Owner 2026-10-04):紧缩方案,留待线上数据再议
 状态：CANDIDATE_FEASIBLE_AWAITING_GATE_C；待Fable签字，游戏数据未写入。
 
 # 资源表 C 候选

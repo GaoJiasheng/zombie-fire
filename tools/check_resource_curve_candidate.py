@@ -13,7 +13,7 @@ from solve_runtime_clear_lines import input_hashes
 
 def replay(payload):
     assert payload['game_data_written'] is False
-    assert payload['contract'] == 'design/41 section 8.4', 'stale resource contract'
+    assert payload['contract'] == 'design/41 section 8.5', 'stale resource contract; archived §8.4 table is not adopted'
     assert payload['frozen_input_sha256'] == input_hashes(), 'candidate inputs are stale'
     tables = copy.deepcopy(campaign.TABLES)
     seen = set()
@@ -136,7 +136,7 @@ def verify_farming(after, tables):
             _, pre = campaign.build_for(account,level)
             rec = int(level['clear_requirement']['power_contract']['recommended_power'])
             envelope = max(envelope, rec)
-            # Integer independent proof of the 2026-10-04 1.20E contract.
+            # §8.5: independently verify reported 1.20E, not a hard upper gate.
             assert row['E'] == envelope and row['recommended'] == rec
             assert row['G1_power_upper'] == (120*envelope)//100
             target = rec if farm['is_gate'] or closure.g1_constrained(level) else (95*rec+99)//100
@@ -198,7 +198,10 @@ def verify_farming(after, tables):
             assert row['farm_route_before_clear']['challenge_cleared'] == [e['farm_level'] for r in after['rows'][:row['level']] for e in r['farming']['events'] if e['mode']=='challenge_first_clear']
             assert row['farm_route_before_clear']['normal_repeats'] == {str(k):v for k,v in normal_counts.items()}
             assert row['G1_power_lower'] == (0 if farm['is_gate'] else row['clear_target_power_lower'])
-            assert row['within_G1_corridor'] == (lower_met and row['power'] <= row['G1_power_upper'])
+            exceeded = row['power'] > row['G1_power_upper']
+            assert row['G1_upper_diagnostic_exceeded'] == exceeded
+            assert row['G1_lower_met'] == lower_met
+            assert row['within_G1_corridor'] == (lower_met and (after.get('G1_upper_is_diagnostic') or not exceeded))
             advanced = closure.advance(account,level,tables['levels'][min(row['level'],98)],closure.rewards(level))
             assert advanced == row['progression_after_clear']
             for key in earned:
@@ -212,6 +215,8 @@ def verify_farming(after, tables):
     assert after['walls_too_high'] == [n for n in gates if n not in closure.FIXED_GATE_LEVELS]
     assert after['unresolved_gate_levels'] == [r['level'] for r in after['rows'] if r['G1_lower_exempt'] and not r['farming']['gate_resolved']]
     assert after['non_gate_failure_levels'] == [r['level'] for r in after['rows'] if not r['G1_lower_exempt'] and not r['within_G1_corridor']]
+    assert after['upper_diagnostic_levels'] == [r['level'] for r in after['rows'] if r['power'] > r['G1_power_upper']]
+    assert after['failures'] == [r['level'] for r in after['rows'] if not r['within_G1_corridor']]
 
 
 def main():

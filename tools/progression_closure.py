@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only §8.4 challenge-first/gate closure using the existing account policy.
+"""Report-only §8.5 challenge-first/gate closure using the existing account policy.
 
 Rewards are authored full-clear budgets, not a claim that this account actually
 earns 3 stars. Dynamic summons, gold-rush cards and premium bonuses are excluded.
@@ -315,7 +315,7 @@ def generate(include_recovery: bool = True) -> dict:
             first_below = sim.level_number(level)
         recovery = (farming_recovery(account, level, levels[index-1] if index else None)
                     if not direction_a and include_recovery else
-                    {"not_run": "§8.4 challenge-first and unlimited gate farming adopted into copied main path"})
+                    {"not_run": "§8.5 challenge-first and unlimited gate farming adopted into copied main path; upper diagnostic only"})
         envelope = envelopes[sim.level_number(level)]
         minimum, maximum = g1_bounds(level, direction_a, envelope)
         is_gate = direction_a and farm['is_gate']
@@ -332,7 +332,11 @@ def generate(include_recovery: bool = True) -> dict:
                "G1_lower_exempt": is_gate, "conditional_on_passed_gates": list(passed_gates),
                "farm_route_before_clear": copy.deepcopy(route),
                "G1_power_upper": (G1_UPPER_PERCENT * envelope) // 100 if direction_a else math.floor(maximum * result["recommended"] + 1e-9),
-               "within_G1_corridor": resolved and result['power'] >= effective_lower and ratio <= maximum + 1e-12}
+               "G1_lower_met": resolved and result['power'] >= effective_lower,
+               "G1_upper_diagnostic_exceeded": ratio > maximum + 1e-12,
+               # 2026-10-04 §8.5: upper envelope is diagnostic, never an A-mode failure.
+               "within_G1_corridor": resolved and result['power'] >= effective_lower and
+                   (direction_a or ratio <= maximum + 1e-12)}
         income = rewards(level)
         row["progression_after_clear"] = advance(account, level, levels[min(index + 1, len(levels) - 1)], income)
         for key in cumulative:
@@ -340,7 +344,9 @@ def generate(include_recovery: bool = True) -> dict:
         rows.append(row)
         if is_gate and resolved:
             passed_gates.append(number)
-    return {"schema_version": 6, "G1_definition": "design/41 section 8.4: non-gates P>=.95rec (Boss/x7-x9 >=rec), <=6 farms/chapter; gate lower exempt, farm until P>=rec; all P<=1.20E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
+    return {"schema_version": 7, "G1_upper_is_diagnostic": direction_a,
+            "upper_diagnostic_levels": [r['level'] for r in rows if r['G1_upper_diagnostic_exceeded']],
+            "G1_definition": "design/41 section 8.5: hard lower: non-gates P>=.95rec (Boss/x7-x9 >=rec), <=6 farms/chapter; gates must reach P>=rec; 1.20E upper is diagnostic ONLY; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
             "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": direction_a,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
@@ -369,11 +375,12 @@ def generate(include_recovery: bool = True) -> dict:
 def render(payload: dict) -> str:
     lines = ["状态：离线条件模拟，不代表实际3★通关；未改数据。", "", "# T3 进度闭环", "",
              "只用假定3★首通，金币按逐敌四舍五入；非Boss波support不计。", 
-             "§8.4主路径在账户副本内优先挑战首通；非门关每章累计最多6次，门关刷到P≥rec、另记高度；全关上限1.20E。",
+             "§8.5主路径在账户副本内优先挑战首通；非门关每章累计最多6次，门关刷到P≥rec、另记高度；1.20E上限仅诊断，不判失败。",
              "不计动态召唤、金币卡、付费助推；按现有购买/升级优先级和技能经验成本。",
              "挑战首通+3星一次，无普通首通金币；经验独立计数：挑战首通100%，重复50%/25%。R不是已验证胜率。", "",
              payload["G1_definition"], "",
-             f"首次R<0.95：{payload['first_R_below_0_95']}；G1走廊不满足关数：{len(payload['failures'])}/99。", "",
+             f"首次R<0.95：{payload['first_R_below_0_95']}；G1硬合同不满足关数：{len(payload['failures'])}/99。",
+             f"上限诊断超标关数：{len(payload['upper_diagnostic_levels'])}/99；关卡：{payload['upper_diagnostic_levels']}。", "",
              f"包络目标Σ|P−E|/E：{payload['envelope_objective']:.6f}。", "",
              f"回刷总数：{payload['total_farm_runs']}（非门{payload['non_gate_farm_runs']}，门{payload['gate_farm_runs']}）；各章非门：{payload['chapter_farm_runs']}。",
              f"门关：{payload['gate_levels']}；预算后新增门：{payload['walls_too_high']}；未刷够门：{payload['unresolved_gate_levels']}；非门失败：{payload['non_gate_failure_levels']}。", "",
@@ -385,6 +392,10 @@ def render(payload: dict) -> str:
     lines += ['', '## 门关高度（含无需回刷的固定门）', '', '|门|高度|已刷够|路径|原因|', '|---|---:|---|---|---|']
     for gate in payload['gate_heights']:
         lines.append(f"|{gate['level']:03d}|{gate['gate_height']}|{gate['gate_resolved']}|{gate['route_annotation']}|{gate['gate_reason']}|")
+    lines += ['', '## 上限诊断（不判失败）', '', '|关卡|P|1.20E|超出战力|P/E|', '|---|---:|---:|---:|---:|']
+    for row in payload['rows']:
+        if row['G1_upper_diagnostic_exceeded']:
+            lines.append(f"|{row['level']:03d}|{row['power']}|{row['G1_power_upper']}|{row['power']-row['G1_power_upper']}|{row['power_over_E']:.4f}|")
     lines += ["",
              "|关卡|累计金币(入场前)|当前战力|推荐|R|E|P/E|首通金币|当关购入/升级|当关/章累计回刷|", "|---|---:|---:|---:|---:|---:|---:|---:|---|---|"]
     for row in payload["rows"]:

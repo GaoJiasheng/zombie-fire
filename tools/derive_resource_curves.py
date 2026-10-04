@@ -148,7 +148,8 @@ def metrics(payload: dict) -> dict:
     violations = []
     for row in payload['rows']:
         lo, hi, power, envelope = row['G1_power_lower'], row['G1_power_upper'], row['power'], row['E']
-        residual = max(lo-power, power-hi, 0) / envelope
+        # Preserve archived §8.4 payload semantics; §8.5 upper is diagnostic.
+        residual = max(lo-power, 0 if payload.get('G1_upper_is_diagnostic') else power-hi, 0) / envelope
         if row['G1_lower_exempt'] and not row['farming']['gate_resolved']:
             residual = max(residual, (row['clear_target_power_lower']-power)/envelope, 1e-9)
         if residual:
@@ -180,7 +181,7 @@ class Search:
         self.evaluations = 0
         self.best = None
         self.started = time.monotonic()
-        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.4: 1.20E, gate target rec, independent XP counts, common free-weapon price; zero failures/non-gate farms/envelope error','inputs':input_hashes(),'parameters':specs,
+        self.fingerprint = hashlib.sha256(json.dumps({'contract':'8.5: hard lower, diagnostic 1.20E, gate target rec, independent XP counts, common free-weapon price; no adopted resource changes','inputs':input_hashes(),'parameters':specs,
             'closure_sha256':hashlib.sha256(Path(closure.__file__).read_bytes()).hexdigest()},sort_keys=True).encode()).hexdigest()
         # Resource-price changes cannot alter pure-build axes. Cache the exact
         # frozen model calculation, not a regression or surrogate prediction.
@@ -225,7 +226,7 @@ class Search:
 
 def render(payload):
     lines = [f"状态：{payload['status']}；待Fable签字，游戏数据未写入。", '', '# 资源表 C 候选', '',
-             '§8.4离线假定3★首通，挑战首通优先；非门关每章最多6次，门关刷到R≥1、不限次数、照实列高度；全关P≤1.20E。不是运行时胜率。P(g)/F(g)与消费策略冻结，因子[0.5,2.0]；八把免费武器共用一个升级基价系数。',
+             '§8.5离线假定3★首通，挑战首通优先；非门关每章最多6次，门关刷到R≥1、不限次数；1.20E仅诊断。不是运行时胜率。Owner维持现有资源；未授权写入任何候选。P(g)/F(g)与消费策略冻结，因子[0.5,2.0]；八把免费武器共用一个升级基价系数。',
              '优化顺序：零硬约束失败 → 非门回刷次数 → Σ|P−E|/E。门次数完整披露，不参与第二目标。',
              f"优化前：{len(payload['before']['failures'])}/99失败，目标{payload['before_metrics']['objective']:.6f}。",
              f"优化后：{len(payload['after']['failures'])}/99失败，目标{payload['after_metrics']['objective']:.6f}。", '',
@@ -293,7 +294,7 @@ def main():
     after_metrics = metrics(after)
     assert frozen == input_hashes(), 'candidate evaluation changed frozen disk inputs'
     payload = {'schema_version': 1, 'status': 'CANDIDATE_FEASIBLE_AWAITING_GATE_C' if not after_metrics['violation_count'] else 'SEARCH_CANDIDATE_NOT_YET_FEASIBLE',
-               'contract': 'design/41 section 8.4', 'game_data_written': False,
+               'contract': 'design/41 section 8.5', 'game_data_written': False,
                'objective_priority': ['zero hard failures', 'non_gate_farm_runs', 'envelope_objective'],
                'before_metrics': metrics(before), 'after_metrics': after_metrics,
                'before': before, 'after': after, 'curves': curves, 'changes': changes,
