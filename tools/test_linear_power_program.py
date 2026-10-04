@@ -23,11 +23,13 @@ import run_frontline_sweep as sweep
 class LinearProgramTests(unittest.TestCase):
     def test_direction_a_g1_bounds(self):
         def level(n, boss=False):
-            return {"id": f"level_{n:03d}", "waves": [{"wave": 1, **({"boss": "boss_tank_titan"} if boss else {})}]}
-        self.assertEqual(closure.g1_bounds(level(1), True), (.95, None))
-        self.assertEqual(closure.g1_bounds(level(7), True), (1, 1.1))
-        self.assertEqual(closure.g1_bounds(level(5, True), True), (1, 1.1))
+            return {"id": f"level_{n:03d}", "clear_requirement": {"power_contract": {"recommended_power": 50}}, "waves": [{"wave": 1, **({"boss": "boss_tank_titan"} if boss else {})}]}
+        self.assertEqual(closure.g1_bounds(level(1), True, 65), (.95, 1.43))
+        self.assertEqual(closure.g1_bounds(level(7), True, 76), (1, 1.6720000000000002))
+        self.assertEqual(closure.g1_bounds(level(5, True), True, 50), (1, 1.1))
         self.assertEqual(closure.g1_bounds(level(1), False), (.95, 1.1))
+        with self.assertRaises(ValueError):
+            closure.g1_bounds(level(1), True)
 
     def test_concurrency_trial_requires_explicit_opt_in(self):
         for arguments in (["--jobs", "8"], ["--jobs", "9", "--allow-concurrency-trial"]):

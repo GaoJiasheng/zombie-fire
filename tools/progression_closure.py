@@ -10,6 +10,7 @@ import copy
 import datetime as dt
 import json
 import math
+from contextlib import contextmanager
 from pathlib import Path
 
 import audit_campaign_frontline as campaign
@@ -21,13 +22,46 @@ DATE = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y_%m_%d")
 MAX_FARM_RUNS = 2000
 
 
-def g1_bounds(level: dict, direction_a: bool) -> tuple[float, float | None]:
-    """2026-10 runtime_solved 方向 A: Boss/x7-x9 corridor, global floor."""
+def g1_constrained(level: dict) -> bool:
+    return sim.level_number(level) % 10 in (7, 8, 9) or any(
+        sim.runtime_boss_entries(level, wave) for wave in level.get("waves", []))
+
+
+def g1_envelopes(levels: list[dict]) -> dict[int, int]:
+    """design/41 §8.1: E(L)=max(65, rec(1..L)), not a fitted curve."""
+    result, running = {}, 65
+    for level in levels:
+        running = max(running, int(level["clear_requirement"]["power_contract"]["recommended_power"]))
+        result[sim.level_number(level)] = running
+    return result
+
+
+def g1_bounds(level: dict, direction_a: bool, envelope: int | None = None) -> tuple[float, float]:
+    """Bounds expressed in truthful per-level R; upper bound uses E, not rec."""
     if not direction_a:
         return .95, 1.10
-    constrained = sim.level_number(level) % 10 in (7, 8, 9) or any(
-        sim.runtime_boss_entries(level, wave) for wave in level.get("waves", []))
-    return (1.00, 1.10) if constrained else (.95, None)
+    if envelope is None:
+        raise ValueError("direction-A G1 requires the cumulative E envelope")
+    rec = int(level["clear_requirement"]["power_contract"]["recommended_power"])
+    return (1.00 if g1_constrained(level) else .95), 1.10 * envelope / rec
+
+
+@contextmanager
+def candidate_tables(tables: dict):
+    """In-memory resource candidate; preserve the frozen player ruler F(g)."""
+    import power_ruler_model as ruler
+    from power_scale_v6 import PowerScaleV6
+    old_tables = campaign.TABLES
+    old_model = getattr(ruler, "_POWER_SCALE_V6_CACHE", None)
+    model = copy.copy(old_model or PowerScaleV6.build_from_fixture())
+    model.tables = tables  # NEVER refit curves against candidate growth data.
+    campaign.TABLES = tables
+    ruler._POWER_SCALE_V6_CACHE = model
+    try:
+        yield
+    finally:
+        campaign.TABLES = old_tables
+        ruler._POWER_SCALE_V6_CACHE = old_model
 
 
 def runtime_groups(wave: dict) -> list[dict]:
@@ -137,38 +171,44 @@ def farming_recovery(account, level: dict, previous: dict | None) -> dict:
             "reason": "finite search limit", "initial": initial, "last": state}
 
 
-def generate() -> dict:
+def generate(include_recovery: bool = True) -> dict:
     account = campaign.Account.from_fixture()
     rows = []
     cumulative = {"gold": 0, "xp": 0, "stars": 0}
     first_below = None
     levels = campaign.TABLES["levels"]
     direction_a = runtime_power_contracts.enabled()
+    envelopes = g1_envelopes(levels)
     for index, level in enumerate(levels):
         build, result = campaign.build_for(account, level)
         ratio = result["power"] / result["recommended"]
         if ratio < .95 and first_below is None:
             first_below = sim.level_number(level)
-        recovery = farming_recovery(account, level, levels[index - 1] if index else None)
-        minimum, maximum = g1_bounds(level, direction_a)
+        recovery = farming_recovery(account, level, levels[index - 1] if index else None) if include_recovery else {"not_run": "optimizer excludes recovery; main path never farms"}
+        envelope = envelopes[sim.level_number(level)]
+        minimum, maximum = g1_bounds(level, direction_a, envelope)
         row = {"level": sim.level_number(level), "build": build, "power": result["power"],
                "recommended": result["recommended"], "R": ratio, "cumulative_earned_before": dict(cumulative),
                "account_before": account_state(account), "recovery_counterfactual": recovery,
                "G1_min_R": minimum, "G1_max_R": maximum,
-               "G1_constrained_level": maximum is not None,
-               "within_G1_corridor": ratio >= minimum and (maximum is None or ratio <= maximum)}
+               "G1_constrained_level": g1_constrained(level) if direction_a else True,
+               "E": envelope, "power_over_E": result["power"] / envelope,
+               "G1_power_lower": math.ceil(minimum * result["recommended"] - 1e-9),
+               "G1_power_upper": (110 * envelope) // 100 if direction_a else math.floor(maximum * result["recommended"] + 1e-9),
+               "within_G1_corridor": ratio >= minimum - 1e-12 and ratio <= maximum + 1e-12}
         income = rewards(level)
         row["progression_after_clear"] = advance(account, level, levels[min(index + 1, len(levels) - 1)], income)
         for key in cumulative:
             cumulative[key] += income[key]
         rows.append(row)
-    return {"schema_version": 2, "G1_definition": "design/41 section 8 direction A: Boss/x7-x9 R in [1,1.10]; all R>=.95" if direction_a else "legacy all-level R in [.95,1.10]",
+    return {"schema_version": 3, "G1_definition": "design/41 section 8.1: all P>=.95rec; Boss/x7-x9 P>=rec; all P<=1.10E; E=max(65,rec(1..L))" if direction_a else "legacy all-level R in [.95,1.10]",
             "assumptions": {"first_clear_stars": 3, "repeat_farming_in_main_path": False,
             "weapon_cap": 50, "strategy": campaign.ACTIVE_WEAPON_STRATEGY,
             "rewards": "full authored kills + first-clear gold; normalized run_xp_budget; no gold-rush/dynamic-summon/premium bonuses",
             "conditional": "all 99 first clears assumed 3-star; no runtime win claim; farming is counterfactual on a copy of the account",
             "repeat_stars": "zero after an already 3-star clear", "repeat_xp": "existing repeat_clear_xp_mult, no first-clear bonus"},
             "first_R_below_0_95": first_below, "rows": rows,
+            "envelope_objective": sum(abs(row["power"] - row["E"]) / row["E"] for row in rows),
             "failures": [row["level"] for row in rows if not row["within_G1_corridor"]]}
 
 
@@ -180,13 +220,14 @@ def render(payload: dict) -> str:
              "重复3★没有新增星星，只有金币与递减经验。R是显示战力比，不等于已验证胜率。", "",
              payload["G1_definition"], "",
              f"首次R<0.95：{payload['first_R_below_0_95']}；G1走廊不满足关数：{len(payload['failures'])}/99。", "",
-             "|关卡|累计金币(入场前)|当前战力|推荐|R|首通金币|当关购入/升级|回刷至R≥1|", "|---|---:|---:|---:|---:|---:|---|---:|"]
+             f"包络目标Σ|P−E|/E：{payload['envelope_objective']:.6f}。", "",
+             "|关卡|累计金币(入场前)|当前战力|推荐|R|E|P/E|首通金币|当关购入/升级|回刷至R≥1|", "|---|---:|---:|---:|---:|---:|---:|---:|---|---:|"]
     for row in payload["rows"]:
         progression = row["progression_after_clear"]
         events = [entry["item_id"] for entry in progression["purchases"]]
         events += [f"{entry.get('item', entry.get('skill'))} {entry['from']}→{entry['to']}" for entry in progression["upgrades"]]
         recovery = row["recovery_counterfactual"]
-        lines.append(f"|{row['level']:03d}|{row['cumulative_earned_before']['gold']}|{row['power']}|{row['recommended']}|{row['R']:.4f}|{progression['income']['gold']}|{'; '.join(events) or '无'}|{recovery.get('repeat_3star_runs') if recovery.get('recovered') else '不可恢复/未收敛'}|")
+        lines.append(f"|{row['level']:03d}|{row['cumulative_earned_before']['gold']}|{row['power']}|{row['recommended']}|{row['R']:.4f}|{row['E']}|{row['power_over_E']:.4f}|{progression['income']['gold']}|{'; '.join(events) or '无'}|{recovery.get('repeat_3star_runs') if recovery.get('recovered') else '不可恢复/未收敛'}|")
     return "\n".join(lines) + "\n"
 
 
