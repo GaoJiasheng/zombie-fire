@@ -1,0 +1,17 @@
+{
+  "build": 76,
+  "short_version": "1.0.1",
+  "pck": "build/ios/ZombieFire.pck",
+  "materials": [
+    {"source": "assets/production/sprites/vfx_polish/material_impacts.png.import", "imported": ".godot/imported/material_impacts.png-5c5cd03679664cfe804d39a34668d3c4.ctex", "bytes": 1171100},
+    {"source": "assets/production/sprites/vfx_polish/energy_impacts.png.import", "imported": ".godot/imported/energy_impacts.png-0090d7e20f8171a3d0c5ce121a28a030.ctex", "bytes": 730694},
+    {"source": "assets/production/sprites/vfx_polish/material_ribbons.png.import", "imported": ".godot/imported/material_ribbons.png-559d3eb600207681122be4421bf81a2c.ctex", "bytes": 1639028}
+  ],
+  "runtime_scripts": [
+    "gameplay/vfx/base_attack_feedback.gd.remap",
+    "gameplay/vfx/base_attack_feedback.gdc",
+    "gameplay/vfx/combat_vfx_art.gd.remap",
+    "gameplay/vfx/combat_vfx_art.gdc"
+  ],
+  "check": "PCK directory and each import remap resolved to a nonempty packaged resource; source/PCK smoke and IPA payload checks passed."
+}

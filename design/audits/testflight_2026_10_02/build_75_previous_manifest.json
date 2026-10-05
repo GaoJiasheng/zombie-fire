@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-30T17:44:13+00:00",
+  "source": {
+    "git_commit": "0921688fda93aef2252eeba42daec93605309bed",
+    "tracked_changes_present": false
+  },
+  "app": {
+    "apple_id": "6785918342",
+    "bundle_id": "com.gaojiasheng.zombiefire",
+    "short_version": "1.0.1",
+    "build": 75
+  },
+  "delivery": {
+    "delivery_id": "d4331de3-c191-46c3-95a3-98d1adfa7594",
+    "build_status": "VALID",
+    "import_status": "VALID",
+    "reported_delivery_id": "d4331de3-c191-46c3-95a3-98d1adfa7594",
+    "reported_build": 75,
+    "app_store_eligible": true,
+    "on_app_store_connect": true,
+    "uses_non_exempt_encryption": false
+  },
+  "artifacts": {
+    "ipa": {
+      "path": "build/ios/ZombieFire.ipa",
+      "bytes": 938484300,
+      "sha256": "81217cf11ccb72abc97cbb27ea21439876d6757affbbf2b98d4f0854a5a80cb1"
+    },
+    "pck": {
+      "path": "build/ios/ZombieFire.pck",
+      "bytes": 914759620,
+      "sha256": "e0a8e36209b1052b03497ef92d4ed266e5098146129838d4eb8e2943d4f24ac8"
+    }
+  }
+}

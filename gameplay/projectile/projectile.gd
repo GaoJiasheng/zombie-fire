@@ -1390,138 +1390,30 @@ func _uses_compact_ballistic_impact() -> bool:
 
 func _spawn_pierce_flash() -> void:
 	var parent := get_parent()
-	if parent == null:
+	if parent == null or not _can_spawn_projectile_fx(true):
 		return
-	if not _can_spawn_projectile_fx(true):
-		return
-	var dir := velocity.normalized()
-	if dir.length_squared() <= 0.01:
-		dir = Vector2.UP
-	var color := _impact_color_for(element, visual_profile).lightened(0.18)
-	color.a = 0.82
-	var hot := color.lightened(0.32)
-	hot.a = 0.95
-	var glow := VfxLib.spawn_glow(parent, global_position + dir * 18.0, hot, 96.0 * maxf(visual_scale, 0.9), 0.16)
-	if glow != null:
-		_track_transient_fx(glow)
-
-	var sweep := Node2D.new()
-	_track_transient_fx(sweep)
-	sweep.name = "PierceSkillSweep"
-	sweep.process_mode = Node.PROCESS_MODE_PAUSABLE
-	sweep.global_position = global_position
-	sweep.rotation = dir.angle()
-	sweep.z_index = 78
-	sweep.scale = Vector2(0.68, 1.16)
-	parent.add_child(sweep)
-
-	var band := Line2D.new()
-	band.width = 24.0 * maxf(visual_scale, 0.88)
-	band.default_color = Color(color.r, color.g, color.b, minf(color.a, 0.72))
-	band.joint_mode = Line2D.LINE_JOINT_ROUND
-	band.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	band.end_cap_mode = Line2D.LINE_CAP_ROUND
-	band.texture = VfxLib.STREAK_TEXTURE
-	band.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-	band.material = _new_additive_material()
-	band.points = PackedVector2Array([Vector2(-42.0, 0.0), Vector2(158.0, 0.0)])
-	sweep.add_child(band)
-
-	var core := Sprite2D.new()
-	core.name = "PierceShaderCore"
-	core.texture = VfxLib.RADIAL_GLOW_TEXTURE
-	core.centered = true
-	core.position = Vector2(22.0, 0.0)
-	core.scale = Vector2(0.46, 0.13) * maxf(visual_scale, 0.88)
-	var core_material := ShaderMaterial.new()
-	core_material.shader = VfxLib.GLOW_CORE_SHADER
-	core_material.set_shader_parameter("tint", hot)
-	core_material.set_shader_parameter("intensity", 4.0)
-	core_material.set_shader_parameter("core_power", 0.78)
-	core.material = core_material
-	sweep.add_child(core)
-
-	var tween := sweep.create_tween()
-	tween.set_trans(Tween.TRANS_QUINT)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(sweep, "scale", Vector2(1.1, 0.58), 0.16)
-	tween.parallel().tween_property(band, "width", 3.0, 0.16)
-	tween.parallel().tween_property(sweep, "modulate:a", 0.0, 0.16)
-	tween.tween_callback(sweep.queue_free)
-
-	if _can_spawn_projectile_fx():
-		var sparks := VfxLib.spawn_burst(parent, global_position + dir * 22.0, color, 12, 610.0 * maxf(visual_scale, 0.85), 30.0, 0.16)
-		if sparks != null:
-			_track_transient_fx(sparks)
-			if sparks is Node2D:
-				(sparks as Node2D).rotation = dir.angle()
+	var dir := velocity.normalized() if velocity.length_squared() > 0.01 else Vector2.UP
+	var fx := CombatVfxArt.new()
+	fx.name = "PierceMaterialWake"
+	fx.setup(element, Vector2(156, 54) * maxf(visual_scale, 0.88), 0.18, Color(1, 1, 1, 0.86), true)
+	fx.z_index = 78
+	_track_transient_fx(fx)
+	parent.add_child(fx)
+	fx.global_position = global_position + dir * 42.0
+	fx.rotation = dir.angle() + PI
 
 func _spawn_pierce_trace(from: Vector2, to: Vector2) -> void:
 	var parent := get_parent()
-	if parent == null:
+	if parent == null or not _can_spawn_projectile_fx() or from.distance_to(to) < 2.0:
 		return
-	if not _can_spawn_projectile_fx():
-		return
-	var parent_node := parent as Node2D
-	var start := parent_node.to_local(from) if parent_node != null else from
-	var finish := parent_node.to_local(to) if parent_node != null else to
-	var direction := (to - from).normalized()
-	if direction.length_squared() <= 0.01:
-		direction = velocity.normalized()
-	if direction.length_squared() <= 0.01:
-		direction = Vector2.UP
-	var color := _impact_color_for(element, visual_profile)
-	color.a = 0.74
-	var hot := color.lightened(0.36)
-	hot.a = 0.9
-	var midpoint := (from + to) * 0.5
-	var glow := VfxLib.spawn_glow(parent, midpoint, hot, clampf(from.distance_to(to) * 0.32, 72.0, 180.0), 0.14)
-	if glow != null:
-		_track_transient_fx(glow)
-	var trace := Line2D.new()
-	_track_transient_fx(trace)
-	trace.width = 18.0 * maxf(visual_scale, 0.85)
-	trace.default_color = Color(color.r, color.g, color.b, minf(color.a, 0.68))
-	trace.texture = VfxLib.STREAK_TEXTURE
-	trace.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-	trace.material = _new_additive_material()
-	trace.points = PackedVector2Array([start, finish])
-	parent.add_child(trace)
-	var core_trace := Line2D.new()
-	_track_transient_fx(core_trace)
-	core_trace.width = 4.5 * maxf(visual_scale, 0.85)
-	core_trace.default_color = hot
-	core_trace.joint_mode = Line2D.LINE_JOINT_ROUND
-	core_trace.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	core_trace.end_cap_mode = Line2D.LINE_CAP_ROUND
-	core_trace.texture = VfxLib.STREAK_TEXTURE
-	core_trace.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-	core_trace.material = _new_additive_material()
-	core_trace.points = PackedVector2Array([start, finish])
-	parent.add_child(core_trace)
-	var tween := trace.create_tween()
-	tween.set_trans(Tween.TRANS_QUINT)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(trace, "width", 3.0, 0.16)
-	tween.parallel().tween_property(trace, "modulate:a", 0.0, 0.16)
-	tween.tween_callback(trace.queue_free)
-	var core_tween := core_trace.create_tween()
-	core_tween.set_trans(Tween.TRANS_QUINT)
-	core_tween.set_ease(Tween.EASE_OUT)
-	core_tween.parallel().tween_property(core_trace, "width", 1.0, 0.12)
-	core_tween.parallel().tween_property(core_trace, "modulate:a", 0.0, 0.12)
-	core_tween.tween_callback(core_trace.queue_free)
-
-	for i in range(3):
-		if not _can_spawn_projectile_fx():
-			break
-		var t := (float(i) + 0.35) / 3.2
-		var spark_pos := from.lerp(to, t) + Vector2(-direction.y, direction.x) * randf_range(-12.0, 12.0)
-		var sparks := VfxLib.spawn_particles(parent, spark_pos, color, 4, 390.0, 34.0, 0.13)
-		if sparks != null:
-			_track_transient_fx(sparks)
-			if sparks is Node2D:
-				(sparks as Node2D).rotation = direction.angle()
+	var fx := CombatVfxArt.new()
+	fx.name = "PierceMaterialTrace"
+	fx.setup(element, Vector2(from.distance_to(to) * 1.24, 42.0 * maxf(visual_scale, 0.85)), 0.18, Color(1, 1, 1, 0.74), true)
+	fx.z_index = 76
+	_track_transient_fx(fx)
+	parent.add_child(fx)
+	fx.global_position = from.lerp(to, 0.5)
+	fx.rotation = (to - from).angle() + PI
 
 func _new_additive_material() -> CanvasItemMaterial:
 	var material := CanvasItemMaterial.new()
@@ -1549,36 +1441,13 @@ func _track_transient_fx(node: Node) -> void:
 func _spawn_impact_ring_at(parent: Node, at_position: Vector2, color: Color, radius: float, duration: float) -> void:
 	if parent == null or not _can_spawn_projectile_fx():
 		return
-	var root := Node2D.new()
-	_track_transient_fx(root)
-	root.name = "ProjectileImpactShockRing"
-	root.process_mode = Node.PROCESS_MODE_PAUSABLE
-	root.global_position = at_position
-	root.z_index = 75
-	root.scale = Vector2.ONE * 0.34
-	parent.add_child(root)
-	var line := Line2D.new()
-	line.width = 5.0 if visual_profile == "rail" else 8.0
-	line.default_color = Color(color.r, color.g, color.b, minf(color.a, 0.62))
-	line.closed = true
-	line.joint_mode = Line2D.LINE_JOINT_ROUND
-	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	line.end_cap_mode = Line2D.LINE_CAP_ROUND
-	line.texture = VfxLib.STREAK_TEXTURE
-	line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
-	line.material = _new_additive_material()
-	var segments := 56
-	for i in range(segments):
-		var angle := TAU * float(i) / float(segments)
-		line.add_point(Vector2(cos(angle), sin(angle)) * radius)
-	root.add_child(line)
-	var tween := root.create_tween()
-	tween.set_trans(Tween.TRANS_QUINT)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(root, "scale", Vector2.ONE, duration)
-	tween.parallel().tween_property(line, "width", 1.0, duration)
-	tween.parallel().tween_property(root, "modulate:a", 0.0, duration)
-	tween.tween_callback(root.queue_free)
+	var fx := CombatVfxArt.new()
+	fx.name = "ProjectileMaterialContact"
+	fx.setup(element, Vector2.ONE * radius * 1.65, maxf(duration, 0.18), Color(1, 1, 1, color.a * 0.7))
+	fx.z_index = 75
+	_track_transient_fx(fx)
+	parent.add_child(fx)
+	fx.global_position = at_position
 
 func _impact_color_for(elem: String, profile := "") -> Color:
 	match profile:

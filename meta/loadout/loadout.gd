@@ -31,6 +31,9 @@ const SUMMARY_MARGIN_LEFT := 34
 const SUMMARY_MARGIN_RIGHT := 30
 const SUMMARY_MARGIN_TOP := 20
 const SUMMARY_MARGIN_BOTTOM := 20
+const SUMMARY_SECTION_GAP := 16
+const SUMMARY_LINE_SPACING := 8
+const ADVICE_PADDING := 14
 
 var router: Node
 var level_id := "level_001"
@@ -58,6 +61,7 @@ func _ready() -> void:
 	AudioManager.play_bgm("map")
 	if has_node("Root/Main/TopNeonLine"):
 		($Root/Main/TopNeonLine as CanvasItem).visible = false
+	_setup_content_scroll()
 	_apply_runtime_layout()
 	_bind_open_hit(%CharacterPanel as Control, "characters")
 	_bind_open_hit(%WeaponPanel as Control, "weapons")
@@ -82,6 +86,21 @@ func _ready() -> void:
 	_refresh()
 	_build_equip_nav()
 
+func _setup_content_scroll() -> void:
+	# Long localized advice must grow, not squeeze other rows or push the action
+	# outside the safe area. Short pages keep their existing top-aligned layout.
+	var main := %Main as VBoxContainer
+	var scroll := ScrollContainer.new()
+	scroll.name = "ContentScroll"
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	$Root.add_child(scroll)
+	main.reparent(scroll)
+	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main.size_flags_vertical = Control.SIZE_FILL
+
 func _apply_runtime_layout() -> void:
 	var safe := UiKit.safe_area_canvas_insets(get_viewport())
 	var safe_height := get_viewport_rect().size.y - safe.y - safe.w
@@ -89,24 +108,24 @@ func _apply_runtime_layout() -> void:
 	var root := $Root as MarginContainer
 	root.add_theme_constant_override("margin_top", 8 if compact_safe_layout else 38)
 	root.add_theme_constant_override("margin_bottom", 8 if compact_safe_layout else 36)
-	var main := $Root/Main as VBoxContainer
+	var main := %Main as VBoxContainer
 	main.add_theme_constant_override("separation", 8 if compact_safe_layout else 13)
-	if has_node("Root/Main/UnitsRow"):
-		var units := $Root/Main/UnitsRow as HBoxContainer
+	if main.has_node("UnitsRow"):
+		var units := main.get_node("UnitsRow") as HBoxContainer
 		units.custom_minimum_size = Vector2(0, 390 if compact_safe_layout else 430)
-	if has_node("Root/Main/GrowthBadge"):
+	if main.has_node("GrowthBadge"):
 		(%GrowthBadge as Label).custom_minimum_size = Vector2(0, 32 if compact_safe_layout else 42)
-	if has_node("Root/Main/GearIconRow"):
+	if main.has_node("GearIconRow"):
 		var gear := %GearIconRow as HBoxContainer
 		gear.custom_minimum_size = Vector2(0, 176)
 		gear.add_theme_constant_override("separation", GEAR_ROW_SEPARATION)
-	if has_node("Root/Main/DetailsPanel"):
+	if main.has_node("DetailsPanel"):
 		(%DetailsPanel as Control).custom_minimum_size = Vector2(0, DETAILS_PANEL_HEIGHT)
-	if has_node("Root/Main/BottomSpacer"):
-		var spacer := $Root/Main/BottomSpacer as Control
+	if main.has_node("BottomSpacer"):
+		var spacer := main.get_node("BottomSpacer") as Control
 		spacer.custom_minimum_size = Vector2(0, 12 if compact_safe_layout else BOTTOM_ACTION_SPACER_HEIGHT)
 		spacer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	if has_node("Root/Main/StartButton"):
+	if main.has_node("StartButton"):
 		var start := %StartButton as TextureButton
 		start.custom_minimum_size = Vector2(760, 112)
 		UiKit.apply_armored_texture_button(start, true, Vector2(760, 112), true)
@@ -227,7 +246,7 @@ func _power_state(power: int, recommended_power: int) -> Dictionary:
 	return {"text": "远低于通关线", "color": UiKit.DANGER}
 
 func _refresh_resource_bar() -> void:
-	var main := $Root/Main as VBoxContainer
+	var main := %Main as VBoxContainer
 	if main == null:
 		return
 	var existing := main.get_node_or_null("ResourceBar")
@@ -548,7 +567,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	box.name = "SummaryContent"
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_theme_constant_override("separation", 10)
+	box.add_theme_constant_override("separation", SUMMARY_SECTION_GAP)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	safe_area.add_child(box)
 
@@ -557,15 +576,20 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	box.add_child(title_row)
 	var title := UiKit.label("挑战摘要" if challenge_mode else "战术摘要", 23, UiKit.TEXT_MAIN, 4)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.clip_text = false
+	title.add_theme_constant_override("line_spacing", SUMMARY_LINE_SPACING)
 	title_row.add_child(title)
 	var power_state := _power_state(power, recommended_power)
 	var power_pill := UiKit.semantic_tag_pill(str(power_state.get("text", "低于通关线")), "status", 14)
 	power_pill.name = "PowerStatePill"
 	power_pill.custom_minimum_size = Vector2(156, 38)
+	power_pill.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	title_row.add_child(power_pill)
 	var state := UiKit.semantic_tag_pill(counter_state, "ability", 14)
 	state.name = "CounterStatePill"
 	state.custom_minimum_size = Vector2(224, 38)
+	state.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	title_row.add_child(state)
 
 	var divider := TextureRect.new()
@@ -610,6 +634,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	bottleneck_reason.custom_minimum_size = Vector2(0, 32)
 	bottleneck_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottleneck_reason.clip_text = false
+	bottleneck_reason.add_theme_constant_override("line_spacing", SUMMARY_LINE_SPACING)
 	box.add_child(bottleneck_reason)
 
 	var loadout := Label.new()
@@ -632,6 +657,7 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	loadout.custom_minimum_size = Vector2(0, 68)
 	loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	loadout.clip_text = false
+	loadout.add_theme_constant_override("line_spacing", SUMMARY_LINE_SPACING)
 	loadout.name = "EquipmentRecap"
 	loadout.text = LocalizationManager.text(loadout.text).replace(" Lv", "\u00a0Lv")
 	UiKit.apply_label(loadout, 21, UiKit.TEXT_MUTED, 4)
@@ -669,12 +695,16 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		suggestion_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		suggestion_label.add_theme_color_override("font_color", UiKit.GREEN)
 		suggestion_label.add_theme_font_size_override("font_size", UiKit.bumped_font_size(19))
+		suggestion_label.add_theme_constant_override("line_spacing", SUMMARY_LINE_SPACING)
 		suggestion_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		suggest.add_child(suggestion_label)
 		suggestion_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		suggestion_label.offset_left = 12.0
 		suggestion_label.offset_right = -12.0
+		suggestion_label.offset_top = ADVICE_PADDING
+		suggestion_label.offset_bottom = -ADVICE_PADDING
 		suggest.resized.connect(_fit_counter_suggestion.bind(suggest, suggestion_label, panel, box))
+		suggestion_label.minimum_size_changed.connect(_fit_counter_suggestion.bind(suggest, suggestion_label, panel, box))
 		_fit_counter_suggestion.call_deferred(suggest, suggestion_label, panel, box)
 	if not premium_offer.is_empty():
 		var premium_suggest := Button.new()
@@ -707,9 +737,12 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		premium_copy.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		premium_copy.offset_left = 8
 		premium_copy.offset_right = -8
+		premium_copy.offset_top = ADVICE_PADDING
+		premium_copy.offset_bottom = -ADVICE_PADDING
 		premium_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 		premium_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		premium_copy.add_theme_constant_override("separation", 0)
+		premium_copy.name = "RecommendationContent"
+		premium_copy.add_theme_constant_override("separation", 10)
 		var premium_premise_label := UiKit.label(premium_premise, 15 if LocalizationManager.is_english() else 17, UiKit.GOLD, 3)
 		premium_premise_label.name = "RecommendationPremiseText"
 		premium_premise_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -725,8 +758,16 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 		catch_up_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		catch_up_label.clip_text = false
 		premium_copy.add_child(catch_up_label)
+		for advice_label: Label in [premium_premise_label, premium_power_label, catch_up_label]:
+			advice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			advice_label.add_theme_constant_override("line_spacing", SUMMARY_LINE_SPACING)
 		premium_suggest.add_child(premium_copy)
 		box.add_child(premium_suggest)
+		# Button doesn't propagate its children's minimum height. Bind the actual
+		# wrapped VBox minimum, including both insets, instead of assuming 3 lines.
+		premium_copy.minimum_size_changed.connect(_fit_premium_suggestion.bind(premium_suggest, premium_copy))
+		premium_suggest.resized.connect(_fit_premium_suggestion.bind(premium_suggest, premium_copy))
+		_fit_premium_suggestion.call_deferred(premium_suggest, premium_copy)
 
 	# Repeated equipment names remain available, after the actionable advice.
 	box.move_child(loadout, box.get_child_count() - 1)
@@ -736,6 +777,8 @@ func _refresh_summary_panel(display_level_id: String, weakness: String, power: i
 	# English equipment names and the star rule can wrap to an extra line. Size
 	# the summary from its rendered minimum instead of letting the fixed floor
 	# clip into the battle button on tall iPhones.
+	box.minimum_size_changed.connect(_fit_summary_panel_to_content.bind(panel, box))
+	box.resized.connect(_fit_summary_panel_to_content.bind(panel, box))
 	call_deferred("_fit_summary_panel_to_content", panel, box)
 
 func _star_threshold_guide() -> VBoxContainer:
@@ -796,14 +839,15 @@ func _power_bottleneck_reason(display_level_id: String, challenge_mode: bool) ->
 		_:
 			return LocalizationManager.text("短板：清群火力")
 
+func _fit_premium_suggestion(button: Button, copy: VBoxContainer) -> void:
+	if not is_instance_valid(button) or not is_instance_valid(copy):
+		return
+	button.custom_minimum_size.y = ceilf(copy.get_combined_minimum_size().y + ADVICE_PADDING * 2)
+
 func _fit_counter_suggestion(button: Button, label: Label, panel: Control, content: Control) -> void:
 	if not is_instance_valid(button) or not is_instance_valid(label) or button.size.x <= 24.0:
 		return
-	var font := label.get_theme_font("font")
-	var size := label.get_theme_font_size("font_size")
-	var measured := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_CENTER, button.size.x - 32.0, size)
-	var lines := maxi(1, ceili(measured.y / font.get_height(size)))
-	button.custom_minimum_size.y = maxf(44.0, ceilf(measured.y + (lines - 1) * label.get_theme_constant("line_spacing") + 12.0))
+	button.custom_minimum_size.y = maxf(44.0, ceilf(label.get_combined_minimum_size().y + ADVICE_PADDING * 2))
 	_fit_summary_panel_to_content.call_deferred(panel, content)
 
 func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
@@ -812,7 +856,8 @@ func _fit_summary_panel_to_content(panel: Control, content: Control) -> void:
 	var suggestion_count := int(content.get_node_or_null("CounterSuggestion") != null)
 	suggestion_count += int(content.get_node_or_null("PremiumCounterSuggestion") != null)
 	var authored_floor := _summary_panel_floor(suggestion_count)
-	var rendered_height := ceilf(content.get_combined_minimum_size().y + SUMMARY_MARGIN_TOP + SUMMARY_MARGIN_BOTTOM)
+	var frame := content.get_parent().get_parent() as PanelContainer
+	var rendered_height := ceilf(frame.get_combined_minimum_size().y)
 	panel.custom_minimum_size = Vector2(0, maxf(authored_floor, rendered_height))
 
 func _summary_panel_floor(suggestion_count: int) -> float:
@@ -824,7 +869,7 @@ func _summary_panel_floor(suggestion_count: int) -> float:
 
 func _summary_cell(label_text: String, value_text: String, accent: Color, icon_path: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.custom_minimum_size = Vector2(360, 50 if LocalizationManager.is_english() else 36)
+	row.custom_minimum_size = Vector2(0, 50 if LocalizationManager.is_english() else 36)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 8)
 	if icon_path != "":

@@ -2,8 +2,8 @@ extends RefCounted
 class_name VfxLib
 
 const RADIAL_GLOW_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_input_radial_glow.png")
-const STREAK_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_input_streak.png")
-const SPARK_TEXTURE := preload("res://assets/production/sprites/vfx/vfx_input_spark.png")
+const STREAK_TEXTURE := preload("res://assets/production/sprites/vfx_polish/material_wake.tres")
+const SPARK_TEXTURE := preload("res://assets/production/sprites/vfx_polish/material_spark.tres")
 const GLOW_CORE_SHADER := preload("res://gameplay/vfx/shaders/vfx_glow_core.gdshader")
 
 const MAX_BURST_PARTICLES := 48

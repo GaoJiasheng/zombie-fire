@@ -1202,23 +1202,27 @@ func _update_attack_pose() -> void:
 		0.25,
 		0.8
 	)
+	if boss and _base_attack_sequence_active:
+		contact_ratio = clampf(float(base_attack_profile.get("windup", 0.48)) / maxf(_attack_duration, 0.001), 0.04, 0.9)
+	# Anticipation -> fast contact -> weighty recovery, anchored to the same
+	# authored contact time. Only sprite presentation changes, never attack rules.
+	var anticipation_end := contact_ratio * 0.58
 	var lunge_phase := 0.0
-	if progress <= contact_ratio:
-		lunge_phase = sin((progress / contact_ratio) * PI * 0.5)
+	if progress < anticipation_end:
+		lunge_phase = -0.16 * smoothstep(0.0, anticipation_end, progress)
+	elif progress <= contact_ratio:
+		var strike_t := inverse_lerp(anticipation_end, contact_ratio, progress)
+		lunge_phase = lerpf(-0.16, 1.0, strike_t * strike_t)
 	else:
-		lunge_phase = cos(
-			((progress - contact_ratio) / maxf(0.001, 1.0 - contact_ratio))
-			* PI
-			* 0.5
-		)
+		lunge_phase = 1.0 - smoothstep(contact_ratio, 1.0, progress)
 	var heavy := 1.3 if boss else 1.0
 	var authored_lunge := float(attack_animation_profile.get("lunge", 18.0))
 	$Sprite.position = Vector2(
-		_base_sprite_x + sin(progress * TAU) * 2.0 * heavy,
+		_base_sprite_x,
 		lunge_phase * authored_lunge * heavy
 	)
 	$Sprite.scale = _base_sprite_scale * (1.0 + 0.018 * lunge_phase)
-	$Sprite.rotation = deg_to_rad(sin(progress * PI * 2.0) * 1.4)
+	$Sprite.rotation = deg_to_rad(lunge_phase * 1.1) # No floating side-to-side wobble.
 
 func _advance_profiled_attack_frames(frames: Array[Texture2D]) -> void:
 	if frames.is_empty():

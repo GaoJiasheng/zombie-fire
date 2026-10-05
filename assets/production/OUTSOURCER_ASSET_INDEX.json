@@ -35,6 +35,15 @@
   },
   "owner_directed_generated_overrides": [
     {
+      "path": "sprites/vfx_polish/material_impacts.png + sprites/vfx_polish/energy_impacts.png + sprites/vfx_polish/material_ribbons.png",
+      "source": "source_refs/generated/combat_vfx_2026_10_02/prompt_log.md",
+      "derived": ["sprites/vfx_polish/material_impacts.png", "sprites/vfx_polish/energy_impacts.png", "sprites/vfx_polish/material_ribbons.png"],
+      "reason": "Owner requested replacing low-end geometric combat effects. Additive alpha atlases: 8 impact/charge materials and 4 directed ribbons, four phases each; no accepted unit/theme asset or gameplay stats replaced.",
+      "count": 3,
+      "task": "All-enemy critical feedback and combat material VFX polish",
+      "created_at": "2026-10-02T00:00:00+08:00"
+    },
+    {
       "path": "sprites/premium/gilded_eclipse/chip_apocalypse_golden_law_icon.png + sprites/premium/gilded_eclipse/pet_apocalypse_skyfalcon_icon.png",
       "source": "source_refs/generated/ui_finish_2026_09_08/prompt_log.md",
       "derived": [
