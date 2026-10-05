@@ -1,0 +1,213 @@
+[
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools",
+      "-p",
+      "test_linear_power_s9.py",
+      "-v"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_s9_unit_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158428.866124,
+    "ended_unix": 1791158429.1122959,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools",
+      "-p",
+      "test_linear_power_program.py",
+      "-v"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_linear_unit_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158429.1171122,
+    "ended_unix": 1791158429.799978,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools",
+      "-p",
+      "test_resource_curves.py",
+      "-v"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_resource_unit_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158429.805383,
+    "ended_unix": 1791158435.420695,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tools",
+      "-p",
+      "test_linear_power_acceptance.py",
+      "-v"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_ray_unit_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158435.42606,
+    "ended_unix": 1791158435.54034,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/validate_data.py"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_validate_data_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158435.545063,
+    "ended_unix": 1791158435.572059,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_res_refs.py"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_refs_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158435.5768,
+    "ended_unix": 1791158435.726868,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_level_pressure.py"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_pressure_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158435.731416,
+    "ended_unix": 1791158435.898473,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/simulate_card_director.py"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_cards_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158435.903233,
+    "ended_unix": 1791158438.3246138,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/opt/homebrew/bin/godot",
+      "--headless",
+      "--path",
+      ".",
+      "--quit"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_boot_2026_10_05.log",
+    "issues": [],
+    "required_marker": null,
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158438.3295732,
+    "ended_unix": 1791158438.684554,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/opt/homebrew/bin/godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "res://tools/m1_smoke_test.gd"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_smoke_2026_10_05.log",
+    "issues": [],
+    "required_marker": "M1 smoke test passed",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158438.689997,
+    "ended_unix": 1791158512.291211,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  },
+  {
+    "command": [
+      "/Applications/Xcode-26.4.1.app/Contents/Developer/usr/bin/python3",
+      "tools/check_release_candidate.py"
+    ],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s9_final_retry_root_release_candidate_2026_10_05.log",
+    "issues": [],
+    "required_marker": "Release candidate check OK",
+    "independent_HOME": "/var/folders/qp/xhqbxltd5630c3_f8c0tymf40000gn/T/zf_linear_s9_final_home_2026_10_05_f9q2hi5k",
+    "started_unix": 1791158512.2974389,
+    "ended_unix": 1791158703.209236,
+    "source_refs_root": "/Users/gavin/work/zombie-fire",
+    "asset_gate_skipped": false
+  }
+]

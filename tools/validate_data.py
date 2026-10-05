@@ -87,11 +87,12 @@ def main() -> int:
     for level_number in range(1, 100):
         row = challenge_rule_for_level(level_number, challenges)
         for key, low, high in (
-            ("hp_mult", 1.0, 5.0),
-            ("speed_mult", 1.0, 5.0),
-            ("breach_damage_mult", 1.0, 5.0),
-            ("mechanic_rate_mult", 1.0, 5.0),
-            ("recommended_power_mult", 1.0, 5.0),
+            # 2026-10-05 §41 §9 重钉: challenge curve ceiling 8, not 5.
+            ("hp_mult", 1.0, 8.0),
+            ("speed_mult", 1.0, 8.0),
+            ("breach_damage_mult", 1.0, 8.0),
+            ("mechanic_rate_mult", 1.0, 8.0),
+            ("recommended_power_mult", 1.0, 8.0),
         ):
             value = float(row.get(key, 0.0))
             if not low <= value <= high:

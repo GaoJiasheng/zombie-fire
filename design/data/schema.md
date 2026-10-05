@@ -658,7 +658,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   }
 }
 ```
-每 10 关共用一个固定挑战规则；配装页必须在入场前显示名称、压力倍率与应对建议。倍率只由本表读取，结算战报保留同一规则快照。
+上例为历史章节固定倍率格式。现行表含 `curve` 与 `chapters`：`piecewise_smoothstep` 的 K 锚点提供耐久预算，`line_pressure_exponents.anchors` 线性插值速度/突破/机制指数，三个指数和为1；派生倍率由同一曲线读取，章节仅提供名称与提示。2026-10-05 §41 §9 重钉：K 与派生倍率上限8，不再固定 K(99)=5；61–99允许依据固定种子实测重解，1–60展开规则冻结。终点胜率/时长合同不变；玩家挑战推荐显示仍为普通×1.5，不等同 K。
 
 ## localization_zh.json / localization_en.json（稳定 ID 文案）
 ```jsonc

@@ -1,0 +1,579 @@
+{
+  "authority": "2026-10-05 §41 §9",
+  "source": "/Users/gavin/work/zf-linear/design/audits/linear_power_p2_2026_10_04/acceptance_runtime_integrity_2026_10_04.json",
+  "new_battles": 0,
+  "hard_pass": true,
+  "rows": [
+    {
+      "level": 5,
+      "wins": 2,
+      "failed_seeds": [
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        10903
+      ],
+      "base_median_pct": 0.0,
+      "victory_boss_phase_median_seconds": 64.09166666671715,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8552631578947368,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 15,
+      "wins": 6,
+      "failed_seeds": [
+        6637,
+        7741,
+        8849,
+        10903
+      ],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 33.62500000002675,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8503401360544217,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 30,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 45.3333333333548,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8614457831325302,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 40,
+      "wins": 6,
+      "failed_seeds": [
+        1103,
+        6637,
+        9901,
+        10903
+      ],
+      "base_median_pct": 97.9874213836478,
+      "victory_boss_phase_median_seconds": 32.15833333335635,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8710801393728222,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 44,
+      "wins": 8,
+      "failed_seeds": [
+        1103,
+        4409
+      ],
+      "base_median_pct": 81.87050359712231,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8560105680317041,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 54,
+      "wins": 7,
+      "failed_seeds": [
+        4409,
+        6637,
+        8849
+      ],
+      "base_median_pct": 15.56933305192065,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8607242339832869,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 68,
+      "wins": 1,
+      "failed_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        9901,
+        10903
+      ],
+      "base_median_pct": 0.0,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8598848368522073,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 74,
+      "wins": 7,
+      "failed_seeds": [
+        1103,
+        5513,
+        6637
+      ],
+      "base_median_pct": 71.5034965034965,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.8746312684365781,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 90,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 93.81797366914711,
+      "victory_boss_phase_median_seconds": 94.7416666666613,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.9389312977099237,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 96,
+      "wins": 4,
+      "failed_seeds": [
+        2207,
+        3301,
+        5513,
+        6637,
+        7741,
+        10903
+      ],
+      "base_median_pct": 0.0,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 0.85,
+      "actual_R": 0.9209551255660766,
+      "historical_band": [
+        3,
+        7
+      ]
+    },
+    {
+      "level": 5,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 99.3939393939394,
+      "victory_boss_phase_median_seconds": 43.7916666666797,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 15,
+      "wins": 9,
+      "failed_seeds": [
+        7741
+      ],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 33.8500000000269,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 30,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 38.75000000001385,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0421686746987953,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 40,
+      "wins": 9,
+      "failed_seeds": [
+        1103
+      ],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 26.6333333333432,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 44,
+      "wins": 9,
+      "failed_seeds": [
+        1103
+      ],
+      "base_median_pct": 96.91516709511569,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 54,
+      "wins": 9,
+      "failed_seeds": [
+        6637
+      ],
+      "base_median_pct": 70.32085561497325,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0055710306406684,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 68,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 84.37190900098915,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0095969289827256,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 74,
+      "wins": 9,
+      "failed_seeds": [
+        1103
+      ],
+      "base_median_pct": 88.5841537740272,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 90,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 91.88658057271195,
+      "victory_boss_phase_median_seconds": 90.0833333333282,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0963286077789896,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 96,
+      "wins": 9,
+      "failed_seeds": [
+        6637
+      ],
+      "base_median_pct": 68.66342193934855,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": true,
+      "information_only": false,
+      "contract_pass": true,
+      "status": "PASS",
+      "target_R": 1.0,
+      "actual_R": 1.0,
+      "historical_band": [
+        9,
+        10
+      ]
+    },
+    {
+      "level": 5,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 25.11666666666525,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1578947368421053,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 15,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 23.27500000000895,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.3197278911564625,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 30,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 35.34166666667575,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1656626506024097,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 40,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 100.0,
+      "victory_boss_phase_median_seconds": 23.400000000007097,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.5452961672473868,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 44,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 97.9874213836478,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1519154557463673,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 54,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 80.98039215686275,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1532033426183843,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 68,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 86.4985163204748,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.165067178502879,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 74,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 90.3973509933775,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.154867256637168,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 90,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median_pct": 91.80235822571585,
+      "victory_boss_phase_median_seconds": 89.26666666666159,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1606688476917484,
+      "historical_band": [
+        10,
+        10
+      ]
+    },
+    {
+      "level": 96,
+      "wins": 9,
+      "failed_seeds": [
+        6637
+      ],
+      "base_median_pct": 82.736997417927,
+      "victory_boss_phase_median_seconds": 0.0,
+      "hard_contract": false,
+      "information_only": true,
+      "contract_pass": null,
+      "status": "INFO",
+      "target_R": 1.15,
+      "actual_R": 1.1836146562371346,
+      "historical_band": [
+        10,
+        10
+      ]
+    }
+  ]
+}

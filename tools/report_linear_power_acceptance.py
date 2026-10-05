@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Report actual §41 native evidence, keeping integrity and contract verdicts separate."""
+import argparse
 import collections
 import csv
 import hashlib
@@ -13,6 +14,36 @@ import solve_runtime_clear_lines as t1
 
 ROOT, AUDIT, DATE = follow.ROOT, follow.AUDIT, follow.DATE
 P2, P4 = follow.P2, follow.P4
+
+
+def g3_verdict(target, wins):
+    """2026-10-05 §41 §9: only R=1.00 is a hard acceptance gate."""
+    hard = target == 1.0
+    return {'hard_contract': hard, 'information_only': not hard,
+            'contract_pass': wins >= 9 if hard else None,
+            'status': ('PASS' if wins >= 9 else 'FAIL') if hard else 'INFO'}
+
+
+def report_g3_s9():
+    """Reclassify immutable first-round evidence; do not overwrite its reports."""
+    evidence = json.loads((P2/f'acceptance_runtime_integrity_{DATE}.json').read_text())
+    rays = json.loads((P2/f'g3_ray_construction_{DATE}.json').read_text())['rows']
+    constructs = {(r['level'],r['target_R']):r for r in rays}
+    rows = []
+    for label,target in [('085',.85),('100',1.),('115',1.15)]:
+        for r in evidence['g3_'+label]['rows']:
+            rows.append({**r, **g3_verdict(target,r['wins']), 'target_R':target,
+                         'actual_R':constructs[(r['level'],target)]['actual_R'],
+                         'historical_band':list(linear.PREDICTION_CONTRACT[target])})
+    out = AUDIT/'linear_power_p4_2026_10_05'
+    out.mkdir(parents=True,exist_ok=True)
+    hard_pass = all(r['contract_pass'] for r in rows if r['hard_contract'])
+    t1.atomic_write(out/'g3_s9_verdict.json', {'authority':'2026-10-05 §41 §9',
+                    'source':str(P2/f'acceptance_runtime_integrity_{DATE}.json'),
+                    'new_battles':0,'hard_pass':hard_pass, 'rows':rows})
+    passing = sum(r['contract_pass'] is True for r in rows if r['hard_contract'])
+    print(f'G3 §9 {"PASS" if hard_pass else "FAIL"}: {passing}/10 R=1.00 groups >=9/10; other 20 groups INFO, original results retained')
+    return 0 if hard_pass else 1
 
 
 def commands_table():
@@ -55,7 +86,7 @@ def main():
         for r in evidence['g3_'+label]['rows']:
             construction = constructs[(r['level'], target)]
             b_row = b_rows[r['level']]
-            prediction.append({**r, 'target_R': target, 'actual_R': construction['actual_R'],
+            prediction.append({**r, **g3_verdict(target, r['wins']), 'target_R': target, 'actual_R': construction['actual_R'],
                                'actual_power': construction['power'], 'recommended': construction['recommended'],
                                'p_star': b_row['p_star'], 'measured_p_star_wins': b_row['passing_wins'],
                                'recommendation_margin_vs_p_star': construction['recommended']/b_row['p_star']-1 if b_row['p_star'] else None,
@@ -122,7 +153,7 @@ def main():
         p2.append(f"|{r['level']:03d}|{r['approved_star']}|{r['derived_star']}|{r['wins']}|{r['base_median_pct']:.4f}|{r['power']}/{r['recommended']}|{r['R']:.4f}|{r['failed_seeds']}|")
     p2 += ['', '### G3：目标与实际R必须分开', '',
            '按统一缩放参考构筑的T1射线，枚举整数台阶，选最小达到目标的档位；不发明半级，不改技能上限。实际R、档位超额与胜率带偏差分列：微小整数误差不自动判为胜率FAIL，大幅跳跃也不冒充目标点通过；G3覆盖是否充分交Fable核，不自行新增容差。',
-           '0.85的原3–7/10阈值不变；悬崖0–2/10按B点决议照实记录。', '',
+           '2026-10-05 §41 §9：R=1.00→≥9/10是唯一硬合同；0.85/1.15只保留历史胜率带用于信息对照，不判FAIL。', '',
            '|关|目标R|实际R|P/rec/P*|档位超额|胜/10|请求带|胜数偏差|精确命中|失败种子|', '|---|---:|---:|---|---:|---:|---|---:|---|---|']
     for r in prediction:
         p2.append(f"|{r['level']:03d}|{r['target_R']:.2f}|{r['actual_R']:.6f}|{r['actual_power']}/{r['recommended']}/{r['p_star']}|{r['overshoot']:.6f}|{r['wins']}|{r['contract_wins']}|{r['deviation_wins']}|{r['target_exact']}|{r['failed_seeds']}|")
@@ -178,7 +209,7 @@ def main():
     (P2/'报告.md').write_text('\n'.join(current_p2)+'\n')
     (P4/'报告.md').write_text('\n'.join(p4)+'\n')
     main_under = [r['level'] for r in main_rows if r['wins'] < 9]
-    g3_out = [r for r in prediction if not r['rate_in_requested_band']]
+    g3_out = [r for r in prediction if r['hard_contract'] and not r['contract_pass']]
     phase4_fail = [key for key, r in finale.items() if not r['contract_pass']]
     chapter_fail = [r['chapter'] for r in chapter_rows if not r['contract_pass']]
     handoff = ['状态：全部授权首轮实测已收齐；工具完成不等于验收全绿；挑战终点旧锁定待核，不擅自调整资源/敌方/胜率阈值。', '',
@@ -189,7 +220,7 @@ def main():
                f'- 主线961/990获胜，低于9/10的关：{main_under}。没有加入T3回刷资源，不能把这条夹具路线等同G1条件账户路线。',
                '- 当前资源G1下限99/99通过，回刷10次（018非门2次、020门8次）；上限69关仅诊断。未采用资源表数值原样保留，JSON SHA de4e27b79bcbae4b17cd317475092295a5dc31df43e2b105a626db97f5141355。',
                '- 已批星表294星；新候选292星，仅019/025从3降2。逐关新旧对照保留，未替换已批CSV；check-approved实际FAIL不是脚本故障。',
-               f'- G3原请求胜率带越界点数{len(g3_out)}；实际R与整数台阶超额逐点列出，不新增容差。R1样本均≥9/10，R1.15的096为9/10（失败种子6637），未满足原10/10要求；不能宣称G3整体通过。',
+               f'- G3按2026-10-05 §41 §9核定：R=1.00硬合同失败点数{len(g3_out)}，判定{"FAIL" if g3_out else "PASS"}；R=0.85/1.15只作信息项，实际R、胜数及失败种子全部保留，不判FAIL。',
                f'- 终局未达标路线：{phase4_fail}；章节聚合带未达标章：{chapter_fail}。详见阶段四，不用旧8月结果充当本轮通过。',
                f'- 099普通免费满级{regular["wins"]}/10（合同≥9），挑战免费满级{free["wins"]}/10（合同≤3），挑战黄金律满级{golden["wins"]}/10（合同6–9）；黄金律胜局Boss中位{golden["victory_boss_phase_median_seconds"]:.3f}秒，旧150–220秒时间带符合，但胜率仍FAIL。',
                '- 付费门固定同等级换装结果：' + '；'.join(f'{r["level"]:03d} {r["set"]} {r["wins"]}/10' for r in paid) + '。076路线不构成稳定过门见证，不概括为所有已揭示付费军械都失败；未另换属性或种子追结果。',
@@ -220,4 +251,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--g3-s9',action='store_true')
+    args = parser.parse_args()
+    raise SystemExit(report_g3_s9() if args.g3_s9 else main())

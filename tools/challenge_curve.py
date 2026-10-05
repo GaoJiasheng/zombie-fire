@@ -83,8 +83,9 @@ def validate(challenges: dict) -> list[str]:
             errors.append(f"challenge anchors must uniquely cover ordered endpoints 1..99: {anchor_levels}")
         if not math.isclose(anchor_values[0], 1.25, abs_tol=1e-12):
             errors.append(f"challenge K(1) anchor must be 1.25, got {anchor_values[0]}")
-        if not math.isclose(anchor_values[-1], 5.0, abs_tol=1e-12):
-            errors.append(f"challenge K(99) runtime anchor must be 5.0, got {anchor_values[-1]}")
+        # 2026-10-05 §41 §9 重钉: runtime evidence determines K(99), ceiling 8.
+        if any(not math.isfinite(value) or not 1.0 <= value <= 8.0 for value in anchor_values):
+            errors.append(f"challenge K anchors must remain within [1,8]: {anchor_values}")
         if any(right <= left for left, right in zip(anchor_values, anchor_values[1:])):
             errors.append(f"challenge anchor K values must strictly increase: {anchor_values}")
     finale = curve.get("finale_anchor", {})
@@ -129,8 +130,9 @@ def validate(challenges: dict) -> list[str]:
     budgets = [budget_for_level(level, challenges) for level in range(1, 100)]
     if not math.isclose(budgets[0], 1.25, abs_tol=1e-12):
         errors.append(f"challenge K(1) drifted: {budgets[0]}")
-    if not math.isclose(budgets[-1], 5.0, abs_tol=1e-12):
-        errors.append(f"challenge K(99) must be runtime-derived 5.0, got {budgets[-1]:.12f}")
+    # 2026-10-05 §41 §9 重钉: no fixed 5.0 endpoint; retain monotonicity gates.
+    if not 1.0 <= budgets[-1] <= 8.0:
+        errors.append(f"challenge K(99) must remain within [1,8], got {budgets[-1]:.12f}")
     for index, (left, right) in enumerate(zip(budgets, budgets[1:]), start=1):
         if right < left:
             errors.append(f"challenge K is not monotonic at {index:03d}->{index + 1:03d}")
