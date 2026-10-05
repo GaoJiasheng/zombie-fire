@@ -1,0 +1,612 @@
+{
+  "authority": "2026-10-05 §41 §9.1",
+  "status": "PENDING",
+  "curve_sha256": "fd64d852f46d6a1b6ee31c9f45cbcd79b08df9b4c1a0e79f0568c9d6d8ca04af",
+  "curve": {
+    "shape": "piecewise_smoothstep",
+    "anchors": [
+      {
+        "level": 1,
+        "k": 1.25
+      },
+      {
+        "level": 55,
+        "k": 1.35
+      },
+      {
+        "level": 60,
+        "k": 1.8
+      },
+      {
+        "level": 70,
+        "k": 5.1
+      },
+      {
+        "level": 80,
+        "k": 5.3
+      },
+      {
+        "level": 90,
+        "k": 6.5
+      },
+      {
+        "level": 99,
+        "k": 8.0
+      }
+    ],
+    "chapter_runtime_contract": {
+      "representative_offsets": [
+        1,
+        5,
+        10
+      ],
+      "chapter_win_rate_bands": {
+        "1-6": [
+          0.7,
+          1.0
+        ],
+        "7-8": [
+          0.6,
+          0.9
+        ],
+        "9-10": [
+          0.6,
+          0.9
+        ]
+      },
+      "semantics": "chapter_aggregate_band"
+    },
+    "finale_anchor": {
+      "fixture": "golden_law_tier_1_max",
+      "seeds": 10,
+      "win_rate": [
+        0.6,
+        1.0
+      ],
+      "boss_phase_median_seconds": [
+        150.0,
+        220.0
+      ],
+      "boss_phase_role": "information"
+    },
+    "line_pressure_exponents": {
+      "anchors": [
+        {
+          "level": 1,
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        },
+        {
+          "level": 60,
+          "speed": 0.2,
+          "breach": 0.4,
+          "mechanic": 0.4
+        },
+        {
+          "level": 70,
+          "speed": 1.0,
+          "breach": 0.0,
+          "mechanic": 0.0
+        },
+        {
+          "level": 71,
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        },
+        {
+          "level": 80,
+          "speed": 0.1,
+          "breach": 0.45,
+          "mechanic": 0.45
+        },
+        {
+          "level": 81,
+          "speed": 1.0,
+          "breach": 0.0,
+          "mechanic": 0.0
+        },
+        {
+          "level": 90,
+          "speed": 1.0,
+          "breach": 0.0,
+          "mechanic": 0.0
+        },
+        {
+          "level": 91,
+          "speed": 0.9,
+          "breach": 0.05,
+          "mechanic": 0.05
+        },
+        {
+          "level": 99,
+          "speed": 1.0,
+          "breach": 0.0,
+          "mechanic": 0.0
+        }
+      ]
+    },
+    "reference_routes": [
+      {
+        "from": 1,
+        "to": 60,
+        "fixture": "paced_plus_10"
+      },
+      {
+        "from": 61,
+        "to": 80,
+        "fixture": "maxed_free_matchup_aware_v1"
+      },
+      {
+        "from": 81,
+        "to": 99,
+        "fixture": "golden_law_tier_1_max"
+      }
+    ]
+  },
+  "chapter_failures": [],
+  "chapters": [
+    {
+      "chapter": 1,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 2,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 3,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 4,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 5,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 6,
+      "wins": 29,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 7,
+      "wins": null,
+      "runs": null,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": null
+    },
+    {
+      "chapter": 8,
+      "wins": null,
+      "runs": null,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": null
+    },
+    {
+      "chapter": 9,
+      "wins": null,
+      "runs": null,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": null
+    },
+    {
+      "chapter": 10,
+      "wins": null,
+      "runs": null,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": null
+    }
+  ],
+  "unverified_representatives": [
+    61,
+    65,
+    70,
+    71,
+    81,
+    85,
+    90,
+    91,
+    95
+  ],
+  "rows": [
+    {
+      "level": 1,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 5,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 31.0166666666753,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 10,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 40.633333333350905,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 11,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 15,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 23.233333333332048,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 20,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 30.5083333333565,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 21,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 25,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 40.2416666666791,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 30,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 35.016666666675846,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 31,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 35,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 41.208333333346246,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 40,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 16.92500000000055,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 41,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 45,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 50.1250000000364,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 50,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 70.6583333333896,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 51,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 0.0,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 55,
+      "status": "MEASURED",
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 43.09999999999755,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 60,
+      "status": "MEASURED",
+      "wins": 9,
+      "failed_seeds": [
+        10903
+      ],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 49.1166666666639,
+      "source": "design/audits/linear_power_p4_2026_10_04/challenge_representatives_2026_10_04.json",
+      "source_sha256": "5edd0052f9d57e98bdb3a1e9782e89d0a18c127e0625ad4ebfcb3ced1f88d5ac",
+      "selected_group": "first-round immutable evidence",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 61,
+      "status": "PENDING"
+    },
+    {
+      "level": 65,
+      "status": "PENDING"
+    },
+    {
+      "level": 70,
+      "status": "PENDING"
+    },
+    {
+      "level": 71,
+      "status": "PENDING"
+    },
+    {
+      "level": 75,
+      "status": "MEASURED",
+      "wins": 3,
+      "failed_seeds": [
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        9901,
+        10903
+      ],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 82.8000000000399,
+      "source": "design/audits/linear_power_p4_2026_10_05/r05_reps.json",
+      "source_sha256": "a8ab9dc4c4a2357c3e52718bd3bef839ed0194693631fe0864ff19e3a300f569",
+      "selected_group": "r05_reps",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 80,
+      "status": "MEASURED",
+      "wins": 7,
+      "failed_seeds": [
+        3301,
+        4409,
+        7741
+      ],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 93.0000000000375,
+      "source": "design/audits/linear_power_p4_2026_10_05/r05_reps.json",
+      "source_sha256": "a8ab9dc4c4a2357c3e52718bd3bef839ed0194693631fe0864ff19e3a300f569",
+      "selected_group": "r05_reps",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    },
+    {
+      "level": 81,
+      "status": "PENDING"
+    },
+    {
+      "level": 85,
+      "status": "PENDING"
+    },
+    {
+      "level": 90,
+      "status": "PENDING"
+    },
+    {
+      "level": 91,
+      "status": "PENDING"
+    },
+    {
+      "level": 95,
+      "status": "PENDING"
+    },
+    {
+      "level": 99,
+      "status": "MEASURED",
+      "wins": 9,
+      "failed_seeds": [
+        9901
+      ],
+      "horizon_nonclear_seeds": [],
+      "boss_median": 282.35,
+      "source": "design/audits/linear_power_p4_2026_10_05/r03_gold099.json",
+      "source_sha256": "03e05f34d40b19eb2a0f495d0633d3e952a09aaeb7d166ed4080c7fe4a55cca9",
+      "selected_group": "r03_gold099",
+      "reuse_rule": "latest completed exact expanded-rule match"
+    }
+  ],
+  "golden099": {
+    "level": 99,
+    "status": "MEASURED",
+    "wins": 9,
+    "failed_seeds": [
+      9901
+    ],
+    "horizon_nonclear_seeds": [],
+    "boss_median": 282.35,
+    "source": "design/audits/linear_power_p4_2026_10_05/r03_gold099.json",
+    "source_sha256": "03e05f34d40b19eb2a0f495d0633d3e952a09aaeb7d166ed4080c7fe4a55cca9",
+    "selected_group": "r03_gold099",
+    "reuse_rule": "latest completed exact expanded-rule match"
+  },
+  "golden099_pass": true,
+  "free099": {
+    "wins": 0,
+    "failed_seeds": [
+      1103,
+      2207,
+      3301,
+      4409,
+      5513,
+      6637,
+      7741,
+      8849,
+      9901,
+      10903
+    ],
+    "source": "design/audits/linear_power_p4_2026_10_05/r03_free099.json",
+    "group": "r03_free099",
+    "horizon_nonclear_seeds": []
+  },
+  "free099_pass": true,
+  "golden099_contract": ">=6/10; no upper bound",
+  "boss_phase_role": "information",
+  "boss_phase_information_band_seconds": [
+    150,
+    220
+  ],
+  "horizon_policy": "720s logical nonclear counts as nonclear; historic 540s unfinished excluded",
+  "first_sixty_unchanged": true,
+  "paid_attributes_unchanged": true,
+  "selection_method": "Current §9 contracts from verified groups; reuse only identical per-level rules.\n\nSelection is latest completed matching-input group, never highest-win seed or\ngroup. Historic first-round evidence stays immutable; fresh probes retain full\ncandidate fingerprints. Expanded challenge rules must match at each reuse.\n"
+}

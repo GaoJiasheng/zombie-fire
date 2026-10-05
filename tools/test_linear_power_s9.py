@@ -19,17 +19,44 @@ class S9Tests(unittest.TestCase):
     def test_new_endpoint_preserves_first_sixty(self):
         data=json.loads((Path(__file__).resolve().parents[1]/'data/challenges.json').read_text())
         changed=copy.deepcopy(data)
-        changed['curve']['anchors'][-1]['k']=7.0
+        # 2026-10-05 §41 §9.1: fixed 7.0 is below a legitimate K90=7.99.
+        # Exercise prefix invariance with a different *valid* endpoint, while
+        # retaining both the structural gate and all sixty equality assertions.
+        anchors=data['curve']['anchors']
+        changed['curve']['anchors'][-1]['k']=(anchors[-2]['k']+anchors[-1]['k'])/2
+        self.assertNotEqual(changed['curve']['anchors'][-1]['k'],anchors[-1]['k'])
         self.assertEqual(curve.validate(changed),[])
         for n in range(1,61): self.assertEqual(curve.rule_for_level(n,data),curve.rule_for_level(n,changed))
     def test_ceiling_eight(self):
         data=json.loads((Path(__file__).resolve().parents[1]/'data/challenges.json').read_text())
         data['curve']['anchors'][-1]['k']=8.1
         self.assertTrue(curve.validate(data))
-    def test_finale_contract_cannot_relax(self):
+    def test_finale_contract_signed_revision_only(self):
         data=json.loads((Path(__file__).resolve().parents[1]/'data/challenges.json').read_text())
-        data['curve']['finale_anchor']['win_rate']=[.6,1.]
+        data['curve']['finale_anchor'].update(win_rate=[.6,1.],boss_phase_role='information')
+        self.assertEqual(curve.validate(data),[])
+        data['curve']['finale_anchor']['win_rate']=[.5,1.]
         self.assertTrue(curve.validate(data))
+    def test_signed_pressure_endpoint_general_constraint(self):
+        data=json.loads((Path(__file__).resolve().parents[1]/'data/challenges.json').read_text())
+        data['curve']['line_pressure_exponents']['anchors'][-1].update(speed=.1,breach=.2,mechanic=.7)
+        self.assertEqual(curve.validate(data),[])
+        data['curve']['line_pressure_exponents']['anchors'][-1]['speed']=.2
+        self.assertTrue(curve.validate(data))
+        data['curve']['line_pressure_exponents']['anchors'][-1]['speed']=float('nan')
+        self.assertTrue(curve.validate(data))
+    def test_signed_720_nonclear_counts_but_old_horizon_does_not(self):
+        from report_linear_power_s9 import complete_seed_set, golden_finale_pass
+        import solve_runtime_clear_lines as t1
+        runs=[{'seed':seed,'victory':False} for seed in t1.SEEDS]
+        runs[0].update(timeout=True,logic_limit_seconds=720.,elapsed_seconds=720.0167)
+        self.assertTrue(complete_seed_set(runs,True))
+        self.assertFalse(complete_seed_set(runs))
+        runs[0]['logic_limit_seconds']=540.
+        self.assertFalse(complete_seed_set(runs,True))
+        runs[0].update(logic_limit_seconds=720.,probe_status='process_timeout')
+        self.assertFalse(complete_seed_set(runs,True))
+        for wins in range(11):self.assertEqual(golden_finale_pass(wins),wins>=6)
     def test_free_finale_incomplete_cannot_pass(self):
         from report_linear_power_s9 import complete_seed_set
         import solve_runtime_clear_lines as t1

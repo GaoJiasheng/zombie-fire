@@ -34,9 +34,19 @@ def main() -> int:
     parser.add_argument("--normal-after", type=Path, default=DEFAULT_AFTER)
     parser.add_argument("--free-evidence", type=Path, default=DEFAULT_FREE)
     parser.add_argument("--output", type=Path, help="optional path for the derived JSON summary")
+    parser.add_argument("--s91-evidence", type=Path,
+                        help="2026-10-05 §41 §9.1 representative + finale contract manifest")
     args = parser.parse_args()
 
     challenges = load(ROOT / "data/challenges.json")
+    if args.s91_evidence is not None or challenges['curve']['finale_anchor'].get('boss_phase_role')=='information':
+        from check_linear_power_s91_runtime import check
+        signed_path=args.s91_evidence or ROOT/'design/audits/linear_power_p4_s91_2026_10_05/adopted_contracts.json'
+        if not signed_path.is_file():
+            print('Signed §9.1 current-curve evidence missing; legacy 20260831 archive is not admissible')
+            return 1
+        return check(signed_path,args.output)
+
     contract = challenges["curve"]["chapter_runtime_contract"]
     evidence = load(args.evidence)
     rows = evidence.get("runs", [])

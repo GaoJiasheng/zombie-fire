@@ -18,13 +18,17 @@ import solve_runtime_clear_lines as t1
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label',default='',help='distinct retry suffix; never overwrite earlier verification')
+    parser.add_argument('--s91',action='store_true',help='signed §9.1 audit directory and independent runtime gate')
     parser.add_argument('--review-root',default='/Users/gavin/work/zombie-fire/assets/production/source_refs',
                         choices=['/Users/gavin/work/zombie-fire/assets/production/source_refs','/Users/gavin/work/zombie-fire'],
                         help='read-only historical review root as interpreted by validate_asset_pack')
     args=parser.parse_args()
+    if args.s91:
+        s9.OUT=s9.ROOT/'design/audits/linear_power_p4_s91_2026_10_05'
     assert not args.label or args.label.isidentifier()
     prefix='verification'+('_'+args.label if args.label else '')
     log_prefix='/tmp/zf_linear_s9_final_'+(args.label+'_' if args.label else '')
+    if args.s91:log_prefix='/tmp/zf_linear_s91_final_'+(args.label+'_' if args.label else '')
     frozen=s9.guard()
     assert not (s9.OUT/(prefix+'.json')).exists(), 'preserve prior verification; use a distinct retry label'
     home=tempfile.mkdtemp(prefix='zf_linear_s9_final_home_2026_10_05_')
@@ -32,6 +36,7 @@ def main():
     env.update(HOME=home,XDG_DATA_HOME=home+'/xdg_data',ZOMBIE_FIRE_TEST_HOME=home,
                ZOMBIE_FIRE_SOURCE_REFS_ROOT=args.review_root,
                ZOMBIE_FIRE_SKIP_WINDOWED_VISUALS='1',
+               PYTHONPYCACHEPREFIX=home+'/pycache',
                PYTHONPATH=os.pathsep.join(filter(None,[site.getusersitepackages(),env.get('PYTHONPATH','')])) )
     commands=[('s9_unit',[sys.executable,'-m','unittest','discover','-s','tools','-p','test_linear_power_s9.py','-v'],None),
               ('linear_unit',[sys.executable,'-m','unittest','discover','-s','tools','-p','test_linear_power_program.py','-v'],None),
@@ -44,6 +49,17 @@ def main():
               ('boot',['/opt/homebrew/bin/godot','--headless','--path','.','--quit'],None),
               ('smoke',['/opt/homebrew/bin/godot','--headless','--path','.','--script','res://tools/m1_smoke_test.gd'],'M1 smoke test passed'),
               ('release_candidate',[sys.executable,'tools/check_release_candidate.py'],'Release candidate check OK')]
+    if args.s91:
+        commands.insert(0,('compile',[sys.executable,'-m','py_compile',
+                        'tools/run_linear_power_s91.py','tools/check_linear_power_s91_runtime.py',
+                        'tools/write_linear_power_s91_handoff.py','tools/archive_linear_power_s91.py',
+                        'tools/challenge_curve.py','tools/report_linear_power_s9.py',
+                        'tools/run_frontline_sweep.py','tools/check_challenge_curve_runtime.py'],None))
+        commands.insert(1,('s91_unit',[sys.executable,'-m','unittest','discover','-s','tools','-p','test_linear_power_s91.py','-v'],None))
+        commands.insert(2,('sweep_metadata',[sys.executable,'tools/test_frontline_sweep_metadata.py'],'Frontline sweep metadata check OK'))
+        commands.insert(3,('challenge_runtime',[sys.executable,'tools/check_challenge_curve_runtime.py',
+                          '--output',str(s9.OUT/(prefix+'_challenge_runtime.json'))],None))
+        commands.insert(4,('assets',[sys.executable,'tools/validate_asset_pack.py'],None))
     records=[]
     for label,cmd,marker in commands:
         log=Path(log_prefix+label+'_2026_10_05.log')

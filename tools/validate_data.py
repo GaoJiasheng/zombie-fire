@@ -79,6 +79,8 @@ def main() -> int:
     environments = set(tables["environments"].keys())
 
     challenges = tables["challenges"]
+    # 2026-10-05 §41 §9.1: shared validator enforces exponent sum=1;
+    # L099 pressure allocation is no longer fixed to 1/0/0.
     errors.extend(validate_challenge_curve(challenges))
     for challenge_id, row in challenges.get("chapters", {}).items():
         for key in ("id", "name", "summary", "counter_hint"):

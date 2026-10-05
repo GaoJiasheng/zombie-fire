@@ -31,12 +31,22 @@ def guard():
     now = t1.input_hashes()
     before = baseline['input_sha256']
     changed = [p for p in before if before[p] != now.get(p)]
-    assert set(changed) <= {'data/challenges.json'}, changed
+    allowed = {'data/challenges.json'}
+    probe = 'tools/frontline_runtime_probe.gd'
+    if probe in changed:
+        authority_path = ROOT/'design/audits/linear_power_p4_s91_2026_10_05/probe_authority.json'
+        authority = json.loads(authority_path.read_text())
+        assert authority['authority']=='2026-10-05 §41 §9.1'
+        assert authority['before_sha256']==before[probe] and authority['after_sha256']==now[probe]
+        allowed.add(probe)
+    assert set(changed) <= allowed, changed
     assert set(now) == set(before)
     data = json.loads((ROOT/'data/challenges.json').read_text())
     old = baseline['challenges']
     assert {k:v for k,v in data.items() if k != 'curve'} == {k:v for k,v in old.items() if k != 'curve'}
-    assert {k:v for k,v in data['curve'].items() if k not in ('anchors','line_pressure_exponents')} == {k:v for k,v in old['curve'].items() if k not in ('anchors','line_pressure_exponents')}
+    # 2026-10-05 §41 §9.1: signed finale metadata is within curve authority.
+    mutable = ('anchors','line_pressure_exponents','finale_anchor')
+    assert {k:v for k,v in data['curve'].items() if k not in mutable} == {k:v for k,v in old['curve'].items() if k not in mutable}
     assert all(curve.rule_for_level(n, data) == curve.rule_for_level(n, old) for n in range(1,61)), 'ch1-6 drift'
     assert not curve.validate(data), curve.validate(data)
     for p, sha in baseline['protected_sha256'].items():

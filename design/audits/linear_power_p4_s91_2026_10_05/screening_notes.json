@@ -1,0 +1,40 @@
+[
+  {
+    "command": "python3 -m unittest discover -s tools -p test_linear_power_s9.py -v",
+    "exit": 1,
+    "result": "FAIL in first final gate: the old prefix-invariance test unconditionally replaces K99 with 7, below the accepted K90=7.99, so its own fixture violates monotonicity. The test now varies K99 within the valid interval (K90,K99), retaining validate==[] and all 60 equality assertions. No product curve or contract threshold changed; a complete final rerun is required.",
+    "log": "/tmp/zf_linear_s91_final_accepted_s9_unit_2026_10_05.log"
+  },
+  {
+    "command": "python3 tools/simulate_balance.py --challenge",
+    "exit": 0,
+    "result": "PASS: round 5 K080=5.21 static screen. Round 4 FAIL remains archived; no simulator assertion was removed or relaxed.",
+    "log": "/tmp/zf_linear_s91_round05_static_screen_2026_10_05.log"
+  },
+  {
+    "command": "python3 tools/simulate_balance.py --challenge",
+    "exit": 1,
+    "result": "FAIL: round 4 static screen reports L080 100% breach; native exact L080 at K=5.3 remains 7/10. Static leak product equals K because the exponents sum to 1. Read-only model calculation gives K080<1026/196.8=5.213414634146341 to pass. Preserve gate and test a permitted lower K080 instead of waiving the failure.",
+    "log": "/tmp/zf_linear_s91_round04_static_screen_2026_10_05.log"
+  },
+  {
+    "command": "python3 -u tools/run_linear_power_s91.py --round 4 --set-k 70=5.2 --set-k 90=7.8 --set-exponent 70=0.7,0.3,0 --set-exponent 90=0.5,0.5,0",
+    "exit": 1,
+    "result": "FAIL: structural screen, L063→064 growth 18.245% exceeds 18%; candidate not written, zero native attempts",
+    "log": "/tmp/zf_linear_s91_round04_host_2026_10_05.log",
+    "disposition": "Preserved rejection, not a completed native iteration. Corrected round 4 adds smooth interpolation anchors L062/L066; no threshold changed."
+  },
+  {
+    "result": "Safety review initially refused round 3 launch until round 2 exit was confirmed. Session 93680 returned exit 0; read-only ps showed no solver/probe; ROUND_RESULT and round_02_result.json were present. Only then started round 3. No duplicate launch."
+  },
+  {
+    "command": "python3 -m py_compile tools/write_linear_power_s91_handoff.py tools/check_linear_power_s91_runtime.py tools/run_linear_power_s91.py",
+    "exit": 1,
+    "result": "FAIL: sandbox blocked bytecode write to system cache; compilation retried successfully with PYTHONPYCACHEPREFIX=/tmp/zf_linear_s91_pycache. No product change."
+  },
+  {
+    "command": "python3 -m unittest discover -s tools -p test_frontline_sweep_metadata.py -v",
+    "result": "Exit 0 with zero discovered tests; NOT evidence of test PASS. Actual script python3 tools/test_frontline_sweep_metadata.py subsequently PASS.",
+    "log": "/tmp/zf_linear_s91_sweep_unit_initial_2026_10_05.log"
+  }
+]
