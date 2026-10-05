@@ -1,0 +1,87 @@
+{
+  "integrity": "PASS",
+  "runs": 80,
+  "script_errors": 0,
+  "horizon_nonclears": 1,
+  "horizon_policy": "§9.1 logical 720s nonclear counts as nonclear, not process error",
+  "rows": [
+    {
+      "level": 71,
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 75,
+      "wins": 3,
+      "failed_seeds": [
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        9901,
+        10903
+      ],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 82.4333333333725
+    },
+    {
+      "level": 80,
+      "wins": 7,
+      "failed_seeds": [
+        3301,
+        4409,
+        7741
+      ],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 95.0500000000279
+    },
+    {
+      "level": 81,
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 85,
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 94.98333333337665
+    },
+    {
+      "level": 90,
+      "wins": 7,
+      "failed_seeds": [
+        1103,
+        3301,
+        4409
+      ],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 183.433333333397
+    },
+    {
+      "level": 91,
+      "wins": 10,
+      "failed_seeds": [],
+      "horizon_nonclear_seeds": [],
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 95,
+      "wins": 7,
+      "failed_seeds": [
+        6637,
+        8849,
+        9901
+      ],
+      "horizon_nonclear_seeds": [
+        9901
+      ],
+      "winning_boss_median": 253.383333333388
+    }
+  ]
+}

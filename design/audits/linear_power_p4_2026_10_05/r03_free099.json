@@ -1,0 +1,1343 @@
+{
+  "schema_version": 1,
+  "combat_input_fingerprint": {
+    "levels": "2669c4acdca69fbf",
+    "weapons": "bdd10432c49bebed",
+    "economy": "b7788ff467fa3024",
+    "fixture": "bc313dff5d8b033d",
+    "enemies": "4055b2260e4ac7b9"
+  },
+  "fixture_sha256": "0d5fb52e4f2375eafa78031ccc9fc52a72eb2f15bd0a284bbb62033360282088",
+  "git_head": "20f46c90e86ed44a05135123cfd40c68431acdeb",
+  "godot_version": "4.7.stable.official.5b4e0cb0f",
+  "fixture_source": "res://design/audits/challenge_free_counterexample_fixture_builds.json",
+  "levels": [
+    99
+  ],
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "ignore_level_guarantees": false,
+  "ignore_offer_category_floor": false,
+  "challenge": true,
+  "fail_fast": false,
+  "seeds_per_level": 10,
+  "simulation_step_seconds": 0.016666666666666666,
+  "wall_acceleration": 60.0,
+  "runs": [
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 1103,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 55.8499999999981,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_multishot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 42.6333333333322,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 19.8333333333335,
+          "max_progress": 1.0,
+          "base_ratio": 0.947144288577154
+        },
+        {
+          "wave": 2,
+          "end_time": 55.8499999999981,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5
+      },
+      "battle_report": {
+        "duration_seconds": 55.8499999999981,
+        "damage_total": 1568924.74517733,
+        "damage_by_element": {
+          "lightning": 1268338.26910561,
+          "poison": 300586.476071738
+        },
+        "damage_by_source": {
+          "weapon": 1496580.55272247,
+          "status": 72344.1924548777
+        },
+        "top_element": "lightning",
+        "crit_damage": 1200971.50042262,
+        "weak_damage": 926499.700321002,
+        "kills": 22,
+        "boss_kills": 0,
+        "base_damage_taken": 4963,
+        "base_damage_prevented": 6,
+        "control_seconds": 104.599999999998,
+        "active_skill_casts": 5,
+        "max_kill_streak": 8,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 2207,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 66.5499999999975,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_multishot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 38.3666666666658,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_charge_shot",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 48.3999999999985,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 20.6166666666668,
+          "max_progress": 1.0,
+          "base_ratio": 0.954408817635271
+        },
+        {
+          "wave": 2,
+          "end_time": 49.9333333333318,
+          "max_progress": 1.0,
+          "base_ratio": 0.420841683366733
+        },
+        {
+          "wave": 3,
+          "end_time": 66.5499999999975,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 66.5499999999975,
+        "damage_total": 3225208.70331399,
+        "damage_by_element": {
+          "lightning": 1424886.72041958,
+          "poison": 1800321.98289436
+        },
+        "damage_by_source": {
+          "weapon": 2750553.76239013,
+          "status": 474654.940923872
+        },
+        "top_element": "poison",
+        "crit_damage": 1138669.39869429,
+        "weak_damage": 865788.206138631,
+        "kills": 32,
+        "boss_kills": 0,
+        "base_damage_taken": 5365,
+        "base_damage_prevented": 6,
+        "control_seconds": 113.116666666664,
+        "active_skill_casts": 6,
+        "max_kill_streak": 11,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 3301,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 59.5499999999979,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 35.9833333333326,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 20.9833333333334,
+          "max_progress": 1.0,
+          "base_ratio": 0.931112224448898
+        },
+        {
+          "wave": 2,
+          "end_time": 59.5499999999979,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 59.5499999999979,
+        "damage_total": 1639003.12396249,
+        "damage_by_element": {
+          "lightning": 1289568.73873691,
+          "poison": 349434.385225638
+        },
+        "damage_by_source": {
+          "weapon": 1563080.61813647,
+          "status": 75922.505826088
+        },
+        "top_element": "lightning",
+        "crit_damage": 1219758.61574935,
+        "weak_damage": 938460.886375165,
+        "kills": 25,
+        "boss_kills": 0,
+        "base_damage_taken": 4977,
+        "base_damage_prevented": 6,
+        "control_seconds": 103.483333333332,
+        "active_skill_casts": 5,
+        "max_kill_streak": 8,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 4409,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 58.9666666666646,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_ricochet",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 36.6166666666659,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 20.2333333333335,
+          "max_progress": 1.0,
+          "base_ratio": 0.962675350701403
+        },
+        {
+          "wave": 2,
+          "end_time": 58.9666666666646,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 58.9666666666646,
+        "damage_total": 1629309.32507986,
+        "damage_by_element": {
+          "lightning": 1279537.03483676,
+          "poison": 349772.290243126
+        },
+        "damage_by_source": {
+          "weapon": 1558063.05191238,
+          "status": 71246.2731675213
+        },
+        "top_element": "lightning",
+        "crit_damage": 1207807.13346704,
+        "weak_damage": 934925.940911385,
+        "kills": 24,
+        "boss_kills": 0,
+        "base_damage_taken": 4976,
+        "base_damage_prevented": 6,
+        "control_seconds": 106.616666666665,
+        "active_skill_casts": 5,
+        "max_kill_streak": 7,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 5513,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 55.3499999999981,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_critical",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 47.6666666666652,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 20.2166666666668,
+          "max_progress": 1.0,
+          "base_ratio": 0.938627254509018
+        },
+        {
+          "wave": 2,
+          "end_time": 55.3499999999981,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 55.3499999999981,
+        "damage_total": 1599977.876512,
+        "damage_by_element": {
+          "lightning": 1309345.02579035,
+          "poison": 290632.850721622
+        },
+        "damage_by_source": {
+          "weapon": 1527112.21408593,
+          "status": 72865.6624260547
+        },
+        "top_element": "lightning",
+        "crit_damage": 1248261.16817624,
+        "weak_damage": 950130.365165008,
+        "kills": 22,
+        "boss_kills": 0,
+        "base_damage_taken": 4972,
+        "base_damage_prevented": 6,
+        "control_seconds": 100.699999999998,
+        "active_skill_casts": 5,
+        "max_kill_streak": 12,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 6637,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 56.2666666666648,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_ricochet",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 41.6333333333323,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 20.2000000000001,
+          "max_progress": 1.0,
+          "base_ratio": 0.940130260521042
+        },
+        {
+          "wave": 2,
+          "end_time": 56.2666666666648,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 56.2666666666648,
+        "damage_total": 1607450.34644714,
+        "damage_by_element": {
+          "lightning": 1303508.12384056,
+          "poison": 303942.222606623
+        },
+        "damage_by_source": {
+          "weapon": 1541112.3672113,
+          "status": 66337.9792358875
+        },
+        "top_element": "lightning",
+        "crit_damage": 1236141.35515756,
+        "weak_damage": 950130.365165008,
+        "kills": 23,
+        "boss_kills": 0,
+        "base_damage_taken": 4966,
+        "base_damage_prevented": 6,
+        "control_seconds": 102.399999999998,
+        "active_skill_casts": 5,
+        "max_kill_streak": 6,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 7741,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 54.1833333333315,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_ricochet",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 44.2166666666654,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 19.0166666666669,
+          "max_progress": 1.0,
+          "base_ratio": 0.960671342685371
+        },
+        {
+          "wave": 2,
+          "end_time": 54.1833333333315,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5
+      },
+      "battle_report": {
+        "duration_seconds": 54.1833333333315,
+        "damage_total": 1564173.40189947,
+        "damage_by_element": {
+          "lightning": 1275576.91365797,
+          "poison": 288596.48824149
+        },
+        "damage_by_source": {
+          "weapon": 1488044.08902797,
+          "status": 76129.3128714956
+        },
+        "top_element": "lightning",
+        "crit_damage": 1205068.68944054,
+        "weak_damage": 929830.866575693,
+        "kills": 21,
+        "boss_kills": 0,
+        "base_damage_taken": 4959,
+        "base_damage_prevented": 6,
+        "control_seconds": 105.283333333331,
+        "active_skill_casts": 5,
+        "max_kill_streak": 10,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 8849,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 55.0166666666648,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_barrier",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 35.8166666666659,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 17.8333333333336,
+          "max_progress": 1.0,
+          "base_ratio": 0.952404809619238
+        },
+        {
+          "wave": 2,
+          "end_time": 55.0166666666648,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5
+      },
+      "battle_report": {
+        "duration_seconds": 55.0166666666648,
+        "damage_total": 1666190.91004834,
+        "damage_by_element": {
+          "lightning": 1353678.09074031,
+          "poison": 312512.819308058
+        },
+        "damage_by_source": {
+          "weapon": 1587317.04203936,
+          "status": 78873.8680090019
+        },
+        "top_element": "lightning",
+        "crit_damage": 1290674.45474404,
+        "weak_damage": 1010142.74813309,
+        "kills": 22,
+        "boss_kills": 0,
+        "base_damage_taken": 4973,
+        "base_damage_prevented": 6,
+        "control_seconds": 101.433333333332,
+        "active_skill_casts": 5,
+        "max_kill_streak": 11,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 9901,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 65.6833333333309,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 42.8499999999989,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_salvo",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 50.6499999999984,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 19.8166666666668,
+          "max_progress": 1.0,
+          "base_ratio": 0.950400801603206
+        },
+        {
+          "wave": 2,
+          "end_time": 51.8499999999983,
+          "max_progress": 1.0,
+          "base_ratio": 0.272795591182365
+        },
+        {
+          "wave": 3,
+          "end_time": 65.6833333333309,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_critical": 5
+      },
+      "battle_report": {
+        "duration_seconds": 65.6833333333309,
+        "damage_total": 2835707.48927712,
+        "damage_by_element": {
+          "lightning": 1507424.1643506,
+          "poison": 1328283.32492636
+        },
+        "damage_by_source": {
+          "weapon": 2578638.12230344,
+          "status": 257069.366973444
+        },
+        "top_element": "lightning",
+        "crit_damage": 1280704.13354009,
+        "weak_damage": 999406.404165907,
+        "kills": 32,
+        "boss_kills": 0,
+        "base_damage_taken": 5364,
+        "base_damage_prevented": 6,
+        "control_seconds": 119.683333333331,
+        "active_skill_casts": 6,
+        "max_kill_streak": 13,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 10903,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 65.1499999999976,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_critical"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_critical",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 39.4166666666657,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_ricochet",
+            "skill_critical",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 48.6166666666652,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 19.4166666666668,
+          "max_progress": 1.0,
+          "base_ratio": 0.958917835671343
+        },
+        {
+          "wave": 2,
+          "end_time": 49.9166666666651,
+          "max_progress": 1.0,
+          "base_ratio": 0.350200400801603
+        },
+        {
+          "wave": 3,
+          "end_time": 65.1499999999976,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_critical": 5
+      },
+      "battle_report": {
+        "duration_seconds": 65.1499999999976,
+        "damage_total": 3196690.40072925,
+        "damage_by_element": {
+          "lightning": 1423787.56427904,
+          "poison": 1772902.83645003
+        },
+        "damage_by_source": {
+          "weapon": 2736148.19166235,
+          "status": 460542.209066322
+        },
+        "top_element": "poison",
+        "crit_damage": 1145305.53498037,
+        "weak_damage": 864007.805606187,
+        "kills": 32,
+        "boss_kills": 0,
+        "base_damage_taken": 5363,
+        "base_damage_prevented": 6,
+        "control_seconds": 112.899999999998,
+        "active_skill_casts": 6,
+        "max_kill_streak": 10,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 8.0,
+          "speed_mult": 8.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 8.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    }
+  ],
+  "sweep": {
+    "jobs": 6,
+    "batch_size": 1,
+    "process_count": 10,
+    "wall_seconds": 12.255,
+    "max_process_seconds": 7.566
+  }
+}

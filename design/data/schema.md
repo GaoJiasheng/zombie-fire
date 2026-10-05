@@ -478,6 +478,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
 - `max_free_graduation` 引用 `campaign_progression_fixture.json` 中同 ID 毕业族，要求全 99 关可过且不超时。
 - `chapter_level_targets / chapter_quotas / grade_bands` 分别是逐关序列、逐章配额与运行时战线档位带。冻结后只能由 Owner 新决策变更。
 - `pacing_rules` 是生成与审计的单一约束源；关卡局部试点数据不能替代冻结合同。
+- 2026-10 runtime_solved 方向 A：根字段及每章 `clear_requirement_mode = "runtime_solved"`，`runtime_recommended_power_table` 引用经停工点B核定的99行审计JSON。推荐值使用通过端P*与同时OLS模型的几何平均，钳到 `[P*, round(1.35×P*)]`；下界删失取模型并保证50下限。不得单调化。生成器刷新 `clear_requirement` 的兼容分析量和Q(L)门槛；玩家F(g)、P(g)与三轴构筑换算不变。旧preserve_v5_scale/analytical_v5路径保留。
 
 ## campaign_progression_fixture.json（主线成长样本）
 
@@ -657,7 +658,7 @@ Boss 的基地攻击演出由 `mechanic_params.base_attack_profile` 驱动，不
   }
 }
 ```
-每 10 关共用一个固定挑战规则；配装页必须在入场前显示名称、压力倍率与应对建议。倍率只由本表读取，结算战报保留同一规则快照。
+上例为历史章节固定倍率格式。现行表含 `curve` 与 `chapters`：`piecewise_smoothstep` 的 K 锚点提供耐久预算，`line_pressure_exponents.anchors` 线性插值速度/突破/机制指数，三个有限非负指数和为1；派生倍率由同一曲线读取，章节仅提供名称与提示。2026-10-05 §41 §9.1：K 与派生倍率上限8，K单调平滑、相邻增幅≤18%；61–99 的 K 和压力指数（含099）可依据固定种子重解，不再固定 K(99)=5 或099指数1/0/0；1–60展开规则冻结。099黄金律满级≥6/10、免费满级≤3/10；胜局Boss中位150–220秒为信息项。采用的 `finale_anchor.win_rate=[0.6,1.0]` 和 `boss_phase_role="information"` 描述新合同；旧元数据仍可读但不覆盖签字合同。章节7–10代表点胜率带仍为60–90%。挑战探针720秒未结束者按未通关单列，不改变游戏时钟。玩家挑战推荐显示仍为普通×1.5，不等同K。
 
 ## localization_zh.json / localization_en.json（稳定 ID 文案）
 ```jsonc

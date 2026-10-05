@@ -1,0 +1,118 @@
+{
+  "integrity": "INCOMPLETE",
+  "runs": 110,
+  "script_errors": 0,
+  "timeouts": 2,
+  "incomplete": [
+    {
+      "level": 95,
+      "seed": 1103,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "level": 95,
+      "seed": 3301,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    }
+  ],
+  "rows": [
+    {
+      "level": 61,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 65,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 45.14999999999745
+    },
+    {
+      "level": 70,
+      "wins": 9,
+      "failed_seeds": [
+        3301
+      ],
+      "base_median": 0.724270868253436,
+      "winning_boss_median": 43.5999999999975
+    },
+    {
+      "level": 71,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 75,
+      "wins": 3,
+      "failed_seeds": [
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        9901,
+        10903
+      ],
+      "base_median": 0.0,
+      "winning_boss_median": 82.8000000000399
+    },
+    {
+      "level": 80,
+      "wins": 7,
+      "failed_seeds": [
+        3301,
+        4409,
+        7741
+      ],
+      "base_median": 0.5624624624624626,
+      "winning_boss_median": 93.0000000000375
+    },
+    {
+      "level": 81,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 85,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 90.40000000003215
+    },
+    {
+      "level": 90,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 0.987671616699356,
+      "winning_boss_median": 136.10000000002202
+    },
+    {
+      "level": 91,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 95,
+      "status": "INCOMPLETE",
+      "completed_runs": 8,
+      "unfinished_seeds": [
+        1103,
+        3301
+      ],
+      "wins": null,
+      "failed_seeds": null,
+      "winning_boss_median": null
+    }
+  ]
+}

@@ -3640,10 +3640,11 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 		_expect(float(contract.get("boss_capacity", 0.0)) > 0.0, "%s neutral Boss contract must be positive" % level_id)
 		_expect(float(contract.get("line_capacity", 0.0)) > 0.0, "%s line contract must be valid" % level_id)
 		_expect(not contract.has("corridor_calibration"), "%s must not serialize a corridor axis mutation" % level_id)
-	_expect(int(save_manager.get_recommended_power_for_level("level_001")) == 54, "v6 L01 recommendation golden drifted")
-	_expect(int(save_manager.get_recommended_power_for_level("level_050")) == 944, "v6 L50 recommendation golden drifted")
-	_expect(int(save_manager.get_recommended_power_for_level("level_080")) == 2592, "v6 L80 recommendation golden drifted")
-	_expect(int(save_manager.get_recommended_power_for_level("level_099")) == 5000, "v6 L99 recommendation golden drifted")
+	# 2026-10 runtime_solved 方向 A: approved Table B, unchanged player ruler.
+	_expect(int(save_manager.get_recommended_power_for_level("level_001")) == 50, "v6 L01 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_050")) == 868, "v6 L50 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_080")) == 2067, "v6 L80 recommendation golden drifted")
+	_expect(int(save_manager.get_recommended_power_for_level("level_099")) == 3094, "v6 L99 recommendation golden drifted")
 
 	var original_save: Dictionary = save_manager.save_data.duplicate(true)
 	var all_max_skills: Dictionary = {}
@@ -3655,9 +3656,9 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	save_manager.save_data["skill_base_levels"] = all_max_skills.duplicate(true)
 	var final_breakdown: Dictionary = save_manager.get_power_breakdown_for_level("level_099")
 	_expect(int(final_breakdown.get("power", 0)) == 10800, "level_099 Owner build v6 power golden drifted, got %d" % int(final_breakdown.get("power", 0)))
-	_expect(int(final_breakdown.get("recommended", 0)) == 5000, "level_099 v6 recommendation golden drifted")
+	_expect(int(final_breakdown.get("recommended", 0)) == 3094, "level_099 v6 recommendation golden drifted")
 	_expect(str(final_breakdown.get("power_bottleneck", "")) == "line", "level_099 Owner build v6 short axis must be line")
-	_expect(absf(float(final_breakdown.get("power", 0)) / 5000.0 - 2.1600) <= 0.0001, "level_099 Owner build v6 R must remain 2.1600")
+	_expect(absf(float(final_breakdown.get("power", 0)) / 3094.0 - 3.490627) <= 0.0001, "level_099 Owner build v6 R must remain 3.490627")
 	var same_build_089 := int(save_manager.get_power_for_level("level_089"))
 	var same_build_090 := int(save_manager.get_power_for_level("level_090"))
 	_expect(same_build_089 == same_build_090, "same build must have bit-identical power in 089/090")
@@ -3675,9 +3676,9 @@ func _verify_recommended_power_calibration(save_manager: Node, data_loader: Node
 	# 2026-09-30 Frost cooldown 18 -> 20 and the regenerated weapon power
 	# profiles (economy.json) move the same build to 4467; model unchanged.
 	_expect(int(observed_breakdown.get("power", 0)) == 4467, "level_080 Owner build v6 power golden drifted, got %d" % int(observed_breakdown.get("power", 0)))
-	_expect(int(observed_breakdown.get("recommended", 0)) == 2592, "level_080 v6 recommendation golden drifted")
+	_expect(int(observed_breakdown.get("recommended", 0)) == 2067, "level_080 v6 recommendation golden drifted")
 	_expect(str(observed_breakdown.get("power_bottleneck", "")) == "line", "level_080 Owner build v6 short axis must be line")
-	_expect(absf(float(observed_breakdown.get("power", 0)) / 2592.0 - 1.72338) <= 0.0001, "level_080 Owner build v6 R drifted")
+	_expect(absf(float(observed_breakdown.get("power", 0)) / 2067.0 - 2.161103) <= 0.0001, "level_080 Owner build v6 R drifted")
 
 	var boss55: Dictionary = data_loader.get_row("bosses", "boss_void_phantom")
 	_expect(absf(float(save_manager._power_boss_element_factor(boss55, "physical")) - 0.75) <= 0.000001, "level_055 physical badge factor must be ×0.75")

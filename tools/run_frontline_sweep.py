@@ -7,6 +7,7 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
+import math
 import os
 import subprocess
 import sys
@@ -118,6 +119,7 @@ def build_payload(
         "seeds_per_level": len(options.seeds),
         "simulation_step_seconds": 1.0 / 60.0,
         "wall_acceleration": options.accel,
+        "logic_limit_seconds": getattr(options, "logic_limit", 540.0),
         "runs": runs,
         "sweep": {
             "jobs": options.jobs,
@@ -154,6 +156,8 @@ def run_batch(
     temp_dir: Path,
     project_root: Path,
     fixture: str,
+    log_dir: Path | None = None,
+    logic_limit: float = 540.0,
 ) -> tuple[list[dict], float]:
     seed_label = "_".join(str(seed) for seed in seeds)
     output = temp_dir / f"level_{level:03d}_seeds_{seed_label}.json"
@@ -176,6 +180,7 @@ def run_batch(
         f"--accel={accel:g}",
         f"--output={output}",
         f"--fixture={fixture}",
+        f"--logic-limit={logic_limit:g}",
     ]
     if ignore_level_guarantees:
         args.append("--ignore-level-guarantees")
@@ -205,6 +210,9 @@ def run_batch(
         raw_output = error.stdout or ""
         if isinstance(raw_output, bytes):
             raw_output = raw_output.decode("utf-8", errors="replace")
+        if log_dir is not None:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            (log_dir / f"level_{level:03d}_seeds_{seed_label}.log").write_text(raw_output, encoding="utf-8")
         timeout_runs = [
             {
                 "level": level,
@@ -219,6 +227,13 @@ def run_batch(
         ]
         return timeout_runs, wall_seconds
     wall_seconds = time.monotonic() - started
+    if log_dir is not None:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        (log_dir / f"level_{level:03d}_seeds_{seed_label}.log").write_text(completed.stdout, encoding="utf-8")
+        if output.is_file():
+            (log_dir / output.name).write_bytes(output.read_bytes())
+    if "SCRIPT ERROR" in completed.stdout:
+        raise RuntimeError(f"Godot SCRIPT ERROR for level {level:03d} seeds {seed_label}; raw log directory={log_dir}")
     if completed.returncode != 0:
         raise RuntimeError(
             f"frontline probe failed for level {level:03d} seeds {seed_label}:\n"
@@ -277,9 +292,12 @@ def main() -> int:
         help="maximum wall seconds for one Godot probe process (default: 360)",
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--log-dir", type=Path, help="persist each raw Godot log/result, including errors, outside temporary HOME")
     parser.add_argument("--ignore-level-guarantees", action="store_true")
     parser.add_argument("--ignore-offer-category-floor", action="store_true")
     parser.add_argument("--challenge", action="store_true")
+    parser.add_argument("--logic-limit", type=float, default=540.0,
+                        help="probe-only simulated horizon; §41 §9.1 challenges use 720")
     parser.add_argument(
         "--fixture",
         default="res://design/audits/campaign_progression_fixture_builds.json",
@@ -294,6 +312,8 @@ def main() -> int:
         parser.error("--batch-size must be positive")
     if options.process_timeout <= 0.0:
         parser.error("--process-timeout must be positive")
+    if not math.isfinite(options.logic_limit) or options.logic_limit <= 0.0:
+        parser.error("--logic-limit must be finite and positive")
 
     project_root = options.project_root.resolve()
     provenance = collect_run_provenance(project_root, options.fixture)
@@ -324,6 +344,8 @@ def main() -> int:
                     temp_dir,
                     project_root,
                     options.fixture,
+                    options.log_dir,
+                    options.logic_limit,
                 )
                 for level in options.levels
                 for seed_batch in seed_batches

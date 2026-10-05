@@ -1,0 +1,16 @@
+[
+  {
+    "command": ["python3", "tools/report_linear_power_s9.py", "--s91", "--check", "--prefix", "adopted"],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s91_adopted_contracts_2026_10_05.log",
+    "meaning": "Current candidate's complete fixed-seed runtime contract PASS; full gate still required before final adoption."
+  },
+  {
+    "command": ["python3", "tools/check_challenge_curve_runtime.py", "--s91-evidence", "design/audits/linear_power_p4_s91_2026_10_05/adopted_contracts.json", "--output", "design/audits/linear_power_p4_s91_2026_10_05/runtime_independent.json"],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s91_runtime_independent_2026_10_05.log",
+    "meaning": "Independent raw source recount, exact expanded runtime rules, fixed seeds and provenance PASS; no new ordinary/99x10 challenge run claimed."
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "command": ["python3", "-c", "import json,hashlib,sys,subprocess;sys.path.insert(0,\"tools\");import run_linear_power_s9 as s;old=json.load(open(s.BASE));now=s.guard();a=json.load(open(\"design/audits/linear_power_p4_s91_2026_10_05/archive_record.json\"));actual=hashlib.sha256(open(a[\"archive\"],\"rb\").read()).hexdigest();assert actual==a[\"sha256\"];branch=subprocess.check_output([\"git\",\"branch\",\"--show-current\"],text=True).strip();assert branch==\"codex/linear-power\";products=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"HEAD\",\"--\",\"data\"],text=True).splitlines();assert products==[\"data/challenges.json\"];assert subprocess.run([\"git\",\"diff\",\"--check\"]).returncode==0;print(json.dumps({\"status\":\"PASS\",\"branch\":branch,\"frozen_inputs\":len(now),\"changed_inputs\":[p for p in now if old[\"input_sha256\"][p]!=now[p]],\"unchanged_protected_files\":len(old[\"protected_sha256\"]),\"changed_product_files\":products,\"archive_sha256\":actual,\"archive_files\":a[\"files\"]},indent=2))"],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s91_final_scope_2026_10_05.log",
+    "meaning": "Read-only final scope check; exact executed inline command preserved."
+  },
+  {
+    "command": ["python3", "tools/archive_linear_power_s91.py"],
+    "exit": 0,
+    "pass": true,
+    "log": "/tmp/zf_linear_s91_archive_2026_10_05.log",
+    "meaning": "966 archived members individually SHA256 checked; new Desktop archive, old archive unchanged."
+  }
+]

@@ -2,6 +2,8 @@
   "schema_version": 1,
 	"frozen": true,
 	"status": "b2_owner_frozen",
+	"clear_requirement_mode": "runtime_solved",
+	"runtime_recommended_power_table": "design/audits/recommended_power_table_2026_10_04.json",
 	"source": "design/40_campaign_difficulty_rebuild_and_power_ruler_v6_plan.md v2 sections 3.2-3.7",
 	"frozen_contract": {
 		"authoritative_fire_rate_profile": "tier_b",
@@ -110,7 +112,7 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2b_final_ch1_tier_b_10.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 180.0
 		},
 		{
@@ -119,7 +121,7 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2b_final_ch2_tier_b_10.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 260.0
 		},
 		{
@@ -128,7 +130,7 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2b_final_ch3_tier_b_10.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 260.0
 		},
 		{
@@ -137,7 +139,7 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2b_final_ch4_tier_b_10.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 260.0
 		},
 		{
@@ -146,11 +148,12 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2b_final_ch5_tier_b_10_v21.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 260.0
 		},
 		{
 			"id": "b1_chapter6",
+			"clear_requirement_mode": "runtime_solved",
 			"scope": [51, 60],
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/pilot_chapter6/ch6_final_tier_b_10.json",
@@ -163,7 +166,7 @@
 			"authoritative_profile": "tier_b",
 			"runtime_evidence": "design/audits/b2a_final_061_099_tier_b_10_corrected.json",
 			"runs_per_level": 10,
-			"clear_requirement_mode": "preserve_v5_scale",
+			"clear_requirement_mode": "runtime_solved",
 			"max_duration_seconds": 460.0
 		}
 	],

@@ -918,10 +918,18 @@ def render_manifest(rows: list[dict]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--closure-report", action="store_true", help="T3 report-only 3-star/no-farm closure; does not regenerate the 2-star fixture")
+    parser.add_argument("--closure-output", type=Path, help="audit report prefix for --closure-report")
     args = parser.parse_args()
+    if args.closure_report:
+        if args.write or args.check:
+            parser.error("--closure-report is separate from legacy --write/--check")
+        from progression_closure import write_report
+        write_report(args.closure_output)
+        return 0
     rows, builds = generate_rows(strategy_id=ACTIVE_WEAPON_STRATEGY)
     legacy_rows, _legacy_builds = generate_rows(strategy_id=LEGACY_WEAPON_STRATEGY)
     if len(rows) != 99 or [row["level"] for row in rows] != list(range(1, 100)):

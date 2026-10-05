@@ -1,0 +1,26 @@
+{
+  "status": "STOPPED_FOR_OWNER_FABLE_CONTRACT_DECISION",
+  "native_runs": 1630,
+  "native_integrity": "PASS",
+  "phase3": "COMPLETE_CURRENT_RESOURCES_NO_WRITE",
+  "phase4": "FIRST_ROUND_COMPLETE_CONTRACT_FAIL_RETUNE_NOT_STARTED",
+  "ordinary_099_free_max_wins": 10,
+  "challenge_099_free_max_wins": 5,
+  "challenge_099_golden_law_max_wins": 10,
+  "challenge_chapters_out_of_band": [
+    7,
+    9,
+    10
+  ],
+  "paid_gate_wins": {
+    "076": 5,
+    "095": 10
+  },
+  "pending_authority": "Whether curve-only retune authorization also unfreezes legacy K(99)=5, split 1/0/0 and validation multiplier ceiling 5; requested in chat, no affirmative answer received.",
+  "approved_star_table_replaced": false,
+  "resource_data_written": false,
+  "challenge_curve_written": false,
+  "push": false,
+  "package": false,
+  "report": "design/audits/linear_power_p2_2026_10_04/Fable最终完整报告_2026_10_05.md"
+}

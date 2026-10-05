@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "fire_rate_profile": "tier_b",
+  "card_policy": "v2",
+  "seeds": [
+    1103,
+    2207,
+    3301,
+    4409,
+    5513,
+    6637,
+    7741,
+    8849,
+    9901,
+    10903
+  ],
+  "rows": [
+    {
+      "level": 76,
+      "level_id": "level_076",
+      "build": {
+        "armor": "armor_apocalypse_permafrost",
+        "armor_level": 12,
+        "character": "vanguard",
+        "character_level": 16,
+        "chip": "chip_apocalypse_entropy",
+        "chip_level": 13,
+        "pet": "pet_apocalypse_aurora",
+        "pet_level": 9,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 4,
+          "skill_charge_shot": 4,
+          "skill_critical": 4,
+          "skill_homing": 4,
+          "skill_multishot": 4,
+          "skill_pierce": 4,
+          "skill_ricochet": 4,
+          "skill_salvo": 4,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_apocalypse_absolute_zero",
+        "weapon_level": 41
+      },
+      "fixture_source": "reference ranks + corresponding revealed full arsenal; no free rank upgrades",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    },
+    {
+      "level": 95,
+      "level_id": "level_095",
+      "build": {
+        "armor": "armor_apocalypse_eternal_night",
+        "armor_level": 13,
+        "character": "vanguard",
+        "character_level": 18,
+        "chip": "chip_apocalypse_golden_law",
+        "chip_level": 15,
+        "pet": "pet_apocalypse_skyfalcon",
+        "pet_level": 12,
+        "signature_level": 4,
+        "skill_base_levels": {
+          "skill_barrier": 5,
+          "skill_charge_shot": 5,
+          "skill_critical": 4,
+          "skill_homing": 5,
+          "skill_multishot": 5,
+          "skill_pierce": 5,
+          "skill_ricochet": 4,
+          "skill_salvo": 5,
+          "skill_slow_field": 4,
+          "skill_split_shot": 4
+        },
+        "weapon": "weapon_apocalypse_golden_law",
+        "weapon_level": 49
+      },
+      "fixture_source": "reference ranks + corresponding revealed full arsenal; no free rank upgrades",
+      "card_seeds": [
+        1103,
+        2207,
+        3301,
+        4409,
+        5513,
+        6637,
+        7741,
+        8849,
+        9901,
+        10903
+      ],
+      "resources_before": {
+        "gold": 0,
+        "xp": 0,
+        "stars": 0
+      }
+    }
+  ]
+}

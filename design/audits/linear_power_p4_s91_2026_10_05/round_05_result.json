@@ -1,0 +1,141 @@
+{
+  "status": "PASS",
+  "deviation_wins": 0,
+  "new_attempts": 80,
+  "chapters": [
+    {
+      "chapter": 1,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 2,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 3,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 4,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 5,
+      "wins": 30,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 6,
+      "wins": 29,
+      "runs": 30,
+      "contract": [
+        21,
+        30
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 7,
+      "wins": 27,
+      "runs": 30,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 8,
+      "wins": 20,
+      "runs": 30,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 9,
+      "wins": 27,
+      "runs": 30,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": true
+    },
+    {
+      "chapter": 10,
+      "wins": 26,
+      "runs": 30,
+      "contract": [
+        18,
+        27
+      ],
+      "pass": true
+    }
+  ],
+  "free099": {
+    "wins": 0,
+    "failed_seeds": [
+      1103,
+      2207,
+      3301,
+      4409,
+      5513,
+      6637,
+      7741,
+      8849,
+      9901,
+      10903
+    ],
+    "source": "design/audits/linear_power_p4_2026_10_05/r03_free099.json",
+    "group": "r03_free099",
+    "horizon_nonclear_seeds": []
+  },
+  "golden099": {
+    "level": 99,
+    "status": "MEASURED",
+    "wins": 9,
+    "failed_seeds": [
+      9901
+    ],
+    "horizon_nonclear_seeds": [],
+    "boss_median": 282.35,
+    "source": "design/audits/linear_power_p4_2026_10_05/r03_gold099.json",
+    "source_sha256": "03e05f34d40b19eb2a0f495d0633d3e952a09aaeb7d166ed4080c7fe4a55cca9",
+    "selected_group": "r03_gold099",
+    "reuse_rule": "latest completed exact expanded-rule match"
+  },
+  "exit_contract": 0,
+  "ended_unix": 1791178658.7206678
+}

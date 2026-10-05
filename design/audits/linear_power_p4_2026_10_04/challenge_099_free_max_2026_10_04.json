@@ -1,0 +1,2420 @@
+{
+  "schema_version": 1,
+  "combat_input_fingerprint": {
+    "levels": "2669c4acdca69fbf",
+    "weapons": "bdd10432c49bebed",
+    "economy": "b7788ff467fa3024",
+    "fixture": "bc313dff5d8b033d",
+    "enemies": "4055b2260e4ac7b9"
+  },
+  "fixture_sha256": "0d5fb52e4f2375eafa78031ccc9fc52a72eb2f15bd0a284bbb62033360282088",
+  "git_head": "1777945e293e4fa0bf8882ba7137ffd1989753fb",
+  "godot_version": "4.7.stable.official.5b4e0cb0f",
+  "fixture_source": "res://design/audits/challenge_free_counterexample_fixture_builds.json",
+  "levels": [
+    99
+  ],
+  "profile": "tier_b",
+  "card_policy": "v2",
+  "ignore_level_guarantees": false,
+  "ignore_offer_category_floor": false,
+  "challenge": true,
+  "fail_fast": false,
+  "seeds_per_level": 10,
+  "simulation_step_seconds": 0.016666666666666666,
+  "wall_acceleration": 60.0,
+  "runs": [
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 1103,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 68.1833333333308,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical",
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_multishot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 23.9166666666666,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 38.0333333333325,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.4000000000003,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.8833333333324,
+          "max_progress": 1.0,
+          "base_ratio": 0.795340681362725
+        },
+        {
+          "wave": 3,
+          "end_time": 68.1833333333308,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 68.1833333333308,
+        "damage_total": 2136640.51560071,
+        "damage_by_element": {
+          "lightning": 1638136.81967515,
+          "poison": 498503.69592565
+        },
+        "damage_by_source": {
+          "weapon": 2003705.48184199,
+          "status": 132935.033758805
+        },
+        "top_element": "lightning",
+        "crit_damage": 1284725.33216932,
+        "weak_damage": 1013107.05240057,
+        "kills": 33,
+        "boss_kills": 0,
+        "base_damage_taken": 5071,
+        "base_damage_prevented": 6,
+        "control_seconds": 99.2333333333316,
+        "active_skill_casts": 6,
+        "max_kill_streak": 9,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 2207,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.70667273969483,
+      "victory": true,
+      "elapsed_seconds": 312.533333333378,
+      "boss_phase_seconds": 221.350000000048,
+      "max_living_bosses": 2,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_critical",
+        "skill_ricochet",
+        "skill_split_shot",
+        "skill_homing",
+        "skill_multishot",
+        "skill_slow_field",
+        "skill_barrier"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_multishot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.2,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_charge_shot",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 32.4166666666661,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_homing",
+            "skill_multishot",
+            "skill_salvo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 49.5499999999985,
+          "wave": 3
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_homing",
+            "skill_split_shot",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 4,
+          "time": 58.249999999998,
+          "wave": 3
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_homing",
+            "skill_ricochet",
+            "skill_recycle"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 5,
+          "time": 68.0666666666641,
+          "wave": 3
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_multishot",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 6,
+          "time": 80.4333333333301,
+          "wave": 4
+        },
+        {
+          "selected": "skill_homing",
+          "candidates": [
+            "skill_recycle",
+            "skill_homing",
+            "skill_barrier"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 7,
+          "time": 84.4499999999965,
+          "wave": 4
+        },
+        {
+          "selected": "skill_multishot",
+          "candidates": [
+            "skill_multishot",
+            "skill_gold_rush",
+            "skill_barrier"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 8,
+          "time": 87.816666666663,
+          "wave": 4
+        },
+        {
+          "selected": "skill_slow_field",
+          "candidates": [
+            "skill_recycle",
+            "skill_slow_field",
+            "skill_barrier"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 9,
+          "time": 88.7166666666629,
+          "wave": 4
+        },
+        {
+          "selected": "skill_barrier",
+          "candidates": [
+            "skill_gold_rush",
+            "skill_barrier"
+          ],
+          "reason": "defense",
+          "rank": 4,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 10,
+          "time": 109.116666666662,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 13.9166666666669,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 33.8333333333327,
+          "max_progress": 1.0,
+          "base_ratio": 0.989478957915832
+        },
+        {
+          "wave": 3,
+          "end_time": 69.066666666664,
+          "max_progress": 1.0,
+          "base_ratio": 0.462174348697395
+        },
+        {
+          "wave": 4,
+          "end_time": 90.8666666666628,
+          "max_progress": 1.0,
+          "base_ratio": 0.513276553106212
+        },
+        {
+          "wave": 5,
+          "end_time": 312.533333333378,
+          "max_progress": 1.0,
+          "base_ratio": 0.70667273969483
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_critical": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5,
+        "skill_homing": 5,
+        "skill_multishot": 5,
+        "skill_slow_field": 5,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 312.533333333378,
+        "damage_total": 146308996.563931,
+        "damage_by_element": {
+          "lightning": 4445317.40053446,
+          "poison": 141863679.163373
+        },
+        "damage_by_source": {
+          "weapon": 142382477.644211,
+          "status": 3926518.91970229
+        },
+        "top_element": "poison",
+        "crit_damage": 2225295.83910185,
+        "weak_damage": 1970859.39194581,
+        "kills": 91,
+        "boss_kills": 3,
+        "base_damage_taken": 6232,
+        "base_damage_prevented": 6,
+        "control_seconds": 342.066666666664,
+        "active_skill_casts": 27,
+        "max_kill_streak": 21,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 3301,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.672398086996128,
+      "victory": true,
+      "elapsed_seconds": 328.00000000003,
+      "boss_phase_seconds": 236.183333333368,
+      "max_living_bosses": 2,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_pierce",
+        "skill_salvo",
+        "skill_critical",
+        "skill_multishot",
+        "skill_ricochet",
+        "skill_split_shot",
+        "skill_homing",
+        "skill_slow_field",
+        "skill_barrier"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.7,
+          "wave": 2
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_critical",
+            "skill_salvo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 36.9999999999992,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_slow_field",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 56.5333333333314,
+          "wave": 3
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_slow_field",
+            "skill_ricochet",
+            "skill_critical"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 4,
+          "time": 64.033333333331,
+          "wave": 3
+        },
+        {
+          "selected": "skill_multishot",
+          "candidates": [
+            "skill_multishot",
+            "skill_recycle",
+            "skill_split_shot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 5,
+          "time": 72.3666666666638,
+          "wave": 3
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_recycle",
+            "skill_ricochet",
+            "skill_slow_field"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 6,
+          "time": 82.5166666666633,
+          "wave": 4
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_barrier",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 7,
+          "time": 85.9666666666631,
+          "wave": 4
+        },
+        {
+          "selected": "skill_homing",
+          "candidates": [
+            "skill_homing",
+            "skill_slow_field",
+            "skill_recycle"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 8,
+          "time": 88.4666666666629,
+          "wave": 4
+        },
+        {
+          "selected": "skill_slow_field",
+          "candidates": [
+            "skill_slow_field",
+            "skill_recycle",
+            "skill_barrier"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 9,
+          "time": 89.9666666666628,
+          "wave": 4
+        },
+        {
+          "selected": "skill_barrier",
+          "candidates": [
+            "skill_recycle",
+            "skill_barrier"
+          ],
+          "reason": "defense",
+          "rank": 4,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 10,
+          "time": 111.216666666662,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 13.8833333333336,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 37.8499999999991,
+          "max_progress": 1.0,
+          "base_ratio": 0.889278557114228
+        },
+        {
+          "wave": 3,
+          "end_time": 73.0499999999971,
+          "max_progress": 1.0,
+          "base_ratio": 0.233717434869739
+        },
+        {
+          "wave": 4,
+          "end_time": 91.5833333333294,
+          "max_progress": 1.0,
+          "base_ratio": 0.31563126252505
+        },
+        {
+          "wave": 5,
+          "end_time": 328.00000000003,
+          "max_progress": 1.0,
+          "base_ratio": 0.672398086996128
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5,
+        "skill_pierce": 5,
+        "skill_salvo": 5,
+        "skill_critical": 5,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5,
+        "skill_homing": 5,
+        "skill_slow_field": 5,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 328.00000000003,
+        "damage_total": 146458481.02458,
+        "damage_by_element": {
+          "lightning": 4390354.70099361,
+          "poison": 142068126.323562
+        },
+        "damage_by_source": {
+          "weapon": 143246404.046032,
+          "status": 3212076.9785259
+        },
+        "top_element": "poison",
+        "crit_damage": 2149936.9971332,
+        "weak_damage": 1886165.55604083,
+        "kills": 91,
+        "boss_kills": 3,
+        "base_damage_taken": 7006,
+        "base_damage_prevented": 6,
+        "control_seconds": 316.299999999986,
+        "active_skill_casts": 28,
+        "max_kill_streak": 32,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 4409,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 69.916666666664,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_critical",
+        "skill_salvo"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_ricochet",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.35,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_ricochet",
+            "skill_critical",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 37.0499999999992,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_gold_rush",
+            "skill_ricochet",
+            "skill_salvo"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 60.3499999999979,
+          "wave": 3
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.0500000000003,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.0333333333325,
+          "max_progress": 1.0,
+          "base_ratio": 0.845440881763527
+        },
+        {
+          "wave": 3,
+          "end_time": 69.916666666664,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5,
+        "skill_critical": 5,
+        "skill_salvo": 5
+      },
+      "battle_report": {
+        "duration_seconds": 69.916666666664,
+        "damage_total": 2342524.22365078,
+        "damage_by_element": {
+          "lightning": 1622674.55234064,
+          "poison": 719849.671310104
+        },
+        "damage_by_source": {
+          "weapon": 2169933.44924639,
+          "status": 172590.77440436
+        },
+        "top_element": "lightning",
+        "crit_damage": 1261714.89928266,
+        "weak_damage": 1003575.17592647,
+        "kills": 34,
+        "boss_kills": 0,
+        "base_damage_taken": 5062,
+        "base_damage_prevented": 6,
+        "control_seconds": 96.116666666665,
+        "active_skill_casts": 6,
+        "max_kill_streak": 9,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 5513,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 69.9833333333306,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_pierce"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_charge_shot",
+            "skill_critical",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.7166666666667,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_critical",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 37.1833333333325,
+          "wave": 2
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_ricochet",
+            "skill_pierce",
+            "skill_slow_field"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 60.5166666666645,
+          "wave": 3
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.0500000000003,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.0333333333325,
+          "max_progress": 1.0,
+          "base_ratio": 0.870490981963928
+        },
+        {
+          "wave": 3,
+          "end_time": 69.9833333333306,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_pierce": 5
+      },
+      "battle_report": {
+        "duration_seconds": 69.9833333333306,
+        "damage_total": 3293336.77655584,
+        "damage_by_element": {
+          "lightning": 1512363.7571281,
+          "poison": 1780973.01942773
+        },
+        "damage_by_source": {
+          "weapon": 2982521.66401055,
+          "status": 310815.11254533
+        },
+        "top_element": "poison",
+        "crit_damage": 1199152.68443375,
+        "weak_damage": 934682.35643405,
+        "kills": 36,
+        "boss_kills": 0,
+        "base_damage_taken": 5038,
+        "base_damage_prevented": 6,
+        "control_seconds": 96.0333333333316,
+        "active_skill_casts": 6,
+        "max_kill_streak": 9,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 6637,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 69.1499999999974,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_charge_shot",
+        "skill_salvo"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_ricochet",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.0833333333334,
+          "wave": 2
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_critical",
+            "skill_slow_field"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 36.9999999999992,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 13.7166666666669,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 37.8499999999991,
+          "max_progress": 1.0,
+          "base_ratio": 0.895541082164329
+        },
+        {
+          "wave": 3,
+          "end_time": 69.1499999999974,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5
+      },
+      "battle_report": {
+        "duration_seconds": 69.1499999999974,
+        "damage_total": 2138804.00050136,
+        "damage_by_element": {
+          "lightning": 1503722.25123132,
+          "poison": 635081.74927007
+        },
+        "damage_by_source": {
+          "weapon": 1986696.53779754,
+          "status": 152107.462703831
+        },
+        "top_element": "lightning",
+        "crit_damage": 1198485.99093488,
+        "weak_damage": 925119.586318924,
+        "kills": 33,
+        "boss_kills": 0,
+        "base_damage_taken": 5014,
+        "base_damage_prevented": 6,
+        "control_seconds": 95.0499999999983,
+        "active_skill_casts": 6,
+        "max_kill_streak": 9,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 7741,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.586085174219995,
+      "victory": true,
+      "elapsed_seconds": 391.616666666639,
+      "boss_phase_seconds": 295.38333333331,
+      "max_living_bosses": 2,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical",
+        "skill_pierce",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_split_shot",
+        "skill_ricochet",
+        "skill_multishot",
+        "skill_slow_field",
+        "skill_homing",
+        "skill_barrier"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_ricochet",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.4833333333333,
+          "wave": 2
+        },
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_homing",
+            "skill_pierce",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 37.8499999999991,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_multishot",
+            "skill_charge_shot",
+            "skill_ricochet"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 54.5333333333315,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_split_shot",
+            "skill_salvo",
+            "skill_multishot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 4,
+          "time": 61.5499999999978,
+          "wave": 3
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_gold_rush",
+            "skill_split_shot",
+            "skill_multishot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 5,
+          "time": 72.6999999999972,
+          "wave": 3
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_homing",
+            "skill_ricochet",
+            "skill_multishot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 6,
+          "time": 86.1166666666631,
+          "wave": 4
+        },
+        {
+          "selected": "skill_multishot",
+          "candidates": [
+            "skill_multishot",
+            "skill_slow_field",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 7,
+          "time": 89.9166666666628,
+          "wave": 4
+        },
+        {
+          "selected": "skill_slow_field",
+          "candidates": [
+            "skill_recycle",
+            "skill_slow_field",
+            "skill_homing"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 8,
+          "time": 91.1166666666628,
+          "wave": 4
+        },
+        {
+          "selected": "skill_homing",
+          "candidates": [
+            "skill_homing",
+            "skill_gold_rush",
+            "skill_barrier"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 9,
+          "time": 92.4833333333294,
+          "wave": 4
+        },
+        {
+          "selected": "skill_barrier",
+          "candidates": [
+            "skill_recycle",
+            "skill_barrier"
+          ],
+          "reason": "defense",
+          "rank": 4,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 10,
+          "time": 117.766666666661,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.2333333333336,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.6999999999991,
+          "max_progress": 1.0,
+          "base_ratio": 0.814128256513026
+        },
+        {
+          "wave": 3,
+          "end_time": 73.4999999999971,
+          "max_progress": 1.0,
+          "base_ratio": 0.250751503006012
+        },
+        {
+          "wave": 4,
+          "end_time": 95.9999999999958,
+          "max_progress": 1.0,
+          "base_ratio": 0.300100200400802
+        },
+        {
+          "wave": 5,
+          "end_time": 391.616666666639,
+          "max_progress": 1.0,
+          "base_ratio": 0.586085174219995
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5,
+        "skill_pierce": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_split_shot": 5,
+        "skill_ricochet": 5,
+        "skill_multishot": 5,
+        "skill_slow_field": 5,
+        "skill_homing": 5,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 391.616666666639,
+        "damage_total": 147128779.309736,
+        "damage_by_element": {
+          "lightning": 5108593.71710321,
+          "poison": 142020185.592605
+        },
+        "damage_by_source": {
+          "weapon": 142763639.706469,
+          "status": 4365139.6032539
+        },
+        "top_element": "poison",
+        "crit_damage": 2348905.9969561,
+        "weak_damage": 2087011.86947609,
+        "kills": 91,
+        "boss_kills": 3,
+        "base_damage_taken": 8224,
+        "base_damage_prevented": 6,
+        "control_seconds": 364.983333333331,
+        "active_skill_casts": 33,
+        "max_kill_streak": 18,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 8849,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.0,
+      "victory": false,
+      "elapsed_seconds": 68.6166666666641,
+      "boss_phase_seconds": 0.0,
+      "max_living_bosses": 0,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_critical",
+        "skill_charge_shot"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_barrier",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.8666666666666,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_charge_shot",
+            "skill_homing"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 37.8499999999991,
+          "wave": 2
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.2333333333336,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 38.6999999999991,
+          "max_progress": 1.0,
+          "base_ratio": 0.826653306613226
+        },
+        {
+          "wave": 3,
+          "end_time": 68.6166666666641,
+          "max_progress": 1.0,
+          "base_ratio": 0.0
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_critical": 5,
+        "skill_charge_shot": 5
+      },
+      "battle_report": {
+        "duration_seconds": 68.6166666666641,
+        "damage_total": 2204132.48758236,
+        "damage_by_element": {
+          "lightning": 1616597.41668534,
+          "poison": 587535.070897008
+        },
+        "damage_by_source": {
+          "weapon": 2038896.65272313,
+          "status": 165235.83485923
+        },
+        "top_element": "lightning",
+        "crit_damage": 1279942.70700338,
+        "weak_damage": 1007754.72909247,
+        "kills": 33,
+        "boss_kills": 0,
+        "base_damage_taken": 5060,
+        "base_damage_prevented": 6,
+        "control_seconds": 95.7833333333318,
+        "active_skill_casts": 6,
+        "max_kill_streak": 9,
+        "boss_id": "",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 9901,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.701434752903667,
+      "victory": true,
+      "elapsed_seconds": 308.216666666715,
+      "boss_phase_seconds": 220.700000000052,
+      "max_living_bosses": 2,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_critical",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_multishot",
+        "skill_ricochet",
+        "skill_slow_field",
+        "skill_split_shot",
+        "skill_homing",
+        "skill_barrier"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 22.0833333333334,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_critical",
+            "skill_salvo",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 31.1499999999995,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_slow_field",
+            "skill_charge_shot",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 47.4333333333319,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_ricochet",
+            "skill_salvo",
+            "skill_multishot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 4,
+          "time": 59.5499999999979,
+          "wave": 3
+        },
+        {
+          "selected": "skill_multishot",
+          "candidates": [
+            "skill_multishot",
+            "skill_barrier",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 5,
+          "time": 66.5499999999975,
+          "wave": 3
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_ricochet",
+            "skill_split_shot",
+            "skill_homing"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 6,
+          "time": 78.4833333333302,
+          "wave": 4
+        },
+        {
+          "selected": "skill_slow_field",
+          "candidates": [
+            "skill_slow_field",
+            "skill_barrier",
+            "skill_gold_rush"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 7,
+          "time": 81.08333333333,
+          "wave": 4
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_homing",
+            "skill_recycle",
+            "skill_split_shot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 8,
+          "time": 84.3499999999965,
+          "wave": 4
+        },
+        {
+          "selected": "skill_homing",
+          "candidates": [
+            "skill_recycle",
+            "skill_homing",
+            "skill_barrier"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 9,
+          "time": 85.6833333333298,
+          "wave": 4
+        },
+        {
+          "selected": "skill_barrier",
+          "candidates": [
+            "skill_recycle",
+            "skill_barrier"
+          ],
+          "reason": "defense",
+          "rank": 4,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 10,
+          "time": 105.499999999995,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.0500000000003,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 34.7499999999993,
+          "max_progress": 1.0,
+          "base_ratio": 0.989478957915832
+        },
+        {
+          "wave": 3,
+          "end_time": 66.9499999999975,
+          "max_progress": 1.0,
+          "base_ratio": 0.556613226452906
+        },
+        {
+          "wave": 4,
+          "end_time": 87.2833333333297,
+          "max_progress": 1.0,
+          "base_ratio": 0.626002004008016
+        },
+        {
+          "wave": 5,
+          "end_time": 308.216666666715,
+          "max_progress": 1.0,
+          "base_ratio": 0.701434752903667
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_critical": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_multishot": 5,
+        "skill_ricochet": 5,
+        "skill_slow_field": 5,
+        "skill_split_shot": 5,
+        "skill_homing": 5,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 308.216666666715,
+        "damage_total": 146329632.976488,
+        "damage_by_element": {
+          "lightning": 4351747.380548,
+          "poison": 141977885.59592
+        },
+        "damage_by_source": {
+          "weapon": 142705395.469692,
+          "status": 3624237.50677999
+        },
+        "top_element": "poison",
+        "crit_damage": 2182213.95940771,
+        "weak_damage": 1919907.42798587,
+        "kills": 91,
+        "boss_kills": 3,
+        "base_damage_taken": 6192,
+        "base_damage_prevented": 6,
+        "control_seconds": 333.416666666688,
+        "active_skill_casts": 26,
+        "max_kill_streak": 31,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    },
+    {
+      "level": 99,
+      "level_id": "level_099",
+      "seed": 10903,
+      "build": {
+        "character": "volt",
+        "character_level": 40.0,
+        "weapon": "weapon_venomlauncher",
+        "weapon_level": 50.0,
+        "armor": "armor_reactive",
+        "armor_level": 35.0,
+        "chip": "chip_attack",
+        "chip_level": 35.0,
+        "pet": "pet_medic_drone",
+        "pet_level": 30.0,
+        "signature_level": 5.0,
+        "skill_base_levels": {
+          "skill_split_shot": 5.0,
+          "skill_pierce": 5.0,
+          "skill_multishot": 5.0,
+          "skill_slow_field": 5.0,
+          "skill_homing": 5.0,
+          "skill_critical": 5.0,
+          "skill_barrier": 5.0,
+          "skill_gold_rush": 5.0,
+          "skill_ricochet": 5.0,
+          "skill_salvo": 5.0,
+          "skill_incendiary": 5.0,
+          "skill_cryo": 5.0,
+          "skill_tesla": 5.0,
+          "skill_venom": 5.0,
+          "skill_charge_shot": 5.0,
+          "skill_recycle": 1.0
+        },
+        "fire_rate_profile": "tier_b"
+      },
+      "max_progress": 1.0,
+      "base_ratio": 0.699385105898429,
+      "victory": true,
+      "elapsed_seconds": 315.916666666708,
+      "boss_phase_seconds": 225.766666666712,
+      "max_living_bosses": 2,
+      "boss_hp_ratio_at_end": 0.0,
+      "timeout": false,
+      "card_policy": "v2",
+      "challenge": true,
+      "selected_skills": [
+        "skill_pierce",
+        "skill_critical",
+        "skill_charge_shot",
+        "skill_salvo",
+        "skill_ricochet",
+        "skill_split_shot",
+        "skill_multishot",
+        "skill_homing",
+        "skill_slow_field",
+        "skill_barrier"
+      ],
+      "card_timeline": [
+        {
+          "selected": "skill_pierce",
+          "candidates": [
+            "skill_pierce",
+            "skill_critical",
+            "skill_barrier"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 1,
+          "time": 21.75,
+          "wave": 2
+        },
+        {
+          "selected": "skill_critical",
+          "candidates": [
+            "skill_ricochet",
+            "skill_critical",
+            "skill_charge_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 2,
+          "time": 30.6499999999995,
+          "wave": 2
+        },
+        {
+          "selected": "skill_charge_shot",
+          "candidates": [
+            "skill_barrier",
+            "skill_charge_shot",
+            "skill_recycle"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 3,
+          "time": 46.4499999999986,
+          "wave": 3
+        },
+        {
+          "selected": "skill_salvo",
+          "candidates": [
+            "skill_salvo",
+            "skill_homing",
+            "skill_split_shot"
+          ],
+          "reason": "new_single_target",
+          "rank": 1,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 4,
+          "time": 58.099999999998,
+          "wave": 3
+        },
+        {
+          "selected": "skill_ricochet",
+          "candidates": [
+            "skill_ricochet",
+            "skill_recycle",
+            "skill_split_shot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 5,
+          "time": 66.5999999999975,
+          "wave": 3
+        },
+        {
+          "selected": "skill_split_shot",
+          "candidates": [
+            "skill_split_shot",
+            "skill_multishot",
+            "skill_slow_field"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 6,
+          "time": 79.8166666666634,
+          "wave": 4
+        },
+        {
+          "selected": "skill_multishot",
+          "candidates": [
+            "skill_homing",
+            "skill_barrier",
+            "skill_multishot"
+          ],
+          "reason": "crowd",
+          "rank": 2,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 7,
+          "time": 85.0999999999965,
+          "wave": 4
+        },
+        {
+          "selected": "skill_homing",
+          "candidates": [
+            "skill_homing",
+            "skill_slow_field",
+            "skill_recycle"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 8,
+          "time": 87.066666666663,
+          "wave": 4
+        },
+        {
+          "selected": "skill_slow_field",
+          "candidates": [
+            "skill_recycle",
+            "skill_barrier",
+            "skill_slow_field"
+          ],
+          "reason": "control",
+          "rank": 3,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 9,
+          "time": 88.7333333333296,
+          "wave": 4
+        },
+        {
+          "selected": "skill_barrier",
+          "candidates": [
+            "skill_recycle",
+            "skill_barrier"
+          ],
+          "reason": "defense",
+          "rank": 4,
+          "mode": "boss",
+          "mode_source": "offer_category_floor",
+          "offer_category_floor": "single_target",
+          "boss_hp_share": 0.6006,
+          "weapon_element": "poison",
+          "offer": 10,
+          "time": 109.916666666662,
+          "wave": 5
+        }
+      ],
+      "wave_timeline": [
+        {
+          "wave": 1,
+          "end_time": 14.0500000000003,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 2,
+          "end_time": 34.3499999999993,
+          "max_progress": 1.0,
+          "base_ratio": 1.0
+        },
+        {
+          "wave": 3,
+          "end_time": 69.8499999999973,
+          "max_progress": 1.0,
+          "base_ratio": 0.478707414829659
+        },
+        {
+          "wave": 4,
+          "end_time": 89.9166666666628,
+          "max_progress": 1.0,
+          "base_ratio": 0.541833667334669
+        },
+        {
+          "wave": 5,
+          "end_time": 315.916666666708,
+          "max_progress": 1.0,
+          "base_ratio": 0.699385105898429
+        }
+      ],
+      "final_skill_levels": {
+        "skill_venom": 5,
+        "skill_pierce": 5,
+        "skill_critical": 5,
+        "skill_charge_shot": 5,
+        "skill_salvo": 5,
+        "skill_ricochet": 5,
+        "skill_split_shot": 5,
+        "skill_multishot": 5,
+        "skill_homing": 5,
+        "skill_slow_field": 5,
+        "skill_barrier": 5
+      },
+      "battle_report": {
+        "duration_seconds": 315.916666666708,
+        "damage_total": 146345079.233337,
+        "damage_by_element": {
+          "lightning": 4486331.48663504,
+          "poison": 141858747.746682
+        },
+        "damage_by_source": {
+          "weapon": 142774627.767123,
+          "status": 3570451.46619369
+        },
+        "top_element": "poison",
+        "crit_damage": 2286927.81263971,
+        "weak_damage": 2017795.35194531,
+        "kills": 91,
+        "boss_kills": 3,
+        "base_damage_taken": 5739,
+        "base_damage_prevented": 6,
+        "control_seconds": 343.216666666654,
+        "active_skill_casts": 27,
+        "max_kill_streak": 32,
+        "boss_id": "boss_apex_overlord",
+        "challenge_rule": {
+          "id": "challenge_chapter_10",
+          "name": "复合灾变",
+          "summary": "速度、机制与突破全面升级",
+          "counter_hint": "形成一套主伤害流派并补一张控制或防线牌，手动锁定最高威胁。",
+          "hp_mult": 5.0,
+          "speed_mult": 5.0,
+          "breach_damage_mult": 1.0,
+          "mechanic_rate_mult": 1.0,
+          "recommended_power_mult": 5.0,
+          "reference_fixture": "golden_law_tier_1_max"
+        }
+      }
+    }
+  ],
+  "sweep": {
+    "jobs": 6,
+    "batch_size": 1,
+    "process_count": 10,
+    "wall_seconds": 267.259,
+    "max_process_seconds": 251.887
+  }
+}

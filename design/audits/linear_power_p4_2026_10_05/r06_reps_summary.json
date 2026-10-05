@@ -1,0 +1,48 @@
+{
+  "integrity": "INCOMPLETE",
+  "runs": 20,
+  "script_errors": 0,
+  "timeouts": 3,
+  "incomplete": [
+    {
+      "level": 95,
+      "seed": 4409,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "level": 95,
+      "seed": 8849,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "level": 95,
+      "seed": 9901,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    }
+  ],
+  "rows": [
+    {
+      "level": 91,
+      "wins": 10,
+      "failed_seeds": [],
+      "base_median": 1.0,
+      "winning_boss_median": 0.0
+    },
+    {
+      "level": 95,
+      "status": "INCOMPLETE",
+      "completed_runs": 7,
+      "unfinished_seeds": [
+        4409,
+        8849,
+        9901
+      ],
+      "wins": null,
+      "failed_seeds": null,
+      "winning_boss_median": null
+    }
+  ]
+}

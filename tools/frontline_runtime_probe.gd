@@ -79,6 +79,7 @@ var _challenge_mode := false
 var _fail_fast := false
 var _results: Array[Dictionary] = []
 var _wall_acceleration := DEFAULT_WALL_ACCELERATION
+var _max_logical_seconds := MAX_LOGICAL_SECONDS
 
 
 func _initialize() -> void:
@@ -156,6 +157,9 @@ func _parse_arguments() -> bool:
 			_card_policy_id = text.trim_prefix("--card-policy=").strip_edges()
 		elif text.begins_with("--accel="):
 			_wall_acceleration = float(text.trim_prefix("--accel=").strip_edges())
+		elif text.begins_with("--logic-limit="):
+			# 2026-10-05 §41 §9.1: probe-only horizon; no product clock change.
+			_max_logical_seconds = float(text.trim_prefix("--logic-limit=").strip_edges())
 		elif text.begins_with("--seeds="):
 			_seed_override.clear()
 			for token in text.trim_prefix("--seeds=").split(",", false):
@@ -181,6 +185,9 @@ func _parse_arguments() -> bool:
 		return false
 	if _wall_acceleration < 1.0 or _wall_acceleration > 60.0:
 		_fail("--accel must be between 1 and 60")
+		return false
+	if not is_finite(_max_logical_seconds) or _max_logical_seconds <= 0.0:
+		_fail("--logic-limit must be finite and positive")
 		return false
 	_requested_levels.sort()
 	return true
@@ -307,6 +314,7 @@ func _run_level(save_manager: Node, fixture_row: Dictionary, seed_value: int) ->
 		"max_living_bosses": driver.max_living_bosses,
 		"boss_hp_ratio_at_end": float(boss_state_at_end.get("hp_ratio", 0.0)),
 		"timeout": driver.timeout,
+		"logic_limit_seconds": _max_logical_seconds,
 		"card_policy": _card_policy_id,
 		"challenge": _challenge_mode,
 		"selected_skills": driver.selected_skills,
@@ -385,7 +393,7 @@ func _drive_probe_tick(driver: ProbeTickDriver) -> void:
 	# the end of every deterministic tick as protection against any unrelated UI
 	# path restoring the product's selected battle speed while a card is open.
 	Engine.time_scale = _wall_acceleration
-	if driver.logical_seconds > MAX_LOGICAL_SECONDS:
+	if driver.logical_seconds > _max_logical_seconds:
 		driver.timeout = true
 		driver.done = true
 	elif battle.battle_finished:

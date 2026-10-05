@@ -83,14 +83,19 @@ def validate(challenges: dict) -> list[str]:
             errors.append(f"challenge anchors must uniquely cover ordered endpoints 1..99: {anchor_levels}")
         if not math.isclose(anchor_values[0], 1.25, abs_tol=1e-12):
             errors.append(f"challenge K(1) anchor must be 1.25, got {anchor_values[0]}")
-        if not math.isclose(anchor_values[-1], 5.0, abs_tol=1e-12):
-            errors.append(f"challenge K(99) runtime anchor must be 5.0, got {anchor_values[-1]}")
+        # 2026-10-05 §41 §9 重钉: runtime evidence determines K(99), ceiling 8.
+        if any(not math.isfinite(value) or not 1.0 <= value <= 8.0 for value in anchor_values):
+            errors.append(f"challenge K anchors must remain within [1,8]: {anchor_values}")
         if any(right <= left for left, right in zip(anchor_values, anchor_values[1:])):
             errors.append(f"challenge anchor K values must strictly increase: {anchor_values}")
     finale = curve.get("finale_anchor", {})
     expected_finale = {"fixture": "golden_law_tier_1_max", "seeds": 10,
                        "win_rate": [0.6, 0.9], "boss_phase_median_seconds": [150.0, 220.0]}
-    if finale != expected_finale:
+    # 2026-10-05 §41 §9.1: legacy metadata remains readable; signed runtime
+    # acceptance is >=60%, with Boss duration informational (see §9.1 gate).
+    signed_finale = {**expected_finale, "win_rate": [0.6, 1.0],
+                     "boss_phase_role": "information"}
+    if finale not in (expected_finale, signed_finale):
         errors.append(f"challenge finale runtime anchor drifted: {finale}")
     exponent_anchors = exponents.get("anchors", [])
     if not isinstance(exponent_anchors, list) or len(exponent_anchors) < 2:
@@ -101,16 +106,15 @@ def validate(challenges: dict) -> list[str]:
             errors.append(f"challenge exponent anchors must uniquely cover ordered endpoints 1..99: {exponent_levels}")
         for row in exponent_anchors:
             values = [float(row.get(key, -1.0)) for key in ("speed", "breach", "mechanic")]
-            if any(value < 0.0 or value > 1.0 for value in values):
+            if any(not math.isfinite(value) or value < 0.0 or value > 1.0 for value in values):
                 errors.append(f"challenge exponent anchor at {row.get('level')} leaves [0,1]: {values}")
             if not math.isclose(sum(values), 1.0, abs_tol=1e-12):
                 errors.append(f"challenge exponent anchor at {row.get('level')} must sum to 1")
         first = exponent_anchors[0]
-        last = exponent_anchors[-1]
         if [float(first[key]) for key in ("speed", "breach", "mechanic")] != [0.2, 0.4, 0.4]:
             errors.append("challenge line-pressure start split must remain 0.2/0.4/0.4")
-        if [float(last[key]) for key in ("speed", "breach", "mechanic")] != [1.0, 0.0, 0.0]:
-            errors.append("challenge L099 line-pressure split must remain 1/0/0")
+        # 2026-10-05 §41 §9.1: L099 has the same finite [0,1], sum=1
+        # constraint as every other anchor, not a fixed 1/0/0 split.
     expected_runtime_contract = {
         "representative_offsets": [1, 5, 10],
         "chapter_win_rate_bands": {"1-6": [0.7, 1.0], "7-8": [0.6, 0.9], "9-10": [0.6, 0.9]},
@@ -129,8 +133,9 @@ def validate(challenges: dict) -> list[str]:
     budgets = [budget_for_level(level, challenges) for level in range(1, 100)]
     if not math.isclose(budgets[0], 1.25, abs_tol=1e-12):
         errors.append(f"challenge K(1) drifted: {budgets[0]}")
-    if not math.isclose(budgets[-1], 5.0, abs_tol=1e-12):
-        errors.append(f"challenge K(99) must be runtime-derived 5.0, got {budgets[-1]:.12f}")
+    # 2026-10-05 §41 §9 重钉: no fixed 5.0 endpoint; retain monotonicity gates.
+    if not 1.0 <= budgets[-1] <= 8.0:
+        errors.append(f"challenge K(99) must remain within [1,8], got {budgets[-1]:.12f}")
     for index, (left, right) in enumerate(zip(budgets, budgets[1:]), start=1):
         if right < left:
             errors.append(f"challenge K is not monotonic at {index:03d}->{index + 1:03d}")

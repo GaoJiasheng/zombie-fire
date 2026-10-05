@@ -1,0 +1,204 @@
+{
+  "scope": "PASS",
+  "native_integrity": "INCOMPLETE",
+  "completed_new_runs": 532,
+  "script_errors": 0,
+  "timeouts": 8,
+  "incomplete_seed_sets": [
+    {
+      "group": "r03_reps",
+      "level": 95,
+      "seed": 2207,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r03_reps",
+      "level": 95,
+      "seed": 4409,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r03_reps",
+      "level": 95,
+      "seed": 7741,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r05_reps",
+      "level": 95,
+      "seed": 1103,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r05_reps",
+      "level": 95,
+      "seed": 3301,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r06_reps",
+      "level": 95,
+      "seed": 4409,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r06_reps",
+      "level": 95,
+      "seed": 8849,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    },
+    {
+      "group": "r06_reps",
+      "level": 95,
+      "seed": 9901,
+      "kind": "logical_horizon",
+      "elapsed_seconds": 540.016666666504
+    }
+  ],
+  "all_non_challenge_inputs_unchanged": true,
+  "first_sixty_rules_unchanged": true,
+  "resource_candidate_unadopted": true,
+  "approved_stars_unchanged": true,
+  "groups": [
+    {
+      "group": "r01_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r01_free099_2026_10_05",
+      "sha256": "9825a5f2ce9e7429bad92e18fa1e2cf30ff63645de6e667cda1778d03295814f",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r01_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r01_gold099_2026_10_05",
+      "sha256": "96e3fc3ef9bdad66362608b7c0d0b3c54161e9aa190251a7baa246748451fd83",
+      "integrity": "PASS"
+    },
+    {
+      "group": "inferno076",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_inferno076_2026_10_05",
+      "sha256": "c91d4dfb5bb3026fa3b6769ff4d3c6c88621435bd02b907eb9f862077d34caab",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r02_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r02_gold099_2026_10_05",
+      "sha256": "c1ce9f56a5a9cbe5b2b563d031b46d3d9f96b7bc49e38524fbc4aaed7e4b68dc",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r02_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r02_free099_2026_10_05",
+      "sha256": "ed8c854a4cf09bb56a0df3fbfef948be3f99f9ff5d455d7cc4d7661047bd6615",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r02_reps",
+      "runs": 110,
+      "raw_logs": "/tmp/zf_linear_s9_r02_reps_2026_10_05",
+      "sha256": "5902ab2e6dca815dc408c0217b51913494c0b0fefa78067a16097bfbcecff750",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r03_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r03_gold099_2026_10_05",
+      "sha256": "03e05f34d40b19eb2a0f495d0633d3e952a09aaeb7d166ed4080c7fe4a55cca9",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r03_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r03_free099_2026_10_05",
+      "sha256": "8f3db414bf160cd7564c33894985637be5e5d646e35779b852f6d230590dabed",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r03_reps",
+      "runs": 80,
+      "raw_logs": "/tmp/zf_linear_s9_r03_reps_2026_10_05",
+      "sha256": "291035ffe5638d6aab74f587de726abdcb9a05901cc4aac21fe33f6fa82ad39c",
+      "integrity": "INCOMPLETE"
+    },
+    {
+      "group": "r04_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r04_gold099_2026_10_05",
+      "sha256": "1524c7e578f8b9ed97b783b00a67fc0065daf930c4dd58394d23970ec1ebe929",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r04_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r04_free099_2026_10_05",
+      "sha256": "9b0e8c97d402e55935e08ad794cdb95f8e5fdf24e721b639a15e4dafe306d7ee",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r04_reps",
+      "runs": 80,
+      "raw_logs": "/tmp/zf_linear_s9_r04_reps_2026_10_05",
+      "sha256": "e43c67435972bed82f6eac503861dcc44f1b3f96021c96040dab7da71b930bc9",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r04_anchor071",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r04_anchor071_2026_10_05",
+      "sha256": "da8d3b63e6f01c4c8cd16a16a7f669f3d23c154d8c2d09a666b9f4bdc01dad1b",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r05_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r05_gold099_2026_10_05",
+      "sha256": "f7390bf9f700978a672a6548aa969ed82f88b90f8c8fdd30a1348c92659a4947",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r05_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r05_free099_2026_10_05",
+      "sha256": "fb3c96546064f1c32c90388a4a3ddf055fc9859db6132146c82a29581f2888d8",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r05_reps",
+      "runs": 110,
+      "raw_logs": "/tmp/zf_linear_s9_r05_reps_2026_10_05",
+      "sha256": "a8ab9dc4c4a2357c3e52718bd3bef839ed0194693631fe0864ff19e3a300f569",
+      "integrity": "INCOMPLETE"
+    },
+    {
+      "group": "r06_gold099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r06_gold099_2026_10_05",
+      "sha256": "2f2c9d8b1c07a76cc5c68829b7957398b1925a47c6b9bb27615574409a2d95cc",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r06_free099",
+      "runs": 10,
+      "raw_logs": "/tmp/zf_linear_s9_r06_free099_2026_10_05",
+      "sha256": "b2c233ea7be3f82f3666645c4bd16d705395af01d8ee7438a28830ea25823757",
+      "integrity": "PASS"
+    },
+    {
+      "group": "r06_reps",
+      "runs": 20,
+      "raw_logs": "/tmp/zf_linear_s9_r06_reps_2026_10_05",
+      "sha256": "556ef9003bac45236fe9174c3ff94517c661b9855a1dfaef3f4ea870a4c2f813",
+      "integrity": "INCOMPLETE"
+    }
+  ]
+}
